@@ -1,0 +1,91 @@
+namespace CardGame.Core;
+
+/// <summary>
+/// The five public equipment slots used by the K6 foundation. A player may
+/// have at most one card in each slot; replacing a card moves the old physical
+/// card to the discard pile before the new card enters the slot.
+/// </summary>
+public enum EquipmentSlot
+{
+    Weapon,
+    Armor,
+    OffensiveHorse,
+    DefensiveHorse,
+    Treasure
+}
+
+/// <summary>
+/// Data-only modifiers for an equipment card. The engine consumes these values
+/// through explicit rules queries; content does not mutate runtime state.
+/// </summary>
+public sealed record EquipmentDefinition(
+    CardKind Kind,
+    string DisplayName,
+    EquipmentSlot Slot,
+    string Description,
+    int AttackRangeBonus = 0,
+    int SlashLimitBonus = 0,
+    int OutgoingDistanceModifier = 0,
+    int IncomingDistanceModifier = 0,
+    int DrawCountBonus = 0);
+
+public static class EquipmentCatalog
+{
+    private static readonly IReadOnlyDictionary<CardKind, EquipmentDefinition> Definitions =
+        new Dictionary<CardKind, EquipmentDefinition>
+        {
+            [CardKind.Crossbow] = new(
+                CardKind.Crossbow,
+                "诸葛连弩",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 +1，出牌阶段使用杀不受次数限制。",
+                AttackRangeBonus: 1,
+                SlashLimitBonus: int.MaxValue),
+            [CardKind.BaguaFormation] = new(
+                CardKind.BaguaFormation,
+                "八卦阵",
+                EquipmentSlot.Armor,
+                "装备至防具槽；当前切片只建立公开装备生命周期，判定防御效果待 K7。"),
+            [CardKind.OffensiveHorse] = new(
+                CardKind.OffensiveHorse,
+                "赤兔",
+                EquipmentSlot.OffensiveHorse,
+                "装备至进攻坐骑槽；你到其他角色的战斗距离 -1。",
+                OutgoingDistanceModifier: -1),
+            [CardKind.DefensiveHorse] = new(
+                CardKind.DefensiveHorse,
+                "绝影",
+                EquipmentSlot.DefensiveHorse,
+                "装备至防御坐骑槽；其他角色到你的战斗距离 +1。",
+                IncomingDistanceModifier: 1),
+            [CardKind.JadeSeal] = new(
+                CardKind.JadeSeal,
+                "玉玺",
+                EquipmentSlot.Treasure,
+                "装备至宝物槽；摸牌阶段额外摸一张牌。",
+                DrawCountBonus: 1)
+        };
+
+    public static IReadOnlyList<EquipmentDefinition> Implemented { get; } =
+        Definitions.Values
+            .OrderBy(definition => definition.Slot)
+            .ThenBy(definition => definition.Kind)
+            .ToArray();
+
+    public static bool IsEquipment(CardKind kind) => Definitions.ContainsKey(kind);
+
+    public static EquipmentDefinition Get(CardKind kind) =>
+        Definitions.TryGetValue(kind, out var definition)
+            ? definition
+            : throw new ArgumentOutOfRangeException(nameof(kind), kind, "No equipment content is registered for this card kind.");
+
+    public static string GetSlotName(EquipmentSlot slot) => slot switch
+    {
+        EquipmentSlot.Weapon => "武器",
+        EquipmentSlot.Armor => "防具",
+        EquipmentSlot.OffensiveHorse => "进攻坐骑",
+        EquipmentSlot.DefensiveHorse => "防御坐骑",
+        EquipmentSlot.Treasure => "宝物",
+        _ => slot.ToString()
+    };
+}
