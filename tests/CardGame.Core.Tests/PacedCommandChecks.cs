@@ -1,0 +1,102 @@
+using CardGame.Content.Standard;
+using CardGame.Core;
+
+internal static class PacedCommandChecks
+{
+    private static readonly ContentRegistry Registry = StandardContentRegistry.Create();
+    private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
+    private static string State(GameEngine game) => SnapshotJson.Serialize(game.CreateSnapshot(0, true));
+
+    public static void SingleStepParity()
+    {
+        var options = new GameOptions { Seed = 7162, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false, MaxTurns = 40 };
+        var commands = GameEngine.CreateStandard(options, Registry);
+        var legacy = GameEngine.CreateStandard(options, Registry);
+        Require(commands.Submit(new AdvanceOneStepCommand(0)).Error?.Code == CommandErrorCode.NotStarted, "An unstarted step must be rejected.");
+        Require(commands.Submit(new StartGameCommand()).Accepted && legacy.Submit(new StartGameCommand()).Accepted, "Start failed.");
+        var initial = State(commands);
+        Require(!commands.Submit(new AdvanceOneStepCommand(commands.Revision, 0)).Accepted, "A player cannot submit a host step.");
+        Require(!commands.Submit(new AdvanceOneStepCommand(commands.Revision - 1)).Accepted && State(commands) == initial, "Invalid steps must not change state.");
+        var actualSteps = 0;
+        for (var step = 0; step < 150 && commands.State.Status != EngineStatus.Completed; step++)
+        {
+            if (commands.PendingDecision is { } prompt)
+            {
+                GameCommand choice = prompt.Kind switch
+                {
+                    DecisionKind.SelectGeneral => new SelectGeneralCommand(0, prompt.ValidContentIds[0], commands.Revision, prompt.PromptId),
+                    DecisionKind.PlayCard => new EndPlayPhaseCommand(0, commands.Revision, prompt.PromptId),
+                    DecisionKind.DiscardCards => new DiscardCardsCommand(0, prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(), prompt.PromptId, commands.Revision),
+                    _ => new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices[0].Id, commands.Revision)
+                };
+                Require(commands.Submit(choice).Accepted && legacy.Submit(choice).Accepted, "Shared player choice failed.");
+            }
+            else
+            {
+                Require(commands.Submit(new AdvanceOneStepCommand(commands.Revision)).Accepted, "A valid step failed.");
+                legacy.AdvanceOneStep();
+                actualSteps++;
+            }
+            Require(State(commands) == State(legacy), "A step command changed the established one-step pacing.");
+        }
+        Require(actualSteps >= 20, "Parity fixture did not execute enough real state-machine steps.");
+        var checkpoint = commands.CreateCheckpoint();
+        Require(State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint)), Registry)) == State(commands),
+            "Paced host steps did not restore exactly.");
+    }
+
+    public static void FullPacedReplay()
+    {
+        var responseCommand = new AnswerPromptCommand(0, new PromptId(3), new ChoiceId("response.take-damage"), 7);
+        Require(CommandJson.Deserialize(CommandJson.Serialize([responseCommand])).Single() == responseCommand,
+            "Response choice IDs must survive command JSON round trips.");
+        var options = new GameOptions { Seed = 721019, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false, MaxTurns = 90 };
+        var game = GameEngine.CreateStandard(options, Registry);
+        Require(game.Submit(new StartGameCommand()).Accepted, "Paced game did not start.");
+        var observed = new HashSet<DecisionKind>();
+        var mutatedCaller = false;
+        for (var step = 0; step < 12000 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            var prompt = game.PendingDecision;
+            if (prompt is not null && observed.Add(prompt.Kind))
+            {
+                var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), Registry);
+                Require(State(restored) == State(game), $"Paced {prompt.Kind} checkpoint differs.");
+            }
+            GameCommand command;
+            if (prompt is null) command = new AdvanceOneStepCommand(game.Revision);
+            else if (prompt.Kind == DecisionKind.SelectGeneral)
+                command = new SelectGeneralCommand(0, prompt.ValidContentIds[0], game.Revision, prompt.PromptId);
+            else if (prompt.Kind == DecisionKind.DiscardCards)
+                command = new DiscardCardsCommand(0, prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(), prompt.PromptId, game.Revision);
+            else if (prompt.Kind == DecisionKind.PlayCard)
+            {
+                var action = game.GetHumanLegalActions().FirstOrDefault(action => action.CardId is not null);
+                command = action is null ? new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)
+                    : action.Kind == LegalActionKind.Recast ? new RecastCardCommand(0, action.CardId!.Value, game.Revision, prompt.PromptId)
+                    : new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats.ToArray(), game.Revision, prompt.PromptId, action.PlayedCardKind, action.TargetCardId);
+            }
+            else command = new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices[0].Id, game.Revision);
+
+            Action<GameSnapshot>? mutate = null;
+            if (!mutatedCaller && command is PlayCardCommand { TargetSeats: int[] targets } && targets.Length > 0)
+            {
+                mutate = _ => targets[0] = -999;
+                game.StateChanged += mutate;
+                mutatedCaller = true;
+            }
+            var result = game.Submit(command);
+            if (mutate is not null) game.StateChanged -= mutate;
+            Require(result.Accepted, $"Paced command rejected: {result.Error?.Message}");
+            if (command is SelectGeneralCommand or EndPlayPhaseCommand)
+                Require(game.State.Status == EngineStatus.Running || game.State.Status == EngineStatus.Completed,
+                    "A paced human command unexpectedly ran the next decision.");
+        }
+        Require(game.State.Status == EngineStatus.Completed && game.State.ProcessingCardCount == 0, "Paced game did not complete.");
+        Require(mutatedCaller && observed.Count >= 4, "Fixture missed mutation isolation or human decision coverage.");
+        Require(game.Revision == game.AcceptedCommands.Count && game.ObserverFailures.Count == 0, "Journal or observer boundary failed.");
+        Require(game.AcceptedCommands.OfType<PlayCardCommand>().All(play => play.TargetSeats.All(seat => seat >= 0)), "Caller mutation corrupted the journal.");
+        var replay = GameReplay.Restore(game.CreateCheckpoint(), Registry);
+        Require(State(game) == State(replay), "Full paced game replay differs.");
+    }
+}

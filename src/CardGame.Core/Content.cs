@@ -47,7 +47,7 @@ public static class CardCatalog
                 CardKind.Alcohol,
                 "酒",
                 "基本牌",
-                "出牌阶段使用使本回合下一张杀伤害 +1；濒死时仅可自救 1 点体力。",
+                "出牌阶段使用使本回合下一张杀伤害 +1；濒死时可救援一名角色回复 1 点体力。",
                 AiPlayValue: 18,
                 AiResponseValue: 0,
                 HandKeepValue: 35),
@@ -119,7 +119,7 @@ public static class CardCatalog
                 CardKind.Dismantlement,
                 "过河拆桥",
                 "锦囊牌",
-                "选择一名其他角色；确定性盲弃置其一张手牌。演示版暂未接入装备区和判定区。",
+                "选择一名其他角色；盲弃置其一张手牌，或弃置其一张公开装备/判定区牌。",
                 AiPlayValue: 26,
                 AiResponseValue: 0,
                 HandKeepValue: 44),
@@ -127,7 +127,7 @@ public static class CardCatalog
                 CardKind.Snatch,
                 "顺手牵羊",
                 "锦囊牌",
-                "选择一名距离为 1 的其他角色；确定性盲取其一张手牌。演示版暂未接入装备区和判定区。",
+                "选择一名距离为 1 的其他角色；盲取其一张手牌，或获得其一张公开装备/判定区牌。",
                 AiPlayValue: 30,
                 AiResponseValue: 0,
                 HandKeepValue: 42),
@@ -151,10 +151,18 @@ public static class CardCatalog
                 CardKind.BaguaFormation,
                 "八卦阵",
                 "装备牌",
-                "装备至防具槽；当前演示只接入装备生命周期，判定防御效果待后续阶段。",
+                "装备至防具槽；成为杀的目标时可进行一次判定，红色判定牌视为打出闪。",
                 AiPlayValue: 16,
                 AiResponseValue: 0,
                 HandKeepValue: 32),
+            [CardKind.RenwangShield] = new(
+                CardKind.RenwangShield,
+                "仁王盾",
+                "装备牌",
+                "装备至防具槽；黑色杀不能对你使用。",
+                AiPlayValue: 22,
+                AiResponseValue: 0,
+                HandKeepValue: 36),
             [CardKind.OffensiveHorse] = new(
                 CardKind.OffensiveHorse,
                 "赤兔",
@@ -178,7 +186,55 @@ public static class CardCatalog
                 "装备至宝物槽；摸牌阶段额外摸一张牌。",
                 AiPlayValue: 26,
                 AiResponseValue: 0,
-                HandKeepValue: 38)
+                HandKeepValue: 38),
+            [CardKind.QinggangSword] = new(
+                CardKind.QinggangSword,
+                "青釭剑",
+                "装备牌",
+                "装备至武器槽；你使用杀时无视目标的防具。",
+                AiPlayValue: 32,
+                AiResponseValue: 0,
+                HandKeepValue: 38),
+            [CardKind.Nullification] = new(
+                CardKind.Nullification,
+                "无懈可击",
+                "锦囊牌",
+                "抵消一张锦囊牌的效果；无懈之间可以继续互相抵消。",
+                AiPlayValue: 0,
+                AiResponseValue: 72,
+                HandKeepValue: 52),
+            [CardKind.IronChain] = new(
+                CardKind.IronChain,
+                "铁索连环",
+                "锦囊牌",
+                "横置或重置一至两名其他存活角色；被火焰或雷电伤害时，连环角色会传导同量伤害。",
+                AiPlayValue: 25,
+                AiResponseValue: 0,
+                HandKeepValue: 48),
+            [CardKind.Indulgence] = new(
+                CardKind.Indulgence,
+                "乐不思蜀",
+                "锦囊牌",
+                "选择一名其他角色；其下个回合判定，若为红色则跳过出牌阶段。",
+                AiPlayValue: 34,
+                AiResponseValue: 0,
+                HandKeepValue: 46),
+            [CardKind.SupplyShortage] = new(
+                CardKind.SupplyShortage,
+                "兵粮寸断",
+                "锦囊牌",
+                "选择一名有手牌的其他角色；其下个回合判定，若为黑色则跳过摸牌阶段。",
+                AiPlayValue: 32,
+                AiResponseValue: 0,
+                HandKeepValue: 44),
+            [CardKind.Lightning] = new(
+                CardKind.Lightning,
+                "闪电",
+                "锦囊牌",
+                "置于自己的判定区；下个回合判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色的判定区。",
+                AiPlayValue: 20,
+                AiResponseValue: 0,
+                HandKeepValue: 48)
         };
 
     public static IReadOnlyList<CardDefinition> ImplementedCards { get; } =
@@ -209,12 +265,15 @@ public sealed record DeckDefinition(
 public static class StandardDeckCatalog
 {
     /// <summary>
-    /// The first content slice keeps a 78-card demo balance while adding Duel,
+    /// The first content slice keeps a 90-card demo balance while adding Duel,
     /// DrawTwo, BarbarianAssault, ArrowBarrage, PeachGarden and FiveGrains cards
     /// to exercise immediate, response, multi-target, recovery, public-draft,
     /// hidden-target-discard, hidden-target-take, fire-attack private/public
     /// selection, elemental damage, a one-shot Slash damage boost resolution,
-    /// and the five public equipment slots.
+    /// and the five public equipment slots, including Qinggang's armor bypass,
+    /// plus a bounded multi-layer Nullification response window for trick cards,
+    /// public IronChain state/elemental propagation, two phase-skipping delayed
+    /// judgment cards, and Lightning's public judgment/transfer/damage lifecycle.
     /// </summary>
     public static DeckDefinition BasicDemo { get; } = new(
         Id: "basic-demo",
@@ -242,7 +301,14 @@ public static class StandardDeckCatalog
             new DeckCardCount(CardKind.BaguaFormation, 1),
             new DeckCardCount(CardKind.OffensiveHorse, 1),
             new DeckCardCount(CardKind.DefensiveHorse, 1),
-            new DeckCardCount(CardKind.JadeSeal, 1)
+            new DeckCardCount(CardKind.JadeSeal, 1),
+            new DeckCardCount(CardKind.QinggangSword, 1),
+            new DeckCardCount(CardKind.Nullification, 2),
+            new DeckCardCount(CardKind.IronChain, 2),
+            new DeckCardCount(CardKind.Indulgence, 2),
+            new DeckCardCount(CardKind.SupplyShortage, 2),
+            new DeckCardCount(CardKind.Lightning, 2),
+            new DeckCardCount(CardKind.RenwangShield, 1)
         ]);
 
     public static IReadOnlyList<Card> CreateBasicDemoDeck() => CreateDeck(BasicDemo);

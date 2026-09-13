@@ -1,0 +1,128 @@
+{
+  "FormatVersion": 1,
+  "SavedAtUtc": "2026-09-12T06:46:23.7481351+00:00",
+  "AutoAdvance": false,
+  "Checkpoint": {
+    "SchemaVersion": 3,
+    "Options": {
+      "Seed": 721019,
+      "PlayerCount": 4,
+      "HumanSeat": 0,
+      "HumanRole": null,
+      "ModeId": "national:lite-4",
+      "DeckId": null,
+      "UseInteractiveSetup": true,
+      "UseInteractiveDiscard": true,
+      "AdvanceAfterHumanCommands": false,
+      "AiPolicyVersion": 2,
+      "MaxTurns": 400
+    },
+    "Commands": [
+      {
+        "$type": "start",
+        "ActorSeat": -1,
+        "ExpectedRevision": 0
+      },
+      {
+        "$type": "select-general",
+        "GeneralId": "national:shu-zhao-yun",
+        "PromptId": {
+          "Value": 1,
+          "IsValid": true
+        },
+        "ActorSeat": 0,
+        "ExpectedRevision": 1
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 2
+      },
+      {
+        "$type": "select-general",
+        "GeneralId": "national:shu-zhang-fei",
+        "PromptId": {
+          "Value": 2,
+          "IsValid": true
+        },
+        "ActorSeat": 0,
+        "ExpectedRevision": 3
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 4
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 5
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 6
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 7
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 8
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 9
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 10
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 11
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 12
+      },
+      {
+        "$type": "reveal-general",
+        "Slot": "Primary",
+        "PromptId": {
+          "Value": 3,
+          "IsValid": true
+        },
+        "ActorSeat": 0,
+        "ExpectedRevision": 13
+      },
+      {
+        "$type": "advance-one-step",
+        "ActorSeat": -1,
+        "ExpectedRevision": 14
+      }
+    ],
+    "Revision": 15,
+    "ModeId": "national:lite-4",
+    "ContentPackages": [
+      "standard@1.11.0",
+      "standard-active-skills@1.0.0",
+      "standard-national-war-lite@1.0.0",
+      "standard-rescue-skills@1.0.0",
+      "standard-team-modes@1.0.0"
+    ],
+    "ContentHash": "2F806421C749A2E32284ADD17B3DCFEF84495C177703A904B5BA760695FFD9AE",
+    "RulesVersion": 7
+  },
+  "MotionEnabled": false,
+  "SoundEnabled": true,
+  "SoundVolume": 0.4,
+  "PlaybackSpeedId": "normal"
+}

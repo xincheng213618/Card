@@ -1,8 +1,10 @@
-# C0-K1 卡牌移动契约包
+# C0-K1 卡牌移动契约包（延伸至 K7 基础判定）
 
-更新时间：2026-09-07
+规则行为版本 5 补充：致命伤害若产生伤害后技能候选，伤害牌仍保持在 `Processing`，先完成 `DamageTriggerWindowFrame`/`DamageSkillFrame` 的候选游标，再按现有死亡契约进入 `DyingFrame`；v1–v4 回放保留历史移动和事件顺序。
 
-本文件是内容侧对 K1 牌区能力的消费契约，并记录 K2/K3/K4/K5 对内容的影响。它描述稳定内容 ID、物理牌实例、移动原因、可见性和场景验收；正式 Registry、可暂停私有选将、杀/火杀/雷杀/决斗/酒/南蛮入侵/万箭齐发/桃园结义/五谷丰登/过河拆桥/顺手牵羊链路的类型化结算帧已由 `CardGame.Content.Standard`/Core 提供，通用 `CardsMoving/CardsMoved` 规则时机、复杂技能触发和完整响应链仍等待后续 K5/K6。
+更新时间：2026-09-08
+
+本文件是内容侧对 K1 牌区能力的消费契约，并记录 K2/K3/K4/K5/K6/K7 对内容的影响。它描述稳定内容 ID、物理牌实例、移动原因、可见性和场景验收；正式 Registry、可暂停私有选将、杀/火杀/雷杀/决斗/酒/南蛮入侵/万箭齐发/桃园结义/五谷丰登/过河拆桥/顺手牵羊/无懈可击/铁索连环/闪电链路、刚烈判定/来源反制链路、鬼才判定替换链路、仁王盾黑色杀阻挡链路和 K6 基础装备链路、K7 八卦阵判定链路的类型化结算帧已由 `CardGame.Content.Standard`/Core 提供，通用 `CardsMoving/CardsMoved` 规则时机、复杂技能触发、复杂响应链和 K6 剩余装备效果仍等待后续阶段。
 
 ## 1. 统一不变量
 
@@ -19,7 +21,7 @@
 
 ## 2. 区域与移动原因
 
-区域名称使用 K1 的 `CardLocation` 语义：`DrawPile`、`Hand(seat)`、`Processing`、`DiscardPile`、`Equipment(seat)`、`Judgment(seat)` 和 `OutsideGame`。K1 的 `Equipment(seat)` 只有所属玩家，没有装备槽；`Equipment(seat, slot)` 是 K6 的目标扩展，不能在当前内容契约中当作已实现 API。下表中的 reason ID 与现有 `CardMoveReasons` 对齐；标为“建议”的 ID 只用于后续内容包设计，不能假定当前 Core 已提供。
+区域名称使用 K1 的 `CardLocation` 语义：`DrawPile`、`Hand(seat)`、`Processing`、`DiscardPile`、`Equipment(seat)`、`Judgment(seat)` 和 `OutsideGame`。K6 基础切片继续使用 `Equipment(seat)` 作为物理牌区，并以 `EquipmentSlot` 在规则核心中保证每个玩家每槽至多一张；K7 八卦阵判定把公开判定牌放入对应 `Judgment(seat)`，再按结果移入弃牌堆；不把槽位塞进 UI 字符串或改变旧 `CardLocation` 构造。下表中的 reason ID 与现有 `CardMoveReasons` 对齐；标为“建议”的 ID 只用于后续内容包设计，不能假定当前 Core 已提供。
 
 | reason ID | 用途 | 当前状态 |
 | --- | --- | --- |
@@ -28,32 +30,48 @@
 | `card.use` | 使用者把基本牌/锦囊送入处理区 | K1 可用 |
 | `card.respond` | 响应者把响应牌送入处理区 | K1 可用 |
 | `card.response-finished` | 响应牌结算完成进入弃牌区 | K1 可用 |
+| `card.respond.nullification` | 无懈响应者把无懈可击送入处理区 | K7 可用 |
+| `card.respond.nullification-finished` | 无懈响应完成后把无懈可击送入弃牌区 | K7 可用 |
 | `card.use-finished` | 使用牌结算完成进入弃牌区 | K1 可用 |
 | `card.public-reveal` | 五谷丰登把公开牌从摸牌堆翻入处理区 | K5 可用 |
 | `card.harvest-pick` | 当前 picker 把公开牌移入自己的手牌 | K5 可用 |
 | `card.harvest-discard` | 五谷丰登结束时清理未选的公开牌 | K5 可用 |
-| `card.effect.dismantlement` | 过河拆桥把目标一张隐藏手牌送入处理区 | K5 可用 |
+| `card.effect.dismantlement` | 过河拆桥把目标一张手牌或公开装备送入处理区 | K5 可用 |
 | `card.effect.dismantlement-finished` | 过河拆桥把目标牌从处理区送入弃牌区 | K5 可用 |
-| `card.effect.snatch` | 顺手牵羊把目标一张隐藏手牌送入处理区 | K5 可用 |
+| `card.effect.dismantlement-judgment` | 过河拆桥把目标公开判定区牌送入处理区 | K7 可用 |
+| `card.effect.dismantlement-judgment-finished` | 过河拆桥把目标判定区牌从处理区送入弃牌区 | K7 可用 |
+| `card.effect.snatch` | 顺手牵羊把目标一张手牌或公开装备送入处理区 | K5 可用 |
 | `card.effect.snatch-finished` | 顺手牵羊把目标牌从处理区送入使用者手牌 | K5 可用 |
+| `card.effect.snatch-judgment` | 顺手牵羊把目标公开判定区牌送入处理区 | K7 可用 |
+| `card.effect.snatch-judgment-finished` | 顺手牵羊把目标判定区牌从处理区送入使用者手牌 | K7 可用 |
 | `skill.jianxiong.claim-damage-card` | 奸雄从处理区取得伤害牌 | K1 可用 |
 | `skill.feedback.claim-damage-card` | 反馈在目标存活且伤害牌仍在处理区时取得伤害牌 | K5 可用 |
 | `rule.hand-limit-discard` | 手牌上限弃牌 | K1 可用 |
-| `rule.death-discard` | 阵亡时清理当前可用的手牌；装备/判定区清理留待后续区域能力 | K1 手牌可用；装备 K6、判定 K7 目标 |
+| `rule.death-discard` | 阵亡时清理手牌 | K1 可用 |
+| `rule.death-equipment-discard` | 阵亡时清理装备区 | K6 可用 |
 | `mode.identity.lord-killed-loyalist` | 主公误杀忠臣的惩罚弃牌 | K1 可用 |
 | `deck.reshuffle` | 弃牌区重洗回摸牌堆 | K1 可用 |
 | `skill.yiji.draw` | 遗计受伤后摸牌进入拥有者手牌 | K5 可用 |
 | `skill.yiji.give-card` | 遗计把拥有者的一张摸牌交给其他存活角色 | K5 可用 |
 | `skill.yuanhu.discard` | 援护在其他角色受伤后弃置拥有者的一张手牌 | K5 可用 |
-| `equipment.equip` | 装备进入对应槽位 | K6 建议 |
-| `equipment.replace` | 新装备替换旧装备 | K6 建议 |
-| `equipment.remove` | 装备失去、失效或死亡清理 | K6 建议 |
+| `skill.ganglie.discard` | 刚烈红色判定后由伤害来源弃置两张手牌 | K5 可用 |
+| `skill.guicai.replace` | 鬼才将拥有者手牌作为新判定牌替换当前判定 | K7 可用 |
+| `card.effect.delayed-place` | 乐不思蜀/兵粮寸断使用牌从处理区进入目标判定区 | K7 可用 |
+| `card.effect.delayed-transfer` | 闪电未命中时从当前角色判定区转移到下一名存活角色判定区 | K7 可用 |
+| `card.effect.delayed-finish` | 乐不思蜀/兵粮寸断延时牌从目标判定区进入弃牌堆 | K7 可用 |
+| `judgment.reveal` | 八卦阵将摸牌堆顶判定牌公开移入目标判定区 | K7 可用 |
+| `judgment.finish` | 八卦阵完成判定后将判定牌移入弃牌堆 | K7 可用 |
+| `equipment.use` | 装备者把装备牌送入处理区 | K6 可用 |
+| `equipment.enter` | 装备牌从处理区进入所属玩家装备区 | K6 可用 |
+| `equipment.replace` | 新装备替换旧装备 | K6 可用 |
+| `equipment.remove` | 装备失去或失效 | K6 预留 |
+| `rule.death-equipment-discard` | 阵亡时把装备牌移入弃牌堆 | K6 可用 |
 
 建议 reason 必须继续遵循 `namespace.action[.qualifier]` 形式。内容包不能把 `CardMoved` 宿主通知当作触发技能的入口，也不能在通知回调中修改规则状态。
 
 ## 3. 标准内容生命周期
 
-下表是每项当前清单内容的预期 `From → Processing → To`。`—` 表示该内容本身没有独立的牌移动；它只改变被修改牌的合法性或数值。没有 K5/K6 入口的行是契约预留，不是已实现声明。
+下表是每项当前清单内容的预期 `From → Processing → To`。`—` 表示该内容本身没有独立的牌移动；它只改变被修改牌的合法性或数值。没有 K5/K6/K7 入口的行是契约预留，不是已实现声明。
 
 ### 3.1 当前可运行基本牌和核心技能
 
@@ -66,39 +84,51 @@
 | `standard:thunder_slash` | 对单一合法目标使用，未被闪避时造成雷电伤害 | `Hand(source) → Processing → DiscardPile` | `card.use` → `card.use-finished` | 共用杀的合法性和闪响应；`DamageNature.Thunder` 在伤害帧和伤害事件中保持一致 |
 | `standard:dodge` | 闪响应 | `Hand(responder) → Processing → DiscardPile` | `card.respond` → `card.response-finished` | 只有响应者能从手牌选择；旁观者只看到公开结算结果 |
 | `standard:peach` | 自己受伤后的出牌阶段回复 | `Hand(owner) → Processing → DiscardPile` | `card.use` → `card.use-finished` | 不公开其他玩家手牌；满血/错误阶段不得移动 |
-| `standard:alcohol` | 出牌阶段无目标使用，准备本回合下一张直接杀 +1 伤害；濒死时由持有者自救 1 点体力 | `Hand(owner) → Processing → DiscardPile` | `card.use` → `card.use-finished`；濒死自救使用 `card.use` → `card.use-finished` | `HasAlcoholEffect` 作为公开状态；直接杀声明时消费，未消费则回合结束失效；濒死时仅由持有者自救，不支持救援他人 |
+| `standard:alcohol` | 出牌阶段无目标使用，准备本回合下一张直接杀 +1 伤害；濒死时由当前 responder 使用酒救援 1 点体力 | `Hand(owner) → Processing → DiscardPile` | `card.use` → `card.use-finished`；濒死救援使用 `card.use` → `card.use-finished` | `HasAlcoholEffect` 作为公开状态；直接杀声明时消费，未消费则回合结束失效；当前规则版本允许当前 responder 救援濒死角色，旧 v1/v2 仍仅允许持有者自救 |
+| `standard:jijiu` | 急救者在濒死窗口将红色非桃实体牌当作桃使用 | `Hand(owner) → Processing → DiscardPile` | `card.use` / `card.use-finished` 的有效牌型为 `Peach`；`DyingResponseEvent.UsedPeachPhysicalCardKind` 保留物理牌型 | 红牌候选只进入当前 responder 的私有 Prompt；移动账本记录原始物理牌，普通快照不泄漏牌 ID；黑牌、非濒死窗口和伪造 Choice 必须拒绝 |
 | `standard:duel` | 对单一合法目标使用，双方交替响应杀 | 使用牌与每张响应牌分别经过 `Processing` 后进入弃牌堆 | `card.use` / `card.respond` | `RespondSlash` 只向当前 responder 发布；无人响应的一方承受 1 点伤害 |
 | `standard:draw_two` | 无目标使用后摸两张牌 | 使用牌 `Hand(owner) → Processing → DiscardPile`；效果牌 `DrawPile → Hand(owner)` | `card.use` / `rule.draw` / `card.use-finished` | 目标列表为空；牌堆耗尽时沿用公共重洗入口 |
 | `standard:barbarian_assault` | 无目标使用，锁定所有其他存活角色并按座次逐一响应杀 | 使用牌 `Hand(source) → Processing`；每个目标的杀响应独立 `Hand → Processing → DiscardPile`；全部目标完成后使用牌进入 `DiscardPile`，若存活目标触发反馈则父牌可在剩余目标结算期间转入该目标手牌 | `card.use` / `card.respond` / `card.use-finished` / `skill.feedback.claim-damage-card` | `CardUseFrame.TargetIndex` 记录目标游标；每个未响应目标独立进入 1 点伤害/基础濒死链；父帧在整段效果完成前保留，伤害牌至多被反馈取得一次 |
 | `standard:arrow_barrage` | 无目标使用，锁定所有其他存活角色并按座次逐一响应闪 | 使用牌 `Hand(source) → Processing`；每个目标的闪响应独立 `Hand → Processing → DiscardPile`；全部目标完成后使用牌进入 `DiscardPile`，若存活目标触发反馈则父牌可在剩余目标结算期间转入该目标手牌 | `card.use` / `card.respond` / `card.use-finished` / `skill.feedback.claim-damage-card` | 与南蛮入侵共用 `CardUseFrame.TargetIndex`；`GroupResponseEvent` 携带 `RequiredCardKind=Dodge`；每个未响应目标独立进入 1 点伤害/基础濒死链，伤害牌至多被反馈取得一次 |
 | `standard:peach_garden` | 无目标使用，锁定使用时所有存活角色并按座次逐一恢复 | 使用牌 `Hand(source) → Processing`；恢复目标若受伤则生成 `RecoveryFrame`；全部目标完成后使用牌进入 `DiscardPile` | `card.use` / `card.use-finished` | 共用 `CardUseFrame.TargetIndex`；满血目标不生成恢复事件；`RecoveryAppliedEvent` 只公开已发生的恢复结果 |
 | `standard:five_grains` | 无目标使用，锁定使用时所有存活角色并公开展示一张/人 | 使用牌 `Hand(source) → Processing`；展示牌 `DrawPile → Processing`；当前 picker 选择牌 `Processing → Hand(picker)`；若有未选牌则进入 `DiscardPile`；全部 picker 完成后使用牌进入 `DiscardPile` | `card.use` / `card.public-reveal` / `card.harvest-pick` / `card.harvest-discard` / `card.use-finished` | 展示牌进入所有玩家快照；`SelectHarvestCard` prompt 只投影给当前 picker；公共牌列表随选择实时缩减，其他玩家手牌仍隐藏 |
-| `standard:dismantlement` | 对一名有手牌的其他存活角色使用，核心盲弃一张目标手牌 | 使用牌 `Hand(source) → Processing → DiscardPile`；目标牌 `Hand(target) → Processing → DiscardPile` | `card.use` / `card.effect.dismantlement` / `card.effect.dismantlement-finished` / `card.use-finished` | 使用者只选择目标；被弃牌 ID/牌面不进入普通快照或 `TargetCardDiscardedEvent`，可信宿主账本保留完整移动；当前不支持装备/判定区 |
-| `standard:snatch` | 对一名距离为 1 且有手牌的其他存活角色使用，核心盲取一张目标手牌 | 使用牌 `Hand(source) → Processing → DiscardPile`；目标牌 `Hand(target) → Processing → Hand(source)` | `card.use` / `card.effect.snatch` / `card.effect.snatch-finished` / `card.use-finished` | 使用者只选择目标；被取牌 ID/牌面不进入普通快照或 `TargetCardTakenEvent`，取得后只在使用者私有快照中可见；距离只按座位环计算 |
+| `standard:dismantlement` | 对一名有手牌、公开装备或公开判定区牌的其他存活角色使用；规则版本 4 手牌目标由来源玩家通过私有不透明牌位选择，公开装备/判定区牌由使用者逐张选择 | 使用牌 `Hand(source) → Processing → DiscardPile`；目标牌从 `Hand(target)`、`Equipment(target)` 或 `Judgment(target)` 经 `Processing → DiscardPile` | `card.use` / `card.effect.dismantlement` / `card.effect.dismantlement-finished` / `card.effect.dismantlement-judgment` / `card.effect.dismantlement-judgment-finished` / `card.use-finished` | 手牌只向来源玩家发布不透明牌位 Choice，公开装备和判定区牌消费带 `TargetCardId` 的精确 Choice；手牌事件保持牌面与实体 ID 脱敏，公开区域事件可带已公开的牌 ID/牌型，可信宿主账本保留完整移动 |
+| `standard:snatch` | 对一名战斗距离为 1 且有手牌、公开装备或公开判定区牌的其他存活角色使用；规则版本 4 手牌目标由来源玩家通过私有不透明牌位选择，公开装备/判定区牌由使用者逐张选择 | 使用牌 `Hand(source) → Processing → DiscardPile`；目标牌从 `Hand(target)`、`Equipment(target)` 或 `Judgment(target)` 经 `Processing → Hand(source)` | `card.use` / `card.effect.snatch` / `card.effect.snatch-finished` / `card.effect.snatch-judgment` / `card.effect.snatch-judgment-finished` / `card.use-finished` | 手牌只向来源玩家发布不透明牌位 Choice，公开装备和判定区牌消费带 `TargetCardId` 的精确 Choice；手牌事件保持牌面与实体 ID 脱敏，公开区域事件可带已公开的牌 ID/牌型，取得后只进入使用者私有手牌视图 |
+| `standard:crossbow` / `standard:offensive_horse` / `standard:defensive_horse` / `standard:jade_seal` / `standard:renwang_shield` | 出牌阶段无目标装备到对应 `EquipmentSlot` | 新牌 `Hand(owner) → Processing → Equipment(owner)`；同槽旧牌 `Equipment(owner) → DiscardPile`；阵亡时装备 `Equipment → DiscardPile` | `equipment.use` / `equipment.enter` / `equipment.replace` / `rule.death-equipment-discard` | 装备区和装备牌面是公开状态；`EquipmentChangedEvent` 可带新旧实体 ID，不扩展他人手牌可见性 |
+| `standard:bagua` | 成为普通/火/雷杀的直接目标时，在响应窗口可选择公开判定；红色判定视为闪 | 判定牌 `DrawPile → Judgment(owner) → DiscardPile`；杀牌继续按杀链从 `Processing` 结算 | `judgment.reveal` / `judgment.finish` | 仅拥有八卦阵且当前可响应的目标可选择；`JudgmentFrame`、`JudgmentRequestedEvent` 和 `JudgmentResolvedEvent` 属于可信宿主记录，判定结果公开；群体响应、改判和重复判定仍未开放 |
 | `standard:jianxiong` | 杀造成伤害且伤害牌仍在处理区 | `Processing → Hand(target)` | `skill.jianxiong.claim-damage-card` | 只公开技能结果允许公开的部分；不存在处理区牌时不得凭空生成牌 |
 | `standard:feedback` | 目标存活且受到伤害、伤害牌仍在处理区时压入私有触发选择；发动后取得该牌，不发动则让父结算继续 | 发动：`Processing → Hand(target)`；不发动：`Processing → DiscardPile` | `skill.feedback.claim-damage-card` | 发布 `DamageSkillRequestedEvent`/`DamageSkillResolvedEvent`；发动时再发布 `DamageCardClaimedEvent`；每张伤害牌至多成功取一次；普通视图不泄漏取得牌 ID，群体父帧可在选择后继续推进 |
 | `standard:yiji` | 郭嘉受到伤害后摸两张牌，并从私有候选中选择一张交给其他存活角色，或保留 | 两张牌分别 `DrawPile → Hand(owner)`；赠牌 `Hand(owner) → Hand(target)` | `skill.yiji.draw` / `skill.yiji.give-card` | 赠牌目标和候选牌通过私有 `Yiji` Choice 配对；`DamageSkillCardsDrawnEvent`/`DamageSkillCardGivenEvent` 只属于可信宿主；本切片每次只赠一张，普通视图不泄漏候选牌面 |
 | `standard:yuanhu` | 其他角色受到正伤害后，援护者从自己的私有手牌中选择一张弃置，使固定受伤目标回复 1 点体力 | `Hand(owner) → Processing → DiscardPile`；恢复不移动牌 | `skill.yuanhu.discard` | `Yuanhu` Choice 只投影给技能拥有者；目标固定为本次伤害目标；可信宿主记录 `DamageSkillCardDiscardedEvent`/`RecoveryAppliedEvent`，普通视图不泄漏弃牌 ID |
+| `standard:ganglie` | 受到正伤害后可判定；红色时伤害来源私有选择弃两张手牌或承受 1 点伤害 | 判定牌 `DrawPile → Judgment(owner) → DiscardPile`；弃牌分支 `Hand(source) → DiscardPile`；受伤分支进入 `DyingFrame` 后回到原伤害触发游标 | `judgment.reveal` / `judgment.finish` / `skill.ganglie.discard` | 判定结果公开；来源反制 Prompt 只投影给伤害来源；两牌组合只在可信宿主和来源私有视图中出现，`GangliePunishmentResolvedEvent` 记录结果 |
+| `standard:guicai` | 判定牌生效前由当前候选拥有者选择替换或跳过 | 旧判定牌 `Judgment(target) → DiscardPile`；替换牌 `Hand(owner) → Processing → Judgment(target) → DiscardPile` | `judgment.finish` / `skill.guicai.replace` | 判定结果和替换后的牌面公开；鬼才 Prompt 只投影给拥有者，替换牌 ID 仅在其私有视图和可信宿主账本中出现；候选顺序冻结在 `JudgmentFrame` |
 | `standard:paoxiao` | 修改出杀次数 | — | — | 不创造或移动牌；合法性仍由 Core 判断 |
 | `standard:yingzi` | 修改摸牌数量 | `DrawPile → Hand(owner)`（由摸牌动作产生） | `rule.draw` | 只改变数量 modifier，不公开牌堆顺序 |
 | `standard:kongcheng` | 修改空手牌时的目标合法性 | — | — | 只读取目标手牌数量/规则公开信息，不读取目标牌面 |
 
-### 3.2 K3/K5/K6 后续标准内容
+### 3.2 K3/K5/K6 及后续标准内容
 
 | 内容 ID | 生命周期契约 | reason 建议 | 依赖与限制 |
 | --- | --- | --- | --- |
-| `standard:guicai` | 用手牌替换判定牌：`Hand(owner) → Processing → Judgment(target)`，旧判定牌按结算规则离开 | `card.respond` 或 K7 专用 reason | K5/K7；当前不实现 |
 | `standard:rende` | `Hand(owner) → Processing → Hand(recipient)`；满足数量条件后恢复 | `skill.rende.give` | K2/K5；不得用 UI 直接改目标手牌 |
-| `standard:zhiheng` | `Hand(owner) → Processing → DiscardPile`，随后等量 `DrawPile → Hand(owner)` | `skill.zhiheng.discard` / `rule.draw` | K2/K5；弃牌与摸牌必须同一可回放结算流 |
-| `standard:dismantlement` | 使用牌 `Hand(source) → Processing → DiscardPile`；目标一张隐藏手牌 `Hand(target) → Processing → DiscardPile`（确定性盲选） | `card.effect.dismantlement` / `card.effect.dismantlement-finished` | K5 最小切片；装备/判定区和真正的目标私有候选仍待后续 |
-| `standard:snatch` | 使用牌 `Hand(source) → Processing → DiscardPile`；目标一张隐藏手牌 `Hand(target) → Processing → Hand(source)`（距离一，确定性盲选） | `card.effect.snatch` / `card.effect.snatch-finished` | K5 最小切片；当前只支持座位环距离，装备区和真正的目标私有候选仍待后续 |
-| `standard:nullification` | 每张无懈独立 `Hand → Processing → DiscardPile` | `card.respond` | K5/K7；响应链顺序固定 |
+| `standard:qingnang` | `Hand(owner) → Processing → DiscardPile`；弃置一张手牌后令一名受伤角色回复 1 点体力 | `skill.qingnang.discard` | K5；精确手牌 ID 只属于拥有者 Prompt 与可信宿主，目标按公开存活/受伤状态筛选 |
+| `standard:huichun` | `Hand(owner) → Processing → DiscardPile`；弃置两张手牌后令两至三名受伤角色各回复 1 点体力 | `skill.huichun.discard` | K5；精确手牌 ID 只属于拥有者 Prompt 与可信宿主，目标按公开存活/受伤状态筛选，每个目标使用独立 `RecoveryFrame` |
+| `standard:zhiheng` | `Hand(owner) → Processing → DiscardPile`，随后等量 `DrawPile → Hand(owner)` | `skill.zhiheng.discard` / `skill.zhiheng.draw` | K2/K5；弃牌与摸牌必须同一可回放结算流，精确选择只属于拥有者与可信宿主 |
+| `standard:dismantlement` | 使用牌 `Hand(source) → Processing → DiscardPile`；目标一张手牌由来源玩家选择不透明牌位，或由 `TargetCardId` 精确选择公开装备/判定区牌后经 `Processing → DiscardPile` | `card.effect.dismantlement` / `card.effect.dismantlement-finished` / `card.effect.dismantlement-judgment` / `card.effect.dismantlement-judgment-finished` | K5/K7 受限切片；只开放已公开区域，规则版本 4 私有牌位候选已开放，更复杂目标区域仍待后续 |
+| `standard:snatch` | 使用牌 `Hand(source) → Processing → DiscardPile`；目标一张手牌由来源玩家选择不透明牌位，或由 `TargetCardId` 精确选择公开装备/判定区牌后经 `Processing → Hand(source)`（战斗距离一） | `card.effect.snatch` / `card.effect.snatch-finished` / `card.effect.snatch-judgment` / `card.effect.snatch-judgment-finished` | K5/K7 受限切片；只开放已公开区域，规则版本 4 私有牌位候选已开放，更复杂目标区域仍待后续 |
+| `standard:nullification` | 每张无懈独立 `Hand → Processing → DiscardPile`；按固定座次进入有限多层响应窗口 | `card.respond.nullification` / `card.respond.nullification-finished` | K7 基础切片；当前效果牌与每张响应牌均保持 `Processing` 语义，私有 Prompt 不向其他 viewer 投影 |
 | `standard:peach_garden` | `Hand → Processing → DiscardPile`；效果按目标顺序回复，逐目标可暂停 | `card.use` / `card.use-finished` | K5；目标列表由 Core 固定，恢复子帧使用 `RecoveryFrame` |
 | `standard:five_grains` | `Hand(source) → Processing`；公开牌 `DrawPile → Processing`，逐人选择后 `Processing → Hand(picker)` | `card.use` / `card.public-reveal` / `card.harvest-pick` / `card.harvest-discard` / `card.use-finished` | K5；公共展示牌是唯一新增牌面可见性，选牌 prompt 仍按 responder 隔离 |
 | `standard:arrow_barrage` | 使用牌进入处理区；每张闪响应独立经过处理区后弃置 | `card.use` / `card.respond` | K5；群体响应不能泄漏未响应者手牌；已由通用群体入口实现 |
-| `standard:iron_chain` | 使用牌 `Hand → Processing → DiscardPile`；目标状态标记由效果帧维护 | `card.use` / `card.use-finished` | K5/K7；标记不是一张可移动的牌 |
-| `standard:crossbow` / `standard:qinggang_sword` / `standard:bagua` | K6 目标：`Hand(owner) → Equipment(owner, slot)`；替换旧装备 `Equipment → DiscardPile` | `equipment.equip` / `equipment.replace` | K6；K1 尚无 slot，装备不能伪装成普通弃牌 |
-| `standard:offensive_horse` / `standard:defensive_horse` | K6 目标：`Hand(owner) → Equipment(owner, horse-slot)`；失去时 `Equipment → DiscardPile` | `equipment.equip` / `equipment.remove` | K6；距离 modifier 不由 UI 直接修改 |
+| `standard:iron_chain` | 使用牌 `Hand → Processing → DiscardPile`；目标公开状态标记由效果帧维护，火/雷伤害按固定顺序传导 | `card.use` / `card.effect.iron-chain` / `card.effect.iron-chain-finished` / `card.use-finished` | K5/K7；标记不是一张可移动的牌，目标只允许精确一名或两名其他存活角色 |
+| `standard:crossbow` / `standard:offensive_horse` / `standard:defensive_horse` / `standard:jade_seal` / `standard:renwang_shield` | K6：`Hand(owner) → Processing → Equipment(owner, slot)`；替换旧装备 `Equipment → DiscardPile`；阵亡时装备区整体清理 | `equipment.use` / `equipment.enter` / `equipment.replace` / `rule.death-equipment-discard` | K6 基础切片；装备区与五类槽位由 Core 校验，距离/范围/摸牌 modifier 不由 UI 直接修改 |
+| `standard:bagua` | K7：直接杀响应中的公开判定牌 `DrawPile → Judgment(owner) → DiscardPile`；红色判定视为闪 | `judgment.reveal` / `judgment.finish` | K7 基础切片；`JudgmentFrame` 与判定事件属于可信宿主记录，复杂改判和复杂多层判定仍未开放 |
+| `standard:guicai` | K7：判定生效前由当前鬼才候选替换或保留判定牌 | 旧牌 `Judgment(target) → DiscardPile`；替换牌 `Hand(owner) → Processing → Judgment(target) → DiscardPile` | `judgment.finish` / `skill.guicai.replace` | K7 基础改判切片；`JudgmentFrame` 保存候选座位和游标，Prompt 只给当前拥有者，最终判定结果公开 |
+| `standard:indulgence` | K7：使用牌公开进入目标判定区，目标下回合摸牌前判定；红色跳过出牌阶段，黑色正常出牌 | 使用牌 `Hand(source) → Processing → Judgment(target)`；判定牌 `DrawPile → Judgment(target) → DiscardPile`；延时牌 `Judgment(target) → DiscardPile` | `card.effect.delayed-place` / `judgment.reveal` / `judgment.finish` / `card.effect.delayed-finish` | K7 基础延时判定切片；目标重复、无懈窗口、鬼才改判和死亡清理沿 Core 统一入口，判定区与结果公开 |
+| `standard:supply_shortage` | K7：使用牌公开进入目标判定区，目标下回合摸牌前判定；黑色跳过摸牌阶段，红色正常摸牌 | 使用牌 `Hand(source) → Processing → Judgment(target)`；判定牌 `DrawPile → Judgment(target) → DiscardPile`；延时牌 `Judgment(target) → DiscardPile` | `card.effect.delayed-place` / `judgment.reveal` / `judgment.finish` / `card.effect.delayed-finish` | K7 基础延时判定切片；只允许有公开手牌的目标，目标重复、无懈窗口、鬼才改判和死亡清理沿 Core 统一入口，判定区与结果公开 |
+| `standard:lightning` | K7：只能对自己使用，进入自己的公开判定区；下个回合判定为黑桃 2 至 9 时造成 3 点雷电伤害，否则转移到下一名存活角色的判定区 | 使用牌 `Hand(source) → Processing → Judgment(source)`；判定牌 `DrawPile → Judgment(source) → DiscardPile`；命中后延时牌 `Judgment(source) → DiscardPile`，未命中按 `Judgment(current) → Judgment(next)` 转移 | `card.effect.delayed-place` / `card.effect.delayed-transfer` / `judgment.reveal` / `judgment.finish` / `card.effect.delayed-finish` | K7 基础延时判定切片；自用、黑桃 2 至 9 命中、3 点雷电伤害和下一存活角色转移由 Core 校验，结果公开，鬼才/无懈 Prompt 仍按 responder 隔离 |
+| `standard:qinggang_sword` | `Hand(owner) → Processing → Equipment(owner, Weapon)`；直接杀声明读取装备 modifier 并在 `CardUseFrame`/类型化事件记录无视防具 | `equipment.use` / `equipment.enter` / `equipment.replace` | K6 基础切片；复杂失效/卸载仍待后续 |
+| `standard:renwang_shield` | `Hand(owner) → Processing → Equipment(owner, Armor)`；黑色杀对装备者不生成合法目标，青釭剑直接杀可绕过该阻挡 | `equipment.use` / `equipment.enter` / `equipment.replace` | K6/K7 基础切片；装备状态公开，规则核心在杀目标合法性和结算帧中读取防具 modifier |
 
 ## 4. 玩家视图和宿主诊断边界
 
@@ -124,14 +154,14 @@
 | --- | --- | --- | --- |
 | `k1.slash.hit` | 合法来源持有杀，对合法目标使用 | 杀按 `Hand → Processing → DiscardPile`，结算顺序稳定，实体牌只出现一次 | 自身、死亡目标、错误阶段或不在手牌的牌不得移动 |
 | `k5.attribute-slash.nature` | 合法来源使用火杀或雷杀，目标未打出闪 | 使用牌仍按 `Hand → Processing → DiscardPile`，`DamageNature` 在 `DamageFrame`、`DamageRequestedEvent`、`DamageAppliedEvent` 和 `AfterDamageEvent` 中与牌种一致 | 闪避后不得生成属性伤害；不得把属性类型只藏在 UI 文案或通过牌名字符串推断 |
-| `k5.alcohol.slash-boost` | 合法来源在出牌阶段使用酒，再使用一张直接杀 | 酒牌和杀牌均按 `Hand → Processing → DiscardPile`；酒效公开设置、在杀声明时消费，`DamageFrame` 与三类伤害事件的金额为 2；未消费时回合结束清除并发布 `AlcoholExpiredEvent` | 群体牌/决斗不得消费酒效；同回合重复叠加、用酒救援他人和非法阶段使用必须拒绝；濒死自救由独立场景覆盖 |
-| `k5.alcohol.dying-rescue` | 濒死者在私有濒死 Prompt 选择酒 | 酒按 `Hand → Processing → DiscardPile`；使用独立 `CardUseFrame`/`RecoveryFrame` 回复 1 点体力，`DyingResponseEvent` 标记 `UsedAlcohol`，濒死帧随后以 survived 完成 | 非濒死响应者、用酒救援他人、同一响应同时使用桃和酒、伪造 Choice 或错误牌区来源必须拒绝；普通视图不泄漏酒牌 ID |
+| `k5.alcohol.slash-boost` | 合法来源在出牌阶段使用酒，再使用一张直接杀 | 酒牌和杀牌均按 `Hand → Processing → DiscardPile`；酒效公开设置、在杀声明时消费，`DamageFrame` 与三类伤害事件的金额为 2；未消费时回合结束清除并发布 `AlcoholExpiredEvent` | 群体牌/决斗不得消费酒效；同回合重复叠加和非法阶段使用必须拒绝；濒死救援由独立场景覆盖 |
+| `k5.alcohol.dying-rescue` | 当前 responder 在私有濒死 Prompt 选择酒 | 酒按 `Hand → Processing → DiscardPile`；使用独立 `CardUseFrame`/`RecoveryFrame` 回复濒死目标 1 点体力，`DyingResponseEvent` 标记 `UsedAlcohol`，濒死帧随后以 survived 完成 | 同一响应同时使用桃和酒、伪造 Choice、错误牌区来源或把酒用于群体牌/决斗必须拒绝；旧规则版本拒绝跨座位酒救援，普通视图不泄漏酒牌 ID |
 | `k1.slash.dodge` | 目标在响应窗口持有闪并提交响应 | 闪按 `Hand → Processing → DiscardPile`，杀的处理区生命周期完整 | 非响应窗口、错误 responder、伪造牌 ID不得移动 |
 | `k1.jianxiong.claim` | 杀造成伤害，伤害牌尚在处理区 | 奸雄取得同一实体牌到手牌，不复制、不凭空生成 | 闪避成功、牌已离开处理区、非伤害牌不得触发 |
 | `k1.peach` | 受伤角色在允许阶段持有桃 | 桃经过处理区后弃置，回复结果与牌移动同一提交 | 满血、错误阶段、他人私有手牌不得被 UI 代打 |
 | `k1.deal.draw` | 开局发牌或摸牌 | 每张牌从摸牌堆进入指定手牌，顺序和总数可复现 | 牌堆不足时不得部分开局或重复实体牌 |
 | `k1.hand-limit-discard` | 回合结束手牌超过上限 | 选择/规则指定的牌逐张从手牌到弃牌区，提交后守恒 | 非本人手牌、错误阶段或超过合法数量不得弃置 |
-| `k1.death-cleanup` | 角色死亡且仍有手牌 | K1 当前将手牌整体移入弃牌区；装备/判定区清理分别作为 K6/K7 扩展 | 已死亡角色再次清理、错误来源或重复清理不得部分提交 |
+| `k1.death-cleanup` | 角色死亡且仍有手牌 | K1 将手牌整体移入弃牌区；K6 同一死亡提交清理装备区 | 已死亡角色再次清理、错误来源或重复清理不得部分提交 |
 | `k1.lord-penalty` | 主公误杀忠臣 | 主公按规则弃置完整惩罚牌集，reason 为 `mode.identity.lord-killed-loyalist` | 非忠臣、非主公或已提交过的击杀不得触发 |
 | `k1.reshuffle` | 摸牌堆耗尽且弃牌区非空 | 弃牌区整体重洗回摸牌堆，固定 seed 可复现，牌数守恒 | 空弃牌区不得伪造牌或产生负数牌堆 |
 
@@ -139,9 +169,11 @@
 
 - 本批完成标准是本文件与 `CONTENT_MANIFEST.md`、`SCENARIO_MATRIX.md` 的 ID、reason、依赖和可见性描述一致；K3 的 Standard Registry 与 K4 的开局输入已是正式运行路径，复杂行为仍不提前声明完成。
 - K4 的选将移动边界是：候选只改变角色初始化状态，不产生牌区移动；所有选将完成后才执行 `DrawPile → Hand` 的 round-robin 初始发牌。
-- K3 已将 `definitionId`、牌堆配方和依赖引用迁入不可变 Registry，并覆盖重复 ID、未知引用、版本不足和依赖环测试；内容哈希和存档清单留待 K8。
-- K5 当前切片已把已有杀/火杀/雷杀/闪/决斗/无中生有/南蛮入侵/万箭齐发/桃园结义/五谷丰登/过河拆桥/顺手牵羊/伤害/桃/酒路径接到 `CardUseFrame`、`ResponseWindowFrame`、伤害/恢复/死亡子帧和类型化事件；火杀/雷杀的 `DamageNature` 从实际 `CardKind` 派生并贯穿伤害帧与伤害事件，酒通过公开 `HasAlcoholEffect`、`AlcoholAppliedEvent`/`AlcoholExpiredEvent` 和实际伤害金额贯穿直接杀链路，并在私有濒死 Prompt 中支持濒死者自救 1 点体力（不支持用酒救援他人），五谷丰登的公开牌使用 `CardsRevealedEvent`，逐人选择使用 `HarvestCardSelectedEvent` 和专用移动 reason，过河拆桥/顺手牵羊使用 `TargetCardDiscardedEvent`/`TargetCardTakenEvent` 保持牌面脱敏；`CardMoved` 仍只作为提交后的宿主诊断。其他锦囊、装备、判定、多层响应和 `CardsMoving/CardsMoved` 规则时机继续按后续阶段开放。
-- 本批新增 `standard:feedback` 与 `standard:yiji`：伤害牌仍在 `Processing` 时先压入带游标的 `DamageTriggerWindowFrame`，再为当前候选压入可序列化 `DamageSkillFrame`；反馈通过私有 `Feedback` Choice 决定是否按 `skill.feedback.claim-damage-card` 取得伤害牌，遗计先按 `skill.yiji.draw` 摸两张牌，再通过私有 `Yiji` Choice 按 `skill.yiji.give-card` 将一张牌交给其他存活角色；请求、决定和结果分别由 `DamageSkillRequestedEvent`、`DamageSkillResolvedEvent`、`DamageCardClaimedEvent`、`DamageSkillCardsDrawnEvent`、`DamageSkillCardGivenEvent` 表示，群体父帧可在选择后继续推进，普通快照不泄漏隐藏牌 ID。现有内置技能的触发条件默认仍只匹配受伤者，遗计的跨座位部分发生在效果移动阶段。
+- K3 已将 `definitionId`、牌堆配方和依赖引用迁入不可变 Registry，并覆盖重复 ID、未知引用、版本不足和依赖环测试；可信命令前缀 Checkpoint 已开放，并在恢复前校验内容包签名与归一化内容哈希；完整存档清单和兼容迁移仍留待 K8 后续。
+- K5 当前切片已把已有杀/火杀/雷杀/闪/决斗/无中生有/南蛮入侵/万箭齐发/桃园结义/五谷丰登/过河拆桥/顺手牵羊/无懈可击/铁索连环/伤害/桃/酒路径接到 `CardUseFrame`、`ResponseWindowFrame`、伤害/恢复/死亡子帧和类型化事件；火杀/雷杀的 `DamageNature` 从实际 `CardKind` 派生并贯穿伤害帧与伤害事件，铁索连环以精确一/二目标维护公开 `IsChained` 标记并在火/雷伤害后按固定顺序传导同额属性伤害，酒通过公开 `HasAlcoholEffect`、`AlcoholAppliedEvent`/`AlcoholExpiredEvent` 和实际伤害金额贯穿直接杀链路，并在私有濒死 Prompt 中由当前 responder 使用自己的酒救援濒死目标回复 1 点体力（旧 v1/v2 回放仍仅允许濒死者自救），五谷丰登的公开牌使用 `CardsRevealedEvent`，逐人选择使用 `HarvestCardSelectedEvent` 和专用移动 reason，过河拆桥/顺手牵羊对隐藏手牌保持脱敏，对公开装备或判定区牌允许在 `LegalAction.TargetCardId` 中携带已公开的实体 ID/牌型；无懈可击在效果结算前按固定座次发布私有 prompt，使用牌和响应牌均经过处理区并由 `NullificationWindowFrame`/类型化事件记录；`CardMoved` 仍只作为提交后的宿主诊断。乐不思蜀/兵粮寸断/闪电已使用 `JudgmentFrame` 将延时牌公开放入判定区，并在目标下回合摸牌前完成判定：乐不思蜀红色跳过出牌阶段、兵粮寸断黑色跳过摸牌阶段、闪电黑桃 2 至 9 命中并造成 3 点雷电伤害否则转移，多个延时牌按统一标记累计；其他复杂延时判定、复杂装备、复杂多层响应和 `CardsMoving/CardsMoved` 规则时机继续按后续阶段开放；八卦阵基础判定链路和仁王盾黑色杀目标过滤已由 K7 开放。
+- 本批新增 `standard:feedback` 与 `standard:yiji`：伤害牌仍在 `Processing` 时先压入带游标的 `DamageTriggerWindowFrame`，再为当前候选压入可序列化 `DamageSkillFrame`；反馈通过私有 `Feedback` Choice 决定是否按 `skill.feedback.claim-damage-card` 取得伤害牌，遗计先按 `skill.yiji.draw` 摸两张牌，再通过私有 `Yiji` Choice 按 `skill.yiji.give-card` 将一张牌交给其他存活角色；请求、决定和结果分别由 `DamageSkillRequestedEvent`、`DamageSkillResolvedEvent`、`DamageCardClaimedEvent`、`DamageSkillCardsDrawnEvent`、`DamageSkillCardGivenEvent` 表示，群体父帧可在选择后继续推进，普通快照不泄漏隐藏牌 ID。默认触发范围仍匹配受伤者，但现在由 `DamageTriggerScope.DamagedPlayer` 显式表达；遗计的跨座位部分发生在效果移动阶段。
 - `standard:jieming` 复用同一伤害触发窗口：荀彧受伤后通过私有 `Jieming` Choice 选择公开合法的手牌补足目标或跳过；摸牌使用 `skill.jieming.draw`，由 `DamageSkillCardsDrawnEvent.TargetSeat` 和移动账本记录效果目标，普通视图只看到公开目标条件，不看到抽到的牌面。
-- `standard:yuanhu` 是当前唯一显式跨座位触发示例：其他角色受到正伤害且目标仍存活、未满体力时，援护者通过私有 `Yuanhu` Choice 选择自己的一张手牌，按 `skill.yuanhu.discard` 经过 `Processing` 后进入弃牌堆，再压入 `RecoveryFrame` 令固定受伤目标回复 1 点体力；`DamageSkillCardDiscardedEvent` 不向普通视图暴露实体牌 ID，`DamageSkillResolvedEvent.EffectTargetSeat` 记录恢复目标。
+- `standard:yuanhu` 是当前受约束的非受伤者触发示例：其他角色受到正伤害且目标仍存活、未满体力时，援护者通过 `DamageTriggerScope.OtherLivingPlayer` 和私有 `Yuanhu` Choice 选择自己的一张手牌，按 `skill.yuanhu.discard` 经过 `Processing` 后进入弃牌堆，再压入 `RecoveryFrame` 令固定受伤目标回复 1 点体力；`DamageSkillCardDiscardedEvent` 不向普通视图暴露实体牌 ID，`DamageSkillResolvedEvent.EffectTargetSeat` 记录恢复目标。后续跨座位技能仍需复用该范围契约并自行声明具体合法条件。
+- `standard:ganglie` 是受伤者触发后定向来源反制的示例：刚烈者先在私有 `Ganglie` Choice 中选择是否判定，判定牌公开进入 `Judgment(owner)`；红色时伤害来源通过私有 `GangliePunish` Choice 选择精确两张手牌按 `skill.ganglie.discard` 弃置或承受 1 点伤害。反制伤害的濒死处理完成后恢复原技能帧，普通视图不泄漏来源手牌 ID。
+- `standard:guicai` 是判定前改判的最小闭环：Core 在 `JudgmentFrame` 中冻结当前存活鬼才拥有者和候选游标，向当前拥有者发布私有 `DecisionKind.Guicai`；替换时旧牌先按 `judgment.finish` 结束，新牌按 `skill.guicai.replace` 经过 `Processing` 进入同一 `Judgment(target)`，所有候选完成后再公开 `JudgmentResolvedEvent`。AI 只从自己的过滤快照和发布的有效手牌 ID 中选择，普通视图不泄漏候选手牌。
 - K2 已补齐私有 Choice；K6/K7/K9 开放后继续补齐装备槽/距离、判定/触发和 AI 策略测试；在此之前不得用反射、全局状态、UI 分支或通知回调模拟缺失能力。

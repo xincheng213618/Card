@@ -5,3 +5,10 @@ TestResults/
 *.user
 *.suo
 *.log
+/dist/
+/.artifacts/
+/artifacts/
+/--m3/
+/--output/
+/--screenshot-dir/
+**/*_wpftmp.csproj

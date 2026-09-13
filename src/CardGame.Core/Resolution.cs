@@ -2,16 +2,29 @@ using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
 
+public static class JudgmentReasons
+{
+    public const string BaguaDefense = "equipment.bagua-defense";
+    public const string Ganglie = "skill.ganglie";
+    public const string Indulgence = "trick.indulgence";
+    public const string SupplyShortage = "trick.supply-shortage";
+    public const string Lightning = "trick.lightning";
+}
+
 public enum ResolutionFrameKind
 {
     CardUse,
     ResponseWindow,
+    Judgment,
     Damage,
     DamageTriggerWindow,
     DamageSkill,
     Recovery,
     Dying,
-    Death
+    Death,
+    NullificationWindow,
+    ActiveSkill,
+    TargetCardSelection
 }
 
 public enum ResolutionFrameStep
@@ -28,7 +41,8 @@ public enum DamageSkillEffectKind
     ClaimDamageCard,
     GiftDrawnCard,
     DrawToMaxHand,
-    RecoverDamageTarget
+    RecoverDamageTarget,
+    GanglieJudgment
 }
 
 /// <summary>
@@ -39,12 +53,16 @@ public enum DamageSkillEffectKind
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(CardUseFrame), "card-use")]
 [JsonDerivedType(typeof(ResponseWindowFrame), "response-window")]
+[JsonDerivedType(typeof(JudgmentFrame), "judgment")]
 [JsonDerivedType(typeof(DamageFrame), "damage")]
 [JsonDerivedType(typeof(DamageTriggerWindowFrame), "damage-trigger-window")]
 [JsonDerivedType(typeof(RecoveryFrame), "recovery")]
 [JsonDerivedType(typeof(DyingFrame), "dying")]
 [JsonDerivedType(typeof(DeathFrame), "death")]
 [JsonDerivedType(typeof(DamageSkillFrame), "damage-skill")]
+[JsonDerivedType(typeof(NullificationWindowFrame), "nullification-window")]
+[JsonDerivedType(typeof(ActiveSkillFrame), "active-skill")]
+[JsonDerivedType(typeof(TargetCardSelectionFrame), "target-card-selection")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
@@ -57,7 +75,8 @@ public sealed record CardUseFrame(
     CardKind CardKind,
     IReadOnlyList<int> TargetSeats,
     ResolutionFrameStep Step = ResolutionFrameStep.Declared,
-    int TargetIndex = 0)
+    int TargetIndex = 0,
+    bool IgnoresArmor = false)
     : ResolutionFrame(Id, ResolutionFrameKind.CardUse, Step);
 
 public sealed record ResponseWindowFrame(
@@ -69,6 +88,25 @@ public sealed record ResponseWindowFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse,
     CardKind? RequiredCardKind = null)
     : ResolutionFrame(Id, ResolutionFrameKind.ResponseWindow, Step);
+
+/// <summary>
+/// A short, deterministic judgment operation. The frame is retained while the
+/// physical card is in the owner's Judgment zone, which keeps automatic
+/// equipment defenses on the same serializable resolution stack as responses.
+/// </summary>
+public sealed record JudgmentFrame(
+    long Id,
+    long ParentFrameId,
+    int TargetSeat,
+    string Reason,
+    int? CardId,
+    CardKind? CardKind,
+    Suit? Suit,
+    bool? Succeeded,
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect,
+    IReadOnlyList<int>? ReplacementCandidateSeats = null,
+    int ReplacementCandidateIndex = 0)
+    : ResolutionFrame(Id, ResolutionFrameKind.Judgment, Step);
 
 public sealed record DamageFrame(
     long Id,
@@ -139,3 +177,58 @@ public sealed record DeathFrame(
     int? KillerSeat,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.Death, Step);
+
+/// <summary>
+/// A public trick-effect response cursor. It records only public card/use
+/// context and the ordered seat cursor; private nullification-card ids remain
+/// in the responder-scoped PendingDecision instead.
+/// </summary>
+public sealed record NullificationWindowFrame(
+    long Id,
+    long ParentFrameId,
+    int SourceSeat,
+    IReadOnlyList<int> TargetSeats,
+    int EffectCardId,
+    CardKind EffectCardKind,
+    LegalActionKind ActionKind,
+    int? TargetCardId,
+    CardKind? RequiredCardKind,
+    IReadOnlyList<int> CandidateSeats,
+    int CandidateIndex = 0,
+    int ChainDepth = 0,
+    bool EffectNullified = false,
+    ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
+    : ResolutionFrame(Id, ResolutionFrameKind.NullificationWindow, Step);
+
+/// <summary>
+/// A private source-side cursor for selecting one card from another player's
+/// hidden hand. CandidateSlots contains only opaque ordinal slots, never card
+/// ids or card kinds, so the frame is safe to inspect as a public resolution
+/// cursor while the actual hand remains private to the trusted host.
+/// </summary>
+public sealed record TargetCardSelectionFrame(
+    long Id,
+    long ParentFrameId,
+    int SourceSeat,
+    int TargetSeat,
+    int EffectCardId,
+    CardKind EffectCardKind,
+    LegalActionKind ActionKind,
+    IReadOnlyList<int> CandidateSlots,
+    ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
+    : ResolutionFrame(Id, ResolutionFrameKind.TargetCardSelection, Step);
+
+public sealed record ActiveSkillFrame(
+    long Id,
+    int SourceSeat,
+    SkillKind Skill,
+    ActiveSkillEffectKind Effect,
+    int HpCost,
+    int DrawCount,
+    ResolutionFrameStep Step = ResolutionFrameStep.Declared,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<int>? CardIds = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<int>? TargetSeats = null,
+    int RecoveryAmount = 0)
+    : ResolutionFrame(Id, ResolutionFrameKind.ActiveSkill, Step);

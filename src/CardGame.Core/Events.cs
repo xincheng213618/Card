@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CardGame.Core;
 
 public readonly record struct EventId(long Value)
@@ -20,7 +22,20 @@ public sealed record GeneralSelectionRequestedEvent(
 
 public sealed record GeneralSelectedEvent(int ActorSeat, string GeneralId) : IGameEvent;
 
+/// <summary>Trusted-host setup event for the second general in national war.</summary>
+public sealed record SecondaryGeneralSelectedEvent(int ActorSeat, string GeneralId) : IGameEvent;
+
+public sealed record NationalGeneralRevealedEvent(
+    int Seat,
+    GeneralSelectionSlot Slot,
+    string GeneralId) : IGameEvent;
+
+public sealed record NationalFactionRevealedEvent(int Seat, string FactionId) : IGameEvent;
+
 public sealed record SetupCompletedEvent(int PlayerCount, string ModeId) : IGameEvent;
+
+/// <summary>Public team assignment emitted during setup for team modes.</summary>
+public sealed record TeamAssignedEvent(int Seat, string TeamId) : IGameEvent;
 
 public sealed record TurnStartedEvent(int TurnNumber, int ActorSeat) : IGameEvent;
 
@@ -28,11 +43,15 @@ public sealed record TurnEndedEvent(int TurnNumber, int ActorSeat) : IGameEvent;
 
 public sealed record PhaseChangedEvent(TurnPhase Phase, int ActorSeat) : IGameEvent;
 
+/// <summary>Trusted-host record of an accepted hand-limit selection.</summary>
+public sealed record HandLimitDiscardedEvent(int ActorSeat, IReadOnlyList<int> CardIds) : IGameEvent;
+
 public sealed record CardUsedEvent(
     int CardId,
     CardKind CardKind,
     int SourceSeat,
-    int TargetSeat) : IGameEvent;
+    int TargetSeat,
+    bool IgnoresArmor = false) : IGameEvent;
 
 public sealed record GroupCardUsedEvent(
     long ResolutionId,
@@ -51,25 +70,30 @@ public sealed record HarvestCardSelectedEvent(
     int CardId) : IGameEvent;
 
 /// <summary>
-/// Public effect notification for a hidden target-card discard. It intentionally
-/// carries no card id or kind; the trusted movement ledger retains that detail.
+/// Public effect notification for a target-card discard. Hand selections remain
+/// redacted; public equipment and judgment selections carry their already-public
+/// identity.
 /// </summary>
 public sealed record TargetCardDiscardedEvent(
     long ResolutionId,
     int SourceSeat,
     int TargetSeat,
-    CardZoneKind FromZone) : IGameEvent;
+    CardZoneKind FromZone,
+    int? PublicCardId = null,
+    CardKind? PublicCardKind = null) : IGameEvent;
 
 /// <summary>
-/// Public effect notification for a hidden target-card transfer. It intentionally
-/// carries no card id or kind; the trusted movement ledger and source private
-/// snapshot retain that detail.
+/// Public effect notification for a target-card transfer. Hand selections remain
+/// redacted; public equipment and judgment selections carry their already-public
+/// identity.
 /// </summary>
 public sealed record TargetCardTakenEvent(
     long ResolutionId,
     int SourceSeat,
     int TargetSeat,
-    CardZoneKind FromZone) : IGameEvent;
+    CardZoneKind FromZone,
+    int? PublicCardId = null,
+    CardKind? PublicCardKind = null) : IGameEvent;
 
 /// <summary>
 /// Publicly announces the card intentionally revealed by FireAttack. The
@@ -98,7 +122,8 @@ public sealed record CardUseDeclaredEvent(
     long ResolutionId,
     int CardId,
     CardKind CardKind,
-    int SourceSeat) : IGameEvent;
+    int SourceSeat,
+    bool IgnoresArmor = false) : IGameEvent;
 
 public sealed record TargetsConfirmedEvent(
     long ResolutionId,
@@ -108,6 +133,104 @@ public sealed record CardUseFinishedEvent(
     long ResolutionId,
     int CardId,
     CardKind CardKind) : IGameEvent;
+
+public sealed record ActiveSkillRequestedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    SkillKind Skill,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<int>? CardIds = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<int>? TargetSeats = null) : IGameEvent;
+
+public sealed record SkillHpLostEvent(
+    long ResolutionId,
+    int SourceSeat,
+    SkillKind Skill,
+    int Amount,
+    int RemainingHp) : IGameEvent;
+
+/// <summary>
+/// Trusted-host result for cards drawn by an active skill. Physical card ids
+/// stay out of ordinary player snapshots and are retained only in this host
+/// event and the movement ledger.
+/// </summary>
+public sealed record SkillCardsDrawnEvent(
+    long ResolutionId,
+    int SourceSeat,
+    SkillKind Skill,
+    IReadOnlyList<int> CardIds) : IGameEvent;
+
+/// <summary>
+/// Trusted-host result for cards discarded by an active skill. Hand card ids
+/// are private to the owner and are therefore kept out of ordinary snapshots.
+/// </summary>
+public sealed record SkillCardsDiscardedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    SkillKind Skill,
+    IReadOnlyList<int> CardIds) : IGameEvent;
+
+/// <summary>
+/// Trusted-host result for cards transferred by a target-selecting active
+/// skill. The card ids are private to the source and target players and must
+/// not be copied into an ordinary player snapshot.
+/// </summary>
+public sealed record SkillCardsGivenEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    SkillKind Skill,
+    IReadOnlyList<int> CardIds) : IGameEvent;
+
+public sealed record ActiveSkillResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    SkillKind Skill,
+    ActiveSkillEffectKind Effect) : IGameEvent;
+
+public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing }
+
+/// <summary>The declared target lost its required cards during the response window.</summary>
+public sealed record CardEffectSkippedEvent(
+    long ResolutionId, int SourceSeat, int TargetSeat, CardKind CardKind,
+    CardEffectSkipReason Reason) : IGameEvent;
+
+/// <summary>Public placement of a delayed card in a target's judgment zone.</summary>
+public sealed record DelayedCardPlacedEvent(
+    long ResolutionId,
+    int CardId,
+    CardKind CardKind,
+    int SourceSeat,
+    int TargetSeat) : IGameEvent;
+
+/// <summary>Public result after a delayed card's judgment and phase transition.</summary>
+public sealed record DelayedCardResolvedEvent(
+    long ResolutionId,
+    int CardId,
+    CardKind CardKind,
+    int TargetSeat,
+    int? JudgmentCardId,
+    bool JudgmentSucceeded,
+    bool SkippedPlayPhase) : IGameEvent
+{
+    /// <summary>Whether this delayed card skipped the target's Draw phase.</summary>
+    public bool SkippedDrawPhase { get; init; }
+}
+
+/// <summary>
+/// Public terminal result for Lightning. A miss transfers the public delayed
+/// card to the next alive seat; a hit starts a typed three-point Thunder damage
+/// continuation. The event never exposes hidden cards or deck order.
+/// </summary>
+public sealed record LightningResolvedEvent(
+    long ResolutionId,
+    int CardId,
+    int JudgmentTargetSeat,
+    int? JudgmentCardId,
+    bool Hit,
+    int? NextTargetSeat,
+    int DamageAmount) : IGameEvent;
 
 /// <summary>
 /// Public equipment lifecycle result. Equipment cards are visible to every
@@ -126,6 +249,125 @@ public sealed record ResponseRequestedEvent(
     int TargetSeat,
     CardKind IncomingCard,
     CardKind? RequiredCardKind = null) : IGameEvent;
+
+/// <summary>
+/// Publicly announces a trick-effect nullification opportunity. The responder's
+/// private hand is exposed only through that responder's filtered prompt.
+/// </summary>
+public sealed record NullificationRequestedEvent(
+    long ResolutionId,
+    int EffectCardId,
+    CardKind EffectCardKind,
+    int SourceSeat,
+    int ResponderSeat,
+    bool EffectCurrentlyNullified,
+    int ChainDepth) : IGameEvent;
+
+/// <summary>Public result of one played Nullification card.</summary>
+public sealed record NullificationRespondedEvent(
+    long ResolutionId,
+    int EffectCardId,
+    CardKind EffectCardKind,
+    int ResponderSeat,
+    int NullificationCardId,
+    bool EffectNullified,
+    int ChainDepth) : IGameEvent;
+
+/// <summary>Public terminal result of the layered trick-effect response window.</summary>
+public sealed record NullificationResolvedEvent(
+    long ResolutionId,
+    int EffectCardId,
+    CardKind EffectCardKind,
+    bool EffectNullified,
+    int ChainDepth) : IGameEvent;
+
+/// <summary>
+/// Public cursor notification for the source-side hidden-hand choice. It
+/// carries the number of opaque slots only; the selected physical card stays
+/// redacted until the normal target-card outcome event is projected.
+/// </summary>
+public sealed record TargetCardSelectionRequestedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    LegalActionKind ActionKind,
+    int CandidateCount) : IGameEvent;
+
+/// <summary>Public state change for one character's elemental-link marker.</summary>
+public sealed record IronChainStateChangedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool IsChained) : IGameEvent;
+
+/// <summary>Public completion event for the exact one/two-target IronChain choice.</summary>
+public sealed record IronChainResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    IReadOnlyList<int> TargetSeats) : IGameEvent;
+
+/// <summary>The recast card is public; the newly drawn card identities remain private.</summary>
+public sealed record CardRecastEvent(int ActorSeat, int CardId, CardKind CardKind, int DrawCount) : IGameEvent;
+
+/// <summary>Publicly explains one propagated elemental damage step.</summary>
+public sealed record ChainedDamagePropagatedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int FromSeat,
+    int TargetSeat,
+    int Amount,
+    DamageNature Nature) : IGameEvent;
+
+/// <summary>Public lifecycle notification for a deterministic judgment.</summary>
+public sealed record JudgmentRequestedEvent(
+    long ResolutionId,
+    long ParentResolutionId,
+    int TargetSeat,
+    string Reason,
+    CardKind? SourceCard = null) : IGameEvent;
+
+/// <summary>
+/// Public result of a judgment. The revealed card is public by rule; nullable
+/// fields represent an exhausted deck with no card available to judge.
+/// </summary>
+public sealed record JudgmentResolvedEvent(
+    long ResolutionId,
+    long ParentResolutionId,
+    int TargetSeat,
+    string Reason,
+    int? CardId,
+    CardKind? CardKind,
+    Suit? Suit,
+    int? Rank,
+    bool Succeeded) : IGameEvent;
+
+/// <summary>
+/// Publicly announces a private Guicai opportunity. The owner hand remains
+/// visible only through that owner's filtered PendingDecision.
+/// </summary>
+public sealed record JudgmentReplacementRequestedEvent(
+    long ResolutionId,
+    long JudgmentResolutionId,
+    int TargetSeat,
+    int OwnerSeat,
+    string Reason,
+    int JudgmentCardId,
+    CardKind JudgmentCardKind,
+    Suit JudgmentSuit) : IGameEvent;
+
+/// <summary>Trusted-host result of one Guicai replacement opportunity.</summary>
+public sealed record JudgmentReplacementResolvedEvent(
+    long ResolutionId,
+    long JudgmentResolutionId,
+    int TargetSeat,
+    int OwnerSeat,
+    string Reason,
+    bool Used,
+    int OldCardId,
+    int? NewCardId,
+    CardKind? NewCardKind,
+    Suit? NewSuit,
+    int? NewRank) : IGameEvent;
 
 public sealed record CardRespondedEvent(
     int CardId,
@@ -233,6 +475,20 @@ public sealed record DamageSkillCardGivenEvent(
     CardKind CardKind,
     SkillKind Skill) : IGameEvent;
 
+/// <summary>
+/// Trusted-host result of the red Ganglie judgment punishment. Discarded card
+/// ids are intentionally kept out of ordinary player snapshots; the host
+/// event stream is the audit surface for this private choice.
+/// </summary>
+public sealed record GangliePunishmentResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int SourceSeat,
+    GangliePunishmentKind Punishment,
+    IReadOnlyList<int> DiscardedCardIds,
+    int SourceHp,
+    bool SourceAlive) : IGameEvent;
+
 public sealed record AlcoholAppliedEvent(
     long ResolutionId,
     int SourceSeat,
@@ -264,7 +520,15 @@ public sealed record DyingResponseEvent(
     bool UsedPeach,
     int? PeachCardId,
     bool UsedAlcohol = false,
-    int? AlcoholCardId = null) : IGameEvent;
+    int? AlcoholCardId = null) : IGameEvent
+{
+    /// <summary>
+    /// Physical kind of a card that was converted to Peach by a rescue skill.
+    /// Null preserves the legacy event shape for a native Peach response.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardKind? UsedPeachPhysicalCardKind { get; init; }
+}
 
 public sealed record DuelResponseEvent(
     long ResolutionId,
@@ -284,9 +548,19 @@ public sealed record GroupResponseEvent(
 
 public sealed record RoleRevealedEvent(int Seat, Role Role) : IGameEvent;
 
-public sealed record WinnerDeterminedEvent(Winner Winner) : IGameEvent;
+public sealed record WinnerDeterminedEvent(
+    Winner Winner,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    string? TeamId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    string? FactionId = null) : IGameEvent;
 
-public sealed record GameEndedEvent(Winner Winner) : IGameEvent;
+public sealed record GameEndedEvent(
+    Winner Winner,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    string? TeamId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    string? FactionId = null) : IGameEvent;
 
 public sealed record CardMovedEvent(
     int CardId,

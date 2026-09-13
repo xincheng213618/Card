@@ -17,6 +17,7 @@ public readonly record struct PromptId(long Value)
 /// <summary>A stable identifier for one exact choice in a prompt.</summary>
 public readonly record struct ChoiceId
 {
+    [JsonConstructor]
     public ChoiceId(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -82,11 +83,16 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(StartGameCommand), "start")]
 [JsonDerivedType(typeof(AdvanceCommand), "advance")]
+[JsonDerivedType(typeof(AdvanceOneStepCommand), "advance-one-step")]
 [JsonDerivedType(typeof(PlayCardCommand), "play-card")]
+[JsonDerivedType(typeof(RecastCardCommand), "recast-card")]
 [JsonDerivedType(typeof(EndPlayPhaseCommand), "end-play")]
+[JsonDerivedType(typeof(DiscardCardsCommand), "discard-cards")]
 [JsonDerivedType(typeof(SelectGeneralCommand), "select-general")]
+[JsonDerivedType(typeof(RevealGeneralCommand), "reveal-general")]
 [JsonDerivedType(typeof(AnswerPromptCommand), "answer-prompt")]
 [JsonDerivedType(typeof(RespondCommand), "respond")]
+[JsonDerivedType(typeof(UseSkillCommand), "use-skill")]
 public abstract record GameCommand(int ActorSeat, long ExpectedRevision);
 
 /// <summary>Starts an unstarted match. ActorSeat is the trusted host (-1).</summary>
@@ -99,6 +105,10 @@ public sealed record StartGameCommand(long ExpectedRevision = 0) : GameCommand(-
 public sealed record AdvanceCommand(long ExpectedRevision, int ActorSeat = -1) :
     GameCommand(ActorSeat, ExpectedRevision);
 
+/// <summary>Commits one state-machine step, preserving paced host playback in the journal.</summary>
+public sealed record AdvanceOneStepCommand(long ExpectedRevision, int ActorSeat = -1) :
+    GameCommand(ActorSeat, ExpectedRevision);
+
 /// <summary>Uses one card with one exact target list from the current play prompt.</summary>
 public sealed record PlayCardCommand(
     int ActorSeat,
@@ -106,7 +116,25 @@ public sealed record PlayCardCommand(
     IReadOnlyList<int> TargetSeats,
     long ExpectedRevision,
     PromptId? PromptId = null,
-    CardKind? PlayedCardKind = null) : GameCommand(ActorSeat, ExpectedRevision);
+    CardKind? PlayedCardKind = null,
+    int? TargetCardId = null) : GameCommand(ActorSeat, ExpectedRevision);
+
+/// <summary>Recasts an eligible physical hand card without using it as a trick.</summary>
+public sealed record RecastCardCommand(int ActorSeat, int CardId, long ExpectedRevision, PromptId? PromptId = null)
+    : GameCommand(ActorSeat, ExpectedRevision);
+
+/// <summary>
+/// Uses the actor's currently available active skill. CardIds and TargetSeats
+/// are exact private selections when the skill's published action requires
+/// them; cardless skills keep both lists empty.
+/// </summary>
+public sealed record UseSkillCommand(
+    int ActorSeat,
+    SkillKind Skill,
+    IReadOnlyList<int> CardIds,
+    IReadOnlyList<int> TargetSeats,
+    long ExpectedRevision,
+    PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
 
 /// <summary>Ends the current actor's play phase.</summary>
 public sealed record EndPlayPhaseCommand(
@@ -114,10 +142,28 @@ public sealed record EndPlayPhaseCommand(
     long ExpectedRevision,
     PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
 
+/// <summary>Discards an exact, distinct subset from a private hand-limit prompt.</summary>
+public sealed record DiscardCardsCommand(
+    int ActorSeat,
+    IReadOnlyList<int> CardIds,
+    PromptId PromptId,
+    long ExpectedRevision) : GameCommand(ActorSeat, ExpectedRevision);
+
 /// <summary>Selects one exact general from the actor's private setup prompt.</summary>
 public sealed record SelectGeneralCommand(
     int ActorSeat,
     string GeneralId,
+    long ExpectedRevision,
+    PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
+
+/// <summary>
+/// Publicly reveals one selected general in the national-war lite adapter.
+/// The current play or supported response prompt supplies the revision and
+/// optional prompt id.
+/// </summary>
+public sealed record RevealGeneralCommand(
+    int ActorSeat,
+    GeneralSelectionSlot Slot,
     long ExpectedRevision,
     PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
 

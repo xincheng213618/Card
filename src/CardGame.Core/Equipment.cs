@@ -27,7 +27,9 @@ public sealed record EquipmentDefinition(
     int SlashLimitBonus = 0,
     int OutgoingDistanceModifier = 0,
     int IncomingDistanceModifier = 0,
-    int DrawCountBonus = 0);
+    int DrawCountBonus = 0,
+    bool IgnoresArmor = false,
+    bool BlocksBlackSlash = false);
 
 public static class EquipmentCatalog
 {
@@ -41,11 +43,23 @@ public static class EquipmentCatalog
                 "装备至武器槽；攻击范围 +1，出牌阶段使用杀不受次数限制。",
                 AttackRangeBonus: 1,
                 SlashLimitBonus: int.MaxValue),
+            [CardKind.QinggangSword] = new(
+                CardKind.QinggangSword,
+                "青釭剑",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；你使用杀时无视目标的防具。",
+                IgnoresArmor: true),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",
                 EquipmentSlot.Armor,
-                "装备至防具槽；当前切片只建立公开装备生命周期，判定防御效果待 K7。"),
+                "装备至防具槽；成为杀的目标时可进行一次判定，红色判定牌视为打出闪。"),
+            [CardKind.RenwangShield] = new(
+                CardKind.RenwangShield,
+                "仁王盾",
+                EquipmentSlot.Armor,
+                "装备至防具槽；黑色杀不能对你使用。",
+                BlocksBlackSlash: true),
             [CardKind.OffensiveHorse] = new(
                 CardKind.OffensiveHorse,
                 "赤兔",

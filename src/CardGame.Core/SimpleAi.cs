@@ -3,25 +3,121 @@ namespace CardGame.Core;
 /// <summary>
 /// A deliberately small, inspectable heuristic AI. It receives the same filtered
 /// snapshot as a human player: its own role and hand, the public Lord/dead roles,
-/// and only other players' hand counts.
+/// public team/faction information, and only other players' hand counts.
 /// </summary>
-public sealed class SimpleAiBrain
+public sealed partial class SimpleAiBrain
 {
     private readonly Dictionary<int, double> _rebelSuspicion = [];
+    private readonly Dictionary<int, double> _nationalEnemySuspicion = [];
     private readonly DeterministicRandom _random;
+    private readonly int _policyVersion;
+    private readonly HashSet<int> _recastCardsThisTurn = [];
+    private int _recastTurn = -1;
 
-    public SimpleAiBrain(int seat, int seed)
+    public SimpleAiBrain(int seat, int seed, int policyVersion = 1)
     {
+        if (policyVersion is not (1 or 2 or 3))
+            throw new ArgumentOutOfRangeException(nameof(policyVersion));
         Seat = seat;
+        _policyVersion = policyVersion;
         _random = new DeterministicRandom(seed == 0 ? seat + 1 : seed);
     }
 
     public int Seat { get; }
 
+    public void ObserveRecast(int turnNumber, int cardId)
+    {
+        if (_recastTurn != turnNumber) { _recastTurn = turnNumber; _recastCardsThisTurn.Clear(); }
+        _recastCardsThisTurn.Add(cardId);
+    }
+
     public IReadOnlyDictionary<int, double> RebelSuspicion => _rebelSuspicion;
 
-    public void ObserveSlash(int sourceSeat, int targetSeat, int lordSeat, Role? revealedTargetRole)
+    /// <summary>
+    /// Public-evidence confidence for a hidden national-war seat. Positive values
+    /// mean the seat is more likely to be an enemy of this AI's faction; the
+    /// bounded value is diagnostic state, not a player-visible projection.
+    /// </summary>
+    public IReadOnlyDictionary<int, double> NationalEnemySuspicion => _nationalEnemySuspicion;
+
+    /// <summary>
+    /// Records one public national-war attack. The caller must provide only
+    /// factions that are already public to every observer; the observer's own
+    /// faction is its private player-view input. No hidden target faction, hand,
+    /// deck order or resolution state is accepted by this boundary.
+    /// </summary>
+    public void ObserveNationalAttack(
+        int sourceSeat,
+        int targetSeat,
+        string? observerFactionId,
+        string? visibleSourceFactionId,
+        string? visibleTargetFactionId)
     {
+        if (_policyVersion < 2 || sourceSeat == Seat || sourceSeat == targetSeat ||
+            string.IsNullOrWhiteSpace(observerFactionId))
+        {
+            return;
+        }
+
+        if (targetSeat == Seat ||
+            string.Equals(visibleTargetFactionId, observerFactionId, StringComparison.Ordinal))
+        {
+            AddNationalEnemySuspicion(sourceSeat, 2d);
+        }
+        else if (visibleSourceFactionId is null && visibleTargetFactionId is not null &&
+                 !string.Equals(visibleTargetFactionId, observerFactionId, StringComparison.Ordinal))
+        {
+            // An unknown source attacking a publicly known enemy is weak evidence
+            // that the source may be an ally. Keep it deliberately conservative in
+            // a three-faction table where the third faction is still possible.
+            AddNationalEnemySuspicion(sourceSeat, -0.75d);
+        }
+
+        if (string.Equals(visibleSourceFactionId, observerFactionId, StringComparison.Ordinal) &&
+            visibleTargetFactionId is null)
+        {
+            AddNationalEnemySuspicion(targetSeat, 1.5d);
+        }
+    }
+
+    private void AddNationalEnemySuspicion(int seat, double delta)
+    {
+        _nationalEnemySuspicion[seat] = Math.Clamp(
+            _nationalEnemySuspicion.GetValueOrDefault(seat) + delta,
+            -6d,
+            6d);
+    }
+
+    /// <summary>
+    /// Observes a public hostile action in identity mode. The action kind is
+    /// intentionally not part of this first-pass model: Slash, Duel, group
+    /// attacks and FireAttack all expose the same source/target role evidence.
+    /// The engine supplies only the Lord seat and any role already public at
+    /// the time of the action; it never supplies hidden roles or card state.
+    /// </summary>
+    public void ObservePublicAttack(int sourceSeat, int targetSeat, int lordSeat, Role? revealedTargetRole) =>
+        ObservePublicAttack(new PublicAttackEvidence(
+            PublicAttackKind.Slash,
+            sourceSeat,
+            targetSeat,
+            lordSeat,
+            revealedTargetRole));
+
+    /// <summary>
+    /// Consumes one typed public attack observation. The kind is part of the
+    /// public vocabulary even though the current first-pass identity model
+    /// gives all hostile actions the same role signal.
+    /// </summary>
+    public void ObservePublicAttack(PublicAttackEvidence evidence)
+    {
+        var sourceSeat = evidence.SourceSeat;
+        var targetSeat = evidence.TargetSeat;
+        var lordSeat = evidence.LordSeat;
+        var revealedTargetRole = evidence.RevealedTargetRole;
+        if (evidence.Kind == PublicAttackKind.FireAttack && _policyVersion < 3)
+        {
+            return;
+        }
         if (sourceSeat == Seat)
         {
             return;
@@ -42,6 +138,38 @@ public sealed class SimpleAiBrain
         {
             _rebelSuspicion[sourceSeat] -= Math.Min(1.5d, _rebelSuspicion[targetSeat] * 0.35d);
         }
+        if (_policyVersion >= 2)
+        {
+            if (targetSeat != lordSeat && revealedTargetRole is null && _rebelSuspicion.GetValueOrDefault(targetSeat) < -1d)
+                _rebelSuspicion[sourceSeat] += Math.Min(1.5d, -_rebelSuspicion[targetSeat] * 0.35d);
+            _rebelSuspicion[sourceSeat] = Math.Clamp(_rebelSuspicion[sourceSeat], -6d, 6d);
+        }
+    }
+
+    public void ObserveSlash(int sourceSeat, int targetSeat, int lordSeat, Role? revealedTargetRole) =>
+        ObservePublicAttack(new PublicAttackEvidence(
+            PublicAttackKind.Slash,
+            sourceSeat,
+            targetSeat,
+            lordSeat,
+            revealedTargetRole));
+
+    public void ObserveFireAttack(int sourceSeat, int targetSeat, int lordSeat, Role? revealedTargetRole) =>
+        ObserveFireAttack(new PublicAttackEvidence(
+            PublicAttackKind.FireAttack,
+            sourceSeat,
+            targetSeat,
+            lordSeat,
+            revealedTargetRole));
+
+    public void ObserveFireAttack(PublicAttackEvidence evidence)
+    {
+        // FireAttack evidence is a v3 extension. Keeping v1/v2 untouched is
+        // required for their existing command journals and checkpoints.
+        if (evidence.Kind == PublicAttackKind.FireAttack)
+        {
+            ObservePublicAttack(evidence);
+        }
     }
 
     /// <summary>
@@ -50,7 +178,12 @@ public sealed class SimpleAiBrain
     /// without making GameEngine reach into its private state.
     /// </summary>
     public void ObserveDuel(int sourceSeat, int targetSeat, int lordSeat, Role? revealedTargetRole) =>
-        ObserveSlash(sourceSeat, targetSeat, lordSeat, revealedTargetRole);
+        ObservePublicAttack(new PublicAttackEvidence(
+            PublicAttackKind.Duel,
+            sourceSeat,
+            targetSeat,
+            lordSeat,
+            revealedTargetRole));
 
     /// <summary>
     /// A group attack exposes the same public hostile-action signal as Slash. The
@@ -58,7 +191,12 @@ public sealed class SimpleAiBrain
     /// suspicion model while preserving one information boundary.
     /// </summary>
     public void ObserveGroupAttack(int sourceSeat, int targetSeat, int lordSeat, Role? revealedTargetRole) =>
-        ObserveSlash(sourceSeat, targetSeat, lordSeat, revealedTargetRole);
+        ObservePublicAttack(new PublicAttackEvidence(
+            PublicAttackKind.GroupAttack,
+            sourceSeat,
+            targetSeat,
+            lordSeat,
+            revealedTargetRole));
 
     /// <summary>
     /// Death reveals a role publicly, so every observer can revise its model without
@@ -80,6 +218,7 @@ public sealed class SimpleAiBrain
             Role.Renegade => -0.5d,
             _ => 0d
         };
+        if (_policyVersion >= 2) _rebelSuspicion[killerSeat.Value] = Math.Clamp(_rebelSuspicion[killerSeat.Value], -6d, 6d);
     }
 
     public (LegalAction Action, AiThoughtRecord Thought) ChoosePlay(
@@ -93,12 +232,19 @@ public sealed class SimpleAiBrain
         }
 
         var self = view.Players.Single(player => player.Seat == Seat);
-        var selfRole = self.Role ?? throw new InvalidOperationException("An AI must see its own role.");
+        // National-war snapshots intentionally have no identity Role. The
+        // fallback only preserves the legacy scorer's neutral shape; targeting
+        // is decided from the public/private faction fields below.
+        var selfRole = self.Role ?? Role.Renegade;
         var candidates = new List<AiCandidateScore>(legalActions.Count);
 
         foreach (var action in legalActions)
         {
-            var (score, reason) = ScoreAction(view, self, selfRole, action);
+            var (score, reason) = action.Kind == LegalActionKind.RevealGeneral
+                ? ScoreNationalRevealAction(view, self, action)
+                : _policyVersion >= 2
+                    ? ScoreTacticalAction(view, self, selfRole, action, legalActions)
+                    : ScoreAction(view, self, selfRole, action);
             // A very small seeded jitter resolves exact ties without making replays unstable.
             score += _random.NextDouble() * 0.001d;
             candidates.Add(new AiCandidateScore(action, Math.Round(score, 3), reason));
@@ -107,6 +253,9 @@ public sealed class SimpleAiBrain
         var selected = candidates
             .OrderByDescending(candidate => candidate.Score)
             .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
+            .ThenBy(candidate => candidate.Action.TargetSeat ?? int.MaxValue)
+            .ThenBy(candidate => string.Join(',', candidate.Action.TargetSeats))
+            .ThenBy(candidate => candidate.Action.TargetCardId ?? int.MaxValue)
             .First();
 
         var thought = new AiThoughtRecord(
@@ -118,6 +267,80 @@ public sealed class SimpleAiBrain
             $"选择最高分动作：{selected.Action.Description}（{selected.Score:0.###} 分）。");
 
         return (selected.Action, thought);
+    }
+
+    /// <summary>
+    /// Selects the smallest legal private card subset for an active-skill
+    /// action. The engine passes only this AI's filtered snapshot, so the
+    /// selection cannot inspect another player's hand or the hidden deck.
+    /// </summary>
+    public IReadOnlyList<int> ChooseActiveSkillCards(
+        GameSnapshot view,
+        LegalAction action)
+    {
+        if (action.Kind != LegalActionKind.UseSkill || action.MinCardCount == 0)
+        {
+            return [];
+        }
+
+        if (action.MinCardCount < 0 || action.MaxCardCount < action.MinCardCount)
+        {
+            throw new InvalidOperationException("The active-skill card selection bounds are invalid.");
+        }
+
+        var self = view.Players.Single(player => player.Seat == Seat);
+        if (action.MinCardCount > self.Hand.Count)
+        {
+            throw new InvalidOperationException("The active skill requires more cards than the AI owns.");
+        }
+
+        return self.Hand
+            .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+            .ThenBy(card => card.Id)
+            .Take(action.MinCardCount)
+            .Select(card => card.Id)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Selects the smallest legal target subset for a target-selecting active
+    /// skill. Rende targets one other living character; Qingnang targets one
+    /// wounded living character and may include the owner; Huichun targets its
+    /// minimum number of wounded living characters. Public HP is enough to keep
+    /// this deterministic without reading hidden identity or hand data.
+    /// </summary>
+    public IReadOnlyList<int> ChooseActiveSkillTargets(
+        GameSnapshot view,
+        LegalAction action)
+    {
+        if (action.Kind != LegalActionKind.UseSkill || action.MinTargetCount == 0)
+        {
+            return [];
+        }
+
+        if (action.MinTargetCount < 0 || action.MaxTargetCount < action.MinTargetCount)
+        {
+            throw new InvalidOperationException("The active-skill target selection bounds are invalid.");
+        }
+
+        var candidates = view.Players
+            .Where(player => player.IsAlive &&
+                             (action.Skill is SkillKind.Qingnang or SkillKind.Huichun
+                                 ? player.Hp < player.MaxHp
+                                 : player.Seat != Seat))
+            .OrderBy(player => player.Hp)
+            .ThenByDescending(player => player.MaxHp - player.Hp)
+            .ThenBy(player => player.Seat)
+            .ToArray();
+        if (action.MinTargetCount > candidates.Length)
+        {
+            throw new InvalidOperationException("The active skill requires more targets than are alive.");
+        }
+
+        return candidates
+            .Take(action.MinTargetCount)
+            .Select(player => player.Seat)
+            .ToArray();
     }
 
     /// <summary>
@@ -168,28 +391,91 @@ public sealed class SimpleAiBrain
         int attackerSeat,
         int thoughtSequence)
     {
+        var choice = ChooseDodgeResponse(view, attackerSeat, thoughtSequence);
+        return (choice.UseDodge, choice.Thought);
+    }
+
+    /// <summary>
+    /// Chooses between a visible physical Dodge, the visible Bagua armor
+    /// judgment, and taking damage. The engine calls this only with a public
+    /// player snapshot, so the choice never depends on the hidden draw-pile
+    /// order or another player's hand.
+    /// </summary>
+    public (bool UseDodge, bool UseBagua, AiThoughtRecord Thought) ChooseDodgeResponse(
+        GameSnapshot view,
+        int attackerSeat,
+        int thoughtSequence,
+        bool incomingIgnoresArmor = false)
+    {
         var self = view.Players.Single(player => player.Seat == Seat);
         var dodgeProfile = CardCatalog.Get(CardKind.Dodge);
-        var useScore = self.Hp <= 1
+        var hasDodge = self.Hand.Any(card =>
+            card.Kind == CardKind.Dodge ||
+            self.Skill == SkillKind.Longdan && IsSlashCard(card.Kind));
+        var hasBagua = !incomingIgnoresArmor &&
+                       self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
+        var useDodgeScore = self.Hp <= 1
             ? dodgeProfile.AiResponseValue + 35d
             : dodgeProfile.AiResponseValue + (self.MaxHp - self.Hp) * 8d;
+        var useBaguaScore = self.Hp <= 1
+            ? CardCatalog.Get(CardKind.BaguaFormation).AiPlayValue + 35d
+            : CardCatalog.Get(CardKind.BaguaFormation).AiPlayValue + (self.MaxHp - self.Hp) * 8d;
         var passScore = self.Hp <= 1 ? -100d : 5d;
-        var useDodge = useScore >= passScore;
+        if (!hasDodge)
+        {
+            useDodgeScore = double.NegativeInfinity;
+        }
+
+        if (!hasBagua)
+        {
+            useBaguaScore = double.NegativeInfinity;
+        }
+
+        var useDodge = useDodgeScore >= useBaguaScore && useDodgeScore >= passScore;
+        var useBagua = !useDodge && useBaguaScore >= passScore;
+        var description = useDodge
+            ? "打出闪"
+            : useBagua
+                ? "发动八卦阵"
+                : "不出闪";
         var pseudoAction = new LegalAction(
             LegalActionKind.EndPlay,
             null,
             attackerSeat,
-            useDodge ? "打出闪" : "不出闪");
+            description);
+
+        var candidates = new List<AiCandidateScore>();
+        if (hasDodge)
+        {
+            candidates.Add(new AiCandidateScore(
+                pseudoAction with { Description = "打出闪" },
+                useDodgeScore,
+                "使用可见的闪或龙胆转换牌，避免这次伤害。"));
+        }
+
+        if (hasBagua)
+        {
+            candidates.Add(new AiCandidateScore(
+                pseudoAction with { Description = "发动八卦阵" },
+                useBaguaScore,
+                "发动公开的八卦阵并进行红色判定；不读取隐藏牌堆顺序。"));
+        }
+
+        candidates.Add(new AiCandidateScore(
+            pseudoAction with { Description = "不出闪" },
+            passScore,
+            "保留响应资源，接受这次伤害。"));
 
         var thought = new AiThoughtRecord(
             thoughtSequence,
             view.TurnNumber,
             Seat,
             pseudoAction.Description,
-            [new(pseudoAction, useDodge ? useScore : passScore, "避免一点伤害，并保留生存空间。")],
-            $"生命值 {self.Hp}/{self.MaxHp}，决定{pseudoAction.Description}。");
+            candidates,
+            $"生命值 {self.Hp}/{self.MaxHp}，决定{pseudoAction.Description}。" +
+            (incomingIgnoresArmor ? "攻击者的武器无视防具，因此不考虑八卦阵。" : string.Empty));
 
-        return (useDodge, thought);
+        return (useDodge, useBagua, thought);
     }
 
     /// <summary>
@@ -245,6 +531,203 @@ public sealed class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses whether to open the private Ganglie judgment trigger. The
+    /// judgment result is deliberately not supplied here: it remains a hidden
+    /// draw-pile fact until the engine commits the public judgment event.
+    /// </summary>
+    public (bool UseGanglie, AiThoughtRecord Thought) ChooseGanglieTrigger(
+        GameSnapshot view,
+        int sourceSeat,
+        CardKind incomingCard,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var source = view.Players.Single(player => player.Seat == sourceSeat);
+        var useScore = 24d + Math.Max(0, self.MaxHp - self.Hp) * 6d +
+                       (source.Role is Role.Rebel && (self.Role is Role.Lord or Role.Loyalist) ? 6d : 0d);
+        var skipScore = self.Hp >= self.MaxHp ? 7d : 2d;
+        var candidates = new[]
+        {
+            new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.Ganglie,
+                    null,
+                    sourceSeat,
+                    "发动【刚烈】进行判定"),
+                Math.Round(useScore + _random.NextDouble() * 0.001d, 3),
+                "受伤后公开判定，优先压迫伤害来源；不读取牌堆顺序或来源手牌。"),
+            new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.SkipGanglie,
+                    null,
+                    sourceSeat,
+                    "不发动【刚烈】"),
+                Math.Round(skipScore + _random.NextDouble() * 0.001d, 3),
+                "保留当前结算，不进行额外判定。")
+        };
+        var selected = candidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Action.Kind)
+            .First();
+        var incomingName = CardCatalog.Get(incomingCard).DisplayName;
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Action.Description,
+            candidates,
+            $"刚烈：受到{incomingName}伤害后决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
+        return (selected.Action.Kind == LegalActionKind.Ganglie, thought);
+    }
+
+    /// <summary>
+    /// Chooses the red-judgment punishment from the exact private choices
+    /// published to this seat. Card ids are read only from this seat's filtered
+    /// snapshot; no opponent hand or engine zone is consulted.
+    /// </summary>
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseGangliePunishment(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices,
+        int ownerSeat,
+        int thoughtSequence)
+    {
+        if (choices.Count == 0)
+        {
+            throw new InvalidOperationException("AI was asked to resolve an empty Ganglie punishment prompt.");
+        }
+
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var handValues = self.Hand.ToDictionary(
+            card => card.Id,
+            card => CardCatalog.Get(card.Kind).HandKeepValue);
+        var scored = choices
+            .Select((choice, index) =>
+            {
+                var response = choice.Parameters.GetValueOrDefault("response");
+                var actionKind = response == "ganglie-discard-two"
+                    ? LegalActionKind.GanglieDiscardTwo
+                    : LegalActionKind.GanglieLoseHp;
+                var score = response == "ganglie-discard-two"
+                    ? -choice.Cards.Sum(cardId => handValues.GetValueOrDefault(cardId, 0)) +
+                      (self.Hp <= 1 ? 55d : self.HandCount > self.MaxHp ? 18d : 0d)
+                    : self.Hp <= 1 ? -90d : 24d;
+                var description = response == "ganglie-discard-two"
+                    ? $"弃置 {choice.Cards.Count} 张手牌"
+                    : "承受 1 点伤害";
+                return (
+                    Choice: choice,
+                    Index: index,
+                    Candidate: new AiCandidateScore(
+                        new LegalAction(actionKind, null, ownerSeat, description),
+                        Math.Round(score + _random.NextDouble() * 0.001d, 3),
+                        response == "ganglie-discard-two"
+                            ? "只按自己的私有手牌价值选择两张代价牌。"
+                            : "只按自己的公开体力决定是否承受伤害。"));
+            })
+            .ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Candidate.Action.Kind)
+            .ThenBy(item => item.Index)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Candidate.Action.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"刚烈反制：伤害来源选择{selected.Candidate.Action.Description}（{selected.Candidate.Score:0.###} 分）。");
+        return (selected.Choice.Id, thought);
+    }
+
+    /// <summary>
+    /// Chooses a private Guicai replacement from the exact hand-card ids in the
+    /// prompt. The current judgment is public context; the AI never receives
+    /// the hidden deck or another player's hand.
+    /// </summary>
+    public (int? CardId, AiThoughtRecord Thought) ChooseGuicaiReplacement(
+        GameSnapshot view,
+        int targetSeat,
+        string reason,
+        IReadOnlyList<int> validCardIds,
+        CardKind currentJudgmentCard,
+        Suit currentSuit,
+        int thoughtSequence,
+        int currentRank)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var cards = validCardIds
+            .Select(cardId => self.Hand.Single(card => card.Id == cardId))
+            .ToArray();
+        if (cards.Length == 0)
+        {
+            throw new InvalidOperationException("AI was asked to resolve an empty Guicai card prompt.");
+        }
+
+        var isLightning = reason == JudgmentReasons.Lightning;
+        var currentMatches = isLightning
+            ? currentSuit == Suit.Spade && currentRank is >= 2 and <= 9
+            : currentSuit is Suit.Heart or Suit.Diamond;
+        var cardCandidates = cards
+            .Select(card =>
+            {
+                var turnsSuccessful = isLightning
+                    ? card.Suit == Suit.Spade && card.Rank is >= 2 and <= 9
+                    : card.Suit is Suit.Heart or Suit.Diamond;
+                var score = currentMatches
+                    ? -CardCatalog.Get(card.Kind).HandKeepValue
+                    : turnsSuccessful
+                        ? 42d - CardCatalog.Get(card.Kind).HandKeepValue
+                        : -18d - CardCatalog.Get(card.Kind).HandKeepValue;
+                return new AiCandidateScore(
+                    new LegalAction(
+                        LegalActionKind.Guicai,
+                        card.Id,
+                    targetSeat,
+                    $"弃置【{card.DisplayName}】替换判定牌"),
+                    Math.Round(score + _random.NextDouble() * 0.001d, 3),
+                    turnsSuccessful
+                        ? isLightning
+                            ? "用自己的黑桃 2 至 9 手牌把公开闪电判定转为命中；不读取隐藏牌堆。"
+                            : "用自己的红色手牌把当前公开判定转为红色；不读取隐藏牌堆。"
+                        : isLightning
+                            ? "当前手牌不能把闪电转为命中，保留手牌资源。"
+                            : "当前牌面不适合转为红色，保留手牌资源。");
+            })
+            .ToList();
+        cardCandidates.Add(new AiCandidateScore(
+            new LegalAction(
+                LegalActionKind.SkipGuicai,
+                null,
+                targetSeat,
+                "不发动【鬼才】"),
+            currentMatches ? 30d : 1d,
+            currentMatches
+                ? isLightning
+                    ? "当前闪电判定已经命中，只使用公开判定结果。"
+                    : "当前判定已经是红色，只使用自己的公开判定结果。"
+                : isLightning
+                    ? "没有值得牺牲的黑桃 2 至 9 手牌时保留资源。"
+                    : "没有值得牺牲的红色手牌时保留资源."));
+
+        var selected = cardCandidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
+            .First();
+        var judgmentName = CardCatalog.Get(currentJudgmentCard).DisplayName;
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Action.Description,
+            cardCandidates,
+            $"鬼才：面对{judgmentName}（{currentSuit}，{reason}）决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
+        return (
+            selected.Action.Kind == LegalActionKind.Guicai ? selected.Action.CardId : null,
+            thought);
+    }
+
+    /// <summary>
     /// Chooses the bounded Yiji gift from the owner's private hand and the
     /// published legal target seats. The AI never reads another player's cards
     /// or the engine's zone store.
@@ -271,13 +754,16 @@ public sealed class SimpleAiBrain
             let score = profile.HandKeepValue +
                         Math.Max(0, self.MaxHp - target.HandCount) * 6d +
                         (target.Role is Role.Lord && self.Role is Role.Loyalist ? 8d : 0d)
+            let evaluated = _policyVersion >= 2
+                ? GetTacticalSupport(view, self.Role ?? Role.Renegade, target) * (24 + Math.Max(0, target.MaxHp - target.HandCount) * 6) - profile.HandKeepValue * .4
+                : score
             select new AiCandidateScore(
                 new LegalAction(
                     LegalActionKind.YijiGift,
                     card.Id,
                     target.Seat,
                     $"将【{profile.DisplayName}】交给座位 {target.Seat + 1}"),
-                Math.Round(score + _random.NextDouble() * 0.001d, 3),
+                Math.Round(evaluated + _random.NextDouble() * 0.001d, 3),
                 $"将自己可见的候选牌交给公开可见的存活座位；不读取目标手牌牌面。"))
             .ToList();
 
@@ -319,7 +805,7 @@ public sealed class SimpleAiBrain
         int thoughtSequence)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
-        var selfRole = self.Role ?? throw new InvalidOperationException("An AI must see its own role.");
+        var selfRole = self.Role ?? Role.Renegade;
         var candidates = targetSeats
             .Select(targetSeat => view.Players.Single(player => player.Seat == targetSeat))
             .Where(player => player.IsAlive && player.HandCount < player.MaxHp)
@@ -333,9 +819,8 @@ public sealed class SimpleAiBrain
                     Role.Rebel when selfRole == Role.Rebel => 4d,
                     _ => 0d
                 };
-                var score = Math.Round(
-                    deficit * 20d + roleBonus + _random.NextDouble() * 0.001d,
-                    3);
+                var value = _policyVersion >= 2 ? deficit * 20d * GetTacticalSupport(view, selfRole, target) : deficit * 20d + roleBonus;
+                var score = Math.Round(value + _random.NextDouble() * 0.001d, 3);
                 return new AiCandidateScore(
                     new LegalAction(
                         LegalActionKind.Jieming,
@@ -383,7 +868,7 @@ public sealed class SimpleAiBrain
         var self = view.Players.Single(player => player.Seat == Seat);
         var target = view.Players.Single(player => player.Seat == targetSeat);
         var missingHp = Math.Max(0, target.MaxHp - target.Hp);
-        var selfRole = self.Role ?? throw new InvalidOperationException("An AI must see its own role.");
+        var selfRole = self.Role ?? Role.Renegade;
         var candidates = cardIds
             .Select(cardId => self.Hand.SingleOrDefault(card => card.Id == cardId))
             .Where(card => card is not null)
@@ -402,6 +887,8 @@ public sealed class SimpleAiBrain
                 {
                     score += 8d;
                 }
+                if (_policyVersion >= 2)
+                    score = (target.Hp <= 1 ? 80 : 40) * GetTacticalSupport(view, selfRole, target) - profile.HandKeepValue * .45;
 
                 return new AiCandidateScore(
                     new LegalAction(
@@ -526,6 +1013,108 @@ public sealed class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses whether to spend one of this seat's private Nullification cards
+    /// on the published trick-effect context. The method receives no engine
+    /// zone, draw-pile, or other-player hand access; all strategic inputs come
+    /// from the filtered snapshot and the exact legal card ids supplied by the
+    /// current response prompt.
+    /// </summary>
+    public (int? CardId, AiThoughtRecord Thought) ChooseNullification(
+        GameSnapshot view,
+        CardKind effectCardKind,
+        int sourceSeat,
+        int? targetSeat,
+        bool effectCurrentlyNullified,
+        int chainDepth,
+        IReadOnlyList<int> validCardIds,
+        int thoughtSequence,
+        IReadOnlyList<int>? targetSeats = null)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var source = view.Players.Single(player => player.Seat == sourceSeat);
+        var resolvedTargetSeats = targetSeats is { Count: > 0 }
+            ? targetSeats
+            : targetSeat is { } resolvedTarget
+                ? [resolvedTarget]
+                : [];
+        var targets = resolvedTargetSeats
+            .Select(seat => view.Players.Single(player => player.Seat == seat))
+            .ToArray();
+        var effectName = CardCatalog.Get(effectCardKind).DisplayName;
+        var effectFavor = targets.Length == 0
+            ? ScoreNullificationFavor(
+                view,
+                selfRole,
+                source,
+                target: null,
+                effectCardKind: effectCardKind)
+            : targets.Sum(target => ScoreNullificationFavor(view, selfRole, source, target, effectCardKind));
+        var actionScore = effectCurrentlyNullified
+            ? effectFavor > 0d ? 48d + effectFavor : -12d
+            : effectFavor < 0d ? 54d - effectFavor : 2d;
+        if (targets.Any(target => target.Seat == Seat) &&
+            (_policyVersion == 1 || (effectCurrentlyNullified ? effectFavor > 0 : effectFavor < 0)))
+        {
+            actionScore += 38d;
+        }
+
+        var candidates = validCardIds
+            .Select(cardId => self.Hand.SingleOrDefault(card => card.Id == cardId))
+            .Where(card => card is not null && card.Kind == CardKind.Nullification)
+            .Select(card =>
+            {
+                var score = Math.Round(
+                    actionScore - CardCatalog.Get(card!.Kind).HandKeepValue * 0.18d +
+                    _random.NextDouble() * 0.001d,
+                    3);
+                var description = effectCurrentlyNullified
+                    ? $"使用【无懈可击】恢复【{effectName}】效果"
+                    : $"使用【无懈可击】使【{effectName}】失效";
+                return new AiCandidateScore(
+                    new LegalAction(
+                        LegalActionKind.Nullification,
+                        card.Id,
+                        sourceSeat,
+                        description),
+                    score,
+                    effectCurrentlyNullified
+                        ? "上一层无懈使效果暂时失效；按公开身份、目标和牌面价值判断是否恢复，不读取隐藏手牌。"
+                        : "按公开身份、目标和锦囊牌面价值判断是否抵消，不读取其他玩家手牌。");
+            })
+            .ToList();
+
+        var passScore = effectCurrentlyNullified
+            ? effectFavor > 0d ? -35d : 18d
+            : effectFavor < 0d ? -24d : 12d;
+        candidates.Add(new AiCandidateScore(
+            new LegalAction(
+                LegalActionKind.SkipNullification,
+                null,
+                sourceSeat,
+                "不使用【无懈可击】"),
+            passScore,
+            "保留自己的无懈资源；只使用当前公开的锦囊、身份、目标和生命信息。"));
+
+        var selected = candidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Action.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"无懈响应：第 {chainDepth} 层，针对【{effectName}】决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
+        return (
+            selected.Action.Kind == LegalActionKind.Nullification
+                ? selected.Action.CardId
+                : null,
+            thought);
+    }
+
+    /// <summary>
     /// Chooses one card from the public FiveGrains reveal. The option list is
     /// supplied by the current public prompt; no engine zone or another
     /// player's hand is consulted here.
@@ -567,6 +1156,43 @@ public sealed class SimpleAiBrain
             candidates,
             $"五谷丰登：从 {options.Count} 张公开牌中选择 {selected.Action.Description}（{selected.Score:0.###} 分）。");
         return (selected.Action.CardId ?? throw new InvalidOperationException("Harvest choice has no card id."), thought);
+    }
+
+    /// <summary>
+    /// Chooses one opaque ordinal slot from another player's hidden hand. Every
+    /// candidate is intentionally scored identically because the filtered view
+    /// contains no target-hand identity. The first slot is a stable tie-break;
+    /// the choice remains fully replayable without consulting engine state.
+    /// </summary>
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseTargetCardSlot(
+        GameSnapshot view,
+        int targetSeat,
+        LegalActionKind actionKind,
+        IReadOnlyList<PromptChoice> choices,
+        int thoughtSequence)
+    {
+        if (choices.Count == 0)
+        {
+            throw new InvalidOperationException("AI was asked to choose from an empty hidden-hand slot list.");
+        }
+
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var effectName = actionKind == LegalActionKind.Dismantlement ? "过河拆桥" : "顺手牵羊";
+        var candidates = choices
+            .Select(choice => new AiCandidateScore(
+                new LegalAction(actionKind, null, targetSeat, choice.Description),
+                0d,
+                "所有候选都是不可见的手牌位置；只按公开手牌数量选择，不读取目标牌面。"))
+            .ToArray();
+        var selected = choices[0];
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Description,
+            candidates,
+            $"{effectName}：目标 {target.Name} 有 {target.HandCount} 张隐藏手牌，候选牌位信息相同，选择第一个不透明牌位。");
+        return (selected.Id, thought);
     }
 
     /// <summary>
@@ -631,7 +1257,7 @@ public sealed class SimpleAiBrain
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var target = view.Players.Single(player => player.Seat == targetSeat);
-        var selfRole = self.Role ?? throw new InvalidOperationException("An AI must see its own role.");
+        var selfRole = self.Role ?? Role.Renegade;
         var hostility = GetHostility(view, selfRole, target);
         var useBase = 54d + hostility + (target.Hp <= 1 ? 18d : 0d);
         var candidates = matchingCardIds
@@ -701,9 +1327,8 @@ public sealed class SimpleAiBrain
     }
 
     /// <summary>
-    /// Chooses Peach for any legal responder and Alcohol only when the responder
-    /// is the dying holder. Both the view and the private card lists are scoped
-    /// to this AI seat; no other hand is inspected.
+    /// Chooses Peach or Alcohol for any legal responder. Both the view and the
+    /// private card lists are scoped to this AI seat; no other hand is inspected.
     /// </summary>
     public (bool UsePeach, int? PeachCardId, bool UseAlcohol, int? AlcoholCardId, AiThoughtRecord Thought)
         ChooseDyingResponseWithAlcohol(
@@ -715,29 +1340,36 @@ public sealed class SimpleAiBrain
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var victim = view.Players.Single(player => player.Seat == victimSeat);
-        var selfRole = self.Role ?? throw new InvalidOperationException("An AI must see its own role.");
-        var useScore = ScoreDyingResponse(selfRole, self.Seat, victim);
+        var selfRole = self.Role ?? Role.Renegade;
+        var useScore = _policyVersion >= 2
+            ? ScoreTacticalDyingResponse(view, selfRole, victim)
+            : ScoreDyingResponse(selfRole, self.Seat, victim);
         var candidates = peaches
             .Select(peach => new AiCandidateScore(
                 new LegalAction(
                     LegalActionKind.Peach,
                     peach.Id,
                     victimSeat,
-                    $"使用桃救援 {victim.Name}"),
+                    peach.Kind == CardKind.Peach
+                        ? $"使用桃救援 {victim.Name}"
+                        : $"将{peach.DisplayName}当桃救援 {victim.Name}"),
                 Math.Round(useScore + _random.NextDouble() * 0.001d, 3),
-                "消耗一张自己的桃，使濒死角色回到 1 点体力。"))
+                peach.Kind == CardKind.Peach
+                    ? "消耗一张自己的桃，使濒死角色回到 1 点体力。"
+                    : $"将自己的一张{peach.DisplayName}当桃使用，使濒死角色回到 1 点体力。"))
             .ToList();
-        if (self.Seat == victimSeat)
-        {
-            candidates.AddRange(alcohols.Select(alcohol => new AiCandidateScore(
-                new LegalAction(
-                    LegalActionKind.Alcohol,
-                    alcohol.Id,
-                    victimSeat,
-                    $"使用酒自救 {victim.Name}"),
-                Math.Round(useScore - 1d + _random.NextDouble() * 0.001d, 3),
-                "仅在自己濒死时消耗一张酒，回复 1 点体力。")));
-        }
+        candidates.AddRange(alcohols.Select(alcohol => new AiCandidateScore(
+            new LegalAction(
+                LegalActionKind.Alcohol,
+                alcohol.Id,
+                victimSeat,
+                self.Seat == victimSeat
+                    ? $"使用酒自救 {victim.Name}"
+                    : $"使用酒救援 {victim.Name}"),
+            Math.Round(useScore + (_policyVersion >= 2 ? 5d : -1d) + _random.NextDouble() * 0.001d, 3),
+            self.Seat == victimSeat
+                ? "消耗一张自己的酒，使自己回到 1 点体力。"
+                : "消耗一张自己的酒，使公开濒死角色回到 1 点体力。")));
         candidates.Add(new AiCandidateScore(
             new LegalAction(
                 LegalActionKind.EndPlay,
@@ -781,6 +1413,16 @@ public sealed class SimpleAiBrain
             SkillKind.Yiji => role == Role.Loyalist ? 39d : 34d,
             SkillKind.Jieming => role is Role.Lord or Role.Loyalist ? 40d : 35d,
             SkillKind.Yuanhu => role is Role.Lord or Role.Loyalist ? 38d : 33d,
+            SkillKind.Ganglie => role is Role.Lord or Role.Loyalist ? 39d : 35d,
+            SkillKind.Guicai => role is Role.Lord or Role.Loyalist ? 41d : 36d,
+            SkillKind.Kujin => role is Role.Lord or Role.Loyalist ? 38d : 35d,
+            SkillKind.Zhiheng => role is Role.Lord or Role.Loyalist ? 36d : 34d,
+            SkillKind.Rende => role is Role.Lord or Role.Loyalist ? 40d : 36d,
+            SkillKind.Qingnang => role is Role.Lord or Role.Loyalist ? 39d : 35d,
+            SkillKind.Huichun => role is Role.Lord or Role.Loyalist ? 43d : 38d,
+            SkillKind.Mashu => role is Role.Rebel or Role.Renegade ? 38d : 34d,
+            SkillKind.Qicai => role is Role.Rebel or Role.Renegade ? 37d : 33d,
+            SkillKind.Jijiu => role is Role.Lord or Role.Loyalist ? 40d : 36d,
             _ => 12d
         };
         var reason = candidate.Skill switch
@@ -795,6 +1437,16 @@ public sealed class SimpleAiBrain
             SkillKind.Yiji => "受伤后摸牌并向其他角色分配资源，适合建立协作优势。",
             SkillKind.Jieming => "受伤后按公开手牌数量补足一名角色，适合稳住阵营资源。",
             SkillKind.Yuanhu => "其他角色受伤后可用自己的手牌换取公开回复，适合保护队友。",
+            SkillKind.Ganglie => "受伤后以公开判定逼迫伤害来源付出手牌或体力代价。",
+            SkillKind.Guicai => "在公开判定生效前用自己的手牌改变结果，适合保护己方结算。",
+            SkillKind.Kujin => "出牌阶段以 1 点体力换取两张牌；降至 0 点时先进入濒死救援。",
+            SkillKind.Zhiheng => "出牌阶段用低保留价值手牌换取等量新牌，稳定调整手牌质量。",
+            SkillKind.Rende => "出牌阶段将手牌交给其他角色；一次交给至少两张时可回复 1 点体力。",
+            SkillKind.Qingnang => "出牌阶段弃置一张手牌令受伤角色回复 1 点体力，每回合一次。",
+            SkillKind.Huichun => "出牌阶段弃置两张手牌，令至少两名受伤角色各回复 1 点体力，每回合一次。",
+            SkillKind.Mashu => "计算与其他角色的距离 -1，扩大杀和顺手牵羊的公开合法范围。",
+            SkillKind.Qicai => "锦囊牌无距离限制，扩大公开合法目标范围。",
+            SkillKind.Jijiu => "濒死窗口可将红色牌当作桃使用，扩大自己的救援牌来源。",
             _ => "当前演示版没有主动技能，作为稳定基础候选。"
         };
         return (score, reason);
@@ -830,6 +1482,77 @@ public sealed class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
+        if (action.Kind == LegalActionKind.Recast)
+            return _recastTurn == view.TurnNumber && action.CardId is { } recastId && _recastCardsThisTurn.Contains(recastId)
+                ? (-1000d, "本回合已重铸过这张实体牌，避免反复换回同一张牌而停滞。")
+                : (32d, "重铸铁索换取一张未知牌；不读取牌堆顺序，优先保留更有利的连环或解链行动。");
+        if (action.Kind == LegalActionKind.UseSkill)
+        {
+            if (action.Skill == SkillKind.Rende)
+            {
+                var recoveryBonus = self.HandCount >= 2 && self.Hp < self.MaxHp ? 12d : 0d;
+                return (
+                    14d + Math.Min(self.HandCount, 5) * 1.2d + recoveryBonus,
+                    recoveryBonus > 0
+                        ? $"发动{action.Description}，向公开低体力目标交给至少两张牌并回复 1 点；只使用自己的手牌和公开体力。"
+                        : $"发动{action.Description}，向其他存活角色交给一张低保留价值手牌；目标由公开存活信息确定。 ");
+            }
+
+            if (action.Skill == SkillKind.Qingnang)
+            {
+                var qingnangTarget = view.Players
+                    .Where(player => player.IsAlive && player.Hp < player.MaxHp)
+                    .OrderBy(player => player.Hp)
+                    .ThenByDescending(player => player.MaxHp - player.Hp)
+                    .ThenBy(player => player.Seat)
+                    .FirstOrDefault();
+                if (qingnangTarget is null)
+                    return (-100d, "没有受伤的存活角色，不能发动青囊。 ");
+
+                return (
+                    18d + (qingnangTarget.Hp <= 1 ? 8d : 0d),
+                    $"发动{action.Description}，弃置一张低保留价值手牌令公开受伤目标 {qingnangTarget.Seat + 1} 回复 1 点；不读取暗牌。 ");
+            }
+
+            if (action.Skill == SkillKind.Huichun)
+            {
+                var huichunTargets = view.Players
+                    .Where(player => player.IsAlive && player.Hp < player.MaxHp)
+                    .OrderBy(player => player.Hp)
+                    .ThenByDescending(player => player.MaxHp - player.Hp)
+                    .ThenBy(player => player.Seat)
+                    .Take(action.MinTargetCount)
+                    .ToArray();
+                if (huichunTargets.Length < action.MinTargetCount)
+                    return (-100d, "受伤存活角色不足，不能发动回春。 ");
+
+                var criticalTargets = huichunTargets.Count(player => player.Hp <= 1);
+                return (
+                    24d + criticalTargets * 8d + Math.Min(self.HandCount, 4),
+                    $"发动{action.Description}，弃置两张低保留价值手牌令 {huichunTargets.Length} 名公开受伤目标各回复 1 点；不读取暗牌。 ");
+            }
+
+            if (action.Skill == SkillKind.Zhiheng)
+            {
+                var discardCandidate = self.Hand
+                    .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                    .ThenBy(card => card.Id)
+                    .FirstOrDefault();
+                var candidateName = discardCandidate is null
+                    ? "没有可弃置牌"
+                    : $"优先弃置【{discardCandidate.DisplayName}】";
+                return (
+                    10d + Math.Min(self.HandCount, 6) * 0.5d,
+                    $"发动{action.Description}，弃置一张低保留价值手牌并摸一张；{candidateName}，不读取暗牌。 ");
+            }
+
+            var handPressure = Math.Min(self.HandCount, 6) * 0.8d;
+            var missingHp = Math.Max(0, self.MaxHp - self.Hp);
+            return (
+                24d + missingHp * 5d - handPressure,
+                $"发动{action.Description}，以 1 点公开体力换取两张牌；当前体力 {self.Hp}/{self.MaxHp}，不读取暗牌。 ");
+        }
+
         if (action.Kind == LegalActionKind.EndPlay)
         {
             return (0d, "结束出牌是所有局面的保底动作。");
@@ -923,22 +1646,100 @@ public sealed class SimpleAiBrain
                 $"为下一张杀准备 +1 伤害；当前可见手牌中有 {slashCount} 张杀，不读取其他玩家暗牌。");
         }
 
+        if (action.Kind == LegalActionKind.IronChain)
+        {
+            var targets = action.TargetSeats
+                .Select(targetSeat => view.Players.Single(player => player.Seat == targetSeat))
+                .ToArray();
+            var chainValue = targets.Sum(target =>
+            {
+                var hostility = target.Seat == self.Seat
+                    ? -95d
+                    : GetHostility(view, selfRole, target);
+                return target.IsChained ? -hostility : hostility;
+            });
+            var score = cardProfile.AiPlayValue + chainValue + targets.Length * 3d;
+            return (
+                score,
+                $"切换 {targets.Length} 名公开连环角色的状态；只使用公开身份、体力和连环标记，不读取隐藏手牌。");
+        }
+
         var target = view.Players.Single(player => player.Seat == action.TargetSeat);
+        if (action.Kind == LegalActionKind.Lightning)
+        {
+            var riskAdjustment = self.Hp >= 4 ? 18d : -62d;
+            return (
+                cardProfile.AiPlayValue + riskAdjustment,
+                $"对自己置入【闪电】；只按自己的公开体力 {self.Hp}/{self.MaxHp} 评估 3 点雷电风险，不读取隐藏牌堆顺序。 ");
+        }
+
         var hostility = GetHostility(view, selfRole, target);
+        if (action.Kind == LegalActionKind.Indulgence)
+        {
+            var existingJudgmentCount = target.Judgment.Count;
+            var lowHealthBonus = target.Hp <= 1 ? 10d : 0d;
+            return (
+                cardProfile.AiPlayValue + hostility + lowHealthBonus,
+                $"将【乐不思蜀】置入目标判定区；目标已有 {existingJudgmentCount} 张公开判定牌，只使用公开身份、体力和判定区，不读取目标暗牌。");
+        }
+
+        if (action.Kind == LegalActionKind.SupplyShortage)
+        {
+            var existingJudgmentCount = target.Judgment.Count;
+            var handPressure = Math.Min(target.HandCount, 5) * 6d;
+            return (
+                cardProfile.AiPlayValue + hostility + handPressure,
+                $"将【兵粮寸断】置入目标判定区；目标已有 {existingJudgmentCount} 张公开判定牌和 {target.HandCount} 张公开手牌数量，预计压制其下回合摸牌，只使用公开信息。");
+        }
+
         if (action.Kind == LegalActionKind.Dismantlement)
         {
             var handPressure = Math.Min(target.HandCount, 5) * 4d;
+            var publicEquipment = action.TargetCardId is { } targetCardId
+                ? target.Equipment.SingleOrDefault(card => card.Id == targetCardId)
+                : null;
+            var publicJudgment = action.TargetCardId is { } judgmentCardId
+                ? target.Judgment.SingleOrDefault(card => card.Id == judgmentCardId)
+                : null;
+            var publicTarget = publicEquipment ?? publicJudgment;
+            var publicTargetZone = publicEquipment is not null
+                ? "装备"
+                : publicJudgment is not null
+                    ? "判定区"
+                    : null;
+            var publicTargetPressure = publicTarget is null
+                ? 0d
+                : CardCatalog.Get(publicTarget.Kind).AiPlayValue * 0.75d + 12d;
             return (
-                cardProfile.AiPlayValue + hostility + handPressure,
-                $"盲弃置目标一张手牌；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌。");
+                cardProfile.AiPlayValue + hostility + handPressure + publicTargetPressure,
+                publicTarget is null
+                    ? $"选择目标的一张不透明牌位；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌。"
+                    : $"弃置目标公开{publicTargetZone}【{publicTarget.DisplayName}】；只读取公开{publicTargetZone}和身份敌对值，不读取目标暗牌。");
         }
 
         if (action.Kind == LegalActionKind.Snatch)
         {
             var handPressure = Math.Min(target.HandCount, 5) * 5d;
+            var publicEquipment = action.TargetCardId is { } targetCardId
+                ? target.Equipment.SingleOrDefault(card => card.Id == targetCardId)
+                : null;
+            var publicJudgment = action.TargetCardId is { } judgmentCardId
+                ? target.Judgment.SingleOrDefault(card => card.Id == judgmentCardId)
+                : null;
+            var publicTarget = publicEquipment ?? publicJudgment;
+            var publicTargetZone = publicEquipment is not null
+                ? "装备"
+                : publicJudgment is not null
+                    ? "判定区"
+                    : null;
+            var publicTargetValue = publicTarget is null
+                ? 0d
+                : CardCatalog.Get(publicTarget.Kind).AiPlayValue * 0.9d + 15d;
             return (
-                cardProfile.AiPlayValue + hostility + handPressure,
-                $"从距离 1 的目标盲取一张手牌；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌。");
+                cardProfile.AiPlayValue + hostility + handPressure + publicTargetValue,
+                publicTarget is null
+                    ? $"从距离 1 的目标选择一张不透明牌位；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌。"
+                    : $"从距离 1 的目标获得公开{publicTargetZone}【{publicTarget.DisplayName}】；只读取公开{publicTargetZone}和身份敌对值，不读取目标暗牌。");
         }
 
         if (action.Kind == LegalActionKind.FireAttack)
@@ -967,8 +1768,79 @@ public sealed class SimpleAiBrain
     private static bool IsRedCard(Suit suit) =>
         suit is Suit.Heart or Suit.Diamond;
 
+    private double ScoreNullificationFavor(
+        GameSnapshot view,
+        Role selfRole,
+        PlayerSnapshot source,
+        PlayerSnapshot? target,
+        CardKind effectCardKind)
+    {
+        if (_policyVersion >= 2)
+        {
+            if (source.Seat == Seat) return 80;
+            if (effectCardKind == CardKind.PeachGarden && target is not null)
+                return target.Hp >= target.MaxHp ? 0 : target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target);
+            if (effectCardKind is CardKind.DrawTwo or CardKind.FiveGrains && target is not null)
+                return target.Seat == Seat ? 95 : -GetHostility(view, selfRole, target);
+            if (effectCardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage && target is not null)
+                return target.Seat == Seat ? -95 : GetHostility(view, selfRole, target);
+        }
+        if (effectCardKind == CardKind.IronChain && target is not null)
+        {
+            var relation = target.Seat == Seat
+                ? -95d
+                : GetHostility(view, selfRole, target);
+            return target.IsChained ? -relation : relation;
+        }
+
+        var offensiveTargeted = effectCardKind is
+            CardKind.Duel or
+            CardKind.Dismantlement or
+            CardKind.Snatch or
+            CardKind.FireAttack or
+            CardKind.Indulgence or
+            CardKind.SupplyShortage or
+            CardKind.Lightning;
+        if (target is { Seat: var targetSeat } && targetSeat == Seat)
+        {
+            return -95d;
+        }
+
+        if (offensiveTargeted && target is not null)
+        {
+            return GetHostility(view, selfRole, target);
+        }
+
+        var sourceHostility = source.Seat == Seat
+            ? -100d
+            : GetHostility(view, selfRole, source);
+        return effectCardKind switch
+        {
+            CardKind.PeachGarden => -sourceHostility * 0.55d,
+            CardKind.DrawTwo or CardKind.FiveGrains => -sourceHostility * 0.9d,
+            CardKind.BarbarianAssault or CardKind.ArrowBarrage => -sourceHostility * 1.1d,
+            _ => -sourceHostility * 0.75d
+        };
+    }
+
     private double GetHostility(GameSnapshot view, Role selfRole, PlayerSnapshot target)
     {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        if (view.ModeKind == ContentModeKind.NationalWarLite)
+        {
+            return GetNationalHostility(view, target);
+        }
+
+        if (self.TeamId is not null || target.TeamId is not null)
+        {
+            return target.Seat == Seat
+                ? -1000d
+                : string.Equals(self.TeamId, target.TeamId, StringComparison.Ordinal)
+                    ? -100d
+                    : 100d;
+        }
+
+        if (_policyVersion >= 2) return GetTacticalHostility(view, selfRole, target);
         var visibleRole = target.Role;
         var suspicion = _rebelSuspicion.GetValueOrDefault(target.Seat);
 
@@ -993,6 +1865,35 @@ public sealed class SimpleAiBrain
             Role.Renegade => GetRenegadeHostility(view, target, visibleRole, suspicion),
             _ => 0d
         };
+    }
+
+    private double GetNationalHostility(GameSnapshot view, PlayerSnapshot target)
+    {
+        if (target.Seat == Seat)
+        {
+            return -1000d;
+        }
+
+        var self = view.Players.Single(player => player.Seat == Seat);
+        if (self.FactionId is null)
+        {
+            return 0d;
+        }
+
+        if (target.FactionId is null)
+        {
+            if (_policyVersion < 2)
+            {
+                return 0d;
+            }
+
+            var suspicion = _nationalEnemySuspicion.GetValueOrDefault(target.Seat);
+            return Math.Clamp(suspicion * 24d, -72d, 72d);
+        }
+
+        return string.Equals(self.FactionId, target.FactionId, StringComparison.Ordinal)
+            ? -100d
+            : 100d;
     }
 
     private static double GetRenegadeHostility(

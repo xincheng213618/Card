@@ -1,0 +1,93 @@
+[
+  {
+    "name": "card",
+    "seconds": 0.23,
+    "peak": 0.68,
+    "rms": 0.1276,
+    "sha256": "1eb549a8a3d083faf75d299114b2e218d96f60e371df869a238eeed78065aac0"
+  },
+  {
+    "name": "response",
+    "seconds": 0.28,
+    "peak": 0.68,
+    "rms": 0.1136,
+    "sha256": "6fee683000269c057f5296266ba20ecb95f5441ae4ee37e20b187a064c0b484c"
+  },
+  {
+    "name": "hit",
+    "seconds": 0.34,
+    "peak": 0.68,
+    "rms": 0.1333,
+    "sha256": "5eef25ceb73f8a8d1d95fe69030c7daebc344a27e3ab027497a470b002812a8e"
+  },
+  {
+    "name": "fire",
+    "seconds": 0.5,
+    "peak": 0.68,
+    "rms": 0.0815,
+    "sha256": "95bbc07b5f76ea5c58ff6a81daff6af4386f8d2a27ee157f14f5c500b261e298"
+  },
+  {
+    "name": "thunder",
+    "seconds": 0.65,
+    "peak": 0.68,
+    "rms": 0.0793,
+    "sha256": "a0dbaa6ea2012b1030fe127d2402d353c18d655851cc76966be2488bbedafdff"
+  },
+  {
+    "name": "recover",
+    "seconds": 0.72,
+    "peak": 0.68,
+    "rms": 0.1744,
+    "sha256": "d86db1ecf04f0cc41b48f90dffd3d78b2ef5a28c7e2f67fcf6991a538cdaaee3"
+  },
+  {
+    "name": "yourturn",
+    "seconds": 0.58,
+    "peak": 0.68,
+    "rms": 0.1658,
+    "sha256": "cd6bf21538aa7294646107e424b07750f0e92b066cd5b24418cdff01f28a0ef5"
+  },
+  {
+    "name": "prompt",
+    "seconds": 0.38,
+    "peak": 0.68,
+    "rms": 0.1519,
+    "sha256": "2aab3a0efb49c6cde7503dff0ac63d5130d2ed34fc72304d5f6f6b5a394520e4"
+  },
+  {
+    "name": "dying",
+    "seconds": 0.8,
+    "peak": 0.68,
+    "rms": 0.1341,
+    "sha256": "6abcb45271c2a58db99f050071cb33d139f1e54391f81a488cc63a2c833c3c1e"
+  },
+  {
+    "name": "death",
+    "seconds": 0.9,
+    "peak": 0.68,
+    "rms": 0.1264,
+    "sha256": "61486a36c23c4e1e252d8f0d4daffc9c470125ea14aa6dc79fc356667fae6638"
+  },
+  {
+    "name": "victory",
+    "seconds": 1.35,
+    "peak": 0.68,
+    "rms": 0.1391,
+    "sha256": "9f38742699aa34c08a6d584daacef8a4d3282ce2ef300b5c708659dc1c8cded9"
+  },
+  {
+    "name": "defeat",
+    "seconds": 1.15,
+    "peak": 0.68,
+    "rms": 0.143,
+    "sha256": "fd6cbcfca6ba8858c7b67f11fbd536defbac7dfc88a616c8ed6ba94884726563"
+  },
+  {
+    "name": "draw",
+    "seconds": 0.8,
+    "peak": 0.68,
+    "rms": 0.1666,
+    "sha256": "1a142d270aa16eaad3321e3fb4158c752e67c7a0e427da800707924831c46dbf"
+  }
+]

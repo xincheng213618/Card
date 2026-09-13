@@ -10,7 +10,7 @@ public sealed class StandardContentPackage : IGameContentPackage
 {
     public PackageManifest Manifest { get; } = new(
         Id: "standard",
-        Version: new Version(1, 6, 0),
+        Version: new Version(1, 11, 0),
         Dependencies: []);
 
     public void Register(IContentRegistryBuilder builder)
@@ -112,21 +112,76 @@ public sealed class StandardContentPackage : IGameContentPackage
             Id: "standard:dismantlement",
             DisplayName: "过河拆桥",
             CategoryName: "锦囊牌",
-            Description: "选择一名其他角色；确定性盲弃置其一张手牌。演示版暂未接入装备区和判定区。",
+            Description: "选择一名其他角色；盲弃置其一张手牌，或弃置其一张公开装备/判定区牌。",
             LegacyKind: CardKind.Dismantlement,
             AiTags: new Dictionary<string, string>
             {
-                ["action"] = "target-hidden-hand-discard"
+                ["action"] = "target-card-discard",
+                ["target-zone"] = "hand-or-equipment-or-judgment"
             }));
         builder.AddCard(new ContentCardDefinition(
             Id: "standard:snatch",
             DisplayName: "顺手牵羊",
             CategoryName: "锦囊牌",
-            Description: "选择一名距离为 1 的其他角色；确定性盲取其一张手牌。演示版暂未接入装备区和判定区。",
+            Description: "选择一名距离为 1 的其他角色；盲取其一张手牌，或获得其一张公开装备/判定区牌。",
             LegacyKind: CardKind.Snatch,
             AiTags: new Dictionary<string, string>
             {
-                ["action"] = "target-hidden-hand-take"
+                ["action"] = "target-card-take",
+                ["target-zone"] = "hand-or-equipment-or-judgment"
+            }));
+        builder.AddCard(new ContentCardDefinition(
+            Id: "standard:nullification",
+            DisplayName: "无懈可击",
+            CategoryName: "锦囊牌",
+            Description: "抵消一张锦囊牌的效果；无懈之间可以继续互相抵消。",
+            LegacyKind: CardKind.Nullification,
+            AiTags: new Dictionary<string, string>
+            {
+                ["response"] = "trick",
+                ["action"] = "counter"
+            }));
+        builder.AddCard(new ContentCardDefinition(
+            Id: "standard:iron_chain",
+            DisplayName: "铁索连环",
+            CategoryName: "锦囊牌",
+            Description: "横置或重置一至两名其他存活角色；被火焰或雷电伤害时，连环角色会传导同量伤害。",
+            LegacyKind: CardKind.IronChain,
+            AiTags: new Dictionary<string, string>
+            {
+                ["action"] = "toggle-one-or-two-chain",
+                ["damage"] = "propagate-fire-thunder"
+            }));
+        builder.AddCard(new ContentCardDefinition(
+            Id: "standard:indulgence",
+            DisplayName: "乐不思蜀",
+            CategoryName: "锦囊牌",
+            Description: "选择一名其他角色；其下个回合判定，若为红色则跳过出牌阶段。",
+            LegacyKind: CardKind.Indulgence,
+            AiTags: new Dictionary<string, string>
+            {
+                ["action"] = "delayed-judgment-skip-play"
+            }));
+        builder.AddCard(new ContentCardDefinition(
+            Id: "standard:supply_shortage",
+            DisplayName: "兵粮寸断",
+            CategoryName: "锦囊牌",
+            Description: "选择一名有手牌的其他角色；其下个回合判定，若为黑色则跳过摸牌阶段。",
+            LegacyKind: CardKind.SupplyShortage,
+            AiTags: new Dictionary<string, string>
+            {
+                ["action"] = "delayed-judgment-skip-draw"
+            }));
+        builder.AddCard(new ContentCardDefinition(
+            Id: "standard:lightning",
+            DisplayName: "闪电",
+            CategoryName: "锦囊牌",
+            Description: "置于自己的判定区；下个回合判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色的判定区。",
+            LegacyKind: CardKind.Lightning,
+            AiTags: new Dictionary<string, string>
+            {
+                ["action"] = "delayed-judgment-lightning",
+                ["damage"] = "three-thunder-or-transfer"
             }));
         builder.AddCard(new ContentCardDefinition(
             Id: "standard:fire_slash",
@@ -183,12 +238,34 @@ public sealed class StandardContentPackage : IGameContentPackage
             Id: "standard:bagua",
             DisplayName: "八卦阵",
             CategoryName: "装备牌",
-            Description: "装备至防具槽；当前演示只接入装备生命周期，判定防御效果待后续阶段。",
+            Description: "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。",
             LegacyKind: CardKind.BaguaFormation,
             AiTags: new Dictionary<string, string>
             {
                 ["action"] = "equip-armor",
-                ["status"] = "lifecycle-only"
+                ["response"] = "public-judgment-dodge"
+            }));
+        builder.AddCard(new ContentCardDefinition(
+            Id: "standard:renwang_shield",
+            DisplayName: "仁王盾",
+            CategoryName: "装备牌",
+            Description: "装备至防具槽；黑色杀不能对你使用。",
+            LegacyKind: CardKind.RenwangShield,
+            AiTags: new Dictionary<string, string>
+            {
+                ["action"] = "equip-armor",
+                ["modifier"] = "block-black-slash"
+            }));
+        builder.AddCard(new ContentCardDefinition(
+            Id: "standard:qinggang_sword",
+            DisplayName: "青釭剑",
+            CategoryName: "装备牌",
+            Description: "装备至武器槽；你使用杀时无视目标的防具。",
+            LegacyKind: CardKind.QinggangSword,
+            AiTags: new Dictionary<string, string>
+            {
+                ["action"] = "equip-weapon",
+                ["modifier"] = "ignore-armor"
             }));
         builder.AddCard(new ContentCardDefinition(
             Id: "standard:offensive_horse",
@@ -246,6 +323,10 @@ public sealed class StandardContentPackage : IGameContentPackage
             "standard:jieming", "节命", "受到伤害后，可令一名手牌数少于体力上限的角色摸牌至上限。", SkillKind.Jieming));
         builder.AddSkill(new ContentSkillDefinition(
             "standard:yuanhu", "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。", SkillKind.Yuanhu));
+        builder.AddSkill(new ContentSkillDefinition(
+            "standard:ganglie", "刚烈", "受到伤害后可进行判定；若为红色，伤害来源选择弃置两张手牌或受到 1 点伤害。", SkillKind.Ganglie));
+        builder.AddSkill(new ContentSkillDefinition(
+            "standard:guicai", "鬼才", "判定牌生效前，可弃置一张手牌替换之。", SkillKind.Guicai));
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "standard:cao-cao", "曹操", "cao_cao", "standard:jianxiong", "wei"));
@@ -271,6 +352,10 @@ public sealed class StandardContentPackage : IGameContentPackage
             "standard:xun-yu", "荀彧", "xun_yu", "standard:jieming", "wei"));
         builder.AddGeneral(new ContentGeneralDefinition(
             "standard:demo-yuanhu", "援护者", "supporter", "standard:yuanhu", "qun"));
+        builder.AddGeneral(new ContentGeneralDefinition(
+            "standard:demo-ganglie", "刚烈者", "ganglie", "standard:ganglie", "wei"));
+        builder.AddGeneral(new ContentGeneralDefinition(
+            "standard:demo-guicai", "鬼才者", "guicai", "standard:guicai", "wei"));
 
         builder.AddDeck(new ContentDeckRecipe(
             Id: "standard:basic-demo",
@@ -292,13 +377,20 @@ public sealed class StandardContentPackage : IGameContentPackage
                 new ContentDeckCardCount("standard:snatch", 2),
                 new ContentDeckCardCount("standard:fire_slash", 2),
                 new ContentDeckCardCount("standard:thunder_slash", 2),
-                 new ContentDeckCardCount("standard:alcohol", 2),
-                 new ContentDeckCardCount("standard:fire_attack", 2),
-                 new ContentDeckCardCount("standard:crossbow", 2),
-                 new ContentDeckCardCount("standard:bagua", 1),
-                 new ContentDeckCardCount("standard:offensive_horse", 1),
-                 new ContentDeckCardCount("standard:defensive_horse", 1),
-                 new ContentDeckCardCount("standard:jade_seal", 1)
+                new ContentDeckCardCount("standard:alcohol", 2),
+                new ContentDeckCardCount("standard:fire_attack", 2),
+                new ContentDeckCardCount("standard:crossbow", 2),
+                new ContentDeckCardCount("standard:bagua", 1),
+                new ContentDeckCardCount("standard:offensive_horse", 1),
+                new ContentDeckCardCount("standard:defensive_horse", 1),
+                new ContentDeckCardCount("standard:jade_seal", 1),
+                new ContentDeckCardCount("standard:qinggang_sword", 1),
+                new ContentDeckCardCount("standard:nullification", 2),
+                new ContentDeckCardCount("standard:iron_chain", 2),
+                new ContentDeckCardCount("standard:indulgence", 2),
+                new ContentDeckCardCount("standard:supply_shortage", 2),
+                new ContentDeckCardCount("standard:lightning", 2),
+                new ContentDeckCardCount("standard:renwang_shield", 1)
          ]));
 
         builder.AddMode(new ContentModeDefinition(
@@ -333,7 +425,7 @@ public sealed class StandardContentPackage : IGameContentPackage
             GeneralPoolIds: StandardGeneralIds));
     }
 
-    private static IReadOnlyList<string> StandardGeneralIds { get; } =
+    internal static IReadOnlyList<string> StandardGeneralIds { get; } =
     [
         "standard:cao-cao",
         "standard:zhang-fei",
@@ -346,7 +438,9 @@ public sealed class StandardContentPackage : IGameContentPackage
         "standard:hua-tuo",
         "standard:guo-jia",
         "standard:xun-yu",
-        "standard:demo-yuanhu"
+        "standard:demo-yuanhu",
+        "standard:demo-ganglie",
+        "standard:demo-guicai"
     ];
 }
 
@@ -354,4 +448,107 @@ public static class StandardContentRegistry
 {
     public static ContentRegistry Create() =>
         ContentRegistry.Build(new StandardContentPackage());
+
+    /// <summary>
+    /// Builds the opt-in content variant used by the local WPF showcase. The
+    /// original standard registry remains byte-for-byte compatible for old
+    /// saves and replay fixtures.
+    /// </summary>
+    public static ContentRegistry CreateWithActiveSkills() =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage());
+
+    /// <summary>
+    /// Builds the active-skill showcase plus the separately versioned rescue
+    /// extension. The original active-skill registry remains available for
+    /// checkpoints that predate the Jijiu package.
+    /// </summary>
+    public static ContentRegistry CreateWithRescueSkills() =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage());
+
+    public static ContentRegistry CreateWithTeamModes() =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardTeamModePackage());
+
+    public static ContentRegistry CreateWithNationalWarLite(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardNationalWarLitePackage(legacyVitals));
+
+    public static ContentRegistry CreateWithNationalWarAmbitious(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardNationalWarLitePackage(legacyVitals),
+            new StandardNationalWarAmbitiousPackage());
+
+    public static ContentRegistry CreateWithActiveSkillsAndTeamModes() =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(),
+            new StandardTeamModePackage());
+
+    public static ContentRegistry CreateWithActiveSkillsAndNationalWarLite(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(),
+            new StandardNationalWarLitePackage(legacyVitals));
+
+    public static ContentRegistry CreateWithActiveSkillsAndNationalWarAmbitious(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(),
+            new StandardNationalWarLitePackage(legacyVitals),
+            new StandardNationalWarAmbitiousPackage());
+
+    public static ContentRegistry CreateWithRescueSkillsAndTeamModes() =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardTeamModePackage());
+
+    public static ContentRegistry CreateWithRescueSkillsAndTeamModesAndNationalWarLite(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardTeamModePackage(),
+            new StandardNationalWarLitePackage(legacyVitals));
+
+    public static ContentRegistry CreateWithRescueSkillsAndNationalWarAmbitious(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardNationalWarLitePackage(legacyVitals),
+            new StandardNationalWarAmbitiousPackage());
+
+    public static ContentRegistry CreateWithActiveSkillsAndTeamModesAndNationalWarAmbitious(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(),
+            new StandardTeamModePackage(),
+            new StandardNationalWarLitePackage(legacyVitals),
+            new StandardNationalWarAmbitiousPackage());
+
+    public static ContentRegistry CreateWithTeamModesAndNationalWarAmbitious(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardTeamModePackage(),
+            new StandardNationalWarLitePackage(legacyVitals),
+            new StandardNationalWarAmbitiousPackage());
+
+    public static ContentRegistry CreateWithRescueSkillsAndTeamModesAndNationalWarAmbitious(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardTeamModePackage(),
+            new StandardNationalWarLitePackage(legacyVitals),
+            new StandardNationalWarAmbitiousPackage());
 }

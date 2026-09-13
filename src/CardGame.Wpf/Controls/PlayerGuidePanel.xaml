@@ -1,0 +1,227 @@
+<UserControl x:Class="CardGame.Wpf.Controls.PlayerGuidePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle"
+             FocusManager.IsFocusScope="True">
+    <UserControl.Resources>
+        <Style x:Key="GuideHeading" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E6CB93" />
+            <Setter Property="FontFamily" Value="KaiTi" />
+            <Setter Property="FontSize" Value="27" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+        <Style x:Key="GuideBody" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#BAC9BE" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="LineHeight" Value="23" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="GuideSubheading" TargetType="TextBlock" BasedOn="{StaticResource GuideBody}">
+            <Setter Property="Foreground" Value="#DEC18A" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Margin" Value="0,20,0,7" />
+        </Style>
+        <Style x:Key="GuideListItem" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="12,11" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+            <Setter Property="Foreground" Value="#BAC9BE" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="2,0,0,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#2A3936" />
+                    <Setter Property="Foreground" Value="#F0D393" />
+                    <Setter Property="BorderBrush" Value="#D1AB67" />
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter Property="BorderBrush" Value="#F6D79A" /></Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Border Background="#18292D" BorderBrush="#8E784F" BorderThickness="1" MaxWidth="980" MaxHeight="660" Margin="32" VerticalAlignment="Center">
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+            <Border Background="#142126" BorderBrush="#4A584B" BorderThickness="0,0,0,1" Padding="24,17">
+                <DockPanel>
+                    <Button x:Name="CloseGuideButton" Content="返回牌局  Esc" Command="{Binding ToggleHelpCommand}" DockPanel.Dock="Right" Style="{StaticResource ToolbarButton}" Padding="14,8" />
+                    <StackPanel>
+                        <TextBlock Text="战 局 指 南" FontFamily="KaiTi" Foreground="#ECD19A" FontSize="29" />
+                        <TextBlock Text="随时查阅 · 当前牌局已暂停" Foreground="#91A799" FontSize="11" Margin="0,5,0,0" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="174" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <Border Background="#142428" BorderBrush="#3F5147" BorderThickness="0,0,1,0" Padding="10,20">
+                    <ListBox x:Name="GuideNavigation" ItemsSource="{Binding GuideSections}" SelectedItem="{Binding SelectedGuideSection}" ItemContainerStyle="{StaticResource GuideListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.DirectionalNavigation="Contained" AutomationProperties.Name="指南栏目">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel><TextBlock Text="{Binding Title}" FontSize="15" /><TextBlock Text="{Binding Subtitle}" Foreground="#849B8C" FontSize="10" Margin="0,6,0,0" /></StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+                <Grid Grid.Column="1" Margin="25,22,25,18">
+                    <ScrollViewer x:Name="CurrentGuideScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsGuideCurrent, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{Binding GuideIdentity}" Style="{StaticResource GuideBody}" Foreground="#91AA94" FontSize="11" Margin="0,0,0,10" />
+                            <TextBlock x:Name="GuideCurrentHeading" Text="{Binding CurrentGuideTitle}" Style="{StaticResource GuideHeading}" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CurrentGuideBody}" Style="{StaticResource GuideBody}" />
+                            <Button x:Name="PlayAdviceButton" Content="看看出牌建议" Command="{Binding RequestPlayAdviceCommand}" Style="{StaticResource ToolbarButton}" HorizontalAlignment="Left" Margin="0,14,0,0" Visibility="{Binding CanRequestPlayAdvice, Converter={StaticResource BoolToVisibility}}" />
+                            <Border Visibility="{Binding HasPlayAdvice, Converter={StaticResource BoolToVisibility}}" Background="#24382F" BorderBrush="#867B4F" BorderThickness="1" Padding="14" Margin="0,12,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="当前出牌建议" Foreground="#E1C58C" FontSize="16" />
+                                    <TextBlock x:Name="PlayAdviceAction" Text="{Binding CurrentPlayAdvice.Action}" Style="{StaticResource GuideBody}" Foreground="#E0D4AE" Margin="0,10,0,0" />
+                                    <TextBlock Text="{Binding CurrentPlayAdvice.Selection}" Style="{StaticResource GuideBody}" Margin="0,8,0,0" />
+                                    <TextBlock Text="{Binding CurrentPlayAdvice.Reason}" Style="{StaticResource GuideBody}" Foreground="#A8BDA3" Margin="0,8,0,0" />
+                                    <TextBlock Text="仅依据你的手牌和当前公开局面；未公开身份仍有不确定性。返回牌桌后由你决定，不会自动选牌或提交。" Foreground="#819A8A" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding CurrentGuideSteps}" Margin="0,17,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,7,0,7">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="37" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Number}" FontSize="17" Foreground="#C9AC70" VerticalAlignment="Top" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Text}" Style="{StaticResource GuideBody}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <StackPanel Visibility="{Binding HasGuideHand, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="你的手牌 · 点击牌名查图鉴" Style="{StaticResource GuideSubheading}" />
+                                <ItemsControl ItemsSource="{Binding GuideHand}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,4,0,4">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="105" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <Button Content="{Binding Name}" Command="{Binding DataContext.OpenCardGuideCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,2" Margin="0" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource GuideBody}" FontSize="11" Foreground="#95AB9B" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsGuideBasics, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Margin="0,0,12,0">
+                            <StackPanel x:Name="TeamBasics" Visibility="{Binding IsTeamGuide, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="与队友并肩，击败另一队" Style="{StaticResource GuideHeading}" />
+                                <TextBlock Text="青队与赤队各两人，阵营从开局起公开。武将的魏、蜀、吴等势力不决定队伍；请看头像上的队伍名称，以及座位下的队友、对手标识。" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="怎样获胜" Style="{StaticResource GuideSubheading}" />
+                                <TextBlock Text="击败对方所有角色即可获胜。自己阵亡后，只要队友赢下牌局，你仍随队伍获胜。双方都没有存活角色，或达到回合上限时，按平局结算。" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="配合与节奏" Style="{StaticResource GuideSubheading}" />
+                                <TextBlock Text="先手第一回合少摸一张；本模式没有身份局的击杀奖惩。注意保留救援和响应牌，群体伤害也可能波及队友。目标亮起只表示规则允许，请按实际敌我关系决定行动。" Style="{StaticResource GuideBody}" />
+                            </StackPanel>
+                            <StackPanel x:Name="NationalBasics" Visibility="{Binding IsNationalGuide, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="双将暗置，按势力协作" Style="{StaticResource GuideHeading}" />
+                                <TextBlock Text="{Binding NationalSetupText}" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="牌桌左侧为主将，右侧为副将，各自标明暗置或明置；悬停对应肖像可查看技能及启用状态。自己的暗将可见，其他人的暗将保持遮蔽。角色公开势力后，牌桌会标出同伴或对手；未公开时显示未明。" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="明置与技能" Style="{StaticResource GuideSubheading}" />
+                                <TextBlock Text="主将、副将分别明置，对应技能才会生效。自己可查看两将信息；其他角色未明置的武将和势力仍保持隐藏。阵亡和终局会公开双将与势力。" Style="{StaticResource GuideBody}" />
+                                <TextBlock Text="当前简化范围" Style="{StaticResource GuideSubheading}" />
+                                <TextBlock x:Name="NationalScopeTextBlock" Text="{Binding NationalScopeText}" Style="{StaticResource GuideBody}" />
+                            </StackPanel>
+                            <StackPanel x:Name="IdentityBasics" Visibility="{Binding IsIdentityGuide, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="先认清身份，再决定进退" Style="{StaticResource GuideHeading}" />
+                            <TextBlock Text="主公身份公开，其余角色的身份在阵亡时揭晓。武将的势力不等于身份阵营；判断同伴需要观察公开行动。" Style="{StaticResource GuideBody}" />
+                            <TextBlock Text="主公 / 忠臣" Style="{StaticResource GuideSubheading}" />
+                            <TextBlock Text="主公存活，并消灭所有反贼和内奸。忠臣要保护主公；忠臣阵亡后，仍可能随本阵营获胜。" Style="{StaticResource GuideBody}" />
+                            <TextBlock Text="反贼" Style="{StaticResource GuideSubheading}" />
+                            <TextBlock Text="与同伴一起击败主公。要留意只剩内奸与主公时，胜利可能属于内奸。" Style="{StaticResource GuideBody}" />
+                            <TextBlock Text="内奸" Style="{StaticResource GuideSubheading}" />
+                            <TextBlock Text="先消灭其他角色，最后击败主公并成为唯一存活者。多人仍在场时，主公先死会让你失去胜利机会。" Style="{StaticResource GuideBody}" />
+                            </StackPanel>
+                            <TextBlock Text="一回合怎样进行" Style="{StaticResource GuideSubheading}" />
+                            <TextBlock Text="判定 → 摸牌 → 出牌 → 弃牌 → 结束" Foreground="#E4C893" FontSize="16" Margin="0,5,0,9" />
+                            <TextBlock Text="判定区的牌先结算；摸牌阶段通常摸两张。出牌时可连续使用合法的牌，也可主动结束。回合末手牌超过当前体力，就选出超出的部分弃置。" Style="{StaticResource GuideBody}" />
+                            <TextBlock Text="体力降到 0 会进入濒死救援；无人救回时才阵亡。受到杀用闪响应，决斗和南蛮需要杀；可用选项始终显示在中央。" Style="{StaticResource GuideBody}" Margin="0,12,0,0" />
+                            <TextBlock Text="本地规则提示" Style="{StaticResource GuideSubheading}" />
+                            <TextBlock Text="部分武将和判定采用本项目的简化规则。请以武将技能说明及卡牌图鉴为准。" Style="{StaticResource GuideBody}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Grid Visibility="{Binding IsGuideCards, Converter={StaticResource BoolToVisibility}}">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Text="卡 牌 图 鉴" Style="{StaticResource GuideHeading}" />
+                        <Grid Grid.Row="1" Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="110" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <Grid Margin="0,0,9,0">
+                                <TextBox x:Name="GuideSearchBox" Text="{Binding GuideSearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="搜索牌名或效果" ToolTip="输入牌名或效果，例如：杀、距离、回复" Background="#101E23" Foreground="#E6D2AB" BorderBrush="#627159" BorderThickness="1" Padding="10,8" FontSize="13" />
+                                <TextBlock Text="搜索牌名或效果，如：杀、距离、回复" Foreground="#91A49B" FontSize="13" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers><DataTrigger Binding="{Binding GuideSearchText}" Value=""><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                            <ComboBox x:Name="GuideCategoryBox" Grid.Column="1" ItemsSource="{Binding GuideCategories}" SelectedItem="{Binding SelectedGuideCategory}" AutomationProperties.Name="卡牌分类" Padding="7" VerticalContentAlignment="Center" />
+                            <Button Grid.Column="2" Content="清空" Command="{Binding ClearGuideSearchCommand}" Style="{StaticResource QuietButton}" Padding="9,5" />
+                        </Grid>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="154" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                <TextBlock Text="{Binding GuideCardCountText}" Foreground="#8EA692" FontSize="11" Margin="1,0,0,9" />
+                                <ListBox x:Name="GuideCardList" Grid.Row="1" ItemsSource="{Binding FilteredGuideCards}" SelectedItem="{Binding SelectedGuideCard}" ItemContainerStyle="{StaticResource GuideListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="卡牌列表">
+                                    <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" FontSize="13" /></DataTemplate></ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="22,0,0,0" Visibility="{Binding HasGuideCard, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel DataContext="{Binding SelectedGuideCard}" Margin="0,0,12,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="112" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <Border Width="102" Height="155" Background="{StaticResource CardPaper}" BorderBrush="#C6AD77" BorderThickness="1" CornerRadius="5" Padding="12" HorizontalAlignment="Left">
+                                            <TextBlock Text="{Binding VerticalName}" FontSize="{Binding NameSize}" FontFamily="KaiTi" Foreground="#41382A" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" LineHeight="29" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource GuideHeading}" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Category}" Style="{StaticResource GuideBody}" Foreground="#93AE98" FontSize="11" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock Text="使用时机" Style="{StaticResource GuideSubheading}" />
+                                    <TextBlock Text="{Binding Timing}" Style="{StaticResource GuideBody}" />
+                                    <TextBlock Text="牌面规则" Style="{StaticResource GuideSubheading}" />
+                                    <TextBlock x:Name="GuideCardDescription" Text="{Binding Description}" Style="{StaticResource GuideBody}" />
+                                    <TextBlock Text="实际能否使用，以牌桌当前亮起的手牌与目标为准。" Style="{StaticResource GuideBody}" FontSize="11" Foreground="#829B89" Margin="0,20,0,0" />
+                                </StackPanel>
+                            </ScrollViewer>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="25" Visibility="{Binding HasNoGuideCards, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="没有找到对应的牌" Style="{StaticResource GuideHeading}" FontSize="22" />
+                                <TextBlock Text="试试更短的牌名或效果词，也可以清空筛选。" Style="{StaticResource GuideBody}" />
+                                <Button Content="显示全部卡牌" Command="{Binding ClearGuideSearchCommand}" Style="{StaticResource ToolbarButton}" Margin="0,18,0,0" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsGuideKeys, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="操作与继续游戏" Style="{StaticResource GuideHeading}" />
+                            <TextBlock Text="点击手牌 → 选择目标 → 确认出牌" Style="{StaticResource GuideSubheading}" Margin="0,3,0,8" />
+                            <TextBlock Text="再次点击已选手牌或目标可以取消。中央的响应、技能和目标组合按钮会直接提交完整选择。" Style="{StaticResource GuideBody}" />
+                            <TextBlock Text="常用快捷键" Style="{StaticResource GuideSubheading}" />
+                            <TextBlock Text="F1　打开或关闭指南&#10;Esc　关闭最上层面板，或取消选择&#10;Enter　确认当前出牌或弃牌&#10;Ctrl + Enter　结束出牌阶段&#10;1–9　选择对应位置的手牌（须可选）&#10;F5　保存到独立手动存档&#10;Ctrl + M　切换游戏静音" Style="{StaticResource GuideBody}" LineHeight="28" />
+                            <TextBlock Text="自动保存与继续" Style="{StaticResource GuideSubheading}" />
+                            <TextBlock Text="游戏操作会自动保存。可在「战报 / 存档」手动保存或读取，下次启动时点击「继续上次对局」。读取会替换当前牌局，手动存档独立保留。" Style="{StaticResource GuideBody}" />
+                            <TextBlock Text="开局、指南和需要你决定的询问都会暂停自动行动。关闭指南后，仍按你原来的自动推进设置继续，不会替你选牌或提交响应。" Style="{StaticResource GuideBody}" Margin="0,15,0,0" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+            <Border Grid.Row="2" BorderBrush="#3F5147" BorderThickness="0,1,0,0" Padding="24,11">
+                <TextBlock Text="指南仅供查阅 · 关闭后保留原来的手牌和目标选择" Foreground="#8FA590" FontSize="11" />
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

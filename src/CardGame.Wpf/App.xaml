@@ -1,63 +1,9 @@
-<Application x:Class="CardGame.Wpf.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+<Application x:Class="CardGame.Wpf.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-
-        <SolidColorBrush x:Key="InkBrush" Color="#171A18" />
-        <SolidColorBrush x:Key="PaperBrush" Color="#F5F0E6" />
-        <SolidColorBrush x:Key="MutedPaperBrush" Color="#D7D1C4" />
-        <SolidColorBrush x:Key="TableBrush" Color="#17362F" />
-        <SolidColorBrush x:Key="TableDeepBrush" Color="#102822" />
-        <SolidColorBrush x:Key="GoldBrush" Color="#D2A84A" />
-        <SolidColorBrush x:Key="DangerBrush" Color="#D9665B" />
-        <SolidColorBrush x:Key="SuccessBrush" Color="#69B58B" />
-        <SolidColorBrush x:Key="PanelBrush" Color="#EDE6D8" />
-
-        <Style TargetType="Window">
-            <Setter Property="FontFamily" Value="Microsoft YaHei UI" />
-            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
-            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
-        </Style>
-
-        <Style x:Key="ToolbarButton" TargetType="Button">
-            <Setter Property="Foreground" Value="{StaticResource PaperBrush}" />
-            <Setter Property="Background" Value="#2D4B43" />
-            <Setter Property="BorderBrush" Value="#527067" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="15,7" />
-            <Setter Property="Margin" Value="0,0,8,0" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Root" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="7" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#3A5D53" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#1D332D" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.42" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
-            <Setter Property="Background" Value="#9C7831" />
-            <Setter Property="BorderBrush" Value="#E4C26C" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/TableTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

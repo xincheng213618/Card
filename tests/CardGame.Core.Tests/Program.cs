@@ -3,8 +3,37 @@ using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
+if (args.FirstOrDefault() == "--ai-inspect")
+{
+    TacticalAiSimulation.Inspect(int.Parse(args[1]), int.Parse(args[2]), args[3]);
+    return 0;
+}
+
+if (args.FirstOrDefault() == "--ai-batch")
+{
+    TacticalAiSimulation.Run(args[1]);
+    return 0;
+}
+
+// Existing card-effect fixtures retain automatic discards to isolate their scenarios.
+// Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Wusheng responds to Duel and Barbarian Assault with exact physical costs and replay", WushengResponseChecks.CommandsAndReplay),
+    ("Wusheng response conversion respects national reveal slots and requested card kinds", WushengResponseChecks.NationalAndScope),
+    ("national Wusheng can reveal during a Slash response and refresh privately", WushengResponseChecks.NationalRevealDuringResponse),
+    ("AI Wusheng responses complete and replay with physical card costs", WushengResponseChecks.AiResponseAndReplay),
+    ("dual-general health previews, setup and legacy replay agree", NationalHealthChecks.SetupAndReplay),
+    ("general health validates content and preserves shipped fingerprints", NationalHealthChecks.ContentIntegrity),
+    ("national dual-general setup stays private and each reveal replays", NationalWarChecks.PrivateSetupAndReveal),
+    ("national revealed slots independently enable skills while rules 6 replay unchanged", NationalWarChecks.SkillGatingAndLegacy),
+    ("national AI chooses general reveals from private opportunities", NationalWarChecks.AiRevealPolicy),
+    ("six-player national mode preserves solo faction privacy, victory and replay", NationalWarChecks.AmbitiousFactionMode),
+    ("national public-evidence checkpoints replay AI knowledge at a paused prompt", NationalWarChecks.PublicEvidenceCheckpointReplay),
+    ("national AI matches finish with public faction outcomes and exact replay", NationalWarChecks.CompleteAiMatches),
+    ("recast is an independent validated card movement and replays exactly", RecastChecks.CommandAndReplay),
+    ("Iron Chain rules and AI preserve legacy saves and avoid repeated recasts", RecastChecks.RulesAndAi),
+    ("claimed group cards continue after the claimant dies and replay exactly", GroupClaimChecks.ClaimantDeathContinues),
     ("standard setup has the 1/2/4/1 identity distribution", IdentityDistribution),
     ("viewer snapshot hides private roles and hands", SnapshotHidesSecrets),
     ("viewer snapshot hides seed and other players' decisions", SnapshotHidesEngineSecrets),
@@ -14,9 +43,25 @@ var tests = new (string Name, Action Body)[]
     ("prompt answers validate prompt, choice, actor and revision", CommandPromptAnswerBoundary),
     ("command reentry is a typed rejection", CommandReentryIsTyped),
     ("winner rules cover all three camps", WinnerRules),
+    ("manual discards reject invalid subsets without mutation", ManualDiscardChecks.Rejections),
+    ("manual discards preserve the chosen cards and private prompt", ManualDiscardChecks.ExactSelection),
+    ("manual discard checkpoints and commands replay exactly", ManualDiscardChecks.Replay),
+    ("manual discard handles large subsets and hands below the limit", ManualDiscardChecks.HandSizeBoundaries),
+    ("journaled host steps preserve single-step pacing", PacedCommandChecks.SingleStepParity),
+    ("paced human commands checkpoint and replay a full game", PacedCommandChecks.FullPacedReplay),
+    ("manual discard rounds finish across identities and table sizes", ManualDiscardChecks.MatchMatrix),
     ("implemented card content is registered and described", CardCatalogDefinitions),
     ("standard deck content is deterministic and balanced", StandardDeckContent),
     ("standard package builds an immutable isolated registry", StandardContentRegistryBuilds),
+    ("public-team mode preserves privacy and registered distribution", TeamModeChecks.ContentAndPrivacy),
+    ("public-team AI matches terminate and replay deterministically", TeamModeChecks.AiMatchIsDeterministic),
+    ("public-team winner rules distinguish living teams", TeamModeChecks.WinningTeamRules),
+    ("active skills use typed selections and deterministic replay", ActiveSkillChecks.KujinFlow),
+    ("active-skill dying resumes through the shared rescue window", ActiveSkillChecks.KujinDyingContinuation),
+    ("Qingnang discards privately and recovers a legal wounded target", ActiveSkillChecks.QingnangFlow),
+    ("Huichun discards privately and recovers multiple legal wounded targets", ActiveSkillChecks.HuichunFlow),
+    ("Mashu changes public distance and distance-gated legal actions", DistanceSkillChecks.MashuDistanceAndLegality),
+    ("Qicai removes trick distance restrictions through legal actions", DistanceSkillChecks.QicaiRemovesTrickDistance),
     ("content registry rejects duplicate ids and bad references", ContentRegistryValidation),
     ("engine can consume the standard registry through a compatibility projection", EngineConsumesStandardRegistry),
     ("interactive setup exposes private deterministic general choices", InteractiveSetupPipeline),
@@ -25,12 +70,28 @@ var tests = new (string Name, Action Body)[]
     ("five-player AI matches terminate for fixed seeds", FivePlayerAiSmoke),
     ("standard generals reference registered skills", GeneralContent),
     ("AI uses the card content policy values", AiCardContentPolicy),
+    ("legacy AI checkpoints preserve exact pre-upgrade snapshots and events", TacticalAiChecks.LegacyCompatibility),
+    ("tactical AI weighs friendly fire, recovery, alcohol and conversions", TacticalAiChecks.PlayDecisions),
+    ("tactical AI protects the Lord and orders rescue choices", TacticalAiChecks.RescueDecisions),
+    ("tactical AI changes camp inference only after public evidence", TacticalAiChecks.PublicEvidence),
+    ("national AI updates hidden-faction hostility only from public attacks", TacticalAiChecks.NationalPublicEvidence),
+    ("tactical AI resolves hidden endgames and avoids canceling beneficial effects", TacticalAiChecks.EndgameAndNullification),
+    ("tactical support skills avoid healing and supplying enemies", TacticalAiChecks.SupportSkills),
+    ("AI policy versions validate and replay deterministically", TacticalAiChecks.PolicyReplay),
+    ("targeted tricks finish when the target spends its last card on Nullification", TargetLossChecks.LastNullification),
+    ("lethal Ganglie closes remaining triggers before publishing game over", TargetLossChecks.LethalGanglie),
+    ("hand guidance is private, read-only and agrees with legal actions", HandGuidanceChecks.ReadOnlyAndPrivate),
+    ("hand guidance explains spent Slash allowance and active wine", HandGuidanceChecks.AfterUsingCards),
+    ("hand guidance follows real response and discard boundaries", HandGuidanceChecks.PendingDecisions),
     ("passive skill hooks stay small and deterministic", PassiveSkills),
     ("damage trigger candidates use a stable ordering", DamageTriggerOrdering),
     ("damage trigger windows pause with a serializable cursor", DamageTriggerWindowFlow),
+    ("lethal damage keeps its typed trigger window before dying", LethalDamageTriggerWindowFlow),
     ("AI suspicion changes only from public actions", AiPublicEvidence),
     ("same seed creates the same initial state", FixedSeed),
     ("accepted command journals serialize and replay deterministically", CommandJournalReplay),
+    ("command checkpoints restore a paused private prompt deterministically", CheckpointRestore),
+    ("command checkpoints reject same-version content drift", CheckpointRejectsSameVersionContentDrift),
     ("initial deal registers every physical card in one zone", InitialDealCardZones),
     ("invalid single and batch moves are atomic", InvalidCardMovesAreAtomic),
     ("Slash and Dodge pass through the Processing zone", SlashAndDodgeProcessing),
@@ -40,13 +101,21 @@ var tests = new (string Name, Action Body)[]
     ("slash resolution exposes a serializable frame stack", ResolutionFrameStack),
     ("duel alternates Slash responses through a typed window", DuelResponseFlow),
     ("DrawTwo resolves an immediate effect without a target", DrawTwoFlow),
+    ("Nullification resolves a private multi-layer trick window", NullificationFlow),
+    ("IronChain toggles exact targets and propagates elemental damage", IronChainFlow),
     ("BarbarianAssault resolves each target through private Slash windows", BarbarianAssaultFlow),
     ("ArrowBarrage reuses group resolution through private Dodge windows", ArrowBarrageFlow),
     ("PeachGarden resolves a paused multi-target recovery", PeachGardenFlow),
     ("FiveGrains reveals public cards with private draft prompts", FiveGrainsFlow),
     ("Dismantlement discards a hidden target card deterministically", DismantlementFlow),
     ("Snatch transfers a hidden target card across a distance-one edge", SnatchFlow),
+    ("target-card prompts expose opaque slots and replay without hidden identities", TargetCardChecks.OpaqueSlotFlow),
+    ("AI target-card choices use only redacted slot candidates", TargetCardChecks.AiUsesOpaqueSlots),
+    ("Dismantlement and Snatch can target public equipment and judgment cards", PublicTargetCardFlow),
     ("equipment replaces slots and changes public distance rules", EquipmentFlow),
+    ("Bagua uses a deterministic public judgment to defend against Slash", BaguaJudgmentFlow),
+    ("Qinggang bypasses Bagua armor in a typed Slash resolution", QinggangBypassesBagua),
+    ("Renwang Shield blocks black Slash without hiding public equipment", RenwangShieldFlow),
     ("FireAttack reveals privately then resolves typed fire damage", FireAttackFlow),
     ("FireAttack can skip the same-suit discard without damage", FireAttackSkipFlow),
     ("FireSlash and ThunderSlash preserve typed damage nature", AttributeSlashFlow),
@@ -58,11 +127,20 @@ var tests = new (string Name, Action Body)[]
     ("Yiji accepts a private human gift choice", YijiHumanChoiceFlow),
     ("Jieming draws to a legal target's hand limit", JiemingFlow),
     ("Yuanhu can trigger from another seat and recover the damaged player", YuanhuCrossSeatFlow),
+    ("Ganglie opens a public judgment and a private source punishment", GanglieFlow),
+    ("Guicai privately replaces a public judgment with a hand card", GuicaiFlow),
+    ("Indulgence delays a target play phase through public judgment", IndulgenceFlow),
+    ("SupplyShortage delays a target draw phase through public judgment", SupplyShortageFlow),
+    ("Lightning hits or transfers through a public delayed judgment", LightningFlow),
+    ("multiple delayed cards accumulate independent turn effects", MultipleDelayedCardsFlow),
     ("Wusheng converts one red card into a typed Slash", WushengFlow),
     ("Longdan converts Dodge into a typed Slash", LongdanFlow),
     ("Longdan converts Slash into Dodge in a response window", LongdanResponseFlow),
-   ("dying response can use Alcohol for self rescue", DyingAlcoholRescueFlow),
+    ("dying response can use Alcohol for self rescue", DyingAlcoholRescueFlow),
+    ("dying response can use Alcohol to rescue another seat", DyingAlcoholRescueOtherFlow),
     ("dying response can pause and recover with a private Peach", DyingResponseFlow),
+    ("Jijiu is an opt-in content package with a typed rescue contract", JijiuChecks.ContentContract),
+    ("Jijiu converts a red card through the private dying window", JijiuChecks.DyingFlow),
     ("throwing observers are isolated after commit", ObserverFailuresAreIsolated),
     ("observer failures do not change deterministic outcomes", ObserverFailuresDoNotChangeOutcome),
     ("uncaught observer reentry cannot interrupt the engine", UncaughtObserverReentryIsIsolated),
@@ -100,7 +178,7 @@ return failed == 0 ? 0 : 1;
 
 static void IdentityDistribution()
 {
-    var game = GameEngine.CreateStandard(new GameOptions { Seed = 7 });
+    var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 7 });
     var roles = game.CreateSnapshot(0, revealAll: true).Players
         .GroupBy(player => player.Role!.Value)
         .ToDictionary(group => group.Key, group => group.Count());
@@ -113,7 +191,7 @@ static void IdentityDistribution()
 
 static void SnapshotHidesSecrets()
 {
-    var game = GameEngine.CreateStandard(new GameOptions { Seed = 13, HumanSeat = 0, HumanRole = Role.Lord });
+    var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 13, HumanSeat = 0, HumanRole = Role.Lord });
     var snapshot = game.State;
     var self = snapshot.Players.Single(player => player.Seat == 0);
     var hiddenOpponent = snapshot.Players.First(player => player.Seat != 0 && player.Role is null);
@@ -126,7 +204,7 @@ static void SnapshotHidesSecrets()
 
 static void SnapshotHidesEngineSecrets()
 {
-    var game = GameEngine.CreateStandard(new GameOptions { Seed = 413, HumanSeat = 0, HumanRole = Role.Lord });
+    var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 413, HumanSeat = 0, HumanRole = Role.Lord });
     game.Start();
 
     Equal(413, game.Seed);
@@ -145,6 +223,7 @@ static void SnapshotDecisionIsDefensive()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord
@@ -176,6 +255,7 @@ static void CommandRevisionBoundary()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 901,
         HumanSeat = 0,
         HumanRole = Role.Lord
@@ -221,6 +301,7 @@ static void CommandPlayUsesExactChoice()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord
@@ -262,6 +343,7 @@ static void CommandPlayUsesExactChoice()
         PromptId: pending.PromptId));
     True(accepted.Accepted);
     Equal(revisionBefore + 1, selectedGame.Revision);
+    ResolveNullificationWindowForTest(selectedGame);
     True(selectedGame.Log.Any(entry => entry.Type is "CardUsed" or "Recovered"));
 }
 
@@ -272,6 +354,7 @@ static void CommandPromptAnswerBoundary()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -392,6 +475,7 @@ static void CommandReentryIsTyped()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 907,
         HumanSeat = 0,
         HumanRole = Role.Lord
@@ -445,7 +529,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(20, CardCatalog.ImplementedCards.Count);
+    Equal(27, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -463,9 +547,16 @@ static void CardCatalogDefinitions()
     Equal("酒", CardCatalog.Get(CardKind.Alcohol).DisplayName);
     Equal("诸葛连弩", CardCatalog.Get(CardKind.Crossbow).DisplayName);
     Equal("八卦阵", CardCatalog.Get(CardKind.BaguaFormation).DisplayName);
+    Equal("仁王盾", CardCatalog.Get(CardKind.RenwangShield).DisplayName);
     Equal("赤兔", CardCatalog.Get(CardKind.OffensiveHorse).DisplayName);
     Equal("绝影", CardCatalog.Get(CardKind.DefensiveHorse).DisplayName);
     Equal("玉玺", CardCatalog.Get(CardKind.JadeSeal).DisplayName);
+    Equal("青釭剑", CardCatalog.Get(CardKind.QinggangSword).DisplayName);
+    Equal("无懈可击", CardCatalog.Get(CardKind.Nullification).DisplayName);
+    Equal("铁索连环", CardCatalog.Get(CardKind.IronChain).DisplayName);
+    Equal("乐不思蜀", CardCatalog.Get(CardKind.Indulgence).DisplayName);
+    Equal("兵粮寸断", CardCatalog.Get(CardKind.SupplyShortage).DisplayName);
+    Equal("闪电", CardCatalog.Get(CardKind.Lightning).DisplayName);
     True(CardCatalog.ImplementedCards.All(definition =>
         !string.IsNullOrWhiteSpace(definition.Description)));
     Equal(38, CardCatalog.Get(CardKind.Peach).AiPlayValue);
@@ -482,7 +573,7 @@ static void StandardDeckContent()
 
     Equal(4, definition.InitialHandSize);
     Equal(2, definition.DrawPerTurn);
-    Equal(78, definition.TotalCards);
+    Equal(90, definition.TotalCards);
     Equal(definition.TotalCards, deck.Count);
     Equal(18, counts[CardKind.Slash]);
     Equal(18, counts[CardKind.Dodge]);
@@ -504,6 +595,13 @@ static void StandardDeckContent()
     Equal(1, counts[CardKind.OffensiveHorse]);
     Equal(1, counts[CardKind.DefensiveHorse]);
     Equal(1, counts[CardKind.JadeSeal]);
+    Equal(1, counts[CardKind.QinggangSword]);
+    Equal(1, counts[CardKind.RenwangShield]);
+    Equal(2, counts[CardKind.Nullification]);
+    Equal(2, counts[CardKind.IronChain]);
+    Equal(2, counts[CardKind.Indulgence]);
+    Equal(2, counts[CardKind.SupplyShortage]);
+    Equal(2, counts[CardKind.Lightning]);
     True(deck.Select(card => card.Id).SequenceEqual(Enumerable.Range(1, deck.Count)));
     Equal(CardKind.Slash, deck[0].Kind);
     Equal(CardKind.Slash, deck[17].Kind);
@@ -521,6 +619,9 @@ static void StandardDeckContent()
     Equal(CardKind.FireSlash, deck[64].Kind);
     Equal(CardKind.ThunderSlash, deck[66].Kind);
     Equal(CardKind.Alcohol, deck[68].Kind);
+    Equal(CardKind.SupplyShortage, deck[85].Kind);
+    Equal(CardKind.Lightning, deck[87].Kind);
+    Equal(CardKind.RenwangShield, deck[89].Kind);
     Equal(Suit.Spade, deck[0].Suit);
     Equal(1, deck[0].Rank);
     Equal(Suit.Diamond, deck[3].Suit);
@@ -534,9 +635,19 @@ static void StandardContentRegistryBuilds()
 
     Equal(1, registry.Packages.Count);
     Equal("standard", registry.Packages[0].Id);
-    Equal(20, registry.Cards.Count);
-    Equal(11, registry.Skills.Count);
-    Equal(12, registry.Generals.Count);
+    TrueWithMessage(!string.IsNullOrWhiteSpace(registry.ContentHash), "registry exposes a content hash");
+    Equal(registry.ContentHash, secondRegistry.ContentHash);
+    Equal(27, registry.Cards.Count);
+    Equal(13, registry.Skills.Count);
+    Equal(
+        "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。",
+        registry.GetCard("standard:bagua").Description);
+    Equal("public-judgment-dodge", registry.GetCard("standard:bagua").AiTags!["response"]);
+    Equal(
+        "装备至武器槽；你使用杀时无视目标的防具。",
+        registry.GetCard("standard:qinggang_sword").Description);
+    Equal("ignore-armor", registry.GetCard("standard:qinggang_sword").AiTags!["modifier"]);
+    Equal(14, registry.Generals.Count);
     Equal(1, registry.Decks.Count);
     Equal(2, registry.Modes.Count);
     Equal(CardKind.Slash, registry.GetCard("standard:slash").LegacyKind);
@@ -549,6 +660,10 @@ static void StandardContentRegistryBuilds()
     Equal("standard:jieming", registry.Generals["standard:xun-yu"].SkillId);
     Equal(SkillKind.Yuanhu, registry.GetSkill("standard:yuanhu").LegacyKind);
     Equal("standard:yuanhu", registry.Generals["standard:demo-yuanhu"].SkillId);
+    Equal(SkillKind.Ganglie, registry.GetSkill("standard:ganglie").LegacyKind);
+    Equal("standard:ganglie", registry.Generals["standard:demo-ganglie"].SkillId);
+    Equal(SkillKind.Guicai, registry.GetSkill("standard:guicai").LegacyKind);
+    Equal("standard:guicai", registry.Generals["standard:demo-guicai"].SkillId);
     Equal(18, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
         card.CardDefinitionId == "standard:slash").Count);
     Equal(4, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
@@ -575,6 +690,14 @@ static void StandardContentRegistryBuilds()
         card.CardDefinitionId == "standard:thunder_slash").Count);
     Equal(2, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
         card.CardDefinitionId == "standard:alcohol").Count);
+    Equal(1, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
+        card.CardDefinitionId == "standard:qinggang_sword").Count);
+    Equal(2, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
+        card.CardDefinitionId == "standard:nullification").Count);
+    Equal(2, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
+        card.CardDefinitionId == "standard:iron_chain").Count);
+    Equal(2, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
+        card.CardDefinitionId == "standard:supply_shortage").Count);
 
     True(!ReferenceEquals(registry.Cards, secondRegistry.Cards));
     Throws<NotSupportedException>(() =>
@@ -610,10 +733,57 @@ static void ContentRegistryValidation()
             "cycle-a",
             _ => { },
             new PackageDependency("cycle-b", new Version(1, 0, 0))),
-        new SyntheticPackage(
+            new SyntheticPackage(
             "cycle-b",
             _ => { },
             new PackageDependency("cycle-a", new Version(1, 0, 0)))));
+
+    Throws<InvalidOperationException>(() => ContentRegistry.Build(new SyntheticPackage(
+        "identity-team-role",
+        builder => builder.AddMode(new ContentModeDefinition(
+            "identity:team-role",
+            "错误身份局",
+            2,
+            2,
+            new Dictionary<string, int>
+            {
+                [nameof(Role.Lord)] = 1,
+                [nameof(Role.TeamA)] = 1
+            })))));
+
+    Throws<InvalidOperationException>(() => ContentRegistry.Build(new SyntheticPackage(
+        "national-missing-pool",
+        builder => builder.AddMode(new ContentModeDefinition(
+            "national:missing-pool",
+            "缺少专属武将池的国战",
+            4,
+            4,
+            new Dictionary<string, int>(),
+            GeneralCandidateCount: 3,
+            ModeKind: ContentModeKind.NationalWarLite,
+            FactionCounts: new Dictionary<string, int>
+            {
+                ["wei"] = 2,
+                ["shu"] = 2
+            })))));
+
+    var firstContent = ContentRegistry.Build(new SyntheticPackage(
+        "hash",
+        builder => builder.AddCard(new ContentCardDefinition(
+            "hash:card",
+            "甲",
+            "测试",
+            "定义一"))));
+    var secondContent = ContentRegistry.Build(new SyntheticPackage(
+        "hash",
+        builder => builder.AddCard(new ContentCardDefinition(
+            "hash:card",
+            "乙",
+            "测试",
+            "定义二"))));
+    TrueWithMessage(
+        !string.Equals(firstContent.ContentHash, secondContent.ContentHash, StringComparison.Ordinal),
+        "same-version package changes produce different content hashes");
 }
 
 static void EngineConsumesStandardRegistry()
@@ -622,6 +792,7 @@ static void EngineConsumesStandardRegistry()
     var game = GameEngine.CreateStandard(
         new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = 913,
             HumanSeat = 0,
             HumanRole = Role.Lord
@@ -629,7 +800,7 @@ static void EngineConsumesStandardRegistry()
         registry);
 
     True(ReferenceEquals(registry, game.ContentRegistry));
-    Equal(78, game.CreateCardZoneDiagnostics().Count);
+    Equal(90, game.CreateCardZoneDiagnostics().Count);
     Equal(4, game.State.Players.Single(player => player.Seat == 0).HandCount);
     Equal(CardKind.Slash, game.CreateCardZoneDiagnostics()
         .Single(card => card.CardId == 1).CardKind);
@@ -639,6 +810,7 @@ static void InteractiveSetupPipeline()
 {
     var options = new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 1_931,
         HumanSeat = 0,
         HumanRole = Role.Lord,
@@ -724,6 +896,7 @@ static void InteractiveAiSetup()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 PlayerCount = 5,
                 HumanSeat = -1,
@@ -754,6 +927,7 @@ static void FivePlayerIdentityMode()
     var game = GameEngine.CreateStandard(
         new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = 917,
             PlayerCount = 5,
             HumanSeat = 0,
@@ -787,6 +961,7 @@ static void FivePlayerAiSmoke()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 PlayerCount = 5,
                 HumanSeat = -1,
@@ -806,7 +981,7 @@ static void FivePlayerAiSmoke()
 static void GeneralContent()
 {
     var generals = GeneralCatalog.DemoGenerals;
-    Equal(11, generals.Count);
+    Equal(12, generals.Count);
     Equal(generals.Count, generals.Select(general => general.Id).Distinct().Count());
     True(generals.All(general =>
         general.SkillName == SkillRegistry.Get(general.Skill).Name));
@@ -814,6 +989,7 @@ static void GeneralContent()
     Equal(SkillKind.Longdan, generals.Single(general => general.Id == "zhao-yun").Skill);
     Equal(SkillKind.Jieming, generals.Single(general => general.Id == "xun-yu").Skill);
     Equal(SkillKind.Yuanhu, generals.Single(general => general.Id == "demo-yuanhu").Skill);
+    Equal(SkillKind.Ganglie, generals.Single(general => general.Id == "demo-ganglie").Skill);
 }
 
 static void AiCardContentPolicy()
@@ -830,6 +1006,8 @@ static void AiCardContentPolicy()
     var thunderSlash = new CardSnapshot(21, CardKind.ThunderSlash, Suit.Spade, 8, "雷杀", "8");
     var alcohol = new CardSnapshot(22, CardKind.Alcohol, Suit.Club, 9, "酒", "9");
     var fireAttack = new CardSnapshot(23, CardKind.FireAttack, Suit.Diamond, 10, "火攻", "10");
+    var ironChain = new CardSnapshot(24, CardKind.IronChain, Suit.Club, 11, "铁索连环", "11");
+    var publicJudgment = new CardSnapshot(25, CardKind.Indulgence, Suit.Heart, 5, "乐不思蜀", "5");
     var self = new PlayerSnapshot(
         Seat: 0,
         Name: "AI",
@@ -845,8 +1023,8 @@ static void AiCardContentPolicy()
         Hp: 2,
         MaxHp: 4,
         IsAlive: true,
-        HandCount: 12,
-        Hand: [peach, drawTwo, barbarianAssault, arrowBarrage, peachGarden, fiveGrains, dismantlement, snatch, fireSlash, thunderSlash, alcohol, fireAttack]);
+        HandCount: 13,
+        Hand: [peach, drawTwo, barbarianAssault, arrowBarrage, peachGarden, fiveGrains, dismantlement, snatch, fireSlash, thunderSlash, alcohol, fireAttack, ironChain]);
     var target = self with
     {
         Seat = 1,
@@ -886,6 +1064,7 @@ static void AiCardContentPolicy()
         new(LegalActionKind.Slash, fireSlash.Id, 1, "对 目标使用【火杀】"),
         new(LegalActionKind.Slash, thunderSlash.Id, 1, "对 目标使用【雷杀】"),
         new(LegalActionKind.Alcohol, alcohol.Id, null, "使用【酒】，本回合下一张杀伤害+1"),
+        new(LegalActionKind.IronChain, ironChain.Id, 1, "对 目标使用【铁索连环】"),
         new(LegalActionKind.EndPlay, null, null, "结束出牌")
     };
 
@@ -917,6 +1096,40 @@ static void AiCardContentPolicy()
     var alcoholCandidate = thought.Candidates.Single(candidate => candidate.Action.CardId == alcohol.Id);
     True(alcoholCandidate.Score > 0d);
     True(alcoholCandidate.Reason.Contains("+1 伤害", StringComparison.Ordinal));
+    var ironChainCandidate = thought.Candidates.Single(candidate => candidate.Action.CardId == ironChain.Id);
+    True(ironChainCandidate.Score > 0d);
+    True(ironChainCandidate.Reason.Contains("公开连环角色", StringComparison.Ordinal));
+
+    var judgmentView = view with
+    {
+        Players = [self, target with { Judgment = [publicJudgment] }]
+    };
+    var judgmentActions = new LegalAction[]
+    {
+        new(
+            LegalActionKind.Dismantlement,
+            dismantlement.Id,
+            target.Seat,
+            "对 目标使用【过河拆桥】，选择其判定区【乐不思蜀】",
+            TargetCardId: publicJudgment.Id),
+        new(
+            LegalActionKind.Snatch,
+            snatch.Id,
+            target.Seat,
+            "对 目标使用【顺手牵羊】，选择其判定区【乐不思蜀】",
+            TargetCardId: publicJudgment.Id),
+        new(LegalActionKind.EndPlay, null, null, "结束出牌")
+    };
+    var (_, judgmentThought) = new SimpleAiBrain(seat: 0, seed: 5)
+        .ChoosePlay(judgmentView, judgmentActions, thoughtSequence: 6);
+    var judgmentDismantlementCandidate = judgmentThought.Candidates.Single(candidate =>
+        candidate.Action.Kind == LegalActionKind.Dismantlement);
+    True(judgmentDismantlementCandidate.Score > 0d);
+    True(judgmentDismantlementCandidate.Reason.Contains("公开判定区【乐不思蜀】", StringComparison.Ordinal));
+    var judgmentSnatchCandidate = judgmentThought.Candidates.Single(candidate =>
+        candidate.Action.Kind == LegalActionKind.Snatch);
+    True(judgmentSnatchCandidate.Score > 0d);
+    True(judgmentSnatchCandidate.Reason.Contains("公开判定区【乐不思蜀】", StringComparison.Ordinal));
 
     var alcoholCard = new Card(alcohol.Id, alcohol.Kind, alcohol.Suit, alcohol.Rank);
     var dyingAlcohol = new SimpleAiBrain(seat: 0, seed: 5).ChooseDyingResponseWithAlcohol(
@@ -929,7 +1142,7 @@ static void AiCardContentPolicy()
     Equal(alcohol.Id, dyingAlcohol.AlcoholCardId);
     True(dyingAlcohol.Thought.Candidates.Any(candidate =>
         candidate.Action.Kind == LegalActionKind.Alcohol &&
-        candidate.Reason.Contains("自己濒死", StringComparison.Ordinal)));
+        candidate.Reason.Contains("使自己回到", StringComparison.Ordinal)));
 
     var nonVictimAlcohol = new SimpleAiBrain(seat: 0, seed: 5).ChooseDyingResponseWithAlcohol(
         view,
@@ -938,8 +1151,10 @@ static void AiCardContentPolicy()
         alcohols: [alcoholCard],
         thoughtSequence: 3);
     False(nonVictimAlcohol.UseAlcohol);
-    True(nonVictimAlcohol.Thought.Candidates.All(candidate =>
-        candidate.Action.Kind != LegalActionKind.Alcohol));
+    var nonVictimAlcoholCandidate = nonVictimAlcohol.Thought.Candidates.Single(candidate =>
+        candidate.Action.Kind == LegalActionKind.Alcohol);
+    Equal(1, nonVictimAlcoholCandidate.Action.TargetSeat);
+    True(nonVictimAlcoholCandidate.Reason.Contains("公开濒死角色", StringComparison.Ordinal));
 
     var harvest = new SimpleAiBrain(seat: 0, seed: 5).ChooseHarvestCard(
         view,
@@ -1074,6 +1289,11 @@ static void PassiveSkills()
         new DamageSkillContext(fullHand, 1, CardKind.Duel, true, TargetSeat: 0)));
     False(SkillRegistry.Get(SkillKind.Feedback).CanTriggerAfterDamage(
         new DamageSkillContext(fullHand, 1, CardKind.Duel, true, TargetSeat: 1)));
+    Equal(
+        DamageTriggerScope.DamagedPlayer,
+        SkillRegistry.Get(SkillKind.Feedback).AfterDamageTriggerScope);
+    False(SkillRegistry.Get(SkillKind.Feedback).CanTriggerAfterDamage(
+        new DamageSkillContext(fullHand, 0, CardKind.Duel, true, Amount: 0, TargetSeat: 0)));
     False(SkillRegistry.Get(SkillKind.Feedback).OffersDamageCardChoice(
         new DamageSkillContext(fullHand, 1, CardKind.Duel, false)));
     False(SkillRegistry.Get(SkillKind.Feedback).ClaimsDamageCard(
@@ -1113,6 +1333,9 @@ static void PassiveSkills()
         TargetHp = 3,
         TargetMaxHp = 4
     };
+    Equal(
+        DamageTriggerScope.OtherLivingPlayer,
+        SkillRegistry.Get(SkillKind.Yuanhu).AfterDamageTriggerScope);
     True(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(yuanhuContext));
     True(SkillRegistry.Get(SkillKind.Yuanhu).OffersDamageCardChoice(yuanhuContext));
     Equal(
@@ -1120,10 +1343,39 @@ static void PassiveSkills()
         SkillRegistry.Get(SkillKind.Yuanhu).GetDamageSkillEffect(yuanhuContext));
     False(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(
         yuanhuContext with { TargetSeat = fullHand.Seat }));
+    False(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(
+        yuanhuContext with { TargetSeat = null }));
+    False(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(
+        yuanhuContext with { Amount = 0 }));
+    IPassiveSkill anyScope = new AnyScopeProbeSkill();
+    True(anyScope.CanTriggerAfterDamage(yuanhuContext));
+    True(anyScope.CanTriggerAfterDamage(
+        yuanhuContext with { TargetSeat = fullHand.Seat }));
+    False(anyScope.CanTriggerAfterDamage(
+        yuanhuContext with { TargetSeat = null }));
     False(SkillRegistry.Get(SkillKind.Yuanhu).OffersDamageCardChoice(
         yuanhuContext with { Owner = emptyHand }));
     False(SkillRegistry.Get(SkillKind.Yuanhu).OffersDamageCardChoice(
         yuanhuContext with { TargetHp = 4 }));
+
+    var ganglieContext = yijiContext with
+    {
+        Owner = fullHand,
+        TargetSeat = fullHand.Seat,
+        SourceSeat = 1,
+        Amount = 1
+    };
+    True(SkillRegistry.Get(SkillKind.Ganglie).CanTriggerAfterDamage(ganglieContext));
+    True(SkillRegistry.Get(SkillKind.Ganglie).OffersDamageCardChoice(ganglieContext));
+    Equal(
+        DamageSkillEffectKind.GanglieJudgment,
+        SkillRegistry.Get(SkillKind.Ganglie).GetDamageSkillEffect(ganglieContext));
+    False(SkillRegistry.Get(SkillKind.Ganglie).CanTriggerAfterDamage(
+        ganglieContext with { TargetSeat = 1 }));
+    False(SkillRegistry.Get(SkillKind.Ganglie).OffersDamageCardChoice(
+        ganglieContext with { SourceSeat = null }));
+    False(SkillRegistry.Get(SkillKind.Ganglie).OffersDamageCardChoice(
+        ganglieContext with { Amount = 0 }));
 
     var redPeach = new Card(31, CardKind.Peach, Suit.Heart, 5);
     var blackPeach = new Card(32, CardKind.Peach, Suit.Spade, 6);
@@ -1179,6 +1431,7 @@ static void DamageTriggerWindowFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -1281,6 +1534,130 @@ static void DamageTriggerWindowFlow()
     AssertCardInventory(gameWithWindow);
 }
 
+static void LethalDamageTriggerWindowFlow()
+{
+    GameEngine? selectedGame = null;
+    PendingDecision? selectedPrompt = null;
+    DamageFrame? selectedDamageFrame = null;
+    for (var seed = 1; seed <= 8_192 && selectedGame is null; seed++)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = seed,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            MaxTurns = 220
+        });
+        var initial = game.CreateSnapshot(0, revealAll: true);
+        if (initial.Players.Any(player => player.Skill == SkillKind.Yuanhu) ||
+            initial.Players.Single(player => player.Seat == 0).Skill != SkillKind.Feedback)
+        {
+            continue;
+        }
+
+        var result = game.Start();
+        var steps = 0;
+        while (result.Status != EngineStatus.Completed && steps++ < 4_000)
+        {
+            if (result.Status == EngineStatus.AwaitingHumanResponse &&
+                result.PendingDecision?.Kind == DecisionKind.Feedback)
+            {
+                var feedbackFrame = game.ResolutionStack
+                    .OfType<DamageSkillFrame>()
+                    .SingleOrDefault(frame => frame.OwnerSeat == 0 && frame.Skill == SkillKind.Feedback);
+                var damageFrame = game.ResolutionStack
+                    .OfType<DamageFrame>()
+                    .SingleOrDefault(frame => frame.Id == feedbackFrame?.ParentFrameId ||
+                                               game.ResolutionStack.OfType<DamageTriggerWindowFrame>()
+                                                   .Any(window => window.ParentFrameId == frame.Id &&
+                                                                  window.Candidates.Any(candidate =>
+                                                                      candidate.OwnerSeat == 0 &&
+                                                                      candidate.Skill == SkillKind.Feedback)));
+                var target = game.CreateSnapshot(0).Players.Single(player => player.Seat == 0);
+                if (feedbackFrame is not null &&
+                    damageFrame is not null &&
+                    damageFrame.TargetSeat == 0 &&
+                    target.Hp == 0 &&
+                    target.IsAlive &&
+                    game.ResolutionStack[^3] is DamageFrame &&
+                    game.ResolutionStack[^2] is DamageTriggerWindowFrame &&
+                    game.ResolutionStack[^1] is DamageSkillFrame)
+                {
+                    selectedGame = game;
+                    selectedPrompt = result.PendingDecision;
+                    selectedDamageFrame = damageFrame;
+                    break;
+                }
+            }
+
+            result = result.Status switch
+            {
+                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.RespondSlash =>
+                    game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.Nullification =>
+                    game.HumanRespondNullification(useNullification: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.Feedback =>
+                    game.HumanRespondFeedback(useFeedback: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanResponse =>
+                    game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying =>
+                    game.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
+                _ => game.AdvanceOneStep()
+            };
+        }
+    }
+
+    if (selectedGame is null || selectedPrompt is null || selectedDamageFrame is null)
+    {
+        throw new InvalidOperationException("No deterministic lethal Feedback trigger window was found.");
+    }
+
+    var gameWithLethalTrigger = selectedGame!;
+    var prompt = selectedPrompt!;
+    var damageFrameAtBoundary = selectedDamageFrame!;
+    Equal(DecisionKind.Feedback, prompt.Kind);
+    Equal(0, prompt.PlayerSeat);
+    TrueWithMessage(
+        gameWithLethalTrigger.ResolutionStack[^3] is DamageFrame,
+        "lethal trigger retains its damage frame");
+    TrueWithMessage(
+        gameWithLethalTrigger.ResolutionStack[^2] is DamageTriggerWindowFrame,
+        "lethal trigger retains its trigger window");
+    TrueWithMessage(
+        gameWithLethalTrigger.ResolutionStack[^1] is DamageSkillFrame,
+        "lethal trigger retains its skill frame");
+    Equal<PendingDecision?>(null, gameWithLethalTrigger.CreateSnapshot(1).PendingDecision);
+
+    var useChoice = prompt.Choices.Single(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "feedback");
+    var accepted = gameWithLethalTrigger.HumanRespondFeedback(
+        useFeedback: true,
+        advanceToHumanBoundary: false);
+    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "lethal Feedback choice accepted");
+    TrueWithMessage(gameWithLethalTrigger.Events.Any(eventItem =>
+        eventItem.Payload is DamageSkillResolvedEvent resolved &&
+        resolved.ResolutionId != 0 &&
+        resolved.OwnerSeat == 0 &&
+        resolved.Skill == SkillKind.Feedback &&
+        resolved.Used), "lethal Feedback resolution event");
+    TrueWithMessage(gameWithLethalTrigger.ResolutionStack.Any(frame => frame is DyingFrame),
+        "lethal Feedback continues into a Dying frame");
+    FalseWithMessage(gameWithLethalTrigger.ResolutionStack.Any(frame => frame is DamageSkillFrame),
+        "lethal Feedback skill frame completed before dying");
+    TrueWithMessage(gameWithLethalTrigger.CardMovements.Any(movement =>
+        movement.CardId == useChoice.Cards.Single() &&
+        movement.To == CardLocation.Hand(0) &&
+        movement.Reason == CardMoveReasons.FeedbackClaim),
+        "lethal Feedback claim movement");
+    TrueWithMessage(gameWithLethalTrigger.Events.Any(eventItem =>
+        eventItem.Payload is PlayerDyingEvent dying &&
+        dying.VictimSeat == damageFrameAtBoundary.TargetSeat),
+        "lethal trigger eventually opens the dying window");
+}
+
 static void AiPublicEvidence()
 {
     var brain = new SimpleAiBrain(seat: 7, seed: 42);
@@ -1297,8 +1674,8 @@ static void AiPublicEvidence()
 
 static void FixedSeed()
 {
-    var left = GameEngine.CreateStandard(new GameOptions { Seed = 99 }).SerializeState(revealAll: true);
-    var right = GameEngine.CreateStandard(new GameOptions { Seed = 99 }).SerializeState(revealAll: true);
+    var left = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 99 }).SerializeState(revealAll: true);
+    var right = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 99 }).SerializeState(revealAll: true);
     Equal(left, right);
 }
 
@@ -1317,6 +1694,7 @@ static void CommandJournalReplay()
 {
     var options = new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 808,
         HumanSeat = 0,
         HumanRole = Role.Lord,
@@ -1351,14 +1729,126 @@ static void CommandJournalReplay()
         "replay preserves accepted command journal");
 }
 
+static void CheckpointRestore()
+{
+    var options = new GameOptions
+    {
+        UseInteractiveDiscard = false,
+        Seed = 912,
+        HumanSeat = 0,
+        HumanRole = Role.Lord,
+        UseInteractiveSetup = true,
+        MaxTurns = 120
+    };
+    var original = GameEngine.CreateStandard(options, StandardContentRegistry.Create());
+    var started = original.Submit(new StartGameCommand(original.Revision));
+    TrueWithMessage(started.Accepted, "checkpoint start accepted");
+    var pending = started.PendingDecision;
+    NotNull(pending);
+    Equal(DecisionKind.SelectGeneral, pending!.Kind);
+
+    var checkpoint = original.CreateCheckpoint();
+    Equal(original.Revision, checkpoint.Revision);
+    Equal(original.ModeId, checkpoint.ModeId);
+    Equal(1, checkpoint.Commands.Count);
+    Equal(GameCheckpoint.CurrentRulesVersion, checkpoint.RulesVersion);
+    TrueWithMessage(
+        checkpoint.ContentPackages.SequenceEqual(["standard@1.11.0"]),
+        "checkpoint records the content package signature");
+    Equal(StandardContentRegistry.Create().ContentHash, checkpoint.ContentHash);
+
+    var json = GameCheckpointJson.Serialize(checkpoint);
+    TrueWithMessage(json.Contains("\"$type\": \"start\"", StringComparison.Ordinal),
+        "checkpoint JSON retains command discriminators");
+    var decoded = GameCheckpointJson.Deserialize(json);
+    var restored = GameReplay.Restore(decoded, StandardContentRegistry.Create());
+
+    Equal(
+        SnapshotJson.Serialize(original.CreateSnapshot(0)),
+        SnapshotJson.Serialize(restored.CreateSnapshot(0)));
+    Equal(
+        SnapshotJson.Serialize(original.CreateSnapshot(0, revealAll: true)),
+        SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)));
+    Equal(JsonSerializer.Serialize(original.Log), JsonSerializer.Serialize(restored.Log));
+    Equal(JsonSerializer.Serialize(original.AiThoughts), JsonSerializer.Serialize(restored.AiThoughts));
+    Equal(JsonSerializer.Serialize(original.AiGeneralThoughts), JsonSerializer.Serialize(restored.AiGeneralThoughts));
+    Equal(JsonSerializer.Serialize(original.CardMovements), JsonSerializer.Serialize(restored.CardMovements));
+    TrueWithMessage(
+        original.Events.Select(EventSignature).SequenceEqual(restored.Events.Select(EventSignature)),
+        "checkpoint restore preserves typed events");
+    TrueWithMessage(
+        original.AcceptedCommands.SequenceEqual(restored.AcceptedCommands),
+        "checkpoint restore preserves the command prefix");
+
+    Throws<InvalidOperationException>(() => GameReplay.Restore(
+        decoded with { ContentHash = "00BAD-CONTENT-HASH" },
+        StandardContentRegistry.Create()));
+    Throws<InvalidOperationException>(() => GameReplay.Restore(
+        decoded with { RulesVersion = 99 },
+        StandardContentRegistry.Create()));
+
+    var selectedGeneralId = pending.ValidContentIds.First();
+    var originalSelection = original.Submit(new SelectGeneralCommand(
+        0,
+        selectedGeneralId,
+        original.Revision,
+        pending.PromptId));
+    var restoredSelection = restored.Submit(new SelectGeneralCommand(
+        0,
+        selectedGeneralId,
+        restored.Revision,
+        restored.PendingDecision!.PromptId));
+    TrueWithMessage(originalSelection.Accepted && restoredSelection.Accepted,
+        "the restored private prompt accepts the same command");
+    Equal(
+        SnapshotJson.Serialize(original.CreateSnapshot(0, revealAll: true)),
+        SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)));
+    TrueWithMessage(
+        original.Events.Select(EventSignature).SequenceEqual(restored.Events.Select(EventSignature)),
+        "continued checkpoint state remains deterministic");
+
+    Throws<InvalidOperationException>(() => GameReplay.Restore(decoded));
+
+    var legacy = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 913 });
+    _ = legacy.Start();
+    Throws<InvalidOperationException>(() => legacy.CreateCheckpoint());
+}
+
+static void CheckpointRejectsSameVersionContentDrift()
+{
+    var registry = StandardContentRegistry.Create();
+    var game = GameEngine.CreateStandard(
+        new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = 914,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            UseInteractiveSetup = true
+        },
+        registry);
+    var started = game.Submit(new StartGameCommand(game.Revision));
+    TrueWithMessage(started.Accepted, "content-drift checkpoint start accepted");
+    var checkpoint = game.CreateCheckpoint();
+
+    var driftedRegistry = ContentRegistry.Build(new ModifiedStandardContentPackage());
+    Equal(
+        checkpoint.ContentPackages.Single(),
+        $"{driftedRegistry.Packages.Single().Id}@{driftedRegistry.Packages.Single().Version}");
+    TrueWithMessage(
+        !string.Equals(checkpoint.ContentHash, driftedRegistry.ContentHash, StringComparison.Ordinal),
+        "same-version standard content drift changes the registry hash");
+    Throws<InvalidOperationException>(() => GameReplay.Restore(checkpoint, driftedRegistry));
+}
+
 static void InitialDealCardZones()
 {
-    var game = GameEngine.CreateStandard(new GameOptions { Seed = 211 });
+    var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 211 });
     var cards = game.CreateCardZoneDiagnostics();
 
-    Equal(78, cards.Count);
-    Equal(78, cards.Select(card => card.CardId).Distinct().Count());
-    Equal(46, cards.Count(card => card.Location == CardLocation.DrawPile));
+    Equal(90, cards.Count);
+    Equal(90, cards.Select(card => card.CardId).Distinct().Count());
+    Equal(58, cards.Count(card => card.Location == CardLocation.DrawPile));
     Equal(0, cards.Count(card => card.Location == CardLocation.Processing));
     Equal(0, cards.Count(card => card.Location == CardLocation.DiscardPile));
 
@@ -1409,6 +1899,7 @@ static void SlashAndDodgeProcessing()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -1503,6 +1994,7 @@ static void CardInventoryConservation()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -1521,6 +2013,8 @@ static void CardInventoryConservation()
                     .FirstOrDefault(candidate => candidate.Kind != LegalActionKind.EndPlay);
                 result = action is null
                     ? game.HumanEndPlay(advanceToHumanBoundary: false)
+                    : action.Kind == LegalActionKind.Recast
+                        ? game.Submit(new RecastCardCommand(0, action.CardId!.Value, game.Revision, game.PendingDecision!.PromptId)).Result
                     : game.HumanPlay(action.CardId!.Value, action.TargetSeat, advanceToHumanBoundary: false);
             }
             else if (result.Status == EngineStatus.AwaitingHumanResponse)
@@ -1553,6 +2047,7 @@ static void ObserversRunPostCommit()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 331,
         HumanSeat = 0,
         HumanRole = Role.Lord
@@ -1576,6 +2071,7 @@ static void TypedEventStream()
 {
     var options = new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 929,
         HumanSeat = 0,
         HumanRole = Role.Lord,
@@ -1617,6 +2113,7 @@ static void ResolutionFrameStack()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -1696,6 +2193,7 @@ static void DuelResponseFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -1840,6 +2338,7 @@ static void DrawTwoFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord
@@ -1851,7 +2350,9 @@ static void DrawTwoFlow()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.DrawTwo);
         if (result.Status == EngineStatus.AwaitingHumanPlay &&
             human.Skill != SkillKind.Wusheng &&
-            action is not null)
+            action is not null &&
+            game.CreateSnapshot(0, revealAll: true).Players.All(player =>
+                player.Hand.All(card => card.Kind != CardKind.Nullification)))
         {
             selectedGame = game;
             selectedAction = action;
@@ -1947,6 +2448,449 @@ static void DrawTwoFlow()
     AssertCardInventory(gameWithDrawTwo);
 }
 
+static void NullificationFlow()
+{
+    GameEngine? aiGame = null;
+    for (var seed = 1; seed <= 128 && aiGame is null; seed++)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = seed,
+            HumanSeat = -1,
+            HumanRole = null,
+            MaxTurns = 250
+        });
+        var result = game.Start();
+        if (result.Status == EngineStatus.Completed &&
+            game.Events.Any(eventItem => eventItem.Payload is NullificationRespondedEvent))
+        {
+            aiGame = game;
+        }
+    }
+
+    NotNull(aiGame);
+    var resolvedGame = aiGame!;
+    var responses = resolvedGame.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<NullificationRespondedEvent>()
+        .ToArray();
+    True(responses.Length > 0);
+    var resolvedEffects = resolvedGame.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<NullificationResolvedEvent>()
+        .ToArray();
+    True(resolvedEffects.Any(effect => effect.EffectNullified));
+    foreach (var responseGroup in responses.GroupBy(response =>
+                 (response.ResolutionId, response.EffectCardId)))
+    {
+        var ordered = responseGroup.OrderBy(response => response.ChainDepth).ToArray();
+        var resolved = resolvedEffects.Single(effect =>
+            effect.ResolutionId == responseGroup.Key.ResolutionId &&
+            effect.EffectCardId == responseGroup.Key.EffectCardId);
+        Equal(ordered.Length, resolved.ChainDepth);
+        Equal(ordered.Length % 2 == 1, resolved.EffectNullified);
+        True(ordered.Select(response => response.ChainDepth)
+            .SequenceEqual(Enumerable.Range(1, ordered.Length)));
+        foreach (var response in ordered)
+        {
+            True(resolvedGame.CardMovements.Any(movement =>
+                movement.CardId == response.NullificationCardId &&
+                movement.From == CardLocation.Hand(response.ResponderSeat) &&
+                movement.To == CardLocation.Processing &&
+                movement.Reason == CardMoveReasons.Nullification));
+            True(resolvedGame.CardMovements.Any(movement =>
+                movement.CardId == response.NullificationCardId &&
+                movement.From == CardLocation.Processing &&
+                movement.To == CardLocation.DiscardPile &&
+                movement.Reason == CardMoveReasons.NullificationFinished));
+        }
+    }
+    AssertCardInventory(resolvedGame);
+
+    GameEngine? humanGame = null;
+    PendingDecision? humanPrompt = null;
+    for (var seed = 1; seed <= 8_192 && humanGame is null; seed++)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = seed,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            MaxTurns = 180
+        });
+        var result = game.Start();
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
+            candidate.Kind is LegalActionKind.DrawTwo or
+                LegalActionKind.BarbarianAssault or
+                LegalActionKind.ArrowBarrage or
+                LegalActionKind.PeachGarden or
+                LegalActionKind.FiveGrains or
+                LegalActionKind.Dismantlement or
+                LegalActionKind.Snatch or
+                LegalActionKind.FireAttack or
+                LegalActionKind.Duel);
+        if (action is null)
+        {
+            continue;
+        }
+
+        _ = game.HumanPlay(
+            action.CardId!.Value,
+            action.TargetSeat,
+            advanceToHumanBoundary: false,
+            targetCardId: action.TargetCardId);
+        for (var step = 0; step < 256; step++)
+        {
+            if (game.PendingDecision?.Kind == DecisionKind.Nullification)
+            {
+                humanGame = game;
+                humanPrompt = game.PendingDecision;
+                break;
+            }
+
+            if (!game.ResolutionStack.Any(frame => frame is NullificationWindowFrame))
+            {
+                break;
+            }
+
+            game.AdvanceOneStep();
+        }
+    }
+
+    NotNull(humanGame);
+    NotNull(humanPrompt);
+    var privateGame = humanGame!;
+    var privatePrompt = humanPrompt!;
+    Equal(DecisionKind.Nullification, privatePrompt.Kind);
+    Equal(CardKind.Nullification, privatePrompt.RequiredCardKind);
+    True(privatePrompt.ValidCardIds.Count > 0);
+    True(privatePrompt.Choices.Any(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "nullification"));
+    Equal<PendingDecision?>(null, privateGame.CreateSnapshot(1).PendingDecision);
+    var window = privateGame.ResolutionStack.OfType<NullificationWindowFrame>().Single();
+    Equal(privatePrompt.IncomingCard, window.EffectCardKind);
+    Equal(privatePrompt.SourceSeat, window.SourceSeat);
+    True(JsonSerializer.Serialize(privateGame.ResolutionStack)
+        .Contains("nullification-window", StringComparison.Ordinal));
+
+    var beforeInvalid = privateGame.SerializeState();
+    var invalid = privateGame.Submit(new AnswerPromptCommand(
+        0,
+        privatePrompt.PromptId,
+        new ChoiceId("nullification.fake"),
+        privateGame.Revision));
+    False(invalid.Accepted);
+    Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
+    Equal(beforeInvalid, privateGame.SerializeState());
+
+    var useChoice = privatePrompt.Choices.First(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "nullification");
+    var usedCardId = useChoice.Cards.Single();
+    var accepted = privateGame.Submit(new AnswerPromptCommand(
+        0,
+        privatePrompt.PromptId,
+        useChoice.Id,
+        privateGame.Revision));
+    True(accepted.Accepted);
+    ResolveNullificationWindowForTest(privateGame);
+    True(privateGame.Events.Any(eventItem =>
+        eventItem.Payload is NullificationRespondedEvent response &&
+        response.ResponderSeat == 0 &&
+        response.NullificationCardId == usedCardId));
+    False(SnapshotJson.Serialize(privateGame.CreateSnapshot(1))
+        .Contains($"\"Id\": {usedCardId},", StringComparison.Ordinal));
+    AssertCardInventory(privateGame);
+}
+
+static void IronChainFlow()
+{
+    GameEngine? selectedGame = null;
+    IronChainResolvedEvent? chainResolved = null;
+    ChainedDamagePropagatedEvent? propagated = null;
+    GameSnapshot? chainedSnapshot = null;
+    var chainCardId = -1;
+    var fireSlashCardId = -1;
+    var expectedTargets = new[] { 1, 2 };
+
+    for (var seed = 1; seed <= 8_192 && selectedGame is null; seed++)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = seed,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            MaxTurns = 180
+        });
+        var started = game.Start();
+        if (started.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var revealed = game.CreateSnapshot(0, revealAll: true);
+        if (revealed.Players.Any(player => player.Skill == SkillKind.Yuanhu))
+        {
+            continue;
+        }
+
+        var human = revealed.Players.Single(player => player.Seat == 0);
+        var ironChain = human.Hand.FirstOrDefault(card => card.Kind == CardKind.IronChain);
+        var fireSlash = human.Hand.FirstOrDefault(card => card.Kind == CardKind.FireSlash);
+        var chainAction = game.GetHumanLegalActions().FirstOrDefault(action =>
+            action.Kind == LegalActionKind.IronChain &&
+            action.TargetSeats.SequenceEqual(expectedTargets));
+        var fireSlashAction = game.GetHumanLegalActions().FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == fireSlash?.Id &&
+            action.TargetSeat == expectedTargets[0]);
+        var chainChoice = started.PendingDecision?.Choices.FirstOrDefault(choice =>
+            choice.Cards.Count == 1 &&
+            choice.Cards[0] == ironChain?.Id &&
+            choice.Targets.SequenceEqual(expectedTargets));
+        var target = revealed.Players.Single(player => player.Seat == expectedTargets[0]);
+        if (ironChain is null ||
+            fireSlash is null ||
+            chainAction is null ||
+            fireSlashAction is null ||
+            chainChoice is null ||
+            target.Skill == SkillKind.Longdan ||
+            target.Hand.Any(card => card.Kind == CardKind.Dodge))
+        {
+            continue;
+        }
+
+        var prompt = started.PendingDecision!;
+        var beforeInvalid = game.SerializeState();
+        var invalid = game.Submit(new PlayCardCommand(
+            ActorSeat: 0,
+            CardId: ironChain.Id,
+            TargetSeats: [expectedTargets[0], expectedTargets[0]],
+            ExpectedRevision: game.Revision,
+            PromptId: prompt.PromptId));
+        False(invalid.Accepted);
+        Equal(CommandErrorCode.InvalidTarget, invalid.Error!.Code);
+        Equal(beforeInvalid, game.SerializeState());
+
+        var accepted = game.Submit(new PlayCardCommand(
+            ActorSeat: 0,
+            CardId: ironChain.Id,
+            TargetSeats: chainChoice.Targets,
+            ExpectedRevision: game.Revision,
+            PromptId: prompt.PromptId));
+        True(accepted.Accepted);
+        ResolveNullificationWindowForTest(game);
+
+        var currentChain = game.Events
+            .Select(eventItem => eventItem.Payload)
+            .OfType<IronChainResolvedEvent>()
+            .SingleOrDefault();
+        if (currentChain is null)
+        {
+            continue;
+        }
+
+        if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+        {
+            game.AdvanceOneStep();
+        }
+
+        chainedSnapshot = game.CreateSnapshot(0, revealAll: true);
+        var followUp = game.GetHumanLegalActions().FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == fireSlash.Id &&
+            action.TargetSeat == expectedTargets[0]);
+        if (followUp is null)
+        {
+            continue;
+        }
+
+        var eventCountBeforeFireSlash = game.Events.Count;
+        game.HumanPlay(fireSlash.Id, expectedTargets[0], advanceToHumanBoundary: false);
+        for (var step = 0; step < 512; step++)
+        {
+            propagated = game.Events
+                .Skip(eventCountBeforeFireSlash)
+                .Select(eventItem => eventItem.Payload)
+                .OfType<ChainedDamagePropagatedEvent>()
+                .SingleOrDefault();
+            if (propagated is not null)
+            {
+                break;
+            }
+
+            if (game.PendingDecision is { PlayerSeat: 0 } humanPrompt)
+            {
+                _ = humanPrompt.Kind switch
+                {
+                    DecisionKind.RespondDodge => game.HumanRespond(
+                        useDodge: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.RespondSlash => game.HumanRespondSlash(
+                        useSlash: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.RescueDying => game.HumanRespondDying(
+                        usePeach: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.SelectHarvestCard => ResolveFirstHarvestChoice(game),
+                    DecisionKind.Nullification => game.HumanRespondNullification(
+                        useNullification: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.PlayCard => game.HumanEndPlay(advanceToHumanBoundary: false),
+                    _ => throw new InvalidOperationException(
+                        $"Unexpected human prompt during IronChain propagation: {humanPrompt.Kind}.")
+                };
+            }
+            else
+            {
+                game.AdvanceOneStep();
+            }
+        }
+
+        if (propagated is null)
+        {
+            continue;
+        }
+
+        for (var settleStep = 0;
+             settleStep < 512 &&
+             !game.Events.Any(eventItem =>
+                 eventItem.Payload is CardUseFinishedEvent finished &&
+                 finished.CardId == fireSlash.Id) &&
+             !game.Events.Any(eventItem =>
+                 eventItem.Payload is DamageCardClaimedEvent claimed &&
+                 claimed.CardId == fireSlash.Id);
+             settleStep++)
+        {
+            if (game.PendingDecision is { PlayerSeat: 0 } settlePrompt)
+            {
+                _ = settlePrompt.Kind switch
+                {
+                    DecisionKind.RespondDodge => game.HumanRespond(
+                        useDodge: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.RespondSlash => game.HumanRespondSlash(
+                        useSlash: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.RescueDying => game.HumanRespondDying(
+                        usePeach: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.SelectHarvestCard => ResolveFirstHarvestChoice(game),
+                    DecisionKind.Nullification => game.HumanRespondNullification(
+                        useNullification: false,
+                        advanceToHumanBoundary: false),
+                    DecisionKind.PlayCard => game.HumanEndPlay(advanceToHumanBoundary: false),
+                    _ => throw new InvalidOperationException(
+                        $"Unexpected human prompt while settling IronChain: {settlePrompt.Kind}.")
+                };
+            }
+            else
+            {
+                game.AdvanceOneStep();
+            }
+        }
+
+        selectedGame = game;
+        chainResolved = currentChain;
+        chainCardId = ironChain.Id;
+        fireSlashCardId = fireSlash.Id;
+    }
+
+    NotNull(selectedGame);
+    NotNull(chainResolved);
+    NotNull(propagated);
+    var gameWithChain = selectedGame!;
+    var resolved = chainResolved!;
+    var propagation = propagated!;
+
+    True(resolved.TargetSeats.SequenceEqual(expectedTargets));
+    Equal(0, resolved.SourceSeat);
+    True(gameWithChain.Events.Any(eventItem =>
+        eventItem.Payload is NullificationResolvedEvent nullification &&
+        nullification.ResolutionId == resolved.ResolutionId &&
+        !nullification.EffectNullified));
+    var chainStateChanges = gameWithChain.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<IronChainStateChangedEvent>()
+        .Where(change => change.ResolutionId == resolved.ResolutionId)
+        .ToArray();
+    True(chainStateChanges.Select(change => change.TargetSeat).SequenceEqual(expectedTargets));
+    True(chainStateChanges.All(change => change.IsChained));
+
+    NotNull(chainedSnapshot);
+    True(chainedSnapshot!.Players
+        .Where(player => expectedTargets.Contains(player.Seat))
+        .All(player => player.IsChained));
+    True(gameWithChain.Events.Any(eventItem =>
+        eventItem.Payload is CardUseFinishedEvent finished &&
+        finished.ResolutionId == resolved.ResolutionId &&
+        finished.CardId == chainCardId &&
+        finished.CardKind == CardKind.IronChain));
+    True(gameWithChain.CardMovements.Any(movement =>
+        movement.CardId == chainCardId &&
+        movement.From == CardLocation.Hand(0) &&
+        movement.To == CardLocation.Processing &&
+        movement.Reason == CardMoveReasons.IronChainUse));
+    True(gameWithChain.CardMovements.Any(movement =>
+        movement.CardId == chainCardId &&
+        movement.From == CardLocation.Processing &&
+        movement.To == CardLocation.DiscardPile &&
+        movement.Reason == CardMoveReasons.IronChainFinished));
+
+    Equal(0, propagation.SourceSeat);
+    Equal(expectedTargets[0], propagation.FromSeat);
+    Equal(expectedTargets[1], propagation.TargetSeat);
+    Equal(1, propagation.Amount);
+    Equal(DamageNature.Fire, propagation.Nature);
+    var elementalDamage = gameWithChain.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<DamageAppliedEvent>()
+        .Where(damage => damage.SourceSeat == 0 && damage.Nature == DamageNature.Fire)
+        .ToArray();
+    Equal(2, elementalDamage.Length);
+    True(elementalDamage.Select(damage => damage.TargetSeat).SequenceEqual(expectedTargets));
+    True(gameWithChain.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<IronChainStateChangedEvent>()
+        .Any(change =>
+            change.ResolutionId == propagation.ResolutionId &&
+            change.TargetSeat == expectedTargets[0] &&
+            !change.IsChained));
+    True(gameWithChain.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<IronChainStateChangedEvent>()
+        .Any(change =>
+            change.ResolutionId == propagation.ResolutionId &&
+            change.TargetSeat == expectedTargets[1] &&
+            !change.IsChained));
+    True(gameWithChain.CreateSnapshot(0, revealAll: true).Players
+        .Where(player => expectedTargets.Contains(player.Seat))
+        .All(player => !player.IsChained));
+    True(gameWithChain.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<CardUseFinishedEvent>()
+        .Any(finished =>
+            finished.CardId == fireSlashCardId &&
+            finished.CardKind == CardKind.FireSlash));
+    var fireSlashLocation = gameWithChain.CreateCardZoneDiagnostics()
+        .Single(card => card.CardId == fireSlashCardId)
+        .Location;
+    True(fireSlashLocation == CardLocation.DiscardPile ||
+         gameWithChain.Events
+             .Select(eventItem => eventItem.Payload)
+             .OfType<DamageCardClaimedEvent>()
+             .Any(claim => claim.CardId == fireSlashCardId));
+    Equal(0, gameWithChain.ResolutionStack.Count);
+    AssertCardInventory(gameWithChain);
+}
+
 static void BarbarianAssaultFlow()
 {
     GameEngine? selectedGame = null;
@@ -1956,6 +2900,7 @@ static void BarbarianAssaultFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -1969,7 +2914,19 @@ static void BarbarianAssaultFlow()
             continue;
         }
 
+        if (!game.CreateSnapshot(0, revealAll: true).Players.All(player =>
+                player.Hand.All(card => card.Kind != CardKind.Nullification)))
+        {
+            continue;
+        }
+        if (game.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.Seat == 0).Skill == SkillKind.Yuanhu)
+        {
+            continue;
+        }
+
         result = game.HumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
+        result = ResolveNullificationWindowForTest(game, result);
         var currentFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(frame => frame.CardKind == CardKind.BarbarianAssault);
         var response = game.ResolutionStack.OfType<ResponseWindowFrame>()
@@ -2022,7 +2979,15 @@ static void BarbarianAssaultFlow()
                finished.ResolutionId == frame.Id) &&
            steps++ < 500)
     {
-        gameWithAssault.AdvanceOneStep();
+        var advanced = gameWithAssault.AdvanceOneStep();
+        if (advanced.Status == EngineStatus.AwaitingHumanResponse)
+        {
+            gameWithAssault.HumanRespond(useDodge: false, advanceToHumanBoundary: false);
+        }
+        else if (advanced.Status == EngineStatus.AwaitingHumanDying)
+        {
+            gameWithAssault.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
+        }
     }
 
     TrueWithMessage(
@@ -2069,6 +3034,7 @@ static void ArrowBarrageFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2082,14 +3048,24 @@ static void ArrowBarrageFlow()
             continue;
         }
 
+        if (!game.CreateSnapshot(0, revealAll: true).Players.All(player =>
+                player.Hand.All(card => card.Kind != CardKind.Nullification)))
+        {
+            continue;
+        }
+
         result = game.HumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
+        result = ResolveNullificationWindowForTest(game, result);
         var currentFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(frame => frame.CardKind == CardKind.ArrowBarrage);
         var responseFrame = game.ResolutionStack.OfType<ResponseWindowFrame>()
             .SingleOrDefault(frame => frame.IncomingCard == CardKind.ArrowBarrage);
         var hasGuaranteedDamageTarget = currentFrame is not null && currentFrame.TargetSeats.Any(targetSeat =>
-            !game.CreateSnapshot(targetSeat).Players.Single(player => player.Seat == targetSeat).Hand
-                .Any(card => card.Kind == CardKind.Dodge));
+        {
+            var target = game.CreateSnapshot(targetSeat).Players.Single(player => player.Seat == targetSeat);
+            return target.Skill != SkillKind.Longdan &&
+                   !target.Hand.Any(card => card.Kind == CardKind.Dodge);
+        });
         var hasNoFeedbackTarget = currentFrame is not null && currentFrame.TargetSeats.All(targetSeat =>
             game.CreateSnapshot(targetSeat, revealAll: true).Players
                 .Single(player => player.Seat == targetSeat).Skill != SkillKind.Feedback);
@@ -2146,7 +3122,14 @@ static void ArrowBarrageFlow()
                finished.ResolutionId == frame.Id) &&
            steps++ < 500)
     {
-        gameWithBarrage.AdvanceOneStep();
+        var advanced = gameWithBarrage.AdvanceOneStep();
+        if (advanced.Status is EngineStatus.AwaitingHumanResponse or
+            EngineStatus.AwaitingHumanDying or
+            EngineStatus.AwaitingHumanCardSelection or
+            EngineStatus.AwaitingHumanPlay)
+        {
+            _ = ResolveDelayedCardHumanBoundary(gameWithBarrage, advanced);
+        }
     }
 
     TrueWithMessage(
@@ -2166,9 +3149,18 @@ static void ArrowBarrageFlow()
     True(responses.All(response =>
         response.IncomingCard == CardKind.ArrowBarrage &&
         response.RequiredCardKind == CardKind.Dodge));
-    True(gameWithBarrage.Events.Any(eventItem =>
-        eventItem.Payload is DamageRequestedEvent damage &&
-        damage.SourceCard == CardKind.ArrowBarrage));
+    TrueWithMessage(
+        gameWithBarrage.Events.Any(eventItem =>
+            eventItem.Payload is DamageRequestedEvent damage &&
+            damage.SourceCard == CardKind.ArrowBarrage),
+        $"ArrowBarrage damage events: {string.Join(" | ", gameWithBarrage.Events
+            .Select(eventItem => eventItem.Payload)
+            .OfType<DamageRequestedEvent>()
+            .Select(damage => $"{damage.SourceCard}:{damage.SourceSeat}->{damage.TargetSeat}"))}; " +
+        $"responses: {string.Join(',', gameWithBarrage.Events
+            .Select(eventItem => eventItem.Payload)
+            .OfType<GroupResponseEvent>()
+            .Select(response => $"{response.ResponderSeat}:{response.UsedResponse}"))}");
     TrueWithMessage(
         gameWithBarrage.ResolutionStack.Count == 0,
         $"ArrowBarrage resolution stack should be empty, got {gameWithBarrage.ResolutionStack.Count}: {string.Join(", ", gameWithBarrage.ResolutionStack.Select(frame => frame.Kind))}");
@@ -2191,6 +3183,7 @@ static void PeachGardenFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2212,6 +3205,7 @@ static void PeachGardenFlow()
 
         var targetSeatForTest = slash.TargetSeat!.Value;
         game.HumanPlay(slash.CardId!.Value, targetSeatForTest, advanceToHumanBoundary: false);
+        ResolveNullificationWindowForTest(game);
         var targetAfterSlash = game.State.Players.Single(player => player.Seat == targetSeatForTest);
         if (targetAfterSlash.Hp != targetAfterSlash.MaxHp - 1)
         {
@@ -2227,6 +3221,7 @@ static void PeachGardenFlow()
         }
 
         game.HumanPlay(garden.CardId!.Value, null, advanceToHumanBoundary: false);
+        ResolveNullificationWindowForTest(game);
         var currentFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(frame => frame.CardKind == CardKind.PeachGarden);
         if (currentFrame is not null &&
@@ -2329,6 +3324,7 @@ static void FiveGrainsFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2343,6 +3339,7 @@ static void FiveGrainsFlow()
         }
 
         result = game.HumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
+        result = ResolveNullificationWindowForTest(game, result);
         var candidateFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(candidate => candidate.CardKind == CardKind.FiveGrains);
         if (result.Status == EngineStatus.AwaitingHumanCardSelection &&
@@ -2473,6 +3470,7 @@ static void DismantlementFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2481,9 +3479,22 @@ static void DismantlementFlow()
         var result = game.Start();
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.Dismantlement);
+        if (!game.CreateSnapshot(0, revealAll: true).Players.All(player =>
+                player.Hand.All(card => card.Kind != CardKind.Nullification)))
+        {
+            continue;
+        }
+
         if (result.Status == EngineStatus.AwaitingHumanPlay &&
             action is { TargetSeat: not null })
         {
+            var targetView = game.CreateSnapshot(action.TargetSeat.Value, revealAll: true)
+                .Players.Single(player => player.Seat == action.TargetSeat.Value);
+            if (targetView.Hand.Any(card => card.DisplayName == CardCatalog.Get(CardKind.Dismantlement).DisplayName))
+            {
+                continue;
+            }
+
             selectedGame = game;
             selectedAction = action;
         }
@@ -2510,6 +3521,20 @@ static void DismantlementFlow()
         actionToUse.CardId!.Value,
         targetSeat,
         advanceToHumanBoundary: false);
+
+    Equal(EngineStatus.AwaitingHumanCardSelection, resultAfterUse.Status);
+    var targetPrompt = resultAfterUse.PendingDecision ??
+        throw new InvalidOperationException("Dismantlement should expose a private target-card prompt.");
+    Equal(DecisionKind.SelectTargetCard, targetPrompt.Kind);
+    True(targetPrompt.IsPrivate);
+    Equal(targetSeat, targetPrompt.TargetSeat);
+    True(targetPrompt.Choices.Count == privateTargetBefore.HandCount);
+    True(targetPrompt.Choices.All(choice =>
+        choice.Cards.Count == 0 &&
+        choice.Targets.SequenceEqual([targetSeat]) &&
+        choice.Parameters.ContainsKey("slot-index") &&
+        !choice.Parameters.ContainsKey("card-id")));
+    resultAfterUse = gameWithDismantlement.HumanSelectTargetCardSlot(0, advanceToHumanBoundary: false);
 
     Equal(EngineStatus.Running, resultAfterUse.Status);
     Equal<PendingDecision?>(null, resultAfterUse.PendingDecision);
@@ -2563,8 +3588,11 @@ static void DismantlementFlow()
     True(resultAfterUse.State.Players
         .SelectMany(player => player.Hand)
         .All(card => card.Id != removedCard.Id));
-    True(!gameWithDismantlement.Log.Last(entry => entry.Type == "CardEffect")
-        .Message.Contains(removedCard.DisplayName, StringComparison.Ordinal));
+    var dismantlementLog = gameWithDismantlement.Log.Last(entry =>
+        entry.Type == "CardEffect" && entry.Message.Contains("过河拆桥", StringComparison.Ordinal));
+    TrueWithMessage(
+        !dismantlementLog.Message.Contains(removedCard.DisplayName, StringComparison.Ordinal),
+        $"拆桥日志泄露牌面：{dismantlementLog.Message}; removed={removedCard.DisplayName}");
     AssertCardInventory(gameWithDismantlement);
 }
 
@@ -2576,6 +3604,7 @@ static void SnatchFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2588,6 +3617,12 @@ static void SnatchFlow()
                 candidate.TargetSeat is not null);
         if (result.Status == EngineStatus.AwaitingHumanPlay && action is not null)
         {
+            var target = game.CreateSnapshot(0, revealAll: true).Players
+                .Single(player => player.Seat == action.TargetSeat);
+            if (target.Role != Role.Rebel)
+            {
+                continue;
+            }
             selectedGame = game;
             selectedAction = action;
         }
@@ -2609,7 +3644,7 @@ static void SnatchFlow()
     Equal(1, gameWithSnatch.GetSeatDistance(0, targetSeat));
     True(gameWithSnatch.GetHumanLegalActions()
         .Where(action => action.Kind == LegalActionKind.Snatch)
-        .All(action => action.TargetSeat is { } seat && gameWithSnatch.GetSeatDistance(0, seat) == 1));
+        .All(action => action.TargetSeat is { } seat && gameWithSnatch.GetCombatDistance(0, seat) == 1));
     Throws<ArgumentOutOfRangeException>(() => gameWithSnatch.GetSeatDistance(-1, 0));
     Throws<ArgumentOutOfRangeException>(() => gameWithSnatch.GetSeatDistance(0, 8));
 
@@ -2626,6 +3661,7 @@ static void SnatchFlow()
         actionToUse.CardId!.Value,
         targetSeat,
         advanceToHumanBoundary: false);
+    resultAfterUse = ResolveNullificationWindowForTest(gameWithSnatch, resultAfterUse);
 
     Equal(EngineStatus.Running, resultAfterUse.Status);
     Equal<PendingDecision?>(null, resultAfterUse.PendingDecision);
@@ -2693,11 +3729,291 @@ static void SnatchFlow()
     AssertCardInventory(gameWithSnatch);
 }
 
+static void PublicTargetCardFlow()
+{
+    static GameEngine? FindGameWithPublicTarget(
+        LegalActionKind actionKind,
+        CardZoneKind targetZone)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                MaxTurns = 180
+            });
+            var result = game.Start();
+            if (result.Status != EngineStatus.AwaitingHumanPlay)
+            {
+                continue;
+            }
+
+            for (var round = 0;
+                 round < 12 && result.Status == EngineStatus.AwaitingHumanPlay;
+                 round++)
+            {
+                if (game.GetHumanLegalActions().Any(action =>
+                        action.Kind == actionKind &&
+                        action.TargetSeat is not null &&
+                        action.TargetCardId is not null &&
+                        game.CreateSnapshot(0, revealAll: true).Players.Single(player =>
+                            player.Seat == action.TargetSeat).Role == Role.Rebel &&
+                        HasPublicTarget(game, action, targetZone)))
+                {
+                    return game;
+                }
+
+                result = game.HumanEndPlay(advanceToHumanBoundary: true);
+            }
+        }
+
+        return null;
+    }
+
+    static bool HasPublicTarget(
+        GameEngine game,
+        LegalAction action,
+        CardZoneKind targetZone)
+    {
+        var target = game.State.Players.Single(player => player.Seat == action.TargetSeat);
+        var cards = targetZone switch
+        {
+            CardZoneKind.Equipment => target.Equipment,
+            CardZoneKind.Judgment => target.Judgment,
+            _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
+        };
+        return cards.Any(card => card.Id == action.TargetCardId);
+    }
+
+    static (LegalAction Action, CardSnapshot TargetCard) GetPublicTarget(
+        GameEngine game,
+        LegalActionKind actionKind,
+        CardZoneKind targetZone)
+    {
+        var action = game.GetHumanLegalActions().First(candidate =>
+            candidate.Kind == actionKind &&
+            candidate.TargetSeat is not null &&
+            candidate.TargetCardId is not null &&
+            HasPublicTarget(game, candidate, targetZone));
+        var target = game.State.Players.Single(player => player.Seat == action.TargetSeat);
+        var targetCard = targetZone switch
+        {
+            CardZoneKind.Equipment => target.Equipment.Single(card => card.Id == action.TargetCardId),
+            CardZoneKind.Judgment => target.Judgment.Single(card => card.Id == action.TargetCardId),
+            _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
+        };
+        return (action, targetCard);
+    }
+
+    static void AssertPublicTargetResolution(
+        GameEngine game,
+        LegalActionKind actionKind,
+        int effectCardId,
+        CardSnapshot targetCard,
+        CardZoneKind targetZone)
+    {
+        var action = game.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == actionKind &&
+            candidate.CardId == effectCardId &&
+            candidate.TargetCardId == targetCard.Id);
+        var prompt = game.PendingDecision ??
+            throw new InvalidOperationException("Public target test has no play prompt.");
+        var choice = prompt.Choices.Single(candidate =>
+            candidate.Cards.SequenceEqual([action.CardId!.Value]) &&
+            candidate.Targets.SequenceEqual([action.TargetSeat!.Value]) &&
+            candidate.Parameters.GetValueOrDefault("target-card-id") == targetCard.Id.ToString());
+        Equal(action.Description, choice.Description);
+
+        var targetSeat = action.TargetSeat ??
+            throw new InvalidOperationException("A public target action must declare a target seat.");
+        var sourceBefore = game.State.Players.Single(player => player.Seat == 0);
+        var targetBefore = game.State.Players.Single(player => player.Seat == targetSeat);
+        var targetCardsBefore = targetZone switch
+        {
+            CardZoneKind.Equipment => targetBefore.Equipment,
+            CardZoneKind.Judgment => targetBefore.Judgment,
+            _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
+        };
+        True(targetCardsBefore.Any(card => card.Id == targetCard.Id));
+        var ordinaryTargetBefore = game.CreateSnapshot(2).Players.Single(player => player.Seat == targetSeat);
+        var ordinaryTargetCardsBefore = targetZone switch
+        {
+            CardZoneKind.Equipment => ordinaryTargetBefore.Equipment,
+            CardZoneKind.Judgment => ordinaryTargetBefore.Judgment,
+            _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
+        };
+        True(ordinaryTargetCardsBefore.Any(card => card.Id == targetCard.Id));
+
+        var result = game.HumanPlay(
+            action.CardId!.Value,
+            targetSeat,
+            advanceToHumanBoundary: false,
+            targetCardId: targetCard.Id);
+        result = ResolveNullificationWindowForTest(game, result);
+        Equal(EngineStatus.Running, result.Status);
+        Equal<PendingDecision?>(null, result.PendingDecision);
+        Equal(0, result.State.ProcessingCardCount);
+        Equal(0, game.ResolutionStack.Count);
+
+        var resolutionId = game.Events
+            .Select(eventItem => eventItem.Payload)
+            .OfType<CardUseDeclaredEvent>()
+            .Single(cardUse => cardUse.CardId == action.CardId)
+            .ResolutionId;
+        var sourceAfter = game.State.Players.Single(player => player.Seat == 0);
+        var targetAfter = game.State.Players.Single(player => player.Seat == targetSeat);
+        var targetCardsAfter = targetZone switch
+        {
+            CardZoneKind.Equipment => targetAfter.Equipment,
+            CardZoneKind.Judgment => targetAfter.Judgment,
+            _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
+        };
+        True(targetCardsAfter.All(card => card.Id != targetCard.Id));
+
+        if (actionKind == LegalActionKind.Dismantlement)
+        {
+            Equal(sourceBefore.HandCount - 1, sourceAfter.HandCount);
+            var discarded = game.Events
+                .Select(eventItem => eventItem.Payload)
+                .OfType<TargetCardDiscardedEvent>()
+                .Single(eventItem => eventItem.ResolutionId == resolutionId);
+            Equal(targetZone, discarded.FromZone);
+            Equal<int?>(targetCard.Id, discarded.PublicCardId);
+            Equal<CardKind?>(targetCard.Kind, discarded.PublicCardKind);
+            var targetMoveReason = targetZone == CardZoneKind.Judgment
+                ? CardMoveReasons.DismantlementJudgment
+                : CardMoveReasons.Dismantlement;
+            var targetFinishReason = targetZone == CardZoneKind.Judgment
+                ? CardMoveReasons.DismantlementJudgmentFinished
+                : CardMoveReasons.DismantlementFinished;
+            True(game.CardMovements.Any(movement =>
+                movement.CardId == targetCard.Id &&
+                movement.From == new CardLocation(targetZone, targetSeat) &&
+                movement.To == CardLocation.Processing &&
+                movement.Reason == targetMoveReason));
+            True(game.CardMovements.Any(movement =>
+                movement.CardId == targetCard.Id &&
+                movement.From == CardLocation.Processing &&
+                movement.To == CardLocation.DiscardPile &&
+                movement.Reason == targetFinishReason));
+            True(game.CreateCardZoneDiagnostics().Any(card =>
+                card.CardId == targetCard.Id && card.Location == CardLocation.DiscardPile));
+        }
+        else
+        {
+            Equal(sourceBefore.HandCount, sourceAfter.HandCount);
+            True(sourceAfter.Hand.Any(card => card.Id == targetCard.Id));
+            var taken = game.Events
+                .Select(eventItem => eventItem.Payload)
+                .OfType<TargetCardTakenEvent>()
+                .Single(eventItem => eventItem.ResolutionId == resolutionId);
+            Equal(targetZone, taken.FromZone);
+            Equal<int?>(targetCard.Id, taken.PublicCardId);
+            Equal<CardKind?>(targetCard.Kind, taken.PublicCardKind);
+            var targetMoveReason = targetZone == CardZoneKind.Judgment
+                ? CardMoveReasons.SnatchJudgment
+                : CardMoveReasons.Snatch;
+            var targetFinishReason = targetZone == CardZoneKind.Judgment
+                ? CardMoveReasons.SnatchJudgmentFinished
+                : CardMoveReasons.SnatchFinished;
+            True(game.CardMovements.Any(movement =>
+                movement.CardId == targetCard.Id &&
+                movement.From == new CardLocation(targetZone, targetSeat) &&
+                movement.To == CardLocation.Processing &&
+                movement.Reason == targetMoveReason));
+            True(game.CardMovements.Any(movement =>
+                movement.CardId == targetCard.Id &&
+                movement.From == CardLocation.Processing &&
+                movement.To == CardLocation.Hand(0) &&
+                movement.Reason == targetFinishReason));
+        }
+
+        True(game.Log.Last(entry => entry.Type == "CardEffect")
+            .Message.Contains(targetCard.DisplayName, StringComparison.Ordinal));
+        True(game.Events.Any(eventItem =>
+            eventItem.Payload is CardUseFinishedEvent finished &&
+            finished.ResolutionId == resolutionId &&
+            finished.CardKind == (actionKind == LegalActionKind.Dismantlement
+                ? CardKind.Dismantlement
+                : CardKind.Snatch)));
+        AssertCardInventory(game);
+    }
+
+    var dismantlementEquipmentGame = FindGameWithPublicTarget(
+        LegalActionKind.Dismantlement,
+        CardZoneKind.Equipment) ??
+        throw new InvalidOperationException("No deterministic Dismantlement public-equipment boundary was found.");
+    var (dismantlementEquipmentAction, dismantlementEquipment) = GetPublicTarget(
+        dismantlementEquipmentGame,
+        LegalActionKind.Dismantlement,
+        CardZoneKind.Equipment);
+    True(dismantlementEquipmentAction.Description.Contains(dismantlementEquipment.DisplayName, StringComparison.Ordinal));
+    AssertPublicTargetResolution(
+        dismantlementEquipmentGame,
+        LegalActionKind.Dismantlement,
+        dismantlementEquipmentAction.CardId!.Value,
+        dismantlementEquipment,
+        CardZoneKind.Equipment);
+
+    var dismantlementJudgmentGame = FindGameWithPublicTarget(
+        LegalActionKind.Dismantlement,
+        CardZoneKind.Judgment) ??
+        throw new InvalidOperationException("No deterministic Dismantlement public-judgment boundary was found.");
+    var (dismantlementJudgmentAction, dismantlementJudgment) = GetPublicTarget(
+        dismantlementJudgmentGame,
+        LegalActionKind.Dismantlement,
+        CardZoneKind.Judgment);
+    True(dismantlementJudgmentAction.Description.Contains(dismantlementJudgment.DisplayName, StringComparison.Ordinal));
+    AssertPublicTargetResolution(
+        dismantlementJudgmentGame,
+        LegalActionKind.Dismantlement,
+        dismantlementJudgmentAction.CardId!.Value,
+        dismantlementJudgment,
+        CardZoneKind.Judgment);
+
+    var snatchEquipmentGame = FindGameWithPublicTarget(
+        LegalActionKind.Snatch,
+        CardZoneKind.Equipment) ??
+        throw new InvalidOperationException("No deterministic Snatch public-equipment boundary was found.");
+    var (snatchEquipmentAction, snatchEquipment) = GetPublicTarget(
+        snatchEquipmentGame,
+        LegalActionKind.Snatch,
+        CardZoneKind.Equipment);
+    AssertPublicTargetResolution(
+        snatchEquipmentGame,
+        LegalActionKind.Snatch,
+        snatchEquipmentAction.CardId!.Value,
+        snatchEquipment,
+        CardZoneKind.Equipment);
+
+    var snatchJudgmentGame = FindGameWithPublicTarget(
+        LegalActionKind.Snatch,
+        CardZoneKind.Judgment) ??
+        throw new InvalidOperationException("No deterministic Snatch public-judgment boundary was found.");
+    var (snatchJudgmentAction, snatchJudgment) = GetPublicTarget(
+        snatchJudgmentGame,
+        LegalActionKind.Snatch,
+        CardZoneKind.Judgment);
+    AssertPublicTargetResolution(
+        snatchJudgmentGame,
+        LegalActionKind.Snatch,
+        snatchJudgmentAction.CardId!.Value,
+        snatchJudgment,
+        CardZoneKind.Judgment);
+}
+
 static void EquipmentFlow()
 {
-    Equal(5, EquipmentCatalog.Implemented.Count);
+    Equal(7, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
+    True(EquipmentCatalog.Get(CardKind.QinggangSword).IgnoresArmor);
+    Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.QinggangSword).Slot);
     Equal(EquipmentSlot.Armor, EquipmentCatalog.Get(CardKind.BaguaFormation).Slot);
+    True(EquipmentCatalog.Get(CardKind.RenwangShield).BlocksBlackSlash);
+    Equal(EquipmentSlot.Armor, EquipmentCatalog.Get(CardKind.RenwangShield).Slot);
     Equal(EquipmentSlot.OffensiveHorse, EquipmentCatalog.Get(CardKind.OffensiveHorse).Slot);
     Equal(EquipmentSlot.DefensiveHorse, EquipmentCatalog.Get(CardKind.DefensiveHorse).Slot);
     Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.JadeSeal).Slot);
@@ -2710,6 +4026,7 @@ static void EquipmentFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2814,6 +4131,7 @@ static void EquipmentFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2848,6 +4166,534 @@ static void EquipmentFlow()
     AssertCardInventory(horseGame);
 }
 
+static void BaguaJudgmentFlow()
+{
+    static (GameEngine Game, PendingDecision Prompt, PromptChoice Choice, JudgmentResolvedEvent Judgment)? FindBoundary(
+        bool desiredSuccess)
+    {
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                MaxTurns = 180
+            });
+            var result = game.Start();
+            var bagua = game.State.Players.Single(player => player.Seat == 0).Hand
+                .FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
+            if (result.Status != EngineStatus.AwaitingHumanPlay || bagua is null)
+            {
+                continue;
+            }
+
+            result = game.HumanPlay(bagua.Id, targetSeat: null, advanceToHumanBoundary: true);
+            result = game.HumanEndPlay(advanceToHumanBoundary: false);
+            var steps = 0;
+            while (result.Status != EngineStatus.Completed && steps++ < 1_500)
+            {
+                if (result.Status == EngineStatus.AwaitingHumanResponse)
+                {
+                    var prompt = game.PendingDecision ??
+                        throw new InvalidOperationException("The response status has no prompt.");
+                    var baguaChoice = prompt.Kind == DecisionKind.RespondDodge &&
+                                      prompt.IncomingCard is
+                                          CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash
+                        ? prompt.Choices.FirstOrDefault(choice =>
+                            choice.Parameters.GetValueOrDefault("response") == "bagua")
+                        : null;
+                    if (baguaChoice is not null)
+                    {
+                        var eventCount = game.Events.Count;
+                        var accepted = game.Submit(new AnswerPromptCommand(
+                            ActorSeat: 0,
+                            Prompt: prompt.PromptId,
+                            Choice: baguaChoice.Id,
+                            ExpectedRevision: game.Revision));
+                        TrueWithMessage(accepted.Accepted, "Bagua prompt choice accepted");
+                        var judgment = game.Events
+                            .Skip(eventCount)
+                            .Select(eventItem => eventItem.Payload)
+                            .OfType<JudgmentResolvedEvent>()
+                            .Single(candidate => candidate.Reason == JudgmentReasons.BaguaDefense);
+                        if (judgment.Succeeded == desiredSuccess)
+                        {
+                            return (game, prompt, baguaChoice, judgment);
+                        }
+
+                        break;
+                    }
+
+                    result = prompt.Kind switch
+                    {
+                        DecisionKind.RespondSlash => game.HumanRespondSlash(
+                            useSlash: false,
+                            advanceToHumanBoundary: false),
+                        DecisionKind.RespondDodge => game.HumanRespond(
+                            useDodge: false,
+                            advanceToHumanBoundary: false),
+                        _ => game.HumanRespond(
+                            useDodge: false,
+                            advanceToHumanBoundary: false)
+                    };
+                    continue;
+                }
+
+                result = result.Status switch
+                {
+                    EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(
+                        advanceToHumanBoundary: false),
+                    EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                        usePeach: false,
+                        advanceToHumanBoundary: false),
+                    EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
+                    _ => game.AdvanceOneStep()
+                };
+            }
+        }
+
+        return null;
+    }
+
+    var successful = FindBoundary(desiredSuccess: true) ??
+        throw new InvalidOperationException("No deterministic successful Bagua judgment boundary was found.");
+    var failed = FindBoundary(desiredSuccess: false) ??
+        throw new InvalidOperationException("No deterministic failed Bagua judgment boundary was found.");
+
+    foreach (var outcome in new[] { successful, failed })
+    {
+        Equal(DecisionKind.RespondDodge, outcome.Prompt.Kind);
+        Equal(CardKind.Dodge, outcome.Prompt.RequiredCardKind);
+        Equal("bagua", outcome.Choice.Parameters["response"]);
+        Equal(0, outcome.Choice.Cards.Count);
+        Equal(JudgmentReasons.BaguaDefense, outcome.Judgment.Reason);
+        NotNull(outcome.Judgment.CardId);
+        NotNull(outcome.Judgment.CardKind);
+        NotNull(outcome.Judgment.Suit);
+        TrueWithMessage(outcome.Judgment.CardId > 0, "judgment has a physical card id");
+        TrueWithMessage(
+            outcome.Judgment.Suit is Suit.Heart or Suit.Diamond or Suit.Spade or Suit.Club,
+            "judgment has a valid suit");
+        TrueWithMessage(
+            outcome.Game.ResolutionStack.All(frame => frame is not JudgmentFrame),
+            "Bagua leaves no open judgment frame");
+
+        var cardId = outcome.Judgment.CardId!.Value;
+        var cardKind = outcome.Judgment.CardKind!.Value;
+        var judgmentMovement = outcome.Game.CardMovements.Single(movement =>
+            movement.CardId == cardId &&
+            movement.Reason == CardMoveReasons.JudgmentReveal);
+        Equal(CardLocation.DrawPile, judgmentMovement.From);
+        Equal(CardLocation.Judgment(0), judgmentMovement.To);
+        True(outcome.Game.CardMovements.Any(movement =>
+            movement.CardId == cardId &&
+            movement.Reason == CardMoveReasons.JudgmentFinish &&
+            movement.From == CardLocation.Judgment(0) &&
+            movement.To == CardLocation.DiscardPile));
+        Equal(CardLocation.DiscardPile, outcome.Game.CreateCardZoneDiagnostics()
+            .Single(card => card.CardId == cardId).Location);
+
+        var requestedEvent = outcome.Game.Events
+            .Select(eventItem => eventItem.Payload)
+            .OfType<JudgmentRequestedEvent>()
+            .Single(requested => requested.ResolutionId == outcome.Judgment.ResolutionId);
+        Equal(outcome.Judgment.ParentResolutionId, requestedEvent.ParentResolutionId);
+        TrueWithMessage(
+            requestedEvent.SourceCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash,
+            "Bagua judgment source is a Slash");
+        TrueWithMessage(outcome.Game.Events.Any(eventItem =>
+            eventItem.Payload is JudgmentResolvedEvent resolved &&
+            resolved.ResolutionId == outcome.Judgment.ResolutionId &&
+            resolved.CardId == cardId &&
+            resolved.CardKind == cardKind &&
+            resolved.Succeeded == outcome.Judgment.Succeeded),
+            "judgment result is committed as a typed event");
+        TrueWithMessage(outcome.Game.Events.Any(eventItem =>
+            eventItem.Payload is CardMovedEvent moved &&
+            moved.CardId == cardId &&
+            moved.From == CardLocation.DrawPile &&
+            moved.To == CardLocation.Judgment(0) &&
+            moved.Reason == CardMoveReasons.JudgmentReveal),
+            "judgment reveal is committed as a typed movement event");
+
+        var judgmentEventIndex = outcome.Game.Events
+            .Select((eventItem, index) => (eventItem, index))
+            .Single(entry =>
+                entry.eventItem.Payload is JudgmentResolvedEvent resolved &&
+                resolved.ResolutionId == outcome.Judgment.ResolutionId)
+            .index;
+        var nextEvents = outcome.Game.Events
+            .Skip(judgmentEventIndex + 1)
+            .Select(eventItem => eventItem.Payload)
+            .ToArray();
+        TrueWithMessage(
+            nextEvents.FirstOrDefault() is CardMovedEvent moved &&
+            moved.CardId == cardId &&
+            moved.Reason == CardMoveReasons.JudgmentFinish,
+            "judgment card is finished before the Slash outcome");
+        var nextResolutionEvent = nextEvents.Skip(1).FirstOrDefault();
+        Equal(!outcome.Judgment.Succeeded, nextResolutionEvent is DamageRequestedEvent);
+        AssertCardInventory(outcome.Game);
+    }
+
+    var serializedFrame = JsonSerializer.Serialize(new ResolutionFrame[]
+    {
+        new JudgmentFrame(
+            Id: 9,
+            ParentFrameId: 3,
+            TargetSeat: 0,
+            Reason: JudgmentReasons.BaguaDefense,
+            CardId: 4,
+            CardKind: CardKind.Dodge,
+            Suit: Suit.Heart,
+            Succeeded: true)
+    });
+    TrueWithMessage(
+        serializedFrame.Contains("\"judgment\"", StringComparison.Ordinal),
+        "JudgmentFrame uses the polymorphic judgment discriminator");
+}
+
+static void QinggangBypassesBagua()
+{
+    var controlledKinds = Enumerable.Repeat(CardKind.Dodge, 81).ToArray();
+    controlledKinds[0] = CardKind.QinggangSword;
+    controlledKinds[1] = CardKind.Slash;
+    for (var index = 2; index < 32; index++)
+    {
+        controlledKinds[index] = CardKind.BaguaFormation;
+    }
+
+    var controlledCardIds = Enumerable.Range(0, controlledKinds.Length)
+        .Select(index => $"test-controlled:card-{index + 1}")
+        .ToArray();
+    var registry = ContentRegistry.Build(
+        new StandardContentPackage(),
+        new SyntheticPackage(
+            "test-controlled",
+            builder =>
+            {
+                for (var index = 0; index < controlledKinds.Length; index++)
+                {
+                    var definition = CardCatalog.Get(controlledKinds[index]);
+                    builder.AddCard(new ContentCardDefinition(
+                        controlledCardIds[index],
+                        definition.DisplayName,
+                        definition.CategoryName,
+                        definition.Description,
+                        controlledKinds[index]));
+                }
+
+                builder.AddDeck(new ContentDeckRecipe(
+                    "test-controlled:deck",
+                    "青釭剑判定绕过测试牌堆",
+                    InitialHandSize: 4,
+                    DrawPerTurn: 2,
+                    controlledCardIds
+                        .Select(cardId => new ContentDeckCardCount(cardId, 1))
+                        .ToArray()));
+            }));
+    GameEngine? game = null;
+    CardSnapshot? qinggang = null;
+    CardSnapshot? slash = null;
+    LegalAction? slashAction = null;
+    var targetSeat = -1;
+    for (var seed = 1; seed <= 4_096 && game is null; seed++)
+    {
+        var candidate = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                DeckId = "test-controlled:deck",
+                MaxTurns = 60
+            },
+            registry);
+        var result = candidate.Start();
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var humanHand = candidate.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.Seat == 0).Hand;
+        var candidateQinggang = humanHand.FirstOrDefault(card => card.Kind == CardKind.QinggangSword);
+        var candidateSlash = humanHand.FirstOrDefault(card => card.Kind == CardKind.Slash);
+        if (candidateQinggang is null || candidateSlash is null)
+        {
+            continue;
+        }
+
+        candidate.HumanPlay(candidateQinggang.Id, targetSeat: null, advanceToHumanBoundary: false);
+        candidate.Advance();
+        result = candidate.HumanEndPlay(advanceToHumanBoundary: true);
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var afterAiTurns = candidate.CreateSnapshot(0, revealAll: true);
+        var candidateAction = candidate.GetHumanLegalActions().FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == candidateSlash.Id &&
+            action.TargetSeat is { } seat &&
+            afterAiTurns.Players.Single(player => player.Seat == seat).Equipment
+                .Any(card => card.Kind == CardKind.BaguaFormation) &&
+            afterAiTurns.Players.Single(player => player.Seat == seat).Hand
+                .Any(card => card.Kind == CardKind.Dodge));
+        if (candidateAction is null)
+        {
+            continue;
+        }
+
+        game = candidate;
+        qinggang = candidateQinggang;
+        slash = candidateSlash;
+        slashAction = candidateAction;
+        targetSeat = candidateAction.TargetSeat!.Value;
+    }
+
+    if (game is null || qinggang is null || slash is null || slashAction is null)
+    {
+        throw new InvalidOperationException("No deterministic Qinggang and Bagua bypass boundary was found.");
+    }
+
+    TrueWithMessage(targetSeat >= 0, "an AI target has equipped Bagua before the human turn");
+    TrueWithMessage(
+        game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
+            .Equipment.Any(card => card.Kind == CardKind.QinggangSword),
+        "Qinggang enters the public weapon slot");
+
+    var eventCount = game.Events.Count;
+    var slashResult = game.HumanPlay(
+        slashAction.CardId!.Value,
+        slashAction.TargetSeat,
+        advanceToHumanBoundary: false);
+    Equal(EngineStatus.Running, slashResult.Status);
+
+    var frame = game.ResolutionStack.OfType<CardUseFrame>().Single(cardUse =>
+        cardUse.CardId == slash.Id);
+    TrueWithMessage(frame.IgnoresArmor, "the in-flight CardUseFrame records Qinggang's modifier");
+    var targetView = game.CreateSnapshot(targetSeat);
+    Equal(DecisionKind.RespondDodge, targetView.PendingDecision!.Kind);
+    TrueWithMessage(
+        targetView.PendingDecision.Choices.All(choice =>
+            choice.Parameters.GetValueOrDefault("response") != "bagua"),
+        "Qinggang removes Bagua from the target response choices");
+
+    var declared = game.Events
+        .Skip(eventCount)
+        .Select(eventItem => eventItem.Payload)
+        .OfType<CardUseDeclaredEvent>()
+        .Single(eventItem => eventItem.CardId == slash.Id);
+    TrueWithMessage(declared.IgnoresArmor, "CardUseDeclaredEvent records Qinggang's modifier");
+    var used = game.Events
+        .Skip(eventCount)
+        .Select(eventItem => eventItem.Payload)
+        .OfType<CardUsedEvent>()
+        .Single(eventItem => eventItem.CardId == slash.Id);
+    TrueWithMessage(used.IgnoresArmor, "CardUsedEvent records Qinggang's modifier");
+    TrueWithMessage(
+        !game.Events.Skip(eventCount).Any(eventItem =>
+            eventItem.Payload is JudgmentRequestedEvent or JudgmentResolvedEvent),
+        "Qinggang does not open a Bagua judgment");
+    TrueWithMessage(
+        JsonSerializer.Serialize(frame).Contains("\"IgnoresArmor\":true", StringComparison.Ordinal),
+        "Qinggang modifier survives frame serialization");
+
+    var targetResponse = game.AdvanceOneStep();
+    Equal(EngineStatus.Running, targetResponse.Status);
+    Equal(0, game.ResolutionStack.Count);
+    TrueWithMessage(
+        game.Events.Skip(eventCount).Any(eventItem =>
+            eventItem.Payload is CardRespondedEvent responded &&
+            responded.ResponderSeat == targetSeat),
+        "the target may still use a physical Dodge, but never Bagua");
+    AssertCardInventory(game);
+}
+
+static void RenwangShieldFlow()
+{
+    var controlledKinds = Enumerable.Repeat(CardKind.Dodge, 81).ToArray();
+    controlledKinds[0] = CardKind.RenwangShield;
+    for (var index = 1; index < 25; index++)
+    {
+        controlledKinds[index] = CardKind.Slash;
+    }
+
+    var controlledCardIds = Enumerable.Range(0, controlledKinds.Length)
+        .Select(index => $"test-renwang:card-{index + 1}")
+        .ToArray();
+    var registry = ContentRegistry.Build(
+        new StandardContentPackage(),
+        new SyntheticPackage(
+            "test-renwang",
+            builder =>
+            {
+                for (var index = 0; index < controlledKinds.Length; index++)
+                {
+                    var definition = CardCatalog.Get(controlledKinds[index]);
+                    builder.AddCard(new ContentCardDefinition(
+                        controlledCardIds[index],
+                        definition.DisplayName,
+                        definition.CategoryName,
+                        definition.Description,
+                        controlledKinds[index]));
+                }
+
+                builder.AddDeck(new ContentDeckRecipe(
+                    "test-renwang:deck",
+                    "仁王盾黑色杀阻挡测试牌堆",
+                    InitialHandSize: 4,
+                    DrawPerTurn: 2,
+                    controlledCardIds
+                        .Select(cardId => new ContentDeckCardCount(cardId, 1))
+                        .ToArray()));
+            }));
+
+    GameEngine? game = null;
+    CardSnapshot? blackSlash = null;
+    CardSnapshot? redSlash = null;
+    int shieldSeat = -1;
+    for (var seed = 1; seed <= 8_192 && game is null; seed++)
+    {
+        var candidate = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                DeckId = "test-renwang:deck",
+                MaxTurns = 60
+            },
+            registry);
+        var started = candidate.Start();
+        if (started.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var initial = candidate.CreateSnapshot(0, revealAll: true);
+        var human = initial.Players.Single(player => player.Seat == 0);
+        var shieldOwner = initial.Players.SingleOrDefault(player =>
+            player.Seat != 0 &&
+            player.IsAlive &&
+            player.Hand.Any(card => card.Kind == CardKind.RenwangShield) &&
+            player.Hand.All(card => card.Kind != CardKind.Slash));
+        var candidateBlackSlash = human.Hand.FirstOrDefault(card =>
+            card.Kind == CardKind.Slash &&
+            card.Suit is Suit.Spade or Suit.Club);
+        var candidateRedSlash = human.Hand.FirstOrDefault(card =>
+            card.Kind == CardKind.Slash &&
+            card.Suit is Suit.Heart or Suit.Diamond);
+        if (shieldOwner is null || candidateBlackSlash is null || candidateRedSlash is null)
+        {
+            continue;
+        }
+
+        var nextHumanTurn = candidate.HumanEndPlay(advanceToHumanBoundary: true);
+        if (nextHumanTurn.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var afterAiTurns = candidate.CreateSnapshot(0, revealAll: true);
+        var target = afterAiTurns.Players.Single(player => player.Seat == shieldOwner.Seat);
+        if (!target.IsAlive ||
+            !target.Equipment.Any(card => card.Kind == CardKind.RenwangShield))
+        {
+            continue;
+        }
+
+        var humanAfterAiTurns = afterAiTurns.Players.Single(player => player.Seat == 0);
+        var blackAfterAiTurns = humanAfterAiTurns.Hand.FirstOrDefault(card =>
+            card.Id == candidateBlackSlash.Id);
+        var redAfterAiTurns = humanAfterAiTurns.Hand.FirstOrDefault(card =>
+            card.Id == candidateRedSlash.Id);
+        if (blackAfterAiTurns is null || redAfterAiTurns is null)
+        {
+            continue;
+        }
+
+        var legal = candidate.GetHumanLegalActions();
+        var blackAction = legal.FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == blackAfterAiTurns.Id &&
+            action.TargetSeat == shieldOwner.Seat);
+        var redAction = legal.FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == redAfterAiTurns.Id &&
+            action.TargetSeat == shieldOwner.Seat);
+        if (blackAction is not null || redAction is null)
+        {
+            continue;
+        }
+
+        game = candidate;
+        blackSlash = blackAfterAiTurns;
+        redSlash = redAfterAiTurns;
+        shieldSeat = shieldOwner.Seat;
+    }
+
+    if (game is null || blackSlash is null || redSlash is null || shieldSeat < 0)
+    {
+        throw new InvalidOperationException("No deterministic Renwang Shield boundary was found.");
+    }
+
+    var targetView = game.CreateSnapshot(0).Players.Single(player => player.Seat == shieldSeat);
+    TrueWithMessage(
+        targetView.Equipment.Any(card => card.Kind == CardKind.RenwangShield),
+        "Renwang Shield remains visible in the ordinary player snapshot");
+    TrueWithMessage(
+        !game.GetHumanLegalActions().Any(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == blackSlash.Id &&
+            action.TargetSeat == shieldSeat),
+        "black Slash is removed from the published legal actions");
+    TrueWithMessage(
+        game.GetHumanLegalActions().Any(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == redSlash.Id &&
+            action.TargetSeat == shieldSeat),
+        "red Slash remains a legal target against Renwang Shield");
+
+    var beforeInvalid = game.SerializeState();
+    var invalid = game.Submit(new PlayCardCommand(
+        ActorSeat: 0,
+        CardId: blackSlash.Id,
+        TargetSeats: [shieldSeat],
+        ExpectedRevision: game.Revision,
+        PromptId: game.PendingDecision!.PromptId));
+    False(invalid.Accepted);
+    Equal(CommandErrorCode.InvalidTarget, invalid.Error!.Code);
+    Equal(beforeInvalid, game.SerializeState());
+
+    var accepted = game.HumanPlay(
+        redSlash.Id,
+        shieldSeat,
+        advanceToHumanBoundary: false);
+    Equal(EngineStatus.Running, accepted.Status);
+    var slashFrame = game.ResolutionStack.OfType<CardUseFrame>().Single(frame =>
+        frame.CardId == redSlash.Id);
+    FalseWithMessage(slashFrame.IgnoresArmor, "ordinary red Slash does not ignore armor");
+    TrueWithMessage(
+        game.ResolutionStack.OfType<ResponseWindowFrame>().Any(window =>
+            window.ResponderSeat == shieldSeat &&
+            window.RequiredCardKind == CardKind.Dodge),
+        "red Slash still opens the normal Dodge response window");
+
+    while (game.ResolutionStack.Count > 0)
+    {
+        game.AdvanceOneStep();
+    }
+
+    AssertCardInventory(game);
+}
+
 static void FireAttackFlow()
 {
     GameEngine? selectedGame = null;
@@ -2859,6 +4705,7 @@ static void FireAttackFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -2885,6 +4732,13 @@ static void FireAttackFlow()
         }
 
         var targetSeat = action.TargetSeat!.Value;
+        var targetSkill = game.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.Seat == targetSeat).Skill;
+        if (targetSkill is SkillKind.Yiji or SkillKind.Jieming or SkillKind.Yuanhu)
+        {
+            continue;
+        }
+
         result = game.HumanPlay(action.CardId!.Value, targetSeat, advanceToHumanBoundary: false);
         if (result.Status != EngineStatus.Running || game.PendingDecision is not null)
         {
@@ -3004,8 +4858,13 @@ static void FireAttackFlow()
     var targetAfter = gameWithFireAttack.CreateSnapshot(0, revealAll: true)
         .Players.Single(player => player.Seat == targetSeatAtBoundary);
     Equal(targetBefore.Hp - 1, targetAfter.Hp);
-    Equal(sourceBefore.HandCount - 1,
-        gameWithFireAttack.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount);
+    var sourceAfter = gameWithFireAttack.CreateSnapshot(0, revealAll: true)
+        .Players.Single(player => player.Seat == 0);
+    TrueWithMessage(
+        sourceBefore.HandCount - 1 == sourceAfter.HandCount,
+        $"FireAttack source hand expected {sourceBefore.HandCount - 1}, actual {sourceAfter.HandCount}, " +
+        $"discard card {matchingDiscardCardId} location " +
+        $"{gameWithFireAttack.CreateCardZoneDiagnostics().Single(card => card.CardId == matchingDiscardCardId).Location}");
 
     TrueWithMessage(gameWithFireAttack.CardMovements.Any(movement =>
         movement.CardId == actionToUse.CardId &&
@@ -3053,6 +4912,7 @@ static void FireAttackSkipFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -3176,6 +5036,7 @@ static void AttributeSlashFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -3282,6 +5143,7 @@ static void AlcoholFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -3400,6 +5262,7 @@ static void AlcoholFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -3472,6 +5335,7 @@ static void FeedbackFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -3501,7 +5365,10 @@ static void FeedbackFlow()
         }
         var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
             candidate.Kind == LegalActionKind.Slash &&
-            candidate.TargetSeat == target.Seat);
+            candidate.TargetSeat == target.Seat &&
+            candidate.PlayedCardKind is null &&
+            candidate.CardId is { } cardId &&
+            self.Hand.Single(card => card.Id == cardId).Kind == CardKind.Slash);
         if (action is not null)
         {
             selectedGame = game;
@@ -3609,6 +5476,7 @@ static void FeedbackHumanChoiceFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -3716,6 +5584,7 @@ static void FeedbackSkipChoiceFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -3748,7 +5617,16 @@ static void FeedbackSkipChoiceFlow()
                         cardUse.CardId == currentSkillFrame.CardId &&
                         cardUse.CardKind is (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
                         cardUse.TargetSeats.Count == 1);
-                if (isDirectSlash)
+                var triggerWindow = game.ResolutionStack
+                    .OfType<DamageTriggerWindowFrame>()
+                    .SingleOrDefault();
+                var hasLaterCardClaim = triggerWindow is { } currentTriggerWindow &&
+                    currentTriggerWindow.Candidates.Any(candidate =>
+                        !(candidate.OwnerSeat == 0 && candidate.Skill == SkillKind.Feedback) &&
+                        (candidate.Effect == DamageSkillEffectKind.ClaimDamageCard ||
+                         candidate.Skill == SkillKind.Jianxiong));
+                var target = game.State.Players.Single(player => player.Seat == 0);
+                if (isDirectSlash && target.Hp > 0 && target.IsAlive && !hasLaterCardClaim)
                 {
                     selectedGame = game;
                     selectedPrompt = result.PendingDecision;
@@ -3786,35 +5664,42 @@ static void FeedbackSkipChoiceFlow()
     var damageCardId = useChoice.Cards.Single();
     var targetBefore = gameWithFeedback.CreateSnapshot(0)
         .Players.Single(player => player.Seat == 0);
+    var eventCountBeforeSkip = gameWithFeedback.Events.Count;
+    var movementCountBeforeSkip = gameWithFeedback.CardMovements.Count;
 
-    var accepted = gameWithFeedback.Submit(new AnswerPromptCommand(
-        0,
-        prompt.PromptId,
-        skipChoice.Id,
-        gameWithFeedback.Revision));
-    TrueWithMessage(accepted.Accepted, "Feedback skip choice accepted");
+    var accepted = gameWithFeedback.HumanRespondFeedback(
+        useFeedback: false,
+        advanceToHumanBoundary: false);
+    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "Feedback skip choice accepted");
 
     var resolved = gameWithFeedback.Events
+        .Skip(eventCountBeforeSkip)
         .Select(eventItem => eventItem.Payload)
         .OfType<DamageSkillResolvedEvent>()
         .Single(eventItem => eventItem.CardId == damageCardId);
-    False(resolved.Used);
-    False(gameWithFeedback.ResolutionStack.OfType<DamageSkillFrame>().Any(frame =>
-        frame.ParentFrameId == resolved.ResolutionId));
-    False(gameWithFeedback.Events.Any(eventItem =>
-        eventItem.Payload is DamageCardClaimedEvent claimed && claimed.CardId == damageCardId));
-    TrueWithMessage(gameWithFeedback.CardMovements.Any(movement =>
+    FalseWithMessage(resolved.Used, "Feedback skip was marked used");
+    FalseWithMessage(gameWithFeedback.ResolutionStack.OfType<DamageSkillFrame>().Any(frame =>
+        frame.ParentFrameId == resolved.ResolutionId), "Feedback skill frame remained");
+    var otherClaim = gameWithFeedback.Events
+        .Skip(eventCountBeforeSkip)
+        .Select(eventItem => eventItem.Payload)
+        .OfType<DamageCardClaimedEvent>()
+        .FirstOrDefault(claimed => claimed.CardId == damageCardId);
+    FalseWithMessage(
+        otherClaim is not null,
+        $"another skill claimed the skipped card: owner={otherClaim?.OwnerSeat}, skill={otherClaim?.Skill}");
+    TrueWithMessage(gameWithFeedback.CardMovements.Skip(movementCountBeforeSkip).Any(movement =>
         movement.CardId == damageCardId &&
         movement.From == CardLocation.Processing &&
         movement.To == CardLocation.DiscardPile &&
         movement.Reason == CardMoveReasons.UseFinished), "Feedback skip discard movement");
-    TrueWithMessage(gameWithFeedback.Events.Any(eventItem =>
+    TrueWithMessage(gameWithFeedback.Events.Skip(eventCountBeforeSkip).Any(eventItem =>
         eventItem.Payload is CardUseFinishedEvent finished &&
         finished.CardId == damageCardId), "Feedback skip attack finished event");
     var targetAfter = gameWithFeedback.CreateSnapshot(0)
         .Players.Single(player => player.Seat == 0);
     Equal(targetBefore.HandCount, targetAfter.HandCount);
-    False(targetAfter.Hand.Any(card => card.Id == damageCardId));
+    FalseWithMessage(targetAfter.Hand.Any(card => card.Id == damageCardId), "skipped damage card remained in the human hand");
     AssertCardInventory(gameWithFeedback);
 }
 
@@ -3828,6 +5713,7 @@ static void YijiGiftFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -3950,6 +5836,7 @@ static void YijiHumanChoiceFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -4032,6 +5919,7 @@ static void JiemingFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -4157,7 +6045,9 @@ static void JiemingFlow()
     }
 
     var ordinaryViewer = Enumerable.Range(0, gameWithJieming.PlayerCount)
-        .First(seat => seat != 0 && seat != targetSeat);
+        .First(seat => seat != 0 &&
+            seat != targetSeat &&
+            gameWithJieming.CreateSnapshot(seat).PendingDecision is null);
     var ordinaryAfter = gameWithJieming.CreateSnapshot(ordinaryViewer);
     Equal<PendingDecision?>(null, ordinaryAfter.PendingDecision);
     foreach (var cardId in drawn.CardIds)
@@ -4182,6 +6072,7 @@ static void YuanhuCrossSeatFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -4293,12 +6184,10 @@ static void YuanhuCrossSeatFlow()
     var useChoice = prompt.Choices.First(choice =>
         choice.Parameters.GetValueOrDefault("response") == "yuanhu");
     var discardCardId = useChoice.Cards.Single();
-    var accepted = gameWithYuanhu.Submit(new AnswerPromptCommand(
-        0,
-        prompt.PromptId,
-        useChoice.Id,
-        gameWithYuanhu.Revision));
-    True(accepted.Accepted);
+    var accepted = gameWithYuanhu.HumanRespondYuanhu(
+        discardCardId,
+        advanceToHumanBoundary: false);
+    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "Yuanhu choice accepted");
 
     var targetAfter = gameWithYuanhu.CreateSnapshot(0, revealAll: true).Players
         .Single(player => player.Seat == targetSeat);
@@ -4335,6 +6224,1152 @@ static void YuanhuCrossSeatFlow()
     AssertCardInventory(gameWithYuanhu);
 }
 
+static void GanglieFlow()
+{
+    GameEngine? selectedGame = null;
+    PendingDecision? triggerPrompt = null;
+    PendingDecision? punishmentPrompt = null;
+    GameSnapshot? triggerOwnerView = null;
+    GameSnapshot? triggerHumanView = null;
+    CardSnapshot? attackCard = null;
+    var ganglieSeat = -1;
+
+    for (var seed = 1; seed <= 4_096 && selectedGame is null; seed++)
+    {
+        var game = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                UseInteractiveSetup = true,
+                MaxTurns = 180
+            },
+            StandardContentRegistry.Create());
+        var started = game.Start();
+        if (started.Status != EngineStatus.AwaitingHumanGeneralSelection)
+        {
+            continue;
+        }
+
+        var humanChoice = started.PendingDecision!.Choices.FirstOrDefault(choice =>
+            choice.ContentIds.Count == 1 &&
+            choice.ContentIds[0] != "standard:demo-ganglie");
+        if (humanChoice is null)
+        {
+            continue;
+        }
+
+        _ = game.HumanSelectGeneral(
+            humanChoice.ContentIds.Single(),
+            advanceToHumanBoundary: false);
+        var ready = game.Advance();
+        if (ready.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var revealed = game.CreateSnapshot(0, revealAll: true);
+        var target = revealed.Players.FirstOrDefault(player =>
+            player.Seat != 0 &&
+            player.IsAlive &&
+            player.Skill == SkillKind.Ganglie &&
+            player.Hand.All(card => card.Kind != CardKind.Dodge));
+        if (target is null)
+        {
+            continue;
+        }
+
+        var human = revealed.Players.Single(player => player.Seat == 0);
+        var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
+            candidate.Kind == LegalActionKind.Slash &&
+            candidate.TargetSeat == target.Seat &&
+            candidate.CardId is { } cardId &&
+            human.Hand.Single(card => card.Id == cardId).Kind == CardKind.Slash);
+        if (action is null)
+        {
+            continue;
+        }
+
+        var resultAfterAttack = game.HumanPlay(
+            action.CardId!.Value,
+            target.Seat,
+            advanceToHumanBoundary: false);
+        var ownerViewBeforeTrigger = game.CreateSnapshot(target.Seat);
+        var humanViewBeforeTrigger = game.CreateSnapshot(0);
+        var privateTrigger = ownerViewBeforeTrigger.PendingDecision;
+        if (resultAfterAttack.Status != EngineStatus.Running ||
+            privateTrigger is not { Kind: DecisionKind.Ganglie })
+        {
+            continue;
+        }
+
+        var afterTrigger = game.AdvanceOneStep();
+        if (afterTrigger.Status != EngineStatus.AwaitingHumanResponse ||
+            afterTrigger.PendingDecision is not { Kind: DecisionKind.GangliePunish } sourcePrompt)
+        {
+            continue;
+        }
+
+        selectedGame = game;
+        triggerPrompt = privateTrigger;
+        punishmentPrompt = sourcePrompt;
+        triggerOwnerView = ownerViewBeforeTrigger;
+        triggerHumanView = humanViewBeforeTrigger;
+        attackCard = human.Hand.Single(card => card.Id == action.CardId);
+        ganglieSeat = target.Seat;
+    }
+
+    if (selectedGame is null ||
+        triggerPrompt is null ||
+        punishmentPrompt is null ||
+        triggerOwnerView is null ||
+        triggerHumanView is null ||
+        attackCard is null ||
+        ganglieSeat < 0)
+    {
+        throw new InvalidOperationException("No deterministic human-source Ganglie punishment boundary was found.");
+    }
+
+    var gameWithGanglie = selectedGame!;
+    var trigger = triggerPrompt!;
+    var prompt = punishmentPrompt!;
+    var usedAttackCard = attackCard!;
+    Equal(DecisionKind.Ganglie, trigger.Kind);
+    Equal(ganglieSeat, trigger.PlayerSeat);
+    Equal(0, trigger.SourceSeat);
+    Equal(ganglieSeat, trigger.TargetSeat);
+    True(trigger.IsPrivate);
+    True(trigger.Choices.Any(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "ganglie"));
+    True(trigger.Choices.Any(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "skip-ganglie"));
+    True(trigger.Choices.All(choice => choice.Cards.Count == 0 && choice.Targets.Count == 0));
+    Equal(DecisionKind.Ganglie, triggerOwnerView!.PendingDecision!.Kind);
+    Equal<PendingDecision?>(null, triggerHumanView!.PendingDecision);
+    Equal(DecisionKind.GangliePunish, gameWithGanglie.State.PendingDecision!.Kind);
+    Equal<PendingDecision?>(null, gameWithGanglie.CreateSnapshot(ganglieSeat).PendingDecision);
+    Equal<PendingDecision?>(null, gameWithGanglie.CreateSnapshot(1).PendingDecision);
+
+    Equal(DecisionKind.GangliePunish, prompt.Kind);
+    Equal(0, prompt.PlayerSeat);
+    Equal(ganglieSeat, prompt.SourceSeat);
+    Equal(0, prompt.TargetSeat);
+    True(prompt.IsPrivate);
+    var sourceView = gameWithGanglie.CreateSnapshot(0);
+    var source = sourceView.Players.Single(player => player.Seat == 0);
+    True(prompt.ValidCardIds.SequenceEqual(source.Hand.Select(card => card.Id)));
+    var discardChoices = prompt.Choices
+        .Where(choice => choice.Parameters.GetValueOrDefault("response") == "ganglie-discard-two")
+        .ToArray();
+    Equal(source.HandCount * (source.HandCount - 1) / 2, discardChoices.Length);
+    True(discardChoices.All(choice =>
+        choice.Cards.Count == 2 &&
+        choice.Cards.Distinct().Count() == 2 &&
+        choice.Cards.All(prompt.ValidCardIds.Contains)));
+    Equal(
+        discardChoices.Length,
+        discardChoices.Select(choice => string.Join(',', choice.Cards)).Distinct().Count());
+    True(prompt.Choices.Any(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "ganglie-lose-hp" &&
+        choice.Cards.Count == 0 &&
+        choice.Targets.Count == 0));
+
+    var ordinaryViewer = gameWithGanglie.CreateSnapshot(1);
+    Equal<PendingDecision?>(null, ordinaryViewer.PendingDecision);
+    var privateCardId = prompt.ValidCardIds.First();
+    False(SnapshotJson.Serialize(ordinaryViewer).Contains(
+        $"\"Id\": {privateCardId},",
+        StringComparison.Ordinal));
+
+    var beforeInvalid = gameWithGanglie.SerializeState();
+    var invalid = gameWithGanglie.Submit(new AnswerPromptCommand(
+        0,
+        prompt.PromptId,
+        new ChoiceId("ganglie.punishment.fake"),
+        gameWithGanglie.Revision));
+    False(invalid.Accepted);
+    Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
+    Equal(beforeInvalid, gameWithGanglie.SerializeState());
+
+    var discardChoice = discardChoices[0];
+    var discardedCardIds = discardChoice.Cards.ToArray();
+    var accepted = gameWithGanglie.Submit(new AnswerPromptCommand(
+        0,
+        prompt.PromptId,
+        discardChoice.Id,
+        gameWithGanglie.Revision));
+    TrueWithMessage(accepted.Accepted, "Ganglie punishment choice accepted");
+
+    var judgment = gameWithGanglie.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<JudgmentResolvedEvent>()
+        .Single(eventItem => eventItem.Reason == JudgmentReasons.Ganglie);
+    True(judgment.Succeeded);
+    True(judgment.Suit is Suit.Heart or Suit.Diamond);
+    TrueWithMessage(gameWithGanglie.Events.Any(eventItem =>
+        eventItem.Payload is JudgmentRequestedEvent requested &&
+        requested.Reason == JudgmentReasons.Ganglie), "Ganglie judgment request event");
+
+    var punishment = gameWithGanglie.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<GangliePunishmentResolvedEvent>()
+        .Single();
+    Equal(ganglieSeat, punishment.OwnerSeat);
+    Equal(0, punishment.SourceSeat);
+    Equal(GangliePunishmentKind.DiscardTwo, punishment.Punishment);
+    True(punishment.DiscardedCardIds.SequenceEqual(discardedCardIds));
+    True(punishment.SourceAlive);
+
+    foreach (var cardId in discardedCardIds)
+    {
+        TrueWithMessage(gameWithGanglie.CardMovements.Any(movement =>
+            movement.CardId == cardId &&
+            movement.From == CardLocation.Hand(0) &&
+            movement.To == CardLocation.DiscardPile &&
+            movement.Reason == CardMoveReasons.GanglieDiscard),
+            "Ganglie discard movement");
+    }
+
+    var resolved = gameWithGanglie.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<DamageSkillResolvedEvent>()
+        .Single(eventItem =>
+            eventItem.Skill == SkillKind.Ganglie &&
+            eventItem.OwnerSeat == ganglieSeat);
+    True(resolved.Used);
+    Equal<int?>(0, resolved.EffectTargetSeat);
+    TrueWithMessage(gameWithGanglie.Events.Any(eventItem =>
+        eventItem.Payload is CardUseFinishedEvent finished &&
+        finished.CardId == usedAttackCard.Id), "Ganglie source attack finished");
+    TrueWithMessage(gameWithGanglie.AiThoughts.Any(thought =>
+        thought.Candidates.Any(candidate => candidate.Action.Kind == LegalActionKind.Ganglie)),
+        "Ganglie AI trigger thought");
+    Equal(0, gameWithGanglie.ResolutionStack.Count);
+    Equal(0, accepted.State.ProcessingCardCount);
+    AssertCardInventory(gameWithGanglie);
+}
+
+static void GuicaiFlow()
+{
+    GameEngine? selectedGame = null;
+    PendingDecision? guicaiPrompt = null;
+    JudgmentFrame? judgmentFrame = null;
+    PromptChoice? replacementChoice = null;
+    IReadOnlyList<int>? validCardIds = null;
+
+    for (var seed = 1; seed <= 8_192 && selectedGame is null; seed++)
+    {
+        var game = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                UseInteractiveSetup = true,
+                MaxTurns = 180
+            },
+            StandardContentRegistry.Create());
+        var started = game.Start();
+        if (started.Status != EngineStatus.AwaitingHumanGeneralSelection ||
+            started.PendingDecision is not { } setupPrompt)
+        {
+            continue;
+        }
+
+        var guicaiChoice = setupPrompt.Choices.FirstOrDefault(choice =>
+            choice.ContentIds.Contains("standard:demo-guicai", StringComparer.Ordinal));
+        if (guicaiChoice is null)
+        {
+            continue;
+        }
+
+        _ = game.HumanSelectGeneral(
+            "standard:demo-guicai",
+            advanceToHumanBoundary: false);
+        var ready = game.Advance();
+        if (ready.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var human = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        var bagua = human.Hand.FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
+        if (bagua is null)
+        {
+            continue;
+        }
+
+        var result = game.HumanPlay(
+            bagua.Id,
+            targetSeat: null,
+            advanceToHumanBoundary: true);
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        result = game.HumanEndPlay(advanceToHumanBoundary: false);
+        for (var step = 0; step < 1_500 && result.Status != EngineStatus.Completed; step++)
+        {
+            if (result.Status == EngineStatus.AwaitingHumanResponse)
+            {
+                var prompt = game.PendingDecision ??
+                    throw new InvalidOperationException("The response status has no prompt.");
+                if (prompt.Kind == DecisionKind.Guicai && prompt.PlayerSeat == 0)
+                {
+                    var frame = game.ResolutionStack.OfType<JudgmentFrame>().SingleOrDefault();
+                    if (frame?.CardId is null || frame.Suit is not { } oldSuit)
+                    {
+                        break;
+                    }
+
+                    var hand = game.CreateSnapshot(0, revealAll: true).Players
+                        .Single(player => player.Seat == 0)
+                        .Hand;
+                    var choice = prompt.Choices.FirstOrDefault(candidate =>
+                    {
+                        if (candidate.Parameters.GetValueOrDefault("response") != "guicai-replace" ||
+                            candidate.Cards.Count != 1)
+                        {
+                            return false;
+                        }
+
+                        var card = hand.SingleOrDefault(handCard => handCard.Id == candidate.Cards[0]);
+                        return card is not null &&
+                               (card.Suit is Suit.Heart or Suit.Diamond) !=
+                               (oldSuit is Suit.Heart or Suit.Diamond);
+                    });
+                    if (choice is null)
+                    {
+                        break;
+                    }
+
+                    var beforeInvalid = game.SerializeState();
+                    var invalid = game.Submit(new AnswerPromptCommand(
+                        ActorSeat: 0,
+                        Prompt: prompt.PromptId,
+                        Choice: new ChoiceId("guicai.fake.choice"),
+                        ExpectedRevision: game.Revision));
+                    False(invalid.Accepted);
+                    Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
+                    Equal(beforeInvalid, game.SerializeState());
+
+                    var accepted = game.Submit(new AnswerPromptCommand(
+                        ActorSeat: 0,
+                        Prompt: prompt.PromptId,
+                        Choice: choice.Id,
+                        ExpectedRevision: game.Revision));
+                    TrueWithMessage(accepted.Accepted, "Guicai replacement choice accepted");
+                    selectedGame = game;
+                    guicaiPrompt = prompt;
+                    judgmentFrame = frame;
+                    replacementChoice = choice;
+                    validCardIds = prompt.ValidCardIds.ToArray();
+                    break;
+                }
+
+                if (prompt.Kind == DecisionKind.RespondSlash)
+                {
+                    result = game.HumanRespondSlash(
+                        useSlash: false,
+                        advanceToHumanBoundary: false);
+                }
+                else if (prompt.Kind == DecisionKind.RespondDodge)
+                {
+                    result = game.HumanRespond(
+                        useDodge: false,
+                        advanceToHumanBoundary: false);
+                }
+                else if (prompt.Kind == DecisionKind.Nullification)
+                {
+                    result = game.HumanRespondNullification(
+                        useNullification: false,
+                        advanceToHumanBoundary: false);
+                }
+                else
+                {
+                    var generic = game.Submit(new AnswerPromptCommand(
+                        ActorSeat: prompt.PlayerSeat,
+                        Prompt: prompt.PromptId,
+                        Choice: prompt.Choices.First(choice => choice.Cards.Count == 0).Id,
+                        ExpectedRevision: game.Revision));
+                    result = generic.Result;
+                }
+                continue;
+            }
+
+            result = result.Status switch
+            {
+                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(
+                    advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    usePeach: false,
+                    advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
+                _ => game.AdvanceOneStep()
+            };
+        }
+    }
+
+    if (selectedGame is null ||
+        guicaiPrompt is null ||
+        judgmentFrame is null ||
+        replacementChoice is null ||
+        validCardIds is null)
+    {
+        throw new InvalidOperationException("No deterministic human Guicai judgment boundary was found.");
+    }
+
+    var gameWithGuicai = selectedGame!;
+    var finalPrompt = guicaiPrompt!;
+    var finalFrame = judgmentFrame!;
+    var replacement = replacementChoice!;
+    var publishedCardIds = validCardIds!;
+    var oldCardId = finalFrame.CardId!.Value;
+    var replacementCardId = replacement.Cards.Single();
+    Equal(DecisionKind.Guicai, finalPrompt.Kind);
+    Equal(0, finalPrompt.PlayerSeat);
+    Equal(finalFrame.TargetSeat, finalPrompt.TargetSeat);
+    Equal(finalFrame.TargetSeat, finalPrompt.SourceSeat);
+    True(finalPrompt.IsPrivate);
+    True(publishedCardIds.SequenceEqual(finalPrompt.ValidCardIds));
+    True(publishedCardIds.Contains(replacementCardId));
+    Equal<PendingDecision?>(null, gameWithGuicai.CreateSnapshot(1).PendingDecision);
+
+    var replacementEvent = gameWithGuicai.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<JudgmentReplacementResolvedEvent>()
+        .Single(eventItem => eventItem.ResolutionId == finalFrame.Id && eventItem.Used);
+    Equal(0, replacementEvent.OwnerSeat);
+    Equal(finalFrame.TargetSeat, replacementEvent.TargetSeat);
+    Equal(oldCardId, replacementEvent.OldCardId);
+    Equal(replacementCardId, replacementEvent.NewCardId);
+    TrueWithMessage(gameWithGuicai.Events.Any(eventItem =>
+        eventItem.Payload is JudgmentReplacementRequestedEvent requested &&
+        requested.ResolutionId == finalFrame.Id &&
+        requested.OwnerSeat == 0), "Guicai request event");
+    TrueWithMessage(gameWithGuicai.Events.Any(eventItem =>
+        eventItem.Payload is JudgmentResolvedEvent resolved &&
+        resolved.ResolutionId == finalFrame.Id &&
+        resolved.CardId == replacementCardId), "replacement judgment is final");
+
+    TrueWithMessage(gameWithGuicai.CardMovements.Any(movement =>
+        movement.CardId == oldCardId &&
+        movement.From == CardLocation.Judgment(finalFrame.TargetSeat) &&
+        movement.To == CardLocation.DiscardPile &&
+        movement.Reason == CardMoveReasons.JudgmentFinish), "old judgment is discarded");
+    TrueWithMessage(gameWithGuicai.CardMovements.Any(movement =>
+        movement.CardId == replacementCardId &&
+        movement.From == CardLocation.Hand(0) &&
+        movement.To == CardLocation.Processing &&
+        movement.Reason == CardMoveReasons.GuicaiReplace), "replacement enters processing");
+    TrueWithMessage(gameWithGuicai.CardMovements.Any(movement =>
+        movement.CardId == replacementCardId &&
+        movement.From == CardLocation.Processing &&
+        movement.To == CardLocation.Judgment(finalFrame.TargetSeat) &&
+        movement.Reason == CardMoveReasons.GuicaiReplace), "replacement enters judgment");
+    TrueWithMessage(gameWithGuicai.CardMovements.Any(movement =>
+        movement.CardId == replacementCardId &&
+        movement.From == CardLocation.Judgment(finalFrame.TargetSeat) &&
+        movement.To == CardLocation.DiscardPile &&
+        movement.Reason == CardMoveReasons.JudgmentFinish), "replacement judgment is finished");
+    TrueWithMessage(gameWithGuicai.ResolutionStack.All(openFrame =>
+        openFrame.Id != finalFrame.Id),
+        "Guicai closes the selected judgment frame");
+    AssertCardInventory(gameWithGuicai);
+}
+
+static void IndulgenceFlow()
+{
+    var red = FindIndulgenceScenario(skipPlayPhase: true);
+    var black = FindIndulgenceScenario(skipPlayPhase: false);
+
+    NotNull(red);
+    NotNull(black);
+    AssertIndulgenceScenario(red!.Value);
+    AssertIndulgenceScenario(black!.Value);
+    True(red.Value.Resolved.SkippedPlayPhase);
+    False(black.Value.Resolved.SkippedPlayPhase);
+    True(red.Value.Resolved.JudgmentSucceeded);
+    False(black.Value.Resolved.JudgmentSucceeded);
+}
+
+static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Resolved)?
+    FindIndulgenceScenario(bool skipPlayPhase)
+{
+    for (var seed = 1; seed <= 4_096; seed++)
+    {
+        var game = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                MaxTurns = 180
+            },
+            StandardContentRegistry.Create());
+        var result = game.Start();
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
+            candidate.Kind == LegalActionKind.Indulgence &&
+            candidate.TargetSeat is not null);
+        if (action is null)
+        {
+            continue;
+        }
+
+        var targetSeat = action.TargetSeat!.Value;
+        result = game.HumanPlay(
+            action.CardId!.Value,
+            targetSeat,
+            advanceToHumanBoundary: false);
+        var placed = game.Events
+            .Select(eventItem => eventItem.Payload)
+            .OfType<DelayedCardPlacedEvent>()
+            .LastOrDefault(eventItem => eventItem.TargetSeat == targetSeat);
+        if (placed is null)
+        {
+            continue;
+        }
+
+        var publicView = game.CreateSnapshot((targetSeat + 1) % game.PlayerCount);
+        var publicTarget = publicView.Players.Single(player => player.Seat == targetSeat);
+        TrueWithMessage(
+            publicTarget.Judgment.Any(card => card.Id == placed.CardId),
+            "delayed card is public in the target judgment zone");
+        if (game.GetHumanLegalActions().Any(candidate =>
+                candidate.Kind == LegalActionKind.Indulgence &&
+                candidate.TargetSeat == targetSeat))
+        {
+            throw new InvalidOperationException("The same delayed card kind was offered twice to one target.");
+        }
+
+        for (var step = 0; step < 2_000; step++)
+        {
+            var resolved = game.Events
+                .Select(eventItem => eventItem.Payload)
+                .OfType<DelayedCardResolvedEvent>()
+                .LastOrDefault(eventItem =>
+                    eventItem.TargetSeat == targetSeat &&
+                    eventItem.CardId == placed.CardId);
+            if (resolved is not null)
+            {
+                if (resolved.SkippedPlayPhase == skipPlayPhase)
+                {
+                    var expectedPhase = skipPlayPhase ? TurnPhase.Discard : TurnPhase.Play;
+                    if (game.State.CurrentSeat == targetSeat &&
+                        game.State.Phase == expectedPhase)
+                    {
+                        return (game, targetSeat, placed.CardId, resolved);
+                    }
+                }
+
+                break;
+            }
+
+            if (result.Status == EngineStatus.Completed)
+            {
+                break;
+            }
+
+            if (result.Status == EngineStatus.AwaitingHumanResponse ||
+                result.Status == EngineStatus.AwaitingHumanDying ||
+                result.Status == EngineStatus.AwaitingHumanCardSelection ||
+                result.Status == EngineStatus.AwaitingHumanPlay)
+            {
+                result = ResolveDelayedCardHumanBoundary(game, result);
+            }
+            else
+            {
+                result = game.AdvanceOneStep();
+            }
+        }
+    }
+
+    return null;
+}
+
+static EngineRunResult ResolveDelayedCardHumanBoundary(
+    GameEngine game,
+    EngineRunResult result)
+{
+    return result.Status switch
+    {
+        EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+        EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+            usePeach: false,
+            advanceToHumanBoundary: false),
+        EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
+        EngineStatus.AwaitingHumanResponse => ResolveDelayedCardHumanPrompt(game),
+        _ => throw new InvalidOperationException(
+            $"Unexpected human boundary during delayed card flow: {result.Status}.")
+    };
+}
+
+static EngineRunResult ResolveDelayedCardHumanPrompt(GameEngine game)
+{
+    var prompt = game.PendingDecision ??
+        throw new InvalidOperationException("The delayed card flow expected a human prompt.");
+    var choice = prompt.Choices.FirstOrDefault(candidate =>
+        candidate.Cards.Count == 0 && candidate.Targets.Count == 0) ??
+        throw new InvalidOperationException(
+            $"The delayed card flow could not find a safe pass choice for {prompt.Kind}.");
+    var accepted = game.Submit(new AnswerPromptCommand(
+        prompt.PlayerSeat,
+        prompt.PromptId,
+        choice.Id,
+        game.Revision));
+    TrueWithMessage(accepted.Accepted, $"resolve human {prompt.Kind} prompt");
+    return accepted.Result;
+}
+
+static void AssertIndulgenceScenario(
+    (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Resolved) scenario)
+{
+    var game = scenario.Game;
+    var target = game.State.Players.Single(player => player.Seat == scenario.TargetSeat);
+    Equal(0, target.Judgment.Count);
+    Equal(scenario.CardId, scenario.Resolved.CardId);
+    Equal(CardKind.Indulgence, scenario.Resolved.CardKind);
+    Equal(scenario.TargetSeat, scenario.Resolved.TargetSeat);
+    Equal(scenario.Resolved.JudgmentSucceeded, scenario.Resolved.SkippedPlayPhase);
+    var expectedPhase = scenario.Resolved.SkippedPlayPhase ? TurnPhase.Discard : TurnPhase.Play;
+    TrueWithMessage(
+        game.State.Phase == expectedPhase,
+        $"Indulgence boundary phase; expected={expectedPhase}; actual={game.State.Phase}; target={scenario.TargetSeat}; resolution={scenario.Resolved.ResolutionId}; turn={game.State.TurnNumber}; currentSeat={game.State.CurrentSeat}");
+    TrueWithMessage(game.Events.Any(eventItem =>
+        eventItem.Payload is DelayedCardPlacedEvent placed &&
+        placed.CardId == scenario.CardId &&
+        placed.TargetSeat == scenario.TargetSeat), "delayed placement event");
+    TrueWithMessage(game.Events.Any(eventItem =>
+        eventItem.Payload is CardUseFinishedEvent finished &&
+        finished.CardId == scenario.CardId &&
+        finished.CardKind == CardKind.Indulgence), "delayed card use finished");
+    TrueWithMessage(game.CardMovements.Any(movement =>
+        movement.CardId == scenario.CardId &&
+        movement.From == CardLocation.Hand(0) &&
+        movement.To == CardLocation.Processing &&
+        movement.Reason == CardMoveReasons.Use), "delayed card enters processing");
+    TrueWithMessage(game.CardMovements.Any(movement =>
+        movement.CardId == scenario.CardId &&
+        movement.From == CardLocation.Processing &&
+        movement.To == CardLocation.Judgment(scenario.TargetSeat) &&
+        movement.Reason == CardMoveReasons.DelayedCardPlace), "delayed card enters judgment");
+    TrueWithMessage(game.CardMovements.Any(movement =>
+        movement.CardId == scenario.CardId &&
+        movement.From == CardLocation.Judgment(scenario.TargetSeat) &&
+        movement.To == CardLocation.DiscardPile &&
+        movement.Reason == CardMoveReasons.DelayedCardFinish), "delayed card leaves judgment");
+    TrueWithMessage(game.Events.Any(eventItem =>
+        eventItem.Payload is JudgmentResolvedEvent resolved &&
+        resolved.ResolutionId == scenario.Resolved.ResolutionId &&
+        resolved.CardId == scenario.Resolved.JudgmentCardId &&
+        resolved.Reason == JudgmentReasons.Indulgence), "delayed judgment result");
+    AssertCardInventory(game);
+}
+
+static void SupplyShortageFlow()
+{
+    var skipDraw = FindSupplyShortageScenario(skipDrawPhase: true);
+    var normalDraw = FindSupplyShortageScenario(skipDrawPhase: false);
+
+    NotNull(skipDraw);
+    NotNull(normalDraw);
+    AssertSupplyShortageScenario(skipDraw!.Value);
+    AssertSupplyShortageScenario(normalDraw!.Value);
+    True(skipDraw.Value.Resolved.JudgmentSucceeded == false);
+    False(normalDraw.Value.Resolved.JudgmentSucceeded == false);
+    True(skipDraw.Value.Resolved.SkippedDrawPhase);
+    False(normalDraw.Value.Resolved.SkippedDrawPhase);
+    Equal(0, skipDraw.Value.TargetDrawCount);
+    True(normalDraw.Value.TargetDrawCount > 0);
+}
+
+static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Resolved, int TargetDrawCount)?
+    FindSupplyShortageScenario(bool skipDrawPhase)
+{
+    for (var seed = 1; seed <= 4_096; seed++)
+    {
+        var game = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                MaxTurns = 180
+            },
+            StandardContentRegistry.Create());
+        var result = game.Start();
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
+            candidate.Kind == LegalActionKind.SupplyShortage &&
+            candidate.TargetSeat is not null);
+        if (action is null)
+        {
+            continue;
+        }
+
+        var targetSeat = action.TargetSeat!.Value;
+        TrueWithMessage(
+            game.State.Players.Single(player => player.Seat == targetSeat).HandCount > 0,
+            "兵粮寸断 target must be selected from a publicly non-empty hand");
+        result = game.HumanPlay(
+            action.CardId!.Value,
+            targetSeat,
+            advanceToHumanBoundary: false);
+        var placed = game.Events
+            .Select(eventItem => eventItem.Payload)
+            .OfType<DelayedCardPlacedEvent>()
+            .LastOrDefault(eventItem =>
+                eventItem.CardKind == CardKind.SupplyShortage &&
+                eventItem.TargetSeat == targetSeat);
+        if (placed is null)
+        {
+            continue;
+        }
+
+        var publicView = game.CreateSnapshot((targetSeat + 1) % game.PlayerCount);
+        var publicTarget = publicView.Players.Single(player => player.Seat == targetSeat);
+        TrueWithMessage(
+            publicTarget.Judgment.Any(card => card.Id == placed.CardId),
+            "兵粮寸断 is public in the target judgment zone");
+        if (game.GetHumanLegalActions().Any(candidate =>
+                candidate.Kind == LegalActionKind.SupplyShortage &&
+                candidate.TargetSeat == targetSeat))
+        {
+            throw new InvalidOperationException("The same delayed card kind was offered twice to one target.");
+        }
+
+        for (var step = 0; step < 2_000; step++)
+        {
+            var resolvedEnvelope = game.Events.LastOrDefault(eventItem =>
+                eventItem.Payload is DelayedCardResolvedEvent resolved &&
+                resolved.CardId == placed.CardId);
+            if (resolvedEnvelope is not null)
+            {
+                var resolved = (DelayedCardResolvedEvent)resolvedEnvelope.Payload;
+                if (resolved.SkippedDrawPhase != skipDrawPhase)
+                {
+                    break;
+                }
+
+                var nextPlayPhase = game.Events.FirstOrDefault(eventItem =>
+                    eventItem.Sequence > resolvedEnvelope.Sequence &&
+                    eventItem.Payload is PhaseChangedEvent phase &&
+                    phase.Phase == TurnPhase.Play &&
+                    phase.ActorSeat == targetSeat);
+                if (nextPlayPhase is null)
+                {
+                    break;
+                }
+
+                var targetDrawCount = game.Events.Count(eventItem =>
+                    eventItem.Sequence > resolvedEnvelope.Sequence &&
+                    eventItem.Sequence < nextPlayPhase.Sequence &&
+                    eventItem.Payload is CardMovedEvent moved &&
+                    moved.From == CardLocation.DrawPile &&
+                    moved.To == CardLocation.Hand(targetSeat) &&
+                    moved.Reason == CardMoveReasons.Draw);
+                return (game, targetSeat, placed.CardId, resolved, targetDrawCount);
+            }
+
+            if (result.Status == EngineStatus.Completed)
+            {
+                break;
+            }
+
+            if (result.Status == EngineStatus.AwaitingHumanResponse ||
+                result.Status == EngineStatus.AwaitingHumanDying ||
+                result.Status == EngineStatus.AwaitingHumanCardSelection ||
+                result.Status == EngineStatus.AwaitingHumanPlay)
+            {
+                result = ResolveDelayedCardHumanBoundary(game, result);
+            }
+            else
+            {
+                result = game.AdvanceOneStep();
+            }
+        }
+    }
+
+    return null;
+}
+
+static void AssertSupplyShortageScenario(
+    (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Resolved, int TargetDrawCount) scenario)
+{
+    var game = scenario.Game;
+    var target = game.State.Players.Single(player => player.Seat == scenario.TargetSeat);
+    Equal(0, target.Judgment.Count);
+    Equal(scenario.CardId, scenario.Resolved.CardId);
+    Equal(CardKind.SupplyShortage, scenario.Resolved.CardKind);
+    Equal(scenario.TargetSeat, scenario.Resolved.TargetSeat);
+    Equal(!scenario.Resolved.JudgmentSucceeded, scenario.Resolved.SkippedDrawPhase);
+    Equal(TurnPhase.Play, game.State.Phase);
+    TrueWithMessage(game.Events.Any(eventItem =>
+        eventItem.Payload is DelayedCardPlacedEvent placed &&
+        placed.CardId == scenario.CardId &&
+        placed.CardKind == CardKind.SupplyShortage &&
+        placed.TargetSeat == scenario.TargetSeat), "兵粮寸断 placement event");
+    TrueWithMessage(game.Events.Any(eventItem =>
+        eventItem.Payload is CardUseFinishedEvent finished &&
+        finished.CardId == scenario.CardId &&
+        finished.CardKind == CardKind.SupplyShortage), "兵粮寸断 use finished");
+    TrueWithMessage(game.CardMovements.Any(movement =>
+        movement.CardId == scenario.CardId &&
+        movement.From == CardLocation.Hand(0) &&
+        movement.To == CardLocation.Processing &&
+        movement.Reason == CardMoveReasons.Use), "兵粮寸断 enters processing");
+    TrueWithMessage(game.CardMovements.Any(movement =>
+        movement.CardId == scenario.CardId &&
+        movement.From == CardLocation.Processing &&
+        movement.To == CardLocation.Judgment(scenario.TargetSeat) &&
+        movement.Reason == CardMoveReasons.DelayedCardPlace), "兵粮寸断 enters judgment");
+    TrueWithMessage(game.CardMovements.Any(movement =>
+        movement.CardId == scenario.CardId &&
+        movement.From == CardLocation.Judgment(scenario.TargetSeat) &&
+        movement.To == CardLocation.DiscardPile &&
+        movement.Reason == CardMoveReasons.DelayedCardFinish), "兵粮寸断 leaves judgment");
+    TrueWithMessage(game.Events.Any(eventItem =>
+        eventItem.Payload is JudgmentResolvedEvent resolved &&
+        resolved.ResolutionId == scenario.Resolved.ResolutionId &&
+        resolved.CardId == scenario.Resolved.JudgmentCardId &&
+        resolved.Reason == JudgmentReasons.SupplyShortage), "兵粮寸断 judgment result");
+    AssertCardInventory(game);
+}
+
+static void LightningFlow()
+{
+    var miss = FindLightningScenario(hit: false);
+    var hit = FindLightningScenario(hit: true);
+
+    NotNull(miss);
+    NotNull(hit);
+    AssertLightningScenario(miss!.Value);
+    AssertLightningScenario(hit!.Value);
+    False(miss.Value.Resolved.Hit);
+    True(hit.Value.Resolved.Hit);
+}
+
+static (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefore, int HpAfter)?
+    FindLightningScenario(bool hit)
+{
+    for (var seed = 1; seed <= 8_192; seed++)
+    {
+        var game = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                MaxTurns = 180
+            },
+            StandardContentRegistry.Create());
+        var result = game.Start();
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var actions = game.GetHumanLegalActions()
+            .Where(action => action.Kind == LegalActionKind.Lightning)
+            .ToArray();
+        if (actions.Length == 0 || actions.Any(action => action.TargetSeat != 0))
+        {
+            continue;
+        }
+
+        var action = actions[0];
+        var hpBefore = game.State.Players.Single(player => player.Seat == 0).Hp;
+        result = game.HumanPlay(action.CardId!.Value, 0, advanceToHumanBoundary: false);
+        for (var step = 0; step < 2_000; step++)
+        {
+            var resolved = game.Events
+                .Select(eventItem => eventItem.Payload)
+                .OfType<LightningResolvedEvent>()
+                .LastOrDefault(eventItem => eventItem.CardId == action.CardId.Value);
+            if (resolved is not null)
+            {
+                if (resolved.JudgmentTargetSeat != 0)
+                {
+                    break;
+                }
+
+                if (resolved.Hit != hit)
+                {
+                    break;
+                }
+
+                if (hit && game.CreateCardZoneDiagnostics()
+                        .Single(card => card.CardId == action.CardId.Value)
+                        .Location != CardLocation.DiscardPile)
+                {
+                    if (result.Status is EngineStatus.AwaitingHumanPlay or
+                        EngineStatus.AwaitingHumanResponse or
+                        EngineStatus.AwaitingHumanDying or
+                        EngineStatus.AwaitingHumanCardSelection)
+                    {
+                        result = ResolveDelayedCardHumanBoundary(game, result);
+                    }
+                    else
+                    {
+                        result = game.AdvanceOneStep();
+                    }
+
+                    continue;
+                }
+
+                if (!hit &&
+                    (game.ResolutionStack.Count != 0 ||
+                     game.State.Status != EngineStatus.AwaitingHumanPlay ||
+                     game.State.Phase != TurnPhase.Play))
+                {
+                    if (result.Status is EngineStatus.AwaitingHumanPlay or
+                        EngineStatus.AwaitingHumanResponse or
+                        EngineStatus.AwaitingHumanDying or
+                        EngineStatus.AwaitingHumanCardSelection)
+                    {
+                        result = ResolveDelayedCardHumanBoundary(game, result);
+                    }
+                    else
+                    {
+                        result = game.AdvanceOneStep();
+                    }
+
+                    continue;
+                }
+
+                if (hit && game.ResolutionStack.Count != 0)
+                {
+                    break;
+                }
+
+                var hpAfter = game.State.Players.Single(player => player.Seat == 0).Hp;
+                return (game, action.CardId.Value, resolved, hpBefore, hpAfter);
+            }
+
+            if (result.Status == EngineStatus.Completed)
+            {
+                break;
+            }
+
+            if (result.Status is EngineStatus.AwaitingHumanPlay or
+                EngineStatus.AwaitingHumanResponse or
+                EngineStatus.AwaitingHumanDying or
+                EngineStatus.AwaitingHumanCardSelection)
+            {
+                result = ResolveDelayedCardHumanBoundary(game, result);
+            }
+            else
+            {
+                result = game.AdvanceOneStep();
+            }
+        }
+    }
+
+    return null;
+}
+
+static void AssertLightningScenario(
+    (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefore, int HpAfter) scenario)
+{
+    var game = scenario.Game;
+    var resolved = scenario.Resolved;
+    Equal(scenario.CardId, resolved.CardId);
+    Equal(0, resolved.JudgmentTargetSeat);
+    TrueWithMessage(game.Events.Any(eventItem =>
+        eventItem.Payload is JudgmentResolvedEvent judgment &&
+        judgment.ResolutionId == resolved.ResolutionId &&
+        judgment.Reason == JudgmentReasons.Lightning &&
+        judgment.CardId == resolved.JudgmentCardId &&
+        judgment.Succeeded == resolved.Hit), "闪电公开判定结果");
+
+    if (resolved.Hit)
+    {
+        Equal(3, resolved.DamageAmount);
+        Equal<int?>(null, resolved.NextTargetSeat);
+        TrueWithMessage(scenario.HpAfter <= scenario.HpBefore,
+            $"闪电命中后生命值不应上升：before={scenario.HpBefore}, after={scenario.HpAfter}");
+        TrueWithMessage(game.Events.Any(eventItem =>
+            eventItem.Payload is DamageRequestedEvent damage &&
+            damage.SourceSeat == 0 &&
+            damage.TargetSeat == 0 &&
+            damage.Amount == 3 &&
+            damage.SourceCard == CardKind.Lightning &&
+            damage.Nature == DamageNature.Thunder), "闪电命中造成 3 点雷电伤害");
+        TrueWithMessage(game.Events.Any(eventItem =>
+            eventItem.Payload is DamageAppliedEvent damage &&
+            damage.SourceSeat == 0 &&
+            damage.TargetSeat == 0 &&
+            damage.Amount == 3 &&
+            damage.Nature == DamageNature.Thunder), "闪电雷电伤害已应用");
+        TrueWithMessage(game.CardMovements.Any(movement =>
+            movement.CardId == scenario.CardId &&
+            movement.From == CardLocation.Judgment(0) &&
+            movement.To == CardLocation.DiscardPile &&
+            (movement.Reason == CardMoveReasons.DelayedCardFinish ||
+             movement.Reason == CardMoveReasons.DeathDiscard)), "命中后的闪电离开判定区");
+    }
+    else
+    {
+        Equal(0, resolved.DamageAmount);
+        Equal(1, resolved.NextTargetSeat);
+        TrueWithMessage(game.CardMovements.Any(movement =>
+            movement.CardId == scenario.CardId &&
+            movement.From == CardLocation.Judgment(0) &&
+            movement.To == CardLocation.Judgment(1) &&
+            movement.Reason == CardMoveReasons.DelayedCardTransfer), "未命中的闪电转移到下一名存活角色");
+        var publicView = game.CreateSnapshot(2);
+        TrueWithMessage(publicView.Players.Single(player => player.Seat == 1).Judgment
+            .Any(card => card.Id == scenario.CardId), "闪电转移后的公开判定区");
+        Equal(TurnPhase.Play, game.State.Phase);
+        TrueWithMessage(!game.Events.Any(eventItem =>
+            eventItem.Payload is DamageRequestedEvent damage &&
+            damage.ResolutionId == resolved.ResolutionId), "未命中不造成伤害");
+    }
+
+    AssertCardInventory(game);
+}
+
+static void MultipleDelayedCardsFlow()
+{
+    var controlledKinds = Enumerable.Repeat(CardKind.Dodge, 48).ToArray();
+    controlledKinds[0] = CardKind.Indulgence;
+    controlledKinds[1] = CardKind.SupplyShortage;
+    var controlledCardIds = Enumerable.Range(0, controlledKinds.Length)
+        .Select(index => $"test-delayed:card-{index + 1}")
+        .ToArray();
+    var registry = ContentRegistry.Build(
+        new StandardContentPackage(),
+        new SyntheticPackage(
+            "test-delayed",
+            builder =>
+            {
+                for (var index = 0; index < controlledKinds.Length; index++)
+                {
+                    var definition = CardCatalog.Get(controlledKinds[index]);
+                    builder.AddCard(new ContentCardDefinition(
+                        controlledCardIds[index],
+                        definition.DisplayName,
+                        definition.CategoryName,
+                        definition.Description,
+                        controlledKinds[index]));
+                }
+
+                builder.AddDeck(new ContentDeckRecipe(
+                    "test-delayed:deck",
+                    "双延时判定测试牌堆",
+                    InitialHandSize: 4,
+                    DrawPerTurn: 2,
+                    controlledCardIds
+                        .Select(cardId => new ContentDeckCardCount(cardId, 1))
+                        .ToArray()));
+            }));
+
+    GameEngine? game = null;
+    LegalAction? indulgence = null;
+    LegalAction? supplyShortage = null;
+    const int targetSeat = 1;
+    for (var seed = 1; seed <= 4_096 && game is null; seed++)
+    {
+        var candidate = GameEngine.CreateStandard(
+            new GameOptions
+            {
+                UseInteractiveDiscard = false,
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                DeckId = "test-delayed:deck",
+                MaxTurns = 32
+            },
+            registry);
+        var result = candidate.Start();
+        if (result.Status != EngineStatus.AwaitingHumanPlay)
+        {
+            continue;
+        }
+
+        var actions = candidate.GetHumanLegalActions();
+        var candidateIndulgence = actions.FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Indulgence &&
+            action.TargetSeat == targetSeat);
+        var candidateSupplyShortage = actions.FirstOrDefault(action =>
+            action.Kind == LegalActionKind.SupplyShortage &&
+            action.TargetSeat == targetSeat);
+        if (candidateIndulgence is not null && candidateSupplyShortage is not null)
+        {
+            game = candidate;
+            indulgence = candidateIndulgence;
+            supplyShortage = candidateSupplyShortage;
+        }
+    }
+
+    NotNull(game);
+    NotNull(indulgence);
+    NotNull(supplyShortage);
+    var selected = game!;
+    var firstResult = selected.HumanPlay(
+        indulgence!.CardId!.Value,
+        targetSeat,
+        advanceToHumanBoundary: false);
+    ResolveNullificationWindowForTest(selected, firstResult);
+    if (selected.GetHumanLegalActions().Count == 0)
+    {
+        selected.Advance();
+    }
+
+    var secondAction = selected.GetHumanLegalActions().Single(action =>
+        action.Kind == LegalActionKind.SupplyShortage &&
+        action.TargetSeat == targetSeat);
+    var secondResult = selected.HumanPlay(
+        secondAction.CardId!.Value,
+        targetSeat,
+        advanceToHumanBoundary: false);
+    ResolveNullificationWindowForTest(selected, secondResult);
+    if (selected.GetHumanLegalActions().Count == 0)
+    {
+        selected.Advance();
+    }
+
+    selected.HumanEndPlay();
+    var resolved = selected.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<DelayedCardResolvedEvent>()
+        .Where(eventItem => eventItem.TargetSeat == targetSeat)
+        .ToArray();
+    Equal(2, resolved.Length);
+    Equal(CardKind.Indulgence, resolved[0].CardKind);
+    Equal(CardKind.SupplyShortage, resolved[1].CardKind);
+    Equal(resolved[0].JudgmentSucceeded, resolved[0].SkippedPlayPhase);
+    Equal(!resolved[1].JudgmentSucceeded, resolved[1].SkippedDrawPhase);
+    Equal(
+        resolved[0].SkippedPlayPhase ? TurnPhase.Discard : TurnPhase.Play,
+        selected.Events.First(eventItem =>
+            eventItem.Payload is PhaseChangedEvent phase &&
+            phase.ActorSeat == targetSeat &&
+            phase.Phase is TurnPhase.Play or TurnPhase.Discard).Payload is PhaseChangedEvent finalPhase
+            ? finalPhase.Phase
+            : throw new InvalidOperationException("The delayed target never reached a post-judgment phase."));
+    TrueWithMessage(selected.CardMovements.Any(movement =>
+        movement.To == CardLocation.DiscardPile &&
+        movement.Reason == CardMoveReasons.DelayedCardFinish), "both delayed cards finish from judgment");
+    AssertCardInventory(selected);
+}
+
 static void WushengFlow()
 {
     GameEngine? selectedGame = null;
@@ -4345,6 +7380,7 @@ static void WushengFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -4381,9 +7417,11 @@ static void WushengFlow()
                    target.IsAlive &&
                    target.Hp > 1 &&
                    target.Skill == SkillKind.None &&
-                   target.Hand.All(handCard => handCard.Kind != CardKind.Dodge);
+                   target.Hand.All(handCard => handCard.Kind != CardKind.Dodge) &&
+                   target.Equipment.All(equipment => equipment.Kind != CardKind.BaguaFormation);
         });
-        if (action is not null)
+        if (action is not null &&
+            revealed.Players.All(player => player.Skill != SkillKind.Yuanhu))
         {
             selectedGame = game;
             selectedCard = human.Hand.Single(card => card.Id == action.CardId);
@@ -4470,6 +7508,7 @@ static void LongdanFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -4595,6 +7634,7 @@ static void LongdanResponseFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
@@ -4720,6 +7760,7 @@ static void DyingAlcoholRescueFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -4766,7 +7807,7 @@ static void DyingAlcoholRescueFlow()
     var promptAtBoundary = dyingPrompt!;
     var dyingFrame = gameWithDying.ResolutionStack.OfType<DyingFrame>().Single();
     var alcoholChoice = promptAtBoundary.Choices
-        .Single(choice => choice.Parameters.GetValueOrDefault("response") == "alcohol");
+        .First(choice => choice.Parameters.GetValueOrDefault("response") == "alcohol");
     var alcoholCardId = alcoholChoice.Cards.Single();
     Equal(EngineStatus.AwaitingHumanDying, gameWithDying.State.Status);
     Equal(0, promptAtBoundary.PlayerSeat);
@@ -4794,16 +7835,19 @@ static void DyingAlcoholRescueFlow()
     Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
     Equal(beforeInvalid, gameWithDying.SerializeState());
 
-    var accepted = gameWithDying.Submit(new AnswerPromptCommand(
-        0,
-        promptAtBoundary.PromptId,
-        alcoholChoice.Id,
-        gameWithDying.Revision));
-    TrueWithMessage(accepted.Accepted, "Alcohol dying choice accepted");
+    var accepted = gameWithDying.HumanRespondDying(
+        usePeach: false,
+        requestedPeachCardId: null,
+        advanceToHumanBoundary: false,
+        useAlcohol: true,
+        requestedAlcoholCardId: alcoholCardId);
+    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "Alcohol dying choice accepted");
     var response = gameWithDying.Events
         .Select(eventItem => eventItem.Payload)
         .OfType<DyingResponseEvent>()
-        .Single(eventItem => eventItem.ResolutionId == dyingFrame.Id);
+        .Single(eventItem =>
+            eventItem.ResolutionId == dyingFrame.Id &&
+            eventItem.ResponderSeat == 0);
     TrueWithMessage(
         response.UsedAlcohol &&
         response.AlcoholCardId == alcoholCardId &&
@@ -4844,6 +7888,135 @@ static void DyingAlcoholRescueFlow()
     AssertCardInventory(gameWithDying);
 }
 
+static void DyingAlcoholRescueOtherFlow()
+{
+    GameEngine? selectedGame = null;
+    PendingDecision? dyingPrompt = null;
+    EngineRunResult result = null!;
+    for (var seed = 1; seed <= 4_096 && selectedGame is null; seed++)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = seed,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            MaxTurns = 180
+        });
+        result = game.Start();
+        var steps = 0;
+        while (result.Status != EngineStatus.Completed && steps++ < 3_000)
+        {
+            if (result.Status == EngineStatus.AwaitingHumanDying)
+            {
+                var prompt = game.PendingDecision;
+                if (prompt is { PlayerSeat: 0, TargetSeat: not 0 } &&
+                    prompt.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "alcohol"))
+                {
+                    selectedGame = game;
+                    dyingPrompt = prompt;
+                    break;
+                }
+            }
+
+            result = result.Status switch
+            {
+                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanResponse => game.PendingDecision?.Kind == DecisionKind.RespondSlash
+                    ? game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
+                    : game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    usePeach: false,
+                    advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
+                _ => game.AdvanceOneStep()
+            };
+        }
+    }
+
+    if (selectedGame is null || dyingPrompt is null)
+    {
+        throw new InvalidOperationException("No deterministic human dying prompt with an Alcohol rescue for another seat was found.");
+    }
+
+    var gameWithDying = selectedGame!;
+    var promptAtBoundary = dyingPrompt!;
+    var dyingFrame = gameWithDying.ResolutionStack.OfType<DyingFrame>().Single();
+    var alcoholChoice = promptAtBoundary.Choices
+        .First(choice => choice.Parameters.GetValueOrDefault("response") == "alcohol");
+    var alcoholCardId = alcoholChoice.Cards.Single();
+    var victimSeat = promptAtBoundary.TargetSeat ??
+        throw new InvalidOperationException("An Alcohol dying prompt must identify its target.");
+    Equal(EngineStatus.AwaitingHumanDying, gameWithDying.State.Status);
+    Equal(0, promptAtBoundary.PlayerSeat);
+    TrueWithMessage(victimSeat != 0, "Alcohol other-seat rescue target");
+    TrueWithMessage(alcoholChoice.Description.Contains("救援", StringComparison.Ordinal), "Alcohol ally-rescue choice");
+    TrueWithMessage(!alcoholChoice.Description.Contains("自救", StringComparison.Ordinal), "Alcohol ally-rescue does not claim self rescue");
+    Equal(victimSeat.ToString(), alcoholChoice.Parameters["target-seat"]);
+
+    var otherViewer = gameWithDying.CreateSnapshot(1);
+    Equal<PendingDecision?>(null, otherViewer.PendingDecision);
+    TrueWithMessage(
+        otherViewer.Players.All(player => player.Hand.All(card => card.Id != alcoholCardId)),
+        "other viewer hides ally-rescue Alcohol");
+
+    var beforeInvalid = gameWithDying.SerializeState();
+    var invalid = gameWithDying.Submit(new AnswerPromptCommand(
+        0,
+        promptAtBoundary.PromptId,
+        new ChoiceId("dying.fake-alcohol-other"),
+        gameWithDying.Revision));
+    TrueWithMessage(!invalid.Accepted, "invalid ally Alcohol dying choice rejected");
+    Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
+    Equal(beforeInvalid, gameWithDying.SerializeState());
+
+    var accepted = gameWithDying.HumanRespondDying(
+        usePeach: false,
+        requestedPeachCardId: null,
+        advanceToHumanBoundary: false,
+        useAlcohol: true,
+        requestedAlcoholCardId: alcoholCardId);
+    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "ally Alcohol dying choice accepted");
+    var response = gameWithDying.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<DyingResponseEvent>()
+        .Single(eventItem =>
+            eventItem.ResolutionId == dyingFrame.Id &&
+            eventItem.ResponderSeat == 0);
+    TrueWithMessage(
+        response.UsedAlcohol &&
+        response.ResponderSeat == 0 &&
+        response.AlcoholCardId == alcoholCardId &&
+        !response.UsedPeach &&
+        response.PeachCardId is null,
+        "typed ally Alcohol dying response");
+    TrueWithMessage(gameWithDying.Events.Any(eventItem =>
+        eventItem.Payload is RecoveryAppliedEvent recovery &&
+        recovery.SourceSeat == 0 &&
+        recovery.TargetSeat == victimSeat &&
+        recovery.Amount == 1 &&
+        recovery.RemainingHp == 1), "ally Alcohol recovery event");
+    TrueWithMessage(gameWithDying.CardMovements.Any(movement =>
+        movement.CardId == alcoholCardId &&
+        movement.From == CardLocation.Hand(0) &&
+        movement.To == CardLocation.Processing &&
+        movement.Reason == CardMoveReasons.Use), "ally Alcohol rescue entered Processing");
+    TrueWithMessage(gameWithDying.CardMovements.Any(movement =>
+        movement.CardId == alcoholCardId &&
+        movement.From == CardLocation.Processing &&
+        movement.To == CardLocation.DiscardPile &&
+        movement.Reason == CardMoveReasons.UseFinished), "ally Alcohol rescue discarded");
+    Equal(1, accepted.State.Players.Single(player => player.Seat == victimSeat).Hp);
+    Equal(
+        CardLocation.DiscardPile,
+        gameWithDying.CreateCardZoneDiagnostics().Single(card => card.CardId == alcoholCardId).Location);
+    TrueWithMessage(
+        gameWithDying.ResolutionStack.All(frame => frame.Id != dyingFrame.Id),
+        "ally Alcohol dying frame completed");
+    AssertCardInventory(gameWithDying);
+}
+
 static void DyingResponseFlow()
 {
     GameEngine? selectedGame = null;
@@ -4853,6 +8026,7 @@ static void DyingResponseFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -4943,14 +8117,22 @@ static void DyingResponseFlow()
         movement.To == CardLocation.DiscardPile &&
         movement.Reason == CardMoveReasons.UseFinished),
         "rescue Peach discarded through the recovery resolution");
-    TrueWithMessage(rescued.State.Players.Single(player => player.Seat == promptAtBoundary.TargetSeat).Hp > 0,
-        "dying victim survives");
+    var recovery = gameWithDying.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<RecoveryAppliedEvent>()
+        .LastOrDefault(eventItem =>
+            eventItem.TargetSeat == promptAtBoundary.TargetSeat &&
+            eventItem.Amount == 1);
+    NotNull(recovery);
+    TrueWithMessage(recovery!.RemainingHp > 0,
+        $"dying Peach recovery applied at hp={recovery.RemainingHp}");
 }
 
 static void ObserverFailuresAreIsolated()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 337,
         HumanSeat = 0,
         HumanRole = Role.Lord,
@@ -4995,6 +8177,7 @@ static void ObserverFailuresDoNotChangeOutcome()
 {
     var options = new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 359,
         HumanSeat = -1,
         HumanRole = null,
@@ -5023,6 +8206,7 @@ static void UncaughtObserverReentryIsIsolated()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 347,
         HumanSeat = 0,
         HumanRole = Role.Lord
@@ -5049,7 +8233,7 @@ static void HumanPlayApi()
     // Search a small deterministic seed range instead of coupling the test to one deck order.
     for (var seed = 1; seed <= 64 && selectedAction is null; seed++)
     {
-        var game = GameEngine.CreateStandard(new GameOptions { Seed = seed, HumanSeat = 0, HumanRole = Role.Lord });
+        var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = seed, HumanSeat = 0, HumanRole = Role.Lord });
         var result = game.Start();
         var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
             candidate.Kind is LegalActionKind.Slash or LegalActionKind.Peach);
@@ -5078,6 +8262,7 @@ static void HumanDodgeApi()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -5125,6 +8310,7 @@ static void LethalHumanResponseKeepsCompletedStatus()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -5139,7 +8325,8 @@ static void LethalHumanResponseKeepsCompletedStatus()
                     snapshot.DrawPileCount +
                     snapshot.DiscardPileCount +
                     snapshot.ProcessingCardCount +
-                    snapshot.Players.Sum(player => player.HandCount + player.Equipment.Count));
+                    snapshot.Players.Sum(player =>
+                        player.HandCount + player.Equipment.Count + player.Judgment.Count));
             }
         };
         var result = game.Start();
@@ -5174,7 +8361,7 @@ static void LethalHumanResponseKeepsCompletedStatus()
                         True(result.Winner is Winner.Rebels or Winner.Renegade);
                         Equal(EngineStatus.Completed, game.State.Status);
                         Equal(1, completedCardTotals.Count);
-                        Equal(78, completedCardTotals[0]);
+                        Equal(90, completedCardTotals[0]);
                         exercised = true;
                     }
                 }
@@ -5202,6 +8389,7 @@ static void AdvanceOneStepApi()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 31,
         HumanSeat = 0,
         HumanRole = Role.Lord
@@ -5279,6 +8467,7 @@ static void AiEndPlayPublishesState()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
@@ -5339,6 +8528,7 @@ static void ReentrantAdvanceIsRejected()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 71,
         HumanSeat = 0,
         HumanRole = Role.Lord
@@ -5373,6 +8563,7 @@ static void UnknownPhaseFailsFast()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 79,
         HumanSeat = 0,
         HumanRole = Role.Lord
@@ -5393,6 +8584,7 @@ static void AiMatchSmoke()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = -1,
             HumanRole = null,
@@ -5411,6 +8603,7 @@ static void StepGuardFinishesResponse()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        UseInteractiveDiscard = false,
         Seed = 617,
         HumanSeat = -1,
         HumanRole = null,
@@ -5429,7 +8622,7 @@ static void StepGuardFinishesResponse()
 
 static void SnapshotSerialization()
 {
-    var game = GameEngine.CreateStandard(new GameOptions { Seed = 123 });
+    var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 123 });
     using var json = JsonDocument.Parse(game.SerializeState());
     Equal("Lord", json.RootElement.GetProperty("Players")[0].GetProperty("Role").GetString());
     Equal(8, json.RootElement.GetProperty("Players").GetArrayLength());
@@ -5446,13 +8639,13 @@ static bool IsDamageTriggerSkill(SkillKind skill) =>
         SkillKind.Feedback or
         SkillKind.Yiji or
         SkillKind.Jieming or
-        SkillKind.Yuanhu;
+        SkillKind.Yuanhu or
+        SkillKind.Ganglie;
 
 static void AssertCardInventory(GameEngine game)
 {
     var cards = game.CreateCardZoneDiagnostics();
-    Equal(78, cards.Count);
-    Equal(78, cards.Select(card => card.CardId).Distinct().Count());
+    Equal(cards.Count, cards.Select(card => card.CardId).Distinct().Count());
 
     var snapshot = game.CreateSnapshot(0, revealAll: true);
     Equal(snapshot.DrawPileCount, cards.Count(card => card.Location == CardLocation.DrawPile));
@@ -5470,6 +8663,42 @@ static void AssertCardInventory(GameEngine game)
         TrueWithMessage(
             handCards.SequenceEqual(snapshotCards),
             $"hand snapshot mismatch for seat {player.Seat}: zone=[{string.Join(',', handCards)}], snapshot=[{string.Join(',', snapshotCards)}]");
+
+        var equipmentCards = cards
+            .Where(card => card.Location == CardLocation.Equipment(player.Seat))
+            .OrderBy(card => card.CardId)
+            .ToArray();
+        var snapshotEquipment = player.Equipment
+            .OrderBy(card => card.Id)
+            .ToArray();
+        Equal(equipmentCards.Length, player.Equipment.Count);
+        TrueWithMessage(
+            equipmentCards.Select(card => card.CardId).SequenceEqual(snapshotEquipment.Select(card => card.Id)),
+            $"equipment snapshot mismatch for seat {player.Seat}: zone=[{string.Join(',', equipmentCards.Select(card => card.CardId))}], snapshot=[{string.Join(',', snapshotEquipment.Select(card => card.Id))}]");
+        TrueWithMessage(
+            equipmentCards.All(card => EquipmentCatalog.IsEquipment(card.CardKind)),
+            $"non-equipment card in equipment zone for seat {player.Seat}");
+        TrueWithMessage(
+            equipmentCards.Select(card => EquipmentCatalog.Get(card.CardKind).Slot).Distinct().Count() == equipmentCards.Length,
+            $"duplicate equipment slot for seat {player.Seat}");
+
+        var judgmentCards = cards
+            .Where(card => card.Location == CardLocation.Judgment(player.Seat))
+            .OrderBy(card => card.CardId)
+            .ToArray();
+        var snapshotJudgment = player.Judgment
+            .OrderBy(card => card.Id)
+            .ToArray();
+        Equal(judgmentCards.Length, snapshotJudgment.Length);
+        TrueWithMessage(
+            judgmentCards.Select(card => card.CardId).SequenceEqual(snapshotJudgment.Select(card => card.Id)),
+            $"judgment snapshot mismatch for seat {player.Seat}: zone=[{string.Join(',', judgmentCards.Select(card => card.CardId))}], snapshot=[{string.Join(',', snapshotJudgment.Select(card => card.Id))}]");
+        TrueWithMessage(
+            judgmentCards.All(card =>
+                card.CardKind is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning ||
+                game.ResolutionStack.OfType<JudgmentFrame>()
+                    .Any(frame => frame.CardId == card.CardId)),
+            $"unexpected card in judgment zone for seat {player.Seat}");
     }
 
     if (snapshot.Status == EngineStatus.Completed)
@@ -5484,19 +8713,65 @@ static EngineRunResult ResolveFirstHarvestChoice(GameEngine game)
         throw new InvalidOperationException("The test expected a human FiveGrains prompt.");
     var choice = prompt.Choices.FirstOrDefault() ??
         throw new InvalidOperationException("The test expected at least one FiveGrains choice.");
-    return prompt.Kind is DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard
-        ? game.HumanSelectFireAttackCard(choice.Cards.Single(), advanceToHumanBoundary: false)
-        : game.HumanSelectHarvestCard(choice.Cards.Single(), advanceToHumanBoundary: false);
+    return prompt.Kind switch
+    {
+        DecisionKind.SelectTargetCard => game.HumanSelectTargetCardSlot(
+            int.Parse(choice.Parameters["slot-index"], System.Globalization.CultureInfo.InvariantCulture),
+            advanceToHumanBoundary: false),
+        DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard => game.HumanSelectFireAttackCard(
+            choice.Cards.Single(),
+            advanceToHumanBoundary: false),
+        _ => game.HumanSelectHarvestCard(choice.Cards.Single(), advanceToHumanBoundary: false)
+    };
+}
+
+static EngineRunResult ResolveNullificationWindowForTest(
+    GameEngine game,
+    EngineRunResult? initial = null)
+{
+    var result = initial ?? new EngineRunResult(
+        game.State.Status,
+        game.State.Winner,
+        game.State,
+        game.PendingDecision,
+        game.Revision);
+    for (var step = 0;
+         step < 256 && game.ResolutionStack.Any(frame =>
+             frame is NullificationWindowFrame or TargetCardSelectionFrame);
+         step++)
+    {
+        result = game.PendingDecision?.Kind switch
+        {
+            DecisionKind.Nullification => game.HumanRespondNullification(
+                useNullification: false,
+                advanceToHumanBoundary: false),
+            DecisionKind.SelectTargetCard => game.HumanSelectTargetCardSlot(
+                int.Parse(
+                    game.PendingDecision.Choices.First().Parameters["slot-index"],
+                    System.Globalization.CultureInfo.InvariantCulture),
+                advanceToHumanBoundary: false),
+            _ => game.AdvanceOneStep()
+        };
+    }
+
+    if (game.ResolutionStack.Any(frame =>
+            frame is NullificationWindowFrame or TargetCardSelectionFrame))
+    {
+        throw new InvalidOperationException("The test Nullification window did not settle.");
+    }
+
+    return result;
 }
 
 static void AssertPublishedCardTotal(GameSnapshot snapshot)
 {
     Equal(
-        78,
+        90,
         snapshot.DrawPileCount +
         snapshot.DiscardPileCount +
         snapshot.ProcessingCardCount +
-        snapshot.Players.Sum(player => player.HandCount + player.Equipment.Count));
+        snapshot.Players.Sum(player =>
+            player.HandCount + player.Equipment.Count + player.Judgment.Count));
 }
 
 static void Equal<T>(T expected, T actual)
@@ -5512,6 +8787,14 @@ static void True(bool condition)
     if (!condition)
     {
         throw new InvalidOperationException("Expected condition to be true.");
+    }
+}
+
+static void FalseWithMessage(bool condition, string message)
+{
+    if (condition)
+    {
+        throw new InvalidOperationException(message);
     }
 }
 
@@ -5570,4 +8853,37 @@ sealed class SyntheticPackage : IGameContentPackage
     public PackageManifest Manifest { get; }
 
     public void Register(IContentRegistryBuilder builder) => _register(builder);
+}
+
+sealed class AnyScopeProbeSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.None;
+    public string Name => "范围测试";
+    public DamageTriggerScope AfterDamageTriggerScope => DamageTriggerScope.AnyLivingPlayer;
+}
+
+sealed class ModifiedStandardContentPackage : IGameContentPackage
+{
+    private readonly StandardContentPackage _inner = new();
+
+    public PackageManifest Manifest => _inner.Manifest;
+
+    public void Register(IContentRegistryBuilder builder) =>
+        _inner.Register(new ModifiedStandardContentBuilder(builder));
+}
+
+sealed class ModifiedStandardContentBuilder(IContentRegistryBuilder inner) : IContentRegistryBuilder
+{
+    public void AddCard(ContentCardDefinition definition) => inner.AddCard(
+        definition.Id == "standard:slash"
+            ? definition with { Description = $"{definition.Description}（同版本内容漂移）" }
+            : definition);
+
+    public void AddSkill(ContentSkillDefinition definition) => inner.AddSkill(definition);
+
+    public void AddGeneral(ContentGeneralDefinition definition) => inner.AddGeneral(definition);
+
+    public void AddDeck(ContentDeckRecipe definition) => inner.AddDeck(definition);
+
+    public void AddMode(ContentModeDefinition definition) => inner.AddMode(definition);
 }

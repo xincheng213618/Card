@@ -10,6 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\*.png" />
+    <Content Include="Assets\Audio\*.wav" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <ProjectReference Include="..\CardGame.Core\CardGame.Core.csproj" />
     <ProjectReference Include="..\CardGame.Content.Standard\CardGame.Content.Standard.csproj" />
   </ItemGroup>

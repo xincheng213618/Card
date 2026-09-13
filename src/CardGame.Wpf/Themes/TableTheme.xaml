@@ -1,0 +1,391 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:CardGame.Wpf.Controls">
+    <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    <SolidColorBrush x:Key="PaperBrush" Color="#EFE3C8" />
+    <SolidColorBrush x:Key="MutedPaperBrush" Color="#A8A99C" />
+    <SolidColorBrush x:Key="GoldBrush" Color="#D8B778" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#90C5AB" />
+    <SolidColorBrush x:Key="TableDeepBrush" Color="#10191C" />
+    <SolidColorBrush x:Key="LineBrush" Color="#455150" />
+    <LinearGradientBrush x:Key="CardPaper" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#FAF1D9" Offset="0" />
+        <GradientStop Color="#D9C9A7" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="PortraitShade" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0010181C" Offset="0.28" />
+        <GradientStop Color="#7010181C" Offset="0.55" />
+        <GradientStop Color="#FF10181C" Offset="1" />
+    </LinearGradientBrush>
+    <Style TargetType="Window">
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI" />
+        <Setter Property="Foreground" Value="{StaticResource PaperBrush}" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+    </Style>
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="#F51A262B" />
+        <Setter Property="Foreground" Value="{StaticResource PaperBrush}" />
+        <Setter Property="BorderBrush" Value="#86724E" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="MaxWidth" Value="350" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" TextWrapping="Wrap" LineHeight="22" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ToolbarButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource PaperBrush}" />
+        <Setter Property="Background" Value="#263437" />
+        <Setter Property="BorderBrush" Value="#59615A" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="18,9" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="4,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#E2C48B" />
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.86" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#F9DEA2" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.65" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.35" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+        <Setter Property="Foreground" Value="#251F15" />
+        <Setter Property="BorderBrush" Value="#F0D49A" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#E8CA8B" Offset="0" />
+                    <GradientStop Color="#B6975C" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="#B8B9A9" />
+    </Style>
+    <Style x:Key="BareButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <ContentPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PhaseLabel" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#6E7E7E" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Margin" Value="11,0" />
+    </Style>
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource MutedPaperBrush}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="#C6C8BC" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Padding" Value="5,8" />
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" TextWrapping="Wrap" LineHeight="21" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="TabControl">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style TargetType="TabItem">
+        <Setter Property="Foreground" Value="{StaticResource MutedPaperBrush}" />
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border x:Name="TabBorder" BorderThickness="0,0,0,2" BorderBrush="Transparent" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter ContentSource="Header" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <DataTemplate x:Key="NationalGeneralSlotTemplate">
+        <Grid ClipToBounds="True" ToolTip="{Binding DetailText}" ToolTipService.InitialShowDelay="300">
+            <Rectangle Fill="{Binding PortraitBrush}" />
+            <TextBlock x:Name="HiddenSlotGlyph" Text="暗" Foreground="#817556" FontSize="26" FontFamily="KaiTi" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,45" />
+            <Rectangle Fill="{StaticResource PortraitShade}" />
+            <StackPanel VerticalAlignment="Bottom" Margin="3,0,3,52" Background="#BD102022">
+                <TextBlock x:Name="SlotGeneralName" Text="{Binding Name}" Foreground="#FFE9BD" FontFamily="KaiTi" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="SlotRevealState" Text="{Binding SlotState}" Foreground="{Binding StateBrush}" FontSize="9" HorizontalAlignment="Center" Margin="0,1,0,1" />
+            </StackPanel>
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding HasPortrait}" Value="True">
+                <Setter TargetName="HiddenSlotGlyph" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+    <DataTemplate x:Key="SeatTemplate">
+        <Button Style="{StaticResource BareButton}" Width="146" Height="194" Command="{Binding DataContext.SelectTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}" ToolTip="{Binding SkillText}" ToolTipService.InitialShowDelay="450" controls:BattleFeedbackLayer.SeatAnchor="{Binding Seat}">
+            <Border x:Name="SeatFrame" Background="#152125" BorderBrush="#7C7056" BorderThickness="1" CornerRadius="4" Padding="3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="24" />
+                    </Grid.RowDefinitions>
+                    <Grid ClipToBounds="True">
+                        <Rectangle x:Name="SinglePortrait" Fill="{Binding PortraitBrush}" />
+                        <TextBlock x:Name="UnknownGeneral" Text="候&#xA;将" TextAlignment="Center" FontSize="34" FontFamily="KaiTi" Foreground="#817556" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Rectangle Fill="{StaticResource PortraitShade}" />
+                        <Grid x:Name="DualPortraits" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="2" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                            <ContentControl x:Name="PrimaryGeneralPortrait" Content="{Binding PrimaryGeneral}" ContentTemplate="{StaticResource NationalGeneralSlotTemplate}" />
+                            <Border Grid.Column="1" Background="#94805C" Opacity="0.65" />
+                            <ContentControl x:Name="SecondaryGeneralPortrait" Grid.Column="2" Content="{Binding SecondaryGeneral}" ContentTemplate="{StaticResource NationalGeneralSlotTemplate}" />
+                        </Grid>
+                        <Border Background="{Binding KingdomBrush}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="6,3">
+                            <TextBlock Text="{Binding Kingdom}" Foreground="#FFF2D9" FontSize="11" />
+                        </Border>
+                        <Border Background="{Binding RoleBrush}" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="6,3">
+                            <TextBlock Text="{Binding RoleBadgeText}" Foreground="#FFF4E0" FontSize="10" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Bottom" Margin="7,0,7,5">
+                            <Grid x:Name="SingleGeneralTitle">
+                                <TextBlock Text="{Binding GeneralName}" Foreground="#FFEDD0" FontFamily="KaiTi" FontSize="23" FontWeight="Bold" />
+                                <Border Background="#AC0E171B" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="4,2">
+                                    <TextBlock Text="{Binding HandCount, StringFormat=牌 {0}}" Foreground="#EBDCC2" FontSize="10" />
+                                </Border>
+                            </Grid>
+                            <TextBlock x:Name="NationalHandCount" Text="{Binding HandCount, StringFormat=手牌 {0}}" Visibility="Collapsed" HorizontalAlignment="Right" Foreground="#EBDCC2" FontSize="9" />
+                            <Grid Margin="0,2,0,3">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding HealthPips}" Foreground="#9BBB84" FontSize="13" />
+                                    <TextBlock Text="{Binding EmptyHealthPips}" Foreground="#58635B" FontSize="13" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding HealthValue}" Foreground="#A6B89D" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid>
+                                <TextBlock Text="{Binding SkillName}" Foreground="#D4B979" FontSize="10" MaxWidth="78" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding DistanceText}" Foreground="#B4B6A9" FontSize="9" HorizontalAlignment="Right" />
+                            </Grid>
+                        </StackPanel>
+                        <Border x:Name="TargetBadge" Visibility="Collapsed" Background="#DD315E4D" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,31,0,0" Padding="7,3">
+                            <TextBlock x:Name="TargetBadgeText" Text="可选目标" Foreground="#E5F2CE" FontSize="10" />
+                        </Border>
+                        <Border Visibility="{Binding HasDecisionRole, Converter={StaticResource BoolToVisibility}}" Background="#DD60482C" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,31,0,0" Padding="5,3" IsHitTestVisible="False">
+                            <TextBlock Text="{Binding DecisionRoleLabel}" Foreground="#FFE4AB" FontSize="10" />
+                        </Border>
+                        <Border Visibility="{Binding IsChained, Converter={StaticResource BoolToVisibility}}" Background="#CC484056" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,32,0,0" Padding="4,2">
+                            <TextBlock Text="连环" FontSize="10" Foreground="#E4D6F2" />
+                        </Border>
+                        <Border Visibility="{Binding HasJudgment, Converter={StaticResource BoolToVisibility}}" Background="#D6593B41" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,55,0,0" Padding="4,2" ToolTip="{Binding JudgmentText}">
+                            <TextBlock Text="{Binding ShortJudgment}" FontSize="9" Foreground="#F4DADA" MaxWidth="125" TextTrimming="CharacterEllipsis" />
+                        </Border>
+                        <Border x:Name="DeathShade" Visibility="Collapsed" Background="#BC0D1418">
+                            <TextBlock Text="阵 亡" FontSize="26" FontFamily="KaiTi" Foreground="#D5C4A1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <Border Grid.Row="1" Background="#182327" Padding="4,0" ToolTip="{Binding EquipmentText}">
+                        <TextBlock Text="{Binding ShortEquipment}" VerticalAlignment="Center" Foreground="#A4A897" FontSize="9" TextTrimming="CharacterEllipsis" />
+                    </Border>
+                    <Border x:Name="TurnLine" Visibility="Collapsed" Grid.RowSpan="2" BorderBrush="#E6C386" BorderThickness="0,0,0,3" IsHitTestVisible="False" />
+                </Grid>
+            </Border>
+        </Button>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsNationalSeat}" Value="True">
+                <Setter TargetName="SinglePortrait" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="UnknownGeneral" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="SingleGeneralTitle" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="DualPortraits" Property="Visibility" Value="Visible" />
+                <Setter TargetName="NationalHandCount" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding HasPortrait}" Value="True">
+                <Setter TargetName="UnknownGeneral" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                <Setter TargetName="SeatFrame" Property="BorderBrush" Value="#F2D297" />
+                <Setter TargetName="TurnLine" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsLegalTarget}" Value="True">
+                <Setter TargetName="SeatFrame" Property="BorderBrush" Value="#9ADABC" />
+                <Setter TargetName="SeatFrame" Property="BorderThickness" Value="2" />
+                <Setter TargetName="TargetBadge" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsSelectedTarget}" Value="True">
+                <Setter TargetName="SeatFrame" Property="BorderBrush" Value="#FFE19C" />
+                <Setter TargetName="SeatFrame" Property="BorderThickness" Value="3" />
+                <Setter TargetName="TargetBadge" Property="Visibility" Value="Visible" />
+                <Setter TargetName="TargetBadge" Property="Background" Value="#E8BC8950" />
+                <Setter TargetName="TargetBadgeText" Property="Text" Value="✓ 已选定" />
+                <Setter TargetName="TargetBadgeText" Property="Foreground" Value="#231C10" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsAlive}" Value="False">
+                <Setter TargetName="DeathShade" Property="Visibility" Value="Visible" />
+                <Setter TargetName="SeatFrame" Property="Opacity" Value="0.55" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+    <DataTemplate x:Key="CardTemplate">
+        <Button x:Name="CardButton" Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsPlayable}" VerticalAlignment="Bottom" Margin="0,18,0,0" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" ToolTipService.InitialShowDelay="250" AutomationProperties.Name="{Binding CardHint}">
+            <Border x:Name="CardBorder" Width="110" Height="160" Background="{StaticResource CardPaper}" CornerRadius="5" BorderBrush="#B29A6A" BorderThickness="1" Padding="5">
+                <Border BorderBrush="#6A917B57" BorderThickness="1" CornerRadius="2" Padding="5">
+                    <Grid>
+                        <TextBlock Text="{Binding SuitGlyph}" FontFamily="Segoe UI Symbol" FontSize="70" Foreground="{Binding AccentBrush}" Opacity="0.07" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <StackPanel HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding Rank}" FontFamily="Georgia" FontWeight="Bold" FontSize="17" Foreground="{Binding SuitBrush}" />
+                            <TextBlock Text="{Binding SuitGlyph}" FontFamily="Segoe UI Symbol" FontSize="17" Foreground="{Binding SuitBrush}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding VerticalName}" Foreground="{Binding AccentBrush}" FontFamily="KaiTi" FontWeight="Bold" FontSize="{Binding NameFontSize}" LineStackingStrategy="BlockLineHeight" LineHeight="{Binding NameLineHeight}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,4,0,8" />
+                        <TextBlock Text="{Binding KindLabel}" Foreground="#7A6549" FontSize="9" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
+                        <Border x:Name="SelectedCheck" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top" Background="#9B783B" CornerRadius="8" Width="17" Height="17">
+                            <TextBlock Text="✓" Foreground="#FFF3D2" HorizontalAlignment="Center" FontSize="11" />
+                        </Border>
+                    </Grid>
+                </Border>
+            </Border>
+        </Button>
+        <DataTemplate.Triggers>
+            <Trigger SourceName="CardButton" Property="IsMouseOver" Value="True">
+                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#F4D390" />
+                <Setter TargetName="CardBorder" Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform Y="-7" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger SourceName="CardButton" Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#FFF1B2" />
+            </Trigger>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#FFE0A0" />
+                <Setter TargetName="CardBorder" Property="BorderThickness" Value="3" />
+                <Setter TargetName="SelectedCheck" Property="Visibility" Value="Visible" />
+                <Setter TargetName="CardBorder" Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform Y="-17" />
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsPlayable}" Value="False">
+                <Setter TargetName="CardBorder" Property="Opacity" Value="0.55" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+    <DataTemplate x:Key="RevealedCardTemplate">
+        <Button Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding CardHint}">
+            <Border Width="78" Height="109" Background="{StaticResource CardPaper}" BorderBrush="#BAA375" BorderThickness="1" CornerRadius="4" Margin="4" Padding="7" ToolTip="{Binding CardHint}">
+                <Grid>
+                    <TextBlock Foreground="{Binding SuitBrush}" FontSize="12">
+                        <Run Text="{Binding SuitGlyph}" />
+                        <Run Text="{Binding Rank}" />
+                    </TextBlock>
+                    <TextBlock Text="{Binding Name}" Foreground="{Binding AccentBrush}" FontFamily="KaiTi" FontSize="21" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding PublicCardLabel}" FontSize="9" Foreground="#816E52" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Button>
+    </DataTemplate>
+    <DataTemplate x:Key="TablePlayTemplate">
+        <StackPanel Margin="7,0">
+            <Border controls:BattleFeedbackLayer.PlayAnchor="{Binding Sequence}" Width="112" Height="54" CornerRadius="3" Background="#C8C0AC91" BorderBrush="#7D765F" BorderThickness="1" Padding="5">
+                <Border BorderBrush="#65736751" BorderThickness="1">
+                    <TextBlock Text="{Binding Name}" FontFamily="KaiTi" Foreground="#3F3830" FontSize="20" TextAlignment="Center" VerticalAlignment="Center" Margin="4,0" />
+                </Border>
+            </Border>
+            <TextBlock Text="{Binding ActorName}" Foreground="#AEB0A1" FontSize="10" TextAlignment="Center" Margin="0,5,0,0" />
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="GeneralChoiceTemplate">
+        <Button Style="{StaticResource BareButton}" Width="206" Margin="10,0" Command="{Binding DataContext.SelectGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Text}">
+            <Border x:Name="GeneralFrame" BorderBrush="#89734F" BorderThickness="1" Padding="4" Background="#182328">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="222" />
+                        <RowDefinition Height="118" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Rectangle Fill="{Binding PortraitBrush}" />
+                        <Rectangle Fill="{StaticResource PortraitShade}" />
+                        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="#C43C4541" Padding="9,5">
+                            <TextBlock Text="{Binding Kingdom}" FontSize="13" Foreground="#F2E4C3" />
+                        </Border>
+                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#D0223734" Padding="7,6"
+                                Visibility="{Binding HasHealthPreview, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding HealthDescription}">
+                            <TextBlock x:Name="GeneralHealthPreview" Text="{Binding HealthText}" FontSize="12" Foreground="#DCE8C3" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Bottom" Margin="13">
+                            <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontWeight="Bold" Foreground="#FFE8BC" FontSize="32" />
+                            <TextBlock Text="{Binding SkillName}" Foreground="#D6B77B" FontSize="12" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="10,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="27" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding SkillDescription}" Foreground="#B8BBAE" FontSize="11" LineHeight="18" TextWrapping="Wrap" />
+                        <Border Grid.Row="1" Background="#806443" BorderBrush="#AD8C57" BorderThickness="1">
+                            <TextBlock Text="选 择 此 将" Foreground="#FBE5B8" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Button>
+        <DataTemplate.Triggers>
+            <Trigger SourceName="GeneralFrame" Property="IsMouseOver" Value="True">
+                <Setter TargetName="GeneralFrame" Property="BorderBrush" Value="#FFE0A2" />
+                <Setter TargetName="GeneralFrame" Property="Background" Value="#283738" />
+            </Trigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+    <ItemsPanelTemplate x:Key="ChoicePanel">
+        <WrapPanel HorizontalAlignment="Center" />
+    </ItemsPanelTemplate>
+</ResourceDictionary>

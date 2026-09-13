@@ -8,7 +8,28 @@ public enum Role
     Lord,
     Loyalist,
     Rebel,
-    Renegade
+    Renegade,
+    // Compatibility values used by the public-team adapter. They are not
+    // identity roles and are never included in an identity RoleCounts map.
+    TeamA,
+    TeamB
+}
+
+public enum ContentModeKind
+{
+    Identity,
+    Team,
+    /// <summary>
+    /// A bounded national-war adapter: each seat owns two generals from one
+    /// hidden faction, and the faction/general reveal is an explicit action.
+    /// </summary>
+    NationalWarLite
+}
+
+public enum GeneralSelectionSlot
+{
+    Primary,
+    Secondary
 }
 
 public enum CardKind
@@ -30,9 +51,16 @@ public enum CardKind
     FireAttack,
     Crossbow,
     BaguaFormation,
+    RenwangShield,
     OffensiveHorse,
     DefensiveHorse,
-    JadeSeal
+    JadeSeal,
+    QinggangSword,
+    Nullification,
+    IronChain,
+    Indulgence,
+    SupplyShortage,
+    Lightning
 }
 
 public enum Suit
@@ -48,6 +76,33 @@ public enum DamageNature
     Normal,
     Fire,
     Thunder
+}
+
+public enum PublicAttackKind
+{
+    Slash,
+    Duel,
+    GroupAttack,
+    FireAttack
+}
+
+/// <summary>
+/// The complete public input an AI may receive for an identity-mode attack.
+/// Hidden roles, hands, deck order and resolution state are intentionally not
+/// representable by this contract.
+/// </summary>
+public sealed record PublicAttackEvidence(
+    PublicAttackKind Kind,
+    int SourceSeat,
+    int TargetSeat,
+    int LordSeat,
+    Role? RevealedTargetRole);
+
+public enum DamageTriggerScope
+{
+    DamagedPlayer,
+    OtherLivingPlayer,
+    AnyLivingPlayer
 }
 
 public enum TurnPhase
@@ -71,7 +126,17 @@ public enum SkillKind
     Longdan,
     Yiji,
     Jieming,
-    Yuanhu
+    Yuanhu,
+    Ganglie,
+    Guicai,
+    Kujin,
+    Zhiheng,
+    Rende,
+    Qingnang,
+    Huichun,
+    Mashu,
+    Qicai,
+    Jijiu
 }
 
 public enum DecisionKind
@@ -87,7 +152,19 @@ public enum DecisionKind
     Feedback,
     Yiji,
     Jieming,
-    Yuanhu
+    Yuanhu,
+    Nullification,
+    Ganglie,
+    GangliePunish,
+    Guicai,
+    DiscardCards,
+    SelectTargetCard
+}
+
+public enum GangliePunishmentKind
+{
+    DiscardTwo,
+    LoseHp
 }
 
 public enum EngineStatus
@@ -99,7 +176,8 @@ public enum EngineStatus
     AwaitingHumanResponse,
     AwaitingHumanDying,
     AwaitingHumanCardSelection,
-    Completed
+    Completed,
+    AwaitingHumanDiscard
 }
 
 public enum Winner
@@ -108,7 +186,12 @@ public enum Winner
     LordAndLoyalists,
     Rebels,
     Renegade,
-    Draw
+    Draw,
+    TeamA,
+    TeamB,
+    NationalFactionA,
+    NationalFactionB,
+    NationalFactionC
 }
 
 public enum LegalActionKind
@@ -138,7 +221,22 @@ public enum LegalActionKind
     SkipJieming,
     Yuanhu,
     SkipYuanhu,
-    Equip
+    Equip,
+    Nullification,
+    SkipNullification,
+    IronChain,
+    Indulgence,
+    SupplyShortage,
+    Lightning,
+    Ganglie,
+    SkipGanglie,
+    GanglieDiscardTwo,
+    GanglieLoseHp,
+    Guicai,
+    SkipGuicai,
+    UseSkill,
+    RevealGeneral,
+    Recast
 }
 
 public sealed record GameOptions
@@ -167,11 +265,34 @@ public sealed record GameOptions
     public string? DeckId { get; init; }
 
     /// <summary>
+    /// Optional public team override for a team mode. Identity modes ignore this
+    /// value; a null value lets the mode assign a deterministic random team.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? HumanTeamId { get; init; }
+
+    /// <summary>
     /// Runs the deterministic seat/identity/general-selection/deal pipeline.
     /// False retains the original constructor-assigned demo as a compatibility
     /// adapter while hosts migrate to the prompt-based setup flow.
     /// </summary>
     public bool UseInteractiveSetup { get; init; }
+
+    /// <summary>Human players choose their hand-limit discards. Disable for unattended demos.</summary>
+    public bool UseInteractiveDiscard { get; init; } = true;
+
+    /// <summary>
+    /// Continue selection, play and response commands to the next human boundary.
+    /// A paced host sets this to false and submits AdvanceOneStepCommand between
+    /// decisions. The checkpoint stores this policy so replay uses identical boundaries.
+    /// </summary>
+    public bool AdvanceAfterHumanCommands { get; init; } = true;
+
+    /// <summary>
+    /// Recorded decision policy. Missing values in older checkpoints retain v1;
+    /// hosts opt new games into v3. Never change a policy already used by a save.
+    /// </summary>
+    public int AiPolicyVersion { get; init; } = 1;
 
     public int MaxTurns { get; init; } = 400;
 }
@@ -196,7 +317,9 @@ public sealed record GeneralDefinition(
     string PortraitKey,
     SkillKind Skill,
     string SkillName,
-    string SkillDescription);
+    string SkillDescription,
+    string? FactionId = null,
+    int BaseHp = 4);
 
 public static class GeneralCatalog
 {
@@ -218,7 +341,8 @@ public static class GeneralCatalog
         new("sun-quan", "孙权", "sun_quan", SkillKind.None, "无", "演示版暂未启用技能。"),
         new("hua-tuo", "华佗", "hua_tuo", SkillKind.Feedback, "反馈", "受到伤害且伤害牌仍在处理区时，可选择发动并获得造成伤害的牌。"),
         new("xun-yu", "荀彧", "xun_yu", SkillKind.Jieming, "节命", "受到伤害后，可令一名手牌数少于体力上限的角色摸牌至上限。"),
-        new("demo-yuanhu", "援护者", "supporter", SkillKind.Yuanhu, "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。")
+        new("demo-yuanhu", "援护者", "supporter", SkillKind.Yuanhu, "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。"),
+        new("demo-ganglie", "刚烈者", "ganglie", SkillKind.Ganglie, "刚烈", "受到伤害后可进行判定；若为红色，伤害来源选择弃置两张手牌或受到 1 点伤害。")
     ];
 }
 
@@ -253,10 +377,63 @@ public sealed partial record PlayerSnapshot(
 public sealed partial record PlayerSnapshot
 {
     /// <summary>
+    /// Public team membership for team modes. Identity modes keep this null, and
+    /// hidden-information modes never use it to expose an identity.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TeamId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsTeamRevealed { get; init; }
+
+    /// <summary>
     /// Equipment is public state. It is kept outside the positional constructor
     /// so older hosts can continue constructing snapshots unchanged.
     /// </summary>
     public IReadOnlyList<CardSnapshot> Equipment { get; init; } = Array.Empty<CardSnapshot>();
+
+    /// <summary>Public elemental-link state. Hidden cards and identities remain filtered separately.</summary>
+    public bool IsChained { get; init; }
+
+    /// <summary>
+    /// Delayed cards are public while they wait in a player's judgment zone.
+    /// The property is outside the positional constructor for compatibility
+    /// with older hosts that construct snapshots directly.
+    /// </summary>
+    public IReadOnlyList<CardSnapshot> Judgment { get; init; } = Array.Empty<CardSnapshot>();
+
+    /// <summary>
+    /// Private/public national-war faction metadata. A viewer may receive its
+    /// own hidden faction id before it is publicly revealed; other viewers get
+    /// null until the reveal event is committed.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? FactionId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsFactionRevealed { get; init; }
+
+    /// <summary>Second general data for the national-war lite dual-general slice.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SecondaryGeneralId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SecondaryGeneralName { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SecondaryPortraitKey { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillKind? SecondarySkill { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SecondarySkillName { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SecondarySkillDescription { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsSecondaryGeneralPublic { get; init; }
 }
 
 public sealed partial record PendingDecision(
@@ -275,6 +452,12 @@ public sealed partial record PendingDecision
 
     /// <summary>Engine revision at which this prompt was published.</summary>
     public long Revision { get; init; }
+
+    /// <summary>
+    /// For DiscardCards, choose exactly this many distinct cards from ValidCardIds.
+    /// Submit DiscardCardsCommand; Choices is empty to avoid enumerating every subset.
+    /// </summary>
+    public int RequiredCardCount { get; init; }
 
     /// <summary>
     /// Complete choices for K2 callers. The old card/target collections remain
@@ -297,14 +480,102 @@ public sealed partial record PendingDecision
     /// Slash/Dodge slice.
     /// </summary>
     public CardKind? RequiredCardKind { get; init; }
+
+    /// <summary>
+    /// Optional card/target selection contract for a PlayCard prompt whose
+    /// active-skill choice is not a finite card/target combination list.
+    /// These values are copied only into the requesting player's snapshot.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillKind? ActiveSkillKind { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? ActiveSkillValidCardIds { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? ActiveSkillValidTargetSeats { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ActiveSkillMinCardCount { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ActiveSkillMaxCardCount { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ActiveSkillMinTargetCount { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ActiveSkillMaxTargetCount { get; init; }
 }
 
-public sealed record LegalAction(
-    LegalActionKind Kind,
-    int? CardId,
-    int? TargetSeat,
-    string Description,
-    CardKind? PlayedCardKind = null);
+public sealed record LegalAction
+{
+    public LegalAction(
+        LegalActionKind Kind,
+        int? CardId,
+        int? TargetSeat,
+        string Description,
+        CardKind? PlayedCardKind = null,
+        int? TargetCardId = null,
+        IReadOnlyList<int>? TargetSeats = null,
+        SkillKind? Skill = null,
+        int MinCardCount = 0,
+        int MaxCardCount = 0,
+        int MinTargetCount = 0,
+        int MaxTargetCount = 0)
+    {
+        this.Kind = Kind;
+        this.CardId = CardId;
+        this.TargetSeat = TargetSeat;
+        this.Description = Description;
+        this.PlayedCardKind = PlayedCardKind;
+        this.TargetCardId = TargetCardId;
+        this.Skill = Skill;
+        this.MinCardCount = MinCardCount;
+        this.MaxCardCount = MaxCardCount;
+        this.MinTargetCount = MinTargetCount;
+        this.MaxTargetCount = MaxTargetCount;
+        this.TargetSeats = TargetSeats is { } explicitTargets
+            ? Array.AsReadOnly(explicitTargets.ToArray())
+            : TargetSeat is { } singleTarget
+                ? [singleTarget]
+                : [];
+    }
+
+    public LegalActionKind Kind { get; init; }
+    public int? CardId { get; init; }
+    public int? TargetSeat { get; init; }
+    public string Description { get; init; }
+    public CardKind? PlayedCardKind { get; init; }
+    public int? TargetCardId { get; init; }
+
+    /// <summary>Identifies the active skill for a cardless skill action.</summary>
+    public SkillKind? Skill { get; init; }
+
+    /// <summary>
+    /// Selection bounds for a cardless active-skill action. The prompt carries
+    /// the corresponding private candidate ids; legal action data carries the
+    /// stable rule contract without enumerating every subset.
+    /// </summary>
+    public int MinCardCount { get; init; }
+
+    public int MaxCardCount { get; init; }
+
+    public int MinTargetCount { get; init; }
+
+    public int MaxTargetCount { get; init; }
+
+    /// <summary>
+    /// The complete ordered target selection. Single-target legacy actions are
+    /// projected from TargetSeat; multi-target actions publish their exact
+    /// combination here so callers never have to reconstruct legal pairs.
+    /// </summary>
+    public IReadOnlyList<int> TargetSeats { get; init; }
+
+    /// <summary>Identifies the general slot for a national-war reveal action.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GeneralSelectionSlot? GeneralSlot { get; init; }
+}
 
 public sealed record GameSnapshot(
     int? Seed,
@@ -321,11 +592,22 @@ public sealed record GameSnapshot(
     int ProcessingCardCount = 0,
     long Revision = 0)
 {
+    /// <summary>Public winning team id for team modes; null for identity results.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? WinnerTeamId { get; init; }
+
     /// <summary>
     /// Cards intentionally revealed by a public effect, such as FiveGrains.
     /// This is separate from private hands and is empty outside that effect.
     /// </summary>
     public IReadOnlyList<CardSnapshot> PublicRevealedCards { get; init; } = Array.Empty<CardSnapshot>();
+
+    /// <summary>Mode metadata used by view-scoped AI and presentation adapters.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public ContentModeKind ModeKind { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? WinnerFactionId { get; init; }
 }
 
 public sealed record EngineRunResult(
@@ -333,7 +615,14 @@ public sealed record EngineRunResult(
     Winner Winner,
     GameSnapshot State,
     PendingDecision? PendingDecision,
-    long Revision = 0);
+    long Revision = 0)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? WinnerTeamId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? WinnerFactionId { get; init; }
+}
 
 public sealed record GameLogEntry(
     int Sequence,
@@ -388,6 +677,10 @@ public sealed record AiGeneralThought(
     string Summary);
 
 public sealed record PlayerLifeState(Role Role, bool IsAlive);
+
+public sealed record TeamLifeState(string TeamId, bool IsAlive);
+
+public sealed record FactionLifeState(string FactionId, bool IsAlive);
 
 public static class SnapshotJson
 {
