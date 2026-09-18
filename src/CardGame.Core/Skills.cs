@@ -113,6 +113,13 @@ public interface IPassiveSkill
     /// </summary>
     bool CanReplaceDrawPhase(PlayerSkillContext owner) => false;
 
+    /// <summary>
+    /// Returns whether the owner may draw one fewer card to enable a
+    /// turn-scoped skill effect. The engine owns the optional prompt, draw
+    /// count and later damage attribution.
+    /// </summary>
+    bool CanReduceDrawPhase(PlayerSkillContext owner) => false;
+
     bool CanUseAsResponse(
         PlayerSkillContext owner,
         Card card,
@@ -267,6 +274,15 @@ public sealed class TuxiSkill : IPassiveSkill
     public string Name => "突袭";
 
     public bool CanReplaceDrawPhase(PlayerSkillContext owner) =>
+        owner.IsOwnTurn && owner.Phase == TurnPhase.Draw;
+}
+
+public sealed class LuoyiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Luoyi;
+    public string Name => "裸衣";
+
+    public bool CanReduceDrawPhase(PlayerSkillContext owner) =>
         owner.IsOwnTurn && owner.Phase == TurnPhase.Draw;
 }
 
@@ -695,7 +711,8 @@ public static class SkillRegistry
             [SkillKind.Jiuyuan] = new JiuyuanSkill(),
             [SkillKind.Qixi] = new QixiSkill(),
             [SkillKind.Keji] = new KejiSkill(),
-            [SkillKind.Tuxi] = new TuxiSkill()
+            [SkillKind.Tuxi] = new TuxiSkill(),
+            [SkillKind.Luoyi] = new LuoyiSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

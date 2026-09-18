@@ -610,7 +610,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Fanjian or
                     DecisionKind.Guanxing or
                     DecisionKind.Keji or
-                    DecisionKind.Tuxi
+                    DecisionKind.Tuxi or
+                    DecisionKind.Luoyi
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -631,7 +632,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Fanjian or
             DecisionKind.Guanxing or
             DecisionKind.Keji or
-            DecisionKind.Tuxi;
+            DecisionKind.Tuxi or
+            DecisionKind.Luoyi;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1693,6 +1695,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      Phase(Draw)");
                 EventStack.Add("        AskForSkill(Tuxi)");
             }
+            else if (pending.Kind == DecisionKind.Luoyi)
+            {
+                EventStack.Add("      Phase(Draw)");
+                EventStack.Add("        AskForSkill(Luoyi)");
+            }
             else if (pending.Kind is
                 DecisionKind.Feedback or
                 DecisionKind.Yiji or
@@ -1928,7 +1935,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             "classic:liu-bei" or "classic:zhuge-liang" => "蜀",
             "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" or "classic:gan-ning" or "classic:lu-meng" => "吴",
-            "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" or "classic:zhang-liao" => "魏",
+            "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" or "classic:zhang-liao" or "classic:xu-chu" => "魏",
             _ => "群"
         },
         _ when generalId.StartsWith("national:wei-", StringComparison.Ordinal) => "魏",

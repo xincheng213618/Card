@@ -450,6 +450,16 @@ public sealed record CardRespondedEvent(
     int SourceSeat,
     CardKind? EffectiveCardKind = null) : IGameEvent;
 
+/// <summary>Public audit record for a skill that changes one damage amount.</summary>
+public sealed record DamageModifiedBySkillEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    SkillKind Skill,
+    CardKind SourceCard,
+    int BaseAmount,
+    int ModifiedAmount) : IGameEvent;
+
 public sealed record DamageAppliedEvent(
     int SourceSeat,
     int TargetSeat,

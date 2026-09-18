@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 10, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 11, 0))
     {
     }
 
@@ -29,12 +29,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 7, 0) &&
             version != new Version(1, 8, 0) &&
             version != new Version(1, 9, 0) &&
-            version != new Version(1, 10, 0))
+            version != new Version(1, 10, 0) &&
+            version != new Version(1, 11, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.10.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.11.0.");
         }
 
         _version = version;
@@ -126,6 +127,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "突袭",
                 "摸牌阶段，你可以改为获得至多两名其他角色的各一张手牌。",
                 SkillKind.Tuxi));
+        }
+        if (_version >= new Version(1, 11, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:luoyi",
+                "裸衣",
+                "摸牌阶段，你可以少摸一张牌，若如此做，每当你于此回合内使用【杀】或【决斗】对目标角色造成伤害时，此伤害+1。",
+                SkillKind.Luoyi));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -255,6 +264,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wei",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 11, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:xu-chu",
+                "许褚",
+                "xu_chu",
+                "classic:luoyi",
+                "wei",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -268,6 +287,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 7 } => PreGanNingClassicGeneralIds,
             { Major: 1, Minor: 8 } => PreLuMengClassicGeneralIds,
             { Major: 1, Minor: 9 } => PreZhangLiaoClassicGeneralIds,
+            { Major: 1, Minor: 10 } => PreXuChuClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -312,6 +332,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:hua-tuo",
         "classic:cao-cao",
         "classic:zhang-liao",
+        "classic:xu-chu",
         "classic:huang-gai",
         "classic:gan-ning",
         "classic:lu-meng",
@@ -323,9 +344,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreXuChuClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:xu-chu")
+    ];
+
     internal static IReadOnlyList<string> PreZhangLiaoClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:zhang-liao")
+        .. PreXuChuClassicGeneralIds.Where(id => id != "classic:zhang-liao")
     ];
 
     internal static IReadOnlyList<string> PreLuMengClassicGeneralIds { get; } =

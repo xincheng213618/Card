@@ -40,6 +40,7 @@ public sealed partial class GameEngine
     private int _currentSeat;
     private int _slashCountThisTurn;
     private bool _usedOrPlayedSlashDuringPlayPhase;
+    private bool _luoyiActiveThisTurn;
     private int _logSequence;
     private int _thoughtSequence;
     private int _movementSequence;
@@ -68,6 +69,7 @@ public sealed partial class GameEngine
     private JudgmentResolution? _pendingJudgment;
     private YingziDrawResolution? _pendingYingziDraw;
     private TuxiDrawResolution? _pendingTuxiDraw;
+    private LuoyiDrawResolution? _pendingLuoyiDraw;
     private GuanxingResolution? _pendingGuanxing;
     private HujiaResolution? _pendingHujia;
     private JijiangResolution? _pendingJijiang;
@@ -207,6 +209,12 @@ public sealed partial class GameEngine
 
     private bool UsesFormalTuxi =>
         _rulesVersion >= 30 && IsClassicIdentityMode;
+
+    private bool UsesFormalLuoyi =>
+        _rulesVersion >= 31 && IsClassicIdentityMode;
+
+    private bool UsesCorrectDuelDamageAttribution =>
+        _rulesVersion >= 31;
 
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
@@ -739,6 +747,7 @@ public sealed partial class GameEngine
                 DecisionKind.Guanxing or
                 DecisionKind.Keji or
                 DecisionKind.Tuxi or
+                DecisionKind.Luoyi or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -829,6 +838,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Tuxi)
         {
             return SubmitTuxiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Luoyi)
+        {
+            return SubmitLuoyiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1225,6 +1239,33 @@ public sealed partial class GameEngine
                     [],
                     advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "突袭目标必须是一至两名有手牌的其他角色。")
+        };
+    }
+
+    private CommandResult SubmitLuoyiPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingLuoyiDraw is null ||
+            _pendingDecision is not { Kind: DecisionKind.Luoyi })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的裸衣摸牌阶段窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "裸衣选择不符合当前摸牌阶段窗口。");
+        }
+
+        return action switch
+        {
+            "luoyi-use" => Accept(() => HumanLuoyiCore(
+                useSkill: true,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "luoyi-skip" => Accept(() => HumanLuoyiCore(
+                useSkill: false,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "裸衣提示没有可识别的选择效果。")
         };
     }
 
@@ -1773,6 +1814,9 @@ public sealed partial class GameEngine
         var tuxiRules = UsesFormalTuxi && _players.Any(player => player.General.HasSkill(SkillKind.Tuxi))
             ? "，张辽可在摸牌阶段改为获得至多两名其他角色各一张手牌"
             : string.Empty;
+        var luoyiRules = UsesFormalLuoyi && _players.Any(player => player.General.HasSkill(SkillKind.Luoyi))
+            ? "，许褚可在摸牌阶段少摸一张牌，使本回合由自己使用的杀或决斗伤害 +1"
+            : string.Empty;
         var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
             ? UsesFormalZhihengEquipment
                 ? "，孙权每个出牌阶段限一次弃置任意张手牌或装备区牌并摸等量牌"
@@ -1832,7 +1876,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{luoyiRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -1898,6 +1942,7 @@ public sealed partial class GameEngine
                     IsAiJudgmentPending() ||
                     IsAiYingziPending() ||
                     IsAiTuxiPending() ||
+                    IsAiLuoyiPending() ||
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
@@ -2639,6 +2684,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Tuxi);
         ResolveTuxiDrawChoice(targetSeats);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanLuoyiCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Luoyi);
+        ResolveLuoyiDrawChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -4011,6 +4064,7 @@ public sealed partial class GameEngine
         _turnNumber++;
         _slashCountThisTurn = 0;
         _usedOrPlayedSlashDuringPlayPhase = false;
+        _luoyiActiveThisTurn = false;
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
@@ -4318,6 +4372,13 @@ public sealed partial class GameEngine
             BeginTuxiDrawChoice(current, delayedEffects);
             return;
         }
+        else if (UsesFormalLuoyi &&
+                 current.General.HasSkill(SkillKind.Luoyi) &&
+                 PassiveRules(current).CanReduceDrawPhase(CreateSkillContext(current)))
+        {
+            BeginLuoyiDrawChoice(current, delayedEffects);
+            return;
+        }
         else if (UsesFormalYingziChoice && current.General.HasSkill(SkillKind.Yingzi))
         {
             BeginYingziDrawChoice(current, delayedEffects);
@@ -4432,6 +4493,63 @@ public sealed partial class GameEngine
         }
 
         _pendingTuxiDraw = null;
+        ClearPendingDecision();
+        CompleteTurnStartAfterDraw(current, pending.DelayedEffects);
+    }
+
+    private void BeginLuoyiDrawChoice(PlayerRuntime current, DelayedTurnEffects delayedEffects)
+    {
+        _pendingLuoyiDraw = new LuoyiDrawResolution(current.Seat, delayedEffects);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Luoyi,
+            current.Seat,
+            "是否发动【裸衣】，本摸牌阶段少摸一张牌，使本回合使用【杀】或【决斗】造成的伤害 +1？",
+            [],
+            [])
+        {
+            PromptId = CreatePromptId(),
+            IsPrivate = true,
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId("luoyi.use"),
+                    "发动【裸衣】，少摸一张牌并强化本回合由自己使用的【杀】或【决斗】。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "luoyi-use" }),
+                new PromptChoice(
+                    new ChoiceId("luoyi.skip"),
+                    "不发动【裸衣】，按通常数量摸牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "luoyi-skip" })
+            ]
+        };
+        _status = current.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        PublishState();
+    }
+
+    private void ResolveLuoyiDrawChoice(bool useSkill)
+    {
+        var pending = _pendingLuoyiDraw ??
+            throw new InvalidOperationException("There is no Luoyi draw choice to resolve.");
+        var current = _players[pending.PlayerSeat];
+        var normalDrawCount = GetTurnDrawCount(current);
+        var drawCount = Math.Max(0, normalDrawCount - (useSkill ? 1 : 0));
+        _luoyiActiveThisTurn = useSkill;
+        DrawCards(current, drawCount, log: true);
+        QueueGameEvent(new DrawSkillResolvedEvent(
+            current.Seat,
+            SkillKind.Luoyi,
+            useSkill,
+            drawCount));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill
+                ? $"{current.Name} 发动【裸衣】，本阶段少摸一张牌，本回合由自己使用的【杀】或【决斗】伤害 +1。"
+                : $"{current.Name} 未发动【裸衣】。",
+            current.Seat);
+        _pendingLuoyiDraw = null;
         ClearPendingDecision();
         CompleteTurnStartAfterDraw(current, pending.DelayedEffects);
     }
@@ -4757,6 +4875,12 @@ public sealed partial class GameEngine
         if (IsAiTuxiPending())
         {
             ResolvePendingAiTuxi();
+            return;
+        }
+
+        if (IsAiLuoyiPending())
+        {
+            ResolvePendingAiLuoyi();
             return;
         }
 
@@ -7512,6 +7636,12 @@ public sealed partial class GameEngine
             SlashCardId: null));
         var attack = _pendingAttack ??
             throw new InvalidOperationException("A failed Duel response has no active damage source.");
+        if (UsesCorrectDuelDamageAttribution)
+        {
+            attack.SetDamageParticipants(
+                sourceSeat: duel.OpponentSeat,
+                targetSeat: responder.Seat);
+        }
         if (!ApplyAttackDamage(attack))
         {
             CompleteAttack(attack);
@@ -9820,7 +9950,7 @@ public sealed partial class GameEngine
         }
 
         var nature = GetDamageNature(attack);
-        var amount = attack.DamageAmount;
+        var amount = FinalizeAttackDamageAmount(attack);
         if (!attack.IsChainPropagation &&
             (nature is DamageNature.Fire or DamageNature.Thunder) &&
             target.IsChained)
@@ -12817,6 +12947,40 @@ public sealed partial class GameEngine
     private static DamageNature GetDamageNature(AttackResolution attack) =>
         attack.DamageNatureOverride ?? GetDamageNature(attack.EffectiveCardKind);
 
+    private int FinalizeAttackDamageAmount(AttackResolution attack)
+    {
+        if (attack.DamageAmountFinalized)
+        {
+            return attack.DamageAmount;
+        }
+
+        var baseAmount = attack.DamageAmount;
+        var receivesLuoyiBonus = UsesFormalLuoyi &&
+            _luoyiActiveThisTurn &&
+            attack.SourceSeat == _currentSeat &&
+            attack.CardUserSeat == attack.SourceSeat &&
+            attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel;
+        attack.FinalizeDamageAmount(receivesLuoyiBonus ? 1 : 0);
+        if (receivesLuoyiBonus)
+        {
+            QueueGameEvent(new DamageModifiedBySkillEvent(
+                attack.ResolutionId,
+                attack.SourceSeat,
+                attack.TargetSeat,
+                SkillKind.Luoyi,
+                attack.EffectiveCardKind,
+                baseAmount,
+                attack.DamageAmount));
+            AddLog(
+                "SkillTriggered",
+                $"{_players[attack.SourceSeat].Name} 的【裸衣】令本次【{CardCatalog.Get(attack.EffectiveCardKind).DisplayName}】伤害 +1。",
+                attack.SourceSeat,
+                attack.TargetSeat);
+        }
+
+        return attack.DamageAmount;
+    }
+
     private static string GetSuitName(Suit suit) => suit switch
     {
         Suit.Spade => "黑桃",
@@ -13282,6 +13446,7 @@ public sealed partial class GameEngine
         _phase = TurnPhase.Finished;
         AddLog("TurnEnded", $"{previous.Name} 的回合结束。", previous.Seat);
         QueueGameEvent(new TurnEndedEvent(_turnNumber, previous.Seat));
+        _luoyiActiveThisTurn = false;
         _currentSeat = FindNextAliveSeat(_currentSeat);
         _phase = TurnPhase.NotStarted;
         PublishState();
@@ -14212,6 +14377,7 @@ public sealed partial class GameEngine
                 _pendingJudgment is not null ||
                 _pendingYingziDraw is not null ||
                 _pendingTuxiDraw is not null ||
+                _pendingLuoyiDraw is not null ||
                 _resolutionStack.Count != 0)
             {
                 throw new InvalidOperationException(
@@ -14249,6 +14415,7 @@ public sealed partial class GameEngine
                 _pendingDamageSkill is not null ||
                 _pendingJudgment is not null ||
                 _pendingTuxiDraw is not null ||
+                _pendingLuoyiDraw is not null ||
                 _resolutionStack.Count != 0)
             {
                 throw new InvalidOperationException(
@@ -14303,6 +14470,7 @@ public sealed partial class GameEngine
                 _pendingDamageSkill is not null ||
                 _pendingJudgment is not null ||
                 _pendingYingziDraw is not null ||
+                _pendingLuoyiDraw is not null ||
                 _pendingGuanxing is not null ||
                 _resolutionStack.Count != 0)
             {
@@ -14316,6 +14484,52 @@ public sealed partial class GameEngine
             if (_status != expectedTuxiStatus)
             {
                 throw new InvalidOperationException("A Tuxi draw prompt status does not match its owner.");
+            }
+        }
+
+        if (_pendingLuoyiDraw is { } luoyiDraw)
+        {
+            if (!UsesFormalLuoyi ||
+                _phase != TurnPhase.Draw ||
+                _currentSeat != luoyiDraw.PlayerSeat ||
+                !_players[luoyiDraw.PlayerSeat].IsAlive ||
+                !_players[luoyiDraw.PlayerSeat].General.HasSkill(SkillKind.Luoyi) ||
+                _luoyiActiveThisTurn ||
+                _pendingDecision is not { Kind: DecisionKind.Luoyi, IsPrivate: true } luoyiDecision ||
+                luoyiDecision.PlayerSeat != luoyiDraw.PlayerSeat ||
+                luoyiDecision.Choices.Count != 2 ||
+                luoyiDecision.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0) ||
+                luoyiDecision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "luoyi-use") != 1 ||
+                luoyiDecision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "luoyi-skip") != 1 ||
+                luoyiDecision.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") is not ("luoyi-use" or "luoyi-skip")) ||
+                _pendingAttack is not null ||
+                _pendingDuel is not null ||
+                _pendingGroupCard is not null ||
+                _pendingFireAttack is not null ||
+                _pendingNullification is not null ||
+                _pendingTargetCardSelection is not null ||
+                _pendingDying is not null ||
+                _pendingDamageTrigger is not null ||
+                _pendingDamageSkill is not null ||
+                _pendingJudgment is not null ||
+                _pendingYingziDraw is not null ||
+                _pendingTuxiDraw is not null ||
+                _pendingGuanxing is not null ||
+                _resolutionStack.Count != 0)
+            {
+                throw new InvalidOperationException(
+                    "A Luoyi draw choice must retain its private prompt at a clean draw-phase boundary.");
+            }
+
+            var expectedLuoyiStatus = _players[luoyiDraw.PlayerSeat].IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedLuoyiStatus)
+            {
+                throw new InvalidOperationException("A Luoyi draw prompt status does not match its owner.");
             }
         }
 
@@ -14341,6 +14555,7 @@ public sealed partial class GameEngine
                 _pendingJudgment is not null ||
                 _pendingYingziDraw is not null ||
                 _pendingTuxiDraw is not null ||
+                _pendingLuoyiDraw is not null ||
                 _pendingGuanxing is not null ||
                 _resolutionStack.Count != 0)
             {
@@ -14355,6 +14570,15 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException("A Keji prompt status does not match its owner.");
             }
+        }
+
+        if (_luoyiActiveThisTurn &&
+            (!UsesFormalLuoyi ||
+             !_players[_currentSeat].General.HasSkill(SkillKind.Luoyi) ||
+             _phase is not (TurnPhase.Play or TurnPhase.Discard or TurnPhase.Finished)))
+        {
+            throw new InvalidOperationException(
+                "An active Luoyi damage modifier must belong to the current owner's resolved turn.");
         }
 
         if (!_setupComplete && _resolutionStack.Count != 0)
@@ -15133,6 +15357,31 @@ public sealed partial class GameEngine
         PublishState();
     }
 
+    private bool IsAiLuoyiPending() =>
+        _pendingLuoyiDraw is { PlayerSeat: var playerSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Luoyi, PlayerSeat: var decisionSeat } &&
+        playerSeat == decisionSeat &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiLuoyi()
+    {
+        if (!IsAiLuoyiPending())
+        {
+            throw new InvalidOperationException("There is no AI Luoyi choice to resolve.");
+        }
+
+        var decision = _pendingDecision!;
+        var actor = _players[decision.PlayerSeat];
+        var (choiceId, thought) = _aiBrains[actor.Seat].ChooseLuoyi(
+            CreateSnapshot(actor.Seat),
+            decision.Choices,
+            _thoughtSequence++);
+        var choice = decision.Choices.Single(candidate => candidate.Id == choiceId);
+        AddThought(thought);
+        ResolveLuoyiDrawChoice(choice.Parameters.GetValueOrDefault("action") == "luoyi-use");
+        PublishState();
+    }
+
     private bool IsAiKejiPending() =>
         _pendingDecision is { Kind: DecisionKind.Keji, PlayerSeat: var playerSeat } &&
         playerSeat == _currentSeat &&
@@ -15678,10 +15927,12 @@ public sealed partial class GameEngine
         DamageNature? damageNatureOverride = null)
     {
         public long ResolutionId { get; } = resolutionId;
-        public int SourceSeat { get; } = sourceSeat;
+        public int SourceSeat { get; private set; } = sourceSeat;
+        public int CardUserSeat { get; } = sourceSeat;
         public int TargetSeat { get; private set; } = targetSeat;
         public Card Card { get; } = card;
-        public int DamageAmount { get; } = damageAmount;
+        public int DamageAmount { get; private set; } = damageAmount;
+        public bool DamageAmountFinalized { get; private set; }
         public CardKind EffectiveCardKind { get; } = playedCardKind ?? card.Kind;
         public bool IgnoresArmor { get; } = ignoresArmor;
         public bool IsDelayedJudgmentDamage { get; } = isDelayedJudgmentDamage;
@@ -15693,6 +15944,28 @@ public sealed partial class GameEngine
         public bool IsChainPropagation { get; private set; }
         public bool HujiaAttempted { get; private set; }
         public bool JijiangAttempted { get; private set; }
+
+        public void SetDamageParticipants(int sourceSeat, int targetSeat)
+        {
+            if (DamageAmountFinalized || IsChainPropagation)
+            {
+                throw new InvalidOperationException("Damage participants cannot change after damage begins.");
+            }
+
+            SourceSeat = sourceSeat;
+            TargetSeat = targetSeat;
+        }
+
+        public void FinalizeDamageAmount(int bonus)
+        {
+            if (DamageAmountFinalized)
+            {
+                throw new InvalidOperationException("The attack damage amount is already final.");
+            }
+
+            DamageAmount = checked(DamageAmount + bonus);
+            DamageAmountFinalized = true;
+        }
 
         public void MarkHujiaAttempted()
         {
@@ -15981,6 +16254,10 @@ public sealed partial class GameEngine
         int PlayerSeat,
         DelayedTurnEffects DelayedEffects,
         IReadOnlyList<int> CandidateSeats);
+
+    private sealed record LuoyiDrawResolution(
+        int PlayerSeat,
+        DelayedTurnEffects DelayedEffects);
 
     private enum GuanxingStage
     {

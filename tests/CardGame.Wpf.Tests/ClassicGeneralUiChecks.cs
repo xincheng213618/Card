@@ -259,6 +259,64 @@ internal static class ClassicGeneralUiChecks
             "The WPF Tuxi choice must gain one hidden hand card from each selected target.");
         tuxiWindow.Content = null;
         tuxiWindow.Close();
+        using var luoyiViewModel = FindGeneralChoice("classic:xu-chu");
+        var xuChu = luoyiViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:xu-chu");
+        Program.Assert(xuChu.Name == "许褚" &&
+                       xuChu.Kingdom == "魏" &&
+                       xuChu.SkillName == "裸衣" &&
+                       xuChu.SkillDescription.Contains("少摸一张牌", StringComparison.Ordinal) &&
+                       xuChu.SkillDescription.Contains("伤害+1", StringComparison.Ordinal) &&
+                       xuChu.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(xuChu.GeneralId),
+            "The current classic Xu Chu card must render Wei, Luoyi, Lord health and portrait aliasing.");
+        var luoyiWindow = new MainWindow(luoyiViewModel);
+        luoyiWindow.ApplyTemplate();
+        var luoyiRoot = (FrameworkElement)luoyiWindow.Content;
+        Program.Render(
+            luoyiRoot,
+            1120,
+            740,
+            Path.Combine(output, "88-classic-xu-chu-card.png"));
+        luoyiViewModel.SelectGeneralChoiceCommand.Execute(xuChu);
+        Program.AdvanceToDecision(luoyiViewModel);
+        var luoyiEngine = Program.Engine(luoyiViewModel);
+        var luoyiBefore = luoyiEngine.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        Program.Assert(luoyiViewModel.IsSkillSelectionPending &&
+                       luoyiEngine.PendingDecision?.Kind == DecisionKind.Luoyi &&
+                       luoyiViewModel.SkillChoices.Count == 2 &&
+                       luoyiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "luoyi-use") &&
+                       luoyiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "luoyi-skip") &&
+                       luoyiViewModel.CurrentGuideTitle == "决定是否发动裸衣" &&
+                       luoyiViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("对方造成的伤害不会增加", StringComparison.Ordinal)),
+            "The WPF must render both Luoyi choices and explain Duel damage attribution.");
+        Program.Render(
+            luoyiRoot,
+            1120,
+            740,
+            Path.Combine(output, "89-classic-luoyi-choice.png"));
+        var useLuoyi = luoyiViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "luoyi-use");
+        luoyiViewModel.SelectSkillChoiceCommand.Execute(useLuoyi);
+        Program.Assert(!luoyiViewModel.IsSkillSelectionPending &&
+                       luoyiEngine.PendingDecision is null &&
+                       luoyiEngine.State.Phase == TurnPhase.Play &&
+                       luoyiEngine.CreateSnapshot(0, revealAll: true)
+                           .Players.Single(player => player.Seat == 0).HandCount == luoyiBefore + 1 &&
+                       luoyiEngine.Events.Any(item => item.Payload is DrawSkillResolvedEvent
+                       {
+                           SourceSeat: 0,
+                           Skill: SkillKind.Luoyi,
+                           Used: true,
+                           DrawCount: 1
+                       }),
+            "The WPF Luoyi choice must draw one fewer card and preserve the play boundary.");
+        luoyiWindow.Content = null;
+        luoyiWindow.Close();
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

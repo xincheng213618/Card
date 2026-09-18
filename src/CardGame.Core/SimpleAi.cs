@@ -1506,6 +1506,60 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Decides whether to trade one draw for Luoyi using only the AI owner's
+    /// private hand and public prompt. No deck order or opponent hand is read.
+    /// </summary>
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseLuoyi(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices,
+        int thoughtSequence)
+    {
+        if (choices.Count != 2)
+        {
+            throw new InvalidOperationException("AI Luoyi requires exactly use and skip choices.");
+        }
+
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var attackCardCount = self.Hand.Count(card =>
+            IsSlashCard(card.Kind) || card.Kind == CardKind.Duel);
+        var scored = choices.Select(choice =>
+        {
+            var useSkill = choice.Parameters.GetValueOrDefault("action") == "luoyi-use";
+            var score = useSkill
+                ? attackCardCount == 0 ? 24d : 58d + Math.Min(attackCardCount, 3) * 7d
+                : 45d;
+            var reason = useSkill
+                ? attackCardCount == 0
+                    ? "当前没有可见的杀或决斗，少摸一张的即时收益较低。"
+                    : $"当前私有手牌有 {attackCardCount} 张杀或决斗，可利用本回合伤害加成。"
+                : "保留通常摸牌数量，不读取牌堆顺序。";
+            return (
+                Choice: choice,
+                Candidate: new AiCandidateScore(
+                    new LegalAction(
+                        useSkill ? LegalActionKind.Luoyi : LegalActionKind.SkipLuoyi,
+                        null,
+                        null,
+                        choice.Description,
+                        Skill: SkillKind.Luoyi),
+                    score,
+                    reason));
+        }).ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Choice.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"裸衣：根据自己的 {attackCardCount} 张杀或决斗选择是否少摸一张牌。");
+        return (selected.Choice.Id, thought);
+    }
+
+    /// <summary>
     /// Chooses one opaque ordinal slot from another player's hidden hand. Every
     /// candidate is intentionally scored identically because the filtered view
     /// contains no target-hand identity. The first slot is a stable tie-break;

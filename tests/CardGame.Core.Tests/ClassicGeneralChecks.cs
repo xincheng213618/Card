@@ -19,6 +19,7 @@ internal static class ClassicGeneralChecks
         var kujinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 7, 0));
         var qixiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 8, 0));
         var kejiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 9, 0));
+        var tuxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 10, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -27,7 +28,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.10.0"]),
+                "standard-classic-generals@1.11.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -91,6 +92,13 @@ internal static class ClassicGeneralChecks
                     "classic:zhang-liao",
                     StringComparer.Ordinal),
             "The Keji-era classic registry must retain the 1.9 roster without Zhang Liao or Tuxi.");
+        Require(tuxiClassic.Packages.Last().Version == new Version(1, 10, 0) &&
+                !tuxiClassic.Generals.ContainsKey("classic:xu-chu") &&
+                !tuxiClassic.Skills.ContainsKey("classic:luoyi") &&
+                !tuxiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:xu-chu",
+                    StringComparer.Ordinal),
+            "The Tuxi-era classic registry must retain the 1.10 roster without Xu Chu or Luoyi.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -146,6 +154,12 @@ internal static class ClassicGeneralChecks
                 zhangLiao.BaseHp == 4 &&
                 zhangLiao.SkillIds.SequenceEqual(["classic:tuxi"]),
             "The current classic Zhang Liao must expose the formal Wei, 4-HP Tuxi definition.");
+        var xuChu = classic.Generals["classic:xu-chu"];
+        Require(xuChu.Name == "许褚" &&
+                xuChu.FactionId == "wei" &&
+                xuChu.BaseHp == 4 &&
+                xuChu.SkillIds.SequenceEqual(["classic:luoyi"]),
+            "The current classic Xu Chu must expose the formal Wei, 4-HP Luoyi definition.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -159,12 +173,13 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
                       pool.Contains("classic:lu-meng", StringComparer.Ordinal) &&
                       pool.Contains("classic:zhang-liao", StringComparer.Ordinal) &&
+                      pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 30,
-            "Classic Tuxi must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 31,
+            "Classic Luoyi must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -196,6 +211,11 @@ internal static class ClassicGeneralChecks
         Require(tuxi.CanReplaceDrawPhase(draw) &&
                 !tuxi.CanReplaceDrawPhase(draw with { IsOwnTurn = false }),
             "Formal Tuxi must replace only its owner's draw phase.");
+
+        var luoyi = SkillRegistry.Get(SkillKind.Luoyi);
+        Require(luoyi.CanReduceDrawPhase(draw) &&
+                !luoyi.CanReduceDrawPhase(draw with { IsOwnTurn = false }),
+            "Formal Luoyi must reduce only its owner's draw phase.");
     }
 
     public static void FormalJiuyuanRecoveryBonus()
@@ -803,6 +823,170 @@ internal static class ClassicGeneralChecks
                 6 &&
                 legacy.Events.Select(item => item.Payload).OfType<HandCardsGainedBySkillEvent>().Count() == 0,
             legacyAdvance.Error?.Message ?? "Rules v29 must retain the historical ordinary draw without Tuxi.");
+    }
+
+    public static void FormalLuoyiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
+        var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(selected.GeneralId == "classic:xu-chu" &&
+                selected.MaxHp == 5 &&
+                selected.Hp == 5 &&
+                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Luoyi]),
+            "Classic Xu Chu must combine base 4 HP, the Lord bonus and formal Luoyi.");
+
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        Require(advanced.Accepted &&
+                game.State.Phase == TurnPhase.Draw &&
+                game.PendingDecision is
+                {
+                    Kind: DecisionKind.Luoyi,
+                    PlayerSeat: 0,
+                    IsPrivate: true,
+                    Choices.Count: 2
+                } prompt &&
+                prompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "luoyi-use") == 1 &&
+                prompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "luoyi-skip") == 1 &&
+                game.CreateSnapshot(1).PendingDecision is null,
+            advanced.Error?.Message ?? "Classic Xu Chu must publish a private use-or-skip Luoyi choice.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var skippedBranch = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(skippedBranch.PendingDecision?.Kind == DecisionKind.Luoyi &&
+                SnapshotJson.Serialize(skippedBranch.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
+            "A paused Luoyi choice must restore exactly from its command checkpoint.");
+
+        var beforeForged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            game.PendingDecision!.PromptId,
+            new ChoiceId("luoyi.forged"),
+            game.Revision));
+        Require(!forged.Accepted &&
+                forged.Error?.Code == CommandErrorCode.InvalidChoice &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForged,
+            "A forged Luoyi choice must be rejected atomically.");
+
+        var sourceBeforeUse = game.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        var usePrompt = game.PendingDecision!;
+        var used = game.Submit(new AnswerPromptCommand(
+            0,
+            usePrompt.PromptId,
+            usePrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "luoyi-use").Id,
+            game.Revision));
+        Require(used.Accepted &&
+                game.PendingDecision is null &&
+                game.State.Phase == TurnPhase.Play &&
+                game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                sourceBeforeUse + 1 &&
+                game.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Luoyi &&
+                    resolved.Used &&
+                    resolved.DrawCount == 1),
+            used.Error?.Message ?? "Using Luoyi must draw one fewer card and enter the play phase.");
+
+        var sourceBeforeSkip = skippedBranch.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        var skipPrompt = skippedBranch.PendingDecision!;
+        var skipped = skippedBranch.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "luoyi-skip").Id,
+            skippedBranch.Revision));
+        Require(skipped.Accepted &&
+                skippedBranch.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                sourceBeforeSkip + 2 &&
+                skippedBranch.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(resolved =>
+                    resolved.Skill == SkillKind.Luoyi && !resolved.Used && resolved.DrawCount == 2),
+            skipped.Error?.Message ?? "Skipping Luoyi must preserve the ordinary two-card draw.");
+
+        var (slashGame, slashAction, slashTargetHp) = FindXuChuDirectAttackFixture(
+            registry,
+            LegalActionKind.Slash,
+            target => target.Hand.All(card => card.Kind != CardKind.Dodge) && target.Equipment.Count == 0);
+        var slashTargetSeat = slashAction.TargetSeat!.Value;
+        var slashPlayed = slashGame.Submit(new PlayCardCommand(
+            0,
+            slashAction.CardId!.Value,
+            slashAction.TargetSeats,
+            slashGame.Revision,
+            slashGame.PendingDecision!.PromptId,
+            slashAction.PlayedCardKind));
+        var slashDamage = slashGame.Events.Select(item => item.Payload)
+            .OfType<DamageRequestedEvent>()
+            .LastOrDefault(item => item.SourceSeat == 0 && item.TargetSeat == slashTargetSeat);
+        Require(slashPlayed.Accepted &&
+                slashDamage is { Amount: 2 } &&
+                slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Hp ==
+                slashTargetHp - 2 &&
+                slashGame.Events.Select(item => item.Payload).OfType<DamageModifiedBySkillEvent>().Any(modified =>
+                    modified.ResolutionId == slashDamage.ResolutionId - 1 &&
+                    modified.Skill == SkillKind.Luoyi &&
+                    modified.BaseAmount == 1 &&
+                    modified.ModifiedAmount == 2),
+            slashPlayed.Error?.Message ?? "Luoyi must add one damage to a Slash used by Xu Chu this turn.");
+
+        var (duelGame, duelAction, duelTargetHp) = FindXuChuDirectAttackFixture(
+            registry,
+            LegalActionKind.Duel,
+            target => target.Hand.All(card => card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)),
+            requireNoNullification: true);
+        var duelTargetSeat = duelAction.TargetSeat!.Value;
+        var duelPlayed = duelGame.Submit(new PlayCardCommand(
+            0,
+            duelAction.CardId!.Value,
+            duelAction.TargetSeats,
+            duelGame.Revision,
+            duelGame.PendingDecision!.PromptId,
+            duelAction.PlayedCardKind));
+        var duelDamage = duelGame.Events.Select(item => item.Payload)
+            .OfType<DamageRequestedEvent>()
+            .LastOrDefault(item => item.SourceCard == CardKind.Duel && item.TargetSeat == duelTargetSeat);
+        Require(duelPlayed.Accepted &&
+                duelDamage is { SourceSeat: 0, Amount: 2 } &&
+                duelGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == duelTargetSeat).Hp ==
+                duelTargetHp - 2,
+            duelPlayed.Error?.Message ?? "Luoyi must add one damage when Xu Chu's Duel target fails first.");
+
+        var (reverseGame, reverseTargetSeat, reverseResolutionId, xuChuHpBefore) =
+            FindXuChuReverseDuelFixture(registry);
+        var reversePrompt = reverseGame.PendingDecision!;
+        var declined = reverseGame.Submit(new AnswerPromptCommand(
+            0,
+            reversePrompt.PromptId,
+            reversePrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "take-damage").Id,
+            reverseGame.Revision));
+        var reverseDamage = reverseGame.Events.Select(item => item.Payload)
+            .OfType<DamageRequestedEvent>()
+            .Last(item => item.SourceCard == CardKind.Duel && item.TargetSeat == 0);
+        Require(declined.Accepted &&
+                reverseDamage.SourceSeat == reverseTargetSeat &&
+                reverseDamage.Amount == 1 &&
+                reverseGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp ==
+                xuChuHpBefore - 1 &&
+                reverseGame.Events.Select(item => item.Payload).OfType<DamageModifiedBySkillEvent>()
+                    .All(modified => modified.ResolutionId != reverseResolutionId),
+            declined.Error?.Message ??
+            "A Duel opponent must deal unmodified damage when Xu Chu used the Duel but then failed to respond.");
+
+        var legacy = SelectGeneral(registry, "classic:xu-chu", rulesVersion: 30);
+        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
+        Require(legacyAdvance.Accepted &&
+                legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount == 6 &&
+                legacy.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>()
+                    .All(resolved => resolved.Skill != SkillKind.Luoyi),
+            legacyAdvance.Error?.Message ?? "Rules v30 must retain ordinary drawing without Luoyi.");
     }
 
     public static void FormalFeedbackFlow()
@@ -2624,6 +2808,238 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic Lu Meng Slash fixture.");
+    }
+
+    private static (GameEngine Game, LegalAction Action, int TargetHp) FindXuChuDirectAttackFixture(
+        ContentRegistry registry,
+        LegalActionKind actionKind,
+        Func<PlayerSnapshot, bool> targetPredicate,
+        bool requireNoNullification = false)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Xu Chu attack fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:xu-chu"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:xu-chu",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Xu Chu.");
+            var reachedLuoyi = game.Submit(new AdvanceCommand(game.Revision));
+            Require(reachedLuoyi.Accepted, reachedLuoyi.Error?.Message ?? "Xu Chu did not reach Luoyi.");
+            var luoyi = game.PendingDecision;
+            if (luoyi?.Kind != DecisionKind.Luoyi)
+            {
+                continue;
+            }
+
+            var used = game.Submit(new AnswerPromptCommand(
+                0,
+                luoyi.PromptId,
+                luoyi.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "luoyi-use").Id,
+                game.Revision));
+            Require(used.Accepted, used.Error?.Message ?? "Could not enable Luoyi for the attack fixture.");
+            var reachedPlay = game.Submit(new AdvanceCommand(game.Revision));
+            Require(reachedPlay.Accepted, reachedPlay.Error?.Message ?? "Xu Chu did not reach the play phase.");
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+            {
+                continue;
+            }
+
+            var full = game.CreateSnapshot(0, revealAll: true);
+            if (requireNoNullification && full.Players.Any(player =>
+                    player.Hand.Any(card => card.Kind == CardKind.Nullification)))
+            {
+                continue;
+            }
+
+            var action = game.GetHumanLegalActions()
+                .Where(candidate => candidate.Kind == actionKind && candidate.TargetSeat is not null)
+                .FirstOrDefault(candidate => targetPredicate(
+                    full.Players.Single(player => player.Seat == candidate.TargetSeat)));
+            if (action is null)
+            {
+                continue;
+            }
+
+            var target = full.Players.Single(player => player.Seat == action.TargetSeat);
+            return (game, action, target.Hp);
+        }
+
+        throw new InvalidOperationException($"Could not find a deterministic Xu Chu {actionKind} fixture.");
+    }
+
+    private static (GameEngine Game, int TargetSeat, long ResolutionId, int XuChuHp) FindXuChuReverseDuelFixture(
+        ContentRegistry registry)
+    {
+        var offered = 0;
+        var noNullification = 0;
+        var duelFound = 0;
+        var responsePromptFound = 0;
+        var slashChoiceFound = 0;
+        var lastPending = "none";
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Reverse Duel fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:xu-chu"])) != true)
+            {
+                continue;
+            }
+            offered++;
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:xu-chu",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Xu Chu.");
+            var reachedLuoyi = game.Submit(new AdvanceCommand(game.Revision));
+            Require(reachedLuoyi.Accepted && game.PendingDecision?.Kind == DecisionKind.Luoyi,
+                reachedLuoyi.Error?.Message ?? "Reverse Duel fixture did not reach Luoyi.");
+            var luoyi = game.PendingDecision!;
+            var used = game.Submit(new AnswerPromptCommand(
+                0,
+                luoyi.PromptId,
+                luoyi.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "luoyi-use").Id,
+                game.Revision));
+            Require(used.Accepted, used.Error?.Message ?? "Could not enable Luoyi for reverse Duel.");
+            var reachedPlay = game.Submit(new AdvanceCommand(game.Revision));
+            Require(reachedPlay.Accepted, reachedPlay.Error?.Message ?? "Reverse Duel fixture did not reach play.");
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+            {
+                continue;
+            }
+
+            var full = game.CreateSnapshot(0, revealAll: true);
+            if (full.Players.Any(player => player.Hand.Any(card => card.Kind == CardKind.Nullification)))
+            {
+                continue;
+            }
+            noNullification++;
+
+            var duelAction = game.GetHumanLegalActions()
+                .Where(action => action.Kind == LegalActionKind.Duel && action.TargetSeat is not null)
+                .FirstOrDefault(action => full.Players.Single(player => player.Seat == action.TargetSeat)
+                    .Hand.Any(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash));
+            if (duelAction is null)
+            {
+                continue;
+            }
+            duelFound++;
+
+            var targetSeat = duelAction.TargetSeat!.Value;
+            var played = game.Submit(new PlayCardCommand(
+                0,
+                duelAction.CardId!.Value,
+                duelAction.TargetSeats,
+                game.Revision,
+                game.PendingDecision.PromptId,
+                duelAction.PlayedCardKind));
+            if (!played.Accepted)
+            {
+                continue;
+            }
+
+            var hostPending = GetHostPendingDecision(game);
+            lastPending = $"{hostPending?.Kind.ToString() ?? "none"}/" +
+                $"{hostPending?.PlayerSeat.ToString() ?? "none"}/target-{targetSeat}/" +
+                $"status-{game.State.Status}/stack-{string.Join(',', game.ResolutionStack.Select(frame => frame.Kind))}";
+
+            var resolutionId = game.Events.Select(item => item.Payload)
+                .OfType<CardUseDeclaredEvent>()
+                .Last(item => item.CardId == duelAction.CardId).ResolutionId;
+            if (hostPending is not { Kind: DecisionKind.RespondSlash } targetPrompt ||
+                targetPrompt.PlayerSeat != targetSeat)
+            {
+                continue;
+            }
+            responsePromptFound++;
+
+            var slashChoice = targetPrompt.Choices.FirstOrDefault(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "slash");
+            if (slashChoice?.Cards.Count != 1)
+            {
+                continue;
+            }
+            slashChoiceFound++;
+
+            ResolveSyntheticDuelSlash(game, targetSeat, slashChoice.Cards[0]);
+            if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 } prompt &&
+                prompt.IncomingCard == CardKind.Duel)
+            {
+                var xuChuHp = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp;
+                return (game, targetSeat, resolutionId, xuChuHp);
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"Could not find a deterministic Luoyi reverse-Duel fixture " +
+            $"(offered={offered}, no-null={noNullification}, duel={duelFound}, prompt={responsePromptFound}, slash={slashChoiceFound}, last={lastPending}).");
+    }
+
+    private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, int slashCardId)
+    {
+        var duelField = typeof(GameEngine).GetField(
+            "_pendingDuel",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine Duel continuation was not found.");
+        var duel = duelField.GetValue(game) ??
+            throw new InvalidOperationException("The reverse-Duel fixture lost its continuation.");
+        var playersField = typeof(GameEngine).GetField(
+            "_players",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine player store was not found.");
+        var players = (System.Collections.IList)playersField.GetValue(game)!;
+        var responder = players[responderSeat]!;
+        var getHand = typeof(GameEngine).GetMethod(
+            "GetHand",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine hand accessor was not found.");
+        var slash = ((System.Collections.IEnumerable)getHand.Invoke(game, [responder])!)
+            .Cast<Card>()
+            .Single(card => card.Id == slashCardId);
+        var resolutionId = game.ResolutionStack.OfType<CardUseFrame>()
+            .Single(frame => frame.CardKind == CardKind.Duel).Id;
+        var popResponse = typeof(GameEngine).GetMethod(
+            "PopResponseWindow",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine response-window popper was not found.");
+        popResponse.Invoke(game, [resolutionId]);
+        var setCardUseStep = typeof(GameEngine).GetMethod(
+            "SetCardUseStep",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine card-use cursor updater was not found.");
+        setCardUseStep.Invoke(game, [resolutionId, ResolutionFrameStep.ResolvingEffect]);
+        var clearPending = typeof(GameEngine).GetMethod(
+            "ClearPendingDecision",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine pending-decision clearer was not found.");
+        clearPending.Invoke(game, null);
+        var resolve = typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+            .Single(method => method.Name == "ResolveDuelResponse" && method.GetParameters().Length == 3);
+        resolve.Invoke(game, [duel, responder, slash]);
+    }
+
+    private static PendingDecision? GetHostPendingDecision(GameEngine game)
+    {
+        var decisionField = typeof(GameEngine).GetField(
+            "_pendingDecision",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine pending-decision store was not found.");
+        return (PendingDecision?)decisionField.GetValue(game);
     }
 
     private static void Equip(GameEngine game, int cardId)

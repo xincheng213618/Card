@@ -68,6 +68,7 @@ public sealed partial class GameEngine
         public bool CanSkipDiscardPhase(PlayerSkillContext owner, bool usedOrPlayedSlashDuringPlayPhase) =>
             skills.Any(skill => skill.CanSkipDiscardPhase(owner, usedOrPlayedSlashDuringPlayPhase));
         public bool CanReplaceDrawPhase(PlayerSkillContext owner) => skills.Any(skill => skill.CanReplaceDrawPhase(owner));
+        public bool CanReduceDrawPhase(PlayerSkillContext owner) => skills.Any(skill => skill.CanReduceDrawPhase(owner));
         public bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) =>
             skills.Any(skill => skill.CanUseAsResponse(owner, card, requiredCardKind));
         public bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsDyingRescue(owner, card));
