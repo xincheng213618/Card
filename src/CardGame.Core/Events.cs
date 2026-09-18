@@ -551,6 +551,15 @@ public sealed record DamageSkillResolvedEvent(
     int Priority = 0,
     int? EffectTargetSeat = null) : IGameEvent;
 
+/// <summary>Public result of classic Kuanggu recovering its damage source.</summary>
+public sealed record KuangguRecoveredEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    int DamageAmount,
+    int RecoveredAmount,
+    int RemainingHp) : IGameEvent;
+
 public sealed record DamageSkillCardsDrawnEvent(
     long ResolutionId,
     int OwnerSeat,

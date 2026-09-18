@@ -236,6 +236,9 @@ public sealed partial class GameEngine
     private bool UsesFormalLiegong =>
         _rulesVersion >= 37 && IsClassicIdentityMode;
 
+    private bool UsesFormalKuanggu =>
+        _rulesVersion >= 38 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -10868,7 +10871,10 @@ public sealed partial class GameEngine
                     TargetSeat: target.Seat,
                     TargetHp: target.Hp,
                     TargetMaxHp: target.MaxHp,
-                    SourceCardCount: GetHand(source).Count + GetEquipment(source).Count);
+                    SourceCardCount: GetHand(source).Count + GetEquipment(source).Count,
+                    SourceToTargetDistance: source.Seat == target.Seat
+                        ? 0
+                        : GetCombatDistance(source.Seat, target.Seat));
                 var triggerCandidates = DamageTriggerOrdering.Order(
                     CollectDamageTriggerCandidates(damageContext),
                     source.Seat,
@@ -10987,6 +10993,15 @@ public sealed partial class GameEngine
         if (candidate.Effect == DamageSkillEffectKind.ClaimDamageCard)
         {
             ClaimDamageCard(window.Attack, window.DamageFrameId, owner, skill, context);
+        }
+        else if (candidate.Effect == DamageSkillEffectKind.RecoverDamageSource)
+        {
+            RecoverDamageSourceThroughKuanggu(
+                window.Attack,
+                window.DamageFrameId,
+                owner,
+                skill,
+                context);
         }
 
         AdvanceDamageTriggerCandidate(window);
@@ -12053,6 +12068,13 @@ public sealed partial class GameEngine
         IPassiveSkill skill,
         DamageSkillContext context)
     {
+        if (skill.Kind == SkillKind.Kuanggu)
+        {
+            return UsesFormalKuanggu
+                ? skill.GetDamageSkillEffect(context)
+                : DamageSkillEffectKind.None;
+        }
+
         if (skill.Kind == SkillKind.Jianxiong && UsesFormalJianxiongDamageCard)
         {
             return context.Amount > 0 &&
@@ -12101,7 +12123,62 @@ public sealed partial class GameEngine
             TargetHp: target.Hp,
             TargetMaxHp: target.MaxHp,
             SourceCardCount: GetHand(_players[attack.SourceSeat]).Count +
-                             GetEquipment(_players[attack.SourceSeat]).Count);
+                             GetEquipment(_players[attack.SourceSeat]).Count,
+            SourceToTargetDistance: attack.SourceSeat == attack.TargetSeat
+                ? 0
+                : GetCombatDistance(attack.SourceSeat, attack.TargetSeat));
+    }
+
+    private void RecoverDamageSourceThroughKuanggu(
+        AttackResolution attack,
+        long damageFrameId,
+        PlayerRuntime owner,
+        IPassiveSkill skill,
+        DamageSkillContext context)
+    {
+        if (skill.Kind != SkillKind.Kuanggu ||
+            owner.Seat != attack.SourceSeat ||
+            ResolveDamageSkillEffect(skill, context) != DamageSkillEffectKind.RecoverDamageSource)
+        {
+            throw new InvalidOperationException("Kuanggu can only recover the eligible current damage source.");
+        }
+
+        var recoveryAmount = Math.Min(context.Amount, owner.MaxHp - owner.Hp);
+        if (recoveryAmount <= 0)
+        {
+            throw new InvalidOperationException("Kuanggu recovery requires a wounded damage source.");
+        }
+
+        var recoveryFrameId = BeginRecovery(
+            damageFrameId,
+            owner.Seat,
+            owner.Seat,
+            recoveryAmount);
+        try
+        {
+            owner.Hp += recoveryAmount;
+            QueueGameEvent(new RecoveryAppliedEvent(
+                owner.Seat,
+                owner.Seat,
+                recoveryAmount,
+                owner.Hp));
+            QueueGameEvent(new KuangguRecoveredEvent(
+                damageFrameId,
+                owner.Seat,
+                attack.TargetSeat,
+                context.Amount,
+                recoveryAmount,
+                owner.Hp));
+            AddLog(
+                "SkillTriggered",
+                $"{owner.Name} 触发【{skill.Name}】，因对 {_players[attack.TargetSeat].Name} 造成 {context.Amount} 点伤害回复 {recoveryAmount} 点体力。",
+                owner.Seat,
+                attack.TargetSeat);
+        }
+        finally
+        {
+            PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
+        }
     }
 
     private void ClaimDamageCard(

@@ -783,6 +783,28 @@ internal static class ClassicGeneralUiChecks
         liegongWindow.Content = null;
         liegongWindow.Close();
 
+        using var kuangguDescriptionViewModel = FindGeneralChoice("classic:wei-yan");
+        var weiYan = kuangguDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:wei-yan");
+        Program.Assert(weiYan.Name == "魏延" &&
+                       weiYan.Kingdom == "蜀" &&
+                       weiYan.SkillName == "狂骨" &&
+                       weiYan.SkillDescription.Contains("锁定技", StringComparison.Ordinal) &&
+                       weiYan.SkillDescription.Contains("距离1以内", StringComparison.Ordinal) &&
+                       weiYan.SkillDescription.Contains("回复1点体力", StringComparison.Ordinal) &&
+                       weiYan.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(weiYan.GeneralId),
+            "The current classic Wei Yan card must render Shu, locked Kuanggu, Lord health and portrait aliasing.");
+        var kuangguDescriptionWindow = new MainWindow(kuangguDescriptionViewModel);
+        kuangguDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)kuangguDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "103-classic-wei-yan-card.png"));
+        kuangguDescriptionWindow.Content = null;
+        kuangguDescriptionWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

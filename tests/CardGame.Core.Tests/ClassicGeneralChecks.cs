@@ -26,6 +26,7 @@ internal static class ClassicGeneralChecks
         var luoshenClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 14, 0));
         var jizhiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 15, 0));
         var tieqiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 16, 0));
+        var liegongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 17, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -34,7 +35,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.17.0"]),
+                "standard-classic-generals@1.18.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -148,6 +149,13 @@ internal static class ClassicGeneralChecks
                     "classic:huang-zhong",
                     StringComparer.Ordinal),
             "The Tieqi-era classic registry must retain the 1.16 roster without Huang Zhong or Liegong.");
+        Require(liegongClassic.Packages.Last().Version == new Version(1, 17, 0) &&
+                !liegongClassic.Generals.ContainsKey("classic:wei-yan") &&
+                !liegongClassic.Skills.ContainsKey("classic:kuanggu") &&
+                !liegongClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:wei-yan",
+                    StringComparer.Ordinal),
+            "The Liegong-era classic registry must retain the 1.17 roster without Wei Yan or Kuanggu.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -245,6 +253,12 @@ internal static class ClassicGeneralChecks
                 huangZhong.BaseHp == 4 &&
                 huangZhong.SkillIds.SequenceEqual(["classic:liegong"]),
             "The current classic Huang Zhong must expose formal Shu, 4-HP Liegong.");
+        var weiYan = classic.Generals["classic:wei-yan"];
+        Require(weiYan.Name == "魏延" &&
+                weiYan.FactionId == "shu" &&
+                weiYan.BaseHp == 4 &&
+                weiYan.SkillIds.SequenceEqual(["classic:kuanggu"]),
+            "The current classic Wei Yan must expose formal Shu, 4-HP Kuanggu.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -263,14 +277,15 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
                        pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
                        pool.Contains("classic:huang-yueying", StringComparer.Ordinal) &&
-                       pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
-                       pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
-                      !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
+                        pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
+                        pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
+                        pool.Contains("classic:wei-yan", StringComparer.Ordinal) &&
+                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 37,
-            "Classic Liegong must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 38,
+            "Classic Kuanggu must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -340,6 +355,26 @@ internal static class ClassicGeneralChecks
                 !qingguo.CanUseAsResponse(damaged, new Card(9203, CardKind.Slash, Suit.Heart, 8), CardKind.Dodge) &&
                 !qingguo.CanUseAsResponse(damaged, new Card(9204, CardKind.Slash, Suit.Spade, 9), CardKind.Slash),
             "Formal Qingguo must convert only black cards into Dodge responses.");
+
+        var kuanggu = SkillRegistry.Get(SkillKind.Kuanggu);
+        var kuangguContext = new DamageSkillContext(
+            new PlayerSkillContext(0, 1, 4, 2, TurnPhase.Play),
+            SourceSeat: 0,
+            SourceCard: CardKind.Slash,
+            SourceCardIsInProcessing: true,
+            Amount: 2,
+            TargetSeat: 1,
+            SourceToTargetDistance: 1);
+        Require(kuanggu.AfterDamageTriggerScope == DamageTriggerScope.DamageSource &&
+                kuanggu.DamageTriggerPriority == 100 &&
+                kuanggu.CanTriggerAfterDamage(kuangguContext) &&
+                kuanggu.GetDamageSkillEffect(kuangguContext) == DamageSkillEffectKind.RecoverDamageSource &&
+                !kuanggu.CanTriggerAfterDamage(kuangguContext with { SourceToTargetDistance = 2 }) &&
+                !kuanggu.CanTriggerAfterDamage(kuangguContext with
+                {
+                    Owner = kuangguContext.Owner with { Hp = 4 }
+                }),
+            "Formal Kuanggu must be a high-priority locked damage-source recovery within distance one.");
     }
 
     public static void FormalJiuyuanRecoveryBonus()
@@ -1964,6 +1999,76 @@ internal static class ClassicGeneralChecks
                     requested.RequiredCardKind == CardKind.Dodge) &&
                 legacy.Game.Events.Select(item => item.Payload).OfType<LiegongChoiceResolvedEvent>().Count() == 0,
             "Rules v36 must not publish or resolve Liegong.");
+    }
+
+    public static void FormalKuangguFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var fixture = FindWeiYanKuangguFixture(registry);
+        var game = fixture.Game;
+        var events = game.Events.Skip(fixture.EventCount).Select(item => item.Payload).ToArray();
+        var owner = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        var recovered = events.OfType<KuangguRecoveredEvent>().Single();
+        Require(owner.GeneralId == "classic:wei-yan" &&
+                owner.MaxHp == 4 &&
+                owner.Hp == fixture.SourceHpBefore + 1 &&
+                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Kuanggu]) &&
+                fixture.Distance == 1 &&
+                recovered.SourceSeat == 0 &&
+                recovered.TargetSeat == fixture.TargetSeat &&
+                recovered.DamageAmount == 1 &&
+                recovered.RecoveredAmount == 1 &&
+                recovered.RemainingHp == fixture.SourceHpBefore + 1 &&
+                events.OfType<DamageAppliedEvent>().Any(damage =>
+                    damage.SourceSeat == 0 &&
+                    damage.TargetSeat == fixture.TargetSeat &&
+                    damage.Amount == 1) &&
+                events.OfType<RecoveryAppliedEvent>().Any(recovery =>
+                    recovery.SourceSeat == 0 &&
+                    recovery.TargetSeat == 0 &&
+                    recovery.Amount == 1 &&
+                    recovery.RemainingHp == fixture.SourceHpBefore + 1),
+            "A wounded Wei Yan must recover after dealing damage to a distance-one target.");
+
+        var damageIndex = Array.FindIndex(events, item => item is DamageAppliedEvent applied &&
+            applied.TargetSeat == fixture.TargetSeat);
+        var recoveryIndex = Array.FindIndex(events, item => item is KuangguRecoveredEvent);
+        Require(damageIndex >= 0 && recoveryIndex > damageIndex,
+            "Kuanggu recovery must resolve after its damage is applied.");
+
+        var replayed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replayed).SequenceEqual(EventSignatures(game)),
+            "A completed Kuanggu recovery must replay exactly.");
+
+        var legacy = GameReplay.Restore(
+            fixture.BeforeDamage with { RulesVersion = 37 },
+            registry);
+        var legacyEventCount = legacy.Events.Count;
+        var legacyResult = SubmitPlayAction(legacy, fixture.Action);
+        var legacyEvents = legacy.Events.Skip(legacyEventCount).Select(item => item.Payload).ToArray();
+        Require(legacyResult.Accepted &&
+                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp ==
+                fixture.SourceHpBefore &&
+                legacyEvents.OfType<DamageAppliedEvent>().Any(damage =>
+                    damage.TargetSeat == fixture.TargetSeat && damage.Amount == 1) &&
+                legacyEvents.OfType<KuangguRecoveredEvent>().Count() == 0 &&
+                legacyEvents.OfType<RecoveryAppliedEvent>().All(recovery =>
+                    recovery.TargetSeat != 0),
+            legacyResult.Error?.Message ?? "Rules v37 must not resolve Kuanggu.");
+
+        var fullHealth = GameReplay.Restore(fixture.BeforeDamage, registry);
+        SetPlayerHp(fullHealth, seat: 0, hp: 4);
+        var fullHealthEventCount = fullHealth.Events.Count;
+        var fullHealthResult = SubmitPlayAction(fullHealth, fixture.Action);
+        var fullHealthEvents = fullHealth.Events.Skip(fullHealthEventCount).Select(item => item.Payload).ToArray();
+        Require(fullHealthResult.Accepted &&
+                fullHealth.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp == 4 &&
+                fullHealthEvents.OfType<KuangguRecoveredEvent>().Count() == 0,
+            fullHealthResult.Error?.Message ?? "Full-health Wei Yan must not create a no-op Kuanggu recovery.");
     }
 
     public static void FormalFeedbackFlow()
@@ -4316,6 +4421,120 @@ internal static class ClassicGeneralChecks
 
         throw new InvalidOperationException("Could not find a deterministic first-black Luoshen fixture.");
     }
+
+    private static (
+        GameEngine Game,
+        GameCheckpoint BeforeDamage,
+        LegalAction Action,
+        int EventCount,
+        int TargetSeat,
+        int SourceHpBefore,
+        int Distance) FindWeiYanKuangguFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 2_048; seed++)
+        {
+            var game = CreateInteractive(registry, seed, Role.Rebel);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Wei Yan fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:wei-yan"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:wei-yan",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Wei Yan.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Wei Yan setup did not advance.");
+            var result = advanced.Result;
+            for (var step = 0; result.Status != EngineStatus.Completed && step < 1_200; step++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } prompt)
+                {
+                    var full = game.CreateSnapshot(0, revealAll: true);
+                    var source = full.Players.Single(player => player.Seat == 0);
+                    if (source.Hp > 0 && source.Hp < source.MaxHp)
+                    {
+                        var candidate = game.GetHumanLegalActions()
+                            .Where(action => action.Kind == LegalActionKind.Slash &&
+                                             action.CardId is not null &&
+                                             action.TargetSeat is not null)
+                            .Select(action => new
+                            {
+                                Action = action,
+                                Target = full.Players.Single(player => player.Seat == action.TargetSeat),
+                                Distance = game.GetCombatDistance(0, action.TargetSeat!.Value)
+                            })
+                            .Where(item => item.Distance == 1 &&
+                                           item.Target.Hand.All(card => card.Kind != CardKind.Dodge) &&
+                                           item.Target.Equipment.All(card =>
+                                               card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
+                                           item.Target.Skills?.All(skill =>
+                                               skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false)
+                            .OrderBy(item => item.Action.CardId)
+                            .ThenBy(item => item.Action.TargetSeat)
+                            .FirstOrDefault();
+                        if (candidate is not null)
+                        {
+                            var beforeDamage = GameCheckpointJson.Deserialize(
+                                GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+                            var eventCount = game.Events.Count;
+                            var played = SubmitPlayAction(game, candidate.Action);
+                            if (!played.Accepted)
+                            {
+                                continue;
+                            }
+
+                            if (!game.Events.Skip(eventCount).Any(item =>
+                                    item.Payload is KuangguRecoveredEvent))
+                            {
+                                var resolved = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                                if (!resolved.Accepted)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            if (game.Events.Skip(eventCount).Any(item =>
+                                    item.Payload is KuangguRecoveredEvent))
+                            {
+                                return (
+                                    game,
+                                    beforeDamage,
+                                    candidate.Action,
+                                    eventCount,
+                                    candidate.Target.Seat,
+                                    source.Hp,
+                                    candidate.Distance);
+                            }
+                        }
+                    }
+
+                    result = DeclineOrAdvance(game, result);
+                    continue;
+                }
+
+                result = DeclineOrAdvance(game, result);
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Wei Yan Kuanggu fixture.");
+    }
+
+    private static CommandResult SubmitPlayAction(GameEngine game, LegalAction action) =>
+        game.Submit(new PlayCardCommand(
+            0,
+            action.CardId ?? throw new InvalidOperationException("The play action has no physical card."),
+            action.TargetSeats,
+            game.Revision,
+            game.PendingDecision?.PromptId ??
+            throw new InvalidOperationException("The play action has no current prompt."),
+            action.PlayedCardKind,
+            action.TargetCardId));
 
     private static (
         GameEngine Game,

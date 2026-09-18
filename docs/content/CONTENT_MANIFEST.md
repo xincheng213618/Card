@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.17.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前新增黄忠/烈弓，马超为铁骑+马术，黄月英为集智+奇才，甄姬为洛神+倾国，徐晃为断粮、典韦为强袭、许褚为裸衣、张辽为突袭、吕蒙为克己、甘宁为奇袭、黄盖为苦肉，孙权为制衡+救援、刘备为仁德+激将、曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.16.0 历史定义按存档签名保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.18.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前新增魏延/旧版狂骨，黄忠为烈弓，马超为铁骑+马术，黄月英为集智+奇才，甄姬为洛神+倾国，徐晃为断粮、典韦为强袭、许褚为裸衣、张辽为突袭、吕蒙为克己、甘宁为奇袭、黄盖为苦肉，孙权为制衡+救援、刘备为仁德+激将、曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.17.0 历史定义按存档签名保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -151,6 +151,7 @@
 | `classic:huang-yueying` | 黄月英 | `huang_yueying` | `classic:jizhi` + `standard:qicai` | implemented-registry + classic 1.15 | ordinary-trick-trigger, private-choice, draw-one, trick-distance |
 | `classic:ma-chao` | 马超 | `ma_chao` | `classic:tieqi` + `standard:mashu` | implemented-registry + classic 1.16 | slash-target-trigger, private-choice, judgment, dodge-prohibition, outgoing-distance |
 | `classic:huang-zhong` | 黄忠 | `huang_zhong` | `classic:liegong` | implemented-registry + classic 1.17 | play-phase-slash, public-hand-threshold, attack-range-threshold, private-choice, dodge-prohibition |
+| `classic:wei-yan` | 魏延 | `wei_yan` | `classic:kuanggu` | implemented-registry + classic 1.18 | damage-source-trigger, public-distance-one, locked-recovery, damage-amount |
 | `standard:guan-yu` | 关羽 | `guan-yu` | `standard:wusheng` | implemented-registry | red-card, conversion, attack |
 | `standard:zhao-yun` | 赵云 | `zhao-yun` | `standard:longdan` | implemented-registry | slash-dodge, conversion, response |
 | `standard:sun-quan` | 孙权 | `sun-quan` | `standard:none` | implemented-registry | placeholder |
@@ -171,7 +172,7 @@
 
 刘备和孙权仍使用 `standard:none` 作为明确的 Demo 占位，不代表正式技能；关羽已接入 `standard:wusheng` 的红色牌按杀使用最小切片，赵云已接入 `standard:longdan` 的出牌/响应杀闪互转最小切片，华佗已接入 `standard:feedback` 的存活伤害后私有可选触发最小切片，郭嘉已接入 `standard:yiji` 的受伤后私有摸牌和跨座位分配最小切片，荀彧已接入 `standard:jieming` 的受伤后公开目标筛选和补牌至上限最小切片，援护者已接入 `standard:yuanhu` 的明确跨座位弃牌恢复最小切片，刚烈者已接入 `standard:ganglie` 的受伤后公开判定、来源私有弃牌/受伤选择和濒死续接最小切片，鬼才者已接入 `standard:guicai` 的判定前私有换牌、公开结果和统一牌区移动最小切片；黄盖先通过可选主动技能扩展包验证 `standard:kujin`，当前经典包 1.7.0 已将同一技能接入正式 `classic:huang-gai`；经典包 1.8.0 进一步加入甘宁/奇袭，并按实体来源区与有效过河拆桥牌型分离复用目标和无懈链；经典包 1.9.0 再加入吕蒙/克己，以回合内杀标记和弃牌阶段私有 Choice 接入阶段跳过；经典包 1.10.0 再加入张辽/突袭，以摸牌阶段公开目标组合和随机暗手牌转移替代普通摸牌；经典包 1.11.0 再加入许褚/裸衣，以少摸一张的回合标记和原始用牌者/实际伤害来源分离接入杀与决斗加伤；经典包 1.12.0 再加入典韦/强袭，以体力或武器二选一成本、攻击范围目标和无实体牌来源伤害复用统一伤害/濒死链；制衡者通过主动技能包接入 `standard:zhiheng` 的私有多选弃牌/等量摸牌最小切片，仁德者通过同一扩展包接入 `standard:rende` 的私有多选交牌/其他存活目标/按数量回复最小切片；青囊者通过同一扩展包接入 `standard:qingnang` 的私有一张手牌/受伤角色选择/弃置与 1 点恢复最小切片；回春者通过同一扩展包接入 `standard:huichun` 的私有两张手牌/两至三名受伤目标选择/逐目标恢复最小切片；马术者通过同一扩展包接入 `standard:mashu` 的公开出攻距离 -1 modifier，统一影响杀与顺手牵羊的合法性；奇才者通过同一扩展包接入 `standard:qicai` 的锦囊无距离限制，当前距离型顺手牵羊复用同一 Core 合法性查询。新增技能必须有与语义匹配的 modifier、trigger、effect 或 prompt 入口，不能借用现有技能名制造假实现。
 
-经典包 1.13.0 再加入徐晃/断粮，以黑色基本牌或装备牌的实体来源、有效兵粮寸断牌型、距离 2 修正和判定区持久有效身份复用延时锦囊链；1.14.0 再加入甄姬/洛神+倾国，以可重复私有 Choice、判定牌取得和黑色手牌转闪复用判定与响应链；1.15.0 再加入黄月英/集智+奇才，以普通锦囊声明后的私有 Choice、精确摸牌和父结算游标续接复用无懈与效果链；1.16.0 再加入马超/铁骑+马术，以杀指定目标后的私有 Choice、共享判定/鬼才替换和当前杀闪响应禁止复用攻击链；1.17.0 再加入黄忠/烈弓，以公开手牌数、当前体力、攻击范围条件和私有 Choice 复用同一杀闪响应禁止链；1.16.0 继续保留不含黄忠的历史池。
+经典包 1.13.0 再加入徐晃/断粮，以黑色基本牌或装备牌的实体来源、有效兵粮寸断牌型、距离 2 修正和判定区持久有效身份复用延时锦囊链；1.14.0 再加入甄姬/洛神+倾国，以可重复私有 Choice、判定牌取得和黑色手牌转闪复用判定与响应链；1.15.0 再加入黄月英/集智+奇才，以普通锦囊声明后的私有 Choice、精确摸牌和父结算游标续接复用无懈与效果链；1.16.0 再加入马超/铁骑+马术，以杀指定目标后的私有 Choice、共享判定/鬼才替换和当前杀闪响应禁止复用攻击链；1.17.0 再加入黄忠/烈弓，以公开手牌数、当前体力、攻击范围条件和私有 Choice 复用同一杀闪响应禁止链；1.18.0 再加入魏延/旧版狂骨，以实际伤害来源、公开战斗距离、伤害量和统一恢复帧复用伤害后触发链；1.17.0 继续保留不含魏延的历史池。
 
 规则行为版本 5 的结算约定：当前伤害若使目标降至 0 点体力，已注册的伤害后候选仍在 `DyingFrame` 创建前按稳定游标完成；该行为由 `GameCheckpoint.CurrentRulesVersion` 标识，普通快照只投影对应 responder 可见的选择。
 
@@ -202,6 +203,7 @@
 | `classic:jizhi` | 集智 | 规则 v35 经典身份中，使用普通锦囊牌后可摸一张牌 | implemented-registry + classic extension | K1/K2/K5/K7：声明后私有发动/跳过 Choice、`DrawPile → Hand`、普通锦囊/无懈触发、延时锦囊排除、父 `CardUseFrame`/`NullificationWindowFrame` 游标续接及 v34 兼容 |
 | `classic:tieqi` | 铁骑 | 规则 v36 经典身份中，使用杀指定目标后可判定；红色结果禁止该目标使用闪响应此杀 | implemented-registry + classic extension | K1/K2/K5/K7：目标声明后私有发动/跳过 Choice、共享 `JudgmentFrame`/鬼才替换、当前 `AttackResolution` 闪响应禁止、实体闪/倾国/八卦阵/护驾统一拦截及 v35 兼容 |
 | `classic:liegong` | 烈弓 | 规则 v37 经典身份中，出牌阶段用杀指定满足手牌数条件的目标后可令其不能使用闪 | implemented-registry + classic extension | K1/K2/K5/K6/K7：公开手牌数与当前体力/攻击范围双条件、私有发动/跳过 Choice、当前 `AttackResolution` 闪响应禁止、实体闪/倾国/八卦阵/护驾统一拦截及 v36 兼容 |
+| `classic:kuanggu` | 狂骨 | 规则 v38 经典身份中，实际伤害来源魏延对距离 1 以内角色造成伤害后按伤害点数回复体力 | implemented-registry + classic extension | K1/K5/K6/K7：`DamageTriggerScope.DamageSource`、公开结算距离、锁定高优先级候选、统一恢复帧、伤害/恢复事件顺序、满体力无空恢复及 v37 兼容 |
 | `standard:kujin` | 苦肉 | 出牌阶段失去 1 点体力并摸两张牌；若降至 0，救援结算后再摸牌 | implemented-registry + extension | K5：`IActiveSkill`、`UseSkillCommand`、`ActiveSkillFrame`、类型化体力/摸牌事件；体力大于 0，濒死时保留主动技能帧并复用私有 `RescueDying` |
 | `standard:rende` | 仁德 | 主动交牌并按数量回复 | implemented-registry + extension | K2/K5：私有选牌/其他存活目标白名单、Processing 跨手牌移动、按数量恢复、回合一次限制 |
 | `standard:zhiheng` | 制衡 | 规则 v17 经典身份每阶段限一次，可混选自己的手牌与公开装备后弃置并摸等量牌；旧规则/演示模式仅手牌 | implemented-registry + extension | K2/K5/K6：主动多选、混合来源 `Processing` 牌区、等量摸牌和私有 Prompt |

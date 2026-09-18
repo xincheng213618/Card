@@ -50,7 +50,8 @@ public sealed record DamageSkillContext(
     int? TargetSeat = null,
     int? TargetHp = null,
     int? TargetMaxHp = null,
-    int SourceCardCount = 0);
+    int SourceCardCount = 0,
+    int? SourceToTargetDistance = null);
 
 public sealed record JudgmentSkillContext(
     PlayerSkillContext Owner,
@@ -165,6 +166,7 @@ public interface IPassiveSkill
         return AfterDamageTriggerScope switch
         {
             DamageTriggerScope.DamagedPlayer => targetSeat == context.Owner.Seat,
+            DamageTriggerScope.DamageSource => context.SourceSeat == context.Owner.Seat,
             DamageTriggerScope.OtherLivingPlayer => targetSeat != context.Owner.Seat,
             DamageTriggerScope.AnyLivingPlayer => true,
             _ => false
@@ -318,6 +320,25 @@ public sealed class LiegongSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Liegong;
     public string Name => "烈弓";
+}
+
+public sealed class KuangguSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Kuanggu;
+    public string Name => "狂骨";
+    public DamageTriggerScope AfterDamageTriggerScope => DamageTriggerScope.DamageSource;
+    public int DamageTriggerPriority => 100;
+
+    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
+        context.Amount > 0 &&
+        context.SourceSeat == context.Owner.Seat &&
+        context.SourceToTargetDistance is <= 1 &&
+        context.Owner.Hp < context.Owner.MaxHp;
+
+    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context)
+            ? DamageSkillEffectKind.RecoverDamageSource
+            : DamageSkillEffectKind.None;
 }
 
 public sealed class KejiSkill : IPassiveSkill
@@ -804,7 +825,8 @@ public static class SkillRegistry
             [SkillKind.Qingguo] = new QingguoSkill(),
             [SkillKind.Jizhi] = new JizhiSkill(),
             [SkillKind.Tieqi] = new TieqiSkill(),
-            [SkillKind.Liegong] = new LiegongSkill()
+            [SkillKind.Liegong] = new LiegongSkill(),
+            [SkillKind.Kuanggu] = new KuangguSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

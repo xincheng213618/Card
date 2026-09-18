@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 17, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 18, 0))
     {
     }
 
@@ -36,12 +36,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 14, 0) &&
             version != new Version(1, 15, 0) &&
             version != new Version(1, 16, 0) &&
-            version != new Version(1, 17, 0))
+            version != new Version(1, 17, 0) &&
+            version != new Version(1, 18, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.17.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.18.0.");
         }
 
         _version = version;
@@ -194,6 +195,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "烈弓",
                 "当你于出牌阶段内使用【杀】指定一个目标后，若该角色的手牌数不小于你的体力值或不大于你的攻击范围，则你可以令其不能使用【闪】响应此【杀】。",
                 SkillKind.Liegong));
+        }
+        if (_version >= new Version(1, 18, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:kuanggu",
+                "狂骨",
+                "锁定技，当你对距离1以内的一名角色造成1点伤害后，你回复1点体力。",
+                SkillKind.Kuanggu));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -396,6 +405,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 18, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:wei-yan",
+                "魏延",
+                "wei_yan",
+                "classic:kuanggu",
+                "shu",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -416,6 +435,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 14 } => PreHuangYueyingClassicGeneralIds,
             { Major: 1, Minor: 15 } => PreMaChaoClassicGeneralIds,
             { Major: 1, Minor: 16 } => PreHuangZhongClassicGeneralIds,
+            { Major: 1, Minor: 17 } => PreWeiYanClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -467,6 +487,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:huang-yueying",
         "classic:ma-chao",
         "classic:huang-zhong",
+        "classic:wei-yan",
         "classic:huang-gai",
         "classic:gan-ning",
         "classic:lu-meng",
@@ -478,9 +499,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreWeiYanClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:wei-yan")
+    ];
+
     internal static IReadOnlyList<string> PreHuangZhongClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:huang-zhong")
+        .. PreWeiYanClassicGeneralIds.Where(id => id != "classic:huang-zhong")
     ];
 
     internal static IReadOnlyList<string> PreMaChaoClassicGeneralIds { get; } =

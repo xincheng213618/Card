@@ -102,7 +102,8 @@ public enum DamageTriggerScope
 {
     DamagedPlayer,
     OtherLivingPlayer,
-    AnyLivingPlayer
+    AnyLivingPlayer,
+    DamageSource
 }
 
 public enum TurnPhase
@@ -153,7 +154,8 @@ public enum SkillKind
     Qingguo,
     Jizhi,
     Tieqi,
-    Liegong
+    Liegong,
+    Kuanggu
 }
 
 public enum DecisionKind

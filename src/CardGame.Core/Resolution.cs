@@ -45,7 +45,8 @@ public enum DamageSkillEffectKind
     DrawToMaxHand,
     RecoverDamageTarget,
     GanglieJudgment,
-    TakeSourceCard
+    TakeSourceCard,
+    RecoverDamageSource
 }
 
 /// <summary>
