@@ -628,6 +628,81 @@ internal static class ClassicGeneralUiChecks
         jizhiWindow.Content = null;
         jizhiWindow.Close();
 
+        using var tieqiDescriptionViewModel = FindGeneralChoice("classic:ma-chao");
+        var maChao = tieqiDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:ma-chao");
+        Program.Assert(maChao.Name == "马超" &&
+                       maChao.Kingdom == "蜀" &&
+                       maChao.SkillName == "铁骑 / 马术" &&
+                       maChao.SkillDescription.Contains("不能使用【闪】", StringComparison.Ordinal) &&
+                       maChao.SkillDescription.Contains("距离始终 -1", StringComparison.Ordinal) &&
+                       maChao.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(maChao.GeneralId),
+            "The current classic Ma Chao card must render Shu, Tieqi, Mashu, Lord health and portrait aliasing.");
+        var tieqiDescriptionWindow = new MainWindow(tieqiDescriptionViewModel);
+        tieqiDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)tieqiDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "99-classic-ma-chao-card.png"));
+        tieqiDescriptionWindow.Content = null;
+        tieqiDescriptionWindow.Close();
+
+        using var tieqiViewModel = FindClassicTieqiViewModel();
+        var tieqiEngine = Program.Engine(tieqiViewModel);
+        var slashAction = tieqiEngine.GetHumanLegalActions()
+            .Where(action => action.Kind == LegalActionKind.Slash &&
+                             action.CardId is not null &&
+                             action.TargetSeat is not null)
+            .OrderBy(action => action.CardId)
+            .ThenBy(action => action.TargetSeat)
+            .First();
+        var tieqiSlash = tieqiViewModel.Hand.Single(card => card.Id == slashAction.CardId);
+        tieqiViewModel.SelectCardCommand.Execute(tieqiSlash);
+        var tieqiTarget = tieqiViewModel.Seats.Single(seat => seat.Seat == slashAction.TargetSeat);
+        tieqiViewModel.SelectTargetCommand.Execute(tieqiTarget);
+        Program.Assert(tieqiTarget.IsSelectedTarget && tieqiViewModel.CanPlaySelected,
+            "The WPF Ma Chao fixture must select its Slash and exact target through normal controls.");
+        tieqiViewModel.PlaySelectedCardCommand.Execute(null);
+        var tieqiPrompt = tieqiEngine.PendingDecision;
+        Program.Assert(tieqiViewModel.IsSkillSelectionPending &&
+                       tieqiPrompt is
+                       {
+                           Kind: DecisionKind.Tieqi,
+                           PlayerSeat: 0,
+                           IsPrivate: true,
+                           Choices.Count: 2
+                       } &&
+                       tieqiPrompt.TargetSeat == tieqiTarget.Seat &&
+                       tieqiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "tieqi-use") &&
+                       tieqiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "tieqi-skip") &&
+                       tieqiViewModel.CurrentGuideTitle == "决定是否发动铁骑" &&
+                       tieqiViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("红色结果", StringComparison.Ordinal)),
+            "The WPF must render both private Tieqi choices before the target receives a Dodge response.");
+        var tieqiWindow = new MainWindow(tieqiViewModel);
+        tieqiWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)tieqiWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "100-classic-tieqi-choice.png"));
+        tieqiViewModel.SelectSkillChoiceCommand.Execute(tieqiViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "tieqi-use"));
+        Program.Assert(tieqiEngine.Events.Any(item => item.Payload is TieqiChoiceResolvedEvent
+        {
+            SourceSeat: 0,
+            Used: true
+        } resolved && resolved.TargetSeat == tieqiTarget.Seat) &&
+                       tieqiEngine.Events.Any(item => item.Payload is JudgmentRequestedEvent requested &&
+                           requested.Reason == JudgmentReasons.Tieqi && requested.TargetSeat == 0),
+            "The WPF Tieqi choice must commit a typed choice and public attacker judgment.");
+        tieqiWindow.Content = null;
+        tieqiWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
@@ -1312,6 +1387,42 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Jizhi WPF fixture.");
+    }
+
+    private static MainViewModel FindClassicTieqiViewModel()
+    {
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var maChao = candidate.GeneralChoices.SingleOrDefault(choice =>
+                choice.GeneralId == "classic:ma-chao");
+            if (maChao is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(maChao);
+                Program.AdvanceToDecision(candidate);
+                var engine = Program.Engine(candidate);
+                if (engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                    engine.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Slash &&
+                        action.CardId is not null &&
+                        action.TargetSeat is not null))
+                {
+                    return candidate;
+                }
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Tieqi WPF fixture.");
     }
 
     private static (GameEngine Game, int JudgmentCardId) FindTianduFixture()

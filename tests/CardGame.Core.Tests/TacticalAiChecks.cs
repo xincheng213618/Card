@@ -294,6 +294,10 @@ internal static class TacticalAiChecks
                 loyal, lord, JudgmentReasons.Ganglie, [1000, 1001], CardKind.Dodge,
                 Suit.Heart, 1, 7, rulesVersion: 11, usesClassicGanglieJudgment: true).CardId == 1001,
             "Guicai did not use the classic non-Heart Ganglie success suit.");
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                loyal, lord, JudgmentReasons.Tieqi, [1000, 1001], CardKind.Dodge,
+                Suit.Club, 1, 7, rulesVersion: 36).CardId == 1000,
+            "Guicai did not turn an allied Tieqi judgment red.");
 
         var rebel = JudgmentView(Role.Rebel);
         lord = rebel.Players.Single(player => player.Role == Role.Lord).Seat;
@@ -301,6 +305,10 @@ internal static class TacticalAiChecks
                 rebel, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
                 Suit.Heart, 1, 7, rulesVersion: 11).CardId == 1001,
             "Guicai did not turn an enemy Indulgence safe suit into a failed judgment.");
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                rebel, lord, JudgmentReasons.Tieqi, [1000, 1001], CardKind.Dodge,
+                Suit.Heart, 1, 7, rulesVersion: 36).CardId == 1001,
+            "Guicai did not turn an enemy Tieqi judgment black.");
         Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
                 rebel, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
                 Suit.Spade, 1, 7, rulesVersion: 10).CardId == 1000,

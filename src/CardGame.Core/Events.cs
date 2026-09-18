@@ -243,6 +243,12 @@ public sealed record LuoshenChoiceResolvedEvent(
     bool Used,
     bool IsRepeat) : IGameEvent;
 
+/// <summary>Public result of the attacker's optional Tieqi trigger.</summary>
+public sealed record TieqiChoiceResolvedEvent(
+    int SourceSeat,
+    int TargetSeat,
+    bool Used) : IGameEvent;
+
 public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing }
 
 /// <summary>The declared target lost its required cards during the response window.</summary>

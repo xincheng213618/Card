@@ -73,6 +73,7 @@ public sealed partial class GameEngine
     private LuoyiDrawResolution? _pendingLuoyiDraw;
     private LuoshenResolution? _pendingLuoshen;
     private JizhiResolution? _pendingJizhi;
+    private TieqiResolution? _pendingTieqi;
     private GuanxingResolution? _pendingGuanxing;
     private HujiaResolution? _pendingHujia;
     private JijiangResolution? _pendingJijiang;
@@ -227,6 +228,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalJizhi =>
         _rulesVersion >= 35 && IsClassicIdentityMode;
+
+    private bool UsesFormalTieqi =>
+        _rulesVersion >= 36 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -765,6 +769,7 @@ public sealed partial class GameEngine
                 DecisionKind.Luoyi or
                 DecisionKind.Luoshen or
                 DecisionKind.Jizhi or
+                DecisionKind.Tieqi or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -870,6 +875,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Jizhi)
         {
             return SubmitJizhiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Tieqi)
+        {
+            return SubmitTieqiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1347,6 +1357,33 @@ public sealed partial class GameEngine
                 useSkill: false,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "集智提示没有可识别的选择效果。")
+        };
+    }
+
+    private CommandResult SubmitTieqiPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingTieqi is null ||
+            _pendingDecision is not { Kind: DecisionKind.Tieqi })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的铁骑目标窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "铁骑选择不符合当前目标窗口。");
+        }
+
+        return action switch
+        {
+            "tieqi-use" => Accept(() => HumanTieqiCore(
+                useSkill: true,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "tieqi-skip" => Accept(() => HumanTieqiCore(
+                useSkill: false,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "铁骑提示没有可识别的选择效果。")
         };
     }
 
@@ -2038,6 +2075,7 @@ public sealed partial class GameEngine
                     IsAiLuoyiPending() ||
                     IsAiLuoshenPending() ||
                     IsAiJizhiPending() ||
+                    IsAiTieqiPending() ||
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
@@ -2803,6 +2841,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Jizhi);
         ResolveJizhiChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanTieqiCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Tieqi);
+        ResolveTieqiChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5062,6 +5108,12 @@ public sealed partial class GameEngine
         if (IsAiJizhiPending())
         {
             ResolvePendingAiJizhi();
+            return;
+        }
+
+        if (IsAiTieqiPending())
+        {
+            ResolvePendingAiTieqi();
             return;
         }
 
@@ -7769,6 +7821,106 @@ public sealed partial class GameEngine
         ResolveSlashCore(source, target, slash, playedCardKind, source.Seat);
     }
 
+    private bool TryBeginTieqiChoice(AttackResolution attack)
+    {
+        var owner = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        if (!UsesFormalTieqi ||
+            !owner.IsAlive ||
+            !target.IsAlive ||
+            !owner.General.HasSkill(SkillKind.Tieqi))
+        {
+            return false;
+        }
+
+        if (_pendingTieqi is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Tieqi choices at once.");
+        }
+
+        _pendingTieqi = new TieqiResolution(attack);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Tieqi,
+            owner.Seat,
+            $"你对 {target.Name} 使用了【{CardCatalog.Get(attack.EffectiveCardKind ?? CardKind.Slash).DisplayName}】，是否发动【铁骑】进行判定？",
+            [],
+            [],
+            SourceSeat: owner.Seat,
+            IncomingCard: attack.EffectiveCardKind)
+        {
+            PromptId = CreatePromptId(),
+            IsPrivate = true,
+            TargetSeat = target.Seat,
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId($"tieqi.use.resolution-{attack.ResolutionId}.target-{target.Seat}"),
+                    "发动【铁骑】，进行判定。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "tieqi-use" }),
+                new PromptChoice(
+                    new ChoiceId($"tieqi.skip.resolution-{attack.ResolutionId}.target-{target.Seat}"),
+                    "不发动【铁骑】，继续询问【闪】。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "tieqi-skip" })
+            ]
+        };
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private void ResolveTieqiChoice(bool useSkill)
+    {
+        var pending = _pendingTieqi ??
+            throw new InvalidOperationException("There is no Tieqi choice to resolve.");
+        var attack = pending.Attack;
+        var owner = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        _pendingTieqi = null;
+        ClearPendingDecision();
+        QueueGameEvent(new TieqiChoiceResolvedEvent(owner.Seat, target.Seat, useSkill));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill
+                ? $"{owner.Name} 对 {target.Name} 发动【铁骑】，进行判定。"
+                : $"{owner.Name} 未对 {target.Name} 发动【铁骑】。",
+            owner.Seat,
+            target.Seat);
+
+        if (!useSkill)
+        {
+            ContinueSlashAfterTieqi(attack);
+            return;
+        }
+
+        var result = BeginJudgment(
+            attack,
+            owner.Seat,
+            JudgmentReasons.Tieqi,
+            attack.ResolutionId,
+            attack.EffectiveCardKind,
+            JudgmentContinuationKind.Tieqi,
+            damageSkill: null,
+            sourceSeat: owner.Seat);
+        if (result is { } succeeded)
+        {
+            CompleteTieqiJudgment(attack, succeeded);
+        }
+    }
+
+    private void CompleteTieqiJudgment(AttackResolution attack, bool succeeded)
+    {
+        if (!ReferenceEquals(_pendingAttack, attack))
+        {
+            throw new InvalidOperationException("The Tieqi judgment does not own the current Slash.");
+        }
+
+        attack.ResolveTieqi(succeeded);
+        ContinueSlashAfterTieqi(attack);
+    }
+
     private void ResolveSlashCore(
         PlayerRuntime source,
         PlayerRuntime target,
@@ -7819,6 +7971,31 @@ public sealed partial class GameEngine
             IgnoresArmor: ignoresArmor));
         NotifyAiOfSlash(source, target);
 
+        if (TryBeginTieqiChoice(attack))
+        {
+            PublishState();
+            return;
+        }
+
+        ContinueSlashAfterTieqi(attack);
+    }
+
+    private void ContinueSlashAfterTieqi(AttackResolution attack)
+    {
+        if (!ReferenceEquals(_pendingAttack, attack))
+        {
+            throw new InvalidOperationException("The Tieqi continuation does not own the current Slash.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var slash = attack.Card ??
+            throw new InvalidOperationException("A Slash continuation must retain its physical card.");
+        var playedCardKind = attack.EffectiveCardKind ?? slash.Kind;
+        var ignoresArmor = attack.IgnoresArmor;
+        var resolutionId = attack.ResolutionId;
+        var slashName = CardCatalog.Get(playedCardKind).DisplayName;
+
         if (UsesFormalArmorResponseTiming &&
             !ignoresArmor &&
             slash.Suit is Suit.Spade or Suit.Club &&
@@ -7837,6 +8014,21 @@ public sealed partial class GameEngine
                 playedCardKind));
             SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
             CompleteAttack(attack);
+            return;
+        }
+
+        if (attack.ProhibitsDodge)
+        {
+            AddLog(
+                "SkillTriggered",
+                $"{source.Name} 的【铁骑】判定为红色，{target.Name} 不能使用【闪】响应此【{slashName}】。",
+                source.Seat,
+                target.Seat);
+            SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+            if (!ApplyAttackDamage(attack))
+            {
+                CompleteAttack(attack);
+            }
             return;
         }
 
@@ -9971,6 +10163,7 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.SupplyShortage => "兵粮寸断",
             JudgmentContinuationKind.Lightning => "闪电",
             JudgmentContinuationKind.Luoshen => "洛神",
+            JudgmentContinuationKind.Tieqi => "铁骑",
             _ => pending.Reason
         };
         var judgmentResult = pending.Continuation == JudgmentContinuationKind.Lightning
@@ -10283,6 +10476,14 @@ public sealed partial class GameEngine
 
     private void ResumeCompletedJudgment(JudgmentResolution pending, bool succeeded)
     {
+        if (pending.Continuation == JudgmentContinuationKind.Tieqi)
+        {
+            var attack = pending.Attack ??
+                throw new InvalidOperationException("A Tieqi judgment has no Slash continuation.");
+            CompleteTieqiJudgment(attack, succeeded);
+            return;
+        }
+
         if (pending.Continuation == JudgmentContinuationKind.Luoshen)
         {
             var current = _players[pending.TargetSeat];
@@ -14704,6 +14905,7 @@ public sealed partial class GameEngine
             _pendingFireAttack is not null ||
             _pendingNullification is not null ||
             _pendingJizhi is not null ||
+            _pendingTieqi is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
             _resolutionStack.Any(frame => frame is ActiveSkillFrame);
@@ -15039,6 +15241,53 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingTieqi is { } tieqi)
+        {
+            var tieqiAttack = tieqi.Attack;
+            var decision = _pendingDecision;
+            var source = _players[tieqiAttack.SourceSeat];
+            var target = _players[tieqiAttack.TargetSeat];
+            var slash = tieqiAttack.Card;
+            if (!UsesFormalTieqi ||
+                !ReferenceEquals(_pendingAttack, tieqiAttack) ||
+                !source.IsAlive ||
+                !target.IsAlive ||
+                !source.General.HasSkill(SkillKind.Tieqi) ||
+                slash is null ||
+                _cardZones.GetLocation(slash.Id) != CardLocation.Processing ||
+                tieqiAttack.TieqiResolved ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != tieqiAttack.ResolutionId ||
+                cardUse.SourceSeat != tieqiAttack.SourceSeat ||
+                cardUse.CardId != slash.Id ||
+                cardUse.CardKind != tieqiAttack.EffectiveCardKind ||
+                cardUse.Step != ResolutionFrameStep.Declared ||
+                !cardUse.TargetSeats.SequenceEqual([tieqiAttack.TargetSeat]) ||
+                decision is not { Kind: DecisionKind.Tieqi, IsPrivate: true } ||
+                decision.PlayerSeat != tieqiAttack.SourceSeat ||
+                decision.SourceSeat != tieqiAttack.SourceSeat ||
+                decision.TargetSeat != tieqiAttack.TargetSeat ||
+                decision.IncomingCard != tieqiAttack.EffectiveCardKind ||
+                decision.Choices.Count != 2 ||
+                decision.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0) ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "tieqi-use") != 1 ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "tieqi-skip") != 1)
+            {
+                throw new InvalidOperationException(
+                    "A Tieqi choice must retain its private prompt and exact Slash continuation.");
+            }
+
+            var expectedTieqiStatus = source.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedTieqiStatus)
+            {
+                throw new InvalidOperationException("A Tieqi prompt status does not match its owner.");
+            }
+        }
+
         if (_pendingGuanxing is { } guanxing)
         {
             var selectedIds = guanxing.TopCardIds.Concat(guanxing.BottomCardIds).ToArray();
@@ -15331,7 +15580,18 @@ public sealed partial class GameEngine
                     "An active-skill damage continuation has no parent ActiveSkill frame.");
             }
 
-            if (_pendingJudgment is { } judgmentContinuation)
+            if (_pendingTieqi is { } tieqiContinuation)
+            {
+                if (!ReferenceEquals(tieqiContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame tieqiCardUse ||
+                    tieqiCardUse.Id != pendingAttack.ResolutionId ||
+                    tieqiCardUse.Step != ResolutionFrameStep.Declared)
+                {
+                    throw new InvalidOperationException(
+                        "An active Tieqi choice must retain its declared Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingJudgment is { } judgmentContinuation)
             {
                 if (!ReferenceEquals(judgmentContinuation.Attack, pendingAttack) ||
                     _resolutionStack.LastOrDefault() is not JudgmentFrame judgmentFrame ||
@@ -15833,7 +16093,8 @@ public sealed partial class GameEngine
                 DecisionKind.Yuanhu or
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
-                DecisionKind.Guicai) &&
+                DecisionKind.Guicai or
+                DecisionKind.Tieqi) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -15844,7 +16105,7 @@ public sealed partial class GameEngine
         var awaitingHumanDying =
             _pendingDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
-        var awaitingAiResponse = IsAiResponsePending();
+        var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending();
         var awaitingAiNullification = IsAiNullificationPending();
         var awaitingAiJizhi = IsAiJizhiPending();
         var awaitingAiDamageSkill = IsAiDamageSkillPending();
@@ -15900,6 +16161,7 @@ public sealed partial class GameEngine
              _pendingJudgment is not null ||
              _pendingLuoshen is not null ||
              _pendingJizhi is not null ||
+             _pendingTieqi is not null ||
              _pendingHujia is not null ||
              _pendingJijiang is not null ||
              processing.Count != 0))
@@ -16164,6 +16426,23 @@ public sealed partial class GameEngine
         }
 
         ResolveJizhiChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiTieqiPending() =>
+        _pendingTieqi is { Attack.SourceSeat: var sourceSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Tieqi, PlayerSeat: var decisionSeat } &&
+        sourceSeat == decisionSeat &&
+        !_players[sourceSeat].IsHuman;
+
+    private void ResolvePendingAiTieqi()
+    {
+        if (!IsAiTieqiPending())
+        {
+            throw new InvalidOperationException("There is no AI Tieqi choice to resolve.");
+        }
+
+        ResolveTieqiChoice(useSkill: true);
         PublishState();
     }
 
@@ -16815,6 +17094,8 @@ public sealed partial class GameEngine
         public bool IsChainPropagation { get; private set; }
         public bool HujiaAttempted { get; private set; }
         public bool JijiangAttempted { get; private set; }
+        public bool TieqiResolved { get; private set; }
+        public bool ProhibitsDodge { get; private set; }
 
         public void SetDamageParticipants(int sourceSeat, int targetSeat)
         {
@@ -16856,6 +17137,17 @@ public sealed partial class GameEngine
             }
 
             JijiangAttempted = true;
+        }
+
+        public void ResolveTieqi(bool prohibitsDodge)
+        {
+            if (TieqiResolved)
+            {
+                throw new InvalidOperationException("Tieqi has already resolved for this Slash.");
+            }
+
+            TieqiResolved = true;
+            ProhibitsDodge = prohibitsDodge;
         }
 
         public void SetChainedTargets(IReadOnlyList<int> targetSeats)
@@ -16902,6 +17194,8 @@ public sealed partial class GameEngine
         public int CurrentCandidateSeat =>
             CandidateIndex < CandidateSeats.Count ? CandidateSeats[CandidateIndex] : -1;
     }
+
+    private sealed record TieqiResolution(AttackResolution Attack);
 
     private sealed class JijiangResolution(
         long resolutionId,
@@ -16954,6 +17248,7 @@ public sealed partial class GameEngine
         HujiaBagua,
         Ganglie,
         Luoshen,
+        Tieqi,
         Indulgence,
         SupplyShortage,
         Lightning

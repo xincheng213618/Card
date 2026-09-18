@@ -924,6 +924,7 @@ public sealed partial class SimpleAiBrain
             JudgmentReasons.Indulgence when usesSuitSpecificDelayedJudgments => suit == Suit.Heart,
             JudgmentReasons.SupplyShortage when usesSuitSpecificDelayedJudgments => suit == Suit.Club,
             JudgmentReasons.Luoshen => suit is Suit.Spade or Suit.Club,
+            JudgmentReasons.Tieqi => suit is Suit.Heart or Suit.Diamond,
             JudgmentReasons.Ganglie when usesSuitSpecificDelayedJudgments && usesClassicGanglieJudgment =>
                 suit != Suit.Heart,
             _ => suit is Suit.Heart or Suit.Diamond

@@ -24,6 +24,7 @@ internal static class ClassicGeneralChecks
         var qiangxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 12, 0));
         var duanliangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 13, 0));
         var luoshenClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 14, 0));
+        var jizhiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 15, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -32,7 +33,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.15.0"]),
+                "standard-classic-generals@1.16.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -132,6 +133,13 @@ internal static class ClassicGeneralChecks
                     "classic:huang-yueying",
                     StringComparer.Ordinal),
             "The Luoshen-era classic registry must retain the 1.14 roster without Huang Yueying or Jizhi.");
+        Require(jizhiClassic.Packages.Last().Version == new Version(1, 15, 0) &&
+                !jizhiClassic.Generals.ContainsKey("classic:ma-chao") &&
+                !jizhiClassic.Skills.ContainsKey("classic:tieqi") &&
+                !jizhiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:ma-chao",
+                    StringComparer.Ordinal),
+            "The Jizhi-era classic registry must retain the 1.15 roster without Ma Chao or Tieqi.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -217,6 +225,12 @@ internal static class ClassicGeneralChecks
                 huangYueying.BaseHp == 3 &&
                 huangYueying.SkillIds.SequenceEqual(["classic:jizhi", "standard:qicai"]),
             "The current classic Huang Yueying must expose formal Shu, 3-HP Jizhi and Qicai in a stable order.");
+        var maChao = classic.Generals["classic:ma-chao"];
+        Require(maChao.Name == "马超" &&
+                maChao.FactionId == "shu" &&
+                maChao.BaseHp == 4 &&
+                maChao.SkillIds.SequenceEqual(["classic:tieqi", "standard:mashu"]),
+            "The current classic Ma Chao must expose formal Shu, 4-HP Tieqi and Mashu in a stable order.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -235,12 +249,13 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
                        pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
                        pool.Contains("classic:huang-yueying", StringComparer.Ordinal) &&
+                       pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 35,
-            "Classic Jizhi must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 36,
+            "Classic Tieqi must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -1698,6 +1713,125 @@ internal static class ClassicGeneralChecks
                     .All(resolved => resolved.Skill != SkillKind.Jizhi) &&
                 legacy.CardMovements.All(movement => movement.Reason != CardMoveReasons.JizhiDraw),
             legacyPlayed.Error?.Message ?? "Rules v34 must not publish or resolve Jizhi.");
+    }
+
+    public static void FormalTieqiAndMashuFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var red = FindMaChaoTieqiFixture(registry, requireRedJudgment: true);
+        var owner = red.Game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(owner.GeneralId == "classic:ma-chao" &&
+                owner.MaxHp == 5 &&
+                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Tieqi, SkillKind.Mashu]),
+            "Classic Ma Chao must expose formal Shu, Lord-adjusted 5 HP, Tieqi and Mashu.");
+        Require(red.Prompt is
+        {
+            Kind: DecisionKind.Tieqi,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            Choices.Count: 2
+        } &&
+                red.Prompt.TargetSeat == red.TargetSeat &&
+                red.Game.CreateSnapshot(red.TargetSeat).PendingDecision is null &&
+                red.Game.ResolutionStack.LastOrDefault() is CardUseFrame
+                {
+                    Step: ResolutionFrameStep.Declared
+                },
+            "Using Slash must pause at a private Tieqi choice before any Dodge response.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(red.Game.CreateCheckpoint()));
+        var pausedReplay = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(pausedReplay.PendingDecision?.Kind == DecisionKind.Tieqi &&
+                SnapshotJson.Serialize(pausedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(red.Game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(pausedReplay).SequenceEqual(EventSignatures(red.Game)),
+            "A paused Tieqi choice must restore before its judgment and Slash response.");
+
+        var redEventCount = red.Game.Events.Count;
+        var used = red.Game.Submit(new AnswerPromptCommand(
+            0,
+            red.Prompt.PromptId,
+            red.Prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "tieqi-use").Id,
+            red.Game.Revision));
+        var redEvents = red.Game.Events.Skip(redEventCount).Select(item => item.Payload).ToArray();
+        Require(used.Accepted &&
+                redEvents.OfType<TieqiChoiceResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 && resolved.TargetSeat == red.TargetSeat && resolved.Used) &&
+                redEvents.OfType<JudgmentResolvedEvent>().Any(resolved =>
+                    resolved.Reason == JudgmentReasons.Tieqi &&
+                    resolved.TargetSeat == 0 &&
+                    resolved.Suit is Suit.Heart or Suit.Diamond &&
+                    resolved.Succeeded) &&
+                redEvents.OfType<ResponseRequestedEvent>().All(requested =>
+                    requested.TargetSeat != red.TargetSeat || requested.RequiredCardKind != CardKind.Dodge) &&
+                redEvents.OfType<DamageAppliedEvent>().Any(damage => damage.TargetSeat == red.TargetSeat),
+            used.Error?.Message ??
+            "A red Tieqi judgment must prohibit the target's published Dodge and continue to Slash damage.");
+        var completedReplay = GameReplay.Restore(red.Game.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(completedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(red.Game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(completedReplay).SequenceEqual(EventSignatures(red.Game)),
+            "The completed red Tieqi Slash must replay exactly.");
+
+        var skipped = GameReplay.Restore(pausedCheckpoint, registry);
+        var skipPrompt = skipped.PendingDecision!;
+        var judgmentCountBeforeSkip = skipped.Events.Select(item => item.Payload)
+            .OfType<JudgmentRequestedEvent>().Count(item => item.Reason == JudgmentReasons.Tieqi);
+        var skippedResult = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "tieqi-skip").Id,
+            skipped.Revision));
+        Require(skippedResult.Accepted &&
+                skipped.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
+                    requested.TargetSeat == red.TargetSeat &&
+                    requested.RequiredCardKind == CardKind.Dodge) &&
+                skipped.Events.Select(item => item.Payload)
+                    .OfType<JudgmentRequestedEvent>().Count(item => item.Reason == JudgmentReasons.Tieqi) ==
+                judgmentCountBeforeSkip &&
+                skipped.Events.Select(item => item.Payload).OfType<TieqiChoiceResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 && resolved.TargetSeat == red.TargetSeat && !resolved.Used),
+            skippedResult.Error?.Message ??
+            $"Skipping Tieqi must open the ordinary Dodge response without creating a judgment " +
+            $"(pending={skipped.PendingDecision?.Kind}/{skipped.PendingDecision?.PlayerSeat}, " +
+            $"expected={red.TargetSeat}, judgments={skipped.Events.Select(item => item.Payload).OfType<JudgmentRequestedEvent>().Count(item => item.Reason == JudgmentReasons.Tieqi)}, " +
+            $"choices={skipped.Events.Select(item => item.Payload).OfType<TieqiChoiceResolvedEvent>().Count()}).");
+
+        var black = FindMaChaoTieqiFixture(registry, requireRedJudgment: false);
+        var blackEventCount = black.Game.Events.Count;
+        var blackUsed = black.Game.Submit(new AnswerPromptCommand(
+            0,
+            black.Prompt.PromptId,
+            black.Prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "tieqi-use").Id,
+            black.Game.Revision));
+        var blackEvents = black.Game.Events.Skip(blackEventCount).Select(item => item.Payload).ToArray();
+        Require(blackUsed.Accepted &&
+                blackEvents.OfType<JudgmentResolvedEvent>().Any(resolved =>
+                    resolved.Reason == JudgmentReasons.Tieqi &&
+                    resolved.Suit is Suit.Spade or Suit.Club &&
+                    !resolved.Succeeded) &&
+                blackEvents.OfType<ResponseRequestedEvent>().Any(requested =>
+                    requested.TargetSeat == black.TargetSeat &&
+                    requested.RequiredCardKind == CardKind.Dodge),
+            blackUsed.Error?.Message ??
+            $"A black Tieqi judgment must retain the target's ordinary Dodge response " +
+            $"(pending={black.Game.PendingDecision?.Kind}/{black.Game.PendingDecision?.PlayerSeat}, " +
+            $"expected={black.TargetSeat}, valid={black.Game.PendingDecision?.ValidCardIds.Count}, " +
+            $"judgment={string.Join(',', blackEvents.OfType<JudgmentResolvedEvent>().Where(item => item.Reason == JudgmentReasons.Tieqi).Select(item => $"{item.Suit}/{item.Succeeded}"))}, " +
+            $"responses={blackEvents.OfType<ResponseRequestedEvent>().Count()}).");
+
+        var legacy = FindMaChaoSlashFixture(registry, red.Seed, rulesVersion: 35);
+        Require(legacy.Game.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
+                    requested.TargetSeat == legacy.TargetSeat &&
+                    requested.RequiredCardKind == CardKind.Dodge) &&
+                legacy.Game.Events.Select(item => item.Payload).OfType<TieqiChoiceResolvedEvent>().Count() == 0 &&
+                legacy.Game.Events.Select(item => item.Payload).OfType<JudgmentRequestedEvent>()
+                    .All(item => item.Reason != JudgmentReasons.Tieqi),
+            "Rules v35 must not publish or resolve Tieqi.");
     }
 
     public static void FormalFeedbackFlow()
@@ -4049,6 +4183,137 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic first-black Luoshen fixture.");
+    }
+
+    private static (
+        GameEngine Game,
+        PendingDecision Prompt,
+        int TargetSeat,
+        int Seed) FindMaChaoTieqiFixture(
+        ContentRegistry registry,
+        bool requireRedJudgment)
+    {
+        var attempted = 0;
+        var tieqiPrompts = 0;
+        var resolvedJudgments = 0;
+        var offeredWithoutFixture = 0;
+        string? lastFailure = null;
+        string? lastOfferedFailure = null;
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            GameEngine game;
+            int targetSeat;
+            try
+            {
+                (game, targetSeat) = FindMaChaoSlashFixture(
+                    registry,
+                    seed,
+                    GameCheckpoint.CurrentRulesVersion);
+            }
+            catch (InvalidOperationException error)
+            {
+                lastFailure = error.Message;
+                if (error.Message != "Ma Chao was not offered.")
+                {
+                    offeredWithoutFixture++;
+                    lastOfferedFailure = error.Message;
+                }
+                continue;
+            }
+            attempted++;
+
+            if (game.PendingDecision is not { Kind: DecisionKind.Tieqi } prompt)
+            {
+                continue;
+            }
+            tieqiPrompts++;
+
+            var probe = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            var probePrompt = probe.PendingDecision!;
+            var used = probe.Submit(new AnswerPromptCommand(
+                0,
+                probePrompt.PromptId,
+                probePrompt.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "tieqi-use").Id,
+                probe.Revision));
+            if (!used.Accepted || probe.PendingDecision?.Kind == DecisionKind.Guicai)
+            {
+                continue;
+            }
+
+            var judgment = probe.Events.Select(item => item.Payload)
+                .OfType<JudgmentResolvedEvent>()
+                .LastOrDefault(item => item.Reason == JudgmentReasons.Tieqi);
+            if (judgment is not null) resolvedJudgments++;
+            if (judgment is not null && judgment.Succeeded == requireRedJudgment)
+            {
+                return (game, prompt, targetSeat, seed);
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"Could not find a deterministic Ma Chao Tieqi fixture for a " +
+            $"{(requireRedJudgment ? "red" : "black")} judgment " +
+            $"(attempted={attempted}, offered-failures={offeredWithoutFixture}, prompts={tieqiPrompts}, " +
+            $"judgments={resolvedJudgments}, last={lastFailure}, offered-last={lastOfferedFailure}).");
+    }
+
+    private static (GameEngine Game, int TargetSeat) FindMaChaoSlashFixture(
+        ContentRegistry registry,
+        int seed,
+        int rulesVersion)
+    {
+        var game = CreateInteractive(registry, seed);
+        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+        {
+            game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        }
+
+        var started = game.Submit(new StartGameCommand());
+        Require(started.Accepted, started.Error?.Message ?? "Ma Chao fixture failed to start.");
+        if (game.PendingDecision?.Choices.Any(choice =>
+                choice.ContentIds.SequenceEqual(["classic:ma-chao"])) != true)
+        {
+            throw new InvalidOperationException("Ma Chao was not offered.");
+        }
+
+        var selected = game.Submit(new SelectGeneralCommand(
+            0,
+            "classic:ma-chao",
+            game.Revision,
+            game.PendingDecision.PromptId));
+        Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Ma Chao.");
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        Require(advanced.Accepted, advanced.Error?.Message ?? "Ma Chao did not reach the play phase.");
+        if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+        {
+            throw new InvalidOperationException("Ma Chao did not stop at a PlayCard decision.");
+        }
+
+        var full = game.CreateSnapshot(0, revealAll: true);
+        Require(game.GetCombatDistance(0, 2) == 1,
+            "Classic Ma Chao must reduce the public distance-two seat to distance one through Mashu.");
+        var action = game.GetHumanLegalActions()
+            .Where(candidate => candidate.Kind == LegalActionKind.Slash &&
+                                candidate.CardId is not null &&
+                                candidate.TargetSeat is { } targetSeat &&
+                                full.Players.Single(player => player.Seat == targetSeat).Hand.Any(card =>
+                                    card.Kind == CardKind.Dodge))
+            .OrderBy(candidate => candidate.CardId)
+            .ThenBy(candidate => candidate.TargetSeat)
+            .FirstOrDefault() ??
+            throw new InvalidOperationException("Ma Chao has no Slash target holding Dodge.");
+        var target = action.TargetSeat!.Value;
+        var played = game.Submit(new PlayCardCommand(
+            0,
+            action.CardId!.Value,
+            action.TargetSeats,
+            game.Revision,
+            game.PendingDecision.PromptId,
+            action.PlayedCardKind,
+            action.TargetCardId));
+        Require(played.Accepted, played.Error?.Message ?? "Ma Chao could not use Slash.");
+        return (game, target);
     }
 
     private static (GameEngine Game, LegalAction Action) FindHuangYueyingOrdinaryTrickFixture(
