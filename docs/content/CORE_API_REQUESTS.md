@@ -110,7 +110,7 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - 跨事件 Trigger 收集、优先级、询问和稳定排序；K5 当前只开放伤害候选的收集/排序边界；
 - 事件取消/替换而不破坏牌区守恒。
 
-当前 K7 已开放八卦阵直接杀响应的最小判定闭环：公开判定牌进入 `Judgment(seat)`，以 `JudgmentFrame` 和 `JudgmentRequestedEvent`/`JudgmentResolvedEvent` 记录结果，红色判定视为闪并按固定移动 reason 进入弃牌堆；同时可抵消锦囊在效果结算前进入 `NullificationWindowFrame`，按固定座次发布私有 `DecisionKind.Nullification`，无懈之间可有限多层互相抵消；铁索连环通过精确一/二目标和公开 `IsChained` 状态接入效果前无懈窗口，火/雷伤害命中连环目标时按固定顺序传导同额属性伤害；`standard:guicai` 另已在判定翻牌后、结果生效前接入 `JudgmentFrame` 候选游标、私有替换 Choice 和 `skill.guicai.replace` 牌区移动；乐不思蜀/兵粮寸断/闪电已复用同一判定帧、无懈/鬼才窗口和延时牌收尾，并可累计阶段效果，闪电命中黑桃 2 至 9 时沿雷电伤害/濒死链续接，其他判定牌转移到下一名存活角色；复杂改判、重复判定和更复杂的多层响应仍待后续。
+当前 K7 已开放八卦阵判定闭环：规则 v14 起直接杀与万箭齐发需要闪时均可选择，公开判定牌进入 `Judgment(seat)`，以 `JudgmentFrame` 和 `JudgmentRequestedEvent`/`JudgmentResolvedEvent` 记录结果，红色判定视为闪并按固定移动 reason 进入弃牌堆；群体结果写入不带物理牌 ID 的 `GroupResponseEvent`，v1–v13 只保留直接杀响应。仁王盾在 v14 于黑色杀声明和目标确定后提交 `ArmorEffectAppliedEvent` 并令其无效，青釭剑可绕过，旧规则仍在合法目标层过滤。同时可抵消锦囊在效果结算前进入 `NullificationWindowFrame`，按固定座次发布私有 `DecisionKind.Nullification`；铁索连环通过精确一/二目标和公开 `IsChained` 状态接入效果前无懈窗口；`standard:guicai` 已接入判定翻牌后的私有替换；乐不思蜀/兵粮寸断/闪电复用同一判定帧和延时牌收尾。复杂改判、重复判定和更复杂的多层响应仍待后续。
 阻塞内容：复杂改判和其他复杂多层响应；乐不思蜀/兵粮寸断/闪电、无懈可击与鬼才的当前基础切片已开放。
 
 ## K9：内容级 AI 策略

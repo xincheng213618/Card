@@ -80,6 +80,12 @@ internal static class RecastUiChecks
             vm.GuideSearchText = "青釭剑";
             Require(!vm.FilteredGuideCards.Single().Description.Contains("攻击范围 2"),
                 "Old save displayed the current Qinggang range text.");
+            vm.GuideSearchText = "八卦阵";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("直接目标"),
+                "Old save did not retain the direct-Slash-only Bagua text.");
+            vm.GuideSearchText = "仁王盾";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("不能对你使用"),
+                "Old save did not retain the target-selection Renwang text.");
             vm.StartNewGameCommand.Execute(null);
             Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion,
                 "New match did not use the current rules version.");
@@ -93,6 +99,12 @@ internal static class RecastUiChecks
             vm.GuideSearchText = "青釭剑";
             Require(vm.FilteredGuideCards.Single().Description.Contains("攻击范围 2"),
                 "New match did not display the current Qinggang range text.");
+            vm.GuideSearchText = "八卦阵";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("需要使用或打出闪"),
+                "New match did not display the formal Bagua response timing.");
+            vm.GuideSearchText = "仁王盾";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("黑色杀对你无效"),
+                "New match did not display the formal Renwang effect text.");
             vm.GuideSearchText = "乐不思蜀";
             Require(vm.FilteredGuideCards.Single().Description.Contains("红桃") && vm.FilteredGuideCards.Single().Description.Contains("不为"),
                 "New match retained the old delayed-card description.");

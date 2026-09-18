@@ -151,6 +151,9 @@ public sealed partial class GameEngine
     private bool UsesSuitSpecificDelayedJudgments =>
         _rulesVersion >= 11;
 
+    private bool UsesFormalArmorResponseTiming =>
+        _rulesVersion >= 14;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -1465,9 +1468,12 @@ public sealed partial class GameEngine
         var weaponRules = _rulesVersion >= 13
             ? "诸葛连弩攻击范围为 1 且杀不受次数限制，青釭剑攻击范围为 2 且使直接杀无视目标防具"
             : "诸葛连弩使攻击范围 +1 且杀不受次数限制，青釭剑使直接杀无视目标防具";
+        var armorRules = UsesFormalArmorResponseTiming
+            ? "八卦阵在需要使用或打出闪时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀在指定目标后无效"
+            : "八卦阵成为杀的目标时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀不能对装备者使用";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，八卦阵成为杀的目标时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀不能对装备者使用。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，火攻通过目标私有展示和攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，火攻通过目标私有展示和攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -1985,13 +1991,9 @@ public sealed partial class GameEngine
 
         if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack })
         {
-            if (useBagua)
-            {
-                throw new InvalidOperationException("Bagua can only defend a direct Slash in this rules slice.");
-            }
-
             return HumanGroupResponseCore(
                 useResponse: useDodge,
+                useBagua: useBagua,
                 requestedResponseCardId: requestedDodgeCardId,
                 requestedResponseCardKind: requestedResponseCardKind,
                 advanceToHumanBoundary: advanceToHumanBoundary);
@@ -2053,13 +2055,9 @@ public sealed partial class GameEngine
         else if (useBagua)
         {
             var judgmentResult = ResolveBaguaJudgment(attack, defender);
-            if (judgmentResult is true)
+            if (judgmentResult is { } succeeded)
             {
-                CompleteAttack(attack);
-            }
-            else if (judgmentResult is false && !ApplyAttackDamage(attack))
-            {
-                CompleteAttack(attack);
+                CompleteBaguaResponse(attack, succeeded);
             }
         }
         else
@@ -2305,6 +2303,7 @@ public sealed partial class GameEngine
             : _pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack }
             ? HumanGroupResponseCore(
                 useResponse: useSlash,
+                useBagua: false,
                 requestedResponseCardId: requestedSlashCardId,
                 requestedResponseCardKind: requestedResponseCardKind,
                 advanceToHumanBoundary: advanceToHumanBoundary)
@@ -2591,6 +2590,7 @@ public sealed partial class GameEngine
 
     private EngineRunResult HumanGroupResponseCore(
         bool useResponse,
+        bool useBagua,
         int? requestedResponseCardId,
         CardKind? requestedResponseCardKind,
         bool advanceToHumanBoundary)
@@ -2611,12 +2611,39 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The current group responder is not the human seat.");
         }
 
+        if (useResponse && useBagua)
+        {
+            throw new InvalidOperationException("A response cannot use both a physical card and Bagua.");
+        }
+
+        var canUseBagua = UsesFormalArmorResponseTiming &&
+                          requiredCardKind == CardKind.Dodge &&
+                          !attack.IgnoresArmor &&
+                          HasBagua(responder);
+        if (useBagua && !canUseBagua)
+        {
+            throw new InvalidOperationException(
+                "Bagua is not available for this group response under the active rules version.");
+        }
+
         var selectedResponse = useResponse
             ? GetResponseCards(responder, requiredCardKind).FirstOrDefault(card =>
                 (!requestedResponseCardId.HasValue || card.Id == requestedResponseCardId.Value) &&
                 (!requestedResponseCardKind.HasValue ||
                  GetEffectiveResponseKind(responder, card, requiredCardKind) == requestedResponseCardKind.Value))
             : null;
+        if (useResponse &&
+            selectedResponse is null &&
+            !requestedResponseCardId.HasValue &&
+            !requestedResponseCardKind.HasValue &&
+            canUseBagua)
+        {
+            // Preserve the boolean compatibility adapter for callers that only
+            // know how to request a Dodge response.
+            useResponse = false;
+            useBagua = true;
+        }
+
         if (useResponse && selectedResponse is null)
         {
             throw new InvalidOperationException(
@@ -2626,7 +2653,18 @@ public sealed partial class GameEngine
         PopResponseWindow(group.ResolutionId);
         SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         ClearPendingDecision();
-        ResolveGroupResponse(group, responder, selectedResponse);
+        if (useBagua)
+        {
+            var judgmentResult = ResolveBaguaJudgment(attack, responder);
+            if (judgmentResult is { } succeeded)
+            {
+                CompleteBaguaResponse(attack, succeeded);
+            }
+        }
+        else
+        {
+            ResolveGroupResponse(group, responder, selectedResponse);
+        }
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -6028,7 +6066,10 @@ public sealed partial class GameEngine
         var requiredCardKind = group.RequiredCardKind ??
             throw new InvalidOperationException("A group response attack must declare a required card kind.");
         var responseCards = GetResponseCards(target, requiredCardKind);
-        if (responseCards.Count == 0)
+        var hasBagua = UsesFormalArmorResponseTiming &&
+                       requiredCardKind == CardKind.Dodge &&
+                       HasBagua(target);
+        if (responseCards.Count == 0 && !hasBagua)
         {
             SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             ResolveGroupResponse(group, target, selectedResponse: null);
@@ -6060,7 +6101,8 @@ public sealed partial class GameEngine
                 responseCards,
                 requiredCardKind,
                 group.Card.Kind,
-                card => GetEffectiveResponseKind(target, card, requiredCardKind)),
+                card => GetEffectiveResponseKind(target, card, requiredCardKind),
+                includeBagua: hasBagua),
             RequiredCardKind = requiredCardKind
         };
         QueueGameEvent(new ResponseRequestedEvent(
@@ -6125,6 +6167,27 @@ public sealed partial class GameEngine
             target.Seat,
             IgnoresArmor: ignoresArmor));
         NotifyAiOfSlash(source, target);
+
+        if (UsesFormalArmorResponseTiming &&
+            !ignoresArmor &&
+            slash.Suit is Suit.Spade or Suit.Club &&
+            HasBlackSlashBarrier(target))
+        {
+            AddLog(
+                "ArmorEffect",
+                $"{target.Name} 的【仁王盾】令这次黑色【{slashName}】无效。",
+                target.Seat,
+                source.Seat);
+            QueueGameEvent(new ArmorEffectAppliedEvent(
+                resolutionId,
+                CardKind.RenwangShield,
+                source.Seat,
+                target.Seat,
+                playedCardKind));
+            SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+            CompleteAttack(attack);
+            return;
+        }
 
         var dodges = GetResponseCards(target, CardKind.Dodge);
         var hasBagua = !ignoresArmor && HasBagua(target);
@@ -6794,13 +6857,43 @@ public sealed partial class GameEngine
         var requiredCardKind = group.RequiredCardKind ??
             throw new InvalidOperationException("A group response attack must declare a required card kind.");
         var responseCards = GetResponseCards(responder, requiredCardKind);
+        var hasBagua = UsesFormalArmorResponseTiming &&
+                       requiredCardKind == CardKind.Dodge &&
+                       HasBagua(responder);
         PopResponseWindow(group.ResolutionId);
         SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         _pendingDecision = null;
 
-        if (responseCards.Count == 0)
+        if (responseCards.Count == 0 && !hasBagua)
         {
             ResolveGroupResponse(group, responder, selectedResponse: null);
+        }
+        else if (requiredCardKind == CardKind.Dodge && hasBagua)
+        {
+            var view = CreateSnapshot(responder.Seat);
+            var (useDodge, useBagua, thought) = _aiBrains[responder.Seat]
+                .ChooseDodgeResponse(
+                    view,
+                    group.SourceSeat,
+                    ++_thoughtSequence,
+                    attack.IgnoresArmor);
+            AddThought(thought);
+            if (useDodge)
+            {
+                ResolveGroupResponse(group, responder, responseCards.FirstOrDefault());
+            }
+            else if (useBagua)
+            {
+                var judgmentResult = ResolveBaguaJudgment(attack, responder);
+                if (judgmentResult is { } succeeded)
+                {
+                    CompleteBaguaResponse(attack, succeeded);
+                }
+            }
+            else
+            {
+                ResolveGroupResponse(group, responder, selectedResponse: null);
+            }
         }
         else
         {
@@ -6855,13 +6948,9 @@ public sealed partial class GameEngine
             else if (useBagua)
             {
                 var judgmentResult = ResolveBaguaJudgment(attack, target);
-                if (judgmentResult is true)
+                if (judgmentResult is { } succeeded)
                 {
-                    CompleteAttack(attack);
-                }
-                else if (judgmentResult is false && !ApplyAttackDamage(attack))
-                {
-                    CompleteAttack(attack);
+                    CompleteBaguaResponse(attack, succeeded);
                 }
             }
             else
@@ -6898,6 +6987,34 @@ public sealed partial class GameEngine
             attack.EffectiveCardKind,
             JudgmentContinuationKind.Bagua,
             damageSkill: null);
+    }
+
+    private void CompleteBaguaResponse(AttackResolution attack, bool succeeded)
+    {
+        if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group &&
+            ReferenceEquals(group.CurrentAttack, attack))
+        {
+            var requiredCardKind = group.RequiredCardKind ??
+                throw new InvalidOperationException(
+                    "A group response attack must declare a required card kind.");
+            QueueGameEvent(new GroupResponseEvent(
+                group.ResolutionId,
+                group.Card.Kind,
+                requiredCardKind,
+                attack.TargetSeat,
+                UsedResponse: succeeded,
+                ResponseCardId: null,
+                ResponseCardKind: succeeded ? CardKind.Dodge : null));
+        }
+
+        if (succeeded)
+        {
+            CompleteAttack(attack);
+        }
+        else if (!ApplyAttackDamage(attack))
+        {
+            CompleteAttack(attack);
+        }
     }
 
     private bool? BeginJudgment(
@@ -7504,15 +7621,7 @@ public sealed partial class GameEngine
         {
             var attack = pending.Attack ??
                 throw new InvalidOperationException("A Bagua judgment has no attack continuation.");
-            if (succeeded)
-            {
-                CompleteAttack(attack);
-            }
-            else if (!ApplyAttackDamage(attack))
-            {
-                CompleteAttack(attack);
-            }
-
+            CompleteBaguaResponse(attack, succeeded);
             return;
         }
 
@@ -10488,7 +10597,8 @@ public sealed partial class GameEngine
             return true;
         }
 
-        return !HasArmorBypass(source) &&
+        return !UsesFormalArmorResponseTiming &&
+               !HasArmorBypass(source) &&
                slashCard.Suit is Suit.Spade or Suit.Club &&
                HasBlackSlashBarrier(target);
     }

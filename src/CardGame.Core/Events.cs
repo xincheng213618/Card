@@ -250,6 +250,17 @@ public sealed record EquipmentChangedEvent(
     CardKind CardKind,
     int? ReplacedCardId = null) : IGameEvent;
 
+/// <summary>
+/// Public resolution record for an armor effect that makes an already declared
+/// incoming card ineffective. The physical armor remains visible in equipment.
+/// </summary>
+public sealed record ArmorEffectAppliedEvent(
+    long ResolutionId,
+    CardKind ArmorCard,
+    int SourceSeat,
+    int TargetSeat,
+    CardKind IncomingCard) : IGameEvent;
+
 public sealed record ResponseRequestedEvent(
     int SourceSeat,
     int TargetSeat,

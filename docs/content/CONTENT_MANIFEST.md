@@ -198,13 +198,13 @@
 | --- | --- | --- | --- | --- | --- |
 | `standard:crossbow` | 诸葛连弩 | Weapon | attack, unlimited-slash | implemented-registry | K6：武器槽；规则 v13 攻击范围 1、无限杀，v1–v12 保留旧 +1 范围 |
 | `standard:qinggang_sword` | 青釭剑 | Weapon | attack, ignore-armor | implemented-registry | K6：武器槽、直接杀无视防具；`CardUseFrame.IgnoresArmor` 类型化记录 |
-| `standard:bagua` | 八卦阵 | Armor | response, judgment | implemented-registry | K6：防具槽和公开生命周期；K7：`JudgmentFrame`、判定区移动和红色判定视为闪 |
-| `standard:renwang_shield` | 仁王盾 | Armor | defense, block-black-slash | implemented-registry | K6/K7：防具槽；黑色杀不进入对装备者的合法目标列表，青釭剑可绕过该阻挡 |
+| `standard:bagua` | 八卦阵 | Armor | response, judgment | implemented-registry | K6：防具槽和公开生命周期；K7：`JudgmentFrame`、判定区移动和红色判定视为闪；规则 v14 覆盖直接杀与万箭齐发，v1–v13 保留直接杀响应 |
+| `standard:renwang_shield` | 仁王盾 | Armor | defense, block-black-slash | implemented-registry | 规则 v14：黑色杀指定目标后的公开无效结算与 `ArmorEffectAppliedEvent`，青釭剑可绕过；v1–v13 保留合法目标过滤 |
 | `standard:offensive_horse` | 赤兔 | OffensiveHorse | range, attack | implemented-registry | K6：进攻坐骑槽、战斗距离 -1 |
 | `standard:defensive_horse` | 绝影 | DefensiveHorse | defense, distance | implemented-registry | K6：防御坐骑槽、战斗距离 +1 |
 | `standard:jade_seal` | 玉玺 | Treasure | draw, modifier | implemented-registry | K6：宝物槽、摸牌 +1 |
 
-装备内容必须进入 `Equipment` 区域，拥有替换、失效、死亡清理和持久 modifier 语义；当前 K6 基础切片已开放五类槽位、七种装备牌（含仁王盾）、换装、战斗距离/攻击范围查询、玉玺摸牌和青釭剑无视防具和仁王盾阻挡黑色杀 modifier，以及阵亡清理；K7 已为八卦阵接入直接杀响应中的公开判定、判定区移动和红色判定视为闪，闪电接入自用延时判定、命中伤害和失败转移；复杂判定区目标选择及复杂失效/卸载效果仍待后续入口，不把装备伪装成普通手牌或一次性锦囊。
+装备内容必须进入 `Equipment` 区域，拥有替换、失效、死亡清理和持久 modifier 语义；当前 K6 基础切片已开放五类槽位、七种装备牌（含仁王盾）、换装、战斗距离/攻击范围查询、玉玺摸牌、青釭剑无视防具以及阵亡清理；规则 v14 已为八卦阵接入直接杀/万箭齐发闪响应中的公开判定，为仁王盾接入目标确定后的黑色杀无效事件，v1–v13 保留旧时机；闪电接入自用延时判定、命中伤害和失败转移；复杂判定区目标选择及复杂失效/卸载效果仍待后续入口，不把装备伪装成普通手牌或一次性锦囊。
 
 ## 7. 内容级 AI 标签约定
 

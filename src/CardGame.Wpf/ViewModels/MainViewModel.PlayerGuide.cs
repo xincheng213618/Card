@@ -258,6 +258,10 @@ public sealed partial class MainViewModel
             return "装备至武器槽；攻击范围 +1，出牌阶段使用杀不受次数限制。";
         if (kind == CardKind.QinggangSword && rulesVersion < 13)
             return "装备至武器槽；你使用杀时无视目标的防具。";
+        if (kind == CardKind.BaguaFormation && rulesVersion < 14)
+            return "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。";
+        if (kind == CardKind.RenwangShield && rulesVersion < 14)
+            return "装备至防具槽；黑色杀不能对你使用。";
         return rulesVersion >= 4
             ? kind switch
             {

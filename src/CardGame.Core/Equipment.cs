@@ -56,12 +56,12 @@ public static class EquipmentCatalog
                 CardKind.BaguaFormation,
                 "八卦阵",
                 EquipmentSlot.Armor,
-                "装备至防具槽；成为杀的目标时可进行一次判定，红色判定牌视为打出闪。"),
+                "装备至防具槽；每当需要使用或打出闪时，可进行一次判定，红色判定牌视为打出闪。"),
             [CardKind.RenwangShield] = new(
                 CardKind.RenwangShield,
                 "仁王盾",
                 EquipmentSlot.Armor,
-                "装备至防具槽；黑色杀不能对你使用。",
+                "装备至防具槽；黑色杀对你无效。",
                 BlocksBlackSlash: true),
             [CardKind.OffensiveHorse] = new(
                 CardKind.OffensiveHorse,

@@ -47,6 +47,26 @@ internal static class FeedbackChecks
         Assert(cues.Count == 4 && cues.Select(cue => cue.Sequence).Distinct().Count() == 4, "Public response duplicated or zero damage rendered.");
         Assert(cues[0].Label == "杀" && cues[0].TargetSeats.SequenceEqual([1]), "Declared card or detached public targets differ.");
         Assert(cues[1].Label == "打出杀" && cues[2].Label == "−2" && cues[2].Nature == DamageNature.Fire && cues[3].Label == "+1", "Response, damage, or recovery feedback differs from committed events.");
+        var armorCues = BattleCueProjector.Project(
+        [
+            Envelope(new ArmorEffectAppliedEvent(8, CardKind.RenwangShield, 0, 1, CardKind.Slash)),
+            Envelope(new JudgmentResolvedEvent(
+                9,
+                8,
+                1,
+                JudgmentReasons.BaguaDefense,
+                42,
+                CardKind.Dodge,
+                Suit.Heart,
+                Rank: 7,
+                Succeeded: true))
+        ], view);
+        Assert(
+            armorCues.Count == 2 &&
+            armorCues[0].Label.Contains("仁王盾") &&
+            armorCues[0].Label.Contains("无效") &&
+            armorCues[1].Label == "八卦阵 · 闪",
+            "Formal armor outcomes were not projected as public battle feedback.");
     }
 
     public static void HandAndPreferences(string output)

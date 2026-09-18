@@ -118,8 +118,9 @@ var tests = new (string Name, Action Body)[]
     ("Dismantlement and Snatch can target public equipment and judgment cards", PublicTargetCardFlow),
     ("equipment replaces slots and versions formal weapon ranges", EquipmentFlow),
     ("Bagua uses a deterministic public judgment to defend against Slash", BaguaJudgmentFlow),
+    ("Bagua can answer ArrowBarrage Dodge windows in formal rules", BaguaDefendsArrowBarrage),
     ("Qinggang bypasses Bagua armor in a typed Slash resolution", QinggangBypassesBagua),
-    ("Renwang Shield blocks black Slash without hiding public equipment", RenwangShieldFlow),
+    ("Renwang Shield nullifies black Slash after target confirmation", RenwangShieldFlow),
     ("FireAttack reveals privately then resolves typed fire damage", FireAttackFlow),
     ("FireAttack can skip the same-suit discard without damage", FireAttackSkipFlow),
     ("FireSlash and ThunderSlash preserve typed damage nature", AttributeSlashFlow),
@@ -4408,6 +4409,146 @@ static void BaguaJudgmentFlow()
         "JudgmentFrame uses the polymorphic judgment discriminator");
 }
 
+static void BaguaDefendsArrowBarrage()
+{
+    static (GameEngine Game, PendingDecision Prompt)? ReachBoundary(int seed, int rulesVersion)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = seed,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            MaxTurns = 180
+        });
+        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+        {
+            game = GameReplay.Restore(
+                game.CreateCheckpoint() with { RulesVersion = rulesVersion });
+        }
+
+        var result = game.Start();
+        var bagua = game.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.Seat == 0).Hand
+            .FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
+        if (result.Status != EngineStatus.AwaitingHumanPlay || bagua is null)
+        {
+            return null;
+        }
+
+        result = game.HumanPlay(bagua.Id, targetSeat: null, advanceToHumanBoundary: true);
+        result = game.HumanEndPlay(advanceToHumanBoundary: false);
+        for (var step = 0; result.Status != EngineStatus.Completed && step < 1_500; step++)
+        {
+            if (result.Status == EngineStatus.AwaitingHumanResponse)
+            {
+                var prompt = game.PendingDecision ??
+                    throw new InvalidOperationException("The response status has no prompt.");
+                if (prompt.Kind == DecisionKind.RespondDodge &&
+                    prompt.IncomingCard == CardKind.ArrowBarrage &&
+                    prompt.ValidCardIds.Count > 0)
+                {
+                    return (game, prompt);
+                }
+
+                result = prompt.Kind switch
+                {
+                    DecisionKind.RespondSlash => game.HumanRespondSlash(
+                        useSlash: false,
+                        advanceToHumanBoundary: false),
+                    _ => game.HumanRespond(
+                        useDodge: false,
+                        advanceToHumanBoundary: false)
+                };
+                continue;
+            }
+
+            result = result.Status switch
+            {
+                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(
+                    advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    usePeach: false,
+                    advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
+                _ => game.AdvanceOneStep()
+            };
+        }
+
+        return null;
+    }
+
+    (GameEngine Game, PendingDecision Prompt)? formal = null;
+    var selectedSeed = 0;
+    for (var seed = 1; seed <= 8_192 && formal is null; seed++)
+    {
+        var candidate = ReachBoundary(seed, GameCheckpoint.CurrentRulesVersion);
+        if (candidate?.Prompt.Choices.Any(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "bagua") == true)
+        {
+            formal = candidate;
+            selectedSeed = seed;
+        }
+    }
+
+    if (formal is null)
+    {
+        throw new InvalidOperationException(
+            "No deterministic ArrowBarrage Bagua response boundary was found.");
+    }
+
+    var legacy = ReachBoundary(selectedSeed, rulesVersion: 13) ??
+        throw new InvalidOperationException(
+            "The matching rules v13 ArrowBarrage response boundary was not reproduced.");
+    TrueWithMessage(
+        legacy.Prompt.Choices.All(choice =>
+            choice.Parameters.GetValueOrDefault("response") != "bagua"),
+        "rules v13 retains the historical physical-Dodge-only group prompt");
+
+    var game = formal.Value.Game;
+    var prompt = formal.Value.Prompt;
+    var baguaChoice = prompt.Choices.Single(choice =>
+        choice.Parameters.GetValueOrDefault("response") == "bagua");
+    var eventCount = game.Events.Count;
+    var accepted = game.Submit(new AnswerPromptCommand(
+        ActorSeat: 0,
+        Prompt: prompt.PromptId,
+        Choice: baguaChoice.Id,
+        ExpectedRevision: game.Revision));
+    TrueWithMessage(accepted.Accepted, "ArrowBarrage Bagua choice accepted");
+
+    var judgment = game.Events
+        .Skip(eventCount)
+        .Select(eventItem => eventItem.Payload)
+        .OfType<JudgmentResolvedEvent>()
+        .Single(candidate => candidate.Reason == JudgmentReasons.BaguaDefense);
+    var requested = game.Events
+        .Skip(eventCount)
+        .Select(eventItem => eventItem.Payload)
+        .OfType<JudgmentRequestedEvent>()
+        .Single(candidate => candidate.ResolutionId == judgment.ResolutionId);
+    Equal(CardKind.ArrowBarrage, requested.SourceCard);
+    var groupResponse = game.Events
+        .Skip(eventCount)
+        .Select(eventItem => eventItem.Payload)
+        .OfType<GroupResponseEvent>()
+        .Single(candidate =>
+            candidate.IncomingCard == CardKind.ArrowBarrage &&
+            candidate.ResponderSeat == 0);
+    Equal(judgment.Succeeded, groupResponse.UsedResponse);
+    Equal<int?>(null, groupResponse.ResponseCardId);
+    Equal(
+        judgment.Succeeded ? CardKind.Dodge : null,
+        groupResponse.ResponseCardKind);
+    TrueWithMessage(
+        !game.Events.Skip(eventCount).Any(eventItem =>
+            eventItem.Payload is CardRespondedEvent responded &&
+            responded.ResponderSeat == 0),
+        "Bagua does not invent a physical Dodge movement event");
+    AssertCardInventory(game);
+    AssertCardInventory(legacy.Game);
+}
+
 static void QinggangBypassesBagua()
 {
     var controlledKinds = Enumerable.Repeat(CardKind.Dodge, 81).ToArray();
@@ -4630,106 +4771,119 @@ static void RenwangShieldFlow()
                         .ToArray()));
             }));
 
-    GameEngine? game = null;
-    CardSnapshot? blackSlash = null;
-    CardSnapshot? redSlash = null;
-    int shieldSeat = -1;
-    for (var seed = 1; seed <= 8_192 && game is null; seed++)
+    static (GameEngine Game, CardSnapshot BlackSlash, CardSnapshot RedSlash, int ShieldSeat)?
+        FindBoundary(ContentRegistry registry, int rulesVersion, bool expectBlackLegal)
     {
-        var candidate = GameEngine.CreateStandard(
-            new GameOptions
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var candidate = GameEngine.CreateStandard(
+                new GameOptions
+                {
+                    UseInteractiveDiscard = false,
+                    Seed = seed,
+                    HumanSeat = 0,
+                    HumanRole = Role.Lord,
+                    DeckId = "test-renwang:deck",
+                    MaxTurns = 60
+                },
+                registry);
+            if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
             {
-                UseInteractiveDiscard = false,
-                Seed = seed,
-                HumanSeat = 0,
-                HumanRole = Role.Lord,
-                DeckId = "test-renwang:deck",
-                MaxTurns = 60
-            },
-            registry);
-        var started = candidate.Start();
-        if (started.Status != EngineStatus.AwaitingHumanPlay)
-        {
-            continue;
+                candidate = GameReplay.Restore(
+                    candidate.CreateCheckpoint() with { RulesVersion = rulesVersion },
+                    registry);
+            }
+
+            var started = candidate.Start();
+            if (started.Status != EngineStatus.AwaitingHumanPlay)
+            {
+                continue;
+            }
+
+            var initial = candidate.CreateSnapshot(0, revealAll: true);
+            var human = initial.Players.Single(player => player.Seat == 0);
+            var shieldOwner = initial.Players.SingleOrDefault(player =>
+                player.Seat != 0 &&
+                player.IsAlive &&
+                player.Hand.Any(card => card.Kind == CardKind.RenwangShield) &&
+                player.Hand.All(card => card.Kind != CardKind.Slash));
+            var candidateBlackSlash = human.Hand.FirstOrDefault(card =>
+                card.Kind == CardKind.Slash &&
+                card.Suit is Suit.Spade or Suit.Club);
+            var candidateRedSlash = human.Hand.FirstOrDefault(card =>
+                card.Kind == CardKind.Slash &&
+                card.Suit is Suit.Heart or Suit.Diamond);
+            if (shieldOwner is null || candidateBlackSlash is null || candidateRedSlash is null)
+            {
+                continue;
+            }
+
+            var nextHumanTurn = candidate.HumanEndPlay(advanceToHumanBoundary: true);
+            if (nextHumanTurn.Status != EngineStatus.AwaitingHumanPlay)
+            {
+                continue;
+            }
+
+            var afterAiTurns = candidate.CreateSnapshot(0, revealAll: true);
+            var target = afterAiTurns.Players.Single(player => player.Seat == shieldOwner.Seat);
+            if (!target.IsAlive ||
+                !target.Equipment.Any(card => card.Kind == CardKind.RenwangShield))
+            {
+                continue;
+            }
+
+            var humanAfterAiTurns = afterAiTurns.Players.Single(player => player.Seat == 0);
+            var blackAfterAiTurns = humanAfterAiTurns.Hand.FirstOrDefault(card =>
+                card.Id == candidateBlackSlash.Id);
+            var redAfterAiTurns = humanAfterAiTurns.Hand.FirstOrDefault(card =>
+                card.Id == candidateRedSlash.Id);
+            if (blackAfterAiTurns is null || redAfterAiTurns is null)
+            {
+                continue;
+            }
+
+            var legal = candidate.GetHumanLegalActions();
+            var hasBlackAction = legal.Any(action =>
+                action.Kind == LegalActionKind.Slash &&
+                action.CardId == blackAfterAiTurns.Id &&
+                action.TargetSeat == shieldOwner.Seat);
+            var hasRedAction = legal.Any(action =>
+                action.Kind == LegalActionKind.Slash &&
+                action.CardId == redAfterAiTurns.Id &&
+                action.TargetSeat == shieldOwner.Seat);
+            if (hasBlackAction != expectBlackLegal || !hasRedAction)
+            {
+                continue;
+            }
+
+            return (candidate, blackAfterAiTurns, redAfterAiTurns, shieldOwner.Seat);
         }
 
-        var initial = candidate.CreateSnapshot(0, revealAll: true);
-        var human = initial.Players.Single(player => player.Seat == 0);
-        var shieldOwner = initial.Players.SingleOrDefault(player =>
-            player.Seat != 0 &&
-            player.IsAlive &&
-            player.Hand.Any(card => card.Kind == CardKind.RenwangShield) &&
-            player.Hand.All(card => card.Kind != CardKind.Slash));
-        var candidateBlackSlash = human.Hand.FirstOrDefault(card =>
-            card.Kind == CardKind.Slash &&
-            card.Suit is Suit.Spade or Suit.Club);
-        var candidateRedSlash = human.Hand.FirstOrDefault(card =>
-            card.Kind == CardKind.Slash &&
-            card.Suit is Suit.Heart or Suit.Diamond);
-        if (shieldOwner is null || candidateBlackSlash is null || candidateRedSlash is null)
-        {
-            continue;
-        }
-
-        var nextHumanTurn = candidate.HumanEndPlay(advanceToHumanBoundary: true);
-        if (nextHumanTurn.Status != EngineStatus.AwaitingHumanPlay)
-        {
-            continue;
-        }
-
-        var afterAiTurns = candidate.CreateSnapshot(0, revealAll: true);
-        var target = afterAiTurns.Players.Single(player => player.Seat == shieldOwner.Seat);
-        if (!target.IsAlive ||
-            !target.Equipment.Any(card => card.Kind == CardKind.RenwangShield))
-        {
-            continue;
-        }
-
-        var humanAfterAiTurns = afterAiTurns.Players.Single(player => player.Seat == 0);
-        var blackAfterAiTurns = humanAfterAiTurns.Hand.FirstOrDefault(card =>
-            card.Id == candidateBlackSlash.Id);
-        var redAfterAiTurns = humanAfterAiTurns.Hand.FirstOrDefault(card =>
-            card.Id == candidateRedSlash.Id);
-        if (blackAfterAiTurns is null || redAfterAiTurns is null)
-        {
-            continue;
-        }
-
-        var legal = candidate.GetHumanLegalActions();
-        var blackAction = legal.FirstOrDefault(action =>
-            action.Kind == LegalActionKind.Slash &&
-            action.CardId == blackAfterAiTurns.Id &&
-            action.TargetSeat == shieldOwner.Seat);
-        var redAction = legal.FirstOrDefault(action =>
-            action.Kind == LegalActionKind.Slash &&
-            action.CardId == redAfterAiTurns.Id &&
-            action.TargetSeat == shieldOwner.Seat);
-        if (blackAction is not null || redAction is null)
-        {
-            continue;
-        }
-
-        game = candidate;
-        blackSlash = blackAfterAiTurns;
-        redSlash = redAfterAiTurns;
-        shieldSeat = shieldOwner.Seat;
+        return null;
     }
 
-    if (game is null || blackSlash is null || redSlash is null || shieldSeat < 0)
-    {
-        throw new InvalidOperationException("No deterministic Renwang Shield boundary was found.");
-    }
+    var formal = FindBoundary(
+        registry,
+        GameCheckpoint.CurrentRulesVersion,
+        expectBlackLegal: true) ??
+        throw new InvalidOperationException("No deterministic formal Renwang Shield boundary was found.");
+    var legacy = FindBoundary(registry, rulesVersion: 13, expectBlackLegal: false) ??
+        throw new InvalidOperationException("No deterministic legacy Renwang Shield boundary was found.");
+    var game = formal.Game;
+    var blackSlash = formal.BlackSlash;
+    var redSlash = formal.RedSlash;
+    var shieldSeat = formal.ShieldSeat;
 
     var targetView = game.CreateSnapshot(0).Players.Single(player => player.Seat == shieldSeat);
     TrueWithMessage(
         targetView.Equipment.Any(card => card.Kind == CardKind.RenwangShield),
         "Renwang Shield remains visible in the ordinary player snapshot");
     TrueWithMessage(
-        !game.GetHumanLegalActions().Any(action =>
+        game.GetHumanLegalActions().Any(action =>
             action.Kind == LegalActionKind.Slash &&
             action.CardId == blackSlash.Id &&
             action.TargetSeat == shieldSeat),
-        "black Slash is removed from the published legal actions");
+        "formal rules keep black Slash in the published legal actions");
     TrueWithMessage(
         game.GetHumanLegalActions().Any(action =>
             action.Kind == LegalActionKind.Slash &&
@@ -4737,37 +4891,55 @@ static void RenwangShieldFlow()
             action.TargetSeat == shieldSeat),
         "red Slash remains a legal target against Renwang Shield");
 
-    var beforeInvalid = game.SerializeState();
-    var invalid = game.Submit(new PlayCardCommand(
+    TrueWithMessage(
+        !legacy.Game.GetHumanLegalActions().Any(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.CardId == legacy.BlackSlash.Id &&
+            action.TargetSeat == legacy.ShieldSeat),
+        "rules v13 keeps the historical target-selection prohibition");
+    var beforeInvalid = legacy.Game.SerializeState();
+    var invalid = legacy.Game.Submit(new PlayCardCommand(
         ActorSeat: 0,
-        CardId: blackSlash.Id,
-        TargetSeats: [shieldSeat],
-        ExpectedRevision: game.Revision,
-        PromptId: game.PendingDecision!.PromptId));
+        CardId: legacy.BlackSlash.Id,
+        TargetSeats: [legacy.ShieldSeat],
+        ExpectedRevision: legacy.Game.Revision,
+        PromptId: legacy.Game.PendingDecision!.PromptId));
     False(invalid.Accepted);
     Equal(CommandErrorCode.InvalidTarget, invalid.Error!.Code);
-    Equal(beforeInvalid, game.SerializeState());
+    Equal(beforeInvalid, legacy.Game.SerializeState());
 
+    var targetHp = targetView.Hp;
+    var eventCount = game.Events.Count;
     var accepted = game.HumanPlay(
-        redSlash.Id,
+        blackSlash.Id,
         shieldSeat,
         advanceToHumanBoundary: false);
     Equal(EngineStatus.Running, accepted.Status);
-    var slashFrame = game.ResolutionStack.OfType<CardUseFrame>().Single(frame =>
-        frame.CardId == redSlash.Id);
-    FalseWithMessage(slashFrame.IgnoresArmor, "ordinary red Slash does not ignore armor");
     TrueWithMessage(
-        game.ResolutionStack.OfType<ResponseWindowFrame>().Any(window =>
-            window.ResponderSeat == shieldSeat &&
-            window.RequiredCardKind == CardKind.Dodge),
-        "red Slash still opens the normal Dodge response window");
-
-    while (game.ResolutionStack.Count > 0)
-    {
-        game.AdvanceOneStep();
-    }
+        game.Events.Skip(eventCount).Any(eventItem =>
+            eventItem.Payload is ArmorEffectAppliedEvent armor &&
+            armor.ArmorCard == CardKind.RenwangShield &&
+            armor.SourceSeat == 0 &&
+            armor.TargetSeat == shieldSeat &&
+            armor.IncomingCard == CardKind.Slash),
+        "formal Renwang resolution publishes a typed armor event");
+    TrueWithMessage(
+        !game.Events.Skip(eventCount).Any(eventItem =>
+            eventItem.Payload is ResponseRequestedEvent or DamageRequestedEvent),
+        "an ineffective black Slash opens neither Dodge nor damage");
+    TrueWithMessage(
+        game.Events.Skip(eventCount).Any(eventItem =>
+            eventItem.Payload is CardUseFinishedEvent finished &&
+            finished.CardId == blackSlash.Id),
+        "the ineffective Slash still finishes its ordinary card-use lifecycle");
+    Equal(targetHp, game.CreateSnapshot(0).Players.Single(player => player.Seat == shieldSeat).Hp);
+    Equal(0, game.ResolutionStack.Count);
+    Equal(
+        CardLocation.DiscardPile,
+        game.CreateCardZoneDiagnostics().Single(card => card.CardId == blackSlash.Id).Location);
 
     AssertCardInventory(game);
+    AssertCardInventory(legacy.Game);
 }
 
 static void FireAttackFlow()
