@@ -1230,6 +1230,116 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Resolves the private, multi-step Guanxing prompt. The AI receives only
+    /// the exact cards published to the skill owner and public judgment state;
+    /// it never reads the engine draw pile outside that prompt.
+    /// </summary>
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseGuanxing(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices,
+        int thoughtSequence)
+    {
+        if (choices.Count == 0)
+        {
+            throw new InvalidOperationException("AI was asked to resolve an empty Guanxing prompt.");
+        }
+
+        var stage = choices[0].Parameters.GetValueOrDefault("stage");
+        var scored = choices.Select((choice, index) =>
+        {
+            var action = choice.Parameters.GetValueOrDefault("action");
+            double score;
+            string reason;
+            if (action == "guanxing-use")
+            {
+                score = 80d;
+                reason = "观星没有牌或体力代价，使用后只查看并排列自己的私有牌堆顶候选。";
+            }
+            else if (action == "guanxing-skip")
+            {
+                score = 0d;
+                reason = "保留原牌堆顺序。";
+            }
+            else if (action == "guanxing-finish-top")
+            {
+                var selectedTop = int.Parse(
+                    choice.Parameters["top-selected"],
+                    System.Globalization.CultureInfo.InvariantCulture);
+                var desiredTop = int.Parse(
+                    choice.Parameters["desired-top-count"],
+                    System.Globalization.CultureInfo.InvariantCulture);
+                score = selectedTop >= desiredTop ? 90d : -90d;
+                reason = selectedTop >= desiredTop
+                    ? "已为公开判定与预计摸牌保留足够的牌，其余牌置底。"
+                    : "牌堆顶尚未覆盖公开判定与预计摸牌位置。";
+            }
+            else
+            {
+                if (choice.Cards.Count != 1 ||
+                    !Enum.TryParse<CardKind>(choice.Parameters.GetValueOrDefault("card-kind"), out var kind) ||
+                    !Enum.TryParse<Suit>(choice.Parameters.GetValueOrDefault("suit"), out var suit) ||
+                    !int.TryParse(
+                        choice.Parameters.GetValueOrDefault("rank"),
+                        System.Globalization.NumberStyles.None,
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        out var rank))
+                {
+                    throw new InvalidOperationException("A Guanxing card choice is missing its private card metadata.");
+                }
+
+                var profile = CardCatalog.Get(kind);
+                var cardValue = profile.HandKeepValue + profile.AiPlayValue * .35d;
+                var purpose = choice.Parameters.GetValueOrDefault("slot-purpose");
+                score = purpose switch
+                {
+                    $"judgment-{nameof(CardKind.Indulgence)}" => suit == Suit.Heart ? 180d : -80d,
+                    $"judgment-{nameof(CardKind.SupplyShortage)}" => suit == Suit.Club ? 180d : -80d,
+                    $"judgment-{nameof(CardKind.Lightning)}" => suit == Suit.Spade && rank is >= 2 and <= 9
+                        ? -180d
+                        : 140d,
+                    "bottom" => -cardValue,
+                    _ => cardValue
+                };
+                reason = purpose switch
+                {
+                    $"judgment-{nameof(CardKind.Indulgence)}" => "优先让公开的乐不思蜀获得红桃安全判定。",
+                    $"judgment-{nameof(CardKind.SupplyShortage)}" => "优先让公开的兵粮寸断获得梅花安全判定。",
+                    $"judgment-{nameof(CardKind.Lightning)}" => "避免把黑桃 2 至 9 放入自己的闪电判定位置。",
+                    "bottom" => "牌堆底从最深处开始排列，先放较低价值牌。",
+                    _ => $"预计摸牌价值 {cardValue:0.##}；只使用观星私有候选。"
+                };
+            }
+
+            var cardId = choice.Cards.Count == 1 ? choice.Cards[0] : (int?)null;
+            return (
+                Choice: choice,
+                Index: index,
+                Candidate: new AiCandidateScore(
+                    new LegalAction(
+                        LegalActionKind.UseSkill,
+                        cardId,
+                        null,
+                        choice.Description,
+                        Skill: SkillKind.Guanxing),
+                    Math.Round(score, 3),
+                    reason));
+        }).ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Candidate.Action.CardId ?? int.MaxValue)
+            .ThenBy(item => item.Index)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Choice.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"观星{(string.IsNullOrEmpty(stage) ? "发动" : stage == "top" ? "牌堆顶排序" : "牌堆底排序")}：{selected.Choice.Description}");
+        return (selected.Choice.Id, thought);
+    }
+
+    /// <summary>
     /// Chooses one opaque ordinal slot from another player's hidden hand. Every
     /// candidate is intentionally scored identically because the filtered view
     /// contains no target-hand identity. The first slot is a stable tie-break;

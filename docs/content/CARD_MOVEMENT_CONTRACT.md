@@ -104,6 +104,7 @@
 | `standard:guicai` | 判定牌生效前由当前候选拥有者选择替换或跳过 | 旧判定牌 `Judgment(target) → DiscardPile`；替换牌 `Hand(owner) → Processing → Judgment(target) → DiscardPile` | `judgment.finish` / `skill.guicai.replace` | 判定结果和替换后的牌面公开；鬼才 Prompt 只投影给拥有者，替换牌 ID 仅在其私有视图和可信宿主账本中出现；候选顺序冻结在 `JudgmentFrame` |
 | `classic:tiandu` | 规则 v22 中，拥有者自己的判定牌生效后选择获得或跳过 | 发动：`Judgment(owner) → Hand(owner)`；跳过：`Judgment(owner) → DiscardPile` | `skill.tiandu.claim-judgment` / `judgment.finish` | 判定结果先公开，再向拥有者投影两项完整 Choice；`JudgmentCardClaimedEvent` 记录结果，答复后恢复八卦、延时牌或刚烈父结算；v1–v21 不创建该窗口 |
 | `classic:fanjian` | 规则 v23 中，周瑜出牌阶段限一次选择其他存活角色；目标先选花色，再获得并展示随机源手牌 | `Hand(source) → Processing → Hand(target)` | `skill.fanjian.give-card` | 花色 Prompt 不含源牌 ID/牌面；答复后才确定性随机选择实体牌，`FanjianCardRevealedEvent` 公开结果；花色不同时进入 1 点普通伤害链；v1–v22 不发布动作 |
+| `classic:guanxing` | 规则 v24 中，诸葛亮准备阶段可私有观看并排列至多五张牌堆顶牌 | `DrawPile → DrawPile` 同区顺序变化，不生成 `CardMovementRecord` | 无跨区 reason；`GuanxingResolvedEvent` 只公开数量 | Prompt 仅向拥有者投影牌 ID/牌面与剩余顺序；完成时原子验证冻结切片和顶/底精确分区，第一张顶牌最先离堆、第一张底牌最深；v1–v23 不发布选择 |
 | `standard:paoxiao` | 修改出杀次数 | — | — | 不创造或移动牌；合法性仍由 Core 判断 |
 | `standard:yingzi` | 修改摸牌数量 | `DrawPile → Hand(owner)`（由摸牌动作产生） | `rule.draw` | 只改变数量 modifier，不公开牌堆顺序 |
 | `standard:kongcheng` | 修改空手牌时的目标合法性 | — | — | 只读取目标手牌数量/规则公开信息，不读取目标牌面 |

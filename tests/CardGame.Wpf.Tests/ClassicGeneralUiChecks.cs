@@ -48,11 +48,15 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(GeneralArt.HasPortrait(simaYi.GeneralId),
             "The classic Sima Yi id must resolve through the existing portrait aliases.");
 
-        using var kongchengViewModel = FindGeneralChoice("standard:zhuge-liang");
+        using var kongchengViewModel = FindGeneralChoice("classic:zhuge-liang");
         var zhugeLiang = kongchengViewModel.GeneralChoices.Single(choice =>
-            choice.GeneralId == "standard:zhuge-liang");
-        Program.Assert(zhugeLiang.SkillDescription.Contains("【杀】或【决斗】", StringComparison.Ordinal),
-            "The current classic selection card must describe the formal Kongcheng target restriction.");
+            choice.GeneralId == "classic:zhuge-liang");
+        Program.Assert(zhugeLiang.SkillName == "观星 / 空城" &&
+                       zhugeLiang.SkillDescription.Contains("牌堆顶", StringComparison.Ordinal) &&
+                       zhugeLiang.SkillDescription.Contains("【杀】或【决斗】", StringComparison.Ordinal) &&
+                       zhugeLiang.HealthText == "体力上限 4" &&
+                       GeneralArt.HasPortrait(zhugeLiang.GeneralId),
+            "The current classic Zhuge Liang card must render Guanxing, Kongcheng, Lord health and portrait aliasing.");
         using var jianxiongViewModel = FindGeneralChoice("standard:cao-cao");
         var caoCao = jianxiongViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "standard:cao-cao");
@@ -290,6 +294,100 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void GuanxingChoiceAndRestore(string output)
+    {
+        var fixture = FindGuanxingFixture();
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual,
+            new(1, DateTimeOffset.UtcNow, false, fixture.CreateCheckpoint()));
+        using var viewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: fixture.Seed,
+            showSetup: true,
+            saveStore: store,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        viewModel.LoadManualGameCommand.Execute(null);
+
+        var engine = Program.Engine(viewModel);
+        Program.Assert(!viewModel.HasSaveError &&
+                       viewModel.IsSkillSelectionPending &&
+                       engine.PendingDecision?.Kind == DecisionKind.Guanxing &&
+                       viewModel.SkillChoices.Count == 2 &&
+                       viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                           .OrderBy(action => action, StringComparer.Ordinal)
+                           .SequenceEqual(["guanxing-skip", "guanxing-use"]),
+            viewModel.SaveStatus);
+        Program.Assert(viewModel.CurrentGuideTitle == "排列观星看到的牌" &&
+                       viewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("最底层", StringComparison.Ordinal)),
+            "The player guide must explain Guanxing top-first and bottom-first ordering.");
+
+        var offerWindow = new MainWindow(viewModel);
+        offerWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)offerWindow.Content, 1120, 740,
+            Path.Combine(output, "75-classic-guanxing-offer.png"));
+        var use = viewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "guanxing-use");
+        viewModel.SelectSkillChoiceCommand.Execute(use);
+        var viewedIds = engine.PendingDecision?.ValidCardIds.ToArray() ?? [];
+        Program.Assert(viewModel.IsSkillSelectionPending &&
+                       engine.PendingDecision is
+                       {
+                           Kind: DecisionKind.Guanxing,
+                           IsPrivate: true,
+                           ValidCardIds.Count: 5
+                       } &&
+                       viewModel.SkillChoices.Count == 6 &&
+                       viewModel.SkillChoices.Count(choice => choice.Cards.Count == 1) == 5 &&
+                       viewModel.SkillChoices.Count(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "guanxing-finish-top") == 1,
+            "Using Guanxing must render five exact private card choices plus the finish-top action.");
+        viewModel.SaveGameCommand.Execute(null);
+        Program.Assert(!viewModel.HasSaveError && viewModel.FlushPendingSave(), viewModel.SaveStatus);
+        offerWindow.Content = null;
+        offerWindow.Close();
+
+        using var restored = new MainViewModel(
+            autoAdvance: false,
+            seed: 999,
+            showSetup: true,
+            saveStore: store,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        restored.LoadManualGameCommand.Execute(null);
+        var restoredEngine = Program.Engine(restored);
+        Program.Assert(!restored.HasSaveError &&
+                       restored.IsSkillSelectionPending &&
+                       restoredEngine.PendingDecision?.Kind == DecisionKind.Guanxing &&
+                       restoredEngine.PendingDecision.ValidCardIds.SequenceEqual(viewedIds) &&
+                       restored.SkillChoices.Where(choice => choice.Cards.Count == 1)
+                           .SelectMany(choice => choice.Cards)
+                           .SequenceEqual(viewedIds),
+            "A WPF manual save must restore the exact private Guanxing ordering prompt.");
+
+        var orderingWindow = new MainWindow(restored);
+        orderingWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)orderingWindow.Content, 1120, 740,
+            Path.Combine(output, "76-classic-guanxing-order.png"));
+        var firstTop = restored.SkillChoices.First(choice => choice.Cards.Count == 1);
+        restored.SelectSkillChoiceCommand.Execute(firstTop);
+        Program.Assert(restoredEngine.PendingDecision is
+        {
+            Kind: DecisionKind.Guanxing,
+            ValidCardIds.Count: 4
+        } &&
+                       restored.SkillChoices.Count == 5 &&
+                       restored.SkillChoices.Count(choice => choice.Cards.Count == 1) == 4,
+            "Selecting one top card through WPF must advance the private Guanxing ordering draft.");
+        orderingWindow.Content = null;
+        orderingWindow.Close();
+    }
+
     private static MainViewModel FindGeneralChoice(string generalId)
     {
         for (var seed = 1; seed <= 1_024; seed++)
@@ -484,5 +582,44 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic human-target Fanjian WPF fixture.");
+    }
+
+    private static GameEngine FindGuanxingFixture()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 220
+            }, registry);
+            if (!game.Submit(new StartGameCommand()).Accepted ||
+                game.PendingDecision?.ValidContentIds.Contains("classic:zhuge-liang") != true)
+            {
+                continue;
+            }
+
+            var selection = game.PendingDecision;
+            if (game.Submit(new SelectGeneralCommand(
+                    0,
+                    "classic:zhuge-liang",
+                    game.Revision,
+                    selection!.PromptId)).Accepted &&
+                game.Submit(new AdvanceCommand(game.Revision)).Accepted &&
+                game.PendingDecision?.Kind == DecisionKind.Guanxing)
+            {
+                return game;
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic WPF Guanxing fixture.");
     }
 }

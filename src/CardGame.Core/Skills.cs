@@ -522,6 +522,12 @@ public sealed class FanjianSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
+public sealed class GuanxingSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Guanxing;
+    public string Name => "观星";
+}
+
 public sealed class QingnangSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Qingnang;
@@ -593,6 +599,7 @@ public static class SkillRegistry
             [SkillKind.Guicai] = new GuicaiSkill(),
             [SkillKind.Tiandu] = new TianduSkill(),
             [SkillKind.Fanjian] = new FanjianSkill(),
+            [SkillKind.Guanxing] = new GuanxingSkill(),
             [SkillKind.Kujin] = new KujinSkill(),
             [SkillKind.Zhiheng] = new ZhihengSkill(),
             [SkillKind.Rende] = new RendeSkill(),

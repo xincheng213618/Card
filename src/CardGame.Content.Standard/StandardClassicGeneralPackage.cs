@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 2, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 3, 0))
     {
     }
 
@@ -21,12 +21,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         ArgumentNullException.ThrowIfNull(version);
         if (version != new Version(1, 0, 0) &&
             version != new Version(1, 1, 0) &&
-            version != new Version(1, 2, 0))
+            version != new Version(1, 2, 0) &&
+            version != new Version(1, 3, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0, 1.1.0 and 1.2.0.");
+                "Supported classic-general package versions are 1.0.0, 1.1.0, 1.2.0 and 1.3.0.");
         }
 
         _version = version;
@@ -62,6 +63,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "反间",
                 "出牌阶段限一次，你可以令一名其他角色选择一种花色，令其获得并展示你的一张随机手牌；若花色不同，你对其造成1点伤害。",
                 SkillKind.Fanjian));
+        }
+        if (_version >= new Version(1, 3, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:guanxing",
+                "观星",
+                "准备阶段，你可以观看牌堆顶的X张牌（X为存活角色数且至多为5），然后以任意顺序置于牌堆顶或牌堆底。",
+                SkillKind.Guanxing));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -123,11 +132,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds: ["classic:fanjian"]));
         }
+        if (_version >= new Version(1, 3, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhuge-liang",
+                "诸葛亮",
+                "zhuge_liang",
+                "classic:guanxing",
+                "shu",
+                BaseHp: 3,
+                AdditionalSkillIds: ["standard:kongcheng"]));
+        }
 
         var generalPoolIds = _version switch
         {
             { Major: 1, Minor: 0 } => LegacyClassicGeneralIds,
             { Major: 1, Minor: 1 } => TianduClassicGeneralIds,
+            { Major: 1, Minor: 2 } => FanjianClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -173,15 +194,20 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "standard:cao-cao",
         "standard:zhang-fei",
         "classic:zhou-yu",
-        "standard:zhuge-liang",
+        "classic:zhuge-liang",
         "standard:guan-yu",
         "standard:zhao-yun",
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> FanjianClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Select(id => id == "classic:zhuge-liang" ? "standard:zhuge-liang" : id)
+    ];
+
     internal static IReadOnlyList<string> TianduClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Select(id => id == "classic:zhou-yu" ? "standard:zhou-yu" : id)
+        .. FanjianClassicGeneralIds.Select(id => id == "classic:zhou-yu" ? "standard:zhou-yu" : id)
     ];
 
     internal static IReadOnlyList<string> LegacyClassicGeneralIds { get; } =

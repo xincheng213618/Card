@@ -11,6 +11,7 @@ internal static class ClassicGeneralChecks
         var classic = StandardContentRegistry.CreateWithClassicGenerals();
         var legacyClassic = StandardContentRegistry.CreateWithClassicGenerals(legacyRoster: true);
         var tianduClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 1, 0));
+        var fanjianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 2, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -19,7 +20,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.2.0"]),
+                "standard-classic-generals@1.3.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -34,6 +35,13 @@ internal static class ClassicGeneralChecks
                 !tianduClassic.Generals.ContainsKey("classic:zhou-yu") &&
                 !tianduClassic.Skills.ContainsKey("classic:fanjian"),
             "The Tiandu-era classic registry must remain reproducible for 1.1 checkpoints.");
+        Require(fanjianClassic.Packages.Last().Version == new Version(1, 2, 0) &&
+                fanjianClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "standard:zhuge-liang",
+                    StringComparer.Ordinal) &&
+                !fanjianClassic.Generals.ContainsKey("classic:zhuge-liang") &&
+                !fanjianClassic.Skills.ContainsKey("classic:guanxing"),
+            "The Fanjian-era classic registry must remain reproducible for 1.2 checkpoints.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -57,6 +65,10 @@ internal static class ClassicGeneralChecks
         Require(zhouYu.BaseHp == 3 &&
                 zhouYu.SkillIds.SequenceEqual(["standard:yingzi", "classic:fanjian"]),
             "The current classic Zhou Yu must expose Yingzi and Fanjian in a stable order.");
+        var zhugeLiang = classic.Generals["classic:zhuge-liang"];
+        Require(zhugeLiang.BaseHp == 3 &&
+                zhugeLiang.SkillIds.SequenceEqual(["classic:guanxing", "standard:kongcheng"]),
+            "The current classic Zhuge Liang must expose Guanxing and Kongcheng in a stable order.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -64,6 +76,7 @@ internal static class ClassicGeneralChecks
             var pool = mode.GeneralPoolIds ?? [];
             Require(pool.Contains("classic:sima-yi", StringComparer.Ordinal) &&
                     pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
+                    pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
                     !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
@@ -902,6 +915,198 @@ internal static class ClassicGeneralChecks
         var legacy = ReachZhouYuPlayPhase(registry, rulesVersion: 22);
         Require(legacy.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Fanjian),
             "Rules v22 must not expose the formal Fanjian active action.");
+    }
+
+    public static void FormalGuanxingFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 24,
+            "Formal Guanxing must have an explicit rules version.");
+
+        var game = SelectGeneral(registry, "classic:zhuge-liang", GameCheckpoint.CurrentRulesVersion);
+        var reachedOffer = game.Submit(new AdvanceCommand(game.Revision));
+        Require(reachedOffer.Accepted, reachedOffer.Error?.Message ?? "Could not reach the Guanxing offer.");
+        var offer = game.PendingDecision;
+        Require(offer is
+        {
+            Kind: DecisionKind.Guanxing,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            Choices.Count: 2
+        } &&
+                offer.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                    .OrderBy(action => action, StringComparer.Ordinal)
+                    .SequenceEqual(["guanxing-skip", "guanxing-use"]) &&
+                game.CreateSnapshot(1).PendingDecision is null,
+            "Guanxing must first publish a private use/skip offer only to its owner.");
+
+        var offerCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restoredOffer = GameReplay.Restore(offerCheckpoint, registry);
+        Require(SnapshotJson.Serialize(restoredOffer.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(restoredOffer).SequenceEqual(EventSignatures(game)),
+            "A paused Guanxing offer must restore exactly.");
+
+        var originalTopTwo = game.CreateCardZoneDiagnostics()
+            .Where(card => card.Location == CardLocation.DrawPile)
+            .OrderByDescending(card => card.ZoneIndex)
+            .Take(2)
+            .Select(card => card.CardId)
+            .ToArray();
+        var skipped = GameReplay.Restore(offerCheckpoint, registry);
+        var skipPrompt = skipped.PendingDecision!;
+        var skipResult = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "guanxing-skip").Id,
+            skipped.Revision));
+        Require(skipResult.Accepted &&
+                skipped.Events.Select(envelope => envelope.Payload).OfType<GuanxingResolvedEvent>()
+                    .Any(resolved => !resolved.Used && resolved.ViewedCount == 0) &&
+                originalTopTwo.All(cardId => skipped.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == cardId)),
+            $"Skipping Guanxing must retain the original top order and continue through the ordinary draw phase. " +
+            $"Top={string.Join(',', originalTopTwo)}; hand={string.Join(',', skipped.CreateSnapshot(0).Players[0].Hand.Select(card => card.Id))}; " +
+            $"accepted={skipResult.Accepted}.");
+
+        var unchangedSnapshot = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var unchangedDiagnostics = game.CreateCardZoneDiagnostics().ToArray();
+        var unchangedCommands = game.AcceptedCommands.Count;
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            offer!.PromptId,
+            new ChoiceId("guanxing-forged"),
+            game.Revision));
+        Require(!forged.Accepted && forged.Error?.Code == CommandErrorCode.InvalidChoice &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == unchangedSnapshot &&
+                game.CreateCardZoneDiagnostics().SequenceEqual(unchangedDiagnostics) &&
+                game.AcceptedCommands.Count == unchangedCommands,
+            "A forged Guanxing offer answer must be rejected without changing state, deck order or journal.");
+
+        var used = game.Submit(new AnswerPromptCommand(
+            0,
+            offer.PromptId,
+            offer.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "guanxing-use").Id,
+            game.Revision));
+        Require(used.Accepted, used.Error?.Message ?? "Guanxing use was rejected.");
+        var topPrompt = game.PendingDecision;
+        Require(topPrompt is
+        {
+            Kind: DecisionKind.Guanxing,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            ValidCardIds.Count: 5,
+            Choices.Count: 6
+        } &&
+                topPrompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "guanxing-finish-top") == 1 &&
+                topPrompt.Choices.Where(choice => choice.Cards.Count == 1).All(choice =>
+                    choice.Parameters.GetValueOrDefault("stage") == "top" &&
+                    choice.Parameters.ContainsKey("card-kind") &&
+                    choice.Parameters.ContainsKey("suit") &&
+                    choice.Parameters.ContainsKey("rank")) &&
+                game.CreateSnapshot(1).PendingDecision is null,
+            "Guanxing must privately reveal five exact top cards plus one finish-top action to the owner only.");
+        var actualViewedTop = game.CreateCardZoneDiagnostics()
+            .Where(card => card.Location == CardLocation.DrawPile)
+            .OrderByDescending(card => card.ZoneIndex)
+            .Take(5)
+            .Select(card => card.CardId)
+            .ToArray();
+        Require(topPrompt!.ValidCardIds.SequenceEqual(actualViewedTop),
+            "The Guanxing prompt must preserve the actual draw-pile top-first order.");
+
+        var pausedOrderingCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restoredOrdering = GameReplay.Restore(pausedOrderingCheckpoint, registry);
+        Require(SnapshotJson.Serialize(restoredOrdering.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                restoredOrdering.CreateCardZoneDiagnostics().SequenceEqual(game.CreateCardZoneDiagnostics()) &&
+                EventSignatures(restoredOrdering).SequenceEqual(EventSignatures(game)),
+            "A paused private Guanxing card view must restore with identical deck order and events.");
+
+        var aiChoice = new SimpleAiBrain(0, seed: 24).ChooseGuanxing(
+            game.CreateSnapshot(0),
+            topPrompt.Choices,
+            thoughtSequence: 1);
+        Require(topPrompt.Choices.Any(choice => choice.Id == aiChoice.Choice) &&
+                topPrompt.Choices.Single(choice => choice.Id == aiChoice.Choice).Cards.Count == 1 &&
+                aiChoice.Thought.Summary.Contains("观星", StringComparison.Ordinal),
+            "Guanxing AI must choose only from its private published card candidates.");
+
+        var chosenTopId = actualViewedTop[^1];
+        var selectTop = topPrompt.Choices.Single(choice =>
+            choice.Cards.SequenceEqual([chosenTopId]) &&
+            choice.Parameters.GetValueOrDefault("action") == "guanxing-top");
+        var selectedTop = game.Submit(new AnswerPromptCommand(
+            0,
+            topPrompt.PromptId,
+            selectTop.Id,
+            game.Revision));
+        Require(selectedTop.Accepted, selectedTop.Error?.Message ?? "Guanxing top-card selection was rejected.");
+
+        var finishPrompt = game.PendingDecision!;
+        var finishedTop = game.Submit(new AnswerPromptCommand(
+            0,
+            finishPrompt.PromptId,
+            finishPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "guanxing-finish-top").Id,
+            game.Revision));
+        Require(finishedTop.Accepted && game.PendingDecision is
+        {
+            Kind: DecisionKind.Guanxing,
+            ValidCardIds.Count: 4
+        },
+            finishedTop.Error?.Message ?? "Guanxing did not enter bottom ordering.");
+
+        var bottomOrder = actualViewedTop.Where(cardId => cardId != chosenTopId).Reverse().ToArray();
+        foreach (var cardId in bottomOrder)
+        {
+            var bottomPrompt = game.PendingDecision ??
+                throw new InvalidOperationException("Guanxing bottom ordering ended early.");
+            var bottomChoice = bottomPrompt.Choices.Single(choice =>
+                choice.Cards.SequenceEqual([cardId]) &&
+                choice.Parameters.GetValueOrDefault("action") == "guanxing-bottom");
+            var selectedBottom = game.Submit(new AnswerPromptCommand(
+                0,
+                bottomPrompt.PromptId,
+                bottomChoice.Id,
+                game.Revision));
+            Require(selectedBottom.Accepted, selectedBottom.Error?.Message ??
+                $"Guanxing bottom-card selection {cardId} was rejected.");
+        }
+
+        var humanAfter = game.CreateSnapshot(0, revealAll: true).Players[0];
+        var bottomDiagnostics = game.CreateCardZoneDiagnostics()
+            .Where(card => bottomOrder.Contains(card.CardId))
+            .OrderBy(card => card.ZoneIndex)
+            .Select(card => card.CardId)
+            .ToArray();
+        var resolvedEvent = game.Events.Select(envelope => envelope.Payload)
+            .OfType<GuanxingResolvedEvent>()
+            .Last();
+        Require(humanAfter.Hand.Any(card => card.Id == chosenTopId) &&
+                bottomDiagnostics.SequenceEqual(bottomOrder) &&
+                resolvedEvent is { SourceSeat: 0, Used: true, ViewedCount: 5, TopCount: 1, BottomCount: 4 } &&
+                bottomOrder.All(cardId => game.CardMovements.All(movement => movement.CardId != cardId)),
+            "Guanxing must make the first top card the next draw, preserve bottom-first order, and expose only public counts.");
+
+        var resolvedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(resolvedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                resolvedReplay.CreateCardZoneDiagnostics().SequenceEqual(game.CreateCardZoneDiagnostics()) &&
+                EventSignatures(resolvedReplay).SequenceEqual(EventSignatures(game)),
+            "Guanxing top/bottom ordering and the following draw must replay exactly.");
+
+        var legacy = SelectGeneral(registry, "classic:zhuge-liang", rulesVersion: 23);
+        var legacyAdvanced = legacy.Submit(new AdvanceCommand(legacy.Revision));
+        Require(legacyAdvanced.Accepted && legacy.PendingDecision?.Kind != DecisionKind.Guanxing &&
+                legacy.Events.All(envelope => envelope.Payload is not GuanxingResolvedEvent),
+            "Rules v23 must retain the historical turn start without a Guanxing prompt.");
     }
 
     private static GameEngine ReachZhouYuPlayPhase(ContentRegistry registry, int rulesVersion)

@@ -207,6 +207,18 @@ public sealed record DrawSkillResolvedEvent(
     bool Used,
     int DrawCount) : IGameEvent;
 
+/// <summary>
+/// Public result of Guanxing. Card identities and order remain private to the
+/// skill owner; observers receive only whether it was used and the partition
+/// sizes.
+/// </summary>
+public sealed record GuanxingResolvedEvent(
+    int SourceSeat,
+    bool Used,
+    int ViewedCount,
+    int TopCount,
+    int BottomCount) : IGameEvent;
+
 public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing }
 
 /// <summary>The declared target lost its required cards during the response window.</summary>

@@ -61,6 +61,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Yingzi asks before the extra draw and preserves legacy rules", ClassicGeneralChecks.FormalYingziChoice),
     ("classic Tiandu can claim a resolved judgment and preserves legacy rules", ClassicGeneralChecks.FormalTianduJudgment),
     ("classic Fanjian transfers a random card after suit choice and preserves legacy rules", ClassicGeneralChecks.FormalFanjianFlow),
+    ("classic Guanxing privately orders the draw-pile top and preserves legacy rules", ClassicGeneralChecks.FormalGuanxingFlow),
     ("public-team mode preserves privacy and registered distribution", TeamModeChecks.ContentAndPrivacy),
     ("public-team AI matches terminate and replay deterministically", TeamModeChecks.AiMatchIsDeterministic),
     ("public-team winner rules distinguish living teams", TeamModeChecks.WinningTeamRules),

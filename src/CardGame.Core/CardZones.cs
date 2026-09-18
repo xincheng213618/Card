@@ -314,6 +314,53 @@ internal sealed class CardZoneStore
         random.Shuffle(GetZone(location));
     }
 
+    /// <summary>
+    /// Reorders an exact private view of the current draw-pile top. The first
+    /// top id becomes the next card drawn; the first bottom id becomes the
+    /// deepest card in the pile. No card changes zone, so this operation does
+    /// not create a movement record.
+    /// </summary>
+    public void ReorderDrawPileTop(
+        IReadOnlyList<int> viewedTopFirst,
+        IReadOnlyList<int> newTopFirst,
+        IReadOnlyList<int> newBottomFirst)
+    {
+        ArgumentNullException.ThrowIfNull(viewedTopFirst);
+        ArgumentNullException.ThrowIfNull(newTopFirst);
+        ArgumentNullException.ThrowIfNull(newBottomFirst);
+
+        var drawPile = GetZone(CardLocation.DrawPile);
+        if (viewedTopFirst.Count > drawPile.Count)
+        {
+            throw new InvalidOperationException("The viewed draw-pile slice is larger than the draw pile.");
+        }
+
+        var actualTopFirst = drawPile
+            .TakeLast(viewedTopFirst.Count)
+            .Reverse()
+            .Select(card => card.Id)
+            .ToArray();
+        if (!actualTopFirst.SequenceEqual(viewedTopFirst))
+        {
+            throw new InvalidOperationException("The viewed draw-pile slice is no longer current.");
+        }
+
+        var rearranged = newTopFirst.Concat(newBottomFirst).ToArray();
+        if (rearranged.Length != viewedTopFirst.Count ||
+            rearranged.Distinct().Count() != rearranged.Length ||
+            !rearranged.OrderBy(id => id).SequenceEqual(viewedTopFirst.OrderBy(id => id)))
+        {
+            throw new InvalidOperationException("The reordered draw-pile cards must be an exact partition of the viewed slice.");
+        }
+
+        var viewedCards = drawPile
+            .TakeLast(viewedTopFirst.Count)
+            .ToDictionary(card => card.Id);
+        drawPile.RemoveRange(drawPile.Count - viewedTopFirst.Count, viewedTopFirst.Count);
+        drawPile.InsertRange(0, newBottomFirst.Select(id => viewedCards[id]));
+        drawPile.AddRange(newTopFirst.Reverse().Select(id => viewedCards[id]));
+    }
+
     public IReadOnlyList<CardZoneDiagnostic> CreateDiagnostics() =>
         _zones
             .SelectMany(pair => pair.Value.Select((card, index) =>
