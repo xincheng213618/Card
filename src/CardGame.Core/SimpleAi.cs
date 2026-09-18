@@ -1848,6 +1848,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Guicai => role is Role.Lord or Role.Loyalist ? 41d : 36d,
             SkillKind.Kujin => role is Role.Lord or Role.Loyalist ? 38d : 35d,
             SkillKind.Qiangxi => role is Role.Rebel or Role.Renegade ? 40d : 35d,
+            SkillKind.Duanliang => role is Role.Rebel or Role.Renegade ? 41d : 36d,
             SkillKind.Zhiheng => role is Role.Lord or Role.Loyalist ? 36d : 34d,
             SkillKind.Rende => role is Role.Lord or Role.Loyalist ? 40d : 36d,
             SkillKind.Qingnang => role is Role.Lord or Role.Loyalist ? 39d : 35d,
@@ -1874,6 +1875,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Guicai => "在公开判定生效前用自己的手牌改变结果，适合保护己方结算。",
             SkillKind.Kujin => "出牌阶段以 1 点体力换取两张牌；降至 0 点时先进入濒死救援。",
             SkillKind.Qiangxi => "出牌阶段以体力或武器牌为代价，对攻击范围内的角色造成直接伤害。",
+            SkillKind.Duanliang => "可将黑色基本牌或装备牌当兵粮寸断，并把目标距离扩展到 2。",
             SkillKind.Zhiheng => "出牌阶段用低保留价值手牌换取等量新牌，稳定调整手牌质量。",
             SkillKind.Rende => "出牌阶段将手牌交给其他角色；一次交给至少两张时可回复 1 点体力。",
             SkillKind.Qingnang => "出牌阶段弃置一张手牌令受伤角色回复 1 点体力，每回合一次。",
@@ -2201,9 +2203,22 @@ public sealed partial class SimpleAiBrain
         {
             var existingJudgmentCount = target.Judgment.Count;
             var handPressure = Math.Min(target.HandCount, 5) * 6d;
+            var isDuanliang = action.PlayedCardKind == CardKind.SupplyShortage &&
+                              card.Kind != CardKind.SupplyShortage;
+            var equipmentCost = isDuanliang && self.Equipment.Any(equipment => equipment.Id == card.Id)
+                ? Math.Max(8d, CardCatalog.Get(card.Kind).AiPlayValue * 0.75d)
+                : 0d;
+            var conversionCost = isDuanliang
+                ? Math.Max(4d, CardCatalog.Get(card.Kind).HandKeepValue * 0.18d) + equipmentCost
+                : 0d;
+            var conversionText = isDuanliang
+                ? equipmentCost > 0d
+                    ? $"；以已装备的【{card.DisplayName}】发动断粮并计入公开装备机会成本"
+                    : $"；将手牌【{card.DisplayName}】当作【兵粮寸断】"
+                : string.Empty;
             return (
-                cardProfile.AiPlayValue + hostility + handPressure,
-                $"将【兵粮寸断】置入目标判定区；目标已有 {existingJudgmentCount} 张公开判定牌和 {target.HandCount} 张公开手牌数量，预计压制其下回合摸牌，只使用公开信息。");
+                cardProfile.AiPlayValue + hostility + handPressure - conversionCost,
+                $"将【兵粮寸断】置入目标判定区；目标已有 {existingJudgmentCount} 张公开判定牌和 {target.HandCount} 张公开手牌数量，预计压制其下回合摸牌，只使用公开信息{conversionText}。");
         }
 
         if (action.Kind == LegalActionKind.Dismantlement)

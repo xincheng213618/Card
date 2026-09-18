@@ -65,6 +65,10 @@ public sealed partial class GameEngine
         public bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) => skills.Any(skill => skill.ProhibitsCardTarget(owner, cardKind));
         public bool CanUseAsSlash(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsSlash(owner, card));
         public bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsDismantlement(owner, card));
+        public bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) =>
+            skills.Any(skill => skill.CanUseAsSupplyShortage(owner, card));
+        public int ModifySupplyShortageDistanceLimit(PlayerSkillContext owner, int currentLimit) =>
+            skills.Aggregate(currentLimit, (value, skill) => skill.ModifySupplyShortageDistanceLimit(owner, value));
         public bool CanSkipDiscardPhase(PlayerSkillContext owner, bool usedOrPlayedSlashDuringPlayPhase) =>
             skills.Any(skill => skill.CanSkipDiscardPhase(owner, usedOrPlayedSlashDuringPlayPhase));
         public bool CanReplaceDrawPhase(PlayerSkillContext owner) => skills.Any(skill => skill.CanReplaceDrawPhase(owner));

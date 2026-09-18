@@ -29,6 +29,7 @@ public sealed partial class GameEngine
     private readonly List<ObserverFailure> _observerFailures = [];
     private readonly Queue<EngineNotification> _pendingNotifications = [];
     private readonly Dictionary<int, SimpleAiBrain> _aiBrains = [];
+    private readonly Dictionary<int, CardKind> _judgmentEffectiveCardKinds = [];
     private GameSnapshot? _pendingStateSnapshot;
 
     private EngineStatus _status = EngineStatus.NotStarted;
@@ -215,6 +216,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalQiangxi =>
         _rulesVersion >= 32 && IsClassicIdentityMode;
+
+    private bool UsesFormalDuanliang =>
+        _rulesVersion >= 33 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -1829,6 +1833,9 @@ public sealed partial class GameEngine
         var qiangxiRules = UsesFormalQiangxi && _players.Any(player => player.General.HasSkill(SkillKind.Qiangxi))
             ? "，典韦每个出牌阶段限一次失去 1 点体力或弃置一张武器牌，对攻击范围内一名其他角色造成 1 点伤害"
             : string.Empty;
+        var duanliangRules = UsesFormalDuanliang && _players.Any(player => player.General.HasSkill(SkillKind.Duanliang))
+            ? "，徐晃可将黑色基本牌或装备牌当兵粮寸断使用，并可指定距离 2 的角色"
+            : string.Empty;
         var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
             ? UsesFormalZhihengEquipment
                 ? "，孙权每个出牌阶段限一次弃置任意张手牌或装备区牌并摸等量牌"
@@ -1888,7 +1895,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{luoyiRules}{qiangxiRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{luoyiRules}{qiangxiRules}{duanliangRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -3261,7 +3268,7 @@ public sealed partial class GameEngine
                 .Select(ToSnapshot)
                 .ToArray();
             var judgment = GetJudgment(player)
-                .Select(ToSnapshot)
+                .Select(ToJudgmentSnapshot)
                 .ToArray();
             var canSeeGeneral = player.GeneralSelected &&
                                 (revealAll || player.GeneralRevealed || player.Seat == viewerSeat);
@@ -4301,15 +4308,18 @@ public sealed partial class GameEngine
 
     private int GetAiGuanxingTopCount(PlayerRuntime current, int viewedCount)
     {
-        var judgmentCount = GetJudgment(current).Count(card => IsDelayedCard(card.Kind));
+        var judgmentCount = GetJudgment(current).Count(card =>
+            IsDelayedCard(GetJudgmentEffectiveCardKind(card)));
         return Math.Min(viewedCount, judgmentCount + Math.Max(0, GetTurnDrawCount(current)));
     }
 
     private string GetGuanxingTopSlotPurpose(PlayerRuntime current, int topIndex)
     {
-        var delayedCards = GetJudgment(current).Where(card => IsDelayedCard(card.Kind)).ToArray();
+        var delayedCards = GetJudgment(current)
+            .Where(card => IsDelayedCard(GetJudgmentEffectiveCardKind(card)))
+            .ToArray();
         return topIndex < delayedCards.Length
-            ? $"judgment-{delayedCards[topIndex].Kind}"
+            ? $"judgment-{GetJudgmentEffectiveCardKind(delayedCards[topIndex])}"
             : "draw";
     }
 
@@ -4345,16 +4355,19 @@ public sealed partial class GameEngine
     private void BeginDelayedJudgmentOrTurnStart(PlayerRuntime current, int? excludedCardId = null)
     {
         var delayedCard = GetJudgment(current)
-            .FirstOrDefault(card => IsDelayedCard(card.Kind) && card.Id != excludedCardId);
+            .FirstOrDefault(card =>
+                IsDelayedCard(GetJudgmentEffectiveCardKind(card)) &&
+                card.Id != excludedCardId);
         if (delayedCard is not null)
         {
-            var delayedJudgment = GetDelayedJudgmentInfo(delayedCard.Kind);
+            var effectiveKind = GetJudgmentEffectiveCardKind(delayedCard);
+            var delayedJudgment = GetDelayedJudgmentInfo(effectiveKind);
             var judgment = BeginJudgment(
                 attack: null,
                 targetSeat: current.Seat,
                 reason: delayedJudgment.Reason,
                 parentFrameId: 0,
-                sourceCard: delayedCard.Kind,
+                sourceCard: effectiveKind,
                 continuation: delayedJudgment.Continuation,
                 damageSkill: null,
                 delayedCard: delayedCard,
@@ -4639,6 +4652,12 @@ public sealed partial class GameEngine
 
     private static bool IsDelayedCard(CardKind kind) =>
         kind is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning;
+
+    private CardKind GetJudgmentEffectiveCardKind(Card card) =>
+        _judgmentEffectiveCardKinds.GetValueOrDefault(card.Id, card.Kind);
+
+    private bool HasJudgmentEffectiveCard(PlayerRuntime player, CardKind kind) =>
+        GetJudgment(player).Any(card => GetJudgmentEffectiveCardKind(card) == kind);
 
     private static bool IsDelayedJudgmentContinuation(JudgmentContinuationKind continuation) =>
         continuation is JudgmentContinuationKind.Indulgence or
@@ -5547,7 +5566,12 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException($"{action.Kind} requires a target.");
                 }
 
-                ResolveDelayedCard(actor, _players[action.TargetSeat.Value], card, action.Kind);
+                ResolveDelayedCard(
+                    actor,
+                    _players[action.TargetSeat.Value],
+                    card,
+                    action.Kind,
+                    action.PlayedCardKind);
                 break;
             case LegalActionKind.Dismantlement:
                 if (action.TargetSeat is null)
@@ -6295,6 +6319,9 @@ public sealed partial class GameEngine
         var source = _players[sourceSeat];
         var target = _players[targetSeat];
         var targetMoveReason = GetTargetCardMoveReason(actionKind, targetCardFromZone.Zone);
+        var publicTargetKind = targetCardFromZone.Zone == CardZoneKind.Judgment
+            ? GetJudgmentEffectiveCardKind(targetCard)
+            : targetCard.Kind;
         MoveCard(
             targetCard,
             targetCardFromZone,
@@ -6309,7 +6336,7 @@ public sealed partial class GameEngine
                 target.Seat,
                 targetCardFromZone.Zone,
                 IsPublicTargetZone(targetCardFromZone.Zone) ? targetCard.Id : null,
-                IsPublicTargetZone(targetCardFromZone.Zone) ? targetCard.Kind : null));
+                IsPublicTargetZone(targetCardFromZone.Zone) ? publicTargetKind : null));
             MoveCard(
                 targetCard,
                 CardLocation.Processing,
@@ -6324,7 +6351,7 @@ public sealed partial class GameEngine
                 target.Seat,
                 targetCardFromZone.Zone,
                 IsPublicTargetZone(targetCardFromZone.Zone) ? targetCard.Id : null,
-                IsPublicTargetZone(targetCardFromZone.Zone) ? targetCard.Kind : null));
+                IsPublicTargetZone(targetCardFromZone.Zone) ? publicTargetKind : null));
             MoveCard(
                 targetCard,
                 CardLocation.Processing,
@@ -6343,7 +6370,7 @@ public sealed partial class GameEngine
         var targetDescription = targetCardFromZone.Zone switch
         {
             CardZoneKind.Equipment => $"装备【{targetCard.DisplayName}】",
-            CardZoneKind.Judgment => $"判定区【{targetCard.DisplayName}】",
+            CardZoneKind.Judgment => $"判定区【{CardCatalog.Get(publicTargetKind).DisplayName}】",
             _ => "一张手牌"
         };
         var outcome = actionKind == LegalActionKind.Dismantlement
@@ -6648,22 +6675,29 @@ public sealed partial class GameEngine
         PlayerRuntime source,
         PlayerRuntime target,
         Card delayedCard,
-        LegalActionKind actionKind)
+        LegalActionKind actionKind,
+        CardKind? playedCardKind = null)
     {
+        var effectiveCardKind = playedCardKind ?? delayedCard.Kind;
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == actionKind &&
             action.CardId == delayedCard.Id &&
-            action.TargetSeat == target.Seat);
+            action.TargetSeat == target.Seat &&
+            (action.PlayedCardKind ?? delayedCard.Kind) == effectiveCardKind);
         if (!stillLegal)
         {
             throw new InvalidOperationException(
-                $"{CardCatalog.Get(delayedCard.Kind).DisplayName} became illegal before resolution.");
+                $"{CardCatalog.Get(effectiveCardKind).DisplayName} became illegal before resolution.");
         }
 
-        var resolutionId = BeginCardUse(delayedCard, source.Seat, [target.Seat]);
+        var resolutionId = BeginCardUse(
+            delayedCard,
+            source.Seat,
+            [target.Seat],
+            effectiveCardKind);
         MoveCard(
             delayedCard,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, delayedCard),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginNullificationWindow(
@@ -6671,7 +6705,8 @@ public sealed partial class GameEngine
             delayedCard,
             source.Seat,
             [target.Seat],
-            actionKind);
+            actionKind,
+            playedCardKind: effectiveCardKind);
     }
 
     private void ResolveDelayedCardEffect(NullificationResolution pending)
@@ -6680,7 +6715,7 @@ public sealed partial class GameEngine
         var targetSeat = pending.TargetSeat ??
             throw new InvalidOperationException("A delayed card must retain one target.");
         var target = _players[targetSeat];
-        var expectedActionKind = pending.EffectCard.Kind switch
+        var expectedActionKind = pending.EffectiveCardKind switch
         {
             CardKind.Indulgence => LegalActionKind.Indulgence,
             CardKind.SupplyShortage => LegalActionKind.SupplyShortage,
@@ -6688,8 +6723,8 @@ public sealed partial class GameEngine
             _ => throw new InvalidOperationException(
                 $"Card {pending.EffectCard.Kind} is not a delayed card.")
         };
-        var canTargetSelf = pending.EffectCard.Kind == CardKind.Lightning;
-        if (pending.EffectCard.Kind == CardKind.SupplyShortage &&
+        var canTargetSelf = pending.EffectiveCardKind == CardKind.Lightning;
+        if (pending.EffectiveCardKind == CardKind.SupplyShortage &&
             !UsesFormalSupplyShortageTargeting &&
             GetHand(target).Count == 0)
         {
@@ -6699,10 +6734,10 @@ public sealed partial class GameEngine
 
         if (!target.IsAlive || (!canTargetSelf && target.Seat == source.Seat) ||
             pending.ActionKind != expectedActionKind ||
-            GetJudgment(target).Any(card => card.Kind == pending.EffectCard.Kind))
+            HasJudgmentEffectiveCard(target, pending.EffectiveCardKind))
         {
             throw new InvalidOperationException(
-                $"{pending.EffectCard.DisplayName} target is no longer legal.");
+                $"{CardCatalog.Get(pending.EffectiveCardKind).DisplayName} target is no longer legal.");
         }
 
         SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
@@ -6711,23 +6746,27 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardLocation.Judgment(target.Seat),
             CardMoveReasons.DelayedCardPlace);
+        if (pending.EffectiveCardKind != pending.EffectCard.Kind)
+        {
+            _judgmentEffectiveCardKinds[pending.EffectCard.Id] = pending.EffectiveCardKind;
+        }
         QueueGameEvent(new DelayedCardPlacedEvent(
             pending.ResolutionId,
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             source.Seat,
             target.Seat));
         QueueGameEvent(new CardUsedEvent(
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             source.Seat,
             target.Seat));
         AddLog(
             "CardEffect",
-            $"{source.Name} 对 {target.Name} 使用【{pending.EffectCard.DisplayName}】，置入其判定区。",
+            $"{source.Name} 对 {target.Name} 使用【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】，置入其判定区。",
             source.Seat,
             target.Seat);
-        FinishCardUse(pending.ResolutionId, pending.EffectCard);
+        FinishCardUse(pending.ResolutionId, pending.EffectCard, pending.EffectiveCardKind);
     }
 
     private void ResolveDismantlement(
@@ -9744,13 +9783,14 @@ public sealed partial class GameEngine
                 "The resolved delayed card is not in its target's judgment zone.");
         }
 
+        var effectiveCardKind = GetJudgmentEffectiveCardKind(delayedCard);
         var delayedEffectSucceeded = UsesSuitSpecificDelayedJudgments
             ? !succeeded
-            : delayedCard.Kind == CardKind.SupplyShortage
+            : effectiveCardKind == CardKind.SupplyShortage
                 ? !succeeded
                 : succeeded;
         var delayedEffects = delayedEffectSucceeded
-            ? GetDelayedTurnEffects(delayedCard.Kind)
+            ? GetDelayedTurnEffects(effectiveCardKind)
             : DelayedTurnEffects.None;
         _pendingTurnDelayedEffects |= delayedEffects;
         MoveCard(
@@ -9761,7 +9801,7 @@ public sealed partial class GameEngine
         QueueGameEvent(new DelayedCardResolvedEvent(
             pending.FrameId,
             delayedCard.Id,
-            delayedCard.Kind,
+            effectiveCardKind,
             target.Seat,
             pending.CurrentCard?.Id,
             succeeded,
@@ -9779,7 +9819,7 @@ public sealed partial class GameEngine
                     : "正常进入后续阶段";
         AddLog(
             "DelayedCardResolved",
-            $"{target.Name} 的【{delayedCard.DisplayName}】判定为{GetSuitDisplayName(pending.CurrentCard?.Suit)}，{phaseDescription}。",
+            $"{target.Name} 的【{CardCatalog.Get(effectiveCardKind).DisplayName}】判定为{GetSuitDisplayName(pending.CurrentCard?.Suit)}，{phaseDescription}。",
             target.Seat);
         BeginDelayedJudgmentOrTurnStart(target);
     }
@@ -12650,7 +12690,7 @@ public sealed partial class GameEngine
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
-                         !GetJudgment(player).Any(card => card.Kind == CardKind.Indulgence)))
+                         !HasJudgmentEffectiveCard(player, CardKind.Indulgence)))
             {
                 actions.Add(new LegalAction(
                     LegalActionKind.Indulgence,
@@ -12663,13 +12703,16 @@ public sealed partial class GameEngine
         foreach (var supplyShortage in GetHand(actor).Where(card => card.Kind == CardKind.SupplyShortage))
         {
             var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.SupplyShortage);
+            var distanceLimit = UsesFormalDuanliang
+                ? skill.ModifySupplyShortageDistanceLimit(skillContext, 1)
+                : 1;
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
                          (UsesFormalSupplyShortageTargeting
-                             ? ignoresDistance || GetCombatDistance(actor.Seat, player.Seat) == 1
+                             ? ignoresDistance || GetCombatDistance(actor.Seat, player.Seat) <= distanceLimit
                              : GetHand(player).Count > 0) &&
-                         !GetJudgment(player).Any(card => card.Kind == CardKind.SupplyShortage)))
+                         !HasJudgmentEffectiveCard(player, CardKind.SupplyShortage)))
             {
                 actions.Add(new LegalAction(
                     LegalActionKind.SupplyShortage,
@@ -12679,9 +12722,34 @@ public sealed partial class GameEngine
             }
         }
 
+        if (UsesFormalDuanliang)
+        {
+            var distanceLimit = skill.ModifySupplyShortageDistanceLimit(skillContext, 1);
+            var convertedCards = GetHand(actor)
+                .Concat(GetEquipment(actor))
+                .Where(card => skill.CanUseAsSupplyShortage(skillContext, card));
+            foreach (var converted in convertedCards)
+            {
+                var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
+                foreach (var target in _players.Where(player =>
+                             player.IsAlive &&
+                             player.Seat != actor.Seat &&
+                             GetCombatDistance(actor.Seat, player.Seat) <= distanceLimit &&
+                             !HasJudgmentEffectiveCard(player, CardKind.SupplyShortage)))
+                {
+                    actions.Add(new LegalAction(
+                        LegalActionKind.SupplyShortage,
+                        converted.Id,
+                        target.Seat,
+                        $"将【{physicalName}】当作【兵粮寸断】对 {target.Name} 使用",
+                        PlayedCardKind: CardKind.SupplyShortage));
+                }
+            }
+        }
+
         foreach (var lightning in GetHand(actor).Where(card => card.Kind == CardKind.Lightning))
         {
-            if (!GetJudgment(actor).Any(card => card.Kind == CardKind.Lightning))
+            if (!HasJudgmentEffectiveCard(actor, CardKind.Lightning))
             {
                 actions.Add(new LegalAction(
                     LegalActionKind.Lightning,
@@ -14155,6 +14223,7 @@ public sealed partial class GameEngine
     {
         _cardZones.Move(card.Id, from, to);
         RecordMovement(card, from, to, reason);
+        ClearJudgmentEffectiveKindAfterMove(card, from, to);
     }
 
     private void MoveCards(
@@ -14167,6 +14236,7 @@ public sealed partial class GameEngine
         foreach (var card in moved)
         {
             RecordMovement(card, from, to, reason);
+            ClearJudgmentEffectiveKindAfterMove(card, from, to);
         }
     }
 
@@ -14179,6 +14249,18 @@ public sealed partial class GameEngine
         foreach (var card in cards)
         {
             RecordMovement(card, from, to, reason);
+            ClearJudgmentEffectiveKindAfterMove(card, from, to);
+        }
+    }
+
+    private void ClearJudgmentEffectiveKindAfterMove(
+        Card card,
+        CardLocation from,
+        CardLocation to)
+    {
+        if (from.Zone == CardZoneKind.Judgment && to.Zone != CardZoneKind.Judgment)
+        {
+            _judgmentEffectiveCardKinds.Remove(card.Id);
         }
     }
 
@@ -14225,6 +14307,16 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException(
                     $"Player {player.Seat} has more than one card in an equipment slot.");
+            }
+        }
+
+        foreach (var (cardId, effectiveKind) in _judgmentEffectiveCardKinds)
+        {
+            if (_cardZones.GetLocation(cardId).Zone != CardZoneKind.Judgment ||
+                !IsDelayedCard(effectiveKind))
+            {
+                throw new InvalidOperationException(
+                    $"Judgment effective card {cardId}/{effectiveKind} is outside a delayed judgment zone.");
             }
         }
 
@@ -15974,6 +16066,18 @@ public sealed partial class GameEngine
 
     private static CardSnapshot ToSnapshot(Card card) =>
         new(card.Id, card.Kind, card.Suit, card.Rank, card.DisplayName, card.RankText);
+
+    private CardSnapshot ToJudgmentSnapshot(Card card)
+    {
+        var effectiveKind = GetJudgmentEffectiveCardKind(card);
+        return new CardSnapshot(
+            card.Id,
+            effectiveKind,
+            card.Suit,
+            card.Rank,
+            CardCatalog.Get(effectiveKind).DisplayName,
+            card.RankText);
+    }
 
     private static PendingDecision CloneDecision(PendingDecision decision) =>
         decision with

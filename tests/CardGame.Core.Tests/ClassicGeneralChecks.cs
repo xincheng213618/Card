@@ -21,6 +21,7 @@ internal static class ClassicGeneralChecks
         var kejiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 9, 0));
         var tuxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 10, 0));
         var luoyiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 11, 0));
+        var qiangxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 12, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -29,7 +30,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.12.0"]),
+                "standard-classic-generals@1.13.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -107,6 +108,13 @@ internal static class ClassicGeneralChecks
                     "classic:dian-wei",
                     StringComparer.Ordinal),
             "The Luoyi-era classic registry must retain the 1.11 roster without Dian Wei or Qiangxi.");
+        Require(qiangxiClassic.Packages.Last().Version == new Version(1, 12, 0) &&
+                !qiangxiClassic.Generals.ContainsKey("classic:xu-huang") &&
+                !qiangxiClassic.Skills.ContainsKey("classic:duanliang") &&
+                !qiangxiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:xu-huang",
+                    StringComparer.Ordinal),
+            "The Qiangxi-era classic registry must retain the 1.12 roster without Xu Huang or Duanliang.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -174,6 +182,12 @@ internal static class ClassicGeneralChecks
                 dianWei.BaseHp == 4 &&
                 dianWei.SkillIds.SequenceEqual(["classic:qiangxi"]),
             "The current classic Dian Wei must expose the formal Wei, 4-HP Qiangxi definition.");
+        var xuHuang = classic.Generals["classic:xu-huang"];
+        Require(xuHuang.Name == "徐晃" &&
+                xuHuang.FactionId == "wei" &&
+                xuHuang.BaseHp == 4 &&
+                xuHuang.SkillIds.SequenceEqual(["classic:duanliang"]),
+            "The current classic Xu Huang must expose the formal Wei, 4-HP Duanliang definition.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -189,12 +203,13 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:zhang-liao", StringComparer.Ordinal) &&
                       pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
                       pool.Contains("classic:dian-wei", StringComparer.Ordinal) &&
+                      pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 32,
-            "Classic Qiangxi must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 33,
+            "Classic Duanliang must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -249,6 +264,14 @@ internal static class ClassicGeneralChecks
                 hpCost.MinCardCount == 0 && hpCost.MaxCardCount == 1 &&
                 hpCost.MinTargetCount == 1 && hpCost.MaxTargetCount == 1,
             "Formal Qiangxi must expose the one-HP-or-one-weapon, one-target damage contract.");
+
+        var duanliang = SkillRegistry.Get(SkillKind.Duanliang);
+        Require(duanliang.CanUseAsSupplyShortage(damaged, new Card(9101, CardKind.Slash, Suit.Spade, 7)) &&
+                duanliang.CanUseAsSupplyShortage(damaged, new Card(9102, CardKind.Crossbow, Suit.Club, 6)) &&
+                !duanliang.CanUseAsSupplyShortage(damaged, new Card(9103, CardKind.Duel, Suit.Spade, 1)) &&
+                !duanliang.CanUseAsSupplyShortage(damaged, new Card(9104, CardKind.Slash, Suit.Heart, 8)) &&
+                duanliang.ModifySupplyShortageDistanceLimit(damaged, 1) == 2,
+            "Formal Duanliang must accept only black basic/equipment cards and extend Supply Shortage to distance two.");
     }
 
     public static void FormalJiuyuanRecoveryBonus()
@@ -971,7 +994,9 @@ internal static class ClassicGeneralChecks
         var (duelGame, duelAction, duelTargetHp) = FindXuChuDirectAttackFixture(
             registry,
             LegalActionKind.Duel,
-            target => target.Hand.All(card => card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)),
+            target =>
+                target.Hand.All(card => card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) &&
+                target.Skills?.All(skill => skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan or SkillKind.Jijiang)) != false,
             requireNoNullification: true);
         var duelTargetSeat = duelAction.TargetSeat!.Value;
         var duelPlayed = duelGame.Submit(new PlayCardCommand(
@@ -1230,6 +1255,132 @@ internal static class ClassicGeneralChecks
         Require(legacyAdvance.Accepted &&
                 legacy.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Qiangxi),
             legacyAdvance.Error?.Message ?? "Rules v31 must not expose formal Qiangxi actions.");
+    }
+
+    public static void FormalDuanliangFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var (game, physicalCardId, targetSeat, distanceTwoSeat) =
+            FindXuHuangDuanliangFixture(registry);
+        var before = game.CreateSnapshot(0, revealAll: true);
+        var source = before.Players.Single(player => player.Seat == 0);
+        var physicalCard = source.Equipment.Single(card => card.Id == physicalCardId);
+        var convertedActions = game.GetHumanLegalActions()
+            .Where(action =>
+                action.Kind == LegalActionKind.SupplyShortage &&
+                action.CardId == physicalCardId &&
+                action.PlayedCardKind == CardKind.SupplyShortage)
+            .ToArray();
+        var targetAction = convertedActions.Single(action => action.TargetSeat == targetSeat);
+        Require(physicalCard.Suit is Suit.Spade or Suit.Club &&
+                EquipmentCatalog.IsEquipment(physicalCard.Kind) &&
+                game.GetCombatDistance(0, distanceTwoSeat) == 2 &&
+                convertedActions.Any(action => action.TargetSeat == distanceTwoSeat),
+            "Duanliang must publish an equipped black card as Supply Shortage against distance-two targets.");
+
+        var stateBeforeForged = SnapshotJson.Serialize(before);
+        var forged = game.Submit(new PlayCardCommand(
+            0,
+            physicalCardId,
+            targetAction.TargetSeats,
+            game.Revision,
+            game.PendingDecision!.PromptId,
+            physicalCard.Kind));
+        Require(!forged.Accepted &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == stateBeforeForged,
+            "Duanliang must reject a forged physical effective kind atomically.");
+
+        var aiActions = convertedActions
+            .Where(action => action.TargetSeat == distanceTwoSeat)
+            .ToArray();
+        var aiChoice = new SimpleAiBrain(0, seed: 33).ChoosePlay(before, aiActions, thoughtSequence: 1);
+        Require(aiChoice.Action.CardId == physicalCardId &&
+                aiChoice.Action.PlayedCardKind == CardKind.SupplyShortage &&
+                aiChoice.Thought.Candidates.All(candidate =>
+                    candidate.Action.CardId == physicalCardId),
+            "Duanliang AI must choose only from its published physical-card conversions.");
+
+        var used = game.Submit(new PlayCardCommand(
+            0,
+            physicalCardId,
+            targetAction.TargetSeats,
+            game.Revision,
+            game.PendingDecision!.PromptId,
+            CardKind.SupplyShortage));
+        var returnedToPlay = game.Submit(new AdvanceCommand(game.Revision));
+        var placed = game.CreateSnapshot(0, revealAll: true);
+        Require(used.Accepted &&
+                returnedToPlay.Accepted &&
+                game.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                placed.Players.Single(player => player.Seat == targetSeat).Judgment.Any(card =>
+                    card.Id == physicalCardId && card.Kind == CardKind.SupplyShortage) &&
+                game.CreateCardZoneDiagnostics().Any(card =>
+                    card.CardId == physicalCardId &&
+                    card.CardKind == physicalCard.Kind &&
+                    card.Location == CardLocation.Judgment(targetSeat)) &&
+                game.CardMovements.Any(movement =>
+                    movement.CardId == physicalCardId &&
+                    movement.From == CardLocation.Equipment(0) &&
+                    movement.To == CardLocation.Processing) &&
+                game.CardMovements.Any(movement =>
+                    movement.CardId == physicalCardId &&
+                    movement.From == CardLocation.Processing &&
+                    movement.To == CardLocation.Judgment(targetSeat)) &&
+                game.Events.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Any(declared =>
+                    declared.CardId == physicalCardId &&
+                    declared.CardKind == CardKind.SupplyShortage) &&
+                game.Events.Select(item => item.Payload).OfType<DelayedCardPlacedEvent>().Any(delayed =>
+                    delayed.CardId == physicalCardId &&
+                    delayed.CardKind == CardKind.SupplyShortage &&
+                    delayed.TargetSeat == targetSeat),
+            used.Error?.Message ?? returnedToPlay.Error?.Message ??
+            "Duanliang must retain the physical equipment identity while publishing persistent Supply Shortage semantics.");
+
+        var placedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(placedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(placed) &&
+                EventSignatures(placedReplay).SequenceEqual(EventSignatures(game)),
+            "A placed Duanliang conversion must restore with the same effective judgment-card identity.");
+
+        var ended = game.Submit(new EndPlayPhaseCommand(
+            0,
+            game.Revision,
+            game.PendingDecision!.PromptId));
+        var resolved = ended.Accepted
+            ? AdvanceUntilDelayedCardResolves(game, physicalCardId)
+            : null;
+        Require(ended.Accepted &&
+                resolved is { CardKind: CardKind.SupplyShortage, SkippedDrawPhase: true } &&
+                game.CreateCardZoneDiagnostics().Any(card =>
+                    card.CardId == physicalCardId &&
+                    card.CardKind == physicalCard.Kind &&
+                    card.Location == CardLocation.DiscardPile) &&
+                game.CreateSnapshot(0, revealAll: true).Players
+                    .Single(player => player.Seat == targetSeat).Judgment
+                    .All(card => card.Id != physicalCardId),
+            ended.Error?.Message ??
+            "The converted Supply Shortage must resolve as a draw-skip judgment and discard its original physical card.");
+
+        var resolvedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(resolvedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(resolvedReplay).SequenceEqual(EventSignatures(game)),
+            "A resolved Duanliang delayed card must replay exactly.");
+
+        var legacy = SelectGeneral(registry, "classic:xu-huang", rulesVersion: 32);
+        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
+        Require(legacyAdvance.Accepted &&
+                legacy.GetHumanLegalActions().All(action =>
+                    action.PlayedCardKind != CardKind.SupplyShortage ||
+                    action.CardId is null ||
+                    legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
+                        .Hand.Single(card => card.Id == action.CardId).Kind == CardKind.SupplyShortage),
+            legacyAdvance.Error?.Message ??
+            "Rules v32 must not expose Duanliang card conversions.");
     }
 
     public static void FormalFeedbackFlow()
@@ -3119,6 +3270,162 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException($"Could not find a deterministic Xu Chu {actionKind} fixture.");
+    }
+
+    private static (GameEngine Game, int PhysicalCardId, int TargetSeat, int DistanceTwoSeat)
+        FindXuHuangDuanliangFixture(ContentRegistry registry)
+    {
+        var offered = 0;
+        var equippedCandidates = 0;
+        var convertedCandidates = 0;
+        var placedCandidates = 0;
+        var resolvedCandidates = 0;
+        string? lastError = null;
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Xu Huang fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:xu-huang"])) != true)
+            {
+                continue;
+            }
+            offered++;
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:xu-huang",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Xu Huang.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Xu Huang did not reach the play phase.");
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+            {
+                continue;
+            }
+
+            var full = game.CreateSnapshot(0, revealAll: true);
+            if (full.Players.SelectMany(player => player.Hand).Any(card => card.Kind == CardKind.Nullification))
+            {
+                continue;
+            }
+
+            var equipment = full.Players.Single(player => player.Seat == 0).Hand
+                .Where(card =>
+                    EquipmentCatalog.IsEquipment(card.Kind) &&
+                    card.Suit is Suit.Spade or Suit.Club &&
+                    EquipmentCatalog.Get(card.Kind).Slot != EquipmentSlot.OffensiveHorse)
+                .OrderBy(card => card.Id)
+                .FirstOrDefault();
+            if (equipment is null)
+            {
+                continue;
+            }
+            equippedCandidates++;
+
+            Equip(game, equipment.Id);
+            var converted = game.GetHumanLegalActions()
+                .Where(action =>
+                    action.Kind == LegalActionKind.SupplyShortage &&
+                    action.CardId == equipment.Id &&
+                    action.PlayedCardKind == CardKind.SupplyShortage)
+                .ToArray();
+            var targetAction = converted.FirstOrDefault(action => action.TargetSeat == 1);
+            var distanceTwoAction = converted.FirstOrDefault(action =>
+                action.TargetSeat is { } seat && game.GetCombatDistance(0, seat) == 2);
+            if (targetAction is null || distanceTwoAction?.TargetSeat is not { } distanceTwoSeat)
+            {
+                continue;
+            }
+            convertedCandidates++;
+
+            var simulated = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            var simulatedAction = simulated.GetHumanLegalActions().Single(action =>
+                action.Kind == LegalActionKind.SupplyShortage &&
+                action.CardId == equipment.Id &&
+                action.TargetSeat == 1 &&
+                action.PlayedCardKind == CardKind.SupplyShortage);
+            var used = simulated.Submit(new PlayCardCommand(
+                0,
+                equipment.Id,
+                simulatedAction.TargetSeats,
+                simulated.Revision,
+                simulated.PendingDecision!.PromptId,
+                CardKind.SupplyShortage));
+            if (!used.Accepted ||
+                simulated.Events.Select(item => item.Payload).OfType<DelayedCardPlacedEvent>()
+                    .All(placed => placed.CardId != equipment.Id))
+            {
+                lastError = used.Error?.Message ??
+                    $"placement accepted={used.Accepted}, status={used.Status}, " +
+                    $"pending={simulated.PendingDecision?.Kind}, " +
+                    $"events={string.Join(',', simulated.Events.TakeLast(4).Select(item => item.Payload.GetType().Name))}";
+                continue;
+            }
+            var returnedToPlay = simulated.Submit(new AdvanceCommand(simulated.Revision));
+            if (!returnedToPlay.Accepted || simulated.PendingDecision?.Kind != DecisionKind.PlayCard)
+            {
+                lastError = returnedToPlay.Error?.Message ??
+                    $"return-to-play accepted={returnedToPlay.Accepted}, status={returnedToPlay.Status}, " +
+                    $"pending={simulated.PendingDecision?.Kind}";
+                continue;
+            }
+            placedCandidates++;
+
+            var ended = simulated.Submit(new EndPlayPhaseCommand(
+                0,
+                simulated.Revision,
+                simulated.PendingDecision.PromptId));
+            var resolved = ended.Accepted
+                ? AdvanceUntilDelayedCardResolves(simulated, equipment.Id)
+                : null;
+            if (!ended.Accepted || resolved?.SkippedDrawPhase != true)
+            {
+                lastError = ended.Error?.Message ?? $"resolution pending={simulated.PendingDecision?.Kind}";
+                continue;
+            }
+            resolvedCandidates++;
+
+            return (game, equipment.Id, 1, distanceTwoSeat);
+        }
+
+        throw new InvalidOperationException(
+            $"Could not find a deterministic Xu Huang Duanliang equipment fixture " +
+            $"(offered={offered}, equipment={equippedCandidates}, converted={convertedCandidates}, " +
+            $"placed={placedCandidates}, resolved={resolvedCandidates}, last={lastError ?? "none"}).");
+    }
+
+    private static DelayedCardResolvedEvent? AdvanceUntilDelayedCardResolves(
+        GameEngine game,
+        int cardId)
+    {
+        for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            var resolved = game.Events.Select(item => item.Payload)
+                .OfType<DelayedCardResolvedEvent>()
+                .LastOrDefault(item => item.CardId == cardId);
+            if (resolved is not null)
+            {
+                return resolved;
+            }
+
+            if (game.PendingDecision?.PlayerSeat == 0)
+            {
+                return null;
+            }
+
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            if (!advanced.Accepted)
+            {
+                return null;
+            }
+        }
+
+        return game.Events.Select(item => item.Payload)
+            .OfType<DelayedCardResolvedEvent>()
+            .LastOrDefault(item => item.CardId == cardId);
     }
 
     private static (GameEngine Game, LegalAction Action, int TargetSeat, int WeaponCardId)

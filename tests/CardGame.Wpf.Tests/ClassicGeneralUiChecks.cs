@@ -389,6 +389,68 @@ internal static class ClassicGeneralUiChecks
             "The WPF Qiangxi draft must submit the HP-cost branch as cardless direct damage.");
         qiangxiWindow.Content = null;
         qiangxiWindow.Close();
+        using var duanliangDescriptionViewModel = FindGeneralChoice("classic:xu-huang");
+        var xuHuang = duanliangDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:xu-huang");
+        Program.Assert(xuHuang.Name == "徐晃" &&
+                       xuHuang.Kingdom == "魏" &&
+                       xuHuang.SkillName == "断粮" &&
+                       xuHuang.SkillDescription.Contains("黑色基本牌或黑色装备牌", StringComparison.Ordinal) &&
+                       xuHuang.SkillDescription.Contains("距离为2", StringComparison.Ordinal) &&
+                       xuHuang.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(xuHuang.GeneralId),
+            "The current classic Xu Huang card must render Wei, Duanliang, Lord health and portrait aliasing.");
+        var duanliangDescriptionWindow = new MainWindow(duanliangDescriptionViewModel);
+        duanliangDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)duanliangDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "92-classic-xu-huang-card.png"));
+        duanliangDescriptionWindow.Content = null;
+        duanliangDescriptionWindow.Close();
+
+        using var duanliangViewModel = FindClassicDuanliangViewModel();
+        var duanliangWindow = new MainWindow(duanliangViewModel);
+        duanliangWindow.ApplyTemplate();
+        var duanliangRoot = (FrameworkElement)duanliangWindow.Content;
+        var duanliangEngine = Program.Engine(duanliangViewModel);
+        var duanliangAction = duanliangEngine.GetHumanLegalActions().First(action =>
+            action.Kind == LegalActionKind.SupplyShortage &&
+            action.PlayedCardKind == CardKind.SupplyShortage &&
+            action.CardId is { } cardId &&
+            duanliangViewModel.Hand.Any(card => card.Id == cardId) &&
+            action.TargetSeat is { } seat &&
+            duanliangEngine.GetCombatDistance(0, seat) == 2);
+        var duanliangCard = duanliangViewModel.Hand.Single(card => card.Id == duanliangAction.CardId);
+        var duanliangTarget = duanliangViewModel.Seats.Single(seat => seat.Seat == duanliangAction.TargetSeat);
+        duanliangViewModel.SelectCardCommand.Execute(duanliangCard);
+        duanliangViewModel.SelectTargetCommand.Execute(duanliangTarget);
+        Program.Assert(duanliangViewModel.CanPlaySelectedAsSlash &&
+                       duanliangViewModel.PlayButtonText == "当作兵粮寸断使用" &&
+                       duanliangTarget.IsLegalTarget &&
+                       duanliangTarget.IsSelectedTarget &&
+                       duanliangEngine.CreateSnapshot(0, revealAll: true).Players[0].Hand.Single(card =>
+                           card.Id == duanliangCard.Id).Suit is Suit.Spade or Suit.Club,
+            "Duanliang must expose a black hand card as Supply Shortage against a distance-two WPF target.");
+        Program.Render(
+            duanliangRoot,
+            1120,
+            740,
+            Path.Combine(output, "93-classic-duanliang-target.png"));
+        var duanliangRevision = duanliangEngine.Revision;
+        duanliangViewModel.PlaySelectedAsSlashCommand.Execute(null);
+        Program.Assert(duanliangEngine.Revision == duanliangRevision + 1 &&
+                       duanliangEngine.Events.Any(item => item.Payload is DelayedCardPlacedEvent placed &&
+                           placed.CardId == duanliangCard.Id &&
+                           placed.CardKind == CardKind.SupplyShortage &&
+                           placed.TargetSeat == duanliangTarget.Seat) &&
+                       duanliangEngine.CreateSnapshot(0, revealAll: true).Players
+                           .Single(player => player.Seat == duanliangTarget.Seat).Judgment.Any(card =>
+                               card.Id == duanliangCard.Id && card.Kind == CardKind.SupplyShortage),
+            "The WPF Duanliang action must place the physical black card with persistent Supply Shortage semantics.");
+        duanliangWindow.Content = null;
+        duanliangWindow.Close();
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
@@ -593,18 +655,25 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "72-classic-tiandu-choice.png"));
         var claim = viewModel.SkillChoices.Single(choice =>
             choice.Parameters.GetValueOrDefault("action") == "tiandu-claim");
+        var claimedPromptId = Program.Engine(viewModel).PendingDecision!.PromptId;
         viewModel.SelectSkillChoiceCommand.Execute(claim);
         var engine = Program.Engine(viewModel);
-        Program.Assert(!viewModel.IsSkillSelectionPending &&
-                       engine.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
-                           .Hand.Any(card => card.Id == judgmentCardId) &&
-                       engine.Events.Any(item => item.Payload is JudgmentCardClaimedEvent
+        var claimedSnapshot = engine.CreateSnapshot(0, revealAll: true);
+        var claimedHandIds = claimedSnapshot.Players.Single(player => player.Seat == 0).Hand
+            .Select(card => card.Id)
+            .ToArray();
+        var claimedEvent = engine.Events.Select(item => item.Payload).OfType<JudgmentCardClaimedEvent>()
+            .LastOrDefault();
+        Program.Assert(engine.PendingDecision?.PromptId != claimedPromptId &&
+                       claimedHandIds.Contains(judgmentCardId) &&
+                       claimedEvent is
                        {
                            OwnerSeat: 0,
                            Skill: SkillKind.Tiandu,
                            Used: true
-                       }),
-            "The WPF Tiandu choice must claim the exact resolved judgment card.");
+                       },
+            $"The WPF Tiandu choice must claim the exact resolved judgment card " +
+            $"(expected={judgmentCardId}, hand={string.Join(',', claimedHandIds)}, event={claimedEvent}).");
         window.Content = null;
         window.Close();
     }
@@ -990,6 +1059,48 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Qixi equipment WPF fixture.");
+    }
+
+    private static MainViewModel FindClassicDuanliangViewModel()
+    {
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var xuHuang = candidate.GeneralChoices.SingleOrDefault(choice =>
+                choice.GeneralId == "classic:xu-huang");
+            if (xuHuang is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(xuHuang);
+                Program.AdvanceToDecision(candidate);
+                var engine = Program.Engine(candidate);
+                var snapshot = engine.CreateSnapshot(0, revealAll: true);
+                if (engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                    snapshot.Players.SelectMany(player => player.Hand)
+                        .All(card => card.Kind != CardKind.Nullification) &&
+                    engine.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.SupplyShortage &&
+                        action.PlayedCardKind == CardKind.SupplyShortage &&
+                        action.CardId is { } cardId &&
+                        candidate.Hand.Any(card => card.Id == cardId) &&
+                        action.TargetSeat is { } seat &&
+                        engine.GetCombatDistance(0, seat) == 2))
+                {
+                    return candidate;
+                }
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Duanliang WPF fixture.");
     }
 
     private static (GameEngine Game, int JudgmentCardId) FindTianduFixture()

@@ -100,6 +100,16 @@ public interface IPassiveSkill
     bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) => false;
 
     /// <summary>
+    /// Returns whether the owner can treat this physical card as Supply
+    /// Shortage. The engine owns the source zone, distance, delayed-card
+    /// identity and judgment lifecycle.
+    /// </summary>
+    bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) => false;
+
+    int ModifySupplyShortageDistanceLimit(PlayerSkillContext owner, int currentLimit) =>
+        currentLimit;
+
+    /// <summary>
     /// Returns whether the owner may skip the current discard phase. The engine
     /// supplies whether a Slash was used or played during this turn's play phase
     /// and remains responsible for the optional prompt and phase transition.
@@ -254,6 +264,22 @@ public sealed class QixiSkill : IPassiveSkill
     public bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) =>
         card.Kind != CardKind.Dismantlement &&
         card.Suit is Suit.Spade or Suit.Club;
+}
+
+public sealed class DuanliangSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Duanliang;
+    public string Name => "断粮";
+
+    public bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) =>
+        card.Kind != CardKind.SupplyShortage &&
+        card.Suit is Suit.Spade or Suit.Club &&
+        (CardCatalog.Get(card.Kind).CategoryName == "基本牌" ||
+         EquipmentCatalog.IsEquipment(card.Kind));
+
+    public int ModifySupplyShortageDistanceLimit(
+        PlayerSkillContext owner,
+        int currentLimit) => Math.Max(currentLimit, 2);
 }
 
 public sealed class KejiSkill : IPassiveSkill
@@ -734,7 +760,8 @@ public static class SkillRegistry
             [SkillKind.Keji] = new KejiSkill(),
             [SkillKind.Tuxi] = new TuxiSkill(),
             [SkillKind.Luoyi] = new LuoyiSkill(),
-            [SkillKind.Qiangxi] = new QiangxiSkill()
+            [SkillKind.Qiangxi] = new QiangxiSkill(),
+            [SkillKind.Duanliang] = new DuanliangSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];
