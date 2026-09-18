@@ -183,7 +183,7 @@ internal static class WushengResponseChecks
 
     public static void AiResponseAndReplay()
     {
-        for (var seed = 1; seed <= 32; seed++)
+        for (var seed = 1; seed <= 64; seed++)
         {
             var registry = StandardContentRegistry.Create();
             var game = GameEngine.CreateStandard(new GameOptions { Seed = seed, HumanSeat = -1, HumanRole = null, UseInteractiveSetup = false, MaxTurns = 100, AiPolicyVersion = 2, AdvanceAfterHumanCommands = false }, registry);

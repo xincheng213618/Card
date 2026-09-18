@@ -250,6 +250,8 @@ public sealed partial class MainViewModel
         }
         if (kind == CardKind.SupplyShortage)
         {
+            if (rulesVersion >= 18)
+                return "选择一名距离为 1 的其他角色；其下个回合判定，若结果不为梅花则跳过摸牌阶段。";
             return rulesVersion >= 11
                 ? CardCatalog.Get(kind).Description
                 : "选择一名有手牌的其他角色；其下个回合判定，若为黑色则跳过摸牌阶段。";

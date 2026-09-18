@@ -163,6 +163,9 @@ public sealed partial class GameEngine
     private bool UsesFormalZhihengEquipment =>
         _rulesVersion >= 17 && IsClassicIdentityMode;
 
+    private bool UsesFormalSupplyShortageTargeting =>
+        _rulesVersion >= 18;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -1479,9 +1482,12 @@ public sealed partial class GameEngine
         var targetCardRules = SupportsPrivateTargetCardSelection
             ? "过河拆桥和顺手牵羊的手牌效果由使用者选择不透明牌位，目标牌面不公开"
             : "过河拆桥和顺手牵羊的手牌效果按历史规则确定性盲选";
+        var supplyShortageTargetRules = UsesFormalSupplyShortageTargeting
+            ? "对距离为 1 的其他角色使用，奇才可忽略此距离限制"
+            : "对有手牌的其他角色使用";
         var delayedCardRules = UsesSuitSpecificDelayedJudgments
-            ? "乐不思蜀置入目标判定区并在其下回合摸牌前判定，结果不为红桃时跳过出牌阶段；兵粮寸断置入目标判定区并在其下回合摸牌前判定，结果不为梅花时跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。"
-            : "乐不思蜀置入目标判定区并在其下回合摸牌前判定，红色跳过出牌阶段；兵粮寸断置入目标判定区并在其下回合摸牌前判定，黑色跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。";
+            ? $"乐不思蜀置入目标判定区并在其下回合摸牌前判定，结果不为红桃时跳过出牌阶段；兵粮寸断{supplyShortageTargetRules}，置入目标判定区并在其下回合摸牌前判定，结果不为梅花时跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。"
+            : $"乐不思蜀置入目标判定区并在其下回合摸牌前判定，红色跳过出牌阶段；兵粮寸断{supplyShortageTargetRules}，置入目标判定区并在其下回合摸牌前判定，黑色跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。";
         var modeRules = IsNationalWarMode
             ? $"{FormatFactionSummary(_modeDefinition)}；每名角色选择两名同势力武将，势力和武将默认暗置，明置后公开；消灭其他势力获胜"
             : IsTeamMode
@@ -5503,7 +5509,9 @@ public sealed partial class GameEngine
                 $"Card {pending.EffectCard.Kind} is not a delayed card.")
         };
         var canTargetSelf = pending.EffectCard.Kind == CardKind.Lightning;
-        if (pending.EffectCard.Kind == CardKind.SupplyShortage && GetHand(target).Count == 0)
+        if (pending.EffectCard.Kind == CardKind.SupplyShortage &&
+            !UsesFormalSupplyShortageTargeting &&
+            GetHand(target).Count == 0)
         {
             SkipUnavailableTargetCardEffect(pending, target, CardEffectSkipReason.TargetHandEmpty);
             return;
@@ -10330,10 +10338,13 @@ public sealed partial class GameEngine
 
         foreach (var supplyShortage in GetHand(actor).Where(card => card.Kind == CardKind.SupplyShortage))
         {
+            var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.SupplyShortage);
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
-                         GetHand(player).Count > 0 &&
+                         (UsesFormalSupplyShortageTargeting
+                             ? ignoresDistance || GetCombatDistance(actor.Seat, player.Seat) == 1
+                             : GetHand(player).Count > 0) &&
                          !GetJudgment(player).Any(card => card.Kind == CardKind.SupplyShortage)))
             {
                 actions.Add(new LegalAction(

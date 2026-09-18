@@ -139,6 +139,7 @@ var tests = new (string Name, Action Body)[]
     ("Guicai privately replaces a public judgment with a hand card", GuicaiFlow),
     ("Indulgence delays a target play phase through public judgment", IndulgenceFlow),
     ("SupplyShortage delays a target draw phase through public judgment", SupplyShortageFlow),
+    ("formal SupplyShortage uses distance and preserves legacy empty-hand behavior", SupplyShortageChecks.TargetingAndResolution),
     ("Lightning hits or transfers through a public delayed judgment", LightningFlow),
     ("multiple delayed cards accumulate independent turn effects", MultipleDelayedCardsFlow),
     ("Wusheng converts one red card into a typed Slash", WushengFlow),
@@ -7211,8 +7212,12 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
 
         var targetSeat = action.TargetSeat!.Value;
         TrueWithMessage(
-            game.State.Players.Single(player => player.Seat == targetSeat).HandCount > 0,
-            "兵粮寸断 target must be selected from a publicly non-empty hand");
+            game.RulesVersion >= 18
+                ? game.GetCombatDistance(0, targetSeat) == 1
+                : game.State.Players.Single(player => player.Seat == targetSeat).HandCount > 0,
+            game.RulesVersion >= 18
+                ? "兵粮寸断 target must be selected at combat distance one"
+                : "legacy 兵粮寸断 target must be selected from a publicly non-empty hand");
         result = game.HumanPlay(
             action.CardId!.Value,
             targetSeat,

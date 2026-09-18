@@ -53,7 +53,7 @@
 - 刚烈的 `Ganglie` Prompt 只投影给受伤者；判定牌和红/黑结果公开，红色后的精确两牌组合或承受伤害 Choice 只投影给伤害来源，`GangliePunishmentResolvedEvent` 与技能结果事件属于可信宿主记录。
  - 主动技能的 `UseSkillCommand`、`ActiveSkillFrame` 和 `ActiveSkillRequestedEvent`/`ActiveSkillResolvedEvent` 只在当前拥有者的合法出牌动作中产生；`苦肉` 的体力扣除和摸牌结果公开，具体摸入牌 ID 只属于可信宿主事件/移动账本；`制衡` 的精确弃牌集合只属于当前拥有者与可信宿主，普通快照不泄漏暗牌；青囊的精确弃牌 ID 和目标选择同样只在拥有者 Prompt/可信事件中出现；回春的两张弃牌 ID、2–3 个目标和逐目标恢复证据也只属于拥有者 Prompt/可信宿主。苦肉在 1 点体力发动时保留主动技能帧，复用私有 `RescueDying` Prompt；获救后才继续摸牌，未获救则先完成死亡清理再闭合主动技能帧。
 - 鬼才的 `Guicai` Prompt 只投影给当前判定前候选拥有者；判定牌和最终红/黑结果公开，替换牌只从拥有者自己的私有手牌 Choice 进入 `Processing`/`Judgment`，`JudgmentReplacementRequestedEvent`/`JudgmentReplacementResolvedEvent` 属于可信宿主记录。
-- 乐不思蜀和兵粮寸断的使用牌进入目标公开 `Judgment` 区；目标在下回合摸牌前进入同一 `JudgmentFrame`。规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段；v1–v10 保留历史红黑语义。延时牌和判定牌的移动、无懈窗口、鬼才改判、多个延时效果累计及死亡清理均由 Core 统一提交，普通视图不携带其他玩家的私有手牌候选。
+- 乐不思蜀和兵粮寸断的使用牌进入目标公开 `Judgment` 区；目标在下回合摸牌前进入同一 `JudgmentFrame`。规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段；规则 v18 起兵粮寸断通过 `GetCombatDistance` 限定距离 1，`IgnoresTrickDistance` 允许奇才豁免，目标即使在无懈链中打空手牌仍正常置入；v1–v17 保留“目标有手牌”和空手时跳过效果的历史语义，v1–v10 另保留历史红黑判定。延时牌和判定牌的移动、无懈窗口、鬼才改判、多个延时效果累计及死亡清理均由 Core 统一提交，普通视图不携带其他玩家的私有手牌候选。
 - `revealAll: true` 只用于本地开发者视图和测试，宿主可通过独立的 `GameEngine.Seed` 记录回放种子。
 
 完整牌区位置只能通过明确标为可信宿主诊断的 `CreateCardZoneDiagnostics()` 取得。它不能进入玩家网络 DTO。
