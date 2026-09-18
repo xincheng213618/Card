@@ -66,6 +66,7 @@ internal static class Program
             Check("play advice uses private player views and preserves the original selection", () => AdviceChecks.ControlsAndPrivacy(output));
             Check("playback speed persists and dead players can pause and resume observation", () => PlaybackChecks.SettingsAndSpectating(output));
             Check("expanded rescue content renders and commits Jijiu dying choices", JijiuChecks.ControlsAndDying);
+            Check("classic Jijiu renders and commits equipped rescue choices", () => JijiuChecks.EquipmentControls(output));
             Check("opaque target-card slots render privately and commit through WPF commands", () => TargetCardChecks.Controls(output));
             Check("new game settings and multi-card discard work through controls", () => CheckSetupAndDiscard(output));
             Check("team selection, guides, tutorial return and saved results follow the actual team", () => TeamExperienceChecks.ControlsAndRestore(output));
@@ -88,7 +89,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 52 : 51)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 53 : 52)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)

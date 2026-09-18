@@ -4,7 +4,7 @@
 
 ## 当前阶段：K4 开局切片 + K5 基础结算切片/伤害触发范围切片 + K6 装备距离基础切片 + K7 无懈/铁索连环/鬼才/乐不思蜀/兵粮寸断/闪电判定切片 + K8 可信命令 Checkpoint 兼容切片 + 主动技能目标/濒死续接、被动距离修正和急救红牌转化切片已落地，继续扩大内容池并完善完整结算入口
 
-M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` 扩展包落地；`team:standard-2v2` 复用 Core 的选将、AI、结算、事件、视图脱敏和回放边界，WPF 新局设置已可选择。M2 Lite 也已落地为独立 `standard-national-war-lite@1.1.0` 扩展包；M3 已开放国战 AI 明置策略、六人独立势力试验（`standard-national-war-ambitious@1.0.0` / `national:ambitious-6`）、受约束的公开攻击证据推断、隐藏目标救援评分和公开攻击后的中途 Checkpoint/Replay 校验；AI policy v3 另把身份局火攻接入公开攻击观察入口，并保留 v1/v2 的历史回放语义。当前全量回归为 Core 172/172、WPF 51/51；完整国战仍待 M3 后续切片。
+M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` 扩展包落地；`team:standard-2v2` 复用 Core 的选将、AI、结算、事件、视图脱敏和回放边界，WPF 新局设置已可选择。M2 Lite 也已落地为独立 `standard-national-war-lite@1.1.0` 扩展包；M3 已开放国战 AI 明置策略、六人独立势力试验（`standard-national-war-ambitious@1.0.0` / `national:ambitious-6`）、受约束的公开攻击证据推断、隐藏目标救援评分和公开攻击后的中途 Checkpoint/Replay 校验；AI policy v3 另把身份局火攻接入公开攻击观察入口，并保留 v1/v2 的历史回放语义。当前全量回归为 Core 173/173、WPF 52/52；完整国战仍待 M3 后续切片。
 
 - `standard-national-war-ambitious@1.0.0` 注册魏 3、蜀 2、野心家 1 的六人国战实验；`ContentModeDefinition.SoloFactionIds` 只表达人数/内容元数据，尚未宣称珠联璧合、阵法、围攻、变更副将或完整野心家胜利规则。Core、WPF、私有快照、AI 明置和 Checkpoint/Replay 均有对应固定场景覆盖。
 
@@ -18,7 +18,7 @@ M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` �
 - WPF 已通过 Standard Registry 创建对局；`Content.cs` 只保留兼容投影，不再作为新增内容的长期落点。
 - `ContentModeDefinition` 已描述 `DeckId`、候选数量和 `GeneralPoolIds`；WPF 通过 `UseInteractiveSetup` 使用私有选将、共享池去重和逐轮发牌。
 - `standard-active-skills@1.0.0` 作为依赖 Standard 的可选扩展包已落地：注册 `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将和 5/8 人主动技能演示模式；`UseSkillCommand`、`LegalActionKind.UseSkill`、`ActiveSkillFrame` 及类型化技能事件沿统一提交/回放边界接入。苦肉允许出牌阶段且体力大于 0 时失去 1 点体力并摸两张牌，降至 0 点时复用私有 `RescueDying` 窗口，获救后继续摸牌；制衡的演示模式保留至少一张私有手牌、经过 `Processing` 弃置后摸等量牌的历史行为，规则 v17 的经典孙权则可混选手牌与公开装备且每阶段限一次；仁德允许私有选择一至若干张手牌交给一名其他存活角色，一次交给至少两张时按目标伤势回复 1 点体力，并按回合限制重复使用；青囊允许私有选择一张手牌和一名受伤存活角色，经过 `Processing` 弃置后令目标回复 1 点体力，同样按回合限制重复使用；回春允许私有选择精确两张手牌和 2–3 名受伤存活角色，逐目标回复 1 点体力并按回合限制重复使用；马术通过公开距离 modifier 统一影响杀与顺手牵羊的合法性；奇才通过统一合法性查询使距离型锦囊不受距离限制。暗牌 ID 只属于对应私有 Prompt 或可信宿主事件/账本；标准 `Create()` 与旧内容指纹保持不变，WPF 默认窗口显式使用扩展包。
-- `standard-rescue-skills@1.0.0` 作为依赖主动技能扩展的独立救援层已落地：注册 `standard:jijiu` 和 `standard:demo-jijiu`，并由 `StandardContentRegistry.CreateWithRescueSkills()` 将急救者加入 5/8 人扩展模式；`IPassiveSkill.CanUseAsDyingRescue` 只把红色非桃实体牌映射为濒死窗口的有效桃，物理牌仍按 `Hand → Processing → DiscardPile` 移动，`DyingResponseEvent` 同时保留有效牌型和物理牌型。AI 与 WPF 复用同一私有候选和命令边界，普通快照不泄漏候选牌 ID；默认 `CreateWithActiveSkills()` 及旧内容指纹保持不变。
+- `standard-rescue-skills@1.0.0` 作为依赖主动技能扩展的独立救援层已落地：注册 `standard:jijiu` 和 `standard:demo-jijiu`，并由 `StandardContentRegistry.CreateWithRescueSkills()` 将急救者加入 5/8 人扩展模式；`IPassiveSkill.CanUseAsDyingRescue` 只把红色非桃实体牌映射为濒死窗口的有效桃，`DyingResponseEvent` 同时保留有效牌型和物理牌型。规则 v41 的经典华佗从自己的 `Hand/Equipment` 枚举候选并按实际来源区进入 `Processing`，rules v40 与演示模式仍只枚举手牌。AI 与 WPF 复用同一私有候选和命令边界，普通快照不泄漏候选牌 ID；默认 `CreateWithActiveSkills()` 及旧内容指纹保持不变。
 - `standard-team-modes@1.0.0` 作为独立公开阵营扩展包已落地：注册 `team:standard-2v2`、青/赤两队分配、公开 `TeamAssignedEvent`、公开阵营快照、队伍胜负、Team AI 敌我关系和固定 seed/Checkpoint/Replay 回归；普通视图继续隐藏手牌、seed 和宿主内部状态，基础 Standard Registry 的内容哈希保持不变。WPF 默认新局设置已加入 2v2 选项、阵营说明、座位标签、目标文案和胜负音效。
 - 现有杀/火杀/雷杀/闪/决斗/无中生有/南蛮入侵/万箭齐发/桃园结义/五谷丰登/过河拆桥/顺手牵羊/火攻/乐不思蜀/兵粮寸断/闪电/无懈可击/铁索连环/伤害/桃链路、属性伤害类型、决斗交替杀响应、群体牌逐目标杀/闪响应、桃园结义逐目标恢复、五谷丰登公开翻牌与私有逐人选牌、过河拆桥私有不透明牌位选择目标手牌或精确弃置公开装备/判定区牌、顺手牵羊战斗距离一私有不透明牌位选择目标手牌或精确取得公开装备/判定区牌、火攻私有展示与同花色弃牌、无懈效果前固定座次有限多层响应、铁索连环精确一/二目标与公开标记/火雷传导、乐不思蜀/兵粮寸断/闪电判定区延时结算、基础濒死求桃、青釭剑直接杀无视防具和 K6 装备生命周期已通过 `ResolutionFrame` 栈、类型化事件与移动账本接入 Core；属性抗性、属性转化和其他锦囊、复杂改判、通用触发时机及复杂濒死响应仍按后续阶段开放。
 - K4 Console 场景覆盖私有候选不泄漏、非法武将零状态变化、共享池不重复、5 人 AI 选将终止和同 seed 开局确定性。
@@ -44,6 +44,7 @@ M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` �
 - `standard:indulgence` 与 `standard:supply_shortage` 已接入延时判定窗口：使用牌进入目标公开 `Judgment` 区，在目标下回合摸牌前复用 `JudgmentFrame`；规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义。判定牌和延时牌分别沿 `DrawPile → Judgment → DiscardPile`、`Hand → Processing → Judgment → DiscardPile` 移动，目标判定区公开且不允许重复放置；无懈可击、鬼才、多个延时效果累计和死亡清理共用既有边界。
 - `standard:lightning` 已接入自用延时判定窗口：闪电进入自己的公开 `Judgment` 区，下个回合判定为黑桃 2 至 9 时造成 3 点雷电伤害并沿伤害/濒死链续接，其他判定牌则转移到下一名存活角色；判定结果、命中/转移事件、牌区移动和普通视图脱敏均沿统一入口记录。
 - `standard:wusheng` / `classic:wusheng` 已接入红色非杀实体牌按 `Slash` 使用或打出：规则 v40 的经典身份把候选从手牌扩展到自己的装备区，主动动作和私有响应 Choice 继续通过有效牌型区分物理牌，并按真实来源区进入处理区；rules v39 与旧演示模式保留仅手牌候选。
+- `standard:jijiu` 已接入红色非桃实体牌按 `Peach` 完成濒死救援：规则 v41 的经典身份把候选从手牌扩展到自己的装备区，私有救援 Choice 与统一恢复帧继续保留有效/物理牌型，并按真实来源区进入处理区；rules v40 与旧演示模式保留仅手牌候选。
 - `standard:huichun` 已接入出牌阶段主动技能：当前拥有者私有选择精确两张手牌和 2–3 名受伤存活角色，牌按 `Hand → Processing → DiscardPile` 使用 `skill.huichun.discard` 移动，随后为每个目标建立独立 `RecoveryFrame` 并发布 `RecoveryAppliedEvent`；非法数量或重复目标原子拒绝，普通视图不泄漏暗牌 ID。
 - `standard:mashu` 已接入被动技能距离切片：马术通过 `IPassiveSkill.ModifyOutgoingDistance` 将拥有者到其他角色的公开战斗距离减少 1，最终距离由 Core 统一钳制为至少 1；顺手牵羊与杀的合法动作、AI 输入和 WPF 座位距离文本都复用 `GetCombatDistance`，基础 Standard Registry 和 90 张牌堆保持不变。
 - `standard:qicai` 已接入被动技能锦囊距离切片：奇才通过 `IPassiveSkill.IgnoresTrickDistance` 为距离型锦囊提供统一合法性查询；当前顺手牵羊在 Core 中允许距离大于 1 的公开合法目标，AI 和 WPF 都消费同一结果，基础 Standard Registry、90 张牌堆和旧内容指纹保持不变。

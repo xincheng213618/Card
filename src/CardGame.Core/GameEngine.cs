@@ -245,6 +245,9 @@ public sealed partial class GameEngine
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
+    private bool UsesFormalJijiuEquipment =>
+        _rulesVersion >= 41 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -12406,11 +12409,22 @@ public sealed partial class GameEngine
     private Card[] GetDyingPeaches(PlayerRuntime responder)
     {
         var context = CreateSkillContext(responder);
-        return GetHand(responder)
-            .Where(card => card.Kind == CardKind.Peach || EnabledPassiveSkills(responder).Any(skill =>
+        var passiveSkills = EnabledPassiveSkills(responder).ToArray();
+        var handCandidates = GetHand(responder)
+            .Where(card => card.Kind == CardKind.Peach || passiveSkills.Any(skill =>
                 skill.Kind == SkillKind.Jijiu && (_rulesVersion < 10 || !IsClassicIdentityMode)
                     ? card.Kind != CardKind.Peach && card.Suit is Suit.Heart or Suit.Diamond
                     : skill.CanUseAsDyingRescue(context, card)))
+            .ToArray();
+
+        if (!UsesFormalJijiuEquipment)
+        {
+            return handCandidates;
+        }
+
+        return handCandidates
+            .Concat(GetEquipment(responder).Where(card => passiveSkills.Any(skill =>
+                skill.Kind == SkillKind.Jijiu && skill.CanUseAsDyingRescue(context, card))))
             .ToArray();
     }
 
@@ -12590,7 +12604,7 @@ public sealed partial class GameEngine
                 (!peachCardId.HasValue || card.Id == peachCardId.Value));
             if (peach is null)
             {
-                throw new InvalidOperationException("The requested Peach is not in the responder's hand.");
+                throw new InvalidOperationException("The requested Peach is not in the responder's playable zones.");
             }
 
             usedPeachCardId = peach.Id;
@@ -13085,7 +13099,7 @@ public sealed partial class GameEngine
             playedCardKind: playedCardKind);
         MoveCard(
             card,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, card),
             CardLocation.Processing,
             CardMoveReasons.Use);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);

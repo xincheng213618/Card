@@ -86,6 +86,8 @@
 
 第三十四个施工块完成后的增量验证：Release 0 warning / 0 error，Core 172/172，WPF 51/51；`standard-classic-generals@1.22.0` 将蜀势力 4 体力关羽与武圣接入经典池，rules v40 按官方“红色牌”而非“红色手牌”的原文补齐自己的装备区候选。装备主动当杀、决斗/南蛮杀响应、实际来源区支付、AI 装备动作、rules v39/包 1.21.0 兼容和两处 Checkpoint/Replay 均有回归；`107-classic-guan-yu-card.png` 与 `108-classic-wusheng-equipment-response.png` 已在 1120×740 人工检查。离屏渲染仍不等于真实鼠标、键盘或多 DPI 验收。
 
+第三十五个施工块完成后的增量验证：Release 0 warning / 0 error，Core 173/173，WPF 52/52；rules v41 按官方华佗“回合外，可以将一张红色牌当桃使用”的原文，为既有经典华佗补齐自己的红色装备急救候选。装备转化牌从实际 `Equipment(owner)` 进入处理区，有效桃/原物理牌型、私有候选、rules v40 排除及在途/完成 Checkpoint/Replay 均有回归；`109-classic-jijiu-equipment-response.png` 已在 1120×740 人工检查。经典包仍为 1.22.0，内容指纹未变；离屏渲染仍不等于真实鼠标、键盘或多 DPI 验收。
+
 ## 已有能力
 
 | 维度 | 当前证据 |
@@ -153,6 +155,7 @@
 35. **咆哮已进入正式张飞。** 官方标准张飞页将咆哮定义为锁定技，令其使用杀无次数限制。经典包 1.20.0 因而把现有出杀次数 modifier 归入独立 `classic:paoxiao` 身份，不新增 rules 版本或复制结算逻辑；无诸葛连弩时同一出牌阶段的两张不同实体杀与第二张在途回放均有回归。包 1.19.0 保留 `standard:zhang-fei` 和 `standard:paoxiao` 的历史身份。
 36. **龙胆已进入正式赵云。** 官方标准赵云页写明可将一张杀当闪、闪当杀使用或打出。经典包 1.21.0 因而把现有双向牌转化归入独立 `classic:longdan` 身份，不新增 rules 版本或复制结算逻辑；物理闪主动声明为有效杀、物理杀响应为有效闪、实体牌移动、私有 Choice 与两处回放均有回归。包 1.20.0 保留 `standard:zhao-yun` 和 `standard:longdan` 的历史身份。
 37. **武圣已进入正式关羽并补齐装备区。** [官方标准关羽页](https://x.sanguosha.com/hero/2.html)原文是“你可以将一张红色牌当杀使用或打出”，没有限定手牌。经典包 1.22.0 与 rules v40 因而让自己的红色装备牌也能发布主动杀或私有杀响应 Choice，并在普通主动杀、决斗/南蛮响应和激将提供牌中按实际 `Equipment(owner)` 来源支付；包 1.21.0 与 rules v39 保留 `standard:guan-yu`、旧内容指纹和仅手牌候选。
+38. **急救已补齐装备区红牌。** [官方标准华佗页](https://x.sanguosha.com/hero/23.html)原文是“你的回合外，可以将1张红色牌当桃使用”，没有限定手牌。rules v41 因而让经典华佗在回合外把自己的红色装备加入私有濒死桃候选，并按实际 `Equipment(owner)` 来源支付；`DyingResponseEvent` 仍同时保留有效桃与原物理牌型。rules v40 与非经典演示模式保留仅手牌候选，经典包版本和内容指纹不变。
 
 官方核对来源（基础牌效果共通；不据此将国战专属数量/武将技能直接套用到身份模式）：
 
@@ -274,4 +277,5 @@
 | 已完成 | P1-A23：张飞咆哮归位 | `standard-classic-generals@1.20.0` 的 `classic:zhang-fei` 蜀势力 4 体力+锁定技咆哮；复用统一出杀次数查询，无诸葛连弩的双实体杀、同阶段第二次合法动作、包 1.19.0 兼容、WPF/回放；Release 0 warning / 0 error，Core 170/170，WPF 51/51 |
 | 已完成 | P1-A24：赵云龙胆归位 | `standard-classic-generals@1.21.0` 的 `classic:zhao-yun` 蜀势力 4 体力+龙胆；闪当杀主动使用、杀当闪私有响应、有效/物理牌型分离、包 1.20.0 兼容、WPF/回放；Release 0 warning / 0 error，Core 171/171，WPF 51/51 |
 | 已完成 | P1-A25：关羽武圣归位 | `standard-classic-generals@1.22.0` 的 `classic:guan-yu` 蜀势力 4 体力+武圣；rules v40 装备区红牌主动/响应转杀、实际来源区支付、AI 装备动作、v39/包 1.21.0 兼容、WPF/回放；Release 0 warning / 0 error，Core 172/172，WPF 51/51 |
+| 已完成 | P1-A26：华佗急救区域补齐 | 既有 `classic:hua-tuo` 青囊+急救；rules v41 回合外装备区红牌转桃、实际来源区支付、有效/物理牌型、私有候选、v40/演示模式兼容、WPF/回放；Release 0 warning / 0 error，Core 173/173，WPF 52/52 |
 | 进行中 | P1-A：正式多技能武将与代表武将归位 | 首批五人、黄月英、马超、黄忠、魏延、赵云、张飞、关羽、吕布、黄盖、甘宁、吕蒙、张辽、许褚、典韦、徐晃、甄姬及曹操、刘备、孙权三个主公技已完成；其他主公技、完整标准武将池、图鉴与更多技能频次仍待后续块 |

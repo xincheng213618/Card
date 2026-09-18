@@ -178,6 +178,7 @@ var tests = new (string Name, Action Body)[]
     ("dying response can pause and recover with a private Peach", DyingResponseFlow),
     ("Jijiu is an opt-in content package with a typed rescue contract", JijiuChecks.ContentContract),
     ("Jijiu converts a red card through the private dying window", JijiuChecks.DyingFlow),
+    ("classic Jijiu converts red equipment with versioned payment and replay", JijiuChecks.EquipmentFlow),
     ("throwing observers are isolated after commit", ObserverFailuresAreIsolated),
     ("observer failures do not change deterministic outcomes", ObserverFailuresDoNotChangeOutcome),
     ("uncaught observer reentry cannot interrupt the engine", UncaughtObserverReentryIsIsolated),

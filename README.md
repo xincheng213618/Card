@@ -66,6 +66,7 @@
 - 经典包 1.20.0 用正式 `classic:zhang-fei` / `classic:paoxiao` 替换经典池中的 Standard 占位张飞；咆哮继续复用统一出杀次数查询，无诸葛连弩时同一出牌阶段仍可依次使用多张杀。规则版本仍为 v39，包 1.19.0 保留 `standard:zhang-fei` 的历史池与内容指纹。
 - 经典包 1.21.0 用正式 `classic:zhao-yun` / `classic:longdan` 替换经典池中的 Standard 占位赵云；闪当杀的主动使用与杀当闪的响应继续复用有效牌型/物理牌型分离链。规则版本仍为 v39，包 1.20.0 保留 `standard:zhao-yun` 的历史池与内容指纹。
 - 经典包 1.22.0 用正式 `classic:guan-yu` / `classic:wusheng` 替换经典池中的 Standard 占位关羽；规则 v40 将红色牌候选从手牌扩展到自己的装备区，并让主动杀、决斗/南蛮杀响应与激将提供牌按真实来源区支付。包 1.21.0 与 rules v39 继续保留 `standard:guan-yu` 及仅手牌转化的历史语义。
+- 规则 v41 按官方“红色牌”而非“红色手牌”的急救原文，为既有 `classic:hua-tuo` 补齐自己的红色装备候选；转化桃从实际 `Hand/Equipment(owner)` 进入处理区。rules v40 和非经典演示模式继续只枚举手牌，不改变经典包 1.22.0 的内容指纹。
 - 荀彧的节命在受伤后由同一 `DamageTriggerWindowFrame` 发布私有目标 Choice；目标只按公开的存活状态、手牌数量和体力上限筛选，补入的牌通过 `DamageSkillCardsDrawnEvent` 与 `skill.jieming.draw` 移动原因记录，普通观察者不会看到牌面。
 - 援护者在其他角色受到正伤害后由同一 `DamageTriggerWindowFrame` 发布私有弃牌 Choice；发动时将拥有者的一张手牌移入弃牌堆，再通过 `RecoveryFrame` 令固定的受伤目标回复 1 点体力，`DamageSkillCardDiscardedEvent`、`RecoveryAppliedEvent` 和 `DamageSkillResolvedEvent.EffectTargetSeat` 记录可信宿主结果，普通观察者不会看到被弃牌的 ID。
 - 经典夏侯惇受到正伤害后由同一 `DamageTriggerWindowFrame` 发布私有发动 Choice；发动后判定牌进入公开的 `Judgment` 区，结果不为红桃时向伤害来源发布仅其可见的弃两张手牌/承受 1 点伤害 Choice。旧演示模式保留原“红色成功”语义。

@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.22.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前将关羽/武圣归位为经典 ID 并在 rules v40 开放装备区红牌，赵云为龙胆，张飞为咆哮，吕布为无双，魏延为旧版狂骨，黄忠为烈弓，马超为铁骑+马术，黄月英为集智+奇才，甄姬为洛神+倾国，徐晃为断粮、典韦为强袭、许褚为裸衣、张辽为突袭、吕蒙为克己、甘宁为奇袭、黄盖为苦肉，孙权为制衡+救援、刘备为仁德+激将、曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.21.0 历史定义按存档签名保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.22.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前将关羽/武圣归位为经典 ID 并在 rules v40 开放装备区红牌，rules v41 又为既有华佗急救开放装备区红牌；赵云为龙胆，张飞为咆哮，吕布为无双，魏延为旧版狂骨，黄忠为烈弓，马超为铁骑+马术，黄月英为集智+奇才，甄姬为洛神+倾国，徐晃为断粮、典韦为强袭、许褚为裸衣、张辽为突袭、吕蒙为克己、甘宁为奇袭、黄盖为苦肉，孙权为制衡+救援、刘备为仁德+激将、曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.21.0 历史定义按存档签名保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -216,7 +216,7 @@
 | `standard:huichun` | 回春 | 出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力 | implemented-registry + extension | K5：私有两牌/多目标选择、逐目标 `RecoveryFrame`、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `standard:mashu` | 马术 | 计算与其他角色的距离 -1 | implemented-registry + extension | K6：`IPassiveSkill.ModifyOutgoingDistance`，由 Core 统一影响公开距离型合法性 |
 | `standard:qicai` | 奇才 | 使用锦囊牌无距离限制 | implemented-registry + extension | K6：`IPassiveSkill.IgnoresTrickDistance`，由 Core 统一影响距离型锦囊合法性 |
-| `standard:jijiu` | 急救 | 濒死窗口可将红色非桃牌当作桃使用 | implemented-registry + rescue extension | K5：`IPassiveSkill.CanUseAsDyingRescue`，有效牌型为 Peach，物理牌型保留在事件和移动账本 |
+| `standard:jijiu` | 急救 | 回合外在濒死窗口将红色非桃牌当作桃使用；rules v41 经典华佗含自己的装备区 | implemented-registry + rescue extension | K5：`IPassiveSkill.CanUseAsDyingRescue`，有效牌型为 Peach，物理牌型和 Hand/Equipment 实际来源保留在事件与移动账本 |
 
 ## 5. 锦囊清单
 

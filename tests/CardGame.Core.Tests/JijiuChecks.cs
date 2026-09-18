@@ -190,6 +190,87 @@ internal static class JijiuChecks
         AssertInventory(restored);
     }
 
+    public static void EquipmentFlow()
+    {
+        Require(GameCheckpoint.CurrentRulesVersion >= 41,
+            "Formal Jijiu equipment conversion must have an explicit rules-version boundary.");
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = JijiuEquipmentScenario.Find();
+        var prompt = game.PendingDecision ??
+            throw new InvalidOperationException("The classic Jijiu equipment fixture lost its dying prompt.");
+        var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
+        var choice = prompt.Choices.Single(candidate =>
+            candidate.Parameters.GetValueOrDefault("response") == "peach" &&
+            candidate.Cards.Count == 1 &&
+            owner.Equipment.Any(card => card.Id == candidate.Cards[0]));
+        var equipment = owner.Equipment.Single(card => card.Id == choice.Cards[0]);
+
+        Require(owner.GeneralId == "classic:hua-tuo" &&
+                owner.Skills?.Any(skill => skill.Kind == SkillKind.Jijiu) == true &&
+                equipment.Suit is Suit.Heart or Suit.Diamond &&
+                game.State.CurrentSeat != 0 &&
+                choice.Description.Contains("当作【桃】", StringComparison.Ordinal),
+            "Classic Hua Tuo must publish a red equipped card as Peach only outside his turn.");
+        Require(game.CreateSnapshot(1).PendingDecision is null,
+            "The equipped Jijiu candidate must remain private to Hua Tuo.");
+
+        var paused = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(paused.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                paused.Events.Select(EventSignature).SequenceEqual(game.Events.Select(EventSignature)),
+            "An in-flight equipped Jijiu rescue must replay exactly.");
+
+        var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 40 }, registry);
+        Require(legacy.PendingDecision?.Choices.Any(candidate =>
+                    candidate.Cards.Contains(equipment.Id) &&
+                    candidate.Parameters.GetValueOrDefault("response") == "peach") != true &&
+                legacy.CreateSnapshot(0, revealAll: true).Players[0].Equipment.Any(card =>
+                    card.Id == equipment.Id),
+            "Rules v40 must not publish or spend an equipped card through Jijiu.");
+
+        var dyingFrame = game.ResolutionStack.OfType<DyingFrame>().Single();
+        var accepted = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            choice.Id,
+            game.Revision));
+        Require(accepted.Accepted, accepted.Error?.Message ??
+            "Classic Hua Tuo could not use red equipment through Jijiu.");
+        Require(game.Events.Select(item => item.Payload).OfType<DyingResponseEvent>().Any(response =>
+                    response.ResolutionId == dyingFrame.Id &&
+                    response.ResponderSeat == 0 &&
+                    response.UsedPeach &&
+                    response.PeachCardId == equipment.Id &&
+                    response.UsedPeachPhysicalCardKind == equipment.Kind) &&
+                game.Events.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Any(declared =>
+                    declared.CardId == equipment.Id && declared.CardKind == CardKind.Peach),
+            "Equipped Jijiu must publish Peach as the effective card while retaining the physical kind.");
+        Require(game.CardMovements.Any(movement =>
+                    movement.CardId == equipment.Id &&
+                    movement.CardKind == equipment.Kind &&
+                    movement.From == CardLocation.Equipment(0) &&
+                    movement.To == CardLocation.Processing &&
+                    movement.Reason == CardMoveReasons.Use) &&
+                game.CardMovements.Any(movement =>
+                    movement.CardId == equipment.Id &&
+                    movement.From == CardLocation.Processing &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.UseFinished),
+            "Equipped Jijiu must pay the physical card through Equipment -> Processing -> DiscardPile.");
+
+        var completed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(completed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                completed.Events.Select(EventSignature).SequenceEqual(game.Events.Select(EventSignature)),
+            "A completed equipped Jijiu rescue must replay exactly.");
+        AssertInventory(game);
+        AssertInventory(completed);
+    }
+
     private static (GameEngine Game, PendingDecision Prompt, Card ConvertedCard) FindConvertedPrompt(
         ContentRegistry registry)
     {

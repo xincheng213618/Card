@@ -54,6 +54,66 @@ internal static class JijiuChecks
         }
     }
 
+    public static void EquipmentControls(string output)
+    {
+        var fixture = JijiuEquipmentScenario.Find();
+        var owner = fixture.CreateSnapshot(0, revealAll: true).Players[0];
+        var equipmentChoice = fixture.PendingDecision!.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "peach" &&
+            choice.Cards.Count == 1 &&
+            owner.Equipment.Any(card => card.Id == choice.Cards[0]));
+        var equipment = owner.Equipment.Single(card => card.Id == equipmentChoice.Cards[0]);
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(
+            1,
+            DateTimeOffset.UtcNow,
+            false,
+            fixture.CreateCheckpoint()));
+        using var viewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: fixture.Seed,
+            showSetup: true,
+            saveStore: store,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        viewModel.LoadManualGameCommand.Execute(null);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+
+        Program.Assert(!viewModel.HasSaveError &&
+                       viewModel.IsDyingSelectionPending &&
+                       viewModel.Hand.All(card => card.Id != equipment.Id) &&
+                       viewModel.DyingChoices.Any(choice => choice.Id == equipmentChoice.Id),
+            "The WPF must expose equipped Jijiu as a central private dying choice, not a hand card.");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "109-classic-jijiu-equipment-response.png"));
+        Program.Assert(Program.Find<TextBlock>(root).Any(text =>
+                text.Text.Contains(equipment.DisplayName, StringComparison.Ordinal) &&
+                text.Text.Contains("当作【桃】", StringComparison.Ordinal)),
+            "The equipped Jijiu conversion text was not rendered in the dying choice panel.");
+
+        viewModel.SelectDyingChoiceCommand.Execute(
+            viewModel.DyingChoices.Single(choice => choice.Id == equipmentChoice.Id));
+        var engine = Program.Engine(viewModel);
+        Program.Assert(engine.Events.Any(item =>
+                           item.Payload is DyingResponseEvent response &&
+                           response.ResponderSeat == 0 &&
+                           response.PeachCardId == equipment.Id &&
+                           response.UsedPeachPhysicalCardKind == equipment.Kind) &&
+                       engine.CardMovements.Any(movement =>
+                           movement.CardId == equipment.Id &&
+                           movement.From == CardLocation.Equipment(0) &&
+                           movement.To == CardLocation.Processing &&
+                           movement.Reason == CardMoveReasons.Use),
+            "The WPF central dying choice did not commit the equipped Jijiu physical card.");
+
+        window.Content = null;
+        window.Close();
+    }
+
     internal static (MainViewModel ViewModel, GeneralChoiceViewModel General) FindFixture()
     {
         for (var seed = 1; seed <= 1_024; seed++)

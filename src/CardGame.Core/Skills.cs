@@ -154,7 +154,7 @@ public interface IPassiveSkill
         int currentCount) => currentCount;
 
     /// <summary>
-    /// Returns whether this skill can treat a physical hand card as Peach in
+    /// Returns whether this skill can treat a physical owned card as Peach in
     /// a dying response. The physical card remains unchanged in the movement
     /// ledger; the engine owns the effective Peach resolution.
     /// </summary>
