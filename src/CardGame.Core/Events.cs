@@ -183,6 +183,17 @@ public sealed record SkillCardsGivenEvent(
     SkillKind Skill,
     IReadOnlyList<int> CardIds) : IGameEvent;
 
+/// <summary>Public reveal and branch result of the classic Fanjian skill.</summary>
+public sealed record FanjianCardRevealedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    Suit ChosenSuit,
+    int CardId,
+    CardKind CardKind,
+    Suit CardSuit,
+    bool DamageTriggered) : IGameEvent;
+
 public sealed record ActiveSkillResolvedEvent(
     long ResolutionId,
     int SourceSeat,

@@ -179,6 +179,9 @@ public sealed partial class GameEngine
     private bool UsesFormalTiandu =>
         _rulesVersion >= 22 && IsClassicIdentityMode;
 
+    private bool UsesFormalFanjian =>
+        _rulesVersion >= 23 && IsClassicIdentityMode;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -706,6 +709,7 @@ public sealed partial class GameEngine
                 DecisionKind.Guicai or
                 DecisionKind.Yingzi or
                 DecisionKind.Tiandu or
+                DecisionKind.Fanjian or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -776,6 +780,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Tiandu)
         {
             return SubmitTianduPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Fanjian)
+        {
+            return SubmitFanjianPromptAnswer(actorSeat, selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1143,6 +1152,29 @@ public sealed partial class GameEngine
         };
     }
 
+    private CommandResult SubmitFanjianPromptAnswer(int actorSeat, PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Fanjian })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的反间花色选择。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            !string.Equals(action, "fanjian-choose-suit", StringComparison.Ordinal) ||
+            !selected.Parameters.TryGetValue("suit", out var suitName) ||
+            !Enum.TryParse<Suit>(suitName, ignoreCase: false, out var suit) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "反间选择必须是当前发布的一种花色。");
+        }
+
+        return Accept(() => HumanFanjianCore(
+            actorSeat,
+            suit,
+            advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+    }
+
     private CommandResult SubmitYijiPromptAnswer(PromptChoice selected)
     {
         if (_pendingDamageSkill is not { } pending ||
@@ -1345,7 +1377,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndDraw or
                 ActiveSkillEffectKind.GiveCardsAndRecover or
                 ActiveSkillEffectKind.DiscardAndRecover or
-                ActiveSkillEffectKind.DiscardAndRecoverTargets) ||
+                ActiveSkillEffectKind.DiscardAndRecoverTargets or
+                ActiveSkillEffectKind.RevealGiftAndDamage) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -1358,6 +1391,10 @@ public sealed partial class GameEngine
             (effect.Kind is ActiveSkillEffectKind.DiscardAndRecover or
                 ActiveSkillEffectKind.DiscardAndRecoverTargets) &&
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount <= 0) ||
+            effect.Kind == ActiveSkillEffectKind.RevealGiftAndDamage &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 0 || effect.MaxCardCount != 0 ||
+             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
             effect.MinTargetCount < 0 ||
@@ -1655,7 +1692,8 @@ public sealed partial class GameEngine
                     IsAiDamageSkillPending() ||
                     IsAiJudgmentPending() ||
                     IsAiYingziPending() ||
-                    IsAiTianduPending())
+                    IsAiTianduPending() ||
+                    IsAiFanjianPending())
                 {
                     RunOneEngineStep();
                     continue;
@@ -2324,6 +2362,21 @@ public sealed partial class GameEngine
         var pending = _pendingJudgment ??
             throw new InvalidOperationException("There is no Tiandu judgment awaiting a choice.");
         ResolveTianduChoice(pending, useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanFanjianCore(
+        int actorSeat,
+        Suit suit,
+        bool advanceToHumanBoundary)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Fanjian } decision ||
+            decision.PlayerSeat != actorSeat)
+        {
+            throw new InvalidOperationException("The engine is not waiting for this Fanjian responder.");
+        }
+        ResolveFanjianChoice(suit);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -4003,6 +4056,12 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (IsAiFanjianPending())
+        {
+            ResolvePendingAiFanjian();
+            return;
+        }
+
         if (IsAiTianduPending())
         {
             ResolvePendingAiTiandu();
@@ -4188,7 +4247,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndDraw or
                 ActiveSkillEffectKind.GiveCardsAndRecover or
                 ActiveSkillEffectKind.DiscardAndRecover or
-                ActiveSkillEffectKind.DiscardAndRecoverTargets))
+                ActiveSkillEffectKind.DiscardAndRecoverTargets or
+                ActiveSkillEffectKind.RevealGiftAndDamage))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -4223,6 +4283,46 @@ public sealed partial class GameEngine
             recordedCardIds,
             recordedTargetSeats));
         SetActiveSkillFrameStep(frameId, ResolutionFrameStep.ResolvingEffect);
+
+        if (effect.Kind == ActiveSkillEffectKind.RevealGiftAndDamage)
+        {
+            actor.UsedActiveSkillKinds.Add(skillKind);
+            var target = _players[targetSeats.Single()];
+            var choices = Enum.GetValues<Suit>()
+                .Select(suit => new PromptChoice(
+                    new ChoiceId($"fanjian-suit-{suit.ToString().ToLowerInvariant()}"),
+                    $"选择{GetSuitName(suit)}",
+                    [],
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["action"] = "fanjian-choose-suit",
+                        ["suit"] = suit.ToString()
+                    }))
+                .ToArray();
+            _pendingDecision = new PendingDecision(
+                DecisionKind.Fanjian,
+                target.Seat,
+                $"{actor.Name} 对你发动【反间】：先选择一种花色，再获得并展示其一张随机手牌。",
+                [],
+                [],
+                SourceSeat: actor.Seat)
+            {
+                PromptId = CreatePromptId(),
+                Choices = choices,
+                TargetSeat = target.Seat
+            };
+            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.AwaitingResponse);
+            _status = target.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            AddLog(
+                "ActiveSkill",
+                $"{actor.Name} 对 {target.Name} 发动【反间】，等待其选择花色。",
+                actor.Seat,
+                target.Seat);
+            return;
+        }
 
         if (effect.Kind == ActiveSkillEffectKind.LoseHpAndDraw)
         {
@@ -8115,7 +8215,7 @@ public sealed partial class GameEngine
             return false;
         }
 
-        var nature = GetDamageNature(attack.EffectiveCardKind);
+        var nature = GetDamageNature(attack);
         var amount = attack.DamageAmount;
         if (!attack.IsChainPropagation &&
             (nature is DamageNature.Fire or DamageNature.Thunder) &&
@@ -8363,7 +8463,7 @@ public sealed partial class GameEngine
             window.Attack.TargetSeat,
             window.Attack.DamageAmount,
             Math.Max(0, target.Hp),
-            GetDamageNature(window.Attack.EffectiveCardKind)));
+            GetDamageNature(window.Attack)));
 
         PopResolutionFrame(window.DamageFrameId, ResolutionFrameKind.Damage);
         CompleteAttack(window.Attack);
@@ -9416,7 +9516,7 @@ public sealed partial class GameEngine
             attack.EffectiveCardKind,
             SourceCardIsInProcessing:
                 _cardZones.GetLocation(attack.Card.Id) == CardLocation.Processing,
-            Nature: GetDamageNature(attack.EffectiveCardKind),
+            Nature: GetDamageNature(attack),
             Amount: attack.DamageAmount,
             SourceCardId: attack.Card.Id,
             TargetSeat: attack.TargetSeat,
@@ -9912,7 +10012,7 @@ public sealed partial class GameEngine
             dying.VictimSeat,
             attack.DamageAmount,
             Math.Max(0, victim.Hp),
-            GetDamageNature(attack.EffectiveCardKind)));
+            GetDamageNature(attack)));
         PopResolutionFrame(damageFrameId, ResolutionFrameKind.Damage);
         CompleteAttack(attack);
     }
@@ -9920,6 +10020,23 @@ public sealed partial class GameEngine
     private void FinishAttack(AttackResolution attack)
     {
         var cardLocation = _cardZones.GetLocation(attack.Card.Id);
+        if (attack.IsActiveSkillDamage)
+        {
+            if (cardLocation.Zone is not (CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.DiscardPile))
+            {
+                throw new InvalidOperationException(
+                    $"A resolved active-skill damage card has an unsupported destination: {cardLocation}.");
+            }
+
+            CompleteFanjianResolution(attack.ResolutionId);
+            if (_winner != Winner.None && _status != EngineStatus.Completed)
+            {
+                CompleteGame();
+            }
+
+            return;
+        }
+
         if (attack.IsDelayedJudgmentDamage)
         {
             if (cardLocation == CardLocation.Judgment(attack.DelayedJudgmentSeat ?? attack.SourceSeat))
@@ -10000,7 +10117,7 @@ public sealed partial class GameEngine
                 fromSeat,
                 attack.TargetSeat,
                 attack.DamageAmount,
-                GetDamageNature(attack.EffectiveCardKind)));
+                GetDamageNature(attack)));
             AddLog(
                 "ChainDamage",
                 $"连环伤害从 {_players[fromSeat].Name} 传导至 {_players[attack.TargetSeat].Name}。",
@@ -10794,6 +10911,11 @@ public sealed partial class GameEngine
                      .Where(candidate => candidate is not null)
                      .Cast<IActiveSkill>())
         {
+            if (activeSkill.Kind == SkillKind.Fanjian && !UsesFormalFanjian)
+            {
+                continue;
+            }
+
             var activeSkillTargets = GetActiveSkillValidTargetSeats(actor, activeSkill.Kind);
             var activeSkillContext = CreateActiveSkillContext(actor, activeSkill.Kind);
             if (!activeSkill.CanUse(activeSkillContext)) continue;
@@ -10969,6 +11091,18 @@ public sealed partial class GameEngine
         CardKind.FireSlash or CardKind.FireAttack => DamageNature.Fire,
         CardKind.ThunderSlash or CardKind.Lightning => DamageNature.Thunder,
         _ => DamageNature.Normal
+    };
+
+    private static DamageNature GetDamageNature(AttackResolution attack) =>
+        attack.DamageNatureOverride ?? GetDamageNature(attack.EffectiveCardKind);
+
+    private static string GetSuitName(Suit suit) => suit switch
+    {
+        Suit.Spade => "黑桃",
+        Suit.Heart => "红桃",
+        Suit.Club => "梅花",
+        Suit.Diamond => "方块",
+        _ => suit.ToString()
     };
 
     private static string GetDamageNatureLabel(DamageNature nature) => nature switch
@@ -11789,6 +11923,10 @@ public sealed partial class GameEngine
                 .Where(player => player.IsAlive && player.Seat != actor.Seat)
                 .Select(player => player.Seat)
                 .ToHashSet(),
+            SkillKind.Fanjian => _players
+                .Where(player => player.IsAlive && player.Seat != actor.Seat)
+                .Select(player => player.Seat)
+                .ToHashSet(),
             SkillKind.Qingnang => _players
                 .Where(player => player.IsAlive && player.Hp < player.MaxHp)
                 .Select(player => player.Seat)
@@ -12174,11 +12312,25 @@ public sealed partial class GameEngine
         if (_pendingAttack is { } pendingAttack)
         {
             if (!pendingAttack.IsDelayedJudgmentDamage &&
+                !pendingAttack.IsActiveSkillDamage &&
                 !_resolutionStack.Any(frame =>
                     frame is CardUseFrame cardUse && cardUse.Id == pendingAttack.ResolutionId))
             {
                 throw new InvalidOperationException(
                     "An active Slash continuation has no parent CardUse frame.");
+            }
+
+            if (pendingAttack.IsActiveSkillDamage &&
+                !_resolutionStack.Any(frame =>
+                    frame is ActiveSkillFrame
+                    {
+                        Id: var id,
+                        Skill: SkillKind.Fanjian,
+                        Effect: ActiveSkillEffectKind.RevealGiftAndDamage
+                    } && id == pendingAttack.ResolutionId))
+            {
+                throw new InvalidOperationException(
+                    "An active-skill damage continuation has no parent ActiveSkill frame.");
             }
 
             if (_pendingJudgment is { } judgmentContinuation)
@@ -12283,17 +12435,34 @@ public sealed partial class GameEngine
 
         if (_resolutionStack.OfType<ActiveSkillFrame>().LastOrDefault() is { } activeSkillFrame)
         {
-            if (_pendingDying is not { ResumesActiveSkill: true } activeSkillDying ||
-                activeSkillDying.ParentFrameId != activeSkillFrame.Id ||
-                activeSkillDying.VictimSeat != activeSkillFrame.SourceSeat ||
-                activeSkillDying.Attack is not null ||
-                activeSkillDying.DamageFrameId is not null ||
-                _resolutionStack.LastOrDefault() is not DyingFrame dyingFrame ||
-                dyingFrame.Id != activeSkillDying.FrameId ||
-                dyingFrame.ParentFrameId != activeSkillFrame.Id)
+            var isSelfCostDying =
+                _pendingDying is { ResumesActiveSkill: true } activeSkillDying &&
+                activeSkillDying.ParentFrameId == activeSkillFrame.Id &&
+                activeSkillDying.VictimSeat == activeSkillFrame.SourceSeat &&
+                activeSkillDying.Attack is null &&
+                activeSkillDying.DamageFrameId is null &&
+                _resolutionStack.LastOrDefault() is DyingFrame dyingFrame &&
+                dyingFrame.Id == activeSkillDying.FrameId &&
+                dyingFrame.ParentFrameId == activeSkillFrame.Id;
+            var isFanjianPrompt =
+                activeSkillFrame.Skill == SkillKind.Fanjian &&
+                activeSkillFrame.Effect == ActiveSkillEffectKind.RevealGiftAndDamage &&
+                activeSkillFrame.Step == ResolutionFrameStep.AwaitingResponse &&
+                activeSkillFrame.TargetSeats is { Count: 1 } fanjianTargets &&
+                _pendingAttack is null &&
+                _pendingDecision is { Kind: DecisionKind.Fanjian } fanjianDecision &&
+                fanjianDecision.PlayerSeat == fanjianTargets[0] &&
+                fanjianDecision.Choices.Count == 4 &&
+                _resolutionStack.LastOrDefault()?.Id == activeSkillFrame.Id;
+            var isFanjianDamage =
+                activeSkillFrame.Skill == SkillKind.Fanjian &&
+                activeSkillFrame.Effect == ActiveSkillEffectKind.RevealGiftAndDamage &&
+                _pendingAttack is { IsActiveSkillDamage: true } fanjianAttack &&
+                fanjianAttack.ResolutionId == activeSkillFrame.Id;
+            if (!isSelfCostDying && !isFanjianPrompt && !isFanjianDamage)
             {
                 throw new InvalidOperationException(
-                    "An active-skill frame may remain open only beneath its dying continuation.");
+                    "An active-skill frame has no supported prompt, damage or dying continuation.");
             }
         }
 
@@ -12652,6 +12821,14 @@ public sealed partial class GameEngine
                 CardZoneKind.DiscardPile;
         }
 
+        if (attack.IsActiveSkillDamage)
+        {
+            var activeSkillLocation = _cardZones.GetLocation(attack.Card.Id);
+            return activeSkillLocation.Zone is CardZoneKind.DrawPile or
+                CardZoneKind.Hand or
+                CardZoneKind.DiscardPile;
+        }
+
         if (processing.Count == 1 && processing[0].Id == attack.Card.Id)
         {
             return true;
@@ -12786,6 +12963,119 @@ public sealed partial class GameEngine
 
         ResolveTianduChoice(_pendingJudgment!, useSkill: true);
         PublishState();
+    }
+
+    private bool IsAiFanjianPending() =>
+        _pendingDecision is { Kind: DecisionKind.Fanjian, PlayerSeat: var playerSeat } &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiFanjian()
+    {
+        if (!IsAiFanjianPending())
+        {
+            throw new InvalidOperationException("There is no AI Fanjian suit choice to resolve.");
+        }
+
+        // Every suit is intentionally equivalent without access to Zhou Yu's
+        // private hand. A fixed public tie-break keeps the choice replayable.
+        ResolveFanjianChoice(Suit.Diamond);
+        PublishState();
+    }
+
+    private void ResolveFanjianChoice(Suit chosenSuit)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Fanjian } decision ||
+            _resolutionStack.LastOrDefault() is not ActiveSkillFrame
+            {
+                Skill: SkillKind.Fanjian,
+                Effect: ActiveSkillEffectKind.RevealGiftAndDamage,
+                TargetSeats: { Count: 1 } targetSeats
+            } activeSkill ||
+            decision.PlayerSeat != targetSeats[0])
+        {
+            throw new InvalidOperationException("The Fanjian suit choice is not the current resolution.");
+        }
+
+        var source = _players[activeSkill.SourceSeat];
+        var target = _players[targetSeats[0]];
+        var sourceHand = GetHand(source).OrderBy(card => card.Id).ToArray();
+        if (sourceHand.Length == 0 || !source.IsAlive || !target.IsAlive)
+        {
+            throw new InvalidOperationException("Fanjian requires a living source, living target and source hand card.");
+        }
+
+        ClearPendingDecision();
+        SetActiveSkillFrameStep(activeSkill.Id, ResolutionFrameStep.ResolvingEffect);
+        var revealedCard = sourceHand[_random.Next(sourceHand.Length)];
+        MoveCard(
+            revealedCard,
+            CardLocation.Hand(source.Seat),
+            CardLocation.Processing,
+            CardMoveReasons.FanjianGive);
+        MoveCard(
+            revealedCard,
+            CardLocation.Processing,
+            CardLocation.Hand(target.Seat),
+            CardMoveReasons.FanjianGive);
+
+        var causesDamage = revealedCard.Suit != chosenSuit;
+        QueueGameEvent(new FanjianCardRevealedEvent(
+            activeSkill.Id,
+            source.Seat,
+            target.Seat,
+            chosenSuit,
+            revealedCard.Id,
+            revealedCard.Kind,
+            revealedCard.Suit,
+            causesDamage));
+        AddLog(
+            "FanjianRevealed",
+            $"{target.Name} 为【反间】选择{GetSuitName(chosenSuit)}，获得并展示了{GetSuitName(revealedCard.Suit)}【{revealedCard.DisplayName}】" +
+            (causesDamage ? "，花色不同。" : "，花色相同。"),
+            source.Seat,
+            target.Seat);
+
+        if (!causesDamage)
+        {
+            CompleteFanjianResolution(activeSkill.Id);
+            return;
+        }
+
+        var attack = new AttackResolution(
+            activeSkill.Id,
+            source.Seat,
+            target.Seat,
+            revealedCard,
+            damageAmount: 1,
+            isActiveSkillDamage: true,
+            damageNatureOverride: DamageNature.Normal);
+        _pendingAttack = attack;
+        if (!ApplyAttackDamage(attack))
+        {
+            CompleteAttack(attack);
+        }
+    }
+
+    private void CompleteFanjianResolution(long frameId)
+    {
+        var activeSkill = _resolutionStack.OfType<ActiveSkillFrame>()
+            .LastOrDefault(frame => frame.Id == frameId);
+        if (activeSkill is not
+            {
+                Skill: SkillKind.Fanjian,
+                Effect: ActiveSkillEffectKind.RevealGiftAndDamage
+            })
+        {
+            throw new InvalidOperationException("The Fanjian active-skill frame is missing.");
+        }
+
+        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
+        QueueGameEvent(new ActiveSkillResolvedEvent(
+            frameId,
+            activeSkill.SourceSeat,
+            activeSkill.Skill,
+            activeSkill.Effect));
+        PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
     }
 
     private bool IsAiDyingResponsePending() =>
@@ -13177,7 +13467,9 @@ public sealed partial class GameEngine
         CardKind? playedCardKind = null,
         bool ignoresArmor = false,
         bool isDelayedJudgmentDamage = false,
-        int? delayedJudgmentSeat = null)
+        int? delayedJudgmentSeat = null,
+        bool isActiveSkillDamage = false,
+        DamageNature? damageNatureOverride = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; } = sourceSeat;
@@ -13188,6 +13480,8 @@ public sealed partial class GameEngine
         public bool IgnoresArmor { get; } = ignoresArmor;
         public bool IsDelayedJudgmentDamage { get; } = isDelayedJudgmentDamage;
         public int? DelayedJudgmentSeat { get; } = delayedJudgmentSeat;
+        public bool IsActiveSkillDamage { get; } = isActiveSkillDamage;
+        public DamageNature? DamageNatureOverride { get; } = damageNatureOverride;
         public IReadOnlyList<int> ChainedTargetSeats { get; private set; } = [];
         public int ChainedTargetIndex { get; private set; }
         public bool IsChainPropagation { get; private set; }

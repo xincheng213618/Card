@@ -169,13 +169,16 @@ public sealed partial class MainViewModel
         }
         else if (IsActiveSkillSelectionPending && HumanActiveSkillAction is { } skillAction)
         {
-            CurrentGuideTitle = CanConfirmActiveSkill ? $"确认发动【{human?.SkillName}】" : $"选择【{human?.SkillName}】的牌和目标";
+            var activeSkillName = skillAction.Skill is { } skill
+                ? SkillRegistry.Get(skill).Name
+                : "技能";
+            CurrentGuideTitle = CanConfirmActiveSkill ? $"确认发动【{activeSkillName}】" : $"选择【{activeSkillName}】的牌和目标";
             CurrentGuideBody = $"{human?.SkillDescription}\n{GetActiveSkillSelectionHint()}";
             var selectedNames = Seats.Where(seat => _selectedActiveSkillTargetSeats.Contains(seat.Seat))
                 .Select(seat => seat.IsHuman ? $"你（{seat.GeneralName}）" : $"{seat.Seat + 1} 号位 {seat.GeneralName}").ToArray();
             steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}。再次点击已选牌或目标可以取消。",
                 selectedNames.Length == 0 ? "尚未选择目标；不要求目标的技能只需选牌。" : $"已选目标：{string.Join("、", selectedNames)}。",
-                $"点击「发动{human?.SkillName}」或按 Enter 才会支付代价并提交技能；Esc 取消整次选择。关闭指南会保留已选牌和目标。"];
+                $"点击「发动{activeSkillName}」或按 Enter 才会支付代价并提交技能；Esc 取消整次选择。关闭指南会保留已选牌和目标。"];
         }
         else if (CanEndTurn)
         {
@@ -219,6 +222,7 @@ public sealed partial class MainViewModel
                 DecisionKind.FireAttackDiscard => ("决定是否为火攻弃牌", new[] { "中央列出了可弃置的同花色手牌；点击候选将立即支付代价。", "也可以跳过，保留手牌并结束这次火攻。" }),
                 DecisionKind.Yingzi => ("决定是否发动英姿", new[] { "发动后，本摸牌阶段多摸一张牌。", "这是可选技能；也可以跳过，按通常数量摸牌。" }),
                 DecisionKind.Tiandu => ("决定是否发动天妒", new[] { "判定结果已经生效；发动后，公开判定牌会进入你的手牌。", "也可以跳过，让判定牌按通常流程进入弃牌堆。" }),
+                DecisionKind.Fanjian => ("为反间选择一种花色", new[] { "先选择黑桃、红桃、梅花或方块；此时周瑜的随机手牌尚未公开。", "你会获得并展示那张牌；若它与所选花色不同，周瑜对你造成 1 点普通伤害。" }),
                 _ => ("处理当前技能选择", new[] { "先读中央说明，再选择发动、支付代价或跳过。", "中央的每个按钮都是完整选择，点击后立即执行。" })
             };
             CurrentGuideBody = prompt.Prompt;

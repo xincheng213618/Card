@@ -7,12 +7,36 @@ namespace CardGame.Content.Standard;
 /// packages remain unchanged so their checkpoints keep the original content
 /// hashes and v1-v9 behavior.
 /// </summary>
-public sealed class StandardClassicGeneralPackage(bool legacyRoster = false) : IGameContentPackage
+public sealed class StandardClassicGeneralPackage : IGameContentPackage
 {
-    public PackageManifest Manifest { get; } = new(
-        Id: "standard-classic-generals",
-        Version: legacyRoster ? new Version(1, 0, 0) : new Version(1, 1, 0),
-        Dependencies: [new PackageDependency("standard-rescue-skills", new Version(1, 0, 0))]);
+    private readonly Version _version;
+
+    public StandardClassicGeneralPackage(bool legacyRoster = false)
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 2, 0))
+    {
+    }
+
+    public StandardClassicGeneralPackage(Version version)
+    {
+        ArgumentNullException.ThrowIfNull(version);
+        if (version != new Version(1, 0, 0) &&
+            version != new Version(1, 1, 0) &&
+            version != new Version(1, 2, 0))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(version),
+                version,
+                "Supported classic-general package versions are 1.0.0, 1.1.0 and 1.2.0.");
+        }
+
+        _version = version;
+        Manifest = new PackageManifest(
+            Id: "standard-classic-generals",
+            Version: version,
+            Dependencies: [new PackageDependency("standard-rescue-skills", new Version(1, 0, 0))]);
+    }
+
+    public PackageManifest Manifest { get; }
 
     public void Register(IContentRegistryBuilder builder)
     {
@@ -23,13 +47,21 @@ public sealed class StandardClassicGeneralPackage(bool legacyRoster = false) : I
             "反馈",
             "受到伤害后，你可以获得伤害来源的一张牌。",
             SkillKind.Feedback));
-        if (!legacyRoster)
+        if (_version >= new Version(1, 1, 0))
         {
             builder.AddSkill(new ContentSkillDefinition(
                 "classic:tiandu",
                 "天妒",
                 "当你的判定牌生效后，你可以获得此牌。",
                 SkillKind.Tiandu));
+        }
+        if (_version >= new Version(1, 2, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:fanjian",
+                "反间",
+                "出牌阶段限一次，你可以令一名其他角色选择一种花色，令其获得并展示你的一张随机手牌；若花色不同，你对其造成1点伤害。",
+                SkillKind.Fanjian));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -69,7 +101,7 @@ public sealed class StandardClassicGeneralPackage(bool legacyRoster = false) : I
             "qun",
             BaseHp: 3,
             AdditionalSkillIds: ["standard:jijiu"]));
-        if (!legacyRoster)
+        if (_version >= new Version(1, 1, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:guo-jia",
@@ -80,6 +112,24 @@ public sealed class StandardClassicGeneralPackage(bool legacyRoster = false) : I
                 BaseHp: 3,
                 AdditionalSkillIds: ["standard:yiji"]));
         }
+        if (_version >= new Version(1, 2, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhou-yu",
+                "周瑜",
+                "zhou_yu",
+                "standard:yingzi",
+                "wu",
+                BaseHp: 3,
+                AdditionalSkillIds: ["classic:fanjian"]));
+        }
+
+        var generalPoolIds = _version switch
+        {
+            { Major: 1, Minor: 0 } => LegacyClassicGeneralIds,
+            { Major: 1, Minor: 1 } => TianduClassicGeneralIds,
+            _ => ClassicGeneralIds
+        };
 
         builder.AddMode(new ContentModeDefinition(
             Id: "identity:classic-8",
@@ -95,7 +145,7 @@ public sealed class StandardClassicGeneralPackage(bool legacyRoster = false) : I
             },
             DeckId: "standard:basic-demo",
             GeneralCandidateCount: 3,
-            GeneralPoolIds: legacyRoster ? LegacyClassicGeneralIds : ClassicGeneralIds));
+            GeneralPoolIds: generalPoolIds));
         builder.AddMode(new ContentModeDefinition(
             Id: "identity:classic-5",
             Name: "五人经典身份（正式武将首批）",
@@ -110,7 +160,7 @@ public sealed class StandardClassicGeneralPackage(bool legacyRoster = false) : I
             },
             DeckId: "standard:basic-demo",
             GeneralCandidateCount: 3,
-            GeneralPoolIds: legacyRoster ? LegacyClassicGeneralIds : ClassicGeneralIds));
+            GeneralPoolIds: generalPoolIds));
     }
 
     internal static IReadOnlyList<string> ClassicGeneralIds { get; } =
@@ -122,16 +172,20 @@ public sealed class StandardClassicGeneralPackage(bool legacyRoster = false) : I
         "classic:hua-tuo",
         "standard:cao-cao",
         "standard:zhang-fei",
-        "standard:zhou-yu",
+        "classic:zhou-yu",
         "standard:zhuge-liang",
         "standard:guan-yu",
         "standard:zhao-yun",
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> TianduClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Select(id => id == "classic:zhou-yu" ? "standard:zhou-yu" : id)
+    ];
+
     internal static IReadOnlyList<string> LegacyClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Take(ClassicGeneralIds.Count - 1),
-        "standard:guo-jia"
+        .. TianduClassicGeneralIds.Select(id => id == "classic:guo-jia" ? "standard:guo-jia" : id)
     ];
 }

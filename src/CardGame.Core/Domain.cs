@@ -130,6 +130,7 @@ public enum SkillKind
     Ganglie,
     Guicai,
     Tiandu,
+    Fanjian,
     Kujin,
     Zhiheng,
     Rende,
@@ -160,6 +161,7 @@ public enum DecisionKind
     Guicai,
     Yingzi,
     Tiandu,
+    Fanjian,
     DiscardCards,
     SelectTargetCard
 }

@@ -72,11 +72,13 @@ internal static class ClassicGeneralUiChecks
                        guoJia.HealthText == "体力上限 4",
             "The current classic Guo Jia card must render Tiandu, Yiji and the Lord health bonus.");
 
-        using var yingziViewModel = FindGeneralChoice("standard:zhou-yu");
+        using var yingziViewModel = FindGeneralChoice("classic:zhou-yu");
         var zhouYu = yingziViewModel.GeneralChoices.Single(choice =>
-            choice.GeneralId == "standard:zhou-yu");
-        Program.Assert(zhouYu.SkillDescription.Contains("可以多摸一张牌", StringComparison.Ordinal),
-            "The current classic selection card must describe Yingzi as optional.");
+            choice.GeneralId == "classic:zhou-yu");
+        Program.Assert(zhouYu.SkillName == "英姿 / 反间" &&
+                       zhouYu.SkillDescription.Contains("可以多摸一张牌", StringComparison.Ordinal) &&
+                       zhouYu.SkillDescription.Contains("选择一种花色", StringComparison.Ordinal),
+            "The current classic selection card must describe optional Yingzi and formal Fanjian.");
         yingziViewModel.SelectGeneralChoiceCommand.Execute(zhouYu);
         Program.AdvanceToDecision(yingziViewModel);
         var yingziEngine = Program.Engine(yingziViewModel);
@@ -97,6 +99,20 @@ internal static class ClassicGeneralUiChecks
                        yingziEngine.CreateSnapshot(0, revealAll: true)
                            .Players.Single(player => player.Seat == 0).HandCount == beforeYingzi + 2,
             "The WPF Yingzi skip choice must continue with the normal draw count.");
+        Program.AdvanceToDecision(yingziViewModel);
+        Program.Assert(yingziViewModel.CanUseActiveSkill &&
+                       yingziViewModel.ActiveSkillEntryText.Contains("反间", StringComparison.Ordinal),
+            "Classic Zhou Yu must expose Fanjian at the WPF play boundary.");
+        yingziViewModel.UseActiveSkillCommand.Execute(null);
+        var fanjianTarget = yingziViewModel.Seats.First(seat => seat.IsLegalTarget);
+        yingziViewModel.SelectTargetCommand.Execute(fanjianTarget);
+        Program.Assert(yingziViewModel.CanConfirmActiveSkill &&
+                       fanjianTarget.IsSelectedTarget &&
+                       yingziViewModel.PlayButtonText == "发动反间" &&
+                       yingziViewModel.ActiveSkillButtonText.Contains("1 个目标", StringComparison.Ordinal),
+            "Fanjian must reuse the target-only active-skill draft without asking for a source card.");
+        Program.Render((FrameworkElement)yingziWindow.Content, 1120, 740,
+            Path.Combine(output, "73-classic-fanjian-target.png"));
         yingziWindow.Content = null;
         yingziWindow.Close();
 
@@ -221,6 +237,55 @@ internal static class ClassicGeneralUiChecks
                            Used: true
                        }),
             "The WPF Tiandu choice must claim the exact resolved judgment card.");
+        window.Content = null;
+        window.Close();
+    }
+
+    public static void FanjianChoiceAndRestore(string output)
+    {
+        var fixture = FindFanjianTargetFixture();
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual,
+            new(1, DateTimeOffset.UtcNow, false, fixture.CreateCheckpoint()));
+        using var viewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: fixture.Seed,
+            showSetup: true,
+            saveStore: store,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        viewModel.LoadManualGameCommand.Execute(null);
+
+        var engine = Program.Engine(viewModel);
+        Program.Assert(!viewModel.HasSaveError &&
+                       viewModel.IsSkillSelectionPending &&
+                       engine.PendingDecision?.Kind == DecisionKind.Fanjian &&
+                       viewModel.SkillChoices.Count == 4 &&
+                       viewModel.SkillChoices.All(choice =>
+                           choice.Cards.Count == 0 &&
+                           choice.Parameters.GetValueOrDefault("action") == "fanjian-choose-suit"),
+            viewModel.SaveStatus);
+        Program.Assert(viewModel.CurrentGuideTitle == "为反间选择一种花色" &&
+                       viewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("尚未公开", StringComparison.Ordinal)),
+            "The player guide must explain that Fanjian chooses a suit before the random reveal.");
+
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        Program.Render((FrameworkElement)window.Content, 1120, 740,
+            Path.Combine(output, "74-classic-fanjian-choice.png"));
+        var chosen = viewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("suit") == "Diamond");
+        viewModel.SelectSkillChoiceCommand.Execute(chosen);
+        var reveal = engine.Events.Select(item => item.Payload)
+            .OfType<FanjianCardRevealedEvent>()
+            .LastOrDefault();
+        Program.Assert(reveal is { TargetSeat: 0, ChosenSuit: Suit.Diamond } &&
+                       engine.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
+                           .Hand.Any(card => card.Id == reveal.CardId),
+            "The WPF Fanjian suit button must receive and reveal the exact transferred card.");
         window.Content = null;
         window.Close();
     }
@@ -362,5 +427,62 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic WPF Tiandu fixture.");
+    }
+
+    private static GameEngine FindFanjianTargetFixture()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        for (var seed = 1; seed <= 2_048; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = false,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                AiPolicyVersion = 2,
+                MaxTurns = 80
+            }, registry);
+            if (!game.Submit(new StartGameCommand()).Accepted)
+            {
+                continue;
+            }
+
+            for (var step = 0; step < 1_200 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                if (game.PendingDecision?.Kind == DecisionKind.Fanjian)
+                {
+                    return game;
+                }
+
+                var prompt = game.PendingDecision;
+                GameCommand command = prompt?.Kind switch
+                {
+                    null => new AdvanceOneStepCommand(game.Revision),
+                    DecisionKind.PlayCard => new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId),
+                    DecisionKind.DiscardCards => new DiscardCardsCommand(
+                        0,
+                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
+                        prompt.PromptId,
+                        game.Revision),
+                    _ when prompt.Choices.Count > 0 => new AnswerPromptCommand(
+                        0,
+                        prompt.PromptId,
+                        prompt.Choices[0].Id,
+                        game.Revision),
+                    _ => new AdvanceOneStepCommand(game.Revision)
+                };
+                if (!game.Submit(command).Accepted)
+                {
+                    break;
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic human-target Fanjian WPF fixture.");
     }
 }

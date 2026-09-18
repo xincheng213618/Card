@@ -69,6 +69,24 @@ public sealed partial class SimpleAiBrain
     {
         if (action.Kind == LegalActionKind.UseSkill)
         {
+            if (action.Skill == SkillKind.Fanjian)
+            {
+                var target = view.Players
+                    .Where(player => player.IsAlive && player.Seat != Seat)
+                    .OrderByDescending(player => GetHostility(view, role, player))
+                    .ThenBy(player => player.Hp)
+                    .ThenBy(player => player.Seat)
+                    .FirstOrDefault();
+                if (target is null)
+                    return (-100d, "没有其他存活角色，不能发动反间。");
+
+                var hostility = GetHostility(view, role, target);
+                return hostility > 0
+                    ? (22d + hostility * .45d + (target.Hp <= 1 ? 14d : 0d),
+                        $"对公开判断中最敌对的座位 {target.Seat + 1} 发动反间；花色选择前不读取自己的随机交付牌。")
+                    : (-100d, "公开阵营信息中没有敌对目标，不向友方发动反间。");
+            }
+
             if (action.Skill == SkillKind.Rende)
             {
                 var target = view.Players

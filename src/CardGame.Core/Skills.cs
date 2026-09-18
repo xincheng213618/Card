@@ -23,7 +23,8 @@ public enum ActiveSkillEffectKind
     DiscardAndDraw,
     GiveCardsAndRecover,
     DiscardAndRecover,
-    DiscardAndRecoverTargets
+    DiscardAndRecoverTargets,
+    RevealGiftAndDamage
 }
 
 public sealed record ActiveSkillEffect(
@@ -504,6 +505,23 @@ public sealed class RendeSkill : IPassiveSkill, IActiveSkill
             RecoveryAmount: context.SelectedCardCount >= 2 ? 1 : 0);
 }
 
+public sealed class FanjianSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Fanjian;
+    public string Name => "反间";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount > 0 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.RevealGiftAndDamage,
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
+}
+
 public sealed class QingnangSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Qingnang;
@@ -574,6 +592,7 @@ public static class SkillRegistry
             [SkillKind.Ganglie] = new GanglieSkill(),
             [SkillKind.Guicai] = new GuicaiSkill(),
             [SkillKind.Tiandu] = new TianduSkill(),
+            [SkillKind.Fanjian] = new FanjianSkill(),
             [SkillKind.Kujin] = new KujinSkill(),
             [SkillKind.Zhiheng] = new ZhihengSkill(),
             [SkillKind.Rende] = new RendeSkill(),

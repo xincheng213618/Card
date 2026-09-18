@@ -336,16 +336,25 @@ public sealed partial class SimpleAiBrain
                              (action.Skill is SkillKind.Qingnang or SkillKind.Huichun
                                  ? player.Hp < player.MaxHp
                                  : player.Seat != Seat))
-            .OrderBy(player => player.Hp)
-            .ThenByDescending(player => player.MaxHp - player.Hp)
-            .ThenBy(player => player.Seat)
             .ToArray();
         if (action.MinTargetCount > candidates.Length)
         {
             throw new InvalidOperationException("The active skill requires more targets than are alive.");
         }
 
-        return candidates
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var orderedCandidates = action.Skill == SkillKind.Fanjian
+            ? candidates
+                .OrderByDescending(player => GetHostility(view, selfRole, player))
+                .ThenBy(player => player.Hp)
+                .ThenBy(player => player.Seat)
+            : candidates
+                .OrderBy(player => player.Hp)
+                .ThenByDescending(player => player.MaxHp - player.Hp)
+                .ThenBy(player => player.Seat);
+
+        return orderedCandidates
             .Take(action.MinTargetCount)
             .Select(player => player.Seat)
             .ToArray();
@@ -1554,6 +1563,26 @@ public sealed partial class SimpleAiBrain
                 : (32d, "重铸铁索换取一张未知牌；不读取牌堆顺序，优先保留更有利的连环或解链行动。");
         if (action.Kind == LegalActionKind.UseSkill)
         {
+            if (action.Skill == SkillKind.Fanjian)
+            {
+                var fanjianTarget = view.Players
+                    .Where(player => player.IsAlive && player.Seat != Seat)
+                    .OrderByDescending(player => GetHostility(view, selfRole, player))
+                    .ThenBy(player => player.Hp)
+                    .ThenBy(player => player.Seat)
+                    .FirstOrDefault();
+                if (fanjianTarget is null)
+                {
+                    return (-100d, "没有其他存活角色，不能发动反间。");
+                }
+
+                var fanjianHostility = GetHostility(view, selfRole, fanjianTarget);
+                return fanjianHostility > 0
+                    ? (18d + fanjianHostility * .4d + (fanjianTarget.Hp <= 1 ? 12d : 0d),
+                        $"对公开判断中最敌对的座位 {fanjianTarget.Seat + 1} 发动反间；不读取其选择或随机手牌结果。")
+                    : (-80d, "没有值得主动交牌并施压的敌对目标，保留手牌。");
+            }
+
             if (action.Skill == SkillKind.Rende)
             {
                 var recoveryBonus = self.HandCount >= 2 && self.Hp < self.MaxHp ? 12d : 0d;

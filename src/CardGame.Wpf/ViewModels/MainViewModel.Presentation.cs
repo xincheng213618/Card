@@ -25,7 +25,7 @@ public sealed partial class MainViewModel
         : $"{Seats.Count(seat => seat.IsAlive)} / {Seats.Count} 人存活";
     public string PlayButtonText => IsDiscardSelectionPending ? $"弃置 {SelectedDiscardCount} / {RequiredDiscardCount} 张"
         : IsHandResponsePending ? HandResponseButtonText
-        : IsActiveSkillSelectionPending ? $"发动{HumanPlayer?.SkillName}"
+        : IsActiveSkillSelectionPending ? $"发动{HumanActiveSkillName}"
         : !CanPlaySelected && CanPlaySelectedAsSlash ? "当作杀使用"
         : Hand.FirstOrDefault(card => card.IsSelected) is { } card ? $"使用 {card.Name}" : "出 牌";
     private LegalAction? HumanActiveSkillAction => _snapshot is not null &&
@@ -52,6 +52,9 @@ public sealed partial class MainViewModel
         IsActiveSkillCardSelectionPending || IsActiveSkillTargetSelectionPending;
     public bool ShowActiveSkillEntry => CanUseActiveSkill && !IsActiveSkillSelectionPending;
     public string ActiveSkillEntryText => HumanActiveSkillAction?.Description ?? "发动技能";
+    private string HumanActiveSkillName => HumanActiveSkillAction?.Skill is { } skill
+        ? SkillRegistry.Get(skill).Name
+        : "技能";
     public bool CanConfirmActiveSkill => IsActiveSkillSelectionPending && HumanActiveSkillAction is { } action &&
         _selectedActiveSkillCardIds.Count >= action.MinCardCount && _selectedActiveSkillCardIds.Count <= action.MaxCardCount &&
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
@@ -77,7 +80,7 @@ public sealed partial class MainViewModel
                 return $"选择{selectionLabel}后{action.Description}";
             }
             return _selectedActiveSkillCardIds.Count == 0 && _selectedActiveSkillTargetSeats.Count == 0
-                ? $"取消选择【{_snapshot.Players.Single(player => player.IsHuman).SkillName}】"
+                ? $"取消选择【{HumanActiveSkillName}】"
                 : $"{action.Description}（已选{BuildActiveSkillSelectionSummary()}）";
         }
     }

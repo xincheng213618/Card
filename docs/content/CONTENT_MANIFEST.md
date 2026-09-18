@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.1.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前郭嘉为 `classic:tiandu` + `standard:yiji`，1.0.0 旧武将池按存档签名保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.2.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前郭嘉为天妒+遗计，周瑜为英姿+反间；1.0.0/1.1.0 旧武将池按存档签名保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -133,6 +133,7 @@
 | `standard:cao-cao` | 曹操 | `cao-cao` | `standard:jianxiong` | implemented-registry | damage-card, retain |
 | `standard:zhang-fei` | 张飞 | `zhang-fei` | `standard:paoxiao` | implemented-registry | attack, unlimited-slash |
 | `standard:zhou-yu` | 周瑜 | `zhou-yu` | `standard:yingzi` | implemented-registry | draw, card-advantage |
+| `classic:zhou-yu` | 周瑜 | `zhou-yu` | `standard:yingzi` + `classic:fanjian` | implemented-registry + classic 1.2 | draw, active-skill, private-suit-choice, random-gift, damage |
 | `standard:zhuge-liang` | 诸葛亮 | `zhuge-liang` | `standard:kongcheng` | implemented-registry | hand-zero, target-lock |
 | `standard:liu-bei` | 刘备 | `liu-bei` | `standard:none` | implemented-registry | placeholder |
 | `standard:guan-yu` | 关羽 | `guan-yu` | `standard:wusheng` | implemented-registry | red-card, conversion, attack |

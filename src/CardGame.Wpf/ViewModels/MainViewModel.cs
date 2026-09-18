@@ -598,7 +598,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.GangliePunish or
                     DecisionKind.Guicai or
                     DecisionKind.Yingzi or
-                    DecisionKind.Tiandu
+                    DecisionKind.Tiandu or
+                    DecisionKind.Fanjian
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -615,7 +616,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.GangliePunish or
             DecisionKind.Guicai or
             DecisionKind.Yingzi or
-            DecisionKind.Tiandu;
+            DecisionKind.Tiandu or
+            DecisionKind.Fanjian;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1566,7 +1568,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
                 DecisionKind.Yingzi or
-                DecisionKind.Tiandu)
+                DecisionKind.Tiandu or
+                DecisionKind.Fanjian)
             {
                 EventStack.Add($"      DamageSkill({pending.Kind}, target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
                 EventStack.Add($"        AskForSkill({pending.Kind})");
@@ -1783,8 +1786,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _ when generalId.StartsWith("classic:", StringComparison.Ordinal) => generalId switch
         {
             "classic:liu-bei" => "蜀",
-            "classic:sun-quan" => "吴",
-            "classic:sima-yi" or "classic:xiahou-dun" => "魏",
+            "classic:sun-quan" or "classic:zhou-yu" => "吴",
+            "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" => "魏",
             _ => "群"
         },
         _ when generalId.StartsWith("national:wei-", StringComparison.Ordinal) => "魏",

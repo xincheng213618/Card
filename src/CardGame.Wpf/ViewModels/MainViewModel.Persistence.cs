@@ -194,9 +194,11 @@ public sealed partial class MainViewModel
         var hasTeamModes = packages.Contains("standard-team-modes@1.0.0", StringComparer.Ordinal);
         var hasRescueSkills = packages.Contains("standard-rescue-skills@1.0.0", StringComparer.Ordinal);
         var hasActiveSkills = packages.Contains("standard-active-skills@1.0.0", StringComparer.Ordinal);
-        var hasClassicGenerals = packages.Any(package =>
-            package is "standard-classic-generals@1.0.0" or "standard-classic-generals@1.1.0");
-        var legacyClassicRoster = packages.Contains("standard-classic-generals@1.0.0", StringComparer.Ordinal);
+        var classicPackageVersion = packages
+            .Where(package => package.StartsWith("standard-classic-generals@", StringComparison.Ordinal))
+            .Select(package => Version.Parse(package["standard-classic-generals@".Length..]))
+            .SingleOrDefault();
+        var hasClassicGenerals = classicPackageVersion is not null;
         var hasAmbitiousNational = packages.Contains("standard-national-war-ambitious@1.0.0", StringComparer.Ordinal);
         var legacyNational = packages.Contains("standard-national-war-lite@1.0.0", StringComparer.Ordinal);
         if (hasClassicGenerals)
@@ -204,8 +206,8 @@ public sealed partial class MainViewModel
             return hasTeamModes && hasAmbitiousNational
                 ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(
                     legacyNational,
-                    legacyClassicRoster)
-                : StandardContentRegistry.CreateWithClassicGenerals(legacyClassicRoster);
+                    classicPackageVersion!)
+                : StandardContentRegistry.CreateWithClassicGenerals(classicPackageVersion!);
         }
         if (hasAmbitiousNational || legacyNational || packages.Contains("standard-national-war-lite@1.1.0", StringComparer.Ordinal))
         {

@@ -10,6 +10,7 @@ internal static class ClassicGeneralChecks
         var legacy = StandardContentRegistry.CreateWithRescueSkills();
         var classic = StandardContentRegistry.CreateWithClassicGenerals();
         var legacyClassic = StandardContentRegistry.CreateWithClassicGenerals(legacyRoster: true);
+        var tianduClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 1, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -18,7 +19,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.1.0"]),
+                "standard-classic-generals@1.2.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -26,6 +27,13 @@ internal static class ClassicGeneralChecks
                     StringComparer.Ordinal) &&
                 !legacyClassic.Generals.ContainsKey("classic:guo-jia"),
             "The legacy classic registry must remain reproducible for 1.0 checkpoints.");
+        Require(tianduClassic.Packages.Last().Version == new Version(1, 1, 0) &&
+                tianduClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "standard:zhou-yu",
+                    StringComparer.Ordinal) &&
+                !tianduClassic.Generals.ContainsKey("classic:zhou-yu") &&
+                !tianduClassic.Skills.ContainsKey("classic:fanjian"),
+            "The Tiandu-era classic registry must remain reproducible for 1.1 checkpoints.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -45,6 +53,10 @@ internal static class ClassicGeneralChecks
         Require(guoJia.BaseHp == 3 &&
                 guoJia.SkillIds.SequenceEqual(["classic:tiandu", "standard:yiji"]),
             "The current classic Guo Jia must expose Tiandu and Yiji in a stable order.");
+        var zhouYu = classic.Generals["classic:zhou-yu"];
+        Require(zhouYu.BaseHp == 3 &&
+                zhouYu.SkillIds.SequenceEqual(["standard:yingzi", "classic:fanjian"]),
+            "The current classic Zhou Yu must expose Yingzi and Fanjian in a stable order.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -498,7 +510,7 @@ internal static class ClassicGeneralChecks
         Require(GameCheckpoint.CurrentRulesVersion >= 21,
             "Formal Yingzi must have an explicit rules version.");
 
-        var skipped = SelectGeneral(registry, "standard:zhou-yu", GameCheckpoint.CurrentRulesVersion);
+        var skipped = SelectGeneral(registry, "classic:zhou-yu", GameCheckpoint.CurrentRulesVersion);
         var reachedChoice = skipped.Submit(new AdvanceCommand(skipped.Revision));
         Require(reachedChoice.Accepted, reachedChoice.Error?.Message ?? "Could not reach the Yingzi choice.");
         var skipPrompt = skipped.PendingDecision;
@@ -551,7 +563,7 @@ internal static class ClassicGeneralChecks
                 EventSignatures(restored).SequenceEqual(EventSignatures(skipped)),
             "A restored Yingzi choice must resolve deterministically.");
 
-        var used = SelectGeneral(registry, "standard:zhou-yu", GameCheckpoint.CurrentRulesVersion);
+        var used = SelectGeneral(registry, "classic:zhou-yu", GameCheckpoint.CurrentRulesVersion);
         Require(used.Submit(new AdvanceCommand(used.Revision)).Accepted,
             "Could not reach the second Yingzi choice.");
         var usePrompt = used.PendingDecision!;
@@ -574,7 +586,7 @@ internal static class ClassicGeneralChecks
                 }),
             usedResult.Error?.Message ?? "Using Yingzi must draw one extra card and publish its result.");
 
-        var legacy = SelectGeneral(registry, "standard:zhou-yu", rulesVersion: 20);
+        var legacy = SelectGeneral(registry, "classic:zhou-yu", rulesVersion: 20);
         var legacyResult = legacy.Submit(new AdvanceCommand(legacy.Revision));
         Require(legacyResult.Accepted && legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
                 legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount == 7 &&
@@ -729,6 +741,187 @@ internal static class ClassicGeneralChecks
                     movement.To == CardLocation.DiscardPile &&
                     movement.Reason == CardMoveReasons.JudgmentFinish),
             "Rules v21 must retain the historical automatic judgment discard path.");
+    }
+
+    public static void FormalFanjianFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 23,
+            "Formal Fanjian must have an explicit rules version.");
+
+        var game = ReachZhouYuPlayPhase(registry, GameCheckpoint.CurrentRulesVersion);
+        var playPrompt = game.PendingDecision!;
+        var action = game.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Fanjian);
+        Require(action.MinCardCount == 0 && action.MaxCardCount == 0 &&
+                action.MinTargetCount == 1 && action.MaxTargetCount == 1,
+            "Fanjian must publish a target-only active-skill contract.");
+
+        var sourceBefore = game.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        var targetBefore = game.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 1);
+        var used = game.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Fanjian,
+            [],
+            [1],
+            game.Revision,
+            playPrompt.PromptId));
+        Require(used.Accepted, used.Error?.Message ?? "Fanjian use was rejected.");
+
+        var suitPrompt = game.CreateSnapshot(1).PendingDecision;
+        Require(suitPrompt is { Kind: DecisionKind.Fanjian, PlayerSeat: 1 } &&
+                suitPrompt.ValidCardIds.Count == 0 &&
+                suitPrompt.Choices.Count == 4 &&
+                suitPrompt.Choices.All(choice =>
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0 &&
+                    choice.Parameters.GetValueOrDefault("action") == "fanjian-choose-suit") &&
+                suitPrompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("suit"))
+                    .OrderBy(suit => suit, StringComparer.Ordinal)
+                    .SequenceEqual(["Club", "Diamond", "Heart", "Spade"]),
+            $"Fanjian must ask the target for four complete suit choices without exposing a source card " +
+            $"(kind={suitPrompt?.Kind}, seat={suitPrompt?.PlayerSeat}, valid={suitPrompt?.ValidCardIds.Count}, " +
+            $"choices={suitPrompt?.Choices.Count}, suits={string.Join(',', suitPrompt?.Choices.Select(choice => choice.Parameters.GetValueOrDefault("suit")) ?? [])}).");
+        Require(game.Events.All(envelope => envelope.Payload is not FanjianCardRevealedEvent) &&
+                game.CreateSnapshot(1).Players.Single(player => player.Seat == 0).Hand.Count == 0,
+            "The target must not see Zhou Yu's private hand before choosing a suit.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restoredPrompt = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(restoredPrompt.CreateSnapshot(1).PendingDecision?.Kind == DecisionKind.Fanjian,
+            "A paused Fanjian suit choice must restore from its command checkpoint.");
+
+        var unchanged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var forged = game.Submit(new AnswerPromptCommand(
+            1,
+            suitPrompt!.PromptId,
+            new ChoiceId("fanjian-suit-forged"),
+            game.Revision));
+        Require(!forged.Accepted && forged.Error?.Code == CommandErrorCode.InvalidChoice &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == unchanged,
+            "A forged Fanjian suit choice must be rejected atomically.");
+
+        GameEngine? matching = null;
+        GameEngine? mismatching = null;
+        FanjianCardRevealedEvent? matchingEvent = null;
+        FanjianCardRevealedEvent? mismatchingEvent = null;
+        foreach (var suitName in new[] { "Spade", "Heart", "Club", "Diamond" })
+        {
+            var branch = GameReplay.Restore(pausedCheckpoint, registry);
+            var branchPrompt = branch.CreateSnapshot(1).PendingDecision!;
+            var choice = branchPrompt.Choices.Single(candidate =>
+                candidate.Parameters.GetValueOrDefault("suit") == suitName);
+            var answered = branch.Submit(new AnswerPromptCommand(
+                1,
+                branchPrompt.PromptId,
+                choice.Id,
+                branch.Revision));
+            Require(answered.Accepted, answered.Error?.Message ?? $"Fanjian rejected {suitName}.");
+            var revealed = branch.Events.Select(envelope => envelope.Payload)
+                .OfType<FanjianCardRevealedEvent>()
+                .Last();
+            if (revealed.DamageTriggered)
+            {
+                mismatching ??= branch;
+                mismatchingEvent ??= revealed;
+            }
+            else
+            {
+                matching ??= branch;
+                matchingEvent ??= revealed;
+            }
+        }
+
+        Require(matching is not null && matchingEvent is not null &&
+                mismatching is not null && mismatchingEvent is not null,
+            "The four suit branches must contain one matching and three mismatching outcomes for the same random card.");
+        var matchingGame = matching!;
+        var mismatchingGame = mismatching!;
+        var matchedCard = matchingEvent!;
+        var mismatchedCard = mismatchingEvent!;
+        Require(matchedCard.CardId == mismatchedCard.CardId &&
+                matchedCard.CardSuit == mismatchedCard.CardSuit &&
+                matchedCard.ChosenSuit == matchedCard.CardSuit &&
+                mismatchedCard.ChosenSuit != mismatchedCard.CardSuit,
+            "Fanjian must select the same deterministic random card after, not before, the target's suit choice.");
+        Require(matchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                sourceBefore - 1 &&
+                matchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 1).HandCount ==
+                targetBefore.HandCount + 1 &&
+                matchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 1).Hp ==
+                targetBefore.Hp,
+            "A matching Fanjian card must transfer to the target without damage.");
+        Require(mismatchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 1).Hp ==
+                targetBefore.Hp - 1 &&
+                mismatchingGame.Events.Any(envelope => envelope.Payload is DamageAppliedEvent
+                {
+                    SourceSeat: 0,
+                    TargetSeat: 1,
+                    Amount: 1,
+                    Nature: DamageNature.Normal
+                }),
+            "A mismatching Fanjian card must cause one point of ordinary damage through the shared damage pipeline.");
+        Require(matchingGame.CardMovements.Count(movement =>
+                    movement.CardId == matchedCard.CardId &&
+                    movement.Reason == CardMoveReasons.FanjianGive) == 2,
+            "Fanjian must record the exact hand-to-processing-to-hand transfer.");
+        var matchingReturnedToPlay = matchingGame.Submit(new AdvanceCommand(matchingGame.Revision));
+        Require(matchingGame.Events.Any(envelope =>
+                envelope.Payload is ActiveSkillResolvedEvent
+                {
+                    Skill: SkillKind.Fanjian
+                }) &&
+                matchingReturnedToPlay.Accepted &&
+                matchingGame.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                matchingGame.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Fanjian),
+            "Fanjian must complete its active-skill frame and remain limited to once per play phase.");
+
+        for (var step = 0; mismatchingGame.ResolutionStack.Count > 0 && step < 100; step++)
+        {
+            var advanced = mismatchingGame.Submit(new AdvanceOneStepCommand(mismatchingGame.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Fanjian damage continuation did not advance.");
+        }
+        Require(mismatchingGame.ResolutionStack.Count == 0 &&
+                mismatchingGame.Events.Any(envelope =>
+                    envelope.Payload is ActiveSkillResolvedEvent
+                    {
+                        Skill: SkillKind.Fanjian
+                    }),
+            "Fanjian damage must close its ordinary damage triggers and active-skill frame.");
+        var replay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(mismatchingGame.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(mismatchingGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replay).SequenceEqual(EventSignatures(mismatchingGame)),
+            "The chosen Fanjian suit, random transfer and damage branch must replay exactly.");
+
+        var legacy = ReachZhouYuPlayPhase(registry, rulesVersion: 22);
+        Require(legacy.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Fanjian),
+            "Rules v22 must not expose the formal Fanjian active action.");
+    }
+
+    private static GameEngine ReachZhouYuPlayPhase(ContentRegistry registry, int rulesVersion)
+    {
+        var game = SelectGeneral(registry, "classic:zhou-yu", rulesVersion);
+        var reachedYingzi = game.Submit(new AdvanceCommand(game.Revision));
+        Require(reachedYingzi.Accepted && game.PendingDecision?.Kind == DecisionKind.Yingzi,
+            reachedYingzi.Error?.Message ?? "Could not reach Zhou Yu's Yingzi choice.");
+        var prompt = game.PendingDecision!;
+        var skipped = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "yingzi-skip").Id,
+            game.Revision));
+        Require(skipped.Accepted, skipped.Error?.Message ?? "Could not skip Yingzi for the Fanjian fixture.");
+        var reachedPlay = game.Submit(new AdvanceCommand(game.Revision));
+        Require(reachedPlay.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard,
+            reachedPlay.Error?.Message ?? "Could not reach Zhou Yu's play phase.");
+        return game;
     }
 
     private static bool DriveUntilOwnLightningJudgment(

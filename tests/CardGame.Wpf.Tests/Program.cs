@@ -47,6 +47,7 @@ internal static class Program
             Check("expanded content exposes the active-skill command in WPF", ActiveSkillChecks.Controls);
             Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
             Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
+            Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));
             Check("skill drafts confirm through Enter and resume intact after guides and tutorials", () => SkillInteractionChecks.ConfirmAndResume(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));
             Check("Wusheng hand responses restore versioned prompts and confirm explicit conversions", () => WushengResponseChecks.ControlsAndSavedRules(output));
@@ -84,7 +85,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 48 : 47)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 49 : 48)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
