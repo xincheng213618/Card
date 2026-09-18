@@ -28,6 +28,7 @@ public static class GeneralArt
     private static readonly IReadOnlyDictionary<string, string> PortraitAliases =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            ["huang-gai"] = "demo-yuanhu",
             ["demo-kujin"] = "sun-quan",
             ["demo-zhiheng"] = "sun-quan",
             ["demo-rende"] = "liu-bei",

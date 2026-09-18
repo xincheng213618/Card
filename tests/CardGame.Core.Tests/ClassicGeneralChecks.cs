@@ -15,6 +15,7 @@ internal static class ClassicGeneralChecks
         var guanxingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 3, 0));
         var hujiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 4, 0));
         var jijiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 5, 0));
+        var jiuyuanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 6, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -23,7 +24,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.6.0"]),
+                "standard-classic-generals@1.7.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -60,6 +61,12 @@ internal static class ClassicGeneralChecks
                 jijiangClassic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng"]) &&
                 !jijiangClassic.Skills.ContainsKey("classic:jiuyuan"),
             "The Jijiang-era classic registry must retain Sun Quan without Jiuyuan for 1.5 checkpoints.");
+        Require(jiuyuanClassic.Packages.Last().Version == new Version(1, 6, 0) &&
+                !jiuyuanClassic.Generals.ContainsKey("classic:huang-gai") &&
+                !jiuyuanClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:huang-gai",
+                    StringComparer.Ordinal),
+            "The Jiuyuan-era classic registry must retain the 1.6 roster without Huang Gai.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -91,16 +98,23 @@ internal static class ClassicGeneralChecks
         Require(caoCao.BaseHp == 4 &&
                 caoCao.SkillIds.SequenceEqual(["standard:jianxiong", "classic:hujia"]),
             "The current classic Cao Cao must expose Jianxiong and Hujia in a stable order.");
+        var huangGai = classic.Generals["classic:huang-gai"];
+        Require(huangGai.Name == "黄盖" &&
+                huangGai.FactionId == "wu" &&
+                huangGai.BaseHp == 4 &&
+                huangGai.SkillIds.SequenceEqual(["standard:kujin"]),
+            "The current classic Huang Gai must expose the formal Wu, 4-HP Kujin definition.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
             var mode = classic.Modes[modeId];
             var pool = mode.GeneralPoolIds ?? [];
             Require(pool.Contains("classic:sima-yi", StringComparer.Ordinal) &&
-                    pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
-                    pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
-                    pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
-                    !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
+                     pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
+                     pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
+                     pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
+                     pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
+                     !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
@@ -201,6 +215,60 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(simaYi.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(restored).SequenceEqual(EventSignatures(simaYi)),
             "A selected multi-skill classic general must replay exactly.");
+    }
+
+    public static void FormalKujinFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = SelectGeneral(registry, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion);
+        var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(selected.GeneralId == "classic:huang-gai" &&
+                selected.MaxHp == 5 &&
+                selected.Hp == 5 &&
+                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Kujin]),
+            "Classic Huang Gai must combine base 4 HP, the Lord bonus and the formal Kujin skill.");
+
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        Require(advanced.Accepted, advanced.Error?.Message ?? "Classic Huang Gai setup did not advance.");
+        var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        for (var use = 0; use < 2; use++)
+        {
+            var prompt = game.PendingDecision ??
+                throw new InvalidOperationException("Classic Huang Gai did not remain at the human play boundary.");
+            Require(prompt.Kind == DecisionKind.PlayCard &&
+                    game.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Kujin),
+                "Classic Huang Gai must publish Kujin as a legal play action.");
+            var used = game.Submit(new UseSkillCommand(
+                0,
+                SkillKind.Kujin,
+                [],
+                [],
+                game.Revision,
+                prompt.PromptId));
+            Require(used.Accepted, used.Error?.Message ?? "Classic Huang Gai's Kujin command was rejected.");
+            for (var step = 0; step < 16 && game.PendingDecision is null; step++)
+            {
+                var resumed = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                Require(resumed.Accepted, resumed.Error?.Message ??
+                    "Classic Huang Gai's Kujin frame did not return to the play boundary.");
+            }
+        }
+
+        var after = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(after.Hp == before.Hp - 2 &&
+                after.HandCount == before.HandCount + 4 &&
+                game.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>()
+                    .Count(item => item.Skill == SkillKind.Kujin) == 2,
+            "Classic Kujin must remain repeatable in one play phase and resolve one HP for two cards each time.");
+
+        var restored = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(restored).SequenceEqual(EventSignatures(game)),
+            "Repeated formal Kujin commands must restore with identical state and events.");
     }
 
     public static void FormalFeedbackFlow()

@@ -1844,7 +1844,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _ when generalId.StartsWith("classic:", StringComparison.Ordinal) => generalId switch
         {
             "classic:liu-bei" or "classic:zhuge-liang" => "蜀",
-            "classic:sun-quan" or "classic:zhou-yu" => "吴",
+            "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" => "吴",
             "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" => "魏",
             _ => "群"
         },

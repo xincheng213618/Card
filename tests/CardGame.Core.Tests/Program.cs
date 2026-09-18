@@ -55,6 +55,7 @@ var tests = new (string Name, Action Body)[]
     ("standard package builds an immutable isolated registry", StandardContentRegistryBuilds),
     ("classic identity roster is opt-in, formal and replay-versioned", ClassicGeneralChecks.ContentContract),
     ("classic identity applies base HP, multiple skills and legacy replay boundaries", ClassicGeneralChecks.SetupHealthAndReplay),
+    ("classic Huang Gai repeats formal Kujin and replays", ClassicGeneralChecks.FormalKujinFlow),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),

@@ -87,8 +87,25 @@ internal static class KongchengChecks
     {
         for (var seed = 1; seed <= 4_096; seed++)
         {
-            var game = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
-            if (game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Any(card => card.Kind == CardKind.Duel))
+            var current = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
+            var legacy = CreateGame(registry, seed, rulesVersion: 14);
+            ArrangeEmptyKongchengTarget(current, targetSeat: 1);
+            ArrangeEmptyKongchengTarget(legacy, targetSeat: 1);
+            var currentStart = current.Submit(new StartGameCommand());
+            var legacyStart = legacy.Submit(new StartGameCommand());
+            var currentDuels = current.CreateSnapshot(0, revealAll: true).Players[0].Hand
+                .Where(card => card.Kind == CardKind.Duel)
+                .ToArray();
+            var legacyDuels = legacy.CreateSnapshot(0, revealAll: true).Players[0].Hand
+                .Where(card => card.Kind == CardKind.Duel)
+                .ToArray();
+            if (currentStart.Accepted &&
+                legacyStart.Accepted &&
+                currentStart.Result.Status == EngineStatus.AwaitingHumanPlay &&
+                legacyStart.Result.Status == EngineStatus.AwaitingHumanPlay &&
+                currentDuels.Length == 1 &&
+                legacyDuels.Length == 1 &&
+                legacyDuels[0].Id == currentDuels[0].Id)
             {
                 return seed;
             }

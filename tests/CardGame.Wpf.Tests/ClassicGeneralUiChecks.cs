@@ -92,6 +92,26 @@ internal static class ClassicGeneralUiChecks
             1120,
             740,
             Path.Combine(output, "80-classic-jiuyuan-card.png"));
+        using var kujinDescriptionViewModel = FindGeneralChoice("classic:huang-gai");
+        var huangGai = kujinDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:huang-gai");
+        Program.Assert(huangGai.Name == "黄盖" &&
+                       huangGai.Kingdom == "吴" &&
+                       huangGai.SkillName == "苦肉" &&
+                       huangGai.SkillDescription.Contains("体力大于 0", StringComparison.Ordinal) &&
+                       huangGai.SkillDescription.Contains("摸两张牌", StringComparison.Ordinal) &&
+                       huangGai.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(huangGai.GeneralId),
+            "The current classic Huang Gai card must render Wu, Kujin, Lord health and portrait aliasing.");
+        var kujinWindow = new MainWindow(kujinDescriptionViewModel);
+        kujinWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)kujinWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "81-classic-huang-gai-card.png"));
+        kujinWindow.Content = null;
+        kujinWindow.Close();
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

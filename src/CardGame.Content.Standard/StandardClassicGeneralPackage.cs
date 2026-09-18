@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 6, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 7, 0))
     {
     }
 
@@ -25,12 +25,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 3, 0) &&
             version != new Version(1, 4, 0) &&
             version != new Version(1, 5, 0) &&
-            version != new Version(1, 6, 0))
+            version != new Version(1, 6, 0) &&
+            version != new Version(1, 7, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.6.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.7.0.");
         }
 
         _version = version;
@@ -187,6 +188,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 4,
                 AdditionalSkillIds: ["classic:hujia"]));
         }
+        if (_version >= new Version(1, 7, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:huang-gai",
+                "黄盖",
+                "huang_gai",
+                "standard:kujin",
+                "wu",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -194,6 +205,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 1 } => TianduClassicGeneralIds,
             { Major: 1, Minor: 2 } => FanjianClassicGeneralIds,
             { Major: 1, Minor: 3 } => GuanxingClassicGeneralIds,
+            { Major: 1, Minor: 4 } => PreHuangGaiClassicGeneralIds,
+            { Major: 1, Minor: 5 } => PreHuangGaiClassicGeneralIds,
+            { Major: 1, Minor: 6 } => PreHuangGaiClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -237,6 +251,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:xiahou-dun",
         "classic:hua-tuo",
         "classic:cao-cao",
+        "classic:huang-gai",
         "standard:zhang-fei",
         "classic:zhou-yu",
         "classic:zhuge-liang",
@@ -245,9 +260,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreHuangGaiClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:huang-gai")
+    ];
+
     internal static IReadOnlyList<string> GuanxingClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Select(id => id == "classic:cao-cao" ? "standard:cao-cao" : id)
+        .. PreHuangGaiClassicGeneralIds.Select(id => id == "classic:cao-cao" ? "standard:cao-cao" : id)
     ];
 
     internal static IReadOnlyList<string> FanjianClassicGeneralIds { get; } =
