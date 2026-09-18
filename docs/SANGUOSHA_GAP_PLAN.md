@@ -26,6 +26,8 @@
 
 第三个施工块完成后的增量验证：Release 0 warning / 0 error，Core 140/140，WPF 46/46；规则 v12 的真人合法性、Prompt 候选、AI 决策和指南均只允许濒死者本人用酒自救，规则 v11 的完整跨座位流程仍可恢复并回放。输出位于 `$env:TEMP\Card-alcohol-final` 与 `$env:TEMP\Card-alcohol-wpf-renders`。`dotnet format --verify-no-changes --no-restore` 仍只报告本块未触及的 `SimpleAi.cs:773–780` 既有空白格式；本块 `git diff --check` 通过。本块未新增视觉布局，仍不等于实际桌面鼠标、键盘或多 DPI 验收。
 
+第四个施工块完成后的增量验证：Release 0 warning / 0 error，Core 140/140，WPF 46/46；规则 v13 的诸葛连弩/青釭剑牌面范围 1/2、连弩越过普通出杀次数限制、v12 旧范围恢复，以及 WPF 旧/新武器说明均有回归。输出位于 `$env:TEMP\Card-weapons-final` 与 `$env:TEMP\Card-weapons-wpf-renders`。格式门禁仍只报告本块未触及的 `SimpleAi.cs:773–780` 既有空白格式；`git diff --check` 通过。本块未新增视觉布局，仍不等于实际桌面鼠标、键盘或多 DPI 验收。
+
 ## 已有能力
 
 | 维度 | 当前证据 |
@@ -58,10 +60,10 @@
 
 1. **乐不思蜀、兵粮寸断已按正式花色版本化。** 规则 v11 起，乐不思蜀仅红桃通过、否则跳过出牌阶段；兵粮寸断仅梅花通过、否则跳过摸牌阶段。`JudgmentResolvedEvent.Succeeded`/`DelayedCardResolvedEvent.JudgmentSucceeded` 对这两张牌表示“命中安全花色”，跳阶段由独立字段表达。鬼才按具体判定类型、目标阵营和当前公开结果选牌；v1–v10 保留历史红黑行为与 AI 路径，WPF 指南也按存档规则版本切换文案。
 2. **酒已按正式濒死规则版本化。** 规则 v12 起只有濒死者本人能从自己的私有候选中使用酒自救；其他角色仍可使用桃。规则 v3–v11 的跨座位酒救援由 `UsesHistoricalCrossSeatAlcoholRescue` 保留，Prompt、AI、事件、牌区移动和恢复流程继续按旧存档版本执行；v1/v2 原本也只允许自救。
-3. **诸葛连弩增加范围。** `src/CardGame.Core/Equipment.cs:39` 配置 `AttackRangeBonus: 1`，现有说明也写范围 +1；经典连弩攻击范围为 1，核心价值是出杀次数。
+3. **武器牌面攻击范围已版本化。** 规则 v13 起，诸葛连弩攻击范围为 1 且仍允许出牌阶段使用任意数量的杀，青釭剑攻击范围为 2 且直接杀无视防具；`EquipmentDefinition.WeaponAttackRange` 表达牌面范围。v1–v12 继续按旧实现回放：连弩基础范围 +1、青釭剑沿默认范围 1。Standard 包内容签名保持冻结，Core 规则日志和 WPF 卡牌说明按存档规则版本投影。
 4. **首批正式武将已用独立包归位。** `standard-classic-generals@1.0.0` 新增刘备/仁德、孙权/制衡、司马懿/反馈+鬼才、夏侯惇/刚烈、华佗/青囊+急救；`ContentGeneralDefinition.AdditionalSkillIds` 与运行时有序技能投影只在经典规则 v10 启用。经典反馈取得伤害来源的一张牌，暗手牌用不透明槽位；经典刚烈为非红桃成功；经典急救只在自己回合外可用。旧演示包、内容指纹与 v1–v9 行为不变。
 5. **牌堆不是经典实体配方。** `StandardContentPackage.cs:361` 为 90 张计数配方；`src/CardGame.Core/Content.cs:316` 的建牌路径循环分配花色/点数。牌堆差异会改变闪、桃、判定、火攻、转换技与 AI 的实际收益。
-6. **存档可用，但并非完整状态快照。** `src/CardGame.Core/Replay.cs` 明确通过元数据和命令前缀重建。当前 rules=12、schema=3；旧规则版本仍逐条走各自历史语义。完整状态 Checkpoint 应由恢复性能/网络需求驱动，不能把命令恢复误报为完整状态序列化。
+6. **存档可用，但并非完整状态快照。** `src/CardGame.Core/Replay.cs` 明确通过元数据和命令前缀重建。当前 rules=13、schema=3；旧规则版本仍逐条走各自历史语义。完整状态 Checkpoint 应由恢复性能/网络需求驱动，不能把命令恢复误报为完整状态序列化。
 7. **后续需要实测的规则疑点。** 经典急救的回合外限制已经闭环；空城仍仅提供禁止杀目标，仁德目前是一次交牌达到两张才回复且一回合一次，制衡只选手牌。须沿 Core 调用链与选定经典版本逐项复现，再形成修复。
 
 官方核对来源（基础牌效果共通；不据此将国战专属数量/武将技能直接套用到身份模式）：
@@ -70,6 +72,9 @@
 - [兵粮寸断](https://guozhan.sanguosha.com/a/kapaiyilan/youxipai/jinnanpai/2013/0128/113.html)
 - [濒死与死亡](https://guozhan.sanguosha.com/game_rule/role_death.html)
 - [诸葛连弩](https://guozhan.sanguosha.com/a/kapaiyilan/youxipai/zhuangbeipai/2013/0128/114.html)
+- [青釭剑](https://guozhan.sanguosha.com/a/kapaiyilan/youxipai/zhuangbeipai/2013/0128/115.html)
+- [八卦阵](https://guozhan.sanguosha.com/a/kapaiyilan/youxipai/zhuangbeipai/2013/0128/124.html)
+- [仁王盾](https://guozhan.sanguosha.com/a/kapaiyilan/youxipai/zhuangbeipai/2013/0128/125.html)
 - [司马懿的反馈与鬼才](https://guozhan.sanguosha.com/a/kapaiyilan/wujiangpai/wei/2013/0126/34.html)
 - [夏侯惇](https://guozhan.sanguosha.com/a/kapaiyilan/wujiangpai/wei/2013/0126/35.html)
 - [华佗](https://guozhan.sanguosha.com/a/kapaiyilan/wujiangpai/qun/2013/0127/78.html)
@@ -122,6 +127,7 @@
 | 已完成 | 当前项目差距审查与施工计划 | 本报告；Release 0 warning / 0 error，Core 135/135，WPF 45/45 |
 | 已完成 | P0-人物：司马懿等正式人物、技能归属与效果校正 | 提交 `50450d2`；独立经典包、v10 多技能/体力、正式反馈/刚烈/急救、WPF 默认入口与精确存档恢复；Release 0 warning / 0 error，Core 138/138，WPF 46/46 |
 | 已完成 | P0-A：版本化修正乐不思蜀/兵粮四花色判定 | 提交 `495ce4b`；rules v11 正式红桃/梅花语义、鬼才阵营评分、v1–v10 兼容、事件/日志/指南文案；Release 0 warning / 0 error，Core 139/139，WPF 46/46 |
-| 已完成 | P0-B：版本化修正酒仅自救 | rules v12 仅濒死者用酒自救，v3–v11 跨座位兼容；真人、AI、Prompt、事件、牌区移动、指南与旧存档回归；Release 0 warning / 0 error，Core 140/140，WPF 46/46 |
-| 待开始 | P0-C：连弩及防具规则核对 | 含范围、出杀次数、青釭交互、响应触发 |
+| 已完成 | P0-B：版本化修正酒仅自救 | 提交 `fa80751`；rules v12 仅濒死者用酒自救，v3–v11 跨座位兼容；真人、AI、Prompt、事件、牌区移动、指南与旧存档回归；Release 0 warning / 0 error，Core 140/140，WPF 46/46 |
+| 已完成 | P0-C1：版本化修正连弩与青釭剑攻击范围 | rules v13 使用牌面范围 1/2，连弩无限杀保持；v1–v12 旧范围回放、规则日志、WPF 旧/新文案均有回归 |
+| 待开始 | P0-C2：防具效果与响应时机 | 八卦阵当前只覆盖直接杀，需扩展到所有需要使用/打出闪的时机；仁王盾当前在目标合法性阶段禁止黑色杀，需改为目标确定后的防具无效结算，并保留青釭剑交互与旧存档 |
 | 进行中 | P1-A：正式多技能武将与代表武将归位 | 首批五人已完成；主公技、完整标准武将池、图鉴与更多技能频次仍待后续块 |

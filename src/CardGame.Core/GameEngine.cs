@@ -235,12 +235,20 @@ public sealed partial class GameEngine
     }
 
     /// <summary>
-    /// Returns the current public attack range. A player without a weapon has
-    /// range one; equipment may increase it through a data-only modifier.
+    /// Returns the current public attack range. Formal weapon definitions use
+    /// their printed range from rules v13; older replays retain bonus semantics.
     /// </summary>
     public int GetAttackRange(int sourceSeat)
     {
         ValidatePlayerSeat(sourceSeat, nameof(sourceSeat));
+        if (_rulesVersion >= 13)
+        {
+            var weapon = GetEquipment(sourceSeat)
+                .Select(card => EquipmentCatalog.Get(card.Kind))
+                .SingleOrDefault(definition => definition.Slot == EquipmentSlot.Weapon);
+            return weapon?.WeaponAttackRange ?? 1;
+        }
+
         var bonus = GetEquipment(sourceSeat)
             .Select(card => EquipmentCatalog.Get(card.Kind).AttackRangeBonus)
             .Sum();
@@ -1454,9 +1462,12 @@ public sealed partial class GameEngine
             : IsTeamMode
                 ? $"{FormatTeamSummary(_modeDefinition)}；阵营身份和队友关系公开，击败另一阵营即获胜，{GetRoleName(GetTeamRole(GetModeTeamIds()[0]))}的首位座位先行动"
                 : FormatRoleSummary(_modeDefinition);
+        var weaponRules = _rulesVersion >= 13
+            ? "诸葛连弩攻击范围为 1 且杀不受次数限制，青釭剑攻击范围为 2 且使直接杀无视目标防具"
+            : "诸葛连弩使攻击范围 +1 且杀不受次数限制，青釭剑使直接杀无视目标防具";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，诸葛连弩使攻击范围 +1 且杀不受次数限制，青釭剑使直接杀无视目标防具，赤兔和绝影修正战斗距离，玉玺额外摸一张，八卦阵成为杀的目标时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀不能对装备者使用。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，火攻通过目标私有展示和攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，八卦阵成为杀的目标时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀不能对装备者使用。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，火攻通过目标私有展示和攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {

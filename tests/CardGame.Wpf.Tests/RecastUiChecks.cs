@@ -74,10 +74,25 @@ internal static class RecastUiChecks
             Require(vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("濒死时救援") &&
                 !vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("仅可自救"),
                 "Old save did not retain the legacy Alcohol timing text.");
+            vm.GuideSearchText = "诸葛连弩";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("攻击范围 +1"),
+                "Old save did not retain the legacy Crossbow range text.");
+            vm.GuideSearchText = "青釭剑";
+            Require(!vm.FilteredGuideCards.Single().Description.Contains("攻击范围 2"),
+                "Old save displayed the current Qinggang range text.");
             vm.StartNewGameCommand.Execute(null);
-            Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
-                vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("仅可自救"),
+            Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion,
+                "New match did not use the current rules version.");
+            vm.GuideSearchText = "酒";
+            Require(vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("仅可自救"),
                 "New match did not display the current self-rescue Alcohol timing text.");
+            vm.GuideSearchText = "诸葛连弩";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("攻击范围 1") &&
+                !vm.FilteredGuideCards.Single().Description.Contains("+1"),
+                "New match retained the legacy Crossbow range text.");
+            vm.GuideSearchText = "青釭剑";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("攻击范围 2"),
+                "New match did not display the current Qinggang range text.");
             vm.GuideSearchText = "乐不思蜀";
             Require(vm.FilteredGuideCards.Single().Description.Contains("红桃") && vm.FilteredGuideCards.Single().Description.Contains("不为"),
                 "New match retained the old delayed-card description.");

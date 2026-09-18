@@ -116,7 +116,7 @@ var tests = new (string Name, Action Body)[]
     ("target-card prompts expose opaque slots and replay without hidden identities", TargetCardChecks.OpaqueSlotFlow),
     ("AI target-card choices use only redacted slot candidates", TargetCardChecks.AiUsesOpaqueSlots),
     ("Dismantlement and Snatch can target public equipment and judgment cards", PublicTargetCardFlow),
-    ("equipment replaces slots and changes public distance rules", EquipmentFlow),
+    ("equipment replaces slots and versions formal weapon ranges", EquipmentFlow),
     ("Bagua uses a deterministic public judgment to defend against Slash", BaguaJudgmentFlow),
     ("Qinggang bypasses Bagua armor in a typed Slash resolution", QinggangBypassesBagua),
     ("Renwang Shield blocks black Slash without hiding public equipment", RenwangShieldFlow),
@@ -4027,8 +4027,11 @@ static void EquipmentFlow()
 {
     Equal(7, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
+    Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
+    Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);
     True(EquipmentCatalog.Get(CardKind.QinggangSword).IgnoresArmor);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.QinggangSword).Slot);
+    Equal(2, EquipmentCatalog.Get(CardKind.QinggangSword).WeaponAttackRange);
     Equal(EquipmentSlot.Armor, EquipmentCatalog.Get(CardKind.BaguaFormation).Slot);
     True(EquipmentCatalog.Get(CardKind.RenwangShield).BlocksBlackSlash);
     Equal(EquipmentSlot.Armor, EquipmentCatalog.Get(CardKind.RenwangShield).Slot);
@@ -4037,6 +4040,7 @@ static void EquipmentFlow()
     Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.JadeSeal).Slot);
 
     GameEngine? selectedGame = null;
+    int? selectedSeed = null;
     CardSnapshot? firstCrossbow = null;
     CardSnapshot? secondCrossbow = null;
     CardSnapshot? slash = null;
@@ -4062,13 +4066,14 @@ static void EquipmentFlow()
         if (crossbows.Length >= 2 && slashCard is not null)
         {
             selectedGame = game;
+            selectedSeed = seed;
             firstCrossbow = crossbows[0];
             secondCrossbow = crossbows[1];
             slash = slashCard;
         }
     }
 
-    if (selectedGame is null || firstCrossbow is null || secondCrossbow is null || slash is null)
+    if (selectedGame is null || selectedSeed is null || firstCrossbow is null || secondCrossbow is null || slash is null)
     {
         throw new InvalidOperationException("No deterministic equipment replacement boundary was found.");
     }
@@ -4087,12 +4092,41 @@ static void EquipmentFlow()
     var firstEquipment = afterFirst.Players.Single(player => player.Seat == 0).Equipment;
     Equal(1, firstEquipment.Count);
     Equal(firstCrossbow.Id, firstEquipment.Single().Id);
-    Equal(2, gameWithEquipment.GetAttackRange(0));
+    Equal(1, gameWithEquipment.GetAttackRange(0));
     Equal(2, gameWithEquipment.GetCombatDistance(0, 2));
-    True(gameWithEquipment.GetHumanLegalActions().Any(action =>
+    False(gameWithEquipment.GetHumanLegalActions().Any(action =>
         action.Kind == LegalActionKind.Slash &&
         action.CardId == slash.Id &&
         action.TargetSeat == 2));
+    var legacyCrossbow = GameEngine.CreateStandard(new GameOptions
+    {
+        UseInteractiveDiscard = false,
+        Seed = selectedSeed.Value,
+        HumanSeat = 0,
+        HumanRole = Role.Lord,
+        MaxTurns = 180
+    });
+    legacyCrossbow = GameReplay.Restore(
+        legacyCrossbow.CreateCheckpoint() with { RulesVersion = 12 });
+    Equal(EngineStatus.AwaitingHumanPlay, legacyCrossbow.Start().Status);
+    var legacyHand = legacyCrossbow.State.Players.Single(player => player.Seat == 0).Hand;
+    var legacyCrossbowCard = legacyHand.First(card => card.Kind == CardKind.Crossbow);
+    var legacySlash = legacyHand.First(card => card.Kind == CardKind.Slash);
+    legacyCrossbow.HumanPlay(legacyCrossbowCard.Id, targetSeat: null, advanceToHumanBoundary: true);
+    Equal(2, legacyCrossbow.GetAttackRange(0));
+    True(legacyCrossbow.GetHumanLegalActions().Any(action =>
+        action.Kind == LegalActionKind.Slash &&
+        action.CardId == legacySlash.Id &&
+        action.TargetSeat == 2));
+    var slashCountField = typeof(GameEngine).GetField(
+        "_slashCountThisTurn",
+        BindingFlags.NonPublic | BindingFlags.Instance) ??
+        throw new InvalidOperationException("Slash count field not found.");
+    slashCountField.SetValue(gameWithEquipment, 1);
+    TrueWithMessage(
+        gameWithEquipment.GetHumanLegalActions().Any(action =>
+            action.Kind == LegalActionKind.Slash && action.CardId == slash.Id),
+        "Crossbow keeps Slash legal after the ordinary per-turn limit is reached");
     True(gameWithEquipment.CreateSnapshot(2).Players.Single(player => player.Seat == 0)
         .Equipment.Any(card => card.Id == firstCrossbow.Id));
 
@@ -4125,6 +4159,7 @@ static void EquipmentFlow()
     var finalEquipment = afterReplacement.Players.Single(player => player.Seat == 0).Equipment;
     Equal(1, finalEquipment.Count);
     Equal(secondCrossbow.Id, finalEquipment.Single().Id);
+    Equal(1, gameWithEquipment.GetAttackRange(0));
     var allChangedEvents = gameWithEquipment.Events
         .Select(eventItem => eventItem.Payload)
         .OfType<EquipmentChangedEvent>()
@@ -4413,6 +4448,7 @@ static void QinggangBypassesBagua()
                         .ToArray()));
             }));
     GameEngine? game = null;
+    int? selectedSeed = null;
     CardSnapshot? qinggang = null;
     CardSnapshot? slash = null;
     LegalAction? slashAction = null;
@@ -4468,13 +4504,14 @@ static void QinggangBypassesBagua()
         }
 
         game = candidate;
+        selectedSeed = seed;
         qinggang = candidateQinggang;
         slash = candidateSlash;
         slashAction = candidateAction;
         targetSeat = candidateAction.TargetSeat!.Value;
     }
 
-    if (game is null || qinggang is null || slash is null || slashAction is null)
+    if (game is null || selectedSeed is null || qinggang is null || slash is null || slashAction is null)
     {
         throw new InvalidOperationException("No deterministic Qinggang and Bagua bypass boundary was found.");
     }
@@ -4484,6 +4521,27 @@ static void QinggangBypassesBagua()
         game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
             .Equipment.Any(card => card.Kind == CardKind.QinggangSword),
         "Qinggang enters the public weapon slot");
+    Equal(2, game.GetAttackRange(0));
+    var legacyQinggang = GameEngine.CreateStandard(
+        new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = selectedSeed.Value,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            DeckId = "test-controlled:deck",
+            MaxTurns = 60
+        },
+        registry);
+    legacyQinggang = GameReplay.Restore(
+        legacyQinggang.CreateCheckpoint() with { RulesVersion = 12 },
+        registry);
+    Equal(EngineStatus.AwaitingHumanPlay, legacyQinggang.Start().Status);
+    var legacyQinggangCard = legacyQinggang.CreateSnapshot(0, revealAll: true).Players
+        .Single(player => player.Seat == 0).Hand
+        .First(card => card.Kind == CardKind.QinggangSword);
+    legacyQinggang.HumanPlay(legacyQinggangCard.Id, targetSeat: null, advanceToHumanBoundary: false);
+    Equal(1, legacyQinggang.GetAttackRange(0));
 
     var eventCount = game.Events.Count;
     var slashResult = game.HumanPlay(

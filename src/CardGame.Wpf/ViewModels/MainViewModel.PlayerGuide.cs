@@ -254,6 +254,10 @@ public sealed partial class MainViewModel
                 ? CardCatalog.Get(kind).Description
                 : "选择一名有手牌的其他角色；其下个回合判定，若为黑色则跳过摸牌阶段。";
         }
+        if (kind == CardKind.Crossbow && rulesVersion < 13)
+            return "装备至武器槽；攻击范围 +1，出牌阶段使用杀不受次数限制。";
+        if (kind == CardKind.QinggangSword && rulesVersion < 13)
+            return "装备至武器槽；你使用杀时无视目标的防具。";
         return rulesVersion >= 4
             ? kind switch
             {

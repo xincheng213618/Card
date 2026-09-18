@@ -86,7 +86,7 @@
 | 兼容别名 | `identity_8_basic_demo` |
 | 状态 | implemented-registry |
 
-当前标准身份牌堆沿用同一个 Recipe 形状；酒的出牌阶段一次性直接杀加伤和濒死者自救已实现，火攻的私有展示/同花色弃牌伤害已实现，乐不思蜀、兵粮寸断和闪电的公开判定区、下回合判定及红黑/命中转移效果已实现，五类装备槽、七种装备牌（含仁王盾）、换装、基础战斗距离/攻击范围 modifier、青釭剑直接杀无视防具、仁王盾阻挡黑色杀和阵亡清理已实现，无懈可击已接入效果前的有限多层响应窗口，铁索连环已接入精确一/二目标、公开状态标记和火/雷伤害传导；后续仍可追加更多锦囊和装备效果，不把当前 90 张演示牌堆误称为完整商业卡表。标准包的 ID、标签和描述保持 v1.11.0 兼容冻结；跨座位酒救援仅由规则行为版本 v3–v11 的兼容语义提供，v12 起按正式规则仅允许濒死者自救。
+当前标准身份牌堆沿用同一个 Recipe 形状；酒的出牌阶段一次性直接杀加伤和濒死者自救已实现，火攻的私有展示/同花色弃牌伤害已实现，乐不思蜀、兵粮寸断和闪电的公开判定区、下回合判定及红黑/命中转移效果已实现，五类装备槽、七种装备牌（含仁王盾）、换装、规则 v13 武器牌面攻击范围与 v1–v12 旧范围兼容、青釭剑直接杀无视防具、仁王盾阻挡黑色杀和阵亡清理已实现，无懈可击已接入效果前的有限多层响应窗口，铁索连环已接入精确一/二目标、公开状态标记和火/雷伤害传导；后续仍可追加更多锦囊和装备效果，不把当前 90 张演示牌堆误称为完整商业卡表。标准包的 ID、标签和描述保持 v1.11.0 兼容冻结；跨座位酒救援仅由规则行为版本 v3–v11 的兼容语义提供，v12 起按正式规则仅允许濒死者自救。
 
 ## 3. 身份模式开局配置
 
@@ -196,7 +196,7 @@
 
 | 内容 ID | 名称 | 类型 | AI 标签 | 状态 | 需要验证的核心能力 |
 | --- | --- | --- | --- | --- | --- |
-| `standard:crossbow` | 诸葛连弩 | Weapon | attack, unlimited-slash | implemented-registry | K6：武器槽、攻击范围 +1、攻击次数 modifier |
+| `standard:crossbow` | 诸葛连弩 | Weapon | attack, unlimited-slash | implemented-registry | K6：武器槽；规则 v13 攻击范围 1、无限杀，v1–v12 保留旧 +1 范围 |
 | `standard:qinggang_sword` | 青釭剑 | Weapon | attack, ignore-armor | implemented-registry | K6：武器槽、直接杀无视防具；`CardUseFrame.IgnoresArmor` 类型化记录 |
 | `standard:bagua` | 八卦阵 | Armor | response, judgment | implemented-registry | K6：防具槽和公开生命周期；K7：`JudgmentFrame`、判定区移动和红色判定视为闪 |
 | `standard:renwang_shield` | 仁王盾 | Armor | defense, block-black-slash | implemented-registry | K6/K7：防具槽；黑色杀不进入对装备者的合法目标列表，青釭剑可绕过该阻挡 |
