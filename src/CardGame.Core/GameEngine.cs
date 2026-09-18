@@ -39,6 +39,7 @@ public sealed partial class GameEngine
     private int _turnNumber;
     private int _currentSeat;
     private int _slashCountThisTurn;
+    private bool _usedOrPlayedSlashDuringPlayPhase;
     private int _logSequence;
     private int _thoughtSequence;
     private int _movementSequence;
@@ -199,6 +200,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalQixi =>
         _rulesVersion >= 28 && IsClassicIdentityMode;
+
+    private bool UsesFormalKeji =>
+        _rulesVersion >= 29 && IsClassicIdentityMode;
 
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
@@ -729,6 +733,7 @@ public sealed partial class GameEngine
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
                 DecisionKind.Guanxing or
+                DecisionKind.Keji or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -809,6 +814,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Guanxing)
         {
             return SubmitGuanxingPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Keji)
+        {
+            return SubmitKejiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1174,6 +1184,32 @@ public sealed partial class GameEngine
                 useSkill: false,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "英姿提示没有可识别的选择效果。")
+        };
+    }
+
+    private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Keji })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的克己弃牌阶段窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "克己选择不符合当前弃牌阶段窗口。");
+        }
+
+        return action switch
+        {
+            "keji-use" => Accept(() => HumanKejiCore(
+                useSkill: true,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "keji-skip" => Accept(() => HumanKejiCore(
+                useSkill: false,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "克己提示没有可识别的选择效果。")
         };
     }
 
@@ -1690,6 +1726,9 @@ public sealed partial class GameEngine
         var qixiRules = UsesFormalQixi && _players.Any(player => player.General.HasSkill(SkillKind.Qixi))
             ? "，甘宁可将手牌或装备区的一张黑色牌当作过河拆桥使用"
             : string.Empty;
+        var kejiRules = UsesFormalKeji && _players.Any(player => player.General.HasSkill(SkillKind.Keji))
+            ? "，吕蒙在本回合出牌阶段未使用或打出杀时可选择跳过弃牌阶段"
+            : string.Empty;
         var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
             ? UsesFormalZhihengEquipment
                 ? "，孙权每个出牌阶段限一次弃置任意张手牌或装备区牌并摸等量牌"
@@ -1749,7 +1788,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -1814,6 +1853,7 @@ public sealed partial class GameEngine
                     IsAiDamageSkillPending() ||
                     IsAiJudgmentPending() ||
                     IsAiYingziPending() ||
+                    IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
                     IsAiGuanxingPending())
@@ -2544,6 +2584,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Yingzi);
         ResolveYingziDrawChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanKejiCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Keji);
+        ResolveKejiChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -3907,6 +3955,7 @@ public sealed partial class GameEngine
 
         _turnNumber++;
         _slashCountThisTurn = 0;
+        _usedOrPlayedSlashDuringPlayPhase = false;
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
@@ -4536,6 +4585,12 @@ public sealed partial class GameEngine
         if (IsAiYingziPending())
         {
             ResolvePendingAiYingzi();
+            return;
+        }
+
+        if (IsAiKejiPending())
+        {
+            ResolvePendingAiKeji();
             return;
         }
 
@@ -7014,6 +7069,7 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardMoveReasons.Use);
         _slashCountThisTurn++;
+        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(source.Seat, playedCardKind);
         var damageAmount = source.HasAlcoholEffect ? 2 : 1;
         source.HasAlcoholEffect = false;
         var attack = new AttackResolution(
@@ -7265,6 +7321,7 @@ public sealed partial class GameEngine
                 responder.Seat,
                 duel.OpponentSeat,
                 responseCardKind));
+            MarkSlashUsedOrPlayedDuringCurrentPlayPhase(responder.Seat, responseCardKind);
             QueueGameEvent(new DuelResponseEvent(
                 duel.ResolutionId,
                 responder.Seat,
@@ -7339,6 +7396,7 @@ public sealed partial class GameEngine
                 responder.Seat,
                 group.SourceSeat,
                 responseCardKind));
+            MarkSlashUsedOrPlayedDuringCurrentPlayPhase(responder.Seat, responseCardKind);
             QueueGameEvent(new GroupResponseEvent(
                 group.ResolutionId,
                 group.Card.Kind,
@@ -8035,6 +8093,7 @@ public sealed partial class GameEngine
             owner.Seat,
             responseOpponentSeat,
             effectiveKind));
+        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, effectiveKind);
         MoveCard(
             selectedSlash,
             CardLocation.Processing,
@@ -12525,6 +12584,16 @@ public sealed partial class GameEngine
     private static bool IsSlashCard(CardKind kind) =>
         kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
 
+    private void MarkSlashUsedOrPlayedDuringCurrentPlayPhase(int actorSeat, CardKind effectiveCardKind)
+    {
+        if (_phase == TurnPhase.Play &&
+            actorSeat == _currentSeat &&
+            IsSlashCard(effectiveCardKind))
+        {
+            _usedOrPlayedSlashDuringPlayPhase = true;
+        }
+    }
+
     private IReadOnlyList<Card> GetResponseCards(
         PlayerRuntime responder,
         CardKind requiredCardKind)
@@ -12931,8 +13000,74 @@ public sealed partial class GameEngine
     {
         _phase = TurnPhase.Discard;
         _status = EngineStatus.Running;
-        AddLog("PhaseChanged", $"{_players[_currentSeat].Name} 进入弃牌阶段。", _currentSeat);
+        var current = _players[_currentSeat];
+        AddLog("PhaseChanged", $"{current.Name} 进入弃牌阶段。", _currentSeat);
         QueueGameEvent(new PhaseChangedEvent(_phase, _currentSeat));
+        if (UsesFormalKeji &&
+            current.General.HasSkill(SkillKind.Keji) &&
+            PassiveRules(current).CanSkipDiscardPhase(
+                CreateSkillContext(current),
+                _usedOrPlayedSlashDuringPlayPhase))
+        {
+            BeginKejiChoice(current);
+        }
+    }
+
+    private void BeginKejiChoice(PlayerRuntime current)
+    {
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Keji,
+            current.Seat,
+            "是否发动【克己】，跳过本回合的弃牌阶段？",
+            [],
+            [])
+        {
+            PromptId = CreatePromptId(),
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId("keji.use"),
+                    "发动【克己】，跳过弃牌阶段并保留全部手牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "keji-use" }),
+                new PromptChoice(
+                    new ChoiceId("keji.skip"),
+                    "不发动【克己】，按体力上限弃牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "keji-skip" })
+            ]
+        };
+        _status = current.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
+    private void ResolveKejiChoice(bool useSkill)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Keji, PlayerSeat: var playerSeat } ||
+            playerSeat != _currentSeat ||
+            _phase != TurnPhase.Discard)
+        {
+            throw new InvalidOperationException("There is no Keji discard-phase choice to resolve.");
+        }
+
+        var current = _players[playerSeat];
+        ClearPendingDecision();
+        QueueGameEvent(new PhaseSkillResolvedEvent(
+            current.Seat,
+            SkillKind.Keji,
+            TurnPhase.Discard,
+            useSkill));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill
+                ? $"{current.Name} 发动【克己】，跳过弃牌阶段。"
+                : $"{current.Name} 未发动【克己】。",
+            current.Seat);
+        if (useSkill)
+        {
+            EndTurn();
+        }
     }
 
     private void AutoDiscard(PlayerRuntime player)
@@ -13962,6 +14097,43 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingDecision is { Kind: DecisionKind.Keji } kejiDecision)
+        {
+            if (!UsesFormalKeji ||
+                _phase != TurnPhase.Discard ||
+                _currentSeat != kejiDecision.PlayerSeat ||
+                !_players[kejiDecision.PlayerSeat].IsAlive ||
+                !_players[kejiDecision.PlayerSeat].General.HasSkill(SkillKind.Keji) ||
+                _usedOrPlayedSlashDuringPlayPhase ||
+                kejiDecision.Choices.Count != 2 ||
+                kejiDecision.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0) ||
+                _pendingAttack is not null ||
+                _pendingDuel is not null ||
+                _pendingGroupCard is not null ||
+                _pendingFireAttack is not null ||
+                _pendingNullification is not null ||
+                _pendingTargetCardSelection is not null ||
+                _pendingDying is not null ||
+                _pendingDamageTrigger is not null ||
+                _pendingDamageSkill is not null ||
+                _pendingJudgment is not null ||
+                _pendingYingziDraw is not null ||
+                _pendingGuanxing is not null ||
+                _resolutionStack.Count != 0)
+            {
+                throw new InvalidOperationException(
+                    "A Keji choice must retain its private prompt at a clean discard-phase boundary.");
+            }
+
+            var expectedKejiStatus = _players[kejiDecision.PlayerSeat].IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedKejiStatus)
+            {
+                throw new InvalidOperationException("A Keji prompt status does not match its owner.");
+            }
+        }
+
         if (!_setupComplete && _resolutionStack.Count != 0)
         {
             throw new InvalidOperationException("Setup cannot retain an in-flight card resolution.");
@@ -14710,6 +14882,22 @@ public sealed partial class GameEngine
         }
 
         ResolveYingziDrawChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiKejiPending() =>
+        _pendingDecision is { Kind: DecisionKind.Keji, PlayerSeat: var playerSeat } &&
+        playerSeat == _currentSeat &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiKeji()
+    {
+        if (!IsAiKejiPending())
+        {
+            throw new InvalidOperationException("There is no AI Keji choice to resolve.");
+        }
+
+        ResolveKejiChoice(useSkill: true);
         PublishState();
     }
 

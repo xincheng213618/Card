@@ -30,6 +30,7 @@ public static class GeneralArt
         {
             ["huang-gai"] = "demo-yuanhu",
             ["gan-ning"] = "zhao-yun",
+            ["lu-meng"] = "zhuge-liang",
             ["demo-kujin"] = "sun-quan",
             ["demo-zhiheng"] = "sun-quan",
             ["demo-rende"] = "liu-bei",

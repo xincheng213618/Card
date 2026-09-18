@@ -17,6 +17,7 @@ internal static class ClassicGeneralChecks
         var jijiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 5, 0));
         var jiuyuanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 6, 0));
         var kujinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 7, 0));
+        var qixiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 8, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -25,7 +26,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.8.0"]),
+                "standard-classic-generals@1.9.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -75,6 +76,13 @@ internal static class ClassicGeneralChecks
                     "classic:gan-ning",
                     StringComparer.Ordinal),
             "The Kujin-era classic registry must retain the 1.7 roster without Gan Ning or Qixi.");
+        Require(qixiClassic.Packages.Last().Version == new Version(1, 8, 0) &&
+                !qixiClassic.Generals.ContainsKey("classic:lu-meng") &&
+                !qixiClassic.Skills.ContainsKey("classic:keji") &&
+                !qixiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:lu-meng",
+                    StringComparer.Ordinal),
+            "The Qixi-era classic registry must retain the 1.8 roster without Lu Meng or Keji.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -118,6 +126,12 @@ internal static class ClassicGeneralChecks
                 ganNing.BaseHp == 4 &&
                 ganNing.SkillIds.SequenceEqual(["classic:qixi"]),
             "The current classic Gan Ning must expose the formal Wu, 4-HP Qixi definition.");
+        var luMeng = classic.Generals["classic:lu-meng"];
+        Require(luMeng.Name == "吕蒙" &&
+                luMeng.FactionId == "wu" &&
+                luMeng.BaseHp == 4 &&
+                luMeng.SkillIds.SequenceEqual(["classic:keji"]),
+            "The current classic Lu Meng must expose the formal Wu, 4-HP Keji definition.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -127,14 +141,15 @@ internal static class ClassicGeneralChecks
                      pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
                      pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
                      pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
-                     pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
-                     pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
-                     !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
+                      pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
+                      pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
+                      pool.Contains("classic:lu-meng", StringComparer.Ordinal) &&
+                      !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 28,
-            "Classic Qixi must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 29,
+            "Classic Keji must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -154,6 +169,12 @@ internal static class ClassicGeneralChecks
         Require(!jijiu.CanUseAsDyingRescue(damaged with { IsOwnTurn = true }, red) &&
                 jijiu.CanUseAsDyingRescue(damaged with { IsOwnTurn = false }, red),
             "Formal Jijiu must only convert red cards outside the owner's turn.");
+
+        var keji = SkillRegistry.Get(SkillKind.Keji);
+        var discard = damaged with { Phase = TurnPhase.Discard, IsOwnTurn = true };
+        Require(keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: false) &&
+                !keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: true),
+            "Formal Keji must allow only a Slash-free own discard phase to be skipped.");
     }
 
     public static void FormalJiuyuanRecoveryBonus()
@@ -491,6 +512,146 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(restored).SequenceEqual(EventSignatures(current)),
             "The completed equipped Qixi command must restore with identical state and events.");
+    }
+
+    public static void FormalKejiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = SelectGeneral(registry, "classic:lu-meng", GameCheckpoint.CurrentRulesVersion);
+        var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(selected.GeneralId == "classic:lu-meng" &&
+                selected.MaxHp == 5 &&
+                selected.Hp == 5 &&
+                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Keji]),
+            "Classic Lu Meng must combine base 4 HP, the Lord bonus and formal Keji.");
+
+        var reachedPlay = game.Submit(new AdvanceCommand(game.Revision));
+        Require(reachedPlay.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard,
+            reachedPlay.Error?.Message ?? "Classic Lu Meng did not reach the play phase.");
+        var handBeforeDiscard = game.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0);
+        Require(handBeforeDiscard.HandCount > handBeforeDiscard.Hp,
+            "The Keji fixture must have at least one excess hand card to prove the skipped discard.");
+
+        var ended = game.Submit(new EndPlayPhaseCommand(
+            0,
+            game.Revision,
+            game.PendingDecision!.PromptId));
+        Require(ended.Accepted &&
+                game.State.Phase == TurnPhase.Discard &&
+                game.PendingDecision is
+                {
+                    Kind: DecisionKind.Keji,
+                    PlayerSeat: 0,
+                    Choices.Count: 2
+                } kejiPrompt &&
+                kejiPrompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "keji-use") &&
+                kejiPrompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "keji-skip"),
+            ended.Error?.Message ?? "A Slash-free Lu Meng play phase must publish both Keji choices.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var skippedBranch = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(skippedBranch.PendingDecision?.Kind == DecisionKind.Keji &&
+                SnapshotJson.Serialize(skippedBranch.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
+            "A paused Keji choice must restore exactly from its command checkpoint.");
+
+        var beforeForged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            game.PendingDecision!.PromptId,
+            new ChoiceId("keji.forged"),
+            game.Revision));
+        Require(!forged.Accepted &&
+                forged.Error?.Code == CommandErrorCode.InvalidChoice &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForged,
+            "A forged Keji choice must be rejected atomically.");
+
+        var usePrompt = game.PendingDecision!;
+        var used = game.Submit(new AnswerPromptCommand(
+            0,
+            usePrompt.PromptId,
+            usePrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "keji-use").Id,
+            game.Revision));
+        var handAfterUse = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(used.Accepted &&
+                game.PendingDecision is null &&
+                game.State.Phase == TurnPhase.NotStarted &&
+                handAfterUse.HandCount == handBeforeDiscard.HandCount &&
+                game.Events.Select(item => item.Payload).OfType<PhaseSkillResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Keji &&
+                    resolved.Phase == TurnPhase.Discard &&
+                    resolved.Used),
+            used.Error?.Message ?? "Using Keji must skip discard, retain the full hand and end the turn.");
+        var usedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(usedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(usedReplay).SequenceEqual(EventSignatures(game)),
+            "The completed Keji branch must replay exactly.");
+
+        var skipPrompt = skippedBranch.PendingDecision!;
+        var skipped = skippedBranch.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "keji-skip").Id,
+            skippedBranch.Revision));
+        Require(skipped.Accepted &&
+                skippedBranch.State.Phase == TurnPhase.Discard &&
+                skippedBranch.PendingDecision is null,
+            skipped.Error?.Message ?? "Skipping Keji must continue the ordinary discard phase.");
+        var discarded = skippedBranch.Submit(new AdvanceOneStepCommand(skippedBranch.Revision));
+        var handAfterSkip = skippedBranch.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0);
+        Require(discarded.Accepted &&
+                handAfterSkip.HandCount == handAfterSkip.Hp &&
+                skippedBranch.Events.Select(item => item.Payload).OfType<PhaseSkillResolvedEvent>().Any(resolved =>
+                    resolved.Skill == SkillKind.Keji && !resolved.Used),
+            discarded.Error?.Message ?? "Skipping Keji must retain the ordinary hand-limit discard.");
+
+        var legacy = SelectGeneral(registry, "classic:lu-meng", rulesVersion: 28);
+        Require(legacy.Submit(new AdvanceCommand(legacy.Revision)).Accepted &&
+                legacy.PendingDecision?.Kind == DecisionKind.PlayCard,
+            "The Keji legacy fixture did not reach play.");
+        var legacyEnd = legacy.Submit(new EndPlayPhaseCommand(
+            0,
+            legacy.Revision,
+            legacy.PendingDecision!.PromptId));
+        Require(legacyEnd.Accepted &&
+                legacy.State.Phase == TurnPhase.Discard &&
+                legacy.PendingDecision?.Kind != DecisionKind.Keji &&
+                legacy.Events.Select(item => item.Payload).OfType<PhaseSkillResolvedEvent>().Count() == 0,
+            "Rules v28 must keep the historical discard path without a Keji choice.");
+
+        var slashGame = FindLuMengSlashFixture(registry);
+        var slashAction = slashGame.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Slash);
+        var slashPlayed = slashGame.Submit(new PlayCardCommand(
+            0,
+            slashAction.CardId!.Value,
+            slashAction.TargetSeats,
+            slashGame.Revision,
+            slashGame.PendingDecision!.PromptId,
+            slashAction.PlayedCardKind));
+        Require(slashPlayed.Accepted, slashPlayed.Error?.Message ?? "Lu Meng's direct Slash was rejected.");
+        var slashResolved = slashGame.Submit(new AdvanceCommand(slashGame.Revision));
+        Require(slashResolved.Accepted && slashGame.PendingDecision?.Kind == DecisionKind.PlayCard,
+            slashResolved.Error?.Message ?? "Lu Meng's direct Slash did not return to play.");
+        var afterSlash = slashGame.Submit(new EndPlayPhaseCommand(
+            0,
+            slashGame.Revision,
+            slashGame.PendingDecision!.PromptId));
+        Require(afterSlash.Accepted &&
+                slashGame.State.Phase == TurnPhase.Discard &&
+                slashGame.PendingDecision?.Kind != DecisionKind.Keji,
+            "Using a Slash during the play phase must suppress Keji.");
+
     }
 
     public static void FormalFeedbackFlow()
@@ -2294,6 +2455,24 @@ internal static class ClassicGeneralChecks
         Require(game.PendingDecision?.Kind == DecisionKind.PlayCard,
             "Classic active-skill fixture did not stop at the human play phase.");
         return game;
+    }
+
+    private static GameEngine FindLuMengSlashFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:lu-meng",
+                GameCheckpoint.CurrentRulesVersion);
+            if (game?.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Slash) == true)
+            {
+                return game;
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic Lu Meng Slash fixture.");
     }
 
     private static void Equip(GameEngine game, int cardId)

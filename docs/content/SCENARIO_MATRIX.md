@@ -126,7 +126,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 
 ## 当前执行顺序
 
-1. 先用现有 Core 契约维护基础 `basic.*`、十六个被动 `skill.*`（含 `skill.mashu.outgoing_distance`、`skill.qicai.trick_distance`、`skill.jijiu.dying_rescue` 和 `skill.tiandu.claim-judgment`）、主动技能 `skill.kujin`/`skill.zhiheng`/`skill.rende`/`skill.qingnang`/`skill.huichun` 和伤害后技能事件的回归。
+1. 先用现有 Core 契约维护基础 `basic.*`、二十二个被动 `skill.*`（含 `skill.mashu.outgoing_distance`、`skill.qicai.trick_distance`、`skill.jijiu.dying_rescue`、`skill.tiandu.claim-judgment`、`skill.qixi.as-dismantlement` 和 `skill.keji.skip-discard`）、七个主动技能及伤害后技能事件的回归。
 2. K1 已开放：`k1.*` 移动契约已完成并审阅；运行时覆盖保留在 Core Console 自测。
 3. K2 已开放：`k2.*` 命令/Prompt 场景由同一 Console 自测覆盖。
 4. K3 已开放：`k3.*` Registry 场景已覆盖，`standard:*` ID 在 Standard 包中冻结。

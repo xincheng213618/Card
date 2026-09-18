@@ -608,7 +608,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Yingzi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
-                    DecisionKind.Guanxing
+                    DecisionKind.Guanxing or
+                    DecisionKind.Keji
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -627,7 +628,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Yingzi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
-            DecisionKind.Guanxing;
+            DecisionKind.Guanxing or
+            DecisionKind.Keji;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1679,6 +1681,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add($"      Judgment(target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
                 EventStack.Add("        AskForSkill(Guicai)");
             }
+            else if (pending.Kind == DecisionKind.Keji)
+            {
+                EventStack.Add("      Phase(Discard)");
+                EventStack.Add("        AskForSkill(Keji)");
+            }
             else if (pending.Kind is
                 DecisionKind.Feedback or
                 DecisionKind.Yiji or
@@ -1913,7 +1920,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _ when generalId.StartsWith("classic:", StringComparison.Ordinal) => generalId switch
         {
             "classic:liu-bei" or "classic:zhuge-liang" => "蜀",
-            "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" or "classic:gan-ning" => "吴",
+            "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" or "classic:gan-ning" or "classic:lu-meng" => "吴",
             "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" => "魏",
             _ => "群"
         },

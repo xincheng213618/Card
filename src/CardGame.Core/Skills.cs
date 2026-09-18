@@ -98,6 +98,15 @@ public interface IPassiveSkill
     /// </summary>
     bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) => false;
 
+    /// <summary>
+    /// Returns whether the owner may skip the current discard phase. The engine
+    /// supplies whether a Slash was used or played during this turn's play phase
+    /// and remains responsible for the optional prompt and phase transition.
+    /// </summary>
+    bool CanSkipDiscardPhase(
+        PlayerSkillContext owner,
+        bool usedOrPlayedSlashDuringPlayPhase) => false;
+
     bool CanUseAsResponse(
         PlayerSkillContext owner,
         Card card,
@@ -231,6 +240,19 @@ public sealed class QixiSkill : IPassiveSkill
     public bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) =>
         card.Kind != CardKind.Dismantlement &&
         card.Suit is Suit.Spade or Suit.Club;
+}
+
+public sealed class KejiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Keji;
+    public string Name => "克己";
+
+    public bool CanSkipDiscardPhase(
+        PlayerSkillContext owner,
+        bool usedOrPlayedSlashDuringPlayPhase) =>
+        owner.IsOwnTurn &&
+        owner.Phase == TurnPhase.Discard &&
+        !usedOrPlayedSlashDuringPlayPhase;
 }
 
 public sealed class FeedbackSkill : IPassiveSkill
@@ -656,7 +678,8 @@ public static class SkillRegistry
             [SkillKind.Hujia] = new HujiaSkill(),
             [SkillKind.Jijiang] = new JijiangSkill(),
             [SkillKind.Jiuyuan] = new JiuyuanSkill(),
-            [SkillKind.Qixi] = new QixiSkill()
+            [SkillKind.Qixi] = new QixiSkill(),
+            [SkillKind.Keji] = new KejiSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

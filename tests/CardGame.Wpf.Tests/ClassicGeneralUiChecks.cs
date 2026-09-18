@@ -132,6 +132,67 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "82-classic-gan-ning-card.png"));
         qixiDescriptionWindow.Content = null;
         qixiDescriptionWindow.Close();
+        using var kejiViewModel = FindGeneralChoice("classic:lu-meng");
+        var luMeng = kejiViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:lu-meng");
+        Program.Assert(luMeng.Name == "吕蒙" &&
+                       luMeng.Kingdom == "吴" &&
+                       luMeng.SkillName == "克己" &&
+                       luMeng.SkillDescription.Contains("未于本回合出牌阶段", StringComparison.Ordinal) &&
+                       luMeng.SkillDescription.Contains("跳过弃牌阶段", StringComparison.Ordinal) &&
+                       luMeng.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(luMeng.GeneralId),
+            "The current classic Lu Meng card must render Wu, Keji, Lord health and portrait aliasing.");
+        var kejiWindow = new MainWindow(kejiViewModel);
+        kejiWindow.ApplyTemplate();
+        var kejiRoot = (FrameworkElement)kejiWindow.Content;
+        Program.Render(
+            kejiRoot,
+            1120,
+            740,
+            Path.Combine(output, "84-classic-lu-meng-card.png"));
+        kejiViewModel.SelectGeneralChoiceCommand.Execute(luMeng);
+        Program.AdvanceToDecision(kejiViewModel);
+        var kejiEngine = Program.Engine(kejiViewModel);
+        var handBeforeKeji = kejiEngine.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        Program.Assert(kejiEngine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                       kejiViewModel.CanEndTurn,
+            "The Lu Meng WPF fixture must reach the human play phase.");
+        kejiViewModel.EndTurnCommand.Execute(null);
+        Program.Assert(kejiViewModel.IsSkillSelectionPending &&
+                       kejiEngine.PendingDecision?.Kind == DecisionKind.Keji &&
+                       kejiViewModel.SkillChoices.Count == 2 &&
+                       kejiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "keji-use") &&
+                       kejiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "keji-skip") &&
+                       kejiViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("保留全部手牌", StringComparison.Ordinal)),
+            "The WPF must render both Keji choices and explain the retained-hand result.");
+        Program.Render(
+            kejiRoot,
+            1120,
+            740,
+            Path.Combine(output, "85-classic-keji-choice.png"));
+        var useKeji = kejiViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "keji-use");
+        kejiViewModel.SelectSkillChoiceCommand.Execute(useKeji);
+        Program.Assert(!kejiViewModel.IsSkillSelectionPending &&
+                       kejiEngine.PendingDecision is null &&
+                       kejiEngine.State.Phase == TurnPhase.NotStarted &&
+                       kejiEngine.CreateSnapshot(0, revealAll: true)
+                           .Players.Single(player => player.Seat == 0).HandCount == handBeforeKeji &&
+                       kejiEngine.Events.Any(item => item.Payload is PhaseSkillResolvedEvent
+                       {
+                           SourceSeat: 0,
+                           Skill: SkillKind.Keji,
+                           Phase: TurnPhase.Discard,
+                           Used: true
+                       }),
+            "The WPF Keji choice must retain the full hand and end the turn through the shared command boundary.");
+        kejiWindow.Content = null;
+        kejiWindow.Close();
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

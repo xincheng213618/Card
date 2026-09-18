@@ -207,6 +207,13 @@ public sealed record DrawSkillResolvedEvent(
     bool Used,
     int DrawCount) : IGameEvent;
 
+/// <summary>Public result of an optional phase-skip skill decision.</summary>
+public sealed record PhaseSkillResolvedEvent(
+    int SourceSeat,
+    SkillKind Skill,
+    TurnPhase Phase,
+    bool Used) : IGameEvent;
+
 /// <summary>
 /// Public result of Guanxing. Card identities and order remain private to the
 /// skill owner; observers receive only whether it was used and the partition

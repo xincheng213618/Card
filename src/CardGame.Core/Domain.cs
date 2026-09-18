@@ -143,7 +143,8 @@ public enum SkillKind
     Hujia,
     Jijiang,
     Jiuyuan,
-    Qixi
+    Qixi,
+    Keji
 }
 
 public enum DecisionKind
@@ -169,7 +170,8 @@ public enum DecisionKind
     Fanjian,
     Guanxing,
     DiscardCards,
-    SelectTargetCard
+    SelectTargetCard,
+    Keji
 }
 
 public enum GangliePunishmentKind
