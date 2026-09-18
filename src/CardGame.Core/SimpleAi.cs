@@ -663,7 +663,9 @@ public sealed partial class SimpleAiBrain
         CardKind currentJudgmentCard,
         Suit currentSuit,
         int thoughtSequence,
-        int currentRank)
+        int currentRank,
+        int rulesVersion = 1,
+        bool usesClassicGanglieJudgment = false)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var cards = validCardIds
@@ -675,34 +677,56 @@ public sealed partial class SimpleAiBrain
         }
 
         var isLightning = reason == JudgmentReasons.Lightning;
-        var currentMatches = isLightning
-            ? currentSuit == Suit.Spade && currentRank is >= 2 and <= 9
-            : currentSuit is Suit.Heart or Suit.Diamond;
+        var usesTacticalJudgmentScoring = rulesVersion >= 11;
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var tacticalSupport = GetTacticalSupport(view, self.Role ?? Role.Renegade, target);
+        var wantsSuccessfulJudgment = !isLightning
+            ? tacticalSupport > 0
+            : tacticalSupport < 0;
+        var currentMatches = IsSuccessfulJudgment(
+            reason,
+            currentSuit,
+            currentRank,
+            usesTacticalJudgmentScoring,
+            usesClassicGanglieJudgment);
+        var currentIsDesirable = usesTacticalJudgmentScoring
+            ? currentMatches == wantsSuccessfulJudgment
+            : currentMatches;
         var cardCandidates = cards
             .Select(card =>
             {
-                var turnsSuccessful = isLightning
-                    ? card.Suit == Suit.Spade && card.Rank is >= 2 and <= 9
-                    : card.Suit is Suit.Heart or Suit.Diamond;
-                var score = currentMatches
+                var turnsSuccessful = IsSuccessfulJudgment(
+                    reason,
+                    card.Suit,
+                    card.Rank,
+                    usesTacticalJudgmentScoring,
+                    usesClassicGanglieJudgment);
+                var turnsDesirable = !usesTacticalJudgmentScoring
+                    ? turnsSuccessful
+                    : turnsSuccessful == wantsSuccessfulJudgment;
+                var score = currentIsDesirable
                     ? -CardCatalog.Get(card.Kind).HandKeepValue
-                    : turnsSuccessful
+                    : turnsDesirable
                         ? 42d - CardCatalog.Get(card.Kind).HandKeepValue
                         : -18d - CardCatalog.Get(card.Kind).HandKeepValue;
                 return new AiCandidateScore(
                     new LegalAction(
                         LegalActionKind.Guicai,
                         card.Id,
-                    targetSeat,
-                    $"弃置【{card.DisplayName}】替换判定牌"),
+                        targetSeat,
+                        $"弃置【{card.DisplayName}】替换判定牌"),
                     Math.Round(score + _random.NextDouble() * 0.001d, 3),
-                    turnsSuccessful
-                        ? isLightning
-                            ? "用自己的黑桃 2 至 9 手牌把公开闪电判定转为命中；不读取隐藏牌堆。"
-                            : "用自己的红色手牌把当前公开判定转为红色；不读取隐藏牌堆。"
-                        : isLightning
-                            ? "当前手牌不能把闪电转为命中，保留手牌资源。"
-                            : "当前牌面不适合转为红色，保留手牌资源。");
+                    usesTacticalJudgmentScoring
+                        ? turnsDesirable
+                            ? "这张手牌会把公开判定改成符合当前阵营取向的结果；不读取隐藏牌堆。"
+                            : "这张手牌不能把公开判定改成符合当前阵营取向的结果，保留手牌资源。"
+                        : turnsSuccessful
+                            ? isLightning
+                                ? "用自己的黑桃 2 至 9 手牌把公开闪电判定转为命中；不读取隐藏牌堆。"
+                                : "用自己的红色手牌把当前公开判定转为红色；不读取隐藏牌堆。"
+                            : isLightning
+                                ? "当前手牌不能把闪电转为命中，保留手牌资源。"
+                                : "当前牌面不适合转为红色，保留手牌资源。");
             })
             .ToList();
         cardCandidates.Add(new AiCandidateScore(
@@ -711,14 +735,18 @@ public sealed partial class SimpleAiBrain
                 null,
                 targetSeat,
                 "不发动【鬼才】"),
-            currentMatches ? 30d : 1d,
-            currentMatches
-                ? isLightning
-                    ? "当前闪电判定已经命中，只使用公开判定结果。"
-                    : "当前判定已经是红色，只使用自己的公开判定结果。"
-                : isLightning
-                    ? "没有值得牺牲的黑桃 2 至 9 手牌时保留资源。"
-                    : "没有值得牺牲的红色手牌时保留资源."));
+            currentIsDesirable ? 30d : 1d,
+            usesTacticalJudgmentScoring
+                ? currentIsDesirable
+                    ? "当前公开判定已符合当前阵营取向，保留手牌资源。"
+                    : "没有值得牺牲的手牌可把公开判定改成符合当前阵营取向的结果。"
+                : currentMatches
+                    ? isLightning
+                        ? "当前闪电判定已经命中，只使用公开判定结果。"
+                        : "当前判定已经是红色，只使用自己的公开判定结果。"
+                    : isLightning
+                        ? "没有值得牺牲的黑桃 2 至 9 手牌时保留资源。"
+                        : "没有值得牺牲的红色手牌时保留资源."));
 
         var selected = cardCandidates
             .OrderByDescending(candidate => candidate.Score)
@@ -736,6 +764,21 @@ public sealed partial class SimpleAiBrain
             selected.Action.Kind == LegalActionKind.Guicai ? selected.Action.CardId : null,
             thought);
     }
+
+    private static bool IsSuccessfulJudgment(
+        string reason,
+        Suit suit,
+        int rank,
+        bool usesSuitSpecificDelayedJudgments,
+        bool usesClassicGanglieJudgment) => reason switch
+    {
+        JudgmentReasons.Lightning => suit == Suit.Spade && rank is >= 2 and <= 9,
+        JudgmentReasons.Indulgence when usesSuitSpecificDelayedJudgments => suit == Suit.Heart,
+        JudgmentReasons.SupplyShortage when usesSuitSpecificDelayedJudgments => suit == Suit.Club,
+        JudgmentReasons.Ganglie when usesSuitSpecificDelayedJudgments && usesClassicGanglieJudgment =>
+            suit != Suit.Heart,
+        _ => suit is Suit.Heart or Suit.Diamond
+    };
 
     /// <summary>
     /// Chooses the bounded Yiji gift from the owner's private hand and the

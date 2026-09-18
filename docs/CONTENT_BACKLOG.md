@@ -40,7 +40,7 @@ M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` �
 - `standard:yuanhu` 已接入同一伤害触发窗口：援护者在其他角色受到正伤害后发布私有 `DecisionKind.Yuanhu` 弃牌 Choice；发动时按 `skill.yuanhu.discard` 将自己的一张手牌移入弃牌堆，并通过 `RecoveryFrame` 令固定受伤目标回复 1 点体力。`DamageSkillCardDiscardedEvent`、`RecoveryAppliedEvent` 和 `DamageSkillResolvedEvent.EffectTargetSeat` 记录可信宿主结果，普通视图不泄漏弃牌 ID；这是当前唯一显式 opt-in 的非受伤者触发示例。
 - `standard:ganglie` 已接入同一伤害触发窗口：受伤者发布私有 `DecisionKind.Ganglie` 发动/跳过 Choice；发动后将牌堆顶移入公开 `Judgment` 区并记录判定事件，红色结果向伤害来源发布私有 `DecisionKind.GangliePunish`，由其选择精确两张手牌弃置或承受 1 点伤害。弃牌、判定和结果事件沿统一移动账本记录，来源视角之外不泄漏牌 ID；当前 Registry 规则路径把反制伤害复用为嵌套 `DamageFrame`、`DamageRequestedEvent`、`DamageAppliedEvent` 和 `AfterDamageEvent`，旧 Checkpoint 缺失规则版本字段时保留历史事件形状；若反制伤害致死，濒死/救援完成后回到原伤害触发游标。
 - `standard:guicai` 已接入判定前改判窗口：判定牌翻入公开 `Judgment(target)` 后，Core 按 `JudgmentTriggerOrdering` 冻结候选并向当前鬼才拥有者发布私有 `DecisionKind.Guicai` 替换/跳过 Choice；替换牌按 `Hand(owner) → Processing → Judgment(target)` 移动，旧判定牌先结束，最终 `JudgmentResolvedEvent` 公开结果，普通视图不泄漏拥有者手牌。
-- `standard:indulgence` 与 `standard:supply_shortage` 已接入延时判定窗口：使用牌进入目标公开 `Judgment` 区，在目标下回合摸牌前复用 `JudgmentFrame`；乐不思蜀红色判定跳过出牌阶段、黑色判定正常进入出牌阶段，兵粮寸断黑色判定跳过摸牌阶段、红色判定正常摸牌。判定牌和延时牌分别沿 `DrawPile → Judgment → DiscardPile`、`Hand → Processing → Judgment → DiscardPile` 移动，目标判定区公开且不允许重复放置；无懈可击、鬼才、多个延时效果累计和死亡清理共用既有边界。
+- `standard:indulgence` 与 `standard:supply_shortage` 已接入延时判定窗口：使用牌进入目标公开 `Judgment` 区，在目标下回合摸牌前复用 `JudgmentFrame`；规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义。判定牌和延时牌分别沿 `DrawPile → Judgment → DiscardPile`、`Hand → Processing → Judgment → DiscardPile` 移动，目标判定区公开且不允许重复放置；无懈可击、鬼才、多个延时效果累计和死亡清理共用既有边界。
 - `standard:lightning` 已接入自用延时判定窗口：闪电进入自己的公开 `Judgment` 区，下个回合判定为黑桃 2 至 9 时造成 3 点雷电伤害并沿伤害/濒死链续接，其他判定牌则转移到下一名存活角色；判定结果、命中/转移事件、牌区移动和普通视图脱敏均沿统一入口记录。
 - `standard:wusheng` 已接入红色非杀实体牌按 `Slash` 使用：合法动作通过 `PlayedCardKind` 区分物理牌与有效牌型，`PlayCardCommand`/WPF 均可明确选择转化；事件和伤害链记录有效 `Slash`，移动账本保留原始实体牌，不复制牌或绕过来源校验。
 - `standard:huichun` 已接入出牌阶段主动技能：当前拥有者私有选择精确两张手牌和 2–3 名受伤存活角色，牌按 `Hand → Processing → DiscardPile` 使用 `skill.huichun.discard` 移动，随后为每个目标建立独立 `RecoveryFrame` 并发布 `RecoveryAppliedEvent`；非法数量或重复目标原子拒绝，普通视图不泄漏暗牌 ID。
@@ -67,8 +67,8 @@ M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` �
 - 五谷丰登：已接入公共展示区与逐 picker 私有 `SelectHarvestCard` prompt；展示牌对所有快照可见，当前选牌、其他玩家手牌和 AI 思考仍按 viewer 隔离，选牌事件和 `card.harvest-pick` 移动账本可回放，父牌直到所有 picker 完成才离开 `Processing`。
 - 无懈可击：已完成有限切片；锦囊效果在进入实际结算前压入 `NullificationWindowFrame`，按固定座次向当前 responder 发布私有 `DecisionKind.Nullification`，无懈之间可以继续互相抵消，链结束后才恢复或清理原效果。复杂响应时机、多伤害嵌套和复杂改判仍待后续；鬼才基础判定替换已完成。
 - 铁索连环：已完成有限切片；只允许精确一名或两名其他存活角色，目标以公开 `IsChained` 标记记录，使用牌经过 `Processing` 和有限无懈窗口；火杀/雷杀对连环目标造成同额、同属性传导，普通杀和更复杂的多伤害嵌套仍不触发。
-- 乐不思蜀：已完成基础延时判定切片；使用者选择一名其他存活角色，牌公开进入其判定区，在其下回合摸牌前判定，红色跳过出牌阶段、黑色正常出牌；目标重复禁止、判定区移动、无懈窗口、鬼才替换和阵亡清理均沿统一结算入口。
-- 兵粮寸断：已完成基础延时判定切片；使用者选择一名有公开手牌的其他存活角色，牌公开进入其判定区，在其下回合摸牌前判定，黑色跳过摸牌阶段、红色正常摸牌；目标重复禁止、无手牌目标过滤、判定区移动、无懈窗口、鬼才替换和阵亡清理均复用乐不思蜀的统一结算入口。
+- 乐不思蜀：已完成正式花色延时判定切片；使用者选择一名其他存活角色，牌公开进入其判定区，在其下回合摸牌前判定，非红桃跳过出牌阶段、红桃正常出牌；目标重复禁止、判定区移动、无懈窗口、鬼才替换和阵亡清理均沿统一结算入口。规则 v1–v10 保留历史红黑行为。
+- 兵粮寸断：已完成正式花色延时判定切片；使用者选择一名有公开手牌的其他存活角色，牌公开进入其判定区，在其下回合摸牌前判定，非梅花跳过摸牌阶段、梅花正常摸牌；目标重复禁止、无手牌目标过滤、判定区移动、无懈窗口、鬼才替换和阵亡清理均复用乐不思蜀的统一结算入口。规则 v1–v10 保留历史红黑行为。
 - 闪电：已完成基础延时判定切片；只能对自己使用，进入自己的公开判定区；下个回合黑桃 2 至 9 命中并造成 3 点雷电伤害，否则移至下一名存活角色的判定区；转移、伤害续接、无懈窗口、鬼才替换和阵亡清理均复用统一结算入口。
 
 ### 装备

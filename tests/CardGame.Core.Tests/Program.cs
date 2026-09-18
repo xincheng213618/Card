@@ -80,6 +80,7 @@ var tests = new (string Name, Action Body)[]
     ("national AI updates hidden-faction hostility only from public attacks", TacticalAiChecks.NationalPublicEvidence),
     ("tactical AI resolves hidden endgames and avoids canceling beneficial effects", TacticalAiChecks.EndgameAndNullification),
     ("tactical support skills avoid healing and supplying enemies", TacticalAiChecks.SupportSkills),
+    ("Guicai scores formal judgment suits for allies, enemies and legacy rules", TacticalAiChecks.GuicaiJudgments),
     ("AI policy versions validate and replay deterministically", TacticalAiChecks.PolicyReplay),
     ("targeted tricks finish when the target spends its last card on Nullification", TargetLossChecks.LastNullification),
     ("lethal Ganglie closes remaining triggers before publishing game over", TargetLossChecks.LethalGanglie),
@@ -559,6 +560,8 @@ static void CardCatalogDefinitions()
     Equal("铁索连环", CardCatalog.Get(CardKind.IronChain).DisplayName);
     Equal("乐不思蜀", CardCatalog.Get(CardKind.Indulgence).DisplayName);
     Equal("兵粮寸断", CardCatalog.Get(CardKind.SupplyShortage).DisplayName);
+    True(CardCatalog.Get(CardKind.Indulgence).Description.Contains("不为红桃"));
+    True(CardCatalog.Get(CardKind.SupplyShortage).Description.Contains("不为梅花"));
     Equal("闪电", CardCatalog.Get(CardKind.Lightning).DisplayName);
     True(CardCatalog.ImplementedCards.All(definition =>
         !string.IsNullOrWhiteSpace(definition.Description)));
@@ -6687,24 +6690,29 @@ static void GuicaiFlow()
 
 static void IndulgenceFlow()
 {
-    var red = FindIndulgenceScenario(skipPlayPhase: true);
-    var black = FindIndulgenceScenario(skipPlayPhase: false);
+    var skipped = FindIndulgenceScenario(skipPlayPhase: true);
+    var normal = FindIndulgenceScenario(skipPlayPhase: false);
+    var legacySkipped = FindIndulgenceScenario(skipPlayPhase: true, rulesVersion: 10);
 
-    NotNull(red);
-    NotNull(black);
-    AssertIndulgenceScenario(red!.Value);
-    AssertIndulgenceScenario(black!.Value);
-    True(red.Value.Resolved.SkippedPlayPhase);
-    False(black.Value.Resolved.SkippedPlayPhase);
-    True(red.Value.Resolved.JudgmentSucceeded);
-    False(black.Value.Resolved.JudgmentSucceeded);
+    NotNull(skipped);
+    NotNull(normal);
+    NotNull(legacySkipped);
+    AssertIndulgenceScenario(skipped!.Value);
+    AssertIndulgenceScenario(normal!.Value);
+    AssertIndulgenceScenario(legacySkipped!.Value);
+    True(skipped.Value.Resolved.SkippedPlayPhase);
+    False(normal.Value.Resolved.SkippedPlayPhase);
+    False(skipped.Value.Resolved.JudgmentSucceeded);
+    True(normal.Value.Resolved.JudgmentSucceeded);
+    True(legacySkipped.Value.Resolved.JudgmentSucceeded);
 }
 
 static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Resolved)?
-    FindIndulgenceScenario(bool skipPlayPhase)
+    FindIndulgenceScenario(bool skipPlayPhase, int rulesVersion = GameCheckpoint.CurrentRulesVersion)
 {
     for (var seed = 1; seed <= 4_096; seed++)
     {
+        var registry = StandardContentRegistry.Create();
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
@@ -6714,7 +6722,11 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
                 HumanRole = Role.Lord,
                 MaxTurns = 180
             },
-            StandardContentRegistry.Create());
+            registry);
+        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+        {
+            game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        }
         var result = game.Start();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
@@ -6843,7 +6855,25 @@ static void AssertIndulgenceScenario(
     Equal(scenario.CardId, scenario.Resolved.CardId);
     Equal(CardKind.Indulgence, scenario.Resolved.CardKind);
     Equal(scenario.TargetSeat, scenario.Resolved.TargetSeat);
-    Equal(scenario.Resolved.JudgmentSucceeded, scenario.Resolved.SkippedPlayPhase);
+    Equal(
+        game.RulesVersion >= 11
+            ? !scenario.Resolved.JudgmentSucceeded
+            : scenario.Resolved.JudgmentSucceeded,
+        scenario.Resolved.SkippedPlayPhase);
+    var judgment = game.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<JudgmentResolvedEvent>()
+        .Single(eventItem => eventItem.ResolutionId == scenario.Resolved.ResolutionId);
+    if (game.RulesVersion >= 11)
+    {
+        Equal(judgment.Suit == Suit.Heart, judgment.Succeeded);
+        Equal(judgment.Suit != Suit.Heart, scenario.Resolved.SkippedPlayPhase);
+    }
+    else
+    {
+        Equal(judgment.Suit is Suit.Heart or Suit.Diamond, judgment.Succeeded);
+        Equal(judgment.Succeeded, scenario.Resolved.SkippedPlayPhase);
+    }
     var expectedPhase = scenario.Resolved.SkippedPlayPhase ? TurnPhase.Discard : TurnPhase.Play;
     TrueWithMessage(
         game.State.Phase == expectedPhase,
@@ -6883,13 +6913,17 @@ static void SupplyShortageFlow()
 {
     var skipDraw = FindSupplyShortageScenario(skipDrawPhase: true);
     var normalDraw = FindSupplyShortageScenario(skipDrawPhase: false);
+    var legacySkipDraw = FindSupplyShortageScenario(skipDrawPhase: true, rulesVersion: 10);
 
     NotNull(skipDraw);
     NotNull(normalDraw);
+    NotNull(legacySkipDraw);
     AssertSupplyShortageScenario(skipDraw!.Value);
     AssertSupplyShortageScenario(normalDraw!.Value);
+    AssertSupplyShortageScenario(legacySkipDraw!.Value);
     True(skipDraw.Value.Resolved.JudgmentSucceeded == false);
     False(normalDraw.Value.Resolved.JudgmentSucceeded == false);
+    True(legacySkipDraw.Value.Resolved.JudgmentSucceeded == false);
     True(skipDraw.Value.Resolved.SkippedDrawPhase);
     False(normalDraw.Value.Resolved.SkippedDrawPhase);
     Equal(0, skipDraw.Value.TargetDrawCount);
@@ -6897,10 +6931,11 @@ static void SupplyShortageFlow()
 }
 
 static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Resolved, int TargetDrawCount)?
-    FindSupplyShortageScenario(bool skipDrawPhase)
+    FindSupplyShortageScenario(bool skipDrawPhase, int rulesVersion = GameCheckpoint.CurrentRulesVersion)
 {
     for (var seed = 1; seed <= 4_096; seed++)
     {
+        var registry = StandardContentRegistry.Create();
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
@@ -6910,7 +6945,11 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
                 HumanRole = Role.Lord,
                 MaxTurns = 180
             },
-            StandardContentRegistry.Create());
+            registry);
+        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+        {
+            game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        }
         var result = game.Start();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
@@ -7021,6 +7060,20 @@ static void AssertSupplyShortageScenario(
     Equal(CardKind.SupplyShortage, scenario.Resolved.CardKind);
     Equal(scenario.TargetSeat, scenario.Resolved.TargetSeat);
     Equal(!scenario.Resolved.JudgmentSucceeded, scenario.Resolved.SkippedDrawPhase);
+    var judgment = game.Events
+        .Select(eventItem => eventItem.Payload)
+        .OfType<JudgmentResolvedEvent>()
+        .Single(eventItem => eventItem.ResolutionId == scenario.Resolved.ResolutionId);
+    if (game.RulesVersion >= 11)
+    {
+        Equal(judgment.Suit == Suit.Club, judgment.Succeeded);
+        Equal(judgment.Suit != Suit.Club, scenario.Resolved.SkippedDrawPhase);
+    }
+    else
+    {
+        Equal(judgment.Suit is Suit.Heart or Suit.Diamond, judgment.Succeeded);
+        Equal(!judgment.Succeeded, scenario.Resolved.SkippedDrawPhase);
+    }
     Equal(TurnPhase.Play, game.State.Phase);
     TrueWithMessage(game.Events.Any(eventItem =>
         eventItem.Payload is DelayedCardPlacedEvent placed &&
@@ -7357,7 +7410,7 @@ static void MultipleDelayedCardsFlow()
     Equal(2, resolved.Length);
     Equal(CardKind.Indulgence, resolved[0].CardKind);
     Equal(CardKind.SupplyShortage, resolved[1].CardKind);
-    Equal(resolved[0].JudgmentSucceeded, resolved[0].SkippedPlayPhase);
+    Equal(!resolved[0].JudgmentSucceeded, resolved[0].SkippedPlayPhase);
     Equal(!resolved[1].JudgmentSucceeded, resolved[1].SkippedDrawPhase);
     Equal(
         resolved[0].SkippedPlayPhase ? TurnPhase.Discard : TurnPhase.Play,

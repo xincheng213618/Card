@@ -152,6 +152,9 @@ public sealed class StandardContentPackage : IGameContentPackage
                 ["action"] = "toggle-one-or-two-chain",
                 ["damage"] = "propagate-fire-thunder"
             }));
+        // These two descriptions are part of the shipped standard@1.11.0
+        // fingerprint. Effective rules and player-facing text are versioned by
+        // Core/WPF so v1-v10 saves can retain their historical semantics.
         builder.AddCard(new ContentCardDefinition(
             Id: "standard:indulgence",
             DisplayName: "乐不思蜀",

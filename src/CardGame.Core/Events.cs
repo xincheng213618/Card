@@ -204,7 +204,13 @@ public sealed record DelayedCardPlacedEvent(
     int SourceSeat,
     int TargetSeat) : IGameEvent;
 
-/// <summary>Public result after a delayed card's judgment and phase transition.</summary>
+/// <summary>
+/// Public result after a delayed card's judgment and phase transition.
+/// From rules 11 onward, <see cref="JudgmentSucceeded"/> means the revealed
+/// suit is the card's safe suit (Heart for Indulgence, Club for Supply
+/// Shortage); skipped phase flags report whether the delayed effect applied.
+/// Rules 1-10 retain their historical red/black event semantics.
+/// </summary>
 public sealed record DelayedCardResolvedEvent(
     long ResolutionId,
     int CardId,
@@ -328,7 +334,9 @@ public sealed record JudgmentRequestedEvent(
 
 /// <summary>
 /// Public result of a judgment. The revealed card is public by rule; nullable
-/// fields represent an exhausted deck with no card available to judge.
+/// fields represent an exhausted deck with no card available to judge. For
+/// delayed cards in rules 11 onward, Succeeded identifies the card's safe suit
+/// rather than whether its phase-skipping effect applied.
 /// </summary>
 public sealed record JudgmentResolvedEvent(
     long ResolutionId,

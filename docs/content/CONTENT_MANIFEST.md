@@ -35,8 +35,8 @@
 | `standard:dismantlement` | 过河拆桥 | Trick | implemented-registry | target-one, hidden-hand-discard, public-equipment-target, public-judgment-target | K5/K7；规则版本 4 单目标 `CardUseFrame`；手牌不透明牌位选择弃置，公开装备/判定区牌由 `TargetCardId` 精确选择，事件按来源区域脱敏 |
 | `standard:snatch` | 顺手牵羊 | Trick | implemented-registry | target-one, hidden-hand-take, public-equipment-target, public-judgment-target, distance-one | K5/K7；规则版本 4 单目标 `CardUseFrame`；座位环距离一，手牌不透明牌位选择取得，公开装备/判定区牌由 `TargetCardId` 精确选择 |
 | `standard:fire_attack` | 火攻 | Trick | implemented-registry | target-one, private-reveal, same-suit-discard, nature-fire | K5 单目标 `CardUseFrame`；目标私有展示、攻击者同花色弃牌与 `DamageNature.Fire` |
-| `standard:indulgence` | 乐不思蜀 | Trick | implemented-registry | delayed-judgment, target-one, public-judgment, skip-play | K7：使用牌进入目标公开判定区；目标下回合摸牌前判定，红色跳过出牌阶段，黑色正常出牌；复用 `JudgmentFrame`、无懈和鬼才窗口 |
-| `standard:supply_shortage` | 兵粮寸断 | Trick | implemented-registry | delayed-judgment, target-one, public-judgment, skip-draw | K7：使用牌进入有手牌目标的公开判定区；目标下回合摸牌前判定，黑色跳过摸牌阶段，红色正常摸牌；复用 `JudgmentFrame`、无懈和鬼才窗口 |
+| `standard:indulgence` | 乐不思蜀 | Trick | implemented-registry | delayed-judgment, target-one, public-judgment, skip-play | K7 + rules v11：使用牌进入目标公开判定区；目标下回合摸牌前判定，非红桃跳过出牌阶段、红桃正常出牌；复用 `JudgmentFrame`、无懈和鬼才窗口；v1–v10 保留历史语义 |
+| `standard:supply_shortage` | 兵粮寸断 | Trick | implemented-registry | delayed-judgment, target-one, public-judgment, skip-draw | K7 + rules v11：使用牌进入有手牌目标的公开判定区；目标下回合摸牌前判定，非梅花跳过摸牌阶段、梅花正常摸牌；复用 `JudgmentFrame`、无懈和鬼才窗口；v1–v10 保留历史语义 |
 | `standard:lightning` | 闪电 | Trick | implemented-registry | delayed-judgment, self-target, public-judgment, thunder-damage, transfer | K7：只能对自己使用；下个回合黑桃 2 至 9 命中并造成 3 点雷电伤害，否则转移到下一名存活角色；复用 `JudgmentFrame`、鬼才窗口和延时牌收尾 |
 | `standard:nullification` | 无懈可击 | Trick | implemented-registry | counter, response-chain | K7：锦囊效果前的固定座次私有响应；支持有限多层互相抵消 |
 | `standard:iron_chain` | 铁索连环 | Trick | implemented-registry | target-two, state-mark, elemental-propagation | K5/K7：精确一/二目标、公开连环标记、火/雷伤害同额传导与有限无懈窗口 |

@@ -53,7 +53,7 @@
 - 刚烈的 `Ganglie` Prompt 只投影给受伤者；判定牌和红/黑结果公开，红色后的精确两牌组合或承受伤害 Choice 只投影给伤害来源，`GangliePunishmentResolvedEvent` 与技能结果事件属于可信宿主记录。
  - 主动技能的 `UseSkillCommand`、`ActiveSkillFrame` 和 `ActiveSkillRequestedEvent`/`ActiveSkillResolvedEvent` 只在当前拥有者的合法出牌动作中产生；`苦肉` 的体力扣除和摸牌结果公开，具体摸入牌 ID 只属于可信宿主事件/移动账本；`制衡` 的精确弃牌集合只属于当前拥有者与可信宿主，普通快照不泄漏暗牌；青囊的精确弃牌 ID 和目标选择同样只在拥有者 Prompt/可信事件中出现；回春的两张弃牌 ID、2–3 个目标和逐目标恢复证据也只属于拥有者 Prompt/可信宿主。苦肉在 1 点体力发动时保留主动技能帧，复用私有 `RescueDying` Prompt；获救后才继续摸牌，未获救则先完成死亡清理再闭合主动技能帧。
 - 鬼才的 `Guicai` Prompt 只投影给当前判定前候选拥有者；判定牌和最终红/黑结果公开，替换牌只从拥有者自己的私有手牌 Choice 进入 `Processing`/`Judgment`，`JudgmentReplacementRequestedEvent`/`JudgmentReplacementResolvedEvent` 属于可信宿主记录。
-- 乐不思蜀和兵粮寸断的使用牌进入目标公开 `Judgment` 区；目标在下回合摸牌前进入同一 `JudgmentFrame`，乐不思蜀红色结果跳过出牌阶段，兵粮寸断黑色结果跳过摸牌阶段。延时牌和判定牌的移动、无懈窗口、鬼才改判、多个延时效果累计及死亡清理均由 Core 统一提交，普通视图不携带其他玩家的私有手牌候选。
+- 乐不思蜀和兵粮寸断的使用牌进入目标公开 `Judgment` 区；目标在下回合摸牌前进入同一 `JudgmentFrame`。规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段；v1–v10 保留历史红黑语义。延时牌和判定牌的移动、无懈窗口、鬼才改判、多个延时效果累计及死亡清理均由 Core 统一提交，普通视图不携带其他玩家的私有手牌候选。
 - `revealAll: true` 只用于本地开发者视图和测试，宿主可通过独立的 `GameEngine.Seed` 记录回放种子。
 
 完整牌区位置只能通过明确标为可信宿主诊断的 `CreateCardZoneDiagnostics()` 取得。它不能进入玩家网络 DTO。
@@ -129,7 +129,7 @@ Draw → Play ──────────────┐
        ├─ BarbarianAssault / ArrowBarrage → TargetIndex → 逐目标 Pending Slash / Dodge → Damage / Dying
         ├─ PeachGarden → TargetIndex → 逐目标 RecoveryFrame → RecoveryApplied
         ├─ FiveGrains → TargetIndex → PublicRevealedCards → 私有 SelectHarvestCard → Hand
-        ├─ Indulgence/SupplyShortage → 目标 Judgment → 下回合摸牌前 JudgmentFrame → 乐不思蜀红色跳过出牌 / 兵粮寸断黑色跳过摸牌
+        ├─ Indulgence/SupplyShortage → 目标 Judgment → 下回合摸牌前 JudgmentFrame → 乐不思蜀非红桃跳过出牌 / 兵粮寸断非梅花跳过摸牌
         └─ EndPlay
              ↓
           Discard → Finished → 下一存活玩家的 Draw
@@ -199,7 +199,7 @@ HumanPlay / AI ChoosePlay
 - `standard-active-skills@1.0.0` 是依赖 `standard@1.11.0` 的可选扩展包，增加 `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将及 `identity:active-skills-8/5`；其上另有依赖主动技能包的 `standard-rescue-skills@1.0.0`，增加 `standard:jijiu`/急救者并扩展同一模式武将池；`StandardContentRegistry.Create()` 和不含救援层的 `CreateWithActiveSkills()` 保持原内容指纹不变，WPF 默认窗口显式选择包含救援层的 Registry。
 - K5 切片把决斗的交替 `RespondSlash` 响应、无中生有的无目标摸牌、酒的一次性直接杀 +1 伤害、濒死窗口当前 responder 的桃/酒救援、急救红牌当桃、南蛮入侵/万箭齐发的群体逐目标 `RespondSlash`/`RespondDodge`、桃园结义的群体逐目标恢复、普通/火/雷杀的 `DamageNature`、反馈/遗计/节命伤害后技能和单次杀/决斗/群体牌伤害后的基础濒死窗口接入同一帧栈：`CardUseFrame.TargetIndex` 保存当前群体目标，`GroupResponseEvent` 记录必需响应牌种类，`DamageFrame` 保存伤害类型和实际金额，`AlcoholAppliedEvent`/`AlcoholExpiredEvent` 表示酒效生效/回合结束失效，`RecoveryFrame` 记录桃园结义当前恢复子帧，`DyingFrame` 逐个询问可用桃/酒/红牌的 responder，桃、酒和转化牌只从 responder 自己的手牌移动到 `Processing`，当前规则版本允许酒救援濒死目标而旧 v1/v2 回放仍保持仅自救语义，急救事件同时记录有效 Peach 与物理牌型，节命通过私有目标 Choice 和 `DamageSkillCardsDrawnEvent.TargetSeat` 补牌至目标体力上限，其他视角只看到公开结算结果。
 
-当前已开放十四张最小锦囊 `standard:duel`、`standard:draw_two`、`standard:barbarian_assault`、`standard:arrow_barrage`、`standard:peach_garden`、`standard:five_grains`、`standard:dismantlement`、`standard:snatch`、`standard:fire_attack`、`standard:indulgence`、`standard:supply_shortage`、`standard:lightning`、`standard:nullification` 与 `standard:iron_chain`，酒作为第六种基本牌复用无目标 `CardUseFrame` 并提供一次性直接杀加伤，四张群体/多目标牌共用目标游标，其中两张响应牌共用通用响应事件，五谷丰登复用公开翻牌和私有选牌事件，过河拆桥和顺手牵羊复用单目标 `CardUseFrame` 与“隐藏手牌不透明牌位选择/公开装备或判定区牌精确选择”的目标牌移动入口；规则版本 4 使用 `TargetCardSelectionFrame` 固化私有暂停点，`TargetCardSelectionRequestedEvent` 只公开候选数量，规则版本 1–3 回放保留历史盲选语义，火攻复用单目标父帧并增加私有展示/同花色弃牌两段 Prompt，乐不思蜀、兵粮寸断和闪电把延时牌置入目标公开判定区并在其下回合摸牌前复用 `JudgmentFrame`，前者红色跳过出牌阶段、兵粮寸断黑色跳过摸牌阶段、闪电黑桃 2 至 9 命中 3 点雷电伤害否则转移；无懈可击在锦囊效果前复用固定座次私有响应和有限多层 `NullificationWindowFrame`，铁索连环通过精确一/二目标和公开 `IsChained` 标记接入火/雷伤害同额传导；普通/火/雷杀共用杀路径，属性类型和实际伤害金额写入伤害帧与事件；K6 已开放五个装备槽位、七种装备牌（含仁王盾）的生命周期、同槽替换、死亡清理、基础战斗距离/攻击范围查询以及诸葛连弩、青釭剑、赤兔、绝影、玉玺、仁王盾和马术的基础 modifier；奇才通过 `GetLegalActions` 统一放宽距离型锦囊目标，K7 已为八卦阵、乐不思蜀、兵粮寸断和闪电接入 `JudgmentFrame`、判定区移动和对应结果，鬼才复用同一判定帧；仁王盾使黑色杀不进入对装备者的合法目标列表。其余锦囊和复杂装备效果仍需各自的目标、响应窗口和处理区语义。明确扩展需求记录在 [`CONTENT_BACKLOG.md`](CONTENT_BACKLOG.md)，在对应类型化入口开放前不通过 UI 或 `GameEngine` 特判接入。
+当前已开放十四张最小锦囊 `standard:duel`、`standard:draw_two`、`standard:barbarian_assault`、`standard:arrow_barrage`、`standard:peach_garden`、`standard:five_grains`、`standard:dismantlement`、`standard:snatch`、`standard:fire_attack`、`standard:indulgence`、`standard:supply_shortage`、`standard:lightning`、`standard:nullification` 与 `standard:iron_chain`，酒作为第六种基本牌复用无目标 `CardUseFrame` 并提供一次性直接杀加伤，四张群体/多目标牌共用目标游标，其中两张响应牌共用通用响应事件，五谷丰登复用公开翻牌和私有选牌事件，过河拆桥和顺手牵羊复用单目标 `CardUseFrame` 与“隐藏手牌不透明牌位选择/公开装备或判定区牌精确选择”的目标牌移动入口；规则版本 4 使用 `TargetCardSelectionFrame` 固化私有暂停点，`TargetCardSelectionRequestedEvent` 只公开候选数量，规则版本 1–3 回放保留历史盲选语义，火攻复用单目标父帧并增加私有展示/同花色弃牌两段 Prompt，乐不思蜀、兵粮寸断和闪电把延时牌置入目标公开判定区并在其下回合摸牌前复用 `JudgmentFrame`，规则 v11 起前者非红桃跳过出牌阶段、兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义，闪电黑桃 2 至 9 命中 3 点雷电伤害否则转移；无懈可击在锦囊效果前复用固定座次私有响应和有限多层 `NullificationWindowFrame`，铁索连环通过精确一/二目标和公开 `IsChained` 标记接入火/雷伤害同额传导；普通/火/雷杀共用杀路径，属性类型和实际伤害金额写入伤害帧与事件；K6 已开放五个装备槽位、七种装备牌（含仁王盾）的生命周期、同槽替换、死亡清理、基础战斗距离/攻击范围查询以及诸葛连弩、青釭剑、赤兔、绝影、玉玺、仁王盾和马术的基础 modifier；奇才通过 `GetLegalActions` 统一放宽距离型锦囊目标，K7 已为八卦阵、乐不思蜀、兵粮寸断和闪电接入 `JudgmentFrame`、判定区移动和对应结果，鬼才复用同一判定帧；仁王盾使黑色杀不进入对装备者的合法目标列表。其余锦囊和复杂装备效果仍需各自的目标、响应窗口和处理区语义。明确扩展需求记录在 [`CONTENT_BACKLOG.md`](CONTENT_BACKLOG.md)，在对应类型化入口开放前不通过 UI 或 `GameEngine` 特判接入。
 
 ## 6. 技能扩展
 
@@ -252,7 +252,7 @@ public interface IActiveSkill
 - 鬼才：判定牌生效前由当前候选拥有者私有选择一张手牌替换或跳过；替换牌进入同一 `JudgmentFrame`，最终结果公开，AI 只使用自己的过滤快照。
 - 苦肉：出牌阶段且体力大于 0 时发动，沿 `ActiveSkillFrame` 失去 1 点体力并摸两张牌；若降至 0 点，先在同一帧下压入私有 `DyingFrame`，救援成功后继续摸牌，失败后完成死亡清理再闭合主动技能。
 - 制衡：出牌阶段从自己的手牌中选择至少一张并弃置，沿 `Processing` 完成后摸等量牌；选牌集合只在当前拥有者的私有 Prompt 与可信宿主事件中出现。
-- 乐不思蜀/兵粮寸断：将使用牌置入其他存活角色的公开判定区，在其下回合摸牌前按顺序进入 `JudgmentFrame`；乐不思蜀红色结果跳过出牌阶段，兵粮寸断黑色结果跳过摸牌阶段，多个延时牌通过位标记累计效果，延时牌和判定牌均沿统一移动账本收尾。
+- 乐不思蜀/兵粮寸断：将使用牌置入其他存活角色的公开判定区，在其下回合摸牌前按顺序进入 `JudgmentFrame`；规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义；多个延时牌通过位标记累计效果，延时牌和判定牌均沿统一移动账本收尾。
 
 下一步若要加入更复杂技能，建议在现有 `AfterDamage`、`PlayerDying` 和 `DyingResponse` 类型化事件及 `DamageTriggerWindowFrame` 游标上扩展完整状态 Checkpoint；当前 `DamageTriggerScope` 已把受伤者、其他存活角色和任意存活角色的座位关系变成可复用契约，`DamageTriggerOrdering` 仍固定优先级、相对行动者座次、技能序号和候选 ID 的排序键，而不是把顺序交给任意字符串或可变字典。遗计已经完成一条真实的跨座位牌效果，援护已复用通用的其他存活角色范围，刚烈已经完成一条受伤者触发后定向伤害来源询问的效果，苦肉也已完成单体主动技能濒死续接；多目标主动技能、多伤害嵌套和复杂技能濒死响应尚未宣称完成。
 

@@ -18,7 +18,7 @@ public sealed record GameCheckpoint(
     string ContentHash)
 {
     public const int CurrentSchemaVersion = 3;
-    public const int CurrentRulesVersion = 10;
+    public const int CurrentRulesVersion = 11;
 
     // Checkpoint schema 3 predates the explicit rules marker. Keeping the
     // initializer at v1 lets old JSON retain its original event semantics.
@@ -76,15 +76,24 @@ public static class GameReplay
         ArgumentNullException.ThrowIfNull(commands);
 
         var engine = GameEngine.CreateForReplay(options, contentRegistry, rulesVersion);
+        var commandIndex = 0;
         foreach (var command in commands)
         {
             var result = engine.Submit(command);
             if (!result.Accepted)
             {
                 var error = result.Error;
+                var promptContext = command is AnswerPromptCommand answer
+                    ? $" Expected prompt {answer.PromptId.Value}; current prompt " +
+                      $"{engine.PendingDecision?.PromptId.Value.ToString() ?? "none"} " +
+                      $"({engine.PendingDecision?.Kind.ToString() ?? "none"}) at revision {engine.Revision}."
+                    : string.Empty;
                 throw new InvalidOperationException(
-                    $"Replay command was rejected ({error?.Code}): {error?.Message}");
+                    $"Replay command {commandIndex} ({command.GetType().Name}) was rejected " +
+                    $"({error?.Code}): {error?.Message}{promptContext}");
             }
+
+            commandIndex++;
         }
 
         return engine;

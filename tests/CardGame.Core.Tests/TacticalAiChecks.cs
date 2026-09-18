@@ -248,6 +248,44 @@ internal static class TacticalAiChecks
         Require(brain.ChooseYijiGift(loyal, [1000, 1001], [lord], 6).CardId == 1000, "Loyalist should donate the lower-value card.");
     }
 
+    public static void GuicaiJudgments()
+    {
+        var loyal = JudgmentView(Role.Loyalist);
+        var lord = loyal.Players.Single(player => player.Role == Role.Lord).Seat;
+        var loyalBrain = new SimpleAiBrain(0, 271, 2);
+        Require(loyalBrain.ChooseGuicaiReplacement(
+                loyal, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
+                Suit.Spade, 1, 7, rulesVersion: 11).CardId == 1000,
+            "Guicai did not turn an allied Indulgence judgment into Heart.");
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                loyal, lord, JudgmentReasons.SupplyShortage, [1000, 1001], CardKind.Dodge,
+                Suit.Spade, 1, 7, rulesVersion: 11).CardId == 1001,
+            "Guicai did not turn an allied Supply Shortage judgment into Club.");
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                loyal, lord, JudgmentReasons.Lightning, [1000, 1001], CardKind.Dodge,
+                Suit.Spade, 1, 5, rulesVersion: 11).CardId == 1000,
+            "Guicai did not turn an allied Lightning hit into a miss.");
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                loyal, lord, JudgmentReasons.Ganglie, [1000, 1001], CardKind.Dodge,
+                Suit.Heart, 1, 7, rulesVersion: 11, usesClassicGanglieJudgment: true).CardId == 1001,
+            "Guicai did not use the classic non-Heart Ganglie success suit.");
+
+        var rebel = JudgmentView(Role.Rebel);
+        lord = rebel.Players.Single(player => player.Role == Role.Lord).Seat;
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                rebel, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
+                Suit.Heart, 1, 7, rulesVersion: 11).CardId == 1001,
+            "Guicai did not turn an enemy Indulgence safe suit into a failed judgment.");
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                rebel, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
+                Suit.Spade, 1, 7, rulesVersion: 10).CardId == 1000,
+            "Rules 10 Guicai no longer preserves its historical red-card scoring.");
+        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+                loyal, lord, JudgmentReasons.Ganglie, [1000, 1001], CardKind.Dodge,
+                Suit.Spade, 1, 7, rulesVersion: 10, usesClassicGanglieJudgment: true).CardId == 1000,
+            "Rules 10 classic Ganglie no longer preserves its historical Guicai scoring.");
+    }
+
     private static void Pick(GameSnapshot view, IReadOnlyList<LegalAction> actions, LegalActionKind expected) =>
         Require(new SimpleAiBrain(0, 271, 2).ChoosePlay(view, actions, 1).Action.Kind == expected, $"Expected {expected} for {string.Join(',', actions.Select(action => action.Kind))}.");
 
@@ -283,6 +321,20 @@ internal static class TacticalAiChecks
         {
             Hand = cards.Select((kind, index) => new CardSnapshot(1000 + index, kind, Suit.Heart, 7, CardCatalog.Get(kind).DisplayName, "7")).ToArray(),
             HandCount = cards.Length
+        });
+    }
+
+    private static GameSnapshot JudgmentView(Role role)
+    {
+        var view = View(role, CardKind.Slash, CardKind.Slash);
+        return Change(view, 0, player => player with
+        {
+            Hand =
+            [
+                new CardSnapshot(1000, CardKind.Slash, Suit.Heart, 7, "杀", "7"),
+                new CardSnapshot(1001, CardKind.Slash, Suit.Club, 7, "杀", "7")
+            ],
+            HandCount = 2
         });
     }
 

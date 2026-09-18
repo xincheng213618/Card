@@ -148,6 +148,9 @@ public sealed partial class GameEngine
     private bool UsesClassicGanglieJudgment =>
         _rulesVersion >= 10 && IsClassicIdentityMode;
 
+    private bool UsesSuitSpecificDelayedJudgments =>
+        _rulesVersion >= 11;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -1443,7 +1446,9 @@ public sealed partial class GameEngine
         var targetCardRules = SupportsPrivateTargetCardSelection
             ? "过河拆桥和顺手牵羊的手牌效果由使用者选择不透明牌位，目标牌面不公开"
             : "过河拆桥和顺手牵羊的手牌效果按历史规则确定性盲选";
-        var delayedCardRules = "乐不思蜀置入目标判定区并在其下回合摸牌前判定，红色跳过出牌阶段；兵粮寸断置入目标判定区并在其下回合摸牌前判定，黑色跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。";
+        var delayedCardRules = UsesSuitSpecificDelayedJudgments
+            ? "乐不思蜀置入目标判定区并在其下回合摸牌前判定，结果不为红桃时跳过出牌阶段；兵粮寸断置入目标判定区并在其下回合摸牌前判定，结果不为梅花时跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。"
+            : "乐不思蜀置入目标判定区并在其下回合摸牌前判定，红色跳过出牌阶段；兵粮寸断置入目标判定区并在其下回合摸牌前判定，黑色跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。";
         var modeRules = IsNationalWarMode
             ? $"{FormatFactionSummary(_modeDefinition)}；每名角色选择两名同势力武将，势力和武将默认暗置，明置后公开；消灭其他势力获胜"
             : IsTeamMode
@@ -6614,7 +6619,9 @@ public sealed partial class GameEngine
             judgmentCard.Kind,
             judgmentCard.Suit,
             ++_thoughtSequence,
-            judgmentCard.Rank);
+            judgmentCard.Rank,
+            _rulesVersion,
+            UsesClassicGanglieJudgment);
         AddThought(thought);
         ClearPendingDecision();
         ResolveGuicaiChoice(pending, cardId);
@@ -7267,6 +7274,10 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.Lightning => IsLightningHit(judgmentCard),
             JudgmentContinuationKind.Ganglie when UsesClassicGanglieJudgment =>
                 judgmentCard.Suit != Suit.Heart,
+            JudgmentContinuationKind.Indulgence when UsesSuitSpecificDelayedJudgments =>
+                judgmentCard.Suit == Suit.Heart,
+            JudgmentContinuationKind.SupplyShortage when UsesSuitSpecificDelayedJudgments =>
+                judgmentCard.Suit == Suit.Club,
             _ => IsRedSuit(judgmentCard.Suit)
         };
         ReplaceJudgmentFrame(frame with
@@ -7338,9 +7349,11 @@ public sealed partial class GameEngine
                 "The resolved delayed card is not in its target's judgment zone.");
         }
 
-        var delayedEffectSucceeded = delayedCard.Kind == CardKind.SupplyShortage
+        var delayedEffectSucceeded = UsesSuitSpecificDelayedJudgments
             ? !succeeded
-            : succeeded;
+            : delayedCard.Kind == CardKind.SupplyShortage
+                ? !succeeded
+                : succeeded;
         var delayedEffects = delayedEffectSucceeded
             ? GetDelayedTurnEffects(delayedCard.Kind)
             : DelayedTurnEffects.None;
@@ -7369,13 +7382,21 @@ public sealed partial class GameEngine
                 : delayedEffects.HasFlag(DelayedTurnEffects.SkipPlayPhase)
                     ? "跳过出牌阶段"
                     : "正常进入后续阶段";
-        var judgmentColor = succeeded ? "红色" : "黑色";
         AddLog(
             "DelayedCardResolved",
-            $"{target.Name} 的【{delayedCard.DisplayName}】判定为{judgmentColor}，{phaseDescription}。",
+            $"{target.Name} 的【{delayedCard.DisplayName}】判定为{GetSuitDisplayName(pending.CurrentCard?.Suit)}，{phaseDescription}。",
             target.Seat);
         BeginDelayedJudgmentOrTurnStart(target);
     }
+
+    private static string GetSuitDisplayName(Suit? suit) => suit switch
+    {
+        Suit.Spade => "黑桃",
+        Suit.Heart => "红桃",
+        Suit.Club => "梅花",
+        Suit.Diamond => "方片",
+        _ => "未知花色"
+    };
 
     private void CompleteLightningJudgment(
         JudgmentResolution pending,

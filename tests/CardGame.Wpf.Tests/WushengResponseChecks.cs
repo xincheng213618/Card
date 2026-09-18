@@ -20,15 +20,21 @@ internal static class WushengResponseChecks
                 hand.Single(card => card.Id == candidate.Cards[0]).Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash));
             var id = choice.Cards[0];
             var store = new FileGameSaveStore(Path.Combine(output, "wusheng-saves", Guid.NewGuid().ToString("N")));
-            store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, checkpoint with { RulesVersion = 8 }));
             using var vm = new MainViewModel(false, 1, true, store) { IsMotionEnabled = false };
-            vm.LoadManualGameCommand.Execute(null);
-            Program.Assert(!vm.HasSaveError && Program.Engine(vm).RulesVersion == 8 && !vm.Hand.Single(card => card.Id == id).IsPlayable,
-                "Old-rule UI enabled the new conversion or could not restore the old prompt.");
-            var oldState = GameCheckpointJson.Serialize(Program.Engine(vm).CreateCheckpoint());
-            vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == id));
-            vm.ConfirmSelectedCommand.Execute(null);
-            Program.Assert(!vm.HasSelection && GameCheckpointJson.Serialize(Program.Engine(vm).CreateCheckpoint()) == oldState, "Disabled legacy response changed the game.");
+            // One stable Duel fixture is sufficient to verify the Wusheng rule
+            // boundary. A current-rules command prefix that already crossed a
+            // delayed judgment cannot be relabelled as v8 after rules 11.
+            if (incoming == CardKind.Duel)
+            {
+                store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, checkpoint with { RulesVersion = 8 }));
+                vm.LoadManualGameCommand.Execute(null);
+                Program.Assert(!vm.HasSaveError && Program.Engine(vm).RulesVersion == 8 && !vm.Hand.Single(card => card.Id == id).IsPlayable,
+                    "Old-rule UI enabled the new conversion or could not restore the old prompt.");
+                var oldState = GameCheckpointJson.Serialize(Program.Engine(vm).CreateCheckpoint());
+                vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == id));
+                vm.ConfirmSelectedCommand.Execute(null);
+                Program.Assert(!vm.HasSelection && GameCheckpointJson.Serialize(Program.Engine(vm).CreateCheckpoint()) == oldState, "Disabled legacy response changed the game.");
+            }
             store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, checkpoint));
             vm.LoadManualGameCommand.Execute(null);
             Program.Assert(!vm.HasSaveError && vm.Hand.Single(card => card.Id == id).IsPlayable, "New-rule response did not become available after load.");

@@ -79,7 +79,7 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 
 本轮新增 `standard:guicai`：判定牌翻入 `Judgment(target)` 后、判定生效前，Core 通过 `JudgmentFrame` 冻结当前鬼才候选和游标，并为拥有者发布私有 `DecisionKind.Guicai` 替换/跳过 Choice。替换牌按 `Hand(owner) → Processing → Judgment(target)` 移动，旧判定牌先按 `judgment.finish` 结束；最终结果由 `JudgmentResolvedEvent` 公开，`JudgmentReplacementRequestedEvent`/`JudgmentReplacementResolvedEvent` 和 `skill.guicai.replace` 提供可信宿主回放证据，AI 只读取自己的过滤快照。
 
-本轮新增 `standard:indulgence` 与 `standard:supply_shortage`：使用者选择一名其他存活角色后，乐不思蜀或兵粮寸断从 `Processing` 进入目标公开 `Judgment` 区；目标下回合摸牌前按顺序复用 `JudgmentFrame` 判定，乐不思蜀红色跳过出牌阶段，兵粮寸断黑色跳过摸牌阶段，多个延时效果按位累计。`DelayedCardPlacedEvent`/`DelayedCardResolvedEvent`、`card.effect.delayed-place`/`card.effect.delayed-finish` 和死亡清理共同保证延时牌不残留；无懈可击与鬼才沿同一效果前/判定前窗口接入。
+本轮新增 `standard:indulgence` 与 `standard:supply_shortage`：使用者选择一名其他存活角色后，乐不思蜀或兵粮寸断从 `Processing` 进入目标公开 `Judgment` 区；目标下回合摸牌前按顺序复用 `JudgmentFrame` 判定。规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段，多个延时效果按位累计；v1–v10 保留历史红黑语义。`DelayedCardPlacedEvent`/`DelayedCardResolvedEvent`、`card.effect.delayed-place`/`card.effect.delayed-finish` 和死亡清理共同保证延时牌不残留；无懈可击与鬼才沿同一效果前/判定前窗口接入。
 
 当前 Console 自测为 113 项、WPF 自测为 22 项，完整解决方案 Release 构建为 0 warning / 0 error，`dotnet format --verify-no-changes --no-restore` 通过；可信命令前缀 Checkpoint 可恢复私有 Prompt 暂停点，并通过内容指纹拒绝同版本定义漂移；新增覆盖急救扩展包隔离、红牌筛选、AI/人类选择、有效/物理牌型事件、私有视图脱敏、处理区移动和 checkpoint/replay，与既有援护、刚烈、鬼才、跨座位酒救援、牌区移动、装备/距离和延时牌场景一起保持通过。
 

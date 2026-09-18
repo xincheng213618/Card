@@ -230,6 +230,18 @@ public sealed partial class MainViewModel
         var rulesVersion = _game is null ? GameCheckpoint.CurrentRulesVersion : _game.RulesVersion;
         if (kind == CardKind.IronChain && rulesVersion >= 6)
             return "选择一到两名存活角色（可包含自己），横置或重置；连环角色受到火焰或雷电伤害时会传导同量伤害。也可重铸：不选目标，将此牌置入弃牌堆并摸一张牌；重铸不属于使用锦囊，不进入无懈响应。";
+        if (kind == CardKind.Indulgence)
+        {
+            return rulesVersion >= 11
+                ? CardCatalog.Get(kind).Description
+                : "选择一名其他角色；其下个回合判定，若为红色则跳过出牌阶段。";
+        }
+        if (kind == CardKind.SupplyShortage)
+        {
+            return rulesVersion >= 11
+                ? CardCatalog.Get(kind).Description
+                : "选择一名有手牌的其他角色；其下个回合判定，若为黑色则跳过摸牌阶段。";
+        }
         return rulesVersion >= 4
             ? kind switch
             {

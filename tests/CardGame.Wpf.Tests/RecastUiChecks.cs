@@ -67,9 +67,15 @@ internal static class RecastUiChecks
             vm.GuideSearchText = "铁索连环";
             Require(vm.FilteredGuideCards.Single().Description.Contains("其他存活角色") && !vm.FilteredGuideCards.Single().Description.Contains("重铸"),
                 "Old save displays current-rules card text.");
+            vm.GuideSearchText = "乐不思蜀";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("红色") && !vm.FilteredGuideCards.Single().Description.Contains("红桃"),
+                "Old save displays rules 11 delayed-card text.");
             vm.StartNewGameCommand.Execute(null);
-            Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion && vm.FilteredGuideCards.Single().Description.Contains("重铸") &&
-                vm.FilteredGuideCards.Single().Description.Contains("自己"), "New match retained the old rule description.");
+            Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion && vm.FilteredGuideCards.Single().Description.Contains("红桃") &&
+                vm.FilteredGuideCards.Single().Description.Contains("不为"), "New match retained the old delayed-card description.");
+            vm.GuideSearchText = "铁索连环";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("重铸") && vm.FilteredGuideCards.Single().Description.Contains("自己"),
+                "New match retained the old Iron Chain rule description.");
         }
         finally { window.Content = null; window.Close(); }
     }
