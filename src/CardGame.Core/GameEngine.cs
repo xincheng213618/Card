@@ -72,6 +72,7 @@ public sealed partial class GameEngine
     private TuxiDrawResolution? _pendingTuxiDraw;
     private LuoyiDrawResolution? _pendingLuoyiDraw;
     private LuoshenResolution? _pendingLuoshen;
+    private JizhiResolution? _pendingJizhi;
     private GuanxingResolution? _pendingGuanxing;
     private HujiaResolution? _pendingHujia;
     private JijiangResolution? _pendingJijiang;
@@ -223,6 +224,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalLuoshenAndQingguo =>
         _rulesVersion >= 34 && IsClassicIdentityMode;
+
+    private bool UsesFormalJizhi =>
+        _rulesVersion >= 35 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -760,6 +764,7 @@ public sealed partial class GameEngine
                 DecisionKind.Tuxi or
                 DecisionKind.Luoyi or
                 DecisionKind.Luoshen or
+                DecisionKind.Jizhi or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -860,6 +865,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Luoshen)
         {
             return SubmitLuoshenPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Jizhi)
+        {
+            return SubmitJizhiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1310,6 +1320,33 @@ public sealed partial class GameEngine
                 useSkill: false,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "洛神提示没有可识别的选择效果。")
+        };
+    }
+
+    private CommandResult SubmitJizhiPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingJizhi is null ||
+            _pendingDecision is not { Kind: DecisionKind.Jizhi })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的集智用牌窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "集智选择不符合当前用牌窗口。");
+        }
+
+        return action switch
+        {
+            "jizhi-use" => Accept(() => HumanJizhiCore(
+                useSkill: true,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "jizhi-skip" => Accept(() => HumanJizhiCore(
+                useSkill: false,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "集智提示没有可识别的选择效果。")
         };
     }
 
@@ -2000,6 +2037,7 @@ public sealed partial class GameEngine
                     IsAiTuxiPending() ||
                     IsAiLuoyiPending() ||
                     IsAiLuoshenPending() ||
+                    IsAiJizhiPending() ||
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
@@ -2757,6 +2795,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Luoshen);
         ResolveLuoshenChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanJizhiCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Jizhi);
+        ResolveJizhiChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -4778,6 +4824,9 @@ public sealed partial class GameEngine
     private static bool IsDelayedCard(CardKind kind) =>
         kind is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning;
 
+    private static bool IsOrdinaryTrick(CardKind kind) =>
+        CardCatalog.Get(kind).CategoryName == "锦囊牌" && !IsDelayedCard(kind);
+
     private CardKind GetJudgmentEffectiveCardKind(Card card) =>
         _judgmentEffectiveCardKinds.GetValueOrDefault(card.Id, card.Kind);
 
@@ -5007,6 +5056,12 @@ public sealed partial class GameEngine
         if (IsAiLuoshenPending())
         {
             ResolvePendingAiLuoshen();
+            return;
+        }
+
+        if (IsAiJizhiPending())
+        {
+            ResolvePendingAiJizhi();
             return;
         }
 
@@ -5874,6 +5929,133 @@ public sealed partial class GameEngine
         FinishCardUse(resolutionId, equipment);
     }
 
+    private void BeginJizhiOrNullificationWindow(
+        long resolutionId,
+        Card effectCard,
+        int sourceSeat,
+        IReadOnlyList<int> targetSeats,
+        LegalActionKind actionKind,
+        int? targetCardId = null,
+        CardKind? requiredCardKind = null,
+        CardKind? playedCardKind = null)
+    {
+        var effectiveCardKind = playedCardKind ?? effectCard.Kind;
+        var pending = new JizhiResolution(
+            sourceSeat,
+            resolutionId,
+            effectCard,
+            effectiveCardKind,
+            targetSeats,
+            actionKind,
+            targetCardId,
+            requiredCardKind,
+            activeNullification: null);
+        if (TryBeginJizhiChoice(pending))
+        {
+            return;
+        }
+
+        BeginNullificationWindow(
+            resolutionId,
+            effectCard,
+            sourceSeat,
+            targetSeats,
+            actionKind,
+            targetCardId,
+            requiredCardKind,
+            effectiveCardKind);
+    }
+
+    private bool TryBeginJizhiChoice(JizhiResolution pending)
+    {
+        var owner = _players[pending.PlayerSeat];
+        if (!UsesFormalJizhi ||
+            !owner.IsAlive ||
+            !owner.General.HasSkill(SkillKind.Jizhi) ||
+            !IsOrdinaryTrick(pending.EffectiveCardKind))
+        {
+            return false;
+        }
+
+        if (_pendingJizhi is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Jizhi choices at once.");
+        }
+
+        _pendingJizhi = pending;
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Jizhi,
+            owner.Seat,
+            $"你使用了【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】，是否发动【集智】摸一张牌？",
+            [],
+            [],
+            SourceSeat: owner.Seat,
+            IncomingCard: pending.EffectiveCardKind)
+        {
+            PromptId = CreatePromptId(),
+            IsPrivate = true,
+            TargetSeat = owner.Seat,
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId($"jizhi.use.card-{pending.Card.Id}.resolution-{pending.ResolutionId}"),
+                    "发动【集智】，摸一张牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "jizhi-use" }),
+                new PromptChoice(
+                    new ChoiceId($"jizhi.skip.card-{pending.Card.Id}.resolution-{pending.ResolutionId}"),
+                    "不发动【集智】，继续结算此牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "jizhi-skip" })
+            ]
+        };
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private void ResolveJizhiChoice(bool useSkill)
+    {
+        var pending = _pendingJizhi ??
+            throw new InvalidOperationException("There is no Jizhi choice to resolve.");
+        var owner = _players[pending.PlayerSeat];
+        _pendingJizhi = null;
+        ClearPendingDecision();
+        var drawnCardIds = useSkill
+            ? DrawCards(owner, 1, log: false, CardMoveReasons.JizhiDraw)
+            : [];
+        QueueGameEvent(new DrawSkillResolvedEvent(
+            owner.Seat,
+            SkillKind.Jizhi,
+            useSkill,
+            drawnCardIds.Count));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill
+                ? drawnCardIds.Count == 1
+                    ? $"{owner.Name} 发动【集智】，摸一张牌。"
+                    : $"{owner.Name} 发动【集智】，但牌堆中没有可摸的牌。"
+                : $"{owner.Name} 未发动【集智】。",
+            owner.Seat);
+
+        if (pending.ActiveNullification is { } activeNullification)
+        {
+            ContinueNullificationWindow(activeNullification);
+            return;
+        }
+
+        BeginNullificationWindow(
+            pending.ResolutionId,
+            pending.Card,
+            pending.PlayerSeat,
+            pending.TargetSeats,
+            pending.ActionKind,
+            pending.TargetCardId,
+            pending.RequiredCardKind,
+            pending.EffectiveCardKind);
+    }
+
     private void BeginNullificationWindow(
         long resolutionId,
         Card effectCard,
@@ -6088,6 +6270,21 @@ public sealed partial class GameEngine
                 : $"{responder.Name} 使用【无懈可击】，使【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】恢复。",
             responder.Seat,
             pending.SourceSeat);
+        var jizhi = new JizhiResolution(
+            responder.Seat,
+            pending.ResolutionId,
+            card,
+            CardKind.Nullification,
+            pending.TargetSeats,
+            pending.ActionKind,
+            pending.TargetCardId,
+            pending.RequiredCardKind,
+            pending);
+        if (TryBeginJizhiChoice(jizhi))
+        {
+            return;
+        }
+
         ContinueNullificationWindow(pending);
     }
 
@@ -6636,7 +6833,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             drawTwo,
             source.Seat,
@@ -6701,7 +6898,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             groupCard,
             source.Seat,
@@ -6732,7 +6929,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             peachGarden,
             source.Seat,
@@ -6765,7 +6962,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             fiveGrains,
             source.Seat,
@@ -6794,7 +6991,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.IronChainUse);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             ironChain,
             source.Seat,
@@ -6831,7 +7028,7 @@ public sealed partial class GameEngine
             FindOwnedCardLocation(source, delayedCard),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             delayedCard,
             source.Seat,
@@ -6974,7 +7171,7 @@ public sealed partial class GameEngine
             sourceLocation,
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             effectCard,
             source.Seat,
@@ -7004,7 +7201,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             fireAttack,
             source.Seat,
@@ -7745,7 +7942,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        BeginNullificationWindow(
+        BeginJizhiOrNullificationWindow(
             resolutionId,
             duel,
             source.Seat,
@@ -14506,6 +14703,7 @@ public sealed partial class GameEngine
             _pendingGroupCard is not null ||
             _pendingFireAttack is not null ||
             _pendingNullification is not null ||
+            _pendingJizhi is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
             _resolutionStack.Any(frame => frame is ActiveSkillFrame);
@@ -14595,6 +14793,8 @@ public sealed partial class GameEngine
 
         if (_pendingNullification is { } nullification)
         {
+            var jizhiOwnsNullification =
+                ReferenceEquals(_pendingJizhi?.ActiveNullification, nullification);
             if (processing.Count != 1 || processing[0].Id != nullification.EffectCard.Id)
             {
                 throw new InvalidOperationException(
@@ -14632,31 +14832,34 @@ public sealed partial class GameEngine
                     "A Nullification window must retain its public cursor as the stack top.");
             }
 
-            var currentNullificationCards = nullification.CandidateIndex < nullification.CandidateSeats.Count
-                ? GetHand(_players[nullification.CandidateSeats[nullification.CandidateIndex]])
-                    .Where(card => card.Kind == CardKind.Nullification)
-                    .Select(card => card.Id)
-                    .ToArray()
-                : Array.Empty<int>();
-            if (_pendingDecision is not { Kind: DecisionKind.Nullification } nullificationDecision ||
-                nullification.CandidateIndex >= nullification.CandidateSeats.Count ||
-                nullificationDecision.PlayerSeat != nullification.CandidateSeats[nullification.CandidateIndex] ||
-                nullificationDecision.SourceSeat != nullification.SourceSeat ||
-                nullificationDecision.IncomingCard != nullification.EffectiveCardKind ||
-                nullificationDecision.RequiredCardKind != CardKind.Nullification ||
-                !nullificationDecision.ValidCardIds.SequenceEqual(currentNullificationCards))
+            if (!jizhiOwnsNullification)
             {
-                throw new InvalidOperationException(
-                    "A Nullification window must retain a prompt for its current responder.");
-            }
+                var currentNullificationCards = nullification.CandidateIndex < nullification.CandidateSeats.Count
+                    ? GetHand(_players[nullification.CandidateSeats[nullification.CandidateIndex]])
+                        .Where(card => card.Kind == CardKind.Nullification)
+                        .Select(card => card.Id)
+                        .ToArray()
+                    : Array.Empty<int>();
+                if (_pendingDecision is not { Kind: DecisionKind.Nullification } nullificationDecision ||
+                    nullification.CandidateIndex >= nullification.CandidateSeats.Count ||
+                    nullificationDecision.PlayerSeat != nullification.CandidateSeats[nullification.CandidateIndex] ||
+                    nullificationDecision.SourceSeat != nullification.SourceSeat ||
+                    nullificationDecision.IncomingCard != nullification.EffectiveCardKind ||
+                    nullificationDecision.RequiredCardKind != CardKind.Nullification ||
+                    !nullificationDecision.ValidCardIds.SequenceEqual(currentNullificationCards))
+                {
+                    throw new InvalidOperationException(
+                        "A Nullification window must retain a prompt for its current responder.");
+                }
 
-            var expectedNullificationStatus = _players[nullificationDecision.PlayerSeat].IsHuman
-                ? EngineStatus.AwaitingHumanResponse
-                : EngineStatus.Running;
-            if (_status != expectedNullificationStatus)
-            {
-                throw new InvalidOperationException(
-                    "A Nullification prompt status does not match its current responder.");
+                var expectedNullificationStatus = _players[nullificationDecision.PlayerSeat].IsHuman
+                    ? EngineStatus.AwaitingHumanResponse
+                    : EngineStatus.Running;
+                if (_status != expectedNullificationStatus)
+                {
+                    throw new InvalidOperationException(
+                        "A Nullification prompt status does not match its current responder.");
+                }
             }
         }
 
@@ -14785,6 +14988,54 @@ public sealed partial class GameEngine
             if (_status != expectedLuoshenStatus)
             {
                 throw new InvalidOperationException("A Luoshen prompt status does not match its owner.");
+            }
+        }
+
+        if (_pendingJizhi is { } jizhi)
+        {
+            var decision = _pendingDecision;
+            var ownsInitialCardUse = jizhi.ActiveNullification is null &&
+                                     processing.Count == 1 &&
+                                     processing[0].Id == jizhi.Card.Id &&
+                                     _resolutionStack.LastOrDefault() is CardUseFrame cardUse &&
+                                     cardUse.Id == jizhi.ResolutionId &&
+                                     cardUse.SourceSeat == jizhi.PlayerSeat &&
+                                     cardUse.CardId == jizhi.Card.Id &&
+                                     cardUse.CardKind == jizhi.EffectiveCardKind &&
+                                     cardUse.Step == ResolutionFrameStep.Declared &&
+                                     cardUse.TargetSeats.SequenceEqual(jizhi.TargetSeats);
+            var ownsNullificationResponse =
+                jizhi.ActiveNullification is { } activeNullification &&
+                ReferenceEquals(_pendingNullification, activeNullification) &&
+                jizhi.Card.Kind == CardKind.Nullification &&
+                jizhi.EffectiveCardKind == CardKind.Nullification &&
+                _cardZones.GetLocation(jizhi.Card.Id) == CardLocation.DiscardPile;
+            if (!UsesFormalJizhi ||
+                !_players[jizhi.PlayerSeat].IsAlive ||
+                !_players[jizhi.PlayerSeat].General.HasSkill(SkillKind.Jizhi) ||
+                !IsOrdinaryTrick(jizhi.EffectiveCardKind) ||
+                decision is not { Kind: DecisionKind.Jizhi, IsPrivate: true } ||
+                decision.PlayerSeat != jizhi.PlayerSeat ||
+                decision.SourceSeat != jizhi.PlayerSeat ||
+                decision.IncomingCard != jizhi.EffectiveCardKind ||
+                decision.Choices.Count != 2 ||
+                decision.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0) ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "jizhi-use") != 1 ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "jizhi-skip") != 1 ||
+                (!ownsInitialCardUse && !ownsNullificationResponse))
+            {
+                throw new InvalidOperationException(
+                    "A Jizhi choice must retain its private prompt and exact ordinary-trick continuation.");
+            }
+
+            var expectedJizhiStatus = _players[jizhi.PlayerSeat].IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedJizhiStatus)
+            {
+                throw new InvalidOperationException("A Jizhi prompt status does not match its owner.");
             }
         }
 
@@ -15587,11 +15838,15 @@ public sealed partial class GameEngine
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
             _status == EngineStatus.AwaitingHumanResponse;
+        var awaitingHumanJizhi =
+            _pendingDecision?.Kind == DecisionKind.Jizhi &&
+            _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanDying =
             _pendingDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
         var awaitingAiResponse = IsAiResponsePending();
         var awaitingAiNullification = IsAiNullificationPending();
+        var awaitingAiJizhi = IsAiJizhiPending();
         var awaitingAiDamageSkill = IsAiDamageSkillPending();
         var awaitingAiJudgment = IsAiJudgmentPending();
         if (_pendingAttack is null &&
@@ -15613,7 +15868,9 @@ public sealed partial class GameEngine
 
         if (_pendingNullification is not null &&
             !awaitingHumanNullification &&
-            !awaitingAiNullification)
+            !awaitingAiNullification &&
+            !awaitingHumanJizhi &&
+            !awaitingAiJizhi)
         {
             throw new InvalidOperationException(
                 "An active Nullification window must retain exactly one response continuation.");
@@ -15642,6 +15899,7 @@ public sealed partial class GameEngine
              _pendingDamageSkill is not null ||
              _pendingJudgment is not null ||
              _pendingLuoshen is not null ||
+             _pendingJizhi is not null ||
              _pendingHujia is not null ||
              _pendingJijiang is not null ||
              processing.Count != 0))
@@ -15889,6 +16147,23 @@ public sealed partial class GameEngine
         }
 
         ResolveLuoshenChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiJizhiPending() =>
+        _pendingJizhi is { PlayerSeat: var playerSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Jizhi, PlayerSeat: var decisionSeat } &&
+        playerSeat == decisionSeat &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiJizhi()
+    {
+        if (!IsAiJizhiPending())
+        {
+            throw new InvalidOperationException("There is no AI Jizhi choice to resolve.");
+        }
+
+        ResolveJizhiChoice(useSkill: true);
         PublishState();
     }
 
@@ -16724,6 +16999,28 @@ public sealed partial class GameEngine
     }
 
     private sealed record LuoshenResolution(int PlayerSeat, bool IsRepeat);
+
+    private sealed class JizhiResolution(
+        int playerSeat,
+        long resolutionId,
+        Card card,
+        CardKind effectiveCardKind,
+        IReadOnlyList<int> targetSeats,
+        LegalActionKind actionKind,
+        int? targetCardId,
+        CardKind? requiredCardKind,
+        NullificationResolution? activeNullification)
+    {
+        public int PlayerSeat { get; } = playerSeat;
+        public long ResolutionId { get; } = resolutionId;
+        public Card Card { get; } = card;
+        public CardKind EffectiveCardKind { get; } = effectiveCardKind;
+        public IReadOnlyList<int> TargetSeats { get; } = Array.AsReadOnly(targetSeats.ToArray());
+        public LegalActionKind ActionKind { get; } = actionKind;
+        public int? TargetCardId { get; } = targetCardId;
+        public CardKind? RequiredCardKind { get; } = requiredCardKind;
+        public NullificationResolution? ActiveNullification { get; } = activeNullification;
+    }
 
     private sealed class DuelResolution(AttackResolution attack)
     {

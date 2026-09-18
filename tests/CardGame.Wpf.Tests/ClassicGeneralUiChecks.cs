@@ -557,6 +557,77 @@ internal static class ClassicGeneralUiChecks
         qingguoWindow.Content = null;
         qingguoWindow.Close();
 
+        using var jizhiDescriptionViewModel = FindGeneralChoice("classic:huang-yueying");
+        var huangYueying = jizhiDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:huang-yueying");
+        Program.Assert(huangYueying.Name == "黄月英" &&
+                       huangYueying.Kingdom == "蜀" &&
+                       huangYueying.SkillName == "集智 / 奇才" &&
+                       huangYueying.SkillDescription.Contains("普通锦囊牌", StringComparison.Ordinal) &&
+                       huangYueying.SkillDescription.Contains("无距离限制", StringComparison.Ordinal) &&
+                       huangYueying.HealthText == "体力上限 4" &&
+                       GeneralArt.HasPortrait(huangYueying.GeneralId),
+            "The current classic Huang Yueying card must render Shu, Jizhi, Qicai, Lord health and portrait aliasing.");
+        var jizhiDescriptionWindow = new MainWindow(jizhiDescriptionViewModel);
+        jizhiDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)jizhiDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "97-classic-huang-yueying-card.png"));
+        jizhiDescriptionWindow.Content = null;
+        jizhiDescriptionWindow.Close();
+
+        using var jizhiViewModel = FindClassicJizhiViewModel();
+        var jizhiEngine = Program.Engine(jizhiViewModel);
+        var drawTwo = jizhiEngine.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.DrawTwo && action.CardId is not null);
+        var jizhiCard = jizhiViewModel.Hand.Single(card => card.Id == drawTwo.CardId);
+        jizhiViewModel.SelectCardCommand.Execute(jizhiCard);
+        Program.Assert(jizhiViewModel.CanPlaySelected,
+            "The WPF Huang Yueying fixture must expose its ordinary trick through normal hand confirmation.");
+        jizhiViewModel.PlaySelectedCardCommand.Execute(null);
+        var jizhiPrompt = jizhiEngine.PendingDecision;
+        Program.Assert(jizhiViewModel.IsSkillSelectionPending &&
+                       jizhiPrompt is
+                       {
+                           Kind: DecisionKind.Jizhi,
+                           PlayerSeat: 0,
+                           IsPrivate: true,
+                           Choices.Count: 2
+                       } &&
+                       jizhiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "jizhi-use") &&
+                       jizhiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "jizhi-skip") &&
+                       jizhiViewModel.CurrentGuideTitle == "决定是否发动集智" &&
+                       jizhiViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("原处继续", StringComparison.Ordinal)),
+            "The WPF must render both private Jizhi choices before resuming the ordinary trick.");
+        var jizhiWindow = new MainWindow(jizhiViewModel);
+        jizhiWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)jizhiWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "98-classic-jizhi-choice.png"));
+        jizhiViewModel.SelectSkillChoiceCommand.Execute(jizhiViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "jizhi-use"));
+        Program.Assert(jizhiEngine.Events.Any(item => item.Payload is DrawSkillResolvedEvent
+        {
+            SourceSeat: 0,
+            Skill: SkillKind.Jizhi,
+            Used: true,
+            DrawCount: 1
+        }) &&
+                       jizhiEngine.CardMovements.Count(movement =>
+                           movement.To == CardLocation.Hand(0) &&
+                           movement.Reason == CardMoveReasons.JizhiDraw) == 1 &&
+                       jizhiEngine.PendingDecision?.Kind != DecisionKind.Jizhi,
+            "The WPF Jizhi choice must draw exactly one card and resume the original trick.");
+        jizhiWindow.Content = null;
+        jizhiWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
@@ -1207,6 +1278,40 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Duanliang WPF fixture.");
+    }
+
+    private static MainViewModel FindClassicJizhiViewModel()
+    {
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var huangYueying = candidate.GeneralChoices.SingleOrDefault(choice =>
+                choice.GeneralId == "classic:huang-yueying");
+            if (huangYueying is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(huangYueying);
+                Program.AdvanceToDecision(candidate);
+                var engine = Program.Engine(candidate);
+                if (engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                    engine.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.DrawTwo && action.CardId is not null))
+                {
+                    return candidate;
+                }
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Jizhi WPF fixture.");
     }
 
     private static (GameEngine Game, int JudgmentCardId) FindTianduFixture()

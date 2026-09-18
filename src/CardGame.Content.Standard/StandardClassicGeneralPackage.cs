@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 14, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 15, 0))
     {
     }
 
@@ -33,12 +33,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 11, 0) &&
             version != new Version(1, 12, 0) &&
             version != new Version(1, 13, 0) &&
-            version != new Version(1, 14, 0))
+            version != new Version(1, 14, 0) &&
+            version != new Version(1, 15, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.14.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.15.0.");
         }
 
         _version = version;
@@ -167,6 +168,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "倾国",
                 "你可以将1张黑色手牌当【闪】使用或打出。",
                 SkillKind.Qingguo));
+        }
+        if (_version >= new Version(1, 15, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:jizhi",
+                "集智",
+                "每当你使用普通锦囊牌时，你可以摸一张牌。",
+                SkillKind.Jizhi));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -337,6 +346,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds: ["classic:qingguo"]));
         }
+        if (_version >= new Version(1, 15, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:huang-yueying",
+                "黄月英",
+                "huang_yueying",
+                "classic:jizhi",
+                "shu",
+                BaseHp: 3,
+                AdditionalSkillIds: ["standard:qicai"]));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -354,6 +374,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 11 } => PreDianWeiClassicGeneralIds,
             { Major: 1, Minor: 12 } => PreXuHuangClassicGeneralIds,
             { Major: 1, Minor: 13 } => PreZhenJiClassicGeneralIds,
+            { Major: 1, Minor: 14 } => PreHuangYueyingClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -402,6 +423,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:dian-wei",
         "classic:xu-huang",
         "classic:zhen-ji",
+        "classic:huang-yueying",
         "classic:huang-gai",
         "classic:gan-ning",
         "classic:lu-meng",
@@ -413,9 +435,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreHuangYueyingClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:huang-yueying")
+    ];
+
     internal static IReadOnlyList<string> PreZhenJiClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:zhen-ji")
+        .. PreHuangYueyingClassicGeneralIds.Where(id => id != "classic:zhen-ji")
     ];
 
     internal static IReadOnlyList<string> PreXuHuangClassicGeneralIds { get; } =

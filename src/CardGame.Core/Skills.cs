@@ -302,6 +302,12 @@ public sealed class QingguoSkill : IPassiveSkill
         card.Suit is Suit.Spade or Suit.Club;
 }
 
+public sealed class JizhiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Jizhi;
+    public string Name => "集智";
+}
+
 public sealed class KejiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Keji;
@@ -783,7 +789,8 @@ public static class SkillRegistry
             [SkillKind.Qiangxi] = new QiangxiSkill(),
             [SkillKind.Duanliang] = new DuanliangSkill(),
             [SkillKind.Luoshen] = new LuoshenSkill(),
-            [SkillKind.Qingguo] = new QingguoSkill()
+            [SkillKind.Qingguo] = new QingguoSkill(),
+            [SkillKind.Jizhi] = new JizhiSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

@@ -63,6 +63,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Dian Wei pays HP or a weapon for formal Qiangxi damage", ClassicGeneralChecks.FormalQiangxiFlow),
     ("classic Xu Huang converts black cards into persistent Supply Shortage", ClassicGeneralChecks.FormalDuanliangFlow),
     ("classic Zhen Ji repeats black Luoshen judgments and converts Qingguo Dodge responses", ClassicGeneralChecks.FormalLuoshenAndQingguoFlow),
+    ("classic Huang Yueying draws through Jizhi and ignores trick distance through Qicai", ClassicGeneralChecks.FormalJizhiAndQicaiFlow),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),

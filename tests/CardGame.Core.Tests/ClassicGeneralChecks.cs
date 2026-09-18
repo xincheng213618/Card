@@ -23,6 +23,7 @@ internal static class ClassicGeneralChecks
         var luoyiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 11, 0));
         var qiangxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 12, 0));
         var duanliangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 13, 0));
+        var luoshenClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 14, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -31,7 +32,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.14.0"]),
+                "standard-classic-generals@1.15.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -124,6 +125,13 @@ internal static class ClassicGeneralChecks
                     "classic:zhen-ji",
                     StringComparer.Ordinal),
             "The Duanliang-era classic registry must retain the 1.13 roster without Zhen Ji, Luoshen or Qingguo.");
+        Require(luoshenClassic.Packages.Last().Version == new Version(1, 14, 0) &&
+                !luoshenClassic.Generals.ContainsKey("classic:huang-yueying") &&
+                !luoshenClassic.Skills.ContainsKey("classic:jizhi") &&
+                !luoshenClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:huang-yueying",
+                    StringComparer.Ordinal),
+            "The Luoshen-era classic registry must retain the 1.14 roster without Huang Yueying or Jizhi.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -203,6 +211,12 @@ internal static class ClassicGeneralChecks
                 zhenJi.BaseHp == 3 &&
                 zhenJi.SkillIds.SequenceEqual(["classic:luoshen", "classic:qingguo"]),
             "The current classic Zhen Ji must expose formal Wei, 3-HP Luoshen and Qingguo in a stable order.");
+        var huangYueying = classic.Generals["classic:huang-yueying"];
+        Require(huangYueying.Name == "黄月英" &&
+                huangYueying.FactionId == "shu" &&
+                huangYueying.BaseHp == 3 &&
+                huangYueying.SkillIds.SequenceEqual(["classic:jizhi", "standard:qicai"]),
+            "The current classic Huang Yueying must expose formal Shu, 3-HP Jizhi and Qicai in a stable order.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -219,13 +233,14 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
                       pool.Contains("classic:dian-wei", StringComparer.Ordinal) &&
                       pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
-                      pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
+                       pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
+                       pool.Contains("classic:huang-yueying", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 34,
-            "Classic Luoshen and Qingguo must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 35,
+            "Classic Jizhi must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -1546,6 +1561,143 @@ internal static class ClassicGeneralChecks
                 legacyResponseCards.All(card => card.Kind == CardKind.Dodge),
             legacyAdvance.Error?.Message ??
             "Rules v33 must retain the historical turn start and native-only Dodge response set.");
+    }
+
+    public static void FormalJizhiAndQicaiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var (game, action) = FindHuangYueyingOrdinaryTrickFixture(
+            registry,
+            GameCheckpoint.CurrentRulesVersion,
+            requireNullification: false);
+        var owner = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(owner.GeneralId == "classic:huang-yueying" &&
+                owner.MaxHp == 4 &&
+                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Jizhi, SkillKind.Qicai]),
+            "Classic Huang Yueying must expose formal Shu, Lord-adjusted 4 HP, Jizhi and Qicai.");
+
+        var played = game.Submit(new PlayCardCommand(
+            0,
+            action.CardId!.Value,
+            action.TargetSeats,
+            game.Revision,
+            game.PendingDecision!.PromptId,
+            action.PlayedCardKind,
+            action.TargetCardId));
+        var prompt = game.PendingDecision;
+        Require(played.Accepted &&
+                prompt is
+                {
+                    Kind: DecisionKind.Jizhi,
+                    PlayerSeat: 0,
+                    IsPrivate: true,
+                    Choices.Count: 2
+                } &&
+                prompt.IncomingCard == (action.PlayedCardKind ?? owner.Hand.Single(card => card.Id == action.CardId).Kind) &&
+                game.CreateSnapshot(1).PendingDecision is null &&
+                game.ResolutionStack.LastOrDefault() is CardUseFrame { Step: ResolutionFrameStep.Declared },
+            played.Error?.Message ??
+            "Using an ordinary trick must pause at a private Jizhi choice before the Nullification window.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restored = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(restored.PendingDecision?.Kind == DecisionKind.Jizhi &&
+                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(restored).SequenceEqual(EventSignatures(game)),
+            "A paused Jizhi choice must restore before the ordinary trick enters its Nullification window.");
+
+        var useChoice = prompt!.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "jizhi-use");
+        var used = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            useChoice.Id,
+            game.Revision));
+        Require(used.Accepted &&
+                game.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Jizhi &&
+                    resolved.Used &&
+                    resolved.DrawCount == 1) &&
+                game.CardMovements.Count(movement =>
+                    movement.To == CardLocation.Hand(0) &&
+                    movement.Reason == CardMoveReasons.JizhiDraw) == 1 &&
+                game.PendingDecision?.Kind != DecisionKind.Jizhi,
+            used.Error?.Message ?? "Accepting Jizhi must draw exactly one card and resume the original trick.");
+        var completedReplay = GameReplay.Restore(game.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(completedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(completedReplay).SequenceEqual(EventSignatures(game)),
+            "The resumed ordinary-trick/Jizhi flow must replay exactly.");
+
+        var skipped = GameReplay.Restore(pausedCheckpoint, registry);
+        var skippedPrompt = skipped.PendingDecision!;
+        var skippedResult = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skippedPrompt.PromptId,
+            skippedPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "jizhi-skip").Id,
+            skipped.Revision));
+        Require(skippedResult.Accepted &&
+                skipped.CardMovements.All(movement => movement.Reason != CardMoveReasons.JizhiDraw) &&
+                skipped.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Jizhi &&
+                    !resolved.Used &&
+                    resolved.DrawCount == 0),
+            skippedResult.Error?.Message ?? "Skipping Jizhi must resume the trick without drawing a card.");
+
+        var nullificationGame = FindHuangYueyingNullificationJizhiFixture(registry);
+        var nullificationPrompt = nullificationGame.PendingDecision!;
+        Require(nullificationPrompt.Kind == DecisionKind.Jizhi &&
+                nullificationPrompt.IncomingCard == CardKind.Nullification &&
+                nullificationGame.CardMovements.Any(movement =>
+                    movement.CardKind == CardKind.Nullification &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.NullificationFinished) &&
+                nullificationGame.ResolutionStack.LastOrDefault() is NullificationWindowFrame,
+            "Using Nullification must open Jizhi while retaining the parent Nullification cursor.");
+        var nullificationCheckpoint = nullificationGame.CreateCheckpoint();
+        var nullificationUsed = nullificationGame.Submit(new AnswerPromptCommand(
+            0,
+            nullificationPrompt.PromptId,
+            nullificationPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "jizhi-use").Id,
+            nullificationGame.Revision));
+        Require(nullificationUsed.Accepted &&
+                nullificationGame.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Jizhi &&
+                    resolved.Used),
+            nullificationUsed.Error?.Message ??
+            "Jizhi after Nullification must draw and resume the exact counter-chain cursor.");
+        var nullificationReplay = GameReplay.Restore(nullificationGame.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(nullificationReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(nullificationGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(nullificationReplay).SequenceEqual(EventSignatures(nullificationGame)) &&
+                GameReplay.Restore(nullificationCheckpoint, registry).PendingDecision?.Kind == DecisionKind.Jizhi,
+            "Paused and resumed Nullification-triggered Jizhi must replay exactly.");
+
+        var (legacy, legacyAction) = FindHuangYueyingOrdinaryTrickFixture(
+            registry,
+            rulesVersion: 34,
+            requireNullification: false);
+        var legacyPlayed = legacy.Submit(new PlayCardCommand(
+            0,
+            legacyAction.CardId!.Value,
+            legacyAction.TargetSeats,
+            legacy.Revision,
+            legacy.PendingDecision!.PromptId,
+            legacyAction.PlayedCardKind,
+            legacyAction.TargetCardId));
+        Require(legacyPlayed.Accepted &&
+                legacy.PendingDecision?.Kind != DecisionKind.Jizhi &&
+                legacy.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>()
+                    .All(resolved => resolved.Skill != SkillKind.Jizhi) &&
+                legacy.CardMovements.All(movement => movement.Reason != CardMoveReasons.JizhiDraw),
+            legacyPlayed.Error?.Message ?? "Rules v34 must not publish or resolve Jizhi.");
     }
 
     public static void FormalFeedbackFlow()
@@ -3897,6 +4049,196 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic first-black Luoshen fixture.");
+    }
+
+    private static (GameEngine Game, LegalAction Action) FindHuangYueyingOrdinaryTrickFixture(
+        ContentRegistry registry,
+        int rulesVersion,
+        bool requireNullification)
+    {
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+            {
+                game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+            }
+
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Huang Yueying fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:huang-yueying"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:huang-yueying",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Huang Yueying.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Huang Yueying did not reach the play phase.");
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+            {
+                continue;
+            }
+
+            var hand = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hand;
+            if (requireNullification && hand.All(card => card.Kind != CardKind.Nullification))
+            {
+                continue;
+            }
+
+            var action = game.GetHumanLegalActions()
+                .Where(candidate => candidate.CardId is not null && candidate.Kind is
+                    LegalActionKind.DrawTwo or
+                    LegalActionKind.BarbarianAssault or
+                    LegalActionKind.ArrowBarrage or
+                    LegalActionKind.PeachGarden or
+                    LegalActionKind.FiveGrains or
+                    LegalActionKind.IronChain or
+                    LegalActionKind.Dismantlement or
+                    LegalActionKind.Snatch or
+                    LegalActionKind.FireAttack or
+                    LegalActionKind.Duel)
+                .OrderBy(candidate => candidate.Kind == LegalActionKind.DrawTwo ? 0 : 1)
+                .ThenBy(candidate => candidate.CardId)
+                .FirstOrDefault();
+            if (action is not null)
+            {
+                return (game, action);
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic Huang Yueying ordinary-trick fixture.");
+    }
+
+    private static GameEngine FindHuangYueyingNullificationJizhiFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            GameEngine game;
+            LegalAction action;
+            try
+            {
+                (game, action) = FindHuangYueyingOrdinaryTrickFixtureForSeed(registry, seed);
+            }
+            catch (InvalidOperationException)
+            {
+                continue;
+            }
+
+            var played = game.Submit(new PlayCardCommand(
+                0,
+                action.CardId!.Value,
+                action.TargetSeats,
+                game.Revision,
+                game.PendingDecision!.PromptId,
+                action.PlayedCardKind,
+                action.TargetCardId));
+            if (!played.Accepted || game.PendingDecision is not { Kind: DecisionKind.Jizhi } initialJizhi)
+            {
+                continue;
+            }
+
+            var skipped = game.Submit(new AnswerPromptCommand(
+                0,
+                initialJizhi.PromptId,
+                initialJizhi.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "jizhi-skip").Id,
+                game.Revision));
+            if (!skipped.Accepted)
+            {
+                continue;
+            }
+
+            for (var step = 0; step < 128; step++)
+            {
+                if (game.PendingDecision is
+                    {
+                        Kind: DecisionKind.Nullification,
+                        PlayerSeat: 0
+                    } nullificationPrompt)
+                {
+                    var choice = nullificationPrompt.Choices.FirstOrDefault(candidate =>
+                        candidate.Parameters.GetValueOrDefault("response") == "nullification");
+                    if (choice is null)
+                    {
+                        break;
+                    }
+
+                    var used = game.Submit(new AnswerPromptCommand(
+                        0,
+                        nullificationPrompt.PromptId,
+                        choice.Id,
+                        game.Revision));
+                    if (used.Accepted && game.PendingDecision?.Kind == DecisionKind.Jizhi)
+                    {
+                        return game;
+                    }
+                    break;
+                }
+
+                if (!game.ResolutionStack.Any(frame => frame is NullificationWindowFrame))
+                {
+                    break;
+                }
+
+                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                if (!advanced.Accepted)
+                {
+                    break;
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic Nullification-triggered Jizhi fixture.");
+    }
+
+    private static (GameEngine Game, LegalAction Action) FindHuangYueyingOrdinaryTrickFixtureForSeed(
+        ContentRegistry registry,
+        int seed)
+    {
+        var game = CreateInteractive(registry, seed);
+        var started = game.Submit(new StartGameCommand());
+        Require(started.Accepted, started.Error?.Message ?? "Huang Yueying Nullification fixture failed to start.");
+        if (game.PendingDecision?.Choices.Any(choice =>
+                choice.ContentIds.SequenceEqual(["classic:huang-yueying"])) != true)
+        {
+            throw new InvalidOperationException("Huang Yueying was not offered.");
+        }
+
+        var selected = game.Submit(new SelectGeneralCommand(
+            0,
+            "classic:huang-yueying",
+            game.Revision,
+            game.PendingDecision.PromptId));
+        Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Huang Yueying.");
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        Require(advanced.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard,
+            advanced.Error?.Message ?? "Huang Yueying did not reach play for Nullification.");
+        var hand = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hand;
+        if (hand.All(card => card.Kind != CardKind.Nullification))
+        {
+            throw new InvalidOperationException("Huang Yueying has no Nullification.");
+        }
+
+        var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
+            candidate.CardId is not null && candidate.Kind is
+                LegalActionKind.DrawTwo or
+                LegalActionKind.BarbarianAssault or
+                LegalActionKind.ArrowBarrage or
+                LegalActionKind.PeachGarden or
+                LegalActionKind.FiveGrains or
+                LegalActionKind.IronChain or
+                LegalActionKind.Dismantlement or
+                LegalActionKind.Snatch or
+                LegalActionKind.FireAttack or
+                LegalActionKind.Duel) ??
+            throw new InvalidOperationException("Huang Yueying has no ordinary trick action.");
+        return (game, action);
     }
 
     private static void ContinueLuoshenUntilPlay(GameEngine game)
