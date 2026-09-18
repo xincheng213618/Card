@@ -126,6 +126,7 @@ var tests = new (string Name, Action Body)[]
     ("Renwang Shield nullifies black Slash after target confirmation", RenwangShieldFlow),
     ("FireAttack reveals privately then resolves typed fire damage", FireAttackFlow),
     ("FireAttack can skip the same-suit discard without damage", FireAttackSkipFlow),
+    ("formal FireAttack can target self and keeps the revealed card in hand", FireAttackFormalChecks.SelfTargetAndLegacy),
     ("FireSlash and ThunderSlash preserve typed damage nature", AttributeSlashFlow),
     ("Alcohol arms a one-shot Slash damage boost", AlcoholFlow),
     ("Feedback claims a surviving damage card through a typed event", FeedbackFlow),
@@ -4977,7 +4978,7 @@ static void FireAttackFlow()
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate =>
                 candidate.Kind == LegalActionKind.FireAttack &&
-                candidate.TargetSeat is not null);
+                candidate.TargetSeat is not null and not 0);
         if (action is null)
         {
             continue;
@@ -5032,7 +5033,7 @@ static void FireAttackFlow()
         }
 
         if (game.State.PublicRevealedCards.Count != 1 ||
-            game.State.ProcessingCardCount != 2)
+            game.State.ProcessingCardCount != 1)
         {
             continue;
         }
@@ -5067,8 +5068,8 @@ static void FireAttackFlow()
         .Players.Single(player => player.Seat == targetSeatAtBoundary);
     var ordinaryViewer = gameWithFireAttack.CreateSnapshot(1);
     TrueWithMessage(ordinaryViewer.PublicRevealedCards.Count == 1, "FireAttack publishes the revealed card");
-    TrueWithMessage(ordinaryViewer.Players.Single(player => player.Seat == targetSeatAtBoundary).Hand
-        .All(card => card.Id != revealedEvent.CardId), "revealed card leaves the target hand");
+    TrueWithMessage(targetBefore.Hand.Any(card => card.Id == revealedEvent.CardId),
+        "formal FireAttack keeps the revealed card in the target hand");
     TrueWithMessage(
         ordinaryViewer.Players.SelectMany(player => player.Hand).All(card => card.Id != matchingDiscardCardId),
         "source discard remains private in an ordinary viewer");
@@ -5110,6 +5111,9 @@ static void FireAttackFlow()
     var targetAfter = gameWithFireAttack.CreateSnapshot(0, revealAll: true)
         .Players.Single(player => player.Seat == targetSeatAtBoundary);
     Equal(targetBefore.Hp - 1, targetAfter.Hp);
+    Equal(targetBefore.HandCount, targetAfter.HandCount);
+    TrueWithMessage(targetAfter.Hand.Any(card => card.Id == revealedEvent.CardId),
+        "formal FireAttack reveal remains in hand after damage");
     var sourceAfter = gameWithFireAttack.CreateSnapshot(0, revealAll: true)
         .Players.Single(player => player.Seat == 0);
     TrueWithMessage(
@@ -5123,21 +5127,21 @@ static void FireAttackFlow()
         movement.From == CardLocation.Hand(0) &&
         movement.To == CardLocation.Processing &&
         movement.Reason == CardMoveReasons.Use), "FireAttack effect enters Processing");
-    TrueWithMessage(gameWithFireAttack.CardMovements.Any(movement =>
+    False(gameWithFireAttack.CardMovements.Any(movement =>
         movement.CardId == revealedEvent.CardId &&
         movement.From == CardLocation.Hand(targetSeatAtBoundary) &&
         movement.To == CardLocation.Processing &&
-        movement.Reason == CardMoveReasons.FireAttackReveal), "FireAttack reveal movement");
+        movement.Reason == CardMoveReasons.FireAttackReveal));
     TrueWithMessage(gameWithFireAttack.CardMovements.Any(movement =>
         movement.CardId == matchingDiscardCardId &&
         movement.From == CardLocation.Hand(0) &&
         movement.To == CardLocation.Processing &&
         movement.Reason == CardMoveReasons.FireAttackDiscard), "FireAttack same-suit discard movement");
-    TrueWithMessage(gameWithFireAttack.CardMovements.Any(movement =>
+    False(gameWithFireAttack.CardMovements.Any(movement =>
         movement.CardId == revealedEvent.CardId &&
         movement.From == CardLocation.Processing &&
         movement.To == CardLocation.DiscardPile &&
-        movement.Reason == CardMoveReasons.FireAttackFinished), "FireAttack revealed card finishes");
+        movement.Reason == CardMoveReasons.FireAttackFinished));
     TrueWithMessage(gameWithFireAttack.CardMovements.Any(movement =>
         movement.CardId == matchingDiscardCardId &&
         movement.From == CardLocation.Processing &&
@@ -5184,7 +5188,7 @@ static void FireAttackSkipFlow()
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate =>
                 candidate.Kind == LegalActionKind.FireAttack &&
-                candidate.TargetSeat is not null);
+                candidate.TargetSeat is not null and not 0);
         if (action is null)
         {
             continue;
@@ -5265,13 +5269,16 @@ static void FireAttackSkipFlow()
     var targetAfter = gameWithSkip.CreateSnapshot(0, revealAll: true)
         .Players.Single(player => player.Seat == frameAtBoundary.TargetSeats.Single());
     Equal(targetBefore.Hp, targetAfter.Hp);
+    Equal(targetBefore.HandCount, targetAfter.HandCount);
+    TrueWithMessage(targetAfter.Hand.Any(card => card.Id == revealed.CardId),
+        "formal FireAttack skip keeps the revealed card in hand");
     Equal(sourceBefore.HandCount,
         gameWithSkip.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount);
-    TrueWithMessage(gameWithSkip.CardMovements.Any(movement =>
+    False(gameWithSkip.CardMovements.Any(movement =>
         movement.CardId == revealed.CardId &&
         movement.From == CardLocation.Processing &&
         movement.To == CardLocation.DiscardPile &&
-        movement.Reason == CardMoveReasons.FireAttackFinished), "FireAttack skip discards revealed card");
+        movement.Reason == CardMoveReasons.FireAttackFinished));
     TrueWithMessage(gameWithSkip.Events.Any(eventItem =>
         eventItem.Payload is CardUseFinishedEvent finished &&
         finished.ResolutionId == frameAtBoundary.Id &&

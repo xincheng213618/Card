@@ -256,6 +256,8 @@ public sealed partial class MainViewModel
                 ? CardCatalog.Get(kind).Description
                 : "选择一名有手牌的其他角色；其下个回合判定，若为黑色则跳过摸牌阶段。";
         }
+        if (kind == CardKind.FireAttack && rulesVersion < 19)
+            return "选择一名有手牌的其他角色；其展示一张手牌，你弃置一张相同花色的手牌后对其造成 1 点火焰伤害；展示牌按旧规则进入弃牌堆。";
         if (kind == CardKind.Crossbow && rulesVersion < 13)
             return "装备至武器槽；攻击范围 +1，出牌阶段使用杀不受次数限制。";
         if (kind == CardKind.QinggangSword && rulesVersion < 13)

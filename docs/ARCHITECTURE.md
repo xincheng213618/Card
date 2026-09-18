@@ -178,7 +178,7 @@ HumanPlay / AI ChoosePlay
 
 五谷丰登复用同一父级和目标游标，但把牌面可见性显式建模为 `GameSnapshot.PublicRevealedCards`。使用时每个锁定的存活角色对应一张 `DrawPile → Processing` 的公开牌；当前 picker 收到私有 `SelectHarvestCard` prompt，选中牌从 `Processing` 进入自己的手牌，完成全部 picker 后父牌才进入弃牌堆。AI 只调用 `ChooseHarvestCard(view, options, ...)`，其中 `view` 是本座玩家视角、`options` 是公共展示牌，不读取引擎牌区或其他玩家手牌。
 
-火攻使用独立的两段私有选择而不是复用五谷丰登的公共 draft：目标先在自己的快照中选择一张手牌，实体牌从 `Hand(target) → Processing` 后才通过 `FireAttackCardRevealedEvent` 和 `PublicRevealedCards` 公开；攻击者再从自己的同花色手牌中选择弃牌或跳过。成功弃牌时同一 `CardUseFrame` 转为 `AttackResolution`，由 `DamageNature.Fire` 进入既有伤害/技能/濒死链；跳过或无同花色牌则清理展示牌并结束父牌。两个 AI 选择器只接收本座快照与宿主已经发布的候选 ID，普通观察者既看不到未展示牌面，也看不到私有候选 Prompt。
+火攻使用独立的两段私有选择而不是复用五谷丰登的公共 draft：目标先在自己的快照中选择一张手牌。规则 v19 起实体牌继续位于 `Hand(target)`，但通过 `FireAttackCardRevealedEvent` 和 `PublicRevealedCards` 临时公开牌面；攻击者再从自己的同花色手牌中选择弃牌或跳过，自选目标时展示牌本身也可支付该弃牌成本。成功弃牌时同一 `CardUseFrame` 转为 `AttackResolution`，由 `DamageNature.Fire` 进入既有伤害/技能/濒死链；跳过或无同花色牌只清除公开展示状态并结束父牌。v1–v18 保留只能选择其他角色、展示牌 `Hand(target) → Processing → DiscardPile` 的历史路径。两个 AI 选择器只接收本座快照与宿主已经发布的候选 ID，普通观察者既看不到未展示牌面，也看不到私有候选 Prompt。
 
 过河拆桥和顺手牵羊复用单目标 `CardUseFrame` 与分层目标牌选择：规则版本 4 的隐藏手牌分支先压入 `TargetCardSelectionFrame`，只向来源玩家发布带不透明 ordinal 牌位的私有 `DecisionKind.SelectTargetCard` Prompt；目标和普通观察者看不到牌面或实体 ID。来源玩家确认后，前者把目标牌从 `Hand(target)`、`Equipment(target)` 或 `Judgment(target)` 经过 `Processing` 后送入弃牌堆，后者把目标牌从这三个来源之一经过 `Processing` 后送入 `Hand(source)`；规则版本 1–3 回放保留历史确定性盲选语义。顺手牵羊的合法性由 `GetCombatDistance(sourceSeat, targetSeat) == 1`、存活、非自身和目标有手牌、装备或判定区牌共同决定；战斗距离按存活座位环计算，并叠加进攻/防御坐骑 modifier。隐藏手牌效果只投影脱敏的类型化结果事件，公开装备/判定区事件可携带其已公开实体 ID/牌种，可信移动账本始终保留物理牌 ID。
 

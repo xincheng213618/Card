@@ -166,6 +166,9 @@ public sealed partial class GameEngine
     private bool UsesFormalSupplyShortageTargeting =>
         _rulesVersion >= 18;
 
+    private bool UsesFormalFireAttackReveal =>
+        _rulesVersion >= 19;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -1499,9 +1502,12 @@ public sealed partial class GameEngine
         var armorRules = UsesFormalArmorResponseTiming
             ? "八卦阵在需要使用或打出闪时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀在指定目标后无效"
             : "八卦阵成为杀的目标时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀不能对装备者使用";
+        var fireAttackRules = UsesFormalFireAttackReveal
+            ? "火攻可对自己使用，展示牌仍留在目标手牌中"
+            : "火攻只能对其他角色使用，展示牌按历史规则进入弃牌堆";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，火攻通过目标私有展示和攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -2796,11 +2802,8 @@ public sealed partial class GameEngine
                     .Single(card => card.Id == cardId))
                 .Select(ToSnapshot)
                 .ToArray()
-            : _pendingFireAttack?.RevealedCardId is { } fireAttackRevealedCardId
-                ? _cardZones.CardsAt(CardLocation.Processing)
-                    .Where(card => card.Id == fireAttackRevealedCardId)
-                    .Select(ToSnapshot)
-                    .ToArray()
+            : _pendingFireAttack is { RevealedCardId: not null } fireAttack
+                ? [ToSnapshot(GetFireAttackRevealedCard(fireAttack))]
                 : Array.Empty<CardSnapshot>();
 
         return new GameSnapshot(
@@ -5710,11 +5713,14 @@ public sealed partial class GameEngine
         var target = _players[pending.TargetSeat];
         var revealed = GetHand(target).SingleOrDefault(card => card.Id == cardId) ??
             throw new InvalidOperationException("The selected FireAttack reveal card is not in the target hand.");
-        MoveCard(
-            revealed,
-            CardLocation.Hand(target.Seat),
-            CardLocation.Processing,
-            CardMoveReasons.FireAttackReveal);
+        if (!UsesFormalFireAttackReveal)
+        {
+            MoveCard(
+                revealed,
+                CardLocation.Hand(target.Seat),
+                CardLocation.Processing,
+                CardMoveReasons.FireAttackReveal);
+        }
         pending.RevealedCardId = revealed.Id;
         SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.AwaitingResponse);
         QueueGameEvent(new FireAttackCardRevealedEvent(
@@ -5794,15 +5800,14 @@ public sealed partial class GameEngine
         FireAttackResolution pending,
         int? selectedCardId)
     {
-        if (!ReferenceEquals(_pendingFireAttack, pending) || pending.RevealedCardId is not { } revealedCardId)
+        if (!ReferenceEquals(_pendingFireAttack, pending) || pending.RevealedCardId is null)
         {
             throw new InvalidOperationException("The FireAttack discard is not the current resolution.");
         }
 
         var source = _players[pending.SourceSeat];
         var target = _players[pending.TargetSeat];
-        var revealed = _cardZones.CardsAt(CardLocation.Processing)
-            .Single(card => card.Id == revealedCardId);
+        var revealed = GetFireAttackRevealedCard(pending);
         var matchingDiscard = selectedCardId is { } cardId
             ? GetHand(source).SingleOrDefault(card => card.Id == cardId)
             : null;
@@ -5814,11 +5819,14 @@ public sealed partial class GameEngine
 
         if (matchingDiscard is null)
         {
-            MoveCard(
-                revealed,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.FireAttackFinished);
+            if (!UsesFormalFireAttackReveal)
+            {
+                MoveCard(
+                    revealed,
+                    CardLocation.Processing,
+                    CardLocation.DiscardPile,
+                    CardMoveReasons.FireAttackFinished);
+            }
             QueueGameEvent(new FireAttackResolvedEvent(
                 pending.ResolutionId,
                 source.Seat,
@@ -5847,11 +5855,14 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.FireAttackDiscard);
-        MoveCard(
-            revealed,
-            CardLocation.Processing,
-            CardLocation.DiscardPile,
-            CardMoveReasons.FireAttackFinished);
+        if (!UsesFormalFireAttackReveal)
+        {
+            MoveCard(
+                revealed,
+                CardLocation.Processing,
+                CardLocation.DiscardPile,
+                CardMoveReasons.FireAttackFinished);
+        }
         MoveCard(
             matchingDiscard,
             CardLocation.Processing,
@@ -5884,6 +5895,16 @@ public sealed partial class GameEngine
         {
             CompleteAttack(attack);
         }
+    }
+
+    private Card GetFireAttackRevealedCard(FireAttackResolution pending)
+    {
+        var revealedCardId = pending.RevealedCardId ??
+            throw new InvalidOperationException("FireAttack has no revealed card.");
+        var location = UsesFormalFireAttackReveal
+            ? CardLocation.Hand(pending.TargetSeat)
+            : CardLocation.Processing;
+        return _cardZones.CardsAt(location).Single(card => card.Id == revealedCardId);
     }
 
     private void BeginHarvestSelection(GroupCardResolution group)
@@ -6862,9 +6883,7 @@ public sealed partial class GameEngine
         }
         else
         {
-            var revealed = _cardZones.CardsAt(CardLocation.Processing)
-                .Single(card => card.Id == (pending.RevealedCardId ??
-                    throw new InvalidOperationException("FireAttack discard selection has no revealed card.")));
+            var revealed = GetFireAttackRevealedCard(pending);
             var (cardId, thought) = _aiBrains[actor.Seat].ChooseFireAttackDiscard(
                 view,
                 pending.TargetSeat,
@@ -10460,8 +10479,8 @@ public sealed partial class GameEngine
         {
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
-                         player.Seat != actor.Seat &&
-                         GetHand(player).Count > 0))
+                         (UsesFormalFireAttackReveal || player.Seat != actor.Seat) &&
+                         GetHand(player).Any(card => player.Seat != actor.Seat || card.Id != fireAttack.Id)))
             {
                 actions.Add(new LegalAction(
                     LegalActionKind.FireAttack,
@@ -11600,11 +11619,13 @@ public sealed partial class GameEngine
 
         if (_pendingFireAttack is { } fireAttack)
         {
-            var expectedProcessingCount = fireAttack.RevealedCardId is null ? 1 : 2;
+            var expectedProcessingCount = fireAttack.RevealedCardId is null || UsesFormalFireAttackReveal ? 1 : 2;
             if (processing.Count != expectedProcessingCount ||
                 processing.All(card => card.Id != fireAttack.Card.Id) ||
                 (fireAttack.RevealedCardId is { } revealedId &&
-                 processing.All(card => card.Id != revealedId)))
+                 (UsesFormalFireAttackReveal
+                     ? GetHand(_players[fireAttack.TargetSeat]).All(card => card.Id != revealedId)
+                     : processing.All(card => card.Id != revealedId))))
             {
                 throw new InvalidOperationException(
                     "The active FireAttack and Processing zone are inconsistent.");
