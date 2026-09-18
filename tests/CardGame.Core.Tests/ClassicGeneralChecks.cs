@@ -29,6 +29,7 @@ internal static class ClassicGeneralChecks
         var liegongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 17, 0));
         var kuangguClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 18, 0));
         var wushuangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 19, 0));
+        var paoxiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 20, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -37,7 +38,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.20.0"]),
+                "standard-classic-generals@1.21.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -176,6 +177,17 @@ internal static class ClassicGeneralChecks
                     "classic:zhang-fei",
                     StringComparer.Ordinal),
             "The Wushuang-era classic registry must retain the 1.19 standard Zhang Fei identity.");
+        Require(paoxiaoClassic.Packages.Last().Version == new Version(1, 20, 0) &&
+                !paoxiaoClassic.Generals.ContainsKey("classic:zhao-yun") &&
+                !paoxiaoClassic.Skills.ContainsKey("classic:longdan") &&
+                paoxiaoClassic.Generals.ContainsKey("standard:zhao-yun") &&
+                paoxiaoClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "standard:zhao-yun",
+                    StringComparer.Ordinal) &&
+                !paoxiaoClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:zhao-yun",
+                    StringComparer.Ordinal),
+            "The Paoxiao-era classic registry must retain the 1.20 standard Zhao Yun identity.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -291,31 +303,39 @@ internal static class ClassicGeneralChecks
                 zhangFei.BaseHp == 4 &&
                 zhangFei.SkillIds.SequenceEqual(["classic:paoxiao"]),
             "The current classic Zhang Fei must expose formal Shu, 4-HP Paoxiao.");
+        var zhaoYun = classic.Generals["classic:zhao-yun"];
+        Require(zhaoYun.Name == "赵云" &&
+                zhaoYun.FactionId == "shu" &&
+                zhaoYun.BaseHp == 4 &&
+                zhaoYun.SkillIds.SequenceEqual(["classic:longdan"]),
+            "The current classic Zhao Yun must expose formal Shu, 4-HP Longdan.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
             var mode = classic.Modes[modeId];
             var pool = mode.GeneralPoolIds ?? [];
             Require(pool.Contains("classic:sima-yi", StringComparer.Ordinal) &&
-                     pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
-                     pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
-                     pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
-                      pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
-                      pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
-                      pool.Contains("classic:lu-meng", StringComparer.Ordinal) &&
-                      pool.Contains("classic:zhang-liao", StringComparer.Ordinal) &&
-                      pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
-                      pool.Contains("classic:dian-wei", StringComparer.Ordinal) &&
-                      pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
-                       pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
-                       pool.Contains("classic:huang-yueying", StringComparer.Ordinal) &&
-                        pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
-                        pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
-                        pool.Contains("classic:wei-yan", StringComparer.Ordinal) &&
-                        pool.Contains("classic:lu-bu", StringComparer.Ordinal) &&
-                        pool.Contains("classic:zhang-fei", StringComparer.Ordinal) &&
-                       !pool.Contains("standard:zhang-fei", StringComparer.Ordinal) &&
-                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
+                    pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
+                    pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
+                    pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
+                    pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
+                    pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
+                    pool.Contains("classic:lu-meng", StringComparer.Ordinal) &&
+                    pool.Contains("classic:zhang-liao", StringComparer.Ordinal) &&
+                    pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
+                    pool.Contains("classic:dian-wei", StringComparer.Ordinal) &&
+                    pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
+                    pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
+                    pool.Contains("classic:huang-yueying", StringComparer.Ordinal) &&
+                    pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
+                    pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
+                    pool.Contains("classic:wei-yan", StringComparer.Ordinal) &&
+                    pool.Contains("classic:lu-bu", StringComparer.Ordinal) &&
+                    pool.Contains("classic:zhang-fei", StringComparer.Ordinal) &&
+                    pool.Contains("classic:zhao-yun", StringComparer.Ordinal) &&
+                    !pool.Contains("standard:zhang-fei", StringComparer.Ordinal) &&
+                    !pool.Contains("standard:zhao-yun", StringComparer.Ordinal) &&
+                    !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
@@ -2315,6 +2335,94 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(replayed).SequenceEqual(EventSignatures(game)),
             "A second in-flight Paoxiao Slash must replay exactly.");
+    }
+
+    public static void FormalLongdanFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var fixture = FindZhaoYunLongdanFixture(registry);
+        var game = fixture.Game;
+        var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        var physicalDodge = before.Hand.Single(card => card.Id == fixture.Action.CardId);
+        Require(before.GeneralId == "classic:zhao-yun" &&
+                before.MaxHp == 5 &&
+                before.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Longdan]) &&
+                physicalDodge.Kind == CardKind.Dodge &&
+                fixture.Action.PlayedCardKind == CardKind.Slash,
+            "Classic Zhao Yun must publish a physical Dodge as a typed Slash through formal Longdan.");
+
+        var eventCount = game.Events.Count;
+        var used = SubmitPlayAction(game, fixture.Action);
+        Require(used.Accepted, used.Error?.Message ?? "Classic Zhao Yun could not use Dodge as Slash.");
+        Require(TryReturnToHumanPlay(game),
+            "Classic Zhao Yun did not finish the converted Slash and return to play.");
+        var playEvents = game.Events.Skip(eventCount).Select(item => item.Payload).ToArray();
+        Require(playEvents.OfType<CardUseDeclaredEvent>().Any(item =>
+                    item.CardId == physicalDodge.Id && item.CardKind == CardKind.Slash) &&
+                playEvents.OfType<CardUsedEvent>().Any(item =>
+                    item.CardId == physicalDodge.Id && item.CardKind == CardKind.Slash) &&
+                game.CardMovements.Any(move =>
+                    move.CardId == physicalDodge.Id &&
+                    move.CardKind == CardKind.Dodge &&
+                    move.From == CardLocation.Hand(0) &&
+                    move.To == CardLocation.Processing &&
+                    move.Reason == CardMoveReasons.Use),
+            "Formal Longdan must preserve the physical Dodge while publishing an effective Slash use.");
+
+        var activeReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(activeReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(activeReplay).SequenceEqual(EventSignatures(game)),
+            "A completed formal Longdan Dodge-to-Slash use must replay exactly.");
+
+        var responseGame = WushengResponseScenario.FindLongdanDodge(
+            registry,
+            "identity:classic-8");
+        var responseOwner = responseGame.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.Seat == 0);
+        var prompt = responseGame.PendingDecision ??
+            throw new InvalidOperationException("The formal Longdan response fixture lost its prompt.");
+        var choice = prompt.Choices.First(candidate =>
+            candidate.Parameters.GetValueOrDefault("response") == "dodge" &&
+            candidate.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Dodge) &&
+            candidate.Cards.Count == 1 &&
+            responseOwner.Hand.Single(card => card.Id == candidate.Cards[0]).Kind is
+                CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash);
+        var physicalSlash = responseOwner.Hand.Single(card => card.Id == choice.Cards[0]);
+        Require(responseOwner.GeneralId == "classic:zhao-yun" &&
+                prompt.Kind == DecisionKind.RespondDodge &&
+                choice.Description.Contains("当作【闪】", StringComparison.Ordinal),
+            "Classic Zhao Yun must publish a Slash-to-Dodge response without leaking the physical identity.");
+
+        var response = responseGame.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            choice.Id,
+            responseGame.Revision));
+        Require(response.Accepted &&
+                responseGame.Events.Any(item =>
+                    item.Payload is CardRespondedEvent responded &&
+                    responded.CardId == physicalSlash.Id &&
+                    responded.ResponderSeat == 0 &&
+                    responded.EffectiveCardKind == CardKind.Dodge) &&
+                responseGame.CardMovements.Any(move =>
+                    move.CardId == physicalSlash.Id &&
+                    move.CardKind == physicalSlash.Kind &&
+                    move.From == CardLocation.Hand(0) &&
+                    move.To == CardLocation.Processing &&
+                    move.Reason == CardMoveReasons.Respond),
+            response.Error?.Message ??
+            "Formal Longdan must preserve the physical Slash while publishing an effective Dodge response.");
+
+        var responseReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(responseGame.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(responseReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(responseReplay).SequenceEqual(EventSignatures(responseGame)),
+            "An in-flight formal Longdan Slash-to-Dodge response must replay exactly.");
     }
 
     public static void FormalFeedbackFlow()
@@ -4822,6 +4930,52 @@ internal static class ClassicGeneralChecks
 
         throw new InvalidOperationException(
             "Could not find a deterministic classic Zhang Fei two-Slash Paoxiao fixture.");
+    }
+
+    private static (
+        GameEngine Game,
+        LegalAction Action) FindZhaoYunLongdanFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:zhao-yun",
+                GameCheckpoint.CurrentRulesVersion);
+            if (game is null)
+            {
+                continue;
+            }
+
+            var full = game.CreateSnapshot(0, revealAll: true);
+            var self = full.Players.Single(player => player.Seat == 0);
+            var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
+            {
+                if (candidate.Kind != LegalActionKind.Slash ||
+                    candidate.PlayedCardKind != CardKind.Slash ||
+                    candidate.CardId is not { } cardId ||
+                    candidate.TargetSeat is not { } targetSeat ||
+                    self.Hand.Single(card => card.Id == cardId).Kind != CardKind.Dodge)
+                {
+                    return false;
+                }
+
+                var target = full.Players.Single(player => player.Seat == targetSeat);
+                return target.Hp > 1 &&
+                       target.Hand.All(card => card.Kind != CardKind.Dodge) &&
+                       target.Equipment.All(card => card.Kind != CardKind.BaguaFormation) &&
+                       target.Skills?.All(skill =>
+                           skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false;
+            });
+            if (action is not null)
+            {
+                return (game, action);
+            }
+        }
+
+        throw new InvalidOperationException(
+            "Could not find a deterministic classic Zhao Yun Longdan conversion fixture.");
     }
 
     private static bool TryReturnToHumanPlay(GameEngine game)

@@ -848,6 +848,27 @@ internal static class ClassicGeneralUiChecks
         paoxiaoDescriptionWindow.Content = null;
         paoxiaoDescriptionWindow.Close();
 
+        using var longdanDescriptionViewModel = FindGeneralChoice("classic:zhao-yun");
+        var zhaoYun = longdanDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:zhao-yun");
+        Program.Assert(zhaoYun.Name == "赵云" &&
+                       zhaoYun.Kingdom == "蜀" &&
+                       zhaoYun.SkillName == "龙胆" &&
+                       zhaoYun.SkillDescription.Contains("【杀】当【闪】", StringComparison.Ordinal) &&
+                       zhaoYun.SkillDescription.Contains("【闪】当【杀】", StringComparison.Ordinal) &&
+                       zhaoYun.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(zhaoYun.GeneralId),
+            "The current classic Zhao Yun card must render Shu, bidirectional Longdan, Lord health and portrait art.");
+        var longdanDescriptionWindow = new MainWindow(longdanDescriptionViewModel);
+        longdanDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)longdanDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "106-classic-zhao-yun-card.png"));
+        longdanDescriptionWindow.Content = null;
+        longdanDescriptionWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

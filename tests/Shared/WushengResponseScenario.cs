@@ -6,8 +6,15 @@ internal static class WushengResponseScenario
     public static GameEngine Find(CardKind incoming)
         => FindResponse(incoming, SkillKind.Wusheng, DecisionKind.RespondSlash);
 
-    public static GameEngine FindLongdanDodge()
-        => FindResponse(CardKind.Slash, SkillKind.Longdan, DecisionKind.RespondDodge);
+    public static GameEngine FindLongdanDodge(
+        ContentRegistry? registry = null,
+        string? modeId = null)
+        => FindResponse(
+            CardKind.Slash,
+            SkillKind.Longdan,
+            DecisionKind.RespondDodge,
+            registry,
+            modeId);
 
     public static GameEngine FindQingguoDodge(CardKind incoming = CardKind.Slash)
         => FindResponse(

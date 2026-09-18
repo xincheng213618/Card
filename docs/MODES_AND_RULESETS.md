@@ -44,6 +44,8 @@
 
 2026-09-19 增量：`standard-classic-generals@1.20.0` 把蜀势力 4 体力张飞和锁定技咆哮归位为 `classic:zhang-fei` / `classic:paoxiao`。该切片不改规则语义，仍由已有出杀次数 modifier 使同一出牌阶段的第二张杀保持合法；没有诸葛连弩的真实双杀流程及第二张在途 Checkpoint/Replay 已覆盖。规则版本仍为 v39，包 1.19.0 继续使用 `standard:zhang-fei`。
 
+2026-09-19 增量：`standard-classic-generals@1.21.0` 把蜀势力 4 体力赵云和龙胆归位为 `classic:zhao-yun` / `classic:longdan`。该切片不改规则语义：物理闪以有效杀主动使用，物理杀/火杀/雷杀以有效闪响应，实体牌移动和私有响应边界保持不变；主动完成与响应在途 Checkpoint/Replay 已覆盖。规则版本仍为 v39，包 1.20.0 继续使用 `standard:zhao-yun`。
+
 2026-09-18 增量：规则 v16 在 `identity:classic-*` 中把奸雄从自动取得杀类伤害牌改为私有可选触发，并把范围扩到当前仍在 `Processing` 的任意伤害牌。真人和 AI 共用 `DamageSkillFrame` 的取得/跳过 Choice，同一实体牌以 `skill.jianxiong.claim-damage-card` 进入曹操手牌；v1–v15 和演示模式保留旧自动杀类语义。延时锦囊等位于其他公开牌区的伤害来源不在本切片内。
 
 2026-09-18 增量：规则 v17 在 `identity:classic-*` 中把制衡补齐为每个出牌阶段限一次，并允许从自己的手牌与公开装备区中任意选择至少一张牌。混合来源逐张经过各自牌区到 `Processing`，再统一进入弃牌堆并摸等量牌；WPF 为装备提供中央选择按钮，AI 只从自己的手牌和公开装备中选择。v1–v16 和演示模式保留历史手牌限定与可重复发动语义。

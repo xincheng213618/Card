@@ -4,7 +4,7 @@
 
 ## 当前阶段：K4 开局切片 + K5 基础结算切片/伤害触发范围切片 + K6 装备距离基础切片 + K7 无懈/铁索连环/鬼才/乐不思蜀/兵粮寸断/闪电判定切片 + K8 可信命令 Checkpoint 兼容切片 + 主动技能目标/濒死续接、被动距离修正和急救红牌转化切片已落地，继续扩大内容池并完善完整结算入口
 
-M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` 扩展包落地；`team:standard-2v2` 复用 Core 的选将、AI、结算、事件、视图脱敏和回放边界，WPF 新局设置已可选择。M2 Lite 也已落地为独立 `standard-national-war-lite@1.1.0` 扩展包；M3 已开放国战 AI 明置策略、六人独立势力试验（`standard-national-war-ambitious@1.0.0` / `national:ambitious-6`）、受约束的公开攻击证据推断、隐藏目标救援评分和公开攻击后的中途 Checkpoint/Replay 校验；AI policy v3 另把身份局火攻接入公开攻击观察入口，并保留 v1/v2 的历史回放语义。当前全量回归为 Core 170/170、WPF 51/51；完整国战仍待 M3 后续切片。
+M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` 扩展包落地；`team:standard-2v2` 复用 Core 的选将、AI、结算、事件、视图脱敏和回放边界，WPF 新局设置已可选择。M2 Lite 也已落地为独立 `standard-national-war-lite@1.1.0` 扩展包；M3 已开放国战 AI 明置策略、六人独立势力试验（`standard-national-war-ambitious@1.0.0` / `national:ambitious-6`）、受约束的公开攻击证据推断、隐藏目标救援评分和公开攻击后的中途 Checkpoint/Replay 校验；AI policy v3 另把身份局火攻接入公开攻击观察入口，并保留 v1/v2 的历史回放语义。当前全量回归为 Core 171/171、WPF 51/51；完整国战仍待 M3 后续切片。
 
 - `standard-national-war-ambitious@1.0.0` 注册魏 3、蜀 2、野心家 1 的六人国战实验；`ContentModeDefinition.SoloFactionIds` 只表达人数/内容元数据，尚未宣称珠联璧合、阵法、围攻、变更副将或完整野心家胜利规则。Core、WPF、私有快照、AI 明置和 Checkpoint/Replay 均有对应固定场景覆盖。
 
@@ -101,6 +101,7 @@ M1 当前状态：公开阵营 2v2 已作为独立 `standard-team-modes@1.0.0` �
 - `standard-classic-generals@1.18.0` 将 `classic:wei-yan` 以蜀势力、4 点基础体力和旧版锁定技 `classic:kuanggu` 加入正式经典池；rules v38 在伤害后按实际伤害来源到目标的公开战斗距离筛选，距离不大于 1 时按伤害点数自动回复，满体力不创建空恢复。包 1.17.0 与 rules v37 保留旧池且不触发狂骨。
 - `standard-classic-generals@1.19.0` 将 `classic:lu-bu` 以群势力、4 点基础体力和锁定技 `classic:wushuang` 加入正式经典池；rules v39 让吕布的杀需要目标依次完成两次闪响应，并让与吕布决斗的另一方每轮依次完成两次杀响应。每一次实体牌、八卦阵、护驾、激将与转换牌仍复用独立原响应链；包 1.18.0 与 rules v38 保留旧池和单次响应。
 - `standard-classic-generals@1.20.0` 将经典池中的 `standard:zhang-fei` 占位替换为蜀势力、4 点基础体力的 `classic:zhang-fei`，并以 `classic:paoxiao` 描述正式锁定技；运行时继续复用已有 `ModifySlashLimit` 和 AI 杀价值查询。包 1.19.0 保留 Standard 张飞的原池和内容指纹，不新增规则版本。
+- `standard-classic-generals@1.21.0` 将经典池中的 `standard:zhao-yun` 占位替换为蜀势力、4 点基础体力的 `classic:zhao-yun`，并以 `classic:longdan` 描述正式杀闪双向转化；运行时继续复用已有有效牌型/物理实体分离、私有响应与 AI 转化成本查询。包 1.20.0 保留 Standard 赵云的原池和内容指纹，不新增规则版本。
 
 无双是当前第三十二个被动查询入口：它通过 `ModifyRequiredResponseCount` 只把公开的杀/决斗响应次数从一改为二，不直接读取或移动暗牌；每张响应牌仍由原私有 Prompt 与牌区链支付，公开 `RequiredResponseProgressEvent` 只记录次数。其余三十一个既有被动入口保持原契约。
 
