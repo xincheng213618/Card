@@ -25,7 +25,8 @@ public enum ActiveSkillEffectKind
     DiscardAndRecover,
     DiscardAndRecoverTargets,
     RevealGiftAndDamage,
-    RequestSlash
+    RequestSlash,
+    PayHpOrDiscardWeaponAndDamage
 }
 
 public sealed record ActiveSkillEffect(
@@ -284,6 +285,26 @@ public sealed class LuoyiSkill : IPassiveSkill
 
     public bool CanReduceDrawPhase(PlayerSkillContext owner) =>
         owner.IsOwnTurn && owner.Phase == TurnPhase.Draw;
+}
+
+public sealed class QiangxiSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Qiangxi;
+    public string Name => "强袭";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.Hp > 0 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage,
+            HpCost: context.SelectedCardCount == 0 ? 1 : 0,
+            MinCardCount: 0,
+            MaxCardCount: 1,
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
 }
 
 public sealed class FeedbackSkill : IPassiveSkill
@@ -712,7 +733,8 @@ public static class SkillRegistry
             [SkillKind.Qixi] = new QixiSkill(),
             [SkillKind.Keji] = new KejiSkill(),
             [SkillKind.Tuxi] = new TuxiSkill(),
-            [SkillKind.Luoyi] = new LuoyiSkill()
+            [SkillKind.Luoyi] = new LuoyiSkill(),
+            [SkillKind.Qiangxi] = new QiangxiSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

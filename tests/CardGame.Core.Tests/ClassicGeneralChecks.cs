@@ -20,6 +20,7 @@ internal static class ClassicGeneralChecks
         var qixiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 8, 0));
         var kejiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 9, 0));
         var tuxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 10, 0));
+        var luoyiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 11, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -28,7 +29,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.11.0"]),
+                "standard-classic-generals@1.12.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -99,6 +100,13 @@ internal static class ClassicGeneralChecks
                     "classic:xu-chu",
                     StringComparer.Ordinal),
             "The Tuxi-era classic registry must retain the 1.10 roster without Xu Chu or Luoyi.");
+        Require(luoyiClassic.Packages.Last().Version == new Version(1, 11, 0) &&
+                !luoyiClassic.Generals.ContainsKey("classic:dian-wei") &&
+                !luoyiClassic.Skills.ContainsKey("classic:qiangxi") &&
+                !luoyiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:dian-wei",
+                    StringComparer.Ordinal),
+            "The Luoyi-era classic registry must retain the 1.11 roster without Dian Wei or Qiangxi.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -160,6 +168,12 @@ internal static class ClassicGeneralChecks
                 xuChu.BaseHp == 4 &&
                 xuChu.SkillIds.SequenceEqual(["classic:luoyi"]),
             "The current classic Xu Chu must expose the formal Wei, 4-HP Luoyi definition.");
+        var dianWei = classic.Generals["classic:dian-wei"];
+        Require(dianWei.Name == "典韦" &&
+                dianWei.FactionId == "wei" &&
+                dianWei.BaseHp == 4 &&
+                dianWei.SkillIds.SequenceEqual(["classic:qiangxi"]),
+            "The current classic Dian Wei must expose the formal Wei, 4-HP Qiangxi definition.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -174,12 +188,13 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:lu-meng", StringComparer.Ordinal) &&
                       pool.Contains("classic:zhang-liao", StringComparer.Ordinal) &&
                       pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
+                      pool.Contains("classic:dian-wei", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 31,
-            "Classic Luoyi must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 32,
+            "Classic Qiangxi must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -216,6 +231,24 @@ internal static class ClassicGeneralChecks
         Require(luoyi.CanReduceDrawPhase(draw) &&
                 !luoyi.CanReduceDrawPhase(draw with { IsOwnTurn = false }),
             "Formal Luoyi must reduce only its owner's draw phase.");
+
+        var qiangxi = SkillRegistry.GetActive(SkillKind.Qiangxi) ??
+            throw new InvalidOperationException("Formal Qiangxi must expose an active-skill contract.");
+        var qiangxiOwner = damaged with
+        {
+            Phase = TurnPhase.Play,
+            IsOwnTurn = true,
+            UsedActiveSkillKinds = new HashSet<SkillKind>()
+        };
+        var hpCost = qiangxi.GetEffect(new ActiveSkillContext(qiangxiOwner));
+        var weaponCost = qiangxi.GetEffect(new ActiveSkillContext(qiangxiOwner, SelectedCardCount: 1));
+        Require(qiangxi.CanUse(new ActiveSkillContext(qiangxiOwner)) &&
+                hpCost.Kind == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage &&
+                hpCost.HpCost == 1 &&
+                weaponCost.HpCost == 0 &&
+                hpCost.MinCardCount == 0 && hpCost.MaxCardCount == 1 &&
+                hpCost.MinTargetCount == 1 && hpCost.MaxTargetCount == 1,
+            "Formal Qiangxi must expose the one-HP-or-one-weapon, one-target damage contract.");
     }
 
     public static void FormalJiuyuanRecoveryBonus()
@@ -987,6 +1020,216 @@ internal static class ClassicGeneralChecks
                 legacy.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>()
                     .All(resolved => resolved.Skill != SkillKind.Luoyi),
             legacyAdvance.Error?.Message ?? "Rules v30 must retain ordinary drawing without Luoyi.");
+    }
+
+    public static void FormalQiangxiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var (fixture, action, targetSeat, weaponCardId) = FindDianWeiQiangxiFixture(
+            registry,
+            requireWeapon: true);
+        var before = fixture.CreateSnapshot(0, revealAll: true);
+        var sourceBefore = before.Players.Single(player => player.Seat == 0);
+        var targetBefore = before.Players.Single(player => player.Seat == targetSeat);
+        Require(action.MinCardCount == 0 && action.MaxCardCount == 1 &&
+                action.MinTargetCount == 1 && action.MaxTargetCount == 1 &&
+                action.SelectableCardIds.Contains(weaponCardId) &&
+                action.SelectableTargetSeats.Contains(targetSeat) &&
+                action.SelectableTargetSeats.All(seat =>
+                    fixture.GetCombatDistance(0, seat) <= fixture.GetAttackRange(0)),
+            "Qiangxi must publish an optional weapon cost and only in-range living targets.");
+
+        var checkpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(fixture.CreateCheckpoint()));
+        var outOfRange = before.Players.FirstOrDefault(player =>
+            player.IsAlive &&
+            player.Seat != 0 &&
+            !action.SelectableTargetSeats.Contains(player.Seat));
+        if (outOfRange is not null)
+        {
+            var stateBeforeForged = SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true));
+            var forged = fixture.Submit(new UseSkillCommand(
+                0,
+                SkillKind.Qiangxi,
+                [],
+                [outOfRange.Seat],
+                fixture.Revision,
+                fixture.PendingDecision!.PromptId));
+            Require(!forged.Accepted &&
+                    forged.Error?.Code == CommandErrorCode.InvalidTarget &&
+                    SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true)) == stateBeforeForged,
+                "Qiangxi must reject an out-of-range target atomically.");
+        }
+
+        var nonWeapon = sourceBefore.Hand.FirstOrDefault(card =>
+            !action.SelectableCardIds.Contains(card.Id));
+        if (nonWeapon is not null)
+        {
+            var stateBeforeForged = SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true));
+            var forged = fixture.Submit(new UseSkillCommand(
+                0,
+                SkillKind.Qiangxi,
+                [nonWeapon.Id],
+                [targetSeat],
+                fixture.Revision,
+                fixture.PendingDecision!.PromptId));
+            Require(!forged.Accepted &&
+                    forged.Error?.Code == CommandErrorCode.InvalidCard &&
+                    SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true)) == stateBeforeForged,
+                "Qiangxi must reject a non-weapon cost atomically.");
+        }
+
+        var hpBranch = GameReplay.Restore(checkpoint, registry);
+        var hpUsed = hpBranch.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Qiangxi,
+            [],
+            [targetSeat],
+            hpBranch.Revision,
+            hpBranch.PendingDecision!.PromptId));
+        var hpAfter = hpBranch.CreateSnapshot(0, revealAll: true);
+        Require(hpUsed.Accepted &&
+                hpAfter.Players.Single(player => player.Seat == 0).Hp == sourceBefore.Hp - 1 &&
+                hpAfter.Players.Single(player => player.Seat == targetSeat).Hp == targetBefore.Hp - 1 &&
+                hpBranch.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>().Any(damage =>
+                    damage.SourceSeat == 0 &&
+                    damage.TargetSeat == targetSeat &&
+                    damage.Amount == 1 &&
+                    damage.SourceCard is null) &&
+                hpBranch.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Qiangxi &&
+                    resolved.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage) &&
+                hpBranch.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Qiangxi),
+            hpUsed.Error?.Message ??
+            "The HP-cost Qiangxi branch must deal cardless skill damage and enforce once per play phase.");
+
+        var replayedHp = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(hpBranch.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(replayedHp.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(hpBranch.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replayedHp).SequenceEqual(EventSignatures(hpBranch)),
+            "The resolved HP-cost Qiangxi branch must replay exactly.");
+
+        var (dyingBranch, _, dyingTargetSeat, _) = FindDianWeiQiangxiFixture(
+            registry,
+            requireWeapon: false,
+            requirePeach: true);
+        SetPlayerHp(dyingBranch, seat: 0, hp: 1);
+        var dyingTargetHp = dyingBranch.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == dyingTargetSeat).Hp;
+        var enteredDying = dyingBranch.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Qiangxi,
+            [],
+            [dyingTargetSeat],
+            dyingBranch.Revision,
+            dyingBranch.PendingDecision!.PromptId));
+        var dyingPrompt = dyingBranch.PendingDecision ??
+            throw new InvalidOperationException("Lethal Qiangxi did not publish a dying prompt.");
+        Require(enteredDying.Accepted &&
+                dyingPrompt.Kind == DecisionKind.RescueDying &&
+                dyingPrompt.PlayerSeat == 0 &&
+                dyingBranch.CreateSnapshot(0, revealAll: true)
+                    .Players.Single(player => player.Seat == dyingTargetSeat).Hp == dyingTargetHp &&
+                dyingBranch.ResolutionStack.Count == 2 &&
+                dyingBranch.ResolutionStack[0] is ActiveSkillFrame dyingSkill &&
+                dyingSkill.Skill == SkillKind.Qiangxi &&
+                dyingBranch.ResolutionStack[1] is DyingFrame dyingFrame &&
+                dyingFrame.ParentFrameId == dyingSkill.Id,
+            enteredDying.Error?.Message ??
+            "Lethal Qiangxi must pause before target damage on the shared dying continuation.");
+
+        var peachChoice = dyingPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "peach");
+        var rescued = dyingBranch.Submit(new AnswerPromptCommand(
+            0,
+            dyingPrompt.PromptId,
+            peachChoice.Id,
+            dyingBranch.Revision));
+        var rescuedAfter = dyingBranch.CreateSnapshot(0, revealAll: true);
+        Require(rescued.Accepted &&
+                rescuedAfter.Players.Single(player => player.Seat == 0).Hp == 1 &&
+                rescuedAfter.Players.Single(player => player.Seat == dyingTargetSeat).Hp == dyingTargetHp - 1 &&
+                dyingBranch.Events.Select(item => item.Payload).OfType<DyingResolvedEvent>().Any(resolved =>
+                    resolved.Survived) &&
+                dyingBranch.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 && resolved.Skill == SkillKind.Qiangxi),
+            rescued.Error?.Message ??
+            "Rescued Qiangxi must resume and deal its pending cardless damage exactly once.");
+
+        var weaponBranch = GameReplay.Restore(checkpoint, registry);
+        Equip(weaponBranch, weaponCardId);
+        var weaponAction = weaponBranch.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
+        var weaponTargetSeat = weaponAction.SelectableTargetSeats.Contains(targetSeat)
+            ? targetSeat
+            : weaponAction.SelectableTargetSeats.First();
+        var weaponBefore = weaponBranch.CreateSnapshot(0, revealAll: true);
+        var weaponUsed = weaponBranch.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Qiangxi,
+            [weaponCardId],
+            [weaponTargetSeat],
+            weaponBranch.Revision,
+            weaponBranch.PendingDecision!.PromptId));
+        var weaponAfter = weaponBranch.CreateSnapshot(0, revealAll: true);
+        Require(weaponUsed.Accepted &&
+                weaponAfter.Players.Single(player => player.Seat == 0).Hp ==
+                weaponBefore.Players.Single(player => player.Seat == 0).Hp &&
+                weaponAfter.Players.Single(player => player.Seat == weaponTargetSeat).Hp ==
+                weaponBefore.Players.Single(player => player.Seat == weaponTargetSeat).Hp - 1 &&
+                weaponBranch.CardMovements.Any(movement =>
+                    movement.CardId == weaponCardId &&
+                    movement.From == CardLocation.Equipment(0) &&
+                    movement.To == CardLocation.Processing &&
+                    movement.Reason == CardMoveReasons.QiangxiDiscard) &&
+                weaponBranch.CardMovements.Any(movement =>
+                    movement.CardId == weaponCardId &&
+                    movement.From == CardLocation.Processing &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.QiangxiDiscard) &&
+                weaponBranch.Events.Select(item => item.Payload).OfType<SkillCardsDiscardedEvent>().Any(discarded =>
+                    discarded.SourceSeat == 0 &&
+                    discarded.Skill == SkillKind.Qiangxi &&
+                    discarded.CardIds.SequenceEqual([weaponCardId])),
+            weaponUsed.Error?.Message ??
+            "The equipped-weapon Qiangxi branch must discard the exact weapon without losing HP.");
+
+        var aiWeapon = new SimpleAiBrain(0, seed: 32)
+            .ChooseActiveSkillCards(before, action);
+        Require(aiWeapon.Count == 1 && action.SelectableCardIds.Contains(aiWeapon[0]),
+            "Qiangxi AI must choose only one of its own published weapon candidates when available.");
+
+        var (triggerGame, _, triggerTargetSeat, _) = FindDianWeiQiangxiFixture(
+            registry,
+            requireWeapon: false,
+            targetSkill: SkillKind.Ganglie);
+        var triggerAction = triggerGame.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
+        var triggered = triggerGame.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Qiangxi,
+            [],
+            [triggerTargetSeat],
+            triggerGame.Revision,
+            triggerGame.PendingDecision!.PromptId));
+        Require(triggered.Accepted &&
+                triggerGame.Events.Select(item => item.Payload).OfType<DamageTriggerWindowOpenedEvent>().Any(opened =>
+                    opened.SourceSeat == 0 &&
+                    opened.TargetSeat == triggerTargetSeat &&
+                    opened.CardId is null &&
+                    opened.CardKind is null &&
+                    opened.Candidates.Any(candidate => candidate.Skill == SkillKind.Ganglie)),
+            triggered.Error?.Message ??
+            "Cardless Qiangxi damage must still enter the shared after-damage trigger window.");
+
+        var legacy = SelectGeneral(registry, "classic:dian-wei", rulesVersion: 31);
+        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
+        Require(legacyAdvance.Accepted &&
+                legacy.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Qiangxi),
+            legacyAdvance.Error?.Message ?? "Rules v31 must not expose formal Qiangxi actions.");
     }
 
     public static void FormalFeedbackFlow()
@@ -2876,6 +3119,96 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException($"Could not find a deterministic Xu Chu {actionKind} fixture.");
+    }
+
+    private static (GameEngine Game, LegalAction Action, int TargetSeat, int WeaponCardId)
+        FindDianWeiQiangxiFixture(
+            ContentRegistry registry,
+            bool requireWeapon,
+            SkillKind? targetSkill = null,
+            bool requirePeach = false)
+    {
+        var damageTriggerSkills = new HashSet<SkillKind>
+        {
+            SkillKind.Feedback,
+            SkillKind.Yiji,
+            SkillKind.Jieming,
+            SkillKind.Yuanhu,
+            SkillKind.Ganglie
+        };
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Dian Wei fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:dian-wei"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:dian-wei",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Dian Wei.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Dian Wei did not reach the play phase.");
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+            {
+                continue;
+            }
+
+            var action = game.GetHumanLegalActions().SingleOrDefault(candidate =>
+                candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
+            if (action is null)
+            {
+                continue;
+            }
+
+            var full = game.CreateSnapshot(0, revealAll: true);
+            var source = full.Players.Single(player => player.Seat == 0);
+            var weaponCardId = source.Hand
+                .Where(card => action.SelectableCardIds.Contains(card.Id))
+                .Select(card => card.Id)
+                .FirstOrDefault();
+            if (requireWeapon && weaponCardId == 0)
+            {
+                continue;
+            }
+            if (requirePeach && source.Hand.All(card => card.Kind != CardKind.Peach))
+            {
+                continue;
+            }
+
+            var target = full.Players
+                .Where(player => action.SelectableTargetSeats.Contains(player.Seat))
+                .FirstOrDefault(player => targetSkill is { } required
+                    ? player.Skills?.Any(skill => skill.Kind == required) == true
+                    : player.Skills?.All(skill => !damageTriggerSkills.Contains(skill.Kind)) != false);
+            if (target is null)
+            {
+                continue;
+            }
+
+            return (game, action, target.Seat, weaponCardId);
+        }
+
+        throw new InvalidOperationException(
+            $"Could not find a deterministic Dian Wei Qiangxi fixture " +
+            $"(weapon={requireWeapon}, peach={requirePeach}, " +
+            $"target-skill={targetSkill?.ToString() ?? "none"}).");
+    }
+
+    private static void SetPlayerHp(GameEngine game, int seat, int hp)
+    {
+        var playersField = typeof(GameEngine).GetField(
+            "_players",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine player store was not found.");
+        var players = (System.Collections.IList)playersField.GetValue(game)!;
+        players[seat]!.GetType().GetProperty("Hp")!.SetValue(players[seat], hp);
     }
 
     private static (GameEngine Game, int TargetSeat, long ResolutionId, int XuChuHp) FindXuChuReverseDuelFixture(

@@ -213,6 +213,9 @@ public sealed partial class GameEngine
     private bool UsesFormalLuoyi =>
         _rulesVersion >= 31 && IsClassicIdentityMode;
 
+    private bool UsesFormalQiangxi =>
+        _rulesVersion >= 32 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -1091,7 +1094,7 @@ public sealed partial class GameEngine
         return response switch
         {
             "feedback" when selected.Cards.Count == 1 &&
-                            selected.Cards[0] == pending.Card.Id &&
+                            selected.Cards[0] == pending.Card?.Id &&
                             selected.Targets.Count == 0 =>
                 Accept(() => HumanFeedbackCore(useFeedback: true, requestedSourceCardId: null, advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             "take-damage" when selected.Cards.Count == 0 && selected.Targets.Count == 0 =>
@@ -1598,7 +1601,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndRecover or
                 ActiveSkillEffectKind.DiscardAndRecoverTargets or
                 ActiveSkillEffectKind.RevealGiftAndDamage or
-                ActiveSkillEffectKind.RequestSlash) ||
+                ActiveSkillEffectKind.RequestSlash or
+                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -1619,6 +1623,11 @@ public sealed partial class GameEngine
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
              effect.MinCardCount != 0 || effect.MaxCardCount != 0 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
+            effect.Kind == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage &&
+            (effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 0 || effect.MaxCardCount != 1 ||
+             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1 ||
+             effect.HpCost != (cardIds.Count == 0 ? 1 : 0)) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
             effect.MinTargetCount < 0 ||
@@ -1817,6 +1826,9 @@ public sealed partial class GameEngine
         var luoyiRules = UsesFormalLuoyi && _players.Any(player => player.General.HasSkill(SkillKind.Luoyi))
             ? "，许褚可在摸牌阶段少摸一张牌，使本回合由自己使用的杀或决斗伤害 +1"
             : string.Empty;
+        var qiangxiRules = UsesFormalQiangxi && _players.Any(player => player.General.HasSkill(SkillKind.Qiangxi))
+            ? "，典韦每个出牌阶段限一次失去 1 点体力或弃置一张武器牌，对攻击范围内一名其他角色造成 1 点伤害"
+            : string.Empty;
         var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
             ? UsesFormalZhihengEquipment
                 ? "，孙权每个出牌阶段限一次弃置任意张手牌或装备区牌并摸等量牌"
@@ -1876,7 +1888,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{luoyiRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{luoyiRules}{qiangxiRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -5059,7 +5071,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndRecover or
                 ActiveSkillEffectKind.DiscardAndRecoverTargets or
                 ActiveSkillEffectKind.RevealGiftAndDamage or
-                ActiveSkillEffectKind.RequestSlash))
+                ActiveSkillEffectKind.RequestSlash or
+                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -5138,6 +5151,57 @@ public sealed partial class GameEngine
                 $"{actor.Name} 对 {target.Name} 发动【反间】，等待其选择花色。",
                 actor.Seat,
                 target.Seat);
+            return;
+        }
+
+        if (effect.Kind == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage)
+        {
+            actor.UsedActiveSkillKinds.Add(skillKind);
+            if (cardIds.Length == 1)
+            {
+                var weapon = GetHand(actor).SingleOrDefault(card => card.Id == cardIds[0]);
+                var from = CardLocation.Hand(actor.Seat);
+                if (weapon is null)
+                {
+                    weapon = GetEquipment(actor).Single(card => card.Id == cardIds[0]);
+                    from = CardLocation.Equipment(actor.Seat);
+                }
+
+                if (!EquipmentCatalog.IsEquipment(weapon.Kind) ||
+                    EquipmentCatalog.Get(weapon.Kind).Slot != EquipmentSlot.Weapon)
+                {
+                    throw new InvalidOperationException("Qiangxi can discard only a weapon card.");
+                }
+
+                MoveCard(weapon, from, CardLocation.Processing, CardMoveReasons.QiangxiDiscard);
+                QueueGameEvent(new SkillCardsDiscardedEvent(
+                    frameId,
+                    actor.Seat,
+                    skillKind,
+                    Array.AsReadOnly(cardIds)));
+                MoveCard(
+                    weapon,
+                    CardLocation.Processing,
+                    CardLocation.DiscardPile,
+                    CardMoveReasons.QiangxiDiscard);
+            }
+            else
+            {
+                actor.Hp = Math.Max(0, actor.Hp - effect.HpCost);
+                QueueGameEvent(new SkillHpLostEvent(
+                    frameId,
+                    actor.Seat,
+                    skillKind,
+                    effect.HpCost,
+                    actor.Hp));
+                if (actor.Hp == 0)
+                {
+                    BeginActiveSkillDying(frameId, actor);
+                    return;
+                }
+            }
+
+            BeginQiangxiDamage(frameId, actor, targetSeats.Single());
             return;
         }
 
@@ -9116,7 +9180,7 @@ public sealed partial class GameEngine
         int targetSeat,
         string reason,
         long parentFrameId,
-        CardKind sourceCard,
+        CardKind? sourceCard,
         JudgmentContinuationKind continuation,
         DamageSkillResolution? damageSkill,
         Card? delayedCard = null,
@@ -9917,7 +9981,7 @@ public sealed partial class GameEngine
             CardLocation.Hand(defender.Seat),
             CardLocation.Processing,
             CardMoveReasons.Respond);
-        var incomingName = CardCatalog.Get(attack.EffectiveCardKind).DisplayName;
+        var incomingName = CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName;
         var responseName = CardCatalog.Get(responseCardKind).DisplayName;
         var responseDescription = IsNativeResponseCard(responseCard, CardKind.Dodge)
             ? $"打出【{responseName}】"
@@ -10019,10 +10083,11 @@ public sealed partial class GameEngine
                     source.Seat,
                     attack.EffectiveCardKind,
                     SourceCardIsInProcessing:
-                        _cardZones.GetLocation(attack.Card.Id) == CardLocation.Processing,
+                        attack.Card is { } sourceCard &&
+                        _cardZones.GetLocation(sourceCard.Id) == CardLocation.Processing,
                     Nature: nature,
                     Amount: amount,
-                    SourceCardId: attack.Card.Id,
+                    SourceCardId: attack.Card?.Id,
                     TargetSeat: target.Seat,
                     TargetHp: target.Hp,
                     TargetMaxHp: target.MaxHp,
@@ -10091,7 +10156,7 @@ public sealed partial class GameEngine
             damageFrameId,
             attack.SourceSeat,
             attack.TargetSeat,
-            attack.Card.Id,
+            attack.Card?.Id,
             attack.EffectiveCardKind,
             frozenCandidates));
         QueueGameEvent(new DamageTriggerWindowOpenedEvent(
@@ -10099,7 +10164,7 @@ public sealed partial class GameEngine
             damageFrameId,
             attack.SourceSeat,
             attack.TargetSeat,
-            attack.Card.Id,
+            attack.Card?.Id,
             attack.EffectiveCardKind,
             frozenCandidates));
         _pendingDamageTrigger = new DamageTriggerResolution(
@@ -10236,7 +10301,7 @@ public sealed partial class GameEngine
             window.FrameId,
             owner.Seat,
             attack.SourceSeat,
-            attack.Card.Id,
+            attack.Card?.Id,
             attack.EffectiveCardKind,
             skill.Kind,
             CandidateId: candidate.CandidateId,
@@ -10259,7 +10324,7 @@ public sealed partial class GameEngine
             damageFrameId,
             owner.Seat,
             attack.SourceSeat,
-            attack.Card.Id,
+            attack.Card?.Id,
             attack.EffectiveCardKind,
             skill.Kind,
             candidate.CandidateId,
@@ -10363,12 +10428,13 @@ public sealed partial class GameEngine
             };
         }
 
-        var cardName = CardCatalog.Get(attack.Card.Kind).DisplayName;
+        var damageCard = RequireAttackCard(attack);
+        var cardName = CardCatalog.Get(damageCard.Kind).DisplayName;
         return new PendingDecision(
             DecisionKind.Feedback,
             owner.Seat,
             $"{owner.Name} 受到伤害，是否发动【{skill.Name}】获得造成伤害的【{cardName}】？",
-            [attack.Card.Id],
+            [damageCard.Id],
             [],
             attack.SourceSeat,
             attack.EffectiveCardKind)
@@ -10377,9 +10443,9 @@ public sealed partial class GameEngine
             Choices =
             [
                 new PromptChoice(
-                    new ChoiceId($"feedback.use.card-{attack.Card.Id}"),
+                    new ChoiceId($"feedback.use.card-{damageCard.Id}"),
                     $"发动【{skill.Name}】，获得造成伤害的【{cardName}】。",
-                    [attack.Card.Id],
+                    [damageCard.Id],
                     [],
                     new Dictionary<string, string>
                     {
@@ -10885,7 +10951,7 @@ public sealed partial class GameEngine
             pending.DamageFrameId,
             pending.OwnerSeat,
             pending.SourceSeat,
-            pending.Card.Id,
+            pending.Card?.Id,
             pending.EffectiveCardKind,
             pending.Skill,
             used,
@@ -11125,7 +11191,7 @@ public sealed partial class GameEngine
             pending.DamageFrameId,
             pending.OwnerSeat,
             pending.SourceSeat,
-            pending.Card.Id,
+            pending.Card?.Id,
             pending.EffectiveCardKind,
             pending.Skill,
             useSkill,
@@ -11249,10 +11315,11 @@ public sealed partial class GameEngine
             attack.SourceSeat,
             attack.EffectiveCardKind,
             SourceCardIsInProcessing:
-                _cardZones.GetLocation(attack.Card.Id) == CardLocation.Processing,
+                attack.Card is { } sourceCard &&
+                _cardZones.GetLocation(sourceCard.Id) == CardLocation.Processing,
             Nature: GetDamageNature(attack),
             Amount: attack.DamageAmount,
-            SourceCardId: attack.Card.Id,
+            SourceCardId: attack.Card?.Id,
             TargetSeat: attack.TargetSeat,
             TargetHp: target.Hp,
             TargetMaxHp: target.MaxHp,
@@ -11279,19 +11346,20 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A damage skill can only claim a card from Processing.");
         }
 
+        var damageCard = RequireAttackCard(attack);
         MoveCard(
-            attack.Card,
+            damageCard,
             CardLocation.Processing,
             CardLocation.Hand(owner.Seat),
             claimReason);
-        if (_pendingGroupCard is { } group && group.ResolutionId == attack.ResolutionId && group.Card.Id == attack.Card.Id)
+        if (_pendingGroupCard is { } group && group.ResolutionId == attack.ResolutionId && group.Card.Id == damageCard.Id)
             group.DamageCardClaimed = true;
         QueueGameEvent(new DamageCardClaimedEvent(
             damageFrameId,
             owner.Seat,
             attack.SourceSeat,
-            attack.Card.Id,
-            attack.Card.Kind,
+            damageCard.Id,
+            damageCard.Kind,
             skill.Kind));
     }
 
@@ -11691,11 +11759,36 @@ public sealed partial class GameEngine
         var actor = _players[dying.VictimSeat];
         if (_resolutionStack.LastOrDefault() is not ActiveSkillFrame activeSkill ||
             activeSkill.Id != dying.ParentFrameId ||
-            activeSkill.SourceSeat != actor.Seat ||
-            activeSkill.Effect != ActiveSkillEffectKind.LoseHpAndDraw)
+            activeSkill.SourceSeat != actor.Seat)
         {
             throw new InvalidOperationException(
                 "An active-skill dying continuation must return to its active-skill frame.");
+        }
+
+        if (activeSkill.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage)
+        {
+            if (survived)
+            {
+                BeginQiangxiDamage(
+                    activeSkill.Id,
+                    actor,
+                    activeSkill.TargetSeats?.Single() ??
+                        throw new InvalidOperationException("Qiangxi lost its selected target."));
+                return;
+            }
+
+            CompleteQiangxiResolution(activeSkill.Id, dealtDamage: false);
+            if (_winner != Winner.None && _status != EngineStatus.Completed)
+            {
+                CompleteGame();
+            }
+            return;
+        }
+
+        if (activeSkill.Effect != ActiveSkillEffectKind.LoseHpAndDraw)
+        {
+            throw new InvalidOperationException(
+                "The active-skill dying continuation has an unsupported effect.");
         }
 
         IReadOnlyList<int> drawn = [];
@@ -11753,13 +11846,35 @@ public sealed partial class GameEngine
 
     private void FinishAttack(AttackResolution attack)
     {
-        var cardLocation = _cardZones.GetLocation(attack.Card.Id);
         if (attack.IsActiveSkillDamage)
         {
-            if (cardLocation.Zone is not (CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.DiscardPile))
+            if (attack.SourceSkill == SkillKind.Qiangxi)
+            {
+                if (attack.Card is not null)
+                {
+                    throw new InvalidOperationException("Qiangxi damage cannot carry a physical damage card.");
+                }
+
+                CompleteQiangxiResolution(attack.ResolutionId, dealtDamage: true);
+                if (_winner != Winner.None && _status != EngineStatus.Completed)
+                {
+                    CompleteGame();
+                }
+                return;
+            }
+
+            var activeSkillCard = RequireAttackCard(attack);
+            var activeSkillLocation = _cardZones.GetLocation(activeSkillCard.Id);
+            if (activeSkillLocation.Zone is not (CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.DiscardPile))
             {
                 throw new InvalidOperationException(
-                    $"A resolved active-skill damage card has an unsupported destination: {cardLocation}.");
+                    $"A resolved active-skill damage card has an unsupported destination: {activeSkillLocation}.");
+            }
+
+            if (attack.SourceSkill != SkillKind.Fanjian)
+            {
+                throw new InvalidOperationException(
+                    $"Unsupported active-skill damage source: {attack.SourceSkill}.");
             }
 
             CompleteFanjianResolution(attack.ResolutionId);
@@ -11771,12 +11886,15 @@ public sealed partial class GameEngine
             return;
         }
 
+        var attackCard = RequireAttackCard(attack);
+        var cardLocation = _cardZones.GetLocation(attackCard.Id);
+
         if (attack.IsDelayedJudgmentDamage)
         {
             if (cardLocation == CardLocation.Judgment(attack.DelayedJudgmentSeat ?? attack.SourceSeat))
             {
                 MoveCard(
-                    attack.Card,
+                    attackCard,
                     cardLocation,
                     CardLocation.DiscardPile,
                     CardMoveReasons.DelayedCardFinish);
@@ -11798,7 +11916,7 @@ public sealed partial class GameEngine
         if (cardLocation == CardLocation.Processing)
         {
             MoveCard(
-                attack.Card,
+                attackCard,
                 CardLocation.Processing,
                 CardLocation.DiscardPile,
                 CardMoveReasons.UseFinished);
@@ -11809,7 +11927,7 @@ public sealed partial class GameEngine
                 $"A resolved {attack.EffectiveCardKind} left Processing through an unsupported destination: {cardLocation}.");
         }
 
-        FinishCardUse(attack.ResolutionId, attack.Card, attack.EffectiveCardKind);
+        FinishCardUse(attack.ResolutionId, attackCard, RequireAttackCardKind(attack));
 
         if (_pendingJijiang is { IsActiveUse: true, AwaitingProviders: false } jijiang &&
             ReferenceEquals(jijiang.ActiveAttack, attack))
@@ -12711,6 +12829,11 @@ public sealed partial class GameEngine
                 continue;
             }
 
+            if (activeSkill.Kind == SkillKind.Qiangxi && !UsesFormalQiangxi)
+            {
+                continue;
+            }
+
             if (activeSkill.Kind == SkillKind.Jijiang && !CanUseActiveJijiang(actor))
             {
                 continue;
@@ -12945,7 +13068,15 @@ public sealed partial class GameEngine
     };
 
     private static DamageNature GetDamageNature(AttackResolution attack) =>
-        attack.DamageNatureOverride ?? GetDamageNature(attack.EffectiveCardKind);
+        attack.DamageNatureOverride ?? GetDamageNature(RequireAttackCardKind(attack));
+
+    private static Card RequireAttackCard(AttackResolution attack) =>
+        attack.Card ?? throw new InvalidOperationException(
+            "This card-resolution path requires a physical source card.");
+
+    private static CardKind RequireAttackCardKind(AttackResolution attack) =>
+        attack.EffectiveCardKind ?? throw new InvalidOperationException(
+            "This card-resolution path requires an effective source card kind.");
 
     private int FinalizeAttackDamageAmount(AttackResolution attack)
     {
@@ -12968,12 +13099,12 @@ public sealed partial class GameEngine
                 attack.SourceSeat,
                 attack.TargetSeat,
                 SkillKind.Luoyi,
-                attack.EffectiveCardKind,
+                RequireAttackCardKind(attack),
                 baseAmount,
                 attack.DamageAmount));
             AddLog(
                 "SkillTriggered",
-                $"{_players[attack.SourceSeat].Name} 的【裸衣】令本次【{CardCatalog.Get(attack.EffectiveCardKind).DisplayName}】伤害 +1。",
+                $"{_players[attack.SourceSeat].Name} 的【裸衣】令本次【{CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName}】伤害 +1。",
                 attack.SourceSeat,
                 attack.TargetSeat);
         }
@@ -13954,12 +14085,25 @@ public sealed partial class GameEngine
             AdditionalSelectableCardCount: skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment
                 ? GetEquipment(actor).Count
                 : 0,
-            EnforceOncePerTurn: skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment);
+            EnforceOncePerTurn:
+                skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment ||
+                skill == SkillKind.Qiangxi && UsesFormalQiangxi);
 
     private IReadOnlySet<int> GetActiveSkillValidCardIds(
         PlayerRuntime actor,
         SkillKind skill)
     {
+        if (skill == SkillKind.Qiangxi && UsesFormalQiangxi)
+        {
+            return GetHand(actor)
+                .Concat(GetEquipment(actor))
+                .Where(card =>
+                    EquipmentCatalog.IsEquipment(card.Kind) &&
+                    EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
+                .Select(card => card.Id)
+                .ToHashSet();
+        }
+
         var cardIds = GetHand(actor).Select(card => card.Id).ToHashSet();
         if (skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment)
         {
@@ -13991,6 +14135,13 @@ public sealed partial class GameEngine
                 .ToHashSet(),
             SkillKind.Jijiang => _players
                 .Where(player => CanUseJijiangTarget(actor, player))
+                .Select(player => player.Seat)
+                .ToHashSet(),
+            SkillKind.Qiangxi when UsesFormalQiangxi => _players
+                .Where(player =>
+                    player.IsAlive &&
+                    player.Seat != actor.Seat &&
+                    GetCombatDistance(actor.Seat, player.Seat) <= GetAttackRange(actor.Seat))
                 .Select(player => player.Seat)
                 .ToHashSet(),
             _ => []
@@ -14604,12 +14755,9 @@ public sealed partial class GameEngine
 
             if (pendingAttack.IsActiveSkillDamage &&
                 !_resolutionStack.Any(frame =>
-                    frame is ActiveSkillFrame
-                    {
-                        Id: var id,
-                        Skill: SkillKind.Fanjian,
-                        Effect: ActiveSkillEffectKind.RevealGiftAndDamage
-                    } && id == pendingAttack.ResolutionId))
+                    frame is ActiveSkillFrame activeSkill &&
+                    activeSkill.Id == pendingAttack.ResolutionId &&
+                    activeSkill.Skill == pendingAttack.SourceSkill))
             {
                 throw new InvalidOperationException(
                     "An active-skill damage continuation has no parent ActiveSkill frame.");
@@ -14739,14 +14887,23 @@ public sealed partial class GameEngine
             var isFanjianDamage =
                 activeSkillFrame.Skill == SkillKind.Fanjian &&
                 activeSkillFrame.Effect == ActiveSkillEffectKind.RevealGiftAndDamage &&
-                _pendingAttack is { IsActiveSkillDamage: true } fanjianAttack &&
+                _pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Fanjian } fanjianAttack &&
                 fanjianAttack.ResolutionId == activeSkillFrame.Id;
+            var isQiangxiDamage =
+                activeSkillFrame.Skill == SkillKind.Qiangxi &&
+                activeSkillFrame.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage &&
+                _pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Qiangxi } qiangxiAttack &&
+                qiangxiAttack.ResolutionId == activeSkillFrame.Id;
             var isJijiangContinuation =
                 activeSkillFrame.Skill == SkillKind.Jijiang &&
                 activeSkillFrame.Effect == ActiveSkillEffectKind.RequestSlash &&
                 _pendingJijiang is { IsActiveUse: true } activeJijiang &&
                 activeJijiang.ActiveSkillFrameId == activeSkillFrame.Id;
-            if (!isSelfCostDying && !isFanjianPrompt && !isFanjianDamage && !isJijiangContinuation)
+            if (!isSelfCostDying &&
+                !isFanjianPrompt &&
+                !isFanjianDamage &&
+                !isQiangxiDamage &&
+                !isJijiangContinuation)
             {
                 throw new InvalidOperationException(
                     "An active-skill frame has no supported prompt, damage or dying continuation.");
@@ -15172,9 +15329,20 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
+        if (attack.IsActiveSkillDamage && attack.SourceSkill == SkillKind.Qiangxi)
+        {
+            return attack.Card is null && processing.Count == 0;
+        }
+
+        var attackCard = attack.Card;
+        if (attackCard is null)
+        {
+            return false;
+        }
+
         if (attack.IsDelayedJudgmentDamage)
         {
-            var delayedLocation = _cardZones.GetLocation(attack.Card.Id);
+            var delayedLocation = _cardZones.GetLocation(attackCard.Id);
             return delayedLocation.Zone is CardZoneKind.Judgment or
                 CardZoneKind.Hand or
                 CardZoneKind.DiscardPile;
@@ -15182,20 +15350,20 @@ public sealed partial class GameEngine
 
         if (attack.IsActiveSkillDamage)
         {
-            var activeSkillLocation = _cardZones.GetLocation(attack.Card.Id);
+            var activeSkillLocation = _cardZones.GetLocation(attackCard.Id);
             return activeSkillLocation.Zone is CardZoneKind.DrawPile or
                 CardZoneKind.Hand or
                 CardZoneKind.DiscardPile;
         }
 
-        if (processing.Count == 1 && processing[0].Id == attack.Card.Id)
+        if (processing.Count == 1 && processing[0].Id == attackCard.Id)
         {
             return true;
         }
 
         if (_pendingDamageTrigger is not null)
         {
-            var triggerLocation = _cardZones.GetLocation(attack.Card.Id);
+            var triggerLocation = _cardZones.GetLocation(attackCard.Id);
             return triggerLocation.Zone is CardZoneKind.DrawPile or
                 CardZoneKind.Hand or
                 CardZoneKind.DiscardPile;
@@ -15203,7 +15371,7 @@ public sealed partial class GameEngine
 
         if (attack.IsChainPropagation)
         {
-            var propagatedLocation = _cardZones.GetLocation(attack.Card.Id);
+            var propagatedLocation = _cardZones.GetLocation(attackCard.Id);
             return propagatedLocation.Zone is CardZoneKind.DrawPile or
                 CardZoneKind.Hand or
                 CardZoneKind.DiscardPile;
@@ -15211,7 +15379,7 @@ public sealed partial class GameEngine
 
         if (_pendingDying is not null)
         {
-            var dyingLocation = _cardZones.GetLocation(attack.Card.Id);
+            var dyingLocation = _cardZones.GetLocation(attackCard.Id);
             return dyingLocation.Zone is CardZoneKind.DrawPile or
                 CardZoneKind.Hand or
                 CardZoneKind.DiscardPile;
@@ -15223,7 +15391,7 @@ public sealed partial class GameEngine
             return false;
         }
 
-        var location = _cardZones.GetLocation(attack.Card.Id);
+        var location = _cardZones.GetLocation(attackCard.Id);
         // The effect continues after a target claims its physical card. That target can
         // subsequently die, discard it, or move it again before the next target responds.
         return group.DamageCardClaimed && location.Zone is
@@ -15497,7 +15665,7 @@ public sealed partial class GameEngine
             target.Seat,
             revealedCard,
             damageAmount: 1,
-            isActiveSkillDamage: true,
+            sourceSkill: SkillKind.Fanjian,
             damageNatureOverride: DamageNature.Normal);
         _pendingAttack = attack;
         if (!ApplyAttackDamage(attack))
@@ -15526,6 +15694,79 @@ public sealed partial class GameEngine
             activeSkill.Skill,
             activeSkill.Effect));
         PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
+    }
+
+    private void BeginQiangxiDamage(
+        long activeSkillFrameId,
+        PlayerRuntime source,
+        int targetSeat)
+    {
+        var activeSkill = _resolutionStack.OfType<ActiveSkillFrame>()
+            .LastOrDefault(frame => frame.Id == activeSkillFrameId);
+        if (activeSkill is not
+            {
+                Skill: SkillKind.Qiangxi,
+                Effect: ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage,
+                TargetSeats: { Count: 1 } targets
+            } ||
+            targets[0] != targetSeat)
+        {
+            throw new InvalidOperationException("The Qiangxi active-skill frame is missing its target.");
+        }
+
+        var target = _players[targetSeat];
+        if (!source.IsAlive || !target.IsAlive)
+        {
+            CompleteQiangxiResolution(activeSkillFrameId, dealtDamage: false);
+            return;
+        }
+
+        SetActiveSkillFrameStep(activeSkillFrameId, ResolutionFrameStep.ResolvingEffect);
+        var attack = new AttackResolution(
+            activeSkillFrameId,
+            source.Seat,
+            target.Seat,
+            card: null,
+            damageAmount: 1,
+            sourceSkill: SkillKind.Qiangxi,
+            damageNatureOverride: DamageNature.Normal);
+        _pendingAttack = attack;
+        if (!ApplyAttackDamage(attack))
+        {
+            CompleteAttack(attack);
+        }
+    }
+
+    private void CompleteQiangxiResolution(long frameId, bool dealtDamage)
+    {
+        var activeSkill = _resolutionStack.OfType<ActiveSkillFrame>()
+            .LastOrDefault(frame => frame.Id == frameId);
+        if (activeSkill is not
+            {
+                Skill: SkillKind.Qiangxi,
+                Effect: ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage,
+                TargetSeats: { Count: 1 } targets
+            })
+        {
+            throw new InvalidOperationException("The Qiangxi active-skill frame is missing.");
+        }
+
+        var source = _players[activeSkill.SourceSeat];
+        var target = _players[targets[0]];
+        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
+        QueueGameEvent(new ActiveSkillResolvedEvent(
+            frameId,
+            activeSkill.SourceSeat,
+            activeSkill.Skill,
+            activeSkill.Effect));
+        PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
+        AddLog(
+            "ActiveSkill",
+            dealtDamage
+                ? $"{source.Name} 发动【强袭】，对 {target.Name} 造成 1 点伤害。"
+                : $"{source.Name} 发动【强袭】后未能对 {target.Name} 造成伤害。",
+            source.Seat,
+            target.Seat);
     }
 
     private bool IsAiDyingResponsePending() =>
@@ -15917,27 +16158,28 @@ public sealed partial class GameEngine
         long resolutionId,
         int sourceSeat,
         int targetSeat,
-        Card card,
+        Card? card,
         int damageAmount = 1,
         CardKind? playedCardKind = null,
         bool ignoresArmor = false,
         bool isDelayedJudgmentDamage = false,
         int? delayedJudgmentSeat = null,
-        bool isActiveSkillDamage = false,
+        SkillKind? sourceSkill = null,
         DamageNature? damageNatureOverride = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; private set; } = sourceSeat;
         public int CardUserSeat { get; } = sourceSeat;
         public int TargetSeat { get; private set; } = targetSeat;
-        public Card Card { get; } = card;
+        public Card? Card { get; } = card;
         public int DamageAmount { get; private set; } = damageAmount;
         public bool DamageAmountFinalized { get; private set; }
-        public CardKind EffectiveCardKind { get; } = playedCardKind ?? card.Kind;
+        public CardKind? EffectiveCardKind { get; } = playedCardKind ?? card?.Kind;
         public bool IgnoresArmor { get; } = ignoresArmor;
         public bool IsDelayedJudgmentDamage { get; } = isDelayedJudgmentDamage;
         public int? DelayedJudgmentSeat { get; } = delayedJudgmentSeat;
-        public bool IsActiveSkillDamage { get; } = isActiveSkillDamage;
+        public SkillKind? SourceSkill { get; } = sourceSkill;
+        public bool IsActiveSkillDamage => SourceSkill is not null;
         public DamageNature? DamageNatureOverride { get; } = damageNatureOverride;
         public IReadOnlyList<int> ChainedTargetSeats { get; private set; } = [];
         public int ChainedTargetIndex { get; private set; }
@@ -16132,7 +16374,7 @@ public sealed partial class GameEngine
         public long ResolutionId => Attack.ResolutionId;
         public int SourceSeat => Attack.SourceSeat;
         public int TargetSeat => Attack.TargetSeat;
-        public Card Card => Attack.Card;
+        public Card Card => RequireAttackCard(Attack);
         public int ResponderSeat { get; set; } = attack.TargetSeat;
         public int OpponentSeat => ResponderSeat == SourceSeat ? TargetSeat : SourceSeat;
         public bool JijiangAttempted { get; set; }
@@ -16208,7 +16450,7 @@ public sealed partial class GameEngine
         AttackResolution attack,
         int ownerSeat,
         SkillKind skill,
-        CardKind effectiveCardKind,
+        CardKind? effectiveCardKind,
         string candidateId,
         int priority,
         DamageSkillEffectKind effect,
@@ -16220,9 +16462,9 @@ public sealed partial class GameEngine
         public AttackResolution Attack { get; } = attack;
         public int OwnerSeat { get; } = ownerSeat;
         public int SourceSeat => Attack.SourceSeat;
-        public Card Card => Attack.Card;
+        public Card? Card => Attack.Card;
         public SkillKind Skill { get; } = skill;
-        public CardKind EffectiveCardKind { get; } = effectiveCardKind;
+        public CardKind? EffectiveCardKind { get; } = effectiveCardKind;
         public string CandidateId { get; } = candidateId;
         public int Priority { get; } = priority;
         public DamageSkillEffectKind Effect { get; } = effect;

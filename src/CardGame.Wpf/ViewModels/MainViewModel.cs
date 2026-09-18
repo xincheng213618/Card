@@ -1935,7 +1935,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             "classic:liu-bei" or "classic:zhuge-liang" => "蜀",
             "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" or "classic:gan-ning" or "classic:lu-meng" => "吴",
-            "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" or "classic:zhang-liao" or "classic:xu-chu" => "魏",
+            "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" or "classic:zhang-liao" or "classic:xu-chu" or "classic:dian-wei" => "魏",
             _ => "群"
         },
         _ when generalId.StartsWith("national:wei-", StringComparison.Ordinal) => "魏",

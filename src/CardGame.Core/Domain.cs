@@ -146,7 +146,8 @@ public enum SkillKind
     Qixi,
     Keji,
     Tuxi,
-    Luoyi
+    Luoyi,
+    Qiangxi
 }
 
 public enum DecisionKind

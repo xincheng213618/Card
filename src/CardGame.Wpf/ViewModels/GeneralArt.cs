@@ -33,6 +33,7 @@ public static class GeneralArt
             ["lu-meng"] = "zhuge-liang",
             ["zhang-liao"] = "demo-ganglie",
             ["xu-chu"] = "zhang-fei",
+            ["dian-wei"] = "zhang-fei",
             ["demo-kujin"] = "sun-quan",
             ["demo-zhiheng"] = "sun-quan",
             ["demo-rende"] = "liu-bei",

@@ -317,6 +317,78 @@ internal static class ClassicGeneralUiChecks
             "The WPF Luoyi choice must draw one fewer card and preserve the play boundary.");
         luoyiWindow.Content = null;
         luoyiWindow.Close();
+        using var qiangxiViewModel = FindGeneralChoice("classic:dian-wei");
+        var dianWei = qiangxiViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:dian-wei");
+        Program.Assert(dianWei.Name == "典韦" &&
+                       dianWei.Kingdom == "魏" &&
+                       dianWei.SkillName == "强袭" &&
+                       dianWei.SkillDescription.Contains("失去1点体力", StringComparison.Ordinal) &&
+                       dianWei.SkillDescription.Contains("弃置一张武器牌", StringComparison.Ordinal) &&
+                       dianWei.SkillDescription.Contains("攻击范围内", StringComparison.Ordinal) &&
+                       dianWei.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(dianWei.GeneralId),
+            "The current classic Dian Wei card must render Wei, Qiangxi, Lord health and portrait aliasing.");
+        var qiangxiWindow = new MainWindow(qiangxiViewModel);
+        qiangxiWindow.ApplyTemplate();
+        var qiangxiRoot = (FrameworkElement)qiangxiWindow.Content;
+        Program.Render(
+            qiangxiRoot,
+            1120,
+            740,
+            Path.Combine(output, "90-classic-dian-wei-card.png"));
+        qiangxiViewModel.SelectGeneralChoiceCommand.Execute(dianWei);
+        Program.AdvanceToDecision(qiangxiViewModel);
+        var qiangxiEngine = Program.Engine(qiangxiViewModel);
+        var qiangxiAction = qiangxiEngine.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Qiangxi);
+        var qiangxiBefore = qiangxiEngine.CreateSnapshot(0, revealAll: true);
+        var damageTriggerSkills = new HashSet<SkillKind>
+        {
+            SkillKind.Feedback,
+            SkillKind.Yiji,
+            SkillKind.Jieming,
+            SkillKind.Yuanhu,
+            SkillKind.Ganglie
+        };
+        var qiangxiTargetSeat = qiangxiBefore.Players
+            .Where(player => qiangxiAction.SelectableTargetSeats.Contains(player.Seat))
+            .First(player => player.Skills?.All(skill => !damageTriggerSkills.Contains(skill.Kind)) != false)
+            .Seat;
+        var qiangxiSourceHp = qiangxiBefore.Players.Single(player => player.Seat == 0).Hp;
+        var qiangxiTargetHp = qiangxiBefore.Players.Single(player => player.Seat == qiangxiTargetSeat).Hp;
+        Program.Assert(qiangxiViewModel.CanUseActiveSkill &&
+                       qiangxiViewModel.ActiveSkillEntryText.Contains("强袭", StringComparison.Ordinal),
+            "Classic Dian Wei must expose Qiangxi at the WPF play boundary.");
+        qiangxiViewModel.UseActiveSkillCommand.Execute(null);
+        var qiangxiTarget = qiangxiViewModel.Seats.Single(seat => seat.Seat == qiangxiTargetSeat);
+        qiangxiViewModel.SelectTargetCommand.Execute(qiangxiTarget);
+        Program.Assert(qiangxiViewModel.IsActiveSkillSelectionPending &&
+                       qiangxiViewModel.CanConfirmActiveSkill &&
+                       qiangxiTarget.IsSelectedTarget &&
+                       qiangxiViewModel.PlayButtonText == "发动强袭" &&
+                       qiangxiViewModel.CurrentGuideTitle == "确认发动【强袭】" &&
+                       qiangxiViewModel.CurrentGuideBody.Contains("武器牌", StringComparison.Ordinal),
+            "Qiangxi must reuse the optional-card, exact-one-target active-skill draft.");
+        Program.Render(
+            qiangxiRoot,
+            1120,
+            740,
+            Path.Combine(output, "91-classic-qiangxi-target.png"));
+        qiangxiViewModel.ConfirmSelectedCommand.Execute(null);
+        var qiangxiAfter = qiangxiEngine.CreateSnapshot(0, revealAll: true);
+        Program.Assert(qiangxiAfter.Players.Single(player => player.Seat == 0).Hp == qiangxiSourceHp - 1 &&
+                       qiangxiAfter.Players.Single(player => player.Seat == qiangxiTargetSeat).Hp == qiangxiTargetHp - 1 &&
+                       qiangxiEngine.Events.Any(item => item.Payload is DamageRequestedEvent
+                       {
+                           SourceSeat: 0,
+                           TargetSeat: var eventTarget,
+                           Amount: 1,
+                           SourceCard: null
+                       } && eventTarget == qiangxiTargetSeat),
+            "The WPF Qiangxi draft must submit the HP-cost branch as cardless direct damage.");
+        qiangxiWindow.Content = null;
+        qiangxiWindow.Close();
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

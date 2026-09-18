@@ -278,7 +278,7 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         LegalAction action)
     {
-        if (action.Kind != LegalActionKind.UseSkill || action.MinCardCount == 0)
+        if (action.Kind != LegalActionKind.UseSkill)
         {
             return [];
         }
@@ -290,6 +290,21 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selectableCards = GetActiveSkillSelectableCards(self, action);
+        if (action.Skill == SkillKind.Qiangxi)
+        {
+            return selectableCards
+                .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                .ThenBy(card => card.Id)
+                .Take(1)
+                .Select(card => card.Id)
+                .ToArray();
+        }
+
+        if (action.MinCardCount == 0)
+        {
+            return [];
+        }
+
         if (action.MinCardCount > selectableCards.Count)
         {
             throw new InvalidOperationException("The active skill requires more cards than the AI owns.");
@@ -305,10 +320,19 @@ public sealed partial class SimpleAiBrain
 
     private static IReadOnlyList<CardSnapshot> GetActiveSkillSelectableCards(
         PlayerSnapshot self,
-        LegalAction action) =>
-        action.Skill == SkillKind.Zhiheng && action.MaxCardCount > self.Hand.Count
-            ? self.Hand.Concat(self.Equipment).ToArray()
-            : self.Hand;
+        LegalAction action)
+    {
+        if (action.SelectableCardIds.Count == 0)
+        {
+            return [];
+        }
+
+        var selectable = action.SelectableCardIds.ToHashSet();
+        return self.Hand
+            .Concat(self.Equipment)
+            .Where(card => selectable.Contains(card.Id))
+            .ToArray();
+    }
 
     /// <summary>
     /// Selects the smallest legal target subset for a target-selecting active
@@ -348,7 +372,7 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
-        var orderedCandidates = action.Skill is SkillKind.Fanjian or SkillKind.Jijiang
+        var orderedCandidates = action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi
             ? candidates
                 .OrderByDescending(player => GetHostility(view, selfRole, player))
                 .ThenBy(player => player.Hp)
@@ -607,26 +631,26 @@ public sealed partial class SimpleAiBrain
     public (bool UseFeedback, AiThoughtRecord Thought) ChooseFeedback(
         GameSnapshot view,
         int sourceSeat,
-        CardKind incomingCard,
+        CardKind? incomingCard,
         int thoughtSequence,
         bool takeSourceCard = false,
         string skillName = "反馈")
     {
         var self = view.Players.Single(player => player.Seat == Seat);
-        var profile = CardCatalog.Get(incomingCard);
+        var profile = incomingCard is { } cardKind ? CardCatalog.Get(cardKind) : null;
         var source = view.Players.Single(player => player.Seat == sourceSeat);
         var useScore = takeSourceCard
             ? 38d + source.HandCount * 2d + source.Equipment.Count * 8d - self.HandCount * 3d
-            : profile.HandKeepValue +
+            : (profile?.HandKeepValue ?? 0d) +
               Math.Max(0, self.MaxHp - self.HandCount) * 8d -
               self.HandCount * 4d;
         var skipScore = self.HandCount > self.MaxHp ? 52d : 8d;
         var gainDescription = takeSourceCard
             ? $"获得伤害来源的一张牌（其公开手牌数 {source.HandCount}、装备数 {source.Equipment.Count}）"
-            : $"获得{profile.DisplayName}";
+            : $"获得{profile?.DisplayName ?? "伤害牌"}";
         var gainReason = takeSourceCard
             ? $"{gainDescription}并扩大资源；只使用本座可见的生命、公开手牌数量和装备。"
-            : $"获得{profile.DisplayName}并扩大资源；只使用本座可见的生命和手牌数量。";
+            : $"获得{profile?.DisplayName ?? "伤害牌"}并扩大资源；只使用本座可见的生命和手牌数量。";
         var useAction = new LegalAction(
             LegalActionKind.Feedback,
             null,
@@ -670,7 +694,7 @@ public sealed partial class SimpleAiBrain
     public (bool UseGanglie, AiThoughtRecord Thought) ChooseGanglieTrigger(
         GameSnapshot view,
         int sourceSeat,
-        CardKind incomingCard,
+        CardKind? incomingCard,
         int thoughtSequence)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
@@ -701,7 +725,9 @@ public sealed partial class SimpleAiBrain
             .OrderByDescending(candidate => candidate.Score)
             .ThenBy(candidate => candidate.Action.Kind)
             .First();
-        var incomingName = CardCatalog.Get(incomingCard).DisplayName;
+        var incomingName = incomingCard is { } cardKind
+            ? CardCatalog.Get(cardKind).DisplayName
+            : "技能";
         var thought = new AiThoughtRecord(
             thoughtSequence,
             view.TurnNumber,
@@ -1821,6 +1847,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Ganglie => role is Role.Lord or Role.Loyalist ? 39d : 35d,
             SkillKind.Guicai => role is Role.Lord or Role.Loyalist ? 41d : 36d,
             SkillKind.Kujin => role is Role.Lord or Role.Loyalist ? 38d : 35d,
+            SkillKind.Qiangxi => role is Role.Rebel or Role.Renegade ? 40d : 35d,
             SkillKind.Zhiheng => role is Role.Lord or Role.Loyalist ? 36d : 34d,
             SkillKind.Rende => role is Role.Lord or Role.Loyalist ? 40d : 36d,
             SkillKind.Qingnang => role is Role.Lord or Role.Loyalist ? 39d : 35d,
@@ -1846,6 +1873,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Ganglie => "受伤后以公开判定逼迫伤害来源付出手牌或体力代价。",
             SkillKind.Guicai => "在公开判定生效前用自己的手牌改变结果，适合保护己方结算。",
             SkillKind.Kujin => "出牌阶段以 1 点体力换取两张牌；降至 0 点时先进入濒死救援。",
+            SkillKind.Qiangxi => "出牌阶段以体力或武器牌为代价，对攻击范围内的角色造成直接伤害。",
             SkillKind.Zhiheng => "出牌阶段用低保留价值手牌换取等量新牌，稳定调整手牌质量。",
             SkillKind.Rende => "出牌阶段将手牌交给其他角色；一次交给至少两张时可回复 1 点体力。",
             SkillKind.Qingnang => "出牌阶段弃置一张手牌令受伤角色回复 1 点体力，每回合一次。",
@@ -1897,6 +1925,39 @@ public sealed partial class SimpleAiBrain
                 : (32d, "重铸铁索换取一张未知牌；不读取牌堆顺序，优先保留更有利的连环或解链行动。");
         if (action.Kind == LegalActionKind.UseSkill)
         {
+            if (action.Skill == SkillKind.Qiangxi)
+            {
+                var qiangxiTarget = view.Players
+                    .Where(player => player.IsAlive && action.SelectableTargetSeats.Contains(player.Seat))
+                    .OrderByDescending(player => GetHostility(view, selfRole, player))
+                    .ThenBy(player => player.Hp)
+                    .ThenBy(player => player.Seat)
+                    .FirstOrDefault();
+                if (qiangxiTarget is null)
+                {
+                    return (-100d, "攻击范围内没有强袭目标。");
+                }
+
+                var qiangxiHostility = GetHostility(view, selfRole, qiangxiTarget);
+                if (qiangxiHostility <= 0)
+                {
+                    return (-90d, "攻击范围内没有值得支付强袭代价的敌对目标。");
+                }
+
+                var hasWeaponCost = action.SelectableCardIds.Count > 0;
+                var costPenalty = hasWeaponCost
+                    ? 8d
+                    : self.Hp <= 1
+                        ? 100d
+                        : self.Hp == 2 ? 28d : 15d;
+                var finishBonus = qiangxiTarget.Hp <= 1 ? 45d : 0d;
+                return (
+                    30d + qiangxiHostility * .45d + finishBonus - costPenalty,
+                    hasWeaponCost
+                        ? $"弃置自己可见的一张武器牌，对座位 {qiangxiTarget.Seat + 1} 造成 1 点伤害。"
+                        : $"失去 1 点体力，对座位 {qiangxiTarget.Seat + 1} 造成 1 点伤害；只使用公开体力和合法目标。");
+            }
+
             if (action.Skill == SkillKind.Fanjian)
             {
                 var fanjianTarget = view.Players

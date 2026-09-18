@@ -493,8 +493,8 @@ public sealed record DamageTriggerWindowOpenedEvent(
     long DamageFrameId,
     int SourceSeat,
     int TargetSeat,
-    int CardId,
-    CardKind CardKind,
+    int? CardId,
+    CardKind? CardKind,
     IReadOnlyList<DamageTriggerCandidate> Candidates) : IGameEvent;
 
 /// <summary>Trusted-host cursor movement for an after-damage trigger window.</summary>
@@ -515,8 +515,8 @@ public sealed record DamageSkillRequestedEvent(
     long ResolutionId,
     int OwnerSeat,
     int SourceSeat,
-    int CardId,
-    CardKind CardKind,
+    int? CardId,
+    CardKind? CardKind,
     SkillKind Skill,
     string CandidateId = "",
     int Priority = 0) : IGameEvent;
@@ -525,8 +525,8 @@ public sealed record DamageSkillResolvedEvent(
     long ResolutionId,
     int OwnerSeat,
     int SourceSeat,
-    int CardId,
-    CardKind CardKind,
+    int? CardId,
+    CardKind? CardKind,
     SkillKind Skill,
     bool Used,
     string CandidateId = "",
