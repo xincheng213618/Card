@@ -12,7 +12,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | --- | --- | --- | --- | --- |
 | `basic.slash.target` | `standard:slash` | 合法目标受到 1 点伤害或进入闪响应 | 自身、死亡角色、空城角色不可选 | 相同 seed/命令结果一致 |
 | `basic.elemental-slash.nature` | `standard:fire_slash` / `standard:thunder_slash` | 共用杀的目标与闪响应；未被闪避时分别产生 `DamageNature.Fire` / `DamageNature.Thunder`，伤害帧和三类伤害事件保持一致 | 闪避后不得产生伤害；自身、死亡角色、空城角色或伪造属性类型被拒绝；属性抗性尚未实现 | AI 只消费自己的手牌和公开目标信息；相同 seed/命令结果一致 |
-| `basic.alcohol.slash_boost` | `standard:alcohol` | 出牌阶段无目标使用，公开设置一次性酒效；下一张直接杀声明时消费并造成 2 点伤害，未消费时回合结束失效 | 同回合重复使用、群体牌/决斗消费和非法阶段使用必须拒绝；酒牌与杀牌均完整经过 `Processing` | AI 只读取本座手牌中的杀数量和公开状态；固定 seed/命令流下事件、金额和牌区一致 |
+| `basic.alcohol.slash_boost` | `standard:alcohol` | 出牌阶段无目标使用，公开设置一次性酒效；下一张直接杀声明时消费并造成 2 点伤害，未消费时回合结束失效；规则 v20 起每回合限使用一次，下一回合重置 | 酒效仍存在时重复使用始终拒绝；v20 即使酒效已被杀消费也拒绝同回合第二张酒及伪造命令，v1–v19 保留消费后可再次使用的历史语义；群体牌/决斗不能消费酒效，酒牌与杀牌均完整经过 `Processing` | AI 和 WPF 只消费本座合法动作；规则分支、固定 seed/命令流、Checkpoint、事件、金额和牌区一致 |
 | `basic.alcohol.dying_rescue` | `standard:alcohol` | 规则 v12 起，濒死窗口只有 victim 自己的 `RescueDying` prompt 可包含酒；酒令自己恢复 1 点体力并经过 `Hand → Processing → DiscardPile`，`DyingResponseEvent.UsedAlcohol` 为真并完成濒死帧；v3–v11 仍按历史跨座位语义回放 | 同一响应不能同时使用桃和酒；伪造 Choice、错误牌区来源、非 victim 在 v12 使用酒或把酒用于群体牌/决斗必须拒绝 | 其他 viewer 看不到 prompt 和酒牌 ID；AI 只读取自己的快照/手牌；固定 seed/命令流可复现 |
 | `skill.jijiu.red_card_dying_rescue` | `standard:jijiu` | 急救者在私有 `RescueDying` prompt 中将一张红色非桃实体牌当作桃使用；有效牌型按 Peach 进入恢复事件，物理牌仍经过 `Hand → Processing → DiscardPile`，濒死目标恢复 1 点体力 | 黑色牌、桃本身、非濒死窗口、错误 responder、旧 Choice 或伪造牌 ID 必须拒绝；同一实体牌不得复制，普通桃路径的事件形状保持兼容 | 只有当前 responder 看到红牌候选；普通 viewer 不看到牌 ID；AI 只读取自己的过滤快照；固定 seed/命令流、物理/有效牌型事件和 checkpoint 可复现 |
 | `basic.dodge.response` | `standard:dodge` | 闪抵消杀并进入弃牌区 | 非响应窗口不能打闪；无闪不能伪造响应 | 他人看不到手牌牌 ID |

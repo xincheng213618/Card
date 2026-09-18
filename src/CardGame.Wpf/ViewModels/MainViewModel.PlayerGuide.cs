@@ -258,6 +258,8 @@ public sealed partial class MainViewModel
         }
         if (kind == CardKind.FireAttack && rulesVersion < 19)
             return "选择一名有手牌的其他角色；其展示一张手牌，你弃置一张相同花色的手牌后对其造成 1 点火焰伤害；展示牌按旧规则进入弃牌堆。";
+        if (kind == CardKind.Alcohol && rulesVersion >= 20)
+            return "出牌阶段每回合限使用一次，令本回合下一张杀造成的伤害 +1；濒死时仅可对自己使用并回复 1 点体力。";
         if (kind == CardKind.Crossbow && rulesVersion < 13)
             return "装备至武器槽；攻击范围 +1，出牌阶段使用杀不受次数限制。";
         if (kind == CardKind.QinggangSword && rulesVersion < 13)
@@ -285,6 +287,7 @@ public sealed partial class MainViewModel
             CardKind.Dodge => "受到杀或万箭齐发时响应",
             CardKind.Nullification => "锦囊响应窗口",
             CardKind.Peach => "出牌阶段回复自己 · 濒死时救援",
+            CardKind.Alcohol when rulesVersion >= 20 => "出牌阶段每回合限一次 · 自己濒死时仅可自救",
             CardKind.Alcohol when rulesVersion >= 12 => "出牌阶段饮酒 · 自己濒死时仅可自救",
             CardKind.Alcohol => "出牌阶段饮酒 · 濒死时救援",
             _ => "自己的出牌阶段"

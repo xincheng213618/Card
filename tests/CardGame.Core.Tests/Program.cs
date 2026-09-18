@@ -129,6 +129,7 @@ var tests = new (string Name, Action Body)[]
     ("formal FireAttack can target self and keeps the revealed card in hand", FireAttackFormalChecks.SelfTargetAndLegacy),
     ("FireSlash and ThunderSlash preserve typed damage nature", AttributeSlashFlow),
     ("Alcohol arms a one-shot Slash damage boost", AlcoholFlow),
+    ("formal play-phase Alcohol is limited once per turn", AlcoholLimitChecks.OncePerTurnAndLegacy),
     ("Feedback claims a surviving damage card through a typed event", FeedbackFlow),
     ("Feedback exposes a private human trigger choice", FeedbackHumanChoiceFlow),
     ("Feedback can be skipped without claiming the damage card", FeedbackSkipChoiceFlow),

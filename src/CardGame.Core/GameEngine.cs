@@ -169,6 +169,9 @@ public sealed partial class GameEngine
     private bool UsesFormalFireAttackReveal =>
         _rulesVersion >= 19;
 
+    private bool UsesFormalPlayPhaseAlcoholLimit =>
+        _rulesVersion >= 20;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -1505,9 +1508,12 @@ public sealed partial class GameEngine
         var fireAttackRules = UsesFormalFireAttackReveal
             ? "火攻可对自己使用，展示牌仍留在目标手牌中"
             : "火攻只能对其他角色使用，展示牌按历史规则进入弃牌堆";
+        var alcoholPlayRules = UsesFormalPlayPhaseAlcoholLimit
+            ? "出牌阶段每回合限使用一次酒"
+            : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -3540,6 +3546,7 @@ public sealed partial class GameEngine
 
         _turnNumber++;
         _slashCountThisTurn = 0;
+        current.UsedPlayPhaseAlcoholThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
         _phase = TurnPhase.Draw;
         AddLog(
@@ -5329,6 +5336,7 @@ public sealed partial class GameEngine
             CardMoveReasons.Use);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
         source.HasAlcoholEffect = true;
+        source.UsedPlayPhaseAlcoholThisTurn = true;
         QueueGameEvent(new AlcoholAppliedEvent(resolutionId, source.Seat, DamageBonus: 1));
         AddLog("CardEffect", $"{source.Name} 使用【酒】，本回合下一张直接杀造成的伤害 +1。", source.Seat);
         MoveCard(
@@ -10419,7 +10427,8 @@ public sealed partial class GameEngine
             }
         }
 
-        if (!actor.HasAlcoholEffect)
+        if (!actor.HasAlcoholEffect &&
+            (!UsesFormalPlayPhaseAlcoholLimit || !actor.UsedPlayPhaseAlcoholThisTurn))
         {
             foreach (var alcohol in GetHand(actor).Where(card => card.Kind == CardKind.Alcohol))
             {
@@ -12739,6 +12748,7 @@ public sealed partial class GameEngine
         public required int Hp { get; set; }
         public bool IsAlive { get; set; } = true;
         public bool HasAlcoholEffect { get; set; }
+        public bool UsedPlayPhaseAlcoholThisTurn { get; set; }
         public bool IsChained { get; set; }
         public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
     }

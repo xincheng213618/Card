@@ -94,6 +94,7 @@ internal static class PlayerGuideChecks
                 CardKind.Dismantlement => "选择一名其他角色；从其手牌的不透明牌位中选择一张弃置，或弃置其一张公开装备/判定区牌。",
                 CardKind.Snatch => "选择一名距离为 1 的其他角色；从其手牌的不透明牌位中选择一张获得，或获得其一张公开装备/判定区牌。",
                 CardKind.SupplyShortage => "选择一名距离为 1 的其他角色；其下个回合判定，若结果不为梅花则跳过摸牌阶段。",
+                CardKind.Alcohol => "出牌阶段每回合限使用一次，令本回合下一张杀造成的伤害 +1；濒死时仅可对自己使用并回复 1 点体力。",
                 _ => CardCatalog.Get(card.Kind).Description
             };
             Require(Named<TextBlock>(root, "GuideCardDescription").Text == expectedDescription, $"Wrong definition displayed for {card.Name}.");
