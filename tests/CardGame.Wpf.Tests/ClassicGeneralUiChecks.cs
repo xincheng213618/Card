@@ -63,6 +63,34 @@ internal static class ClassicGeneralUiChecks
                        sunQuan.SkillDescription.Contains("任意张牌", StringComparison.Ordinal),
             "The current classic selection card must describe formal Zhiheng's limit and card scope.");
 
+        using var yingziViewModel = FindGeneralChoice("standard:zhou-yu");
+        var zhouYu = yingziViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "standard:zhou-yu");
+        Program.Assert(zhouYu.SkillDescription.Contains("可以多摸一张牌", StringComparison.Ordinal),
+            "The current classic selection card must describe Yingzi as optional.");
+        yingziViewModel.SelectGeneralChoiceCommand.Execute(zhouYu);
+        Program.AdvanceToDecision(yingziViewModel);
+        var yingziEngine = Program.Engine(yingziViewModel);
+        var beforeYingzi = yingziEngine.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        Program.Assert(yingziViewModel.IsSkillSelectionPending &&
+                       yingziEngine.PendingDecision?.Kind == DecisionKind.Yingzi &&
+                       yingziViewModel.SkillChoices.Count == 2,
+            "The WPF must render both complete Yingzi choices at the draw-phase boundary.");
+        var yingziWindow = new MainWindow(yingziViewModel);
+        yingziWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)yingziWindow.Content, 1120, 740,
+            Path.Combine(output, "71-classic-yingzi-choice.png"));
+        var skipYingzi = yingziViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "yingzi-skip");
+        yingziViewModel.SelectSkillChoiceCommand.Execute(skipYingzi);
+        Program.Assert(!yingziViewModel.IsSkillSelectionPending &&
+                       yingziEngine.CreateSnapshot(0, revealAll: true)
+                           .Players.Single(player => player.Seat == 0).HandCount == beforeYingzi + 2,
+            "The WPF Yingzi skip choice must continue with the normal draw count.");
+        yingziWindow.Content = null;
+        yingziWindow.Close();
+
         using var zhihengViewModel = FindClassicZhihengEquipmentViewModel();
         var zhihengWindow = new MainWindow(zhihengViewModel);
         zhihengWindow.ApplyTemplate();

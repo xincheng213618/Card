@@ -596,7 +596,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Yuanhu or
                     DecisionKind.Ganglie or
                     DecisionKind.GangliePunish or
-                    DecisionKind.Guicai
+                    DecisionKind.Guicai or
+                    DecisionKind.Yingzi
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -611,7 +612,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Yuanhu or
             DecisionKind.Ganglie or
             DecisionKind.GangliePunish or
-            DecisionKind.Guicai;
+            DecisionKind.Guicai or
+            DecisionKind.Yingzi;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1560,7 +1562,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DecisionKind.Yuanhu or
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
-                DecisionKind.Guicai)
+                DecisionKind.Guicai or
+                DecisionKind.Yingzi)
             {
                 EventStack.Add($"      DamageSkill({pending.Kind}, target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
                 EventStack.Add($"        AskForSkill({pending.Kind})");
@@ -1766,6 +1769,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 "当你受到伤害后，你可以获得造成此伤害的牌。",
             SkillKind.Zhiheng when _game.RulesVersion >= 17 =>
                 "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",
+            SkillKind.Yingzi when _game.RulesVersion >= 21 =>
+                "摸牌阶段，你可以多摸一张牌。",
             _ => skill.Description
         };
     }

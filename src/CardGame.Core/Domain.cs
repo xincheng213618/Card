@@ -157,6 +157,7 @@ public enum DecisionKind
     Ganglie,
     GangliePunish,
     Guicai,
+    Yingzi,
     DiscardCards,
     SelectTargetCard
 }

@@ -481,6 +481,96 @@ internal static class ClassicGeneralChecks
             "Rules v16 must retain the historical repeatable hand-only Zhiheng behavior.");
     }
 
+    public static void FormalYingziChoice()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 21,
+            "Formal Yingzi must have an explicit rules version.");
+
+        var skipped = SelectGeneral(registry, "standard:zhou-yu", GameCheckpoint.CurrentRulesVersion);
+        var reachedChoice = skipped.Submit(new AdvanceCommand(skipped.Revision));
+        Require(reachedChoice.Accepted, reachedChoice.Error?.Message ?? "Could not reach the Yingzi choice.");
+        var skipPrompt = skipped.PendingDecision;
+        Require(skipPrompt is { Kind: DecisionKind.Yingzi } &&
+                skipPrompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                    .OrderBy(action => action, StringComparer.Ordinal)
+                    .SequenceEqual(["yingzi-skip", "yingzi-use"]),
+            "Rules v21 must publish complete use and skip choices for Yingzi.");
+        var initialHandCount = skipped.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+
+        var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(skipped.CreateCheckpoint()));
+        var restored = GameReplay.Restore(checkpoint, registry);
+        Require(restored.PendingDecision?.Kind == DecisionKind.Yingzi,
+            "A paused Yingzi choice must restore from the command checkpoint.");
+
+        var staleSnapshot = SnapshotJson.Serialize(skipped.CreateSnapshot(0, revealAll: true));
+        var rejected = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt!.PromptId,
+            new ChoiceId("yingzi.unknown"),
+            skipped.Revision));
+        Require(!rejected.Accepted && rejected.Error?.Code == CommandErrorCode.InvalidChoice &&
+                SnapshotJson.Serialize(skipped.CreateSnapshot(0, revealAll: true)) == staleSnapshot,
+            "A forged Yingzi choice must be rejected atomically.");
+
+        var skipChoice = skipPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "yingzi-skip");
+        var skippedResult = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipChoice.Id,
+            skipped.Revision));
+        Require(skippedResult.Accepted && skipped.State.Phase == TurnPhase.Play && skipped.PendingDecision is null,
+            skippedResult.Error?.Message ??
+            $"Skipping Yingzi did not continue to the play phase (status={skipped.State.Status}, prompt={skipped.PendingDecision?.Kind.ToString() ?? "none"}, phase={skipped.State.Phase}).");
+        Require(skipped.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                initialHandCount + 2,
+            "Skipping Yingzi must draw only the normal two cards.");
+
+        var restoredSkip = restored.Submit(new AnswerPromptCommand(
+            0,
+            restored.PendingDecision!.PromptId,
+            restored.PendingDecision.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "yingzi-skip").Id,
+            restored.Revision));
+        Require(restoredSkip.Accepted &&
+                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(skipped.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(restored).SequenceEqual(EventSignatures(skipped)),
+            "A restored Yingzi choice must resolve deterministically.");
+
+        var used = SelectGeneral(registry, "standard:zhou-yu", GameCheckpoint.CurrentRulesVersion);
+        Require(used.Submit(new AdvanceCommand(used.Revision)).Accepted,
+            "Could not reach the second Yingzi choice.");
+        var usePrompt = used.PendingDecision!;
+        var beforeUse = used.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount;
+        var usedResult = used.Submit(new AnswerPromptCommand(
+            0,
+            usePrompt.PromptId,
+            usePrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "yingzi-use").Id,
+            used.Revision));
+        Require(usedResult.Accepted &&
+                used.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                beforeUse + 3 &&
+                used.Events.Any(envelope => envelope.Payload is DrawSkillResolvedEvent
+                {
+                    SourceSeat: 0,
+                    Skill: SkillKind.Yingzi,
+                    Used: true,
+                    DrawCount: 3
+                }),
+            usedResult.Error?.Message ?? "Using Yingzi must draw one extra card and publish its result.");
+
+        var legacy = SelectGeneral(registry, "standard:zhou-yu", rulesVersion: 20);
+        var legacyResult = legacy.Submit(new AdvanceCommand(legacy.Revision));
+        Require(legacyResult.Accepted && legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount == 7 &&
+                legacy.Events.All(envelope => envelope.Payload is not DrawSkillResolvedEvent),
+            legacyResult.Error?.Message ?? "Rules v20 must retain automatic Yingzi drawing.");
+    }
+
     private static GameEngine? StartClassicGeneralAtPlay(
         ContentRegistry registry,
         int seed,

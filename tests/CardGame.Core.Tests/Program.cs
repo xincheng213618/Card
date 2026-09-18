@@ -58,6 +58,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
+    ("classic Yingzi asks before the extra draw and preserves legacy rules", ClassicGeneralChecks.FormalYingziChoice),
     ("public-team mode preserves privacy and registered distribution", TeamModeChecks.ContentAndPrivacy),
     ("public-team AI matches terminate and replay deterministically", TeamModeChecks.AiMatchIsDeterministic),
     ("public-team winner rules distinguish living teams", TeamModeChecks.WinningTeamRules),

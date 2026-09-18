@@ -65,6 +65,7 @@ public sealed partial class GameEngine
     private DamageTriggerResolution? _pendingDamageTrigger;
     private DamageSkillResolution? _pendingDamageSkill;
     private JudgmentResolution? _pendingJudgment;
+    private YingziDrawResolution? _pendingYingziDraw;
     private DelayedTurnEffects _pendingTurnDelayedEffects;
 
     private GameEngine(
@@ -171,6 +172,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalPlayPhaseAlcoholLimit =>
         _rulesVersion >= 20;
+
+    private bool UsesFormalYingziChoice =>
+        _rulesVersion >= 21 && IsClassicIdentityMode;
 
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
@@ -697,6 +701,7 @@ public sealed partial class GameEngine
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
+                DecisionKind.Yingzi or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -757,6 +762,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Guicai)
         {
             return SubmitGuicaiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Yingzi)
+        {
+            return SubmitYingziPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1067,6 +1077,33 @@ public sealed partial class GameEngine
                     requestedCardId: null,
                     advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "鬼才选择不符合当前判定窗口。")
+        };
+    }
+
+    private CommandResult SubmitYingziPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingYingziDraw is null ||
+            _pendingDecision is not { Kind: DecisionKind.Yingzi })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的英姿摸牌窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "英姿选择不符合当前摸牌窗口。");
+        }
+
+        return action switch
+        {
+            "yingzi-use" => Accept(() => HumanYingziCore(
+                useSkill: true,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "yingzi-skip" => Accept(() => HumanYingziCore(
+                useSkill: false,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "英姿提示没有可识别的选择效果。")
         };
     }
 
@@ -1451,6 +1488,11 @@ public sealed partial class GameEngine
         var guicaiRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Guicai))
             ? "，司马懿可在判定牌生效前用一张手牌替换判定牌"
             : string.Empty;
+        var yingziRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Yingzi))
+            ? UsesFormalYingziChoice
+                ? "，周瑜可在摸牌阶段选择多摸一张牌"
+                : "，周瑜在摸牌阶段自动多摸一张牌"
+            : string.Empty;
         var kujinRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Kujin))
             ? "，苦肉者可在出牌阶段且体力大于 0 时失去 1 点体力；若进入濒死，救援结算后再摸两张牌"
             : string.Empty;
@@ -1513,7 +1555,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{yingziRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -1572,7 +1614,8 @@ public sealed partial class GameEngine
                     IsAiHarvestPending() ||
                     IsAiFireAttackPending() ||
                     IsAiDamageSkillPending() ||
-                    IsAiJudgmentPending())
+                    IsAiJudgmentPending() ||
+                    IsAiYingziPending())
                 {
                     RunOneEngineStep();
                     continue;
@@ -2223,6 +2266,14 @@ public sealed partial class GameEngine
 
         ClearPendingDecision();
         ResolveHarvestSelection(group, picker, cardId);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanYingziCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Yingzi);
+        ResolveYingziDrawChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -3593,15 +3644,83 @@ public sealed partial class GameEngine
         {
             AddLog("DelayedCardEffect", $"{current.Name} 因【兵粮寸断】跳过摸牌阶段。", current.Seat);
         }
+        else if (UsesFormalYingziChoice && current.General.HasSkill(SkillKind.Yingzi))
+        {
+            BeginYingziDrawChoice(current, delayedEffects);
+            return;
+        }
         else
         {
-            var drawCount = _drawPerTurn + GetEquipment(current)
-                .Select(card => EquipmentCatalog.Get(card.Kind).DrawCountBonus)
-                .Sum();
-            var context = CreateSkillContext(current);
-            drawCount = PassiveRules(current).ModifyDrawCount(context, drawCount);
-            DrawCards(current, drawCount, log: true);
+            DrawCards(current, GetTurnDrawCount(current), log: true);
         }
+
+        CompleteTurnStartAfterDraw(current, delayedEffects);
+    }
+
+    private int GetTurnDrawCount(PlayerRuntime current)
+    {
+        var drawCount = _drawPerTurn + GetEquipment(current)
+            .Select(card => EquipmentCatalog.Get(card.Kind).DrawCountBonus)
+            .Sum();
+        return PassiveRules(current).ModifyDrawCount(CreateSkillContext(current), drawCount);
+    }
+
+    private void BeginYingziDrawChoice(PlayerRuntime current, DelayedTurnEffects delayedEffects)
+    {
+        _pendingYingziDraw = new YingziDrawResolution(current.Seat, delayedEffects);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Yingzi,
+            current.Seat,
+            "是否发动【英姿】，在摸牌阶段多摸一张牌？",
+            [],
+            [])
+        {
+            PromptId = CreatePromptId(),
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId("yingzi.use"),
+                    "发动【英姿】，多摸一张牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "yingzi-use" }),
+                new PromptChoice(
+                    new ChoiceId("yingzi.skip"),
+                    "不发动【英姿】，按通常数量摸牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "yingzi-skip" })
+            ]
+        };
+        _status = current.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        PublishState();
+    }
+
+    private void ResolveYingziDrawChoice(bool useSkill)
+    {
+        var pending = _pendingYingziDraw ??
+            throw new InvalidOperationException("There is no Yingzi draw choice to resolve.");
+        var current = _players[pending.PlayerSeat];
+        var drawCount = GetTurnDrawCount(current) - (useSkill ? 0 : 1);
+        DrawCards(current, Math.Max(0, drawCount), log: true);
+        QueueGameEvent(new DrawSkillResolvedEvent(
+            current.Seat,
+            SkillKind.Yingzi,
+            useSkill,
+            Math.Max(0, drawCount)));
+        AddLog(
+            "SkillTriggered",
+            useSkill
+                ? $"{current.Name} 发动【英姿】，本阶段多摸一张牌。"
+                : $"{current.Name} 未发动【英姿】。",
+            current.Seat);
+        _pendingYingziDraw = null;
+        ClearPendingDecision();
+        CompleteTurnStartAfterDraw(current, pending.DelayedEffects);
+    }
+
+    private void CompleteTurnStartAfterDraw(PlayerRuntime current, DelayedTurnEffects delayedEffects)
+    {
 
         if (delayedEffects.HasFlag(DelayedTurnEffects.SkipPlayPhase))
         {
@@ -3834,6 +3953,12 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (IsAiYingziPending())
+        {
+            ResolvePendingAiYingzi();
+            return;
+        }
+
         if (_pendingDying is not null)
         {
             RunOneDyingStep();
@@ -11834,6 +11959,43 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingYingziDraw is { } yingziDraw)
+        {
+            if (!UsesFormalYingziChoice ||
+                _phase != TurnPhase.Draw ||
+                _currentSeat != yingziDraw.PlayerSeat ||
+                !_players[yingziDraw.PlayerSeat].IsAlive ||
+                !_players[yingziDraw.PlayerSeat].General.HasSkill(SkillKind.Yingzi) ||
+                _pendingDecision is not { Kind: DecisionKind.Yingzi } yingziDecision ||
+                yingziDecision.PlayerSeat != yingziDraw.PlayerSeat ||
+                yingziDecision.Choices.Count != 2 ||
+                yingziDecision.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0) ||
+                _pendingAttack is not null ||
+                _pendingDuel is not null ||
+                _pendingGroupCard is not null ||
+                _pendingFireAttack is not null ||
+                _pendingNullification is not null ||
+                _pendingTargetCardSelection is not null ||
+                _pendingDying is not null ||
+                _pendingDamageTrigger is not null ||
+                _pendingDamageSkill is not null ||
+                _pendingJudgment is not null ||
+                _resolutionStack.Count != 0)
+            {
+                throw new InvalidOperationException(
+                    "An Yingzi draw choice must retain its private prompt at a clean draw-phase boundary.");
+            }
+
+            var expectedYingziStatus = _players[yingziDraw.PlayerSeat].IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedYingziStatus)
+            {
+                throw new InvalidOperationException(
+                    "An Yingzi draw prompt status does not match its owner.");
+            }
+        }
+
         if (!_setupComplete && _resolutionStack.Count != 0)
         {
             throw new InvalidOperationException("Setup cannot retain an in-flight card resolution.");
@@ -12415,6 +12577,23 @@ public sealed partial class GameEngine
             PlayerSeat: var playerSeat
         } &&
         playerSeat != _options.HumanSeat;
+
+    private bool IsAiYingziPending() =>
+        _pendingYingziDraw is { PlayerSeat: var playerSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Yingzi, PlayerSeat: var decisionSeat } &&
+        playerSeat == decisionSeat &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiYingzi()
+    {
+        if (!IsAiYingziPending())
+        {
+            throw new InvalidOperationException("There is no AI Yingzi choice to resolve.");
+        }
+
+        ResolveYingziDrawChoice(useSkill: true);
+        PublishState();
+    }
 
     private bool IsAiDyingResponsePending() =>
         _pendingDying is { } dying &&
@@ -13031,6 +13210,10 @@ public sealed partial class GameEngine
         public IReadOnlyList<DamageTriggerCandidate> Candidates { get; } = candidates;
         public int CandidateIndex { get; set; }
     }
+
+    private sealed record YingziDrawResolution(
+        int PlayerSeat,
+        DelayedTurnEffects DelayedEffects);
 
     private abstract record EngineNotification;
 

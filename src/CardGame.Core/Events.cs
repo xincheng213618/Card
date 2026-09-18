@@ -189,6 +189,13 @@ public sealed record ActiveSkillResolvedEvent(
     SkillKind Skill,
     ActiveSkillEffectKind Effect) : IGameEvent;
 
+/// <summary>Public result of an optional draw-phase skill decision.</summary>
+public sealed record DrawSkillResolvedEvent(
+    int SourceSeat,
+    SkillKind Skill,
+    bool Used,
+    int DrawCount) : IGameEvent;
+
 public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing }
 
 /// <summary>The declared target lost its required cards during the response window.</summary>
