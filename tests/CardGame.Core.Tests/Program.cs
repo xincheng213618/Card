@@ -88,6 +88,7 @@ var tests = new (string Name, Action Body)[]
     ("hand guidance explains spent Slash allowance and active wine", HandGuidanceChecks.AfterUsingCards),
     ("hand guidance follows real response and discard boundaries", HandGuidanceChecks.PendingDecisions),
     ("passive skill hooks stay small and deterministic", PassiveSkills),
+    ("formal Kongcheng rejects Duel targets while rules v14 replays Slash-only behavior", KongchengChecks.DuelTargetingAndLegacy),
     ("damage trigger candidates use a stable ordering", DamageTriggerOrdering),
     ("damage trigger windows pause with a serializable cursor", DamageTriggerWindowFlow),
     ("lethal damage keeps its typed trigger window before dying", LethalDamageTriggerWindowFlow),

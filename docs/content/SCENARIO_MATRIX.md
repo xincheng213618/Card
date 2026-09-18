@@ -43,7 +43,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | `skill.qicai.trick_distance` | `standard:qicai` | 拥有奇才的角色使用距离型锦囊时跳过距离限制；当前顺手牵羊可合法选择距离大于 1 且存在公开可用牌的其他存活角色 | 无奇才、非锦囊基本牌、目标死亡/无牌、伪造技能映射或 UI 直接扩大候选均不得生效；Core 仍校验目标区域和实体牌来源 | AI 只读取自己的技能、公开目标/区域和合法动作；WPF 通过同一目标选择投影；普通视图不泄漏手牌 ID；固定 seed/命令流可复现
 | `skill.paoxiao.slash_limit` | `standard:paoxiao` | 出牌阶段杀次数不受 1 次限制 | 其他阶段不改变合法动作 | AI 只消费自己的视角 |
 | `skill.yingzi.draw` | `standard:yingzi` | 摸牌阶段额外摸 1 张 | 非摸牌阶段不改变摸牌 | 发牌顺序可复现 |
-| `skill.kongcheng.target_lock` | `standard:kongcheng` | 空手牌时不能成为杀目标 | 有手牌后恢复可选 | 只公开技能，不公开暗牌 |
+| `skill.kongcheng.target_lock` | `standard:kongcheng` | 规则 v15 的经典身份局中，空手牌时不能成为普通/火/雷杀或决斗目标 | 有手牌后恢复可选；伪造决斗目标原子拒绝；v1–v14 和演示模式保留只禁杀 | AI/WPF 只消费 Core 合法动作；只公开技能与手牌数，不公开暗牌；固定 seed 的新旧版本目标集合可复现 |
 | `trick.dismantlement.target_card_discard` | `standard:dismantlement` | 选择一名有手牌、公开装备或公开判定区牌的其他存活角色；手牌由来源玩家通过私有不透明牌位选择，公开装备/判定区牌通过精确 `TargetCardId` 选择后弃置 | 目标无牌、死亡、自身、伪造目标、过期牌位 Prompt 或不属于目标公开装备/判定区的 `TargetCardId` 被拒绝 | 手牌分支的普通快照和事件不含牌面；公开装备/判定区分支可带已公开的 ID/牌型；可信账本可回放 |
 | `trick.snatch.distance_one_target_card_take` | `standard:snatch` | 选择一名战斗距离为 1 且有手牌、公开装备或公开判定区牌的其他存活角色；手牌由来源玩家通过私有不透明牌位选择，公开装备/判定区牌通过精确 `TargetCardId` 选择后转入使用者手牌 | 距离大于 1 且无奇才、目标无牌、死亡、自身、伪造目标、过期牌位 Prompt 或非法装备/判定区 ID 被拒绝；坐骑 modifier 和奇才锦囊距离豁免必须由 Core 查询决定 | 手牌分支的普通快照和事件不含牌面；公开装备/判定区分支仅公开已知 ID/牌型，取得后牌面进入使用者私有快照；可信账本可回放 |
 | `trick.duel.response_chain` | `standard:duel` | 多轮杀响应可暂停、恢复并结束 | 旧 prompt、错误 responder 被拒绝 | 固定事件流可回放 |

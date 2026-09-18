@@ -46,6 +46,12 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(GeneralArt.HasPortrait(simaYi.GeneralId),
             "The classic Sima Yi id must resolve through the existing portrait aliases.");
 
+        using var kongchengViewModel = FindGeneralChoice("standard:zhuge-liang");
+        var zhugeLiang = kongchengViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "standard:zhuge-liang");
+        Program.Assert(zhugeLiang.SkillDescription.Contains("【杀】或【决斗】", StringComparison.Ordinal),
+            "The current classic selection card must describe the formal Kongcheng target restriction.");
+
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
         Program.Render((FrameworkElement)window.Content, 1120, 740,
@@ -80,5 +86,29 @@ internal static class ClassicGeneralUiChecks
 
         window.Content = null;
         window.Close();
+    }
+
+    private static MainViewModel FindGeneralChoice(string generalId)
+    {
+        for (var seed = 1; seed <= 1_024; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            if (candidate.GeneralChoices.Any(choice => choice.GeneralId == generalId))
+            {
+                return candidate;
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException($"Could not find a deterministic {generalId} WPF fixture.");
     }
 }

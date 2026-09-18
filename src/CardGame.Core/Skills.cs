@@ -76,6 +76,15 @@ public interface IPassiveSkill
 
     bool ProhibitsSlashTarget(PlayerSkillContext owner) => false;
 
+    /// <summary>
+    /// Returns whether the owner cannot be selected by this effective card
+    /// kind. The default projects the historical Slash-only hook so existing
+    /// skills and old rules paths keep their original behavior.
+    /// </summary>
+    bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) =>
+        (cardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
+        ProhibitsSlashTarget(owner);
+
     bool CanUseAsSlash(PlayerSkillContext owner, Card card) => false;
 
     bool CanUseAsResponse(
@@ -409,6 +418,10 @@ public sealed class KongchengSkill : IPassiveSkill
     public string Name => "空城";
 
     public bool ProhibitsSlashTarget(PlayerSkillContext owner) => owner.HandCount == 0;
+
+    public bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) =>
+        owner.HandCount == 0 &&
+        cardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel;
 }
 
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill

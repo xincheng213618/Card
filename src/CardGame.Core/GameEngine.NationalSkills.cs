@@ -62,6 +62,7 @@ public sealed partial class GameEngine
         public int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) => skills.Aggregate(currentDistance, (value, skill) => skill.ModifyOutgoingDistance(owner, value));
         public bool IgnoresTrickDistance(PlayerSkillContext owner, CardKind trickKind) => skills.Any(skill => skill.IgnoresTrickDistance(owner, trickKind));
         public bool ProhibitsSlashTarget(PlayerSkillContext owner) => skills.Any(skill => skill.ProhibitsSlashTarget(owner));
+        public bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) => skills.Any(skill => skill.ProhibitsCardTarget(owner, cardKind));
         public bool CanUseAsSlash(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsSlash(owner, card));
         public bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) =>
             skills.Any(skill => skill.CanUseAsResponse(owner, card, requiredCardKind));

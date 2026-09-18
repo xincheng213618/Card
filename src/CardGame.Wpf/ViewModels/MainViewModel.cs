@@ -524,7 +524,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                         choice.Parameters.TryGetValue("base-hp", out var baseHp) ? $"基础体力 {baseHp}" : "旧规则体力 4",
                     HealthDescription = choice.Parameters.GetValueOrDefault("health-preview", IsNationalSnapshot ? "此存档沿用固定 4 点体力上限。" : string.Empty),
                     SkillName = string.Join(" / ", skills.Select(skill => skill.Name)),
-                    SkillDescription = string.Join("\n", skills.Select(skill => $"{skill.Name}：{skill.Description}"))
+                    SkillDescription = string.Join("\n", skills.Select(skill =>
+                        $"{skill.Name}：{GetVisibleSkillDescription(skill)}"))
                 });
             }
         }
@@ -1701,6 +1702,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         TurnPhase.Finished => "回合结束",
         _ => phase.ToString()
     };
+
+    private string GetVisibleSkillDescription(ContentSkillDefinition skill) =>
+        _game.RulesVersion >= 15 &&
+        _game.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal) &&
+        skill.LegacyKind == SkillKind.Kongcheng
+            ? "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。"
+            : skill.Description;
 
     private static string GetKingdom(string generalId) => generalId switch
     {
