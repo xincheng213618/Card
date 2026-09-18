@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 9, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 10, 0))
     {
     }
 
@@ -28,12 +28,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 6, 0) &&
             version != new Version(1, 7, 0) &&
             version != new Version(1, 8, 0) &&
-            version != new Version(1, 9, 0))
+            version != new Version(1, 9, 0) &&
+            version != new Version(1, 10, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.9.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.10.0.");
         }
 
         _version = version;
@@ -117,6 +118,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "克己",
                 "若你未于本回合出牌阶段使用或打出过【杀】，你可以跳过弃牌阶段。",
                 SkillKind.Keji));
+        }
+        if (_version >= new Version(1, 10, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:tuxi",
+                "突袭",
+                "摸牌阶段，你可以改为获得至多两名其他角色的各一张手牌。",
+                SkillKind.Tuxi));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -236,6 +245,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wu",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 10, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhang-liao",
+                "张辽",
+                "zhang_liao",
+                "classic:tuxi",
+                "wei",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -248,6 +267,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 6 } => PreHuangGaiClassicGeneralIds,
             { Major: 1, Minor: 7 } => PreGanNingClassicGeneralIds,
             { Major: 1, Minor: 8 } => PreLuMengClassicGeneralIds,
+            { Major: 1, Minor: 9 } => PreZhangLiaoClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -291,6 +311,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:xiahou-dun",
         "classic:hua-tuo",
         "classic:cao-cao",
+        "classic:zhang-liao",
         "classic:huang-gai",
         "classic:gan-ning",
         "classic:lu-meng",
@@ -302,9 +323,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreZhangLiaoClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:zhang-liao")
+    ];
+
     internal static IReadOnlyList<string> PreLuMengClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:lu-meng")
+        .. PreZhangLiaoClassicGeneralIds.Where(id => id != "classic:lu-meng")
     ];
 
     internal static IReadOnlyList<string> PreGanNingClassicGeneralIds { get; } =

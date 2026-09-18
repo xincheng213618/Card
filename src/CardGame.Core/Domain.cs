@@ -144,7 +144,8 @@ public enum SkillKind
     Jijiang,
     Jiuyuan,
     Qixi,
-    Keji
+    Keji,
+    Tuxi
 }
 
 public enum DecisionKind
@@ -171,7 +172,8 @@ public enum DecisionKind
     Guanxing,
     DiscardCards,
     SelectTargetCard,
-    Keji
+    Keji,
+    Tuxi
 }
 
 public enum GangliePunishmentKind
@@ -247,6 +249,8 @@ public enum LegalActionKind
     GanglieLoseHp,
     Guicai,
     SkipGuicai,
+    Tuxi,
+    SkipTuxi,
     UseSkill,
     RevealGeneral,
     Recast

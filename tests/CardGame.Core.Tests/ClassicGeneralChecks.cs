@@ -18,6 +18,7 @@ internal static class ClassicGeneralChecks
         var jiuyuanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 6, 0));
         var kujinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 7, 0));
         var qixiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 8, 0));
+        var kejiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 9, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -26,7 +27,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.9.0"]),
+                "standard-classic-generals@1.10.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -83,6 +84,13 @@ internal static class ClassicGeneralChecks
                     "classic:lu-meng",
                     StringComparer.Ordinal),
             "The Qixi-era classic registry must retain the 1.8 roster without Lu Meng or Keji.");
+        Require(kejiClassic.Packages.Last().Version == new Version(1, 9, 0) &&
+                !kejiClassic.Generals.ContainsKey("classic:zhang-liao") &&
+                !kejiClassic.Skills.ContainsKey("classic:tuxi") &&
+                !kejiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:zhang-liao",
+                    StringComparer.Ordinal),
+            "The Keji-era classic registry must retain the 1.9 roster without Zhang Liao or Tuxi.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -132,6 +140,12 @@ internal static class ClassicGeneralChecks
                 luMeng.BaseHp == 4 &&
                 luMeng.SkillIds.SequenceEqual(["classic:keji"]),
             "The current classic Lu Meng must expose the formal Wu, 4-HP Keji definition.");
+        var zhangLiao = classic.Generals["classic:zhang-liao"];
+        Require(zhangLiao.Name == "张辽" &&
+                zhangLiao.FactionId == "wei" &&
+                zhangLiao.BaseHp == 4 &&
+                zhangLiao.SkillIds.SequenceEqual(["classic:tuxi"]),
+            "The current classic Zhang Liao must expose the formal Wei, 4-HP Tuxi definition.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -144,12 +158,13 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
                       pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
                       pool.Contains("classic:lu-meng", StringComparer.Ordinal) &&
+                      pool.Contains("classic:zhang-liao", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 29,
-            "Classic Keji must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 30,
+            "Classic Tuxi must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -175,6 +190,12 @@ internal static class ClassicGeneralChecks
         Require(keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: false) &&
                 !keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: true),
             "Formal Keji must allow only a Slash-free own discard phase to be skipped.");
+
+        var tuxi = SkillRegistry.Get(SkillKind.Tuxi);
+        var draw = damaged with { Phase = TurnPhase.Draw, IsOwnTurn = true };
+        Require(tuxi.CanReplaceDrawPhase(draw) &&
+                !tuxi.CanReplaceDrawPhase(draw with { IsOwnTurn = false }),
+            "Formal Tuxi must replace only its owner's draw phase.");
     }
 
     public static void FormalJiuyuanRecoveryBonus()
@@ -652,6 +673,136 @@ internal static class ClassicGeneralChecks
                 slashGame.PendingDecision?.Kind != DecisionKind.Keji,
             "Using a Slash during the play phase must suppress Keji.");
 
+    }
+
+    public static void FormalTuxiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = SelectGeneral(registry, "classic:zhang-liao", GameCheckpoint.CurrentRulesVersion);
+        var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(selected.GeneralId == "classic:zhang-liao" &&
+                selected.MaxHp == 5 &&
+                selected.Hp == 5 &&
+                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Tuxi]),
+            "Classic Zhang Liao must combine base 4 HP, the Lord bonus and formal Tuxi.");
+
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        var eligibleTargetCount = game.CreateSnapshot(0, revealAll: true).Players.Count(player =>
+            player.Seat != 0 && player.IsAlive && player.HandCount > 0);
+        var expectedChoiceCount = eligibleTargetCount + eligibleTargetCount * (eligibleTargetCount - 1) / 2 + 1;
+        Require(advanced.Accepted &&
+                game.State.Phase == TurnPhase.Draw &&
+                game.PendingDecision is
+                {
+                    Kind: DecisionKind.Tuxi,
+                    PlayerSeat: 0,
+                    IsPrivate: true
+                } prompt &&
+                prompt.ValidTargetSeats.Count == eligibleTargetCount &&
+                prompt.Choices.Count == expectedChoiceCount &&
+                prompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
+                    choice.Targets.Count == 2) == eligibleTargetCount * (eligibleTargetCount - 1) / 2 &&
+                prompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "tuxi-skip") == 1,
+            advanced.Error?.Message ?? "Classic Zhang Liao must publish every legal one- or two-target Tuxi choice.");
+        Require(game.CreateSnapshot(1).PendingDecision is null,
+            "Another seat must not receive Zhang Liao's private Tuxi choice surface.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var skippedBranch = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(skippedBranch.PendingDecision?.Kind == DecisionKind.Tuxi &&
+                SnapshotJson.Serialize(skippedBranch.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
+            "A paused Tuxi target choice must restore exactly from its command checkpoint.");
+
+        var beforeForged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            game.PendingDecision!.PromptId,
+            new ChoiceId("tuxi.forged"),
+            game.Revision));
+        Require(!forged.Accepted &&
+                forged.Error?.Code == CommandErrorCode.InvalidChoice &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForged,
+            "A forged Tuxi choice must be rejected atomically.");
+
+        var usePrompt = game.PendingDecision!;
+        var useChoice = usePrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
+            choice.Targets.Count == 2);
+        var beforeUse = game.CreateSnapshot(0, revealAll: true);
+        var sourceHandBefore = beforeUse.Players.Single(player => player.Seat == 0).Hand
+            .Select(card => card.Id)
+            .ToHashSet();
+        var targetHandsBefore = useChoice.Targets.ToDictionary(
+            seat => seat,
+            seat => beforeUse.Players.Single(player => player.Seat == seat).Hand
+                .Select(card => card.Id)
+                .ToHashSet());
+        var used = game.Submit(new AnswerPromptCommand(
+            0,
+            usePrompt.PromptId,
+            useChoice.Id,
+            game.Revision));
+        var afterUse = game.CreateSnapshot(0, revealAll: true);
+        var sourceAfter = afterUse.Players.Single(player => player.Seat == 0);
+        var gainedIds = sourceAfter.Hand.Select(card => card.Id).Where(id => !sourceHandBefore.Contains(id)).ToArray();
+        Require(used.Accepted &&
+                game.PendingDecision is null &&
+                game.State.Phase == TurnPhase.Play &&
+                gainedIds.Length == 2 &&
+                useChoice.Targets.All(seat =>
+                    afterUse.Players.Single(player => player.Seat == seat).HandCount ==
+                    targetHandsBefore[seat].Count - 1) &&
+                useChoice.Targets.All(seat =>
+                    targetHandsBefore[seat].Except(
+                        afterUse.Players.Single(player => player.Seat == seat).Hand.Select(card => card.Id)).Count() == 1) &&
+                game.Events.Select(item => item.Payload).OfType<HandCardsGainedBySkillEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Tuxi &&
+                    resolved.Used &&
+                    resolved.CardCount == 2 &&
+                    resolved.TargetSeats.SequenceEqual(useChoice.Targets)) &&
+                gainedIds.All(cardId => game.CardMovements.Count(movement =>
+                    movement.CardId == cardId &&
+                    movement.Reason == CardMoveReasons.TuxiGain) == 2),
+            used.Error?.Message ?? "Using Tuxi must replace drawing with one hidden hand card from each selected target.");
+        var usedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(usedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(usedReplay).SequenceEqual(EventSignatures(game)),
+            "The completed Tuxi branch must replay exactly.");
+
+        var skipPrompt = skippedBranch.PendingDecision!;
+        var sourceBeforeSkip = skippedBranch.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        var skipped = skippedBranch.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "tuxi-skip").Id,
+            skippedBranch.Revision));
+        Require(skipped.Accepted &&
+                skippedBranch.PendingDecision is null &&
+                skippedBranch.State.Phase == TurnPhase.Play &&
+                skippedBranch.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                sourceBeforeSkip + 2 &&
+                skippedBranch.Events.Select(item => item.Payload).OfType<HandCardsGainedBySkillEvent>().Any(resolved =>
+                    resolved.Skill == SkillKind.Tuxi && !resolved.Used && resolved.CardCount == 0),
+            skipped.Error?.Message ?? "Skipping Tuxi must preserve the ordinary two-card draw.");
+
+        var legacy = SelectGeneral(registry, "classic:zhang-liao", rulesVersion: 29);
+        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
+        Require(legacyAdvance.Accepted &&
+                legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                6 &&
+                legacy.Events.Select(item => item.Payload).OfType<HandCardsGainedBySkillEvent>().Count() == 0,
+            legacyAdvance.Error?.Message ?? "Rules v29 must retain the historical ordinary draw without Tuxi.");
     }
 
     public static void FormalFeedbackFlow()

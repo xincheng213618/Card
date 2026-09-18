@@ -193,6 +193,72 @@ internal static class ClassicGeneralUiChecks
             "The WPF Keji choice must retain the full hand and end the turn through the shared command boundary.");
         kejiWindow.Content = null;
         kejiWindow.Close();
+        using var tuxiViewModel = FindGeneralChoice("classic:zhang-liao");
+        var zhangLiao = tuxiViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:zhang-liao");
+        Program.Assert(zhangLiao.Name == "张辽" &&
+                       zhangLiao.Kingdom == "魏" &&
+                       zhangLiao.SkillName == "突袭" &&
+                       zhangLiao.SkillDescription.Contains("至多两名其他角色", StringComparison.Ordinal) &&
+                       zhangLiao.SkillDescription.Contains("各一张手牌", StringComparison.Ordinal) &&
+                       zhangLiao.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(zhangLiao.GeneralId),
+            "The current classic Zhang Liao card must render Wei, Tuxi, Lord health and portrait aliasing.");
+        var tuxiWindow = new MainWindow(tuxiViewModel);
+        tuxiWindow.ApplyTemplate();
+        var tuxiRoot = (FrameworkElement)tuxiWindow.Content;
+        Program.Render(
+            tuxiRoot,
+            1120,
+            740,
+            Path.Combine(output, "86-classic-zhang-liao-card.png"));
+        tuxiViewModel.SelectGeneralChoiceCommand.Execute(zhangLiao);
+        Program.AdvanceToDecision(tuxiViewModel);
+        var tuxiEngine = Program.Engine(tuxiViewModel);
+        var tuxiPrompt = tuxiEngine.PendingDecision;
+        var useTuxi = tuxiViewModel.SkillChoices.First(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
+            choice.Targets.Count == 2);
+        var tuxiBefore = tuxiEngine.CreateSnapshot(0, revealAll: true);
+        var tuxiSourceBefore = tuxiBefore.Players.Single(player => player.Seat == 0).HandCount;
+        var tuxiTargetsBefore = useTuxi.Targets.ToDictionary(
+            seat => seat,
+            seat => tuxiBefore.Players.Single(player => player.Seat == seat).HandCount);
+        Program.Assert(tuxiViewModel.IsSkillSelectionPending &&
+                       tuxiPrompt?.Kind == DecisionKind.Tuxi &&
+                       tuxiViewModel.SkillChoices.Count(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
+                           choice.Targets.Count is 1 or 2) > 0 &&
+                       tuxiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "tuxi-skip") &&
+                       tuxiViewModel.CurrentGuideTitle == "选择突袭目标" &&
+                       tuxiViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("一至两名", StringComparison.Ordinal)),
+            "The WPF must render Tuxi target combinations, ordinary draw and private guidance.");
+        Program.Render(
+            tuxiRoot,
+            1120,
+            740,
+            Path.Combine(output, "87-classic-tuxi-choice.png"));
+        tuxiViewModel.SelectSkillChoiceCommand.Execute(useTuxi);
+        var tuxiAfter = tuxiEngine.CreateSnapshot(0, revealAll: true);
+        Program.Assert(!tuxiViewModel.IsSkillSelectionPending &&
+                       tuxiEngine.PendingDecision is null &&
+                       tuxiEngine.State.Phase == TurnPhase.Play &&
+                       tuxiAfter.Players.Single(player => player.Seat == 0).HandCount == tuxiSourceBefore + 2 &&
+                       useTuxi.Targets.All(seat =>
+                           tuxiAfter.Players.Single(player => player.Seat == seat).HandCount ==
+                           tuxiTargetsBefore[seat] - 1) &&
+                       tuxiEngine.Events.Any(item => item.Payload is HandCardsGainedBySkillEvent
+                       {
+                           SourceSeat: 0,
+                           Skill: SkillKind.Tuxi,
+                           Used: true,
+                           CardCount: 2
+                       }),
+            "The WPF Tuxi choice must gain one hidden hand card from each selected target.");
+        tuxiWindow.Content = null;
+        tuxiWindow.Close();
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

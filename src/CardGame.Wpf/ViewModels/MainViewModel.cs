@@ -609,7 +609,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
                     DecisionKind.Guanxing or
-                    DecisionKind.Keji
+                    DecisionKind.Keji or
+                    DecisionKind.Tuxi
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -629,7 +630,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
             DecisionKind.Guanxing or
-            DecisionKind.Keji;
+            DecisionKind.Keji or
+            DecisionKind.Tuxi;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1686,6 +1688,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      Phase(Discard)");
                 EventStack.Add("        AskForSkill(Keji)");
             }
+            else if (pending.Kind == DecisionKind.Tuxi)
+            {
+                EventStack.Add("      Phase(Draw)");
+                EventStack.Add("        AskForSkill(Tuxi)");
+            }
             else if (pending.Kind is
                 DecisionKind.Feedback or
                 DecisionKind.Yiji or
@@ -1921,7 +1928,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             "classic:liu-bei" or "classic:zhuge-liang" => "蜀",
             "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" or "classic:gan-ning" or "classic:lu-meng" => "吴",
-            "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" => "魏",
+            "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" or "classic:zhang-liao" => "魏",
             _ => "群"
         },
         _ when generalId.StartsWith("national:wei-", StringComparison.Ordinal) => "魏",

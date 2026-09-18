@@ -215,6 +215,17 @@ public sealed record PhaseSkillResolvedEvent(
     bool Used) : IGameEvent;
 
 /// <summary>
+/// Public result of a draw-phase hand gain. Hidden card identities remain in
+/// the private hand snapshots and redacted movement stream.
+/// </summary>
+public sealed record HandCardsGainedBySkillEvent(
+    int SourceSeat,
+    SkillKind Skill,
+    bool Used,
+    IReadOnlyList<int> TargetSeats,
+    int CardCount) : IGameEvent;
+
+/// <summary>
 /// Public result of Guanxing. Card identities and order remain private to the
 /// skill owner; observers receive only whether it was used and the partition
 /// sizes.

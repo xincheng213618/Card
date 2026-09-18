@@ -67,6 +67,7 @@ public sealed partial class GameEngine
     private DamageSkillResolution? _pendingDamageSkill;
     private JudgmentResolution? _pendingJudgment;
     private YingziDrawResolution? _pendingYingziDraw;
+    private TuxiDrawResolution? _pendingTuxiDraw;
     private GuanxingResolution? _pendingGuanxing;
     private HujiaResolution? _pendingHujia;
     private JijiangResolution? _pendingJijiang;
@@ -203,6 +204,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalKeji =>
         _rulesVersion >= 29 && IsClassicIdentityMode;
+
+    private bool UsesFormalTuxi =>
+        _rulesVersion >= 30 && IsClassicIdentityMode;
 
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
@@ -734,6 +738,7 @@ public sealed partial class GameEngine
                 DecisionKind.Fanjian or
                 DecisionKind.Guanxing or
                 DecisionKind.Keji or
+                DecisionKind.Tuxi or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -819,6 +824,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Keji)
         {
             return SubmitKejiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Tuxi)
+        {
+            return SubmitTuxiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1184,6 +1194,37 @@ public sealed partial class GameEngine
                 useSkill: false,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "英姿提示没有可识别的选择效果。")
+        };
+    }
+
+    private CommandResult SubmitTuxiPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingTuxiDraw is not { } pending ||
+            _pendingDecision is not { Kind: DecisionKind.Tuxi } decision)
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的突袭摸牌阶段窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            !decision.Choices.Any(choice => choice.Id == selected.Id))
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "突袭选择不符合当前摸牌阶段窗口。");
+        }
+
+        return action switch
+        {
+            "tuxi-use" when selected.Targets.Count is 1 or 2 &&
+                             selected.Targets.Distinct().Count() == selected.Targets.Count &&
+                             selected.Targets.All(pending.CandidateSeats.Contains) =>
+                Accept(() => HumanTuxiCore(
+                    selected.Targets,
+                    advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "tuxi-skip" when selected.Targets.Count == 0 =>
+                Accept(() => HumanTuxiCore(
+                    [],
+                    advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "突袭目标必须是一至两名有手牌的其他角色。")
         };
     }
 
@@ -1729,6 +1770,9 @@ public sealed partial class GameEngine
         var kejiRules = UsesFormalKeji && _players.Any(player => player.General.HasSkill(SkillKind.Keji))
             ? "，吕蒙在本回合出牌阶段未使用或打出杀时可选择跳过弃牌阶段"
             : string.Empty;
+        var tuxiRules = UsesFormalTuxi && _players.Any(player => player.General.HasSkill(SkillKind.Tuxi))
+            ? "，张辽可在摸牌阶段改为获得至多两名其他角色各一张手牌"
+            : string.Empty;
         var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
             ? UsesFormalZhihengEquipment
                 ? "，孙权每个出牌阶段限一次弃置任意张手牌或装备区牌并摸等量牌"
@@ -1788,7 +1832,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -1853,6 +1897,7 @@ public sealed partial class GameEngine
                     IsAiDamageSkillPending() ||
                     IsAiJudgmentPending() ||
                     IsAiYingziPending() ||
+                    IsAiTuxiPending() ||
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
@@ -2584,6 +2629,16 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Yingzi);
         ResolveYingziDrawChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanTuxiCore(
+        IReadOnlyList<int> targetSeats,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Tuxi);
+        ResolveTuxiDrawChoice(targetSeats);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -4255,6 +4310,14 @@ public sealed partial class GameEngine
         {
             AddLog("DelayedCardEffect", $"{current.Name} 因【兵粮寸断】跳过摸牌阶段。", current.Seat);
         }
+        else if (UsesFormalTuxi &&
+                 current.General.HasSkill(SkillKind.Tuxi) &&
+                 PassiveRules(current).CanReplaceDrawPhase(CreateSkillContext(current)) &&
+                 GetTuxiCandidateSeats(current).Count > 0)
+        {
+            BeginTuxiDrawChoice(current, delayedEffects);
+            return;
+        }
         else if (UsesFormalYingziChoice && current.General.HasSkill(SkillKind.Yingzi))
         {
             BeginYingziDrawChoice(current, delayedEffects);
@@ -4274,6 +4337,103 @@ public sealed partial class GameEngine
             .Select(card => EquipmentCatalog.Get(card.Kind).DrawCountBonus)
             .Sum();
         return PassiveRules(current).ModifyDrawCount(CreateSkillContext(current), drawCount);
+    }
+
+    private IReadOnlyList<int> GetTuxiCandidateSeats(PlayerRuntime current) =>
+        _players
+            .Where(player => player.Seat != current.Seat && player.IsAlive && GetHand(player).Count > 0)
+            .OrderBy(player => player.Seat)
+            .Select(player => player.Seat)
+            .ToArray();
+
+    private void BeginTuxiDrawChoice(PlayerRuntime current, DelayedTurnEffects delayedEffects)
+    {
+        var candidates = GetTuxiCandidateSeats(current);
+        _pendingTuxiDraw = new TuxiDrawResolution(current.Seat, delayedEffects, candidates);
+        var choices = new List<PromptChoice>();
+        for (var first = 0; first < candidates.Count; first++)
+        {
+            AddTuxiChoice(choices, [candidates[first]]);
+            for (var second = first + 1; second < candidates.Count; second++)
+            {
+                AddTuxiChoice(choices, [candidates[first], candidates[second]]);
+            }
+        }
+
+        choices.Add(new PromptChoice(
+            new ChoiceId("tuxi.skip"),
+            "不发动【突袭】，按通常数量从牌堆摸牌。",
+            [],
+            [],
+            new Dictionary<string, string> { ["action"] = "tuxi-skip" }));
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Tuxi,
+            current.Seat,
+            "是否发动【突袭】，改为获得至多两名其他角色的各一张手牌？",
+            [],
+            candidates)
+        {
+            PromptId = CreatePromptId(),
+            Choices = choices
+        };
+        _status = current.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        PublishState();
+    }
+
+    private void AddTuxiChoice(ICollection<PromptChoice> choices, IReadOnlyList<int> targetSeats)
+    {
+        var targetNames = string.Join("、", targetSeats.Select(seat => _players[seat].Name));
+        var id = string.Join("-", targetSeats.Select(seat => seat.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        choices.Add(new PromptChoice(
+            new ChoiceId($"tuxi.use.{id}"),
+            $"发动【突袭】，获得{targetNames}各一张手牌。",
+            [],
+            targetSeats,
+            new Dictionary<string, string> { ["action"] = "tuxi-use" }));
+    }
+
+    private void ResolveTuxiDrawChoice(IReadOnlyList<int> targetSeats)
+    {
+        var pending = _pendingTuxiDraw ??
+            throw new InvalidOperationException("There is no Tuxi draw choice to resolve.");
+        var current = _players[pending.PlayerSeat];
+        if (targetSeats.Count > 0)
+        {
+            foreach (var targetSeat in targetSeats)
+            {
+                var target = _players[targetSeat];
+                var hand = GetHand(target).ToArray();
+                if (!target.IsAlive || hand.Length == 0 || !pending.CandidateSeats.Contains(targetSeat))
+                {
+                    throw new InvalidOperationException("A selected Tuxi target is no longer legal.");
+                }
+
+                var gained = hand[_random.Next(hand.Length)];
+                MoveCard(gained, CardLocation.Hand(target.Seat), CardLocation.Processing, CardMoveReasons.TuxiGain);
+                MoveCard(gained, CardLocation.Processing, CardLocation.Hand(current.Seat), CardMoveReasons.TuxiGain);
+            }
+
+            QueueGameEvent(new HandCardsGainedBySkillEvent(
+                current.Seat,
+                SkillKind.Tuxi,
+                true,
+                targetSeats.ToArray(),
+                targetSeats.Count));
+            AddLog(
+                "SkillTriggered",
+                $"{current.Name} 发动【突袭】，获得 {string.Join("、", targetSeats.Select(seat => _players[seat].Name))} 各一张手牌。",
+                current.Seat);
+        }
+        else
+        {
+            DrawCards(current, GetTurnDrawCount(current), log: true);
+            QueueGameEvent(new HandCardsGainedBySkillEvent(current.Seat, SkillKind.Tuxi, false, [], 0));
+            AddLog("SkillSkipped", $"{current.Name} 未发动【突袭】。", current.Seat);
+        }
+
+        _pendingTuxiDraw = null;
+        ClearPendingDecision();
+        CompleteTurnStartAfterDraw(current, pending.DelayedEffects);
     }
 
     private void BeginYingziDrawChoice(PlayerRuntime current, DelayedTurnEffects delayedEffects)
@@ -4591,6 +4751,12 @@ public sealed partial class GameEngine
         if (IsAiKejiPending())
         {
             ResolvePendingAiKeji();
+            return;
+        }
+
+        if (IsAiTuxiPending())
+        {
+            ResolvePendingAiTuxi();
             return;
         }
 
@@ -14045,6 +14211,7 @@ public sealed partial class GameEngine
                 _pendingDamageSkill is not null ||
                 _pendingJudgment is not null ||
                 _pendingYingziDraw is not null ||
+                _pendingTuxiDraw is not null ||
                 _resolutionStack.Count != 0)
             {
                 throw new InvalidOperationException(
@@ -14081,6 +14248,7 @@ public sealed partial class GameEngine
                 _pendingDamageTrigger is not null ||
                 _pendingDamageSkill is not null ||
                 _pendingJudgment is not null ||
+                _pendingTuxiDraw is not null ||
                 _resolutionStack.Count != 0)
             {
                 throw new InvalidOperationException(
@@ -14094,6 +14262,60 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException(
                     "An Yingzi draw prompt status does not match its owner.");
+            }
+        }
+
+        if (_pendingTuxiDraw is { } tuxiDraw)
+        {
+            var currentCandidates = GetTuxiCandidateSeats(_players[tuxiDraw.PlayerSeat]);
+            var expectedChoiceCount = tuxiDraw.CandidateSeats.Count +
+                tuxiDraw.CandidateSeats.Count * (tuxiDraw.CandidateSeats.Count - 1) / 2 + 1;
+            if (!UsesFormalTuxi ||
+                _phase != TurnPhase.Draw ||
+                _currentSeat != tuxiDraw.PlayerSeat ||
+                !_players[tuxiDraw.PlayerSeat].IsAlive ||
+                !_players[tuxiDraw.PlayerSeat].General.HasSkill(SkillKind.Tuxi) ||
+                !tuxiDraw.CandidateSeats.SequenceEqual(currentCandidates) ||
+                _pendingDecision is not { Kind: DecisionKind.Tuxi, IsPrivate: true } tuxiDecision ||
+                tuxiDecision.PlayerSeat != tuxiDraw.PlayerSeat ||
+                !tuxiDecision.ValidTargetSeats.SequenceEqual(tuxiDraw.CandidateSeats) ||
+                tuxiDecision.Choices.Count != expectedChoiceCount ||
+                tuxiDecision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "tuxi-skip" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0) != 1 ||
+                tuxiDecision.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") is not ("tuxi-use" or "tuxi-skip")) ||
+                tuxiDecision.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
+                    (choice.Cards.Count != 0 ||
+                     choice.Targets.Count is < 1 or > 2 ||
+                     choice.Targets.Distinct().Count() != choice.Targets.Count ||
+                     choice.Targets.Any(target => !tuxiDraw.CandidateSeats.Contains(target)))) ||
+                _pendingAttack is not null ||
+                _pendingDuel is not null ||
+                _pendingGroupCard is not null ||
+                _pendingFireAttack is not null ||
+                _pendingNullification is not null ||
+                _pendingTargetCardSelection is not null ||
+                _pendingDying is not null ||
+                _pendingDamageTrigger is not null ||
+                _pendingDamageSkill is not null ||
+                _pendingJudgment is not null ||
+                _pendingYingziDraw is not null ||
+                _pendingGuanxing is not null ||
+                _resolutionStack.Count != 0)
+            {
+                throw new InvalidOperationException(
+                    "A Tuxi draw choice must retain its private public-target prompt at a clean draw-phase boundary.");
+            }
+
+            var expectedTuxiStatus = _players[tuxiDraw.PlayerSeat].IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedTuxiStatus)
+            {
+                throw new InvalidOperationException("A Tuxi draw prompt status does not match its owner.");
             }
         }
 
@@ -14118,6 +14340,7 @@ public sealed partial class GameEngine
                 _pendingDamageSkill is not null ||
                 _pendingJudgment is not null ||
                 _pendingYingziDraw is not null ||
+                _pendingTuxiDraw is not null ||
                 _pendingGuanxing is not null ||
                 _resolutionStack.Count != 0)
             {
@@ -14882,6 +15105,31 @@ public sealed partial class GameEngine
         }
 
         ResolveYingziDrawChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiTuxiPending() =>
+        _pendingTuxiDraw is { PlayerSeat: var playerSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Tuxi, PlayerSeat: var decisionSeat } &&
+        playerSeat == decisionSeat &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiTuxi()
+    {
+        if (!IsAiTuxiPending())
+        {
+            throw new InvalidOperationException("There is no AI Tuxi choice to resolve.");
+        }
+
+        var decision = _pendingDecision!;
+        var actor = _players[decision.PlayerSeat];
+        var (choiceId, thought) = _aiBrains[actor.Seat].ChooseTuxi(
+            CreateSnapshot(actor.Seat),
+            decision.Choices,
+            _thoughtSequence++);
+        var choice = decision.Choices.Single(candidate => candidate.Id == choiceId);
+        AddThought(thought);
+        ResolveTuxiDrawChoice(choice.Targets);
         PublishState();
     }
 
@@ -15728,6 +15976,11 @@ public sealed partial class GameEngine
     private sealed record YingziDrawResolution(
         int PlayerSeat,
         DelayedTurnEffects DelayedEffects);
+
+    private sealed record TuxiDrawResolution(
+        int PlayerSeat,
+        DelayedTurnEffects DelayedEffects,
+        IReadOnlyList<int> CandidateSeats);
 
     private enum GuanxingStage
     {

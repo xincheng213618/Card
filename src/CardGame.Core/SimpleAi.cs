@@ -1444,6 +1444,68 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses among the exact public-seat combinations published by Tuxi.
+    /// Scores use only visible roles/teams, public hand counts and the AI's
+    /// bounded suspicion model; no target card identity is inspected.
+    /// </summary>
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseTuxi(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices,
+        int thoughtSequence)
+    {
+        if (choices.Count == 0)
+        {
+            throw new InvalidOperationException("AI was asked to resolve an empty Tuxi prompt.");
+        }
+
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var scored = choices.Select(choice =>
+        {
+            if (choice.Parameters.GetValueOrDefault("action") == "tuxi-skip")
+            {
+                return (
+                    Choice: choice,
+                    Candidate: new AiCandidateScore(
+                        new LegalAction(LegalActionKind.SkipTuxi, null, null, choice.Description),
+                        30d,
+                        "保留通常摸牌；不查看牌堆或任何目标暗牌。"));
+            }
+
+            var targets = choice.Targets
+                .Select(seat => view.Players.Single(player => player.Seat == seat))
+                .ToArray();
+            var score = targets.Sum(target =>
+                GetHostility(view, selfRole, target) * .45d +
+                Math.Min(target.HandCount, 5) * 2d +
+                14d);
+            return (
+                Choice: choice,
+                Candidate: new AiCandidateScore(
+                    new LegalAction(
+                        LegalActionKind.Tuxi,
+                        null,
+                        targets.FirstOrDefault()?.Seat,
+                        choice.Description,
+                        TargetSeats: choice.Targets),
+                    Math.Round(score, 3),
+                    $"按 {targets.Length} 名公开目标的关系和手牌数评分；不读取牌面。"));
+        }).ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Choice.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"突袭：从 {choices.Count - 1} 个公开目标组合和普通摸牌中选择 {selected.Choice.Description}。");
+        return (selected.Choice.Id, thought);
+    }
+
+    /// <summary>
     /// Chooses one opaque ordinal slot from another player's hidden hand. Every
     /// candidate is intentionally scored identically because the filtered view
     /// contains no target-hand identity. The first slot is a stable tie-break;

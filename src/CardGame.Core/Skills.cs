@@ -107,6 +107,12 @@ public interface IPassiveSkill
         PlayerSkillContext owner,
         bool usedOrPlayedSlashDuringPlayPhase) => false;
 
+    /// <summary>
+    /// Returns whether the owner may replace the current draw phase with a
+    /// skill-specific hand-card gain. The engine owns target privacy and moves.
+    /// </summary>
+    bool CanReplaceDrawPhase(PlayerSkillContext owner) => false;
+
     bool CanUseAsResponse(
         PlayerSkillContext owner,
         Card card,
@@ -253,6 +259,15 @@ public sealed class KejiSkill : IPassiveSkill
         owner.IsOwnTurn &&
         owner.Phase == TurnPhase.Discard &&
         !usedOrPlayedSlashDuringPlayPhase;
+}
+
+public sealed class TuxiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Tuxi;
+    public string Name => "突袭";
+
+    public bool CanReplaceDrawPhase(PlayerSkillContext owner) =>
+        owner.IsOwnTurn && owner.Phase == TurnPhase.Draw;
 }
 
 public sealed class FeedbackSkill : IPassiveSkill
@@ -679,7 +694,8 @@ public static class SkillRegistry
             [SkillKind.Jijiang] = new JijiangSkill(),
             [SkillKind.Jiuyuan] = new JiuyuanSkill(),
             [SkillKind.Qixi] = new QixiSkill(),
-            [SkillKind.Keji] = new KejiSkill()
+            [SkillKind.Keji] = new KejiSkill(),
+            [SkillKind.Tuxi] = new TuxiSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];
