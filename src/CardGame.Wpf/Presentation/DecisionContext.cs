@@ -28,6 +28,9 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 title = prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("response") is "hujia-request" or "hujia-dodge" or "hujia-bagua")
                     ? $"响应护驾 · {Name(target)} · {card}"
+                    : prompt.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("response") is "jijiang-request" or "jijiang-slash")
+                        ? $"响应激将 · {Name(target)} · {card}"
                     : $"{Name(source)} → {Name(target)} · {card}";
                 break;
             case DecisionKind.RescueDying:

@@ -140,7 +140,8 @@ public enum SkillKind
     Mashu,
     Qicai,
     Jijiu,
-    Hujia
+    Hujia,
+    Jijiang
 }
 
 public enum DecisionKind
@@ -603,6 +604,18 @@ public sealed record LegalAction
     public int MinTargetCount { get; init; }
 
     public int MaxTargetCount { get; init; }
+
+    /// <summary>
+    /// Candidate cards for an active-skill draft. This lets presentation layers
+    /// distinguish multiple simultaneously available active skills.
+    /// </summary>
+    public IReadOnlyList<int> SelectableCardIds { get; init; } = [];
+
+    /// <summary>
+    /// Candidate targets for an active-skill draft. TargetSeats remains the
+    /// exact committed target set for ordinary card actions.
+    /// </summary>
+    public IReadOnlyList<int> SelectableTargetSeats { get; init; } = [];
 
     /// <summary>
     /// The complete ordered target selection. Single-target legacy actions are

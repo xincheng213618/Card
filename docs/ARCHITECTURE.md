@@ -60,6 +60,7 @@
 - 规则 v23 在经典身份局为反间增加目标侧四花色 Prompt；选花色前不投影周瑜手牌，答复后才从稳定排序的源手牌中确定性随机选择一张，经 `Processing` 转入目标手牌并公开。不同花色以普通伤害复用既有受伤触发、濒死和胜负链；v1–v22 不发布该主动技动作。
 - 规则 v24 在经典身份局为观星增加准备阶段的私有多步 Prompt；先冻结牌堆顶至多五张实体牌，再分别记录“顶端先取”和“底端最深优先”的有序选择。完成时用 `CardZoneStore.ReorderDrawPileTop` 原子验证并重排同一区域，不生成跨区移动记录；`GuanxingResolvedEvent` 只公开数量。v1–v23 不发布该选择。
 - 规则 v25 在经典身份局把护驾嵌入既有 `RespondDodge`/`ResponseWindowFrame`：曹操先发布发动 Choice，其他魏势力角色按行动顺序获得各自私有的闪、八卦阵或拒绝 Choice。实体响应牌从提供者手牌进入处理区再弃置，但 `CardRespondedEvent` 的有效 responder 为曹操；盟友八卦失败只推进护驾游标，不提前伤害曹操。全部失败后恢复同一个响应窗里的曹操自有闪、八卦阵与放弃选项。
+- 规则 v26 在经典身份局把激将接入主动技能与既有 `RespondSlash`/`ResponseWindowFrame`：刘备出牌阶段选择目标后，或在决斗/南蛮入侵要求杀时，按行动顺序向其他蜀势力角色发布私有杀 Choice。提供者支付实体牌，`CardUsedEvent`/`CardRespondedEvent` 的有效 source/responder 仍为刘备；主动使用按刘备的距离、目标禁止与出杀次数校验，成功保留实体杀的属性牌型，全部失败不消耗次数并恢复原出牌/响应边界。
 - `revealAll: true` 只用于本地开发者视图和测试，宿主可通过独立的 `GameEngine.Seed` 记录回放种子。
 
 完整牌区位置只能通过明确标为可信宿主诊断的 `CreateCardZoneDiagnostics()` 取得。它不能进入玩家网络 DTO。
@@ -204,7 +205,7 @@ HumanPlay / AI ChoosePlay
 - `ContentModeDefinition` 还提供角色分布、牌堆 ID、候选数量和武将池；开启 `UseInteractiveSetup` 后，模式开局通过私有 `SelectGeneralCommand` 暂停，所有候选均由 Core 校验，完成后才洗牌并逐轮发牌。
 - `standard-active-skills@1.0.0` 是依赖 `standard@1.11.0` 的可选扩展包，增加 `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将及 `identity:active-skills-8/5`；其上另有依赖主动技能包的 `standard-rescue-skills@1.0.0`，增加 `standard:jijiu`/急救者并扩展同一模式武将池；`StandardContentRegistry.Create()` 和不含救援层的 `CreateWithActiveSkills()` 保持原内容指纹不变，WPF 默认窗口显式选择包含救援层的 Registry。
 - `standard-classic-generals@1.1.0` 在 1.0.0 的正式多技能武将层上增加 `classic:guo-jia` 与 `classic:tiandu`，并保留遗计作为第二技能；恢复 1.0.0 存档时仍构造旧武将池和旧包指纹，不把新版郭嘉静默写入历史命令前缀。
-- `standard-classic-generals@1.4.0` 增加 `classic:cao-cao` 与 `classic:hujia`，技能顺序为奸雄、护驾；1.3.0 继续使用旧 `standard:cao-cao`，1.2.0 还使用旧 `standard:zhuge-liang`，1.1.0/1.0.0 再按历史版本恢复周瑜与郭嘉，五个版本分别保留原武将池和内容指纹。
+- `standard-classic-generals@1.5.0` 为既有 `classic:liu-bei` 增加 `classic:jijiang`，技能顺序为仁德、激将；1.4.0 保留不含激将的刘备，1.3.0 继续使用旧 `standard:cao-cao`，1.2.0 还使用旧 `standard:zhuge-liang`，1.1.0/1.0.0 再按历史版本恢复周瑜与郭嘉，六个版本分别保留原武将池、定义和内容指纹。
 - K5 切片把决斗的交替 `RespondSlash` 响应、无中生有的无目标摸牌、酒的一次性直接杀 +1 伤害、濒死窗口所有 responder 的桃救援与 victim 的酒自救、急救红牌当桃、南蛮入侵/万箭齐发的群体逐目标 `RespondSlash`/`RespondDodge`、桃园结义的群体逐目标恢复、普通/火/雷杀的 `DamageNature`、反馈/遗计/节命伤害后技能和单次杀/决斗/群体牌伤害后的基础濒死窗口接入同一帧栈：`CardUseFrame.TargetIndex` 保存当前群体目标，`GroupResponseEvent` 记录必需响应牌种类，`DamageFrame` 保存伤害类型和实际金额，`AlcoholAppliedEvent`/`AlcoholExpiredEvent` 表示酒效生效/回合结束失效，`RecoveryFrame` 记录桃园结义当前恢复子帧，`DyingFrame` 逐个询问可用桃/酒/红牌的 responder，桃、酒和转化牌只从 responder 自己的手牌移动到 `Processing`，规则 v12 起酒仅允许 victim 自救，v3–v11 保留跨座位救援，v1/v2 仍按原仅自救语义，急救事件同时记录有效 Peach 与物理牌型，节命通过私有目标 Choice 和 `DamageSkillCardsDrawnEvent.TargetSeat` 补牌至目标体力上限，其他视角只看到公开结算结果。
 
 当前已开放十四张最小锦囊 `standard:duel`、`standard:draw_two`、`standard:barbarian_assault`、`standard:arrow_barrage`、`standard:peach_garden`、`standard:five_grains`、`standard:dismantlement`、`standard:snatch`、`standard:fire_attack`、`standard:indulgence`、`standard:supply_shortage`、`standard:lightning`、`standard:nullification` 与 `standard:iron_chain`，酒作为第六种基本牌复用无目标 `CardUseFrame` 并提供一次性直接杀加伤，四张群体/多目标牌共用目标游标，其中两张响应牌共用通用响应事件，五谷丰登复用公开翻牌和私有选牌事件，过河拆桥和顺手牵羊复用单目标 `CardUseFrame` 与“隐藏手牌不透明牌位选择/公开装备或判定区牌精确选择”的目标牌移动入口；规则版本 4 使用 `TargetCardSelectionFrame` 固化私有暂停点，`TargetCardSelectionRequestedEvent` 只公开候选数量，规则版本 1–3 回放保留历史盲选语义，火攻复用单目标父帧并增加私有展示/同花色弃牌两段 Prompt，乐不思蜀、兵粮寸断和闪电把延时牌置入目标公开判定区并在其下回合摸牌前复用 `JudgmentFrame`，规则 v11 起前者非红桃跳过出牌阶段、兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义，闪电黑桃 2 至 9 命中 3 点雷电伤害否则转移；无懈可击在锦囊效果前复用固定座次私有响应和有限多层 `NullificationWindowFrame`，铁索连环通过精确一/二目标和公开 `IsChained` 标记接入火/雷伤害同额传导；普通/火/雷杀共用杀路径，属性类型和实际伤害金额写入伤害帧与事件；K6 已开放五个装备槽位、七种装备牌（含仁王盾）的生命周期、同槽替换、死亡清理、基础战斗距离/攻击范围查询以及诸葛连弩、青釭剑、赤兔、绝影、玉玺、仁王盾和马术的基础 modifier；规则 v13 起诸葛连弩/青釭剑分别使用牌面攻击范围 1/2，v1–v12 保留旧 +1/默认 1 的回放数值；规则 v14 起八卦阵覆盖直接杀及万箭齐发的闪响应，仁王盾在黑色杀指定目标后通过 `ArmorEffectAppliedEvent` 令其无效，v1–v13 保留旧时机；奇才通过 `GetLegalActions` 统一放宽距离型锦囊目标，K7 已为八卦阵、乐不思蜀、兵粮寸断和闪电接入 `JudgmentFrame`、判定区移动和对应结果，鬼才复用同一判定帧。其余锦囊和复杂装备效果仍需各自的目标、响应窗口和处理区语义。明确扩展需求记录在 [`CONTENT_BACKLOG.md`](CONTENT_BACKLOG.md)，在对应类型化入口开放前不通过 UI 或 `GameEngine` 特判接入。
@@ -249,6 +250,7 @@ public interface IActiveSkill
 - 反间：规则 v23 的经典身份局通过目标型主动技能选择一名其他角色，再由目标先选花色；随机牌转移并公开后，花色不同时进入 1 点普通伤害链；
 - 观星：规则 v24 的经典身份局在延时牌判定和摸牌之前发布发动/跳过 Choice；发动后牌面、花色、点数和排序步骤仅对技能拥有者可见，完成后只公开观看/置顶/置底数量；
 - 护驾：规则 v25 的经典主公曹操在闪响应窗中可发起有序魏势力询问；候选只看到自己的实体闪/转化牌与公开八卦阵，成功牌的物理拥有者和有效响应者分开记录；
+- 激将：规则 v26 的经典主公刘备可在出牌阶段或杀响应窗发起有序蜀势力询问；每个候选只看到自己的实体杀/转化牌，提供者与有效使用者/响应者分开记录，主动失败保留人类重试能力；
 - 咆哮：修改一回合使用杀的上限；
 - 空城：添加目标禁止条件；
 - 奸雄：在伤害完成后改变造成伤害的卡牌去向。
@@ -324,7 +326,7 @@ Console 自测覆盖：
 - 1/2/4/1 身份数量；
 - 玩家视角不会泄露暗身份和手牌；
 - 三个阵营的胜负条件；
-- 十八种被动技能钩子及六个主动技能（含反馈伤害后取牌、遗计跨手牌分配、节命目标补牌、援护跨座位弃牌恢复、刚烈判定与来源反制、鬼才判定替换、天妒取得判定牌、观星私有牌堆排序、护驾跨座位闪响应、武圣牌转化、龙胆响应转化、马术距离修正、奇才锦囊距离豁免、急救红牌濒死转化、苦肉主动命令、制衡多选弃牌、仁德目标交牌、青囊弃牌恢复、回春多目标弃牌恢复与反间目标选花色/随机交牌）；
+- 十九种被动技能钩子及七个主动技能（含反馈伤害后取牌、遗计跨手牌分配、节命目标补牌、援护跨座位弃牌恢复、刚烈判定与来源反制、鬼才判定替换、天妒取得判定牌、观星私有牌堆排序、护驾跨座位闪响应、激将跨座位杀使用/响应、武圣牌转化、龙胆响应转化、马术距离修正、奇才锦囊距离豁免、急救红牌濒死转化、苦肉主动命令、制衡多选弃牌、仁德目标交牌、青囊弃牌恢复、回春多目标弃牌恢复与反间目标选花色/随机交牌）；
 - 相同种子得到相同初始状态；
 - 真人出牌和打闪暂停点；
 - 初始发牌、处理区生命周期、单张/批量移动原子性和每个公共边界的卡牌守恒；
@@ -332,7 +334,7 @@ Console 自测覆盖：
 - AI 单步只执行一个决策；
 - 全 AI 对局可以结束并产生解释记录；
 - 快照可以序列化为 JSON。
-  - 当前 Core 自测共 153 项、WPF 自测共 50 项；除既有牌、技能、Checkpoint、装备、判定和视图回归外，还覆盖护驾的私有有序询问、实体闪归属、盟友八卦失败续接、AI、暂停恢复、旧内容包兼容与 WPF Prompt 渲染，以及观星、天妒、反间、主动技能、急救、国战和完整 UI 命令对局等既有场景；完整 Release 构建保持零警告、零错误。
+  - 当前 Core 自测共 155 项、WPF 自测共 51 项；除既有牌、技能、Checkpoint、装备、判定和视图回归外，还覆盖激将的主动/响应双入口、私有有序询问、实体杀归属、属性牌型、失败重试、AI、暂停/完成恢复、1.4.0 兼容与 WPF 双主动技入口，以及护驾、观星、天妒、反间、急救、国战和完整 UI 命令对局等既有场景；完整 Release 构建保持零警告、零错误。
 - Revision、PromptId、精确 Choice 和过期/伪造命令的零状态变化；
 - Standard 内容包 Registry 的隔离、不可变投影、重复 ID、未知引用和依赖环校验。
 - K4 私有选将、共享池无重复、5 人 AI 开局终止以及同 seed + 同选择命令的快照/事件确定性。

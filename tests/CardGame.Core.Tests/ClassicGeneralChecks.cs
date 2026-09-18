@@ -13,6 +13,7 @@ internal static class ClassicGeneralChecks
         var tianduClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 1, 0));
         var fanjianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 2, 0));
         var guanxingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 3, 0));
+        var hujiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 4, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -21,7 +22,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.4.0"]),
+                "standard-classic-generals@1.5.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -50,6 +51,10 @@ internal static class ClassicGeneralChecks
                 !guanxingClassic.Generals.ContainsKey("classic:cao-cao") &&
                 !guanxingClassic.Skills.ContainsKey("classic:hujia"),
             "The Guanxing-era classic registry must remain reproducible for 1.3 checkpoints.");
+        Require(hujiaClassic.Packages.Last().Version == new Version(1, 4, 0) &&
+                hujiaClassic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["standard:rende"]) &&
+                !hujiaClassic.Skills.ContainsKey("classic:jijiang"),
+            "The Hujia-era classic registry must retain Liu Bei without Jijiang for 1.4 checkpoints.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -61,10 +66,10 @@ internal static class ClassicGeneralChecks
         Require(huaTuo.Name == "华佗" && huaTuo.BaseHp == 3 &&
                 huaTuo.SkillIds.SequenceEqual(["standard:qingnang", "standard:jijiu"]),
             "Hua Tuo must expose Qingnang and Jijiu in a stable order.");
-        Require(classic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["standard:rende"]) &&
+        Require(classic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["standard:rende", "classic:jijiang"]) &&
                 classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng"]) &&
                 classic.Generals["classic:xiahou-dun"].SkillIds.SequenceEqual(["standard:ganglie"]),
-            "The first classic roster must point at the implemented formal skills.");
+            "The current classic roster must point at the implemented formal skills.");
         var guoJia = classic.Generals["classic:guo-jia"];
         Require(guoJia.BaseHp == 3 &&
                 guoJia.SkillIds.SequenceEqual(["classic:tiandu", "standard:yiji"]),
@@ -94,8 +99,8 @@ internal static class ClassicGeneralChecks
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 11,
-            "Classic rules 10 and suit-specific delayed judgments in rules 11 must remain replay-versioned.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 26,
+            "Classic Jijiang must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -1453,6 +1458,401 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(failedBagua.CreateSnapshot(1, revealAll: true)) &&
                 EventSignatures(replayed).SequenceEqual(EventSignatures(failedBagua)),
             "The failed Hujia Bagua continuation must replay exactly.");
+    }
+
+    public static void FormalJijiangActiveFlow()
+    {
+        var (registry, modeId) = CreateJijiangFixtureRegistry(
+            "active",
+            [new ContentDeckCardCount("standard:slash", 100)]);
+        GameEngine? game = null;
+        LegalAction? jijiang = null;
+        int targetSeat = -1;
+        for (var seed = 1; seed <= 256 && game is null; seed++)
+        {
+            var candidate = StartJijiangLordAtPlay(registry, modeId, seed);
+            var full = candidate.CreateSnapshot(0, revealAll: true);
+            var action = candidate.GetHumanLegalActions().Single(item =>
+                item.Kind == LegalActionKind.UseSkill && item.Skill == SkillKind.Jijiang);
+            var rebelTarget = action.SelectableTargetSeats.FirstOrDefault(seat =>
+                full.Players[seat].Role == Role.Rebel, -1);
+            if (rebelTarget < 0)
+            {
+                continue;
+            }
+
+            game = candidate;
+            jijiang = action;
+            targetSeat = rebelTarget;
+        }
+
+        if (game is null || jijiang is null)
+        {
+            throw new InvalidOperationException("No deterministic active Jijiang fixture exposed an in-range Rebel.");
+        }
+
+        var lord = game.CreateSnapshot(0, revealAll: true).Players[0];
+        Require(lord.MaxHp == 5 &&
+                lord.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]),
+            "Classic Liu Bei must combine the Lord HP bonus with Rende and Jijiang in stable order.");
+        Require(game.GetHumanLegalActions().Where(action => action.Kind == LegalActionKind.UseSkill)
+                .Select(action => action.Skill)
+                .SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]) &&
+                jijiang.MinCardCount == 0 && jijiang.MaxCardCount == 0 &&
+                jijiang.MinTargetCount == 1 && jijiang.MaxTargetCount == 1 &&
+                jijiang.SelectableTargetSeats.Contains(targetSeat),
+            "The play boundary must publish Rende and Jijiang as distinct typed active actions.");
+
+        var prompt = game.PendingDecision!;
+        var beforeForgery = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var beforeForgeryRevision = game.Revision;
+        var forged = game.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Jijiang,
+            [],
+            [0],
+            game.Revision,
+            prompt.PromptId));
+        Require(!forged.Accepted && game.Revision == beforeForgeryRevision &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForgery,
+            "A forged active Jijiang target must be rejected atomically.");
+
+        var requested = game.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Jijiang,
+            [],
+            [targetSeat],
+            game.Revision,
+            prompt.PromptId));
+        Require(requested.Accepted, requested.Error?.Message ?? "Active Jijiang was rejected.");
+        var providerPrompts = Enumerable.Range(0, game.PlayerCount)
+            .Select(seat => game.CreateSnapshot(seat).PendingDecision)
+            .Where(decision => decision?.Choices.Any(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "jijiang-slash") == true)
+            .Cast<PendingDecision>()
+            .ToArray();
+        Require(providerPrompts is [{ Kind: DecisionKind.RespondSlash }],
+            "Active Jijiang must pause at one private Shu provider prompt.");
+        var providerPrompt = providerPrompts[0];
+        var providerSeat = providerPrompt.PlayerSeat;
+        Require(game.CreateSnapshot(providerSeat).PendingDecision is not null &&
+                Enumerable.Range(0, game.PlayerCount)
+                    .Where(seat => seat != providerSeat)
+                    .All(seat => game.CreateSnapshot(seat).PendingDecision is null),
+            "The active Jijiang provider prompt must be private to its current Shu candidate.");
+
+        var paused = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(paused.CreateSnapshot(providerSeat, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(providerSeat, revealAll: true)) &&
+                EventSignatures(paused).SequenceEqual(EventSignatures(game)),
+            "A paused active Jijiang provider prompt must replay exactly.");
+
+        JijiangResolvedEvent? resolved = null;
+        for (var step = 0; step < 16 && resolved is null; step++)
+        {
+            var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "The Jijiang provider cursor did not advance.");
+            resolved = game.Events.Select(envelope => envelope.Payload)
+                .OfType<JijiangResolvedEvent>()
+                .LastOrDefault(item => item is { IsActiveUse: true, Succeeded: true });
+        }
+
+        if (resolved is not { ProviderSeat: { } successfulProvider, SlashCardId: { } slashCardId })
+        {
+            throw new InvalidOperationException("No allied Shu provider completed active Jijiang.");
+        }
+
+        Require(resolved.OwnerSeat == 0 && resolved.TargetSeat == targetSeat &&
+                resolved.EffectiveSlashKind == CardKind.Slash &&
+                game.CardMovements.Any(movement =>
+                    movement.CardId == slashCardId &&
+                    movement.From == CardLocation.Hand(successfulProvider) &&
+                    movement.To == CardLocation.Processing &&
+                    movement.Reason == CardMoveReasons.Use) &&
+                game.CardMovements.Any(movement =>
+                    movement.CardId == slashCardId &&
+                    movement.From == CardLocation.Processing &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.UseFinished) &&
+                game.Events.Select(envelope => envelope.Payload).OfType<CardUsedEvent>().Any(cardUse =>
+                    cardUse.CardId == slashCardId && cardUse.SourceSeat == 0 && cardUse.TargetSeat == targetSeat),
+            "Active Jijiang must spend the provider's exact Slash while making Liu Bei the effective user.");
+
+        var returned = game.Submit(new AdvanceCommand(game.Revision));
+        Require(returned.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                game.GetHumanLegalActions().All(action => action.Skill != SkillKind.Jijiang),
+            "A successful active Jijiang Slash must consume Liu Bei's Slash allowance for the turn.");
+
+        var (failureRegistry, failureModeId) = CreateJijiangFixtureRegistry(
+            "active-failure",
+            [new ContentDeckCardCount("standard:peach", 100)]);
+        var failed = StartJijiangLordAtPlay(failureRegistry, failureModeId, seed: 1);
+        var failedAction = failed.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Jijiang);
+        var failedTarget = failedAction.SelectableTargetSeats[0];
+        for (var attempt = 1; attempt <= 2; attempt++)
+        {
+            var failedPrompt = failed.PendingDecision!;
+            var result = failed.Submit(new UseSkillCommand(
+                0,
+                SkillKind.Jijiang,
+                [],
+                [failedTarget],
+                failed.Revision,
+                failedPrompt.PromptId));
+            Require(result.Accepted, result.Error?.Message ?? "A failed Jijiang attempt was rejected before resolution.");
+            Require(failed.Events.Select(envelope => envelope.Payload).OfType<JijiangResolvedEvent>()
+                    .Count(item => item is { IsActiveUse: true, Succeeded: false }) == attempt,
+                "An all-decline active Jijiang attempt must publish one typed failure result.");
+            var resumed = failed.Submit(new AdvanceCommand(failed.Revision));
+            Require(resumed.Accepted && failed.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                    failed.GetHumanLegalActions().Any(action => action.Skill == SkillKind.Jijiang),
+                "A failed human Jijiang attempt must not consume the Slash limit and must remain retryable.");
+        }
+    }
+
+    public static void FormalJijiangResponseFlow()
+    {
+        var (registry, modeId) = CreateJijiangFixtureRegistry(
+            "response",
+            [
+                new ContentDeckCardCount("standard:slash", 60),
+                new ContentDeckCardCount("standard:barbarian_assault", 40)
+            ]);
+        GameEngine? selectedGame = null;
+        PendingDecision? selectedPrompt = null;
+        JijiangRequestedEvent? selectedRequest = null;
+        for (var seed = 1; seed <= 512 && selectedGame is null; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = 1,
+                HumanRole = Role.Loyalist,
+                ModeId = modeId,
+                UseInteractiveSetup = false,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 80
+            }, registry);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Jijiang response fixture failed to start.");
+            var full = game.CreateSnapshot(1, revealAll: true);
+            if (full.Players.Single(player => player.Role == Role.Lord).GeneralId != "classic:liu-bei")
+            {
+                continue;
+            }
+
+            for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var decision = game.PendingDecision;
+                if (decision?.PlayerSeat == 1 &&
+                    decision.Kind == DecisionKind.RespondSlash &&
+                    decision.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "jijiang-slash"))
+                {
+                    var request = game.Events.Select(envelope => envelope.Payload)
+                        .OfType<JijiangRequestedEvent>()
+                        .Last();
+                    if (!request.IsActiveUse)
+                    {
+                        selectedGame = game;
+                        selectedPrompt = decision;
+                        selectedRequest = request;
+                        break;
+                    }
+                }
+
+                GameCommand command;
+                if (decision is null || decision.PlayerSeat != 1)
+                {
+                    command = new AdvanceOneStepCommand(game.Revision);
+                }
+                else if (decision.Kind == DecisionKind.PlayCard)
+                {
+                    command = new EndPlayPhaseCommand(1, game.Revision, decision.PromptId);
+                }
+                else if (decision.Kind == DecisionKind.DiscardCards)
+                {
+                    command = new DiscardCardsCommand(
+                        1,
+                        decision.ValidCardIds.Take(decision.RequiredCardCount).ToArray(),
+                        decision.PromptId,
+                        game.Revision);
+                }
+                else
+                {
+                    command = new AnswerPromptCommand(
+                        1,
+                        decision.PromptId,
+                        DeclineChoice(decision).Id,
+                        game.Revision);
+                }
+
+                var advanced = game.Submit(command);
+                if (!advanced.Accepted)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (selectedGame is null || selectedPrompt is null || selectedRequest is null)
+        {
+            throw new InvalidOperationException("No deterministic response Jijiang provider boundary was found.");
+        }
+
+        var gameWithResponse = selectedGame;
+        var prompt = selectedPrompt;
+        var requestEvent = selectedRequest;
+        var ownerSeat = requestEvent.OwnerSeat;
+        Require(prompt.IsPrivate && prompt.TargetSeat == ownerSeat && prompt.SourceSeat == ownerSeat &&
+                gameWithResponse.CreateSnapshot(ownerSeat).PendingDecision is null &&
+                Enumerable.Range(0, gameWithResponse.PlayerCount)
+                    .Where(seat => seat != 1)
+                    .All(seat => gameWithResponse.CreateSnapshot(seat).PendingDecision is null),
+            "A response Jijiang prompt must be private to exactly one Shu provider.");
+
+        var beforeForgery = SnapshotJson.Serialize(gameWithResponse.CreateSnapshot(1, revealAll: true));
+        var beforeForgeryRevision = gameWithResponse.Revision;
+        var forged = gameWithResponse.Submit(new AnswerPromptCommand(
+            1,
+            prompt.PromptId,
+            new ChoiceId("jijiang.forged"),
+            gameWithResponse.Revision));
+        Require(!forged.Accepted && gameWithResponse.Revision == beforeForgeryRevision &&
+                SnapshotJson.Serialize(gameWithResponse.CreateSnapshot(1, revealAll: true)) == beforeForgery,
+            "A forged Jijiang provider choice must be rejected atomically.");
+
+        var paused = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(gameWithResponse.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(paused.CreateSnapshot(1, revealAll: true)) ==
+                SnapshotJson.Serialize(gameWithResponse.CreateSnapshot(1, revealAll: true)) &&
+                EventSignatures(paused).SequenceEqual(EventSignatures(gameWithResponse)),
+            "A paused response Jijiang provider prompt must replay exactly.");
+
+        var slashChoice = prompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "jijiang-slash");
+        var slashCardId = slashChoice.Cards.Single();
+        var answered = gameWithResponse.Submit(new AnswerPromptCommand(
+            1,
+            prompt.PromptId,
+            slashChoice.Id,
+            gameWithResponse.Revision));
+        Require(answered.Accepted, answered.Error?.Message ?? "The Jijiang Slash response was rejected.");
+        var resolved = gameWithResponse.Events.Select(envelope => envelope.Payload)
+            .OfType<JijiangResolvedEvent>()
+            .Last(item => item.ResolutionId == requestEvent.ResolutionId);
+        Require(resolved is { Succeeded: true, IsActiveUse: false, ProviderSeat: 1 } &&
+                resolved.OwnerSeat == ownerSeat && resolved.SlashCardId == slashCardId &&
+                resolved.EffectiveSlashKind == CardKind.Slash &&
+                gameWithResponse.CardMovements.Any(movement =>
+                    movement.CardId == slashCardId &&
+                    movement.From == CardLocation.Hand(1) &&
+                    movement.To == CardLocation.Processing &&
+                    movement.Reason == CardMoveReasons.Respond) &&
+                gameWithResponse.CardMovements.Any(movement =>
+                    movement.CardId == slashCardId &&
+                    movement.From == CardLocation.Processing &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.ResponseFinished) &&
+                gameWithResponse.Events.Select(envelope => envelope.Payload).OfType<CardRespondedEvent>().Any(response =>
+                    response.CardId == slashCardId && response.ResponderSeat == ownerSeat &&
+                    response.EffectiveCardKind == CardKind.Slash),
+            "Response Jijiang must spend the provider's exact Slash while publishing Liu Bei as the responder.");
+
+        var replayed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(gameWithResponse.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(1, revealAll: true)) ==
+                SnapshotJson.Serialize(gameWithResponse.CreateSnapshot(1, revealAll: true)) &&
+                EventSignatures(replayed).SequenceEqual(EventSignatures(gameWithResponse)),
+            "A completed response Jijiang branch must replay exactly.");
+    }
+
+    private static (ContentRegistry Registry, string ModeId) CreateJijiangFixtureRegistry(
+        string suffix,
+        IReadOnlyList<ContentDeckCardCount> cards)
+    {
+        var modeId = $"identity:classic-jijiang-{suffix}-test";
+        var deckId = $"test:jijiang-{suffix}-deck";
+        var registry = ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(),
+            new SyntheticPackage(
+                $"jijiang-{suffix}-test",
+                builder =>
+                {
+                    builder.AddDeck(new ContentDeckRecipe(
+                        deckId,
+                        $"激将{suffix}测试牌堆",
+                        InitialHandSize: 4,
+                        DrawPerTurn: 2,
+                        Cards: cards));
+                    builder.AddMode(new ContentModeDefinition(
+                        modeId,
+                        $"激将{suffix}测试身份局",
+                        MinPlayers: 5,
+                        MaxPlayers: 5,
+                        RoleCounts: new Dictionary<string, int>
+                        {
+                            [nameof(Role.Lord)] = 1,
+                            [nameof(Role.Loyalist)] = 1,
+                            [nameof(Role.Rebel)] = 2,
+                            [nameof(Role.Renegade)] = 1
+                        },
+                        DeckId: deckId,
+                        GeneralCandidateCount: 5,
+                        GeneralPoolIds:
+                        [
+                            "classic:liu-bei",
+                            "standard:zhang-fei",
+                            "standard:liu-bei",
+                            "standard:zhuge-liang",
+                            "classic:zhuge-liang"
+                        ]));
+                },
+                new PackageDependency("standard-classic-generals", new Version(1, 5, 0))));
+        return (registry, modeId);
+    }
+
+    private static GameEngine StartJijiangLordAtPlay(
+        ContentRegistry registry,
+        string modeId,
+        int seed)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = seed,
+            PlayerCount = 5,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            ModeId = modeId,
+            UseInteractiveSetup = true,
+            UseInteractiveDiscard = false,
+            AdvanceAfterHumanCommands = false,
+            MaxTurns = 80
+        }, registry);
+        var started = game.Submit(new StartGameCommand());
+        Require(started.Accepted && game.PendingDecision?.Choices.Any(choice =>
+                choice.ContentIds.SequenceEqual(["classic:liu-bei"])) == true,
+            started.Error?.Message ?? "The Jijiang fixture did not offer classic Liu Bei.");
+        var selected = game.Submit(new SelectGeneralCommand(
+            0,
+            "classic:liu-bei",
+            game.Revision,
+            game.PendingDecision!.PromptId));
+        Require(selected.Accepted, selected.Error?.Message ?? "Classic Liu Bei selection was rejected.");
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        Require(advanced.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard,
+            advanced.Error?.Message ?? "The Jijiang fixture did not reach Liu Bei's play phase.");
+        return game;
     }
 
     private static GameEngine ReachZhouYuPlayPhase(ContentRegistry registry, int rulesVersion)

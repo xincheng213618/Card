@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.4.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.3.0 旧武将池按存档签名保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.5.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前刘备为仁德+激将、曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.4.0 历史定义按存档签名保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -138,6 +138,7 @@
 | `standard:zhuge-liang` | 诸葛亮 | `zhuge-liang` | `standard:kongcheng` | implemented-registry | hand-zero, target-lock |
 | `classic:zhuge-liang` | 诸葛亮 | `zhuge-liang` | `classic:guanxing` + `standard:kongcheng` | implemented-registry + classic 1.3 | private-deck-order, judgment-control, draw-control, hand-zero, target-lock |
 | `standard:liu-bei` | 刘备 | `liu-bei` | `standard:none` | implemented-registry | placeholder |
+| `classic:liu-bei` | 刘备 | `liu-bei` | `standard:rende` + `classic:jijiang` | implemented-registry + classic 1.5 | active-skill, gift, recovery, lord, cross-seat-slash |
 | `standard:guan-yu` | 关羽 | `guan-yu` | `standard:wusheng` | implemented-registry | red-card, conversion, attack |
 | `standard:zhao-yun` | 赵云 | `zhao-yun` | `standard:longdan` | implemented-registry | slash-dodge, conversion, response |
 | `standard:sun-quan` | 孙权 | `sun-quan` | `standard:none` | implemented-registry | placeholder |
@@ -174,6 +175,7 @@
 | `classic:tiandu` | 天妒 | 规则 v22 经典身份中，自己的判定牌生效后可获得此牌 | implemented-registry + classic extension | K2/K7：结果后私有 Choice、`Judgment → Hand` 移动、`JudgmentCardClaimedEvent` 与父判定续接 |
 | `classic:guanxing` | 观星 | 规则 v24 经典身份中，准备阶段可私有观看并排列至多五张牌堆顶牌 | implemented-registry + classic extension | K1/K2/K7：私有多步 Choice、牌堆顶冻结、同区顶/底重排、数量事件、延时判定与摸牌续接 |
 | `classic:hujia` | 护驾 | 规则 v25 经典身份中，主公曹操需要闪时可按行动顺序请求其他魏势力角色代为响应 | implemented-registry + classic extension | K1/K2/K7：私有跨座位响应、实体牌提供者与有效响应者分离、提供者八卦判定、候选游标与父响应窗续接 |
+| `classic:jijiang` | 激将 | 规则 v26 经典身份中，主公刘备可在出牌阶段或杀响应窗按行动顺序请求其他蜀势力角色提供杀 | implemented-registry + classic extension | K1/K2/K5：主动/响应双入口、私有跨座位杀 Choice、实体提供者与有效 source/responder 分离、失败重试与父结算续接 |
 | `standard:kujin` | 苦肉 | 出牌阶段失去 1 点体力并摸两张牌；若降至 0，救援结算后再摸牌 | implemented-registry + extension | K5：`IActiveSkill`、`UseSkillCommand`、`ActiveSkillFrame`、类型化体力/摸牌事件；体力大于 0，濒死时保留主动技能帧并复用私有 `RescueDying` |
 | `standard:rende` | 仁德 | 主动交牌并按数量回复 | implemented-registry + extension | K2/K5：私有选牌/其他存活目标白名单、Processing 跨手牌移动、按数量恢复、回合一次限制 |
 | `standard:zhiheng` | 制衡 | 规则 v17 经典身份每阶段限一次，可混选自己的手牌与公开装备后弃置并摸等量牌；旧规则/演示模式仅手牌 | implemented-registry + extension | K2/K5/K6：主动多选、混合来源 `Processing` 牌区、等量摸牌和私有 Prompt |

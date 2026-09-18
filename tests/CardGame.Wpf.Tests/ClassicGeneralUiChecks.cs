@@ -66,6 +66,15 @@ internal static class ClassicGeneralUiChecks
                        caoCao.HealthText == "体力上限 5" &&
                        GeneralArt.HasPortrait(caoCao.GeneralId),
             "The current classic Cao Cao card must render Jianxiong, Hujia, Lord health and portrait aliasing.");
+        using var jijiangDescriptionViewModel = FindGeneralChoice("classic:liu-bei");
+        var liuBei = jijiangDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:liu-bei");
+        Program.Assert(liuBei.SkillName == "仁德 / 激将" &&
+                       liuBei.SkillDescription.Contains("交给一名其他角色", StringComparison.Ordinal) &&
+                       liuBei.SkillDescription.Contains("其他蜀势力角色", StringComparison.Ordinal) &&
+                       liuBei.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(liuBei.GeneralId),
+            "The current classic Liu Bei card must render Rende, Jijiang, Lord health and portrait aliasing.");
         using var zhihengDescriptionViewModel = FindGeneralChoice("classic:sun-quan");
         var sunQuan = zhihengDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:sun-quan");
@@ -438,6 +447,71 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void JijiangActiveAction(string output)
+    {
+        using var viewModel = FindJijiangViewModel();
+        var engine = Program.Engine(viewModel);
+        var actions = viewModel.HumanActiveSkillActions;
+        Program.Assert(actions.Select(action => action.Skill)
+                           .SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]) &&
+                       viewModel.AdditionalActiveSkillActions is [{ Skill: SkillKind.Jijiang }],
+            "Classic Liu Bei must publish separate Rende and Jijiang toolbar actions in stable order.");
+        var jijiang = actions.Single(action => action.Skill == SkillKind.Jijiang);
+        Program.Assert(jijiang.SelectableCardIds.Count == 0 &&
+                       jijiang.SelectableTargetSeats.Count > 0 &&
+                       jijiang is { MinTargetCount: 1, MaxTargetCount: 1 },
+            "The WPF Jijiang action must expose a target-only typed draft.");
+
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740, Path.Combine(output, "78-classic-jijiang-entry.png"));
+        var visibleSkillButtons = Program.Find<System.Windows.Controls.Button>(root)
+            .Where(button => button.Visibility == Visibility.Visible && button.ActualHeight > 0)
+            .Select(button => button.Content as string)
+            .Where(text => text is not null)
+            .ToArray();
+        Program.Assert(visibleSkillButtons.Contains("发动【仁德】", StringComparer.Ordinal) &&
+                       visibleSkillButtons.Contains("发动【激将】", StringComparer.Ordinal),
+            "The play toolbar must keep both of Liu Bei's active skills directly visible.");
+
+        viewModel.SelectActiveSkillCommand.Execute(jijiang);
+        Program.Assert(viewModel.IsActiveSkillSelectionPending &&
+                       viewModel.PlayButtonText == "发动激将" &&
+                       viewModel.CurrentGuideTitle == "选择【激将】的牌和目标" &&
+                       viewModel.Seats.Where(seat => seat.IsLegalTarget).Select(seat => seat.Seat)
+                           .Order()
+                           .SequenceEqual(jijiang.SelectableTargetSeats.Order()),
+            "Choosing the Jijiang entry must switch the shared draft to Jijiang's own target set.");
+        var target = viewModel.Seats.First(seat => seat.IsLegalTarget);
+        viewModel.SelectTargetCommand.Execute(target);
+        Program.Assert(viewModel.CanConfirmActiveSkill && target.IsSelectedTarget &&
+                       viewModel.ActiveSkillButtonText.Contains("1 个目标", StringComparison.Ordinal),
+            "Selecting one Jijiang target must enable the shared primary confirmation.");
+        Program.Render(root, 1120, 740, Path.Combine(output, "79-classic-jijiang-target.png"));
+
+        var revision = engine.Revision;
+        viewModel.ConfirmSelectedCommand.Execute(null);
+        Program.Assert(engine.Revision == revision + 1 &&
+                       engine.AcceptedCommands.Last() is UseSkillCommand
+                       {
+                           Skill: SkillKind.Jijiang,
+                           CardIds.Count: 0,
+                           TargetSeats.Count: 1
+                       } command &&
+                       command.TargetSeats[0] == target.Seat &&
+                       engine.Events.Any(item => item.Payload is JijiangRequestedEvent
+                       {
+                           OwnerSeat: 0,
+                           IsActiveUse: true,
+                           CandidateSeats.Count: > 0
+                       }) &&
+                       !viewModel.IsActiveSkillSelectionPending,
+            "The Jijiang target draft must submit exactly one typed request without paying a Liu Bei hand card.");
+        window.Content = null;
+        window.Close();
+    }
+
     private static MainViewModel FindGeneralChoice(string generalId)
     {
         for (var seed = 1; seed <= 1_024; seed++)
@@ -460,6 +534,38 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException($"Could not find a deterministic {generalId} WPF fixture.");
+    }
+
+    private static MainViewModel FindJijiangViewModel()
+    {
+        for (var seed = 1; seed <= 2_048; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var liuBei = candidate.GeneralChoices.SingleOrDefault(choice =>
+                choice.GeneralId == "classic:liu-bei");
+            if (liuBei is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(liuBei);
+                Program.AdvanceToDecision(candidate);
+                if (candidate.HumanActiveSkillActions.Any(action =>
+                        action.Skill == SkillKind.Jijiang && action.SelectableTargetSeats.Count > 0))
+                {
+                    return candidate;
+                }
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Jijiang WPF fixture.");
     }
 
     private static MainViewModel FindClassicZhihengEquipmentViewModel()

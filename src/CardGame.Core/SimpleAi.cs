@@ -331,8 +331,12 @@ public sealed partial class SimpleAiBrain
             throw new InvalidOperationException("The active-skill target selection bounds are invalid.");
         }
 
+        var selectableTargets = action.SelectableTargetSeats.Count == 0
+            ? null
+            : action.SelectableTargetSeats.ToHashSet();
         var candidates = view.Players
             .Where(player => player.IsAlive &&
+                             (selectableTargets is null || selectableTargets.Contains(player.Seat)) &&
                              (action.Skill is SkillKind.Qingnang or SkillKind.Huichun
                                  ? player.Hp < player.MaxHp
                                  : player.Seat != Seat))
@@ -344,7 +348,7 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
-        var orderedCandidates = action.Skill == SkillKind.Fanjian
+        var orderedCandidates = action.Skill is SkillKind.Fanjian or SkillKind.Jijiang
             ? candidates
                 .OrderByDescending(player => GetHostility(view, selfRole, player))
                 .ThenBy(player => player.Hp)
@@ -493,6 +497,51 @@ public sealed partial class SimpleAiBrain
             (incomingIgnoresArmor ? "攻击者的武器无视防具，因此不考虑八卦阵。" : string.Empty));
 
         return (useDodge, useBagua, thought);
+    }
+
+    /// <summary>
+    /// Answers Liu Bei's private Jijiang request from this seat's own cards and
+    /// public identity relationship. The provider never inspects another hand.
+    /// </summary>
+    public (bool UseSlash, AiThoughtRecord Thought) ChooseJijiangResponse(
+        GameSnapshot view,
+        int ownerSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var owner = view.Players.Single(player => player.Seat == ownerSeat);
+        var skillKinds = self.Skills?.Select(skill => skill.Kind).ToHashSet() ?? [self.Skill];
+        var hasSlash = self.Hand.Any(card =>
+            IsSlashCard(card.Kind) ||
+            skillKinds.Contains(SkillKind.Wusheng) && IsRedCard(card.Suit) ||
+            skillKinds.Contains(SkillKind.Longdan) && card.Kind == CardKind.Dodge);
+        var shouldHelp = self.Role == Role.Loyalist ||
+                         self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
+        var slashScore = shouldHelp && hasSlash ? 85d : double.NegativeInfinity;
+        const double declineScore = 10d;
+        var useSlash = slashScore >= declineScore;
+        var decision = useSlash ? "替主公打出杀" : "不响应激将";
+        var pseudoAction = new LegalAction(LegalActionKind.EndPlay, null, ownerSeat, decision);
+        var candidates = new List<AiCandidateScore>();
+        if (hasSlash)
+        {
+            candidates.Add(new AiCandidateScore(
+                pseudoAction with { Description = "替主公打出杀" },
+                slashScore,
+                shouldHelp ? "消耗自己的可见响应牌，帮助主公完成当前杀需求。" : "当前身份不应替主公消耗攻击牌。"));
+        }
+        candidates.Add(new AiCandidateScore(
+            pseudoAction with { Description = "不响应激将" },
+            declineScore,
+            shouldHelp ? "保留自己的攻击资源。" : "拒绝帮助敌对主公。"));
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            decision,
+            candidates,
+            $"激将：身份为{self.Role}，主公 {owner.Seat + 1} 号位，决定{decision}。");
+        return (useSlash, thought);
     }
 
     /// <summary>
@@ -1687,6 +1736,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Mashu => "计算与其他角色的距离 -1，扩大杀和顺手牵羊的公开合法范围。",
             SkillKind.Qicai => "锦囊牌无距离限制，扩大公开合法目标范围。",
             SkillKind.Jijiu => "濒死窗口可将红色牌当作桃使用，扩大自己的救援牌来源。",
+            SkillKind.Jijiang => "需要使用或打出杀时可请求其他蜀势力角色提供，适合共享阵营攻击资源。",
             _ => "当前演示版没有主动技能，作为稳定基础候选。"
         };
         return (score, reason);
@@ -1756,6 +1806,27 @@ public sealed partial class SimpleAiBrain
                     recoveryBonus > 0
                         ? $"发动{action.Description}，向公开低体力目标交给至少两张牌并回复 1 点；只使用自己的手牌和公开体力。"
                         : $"发动{action.Description}，向其他存活角色交给一张低保留价值手牌；目标由公开存活信息确定。 ");
+            }
+
+            if (action.Skill == SkillKind.Jijiang)
+            {
+                var jijiangTarget = view.Players
+                    .Where(player => player.IsAlive &&
+                                     action.SelectableTargetSeats.Contains(player.Seat))
+                    .OrderByDescending(player => GetHostility(view, selfRole, player))
+                    .ThenBy(player => player.Hp)
+                    .ThenBy(player => player.Seat)
+                    .FirstOrDefault();
+                if (jijiangTarget is null)
+                {
+                    return (-100d, "没有处于刘备攻击范围内的合法目标，不能发动激将。");
+                }
+
+                var targetHostility = GetHostility(view, selfRole, jijiangTarget);
+                return targetHostility > 0
+                    ? (34d + targetHostility * .5d + (jijiangTarget.Hp <= 1 ? 12d : 0d),
+                        $"对公开判断中最敌对的座位 {jijiangTarget.Seat + 1} 发动激将；目标与距离按刘备公开状态判断，不读取蜀将手牌。")
+                    : (-80d, "攻击范围内没有值得发动激将的敌对目标。");
             }
 
             if (action.Skill == SkillKind.Qingnang)

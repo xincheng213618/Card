@@ -16,6 +16,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private int? _selectedCardId;
     private readonly HashSet<int> _selectedActiveSkillCardIds = [];
     private readonly HashSet<int> _selectedActiveSkillTargetSeats = [];
+    private SkillKind? _selectedActiveSkillKind;
     private PromptId? _activeSkillPromptId;
     private bool _isSelectingActiveSkillCards;
     private int? _selectedTargetSeat;
@@ -80,6 +81,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         PlaySelectedCardCommand = new RelayCommand(PlaySelectedCard, () => CanPlaySelected);
         PlaySelectedAsSlashCommand = new RelayCommand(PlaySelectedAsSlash, () => CanPlaySelectedAsSlash);
         UseActiveSkillCommand = new RelayCommand(UseActiveSkill, () => CanUseActiveSkill);
+        SelectActiveSkillCommand = new RelayCommand<LegalAction>(UseActiveSkill);
         EndTurnCommand = new RelayCommand(EndTurn, () => CanEndTurn);
         RespondDodgeCommand = new RelayCommand(() => RespondToSlash(true), () => CanRespondDodge);
         DeclineResponseCommand = new RelayCommand(() => RespondToSlash(false), () => CanDeclineResponse);
@@ -152,6 +154,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public ICommand PlaySelectedCardCommand { get; }
     public ICommand PlaySelectedAsSlashCommand { get; }
     public ICommand UseActiveSkillCommand { get; }
+    public ICommand SelectActiveSkillCommand { get; }
     public ICommand EndTurnCommand { get; }
     public ICommand RespondDodgeCommand { get; }
     public ICommand DeclineResponseCommand { get; }
@@ -440,25 +443,26 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
+            _selectedActiveSkillKind = null;
             _isSelectingActiveSkillCards = false;
         }
 
         _activeSkillPromptId = promptId;
-        var hasSelectionContract = pending is
-        {
-            Kind: DecisionKind.PlayCard,
-            ActiveSkillKind: not null
-        } && (pending.ActiveSkillMaxCardCount > 0 || pending.ActiveSkillMaxTargetCount > 0);
+        var hasSelectionContract = pending?.Kind == DecisionKind.PlayCard &&
+                                   HumanActiveSkillAction is { } selectedAction &&
+                                   (selectedAction.MaxCardCount > 0 || selectedAction.MaxTargetCount > 0);
         if (!hasSelectionContract)
         {
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
+            _selectedActiveSkillKind = null;
             _isSelectingActiveSkillCards = false;
             return;
         }
 
-        _selectedActiveSkillCardIds.IntersectWith(pending!.ActiveSkillValidCardIds ?? []);
-        _selectedActiveSkillTargetSeats.IntersectWith(pending.ActiveSkillValidTargetSeats ?? []);
+        var action = HumanActiveSkillAction;
+        _selectedActiveSkillCardIds.IntersectWith(action?.SelectableCardIds ?? []);
+        _selectedActiveSkillTargetSeats.IntersectWith(action?.SelectableTargetSeats ?? []);
     }
 
     private void Refresh(GameSnapshot snapshot)
@@ -627,9 +631,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             .Select(action => action.CardId!.Value)
             .ToHashSet();
         if (IsDiscardSelectionPending) playableCardIds.UnionWith(_snapshot.PendingDecision!.ValidCardIds);
-        var activeSkillAction = legalActions.FirstOrDefault(action => action.Kind == LegalActionKind.UseSkill);
         var activeSkillCardIds = IsActiveSkillCardSelectionPending
-            ? (_snapshot.PendingDecision!.ActiveSkillValidCardIds ?? []).ToHashSet()
+            ? (HumanActiveSkillAction?.SelectableCardIds ?? []).ToHashSet()
             : [];
 
         if (_selectedCardId is { } selectedId && !playableCardIds.Contains(selectedId) && HandResponseChoice(selectedId) is null)
@@ -716,7 +719,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 var normallyPlayable = playableCardIds.Contains(card.Id) || responseChoice is not null;
                 var normallySelectable = TutorialAllowsHandCard(card, normallyPlayable);
                 var availability = IsActiveSkillSelectionPending
-                    ? activeSkillSelectable ? $"可用于{activeSkillAction?.Description ?? "主动技能"}" : "本次技能不能选择这张牌；可按 Esc 退出技能选择。"
+                    ? activeSkillSelectable ? $"可用于{HumanActiveSkillAction?.Description ?? "主动技能"}" : "本次技能不能选择这张牌；可按 Esc 退出技能选择。"
                     : TutorialHandAvailability(card, normallyPlayable, IsHandResponsePending
                         ? responseChoice is not null ? $"{responseChoice.Description}；选中后按 Enter 确认。" : HandResponseUnavailableHint(card.Id)
                         : handGuidance.GetValueOrDefault(card.Id)?.Message ?? string.Empty);
@@ -789,6 +792,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ResponseButtonText = _snapshot.PendingDecision?.Choices.Any(choice =>
                 choice.Parameters.GetValueOrDefault("response") == "hujia-dodge") == true
             ? "护驾出闪"
+            : _snapshot.PendingDecision?.Choices.Any(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "jijiang-slash") == true
+                ? "激将出杀"
             : _snapshot.PendingDecision?.Kind == DecisionKind.RespondSlash
                 ? "快速响应杀"
                 : "快速响应闪";
@@ -858,7 +864,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void ToggleActiveSkillCard(int cardId)
     {
         if (_snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } pending ||
-            pending.ActiveSkillValidCardIds?.Contains(cardId) != true)
+            HumanActiveSkillAction?.SelectableCardIds.Contains(cardId) != true)
         {
             return;
         }
@@ -886,9 +892,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         RebuildActiveSkillEquipmentChoices(
             _snapshot.Players.Single(player => player.IsHuman),
-            pending.ActiveSkillValidCardIds.ToHashSet());
+            action.SelectableCardIds.ToHashSet());
 
-        var skillName = _snapshot.Players.Single(player => player.IsHuman).SkillName;
+        var skillName = action.Skill is { } skill ? SkillRegistry.Get(skill).Name : "技能";
         SelectedCardText = _selectedActiveSkillCardIds.Count == 0
             ? $"未选择用于【{skillName}】的牌"
             : $"已选择 {_selectedActiveSkillCardIds.Count} 张牌用于【{skillName}】";
@@ -955,8 +961,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void ToggleActiveSkillTarget(SeatViewModel seat)
     {
-        if (_snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } pending ||
-            pending.ActiveSkillValidTargetSeats?.Contains(seat.Seat) != true)
+        if (_snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } ||
+            HumanActiveSkillAction?.SelectableTargetSeats.Contains(seat.Seat) != true)
         {
             return;
         }
@@ -1320,8 +1326,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (IsActiveSkillTargetSelectionPending)
         {
-            var pending = _snapshot.PendingDecision!;
-            var activeLegalTargets = (pending.ActiveSkillValidTargetSeats ?? []).ToHashSet();
+            var activeLegalTargets = (HumanActiveSkillAction?.SelectableTargetSeats ?? []).ToHashSet();
             foreach (var seat in Seats)
             {
                 seat.IsLegalTarget = activeLegalTargets.Contains(seat.Seat);
@@ -1404,6 +1409,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
+        _selectedActiveSkillKind = skill;
+
         var requiresCardSelection = action.MinCardCount > 0 || action.MaxCardCount > 0;
         var requiresTargetSelection = action.MinTargetCount > 0 || action.MaxTargetCount > 0;
         var requiresSelection = requiresCardSelection || requiresTargetSelection;
@@ -1465,12 +1472,24 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _isSelectingActiveSkillCards = false;
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
+            _selectedActiveSkillKind = null;
             _selectedCardId = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             SelectedCardText = "未选择手牌";
             Refresh(result.State);
         });
+    }
+
+    private void UseActiveSkill(LegalAction action)
+    {
+        if (action.Kind != LegalActionKind.UseSkill || action.Skill is null)
+        {
+            return;
+        }
+
+        _selectedActiveSkillKind = action.Skill;
+        UseActiveSkill();
     }
 
     private void EndTurn()
@@ -1482,6 +1501,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedCardTargetSeats.Clear();
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
+            _selectedActiveSkillKind = null;
             _isSelectingActiveSkillCards = false;
             SelectedCardText = "未选择手牌";
             var result = SubmitCommand(new EndPlayPhaseCommand(_snapshot.HumanSeat, _snapshot.Revision, _snapshot.PendingDecision?.PromptId));
@@ -1494,8 +1514,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (_snapshot.PendingDecision is not { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash } prompt) return;
         var isHujiaProvider = prompt.Choices.Any(choice =>
             choice.Parameters.GetValueOrDefault("response") is "hujia-dodge" or "hujia-bagua");
+        var isJijiangProvider = prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "jijiang-slash");
         var expected = isHujiaProvider
             ? useDodge ? "hujia-dodge" : "hujia-decline"
+            : isJijiangProvider
+                ? useDodge ? "jijiang-slash" : "jijiang-decline"
             : useDodge ? prompt.Kind == DecisionKind.RespondSlash ? "slash" : "dodge" : "take-damage";
         var choice = prompt.Choices.FirstOrDefault(choice => choice.Parameters.TryGetValue("response", out var response) && response == expected);
         if (choice is null) return;
@@ -1546,6 +1570,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     choice.Parameters.GetValueOrDefault("response") == "hujia-request")
                     ? "        AskLordForHujia()"
                     : $"        AskWeiForDodge(owner: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
+            }
+            else if (pending.Choices.Any(choice =>
+                         choice.Parameters.GetValueOrDefault("response") is "jijiang-request" or "jijiang-slash"))
+            {
+                EventStack.Add("      Skill(Jijiang)");
+                EventStack.Add(pending.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "jijiang-request")
+                    ? "        AskLordForJijiang()"
+                    : $"        AskShuForSlash(owner: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
             }
             else if (pending.Kind == DecisionKind.SelectHarvestCard)
             {
@@ -1798,6 +1831,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 "摸牌阶段，你可以多摸一张牌。",
             SkillKind.Hujia when _game.RulesVersion >= 25 =>
                 "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
+            SkillKind.Jijiang when _game.RulesVersion >= 26 =>
+                "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
             _ => skill.Description
         };
     }

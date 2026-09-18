@@ -64,6 +64,8 @@ var tests = new (string Name, Action Body)[]
     ("classic Guanxing privately orders the draw-pile top and preserves legacy rules", ClassicGeneralChecks.FormalGuanxingFlow),
     ("classic Hujia privately asks Wei allies for an exact Dodge and replays", ClassicGeneralChecks.FormalHujiaFlow),
     ("classic Hujia lets a Wei ally use Bagua and continues after a failed judgment", ClassicGeneralChecks.FormalHujiaBaguaFallback),
+    ("classic Jijiang uses a Shu ally's exact Slash for Liu Bei and retries after failure", ClassicGeneralChecks.FormalJijiangActiveFlow),
+    ("classic Jijiang privately supplies Duel and Barbarian Slash responses and replays", ClassicGeneralChecks.FormalJijiangResponseFlow),
     ("public-team mode preserves privacy and registered distribution", TeamModeChecks.ContentAndPrivacy),
     ("public-team AI matches terminate and replay deterministically", TeamModeChecks.AiMatchIsDeterministic),
     ("public-team winner rules distinguish living teams", TeamModeChecks.WinningTeamRules),

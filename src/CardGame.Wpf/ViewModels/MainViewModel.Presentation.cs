@@ -28,26 +28,21 @@ public sealed partial class MainViewModel
         : IsActiveSkillSelectionPending ? $"发动{HumanActiveSkillName}"
         : !CanPlaySelected && CanPlaySelectedAsSlash ? "当作杀使用"
         : Hand.FirstOrDefault(card => card.IsSelected) is { } card ? $"使用 {card.Name}" : "出 牌";
-    private LegalAction? HumanActiveSkillAction => _snapshot is not null &&
+    public IReadOnlyList<LegalAction> HumanActiveSkillActions => _snapshot is not null &&
         _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard
-            ? _game.GetHumanLegalActions().FirstOrDefault(action => action.Kind == LegalActionKind.UseSkill)
-            : null;
+            ? _game.GetHumanLegalActions().Where(action => action.Kind == LegalActionKind.UseSkill).ToArray()
+            : [];
+    public IReadOnlyList<LegalAction> AdditionalActiveSkillActions => HumanActiveSkillActions.Skip(1).ToArray();
+    private LegalAction? HumanActiveSkillAction => HumanActiveSkillActions.FirstOrDefault(action =>
+        action.Skill == _selectedActiveSkillKind) ?? HumanActiveSkillActions.FirstOrDefault();
     private bool IsActiveSkillCardSelectionPending =>
         _isSelectingActiveSkillCards &&
-        _snapshot?.PendingDecision is
-        {
-            Kind: DecisionKind.PlayCard,
-            ActiveSkillKind: not null,
-            ActiveSkillMaxCardCount: > 0
-        };
+        _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
+        HumanActiveSkillAction is { MaxCardCount: > 0 };
     private bool IsActiveSkillTargetSelectionPending =>
         _isSelectingActiveSkillCards &&
-        _snapshot?.PendingDecision is
-        {
-            Kind: DecisionKind.PlayCard,
-            ActiveSkillKind: not null,
-            ActiveSkillMaxTargetCount: > 0
-        };
+        _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
+        HumanActiveSkillAction is { MaxTargetCount: > 0 };
     public bool IsActiveSkillSelectionPending =>
         IsActiveSkillCardSelectionPending || IsActiveSkillTargetSelectionPending;
     public bool ShowActiveSkillEntry => CanUseActiveSkill && !IsActiveSkillSelectionPending;
@@ -58,8 +53,8 @@ public sealed partial class MainViewModel
     public bool CanConfirmActiveSkill => IsActiveSkillSelectionPending && HumanActiveSkillAction is { } action &&
         _selectedActiveSkillCardIds.Count >= action.MinCardCount && _selectedActiveSkillCardIds.Count <= action.MaxCardCount &&
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
-        _selectedActiveSkillCardIds.All(id => _snapshot.PendingDecision?.ActiveSkillValidCardIds?.Contains(id) == true) &&
-        _selectedActiveSkillTargetSeats.All(seat => _snapshot.PendingDecision?.ActiveSkillValidTargetSeats?.Contains(seat) == true);
+        _selectedActiveSkillCardIds.All(id => action.SelectableCardIds.Contains(id)) &&
+        _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat));
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;
     public string ActiveSkillButtonText
     {
@@ -182,7 +177,7 @@ public sealed partial class MainViewModel
         RefreshPlaybackPresentation();
         TopSeats.Clear();
         foreach (var seat in Seats.Where(seat => seat.Seat >= 2 && seat.Seat < Seats.Count - 1)) TopSeats.Add(seat);
-        foreach (var name in new[] { nameof(HumanPlayer), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(ActiveSkillButtonText) })
+        foreach (var name in new[] { nameof(HumanPlayer), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(AdditionalActiveSkillActions), nameof(ActiveSkillButtonText) })
             RaisePropertyChanged(name);
         RefreshSelectionHint();
         RefreshGameSetupPresentation();
@@ -248,6 +243,7 @@ public sealed partial class MainViewModel
         _discardCardIds.Clear();
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
+        _selectedActiveSkillKind = null;
         _isSelectingActiveSkillCards = false;
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = "未选择手牌";

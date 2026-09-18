@@ -24,7 +24,8 @@ public enum ActiveSkillEffectKind
     GiveCardsAndRecover,
     DiscardAndRecover,
     DiscardAndRecoverTargets,
-    RevealGiftAndDamage
+    RevealGiftAndDamage,
+    RequestSlash
 }
 
 public sealed record ActiveSkillEffect(
@@ -192,6 +193,21 @@ public sealed class HujiaSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Hujia;
     public string Name => "护驾";
+}
+
+public sealed class JijiangSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Jijiang;
+    public string Name => "激将";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.Phase == TurnPhase.Play;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.RequestSlash,
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
 }
 
 public sealed class FeedbackSkill : IPassiveSkill
@@ -614,7 +630,8 @@ public static class SkillRegistry
             [SkillKind.Mashu] = new MashuSkill(),
             [SkillKind.Qicai] = new QicaiSkill(),
             [SkillKind.Jijiu] = new JijiuSkill(),
-            [SkillKind.Hujia] = new HujiaSkill()
+            [SkillKind.Hujia] = new HujiaSkill(),
+            [SkillKind.Jijiang] = new JijiangSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

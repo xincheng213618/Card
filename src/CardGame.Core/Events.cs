@@ -629,6 +629,23 @@ public sealed record HujiaResolvedEvent(
     int? ResponseCardId,
     bool UsedBagua = false) : IGameEvent;
 
+public sealed record JijiangRequestedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    IReadOnlyList<int> CandidateSeats,
+    bool IsActiveUse,
+    int? TargetSeat = null) : IGameEvent;
+
+public sealed record JijiangResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    bool Succeeded,
+    int? ProviderSeat,
+    int? SlashCardId,
+    CardKind? EffectiveSlashKind,
+    bool IsActiveUse,
+    int? TargetSeat = null) : IGameEvent;
+
 public sealed record RoleRevealedEvent(int Seat, Role Role) : IGameEvent;
 
 public sealed record WinnerDeterminedEvent(
