@@ -64,6 +64,53 @@ internal static class WushengResponseChecks
         longdanVm.LoadManualGameCommand.Execute(null);
         Program.Assert(!longdanVm.HasSaveError, longdanVm.SaveStatus);
         HandResponseChecks.VerifyBoundary(longdanVm, output, "Longdan-ConvertedDodge", slashChoice.Cards[0], "当作闪打出");
+
+        var equippedWusheng = WushengResponseScenario.FindClassicWushengEquipmentResponse();
+        var equippedOwner = equippedWusheng.CreateSnapshot(0, revealAll: true).Players[0];
+        var equipmentChoice = equippedWusheng.PendingDecision!.Choices.Single(choice =>
+            choice.Cards.Count == 1 &&
+            equippedOwner.Equipment.Any(card => card.Id == choice.Cards[0]) &&
+            choice.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Slash));
+        var equipmentId = equipmentChoice.Cards[0];
+        var equipmentStore = new MemorySaveStore();
+        equipmentStore.Write(GameSaveSlot.Manual, new(
+            1,
+            DateTimeOffset.UtcNow,
+            false,
+            equippedWusheng.CreateCheckpoint()));
+        using var equipmentVm = new MainViewModel(
+            false,
+            equippedWusheng.Seed,
+            true,
+            equipmentStore,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        var equipmentWindow = new MainWindow(equipmentVm);
+        equipmentVm.LoadManualGameCommand.Execute(null);
+        Program.Assert(!equipmentVm.HasSaveError &&
+                       equipmentVm.Hand.All(card => card.Id != equipmentId) &&
+                       equipmentVm.ResponseChoices.Any(choice => choice.Id == equipmentChoice.Id),
+            "The WPF must expose an equipped Wusheng response as a central private choice, not a hand card.");
+        Program.Render(
+            (FrameworkElement)equipmentWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "108-classic-wusheng-equipment-response.png"));
+        equipmentVm.SelectResponseChoiceCommand.Execute(equipmentChoice);
+        Program.Assert(Program.Engine(equipmentVm).Events.Any(item =>
+                           item.Payload is CardRespondedEvent response &&
+                           response.CardId == equipmentId &&
+                           response.EffectiveCardKind == CardKind.Slash) &&
+                       Program.Engine(equipmentVm).CardMovements.Any(move =>
+                           move.CardId == equipmentId &&
+                           move.From == CardLocation.Equipment(0) &&
+                           move.To == CardLocation.Processing &&
+                           move.Reason == CardMoveReasons.Respond),
+            "The WPF central response did not commit the equipped Wusheng physical card.");
+        equipmentWindow.Content = null;
+        equipmentWindow.Close();
     }
 
     public static void NationalRevealDuringResponse(string output)

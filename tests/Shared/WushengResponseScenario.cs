@@ -24,6 +24,94 @@ internal static class WushengResponseScenario
             StandardContentRegistry.CreateWithClassicGenerals(),
             "identity:classic-8");
 
+    public static GameEngine FindClassicWushengEquipmentResponse()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                PlayerCount = 5,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 220,
+                AiPolicyVersion = 2
+            }, registry);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, "Classic Wusheng equipment fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:guan-yu"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:guan-yu",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, "Classic Wusheng equipment fixture could not select Guan Yu.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, "Classic Wusheng equipment fixture did not reach play.");
+            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } play)
+            {
+                continue;
+            }
+
+            var redEquipment = game.CreateSnapshot(0, revealAll: true).Players[0].Hand.FirstOrDefault(card =>
+                EquipmentCatalog.IsEquipment(card.Kind) &&
+                card.Suit is Suit.Heart or Suit.Diamond);
+            if (redEquipment is null)
+            {
+                continue;
+            }
+
+            var equipped = game.Submit(new PlayCardCommand(
+                0,
+                redEquipment.Id,
+                [],
+                game.Revision,
+                play.PromptId));
+            Require(equipped.Accepted, "Classic Wusheng equipment fixture could not equip the red card.");
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+            {
+                var resumed = game.Submit(new AdvanceCommand(game.Revision));
+                Require(resumed.Accepted, "Classic Wusheng equipment fixture did not return to play.");
+            }
+            var nextPlay = game.PendingDecision ??
+                throw new InvalidOperationException("Classic Wusheng equipment fixture lost its play prompt.");
+            var ended = game.Submit(new EndPlayPhaseCommand(0, game.Revision, nextPlay.PromptId));
+            Require(ended.Accepted, "Classic Wusheng equipment fixture could not end play.");
+
+            for (var step = 0; step < 4_000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 } response &&
+                    response.IncomingCard is CardKind.Duel or CardKind.BarbarianAssault &&
+                    response.Choices.Any(choice =>
+                        choice.Cards.SequenceEqual([redEquipment.Id]) &&
+                        choice.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Slash)))
+                {
+                    return game;
+                }
+
+                var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
+                if (!owner.IsAlive || owner.Equipment.All(card => card.Id != redEquipment.Id))
+                {
+                    break;
+                }
+
+                Step(game);
+            }
+        }
+
+        throw new InvalidOperationException("No bounded classic Wusheng equipment response fixture was found.");
+    }
+
     private static GameEngine FindResponse(
         CardKind incoming,
         SkillKind responderSkill,

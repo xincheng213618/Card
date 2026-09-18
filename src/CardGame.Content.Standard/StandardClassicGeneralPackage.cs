@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 21, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 22, 0))
     {
     }
 
@@ -40,12 +40,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 18, 0) &&
             version != new Version(1, 19, 0) &&
             version != new Version(1, 20, 0) &&
-            version != new Version(1, 21, 0))
+            version != new Version(1, 21, 0) &&
+            version != new Version(1, 22, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.21.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.22.0.");
         }
 
         _version = version;
@@ -230,6 +231,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "龙胆",
                 "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。",
                 SkillKind.Longdan));
+        }
+        if (_version >= new Version(1, 22, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:wusheng",
+                "武圣",
+                "你可以将一张红色牌当【杀】使用或打出。",
+                SkillKind.Wusheng));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -472,6 +481,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 22, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:guan-yu",
+                "关羽",
+                "guan_yu",
+                "classic:wusheng",
+                "shu",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -496,6 +515,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 18 } => PreLuBuClassicGeneralIds,
             { Major: 1, Minor: 19 } => PreZhangFeiClassicGeneralIds,
             { Major: 1, Minor: 20 } => PreZhaoYunClassicGeneralIds,
+            { Major: 1, Minor: 21 } => PreGuanYuClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -555,14 +575,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhang-fei",
         "classic:zhou-yu",
         "classic:zhuge-liang",
-        "standard:guan-yu",
+        "classic:guan-yu",
         "classic:zhao-yun",
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Select(id => id == "classic:guan-yu" ? "standard:guan-yu" : id)
+    ];
+
     internal static IReadOnlyList<string> PreZhaoYunClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Select(id => id == "classic:zhao-yun" ? "standard:zhao-yun" : id)
+        .. PreGuanYuClassicGeneralIds.Select(id => id == "classic:zhao-yun" ? "standard:zhao-yun" : id)
     ];
 
     internal static IReadOnlyList<string> PreZhangFeiClassicGeneralIds { get; } =

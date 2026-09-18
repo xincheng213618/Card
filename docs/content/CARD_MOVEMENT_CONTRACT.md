@@ -78,7 +78,7 @@
 | 内容 ID | 使用/触发入口 | 生命周期 | reason | 牌面与视图要求 |
 | --- | --- | --- | --- | --- |
 | `standard:slash` | 对单一合法目标使用 | `Hand(source) → Processing → DiscardPile` | `card.use` → `card.use-finished` | 使用者看到自己的牌；其他玩家不因移动账本获知暗牌 ID |
-| `standard:wusheng` | 将红色非杀实体牌按 `Slash` 对单一合法目标使用 | 原牌 `Hand(source) → Processing → DiscardPile` | `card.use` → `card.use-finished` | 事件中的有效牌型为 `Slash`，移动账本保留原始 `CardKind`/实体 ID；`PlayedCardKind` 只描述本次使用，不复制牌 |
+| `standard:wusheng` / `classic:wusheng` | 将红色非杀实体牌按 `Slash` 对单一合法目标使用，或在需要杀时打出；rules v40 的经典身份允许自己的装备牌 | 原牌 `Hand/Equipment(owner) → Processing → DiscardPile` | 主动：`card.use` → `card.use-finished`；响应：`card.respond` → `card.response-finished` | 事件中的有效牌型为 `Slash`，移动账本保留原始 `CardKind`/实体 ID 与实际来源区；rules v39 仅枚举手牌，`PlayedCardKind` 只描述本次使用，不复制牌 |
 | `standard:longdan` | 物理闪按 `Slash` 使用，或物理杀/火杀/雷杀按 `Dodge` 响应 | 原牌 `Hand(owner) → Processing → DiscardPile` | `card.use`/`card.respond` → 对应完成 reason | `PlayedCardKind`、`response-card-kind` 和 `CardRespondedEvent.EffectiveCardKind` 记录有效牌型；响应选择只向当前 responder 发布，不复制实体牌 |
 | `standard:fire_slash` | 对单一合法目标使用，未被闪避时造成火焰伤害 | `Hand(source) → Processing → DiscardPile` | `card.use` → `card.use-finished` | 共用杀的合法性和闪响应；`DamageNature.Fire` 在伤害帧和伤害事件中保持一致 |
 | `standard:thunder_slash` | 对单一合法目标使用，未被闪避时造成雷电伤害 | `Hand(source) → Processing → DiscardPile` | `card.use` → `card.use-finished` | 共用杀的合法性和闪响应；`DamageNature.Thunder` 在伤害帧和伤害事件中保持一致 |

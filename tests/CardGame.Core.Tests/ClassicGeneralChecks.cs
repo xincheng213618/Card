@@ -30,6 +30,7 @@ internal static class ClassicGeneralChecks
         var kuangguClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 18, 0));
         var wushuangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 19, 0));
         var paoxiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 20, 0));
+        var longdanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 21, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -38,7 +39,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.21.0"]),
+                "standard-classic-generals@1.22.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -188,6 +189,17 @@ internal static class ClassicGeneralChecks
                     "classic:zhao-yun",
                     StringComparer.Ordinal),
             "The Paoxiao-era classic registry must retain the 1.20 standard Zhao Yun identity.");
+        Require(longdanClassic.Packages.Last().Version == new Version(1, 21, 0) &&
+                !longdanClassic.Generals.ContainsKey("classic:guan-yu") &&
+                !longdanClassic.Skills.ContainsKey("classic:wusheng") &&
+                longdanClassic.Generals.ContainsKey("standard:guan-yu") &&
+                longdanClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "standard:guan-yu",
+                    StringComparer.Ordinal) &&
+                !longdanClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:guan-yu",
+                    StringComparer.Ordinal),
+            "The Longdan-era classic registry must retain the 1.21 standard Guan Yu identity.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -309,6 +321,14 @@ internal static class ClassicGeneralChecks
                 zhaoYun.BaseHp == 4 &&
                 zhaoYun.SkillIds.SequenceEqual(["classic:longdan"]),
             "The current classic Zhao Yun must expose formal Shu, 4-HP Longdan.");
+        var guanYu = classic.Generals["classic:guan-yu"];
+        Require(guanYu.Name == "关羽" &&
+                guanYu.FactionId == "shu" &&
+                guanYu.BaseHp == 4 &&
+                guanYu.SkillIds.SequenceEqual(["classic:wusheng"]) &&
+                classic.Skills["classic:wusheng"].Description ==
+                    "你可以将一张红色牌当【杀】使用或打出。",
+            "The current classic Guan Yu must expose formal Shu, 4-HP Wusheng.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -333,14 +353,16 @@ internal static class ClassicGeneralChecks
                     pool.Contains("classic:lu-bu", StringComparer.Ordinal) &&
                     pool.Contains("classic:zhang-fei", StringComparer.Ordinal) &&
                     pool.Contains("classic:zhao-yun", StringComparer.Ordinal) &&
+                    pool.Contains("classic:guan-yu", StringComparer.Ordinal) &&
                     !pool.Contains("standard:zhang-fei", StringComparer.Ordinal) &&
                     !pool.Contains("standard:zhao-yun", StringComparer.Ordinal) &&
+                    !pool.Contains("standard:guan-yu", StringComparer.Ordinal) &&
                     !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 39,
-            "Classic Wushuang must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 40,
+            "Classic Wusheng equipment conversion must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -2423,6 +2445,123 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(responseReplay).SequenceEqual(EventSignatures(responseGame)),
             "An in-flight formal Longdan Slash-to-Dodge response must replay exactly.");
+    }
+
+    public static void FormalWushengEquipmentFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 40,
+            "Formal Wusheng equipment conversion must have an explicit rules-version boundary.");
+
+        var wusheng = SkillRegistry.Get(SkillKind.Wusheng);
+        var context = new PlayerSkillContext(0, 4, 5, 4, TurnPhase.Play);
+        Require(wusheng.CanUseAsSlash(context, new Card(9201, CardKind.Crossbow, Suit.Diamond, 1)) &&
+                !wusheng.CanUseAsSlash(context, new Card(9202, CardKind.Crossbow, Suit.Spade, 1)),
+            "Wusheng must classify red and black equipment by the same physical-card rule as hand cards.");
+
+        var fixture = FindGuanYuWushengEquipmentFixture(registry);
+        var activeGame = fixture.ActiveGame;
+        var owner = activeGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        var equipment = owner.Equipment.Single(card => card.Id == fixture.EquipmentCardId);
+        Require(owner.GeneralId == "classic:guan-yu" &&
+                owner.MaxHp == 5 &&
+                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Wusheng]) &&
+                equipment.Suit is Suit.Heart or Suit.Diamond &&
+                fixture.ActiveAction.PlayedCardKind == CardKind.Slash,
+            "Classic Guan Yu must publish a red equipment card as a typed Slash through formal Wusheng.");
+        Require(!fixture.LegacyGame.GetHumanLegalActions().Any(action =>
+                    action.Kind == LegalActionKind.Slash &&
+                    action.CardId == equipment.Id &&
+                    action.PlayedCardKind == CardKind.Slash),
+            "Rules v39 must not publish Wusheng conversion actions from the equipment zone.");
+
+        var legacyPlayers = ((System.Collections.IEnumerable)typeof(GameEngine)
+                .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(fixture.LegacyGame)!)
+            .Cast<object>()
+            .ToArray();
+        var legacyResponseCards = (IReadOnlyList<Card>)typeof(GameEngine)
+            .GetMethod("GetResponseCards", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(fixture.LegacyGame, [legacyPlayers[0], CardKind.Slash])!;
+        Require(legacyResponseCards.All(card => card.Id != equipment.Id),
+            "Rules v39 must not publish an equipped red card as a Slash response.");
+
+        var eventCount = activeGame.Events.Count;
+        var used = SubmitPlayAction(activeGame, fixture.ActiveAction);
+        Require(used.Accepted, used.Error?.Message ??
+            "Classic Guan Yu could not use red equipment as Slash.");
+        Require(activeGame.CardMovements.Any(move =>
+                    move.CardId == equipment.Id &&
+                    move.CardKind == equipment.Kind &&
+                    move.From == CardLocation.Equipment(0) &&
+                    move.To == CardLocation.Processing &&
+                    move.Reason == CardMoveReasons.Use) &&
+                activeGame.Events.Skip(eventCount).Select(item => item.Payload)
+                    .OfType<CardUsedEvent>().Any(item =>
+                        item.CardId == equipment.Id && item.CardKind == CardKind.Slash),
+            "Formal Wusheng must retain the physical equipment and publish an effective Slash use.");
+        Require(TryReturnToHumanPlay(activeGame) &&
+                activeGame.CardMovements.Any(move =>
+                    move.CardId == equipment.Id &&
+                    move.From == CardLocation.Processing &&
+                    move.To == CardLocation.DiscardPile &&
+                    move.Reason == CardMoveReasons.UseFinished),
+            "The equipped Wusheng Slash did not finish through the ordinary Slash movement chain.");
+
+        var activeReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(activeGame.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(activeReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(activeGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(activeReplay).SequenceEqual(EventSignatures(activeGame)),
+            "A completed equipped Wusheng Slash must replay exactly.");
+
+        var responseGame = fixture.ResponseGame;
+        var responsePrompt = responseGame.PendingDecision ??
+            throw new InvalidOperationException("The equipped Wusheng response fixture lost its prompt.");
+        var responseOwner = responseGame.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.Seat == 0);
+        var responseChoice = responsePrompt.Choices.Single(choice =>
+            choice.Cards.SequenceEqual([equipment.Id]) &&
+            choice.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Slash));
+        Require(responsePrompt.Kind == DecisionKind.RespondSlash &&
+                responseOwner.Equipment.Any(card => card.Id == equipment.Id) &&
+                responseChoice.Description.Contains("当作【杀】", StringComparison.Ordinal) &&
+                responseGame.CreateSnapshot(1).PendingDecision is null,
+            "Formal Wusheng must publish the equipped red card only in Guan Yu's private Slash response.");
+
+        var responseCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(responseGame.CreateCheckpoint()));
+        var pausedReplay = GameReplay.Restore(responseCheckpoint, registry);
+        Require(SnapshotJson.Serialize(pausedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(pausedReplay).SequenceEqual(EventSignatures(responseGame)),
+            "An in-flight equipped Wusheng response must replay exactly.");
+
+        var answered = responseGame.Submit(new AnswerPromptCommand(
+            0,
+            responsePrompt.PromptId,
+            responseChoice.Id,
+            responseGame.Revision));
+        Require(answered.Accepted &&
+                responseGame.Events.Any(item =>
+                    item.Payload is CardRespondedEvent responded &&
+                    responded.CardId == equipment.Id &&
+                    responded.ResponderSeat == 0 &&
+                    responded.EffectiveCardKind == CardKind.Slash) &&
+                responseGame.CardMovements.Any(move =>
+                    move.CardId == equipment.Id &&
+                    move.CardKind == equipment.Kind &&
+                    move.From == CardLocation.Equipment(0) &&
+                    move.To == CardLocation.Processing &&
+                    move.Reason == CardMoveReasons.Respond) &&
+                responseGame.CardMovements.Any(move =>
+                    move.CardId == equipment.Id &&
+                    move.From == CardLocation.Processing &&
+                    move.To == CardLocation.DiscardPile &&
+                    move.Reason == CardMoveReasons.ResponseFinished),
+            answered.Error?.Message ??
+            "Formal Wusheng must pay the equipped physical card through the Slash response chain.");
     }
 
     public static void FormalFeedbackFlow()
@@ -4976,6 +5115,94 @@ internal static class ClassicGeneralChecks
 
         throw new InvalidOperationException(
             "Could not find a deterministic classic Zhao Yun Longdan conversion fixture.");
+    }
+
+    private static (
+        GameEngine ActiveGame,
+        GameEngine LegacyGame,
+        GameEngine ResponseGame,
+        int EquipmentCardId,
+        LegalAction ActiveAction) FindGuanYuWushengEquipmentFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var current = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:guan-yu",
+                GameCheckpoint.CurrentRulesVersion);
+            if (current is null)
+            {
+                continue;
+            }
+
+            var self = current.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+            var redEquipment = self.Hand.FirstOrDefault(card =>
+                EquipmentCatalog.IsEquipment(card.Kind) &&
+                card.Suit is Suit.Heart or Suit.Diamond);
+            if (redEquipment is null)
+            {
+                continue;
+            }
+
+            var legacy = StartClassicGeneralAtPlay(registry, seed, "classic:guan-yu", rulesVersion: 39);
+            if (legacy is null)
+            {
+                continue;
+            }
+
+            Equip(current, redEquipment.Id);
+            Equip(legacy, redEquipment.Id);
+            var activeAction = current.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Slash &&
+                action.CardId == redEquipment.Id &&
+                action.PlayedCardKind == CardKind.Slash);
+            if (activeAction is null)
+            {
+                continue;
+            }
+
+            var response = GameReplay.Restore(
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(current.CreateCheckpoint())),
+                registry);
+            var playPrompt = response.PendingDecision ??
+                throw new InvalidOperationException("The equipped Wusheng fixture lost its play prompt.");
+            var ended = response.Submit(new EndPlayPhaseCommand(
+                0,
+                response.Revision,
+                playPrompt.PromptId));
+            Require(ended.Accepted, ended.Error?.Message ??
+                "The equipped Wusheng response fixture could not end the play phase.");
+
+            for (var step = 0; step < 4_000 && response.State.Status != EngineStatus.Completed; step++)
+            {
+                if (response.PendingDecision is
+                    {
+                        Kind: DecisionKind.RespondSlash,
+                        PlayerSeat: 0
+                    } responsePrompt &&
+                    responsePrompt.IncomingCard is CardKind.Duel or CardKind.BarbarianAssault &&
+                    responsePrompt.Choices.Any(choice =>
+                        choice.Cards.SequenceEqual([redEquipment.Id]) &&
+                        choice.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Slash)))
+                {
+                    return (current, legacy, response, redEquipment.Id, activeAction);
+                }
+
+                var responseOwner = response.CreateSnapshot(0, revealAll: true).Players
+                    .Single(player => player.Seat == 0);
+                if (!responseOwner.IsAlive ||
+                    responseOwner.Equipment.All(card => card.Id != redEquipment.Id))
+                {
+                    break;
+                }
+
+                DeclineOrAdvance(response);
+            }
+        }
+
+        throw new InvalidOperationException(
+            "Could not find a deterministic classic Guan Yu equipped Wusheng use-and-response fixture.");
     }
 
     private static bool TryReturnToHumanPlay(GameEngine game)

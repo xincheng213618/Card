@@ -534,11 +534,10 @@ public sealed partial class SimpleAiBrain
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var owner = view.Players.Single(player => player.Seat == ownerSeat);
-        var skillKinds = self.Skills?.Select(skill => skill.Kind).ToHashSet() ?? [self.Skill];
-        var hasSlash = self.Hand.Any(card =>
-            IsSlashCard(card.Kind) ||
-            skillKinds.Contains(SkillKind.Wusheng) && IsRedCard(card.Suit) ||
-            skillKinds.Contains(SkillKind.Longdan) && card.Kind == CardKind.Dodge);
+        var hasSlash = view.PendingDecision is { Kind: DecisionKind.RespondSlash } prompt &&
+                       prompt.Choices.Any(choice =>
+                           choice.Cards.Count == 1 &&
+                           choice.Parameters.GetValueOrDefault("response") == "jijiang-slash");
         var shouldHelp = self.Role == Role.Loyalist ||
                          self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
         var slashScore = shouldHelp && hasSlash ? 85d : double.NegativeInfinity;

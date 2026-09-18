@@ -242,6 +242,9 @@ public sealed partial class GameEngine
     private bool UsesFormalWushuang =>
         _rulesVersion >= 39 && IsClassicIdentityMode;
 
+    private bool UsesFormalWushengEquipment =>
+        _rulesVersion >= 40 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -8082,7 +8085,7 @@ public sealed partial class GameEngine
             ignoresArmor);
         MoveCard(
             slash,
-            CardLocation.Hand(physicalOwnerSeat),
+            FindOwnedCardLocation(_players[physicalOwnerSeat], slash),
             CardLocation.Processing,
             CardMoveReasons.Use);
         _slashCountThisTurn++;
@@ -8407,7 +8410,7 @@ public sealed partial class GameEngine
                 CardKind.Slash);
             MoveCard(
                 slash,
-                CardLocation.Hand(responder.Seat),
+                FindOwnedCardLocation(responder, slash),
                 CardLocation.Processing,
                 CardMoveReasons.Respond);
             var responseName = CardCatalog.Get(responseCardKind).DisplayName;
@@ -8510,7 +8513,7 @@ public sealed partial class GameEngine
 
             MoveCard(
                 responseCard,
-                CardLocation.Hand(responder.Seat),
+                FindOwnedCardLocation(responder, responseCard),
                 CardLocation.Processing,
                 CardMoveReasons.Respond);
             var incomingName = CardCatalog.Get(group.Card.Kind).DisplayName;
@@ -9229,7 +9232,7 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         MoveCard(
             selectedSlash,
-            CardLocation.Hand(provider.Seat),
+            FindOwnedCardLocation(provider, selectedSlash),
             CardLocation.Processing,
             CardMoveReasons.Respond);
         AddLog(
@@ -13501,6 +13504,25 @@ public sealed partial class GameEngine
                         PlayedCardKind: CardKind.Slash));
                 }
             }
+
+            if (UsesFormalWushengEquipment)
+            {
+                foreach (var converted in GetEquipment(actor).Where(card =>
+                             CanUseAsFormalWushengSlash(actor, card)))
+                {
+                    var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
+                    foreach (var target in _players.Where(player =>
+                                 CanUseSlashTarget(actor, player, converted)))
+                    {
+                        actions.Add(new LegalAction(
+                            LegalActionKind.Slash,
+                            converted.Id,
+                            target.Seat,
+                            $"将装备区【{physicalName}】当作【杀】对 {target.Name} 使用",
+                            PlayedCardKind: CardKind.Slash));
+                    }
+                }
+            }
         }
 
         if (actor.Hp < actor.MaxHp)
@@ -13976,11 +13998,43 @@ public sealed partial class GameEngine
         PlayerRuntime responder,
         CardKind requiredCardKind)
     {
-        return GetHand(responder)
+        var cards = GetHand(responder)
             .Where(card =>
                 MatchesRequiredCard(card.Kind, requiredCardKind) ||
-                CanConvertResponse(responder, card, requiredCardKind))
-            .ToArray();
+                CanConvertResponse(responder, card, requiredCardKind));
+        if (UsesFormalWushengEquipment && requiredCardKind == CardKind.Slash)
+        {
+            cards = cards.Concat(GetEquipment(responder).Where(card =>
+                CanUseAsFormalWushengResponse(responder, card)));
+        }
+
+        return cards.ToArray();
+    }
+
+    private bool CanUseAsFormalWushengSlash(PlayerRuntime responder, Card card)
+    {
+        if (!UsesFormalWushengEquipment)
+        {
+            return false;
+        }
+
+        var context = CreateSkillContext(responder);
+        return EnabledPassiveSkills(responder).Any(skill =>
+            skill.Kind == SkillKind.Wusheng &&
+            skill.CanUseAsSlash(context, card));
+    }
+
+    private bool CanUseAsFormalWushengResponse(PlayerRuntime responder, Card card)
+    {
+        if (!UsesFormalWushengEquipment)
+        {
+            return false;
+        }
+
+        var context = CreateSkillContext(responder);
+        return EnabledPassiveSkills(responder).Any(skill =>
+            skill.Kind == SkillKind.Wusheng &&
+            skill.CanUseAsResponse(context, card, CardKind.Slash));
     }
 
     private bool CanConvertResponse(PlayerRuntime responder, Card card, CardKind requiredCardKind)

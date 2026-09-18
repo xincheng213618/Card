@@ -869,6 +869,27 @@ internal static class ClassicGeneralUiChecks
         longdanDescriptionWindow.Content = null;
         longdanDescriptionWindow.Close();
 
+        using var wushengDescriptionViewModel = FindGeneralChoice("classic:guan-yu");
+        var guanYu = wushengDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:guan-yu");
+        Program.Assert(guanYu.Name == "关羽" &&
+                       guanYu.Kingdom == "蜀" &&
+                       guanYu.SkillName == "武圣" &&
+                       guanYu.SkillDescription.Contains("红色牌", StringComparison.Ordinal) &&
+                       guanYu.SkillDescription.Contains("使用或打出", StringComparison.Ordinal) &&
+                       guanYu.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(guanYu.GeneralId),
+            "The current classic Guan Yu card must render Shu, formal Wusheng, Lord health and portrait art.");
+        var wushengDescriptionWindow = new MainWindow(wushengDescriptionViewModel);
+        wushengDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)wushengDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "107-classic-guan-yu-card.png"));
+        wushengDescriptionWindow.Content = null;
+        wushengDescriptionWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
