@@ -597,7 +597,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Ganglie or
                     DecisionKind.GangliePunish or
                     DecisionKind.Guicai or
-                    DecisionKind.Yingzi
+                    DecisionKind.Yingzi or
+                    DecisionKind.Tiandu
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -613,7 +614,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Ganglie or
             DecisionKind.GangliePunish or
             DecisionKind.Guicai or
-            DecisionKind.Yingzi;
+            DecisionKind.Yingzi or
+            DecisionKind.Tiandu;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1563,7 +1565,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
-                DecisionKind.Yingzi)
+                DecisionKind.Yingzi or
+                DecisionKind.Tiandu)
             {
                 EventStack.Add($"      DamageSkill({pending.Kind}, target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
                 EventStack.Add($"        AskForSkill({pending.Kind})");

@@ -194,14 +194,18 @@ public sealed partial class MainViewModel
         var hasTeamModes = packages.Contains("standard-team-modes@1.0.0", StringComparer.Ordinal);
         var hasRescueSkills = packages.Contains("standard-rescue-skills@1.0.0", StringComparer.Ordinal);
         var hasActiveSkills = packages.Contains("standard-active-skills@1.0.0", StringComparer.Ordinal);
-        var hasClassicGenerals = packages.Contains("standard-classic-generals@1.0.0", StringComparer.Ordinal);
+        var hasClassicGenerals = packages.Any(package =>
+            package is "standard-classic-generals@1.0.0" or "standard-classic-generals@1.1.0");
+        var legacyClassicRoster = packages.Contains("standard-classic-generals@1.0.0", StringComparer.Ordinal);
         var hasAmbitiousNational = packages.Contains("standard-national-war-ambitious@1.0.0", StringComparer.Ordinal);
         var legacyNational = packages.Contains("standard-national-war-lite@1.0.0", StringComparer.Ordinal);
         if (hasClassicGenerals)
         {
             return hasTeamModes && hasAmbitiousNational
-                ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(legacyNational)
-                : StandardContentRegistry.CreateWithClassicGenerals();
+                ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(
+                    legacyNational,
+                    legacyClassicRoster)
+                : StandardContentRegistry.CreateWithClassicGenerals(legacyClassicRoster);
         }
         if (hasAmbitiousNational || legacyNational || packages.Contains("standard-national-war-lite@1.1.0", StringComparer.Ordinal))
         {

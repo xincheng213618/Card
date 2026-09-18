@@ -113,6 +113,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | `k5.events.damage-trigger-order` | 伤害触发候选排序 | `DamageTriggerCandidate` 按优先级、相对当前行动者座次、技能序号和 `CandidateId` 稳定排序；`DamageTriggerWindowFrame.CandidateIndex` 冻结并推进当前候选，收集逐个检查存活拥有者的 `CanTriggerAfterDamage`，候选身份写入触发/技能帧和请求/结果事件；`DamageTriggerScope` 统一表达受伤者、其他存活角色和任意存活角色的座位关系，援护通过 `OtherLivingPlayer` 复用该契约，刚烈的跨座位部分发生在红色判定后的显式来源反制效果，遗计的效果可把牌交给其他座位，节命的效果可把牌补给公开合法目标 |
 | `k5.events.alcohol` | 酒的一次性状态、实际伤害金额与濒死自救 | `AlcoholAppliedEvent` 公开酒效设置，直接杀声明时消费；未消费时发布 `AlcoholExpiredEvent`；加伤后的实际金额在 `DamageFrame`、伤害请求/应用/AfterDamage 和技能上下文中保持为 2；规则 v12 的濒死者使用自己的酒生成 `DyingResponseEvent.UsedAlcohol` 与以自己为目标的 1 点 `RecoveryAppliedEvent`，群体牌/决斗不消费 |
 | `skill.yingzi.optional-draw` | 经典周瑜摸牌阶段的英姿可选性 | 规则 v21 发布私有发动/跳过 Choice；发动摸三张、跳过摸两张并发布 `DrawSkillResolvedEvent`，AI 发动；非法 Choice 原子拒绝，暂停 Checkpoint 可确定性恢复；v1–v20 与演示模式自动多摸一张 |
+| `skill.tiandu.claim-judgment` | 经典郭嘉判定结果后的天妒选择 | 规则 v22 在自己的判定牌生效后、牌仍位于公开判定区时发布私有发动/跳过 Choice；发动后同一实体牌进入手牌并发布 `JudgmentCardClaimedEvent`，跳过则正常弃置；非法 Choice 原子拒绝，暂停 Checkpoint 与 WPF 可恢复，答复后原判定父结算继续；v1–v21 与经典包 1.0.0 保留自动弃置路径 |
 | `k5.trick.group-response` | 群体逐目标结算 | `GroupCardUsedEvent` 声明完整目标列表，`GroupResponseEvent` 携带 `RequiredCardKind` 并按座次逐个提交；南蛮入侵要求杀，万箭齐发要求闪；桃园结义按同一 `TargetIndex` 逐目标恢复并使用 `RecoveryFrame`；每个目标的伤害/濒死/恢复结束后才推进父帧 |
 | `k5.trick.public-draft` | 公共展示与私有逐人选牌 | `CardsRevealedEvent` 只包含显式公开牌；当前 picker 获得自己的 `SelectHarvestCard` prompt，`HarvestCardSelectedEvent` 推进 `TargetIndex`，选中牌移动到 picker 手牌 |
 | `k5.events.dying-winner` | 濒死/胜负事件 | 现有 Demo 的基础濒死响应、苦肉主动技能濒死续接、死亡、身份公开和胜负判定产生稳定事件；多伤害嵌套和更复杂技能濒死询问仍属于后续切片 |
@@ -125,7 +126,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 
 ## 当前执行顺序
 
-1. 先用现有 Core 契约维护基础 `basic.*`、十五个被动 `skill.*`（含 `skill.mashu.outgoing_distance`、`skill.qicai.trick_distance` 和 `skill.jijiu.dying_rescue`）、主动技能 `skill.kujin`/`skill.zhiheng`/`skill.rende`/`skill.qingnang`/`skill.huichun` 和伤害后技能事件的回归。
+1. 先用现有 Core 契约维护基础 `basic.*`、十六个被动 `skill.*`（含 `skill.mashu.outgoing_distance`、`skill.qicai.trick_distance`、`skill.jijiu.dying_rescue` 和 `skill.tiandu.claim-judgment`）、主动技能 `skill.kujin`/`skill.zhiheng`/`skill.rende`/`skill.qingnang`/`skill.huichun` 和伤害后技能事件的回归。
 2. K1 已开放：`k1.*` 移动契约已完成并审阅；运行时覆盖保留在 Core Console 自测。
 3. K2 已开放：`k2.*` 命令/Prompt 场景由同一 Console 自测覆盖。
 4. K3 已开放：`k3.*` Registry 场景已覆盖，`standard:*` ID 在 Standard 包中冻结。

@@ -102,6 +102,7 @@
 | `standard:yuanhu` | 其他角色受到正伤害后，援护者从自己的私有手牌中选择一张弃置，使固定受伤目标回复 1 点体力 | `Hand(owner) → Processing → DiscardPile`；恢复不移动牌 | `skill.yuanhu.discard` | `Yuanhu` Choice 只投影给技能拥有者；目标固定为本次伤害目标；可信宿主记录 `DamageSkillCardDiscardedEvent`/`RecoveryAppliedEvent`，普通视图不泄漏弃牌 ID |
 | `standard:ganglie` | 受到正伤害后可判定；红色时伤害来源私有选择弃两张手牌或承受 1 点伤害 | 判定牌 `DrawPile → Judgment(owner) → DiscardPile`；弃牌分支 `Hand(source) → DiscardPile`；受伤分支进入 `DyingFrame` 后回到原伤害触发游标 | `judgment.reveal` / `judgment.finish` / `skill.ganglie.discard` | 判定结果公开；来源反制 Prompt 只投影给伤害来源；两牌组合只在可信宿主和来源私有视图中出现，`GangliePunishmentResolvedEvent` 记录结果 |
 | `standard:guicai` | 判定牌生效前由当前候选拥有者选择替换或跳过 | 旧判定牌 `Judgment(target) → DiscardPile`；替换牌 `Hand(owner) → Processing → Judgment(target) → DiscardPile` | `judgment.finish` / `skill.guicai.replace` | 判定结果和替换后的牌面公开；鬼才 Prompt 只投影给拥有者，替换牌 ID 仅在其私有视图和可信宿主账本中出现；候选顺序冻结在 `JudgmentFrame` |
+| `classic:tiandu` | 规则 v22 中，拥有者自己的判定牌生效后选择获得或跳过 | 发动：`Judgment(owner) → Hand(owner)`；跳过：`Judgment(owner) → DiscardPile` | `skill.tiandu.claim-judgment` / `judgment.finish` | 判定结果先公开，再向拥有者投影两项完整 Choice；`JudgmentCardClaimedEvent` 记录结果，答复后恢复八卦、延时牌或刚烈父结算；v1–v21 不创建该窗口 |
 | `standard:paoxiao` | 修改出杀次数 | — | — | 不创造或移动牌；合法性仍由 Core 判断 |
 | `standard:yingzi` | 修改摸牌数量 | `DrawPile → Hand(owner)`（由摸牌动作产生） | `rule.draw` | 只改变数量 modifier，不公开牌堆顺序 |
 | `standard:kongcheng` | 修改空手牌时的目标合法性 | — | — | 只读取目标手牌数量/规则公开信息，不读取目标牌面 |

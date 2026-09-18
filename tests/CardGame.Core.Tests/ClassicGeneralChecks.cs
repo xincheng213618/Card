@@ -9,6 +9,7 @@ internal static class ClassicGeneralChecks
     {
         var legacy = StandardContentRegistry.CreateWithRescueSkills();
         var classic = StandardContentRegistry.CreateWithClassicGenerals();
+        var legacyClassic = StandardContentRegistry.CreateWithClassicGenerals(legacyRoster: true);
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -17,8 +18,14 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.0.0"]),
+                "standard-classic-generals@1.1.0"]),
             "The classic package signature must be explicit and dependency ordered.");
+        Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
+                legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "standard:guo-jia",
+                    StringComparer.Ordinal) &&
+                !legacyClassic.Generals.ContainsKey("classic:guo-jia"),
+            "The legacy classic registry must remain reproducible for 1.0 checkpoints.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -34,6 +41,10 @@ internal static class ClassicGeneralChecks
                 classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng"]) &&
                 classic.Generals["classic:xiahou-dun"].SkillIds.SequenceEqual(["standard:ganglie"]),
             "The first classic roster must point at the implemented formal skills.");
+        var guoJia = classic.Generals["classic:guo-jia"];
+        Require(guoJia.BaseHp == 3 &&
+                guoJia.SkillIds.SequenceEqual(["classic:tiandu", "standard:yiji"]),
+            "The current classic Guo Jia must expose Tiandu and Yiji in a stable order.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -571,6 +582,185 @@ internal static class ClassicGeneralChecks
             legacyResult.Error?.Message ?? "Rules v20 must retain automatic Yingzi drawing.");
     }
 
+    public static void FormalTianduJudgment()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 22,
+            "Formal Tiandu must have an explicit rules version.");
+        var tiandu = SkillRegistry.Get(SkillKind.Tiandu);
+        var context = new JudgmentSkillContext(
+            new PlayerSkillContext(0, 3, 4, 2, TurnPhase.Draw),
+            TargetSeat: 0,
+            JudgmentReasons.Lightning,
+            JudgmentCardId: 9001,
+            JudgmentCardKind: CardKind.Dodge,
+            JudgmentSuit: Suit.Heart,
+            JudgmentRank: 8);
+        Require(tiandu.CanClaimResolvedJudgment(context) &&
+                !tiandu.CanClaimResolvedJudgment(context with { TargetSeat = 1 }),
+            "Tiandu must only claim its owner's resolved judgment card.");
+
+        GameEngine? current = null;
+        JudgmentResolvedEvent? resolvedJudgment = null;
+        for (var seed = 1; seed <= 8_192 && current is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:guo-jia",
+                GameCheckpoint.CurrentRulesVersion);
+            var lightningAction = candidate?.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Lightning && action.CardId is not null);
+            if (candidate is null || lightningAction is null)
+            {
+                continue;
+            }
+
+            var usedLightning = candidate.Submit(new PlayCardCommand(
+                0,
+                lightningAction.CardId!.Value,
+                lightningAction.TargetSeats,
+                candidate.Revision,
+                candidate.PendingDecision!.PromptId));
+            if (!usedLightning.Accepted ||
+                !DriveUntilOwnLightningJudgment(candidate, expectTiandu: true, out var candidateJudgment) ||
+                candidateJudgment.Succeeded)
+            {
+                continue;
+            }
+
+            current = candidate;
+            resolvedJudgment = candidateJudgment;
+        }
+
+        var game = current ??
+            throw new InvalidOperationException("No deterministic non-lethal Tiandu Lightning fixture was found.");
+        var judgment = resolvedJudgment!;
+        var prompt = game.PendingDecision;
+        Require(prompt is { Kind: DecisionKind.Tiandu, PlayerSeat: 0 } &&
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                    .OrderBy(action => action, StringComparer.Ordinal)
+                    .SequenceEqual(["tiandu-claim", "tiandu-skip"]),
+            "Rules v22 must pause after the judgment result with complete Tiandu choices.");
+        Require(game.CardMovements.Any(movement =>
+                movement.CardId == judgment.CardId &&
+                movement.To == CardLocation.Judgment(0)) &&
+                game.CardMovements.All(movement =>
+                    movement.CardId != judgment.CardId || movement.To != CardLocation.DiscardPile),
+            "The resolved judgment card must remain in the public judgment zone while Tiandu is pending.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var pausedRestore = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(pausedRestore.PendingDecision?.Kind == DecisionKind.Tiandu,
+            "A paused Tiandu choice must restore from its command checkpoint.");
+
+        var unchanged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt!.PromptId,
+            new ChoiceId("tiandu.unknown"),
+            game.Revision));
+        Require(!forged.Accepted && forged.Error?.Code == CommandErrorCode.InvalidChoice &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == unchanged,
+            "A forged Tiandu choice must be rejected atomically.");
+
+        var claimChoice = prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "tiandu-claim");
+        var claimed = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            claimChoice.Id,
+            game.Revision));
+        Require(claimed.Accepted,
+            claimed.Error?.Message ?? "Tiandu did not accept the claim choice.");
+        Require(game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
+                .Hand.Any(card => card.Id == judgment.CardId),
+            "Tiandu must add the exact resolved judgment card to its owner's hand.");
+        Require(game.CardMovements.Any(movement =>
+                movement.CardId == judgment.CardId &&
+                movement.From == CardLocation.Judgment(0) &&
+                movement.To == CardLocation.Hand(0) &&
+                movement.Reason == CardMoveReasons.TianduClaim),
+            "Tiandu must publish the exact judgment-to-hand card movement.");
+        Require(game.Events.Any(envelope => envelope.Payload is JudgmentCardClaimedEvent
+        {
+            OwnerSeat: 0,
+            Skill: SkillKind.Tiandu,
+            Used: true
+        }),
+            "Tiandu must publish its typed claim result event.");
+        var claimedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(claimedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(claimedReplay).SequenceEqual(EventSignatures(game)),
+            "The claimed Tiandu branch must replay exactly.");
+
+        var skipPrompt = pausedRestore.PendingDecision!;
+        var skipped = pausedRestore.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "tiandu-skip").Id,
+            pausedRestore.Revision));
+        Require(skipped.Accepted && pausedRestore.CardMovements.Any(movement =>
+                movement.CardId == judgment.CardId &&
+                movement.From == CardLocation.Judgment(0) &&
+                movement.To == CardLocation.DiscardPile &&
+                movement.Reason == CardMoveReasons.JudgmentFinish),
+            skipped.Error?.Message ?? "Skipping Tiandu did not discard the judgment card normally.");
+
+        var legacy = StartClassicGeneralAtPlay(registry, game.Seed, "classic:guo-jia", rulesVersion: 21) ??
+            throw new InvalidOperationException("The rules-v21 Tiandu fixture did not reproduce.");
+        var legacyLightning = legacy.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.Lightning && action.CardId is not null);
+        Require(legacy.Submit(new PlayCardCommand(
+            0,
+            legacyLightning.CardId!.Value,
+            legacyLightning.TargetSeats,
+            legacy.Revision,
+            legacy.PendingDecision!.PromptId)).Accepted &&
+                DriveUntilOwnLightningJudgment(legacy, expectTiandu: false, out var legacyJudgment) &&
+                legacy.PendingDecision?.Kind != DecisionKind.Tiandu &&
+                legacy.CardMovements.Any(movement =>
+                    movement.CardId == legacyJudgment.CardId &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.JudgmentFinish),
+            "Rules v21 must retain the historical automatic judgment discard path.");
+    }
+
+    private static bool DriveUntilOwnLightningJudgment(
+        GameEngine game,
+        bool expectTiandu,
+        out JudgmentResolvedEvent judgment)
+    {
+        var seenEventCount = game.Events.Count;
+        for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            var resolved = game.Events
+                .Skip(seenEventCount)
+                .Select(envelope => envelope.Payload)
+                .OfType<JudgmentResolvedEvent>()
+                .LastOrDefault(candidate =>
+                    candidate.TargetSeat == 0 && candidate.Reason == JudgmentReasons.Lightning);
+            if (resolved is not null)
+            {
+                if (!expectTiandu || game.PendingDecision?.Kind == DecisionKind.Tiandu)
+                {
+                    judgment = resolved;
+                    return true;
+                }
+            }
+
+            DeclineOrAdvance(game);
+        }
+
+        judgment = null!;
+        return false;
+    }
+
     private static GameEngine? StartClassicGeneralAtPlay(
         ContentRegistry registry,
         int seed,
@@ -663,7 +853,7 @@ internal static class ClassicGeneralChecks
             MaxTurns = 220
         }, registry);
 
-    private static EngineRunResult DeclineOrAdvance(GameEngine game, EngineRunResult result)
+    private static EngineRunResult DeclineOrAdvance(GameEngine game, EngineRunResult? result = null)
     {
         var prompt = game.PendingDecision;
         GameCommand command = prompt?.Kind switch
@@ -688,7 +878,7 @@ internal static class ClassicGeneralChecks
         };
         var accepted = game.Submit(command);
         if (!accepted.Accepted)
-            throw new InvalidOperationException(accepted.Error?.Message ?? $"Could not advance from {result.Status} / {prompt?.Kind}.");
+            throw new InvalidOperationException(accepted.Error?.Message ?? $"Could not advance from {result?.Status} / {prompt?.Kind}.");
         return accepted.Result;
     }
 

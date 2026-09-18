@@ -56,6 +56,7 @@
 - 乐不思蜀和兵粮寸断的使用牌进入目标公开 `Judgment` 区；目标在下回合摸牌前进入同一 `JudgmentFrame`。规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段；规则 v18 起兵粮寸断通过 `GetCombatDistance` 限定距离 1，`IgnoresTrickDistance` 允许奇才豁免，目标即使在无懈链中打空手牌仍正常置入；v1–v17 保留“目标有手牌”和空手时跳过效果的历史语义，v1–v10 另保留历史红黑判定。延时牌和判定牌的移动、无懈窗口、鬼才改判、多个延时效果累计及死亡清理均由 Core 统一提交，普通视图不携带其他玩家的私有手牌候选。
 - 规则 v20 将出牌阶段饮酒记录为当前行动者的回合内标记；直接杀声明仍消费公开酒效，但不会清除该限次标记，直到该角色下一回合 `BeginTurn` 才重置。濒死自救不写入该出牌阶段标记。v1–v19 只检查当前是否仍有酒效，因此酒效被杀消费后可在同回合再次饮酒，供旧命令前缀确定性回放。
 - 规则 v21 在经典身份局把英姿从自动摸牌 modifier 提升为摸牌阶段的私有发动/跳过 Prompt；`DrawSkillResolvedEvent` 公开是否发动及最终摸牌数，Checkpoint 仍由命令前缀重建暂停点。v1–v20 与非经典模式继续沿用自动多摸一张的历史语义。
+- 规则 v22 在经典身份局的公开判定结果与判定牌收尾之间加入天妒 Prompt；发动时同一实体牌从 `Judgment(owner)` 进入手牌，跳过时按原路径进入弃牌堆，随后恢复八卦、延时牌或刚烈的父结算。`JudgmentCardClaimedEvent`、移动账本和命令前缀共同重建暂停点；v1–v21 不创建该窗口。
 - `revealAll: true` 只用于本地开发者视图和测试，宿主可通过独立的 `GameEngine.Seed` 记录回放种子。
 
 完整牌区位置只能通过明确标为可信宿主诊断的 `CreateCardZoneDiagnostics()` 取得。它不能进入玩家网络 DTO。
@@ -199,6 +200,7 @@ HumanPlay / AI ChoosePlay
 - `GameEngine.CreateStandard(options, registry)` 消费 Registry 中的 `standard:basic-demo` 牌堆配方，运行时仍通过 `CardKind`/`SkillKind` 兼容映射，避免一次性破坏旧 WPF API；不传 Registry 时保留 Core 内置兼容路径。
 - `ContentModeDefinition` 还提供角色分布、牌堆 ID、候选数量和武将池；开启 `UseInteractiveSetup` 后，模式开局通过私有 `SelectGeneralCommand` 暂停，所有候选均由 Core 校验，完成后才洗牌并逐轮发牌。
 - `standard-active-skills@1.0.0` 是依赖 `standard@1.11.0` 的可选扩展包，增加 `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将及 `identity:active-skills-8/5`；其上另有依赖主动技能包的 `standard-rescue-skills@1.0.0`，增加 `standard:jijiu`/急救者并扩展同一模式武将池；`StandardContentRegistry.Create()` 和不含救援层的 `CreateWithActiveSkills()` 保持原内容指纹不变，WPF 默认窗口显式选择包含救援层的 Registry。
+- `standard-classic-generals@1.1.0` 在 1.0.0 的正式多技能武将层上增加 `classic:guo-jia` 与 `classic:tiandu`，并保留遗计作为第二技能；恢复 1.0.0 存档时仍构造旧武将池和旧包指纹，不把新版郭嘉静默写入历史命令前缀。
 - K5 切片把决斗的交替 `RespondSlash` 响应、无中生有的无目标摸牌、酒的一次性直接杀 +1 伤害、濒死窗口所有 responder 的桃救援与 victim 的酒自救、急救红牌当桃、南蛮入侵/万箭齐发的群体逐目标 `RespondSlash`/`RespondDodge`、桃园结义的群体逐目标恢复、普通/火/雷杀的 `DamageNature`、反馈/遗计/节命伤害后技能和单次杀/决斗/群体牌伤害后的基础濒死窗口接入同一帧栈：`CardUseFrame.TargetIndex` 保存当前群体目标，`GroupResponseEvent` 记录必需响应牌种类，`DamageFrame` 保存伤害类型和实际金额，`AlcoholAppliedEvent`/`AlcoholExpiredEvent` 表示酒效生效/回合结束失效，`RecoveryFrame` 记录桃园结义当前恢复子帧，`DyingFrame` 逐个询问可用桃/酒/红牌的 responder，桃、酒和转化牌只从 responder 自己的手牌移动到 `Processing`，规则 v12 起酒仅允许 victim 自救，v3–v11 保留跨座位救援，v1/v2 仍按原仅自救语义，急救事件同时记录有效 Peach 与物理牌型，节命通过私有目标 Choice 和 `DamageSkillCardsDrawnEvent.TargetSeat` 补牌至目标体力上限，其他视角只看到公开结算结果。
 
 当前已开放十四张最小锦囊 `standard:duel`、`standard:draw_two`、`standard:barbarian_assault`、`standard:arrow_barrage`、`standard:peach_garden`、`standard:five_grains`、`standard:dismantlement`、`standard:snatch`、`standard:fire_attack`、`standard:indulgence`、`standard:supply_shortage`、`standard:lightning`、`standard:nullification` 与 `standard:iron_chain`，酒作为第六种基本牌复用无目标 `CardUseFrame` 并提供一次性直接杀加伤，四张群体/多目标牌共用目标游标，其中两张响应牌共用通用响应事件，五谷丰登复用公开翻牌和私有选牌事件，过河拆桥和顺手牵羊复用单目标 `CardUseFrame` 与“隐藏手牌不透明牌位选择/公开装备或判定区牌精确选择”的目标牌移动入口；规则版本 4 使用 `TargetCardSelectionFrame` 固化私有暂停点，`TargetCardSelectionRequestedEvent` 只公开候选数量，规则版本 1–3 回放保留历史盲选语义，火攻复用单目标父帧并增加私有展示/同花色弃牌两段 Prompt，乐不思蜀、兵粮寸断和闪电把延时牌置入目标公开判定区并在其下回合摸牌前复用 `JudgmentFrame`，规则 v11 起前者非红桃跳过出牌阶段、兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义，闪电黑桃 2 至 9 命中 3 点雷电伤害否则转移；无懈可击在锦囊效果前复用固定座次私有响应和有限多层 `NullificationWindowFrame`，铁索连环通过精确一/二目标和公开 `IsChained` 标记接入火/雷伤害同额传导；普通/火/雷杀共用杀路径，属性类型和实际伤害金额写入伤害帧与事件；K6 已开放五个装备槽位、七种装备牌（含仁王盾）的生命周期、同槽替换、死亡清理、基础战斗距离/攻击范围查询以及诸葛连弩、青釭剑、赤兔、绝影、玉玺、仁王盾和马术的基础 modifier；规则 v13 起诸葛连弩/青釭剑分别使用牌面攻击范围 1/2，v1–v12 保留旧 +1/默认 1 的回放数值；规则 v14 起八卦阵覆盖直接杀及万箭齐发的闪响应，仁王盾在黑色杀指定目标后通过 `ArmorEffectAppliedEvent` 令其无效，v1–v13 保留旧时机；奇才通过 `GetLegalActions` 统一放宽距离型锦囊目标，K7 已为八卦阵、乐不思蜀、兵粮寸断和闪电接入 `JudgmentFrame`、判定区移动和对应结果，鬼才复用同一判定帧。其余锦囊和复杂装备效果仍需各自的目标、响应窗口和处理区语义。明确扩展需求记录在 [`CONTENT_BACKLOG.md`](CONTENT_BACKLOG.md)，在对应类型化入口开放前不通过 UI 或 `GameEngine` 特判接入。
@@ -217,6 +219,7 @@ public interface IPassiveSkill
     bool CanUseAsSlash(PlayerSkillContext owner, Card card) => false;
     bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) => false;
     bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) => false;
+    bool CanClaimResolvedJudgment(JudgmentSkillContext context) => false;
     bool OffersDamageCardChoice(DamageSkillContext context) => false;
     bool ClaimsDamageCard(DamageSkillContext context) => false;
     DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) => DamageSkillEffectKind.None;
@@ -235,9 +238,10 @@ public interface IActiveSkill
 }
 ```
 
-十五个被动技能例子覆盖十五类查询/触发扩展点；主动技能另有独立入口：
+十六个被动技能例子覆盖十六类查询/触发扩展点；主动技能另有独立入口：
 
 - 英姿：旧规则直接修改摸牌数；规则 v21 的经典身份局在摸牌阶段发布可暂停选择，并在确认后继续同一回合；
+- 天妒：规则 v22 的经典身份局在拥有者自己的判定牌生效后发布可暂停选择，决定该牌进入手牌还是按通常流程弃置；
 - 咆哮：修改一回合使用杀的上限；
 - 空城：添加目标禁止条件；
 - 奸雄：在伤害完成后改变造成伤害的卡牌去向。
@@ -313,7 +317,7 @@ Console 自测覆盖：
 - 1/2/4/1 身份数量；
 - 玩家视角不会泄露暗身份和手牌；
 - 三个阵营的胜负条件；
-- 十五种被动技能钩子及五个主动技能（含反馈伤害后取牌、遗计跨手牌分配、节命目标补牌、援护跨座位弃牌恢复、刚烈判定与来源反制、鬼才判定替换、武圣牌转化、龙胆响应转化、马术距离修正、奇才锦囊距离豁免、急救红牌濒死转化、苦肉主动命令、制衡多选弃牌、仁德目标交牌和青囊弃牌恢复、回春多目标弃牌恢复）；
+- 十六种被动技能钩子及五个主动技能（含反馈伤害后取牌、遗计跨手牌分配、节命目标补牌、援护跨座位弃牌恢复、刚烈判定与来源反制、鬼才判定替换、天妒取得判定牌、武圣牌转化、龙胆响应转化、马术距离修正、奇才锦囊距离豁免、急救红牌濒死转化、苦肉主动命令、制衡多选弃牌、仁德目标交牌和青囊弃牌恢复、回春多目标弃牌恢复）；
 - 相同种子得到相同初始状态；
 - 真人出牌和打闪暂停点；
 - 初始发牌、处理区生命周期、单张/批量移动原子性和每个公共边界的卡牌守恒；
@@ -321,7 +325,7 @@ Console 自测覆盖：
 - AI 单步只执行一个决策；
 - 全 AI 对局可以结束并产生解释记录；
 - 快照可以序列化为 JSON。
-  - 当前 Console 自测共 116 项；除既有牌、技能、Checkpoint、装备、判定和视图回归外，还覆盖 `UseSkillCommand` 的苦肉空牌/空目标动作、苦肉主动技能濒死/救援续接、制衡私有多选弃牌、仁德私有手牌/其他存活目标选择、主动技能帧和类型化事件、`skill.kujin.draw`/`skill.zhiheng.discard`/`skill.zhiheng.draw`/`skill.rende.give-card`/`skill.qingnang.discard`/`skill.huichun.discard` 移动 reason、马术距离修正、奇才锦囊距离豁免、v12 酒仅自救及 v3–v11 跨座位兼容回放、急救扩展内容包与旧 Standard Registry 隔离、红牌筛选、有效/物理牌型事件、普通视图脱敏以及 Checkpoint 恢复后的确定性事件一致性；WPF 自测共 23 项并覆盖急救 Prompt 渲染/提交；全解 Release 使用隔离 `--artifacts-path` 构建，避免正在运行的 WPF 进程锁定常规输出目录。
+  - 当前 Core 自测共 149 项、WPF 自测共 47 项；除既有牌、技能、Checkpoint、装备、判定和视图回归外，还覆盖天妒结果后暂停、精确实体牌去向、旧规则/旧内容包恢复、WPF Prompt 渲染与提交，以及主动技能、急救、国战和完整 UI 命令对局等既有场景；完整 Release 构建保持零警告、零错误。
 - Revision、PromptId、精确 Choice 和过期/伪造命令的零状态变化；
 - Standard 内容包 Registry 的隔离、不可变投影、重复 ID、未知引用和依赖环校验。
 - K4 私有选将、共享池无重复、5 人 AI 开局终止以及同 seed + 同选择命令的快照/事件确定性。

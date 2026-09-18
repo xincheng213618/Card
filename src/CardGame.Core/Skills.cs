@@ -147,6 +147,8 @@ public interface IPassiveSkill
     bool OffersJudgmentCardChoice(JudgmentSkillContext context) =>
         CanTriggerBeforeJudgment(context);
 
+    bool CanClaimResolvedJudgment(JudgmentSkillContext context) => false;
+
     int JudgmentTriggerPriority => 0;
 
     string JudgmentTriggerId => Kind.ToString();
@@ -307,6 +309,15 @@ public sealed class GuicaiSkill : IPassiveSkill
 
     public bool OffersJudgmentCardChoice(JudgmentSkillContext context) =>
         CanTriggerBeforeJudgment(context);
+}
+
+public sealed class TianduSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Tiandu;
+    public string Name => "天妒";
+
+    public bool CanClaimResolvedJudgment(JudgmentSkillContext context) =>
+        context.Owner.Seat == context.TargetSeat;
 }
 
 public sealed class WushengSkill : IPassiveSkill
@@ -562,6 +573,7 @@ public static class SkillRegistry
             [SkillKind.Yuanhu] = new YuanhuSkill(),
             [SkillKind.Ganglie] = new GanglieSkill(),
             [SkillKind.Guicai] = new GuicaiSkill(),
+            [SkillKind.Tiandu] = new TianduSkill(),
             [SkillKind.Kujin] = new KujinSkill(),
             [SkillKind.Zhiheng] = new ZhihengSkill(),
             [SkillKind.Rende] = new RendeSkill(),

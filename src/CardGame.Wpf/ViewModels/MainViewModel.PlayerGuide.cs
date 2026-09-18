@@ -218,6 +218,7 @@ public sealed partial class MainViewModel
                 DecisionKind.FireAttackReveal => ("展示一张手牌", new[] { "在中央选择要展示的牌；此时只是展示，并非主动弃牌。", "随后由火攻使用者决定是否弃置同花色牌造成伤害。" }),
                 DecisionKind.FireAttackDiscard => ("决定是否为火攻弃牌", new[] { "中央列出了可弃置的同花色手牌；点击候选将立即支付代价。", "也可以跳过，保留手牌并结束这次火攻。" }),
                 DecisionKind.Yingzi => ("决定是否发动英姿", new[] { "发动后，本摸牌阶段多摸一张牌。", "这是可选技能；也可以跳过，按通常数量摸牌。" }),
+                DecisionKind.Tiandu => ("决定是否发动天妒", new[] { "判定结果已经生效；发动后，公开判定牌会进入你的手牌。", "也可以跳过，让判定牌按通常流程进入弃牌堆。" }),
                 _ => ("处理当前技能选择", new[] { "先读中央说明，再选择发动、支付代价或跳过。", "中央的每个按钮都是完整选择，点击后立即执行。" })
             };
             CurrentGuideBody = prompt.Prompt;

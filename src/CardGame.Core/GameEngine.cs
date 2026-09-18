@@ -176,6 +176,9 @@ public sealed partial class GameEngine
     private bool UsesFormalYingziChoice =>
         _rulesVersion >= 21 && IsClassicIdentityMode;
 
+    private bool UsesFormalTiandu =>
+        _rulesVersion >= 22 && IsClassicIdentityMode;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -702,6 +705,7 @@ public sealed partial class GameEngine
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
                 DecisionKind.Yingzi or
+                DecisionKind.Tiandu or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -767,6 +771,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Yingzi)
         {
             return SubmitYingziPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Tiandu)
+        {
+            return SubmitTianduPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1104,6 +1113,33 @@ public sealed partial class GameEngine
                 useSkill: false,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "英姿提示没有可识别的选择效果。")
+        };
+    }
+
+    private CommandResult SubmitTianduPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingJudgment is not { ResultSucceeded: not null } ||
+            _pendingDecision is not { Kind: DecisionKind.Tiandu })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的天妒判定牌窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "天妒选择不符合当前判定窗口。");
+        }
+
+        return action switch
+        {
+            "tiandu-claim" => Accept(() => HumanTianduCore(
+                useSkill: true,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "tiandu-skip" => Accept(() => HumanTianduCore(
+                useSkill: false,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "天妒提示没有可识别的选择效果。")
         };
     }
 
@@ -1488,6 +1524,9 @@ public sealed partial class GameEngine
         var guicaiRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Guicai))
             ? "，司马懿可在判定牌生效前用一张手牌替换判定牌"
             : string.Empty;
+        var tianduRules = UsesFormalTiandu && _players.Any(player => player.General.HasSkill(SkillKind.Tiandu))
+            ? "，郭嘉可在自己的判定牌生效后选择获得此牌"
+            : string.Empty;
         var yingziRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Yingzi))
             ? UsesFormalYingziChoice
                 ? "，周瑜可在摸牌阶段选择多摸一张牌"
@@ -1555,7 +1594,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{yingziRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{yingziRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -1615,7 +1654,8 @@ public sealed partial class GameEngine
                     IsAiFireAttackPending() ||
                     IsAiDamageSkillPending() ||
                     IsAiJudgmentPending() ||
-                    IsAiYingziPending())
+                    IsAiYingziPending() ||
+                    IsAiTianduPending())
                 {
                     RunOneEngineStep();
                     continue;
@@ -2274,6 +2314,16 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Yingzi);
         ResolveYingziDrawChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanTianduCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Tiandu);
+        var pending = _pendingJudgment ??
+            throw new InvalidOperationException("There is no Tiandu judgment awaiting a choice.");
+        ResolveTianduChoice(pending, useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -3953,6 +4003,12 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (IsAiTianduPending())
+        {
+            ResolvePendingAiTiandu();
+            return;
+        }
+
         if (IsAiYingziPending())
         {
             ResolvePendingAiYingzi();
@@ -7354,9 +7410,9 @@ public sealed partial class GameEngine
         if (orderedCandidateSeats.Length == 0)
         {
             var succeeded = FinalizeJudgment(pending);
-            if (IsDelayedJudgmentContinuation(continuation))
+            if (succeeded is { } completed && IsDelayedJudgmentContinuation(continuation))
             {
-                ResumeCompletedJudgment(pending, succeeded);
+                ResumeCompletedJudgment(pending, completed);
             }
 
             return succeeded;
@@ -7413,7 +7469,10 @@ public sealed partial class GameEngine
         if (pending.CandidateIndex >= pending.CandidateSeats.Count)
         {
             var succeeded = FinalizeJudgment(pending);
-            ResumeCompletedJudgment(pending, succeeded);
+            if (succeeded is { } completed)
+            {
+                ResumeCompletedJudgment(pending, completed);
+            }
             return;
         }
 
@@ -7594,14 +7653,17 @@ public sealed partial class GameEngine
         if (pending.CandidateIndex >= pending.CandidateSeats.Count)
         {
             var succeeded = FinalizeJudgment(pending);
-            ResumeCompletedJudgment(pending, succeeded);
+            if (succeeded is { } completed)
+            {
+                ResumeCompletedJudgment(pending, completed);
+            }
             return;
         }
 
         BeginGuicaiChoice(pending);
     }
 
-    private bool FinalizeJudgment(JudgmentResolution pending)
+    private bool? FinalizeJudgment(JudgmentResolution pending)
     {
         if (pending.CurrentCard is not { } judgmentCard)
         {
@@ -7657,22 +7719,125 @@ public sealed partial class GameEngine
             $"{_players[pending.TargetSeat].Name} 发动【{abilityName}】判定：最终为【{judgmentCard.DisplayName}】（{judgmentCard.Suit} {judgmentCard.RankText}），判定{judgmentResult}。",
             pending.TargetSeat,
             pending.SourceSeat);
+        pending.ResultSucceeded = succeeded;
+        if (TryBeginTianduChoice(pending))
+        {
+            return null;
+        }
+
+        FinishResolvedJudgment(pending, claimedByTiandu: false);
+        return succeeded;
+    }
+
+    private bool TryBeginTianduChoice(JudgmentResolution pending)
+    {
+        if (!UsesFormalTiandu || pending.CurrentCard is not { } judgmentCard)
+        {
+            return false;
+        }
+
+        var owner = _players[pending.TargetSeat];
+        var skill = EnabledPassiveSkills(owner).FirstOrDefault(candidate =>
+            candidate.Kind == SkillKind.Tiandu);
+        if (!owner.IsAlive || skill is null)
+        {
+            return false;
+        }
+
+        var context = new JudgmentSkillContext(
+            CreateSkillContext(owner),
+            pending.TargetSeat,
+            pending.Reason,
+            judgmentCard.Id,
+            judgmentCard.Kind,
+            judgmentCard.Suit,
+            judgmentCard.Rank);
+        if (!skill.CanClaimResolvedJudgment(context))
+        {
+            return false;
+        }
+
+        _pendingJudgment = pending;
+        SetJudgmentFrameState(pending, ResolutionFrameStep.AwaitingResponse);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Tiandu,
+            owner.Seat,
+            $"【{judgmentCard.DisplayName}】已作为你的判定牌生效，是否发动【天妒】获得此牌？",
+            [],
+            [],
+            SourceSeat: owner.Seat,
+            IncomingCard: judgmentCard.Kind)
+        {
+            PromptId = CreatePromptId(),
+            TargetSeat = owner.Seat,
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId($"tiandu.claim.frame-{pending.FrameId}"),
+                    $"发动【天妒】，获得【{judgmentCard.DisplayName}】。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "tiandu-claim" }),
+                new PromptChoice(
+                    new ChoiceId($"tiandu.skip.frame-{pending.FrameId}"),
+                    "不发动【天妒】，将判定牌置入弃牌堆。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "tiandu-skip" })
+            ]
+        };
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private void ResolveTianduChoice(JudgmentResolution pending, bool useSkill)
+    {
+        if (!ReferenceEquals(_pendingJudgment, pending) ||
+            pending.ResultSucceeded is not { } succeeded ||
+            pending.CurrentCard is not { } judgmentCard ||
+            _pendingDecision is not { Kind: DecisionKind.Tiandu, PlayerSeat: var ownerSeat } ||
+            ownerSeat != pending.TargetSeat)
+        {
+            throw new InvalidOperationException("The Tiandu judgment is not the current resolution.");
+        }
+
+        ClearPendingDecision();
+        FinishResolvedJudgment(pending, useSkill);
+        QueueGameEvent(new JudgmentCardClaimedEvent(
+            pending.FrameId,
+            ownerSeat,
+            SkillKind.Tiandu,
+            useSkill,
+            judgmentCard.Id,
+            judgmentCard.Kind));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill
+                ? $"{_players[ownerSeat].Name} 发动【天妒】，获得判定牌【{judgmentCard.DisplayName}】。"
+                : $"{_players[ownerSeat].Name} 未发动【天妒】。",
+            ownerSeat);
+        ResumeCompletedJudgment(pending, succeeded);
+    }
+
+    private void FinishResolvedJudgment(JudgmentResolution pending, bool claimedByTiandu)
+    {
+        var judgmentCard = pending.CurrentCard ??
+            throw new InvalidOperationException("A resolved judgment must retain its card until disposition.");
         if (_cardZones.GetLocation(judgmentCard.Id) == CardLocation.Judgment(pending.TargetSeat))
         {
             MoveCard(
                 judgmentCard,
                 CardLocation.Judgment(pending.TargetSeat),
-                CardLocation.DiscardPile,
-                CardMoveReasons.JudgmentFinish);
+                claimedByTiandu ? CardLocation.Hand(pending.TargetSeat) : CardLocation.DiscardPile,
+                claimedByTiandu ? CardMoveReasons.TianduClaim : CardMoveReasons.JudgmentFinish);
         }
 
+        SetJudgmentFrameState(pending, ResolutionFrameStep.Completed);
         PopResolutionFrame(pending.FrameId, ResolutionFrameKind.Judgment);
         if (ReferenceEquals(_pendingJudgment, pending))
         {
             _pendingJudgment = null;
         }
-
-        return succeeded;
     }
 
     private void CompleteDelayedJudgment(
@@ -12178,17 +12343,28 @@ public sealed partial class GameEngine
                     "A judgment continuation must retain its public card and ordered cursor.");
             }
 
-            if (pendingJudgment.CurrentCandidateSeat < 0 ||
-                _pendingDecision is not { Kind: DecisionKind.Guicai } judgmentDecision ||
-                judgmentDecision.PlayerSeat != pendingJudgment.CurrentCandidateSeat ||
-                !judgmentDecision.ValidCardIds.SequenceEqual(
-                    GetHand(_players[pendingJudgment.CurrentCandidateSeat]).Select(card => card.Id)))
+            var isTianduChoice = pendingJudgment.ResultSucceeded is not null;
+            var expectedJudgmentOwner = isTianduChoice
+                ? pendingJudgment.TargetSeat
+                : pendingJudgment.CurrentCandidateSeat;
+            var promptMatches = isTianduChoice
+                ? UsesFormalTiandu &&
+                  _pendingDecision is { Kind: DecisionKind.Tiandu } tianduDecision &&
+                  tianduDecision.PlayerSeat == pendingJudgment.TargetSeat &&
+                  tianduDecision.Choices.Count == 2 &&
+                  tianduDecision.ValidCardIds.Count == 0
+                : pendingJudgment.CurrentCandidateSeat >= 0 &&
+                  _pendingDecision is { Kind: DecisionKind.Guicai } guicaiDecision &&
+                  guicaiDecision.PlayerSeat == pendingJudgment.CurrentCandidateSeat &&
+                  guicaiDecision.ValidCardIds.SequenceEqual(
+                      GetHand(_players[pendingJudgment.CurrentCandidateSeat]).Select(card => card.Id));
+            if (!promptMatches)
             {
                 throw new InvalidOperationException(
-                    "An active judgment continuation must retain a private Guicai prompt.");
+                    "An active judgment continuation must retain its private Guicai or Tiandu prompt.");
             }
 
-            var expectedJudgmentStatus = _players[pendingJudgment.CurrentCandidateSeat].IsHuman
+            var expectedJudgmentStatus = _players[expectedJudgmentOwner].IsHuman
                 ? EngineStatus.AwaitingHumanResponse
                 : EngineStatus.Running;
             if (_status != expectedJudgmentStatus)
@@ -12592,6 +12768,23 @@ public sealed partial class GameEngine
         }
 
         ResolveYingziDrawChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiTianduPending() =>
+        _pendingJudgment is { ResultSucceeded: not null, TargetSeat: var targetSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Tiandu, PlayerSeat: var decisionSeat } &&
+        targetSeat == decisionSeat &&
+        !_players[targetSeat].IsHuman;
+
+    private void ResolvePendingAiTiandu()
+    {
+        if (!IsAiTianduPending())
+        {
+            throw new InvalidOperationException("There is no AI Tiandu choice to resolve.");
+        }
+
+        ResolveTianduChoice(_pendingJudgment!, useSkill: true);
         PublishState();
     }
 
@@ -13088,6 +13281,7 @@ public sealed partial class GameEngine
         public Card? CurrentCard { get; set; } = currentCard;
         public Card? DelayedCard { get; } = delayedCard;
         public bool WasReplaced { get; set; }
+        public bool? ResultSucceeded { get; set; }
         public int CurrentCandidateSeat =>
             CandidateIndex < CandidateSeats.Count ? CandidateSeats[CandidateIndex] : -1;
     }

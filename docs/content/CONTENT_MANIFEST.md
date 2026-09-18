@@ -1,6 +1,6 @@
 # Standard 内容清单（C0 草案 / M3 试验）
 
-更新时间：2026-09-12
+更新时间：2026-09-18
 
 这是内容流水线的设计清单和正式包的对照表。稳定内容 ID 使用 `package:name` 形式；`implemented-registry` 表示已经进入 `CardGame.Content.Standard`，`implemented-legacy` 表示仍由 Core 的 `CardKind`/`SkillKind` 兼容投影运行，`planned` 表示内容定义已规划但等待后续核心 API。K1 的牌区生命周期、K2 的 Prompt/Choice、reason、可见性和强制场景见 [`CARD_MOVEMENT_CONTRACT.md`](./CARD_MOVEMENT_CONTRACT.md)；`definitionId`/`instanceId` 的 Registry 关系已在 K3 冻结。所有文案、AI 标签和规则描述均为本项目自有文字，不包含卡面、插画、音频或其他素材。
 
@@ -11,6 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.1.0` | `standard-rescue-skills@1.0.0` | 正式经典身份武将层；当前郭嘉为 `classic:tiandu` + `standard:yiji`，1.0.0 旧武将池按存档签名保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -167,6 +168,7 @@
 | `standard:jieming` | 节命 | 受伤后按公开手牌数补牌至目标体力上限 | implemented-registry | K1/K2/K5：公开目标筛选、私有 Choice、牌堆到目标手牌移动与隐私 |
 | `standard:yuanhu` | 援护 | 其他角色受伤后弃置一张手牌并令其回复 1 点体力 | implemented-registry | K5：`DamageTriggerScope.OtherLivingPlayer`、私有弃牌 Choice、恢复子帧与脱敏事件 |
 | `standard:guicai` | 鬼才 | 判定牌生效前用一张手牌替换 | implemented-registry | K7：`JudgmentFrame` 候选游标、私有替换 Choice、公开结果与 `skill.guicai.replace` 移动 |
+| `classic:tiandu` | 天妒 | 规则 v22 经典身份中，自己的判定牌生效后可获得此牌 | implemented-registry + classic extension | K2/K7：结果后私有 Choice、`Judgment → Hand` 移动、`JudgmentCardClaimedEvent` 与父判定续接 |
 | `standard:kujin` | 苦肉 | 出牌阶段失去 1 点体力并摸两张牌；若降至 0，救援结算后再摸牌 | implemented-registry + extension | K5：`IActiveSkill`、`UseSkillCommand`、`ActiveSkillFrame`、类型化体力/摸牌事件；体力大于 0，濒死时保留主动技能帧并复用私有 `RescueDying` |
 | `standard:rende` | 仁德 | 主动交牌并按数量回复 | implemented-registry + extension | K2/K5：私有选牌/其他存活目标白名单、Processing 跨手牌移动、按数量恢复、回合一次限制 |
 | `standard:zhiheng` | 制衡 | 规则 v17 经典身份每阶段限一次，可混选自己的手牌与公开装备后弃置并摸等量牌；旧规则/演示模式仅手牌 | implemented-registry + extension | K2/K5/K6：主动多选、混合来源 `Processing` 牌区、等量摸牌和私有 Prompt |

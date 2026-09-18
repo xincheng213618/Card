@@ -395,6 +395,14 @@ public sealed record JudgmentReplacementResolvedEvent(
     Suit? NewSuit,
     int? NewRank) : IGameEvent;
 
+public sealed record JudgmentCardClaimedEvent(
+    long JudgmentFrameId,
+    int OwnerSeat,
+    SkillKind Skill,
+    bool Used,
+    int CardId,
+    CardKind CardKind) : IGameEvent;
+
 public sealed record CardRespondedEvent(
     int CardId,
     int ResponderSeat,
