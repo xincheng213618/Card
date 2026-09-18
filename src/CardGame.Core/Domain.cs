@@ -139,7 +139,8 @@ public enum SkillKind
     Huichun,
     Mashu,
     Qicai,
-    Jijiu
+    Jijiu,
+    Hujia
 }
 
 public enum DecisionKind

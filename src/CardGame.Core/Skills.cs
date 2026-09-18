@@ -188,6 +188,12 @@ public sealed class JianxiongSkill : IPassiveSkill
         context.SourceCardIsInProcessing;
 }
 
+public sealed class HujiaSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Hujia;
+    public string Name => "护驾";
+}
+
 public sealed class FeedbackSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Feedback;
@@ -607,7 +613,8 @@ public static class SkillRegistry
             [SkillKind.Huichun] = new HuichunSkill(),
             [SkillKind.Mashu] = new MashuSkill(),
             [SkillKind.Qicai] = new QicaiSkill(),
-            [SkillKind.Jijiu] = new JijiuSkill()
+            [SkillKind.Jijiu] = new JijiuSkill(),
+            [SkillKind.Hujia] = new HujiaSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

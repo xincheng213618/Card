@@ -57,11 +57,15 @@ internal static class ClassicGeneralUiChecks
                        zhugeLiang.HealthText == "体力上限 4" &&
                        GeneralArt.HasPortrait(zhugeLiang.GeneralId),
             "The current classic Zhuge Liang card must render Guanxing, Kongcheng, Lord health and portrait aliasing.");
-        using var jianxiongViewModel = FindGeneralChoice("standard:cao-cao");
+        using var jianxiongViewModel = FindGeneralChoice("classic:cao-cao");
         var caoCao = jianxiongViewModel.GeneralChoices.Single(choice =>
-            choice.GeneralId == "standard:cao-cao");
-        Program.Assert(caoCao.SkillDescription.Contains("造成此伤害的牌", StringComparison.Ordinal),
-            "The current classic selection card must describe formal Jianxiong's damage-card scope.");
+            choice.GeneralId == "classic:cao-cao");
+        Program.Assert(caoCao.SkillName == "奸雄 / 护驾" &&
+                       caoCao.SkillDescription.Contains("造成此伤害的牌", StringComparison.Ordinal) &&
+                       caoCao.SkillDescription.Contains("其他魏势力角色", StringComparison.Ordinal) &&
+                       caoCao.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(caoCao.GeneralId),
+            "The current classic Cao Cao card must render Jianxiong, Hujia, Lord health and portrait aliasing.");
         using var zhihengDescriptionViewModel = FindGeneralChoice("classic:sun-quan");
         var sunQuan = zhihengDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:sun-quan");
@@ -388,6 +392,52 @@ internal static class ClassicGeneralUiChecks
         orderingWindow.Close();
     }
 
+    public static void HujiaChoiceAndRestore(string output)
+    {
+        var fixture = FindHujiaFixture();
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual,
+            new(1, DateTimeOffset.UtcNow, false, fixture.CreateCheckpoint()));
+        using var viewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: fixture.Seed,
+            showSetup: true,
+            saveStore: store,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        viewModel.LoadManualGameCommand.Execute(null);
+
+        var engine = Program.Engine(viewModel);
+        var choice = viewModel.ResponseChoices.Single(candidate =>
+            candidate.Parameters.GetValueOrDefault("response") == "hujia-request");
+        Program.Assert(!viewModel.HasSaveError &&
+                       viewModel.IsResponseSelectionPending &&
+                       engine.PendingDecision?.Kind == DecisionKind.RespondDodge &&
+                       viewModel.CurrentGuideTitle == "决定是否发动护驾" &&
+                       viewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("仍可使用自己的闪", StringComparison.Ordinal)) &&
+                       viewModel.TableDecisionTitle.Contains("响应护驾", StringComparison.Ordinal),
+            viewModel.SaveStatus);
+
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        Program.Render((FrameworkElement)window.Content, 1120, 740,
+            Path.Combine(output, "77-classic-hujia-request.png"));
+        viewModel.SelectResponseChoiceCommand.Execute(choice);
+        Program.Assert(viewModel.ResponseChoices.All(candidate =>
+                           candidate.Parameters.GetValueOrDefault("response") != "hujia-request") &&
+                       engine.Events.Any(item => item.Payload is HujiaRequestedEvent
+                       {
+                           OwnerSeat: 0,
+                           CandidateSeats: { Count: > 0 }
+                       }),
+            "The WPF Hujia action must enter the ordered private Wei-response continuation.");
+        window.Content = null;
+        window.Close();
+    }
+
     private static MainViewModel FindGeneralChoice(string generalId)
     {
         for (var seed = 1; seed <= 1_024; seed++)
@@ -621,5 +671,78 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic WPF Guanxing fixture.");
+    }
+
+    private static GameEngine FindHujiaFixture()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 220
+            }, registry);
+            if (!game.Submit(new StartGameCommand()).Accepted ||
+                game.PendingDecision?.ValidContentIds.Contains("classic:cao-cao") != true)
+            {
+                continue;
+            }
+
+            var selection = game.PendingDecision!;
+            if (!game.Submit(new SelectGeneralCommand(
+                    0,
+                    "classic:cao-cao",
+                    game.Revision,
+                    selection.PromptId)).Accepted ||
+                !game.Submit(new AdvanceCommand(game.Revision)).Accepted)
+            {
+                continue;
+            }
+
+            for (var step = 0; step < 4_000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var prompt = game.PendingDecision;
+                if (prompt is { Kind: DecisionKind.RespondDodge } &&
+                    prompt.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "hujia-request"))
+                {
+                    return game;
+                }
+
+                GameCommand command = prompt?.Kind switch
+                {
+                    null => new AdvanceOneStepCommand(game.Revision),
+                    DecisionKind.PlayCard => new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId),
+                    DecisionKind.DiscardCards => new DiscardCardsCommand(
+                        0,
+                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
+                        prompt.PromptId,
+                        game.Revision),
+                    _ => new AnswerPromptCommand(
+                        0,
+                        prompt.PromptId,
+                        prompt.Choices.FirstOrDefault(choice =>
+                            choice.Parameters.Values.Any(value =>
+                                value.StartsWith("skip", StringComparison.Ordinal) ||
+                                value is "take-damage" or "no-nullification" or "ganglie-lose-hp"))?.Id ??
+                            prompt.Choices.First().Id,
+                        game.Revision)
+                };
+                if (!game.Submit(command).Accepted)
+                {
+                    break;
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic WPF Hujia fixture.");
     }
 }

@@ -496,6 +496,61 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Answers Cao Cao's private Hujia request using only this seat's role, hand,
+    /// public equipment and the Lord's public health. Rebels decline; loyalists
+    /// protect the Lord, while the renegade does so before the final duel.
+    /// </summary>
+    public (bool UseDodge, bool UseBagua, AiThoughtRecord Thought) ChooseHujiaResponse(
+        GameSnapshot view,
+        int ownerSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var owner = view.Players.Single(player => player.Seat == ownerSeat);
+        var hasDodge = self.Hand.Any(card =>
+            card.Kind == CardKind.Dodge ||
+            self.Skill == SkillKind.Longdan && IsSlashCard(card.Kind));
+        var hasBagua = self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
+        var shouldHelp = self.Role == Role.Loyalist ||
+                         self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
+        var urgency = owner.Hp <= 1 ? 25d : Math.Max(0, owner.MaxHp - owner.Hp) * 5d;
+        var dodgeScore = shouldHelp && hasDodge ? 90d + urgency : double.NegativeInfinity;
+        var baguaScore = shouldHelp && hasBagua ? 75d + urgency : double.NegativeInfinity;
+        const double declineScore = 10d;
+        var useDodge = dodgeScore >= baguaScore && dodgeScore >= declineScore;
+        var useBagua = !useDodge && baguaScore >= declineScore;
+        var decision = useDodge ? "替主公打出闪" : useBagua ? "以八卦阵响应护驾" : "不响应护驾";
+        var pseudoAction = new LegalAction(LegalActionKind.EndPlay, null, ownerSeat, decision);
+        var candidates = new List<AiCandidateScore>();
+        if (hasDodge)
+        {
+            candidates.Add(new AiCandidateScore(
+                pseudoAction with { Description = "替主公打出闪" },
+                dodgeScore,
+                shouldHelp ? "消耗自己的可见响应牌，确定保护主公。" : "当前身份不应替主公消耗响应牌。"));
+        }
+        if (hasBagua)
+        {
+            candidates.Add(new AiCandidateScore(
+                pseudoAction with { Description = "以八卦阵响应护驾" },
+                baguaScore,
+                shouldHelp ? "保留手牌并以公开防具尝试保护主公。" : "当前身份不应替主公承担判定。"));
+        }
+        candidates.Add(new AiCandidateScore(
+            pseudoAction with { Description = "不响应护驾" },
+            declineScore,
+            shouldHelp ? "保留自己的响应资源。" : "拒绝帮助敌对主公。"));
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            decision,
+            candidates,
+            $"护驾：身份为{self.Role}，主公体力 {owner.Hp}/{owner.MaxHp}，决定{decision}。");
+        return (useDodge, useBagua, thought);
+    }
+
+    /// <summary>
     /// Chooses whether to use the private Feedback trigger. The incoming card
     /// kind is public combat context; the AI does not inspect the engine zone or
     /// another player's hand to make this choice.

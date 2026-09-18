@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 3, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 4, 0))
     {
     }
 
@@ -22,12 +22,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         if (version != new Version(1, 0, 0) &&
             version != new Version(1, 1, 0) &&
             version != new Version(1, 2, 0) &&
-            version != new Version(1, 3, 0))
+            version != new Version(1, 3, 0) &&
+            version != new Version(1, 4, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0, 1.1.0, 1.2.0 and 1.3.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.4.0.");
         }
 
         _version = version;
@@ -71,6 +72,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "观星",
                 "准备阶段，你可以观看牌堆顶的X张牌（X为存活角色数且至多为5），然后以任意顺序置于牌堆顶或牌堆底。",
                 SkillKind.Guanxing));
+        }
+        if (_version >= new Version(1, 4, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:hujia",
+                "护驾",
+                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
+                SkillKind.Hujia));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -143,12 +152,24 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds: ["standard:kongcheng"]));
         }
+        if (_version >= new Version(1, 4, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:cao-cao",
+                "曹操",
+                "cao_cao",
+                "standard:jianxiong",
+                "wei",
+                BaseHp: 4,
+                AdditionalSkillIds: ["classic:hujia"]));
+        }
 
         var generalPoolIds = _version switch
         {
             { Major: 1, Minor: 0 } => LegacyClassicGeneralIds,
             { Major: 1, Minor: 1 } => TianduClassicGeneralIds,
             { Major: 1, Minor: 2 } => FanjianClassicGeneralIds,
+            { Major: 1, Minor: 3 } => GuanxingClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -191,7 +212,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:sima-yi",
         "classic:xiahou-dun",
         "classic:hua-tuo",
-        "standard:cao-cao",
+        "classic:cao-cao",
         "standard:zhang-fei",
         "classic:zhou-yu",
         "classic:zhuge-liang",
@@ -200,9 +221,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> GuanxingClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Select(id => id == "classic:cao-cao" ? "standard:cao-cao" : id)
+    ];
+
     internal static IReadOnlyList<string> FanjianClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Select(id => id == "classic:zhuge-liang" ? "standard:zhuge-liang" : id)
+        .. GuanxingClassicGeneralIds.Select(id => id == "classic:zhuge-liang" ? "standard:zhuge-liang" : id)
     ];
 
     internal static IReadOnlyList<string> TianduClassicGeneralIds { get; } =

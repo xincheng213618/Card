@@ -211,6 +211,10 @@ public sealed partial class MainViewModel
         {
             (CurrentGuideTitle, steps) = prompt.Kind switch
             {
+                DecisionKind.RespondDodge when prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "hujia-request") => ("决定是否发动护驾", new[] { "发动后，会按当前行动顺序依次询问其他存活的魏势力角色。", "若无人代出闪，你仍可使用自己的闪或八卦阵，也可以放弃响应。" }),
+                DecisionKind.RespondDodge when prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") is "hujia-dodge" or "hujia-bagua") => ("响应曹操的护驾", new[] { "你可以打出自己的闪，或发动自己的八卦阵；成功后视为曹操打出闪。", "也可以拒绝，系统会继续询问下一名魏势力角色。" }),
                 DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪；中央会列出合法的手牌、技能或装备选项。", "点击中央候选会立即提交响应。选择不响应可能受到伤害。" }),
                 DecisionKind.RescueDying => ("决定是否救援濒死角色", _game.RulesVersion >= 12
                     ? new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救并回复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }

@@ -12,6 +12,7 @@ internal static class ClassicGeneralChecks
         var legacyClassic = StandardContentRegistry.CreateWithClassicGenerals(legacyRoster: true);
         var tianduClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 1, 0));
         var fanjianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 2, 0));
+        var guanxingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 3, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -20,7 +21,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.3.0"]),
+                "standard-classic-generals@1.4.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -42,6 +43,13 @@ internal static class ClassicGeneralChecks
                 !fanjianClassic.Generals.ContainsKey("classic:zhuge-liang") &&
                 !fanjianClassic.Skills.ContainsKey("classic:guanxing"),
             "The Fanjian-era classic registry must remain reproducible for 1.2 checkpoints.");
+        Require(guanxingClassic.Packages.Last().Version == new Version(1, 3, 0) &&
+                guanxingClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "standard:cao-cao",
+                    StringComparer.Ordinal) &&
+                !guanxingClassic.Generals.ContainsKey("classic:cao-cao") &&
+                !guanxingClassic.Skills.ContainsKey("classic:hujia"),
+            "The Guanxing-era classic registry must remain reproducible for 1.3 checkpoints.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -69,6 +77,10 @@ internal static class ClassicGeneralChecks
         Require(zhugeLiang.BaseHp == 3 &&
                 zhugeLiang.SkillIds.SequenceEqual(["classic:guanxing", "standard:kongcheng"]),
             "The current classic Zhuge Liang must expose Guanxing and Kongcheng in a stable order.");
+        var caoCao = classic.Generals["classic:cao-cao"];
+        Require(caoCao.BaseHp == 4 &&
+                caoCao.SkillIds.SequenceEqual(["standard:jianxiong", "classic:hujia"]),
+            "The current classic Cao Cao must expose Jianxiong and Hujia in a stable order.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -77,6 +89,7 @@ internal static class ClassicGeneralChecks
             Require(pool.Contains("classic:sima-yi", StringComparer.Ordinal) &&
                     pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
                     pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
+                    pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
                     !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
@@ -280,12 +293,12 @@ internal static class ClassicGeneralChecks
             var started = game.Submit(new StartGameCommand());
             Require(started.Accepted, started.Error?.Message ?? "Classic Jianxiong fixture failed to start.");
             var caoCaoChoice = started.Result.PendingDecision?.Choices.FirstOrDefault(choice =>
-                choice.ContentIds.SequenceEqual(["standard:cao-cao"]));
+                choice.ContentIds.SequenceEqual(["classic:cao-cao"]));
             if (caoCaoChoice is null) continue;
 
             var selected = game.Submit(new SelectGeneralCommand(
                 0,
-                "standard:cao-cao",
+                "classic:cao-cao",
                 game.Revision,
                 game.PendingDecision!.PromptId));
             Require(selected.Accepted, selected.Error?.Message ?? "Cao Cao selection was rejected.");
@@ -1107,6 +1120,339 @@ internal static class ClassicGeneralChecks
         Require(legacyAdvanced.Accepted && legacy.PendingDecision?.Kind != DecisionKind.Guanxing &&
                 legacy.Events.All(envelope => envelope.Payload is not GuanxingResolvedEvent),
             "Rules v23 must retain the historical turn start without a Guanxing prompt.");
+    }
+
+    public static void FormalHujiaFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 25,
+            "Formal Hujia must have an explicit rules version.");
+
+        GameEngine? completed = null;
+        HujiaResolvedEvent? completedEvent = null;
+        int ownerHpBefore = 0;
+        for (var seed = 1; seed <= 8_192 && completed is null; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Classic Hujia fixture failed to start.");
+            if (started.Result.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:cao-cao"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:cao-cao",
+                game.Revision,
+                game.PendingDecision!.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Classic Cao Cao selection was rejected.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Classic Hujia setup did not advance.");
+
+            PendingDecision? ownerPrompt = null;
+            for (var step = 0; game.State.Status != EngineStatus.Completed && step < 4_000; step++)
+            {
+                var prompt = game.PendingDecision;
+                if (prompt is { Kind: DecisionKind.RespondDodge } &&
+                    prompt.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "hujia-request"))
+                {
+                    ownerPrompt = prompt;
+                    break;
+                }
+
+                DeclineOrAdvance(game);
+            }
+
+            if (ownerPrompt is null)
+            {
+                continue;
+            }
+
+            var boundaryState = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+            var boundaryRevision = game.Revision;
+            var forged = game.Submit(new AnswerPromptCommand(
+                0,
+                ownerPrompt.PromptId,
+                new ChoiceId("hujia.forged"),
+                game.Revision));
+            Require(!forged.Accepted && game.Revision == boundaryRevision &&
+                    SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == boundaryState,
+                "A forged Hujia choice must be rejected atomically.");
+
+            ownerHpBefore = game.CreateSnapshot(0, revealAll: true).Players[0].Hp;
+            var hujiaChoice = ownerPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "hujia-request");
+            var requested = game.Submit(new AnswerPromptCommand(
+                0,
+                ownerPrompt.PromptId,
+                hujiaChoice.Id,
+                game.Revision));
+            Require(requested.Accepted, requested.Error?.Message ?? "Hujia request was rejected.");
+
+            var providerSeats = Enumerable.Range(1, game.PlayerCount)
+                .Select(seat => seat % game.PlayerCount)
+                .Where(seat => game.CreateSnapshot(seat).PendingDecision?.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") is "hujia-dodge" or "hujia-bagua") == true)
+                .ToArray();
+            if (providerSeats.Length != 1)
+            {
+                continue;
+            }
+
+            var providerSeat = providerSeats[0];
+            Require(game.CreateSnapshot(0).PendingDecision is null &&
+                    Enumerable.Range(0, game.PlayerCount)
+                        .Where(seat => seat != providerSeat)
+                        .All(seat => game.CreateSnapshot(seat).PendingDecision is null),
+                "The Hujia provider prompt must remain private to exactly one Wei responder.");
+            var pausedCheckpoint = GameCheckpointJson.Deserialize(
+                GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+            var restoredPaused = GameReplay.Restore(pausedCheckpoint, registry);
+            Require(SnapshotJson.Serialize(restoredPaused.CreateSnapshot(providerSeat, revealAll: true)) ==
+                    SnapshotJson.Serialize(game.CreateSnapshot(providerSeat, revealAll: true)) &&
+                    EventSignatures(restoredPaused).SequenceEqual(EventSignatures(game)),
+                "The paused private Hujia provider prompt must replay exactly.");
+
+            var eventCount = game.Events.Count;
+            for (var step = 0; step < 32 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var resolved = game.Events.Skip(eventCount).Select(envelope => envelope.Payload)
+                    .OfType<HujiaResolvedEvent>()
+                    .LastOrDefault();
+                if (resolved is not null)
+                {
+                    if (resolved is { Succeeded: true, ResponseCardId: not null })
+                    {
+                        completed = game;
+                        completedEvent = resolved;
+                    }
+                    break;
+                }
+
+                if (game.PendingDecision is not null)
+                {
+                    break;
+                }
+
+                var stepResult = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                Require(stepResult.Accepted, stepResult.Error?.Message ?? "Hujia AI responder did not advance.");
+            }
+        }
+
+        if (completed is null || completedEvent is null || completedEvent.ResponseCardId is not { } responseCardId)
+        {
+            throw new InvalidOperationException("No deterministic physical-Dodge Hujia boundary was found.");
+        }
+
+        Require(completedEvent.OwnerSeat == 0 &&
+                completedEvent.ProviderSeat is { } provider &&
+                completed.CreateSnapshot(0, revealAll: true).Players[0].Hp == ownerHpBefore &&
+                completed.CardMovements.Any(movement =>
+                    movement.CardId == responseCardId &&
+                    movement.From == CardLocation.Hand(provider) &&
+                    movement.To == CardLocation.Processing &&
+                    movement.Reason == CardMoveReasons.Respond) &&
+                completed.CardMovements.Any(movement =>
+                    movement.CardId == responseCardId &&
+                    movement.From == CardLocation.Processing &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.ResponseFinished) &&
+                completed.Events.Select(envelope => envelope.Payload)
+                    .OfType<CardRespondedEvent>()
+                    .Any(response => response.CardId == responseCardId && response.ResponderSeat == 0),
+            "Hujia must spend the provider's exact physical Dodge while publishing the effective response as Cao Cao's.");
+
+        var replayed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(completed.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(completed.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replayed).SequenceEqual(EventSignatures(completed)),
+            "The resolved physical-Dodge Hujia branch must replay exactly.");
+    }
+
+    public static void FormalHujiaBaguaFallback()
+    {
+        const string modeId = "identity:classic-hujia-bagua-test";
+        var registry = ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(),
+            new SyntheticPackage(
+                "hujia-bagua-test",
+                builder =>
+                {
+                    builder.AddDeck(new ContentDeckRecipe(
+                        "test:hujia-bagua-deck",
+                        "护驾八卦测试牌堆",
+                        InitialHandSize: 4,
+                        DrawPerTurn: 2,
+                        Cards:
+                        [
+                            new ContentDeckCardCount("standard:bagua", 20),
+                            new ContentDeckCardCount("standard:slash", 50),
+                            new ContentDeckCardCount("standard:peach", 20)
+                        ]));
+                    builder.AddMode(new ContentModeDefinition(
+                        modeId,
+                        "护驾八卦测试身份局",
+                        MinPlayers: 5,
+                        MaxPlayers: 5,
+                        RoleCounts: new Dictionary<string, int>
+                        {
+                            [nameof(Role.Lord)] = 1,
+                            [nameof(Role.Loyalist)] = 1,
+                            [nameof(Role.Rebel)] = 2,
+                            [nameof(Role.Renegade)] = 1
+                        },
+                        DeckId: "test:hujia-bagua-deck",
+                        GeneralCandidateCount: 1,
+                        GeneralPoolIds:
+                        [
+                            "classic:cao-cao",
+                            "classic:xiahou-dun",
+                            "standard:cao-cao",
+                            "standard:guo-jia",
+                            "standard:xun-yu"
+                        ]));
+                },
+                new PackageDependency("standard-classic-generals", new Version(1, 4, 0))));
+
+        GameEngine? failedBagua = null;
+        JudgmentResolvedEvent? failedJudgment = null;
+        int ownerSeat = -1;
+        int ownerHpBefore = -1;
+        for (var seed = 1; seed <= 4_096 && failedBagua is null; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = 1,
+                HumanRole = Role.Loyalist,
+                ModeId = modeId,
+                UseInteractiveSetup = false,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 120
+            }, registry);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Hujia Bagua fixture failed to start.");
+            var full = game.CreateSnapshot(1, revealAll: true);
+            var lord = full.Players.Single(player => player.Role == Role.Lord);
+            if (lord.GeneralId != "classic:cao-cao" || full.Players[1].GeneralId == "classic:cao-cao")
+            {
+                continue;
+            }
+
+            var equippedBagua = false;
+            for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var prompt = game.PendingDecision;
+                if (prompt is { Kind: DecisionKind.RespondDodge } &&
+                    prompt.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "hujia-bagua"))
+                {
+                    var beforeEvents = game.Events.Count;
+                    ownerSeat = prompt.TargetSeat ?? lord.Seat;
+                    ownerHpBefore = game.CreateSnapshot(1, revealAll: true).Players[ownerSeat].Hp;
+                    var bagua = prompt.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "hujia-bagua");
+                    var answered = game.Submit(new AnswerPromptCommand(
+                        1,
+                        prompt.PromptId,
+                        bagua.Id,
+                        game.Revision));
+                    Require(answered.Accepted, answered.Error?.Message ?? "Hujia Bagua response was rejected.");
+                    var judgment = game.Events.Skip(beforeEvents).Select(envelope => envelope.Payload)
+                        .OfType<JudgmentResolvedEvent>()
+                        .LastOrDefault(item => item.TargetSeat == 1 && item.Reason == JudgmentReasons.BaguaDefense);
+                    if (judgment is { Succeeded: false })
+                    {
+                        failedBagua = game;
+                        failedJudgment = judgment;
+                    }
+                    break;
+                }
+
+                GameCommand command;
+                if (prompt is null)
+                {
+                    command = new AdvanceOneStepCommand(game.Revision);
+                }
+                else if (prompt.Kind == DecisionKind.PlayCard)
+                {
+                    var baguaAction = game.GetHumanLegalActions().FirstOrDefault(action =>
+                        action.Kind == LegalActionKind.Equip &&
+                        action.CardId is { } cardId &&
+                        game.CreateSnapshot(1).Players[1].Hand.Single(card => card.Id == cardId).Kind ==
+                        CardKind.BaguaFormation);
+                    if (!equippedBagua && baguaAction is not null)
+                    {
+                        command = new PlayCardCommand(
+                            1,
+                            baguaAction.CardId!.Value,
+                            baguaAction.TargetSeats,
+                            game.Revision,
+                            prompt.PromptId);
+                        equippedBagua = true;
+                    }
+                    else
+                    {
+                        command = new EndPlayPhaseCommand(1, game.Revision, prompt.PromptId);
+                    }
+                }
+                else if (prompt.Kind == DecisionKind.DiscardCards)
+                {
+                    command = new DiscardCardsCommand(
+                        1,
+                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
+                        prompt.PromptId,
+                        game.Revision);
+                }
+                else
+                {
+                    var decline = prompt.Choices.FirstOrDefault(choice =>
+                        choice.Parameters.Values.Any(value =>
+                            value.StartsWith("skip", StringComparison.Ordinal) ||
+                            value is "take-damage" or "no-nullification" or "ganglie-lose-hp")) ??
+                        prompt.Choices.First();
+                    command = new AnswerPromptCommand(1, prompt.PromptId, decline.Id, game.Revision);
+                }
+
+                var accepted = game.Submit(command);
+                if (!accepted.Accepted)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (failedBagua is null || failedJudgment is null)
+        {
+            throw new InvalidOperationException("No deterministic failed Hujia Bagua judgment was found.");
+        }
+
+        Require(failedJudgment.Succeeded == false &&
+                failedBagua.CreateSnapshot(1, revealAll: true).Players[ownerSeat].Hp == ownerHpBefore &&
+                failedBagua.ResolutionStack.OfType<ResponseWindowFrame>().Any(frame =>
+                    frame.ResponderSeat == ownerSeat && frame.RequiredCardKind == CardKind.Dodge) &&
+                failedBagua.Events.Select(envelope => envelope.Payload)
+                    .OfType<HujiaResolvedEvent>()
+                    .All(resolved => !resolved.Succeeded),
+            "A failed allied Bagua judgment must keep Cao Cao unharmed and continue the original Dodge response window.");
+
+        var replayed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(failedBagua.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(1, revealAll: true)) ==
+                SnapshotJson.Serialize(failedBagua.CreateSnapshot(1, revealAll: true)) &&
+                EventSignatures(replayed).SequenceEqual(EventSignatures(failedBagua)),
+            "The failed Hujia Bagua continuation must replay exactly.");
     }
 
     private static GameEngine ReachZhouYuPlayPhase(ContentRegistry registry, int rulesVersion)

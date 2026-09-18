@@ -786,9 +786,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         };
         CanDeclineResponse = _snapshot.PendingDecision?.Kind is
             DecisionKind.RespondDodge or DecisionKind.RespondSlash;
-        ResponseButtonText = _snapshot.PendingDecision?.Kind == DecisionKind.RespondSlash
-            ? "快速响应杀"
-            : "快速响应闪";
+        ResponseButtonText = _snapshot.PendingDecision?.Choices.Any(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "hujia-dodge") == true
+            ? "护驾出闪"
+            : _snapshot.PendingDecision?.Kind == DecisionKind.RespondSlash
+                ? "快速响应杀"
+                : "快速响应闪";
         CanStepAi = _snapshot.Status == EngineStatus.Running && _snapshot.PendingDecision is null;
 
         RebuildAiThoughts();
@@ -1489,7 +1492,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void RespondToSlash(bool useDodge)
     {
         if (_snapshot.PendingDecision is not { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash } prompt) return;
-        var expected = useDodge ? prompt.Kind == DecisionKind.RespondSlash ? "slash" : "dodge" : "take-damage";
+        var isHujiaProvider = prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("response") is "hujia-dodge" or "hujia-bagua");
+        var expected = isHujiaProvider
+            ? useDodge ? "hujia-dodge" : "hujia-decline"
+            : useDodge ? prompt.Kind == DecisionKind.RespondSlash ? "slash" : "dodge" : "take-damage";
         var choice = prompt.Choices.FirstOrDefault(choice => choice.Parameters.TryGetValue("response", out var response) && response == expected);
         if (choice is null) return;
         ExecuteSafely(() =>
@@ -1531,7 +1538,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         if (_snapshot.PendingDecision is { } pending)
         {
-            if (pending.Kind == DecisionKind.SelectHarvestCard)
+            if (pending.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") is "hujia-request" or "hujia-dodge" or "hujia-bagua"))
+            {
+                EventStack.Add("      Skill(Hujia)");
+                EventStack.Add(pending.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "hujia-request")
+                    ? "        AskLordForHujia()"
+                    : $"        AskWeiForDodge(owner: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
+            }
+            else if (pending.Kind == DecisionKind.SelectHarvestCard)
             {
                 EventStack.Add("      UseCard(FiveGrains)");
                 EventStack.Add($"        SelectPublicCard({pending.ValidCardIds.Count})");
@@ -1780,6 +1796,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",
             SkillKind.Yingzi when _game.RulesVersion >= 21 =>
                 "摸牌阶段，你可以多摸一张牌。",
+            SkillKind.Hujia when _game.RulesVersion >= 25 =>
+                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
             _ => skill.Description
         };
     }
@@ -1790,7 +1808,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             "classic:liu-bei" or "classic:zhuge-liang" => "蜀",
             "classic:sun-quan" or "classic:zhou-yu" => "吴",
-            "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" => "魏",
+            "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" => "魏",
             _ => "群"
         },
         _ when generalId.StartsWith("national:wei-", StringComparison.Ordinal) => "魏",

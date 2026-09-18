@@ -616,6 +616,19 @@ public sealed record GroupResponseEvent(
     int? ResponseCardId,
     CardKind? ResponseCardKind = null) : IGameEvent;
 
+public sealed record HujiaRequestedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    IReadOnlyList<int> CandidateSeats) : IGameEvent;
+
+public sealed record HujiaResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    bool Succeeded,
+    int? ProviderSeat,
+    int? ResponseCardId,
+    bool UsedBagua = false) : IGameEvent;
+
 public sealed record RoleRevealedEvent(int Seat, Role Role) : IGameEvent;
 
 public sealed record WinnerDeterminedEvent(

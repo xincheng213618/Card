@@ -67,6 +67,7 @@ public sealed partial class GameEngine
     private JudgmentResolution? _pendingJudgment;
     private YingziDrawResolution? _pendingYingziDraw;
     private GuanxingResolution? _pendingGuanxing;
+    private HujiaResolution? _pendingHujia;
     private DelayedTurnEffects _pendingTurnDelayedEffects;
 
     private GameEngine(
@@ -185,6 +186,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalGuanxing =>
         _rulesVersion >= 24 && IsClassicIdentityMode;
+
+    private bool UsesFormalHujia =>
+        _rulesVersion >= 25 && IsClassicIdentityMode;
 
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
@@ -827,8 +831,15 @@ public sealed partial class GameEngine
             return Reject(CommandErrorCode.InvalidChoice, "The prompt choice has no supported response effect.");
         }
 
+        if (_pendingHujia is not null)
+        {
+            return SubmitHujiaPromptAnswer(selected, response);
+        }
+
         return response switch
         {
+            "hujia-request" when selected.Cards.Count == 0 => Accept(() => HumanRequestHujiaCore(
+                _options.AdvanceAfterHumanCommands)),
             "dodge" when selected.Cards.Count == 1 => Accept(() => HumanRespondCore(
                 useDodge: true,
                 useBagua: false,
@@ -850,6 +861,27 @@ public sealed partial class GameEngine
             _ => Reject(CommandErrorCode.InvalidChoice, "The prompt choice is malformed for this response window.")
         };
     }
+
+    private CommandResult SubmitHujiaPromptAnswer(PromptChoice selected, string response) =>
+        response switch
+        {
+            "hujia-dodge" when selected.Cards.Count == 1 => Accept(() => HumanHujiaResponseCore(
+                useDodge: true,
+                useBagua: false,
+                requestedCardId: selected.Cards[0],
+                _options.AdvanceAfterHumanCommands)),
+            "hujia-bagua" when selected.Cards.Count == 0 => Accept(() => HumanHujiaResponseCore(
+                useDodge: false,
+                useBagua: true,
+                requestedCardId: null,
+                _options.AdvanceAfterHumanCommands)),
+            "hujia-decline" when selected.Cards.Count == 0 => Accept(() => HumanHujiaResponseCore(
+                useDodge: false,
+                useBagua: false,
+                requestedCardId: null,
+                _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "The prompt choice is malformed for this Hujia response.")
+        };
 
     private CommandResult SubmitNullificationPromptAnswer(PromptChoice selected)
     {
@@ -1605,6 +1637,9 @@ public sealed partial class GameEngine
         var guanxingRules = UsesFormalGuanxing && _players.Any(player => player.General.HasSkill(SkillKind.Guanxing))
             ? "，诸葛亮可在准备阶段观看至多五张牌堆顶牌并私有排列到牌堆顶或牌堆底"
             : string.Empty;
+        var hujiaRules = UsesFormalHujia && _players.Any(player => player.General.HasSkill(SkillKind.Hujia))
+            ? "，主公曹操需要使用或打出闪时可发动护驾，依次询问其他魏势力角色代为打出闪"
+            : string.Empty;
         var yingziRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Yingzi))
             ? UsesFormalYingziChoice
                 ? "，周瑜可在摸牌阶段选择多摸一张牌"
@@ -1672,7 +1707,7 @@ public sealed partial class GameEngine
             : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{yingziRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{yingziRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -2126,6 +2161,41 @@ public sealed partial class GameEngine
         int cardId,
         bool advanceToHumanBoundary = true) =>
         ExecuteExclusive(() => HumanFireAttackCardCore(cardId, advanceToHumanBoundary));
+
+    private EngineRunResult HumanRequestHujiaCore(bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.RespondDodge);
+        var attack = _pendingAttack ??
+            throw new InvalidOperationException("There is no Dodge response awaiting Hujia.");
+        if (_pendingDecision?.Choices.All(choice =>
+                choice.Parameters.GetValueOrDefault("response") != "hujia-request") != false)
+        {
+            throw new InvalidOperationException("Hujia is not available in the current response window.");
+        }
+
+        BeginHujiaRequest(attack);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanHujiaResponseCore(
+        bool useDodge,
+        bool useBagua,
+        int? requestedCardId,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.RespondDodge);
+        var pending = _pendingHujia ??
+            throw new InvalidOperationException("There is no Hujia request awaiting a response.");
+        if (pending.CurrentCandidateSeat != _options.HumanSeat)
+        {
+            throw new InvalidOperationException("The current Hujia responder is not the human seat.");
+        }
+
+        ResolveHujiaCandidateResponse(pending, useDodge, useBagua, requestedCardId);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
 
     private EngineRunResult HumanRespondCore(
         bool useDodge,
@@ -6747,7 +6817,8 @@ public sealed partial class GameEngine
         var hasBagua = UsesFormalArmorResponseTiming &&
                        requiredCardKind == CardKind.Dodge &&
                        HasBagua(target);
-        if (responseCards.Count == 0 && !hasBagua)
+        var canRequestHujia = requiredCardKind == CardKind.Dodge && CanRequestHujia(target, attack);
+        if (responseCards.Count == 0 && !hasBagua && !canRequestHujia)
         {
             SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             ResolveGroupResponse(group, target, selectedResponse: null);
@@ -6780,7 +6851,8 @@ public sealed partial class GameEngine
                 requiredCardKind,
                 group.Card.Kind,
                 card => GetEffectiveResponseKind(target, card, requiredCardKind),
-                includeBagua: hasBagua),
+                includeBagua: hasBagua,
+                includeHujia: canRequestHujia),
             RequiredCardKind = requiredCardKind
         };
         QueueGameEvent(new ResponseRequestedEvent(
@@ -6870,7 +6942,8 @@ public sealed partial class GameEngine
         var dodges = GetResponseCards(target, CardKind.Dodge);
         var hasBagua = !ignoresArmor && HasBagua(target);
         var dodge = dodges.FirstOrDefault();
-        if ((dodges.Count > 0 || hasBagua) && target.IsHuman)
+        var canRequestHujia = CanRequestHujia(target, attack);
+        if ((dodges.Count > 0 || hasBagua || canRequestHujia) && target.IsHuman)
         {
             PushResponseWindow(
                 resolutionId,
@@ -6893,7 +6966,8 @@ public sealed partial class GameEngine
                     CardKind.Dodge,
                     playedCardKind,
                     card => GetEffectiveResponseKind(target, card, CardKind.Dodge),
-                    includeBagua: hasBagua),
+                    includeBagua: hasBagua,
+                    includeHujia: canRequestHujia),
                 RequiredCardKind = CardKind.Dodge
             };
             _status = EngineStatus.AwaitingHumanResponse;
@@ -6906,7 +6980,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (dodge is not null || hasBagua)
+        if (dodge is not null || hasBagua || canRequestHujia)
         {
             // Choosing to respond is a separate continuation. Advance() consumes it
             // immediately, while AdvanceOneStep() exposes it as the next AI decision.
@@ -6931,7 +7005,8 @@ public sealed partial class GameEngine
                     CardKind.Dodge,
                     playedCardKind,
                     card => GetEffectiveResponseKind(target, card, CardKind.Dodge),
-                    includeBagua: hasBagua),
+                    includeBagua: hasBagua,
+                    includeHujia: canRequestHujia),
                 RequiredCardKind = CardKind.Dodge
             };
             QueueGameEvent(new ResponseRequestedEvent(
@@ -7167,8 +7242,338 @@ public sealed partial class GameEngine
         }
     }
 
+    private void BeginHujiaRequest(AttackResolution attack)
+    {
+        var owner = _players[attack.TargetSeat];
+        if (!CanRequestHujia(owner, attack) || _pendingHujia is not null)
+        {
+            throw new InvalidOperationException("Hujia is not available for the current Dodge response.");
+        }
+
+        var candidateSeats = GetHujiaCandidateSeats(owner.Seat);
+        attack.MarkHujiaAttempted();
+        _pendingHujia = new HujiaResolution(attack, owner.Seat, candidateSeats);
+        ClearPendingDecision();
+        _status = EngineStatus.Running;
+        QueueGameEvent(new HujiaRequestedEvent(attack.ResolutionId, owner.Seat, candidateSeats));
+        AddLog(
+            "SkillTriggered",
+            $"{owner.Name} 发动主公技【护驾】，依次询问其他魏势力角色是否替其打出【闪】。",
+            owner.Seat,
+            attack.SourceSeat);
+        AdvanceHujiaCandidate();
+    }
+
+    private void AdvanceHujiaCandidate()
+    {
+        var pending = _pendingHujia ??
+            throw new InvalidOperationException("There is no active Hujia request.");
+        if (!ReferenceEquals(_pendingAttack, pending.Attack))
+        {
+            throw new InvalidOperationException("The Hujia request no longer belongs to the active attack.");
+        }
+
+        while (pending.CandidateIndex < pending.CandidateSeats.Count)
+        {
+            var provider = _players[pending.CurrentCandidateSeat];
+            var responseCards = provider.IsAlive &&
+                                string.Equals(provider.General.FactionId, "wei", StringComparison.Ordinal)
+                ? GetResponseCards(provider, CardKind.Dodge)
+                : [];
+            var hasBagua = provider.IsAlive &&
+                           UsesFormalArmorResponseTiming &&
+                           HasBagua(provider);
+            if (responseCards.Count == 0 && !hasBagua)
+            {
+                pending.CandidateIndex++;
+                continue;
+            }
+
+            _pendingDecision = new PendingDecision(
+                DecisionKind.RespondDodge,
+                provider.Seat,
+                $"{_players[pending.OwnerSeat].Name} 发动了【护驾】，是否替其打出【闪】？",
+                responseCards.Select(card => card.Id).ToArray(),
+                [],
+                pending.Attack.SourceSeat,
+                pending.Attack.EffectiveCardKind)
+            {
+                PromptId = CreatePromptId(),
+                TargetSeat = pending.OwnerSeat,
+                RequiredCardKind = CardKind.Dodge,
+                Choices = CreateHujiaResponseChoices(provider, pending, responseCards, hasBagua)
+            };
+            _status = provider.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+            return;
+        }
+
+        var attack = pending.Attack;
+        var ownerSeat = pending.OwnerSeat;
+        _pendingHujia = null;
+        QueueGameEvent(new HujiaResolvedEvent(
+            attack.ResolutionId,
+            ownerSeat,
+            Succeeded: false,
+            ProviderSeat: null,
+            ResponseCardId: null));
+        AddLog(
+            "SkillResolved",
+            $"没有魏势力角色响应 {_players[ownerSeat].Name} 的【护驾】。",
+            ownerSeat,
+            attack.SourceSeat);
+        PublishOwnerDodgeDecision(attack);
+    }
+
+    private IReadOnlyList<PromptChoice> CreateHujiaResponseChoices(
+        PlayerRuntime provider,
+        HujiaResolution pending,
+        IReadOnlyList<Card> responseCards,
+        bool includeBagua)
+    {
+        var choices = responseCards.Select(card =>
+        {
+            var responseCardKind = GetEffectiveResponseKind(provider, card, CardKind.Dodge);
+            var responseDescription = IsNativeResponseCard(card, CardKind.Dodge)
+                ? "打出【闪】"
+                : $"将【{card.DisplayName}】当作【闪】";
+            return new PromptChoice(
+                new ChoiceId($"hujia.dodge.card-{card.Id}"),
+                $"{responseDescription}，替 {_players[pending.OwnerSeat].Name} 响应【护驾】。",
+                [card.Id],
+                [pending.OwnerSeat],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "hujia-dodge",
+                    ["response-card-kind"] = responseCardKind.ToString(),
+                    ["skill"] = SkillKind.Hujia.ToString()
+                });
+        }).ToList();
+        if (includeBagua)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId("hujia.bagua"),
+                "发动【八卦阵】判定；若为红色，视为替护驾发起者打出【闪】。",
+                [],
+                [pending.OwnerSeat],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "hujia-bagua",
+                    ["skill"] = SkillKind.Hujia.ToString(),
+                    ["equipment"] = CardKind.BaguaFormation.ToString()
+                }));
+        }
+
+        choices.Add(new PromptChoice(
+            new ChoiceId("hujia.decline"),
+            "不响应【护驾】。",
+            [],
+            [pending.OwnerSeat],
+            new Dictionary<string, string>
+            {
+                ["response"] = "hujia-decline",
+                ["skill"] = SkillKind.Hujia.ToString()
+            }));
+        return choices;
+    }
+
+    private void ResolveHujiaCandidateResponse(
+        HujiaResolution pending,
+        bool useDodge,
+        bool useBagua,
+        int? requestedCardId)
+    {
+        if (!ReferenceEquals(_pendingHujia, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.Attack) ||
+            _pendingDecision is not { Kind: DecisionKind.RespondDodge } decision ||
+            decision.PlayerSeat != pending.CurrentCandidateSeat ||
+            useDodge && useBagua)
+        {
+            throw new InvalidOperationException("The Hujia response is not the current continuation.");
+        }
+
+        var provider = _players[pending.CurrentCandidateSeat];
+        var selectedDodge = useDodge
+            ? GetResponseCards(provider, CardKind.Dodge)
+                .FirstOrDefault(card => card.Id == requestedCardId)
+            : null;
+        if (useDodge && selectedDodge is null)
+        {
+            throw new InvalidOperationException("The Hujia responder has no matching Dodge response card.");
+        }
+
+        if (useBagua && (!UsesFormalArmorResponseTiming || !HasBagua(provider)))
+        {
+            throw new InvalidOperationException("The Hujia responder cannot use Bagua in this response window.");
+        }
+
+        ClearPendingDecision();
+        _status = EngineStatus.Running;
+        if (selectedDodge is not null)
+        {
+            CompleteHujiaResponse(pending, provider, selectedDodge, usedBagua: false);
+            return;
+        }
+
+        if (useBagua)
+        {
+            var judgmentResult = BeginJudgment(
+                pending.Attack,
+                provider.Seat,
+                JudgmentReasons.BaguaDefense,
+                pending.Attack.ResolutionId,
+                pending.Attack.EffectiveCardKind,
+                JudgmentContinuationKind.HujiaBagua,
+                damageSkill: null);
+            if (judgmentResult is { } succeeded)
+            {
+                CompleteHujiaBaguaResponse(pending.Attack, succeeded);
+            }
+            return;
+        }
+
+        AddLog(
+            "SkillSkipped",
+            $"{provider.Name} 选择不响应 {_players[pending.OwnerSeat].Name} 的【护驾】。",
+            provider.Seat,
+            pending.OwnerSeat);
+        pending.CandidateIndex++;
+        AdvanceHujiaCandidate();
+    }
+
+    private void CompleteHujiaResponse(
+        HujiaResolution pending,
+        PlayerRuntime provider,
+        Card? selectedDodge,
+        bool usedBagua)
+    {
+        var attack = pending.Attack;
+        var owner = _players[pending.OwnerSeat];
+        if (!ReferenceEquals(_pendingHujia, pending) ||
+            !ReferenceEquals(_pendingAttack, attack) ||
+            provider.Seat != pending.CurrentCandidateSeat)
+        {
+            throw new InvalidOperationException("The completed Hujia response is not current.");
+        }
+
+        PopResponseWindow(attack.ResolutionId);
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        _pendingHujia = null;
+        ClearPendingDecision();
+        CardKind? responseCardKind = null;
+        if (selectedDodge is not null)
+        {
+            responseCardKind = GetEffectiveResponseKind(provider, selectedDodge, CardKind.Dodge);
+            MoveCard(
+                selectedDodge,
+                CardLocation.Hand(provider.Seat),
+                CardLocation.Processing,
+                CardMoveReasons.Respond);
+            MoveCard(
+                selectedDodge,
+                CardLocation.Processing,
+                CardLocation.DiscardPile,
+                CardMoveReasons.ResponseFinished);
+        }
+
+        AddLog(
+            "CardResponded",
+            usedBagua
+                ? $"{provider.Name} 发动【八卦阵】响应【护驾】，视为 {owner.Name} 打出【闪】。"
+                : $"{provider.Name} 响应【护驾】，替 {owner.Name} 打出【闪】。",
+            provider.Seat,
+            owner.Seat);
+        QueueGameEvent(new HujiaResolvedEvent(
+            attack.ResolutionId,
+            owner.Seat,
+            Succeeded: true,
+            provider.Seat,
+            selectedDodge?.Id,
+            usedBagua));
+        if (selectedDodge is not null)
+        {
+            QueueGameEvent(new CardRespondedEvent(
+                selectedDodge.Id,
+                owner.Seat,
+                attack.SourceSeat,
+                responseCardKind ?? CardKind.Dodge));
+        }
+
+        if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group &&
+            ReferenceEquals(group.CurrentAttack, attack))
+        {
+            QueueGameEvent(new GroupResponseEvent(
+                group.ResolutionId,
+                group.Card.Kind,
+                CardKind.Dodge,
+                owner.Seat,
+                UsedResponse: true,
+                ResponseCardId: selectedDodge?.Id,
+                ResponseCardKind: CardKind.Dodge));
+        }
+
+        CompleteAttack(attack);
+    }
+
+    private void CompleteHujiaBaguaResponse(AttackResolution attack, bool succeeded)
+    {
+        var pending = _pendingHujia ??
+            throw new InvalidOperationException("A Hujia Bagua judgment has no Hujia continuation.");
+        if (!ReferenceEquals(pending.Attack, attack))
+        {
+            throw new InvalidOperationException("The Hujia Bagua judgment belongs to another attack.");
+        }
+
+        var provider = _players[pending.CurrentCandidateSeat];
+        if (succeeded)
+        {
+            CompleteHujiaResponse(pending, provider, selectedDodge: null, usedBagua: true);
+            return;
+        }
+
+        AddLog(
+            "SkillResolved",
+            $"{provider.Name} 以【八卦阵】响应【护驾】，但判定失败。",
+            provider.Seat,
+            pending.OwnerSeat);
+        pending.CandidateIndex++;
+        AdvanceHujiaCandidate();
+    }
+
+    private void PublishOwnerDodgeDecision(AttackResolution attack)
+    {
+        var owner = _players[attack.TargetSeat];
+        var dodges = GetResponseCards(owner, CardKind.Dodge);
+        var hasBagua = !attack.IgnoresArmor && HasBagua(owner);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.RespondDodge,
+            owner.Seat,
+            "【护驾】无人响应，是否由你自己打出【闪】？",
+            dodges.Select(card => card.Id).ToArray(),
+            [],
+            attack.SourceSeat,
+            attack.EffectiveCardKind)
+        {
+            PromptId = CreatePromptId(),
+            RequiredCardKind = CardKind.Dodge,
+            Choices = CreateResponseChoices(
+                dodges,
+                CardKind.Dodge,
+                attack.EffectiveCardKind,
+                card => GetEffectiveResponseKind(owner, card, CardKind.Dodge),
+                includeBagua: hasBagua,
+                includeHujia: false)
+        };
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
     private void ResolvePendingAiResponse()
     {
+        if (_pendingHujia is not null)
+        {
+            ResolvePendingAiHujia();
+            return;
+        }
+
         if (_pendingDuel is not null)
         {
             ResolvePendingAiDuel();
@@ -7182,6 +7587,31 @@ public sealed partial class GameEngine
         }
 
         ResolvePendingAiDodge();
+    }
+
+    private void ResolvePendingAiHujia()
+    {
+        var pending = _pendingHujia ??
+            throw new InvalidOperationException("AI Hujia response has no active request.");
+        if (_pendingDecision is not { Kind: DecisionKind.RespondDodge } decision ||
+            decision.PlayerSeat != pending.CurrentCandidateSeat)
+        {
+            throw new InvalidOperationException("The pending AI Hujia prompt is inconsistent.");
+        }
+
+        var provider = _players[decision.PlayerSeat];
+        var responseCards = GetResponseCards(provider, CardKind.Dodge);
+        var view = CreateSnapshot(provider.Seat);
+        var (useDodge, useBagua, thought) = _aiBrains[provider.Seat]
+            .ChooseHujiaResponse(view, pending.OwnerSeat, ++_thoughtSequence);
+        AddThought(thought);
+        var selectedDodge = useDodge ? responseCards.FirstOrDefault() : null;
+        ResolveHujiaCandidateResponse(
+            pending,
+            useDodge: selectedDodge is not null,
+            useBagua: useBagua && UsesFormalArmorResponseTiming && HasBagua(provider),
+            requestedCardId: selectedDodge?.Id);
+        PublishState();
     }
 
     private void ResolvePendingAiNullification()
@@ -7531,6 +7961,14 @@ public sealed partial class GameEngine
         var attack = group.CurrentAttack ??
             throw new InvalidOperationException("AI group response has no current target.");
         var responder = _players[attack.TargetSeat];
+        if (_pendingDecision?.Choices.Any(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "hujia-request") == true)
+        {
+            BeginHujiaRequest(attack);
+            PublishState();
+            return;
+        }
+
         var requiredCardKind = group.RequiredCardKind ??
             throw new InvalidOperationException("A group response attack must declare a required card kind.");
         var responseCards = GetResponseCards(responder, requiredCardKind);
@@ -7594,6 +8032,14 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("AI Dodge continuation has no pending Slash.");
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
+        if (_pendingDecision?.Choices.Any(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "hujia-request") == true)
+        {
+            BeginHujiaRequest(attack);
+            PublishState();
+            return;
+        }
+
         PopResponseWindow(attack.ResolutionId);
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         _pendingDecision = null;
@@ -8113,7 +8559,7 @@ public sealed partial class GameEngine
             succeeded));
         var abilityName = pending.Continuation switch
         {
-            JudgmentContinuationKind.Bagua => "八卦阵",
+            JudgmentContinuationKind.Bagua or JudgmentContinuationKind.HujiaBagua => "八卦阵",
             JudgmentContinuationKind.Ganglie => "刚烈",
             JudgmentContinuationKind.Indulgence => "乐不思蜀",
             JudgmentContinuationKind.SupplyShortage => "兵粮寸断",
@@ -8408,6 +8854,14 @@ public sealed partial class GameEngine
             var attack = pending.Attack ??
                 throw new InvalidOperationException("A Bagua judgment has no attack continuation.");
             CompleteBaguaResponse(attack, succeeded);
+            return;
+        }
+
+        if (pending.Continuation == JudgmentContinuationKind.HujiaBagua)
+        {
+            var attack = pending.Attack ??
+                throw new InvalidOperationException("A Hujia Bagua judgment has no attack continuation.");
+            CompleteHujiaBaguaResponse(attack, succeeded);
             return;
         }
 
@@ -11430,6 +11884,8 @@ public sealed partial class GameEngine
                 "当你受到伤害后，你可以获得造成此伤害的牌。",
             SkillKind.Zhiheng when UsesFormalZhihengEquipment =>
                 "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",
+            SkillKind.Hujia when UsesFormalHujia =>
+                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
             _ => description
         };
 
@@ -11612,7 +12068,8 @@ public sealed partial class GameEngine
         CardKind requiredCardKind,
         CardKind? incomingCard = null,
         Func<Card, CardKind>? effectiveCardKindSelector = null,
-        bool includeBagua = false)
+        bool includeBagua = false,
+        bool includeHujia = false)
     {
         var responseName = CardCatalog.Get(requiredCardKind).DisplayName;
         var isDodge = requiredCardKind == CardKind.Dodge;
@@ -11673,6 +12130,21 @@ public sealed partial class GameEngine
                     ["response"] = "bagua",
                     ["required-card"] = responseName,
                     ["equipment"] = CardKind.BaguaFormation.ToString()
+                }));
+        }
+
+        if (isDodge && includeHujia)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId("respond.hujia"),
+                "发动主公技【护驾】，依次询问其他魏势力角色是否替你打出【闪】。",
+                [],
+                [],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "hujia-request",
+                    ["required-card"] = responseName,
+                    ["skill"] = SkillKind.Hujia.ToString()
                 }));
         }
 
@@ -12180,6 +12652,22 @@ public sealed partial class GameEngine
 
     private bool HasBagua(PlayerRuntime player) =>
         GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation);
+
+    private bool CanRequestHujia(PlayerRuntime owner, AttackResolution attack) =>
+        UsesFormalHujia &&
+        !attack.HujiaAttempted &&
+        owner.IsAlive &&
+        owner.Role == Role.Lord &&
+        owner.General.HasSkill(SkillKind.Hujia) &&
+        GetHujiaCandidateSeats(owner.Seat).Count > 0;
+
+    private IReadOnlyList<int> GetHujiaCandidateSeats(int ownerSeat) =>
+        Enumerable.Range(0, _playerCount)
+            .Select(offset => (_currentSeat + offset) % _playerCount)
+            .Where(seat => seat != ownerSeat &&
+                           _players[seat].IsAlive &&
+                           string.Equals(_players[seat].General.FactionId, "wei", StringComparison.Ordinal))
+            .ToArray();
 
     private bool HasBlackSlashBarrier(PlayerRuntime player) =>
         GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).BlocksBlackSlash);
@@ -13043,6 +13531,31 @@ public sealed partial class GameEngine
                 "A group continuation must retain its current target attack.");
         }
 
+        if (_pendingHujia is { } hujia)
+        {
+            var responseWindow = _resolutionStack.OfType<ResponseWindowFrame>().LastOrDefault();
+            var awaitingBaguaJudgment = _pendingJudgment is { Continuation: JudgmentContinuationKind.HujiaBagua } judgment &&
+                                        ReferenceEquals(judgment.Attack, hujia.Attack) &&
+                                        judgment.TargetSeat == hujia.CurrentCandidateSeat;
+            var awaitingProvider = _pendingDecision is { Kind: DecisionKind.RespondDodge } hujiaDecision &&
+                                   hujiaDecision.PlayerSeat == hujia.CurrentCandidateSeat;
+            if (!UsesFormalHujia ||
+                _pendingAttack is null ||
+                !ReferenceEquals(_pendingAttack, hujia.Attack) ||
+                hujia.OwnerSeat != hujia.Attack.TargetSeat ||
+                !hujia.Attack.HujiaAttempted ||
+                hujia.CandidateIndex < 0 ||
+                hujia.CandidateIndex >= hujia.CandidateSeats.Count ||
+                responseWindow is null ||
+                responseWindow.ParentFrameId != hujia.Attack.ResolutionId ||
+                responseWindow.ResponderSeat != hujia.OwnerSeat ||
+                awaitingBaguaJudgment == awaitingProvider)
+            {
+                throw new InvalidOperationException(
+                    "A Hujia continuation must retain its attack, ordered Wei cursor and one private response.");
+            }
+        }
+
         if (_pendingGroupCard is { Effect: GroupCardEffect.Recovery } recovery &&
             (_pendingAttack is not null || recovery.CurrentAttack is not null))
         {
@@ -13183,6 +13696,7 @@ public sealed partial class GameEngine
              _pendingDamageTrigger is not null ||
              _pendingDamageSkill is not null ||
              _pendingJudgment is not null ||
+             _pendingHujia is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -13890,6 +14404,17 @@ public sealed partial class GameEngine
         public IReadOnlyList<int> ChainedTargetSeats { get; private set; } = [];
         public int ChainedTargetIndex { get; private set; }
         public bool IsChainPropagation { get; private set; }
+        public bool HujiaAttempted { get; private set; }
+
+        public void MarkHujiaAttempted()
+        {
+            if (HujiaAttempted)
+            {
+                throw new InvalidOperationException("Hujia has already been requested for this response window.");
+            }
+
+            HujiaAttempted = true;
+        }
 
         public void SetChainedTargets(IReadOnlyList<int> targetSeats)
         {
@@ -13923,6 +14448,19 @@ public sealed partial class GameEngine
         }
     }
 
+    private sealed class HujiaResolution(
+        AttackResolution attack,
+        int ownerSeat,
+        IReadOnlyList<int> candidateSeats)
+    {
+        public AttackResolution Attack { get; } = attack;
+        public int OwnerSeat { get; } = ownerSeat;
+        public IReadOnlyList<int> CandidateSeats { get; } = Array.AsReadOnly(candidateSeats.ToArray());
+        public int CandidateIndex { get; set; }
+        public int CurrentCandidateSeat =>
+            CandidateIndex < CandidateSeats.Count ? CandidateSeats[CandidateIndex] : -1;
+    }
+
     private sealed class FireAttackResolution(
         long resolutionId,
         int sourceSeat,
@@ -13947,6 +14485,7 @@ public sealed partial class GameEngine
     private enum JudgmentContinuationKind
     {
         Bagua,
+        HujiaBagua,
         Ganglie,
         Indulgence,
         SupplyShortage,
