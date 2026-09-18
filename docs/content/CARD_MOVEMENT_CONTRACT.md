@@ -119,7 +119,7 @@
 | `classic:hujia` | 规则 v25 中，主公曹操需要闪时可依次请求其他存活魏势力角色提供响应 | 实体闪/转化牌 `Hand(provider) → Processing → DiscardPile`；提供者八卦阵走自己的 `DrawPile → Judgment(provider) → DiscardPile` | `response.card` / `response.card-finished`；八卦沿 `judgment.reveal` / `judgment.finish` | `HujiaRequestedEvent`/`HujiaResolvedEvent` 记录公开请求与结果；私有 Choice 只含当前提供者自己的候选，实体牌提供者与 `CardRespondedEvent` 的有效 responder（曹操）分开；八卦失败继续候选游标，全部失败恢复曹操原响应窗；v1–v24 不发布选择 |
 | `classic:jijiang` | 规则 v26 中，主公刘备在出牌阶段或决斗/南蛮入侵杀响应窗请求其他存活蜀势力角色提供杀 | 主动使用为 `Hand(provider) → Processing → DiscardPile`（`card.use` / `card.use-finished`）；响应为同路径但使用 `response.card` / `response.card-finished` | `JijiangRequestedEvent` / `JijiangResolvedEvent`；随后复用 `CardUsedEvent` 或 `CardRespondedEvent` | 私有 Choice 只含当前提供者自己的实体杀/转化牌；物理来源为 provider，有效 source/responder 为刘备，属性杀牌型保留。主动目标、范围和次数按刘备校验；全部失败不移动牌、不消耗次数，响应分支恢复刘备原候选；v1–v25 不发布动作 |
 | `classic:jiuyuan` | 规则 v27 中，其他吴势力角色对濒死主公孙权使用桃 | `Hand(provider) → Processing → DiscardPile`，完全复用桃的 `card.use` / `card.use-finished` | `JiuyuanAppliedEvent` 后接 `RecoveryAppliedEvent(Amount=2)` | 不产生额外牌或 Prompt；提供者必须是另一名吴势力角色，目标必须是拥有救援的主公且正处于濒死桃入口。孙权自救、非吴桃、酒、非濒死桃和 v1–v26 均保持 1 点回复 |
-| `standard:paoxiao` | 修改出杀次数 | — | — | 不创造或移动牌；合法性仍由 Core 判断 |
+| `standard:paoxiao` / `classic:paoxiao` | 修改出杀次数 | —；实际使用的每张杀仍分别走 `Hand → Processing → DiscardPile` | —；实体杀分别发布原有用牌事件 | 技能本身不创造或移动牌；合法性仍由 Core 判断。经典包 1.20.0 回归验证无诸葛连弩时同一出牌阶段使用两张不同实体杀，包 1.19.0 保留 `standard:paoxiao` 身份 |
 | `standard:yingzi` | 修改摸牌数量 | `DrawPile → Hand(owner)`（由摸牌动作产生） | `rule.draw` | 只改变数量 modifier，不公开牌堆顺序 |
 | `standard:kongcheng` | 修改空手牌时的目标合法性 | — | — | 只读取目标手牌数量/规则公开信息，不读取目标牌面 |
 

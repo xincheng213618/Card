@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 19, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 20, 0))
     {
     }
 
@@ -38,12 +38,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 16, 0) &&
             version != new Version(1, 17, 0) &&
             version != new Version(1, 18, 0) &&
-            version != new Version(1, 19, 0))
+            version != new Version(1, 19, 0) &&
+            version != new Version(1, 20, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.19.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.20.0.");
         }
 
         _version = version;
@@ -212,6 +213,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "无双",
                 "锁定技，你使用的【杀】需两张【闪】才能抵消；与你【决斗】的角色每次需打出两张【杀】。",
                 SkillKind.Wushuang));
+        }
+        if (_version >= new Version(1, 20, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:paoxiao",
+                "咆哮",
+                "锁定技，你使用【杀】无次数限制。",
+                SkillKind.Paoxiao));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -434,6 +443,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "qun",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 20, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhang-fei",
+                "张飞",
+                "zhang_fei",
+                "classic:paoxiao",
+                "shu",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -456,6 +475,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 16 } => PreHuangZhongClassicGeneralIds,
             { Major: 1, Minor: 17 } => PreWeiYanClassicGeneralIds,
             { Major: 1, Minor: 18 } => PreLuBuClassicGeneralIds,
+            { Major: 1, Minor: 19 } => PreZhangFeiClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -512,7 +532,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:huang-gai",
         "classic:gan-ning",
         "classic:lu-meng",
-        "standard:zhang-fei",
+        "classic:zhang-fei",
         "classic:zhou-yu",
         "classic:zhuge-liang",
         "standard:guan-yu",
@@ -520,9 +540,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreZhangFeiClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Select(id => id == "classic:zhang-fei" ? "standard:zhang-fei" : id)
+    ];
+
     internal static IReadOnlyList<string> PreLuBuClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:lu-bu")
+        .. PreZhangFeiClassicGeneralIds.Where(id => id != "classic:lu-bu")
     ];
 
     internal static IReadOnlyList<string> PreWeiYanClassicGeneralIds { get; } =

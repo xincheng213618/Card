@@ -28,6 +28,7 @@ internal static class ClassicGeneralChecks
         var tieqiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 16, 0));
         var liegongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 17, 0));
         var kuangguClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 18, 0));
+        var wushuangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 19, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -36,7 +37,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.19.0"]),
+                "standard-classic-generals@1.20.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -164,6 +165,17 @@ internal static class ClassicGeneralChecks
                     "classic:lu-bu",
                     StringComparer.Ordinal),
             "The Kuanggu-era classic registry must retain the 1.18 roster without Lu Bu or Wushuang.");
+        Require(wushuangClassic.Packages.Last().Version == new Version(1, 19, 0) &&
+                !wushuangClassic.Generals.ContainsKey("classic:zhang-fei") &&
+                !wushuangClassic.Skills.ContainsKey("classic:paoxiao") &&
+                wushuangClassic.Generals.ContainsKey("standard:zhang-fei") &&
+                wushuangClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "standard:zhang-fei",
+                    StringComparer.Ordinal) &&
+                !wushuangClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:zhang-fei",
+                    StringComparer.Ordinal),
+            "The Wushuang-era classic registry must retain the 1.19 standard Zhang Fei identity.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -273,6 +285,12 @@ internal static class ClassicGeneralChecks
                 luBu.BaseHp == 4 &&
                 luBu.SkillIds.SequenceEqual(["classic:wushuang"]),
             "The current classic Lu Bu must expose formal Qun, 4-HP Wushuang.");
+        var zhangFei = classic.Generals["classic:zhang-fei"];
+        Require(zhangFei.Name == "张飞" &&
+                zhangFei.FactionId == "shu" &&
+                zhangFei.BaseHp == 4 &&
+                zhangFei.SkillIds.SequenceEqual(["classic:paoxiao"]),
+            "The current classic Zhang Fei must expose formal Shu, 4-HP Paoxiao.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -295,6 +313,8 @@ internal static class ClassicGeneralChecks
                         pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
                         pool.Contains("classic:wei-yan", StringComparer.Ordinal) &&
                         pool.Contains("classic:lu-bu", StringComparer.Ordinal) &&
+                        pool.Contains("classic:zhang-fei", StringComparer.Ordinal) &&
+                       !pool.Contains("standard:zhang-fei", StringComparer.Ordinal) &&
                        !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
@@ -2248,6 +2268,53 @@ internal static class ClassicGeneralChecks
                 legacyDuelEvents.OfType<DamageAppliedEvent>().All(damage =>
                     damage.TargetSeat != duelFixture.TargetSeat),
             "Rules v38 must let one Slash complete the opponent's Duel response set.");
+    }
+
+    public static void FormalPaoxiaoFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var fixture = FindZhangFeiPaoxiaoFixture(registry);
+        var game = fixture.Game;
+        var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(before.GeneralId == "classic:zhang-fei" &&
+                before.MaxHp == 5 &&
+                before.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Paoxiao]) &&
+                before.Equipment.All(card => card.Kind != CardKind.Crossbow),
+            "Classic Zhang Fei must enter the Lord fixture with formal Paoxiao and no Crossbow fallback.");
+
+        var eventCount = game.Events.Count;
+        var first = SubmitPlayAction(game, fixture.FirstAction);
+        Require(first.Accepted, first.Error?.Message ?? "Classic Zhang Fei could not use his first Slash.");
+        Require(TryReturnToHumanPlay(game),
+            "Classic Zhang Fei did not return to the same play phase after his first Slash.");
+
+        var secondAction = game.GetHumanLegalActions()
+            .Where(action => action.Kind == LegalActionKind.Slash && action.CardId is not null)
+            .OrderBy(action => action.CardId)
+            .ThenBy(action => action.TargetSeat)
+            .FirstOrDefault();
+        Require(secondAction is not null,
+            "Paoxiao must leave a second physical Slash legal in the same play phase.");
+        var second = SubmitPlayAction(game, secondAction!);
+        Require(second.Accepted, second.Error?.Message ?? "Paoxiao rejected Zhang Fei's second Slash.");
+
+        var slashUses = game.Events.Skip(eventCount)
+            .Select(item => item.Payload)
+            .OfType<CardUsedEvent>()
+            .Where(item => item.SourceSeat == 0 &&
+                           item.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
+            .ToArray();
+        Require(slashUses.Length == 2 &&
+                slashUses.Select(item => item.CardId).Distinct().Count() == 2,
+            "Formal Paoxiao must publish two distinct Slash uses in one play phase.");
+
+        var replayed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replayed).SequenceEqual(EventSignatures(game)),
+            "A second in-flight Paoxiao Slash must replay exactly.");
     }
 
     public static void FormalFeedbackFlow()
@@ -4702,6 +4769,74 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Wei Yan Kuanggu fixture.");
+    }
+
+    private static (
+        GameEngine Game,
+        LegalAction FirstAction) FindZhangFeiPaoxiaoFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:zhang-fei",
+                GameCheckpoint.CurrentRulesVersion);
+            if (game is null)
+            {
+                continue;
+            }
+
+            var self = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+            if (self.Hand.Count(card =>
+                    card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) < 2)
+            {
+                continue;
+            }
+
+            var beforeFirstSlash = GameCheckpointJson.Deserialize(
+                GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+            foreach (var firstAction in game.GetHumanLegalActions()
+                         .Where(action => action.Kind == LegalActionKind.Slash && action.CardId is not null)
+                         .OrderBy(action => action.CardId)
+                         .ThenBy(action => action.TargetSeat))
+            {
+                var probe = GameReplay.Restore(beforeFirstSlash, registry);
+                var matchingAction = probe.GetHumanLegalActions().Single(action =>
+                    action.Kind == firstAction.Kind &&
+                    action.CardId == firstAction.CardId &&
+                    action.TargetSeats.SequenceEqual(firstAction.TargetSeats) &&
+                    action.PlayedCardKind == firstAction.PlayedCardKind);
+                var used = SubmitPlayAction(probe, matchingAction);
+                if (!used.Accepted ||
+                    !TryReturnToHumanPlay(probe) ||
+                    !probe.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Slash && action.CardId is not null))
+                {
+                    continue;
+                }
+
+                return (game, firstAction);
+            }
+        }
+
+        throw new InvalidOperationException(
+            "Could not find a deterministic classic Zhang Fei two-Slash Paoxiao fixture.");
+    }
+
+    private static bool TryReturnToHumanPlay(GameEngine game)
+    {
+        for (var step = 0; step < 64 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            if (game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.PlayCard })
+            {
+                return true;
+            }
+
+            DeclineOrAdvance(game);
+        }
+
+        return false;
     }
 
     private static (

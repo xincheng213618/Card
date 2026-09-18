@@ -827,6 +827,27 @@ internal static class ClassicGeneralUiChecks
         wushuangDescriptionWindow.Content = null;
         wushuangDescriptionWindow.Close();
 
+        using var paoxiaoDescriptionViewModel = FindGeneralChoice("classic:zhang-fei");
+        var zhangFei = paoxiaoDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:zhang-fei");
+        Program.Assert(zhangFei.Name == "张飞" &&
+                       zhangFei.Kingdom == "蜀" &&
+                       zhangFei.SkillName == "咆哮" &&
+                       zhangFei.SkillDescription.Contains("锁定技", StringComparison.Ordinal) &&
+                       zhangFei.SkillDescription.Contains("无次数限制", StringComparison.Ordinal) &&
+                       zhangFei.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(zhangFei.GeneralId),
+            "The current classic Zhang Fei card must render Shu, locked Paoxiao, Lord health and portrait art.");
+        var paoxiaoDescriptionWindow = new MainWindow(paoxiaoDescriptionViewModel);
+        paoxiaoDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)paoxiaoDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "105-classic-zhang-fei-card.png"));
+        paoxiaoDescriptionWindow.Content = null;
+        paoxiaoDescriptionWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
