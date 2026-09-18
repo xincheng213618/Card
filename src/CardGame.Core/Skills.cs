@@ -91,6 +91,13 @@ public interface IPassiveSkill
 
     bool CanUseAsSlash(PlayerSkillContext owner, Card card) => false;
 
+    /// <summary>
+    /// Returns whether the owner can treat this physical card as Dismantlement.
+    /// The engine remains responsible for validating the source zone, targets,
+    /// movement ledger and effective-card events.
+    /// </summary>
+    bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) => false;
+
     bool CanUseAsResponse(
         PlayerSkillContext owner,
         Card card,
@@ -214,6 +221,16 @@ public sealed class JiuyuanSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Jiuyuan;
     public string Name => "救援";
+}
+
+public sealed class QixiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Qixi;
+    public string Name => "奇袭";
+
+    public bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) =>
+        card.Kind != CardKind.Dismantlement &&
+        card.Suit is Suit.Spade or Suit.Club;
 }
 
 public sealed class FeedbackSkill : IPassiveSkill
@@ -638,7 +655,8 @@ public static class SkillRegistry
             [SkillKind.Jijiu] = new JijiuSkill(),
             [SkillKind.Hujia] = new HujiaSkill(),
             [SkillKind.Jijiang] = new JijiangSkill(),
-            [SkillKind.Jiuyuan] = new JiuyuanSkill()
+            [SkillKind.Jiuyuan] = new JiuyuanSkill(),
+            [SkillKind.Qixi] = new QixiSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

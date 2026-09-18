@@ -112,6 +112,26 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "81-classic-huang-gai-card.png"));
         kujinWindow.Content = null;
         kujinWindow.Close();
+        using var qixiDescriptionViewModel = FindGeneralChoice("classic:gan-ning");
+        var ganNing = qixiDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:gan-ning");
+        Program.Assert(ganNing.Name == "甘宁" &&
+                       ganNing.Kingdom == "吴" &&
+                       ganNing.SkillName == "奇袭" &&
+                       ganNing.SkillDescription.Contains("黑色牌", StringComparison.Ordinal) &&
+                       ganNing.SkillDescription.Contains("过河拆桥", StringComparison.Ordinal) &&
+                       ganNing.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(ganNing.GeneralId),
+            "The current classic Gan Ning card must render Wu, Qixi, Lord health and portrait aliasing.");
+        var qixiDescriptionWindow = new MainWindow(qixiDescriptionViewModel);
+        qixiDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)qixiDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "82-classic-gan-ning-card.png"));
+        qixiDescriptionWindow.Content = null;
+        qixiDescriptionWindow.Close();
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
@@ -203,6 +223,49 @@ internal static class ClassicGeneralUiChecks
             "The WPF equipment Zhiheng command must discard, draw and enforce the once-per-phase limit.");
         zhihengWindow.Content = null;
         zhihengWindow.Close();
+
+        using var qixiViewModel = FindClassicQixiEquipmentViewModel();
+        var qixiWindow = new MainWindow(qixiViewModel);
+        qixiWindow.ApplyTemplate();
+        var qixiRoot = (FrameworkElement)qixiWindow.Content;
+        var qixiEngine = Program.Engine(qixiViewModel);
+        var blackEquipmentAction = qixiEngine.GetHumanLegalActions().First(action =>
+            action.Kind == LegalActionKind.Equip &&
+            action.CardId is { } cardId &&
+            qixiViewModel.Hand.Any(card => card.Id == cardId &&
+                qixiEngine.CreateSnapshot(0, revealAll: true).Players[0].Hand
+                    .Any(snapshot => snapshot.Id == cardId && snapshot.Suit is Suit.Spade or Suit.Club)));
+        var blackEquipmentCard = qixiViewModel.Hand.Single(card => card.Id == blackEquipmentAction.CardId);
+        qixiViewModel.SelectCardCommand.Execute(blackEquipmentCard);
+        qixiViewModel.PlaySelectedCardCommand.Execute(null);
+        Program.AdvanceToDecision(qixiViewModel);
+        var equipmentPlayChoice = qixiViewModel.EquipmentPlayChoices.Single(choice =>
+            choice.Cards.SequenceEqual([blackEquipmentCard.Id]));
+        Program.Assert(equipmentPlayChoice.Description.Contains("装备", StringComparison.Ordinal) &&
+                       equipmentPlayChoice.Description.Contains("牌型转化", StringComparison.Ordinal),
+            "Formal Qixi must render a dedicated equipment conversion entry.");
+        qixiViewModel.SelectEquipmentPlayChoiceCommand.Execute(equipmentPlayChoice);
+        var qixiTarget = qixiViewModel.Seats.First(seat => seat.IsLegalTarget);
+        qixiViewModel.SelectTargetCommand.Execute(qixiTarget);
+        Program.Assert(qixiViewModel.CanPlaySelectedAsSlash &&
+                       qixiViewModel.PlayButtonText == "当作过河拆桥使用" &&
+                       qixiViewModel.EquipmentPlayChoices.Single().Description.Contains("已选择", StringComparison.Ordinal),
+            "Selecting equipped Qixi cost must enable target selection and name the effective Dismantlement action.");
+        Program.Render(qixiRoot, 1120, 740,
+            Path.Combine(output, "83-classic-qixi-equipment.png"));
+        var qixiRevision = qixiEngine.Revision;
+        qixiViewModel.PlaySelectedAsSlashCommand.Execute(null);
+        Program.Assert(qixiEngine.Revision == qixiRevision + 1 &&
+                       qixiEngine.Events.Any(item => item.Payload is CardUseDeclaredEvent declared &&
+                           declared.CardId == blackEquipmentCard.Id &&
+                           declared.CardKind == CardKind.Dismantlement) &&
+                       qixiEngine.CardMovements.Any(movement =>
+                           movement.CardId == blackEquipmentCard.Id &&
+                           movement.From == CardLocation.Equipment(0) &&
+                           movement.To == CardLocation.Processing),
+            "The WPF Qixi equipment action must submit the physical equipment with Dismantlement semantics.");
+        qixiWindow.Content = null;
+        qixiWindow.Close();
 
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
@@ -629,6 +692,47 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Zhiheng equipment WPF fixture.");
+    }
+
+    private static MainViewModel FindClassicQixiEquipmentViewModel()
+    {
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var ganNing = candidate.GeneralChoices.SingleOrDefault(choice =>
+                choice.GeneralId == "classic:gan-ning");
+            if (ganNing is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(ganNing);
+                Program.AdvanceToDecision(candidate);
+                var engine = Program.Engine(candidate);
+                var self = engine.CreateSnapshot(0, revealAll: true).Players[0];
+                var blackEquipmentIds = self.Hand
+                    .Where(card => EquipmentCatalog.IsEquipment(card.Kind) &&
+                                   card.Suit is Suit.Spade or Suit.Club)
+                    .Select(card => card.Id)
+                    .ToHashSet();
+                if (engine.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Equip &&
+                        action.CardId is { } cardId &&
+                        blackEquipmentIds.Contains(cardId)))
+                {
+                    return candidate;
+                }
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Qixi equipment WPF fixture.");
     }
 
     private static (GameEngine Game, int JudgmentCardId) FindTianduFixture()

@@ -26,7 +26,7 @@ public sealed partial class MainViewModel
     public string PlayButtonText => IsDiscardSelectionPending ? $"弃置 {SelectedDiscardCount} / {RequiredDiscardCount} 张"
         : IsHandResponsePending ? HandResponseButtonText
         : IsActiveSkillSelectionPending ? $"发动{HumanActiveSkillName}"
-        : !CanPlaySelected && CanPlaySelectedAsSlash ? "当作杀使用"
+        : !CanPlaySelected && CanPlaySelectedAsSlash ? AlternatePlayText
         : Hand.FirstOrDefault(card => card.IsSelected) is { } card ? $"使用 {card.Name}" : "出 牌";
     public IReadOnlyList<LegalAction> HumanActiveSkillActions => _snapshot is not null &&
         _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard
@@ -84,10 +84,13 @@ public sealed partial class MainViewModel
         : IsActiveSkillSelectionPending ? CanConfirmActiveSkill : CanPlaySelected || CanPlaySelectedAsSlash;
     public bool CanActFromHand => CanEndTurn || IsDiscardSelectionPending || IsHandResponsePending;
     public bool HasAlternateSlash => CanPlaySelected && CanPlaySelectedAsSlash;
+    public string AlternatePlayText => SelectedConversionAction() is { } conversion
+        ? $"当作{CardCatalog.Get(conversion.PlayedCardKind!.Value).DisplayName}使用"
+        : "转换使用";
     public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
     public bool HasCenterChoices => HasChoicePrompt || HasPublicTargetChoices || HasTargetCombinationChoices ||
-        HasPublicRevealedCards || ActiveSkillEquipmentChoices.Count > 0;
+        HasPublicRevealedCards || ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
     public bool IsTableIdle => !HasCenterChoices;
     public bool HasSelection => _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
         _isSelectingActiveSkillCards || _selectedActiveSkillCardIds.Count > 0 ||
@@ -189,6 +192,9 @@ public sealed partial class MainViewModel
     {
         if (_snapshot is null) return;
         var card = Hand.FirstOrDefault(item => item.Id == _selectedCardId);
+        var equipment = _snapshot.Players.SingleOrDefault(player => player.IsHuman)?.Equipment
+            .FirstOrDefault(item => item.Id == _selectedCardId);
+        var selectedName = card?.Name ?? equipment?.DisplayName;
         var target = Seats.FirstOrDefault(item => item.Seat == _selectedTargetSeat);
         ActionHint = HasGameOver ? "对局结束 · 点击「新对局」再战一局"
             : IsSpectating ? SpectatorHint
@@ -196,10 +202,10 @@ public sealed partial class MainViewModel
             : IsHandResponsePending ? HandResponseHint
             : IsActiveSkillSelectionPending ? GetActiveSkillSelectionHint()
             : IsMultiTargetCardSelected ? MultiTargetSelectionHint
-            : card is not null ? target is not null ? CanConfirmSelected
-                    ? $"{(!CanPlaySelected && CanPlaySelectedAsSlash ? $"{card.Name}当作杀" : card.Name)} → {target.GeneralName} · 确认后使用"
-                    : $"{card.Name} → {target.GeneralName} · 在中央选择具体目标牌"
-                : CanConfirmSelected ? $"已选择【{card.Name}】· 点击出牌确认" : $"已选择【{card.Name}】· 点击亮起的武将选择目标"
+            : selectedName is not null ? target is not null ? CanConfirmSelected
+                    ? $"{(!CanPlaySelected && CanPlaySelectedAsSlash ? $"{selectedName}{AlternatePlayText}" : selectedName)} → {target.GeneralName} · 确认后使用"
+                    : $"{selectedName} → {target.GeneralName} · 在中央选择具体目标牌"
+                : CanConfirmSelected ? $"已选择【{selectedName}】· 点击出牌确认" : $"已选择【{selectedName}】· 点击亮起的武将选择目标"
             : IsGeneralSelectionPending ? "选择你的武将，准备出征"
             : CanUseActiveSkill && HumanActiveSkillAction is { } activeAction &&
               (activeAction.MinCardCount > 0 || activeAction.MaxCardCount > 0 ||
@@ -226,12 +232,36 @@ public sealed partial class MainViewModel
         RaisePropertyChanged(nameof(CanConfirmActiveSkill));
         RaisePropertyChanged(nameof(CanConfirmSelected));
         RaisePropertyChanged(nameof(HasAlternateSlash));
+        RaisePropertyChanged(nameof(AlternatePlayText));
         ((RelayCommand)ConfirmSelectedCommand).NotifyCanExecuteChanged();
         ((RelayCommand)UseActiveSkillCommand).NotifyCanExecuteChanged();
         RaisePropertyChanged(nameof(HasSelection));
         RaisePropertyChanged(nameof(HasCenterChoices));
         RaisePropertyChanged(nameof(IsTableIdle));
         RefreshPlayerGuide();
+    }
+
+    private LegalAction? SelectedConversionAction()
+    {
+        if (_selectedCardId is not { } cardId || _snapshot.PendingDecision?.Kind != DecisionKind.PlayCard)
+        {
+            return null;
+        }
+
+        var human = _snapshot.Players.Single(player => player.IsHuman);
+        var physicalKind = human.Hand.Concat(human.Equipment)
+            .SingleOrDefault(card => card.Id == cardId)?.Kind;
+        if (physicalKind is null)
+        {
+            return null;
+        }
+
+        var selectedTargets = SelectedPlayTargets();
+        return _game.GetHumanLegalActions().FirstOrDefault(action =>
+            action.CardId == cardId &&
+            action.TargetSeats.SequenceEqual(selectedTargets) &&
+            action.PlayedCardKind is { } effectiveKind &&
+            effectiveKind != physicalKind);
     }
 
     private void ClearSelection()

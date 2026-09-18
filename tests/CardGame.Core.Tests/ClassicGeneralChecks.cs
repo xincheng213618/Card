@@ -16,6 +16,7 @@ internal static class ClassicGeneralChecks
         var hujiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 4, 0));
         var jijiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 5, 0));
         var jiuyuanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 6, 0));
+        var kujinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 7, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -24,7 +25,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.7.0"]),
+                "standard-classic-generals@1.8.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -67,6 +68,13 @@ internal static class ClassicGeneralChecks
                     "classic:huang-gai",
                     StringComparer.Ordinal),
             "The Jiuyuan-era classic registry must retain the 1.6 roster without Huang Gai.");
+        Require(kujinClassic.Packages.Last().Version == new Version(1, 7, 0) &&
+                !kujinClassic.Generals.ContainsKey("classic:gan-ning") &&
+                !kujinClassic.Skills.ContainsKey("classic:qixi") &&
+                !kujinClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:gan-ning",
+                    StringComparer.Ordinal),
+            "The Kujin-era classic registry must retain the 1.7 roster without Gan Ning or Qixi.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -104,6 +112,12 @@ internal static class ClassicGeneralChecks
                 huangGai.BaseHp == 4 &&
                 huangGai.SkillIds.SequenceEqual(["standard:kujin"]),
             "The current classic Huang Gai must expose the formal Wu, 4-HP Kujin definition.");
+        var ganNing = classic.Generals["classic:gan-ning"];
+        Require(ganNing.Name == "甘宁" &&
+                ganNing.FactionId == "wu" &&
+                ganNing.BaseHp == 4 &&
+                ganNing.SkillIds.SequenceEqual(["classic:qixi"]),
+            "The current classic Gan Ning must expose the formal Wu, 4-HP Qixi definition.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -114,12 +128,13 @@ internal static class ClassicGeneralChecks
                      pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
                      pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
                      pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
+                     pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
                      !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 27,
-            "Classic Jiuyuan must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 28,
+            "Classic Qixi must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -269,6 +284,213 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(restored).SequenceEqual(EventSignatures(game)),
             "Repeated formal Kujin commands must restore with identical state and events.");
+    }
+
+    public static void FormalQixiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 28,
+            "Formal Qixi must have an explicit rules-version boundary.");
+
+        var qixi = SkillRegistry.Get(SkillKind.Qixi);
+        var context = new PlayerSkillContext(0, 4, 5, 4, TurnPhase.Play);
+        Require(qixi.CanUseAsDismantlement(context, new Card(9101, CardKind.Crossbow, Suit.Club, 1)) &&
+                qixi.CanUseAsDismantlement(context, new Card(9102, CardKind.Peach, Suit.Spade, 6)) &&
+                !qixi.CanUseAsDismantlement(context, new Card(9103, CardKind.Peach, Suit.Heart, 6)) &&
+                !qixi.CanUseAsDismantlement(context, new Card(9104, CardKind.Dismantlement, Suit.Spade, 3)),
+            "Qixi must accept black physical cards, reject red cards and avoid duplicating native Dismantlement actions.");
+
+        GameEngine? current = null;
+        GameEngine? legacy = null;
+        CardSnapshot? blackEquipment = null;
+        CardSnapshot? redCard = null;
+        LegalAction? handConversion = null;
+        for (var seed = 1; seed <= 16_384 && current is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:gan-ning",
+                GameCheckpoint.CurrentRulesVersion);
+            if (candidate is null)
+            {
+                continue;
+            }
+
+            var snapshot = candidate.CreateSnapshot(0, revealAll: true);
+            var self = snapshot.Players.Single(player => player.Seat == 0);
+            var candidateEquipment = self.Hand.FirstOrDefault(card =>
+                EquipmentCatalog.IsEquipment(card.Kind) &&
+                card.Suit is Suit.Spade or Suit.Club);
+            var candidateRed = self.Hand.FirstOrDefault(card =>
+                card.Kind != CardKind.Dismantlement &&
+                card.Suit is Suit.Heart or Suit.Diamond);
+            var conversion = candidateEquipment is null
+                ? null
+                : candidate.GetHumanLegalActions().FirstOrDefault(action =>
+                    action.Kind == LegalActionKind.Dismantlement &&
+                    action.CardId == candidateEquipment.Id &&
+                    action.PlayedCardKind == CardKind.Dismantlement &&
+                    action.TargetCardId is null);
+            var hasNullificationResponder = snapshot.Players
+                .Where(player => player.Seat != 0)
+                .Any(player => player.Hand.Any(card => card.Kind == CardKind.Nullification));
+            if (candidateEquipment is null || candidateRed is null || conversion is null || !hasNullificationResponder)
+            {
+                continue;
+            }
+
+            var legacyCandidate = StartClassicGeneralAtPlay(registry, seed, "classic:gan-ning", rulesVersion: 27);
+            if (legacyCandidate is null)
+            {
+                continue;
+            }
+
+            current = candidate;
+            legacy = legacyCandidate;
+            blackEquipment = candidateEquipment;
+            redCard = candidateRed;
+            handConversion = conversion;
+        }
+
+        if (current is null || legacy is null || blackEquipment is null || redCard is null || handConversion is null)
+        {
+            throw new InvalidOperationException("No deterministic Gan Ning fixture exposed black equipment and a Nullification responder.");
+        }
+
+        var selected = current.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(selected.GeneralId == "classic:gan-ning" &&
+                selected.MaxHp == 5 &&
+                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Qixi]),
+            "Classic Gan Ning must combine base 4 HP, the Lord bonus and formal Qixi.");
+        Require(current.GetHumanLegalActions().Any(action =>
+                    action.Kind == LegalActionKind.Dismantlement &&
+                    action.CardId == blackEquipment.Id &&
+                    action.PlayedCardKind == CardKind.Dismantlement) &&
+                !current.GetHumanLegalActions().Any(action =>
+                    action.Kind == LegalActionKind.Dismantlement &&
+                    action.CardId == redCard.Id &&
+                    action.PlayedCardKind == CardKind.Dismantlement),
+            "Formal Qixi must publish black hand-card conversions without converting red hand cards.");
+        Require(!legacy.GetHumanLegalActions().Any(action =>
+                action.CardId == blackEquipment.Id &&
+                action.PlayedCardKind == CardKind.Dismantlement),
+            "Rules v27 must not gain Qixi conversion actions from current content.");
+
+        var prompt = current.PendingDecision ??
+            throw new InvalidOperationException("Gan Ning fixture lost its play prompt.");
+        var stateBeforeInvalid = SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true));
+        var invalid = current.Submit(new PlayCardCommand(
+            0,
+            blackEquipment.Id,
+            handConversion.TargetSeats,
+            current.Revision,
+            prompt.PromptId,
+            CardKind.Snatch,
+            handConversion.TargetCardId));
+        Require(!invalid.Accepted &&
+                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)) == stateBeforeInvalid,
+            "A mismatched Qixi effective kind must reject atomically.");
+
+        Equip(current, blackEquipment.Id);
+        Equip(legacy, blackEquipment.Id);
+        var equippedConversion = current.GetHumanLegalActions().FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Dismantlement &&
+            action.CardId == blackEquipment.Id &&
+            action.PlayedCardKind == CardKind.Dismantlement &&
+            action.TargetCardId is null);
+        Require(equippedConversion is not null &&
+                !legacy.GetHumanLegalActions().Any(action =>
+                    action.CardId == blackEquipment.Id &&
+                    action.PlayedCardKind == CardKind.Dismantlement),
+            "Formal Qixi must convert a black card from the equipment zone while rules v27 remains unchanged.");
+        var selectedEquippedConversion = equippedConversion ??
+            throw new InvalidOperationException("The equipped Qixi action disappeared before submission.");
+
+        var qixiPrompt = current.PendingDecision ??
+            throw new InvalidOperationException("Equipped Qixi fixture lost its play prompt.");
+        var used = current.Submit(new PlayCardCommand(
+            0,
+            blackEquipment.Id,
+            selectedEquippedConversion.TargetSeats,
+            current.Revision,
+            qixiPrompt.PromptId,
+            CardKind.Dismantlement,
+            selectedEquippedConversion.TargetCardId));
+        Require(used.Accepted, used.Error?.Message ?? "Equipped Qixi conversion was rejected.");
+
+        var nullificationFrame = current.ResolutionStack.OfType<NullificationWindowFrame>().SingleOrDefault();
+        Require(nullificationFrame is not null &&
+                nullificationFrame.EffectCardId == blackEquipment.Id &&
+                nullificationFrame.EffectCardKind == CardKind.Dismantlement &&
+                current.Events.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Any(item =>
+                    item.CardId == blackEquipment.Id && item.CardKind == CardKind.Dismantlement) &&
+                current.Events.Select(item => item.Payload).OfType<NullificationRequestedEvent>().Any(item =>
+                    item.EffectCardId == blackEquipment.Id && item.EffectCardKind == CardKind.Dismantlement),
+            "Qixi must expose Dismantlement as the effective kind in the card-use and Nullification contracts.");
+        Require(current.CardMovements.Any(movement =>
+                movement.CardId == blackEquipment.Id &&
+                movement.From == CardLocation.Equipment(0) &&
+                movement.To == CardLocation.Processing &&
+                movement.Reason == CardMoveReasons.Use),
+            "Qixi must preserve the exact equipment source zone for its physical card cost.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(current.CreateCheckpoint()));
+        var pausedRestored = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(SnapshotJson.Serialize(pausedRestored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(pausedRestored).SequenceEqual(EventSignatures(current)),
+            "A paused Qixi Nullification window must restore with identical effective-card state.");
+
+        for (var step = 0; step < 128; step++)
+        {
+            if (current.PendingDecision is { Kind: DecisionKind.PlayCard } && current.ResolutionStack.Count == 0)
+            {
+                break;
+            }
+
+            CommandResult next;
+            if (current.PendingDecision is { Kind: DecisionKind.Nullification } nullification &&
+                nullification.PlayerSeat == 0)
+            {
+                var pass = nullification.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "pass");
+                next = current.Submit(new AnswerPromptCommand(0, nullification.PromptId, pass.Id, current.Revision));
+            }
+            else if (current.PendingDecision is { Kind: DecisionKind.SelectTargetCard } selection &&
+                     selection.PlayerSeat == 0)
+            {
+                next = current.Submit(new AnswerPromptCommand(
+                    0,
+                    selection.PromptId,
+                    selection.Choices[0].Id,
+                    current.Revision));
+            }
+            else
+            {
+                next = current.Submit(new AdvanceOneStepCommand(current.Revision));
+            }
+
+            Require(next.Accepted, next.Error?.Message ?? "Qixi resolution did not advance.");
+        }
+
+        Require(current.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                current.CardMovements.Any(movement =>
+                    movement.CardId == blackEquipment.Id &&
+                    movement.From == CardLocation.Processing &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.UseFinished) &&
+                current.Events.Select(item => item.Payload).OfType<CardUseFinishedEvent>().Any(item =>
+                    item.CardId == blackEquipment.Id && item.CardKind == CardKind.Dismantlement),
+            "Qixi must finish by discarding the physical equipment while publishing Dismantlement as the effective kind.");
+
+        var restored = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(current.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(restored).SequenceEqual(EventSignatures(current)),
+            "The completed equipped Qixi command must restore with identical state and events.");
     }
 
     public static void FormalFeedbackFlow()
@@ -1027,7 +1249,26 @@ internal static class ClassicGeneralChecks
 
         for (var step = 0; mismatchingGame.ResolutionStack.Count > 0 && step < 100; step++)
         {
-            var advanced = mismatchingGame.Submit(new AdvanceOneStepCommand(mismatchingGame.Revision));
+            CommandResult advanced;
+            if (mismatchingGame.PendingDecision is
+                {
+                    Kind: DecisionKind.GangliePunish,
+                    PlayerSeat: 0
+                } gangliePunishment)
+            {
+                var loseHp = gangliePunishment.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "ganglie-lose-hp");
+                advanced = mismatchingGame.Submit(new AnswerPromptCommand(
+                    0,
+                    gangliePunishment.PromptId,
+                    loseHp.Id,
+                    mismatchingGame.Revision));
+            }
+            else
+            {
+                advanced = mismatchingGame.Submit(new AdvanceOneStepCommand(mismatchingGame.Revision));
+            }
+
             Require(advanced.Accepted, advanced.Error?.Message ?? "Fanjian damage continuation did not advance.");
         }
         Require(mismatchingGame.ResolutionStack.Count == 0 &&
@@ -1036,7 +1277,9 @@ internal static class ClassicGeneralChecks
                     {
                         Skill: SkillKind.Fanjian
                     }),
-            "Fanjian damage must close its ordinary damage triggers and active-skill frame.");
+            $"Fanjian damage must close its ordinary damage triggers and active-skill frame " +
+            $"(status={mismatchingGame.State.Status}, prompt={mismatchingGame.PendingDecision?.Kind}, " +
+            $"seat={mismatchingGame.PendingDecision?.PlayerSeat}, stack={string.Join(',', mismatchingGame.ResolutionStack.Select(frame => frame.Kind))}).");
         var replay = GameReplay.Restore(
             GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(mismatchingGame.CreateCheckpoint())),
             registry);

@@ -40,6 +40,11 @@
                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
             </Button>
         </DataTemplate>
+        <DataTemplate x:Key="EquipmentPlayChoiceTemplate">
+            <Button Command="{Binding DataContext.SelectEquipmentPlayChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Margin="4" MaxWidth="380" Padding="14,9">
+                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
+            </Button>
+        </DataTemplate>
         <DataTemplate x:Key="PublicTargetChoiceTemplate">
             <Button Command="{Binding DataContext.SelectPublicTargetChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Margin="4" MaxWidth="380" Padding="14,9">
                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
@@ -337,6 +342,7 @@
                                             <ItemsControl ItemsSource="{Binding ResponseChoices}" ItemTemplate="{StaticResource ResponseChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding SkillChoices}" ItemTemplate="{StaticResource SkillChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl x:Name="ActiveSkillEquipmentChoices" ItemsSource="{Binding ActiveSkillEquipmentChoices}" ItemTemplate="{StaticResource ActiveSkillEquipmentChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
+                                            <ItemsControl x:Name="EquipmentPlayChoices" ItemsSource="{Binding EquipmentPlayChoices}" ItemTemplate="{StaticResource EquipmentPlayChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding PublicTargetChoices}" ItemTemplate="{StaticResource PublicTargetChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding TargetCombinationChoices}" ItemTemplate="{StaticResource TargetCombinationChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                         </StackPanel>
@@ -389,7 +395,7 @@
                             <Button Content="推荐弃牌" Command="{Binding RecommendDiscardCommand}" Style="{StaticResource ToolbarButton}" Visibility="{Binding IsDiscardSelectionPending, Converter={StaticResource BoolToVisibility}}" />
                             <Button Content="取消" Command="{Binding ClearSelectionCommand}" Style="{StaticResource QuietButton}" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}" />
                             <Button x:Name="RecastButton" Content="重铸换牌" Command="{Binding RecastSelectedCommand}" Style="{StaticResource ToolbarButton}" Visibility="{Binding ShowRecastAction, Converter={StaticResource BoolToVisibility}}" ToolTip="不选目标时可将铁索置入弃牌堆，再摸一张牌；不会进入无懈响应。" />
-                            <Button Content="当作杀" Command="{Binding PlaySelectedAsSlashCommand}" Style="{StaticResource ToolbarButton}" Visibility="{Binding HasAlternateSlash, Converter={StaticResource BoolToVisibility}}" ToolTip="通过武圣或龙胆把所选手牌当作杀使用。" />
+                            <Button Content="{Binding AlternatePlayText}" Command="{Binding PlaySelectedAsSlashCommand}" Style="{StaticResource ToolbarButton}" Visibility="{Binding HasAlternateSlash, Converter={StaticResource BoolToVisibility}}" ToolTip="按当前技能把所选实体牌转换为对应的有效牌型。" />
                             <Button x:Name="ActiveSkillEntryButton" Content="{Binding ActiveSkillEntryText}" Command="{Binding UseActiveSkillCommand}" Style="{StaticResource PrimaryButton}" Visibility="{Binding ShowActiveSkillEntry, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding HumanPlayer.SkillText}" />
                             <ItemsControl ItemsSource="{Binding AdditionalActiveSkillActions}" Visibility="{Binding ShowActiveSkillEntry, Converter={StaticResource BoolToVisibility}}">
                                 <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>

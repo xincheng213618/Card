@@ -198,7 +198,7 @@ public sealed partial class MainViewModel
             {
                 CurrentGuideTitle = CanConfirmSelected ? "确认这次出牌" : "选择亮起的目标";
                 CurrentGuideBody = ActionHint;
-                steps = ["亮起的武将才是当前合法目标；再次点击可以取消目标。", "点击金色出牌按钮或按 Enter 确认。存在转化时，按钮会注明当作杀使用。", "确认前可以取消或换另一张手牌。"];
+                steps = ["亮起的武将才是当前合法目标；再次点击可以取消目标。", "点击金色出牌按钮或按 Enter 确认。存在转化时，按钮会注明实际使用的有效牌型。", "确认前可以取消或换另一张实体牌。"];
             }
             else
             {

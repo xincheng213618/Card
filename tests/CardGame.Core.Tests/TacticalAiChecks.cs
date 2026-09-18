@@ -59,6 +59,26 @@ internal static class TacticalAiChecks
             view = Change(view, 0, player => player with { Role = Role.Loyalist });
             Pick(view, [remove, End()], kind);
         }
+        var qixiEquipment = new CardSnapshot(2001, CardKind.Crossbow, Suit.Club, 1, "诸葛连弩", "A");
+        var qixiView = Change(View(Role.Rebel), 0, player => player with
+        {
+            Skill = SkillKind.Qixi,
+            Hand = [],
+            HandCount = 0,
+            Equipment = [qixiEquipment]
+        });
+        lord = qixiView.Players.Single(player => player.Role == Role.Lord).Seat;
+        var qixiAction = new LegalAction(
+            LegalActionKind.Dismantlement,
+            qixiEquipment.Id,
+            lord,
+            "将已装备的诸葛连弩当作过河拆桥",
+            PlayedCardKind: CardKind.Dismantlement);
+        var qixiChoice = new SimpleAiBrain(0, 271, 2).ChoosePlay(qixiView, [qixiAction, End()], 1);
+        Require(qixiChoice.Action == qixiAction &&
+                qixiChoice.Thought.Candidates.Single(candidate => candidate.Action == qixiAction)
+                    .Reason.Contains("已装备", StringComparison.Ordinal),
+            "Qixi AI must score an equipment-backed conversion without treating the physical card as a hand card.");
         var vulnerable = Change(wine, 0, player => player with { Hp = 1 });
         Pick(vulnerable, [Action(LegalActionKind.Alcohol, 1000, 0), Action(LegalActionKind.Slash, 1001, lord), End()], LegalActionKind.Slash);
     }

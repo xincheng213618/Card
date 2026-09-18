@@ -197,6 +197,9 @@ public sealed partial class GameEngine
     private bool UsesFormalJiuyuan =>
         _rulesVersion >= 27 && IsClassicIdentityMode;
 
+    private bool UsesFormalQixi =>
+        _rulesVersion >= 28 && IsClassicIdentityMode;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -578,15 +581,15 @@ public sealed partial class GameEngine
         }
 
         var actor = _players[command.ActorSeat];
-        if (!GetHand(actor).Any(card => card.Id == command.CardId))
+        var card = FindOwnedPlayableCard(actor, command.CardId);
+        if (card is null)
         {
-            return Reject(CommandErrorCode.InvalidCard, "The selected card is not in the actor's hand.");
+            return Reject(CommandErrorCode.InvalidCard, "The selected card is not in the actor's playable zones.");
         }
 
         var legal = BuildLegalActions(actor)
             .Where(action => action.CardId == command.CardId && action.Kind != LegalActionKind.EndPlay)
             .ToArray();
-        var card = GetHand(actor).Single(candidate => candidate.Id == command.CardId);
         var action = SelectPlayAction(
             legal,
             card,
@@ -1684,6 +1687,9 @@ public sealed partial class GameEngine
         var kujinRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Kujin))
             ? "，苦肉者可在出牌阶段且体力大于 0 时失去 1 点体力；若进入濒死，救援结算后再摸两张牌"
             : string.Empty;
+        var qixiRules = UsesFormalQixi && _players.Any(player => player.General.HasSkill(SkillKind.Qixi))
+            ? "，甘宁可将手牌或装备区的一张黑色牌当作过河拆桥使用"
+            : string.Empty;
         var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
             ? UsesFormalZhihengEquipment
                 ? "，孙权每个出牌阶段限一次弃置任意张手牌或装备区牌并摸等量牌"
@@ -1752,6 +1758,10 @@ public sealed partial class GameEngine
         if (kujinRules.Length > 0)
         {
             AddLog("Rules", $"{kujinRules.TrimStart('，')}。");
+        }
+        if (qixiRules.Length > 0)
+        {
+            AddLog("Rules", $"{qixiRules.TrimStart('，')}。");
         }
         if (zhihengRules.Length > 0)
         {
@@ -1989,7 +1999,7 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.PlayCard);
         var actor = _players[_options.HumanSeat];
-        var card = GetHand(actor).SingleOrDefault(candidate => candidate.Id == cardId);
+        var card = FindOwnedPlayableCard(actor, cardId);
         var legal = card is null
             ? []
             : BuildLegalActions(actor)
@@ -5060,8 +5070,8 @@ public sealed partial class GameEngine
             return;
         }
 
-        var card = GetHand(actor).SingleOrDefault(candidate => candidate.Id == action.CardId) ??
-            throw new InvalidOperationException("The chosen card is no longer in the actor's hand.");
+        var card = FindOwnedPlayableCard(actor, action.CardId) ??
+            throw new InvalidOperationException("The chosen card is no longer in the actor's playable zones.");
 
         switch (action.Kind)
         {
@@ -5140,7 +5150,8 @@ public sealed partial class GameEngine
                     actor,
                     _players[action.TargetSeat.Value],
                     card,
-                    action.TargetCardId);
+                    action.TargetCardId,
+                    action.PlayedCardKind);
                 break;
             case LegalActionKind.Snatch:
                 if (action.TargetSeat is null)
@@ -5306,7 +5317,8 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targetSeats,
         LegalActionKind actionKind,
         int? targetCardId = null,
-        CardKind? requiredCardKind = null)
+        CardKind? requiredCardKind = null,
+        CardKind? playedCardKind = null)
     {
         if (_pendingNullification is not null)
         {
@@ -5322,7 +5334,8 @@ public sealed partial class GameEngine
             targetSeats,
             actionKind,
             targetCardId,
-            requiredCardKind)
+            requiredCardKind,
+            playedCardKind ?? effectCard.Kind)
         {
             CandidateSeats = candidates
         };
@@ -5334,7 +5347,7 @@ public sealed partial class GameEngine
             sourceSeat,
             Array.AsReadOnly(targetSeats.ToArray()),
             effectCard.Id,
-            effectCard.Kind,
+            pending.EffectiveCardKind,
             actionKind,
             targetCardId,
             requiredCardKind,
@@ -5373,7 +5386,7 @@ public sealed partial class GameEngine
                 continue;
             }
 
-            var effectName = CardCatalog.Get(pending.EffectCard.Kind).DisplayName;
+            var effectName = CardCatalog.Get(pending.EffectiveCardKind).DisplayName;
             _pendingDecision = new PendingDecision(
                 DecisionKind.Nullification,
                 responder.Seat,
@@ -5383,7 +5396,7 @@ public sealed partial class GameEngine
                 cards.Select(card => card.Id).ToArray(),
                 [],
                 pending.SourceSeat,
-                pending.EffectCard.Kind)
+                pending.EffectiveCardKind)
             {
                 PromptId = CreatePromptId(),
                 Choices = CreateNullificationChoices(pending, cards),
@@ -5393,7 +5406,7 @@ public sealed partial class GameEngine
             QueueGameEvent(new NullificationRequestedEvent(
                 pending.ResolutionId,
                 pending.EffectCard.Id,
-                pending.EffectCard.Kind,
+                pending.EffectiveCardKind,
                 pending.SourceSeat,
                 responder.Seat,
                 pending.EffectNullified,
@@ -5419,7 +5432,7 @@ public sealed partial class GameEngine
         NullificationResolution pending,
         IReadOnlyList<Card> cards)
     {
-        var effectName = CardCatalog.Get(pending.EffectCard.Kind).DisplayName;
+        var effectName = CardCatalog.Get(pending.EffectiveCardKind).DisplayName;
         var choices = cards
             .Select(card => new PromptChoice(
                 new ChoiceId($"nullification.card-{card.Id}.depth-{pending.ChainDepth}"),
@@ -5499,7 +5512,7 @@ public sealed partial class GameEngine
         QueueGameEvent(new NullificationRespondedEvent(
             pending.ResolutionId,
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             responder.Seat,
             card.Id,
             pending.EffectNullified,
@@ -5507,8 +5520,8 @@ public sealed partial class GameEngine
         AddLog(
             "NullificationResponded",
             pending.EffectNullified
-                ? $"{responder.Name} 使用【无懈可击】，使【{CardCatalog.Get(pending.EffectCard.Kind).DisplayName}】失效。"
-                : $"{responder.Name} 使用【无懈可击】，使【{CardCatalog.Get(pending.EffectCard.Kind).DisplayName}】恢复。",
+                ? $"{responder.Name} 使用【无懈可击】，使【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】失效。"
+                : $"{responder.Name} 使用【无懈可击】，使【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】恢复。",
             responder.Seat,
             pending.SourceSeat);
         ContinueNullificationWindow(pending);
@@ -5528,7 +5541,7 @@ public sealed partial class GameEngine
         QueueGameEvent(new NullificationResolvedEvent(
             pending.ResolutionId,
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             pending.EffectNullified,
             pending.ChainDepth));
         _pendingNullification = null;
@@ -5543,9 +5556,9 @@ public sealed partial class GameEngine
                 CardMoveReasons.UseFinished);
             AddLog(
                 "CardEffect",
-                $"【{CardCatalog.Get(pending.EffectCard.Kind).DisplayName}】的效果被无懈。",
+                $"【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】的效果被无懈。",
                 pending.SourceSeat);
-            FinishCardUse(pending.ResolutionId, pending.EffectCard);
+            FinishCardUse(pending.ResolutionId, pending.EffectCard, pending.EffectiveCardKind);
             return;
         }
 
@@ -5589,7 +5602,7 @@ public sealed partial class GameEngine
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Card kind {pending.EffectCard.Kind} cannot continue after Nullification.");
+                    $"Card kind {pending.EffectiveCardKind} cannot continue after Nullification.");
         }
     }
 
@@ -5741,6 +5754,7 @@ public sealed partial class GameEngine
         ApplyTargetCardEffect(
             pending.ResolutionId,
             pending.EffectCard,
+            pending.EffectiveCardKind,
             pending.SourceSeat,
             target.Seat,
             pending.ActionKind,
@@ -5764,6 +5778,7 @@ public sealed partial class GameEngine
             pending.ResolutionId,
             ++_resolutionSequence,
             pending.EffectCard,
+            pending.EffectiveCardKind,
             source.Seat,
             target.Seat,
             pending.ActionKind,
@@ -5776,17 +5791,17 @@ public sealed partial class GameEngine
             source.Seat,
             target.Seat,
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             pending.ActionKind,
             Array.AsReadOnly(candidateSlots)));
         _pendingDecision = new PendingDecision(
             DecisionKind.SelectTargetCard,
             source.Seat,
-            $"{source.Name} 使用【{CardCatalog.Get(pending.EffectCard.Kind).DisplayName}】，请选择 {target.Name} 的一张暗牌。",
+            $"{source.Name} 使用【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】，请选择 {target.Name} 的一张暗牌。",
             [],
             [target.Seat],
             source.Seat,
-            pending.EffectCard.Kind)
+            pending.EffectiveCardKind)
         {
             PromptId = CreatePromptId(),
             Choices = Array.AsReadOnly(candidateSlots
@@ -5850,6 +5865,7 @@ public sealed partial class GameEngine
         ApplyTargetCardEffect(
             pending.ResolutionId,
             pending.EffectCard,
+            pending.EffectiveCardKind,
             pending.SourceSeat,
             pending.TargetSeat,
             pending.ActionKind,
@@ -5860,6 +5876,7 @@ public sealed partial class GameEngine
     private void ApplyTargetCardEffect(
         long resolutionId,
         Card effectCard,
+        CardKind effectiveCardKind,
         int sourceSeat,
         int targetSeat,
         LegalActionKind actionKind,
@@ -5911,9 +5928,9 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardLocation.DiscardPile,
             CardMoveReasons.UseFinished);
-        FinishCardUse(resolutionId, effectCard);
+        FinishCardUse(resolutionId, effectCard, effectiveCardKind);
 
-        var displayName = CardCatalog.Get(effectCard.Kind).DisplayName;
+        var displayName = CardCatalog.Get(effectiveCardKind).DisplayName;
         var targetDescription = targetCardFromZone.Zone switch
         {
             CardZoneKind.Equipment => $"装备【{targetCard.DisplayName}】",
@@ -5964,11 +5981,11 @@ public sealed partial class GameEngine
 
     private void SkipUnavailableTargetCardEffect(NullificationResolution pending, PlayerRuntime target, CardEffectSkipReason reason)
     {
-        QueueGameEvent(new CardEffectSkippedEvent(pending.ResolutionId, pending.SourceSeat, target.Seat, pending.EffectCard.Kind, reason));
+        QueueGameEvent(new CardEffectSkippedEvent(pending.ResolutionId, pending.SourceSeat, target.Seat, pending.EffectiveCardKind, reason));
         MoveCard(pending.EffectCard, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
-        FinishCardUse(pending.ResolutionId, pending.EffectCard);
+        FinishCardUse(pending.ResolutionId, pending.EffectCard, pending.EffectiveCardKind);
         var explanation = reason == CardEffectSkipReason.TargetHandEmpty ? "已没有手牌" : "所选的公开牌已不在原处";
-        AddLog("CardEffect", $"【{pending.EffectCard.DisplayName}】结算时，{target.Name}{explanation}，本次效果跳过。", pending.SourceSeat, target.Seat);
+        AddLog("CardEffect", $"【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】结算时，{target.Name}{explanation}，本次效果跳过。", pending.SourceSeat, target.Seat);
     }
 
     private void ResolveDuelEffect(NullificationResolution pending)
@@ -6308,14 +6325,16 @@ public sealed partial class GameEngine
         PlayerRuntime source,
         PlayerRuntime target,
         Card dismantlement,
-        int? targetCardId) =>
+        int? targetCardId,
+        CardKind? playedCardKind = null) =>
         BeginTargetCardEffect(
             source,
             target,
             dismantlement,
             LegalActionKind.Dismantlement,
             TargetCardEffect.Discard,
-            targetCardId);
+            targetCardId,
+            playedCardKind);
 
     private void ResolveSnatch(
         PlayerRuntime source,
@@ -6336,13 +6355,16 @@ public sealed partial class GameEngine
         Card effectCard,
         LegalActionKind actionKind,
         TargetCardEffect effect,
-        int? targetCardId)
+        int? targetCardId,
+        CardKind? playedCardKind = null)
     {
+        var effectiveCardKind = playedCardKind ?? effectCard.Kind;
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == actionKind &&
             action.CardId == effectCard.Id &&
             action.TargetSeat == target.Seat &&
-            action.TargetCardId == targetCardId);
+            action.TargetCardId == targetCardId &&
+            (action.PlayedCardKind ?? effectCard.Kind) == effectiveCardKind);
         if (!stillLegal)
         {
             throw new InvalidOperationException(
@@ -6366,10 +6388,11 @@ public sealed partial class GameEngine
             }
         }
 
-        var resolutionId = BeginCardUse(effectCard, source.Seat, [target.Seat]);
+        var sourceLocation = FindOwnedCardLocation(source, effectCard);
+        var resolutionId = BeginCardUse(effectCard, source.Seat, [target.Seat], effectiveCardKind);
         MoveCard(
             effectCard,
-            CardLocation.Hand(source.Seat),
+            sourceLocation,
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginNullificationWindow(
@@ -6378,7 +6401,8 @@ public sealed partial class GameEngine
             source.Seat,
             [target.Seat],
             actionKind,
-            targetCardId);
+            targetCardId,
+            playedCardKind: effectiveCardKind);
     }
 
     private void ResolveFireAttack(
@@ -12266,6 +12290,29 @@ public sealed partial class GameEngine
             }
         }
 
+        if (UsesFormalQixi)
+        {
+            var qixiCards = GetHand(actor)
+                .Concat(GetEquipment(actor))
+                .Where(card => skill.CanUseAsDismantlement(skillContext, card));
+            foreach (var converted in qixiCards)
+            {
+                foreach (var target in _players.Where(player =>
+                             player.IsAlive &&
+                             player.Seat != actor.Seat &&
+                             HasTargetCard(player)))
+                {
+                    AddTargetCardActions(
+                        actions,
+                        LegalActionKind.Dismantlement,
+                        converted,
+                        target,
+                        "过河拆桥",
+                        CardKind.Dismantlement);
+                }
+            }
+        }
+
         foreach (var snatch in GetHand(actor).Where(card => card.Kind == CardKind.Snatch))
         {
             var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.Snatch);
@@ -12350,15 +12397,20 @@ public sealed partial class GameEngine
         LegalActionKind actionKind,
         Card effectCard,
         PlayerRuntime target,
-        string effectName)
+        string effectName,
+        CardKind? playedCardKind = null)
     {
+        var useDescription = playedCardKind is null
+            ? $"对 {target.Name} 使用【{effectName}】"
+            : $"将【{effectCard.DisplayName}】当作【{effectName}】对 {target.Name} 使用";
         if (GetHand(target).Count > 0)
         {
             actions.Add(new LegalAction(
                 actionKind,
                 effectCard.Id,
                 target.Seat,
-                $"对 {target.Name} 使用【{effectName}】"));
+                useDescription,
+                PlayedCardKind: playedCardKind));
         }
 
         foreach (var equipment in GetEquipment(target))
@@ -12367,7 +12419,8 @@ public sealed partial class GameEngine
                 actionKind,
                 effectCard.Id,
                 target.Seat,
-                $"对 {target.Name} 使用【{effectName}】，选择其装备【{equipment.DisplayName}】",
+                $"{useDescription}，选择其装备【{equipment.DisplayName}】",
+                PlayedCardKind: playedCardKind,
                 TargetCardId: equipment.Id));
         }
 
@@ -12377,9 +12430,36 @@ public sealed partial class GameEngine
                 actionKind,
                 effectCard.Id,
                 target.Seat,
-                $"对 {target.Name} 使用【{effectName}】，选择其判定区【{judgment.DisplayName}】",
+                $"{useDescription}，选择其判定区【{judgment.DisplayName}】",
+                PlayedCardKind: playedCardKind,
                 TargetCardId: judgment.Id));
         }
+    }
+
+    private Card? FindOwnedPlayableCard(PlayerRuntime actor, int? cardId)
+    {
+        if (cardId is not { } requestedCardId)
+        {
+            return null;
+        }
+
+        return GetHand(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
+               GetEquipment(actor).SingleOrDefault(card => card.Id == requestedCardId);
+    }
+
+    private CardLocation FindOwnedCardLocation(PlayerRuntime actor, Card card)
+    {
+        if (GetHand(actor).Any(candidate => candidate.Id == card.Id))
+        {
+            return CardLocation.Hand(actor.Seat);
+        }
+
+        if (GetEquipment(actor).Any(candidate => candidate.Id == card.Id))
+        {
+            return CardLocation.Equipment(actor.Seat);
+        }
+
+        throw new InvalidOperationException("The chosen card is no longer in the actor's playable zones.");
     }
 
     private static bool IsPublicTargetZone(CardZoneKind zone) =>
@@ -13648,7 +13728,7 @@ public sealed partial class GameEngine
                 frame.Id != nullification.FrameId ||
                 frame.ParentFrameId != nullification.ResolutionId ||
                 frame.EffectCardId != nullification.EffectCard.Id ||
-                frame.EffectCardKind != nullification.EffectCard.Kind ||
+                frame.EffectCardKind != nullification.EffectiveCardKind ||
                 frame.ActionKind != nullification.ActionKind ||
                 frame.TargetCardId != nullification.TargetCardId ||
                 frame.RequiredCardKind != nullification.RequiredCardKind ||
@@ -13672,7 +13752,7 @@ public sealed partial class GameEngine
                 nullification.CandidateIndex >= nullification.CandidateSeats.Count ||
                 nullificationDecision.PlayerSeat != nullification.CandidateSeats[nullification.CandidateIndex] ||
                 nullificationDecision.SourceSeat != nullification.SourceSeat ||
-                nullificationDecision.IncomingCard != nullification.EffectCard.Kind ||
+                nullificationDecision.IncomingCard != nullification.EffectiveCardKind ||
                 nullificationDecision.RequiredCardKind != CardKind.Nullification ||
                 !nullificationDecision.ValidCardIds.SequenceEqual(currentNullificationCards))
             {
@@ -13720,7 +13800,7 @@ public sealed partial class GameEngine
                 frame.SourceSeat != targetCardSelection.SourceSeat ||
                 frame.TargetSeat != targetCardSelection.TargetSeat ||
                 frame.EffectCardId != targetCardSelection.EffectCard.Id ||
-                frame.EffectCardKind != targetCardSelection.EffectCard.Kind ||
+                frame.EffectCardKind != targetCardSelection.EffectiveCardKind ||
                 frame.ActionKind != targetCardSelection.ActionKind ||
                 !frame.CandidateSlots.SequenceEqual(expectedSlots))
             {
@@ -15109,11 +15189,13 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targetSeats,
         LegalActionKind actionKind,
         int? targetCardId,
-        CardKind? requiredCardKind)
+        CardKind? requiredCardKind,
+        CardKind effectiveCardKind)
     {
         public long ResolutionId { get; } = resolutionId;
         public long FrameId { get; } = frameId;
         public Card EffectCard { get; } = effectCard;
+        public CardKind EffectiveCardKind { get; } = effectiveCardKind;
         public int SourceSeat { get; } = sourceSeat;
         public IReadOnlyList<int> TargetSeats { get; } = Array.AsReadOnly(targetSeats.ToArray());
         public LegalActionKind ActionKind { get; } = actionKind;
@@ -15130,6 +15212,7 @@ public sealed partial class GameEngine
         long resolutionId,
         long frameId,
         Card effectCard,
+        CardKind effectiveCardKind,
         int sourceSeat,
         int targetSeat,
         LegalActionKind actionKind,
@@ -15138,6 +15221,7 @@ public sealed partial class GameEngine
         public long ResolutionId { get; } = resolutionId;
         public long FrameId { get; } = frameId;
         public Card EffectCard { get; } = effectCard;
+        public CardKind EffectiveCardKind { get; } = effectiveCardKind;
         public int SourceSeat { get; } = sourceSeat;
         public int TargetSeat { get; } = targetSeat;
         public LegalActionKind ActionKind { get; } = actionKind;

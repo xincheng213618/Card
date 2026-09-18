@@ -1712,6 +1712,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Mashu => role is Role.Rebel or Role.Renegade ? 38d : 34d,
             SkillKind.Qicai => role is Role.Rebel or Role.Renegade ? 37d : 33d,
             SkillKind.Jijiu => role is Role.Lord or Role.Loyalist ? 40d : 36d,
+            SkillKind.Qixi => role is Role.Rebel or Role.Renegade ? 39d : 35d,
             _ => 12d
         };
         var reason = candidate.Skill switch
@@ -1738,6 +1739,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Jijiu => "濒死窗口可将红色牌当作桃使用，扩大自己的救援牌来源。",
             SkillKind.Jijiang => "需要使用或打出杀时可请求其他蜀势力角色提供，适合共享阵营攻击资源。",
             SkillKind.Jiuyuan => "其他吴势力角色用桃救援濒死主公时额外回复一点体力，提高阵营救援效率。",
+            SkillKind.Qixi => "可将黑色手牌或已装备牌当作过河拆桥，扩展对公开装备、判定区和暗手牌的控制。",
             _ => "当前演示版没有主动技能，作为稳定基础候选。"
         };
         return (score, reason);
@@ -1891,7 +1893,9 @@ public sealed partial class SimpleAiBrain
             return (0d, "结束出牌是所有局面的保底动作。");
         }
 
-        var card = self.Hand.Single(candidate => candidate.Id == action.CardId);
+        var card = self.Hand
+            .Concat(self.Equipment)
+            .Single(candidate => candidate.Id == action.CardId);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);
 
@@ -2043,11 +2047,19 @@ public sealed partial class SimpleAiBrain
             var publicTargetPressure = publicTarget is null
                 ? 0d
                 : CardCatalog.Get(publicTarget.Kind).AiPlayValue * 0.75d + 12d;
+            var equipmentCost = self.Equipment.Any(equipment => equipment.Id == card.Id)
+                ? Math.Max(6d, CardCatalog.Get(card.Kind).AiPlayValue * 0.75d)
+                : 0d;
+            var qixiText = action.PlayedCardKind == CardKind.Dismantlement && card.Kind != CardKind.Dismantlement
+                ? equipmentCost > 0d
+                    ? $"；以已装备的【{card.DisplayName}】发动奇袭，计入公开装备机会成本"
+                    : $"；将手牌【{card.DisplayName}】当作【过河拆桥】"
+                : string.Empty;
             return (
-                cardProfile.AiPlayValue + hostility + handPressure + publicTargetPressure,
+                cardProfile.AiPlayValue + hostility + handPressure + publicTargetPressure - equipmentCost,
                 publicTarget is null
-                    ? $"选择目标的一张不透明牌位；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌。"
-                    : $"弃置目标公开{publicTargetZone}【{publicTarget.DisplayName}】；只读取公开{publicTargetZone}和身份敌对值，不读取目标暗牌。");
+                    ? $"选择目标的一张不透明牌位；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌{qixiText}。"
+                    : $"弃置目标公开{publicTargetZone}【{publicTarget.DisplayName}】；只读取公开{publicTargetZone}和身份敌对值，不读取目标暗牌{qixiText}。");
         }
 
         if (action.Kind == LegalActionKind.Snatch)

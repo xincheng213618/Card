@@ -29,6 +29,7 @@ public static class GeneralArt
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["huang-gai"] = "demo-yuanhu",
+            ["gan-ning"] = "zhao-yun",
             ["demo-kujin"] = "sun-quan",
             ["demo-zhiheng"] = "sun-quan",
             ["demo-rende"] = "liu-bei",

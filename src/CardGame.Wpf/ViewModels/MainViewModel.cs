@@ -76,6 +76,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         SelectResponseChoiceCommand = new RelayCommand<PromptChoice>(SelectResponseChoice);
         SelectSkillChoiceCommand = new RelayCommand<PromptChoice>(SelectSkillChoice);
         SelectActiveSkillEquipmentChoiceCommand = new RelayCommand<PromptChoice>(SelectActiveSkillEquipmentChoice);
+        SelectEquipmentPlayChoiceCommand = new RelayCommand<PromptChoice>(SelectEquipmentPlayChoice);
         SelectPublicTargetChoiceCommand = new RelayCommand<PromptChoice>(SelectPublicTargetChoice);
         SelectTargetCombinationChoiceCommand = new RelayCommand<PromptChoice>(SelectTargetCombinationChoice);
         PlaySelectedCardCommand = new RelayCommand(PlaySelectedCard, () => CanPlaySelected);
@@ -131,6 +132,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<PromptChoice> ResponseChoices { get; } = [];
     public ObservableCollection<PromptChoice> SkillChoices { get; } = [];
     public ObservableCollection<PromptChoice> ActiveSkillEquipmentChoices { get; } = [];
+    public ObservableCollection<PromptChoice> EquipmentPlayChoices { get; } = [];
     public ObservableCollection<PromptChoice> PublicTargetChoices { get; } = [];
     public ObservableCollection<PromptChoice> TargetCombinationChoices { get; } = [];
     public ObservableCollection<CardViewModel> PublicRevealedCards { get; } = [];
@@ -149,6 +151,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public ICommand SelectResponseChoiceCommand { get; }
     public ICommand SelectSkillChoiceCommand { get; }
     public ICommand SelectActiveSkillEquipmentChoiceCommand { get; }
+    public ICommand SelectEquipmentPlayChoiceCommand { get; }
     public ICommand SelectPublicTargetChoiceCommand { get; }
     public ICommand SelectTargetCombinationChoiceCommand { get; }
     public ICommand PlaySelectedCardCommand { get; }
@@ -493,6 +496,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ResponseChoices.Clear();
         SkillChoices.Clear();
         ActiveSkillEquipmentChoices.Clear();
+        EquipmentPlayChoices.Clear();
         PublicTargetChoices.Clear();
         TargetCombinationChoices.Clear();
         PublicRevealedCards.Clear();
@@ -708,6 +712,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (human is not null)
         {
             RebuildActiveSkillEquipmentChoices(human, activeSkillCardIds);
+            RebuildEquipmentPlayChoices(human, legalActions);
             var ids = human.Hand.Select(card => card.Id).ToHashSet();
             for (var i = Hand.Count - 1; i >= 0; i--)
                 if (!ids.Contains(Hand[i].Id)) Hand.RemoveAt(i);
@@ -909,6 +914,65 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         ToggleActiveSkillCard(choice.Cards[0]);
+    }
+
+    private void SelectEquipmentPlayChoice(PromptChoice choice)
+    {
+        if (choice.Cards.Count != 1 || _snapshot.PendingDecision?.Kind != DecisionKind.PlayCard)
+        {
+            return;
+        }
+
+        var cardId = choice.Cards[0];
+        var equipment = _snapshot.Players.Single(player => player.IsHuman).Equipment
+            .SingleOrDefault(card => card.Id == cardId);
+        if (equipment is null)
+        {
+            return;
+        }
+
+        _selectedCardId = _selectedCardId == cardId ? null : cardId;
+        _selectedTargetSeat = null;
+        _selectedCardTargetSeats.Clear();
+        SelectedCardText = _selectedCardId is null
+            ? "未选择手牌或装备"
+            : $"已选择装备：{equipment.DisplayName}";
+        RebuildEquipmentPlayChoices(
+            _snapshot.Players.Single(player => player.IsHuman),
+            _game.GetHumanLegalActions());
+        RebuildPublicTargetChoices();
+        RefreshTargetHighlights();
+    }
+
+    private void RebuildEquipmentPlayChoices(
+        PlayerSnapshot human,
+        IReadOnlyList<LegalAction> legalActions)
+    {
+        EquipmentPlayChoices.Clear();
+        if (_snapshot.PendingDecision?.Kind != DecisionKind.PlayCard || IsActiveSkillSelectionPending)
+        {
+            return;
+        }
+
+        var playableEquipmentIds = legalActions
+            .Where(action => action.CardId.HasValue && action.PlayedCardKind is not null)
+            .Select(action => action.CardId!.Value)
+            .ToHashSet();
+        foreach (var equipment in human.Equipment.Where(card => playableEquipmentIds.Contains(card.Id)))
+        {
+            var selected = _selectedCardId == equipment.Id;
+            EquipmentPlayChoices.Add(new PromptChoice(
+                new ChoiceId($"equipment-play.card-{equipment.Id}"),
+                selected
+                    ? $"✓ 已选择装备【{equipment.DisplayName}】；点击取消"
+                    : $"将装备【{equipment.DisplayName}】用于牌型转化",
+                [equipment.Id],
+                [],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "select-equipment-play-card"
+                }));
+        }
     }
 
     private void RebuildActiveSkillEquipmentChoices(
@@ -1361,11 +1425,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             seat.IsSelectedTarget = selectedTargets.Contains(seat.Seat);
         }
 
-        var physicalCard = _snapshot.Players.FirstOrDefault(player => player.IsHuman)?.Hand.FirstOrDefault(card => card.Id == _selectedCardId);
+        var human = _snapshot.Players.FirstOrDefault(player => player.IsHuman);
+        var physicalCard = human?.Hand.Concat(human.Equipment).FirstOrDefault(card => card.Id == _selectedCardId);
         CanPlaySelected = selectedActions.Any(action => action.TargetSeats.SequenceEqual(selectedTargets)
             && action.TargetCardId is null && (action.PlayedCardKind is null || action.PlayedCardKind == physicalCard?.Kind));
         CanPlaySelectedAsSlash = selectedActions.Any(action =>
-            action.TargetSeats.SequenceEqual(selectedTargets) && action.PlayedCardKind == CardKind.Slash && physicalCard?.Kind != CardKind.Slash);
+            action.TargetSeats.SequenceEqual(selectedTargets) && action.TargetCardId is null &&
+            action.PlayedCardKind is { } effectiveKind && effectiveKind != physicalCard?.Kind);
         RefreshSelectionHint();
     }
 
@@ -1376,11 +1442,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void PlaySelectedAction(bool asSlash)
     {
         if (_selectedCardId is not { } cardId || _snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt) return;
-        var physicalKind = _snapshot.Players.Single(player => player.IsHuman).Hand.Single(card => card.Id == cardId).Kind;
+        var human = _snapshot.Players.Single(player => player.IsHuman);
+        var physicalKind = human.Hand.Concat(human.Equipment).Single(card => card.Id == cardId).Kind;
         var targets = SelectedPlayTargets();
         var action = _game.GetHumanLegalActions().SingleOrDefault(action => action.CardId == cardId &&
             action.Kind != LegalActionKind.Recast && action.TargetCardId is null && action.TargetSeats.SequenceEqual(targets) &&
-            (asSlash ? action.PlayedCardKind == CardKind.Slash : action.PlayedCardKind is null || action.PlayedCardKind == physicalKind));
+            (asSlash
+                ? action.PlayedCardKind is { } effectiveKind && effectiveKind != physicalKind
+                : action.PlayedCardKind is null || action.PlayedCardKind == physicalKind));
         if (action is null) return;
 
         ExecuteSafely(() =>
@@ -1844,7 +1913,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _ when generalId.StartsWith("classic:", StringComparison.Ordinal) => generalId switch
         {
             "classic:liu-bei" or "classic:zhuge-liang" => "蜀",
-            "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" => "吴",
+            "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" or "classic:gan-ning" => "吴",
             "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" => "魏",
             _ => "群"
         },

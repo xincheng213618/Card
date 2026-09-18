@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 7, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 8, 0))
     {
     }
 
@@ -26,12 +26,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 4, 0) &&
             version != new Version(1, 5, 0) &&
             version != new Version(1, 6, 0) &&
-            version != new Version(1, 7, 0))
+            version != new Version(1, 7, 0) &&
+            version != new Version(1, 8, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.7.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.8.0.");
         }
 
         _version = version;
@@ -99,6 +100,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "救援",
                 "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",
                 SkillKind.Jiuyuan));
+        }
+        if (_version >= new Version(1, 8, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:qixi",
+                "奇袭",
+                "你可以将一张黑色牌当【过河拆桥】使用。",
+                SkillKind.Qixi));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -198,6 +207,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wu",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 8, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:gan-ning",
+                "甘宁",
+                "gan_ning",
+                "classic:qixi",
+                "wu",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -208,6 +227,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 4 } => PreHuangGaiClassicGeneralIds,
             { Major: 1, Minor: 5 } => PreHuangGaiClassicGeneralIds,
             { Major: 1, Minor: 6 } => PreHuangGaiClassicGeneralIds,
+            { Major: 1, Minor: 7 } => PreGanNingClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -252,6 +272,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:hua-tuo",
         "classic:cao-cao",
         "classic:huang-gai",
+        "classic:gan-ning",
         "standard:zhang-fei",
         "classic:zhou-yu",
         "classic:zhuge-liang",
@@ -260,9 +281,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreGanNingClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:gan-ning")
+    ];
+
     internal static IReadOnlyList<string> PreHuangGaiClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:huang-gai")
+        .. PreGanNingClassicGeneralIds.Where(id => id != "classic:huang-gai")
     ];
 
     internal static IReadOnlyList<string> GuanxingClassicGeneralIds { get; } =
