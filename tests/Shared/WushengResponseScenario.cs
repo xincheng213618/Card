@@ -9,7 +9,20 @@ internal static class WushengResponseScenario
     public static GameEngine FindLongdanDodge()
         => FindResponse(CardKind.Slash, SkillKind.Longdan, DecisionKind.RespondDodge);
 
-    private static GameEngine FindResponse(CardKind incoming, SkillKind responderSkill, DecisionKind decisionKind)
+    public static GameEngine FindQingguoDodge(CardKind incoming = CardKind.Slash)
+        => FindResponse(
+            incoming,
+            SkillKind.Qingguo,
+            DecisionKind.RespondDodge,
+            StandardContentRegistry.CreateWithClassicGenerals(),
+            "identity:classic-8");
+
+    private static GameEngine FindResponse(
+        CardKind incoming,
+        SkillKind responderSkill,
+        DecisionKind decisionKind,
+        ContentRegistry? registry = null,
+        string? modeId = null)
     {
         for (var seed = 1; seed <= 256; seed++)
         {
@@ -19,13 +32,19 @@ internal static class WushengResponseScenario
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
                 PlayerCount = 8,
+                ModeId = modeId,
                 UseInteractiveSetup = false,
                 UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false,
                 MaxTurns = 160,
                 AiPolicyVersion = 2
-            }, StandardContentRegistry.Create());
-            if (game.CreateSnapshot(0).Players[0].Skill != responderSkill) continue;
+            }, registry ?? StandardContentRegistry.Create());
+            var human = game.CreateSnapshot(0).Players[0];
+            if (human.Skill != responderSkill &&
+                human.Skills?.Any(skill => skill.Kind == responderSkill) != true)
+            {
+                continue;
+            }
             Require(game.Submit(new StartGameCommand()).Accepted, "Wusheng fixture failed to start.");
             for (var step = 0; step < 2500 && game.State.Status != EngineStatus.Completed; step++)
             {

@@ -148,7 +148,9 @@ public enum SkillKind
     Tuxi,
     Luoyi,
     Qiangxi,
-    Duanliang
+    Duanliang,
+    Luoshen,
+    Qingguo
 }
 
 public enum DecisionKind
@@ -177,7 +179,8 @@ public enum DecisionKind
     SelectTargetCard,
     Keji,
     Tuxi,
-    Luoyi
+    Luoyi,
+    Luoshen
 }
 
 public enum GangliePunishmentKind

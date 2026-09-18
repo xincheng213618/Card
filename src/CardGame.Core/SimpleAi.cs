@@ -919,14 +919,15 @@ public sealed partial class SimpleAiBrain
         int rank,
         bool usesSuitSpecificDelayedJudgments,
         bool usesClassicGanglieJudgment) => reason switch
-    {
-        JudgmentReasons.Lightning => suit == Suit.Spade && rank is >= 2 and <= 9,
-        JudgmentReasons.Indulgence when usesSuitSpecificDelayedJudgments => suit == Suit.Heart,
-        JudgmentReasons.SupplyShortage when usesSuitSpecificDelayedJudgments => suit == Suit.Club,
-        JudgmentReasons.Ganglie when usesSuitSpecificDelayedJudgments && usesClassicGanglieJudgment =>
-            suit != Suit.Heart,
-        _ => suit is Suit.Heart or Suit.Diamond
-    };
+        {
+            JudgmentReasons.Lightning => suit == Suit.Spade && rank is >= 2 and <= 9,
+            JudgmentReasons.Indulgence when usesSuitSpecificDelayedJudgments => suit == Suit.Heart,
+            JudgmentReasons.SupplyShortage when usesSuitSpecificDelayedJudgments => suit == Suit.Club,
+            JudgmentReasons.Luoshen => suit is Suit.Spade or Suit.Club,
+            JudgmentReasons.Ganglie when usesSuitSpecificDelayedJudgments && usesClassicGanglieJudgment =>
+                suit != Suit.Heart,
+            _ => suit is Suit.Heart or Suit.Diamond
+        };
 
     /// <summary>
     /// Chooses the bounded Yiji gift from the owner's private hand and the

@@ -237,6 +237,12 @@ public sealed record GuanxingResolvedEvent(
     int TopCount,
     int BottomCount) : IGameEvent;
 
+/// <summary>Public result of one initial or repeated Luoshen choice.</summary>
+public sealed record LuoshenChoiceResolvedEvent(
+    int SourceSeat,
+    bool Used,
+    bool IsRepeat) : IGameEvent;
+
 public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing }
 
 /// <summary>The declared target lost its required cards during the response window.</summary>

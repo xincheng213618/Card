@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 13, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 14, 0))
     {
     }
 
@@ -32,12 +32,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 10, 0) &&
             version != new Version(1, 11, 0) &&
             version != new Version(1, 12, 0) &&
-            version != new Version(1, 13, 0))
+            version != new Version(1, 13, 0) &&
+            version != new Version(1, 14, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.13.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.14.0.");
         }
 
         _version = version;
@@ -153,6 +154,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "断粮",
                 "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用；你可以对距离为2的角色使用【兵粮寸断】。",
                 SkillKind.Duanliang));
+        }
+        if (_version >= new Version(1, 14, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:luoshen",
+                "洛神",
+                "准备阶段开始时，你可以进行判定，若结果为黑色，你可以再次进行判定，直到出现红色的结果，然后你获得所有生效后的黑色判定牌。",
+                SkillKind.Luoshen));
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:qingguo",
+                "倾国",
+                "你可以将1张黑色手牌当【闪】使用或打出。",
+                SkillKind.Qingguo));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -312,6 +326,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wei",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 14, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhen-ji",
+                "甄姬",
+                "zhen_ji",
+                "classic:luoshen",
+                "wei",
+                BaseHp: 3,
+                AdditionalSkillIds: ["classic:qingguo"]));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -328,6 +353,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 10 } => PreXuChuClassicGeneralIds,
             { Major: 1, Minor: 11 } => PreDianWeiClassicGeneralIds,
             { Major: 1, Minor: 12 } => PreXuHuangClassicGeneralIds,
+            { Major: 1, Minor: 13 } => PreZhenJiClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -375,6 +401,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:xu-chu",
         "classic:dian-wei",
         "classic:xu-huang",
+        "classic:zhen-ji",
         "classic:huang-gai",
         "classic:gan-ning",
         "classic:lu-meng",
@@ -386,9 +413,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreZhenJiClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:zhen-ji")
+    ];
+
     internal static IReadOnlyList<string> PreXuHuangClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:xu-huang")
+        .. PreZhenJiClassicGeneralIds.Where(id => id != "classic:xu-huang")
     ];
 
     internal static IReadOnlyList<string> PreDianWeiClassicGeneralIds { get; } =

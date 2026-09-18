@@ -348,7 +348,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="222" />
-                        <RowDefinition Height="118" />
+                        <RowDefinition Height="154" />
                     </Grid.RowDefinitions>
                     <Grid>
                         <Rectangle Fill="{Binding PortraitBrush}" />

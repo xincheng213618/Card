@@ -282,6 +282,26 @@ public sealed class DuanliangSkill : IPassiveSkill
         int currentLimit) => Math.Max(currentLimit, 2);
 }
 
+public sealed class LuoshenSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Luoshen;
+    public string Name => "洛神";
+}
+
+public sealed class QingguoSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Qingguo;
+    public string Name => "倾国";
+
+    public bool CanUseAsResponse(
+        PlayerSkillContext owner,
+        Card card,
+        CardKind requiredCardKind) =>
+        requiredCardKind == CardKind.Dodge &&
+        card.Kind != CardKind.Dodge &&
+        card.Suit is Suit.Spade or Suit.Club;
+}
+
 public sealed class KejiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Keji;
@@ -761,7 +781,9 @@ public static class SkillRegistry
             [SkillKind.Tuxi] = new TuxiSkill(),
             [SkillKind.Luoyi] = new LuoyiSkill(),
             [SkillKind.Qiangxi] = new QiangxiSkill(),
-            [SkillKind.Duanliang] = new DuanliangSkill()
+            [SkillKind.Duanliang] = new DuanliangSkill(),
+            [SkillKind.Luoshen] = new LuoshenSkill(),
+            [SkillKind.Qingguo] = new QingguoSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

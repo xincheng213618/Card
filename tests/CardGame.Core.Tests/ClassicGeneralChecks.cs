@@ -22,6 +22,7 @@ internal static class ClassicGeneralChecks
         var tuxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 10, 0));
         var luoyiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 11, 0));
         var qiangxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 12, 0));
+        var duanliangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 13, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -30,7 +31,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.13.0"]),
+                "standard-classic-generals@1.14.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -115,6 +116,14 @@ internal static class ClassicGeneralChecks
                     "classic:xu-huang",
                     StringComparer.Ordinal),
             "The Qiangxi-era classic registry must retain the 1.12 roster without Xu Huang or Duanliang.");
+        Require(duanliangClassic.Packages.Last().Version == new Version(1, 13, 0) &&
+                !duanliangClassic.Generals.ContainsKey("classic:zhen-ji") &&
+                !duanliangClassic.Skills.ContainsKey("classic:luoshen") &&
+                !duanliangClassic.Skills.ContainsKey("classic:qingguo") &&
+                !duanliangClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:zhen-ji",
+                    StringComparer.Ordinal),
+            "The Duanliang-era classic registry must retain the 1.13 roster without Zhen Ji, Luoshen or Qingguo.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -188,6 +197,12 @@ internal static class ClassicGeneralChecks
                 xuHuang.BaseHp == 4 &&
                 xuHuang.SkillIds.SequenceEqual(["classic:duanliang"]),
             "The current classic Xu Huang must expose the formal Wei, 4-HP Duanliang definition.");
+        var zhenJi = classic.Generals["classic:zhen-ji"];
+        Require(zhenJi.Name == "甄姬" &&
+                zhenJi.FactionId == "wei" &&
+                zhenJi.BaseHp == 3 &&
+                zhenJi.SkillIds.SequenceEqual(["classic:luoshen", "classic:qingguo"]),
+            "The current classic Zhen Ji must expose formal Wei, 3-HP Luoshen and Qingguo in a stable order.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -204,12 +219,13 @@ internal static class ClassicGeneralChecks
                       pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
                       pool.Contains("classic:dian-wei", StringComparer.Ordinal) &&
                       pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
+                      pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 33,
-            "Classic Duanliang must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 34,
+            "Classic Luoshen and Qingguo must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -272,6 +288,13 @@ internal static class ClassicGeneralChecks
                 !duanliang.CanUseAsSupplyShortage(damaged, new Card(9104, CardKind.Slash, Suit.Heart, 8)) &&
                 duanliang.ModifySupplyShortageDistanceLimit(damaged, 1) == 2,
             "Formal Duanliang must accept only black basic/equipment cards and extend Supply Shortage to distance two.");
+
+        var qingguo = SkillRegistry.Get(SkillKind.Qingguo);
+        Require(qingguo.CanUseAsResponse(damaged, new Card(9201, CardKind.Slash, Suit.Spade, 7), CardKind.Dodge) &&
+                qingguo.CanUseAsResponse(damaged, new Card(9202, CardKind.Duel, Suit.Club, 1), CardKind.Dodge) &&
+                !qingguo.CanUseAsResponse(damaged, new Card(9203, CardKind.Slash, Suit.Heart, 8), CardKind.Dodge) &&
+                !qingguo.CanUseAsResponse(damaged, new Card(9204, CardKind.Slash, Suit.Spade, 9), CardKind.Slash),
+            "Formal Qingguo must convert only black cards into Dodge responses.");
     }
 
     public static void FormalJiuyuanRecoveryBonus()
@@ -1381,6 +1404,148 @@ internal static class ClassicGeneralChecks
                         .Hand.Single(card => card.Id == action.CardId).Kind == CardKind.SupplyShortage),
             legacyAdvance.Error?.Message ??
             "Rules v32 must not expose Duanliang card conversions.");
+    }
+
+    public static void FormalLuoshenAndQingguoFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = FindZhenJiFirstBlackLuoshenFixture(registry);
+        var owner = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(owner.GeneralId == "classic:zhen-ji" &&
+                owner.MaxHp == 4 &&
+                owner.Hp == 4 &&
+                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Luoshen, SkillKind.Qingguo]) &&
+                game.PendingDecision is
+                {
+                    Kind: DecisionKind.Luoshen,
+                    PlayerSeat: 0,
+                    IsPrivate: true,
+                    Choices.Count: 2
+                } repeatPrompt &&
+                repeatPrompt.Prompt.Contains("再次", StringComparison.Ordinal) &&
+                game.CreateSnapshot(1).PendingDecision is null,
+            "Classic Zhen Ji must publish a private repeated Luoshen choice after claiming a black judgment.");
+
+        var blackJudgment = game.Events.Select(item => item.Payload)
+            .OfType<JudgmentResolvedEvent>()
+            .Last(item => item.Reason == JudgmentReasons.Luoshen);
+        Require(blackJudgment is { CardId: not null, Suit: Suit.Spade or Suit.Club, Succeeded: true } &&
+                game.CardMovements.Any(movement =>
+                    movement.CardId == blackJudgment.CardId &&
+                    movement.From == CardLocation.Judgment(0) &&
+                    movement.To == CardLocation.Hand(0) &&
+                    movement.Reason == CardMoveReasons.LuoshenClaim) &&
+                game.Events.Select(item => item.Payload).OfType<JudgmentCardClaimedEvent>().Any(claimed =>
+                    claimed.JudgmentFrameId == blackJudgment.ResolutionId &&
+                    claimed.Skill == SkillKind.Luoshen &&
+                    claimed.Used &&
+                    claimed.CardId == blackJudgment.CardId),
+            "A black Luoshen judgment must enter Zhen Ji's hand through an auditable claim movement and event.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restored = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(restored.PendingDecision?.Kind == DecisionKind.Luoshen &&
+                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(restored).SequenceEqual(EventSignatures(game)),
+            "A repeated Luoshen prompt must restore with the same private choice and claimed black card.");
+
+        ContinueLuoshenUntilPlay(game);
+        var finalJudgment = game.Events.Select(item => item.Payload)
+            .OfType<JudgmentResolvedEvent>()
+            .Last(item => item.Reason == JudgmentReasons.Luoshen);
+        Require(finalJudgment is { CardId: not null, Suit: Suit.Heart or Suit.Diamond, Succeeded: false } &&
+                game.State.Phase == TurnPhase.Play &&
+                game.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                game.CardMovements.Any(movement =>
+                    movement.CardId == finalJudgment.CardId &&
+                    movement.From == CardLocation.Judgment(0) &&
+                    movement.To == CardLocation.DiscardPile &&
+                    movement.Reason == CardMoveReasons.JudgmentFinish),
+            "A red Luoshen judgment must stop the chain, discard the red card and continue to the play phase.");
+        var completedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(completedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(completedReplay).SequenceEqual(EventSignatures(game)),
+            "The completed black-to-red Luoshen chain must replay exactly.");
+
+        var skipped = GameReplay.Restore(pausedCheckpoint, registry);
+        var skippedPrompt = skipped.PendingDecision!;
+        var skippedResult = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skippedPrompt.PromptId,
+            skippedPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "luoshen-skip").Id,
+            skipped.Revision));
+        Require(skippedResult.Accepted &&
+                skipped.State.Phase == TurnPhase.Play &&
+                skipped.Events.Select(item => item.Payload).OfType<LuoshenChoiceResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 && resolved.IsRepeat && !resolved.Used),
+            skippedResult.Error?.Message ?? "Stopping after a black Luoshen result must continue the turn without another judgment.");
+
+        foreach (var incoming in new[] { CardKind.Slash, CardKind.ArrowBarrage })
+        {
+            var responseGame = WushengResponseScenario.FindQingguoDodge(incoming);
+            var responsePrompt = responseGame.PendingDecision!;
+            var hand = responseGame.CreateSnapshot(0).Players[0].Hand;
+            var choice = responsePrompt.Choices.First(candidate =>
+                candidate.Cards.Count == 1 &&
+                hand.Single(card => card.Id == candidate.Cards[0]).Kind != CardKind.Dodge);
+            var physical = hand.Single(card => card.Id == choice.Cards[0]);
+            Require(physical.Suit is Suit.Spade or Suit.Club &&
+                    choice.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Dodge) &&
+                    choice.Description.Contains("当作【闪】", StringComparison.Ordinal) &&
+                    responseGame.CreateSnapshot(1).PendingDecision is null,
+                $"Qingguo must publish one private black-card Dodge conversion against {incoming}.");
+            var answered = responseGame.Submit(new AnswerPromptCommand(
+                0,
+                responsePrompt.PromptId,
+                choice.Id,
+                responseGame.Revision));
+            Require(answered.Accepted &&
+                    responseGame.Events.Select(item => item.Payload).OfType<CardRespondedEvent>().Any(responded =>
+                        responded.CardId == physical.Id &&
+                        responded.ResponderSeat == 0 &&
+                        responded.EffectiveCardKind == CardKind.Dodge) &&
+                    responseGame.CardMovements.Any(movement =>
+                        movement.CardId == physical.Id &&
+                        movement.CardKind == physical.Kind &&
+                        movement.From == CardLocation.Hand(0) &&
+                        movement.To == CardLocation.Processing &&
+                        movement.Reason == CardMoveReasons.Respond) &&
+                    responseGame.CardMovements.Any(movement =>
+                        movement.CardId == physical.Id &&
+                        movement.From == CardLocation.Processing &&
+                        movement.To == CardLocation.DiscardPile &&
+                        movement.Reason == CardMoveReasons.ResponseFinished),
+                answered.Error?.Message ?? $"Qingguo must keep the physical black card while responding as Dodge to {incoming}.");
+            var responseReplay = GameReplay.Restore(responseGame.CreateCheckpoint(), registry);
+            Require(SnapshotJson.Serialize(responseReplay.CreateSnapshot(0, revealAll: true)) ==
+                    SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
+                    EventSignatures(responseReplay).SequenceEqual(EventSignatures(responseGame)),
+                $"The Qingguo {incoming} response must replay exactly.");
+        }
+
+        var legacy = SelectGeneral(registry, "classic:zhen-ji", rulesVersion: 33);
+        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
+        var legacyPlayers = ((System.Collections.IEnumerable)typeof(GameEngine)
+                .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(legacy)!)
+            .Cast<object>()
+            .ToArray();
+        var legacyResponseCards = (IReadOnlyList<Card>)typeof(GameEngine)
+            .GetMethod("GetResponseCards", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(legacy, [legacyPlayers[0], CardKind.Dodge])!;
+        Require(legacyAdvance.Accepted &&
+                legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                legacy.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
+                    .All(item => item.Reason != JudgmentReasons.Luoshen) &&
+                legacyResponseCards.All(card => card.Kind == CardKind.Dodge),
+            legacyAdvance.Error?.Message ??
+            "Rules v33 must retain the historical turn start and native-only Dodge response set.");
     }
 
     public static void FormalFeedbackFlow()
@@ -3680,6 +3845,85 @@ internal static class ClassicGeneralChecks
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine pending-decision store was not found.");
         return (PendingDecision?)decisionField.GetValue(game);
+    }
+
+    private static GameEngine FindZhenJiFirstBlackLuoshenFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Zhen Ji fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:zhen-ji"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:zhen-ji",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Zhen Ji.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Zhen Ji did not reach Luoshen.");
+            if (game.PendingDecision is not { Kind: DecisionKind.Luoshen } prompt)
+            {
+                continue;
+            }
+
+            var used = game.Submit(new AnswerPromptCommand(
+                0,
+                prompt.PromptId,
+                prompt.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "luoshen-use").Id,
+                game.Revision));
+            Require(used.Accepted, used.Error?.Message ?? "Could not use Luoshen.");
+            if (game.PendingDecision is null && game.State.Phase != TurnPhase.Play)
+            {
+                var resolvedAi = game.Submit(new AdvanceCommand(game.Revision));
+                Require(resolvedAi.Accepted, resolvedAi.Error?.Message ?? "Could not resolve Luoshen replacement choices.");
+            }
+
+            var judgment = game.Events.Select(item => item.Payload)
+                .OfType<JudgmentResolvedEvent>()
+                .LastOrDefault(item => item.Reason == JudgmentReasons.Luoshen);
+            if (game.PendingDecision is { Kind: DecisionKind.Luoshen } &&
+                judgment is { Suit: Suit.Spade or Suit.Club, Succeeded: true })
+            {
+                return game;
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic first-black Luoshen fixture.");
+    }
+
+    private static void ContinueLuoshenUntilPlay(GameEngine game)
+    {
+        for (var step = 0; step < 256 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+        {
+            CommandResult result;
+            if (game.PendingDecision is { Kind: DecisionKind.Luoshen } prompt)
+            {
+                result = game.Submit(new AnswerPromptCommand(
+                    0,
+                    prompt.PromptId,
+                    prompt.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("action") == "luoshen-use").Id,
+                    game.Revision));
+            }
+            else
+            {
+                result = game.Submit(new AdvanceCommand(game.Revision));
+            }
+
+            Require(result.Accepted, result.Error?.Message ?? "Could not continue the Luoshen chain.");
+        }
+
+        Require(game.State.Phase == TurnPhase.Play &&
+                game.PendingDecision?.Kind == DecisionKind.PlayCard,
+            "The bounded Luoshen chain did not reach the play phase.");
     }
 
     private static void Equip(GameEngine game, int cardId)

@@ -451,6 +451,112 @@ internal static class ClassicGeneralUiChecks
             "The WPF Duanliang action must place the physical black card with persistent Supply Shortage semantics.");
         duanliangWindow.Content = null;
         duanliangWindow.Close();
+
+        using var luoshenViewModel = FindGeneralChoice("classic:zhen-ji");
+        var zhenJi = luoshenViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:zhen-ji");
+        Program.Assert(zhenJi.Name == "甄姬" &&
+                       zhenJi.Kingdom == "魏" &&
+                       zhenJi.SkillName == "洛神 / 倾国" &&
+                       zhenJi.SkillDescription.Contains("直到出现红色", StringComparison.Ordinal) &&
+                       zhenJi.SkillDescription.Contains("黑色手牌当【闪】", StringComparison.Ordinal) &&
+                       zhenJi.HealthText == "体力上限 4" &&
+                       GeneralArt.HasPortrait(zhenJi.GeneralId),
+            "The current classic Zhen Ji card must render Wei, Luoshen, Qingguo, Lord health and portrait aliasing.");
+        var luoshenWindow = new MainWindow(luoshenViewModel);
+        luoshenWindow.ApplyTemplate();
+        var luoshenRoot = (FrameworkElement)luoshenWindow.Content;
+        Program.Render(
+            luoshenRoot,
+            1120,
+            740,
+            Path.Combine(output, "94-classic-zhen-ji-card.png"));
+        var zhenJiDescription = Program.Find<System.Windows.Controls.TextBlock>(luoshenRoot)
+            .Single(text => text.Text == zhenJi.SkillDescription);
+        Program.Assert(zhenJiDescription.ActualHeight >= 108,
+            "The Zhen Ji general card clipped one of the six rendered skill-description lines.");
+        luoshenViewModel.SelectGeneralChoiceCommand.Execute(zhenJi);
+        Program.AdvanceToDecision(luoshenViewModel);
+        var luoshenEngine = Program.Engine(luoshenViewModel);
+        Program.Assert(luoshenViewModel.IsSkillSelectionPending &&
+                       luoshenEngine.PendingDecision is
+                       {
+                           Kind: DecisionKind.Luoshen,
+                           PlayerSeat: 0,
+                           IsPrivate: true,
+                           Choices.Count: 2
+                       } &&
+                       luoshenViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "luoshen-use") &&
+                       luoshenViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "luoshen-skip") &&
+                       luoshenViewModel.CurrentGuideTitle == "决定是否发动洛神" &&
+                       luoshenViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("出现红色结果时自动停止", StringComparison.Ordinal)),
+            "The WPF must render both initial Luoshen choices and explain the repeated black-judgment chain.");
+        Program.Render(
+            luoshenRoot,
+            1120,
+            740,
+            Path.Combine(output, "95-classic-luoshen-choice.png"));
+        luoshenViewModel.SelectSkillChoiceCommand.Execute(luoshenViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "luoshen-skip"));
+        Program.Assert(!luoshenViewModel.IsSkillSelectionPending &&
+                       luoshenEngine.Events.Any(item => item.Payload is LuoshenChoiceResolvedEvent
+                       {
+                           SourceSeat: 0,
+                           Used: false,
+                           IsRepeat: false
+                       }),
+            "The WPF Luoshen skip choice must commit through the typed preparation-stage event.");
+        luoshenWindow.Content = null;
+        luoshenWindow.Close();
+
+        var qingguoEngine = WushengResponseScenario.FindQingguoDodge();
+        var qingguoPrompt = qingguoEngine.PendingDecision!;
+        var qingguoHand = qingguoEngine.CreateSnapshot(0).Players[0].Hand;
+        var qingguoChoice = qingguoPrompt.Choices.First(choice =>
+            choice.Cards.Count == 1 &&
+            qingguoHand.Single(card => card.Id == choice.Cards[0]).Kind != CardKind.Dodge);
+        var qingguoStore = new MemorySaveStore();
+        qingguoStore.Write(GameSaveSlot.Manual,
+            new(1, DateTimeOffset.UtcNow, false, qingguoEngine.CreateCheckpoint()));
+        using var qingguoViewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: qingguoEngine.Seed,
+            showSetup: true,
+            saveStore: qingguoStore,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        qingguoViewModel.LoadManualGameCommand.Execute(null);
+        var qingguoCard = qingguoViewModel.Hand.Single(card => card.Id == qingguoChoice.Cards[0]);
+        qingguoViewModel.SelectCardCommand.Execute(qingguoCard);
+        var qingguoWindow = new MainWindow(qingguoViewModel);
+        qingguoWindow.ApplyTemplate();
+        Program.Assert(!qingguoViewModel.HasSaveError &&
+                       qingguoViewModel.IsResponseSelectionPending &&
+                       qingguoCard.IsPlayable &&
+                       qingguoCard.IsSelected &&
+                       qingguoViewModel.CanConfirmSelected &&
+                       qingguoViewModel.PlayButtonText == "当作闪打出" &&
+                       qingguoViewModel.ActionHint.Contains("当作【闪】", StringComparison.Ordinal),
+            qingguoViewModel.SaveStatus);
+        Program.Render(
+            (FrameworkElement)qingguoWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "96-classic-qingguo-response.png"));
+        qingguoViewModel.ConfirmSelectedCommand.Execute(null);
+        Program.Assert(Program.Engine(qingguoViewModel).Events.Any(item =>
+                           item.Payload is CardRespondedEvent responded &&
+                           responded.CardId == qingguoCard.Id &&
+                           responded.EffectiveCardKind == CardKind.Dodge),
+            "The WPF Qingguo response must commit the selected black physical card as an effective Dodge.");
+        qingguoWindow.Content = null;
+        qingguoWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
