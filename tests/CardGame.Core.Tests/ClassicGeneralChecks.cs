@@ -25,6 +25,7 @@ internal static class ClassicGeneralChecks
         var duanliangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 13, 0));
         var luoshenClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 14, 0));
         var jizhiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 15, 0));
+        var tieqiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 16, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -33,7 +34,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.16.0"]),
+                "standard-classic-generals@1.17.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -140,6 +141,13 @@ internal static class ClassicGeneralChecks
                     "classic:ma-chao",
                     StringComparer.Ordinal),
             "The Jizhi-era classic registry must retain the 1.15 roster without Ma Chao or Tieqi.");
+        Require(tieqiClassic.Packages.Last().Version == new Version(1, 16, 0) &&
+                !tieqiClassic.Generals.ContainsKey("classic:huang-zhong") &&
+                !tieqiClassic.Skills.ContainsKey("classic:liegong") &&
+                !tieqiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:huang-zhong",
+                    StringComparer.Ordinal),
+            "The Tieqi-era classic registry must retain the 1.16 roster without Huang Zhong or Liegong.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -231,6 +239,12 @@ internal static class ClassicGeneralChecks
                 maChao.BaseHp == 4 &&
                 maChao.SkillIds.SequenceEqual(["classic:tieqi", "standard:mashu"]),
             "The current classic Ma Chao must expose formal Shu, 4-HP Tieqi and Mashu in a stable order.");
+        var huangZhong = classic.Generals["classic:huang-zhong"];
+        Require(huangZhong.Name == "黄忠" &&
+                huangZhong.FactionId == "shu" &&
+                huangZhong.BaseHp == 4 &&
+                huangZhong.SkillIds.SequenceEqual(["classic:liegong"]),
+            "The current classic Huang Zhong must expose formal Shu, 4-HP Liegong.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -250,12 +264,13 @@ internal static class ClassicGeneralChecks
                        pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
                        pool.Contains("classic:huang-yueying", StringComparer.Ordinal) &&
                        pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
+                       pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
                       !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 36,
-            "Classic Tieqi must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 37,
+            "Classic Liegong must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -1832,6 +1847,123 @@ internal static class ClassicGeneralChecks
                 legacy.Game.Events.Select(item => item.Payload).OfType<JudgmentRequestedEvent>()
                     .All(item => item.Reason != JudgmentReasons.Tieqi),
             "Rules v35 must not publish or resolve Tieqi.");
+    }
+
+    public static void FormalLiegongFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var eligible = FindHuangZhongLiegongFixture(
+            registry,
+            GameCheckpoint.CurrentRulesVersion,
+            LiegongFixtureKind.EligibleByHp);
+        var eligiblePrompt = eligible.Prompt ??
+            throw new InvalidOperationException("Eligible Liegong did not publish its private choice.");
+        var owner = eligible.Game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(owner.GeneralId == "classic:huang-zhong" &&
+                owner.MaxHp == 4 &&
+                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Liegong]),
+            "Classic rebel Huang Zhong must expose formal Shu, 4 HP and Liegong.");
+        Require(eligiblePrompt is
+        {
+            Kind: DecisionKind.Liegong,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            Choices.Count: 2
+        } &&
+                eligiblePrompt.TargetSeat == eligible.TargetSeat &&
+                eligible.TargetHandCount >= eligible.SourceHp &&
+                eligible.TargetHandCount > eligible.AttackRange &&
+                eligible.Game.CreateSnapshot(eligible.TargetSeat).PendingDecision is null &&
+                eligible.Game.ResolutionStack.LastOrDefault() is CardUseFrame
+                {
+                    Step: ResolutionFrameStep.Declared
+                },
+            "An HP-eligible Slash must pause at a private Liegong choice before any Dodge response.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(eligible.Game.CreateCheckpoint()));
+        var pausedReplay = GameReplay.Restore(pausedCheckpoint, registry);
+        Require(pausedReplay.PendingDecision?.Kind == DecisionKind.Liegong &&
+                SnapshotJson.Serialize(pausedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(eligible.Game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(pausedReplay).SequenceEqual(EventSignatures(eligible.Game)),
+            "A paused Liegong choice must restore before its Slash response.");
+
+        var eventCount = eligible.Game.Events.Count;
+        var used = eligible.Game.Submit(new AnswerPromptCommand(
+            0,
+            eligiblePrompt.PromptId,
+            eligiblePrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "liegong-use").Id,
+            eligible.Game.Revision));
+        var usedEvents = eligible.Game.Events.Skip(eventCount).Select(item => item.Payload).ToArray();
+        Require(used.Accepted &&
+                usedEvents.OfType<LiegongChoiceResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.TargetSeat == eligible.TargetSeat &&
+                    resolved.Used) &&
+                usedEvents.OfType<ResponseRequestedEvent>().All(requested =>
+                    requested.TargetSeat != eligible.TargetSeat ||
+                    requested.RequiredCardKind != CardKind.Dodge) &&
+                usedEvents.OfType<DamageAppliedEvent>().Any(damage =>
+                    damage.TargetSeat == eligible.TargetSeat),
+            used.Error?.Message ??
+            "Using eligible Liegong must prohibit the target's Dodge and continue to Slash damage.");
+        var completedReplay = GameReplay.Restore(eligible.Game.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(completedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(eligible.Game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(completedReplay).SequenceEqual(EventSignatures(eligible.Game)),
+            "The completed Liegong Slash must replay exactly.");
+
+        var skipped = GameReplay.Restore(pausedCheckpoint, registry);
+        var skipPrompt = skipped.PendingDecision!;
+        var skippedResult = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "liegong-skip").Id,
+            skipped.Revision));
+        Require(skippedResult.Accepted &&
+                skipped.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
+                    requested.TargetSeat == eligible.TargetSeat &&
+                    requested.RequiredCardKind == CardKind.Dodge) &&
+                skipped.Events.Select(item => item.Payload).OfType<LiegongChoiceResolvedEvent>().Any(resolved =>
+                    resolved.SourceSeat == 0 &&
+                    resolved.TargetSeat == eligible.TargetSeat &&
+                    !resolved.Used),
+            skippedResult.Error?.Message ??
+            "Skipping eligible Liegong must open the ordinary Dodge response.");
+
+        var rangeEligible = FindHuangZhongLiegongFixture(
+            registry,
+            GameCheckpoint.CurrentRulesVersion,
+            LiegongFixtureKind.EligibleByRange);
+        Require(rangeEligible.Prompt?.Kind == DecisionKind.Liegong &&
+                rangeEligible.TargetHandCount <= rangeEligible.AttackRange &&
+                rangeEligible.TargetHandCount < rangeEligible.SourceHp,
+            "A target whose hand count is within Huang Zhong's attack range must be Liegong-eligible independently of HP.");
+
+        var ineligible = FindHuangZhongLiegongFixture(
+            registry,
+            GameCheckpoint.CurrentRulesVersion,
+            LiegongFixtureKind.Ineligible);
+        Require(ineligible.TargetHandCount < ineligible.SourceHp &&
+                ineligible.TargetHandCount > ineligible.AttackRange &&
+                ineligible.Game.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
+                    requested.TargetSeat == ineligible.TargetSeat &&
+                    requested.RequiredCardKind == CardKind.Dodge) &&
+                ineligible.Game.Events.Select(item => item.Payload).OfType<LiegongChoiceResolvedEvent>().Count() == 0,
+            "A Slash target outside both Liegong hand-count conditions must receive the ordinary Dodge response.");
+
+        var legacy = FindHuangZhongLiegongFixture(
+            registry,
+            rulesVersion: 36,
+            LiegongFixtureKind.EligibleByHp);
+        Require(legacy.Game.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
+                    requested.TargetSeat == legacy.TargetSeat &&
+                    requested.RequiredCardKind == CardKind.Dodge) &&
+                legacy.Game.Events.Select(item => item.Payload).OfType<LiegongChoiceResolvedEvent>().Count() == 0,
+            "Rules v36 must not publish or resolve Liegong.");
     }
 
     public static void FormalFeedbackFlow()
@@ -4187,6 +4319,118 @@ internal static class ClassicGeneralChecks
 
     private static (
         GameEngine Game,
+        PendingDecision? Prompt,
+        int TargetSeat,
+        int SourceHp,
+        int TargetHandCount,
+        int AttackRange) FindHuangZhongLiegongFixture(
+        ContentRegistry registry,
+        int rulesVersion,
+        LiegongFixtureKind kind)
+    {
+        var humanRole = kind == LiegongFixtureKind.Ineligible ? Role.Lord : Role.Rebel;
+        for (var seed = 1; seed <= 2_048; seed++)
+        {
+            var game = CreateInteractive(registry, seed, humanRole);
+            if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+            {
+                game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+            }
+
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Huang Zhong fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:huang-zhong"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:huang-zhong",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Huang Zhong.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Huang Zhong setup did not advance.");
+            var result = advanced.Result;
+            for (var step = 0; result.Status != EngineStatus.Completed && step < 1_200; step++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 })
+                {
+                    var full = game.CreateSnapshot(0, revealAll: true);
+                    var source = full.Players.Single(player => player.Seat == 0);
+                    var attackRange = game.GetAttackRange(0);
+                    var candidate = game.GetHumanLegalActions()
+                        .Where(action => action.Kind == LegalActionKind.Slash &&
+                                         action.CardId is not null &&
+                                         action.TargetSeat is not null)
+                        .Select(action =>
+                        {
+                            var target = full.Players.Single(player => player.Seat == action.TargetSeat);
+                            var targetHandCount = target.Hand.Count;
+                            var eligibleByHp = targetHandCount >= source.Hp;
+                            var eligibleByRange = targetHandCount <= attackRange;
+                            return new
+                            {
+                                Action = action,
+                                Target = target,
+                                TargetHandCount = targetHandCount,
+                                EligibleByHp = eligibleByHp,
+                                EligibleByRange = eligibleByRange
+                            };
+                        })
+                        .Where(item => item.Target.Hand.Any(card => card.Kind == CardKind.Dodge))
+                        .Where(item => kind switch
+                        {
+                            LiegongFixtureKind.EligibleByHp =>
+                                item.EligibleByHp && !item.EligibleByRange,
+                            LiegongFixtureKind.EligibleByRange =>
+                                item.EligibleByRange && !item.EligibleByHp,
+                            LiegongFixtureKind.Ineligible =>
+                                !item.EligibleByHp && !item.EligibleByRange,
+                            _ => false
+                        })
+                        .OrderBy(item => item.Action.CardId)
+                        .ThenBy(item => item.Action.TargetSeat)
+                        .FirstOrDefault();
+                    if (candidate is not null)
+                    {
+                        var played = game.Submit(new PlayCardCommand(
+                            0,
+                            candidate.Action.CardId!.Value,
+                            candidate.Action.TargetSeats,
+                            game.Revision,
+                            game.PendingDecision.PromptId,
+                            candidate.Action.PlayedCardKind,
+                            candidate.Action.TargetCardId));
+                        Require(played.Accepted, played.Error?.Message ?? "Huang Zhong could not use Slash.");
+                        var prompt = game.PendingDecision;
+                        if (prompt is null &&
+                            rulesVersion >= 37 &&
+                            kind != LiegongFixtureKind.Ineligible)
+                        {
+                            break;
+                        }
+                        return (
+                            game,
+                            prompt,
+                            candidate.Target.Seat,
+                            source.Hp,
+                            candidate.TargetHandCount,
+                            attackRange);
+                    }
+                }
+
+                result = DeclineOrAdvance(game, result);
+            }
+        }
+
+        throw new InvalidOperationException($"Could not find a deterministic Huang Zhong {kind} fixture.");
+    }
+
+    private static (
+        GameEngine Game,
         PendingDecision Prompt,
         int TargetSeat,
         int Seed) FindMaChaoTieqiFixture(
@@ -4681,19 +4925,29 @@ internal static class ClassicGeneralChecks
         commitEvents.Invoke(game, null);
     }
 
-    private static GameEngine CreateInteractive(ContentRegistry registry, int seed) =>
+    private static GameEngine CreateInteractive(
+        ContentRegistry registry,
+        int seed,
+        Role humanRole = Role.Lord) =>
         GameEngine.CreateStandard(new GameOptions
         {
             Seed = seed,
             PlayerCount = 5,
             HumanSeat = 0,
-            HumanRole = Role.Lord,
+            HumanRole = humanRole,
             ModeId = "identity:classic-5",
             UseInteractiveSetup = true,
             UseInteractiveDiscard = false,
             AdvanceAfterHumanCommands = false,
             MaxTurns = 220
         }, registry);
+
+    private enum LiegongFixtureKind
+    {
+        EligibleByHp,
+        EligibleByRange,
+        Ineligible
+    }
 
     private static EngineRunResult DeclineOrAdvance(GameEngine game, EngineRunResult? result = null)
     {

@@ -614,7 +614,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Luoyi or
                     DecisionKind.Luoshen or
                     DecisionKind.Jizhi or
-                    DecisionKind.Tieqi
+                    DecisionKind.Tieqi or
+                    DecisionKind.Liegong
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -639,7 +640,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Luoyi or
             DecisionKind.Luoshen or
             DecisionKind.Jizhi or
-            DecisionKind.Tieqi;
+            DecisionKind.Tieqi or
+            DecisionKind.Liegong;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1721,6 +1723,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      UseCard(Slash)");
                 EventStack.Add("        AskForSkill(Tieqi)");
             }
+            else if (pending.Kind == DecisionKind.Liegong)
+            {
+                EventStack.Add("      UseCard(Slash)");
+                EventStack.Add("        AskForSkill(Liegong)");
+            }
             else if (pending.Kind is
                 DecisionKind.Feedback or
                 DecisionKind.Yiji or
@@ -1954,7 +1961,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         _ when generalId.StartsWith("classic:", StringComparison.Ordinal) => generalId switch
         {
-            "classic:liu-bei" or "classic:zhuge-liang" or "classic:huang-yueying" or "classic:ma-chao" => "蜀",
+            "classic:liu-bei" or "classic:zhuge-liang" or "classic:huang-yueying" or "classic:ma-chao" or "classic:huang-zhong" => "蜀",
             "classic:sun-quan" or "classic:zhou-yu" or "classic:huang-gai" or "classic:gan-ning" or "classic:lu-meng" => "吴",
             "classic:cao-cao" or "classic:sima-yi" or "classic:xiahou-dun" or "classic:guo-jia" or "classic:zhang-liao" or "classic:xu-chu" or "classic:dian-wei" or "classic:xu-huang" or "classic:zhen-ji" => "魏",
             _ => "群"

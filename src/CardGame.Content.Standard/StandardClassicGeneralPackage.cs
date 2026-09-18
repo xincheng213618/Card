@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 16, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 17, 0))
     {
     }
 
@@ -35,12 +35,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 13, 0) &&
             version != new Version(1, 14, 0) &&
             version != new Version(1, 15, 0) &&
-            version != new Version(1, 16, 0))
+            version != new Version(1, 16, 0) &&
+            version != new Version(1, 17, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.16.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.17.0.");
         }
 
         _version = version;
@@ -185,6 +186,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "铁骑",
                 "每当你使用【杀】指定一名目标角色后，你可以进行判定，若结果为红色，该角色不能使用【闪】响应此【杀】。",
                 SkillKind.Tieqi));
+        }
+        if (_version >= new Version(1, 17, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:liegong",
+                "烈弓",
+                "当你于出牌阶段内使用【杀】指定一个目标后，若该角色的手牌数不小于你的体力值或不大于你的攻击范围，则你可以令其不能使用【闪】响应此【杀】。",
+                SkillKind.Liegong));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -377,6 +386,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 4,
                 AdditionalSkillIds: ["standard:mashu"]));
         }
+        if (_version >= new Version(1, 17, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:huang-zhong",
+                "黄忠",
+                "huang_zhong",
+                "classic:liegong",
+                "shu",
+                BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -396,6 +415,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             { Major: 1, Minor: 13 } => PreZhenJiClassicGeneralIds,
             { Major: 1, Minor: 14 } => PreHuangYueyingClassicGeneralIds,
             { Major: 1, Minor: 15 } => PreMaChaoClassicGeneralIds,
+            { Major: 1, Minor: 16 } => PreHuangZhongClassicGeneralIds,
             _ => ClassicGeneralIds
         };
 
@@ -446,6 +466,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhen-ji",
         "classic:huang-yueying",
         "classic:ma-chao",
+        "classic:huang-zhong",
         "classic:huang-gai",
         "classic:gan-ning",
         "classic:lu-meng",
@@ -457,9 +478,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guo-jia"
     ];
 
+    internal static IReadOnlyList<string> PreHuangZhongClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds.Where(id => id != "classic:huang-zhong")
+    ];
+
     internal static IReadOnlyList<string> PreMaChaoClassicGeneralIds { get; } =
     [
-        .. ClassicGeneralIds.Where(id => id != "classic:ma-chao")
+        .. PreHuangZhongClassicGeneralIds.Where(id => id != "classic:ma-chao")
     ];
 
     internal static IReadOnlyList<string> PreHuangYueyingClassicGeneralIds { get; } =

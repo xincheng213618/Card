@@ -152,7 +152,8 @@ public enum SkillKind
     Luoshen,
     Qingguo,
     Jizhi,
-    Tieqi
+    Tieqi,
+    Liegong
 }
 
 public enum DecisionKind
@@ -184,7 +185,8 @@ public enum DecisionKind
     Luoyi,
     Luoshen,
     Jizhi,
-    Tieqi
+    Tieqi,
+    Liegong
 }
 
 public enum GangliePunishmentKind

@@ -703,6 +703,86 @@ internal static class ClassicGeneralUiChecks
         tieqiWindow.Content = null;
         tieqiWindow.Close();
 
+        using var liegongDescriptionViewModel = FindGeneralChoice("classic:huang-zhong");
+        var huangZhong = liegongDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:huang-zhong");
+        Program.Assert(huangZhong.Name == "黄忠" &&
+                       huangZhong.Kingdom == "蜀" &&
+                       huangZhong.SkillName == "烈弓" &&
+                       huangZhong.SkillDescription.Contains("手牌数不小于你的体力值", StringComparison.Ordinal) &&
+                       huangZhong.SkillDescription.Contains("或不大于你的攻击范围", StringComparison.Ordinal) &&
+                       huangZhong.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(huangZhong.GeneralId),
+            $"The current classic Huang Zhong card must render Shu, Liegong, Lord health and portrait aliasing " +
+            $"(name={huangZhong.Name}, kingdom={huangZhong.Kingdom}, skill={huangZhong.SkillName}, " +
+            $"health={huangZhong.HealthText}, portrait={GeneralArt.HasPortrait(huangZhong.GeneralId)}, " +
+            $"description={huangZhong.SkillDescription}).");
+        var liegongDescriptionWindow = new MainWindow(liegongDescriptionViewModel);
+        liegongDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)liegongDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "101-classic-huang-zhong-card.png"));
+        liegongDescriptionWindow.Content = null;
+        liegongDescriptionWindow.Close();
+
+        var liegongFixture = FindLiegongFixture();
+        var liegongStore = new MemorySaveStore();
+        liegongStore.Write(GameSaveSlot.Manual,
+            new(1, DateTimeOffset.UtcNow, false, liegongFixture.CreateCheckpoint()));
+        using var liegongViewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: liegongFixture.Seed,
+            showSetup: true,
+            saveStore: liegongStore,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        liegongViewModel.LoadManualGameCommand.Execute(null);
+        var liegongEngine = Program.Engine(liegongViewModel);
+        var liegongPrompt = liegongEngine.PendingDecision;
+        Program.Assert(!liegongViewModel.HasSaveError &&
+                       liegongViewModel.IsSkillSelectionPending &&
+                       liegongPrompt is
+                       {
+                           Kind: DecisionKind.Liegong,
+                           PlayerSeat: 0,
+                           IsPrivate: true,
+                           Choices.Count: 2
+                       } &&
+                       liegongViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "liegong-use") &&
+                       liegongViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "liegong-skip") &&
+                       liegongViewModel.CurrentGuideTitle == "决定是否发动烈弓" &&
+                       liegongViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("不能用闪", StringComparison.Ordinal)),
+            liegongViewModel.SaveStatus);
+        var liegongTargetSeat = liegongPrompt?.TargetSeat ??
+            throw new InvalidOperationException("The restored Liegong prompt has no Slash target.");
+        var liegongWindow = new MainWindow(liegongViewModel);
+        liegongWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)liegongWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "102-classic-liegong-choice.png"));
+        liegongViewModel.SelectSkillChoiceCommand.Execute(liegongViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "liegong-use"));
+        Program.Assert(liegongEngine.Events.Any(item => item.Payload is LiegongChoiceResolvedEvent
+        {
+            SourceSeat: 0,
+            Used: true
+        } resolved && resolved.TargetSeat == liegongTargetSeat) &&
+                       liegongEngine.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().All(requested =>
+                           requested.TargetSeat != liegongTargetSeat ||
+                           requested.RequiredCardKind != CardKind.Dodge),
+            "The WPF Liegong choice must commit a typed result without publishing a Dodge response.");
+        liegongWindow.Content = null;
+        liegongWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
@@ -1423,6 +1503,107 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Tieqi WPF fixture.");
+    }
+
+    private static GameEngine FindLiegongFixture()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        for (var seed = 1; seed <= 2_048; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = 0,
+                HumanRole = Role.Rebel,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 220
+            }, registry);
+            if (!game.Submit(new StartGameCommand()).Accepted ||
+                game.PendingDecision?.ValidContentIds.Contains("classic:huang-zhong") != true)
+            {
+                continue;
+            }
+
+            var selection = game.PendingDecision!;
+            if (!game.Submit(new SelectGeneralCommand(
+                    0,
+                    "classic:huang-zhong",
+                    game.Revision,
+                    selection.PromptId)).Accepted ||
+                !game.Submit(new AdvanceCommand(game.Revision)).Accepted)
+            {
+                continue;
+            }
+
+            for (var step = 0; step < 1_200 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var prompt = game.PendingDecision;
+                if (prompt is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 })
+                {
+                    var full = game.CreateSnapshot(0, revealAll: true);
+                    var source = full.Players.Single(player => player.Seat == 0);
+                    var attackRange = game.GetAttackRange(0);
+                    var slash = game.GetHumanLegalActions()
+                        .Where(action => action.Kind == LegalActionKind.Slash &&
+                                         action.CardId is not null &&
+                                         action.TargetSeat is not null)
+                        .FirstOrDefault(action =>
+                        {
+                            var target = full.Players.Single(player => player.Seat == action.TargetSeat);
+                            return target.Hand.Any(card => card.Kind == CardKind.Dodge) &&
+                                   (target.Hand.Count >= source.Hp || target.Hand.Count <= attackRange);
+                        });
+                    if (slash is not null)
+                    {
+                        var played = game.Submit(new PlayCardCommand(
+                            0,
+                            slash.CardId!.Value,
+                            slash.TargetSeats,
+                            game.Revision,
+                            prompt.PromptId,
+                            slash.PlayedCardKind,
+                            slash.TargetCardId));
+                        if (played.Accepted && game.PendingDecision?.Kind == DecisionKind.Liegong)
+                        {
+                            return game;
+                        }
+                        break;
+                    }
+                }
+
+                GameCommand command = prompt?.Kind switch
+                {
+                    null => new AdvanceOneStepCommand(game.Revision),
+                    DecisionKind.PlayCard => new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId),
+                    DecisionKind.DiscardCards => new DiscardCardsCommand(
+                        0,
+                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
+                        prompt.PromptId,
+                        game.Revision),
+                    _ when prompt.PlayerSeat == 0 && prompt.Choices.Count > 0 =>
+                        new AnswerPromptCommand(
+                            0,
+                            prompt.PromptId,
+                            prompt.Choices.FirstOrDefault(choice =>
+                                choice.Parameters.Values.Any(value =>
+                                    value.StartsWith("skip", StringComparison.Ordinal) ||
+                                    value is "take-damage" or "no-nullification" or "ganglie-lose-hp"))?.Id ??
+                                prompt.Choices.First().Id,
+                            game.Revision),
+                    _ => new AdvanceOneStepCommand(game.Revision)
+                };
+                if (!game.Submit(command).Accepted)
+                {
+                    break;
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic WPF Liegong fixture.");
     }
 
     private static (GameEngine Game, int JudgmentCardId) FindTianduFixture()

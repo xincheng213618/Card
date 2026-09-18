@@ -38,6 +38,7 @@ public static class GeneralArt
             ["zhen-ji"] = "zhou-yu",
             ["huang-yueying"] = "zhou-yu",
             ["ma-chao"] = "zhao-yun",
+            ["huang-zhong"] = "liu-bei",
             ["demo-kujin"] = "sun-quan",
             ["demo-zhiheng"] = "sun-quan",
             ["demo-rende"] = "liu-bei",

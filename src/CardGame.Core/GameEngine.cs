@@ -74,6 +74,7 @@ public sealed partial class GameEngine
     private LuoshenResolution? _pendingLuoshen;
     private JizhiResolution? _pendingJizhi;
     private TieqiResolution? _pendingTieqi;
+    private LiegongResolution? _pendingLiegong;
     private GuanxingResolution? _pendingGuanxing;
     private HujiaResolution? _pendingHujia;
     private JijiangResolution? _pendingJijiang;
@@ -231,6 +232,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalTieqi =>
         _rulesVersion >= 36 && IsClassicIdentityMode;
+
+    private bool UsesFormalLiegong =>
+        _rulesVersion >= 37 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -770,6 +774,7 @@ public sealed partial class GameEngine
                 DecisionKind.Luoshen or
                 DecisionKind.Jizhi or
                 DecisionKind.Tieqi or
+                DecisionKind.Liegong or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -880,6 +885,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Tieqi)
         {
             return SubmitTieqiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Liegong)
+        {
+            return SubmitLiegongPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1384,6 +1394,33 @@ public sealed partial class GameEngine
                 useSkill: false,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "铁骑提示没有可识别的选择效果。")
+        };
+    }
+
+    private CommandResult SubmitLiegongPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingLiegong is null ||
+            _pendingDecision is not { Kind: DecisionKind.Liegong })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的烈弓目标窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "烈弓选择不符合当前目标窗口。");
+        }
+
+        return action switch
+        {
+            "liegong-use" => Accept(() => HumanLiegongCore(
+                useSkill: true,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "liegong-skip" => Accept(() => HumanLiegongCore(
+                useSkill: false,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "烈弓提示没有可识别的选择效果。")
         };
     }
 
@@ -2076,6 +2113,7 @@ public sealed partial class GameEngine
                     IsAiLuoshenPending() ||
                     IsAiJizhiPending() ||
                     IsAiTieqiPending() ||
+                    IsAiLiegongPending() ||
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
@@ -2849,6 +2887,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Tieqi);
         ResolveTieqiChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanLiegongCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Liegong);
+        ResolveLiegongChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5114,6 +5160,12 @@ public sealed partial class GameEngine
         if (IsAiTieqiPending())
         {
             ResolvePendingAiTieqi();
+            return;
+        }
+
+        if (IsAiLiegongPending())
+        {
+            ResolvePendingAiLiegong();
             return;
         }
 
@@ -7821,6 +7873,92 @@ public sealed partial class GameEngine
         ResolveSlashCore(source, target, slash, playedCardKind, source.Seat);
     }
 
+    private bool TryBeginLiegongChoice(AttackResolution attack)
+    {
+        var owner = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var attackRange = GetAttackRange(owner.Seat);
+        var targetHandCount = GetHand(target).Count;
+        var targetHandAtLeastSourceHp = targetHandCount >= owner.Hp;
+        var targetHandAtMostAttackRange = targetHandCount <= attackRange;
+        if (!UsesFormalLiegong ||
+            _phase != TurnPhase.Play ||
+            !owner.IsAlive ||
+            !target.IsAlive ||
+            !owner.General.HasSkill(SkillKind.Liegong) ||
+            (!targetHandAtLeastSourceHp && !targetHandAtMostAttackRange))
+        {
+            return false;
+        }
+
+        if (_pendingLiegong is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Liegong choices at once.");
+        }
+
+        var conditions = string.Join("；", new[]
+        {
+            targetHandAtLeastSourceHp
+                ? $"其手牌数 {targetHandCount} 不小于你的体力值 {owner.Hp}"
+                : null,
+            targetHandAtMostAttackRange
+                ? $"其手牌数 {targetHandCount} 不大于你的攻击范围 {attackRange}"
+                : null
+        }.Where(item => item is not null));
+        _pendingLiegong = new LiegongResolution(attack);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Liegong,
+            owner.Seat,
+            $"你对 {target.Name} 使用了【{CardCatalog.Get(attack.EffectiveCardKind ?? CardKind.Slash).DisplayName}】；{conditions}，是否发动【烈弓】？",
+            [],
+            [],
+            SourceSeat: owner.Seat,
+            IncomingCard: attack.EffectiveCardKind)
+        {
+            PromptId = CreatePromptId(),
+            IsPrivate = true,
+            TargetSeat = target.Seat,
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId($"liegong.use.resolution-{attack.ResolutionId}.target-{target.Seat}"),
+                    "发动【烈弓】，令目标不能使用【闪】响应此【杀】。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "liegong-use" }),
+                new PromptChoice(
+                    new ChoiceId($"liegong.skip.resolution-{attack.ResolutionId}.target-{target.Seat}"),
+                    "不发动【烈弓】，继续普通响应。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "liegong-skip" })
+            ]
+        };
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private void ResolveLiegongChoice(bool useSkill)
+    {
+        var pending = _pendingLiegong ??
+            throw new InvalidOperationException("There is no Liegong choice to resolve.");
+        var attack = pending.Attack;
+        var owner = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        _pendingLiegong = null;
+        ClearPendingDecision();
+        attack.ResolveLiegong(useSkill);
+        QueueGameEvent(new LiegongChoiceResolvedEvent(owner.Seat, target.Seat, useSkill));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill
+                ? $"{owner.Name} 对 {target.Name} 发动【烈弓】，其不能使用【闪】响应此【杀】。"
+                : $"{owner.Name} 未对 {target.Name} 发动【烈弓】。",
+            owner.Seat,
+            target.Seat);
+        ContinueSlashAfterLiegong(attack);
+    }
+
     private bool TryBeginTieqiChoice(AttackResolution attack)
     {
         var owner = _players[attack.SourceSeat];
@@ -7971,6 +8109,22 @@ public sealed partial class GameEngine
             IgnoresArmor: ignoresArmor));
         NotifyAiOfSlash(source, target);
 
+        if (TryBeginLiegongChoice(attack))
+        {
+            PublishState();
+            return;
+        }
+
+        ContinueSlashAfterLiegong(attack);
+    }
+
+    private void ContinueSlashAfterLiegong(AttackResolution attack)
+    {
+        if (!ReferenceEquals(_pendingAttack, attack))
+        {
+            throw new InvalidOperationException("The Liegong continuation does not own the current Slash.");
+        }
+
         if (TryBeginTieqiChoice(attack))
         {
             PublishState();
@@ -8019,9 +8173,14 @@ public sealed partial class GameEngine
 
         if (attack.ProhibitsDodge)
         {
+            var prohibitingSkills = string.Join("、", new[]
+            {
+                attack.LiegongProhibitsDodge ? "【烈弓】" : null,
+                attack.TieqiProhibitsDodge ? "【铁骑】" : null
+            }.Where(item => item is not null));
             AddLog(
                 "SkillTriggered",
-                $"{source.Name} 的【铁骑】判定为红色，{target.Name} 不能使用【闪】响应此【{slashName}】。",
+                $"{source.Name} 的{prohibitingSkills}令 {target.Name} 不能使用【闪】响应此【{slashName}】。",
                 source.Seat,
                 target.Seat);
             SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
@@ -14906,6 +15065,7 @@ public sealed partial class GameEngine
             _pendingNullification is not null ||
             _pendingJizhi is not null ||
             _pendingTieqi is not null ||
+            _pendingLiegong is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
             _resolutionStack.Any(frame => frame is ActiveSkillFrame);
@@ -15238,6 +15398,56 @@ public sealed partial class GameEngine
             if (_status != expectedJizhiStatus)
             {
                 throw new InvalidOperationException("A Jizhi prompt status does not match its owner.");
+            }
+        }
+
+        if (_pendingLiegong is { } liegong)
+        {
+            var liegongAttack = liegong.Attack;
+            var decision = _pendingDecision;
+            var source = _players[liegongAttack.SourceSeat];
+            var target = _players[liegongAttack.TargetSeat];
+            var slash = liegongAttack.Card;
+            if (!UsesFormalLiegong ||
+                _phase != TurnPhase.Play ||
+                !ReferenceEquals(_pendingAttack, liegongAttack) ||
+                !source.IsAlive ||
+                !target.IsAlive ||
+                !source.General.HasSkill(SkillKind.Liegong) ||
+                (GetHand(target).Count < source.Hp &&
+                    GetHand(target).Count > GetAttackRange(source.Seat)) ||
+                slash is null ||
+                _cardZones.GetLocation(slash.Id) != CardLocation.Processing ||
+                liegongAttack.LiegongResolved ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != liegongAttack.ResolutionId ||
+                cardUse.SourceSeat != liegongAttack.SourceSeat ||
+                cardUse.CardId != slash.Id ||
+                cardUse.CardKind != liegongAttack.EffectiveCardKind ||
+                cardUse.Step != ResolutionFrameStep.Declared ||
+                !cardUse.TargetSeats.SequenceEqual([liegongAttack.TargetSeat]) ||
+                decision is not { Kind: DecisionKind.Liegong, IsPrivate: true } ||
+                decision.PlayerSeat != liegongAttack.SourceSeat ||
+                decision.SourceSeat != liegongAttack.SourceSeat ||
+                decision.TargetSeat != liegongAttack.TargetSeat ||
+                decision.IncomingCard != liegongAttack.EffectiveCardKind ||
+                decision.Choices.Count != 2 ||
+                decision.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0) ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "liegong-use") != 1 ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "liegong-skip") != 1)
+            {
+                throw new InvalidOperationException(
+                    "A Liegong choice must retain its private prompt and exact eligible Slash continuation.");
+            }
+
+            var expectedLiegongStatus = source.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedLiegongStatus)
+            {
+                throw new InvalidOperationException("A Liegong prompt status does not match its owner.");
             }
         }
 
@@ -15580,7 +15790,18 @@ public sealed partial class GameEngine
                     "An active-skill damage continuation has no parent ActiveSkill frame.");
             }
 
-            if (_pendingTieqi is { } tieqiContinuation)
+            if (_pendingLiegong is { } liegongContinuation)
+            {
+                if (!ReferenceEquals(liegongContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame liegongCardUse ||
+                    liegongCardUse.Id != pendingAttack.ResolutionId ||
+                    liegongCardUse.Step != ResolutionFrameStep.Declared)
+                {
+                    throw new InvalidOperationException(
+                        "An active Liegong choice must retain its declared Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingTieqi is { } tieqiContinuation)
             {
                 if (!ReferenceEquals(tieqiContinuation.Attack, pendingAttack) ||
                     _resolutionStack.LastOrDefault() is not CardUseFrame tieqiCardUse ||
@@ -16094,7 +16315,8 @@ public sealed partial class GameEngine
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
-                DecisionKind.Tieqi) &&
+                DecisionKind.Tieqi or
+                DecisionKind.Liegong) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -16105,7 +16327,7 @@ public sealed partial class GameEngine
         var awaitingHumanDying =
             _pendingDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
-        var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending();
+        var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending();
         var awaitingAiNullification = IsAiNullificationPending();
         var awaitingAiJizhi = IsAiJizhiPending();
         var awaitingAiDamageSkill = IsAiDamageSkillPending();
@@ -16162,6 +16384,7 @@ public sealed partial class GameEngine
              _pendingLuoshen is not null ||
              _pendingJizhi is not null ||
              _pendingTieqi is not null ||
+             _pendingLiegong is not null ||
              _pendingHujia is not null ||
              _pendingJijiang is not null ||
              processing.Count != 0))
@@ -16443,6 +16666,23 @@ public sealed partial class GameEngine
         }
 
         ResolveTieqiChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiLiegongPending() =>
+        _pendingLiegong is { Attack.SourceSeat: var sourceSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Liegong, PlayerSeat: var decisionSeat } &&
+        sourceSeat == decisionSeat &&
+        !_players[sourceSeat].IsHuman;
+
+    private void ResolvePendingAiLiegong()
+    {
+        if (!IsAiLiegongPending())
+        {
+            throw new InvalidOperationException("There is no AI Liegong choice to resolve.");
+        }
+
+        ResolveLiegongChoice(useSkill: true);
         PublishState();
     }
 
@@ -17095,6 +17335,9 @@ public sealed partial class GameEngine
         public bool HujiaAttempted { get; private set; }
         public bool JijiangAttempted { get; private set; }
         public bool TieqiResolved { get; private set; }
+        public bool TieqiProhibitsDodge { get; private set; }
+        public bool LiegongResolved { get; private set; }
+        public bool LiegongProhibitsDodge { get; private set; }
         public bool ProhibitsDodge { get; private set; }
 
         public void SetDamageParticipants(int sourceSeat, int targetSeat)
@@ -17147,7 +17390,20 @@ public sealed partial class GameEngine
             }
 
             TieqiResolved = true;
-            ProhibitsDodge = prohibitsDodge;
+            TieqiProhibitsDodge = prohibitsDodge;
+            ProhibitsDodge |= prohibitsDodge;
+        }
+
+        public void ResolveLiegong(bool prohibitsDodge)
+        {
+            if (LiegongResolved)
+            {
+                throw new InvalidOperationException("Liegong has already resolved for this Slash.");
+            }
+
+            LiegongResolved = true;
+            LiegongProhibitsDodge = prohibitsDodge;
+            ProhibitsDodge |= prohibitsDodge;
         }
 
         public void SetChainedTargets(IReadOnlyList<int> targetSeats)
@@ -17196,6 +17452,8 @@ public sealed partial class GameEngine
     }
 
     private sealed record TieqiResolution(AttackResolution Attack);
+
+    private sealed record LiegongResolution(AttackResolution Attack);
 
     private sealed class JijiangResolution(
         long resolutionId,
