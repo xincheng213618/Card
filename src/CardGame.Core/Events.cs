@@ -600,6 +600,13 @@ public sealed record DyingResponseEvent(
     public CardKind? UsedPeachPhysicalCardKind { get; init; }
 }
 
+public sealed record JiuyuanAppliedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int ProviderSeat,
+    int PeachCardId,
+    int RecoveryAmount) : IGameEvent;
+
 public sealed record DuelResponseEvent(
     long ResolutionId,
     int ResponderSeat,

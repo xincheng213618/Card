@@ -66,6 +66,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Hujia lets a Wei ally use Bagua and continues after a failed judgment", ClassicGeneralChecks.FormalHujiaBaguaFallback),
     ("classic Jijiang uses a Shu ally's exact Slash for Liu Bei and retries after failure", ClassicGeneralChecks.FormalJijiangActiveFlow),
     ("classic Jijiang privately supplies Duel and Barbarian Slash responses and replays", ClassicGeneralChecks.FormalJijiangResponseFlow),
+    ("classic Jiuyuan doubles another Wu character's dying Peach and preserves legacy rules", ClassicGeneralChecks.FormalJiuyuanRecoveryBonus),
     ("public-team mode preserves privacy and registered distribution", TeamModeChecks.ContentAndPrivacy),
     ("public-team AI matches terminate and replay deterministically", TeamModeChecks.AiMatchIsDeterministic),
     ("public-team winner rules distinguish living teams", TeamModeChecks.WinningTeamRules),

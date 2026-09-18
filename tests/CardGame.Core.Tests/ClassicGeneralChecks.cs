@@ -14,6 +14,7 @@ internal static class ClassicGeneralChecks
         var fanjianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 2, 0));
         var guanxingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 3, 0));
         var hujiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 4, 0));
+        var jijiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 5, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -22,7 +23,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.5.0"]),
+                "standard-classic-generals@1.6.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -55,6 +56,10 @@ internal static class ClassicGeneralChecks
                 hujiaClassic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["standard:rende"]) &&
                 !hujiaClassic.Skills.ContainsKey("classic:jijiang"),
             "The Hujia-era classic registry must retain Liu Bei without Jijiang for 1.4 checkpoints.");
+        Require(jijiangClassic.Packages.Last().Version == new Version(1, 5, 0) &&
+                jijiangClassic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng"]) &&
+                !jijiangClassic.Skills.ContainsKey("classic:jiuyuan"),
+            "The Jijiang-era classic registry must retain Sun Quan without Jiuyuan for 1.5 checkpoints.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -67,7 +72,7 @@ internal static class ClassicGeneralChecks
                 huaTuo.SkillIds.SequenceEqual(["standard:qingnang", "standard:jijiu"]),
             "Hua Tuo must expose Qingnang and Jijiu in a stable order.");
         Require(classic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["standard:rende", "classic:jijiang"]) &&
-                classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng"]) &&
+                classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng", "classic:jiuyuan"]) &&
                 classic.Generals["classic:xiahou-dun"].SkillIds.SequenceEqual(["standard:ganglie"]),
             "The current classic roster must point at the implemented formal skills.");
         var guoJia = classic.Generals["classic:guo-jia"];
@@ -99,8 +104,8 @@ internal static class ClassicGeneralChecks
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 26,
-            "Classic Jijiang must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 27,
+            "Classic Jiuyuan must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -122,6 +127,47 @@ internal static class ClassicGeneralChecks
             "Formal Jijiu must only convert red cards outside the owner's turn.");
     }
 
+    public static void FormalJiuyuanRecoveryBonus()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var (current, providerSeat, peachCardId, selfPeachCardId, nonWuProviderSeat, nonWuPeachCardId) =
+            FindJiuyuanFixture(registry);
+        var checkpoint = current.CreateCheckpoint();
+        var legacy = GameReplay.Restore(
+            checkpoint with { RulesVersion = 26 },
+            registry);
+        var selfRescue = GameReplay.Restore(checkpoint, registry);
+        var nonWuRescue = GameReplay.Restore(checkpoint, registry);
+
+        ApplySyntheticDyingPeach(current, providerSeat, peachCardId);
+        var currentSun = current.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        var applied = current.Events.Select(item => item.Payload).OfType<JiuyuanAppliedEvent>().Single();
+        Require(currentSun.Hp == 2 &&
+                applied.OwnerSeat == 0 &&
+                applied.ProviderSeat == providerSeat &&
+                applied.PeachCardId == peachCardId &&
+                applied.RecoveryAmount == 2 &&
+                current.Events.Select(item => item.Payload).OfType<RecoveryAppliedEvent>().Last().Amount == 2,
+            "A different Wu provider's Peach must recover the dying Lord Sun Quan for two through Jiuyuan.");
+
+        ApplySyntheticDyingPeach(legacy, providerSeat, peachCardId);
+        var legacySun = legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(legacySun.Hp == 1 &&
+                legacy.Events.Select(item => item.Payload).OfType<JiuyuanAppliedEvent>().Count() == 0 &&
+                legacy.Events.Select(item => item.Payload).OfType<RecoveryAppliedEvent>().Last().Amount == 1,
+            "Rules v26 must keep the same physical Peach at the historical one-point recovery amount.");
+
+        ApplySyntheticDyingPeach(selfRescue, 0, selfPeachCardId);
+        Require(selfRescue.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp == 1 &&
+                selfRescue.Events.Select(item => item.Payload).OfType<JiuyuanAppliedEvent>().Count() == 0,
+            "Sun Quan's own Peach must not receive Jiuyuan's recovery bonus.");
+
+        ApplySyntheticDyingPeach(nonWuRescue, nonWuProviderSeat, nonWuPeachCardId);
+        Require(nonWuRescue.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp == 1 &&
+                nonWuRescue.Events.Select(item => item.Payload).OfType<JiuyuanAppliedEvent>().Count() == 0,
+            "A non-Wu provider's Peach must not receive Jiuyuan's recovery bonus.");
+    }
+
     public static void SetupHealthAndReplay()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
@@ -129,7 +175,8 @@ internal static class ClassicGeneralChecks
         var currentSunPlayer = currentSun.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(currentSunPlayer.MaxHp == 5 && currentSunPlayer.Hp == 5,
             "A classic 4-HP Lord must receive the identity-mode +1 maximum HP.");
-        Require(currentSunPlayer.Skills is { Count: 1 } && currentSunPlayer.Skills[0].Kind == SkillKind.Zhiheng,
+        Require(currentSunPlayer.Skills is { Count: 2 } &&
+                currentSunPlayer.Skills.Select(skill => skill.Kind).SequenceEqual([SkillKind.Zhiheng, SkillKind.Jiuyuan]),
             "The current snapshot must publish the selected general's ordered skill list.");
 
         var legacySun = SelectGeneral(registry, "classic:sun-quan", rulesVersion: 9);
@@ -1981,6 +2028,109 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException($"No deterministic selection fixture exposed {generalId}.");
+    }
+
+    private static (
+        GameEngine Game,
+        int ProviderSeat,
+        int PeachCardId,
+        int SelfPeachCardId,
+        int NonWuProviderSeat,
+        int NonWuPeachCardId) FindJiuyuanFixture(
+        ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Jiuyuan fixture failed to start.");
+            if (game.PendingDecision?.Choices.Any(choice =>
+                    choice.ContentIds.SequenceEqual(["classic:sun-quan"])) != true)
+            {
+                continue;
+            }
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "classic:sun-quan",
+                game.Revision,
+                game.PendingDecision.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Sun Quan.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ??
+                "The Jiuyuan fixture could not finish AI general selection.");
+            var players = game.CreateSnapshot(0, revealAll: true).Players;
+            var selfPeach = players.Single(player => player.Seat == 0).Hand
+                .FirstOrDefault(card => card.Kind == CardKind.Peach);
+            var provider = players
+                .Where(player => player.Seat != 0 &&
+                                 string.Equals(
+                                     registry.Generals[player.GeneralId].FactionId,
+                                     "wu",
+                                     StringComparison.Ordinal))
+                .Select(player => new
+                {
+                    player.Seat,
+                    Peach = player.Hand.FirstOrDefault(card => card.Kind == CardKind.Peach)
+                })
+                .FirstOrDefault(candidate => candidate.Peach is not null);
+            var nonWuProvider = players
+                .Where(player => player.Seat != 0 &&
+                                 !string.Equals(
+                                     registry.Generals[player.GeneralId].FactionId,
+                                     "wu",
+                                     StringComparison.Ordinal))
+                .Select(player => new
+                {
+                    player.Seat,
+                    Peach = player.Hand.FirstOrDefault(card => card.Kind == CardKind.Peach)
+                })
+                .FirstOrDefault(candidate => candidate.Peach is not null);
+            if (provider is not null && selfPeach is not null && nonWuProvider is not null)
+            {
+                return (
+                    game,
+                    provider.Seat,
+                    provider.Peach!.Id,
+                    selfPeach.Id,
+                    nonWuProvider.Seat,
+                    nonWuProvider.Peach!.Id);
+            }
+        }
+
+        throw new InvalidOperationException("No deterministic Jiuyuan fixture exposed a Wu provider with Peach.");
+    }
+
+    private static void ApplySyntheticDyingPeach(
+        GameEngine game,
+        int providerSeat,
+        int peachCardId)
+    {
+        var playersField = typeof(GameEngine).GetField(
+            "_players",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine player store was not found.");
+        var players = (System.Collections.IList)playersField.GetValue(game)!;
+        var target = players[0]!;
+        var provider = players[providerSeat]!;
+        target.GetType().GetProperty("Hp")!.SetValue(target, 0);
+
+        var getHand = typeof(GameEngine).GetMethod(
+            "GetHand",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine hand accessor was not found.");
+        var providerHand = ((System.Collections.IEnumerable)getHand.Invoke(game, [provider])!)
+            .Cast<Card>();
+        var peach = providerHand.Single(card => card.Id == peachCardId);
+        var resolvePeach = typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+            .Single(method => method.Name == "ResolvePeach" && method.GetParameters().Length == 4);
+        resolvePeach.Invoke(game, [provider, target, peach, true]);
+
+        var commitEvents = typeof(GameEngine).GetMethod(
+            "CommitPendingEvents",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine event commit method was not found.");
+        commitEvents.Invoke(game, null);
     }
 
     private static GameEngine CreateInteractive(ContentRegistry registry, int seed) =>

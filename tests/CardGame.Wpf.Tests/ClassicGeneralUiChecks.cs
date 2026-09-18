@@ -78,9 +78,20 @@ internal static class ClassicGeneralUiChecks
         using var zhihengDescriptionViewModel = FindGeneralChoice("classic:sun-quan");
         var sunQuan = zhihengDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:sun-quan");
-        Program.Assert(sunQuan.SkillDescription.Contains("限一次", StringComparison.Ordinal) &&
-                       sunQuan.SkillDescription.Contains("任意张牌", StringComparison.Ordinal),
-            "The current classic selection card must describe formal Zhiheng's limit and card scope.");
+        Program.Assert(sunQuan.SkillName == "制衡 / 救援" &&
+                       sunQuan.SkillDescription.Contains("限一次", StringComparison.Ordinal) &&
+                       sunQuan.SkillDescription.Contains("任意张牌", StringComparison.Ordinal) &&
+                       sunQuan.SkillDescription.Contains("其他吴势力角色", StringComparison.Ordinal) &&
+                       sunQuan.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(sunQuan.GeneralId),
+            "The current classic Sun Quan card must render Zhiheng, Jiuyuan, Lord health and portrait aliasing.");
+        var jiuyuanWindow = new MainWindow(zhihengDescriptionViewModel);
+        jiuyuanWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)jiuyuanWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "80-classic-jiuyuan-card.png"));
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

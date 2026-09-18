@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 5, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 6, 0))
     {
     }
 
@@ -24,12 +24,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 2, 0) &&
             version != new Version(1, 3, 0) &&
             version != new Version(1, 4, 0) &&
-            version != new Version(1, 5, 0))
+            version != new Version(1, 5, 0) &&
+            version != new Version(1, 6, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.5.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.6.0.");
         }
 
         _version = version;
@@ -90,6 +91,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
                 SkillKind.Jijiang));
         }
+        if (_version >= new Version(1, 6, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:jiuyuan",
+                "救援",
+                "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",
+                SkillKind.Jiuyuan));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -107,7 +116,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             "sun_quan",
             "standard:zhiheng",
             "wu",
-            BaseHp: 4));
+            BaseHp: 4,
+            AdditionalSkillIds: _version >= new Version(1, 6, 0)
+                ? ["classic:jiuyuan"]
+                : null));
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:sima-yi",
             "司马懿",

@@ -141,7 +141,8 @@ public enum SkillKind
     Qicai,
     Jijiu,
     Hujia,
-    Jijiang
+    Jijiang,
+    Jiuyuan
 }
 
 public enum DecisionKind

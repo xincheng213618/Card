@@ -1737,6 +1737,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Qicai => "锦囊牌无距离限制，扩大公开合法目标范围。",
             SkillKind.Jijiu => "濒死窗口可将红色牌当作桃使用，扩大自己的救援牌来源。",
             SkillKind.Jijiang => "需要使用或打出杀时可请求其他蜀势力角色提供，适合共享阵营攻击资源。",
+            SkillKind.Jiuyuan => "其他吴势力角色用桃救援濒死主公时额外回复一点体力，提高阵营救援效率。",
             _ => "当前演示版没有主动技能，作为稳定基础候选。"
         };
         return (score, reason);

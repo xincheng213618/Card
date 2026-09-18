@@ -194,6 +194,9 @@ public sealed partial class GameEngine
     private bool UsesFormalJijiang =>
         _rulesVersion >= 26 && IsClassicIdentityMode;
 
+    private bool UsesFormalJiuyuan =>
+        _rulesVersion >= 27 && IsClassicIdentityMode;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -11604,7 +11607,20 @@ public sealed partial class GameEngine
         }
 
 
-        ResolveRecoveryCard(source, target, peach, "桃", playedCardKind: CardKind.Peach);
+        var usesJiuyuan = allowDying &&
+                          UsesFormalJiuyuan &&
+                          target.Role == Role.Lord &&
+                          target.General.HasSkill(SkillKind.Jiuyuan) &&
+                          source.Seat != target.Seat &&
+                          string.Equals(source.General.FactionId, "wu", StringComparison.Ordinal);
+        ResolveRecoveryCard(
+            source,
+            target,
+            peach,
+            "桃",
+            playedCardKind: CardKind.Peach,
+            recoveryAmount: usesJiuyuan ? 2 : 1,
+            jiuyuanOwnerSeat: usesJiuyuan ? target.Seat : null);
     }
 
     private void ResolveDyingAlcohol(
@@ -11627,7 +11643,9 @@ public sealed partial class GameEngine
         PlayerRuntime target,
         Card card,
         string cardName,
-        CardKind? playedCardKind = null)
+        CardKind? playedCardKind = null,
+        int recoveryAmount = 1,
+        int? jiuyuanOwnerSeat = null)
     {
         var resolutionId = BeginCardUse(
             card,
@@ -11640,12 +11658,29 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardMoveReasons.Use);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
-        var recoveryFrameId = BeginRecovery(resolutionId, source.Seat, target.Seat, 1);
+        var recoveryFrameId = BeginRecovery(resolutionId, source.Seat, target.Seat, recoveryAmount);
         try
         {
-            target.Hp = Math.Min(target.MaxHp, target.Hp + 1);
-            AddLog("Recovered", $"{source.Name} 使用【{cardName}】使 {target.Name} 回复至 {target.Hp}/{target.MaxHp} 点体力。", source.Seat, target.Seat);
-            QueueGameEvent(new RecoveryAppliedEvent(source.Seat, target.Seat, 1, target.Hp));
+            target.Hp = Math.Min(target.MaxHp, target.Hp + recoveryAmount);
+            if (jiuyuanOwnerSeat is { } ownerSeat)
+            {
+                QueueGameEvent(new JiuyuanAppliedEvent(
+                    resolutionId,
+                    ownerSeat,
+                    source.Seat,
+                    card.Id,
+                    recoveryAmount));
+            }
+            AddLog(
+                "Recovered",
+                $"{source.Name} 使用【{cardName}】使 {target.Name} 回复 {recoveryAmount} 点体力，至 {target.Hp}/{target.MaxHp}。",
+                source.Seat,
+                target.Seat);
+            QueueGameEvent(new RecoveryAppliedEvent(
+                source.Seat,
+                target.Seat,
+                recoveryAmount,
+                target.Hp));
         }
         finally
         {

@@ -1833,6 +1833,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
             SkillKind.Jijiang when _game.RulesVersion >= 26 =>
                 "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
+            SkillKind.Jiuyuan when _game.RulesVersion >= 27 =>
+                "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",
             _ => skill.Description
         };
     }

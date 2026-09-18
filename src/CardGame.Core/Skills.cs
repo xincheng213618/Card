@@ -210,6 +210,12 @@ public sealed class JijiangSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
+public sealed class JiuyuanSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Jiuyuan;
+    public string Name => "救援";
+}
+
 public sealed class FeedbackSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Feedback;
@@ -631,7 +637,8 @@ public static class SkillRegistry
             [SkillKind.Qicai] = new QicaiSkill(),
             [SkillKind.Jijiu] = new JijiuSkill(),
             [SkillKind.Hujia] = new HujiaSkill(),
-            [SkillKind.Jijiang] = new JijiangSkill()
+            [SkillKind.Jijiang] = new JijiangSkill(),
+            [SkillKind.Jiuyuan] = new JiuyuanSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];
