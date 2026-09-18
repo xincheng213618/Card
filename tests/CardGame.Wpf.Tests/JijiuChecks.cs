@@ -58,15 +58,7 @@ internal static class JijiuChecks
     {
         for (var seed = 1; seed <= 1_024; seed++)
         {
-            var viewModel = new MainViewModel(
-                autoAdvance: false,
-                seed: seed,
-                showSetup: false,
-                saveStore: new MemorySaveStore(),
-                useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
+            var viewModel = ActiveSkillChecks.CreateShowcase(seed);
             var general = viewModel.GeneralChoices.SingleOrDefault(choice => choice.SkillName == "急救");
             if (general is null)
             {

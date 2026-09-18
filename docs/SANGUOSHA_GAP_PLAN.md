@@ -20,6 +20,8 @@
 - 测试输出：`$env:TEMP\Card-audit-20260918-sol-handoff`，其中 `core-tests.log`、`wpf-tests.log`、`renders` 可检查。临时文件不纳入提交。
 - 开始审查时工作区干净，分支 `main`。
 
+首个施工块完成后的增量验证：Release 0 warning / 0 error，Core 138/138，WPF 46/46；新增离屏截图 `69-classic-multi-skill-selection.png` 已人工检查。输出位于 `$env:TEMP\Card-classic-core-harness` 与 `$env:TEMP\Card-classic-wpf-harness`。这仍不是实际桌面鼠标、键盘或多 DPI 验收。
+
 ## 已有能力
 
 | 维度 | 当前证据 |
@@ -27,7 +29,7 @@
 | 核心 | 命令校验、Revision/PromptId、结算帧、唯一牌区、事件、玩家脱敏视图、确定性随机与回放 |
 | 模式 | 五人/八人身份、公开阵营 2v2、四人国战 Lite、六人魏蜀野心家试验 |
 | 卡牌 | Standard 包注册 27 种牌，演示牌堆 90 张；七种装备；包括闪电、无懈、铁索、火攻等 |
-| 武将 | Standard 包 14 个定义；主动技能包另加 7 个示例，急救包再加 1 个；身份扩展池仍包含无技能和示例武将 |
+| 武将 | 新增独立 `standard-classic-generals@1.0.0`：刘备、孙权、司马懿、夏侯惇、华佗首批正式定义；司马懿与华佗支持双技能。旧 Standard/主动技能/急救包及指纹保留 |
 | 桌面 | 选将、出牌/响应、手动弃牌、教程、指南、自动/手动存档、战绩、动画音效、观战、打包入口 |
 | AI | 玩家视图决策、公开行为推断、救援/群伤/酒杀策略、固定种子整局测试 |
 
@@ -53,10 +55,10 @@
 1. **乐不思蜀、兵粮寸断判定不同。** `src/CardGame.Core/GameEngine.cs:7144` 的 `FinalizeJudgment` 除闪电外只判红黑；`CompleteDelayedJudgment` 对兵粮取反。因此当前乐为红色跳过出牌，兵为黑色跳过摸牌。经典基础牌说明分别是非红桃跳过出牌、非梅花跳过摸牌。修正时须同步鬼才选牌评分、事件含义、文案和旧回放版本分支。
 2. **酒可跨座位救援。** `GameEngine.cs:124` 的 `SupportsCrossSeatAlcoholRescue` 对规则版本 3 起启用；`HumanRespondDyingCore` 相应允许别人用酒救人。官方基础规则仅濒死者本人用酒，其他角色用桃。历史行为已被特意版本化，修复不能直接破坏旧版。
 3. **诸葛连弩增加范围。** `src/CardGame.Core/Equipment.cs:39` 配置 `AttackRangeBonus: 1`，现有说明也写范围 +1；经典连弩攻击范围为 1，核心价值是出杀次数。
-4. **武将尚为演示拼装。** `src/CardGame.Content.Standard/StandardContentPackage.cs` 中刘备、孙权使用 `standard:none`，华佗使用 `standard:feedback`；有“鬼才者”“刚烈者”等占位人物；主动技能包另建“仁德者”“制衡者”“青囊者”，急救包再建“急救者”。用户明确指出鬼才归司马懿；官方人物页也列司马懿拥有反馈和鬼才、夏侯惇拥有刚烈、华佗拥有急救和青囊。当前反馈效果是取得伤害牌，而正式反馈是取得伤害来源的一张牌，因此不能只换人物名字。`ContentGeneralDefinition` 只有单一 `SkillId`，不能直接完整表达司马懿、华佗等多技能武将。
+4. **首批正式武将已用独立包归位。** `standard-classic-generals@1.0.0` 新增刘备/仁德、孙权/制衡、司马懿/反馈+鬼才、夏侯惇/刚烈、华佗/青囊+急救；`ContentGeneralDefinition.AdditionalSkillIds` 与运行时有序技能投影只在经典规则 v10 启用。经典反馈取得伤害来源的一张牌，暗手牌用不透明槽位；经典刚烈为非红桃成功；经典急救只在自己回合外可用。旧演示包、内容指纹与 v1–v9 行为不变。
 5. **牌堆不是经典实体配方。** `StandardContentPackage.cs:361` 为 90 张计数配方；`src/CardGame.Core/Content.cs:316` 的建牌路径循环分配花色/点数。牌堆差异会改变闪、桃、判定、火攻、转换技与 AI 的实际收益。
-6. **存档可用，但并非完整状态快照。** `src/CardGame.Core/Replay.cs` 明确通过元数据和命令前缀重建。当前 rules=9、schema=3。先保持此路径正确；完整状态 Checkpoint 应由恢复性能/网络需求驱动，不能把“已有存档”误报为“没有存档”，也不能把命令恢复误报为完整状态序列化。
-7. **后续需要实测的规则疑点。** `Skills.cs` 中急救转换未在该钩子判断回合外；空城仅提供禁止杀目标；仁德是一次交牌达到两张才回复且一回合一次；制衡只选手牌。须沿 Core 调用链与选定经典版本逐项复现，再形成修复，不能把仅凭局部代码的疑点直接当作已确认缺陷。
+6. **存档可用，但并非完整状态快照。** `src/CardGame.Core/Replay.cs` 明确通过元数据和命令前缀重建。当前 rules=10、schema=3；v1–v9 仍逐条走旧语义。完整状态 Checkpoint 应由恢复性能/网络需求驱动，不能把命令恢复误报为完整状态序列化。
+7. **后续需要实测的规则疑点。** 经典急救的回合外限制已经闭环；空城仍仅提供禁止杀目标，仁德目前是一次交牌达到两张才回复且一回合一次，制衡只选手牌。须沿 Core 调用链与选定经典版本逐项复现，再形成修复。
 
 官方核对来源（基础牌效果共通；不据此将国战专属数量/武将技能直接套用到身份模式）：
 
@@ -67,6 +69,8 @@
 - [司马懿的反馈与鬼才](https://guozhan.sanguosha.com/a/kapaiyilan/wujiangpai/wei/2013/0126/34.html)
 - [夏侯惇](https://guozhan.sanguosha.com/a/kapaiyilan/wujiangpai/wei/2013/0126/35.html)
 - [华佗](https://guozhan.sanguosha.com/a/kapaiyilan/wujiangpai/qun/2013/0127/78.html)
+- [刘备的仁德](https://www.sanguosha.com/news/20140805_4377_0616)
+- [孙权的制衡](https://www.sanguosha.com/hero/8)
 
 ## 用户截图参考
 
@@ -112,8 +116,8 @@
 | 状态 | 功能块 | 提交与验证 |
 | --- | --- | --- |
 | 已完成 | 当前项目差距审查与施工计划 | 本报告；Release 0 warning / 0 error，Core 135/135，WPF 45/45 |
-| 待开始，首批 | P0-人物：司马懿等正式人物、技能归属与效果校正 | 鬼才/反馈→司马懿；刚烈→夏侯惇；华佗→急救/青囊；不能只换显示名 |
+| 已完成，待提交 | P0-人物：司马懿等正式人物、技能归属与效果校正 | 独立经典包、v10 多技能/体力、正式反馈/刚烈/急救、WPF 默认入口与精确存档恢复；Release 0 warning / 0 error，Core 138/138，WPF 46/46 |
 | 待开始 | P0-A：版本化修正乐不思蜀/兵粮四花色判定 | 含鬼才评分、旧回放、界面文案和针对性测试 |
 | 待开始 | P0-B：版本化修正酒仅自救 | 含真人、AI、Prompt、指南、旧存档 |
 | 待开始 | P0-C：连弩及防具规则核对 | 含范围、出杀次数、青釭交互、响应触发 |
-| 待开始 | P1-A：正式多技能武将与代表武将归位 | 定义兼容、正确体力、技能频次、选将/图鉴/AI |
+| 进行中 | P1-A：正式多技能武将与代表武将归位 | 首批五人已完成；主公技、完整标准武将池、图鉴与更多技能频次仍待后续块 |

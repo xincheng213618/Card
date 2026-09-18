@@ -476,6 +476,19 @@ public sealed record DamageSkillCardGivenEvent(
     SkillKind Skill) : IGameEvent;
 
 /// <summary>
+/// Trusted-host audit event for Feedback taking one card from the damage
+/// source. Ordinary player snapshots continue to redact other hands.
+/// </summary>
+public sealed record DamageSkillCardTakenEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int SourceSeat,
+    int CardId,
+    CardKind CardKind,
+    CardLocation From,
+    SkillKind Skill) : IGameEvent;
+
+/// <summary>
 /// Trusted-host result of the red Ganglie judgment punishment. Discarded card
 /// ids are intentionally kept out of ordinary player snapshots; the host
 /// event stream is the audit surface for this private choice.

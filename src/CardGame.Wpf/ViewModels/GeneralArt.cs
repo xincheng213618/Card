@@ -70,6 +70,7 @@ public static class GeneralArt
     private static string NormalizeKey(string id)
     {
         var key = id.Replace("standard:", string.Empty, StringComparison.Ordinal)
+            .Replace("classic:", string.Empty, StringComparison.Ordinal)
             .Replace("national:wei-", string.Empty, StringComparison.Ordinal)
             .Replace("national:shu-", string.Empty, StringComparison.Ordinal)
             .Replace("national:ambitious-", string.Empty, StringComparison.Ordinal);

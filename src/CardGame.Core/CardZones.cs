@@ -123,6 +123,7 @@ public static class CardMoveReasons
     public static CardMoveReason DeathEquipmentDiscard { get; } = new("rule.death-equipment-discard");
     public static CardMoveReason JianxiongClaim { get; } = new("skill.jianxiong.claim-damage-card");
     public static CardMoveReason FeedbackClaim { get; } = new("skill.feedback.claim-damage-card");
+    public static CardMoveReason FeedbackTakeSourceCard { get; } = new("skill.feedback.take-source-card");
     public static CardMoveReason YijiDraw { get; } = new("skill.yiji.draw");
     public static CardMoveReason YijiGive { get; } = new("skill.yiji.give-card");
     public static CardMoveReason JiemingDraw { get; } = new("skill.jieming.draw");

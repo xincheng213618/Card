@@ -85,12 +85,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         _seedOverride = seed;
         _contentRegistry = useExpandedContent
-            ? StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarAmbitious()
+            ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious()
             : StandardContentRegistry.CreateWithTeamModes();
         TableModes = useExpandedContent
             ? [
-                new TableModeOption(8, "八人身份", "1 主公 · 2 忠臣\n4 反贼 · 1 内奸", "identity:active-skills-8"),
-                new TableModeOption(5, "五人身份", "1 主公 · 1 忠臣\n2 反贼 · 1 内奸", "identity:active-skills-5"),
+                new TableModeOption(8, "八人经典身份", "1 主公 · 2 忠臣\n4 反贼 · 1 内奸", "identity:classic-8"),
+                new TableModeOption(5, "五人经典身份", "1 主公 · 1 忠臣\n2 反贼 · 1 内奸", "identity:classic-5"),
+                new TableModeOption(8, "八人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-8"),
+                new TableModeOption(5, "五人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-5"),
                 new TableModeOption(4, "2v2阵营", "青队 2 · 赤队 2\n公开阵营，协作对抗", "team:standard-2v2"),
                 new TableModeOption(6, "国战 M3", "魏 3 · 蜀 2 · 野心家 1\n六人独立势力试验", "national:ambitious-6"),
                 new TableModeOption(4, "国战 Lite", "魏蜀双将 · 暗置明置\n四人简化国战", "national:lite-4")
@@ -507,18 +509,22 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             foreach (var choice in pending.Choices.Where(choice => choice.ContentIds.Count == 1))
             {
+                var general = _game.ContentRegistry!.Generals[choice.ContentIds[0]];
+                var skills = general.SkillIds.Select(_game.ContentRegistry.GetSkill).ToArray();
                 GeneralChoices.Add(new GeneralChoiceViewModel
                 {
                     GeneralId = choice.ContentIds[0],
                     ChoiceId = choice.Id,
                     Text = choice.Description,
-                    Name = _game.ContentRegistry!.Generals[choice.ContentIds[0]].Name,
-                    Kingdom = GetKingdom(choice.ContentIds[0]),
-                    HealthText = !IsNationalSnapshot ? string.Empty : choice.Parameters.TryGetValue("combined-max-hp", out var combinedHp) ? $"组合体力 {combinedHp}" :
+                    Name = general.Name,
+                    Kingdom = FactionName(general.FactionId),
+                    HealthText = !IsNationalSnapshot
+                        ? choice.Parameters.TryGetValue("identity-max-hp", out var identityHp) ? $"体力上限 {identityHp}" : string.Empty
+                        : choice.Parameters.TryGetValue("combined-max-hp", out var combinedHp) ? $"组合体力 {combinedHp}" :
                         choice.Parameters.TryGetValue("base-hp", out var baseHp) ? $"基础体力 {baseHp}" : "旧规则体力 4",
                     HealthDescription = choice.Parameters.GetValueOrDefault("health-preview", IsNationalSnapshot ? "此存档沿用固定 4 点体力上限。" : string.Empty),
-                    SkillName = _game.ContentRegistry.GetSkill(_game.ContentRegistry.Generals[choice.ContentIds[0]].SkillId).Name,
-                    SkillDescription = _game.ContentRegistry.GetSkill(_game.ContentRegistry.Generals[choice.ContentIds[0]].SkillId).Description
+                    SkillName = string.Join(" / ", skills.Select(skill => skill.Name)),
+                    SkillDescription = string.Join("\n", skills.Select(skill => $"{skill.Name}：{skill.Description}"))
                 });
             }
         }
@@ -646,7 +652,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 HandCount = player.HandCount,
                 IsChained = player.IsChained,
                 HasAlcoholEffect = player.HasAlcoholEffect,
-                SkillName = IsNationalSnapshot ? $"{player.SkillName} / {player.SecondarySkillName ?? "未知"}" : player.SkillName,
+                SkillName = IsNationalSnapshot
+                    ? $"{player.SkillName} / {player.SecondarySkillName ?? "未知"}"
+                    : string.Join(" / ", (player.Skills ?? [new(player.Skill, player.SkillName, player.SkillDescription)])
+                        .Select(skill => skill.Name)),
                 Name = $"{player.GeneralName} · {(player.IsHuman ? "你" : $"AI {player.Seat + 1}")}",
                 Kingdom = IsNationalSnapshot ? FactionName(player.FactionId) : GetKingdom(player.GeneralId),
                 RoleLabel = IsNationalSnapshot ? FactionName(player.FactionId) : player.Role is { } role ? GetRoleName(role) : "?",
@@ -1695,6 +1704,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private static string GetKingdom(string generalId) => generalId switch
     {
+        _ when generalId.StartsWith("classic:", StringComparison.Ordinal) => generalId switch
+        {
+            "classic:liu-bei" => "蜀",
+            "classic:sun-quan" => "吴",
+            "classic:sima-yi" or "classic:xiahou-dun" => "魏",
+            _ => "群"
+        },
         _ when generalId.StartsWith("national:wei-", StringComparison.Ordinal) => "魏",
         _ when generalId.StartsWith("national:shu-", StringComparison.Ordinal) => "蜀",
         _ when generalId.StartsWith("national:ambitious-", StringComparison.Ordinal) => "野心家",

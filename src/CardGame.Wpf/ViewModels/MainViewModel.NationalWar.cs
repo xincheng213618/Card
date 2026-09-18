@@ -83,8 +83,10 @@ public sealed partial class MainViewModel
 
     private string DisplaySkillText(PlayerSnapshot player)
     {
-        var primary = $"{player.SkillName}：{player.SkillDescription}";
-        if (!IsNationalSnapshot) return primary;
+        var identitySkills = string.Join("\n\n",
+            (player.Skills ?? [new(player.Skill, player.SkillName, player.SkillDescription)])
+            .Select(skill => $"{skill.Name}：{skill.Description}"));
+        if (!IsNationalSnapshot) return identitySkills;
         return GeneralSlotViewModel.FromPlayer(player, false, _game.RulesVersion).DetailText + "\n\n" +
             GeneralSlotViewModel.FromPlayer(player, true, _game.RulesVersion).DetailText;
     }

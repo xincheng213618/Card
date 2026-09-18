@@ -470,6 +470,13 @@ public static class StandardContentRegistry
             new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage());
 
+    public static ContentRegistry CreateWithClassicGenerals() =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage());
+
     public static ContentRegistry CreateWithTeamModes() =>
         ContentRegistry.Build(
             new StandardContentPackage(),
@@ -548,6 +555,16 @@ public static class StandardContentRegistry
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
+            new StandardTeamModePackage(),
+            new StandardNationalWarLitePackage(legacyVitals),
+            new StandardNationalWarAmbitiousPackage());
+
+    public static ContentRegistry CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(bool legacyVitals = false) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(),
             new StandardTeamModePackage(),
             new StandardNationalWarLitePackage(legacyVitals),
             new StandardNationalWarAmbitiousPackage());

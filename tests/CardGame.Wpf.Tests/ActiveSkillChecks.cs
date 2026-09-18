@@ -10,22 +10,15 @@ internal static class ActiveSkillChecks
 {
     public static void Controls()
     {
-        using var viewModel = new MainViewModel(
-            autoAdvance: false,
-            seed: 721019,
-            showSetup: false,
-            saveStore: new MemorySaveStore(),
-            useExpandedContent: true)
-        {
-            IsMotionEnabled = false
-        };
+        using var viewModel = CreateShowcase(721019);
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
 
         Program.Assert(
+            viewModel.TableModes.Any(mode => mode.ModeId == "identity:classic-8") &&
             viewModel.TableModes.Any(mode => mode.ModeId == "identity:active-skills-8"),
-            "The expanded WPF setup did not expose the active-skill mode.");
+            "The expanded WPF setup did not expose both classic identity and the legacy skill showcase.");
         var kujin = viewModel.GeneralChoices.Single(choice => choice.SkillName == "苦肉");
         viewModel.SelectGeneralChoiceCommand.Execute(kujin);
         Program.AdvanceToDecision(viewModel);
@@ -228,15 +221,7 @@ internal static class ActiveSkillChecks
     {
         for (var seed = 1; seed <= 128; seed++)
         {
-            var viewModel = new MainViewModel(
-                autoAdvance: false,
-                seed: seed,
-                showSetup: false,
-                saveStore: new MemorySaveStore(),
-                useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
+            var viewModel = CreateShowcase(seed);
             if (viewModel.GeneralChoices.Any(choice => choice.SkillName == "制衡"))
             {
                 return viewModel;
@@ -252,15 +237,7 @@ internal static class ActiveSkillChecks
     {
         for (var seed = 1; seed <= 128; seed++)
         {
-            var viewModel = new MainViewModel(
-                autoAdvance: false,
-                seed: seed,
-                showSetup: false,
-                saveStore: new MemorySaveStore(),
-                useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
+            var viewModel = CreateShowcase(seed);
             if (viewModel.GeneralChoices.Any(choice => choice.SkillName == "仁德"))
             {
                 return viewModel;
@@ -276,15 +253,7 @@ internal static class ActiveSkillChecks
     {
         for (var seed = 1; seed <= 256; seed++)
         {
-            var viewModel = new MainViewModel(
-                autoAdvance: false,
-                seed: seed,
-                showSetup: false,
-                saveStore: new MemorySaveStore(),
-                useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
+            var viewModel = CreateShowcase(seed);
             if (viewModel.GeneralChoices.Any(choice => choice.SkillName == "回春"))
             {
                 viewModel.SelectGeneralChoiceCommand.Execute(
@@ -293,15 +262,7 @@ internal static class ActiveSkillChecks
                 if (ReachHuichunTargets(viewModel))
                 {
                     viewModel.Dispose();
-                    return new MainViewModel(
-                        autoAdvance: false,
-                        seed: seed,
-                        showSetup: false,
-                        saveStore: new MemorySaveStore(),
-                        useExpandedContent: true)
-                    {
-                        IsMotionEnabled = false
-                    };
+                    return CreateShowcase(seed);
                 }
             }
 
@@ -378,15 +339,7 @@ internal static class ActiveSkillChecks
     {
         for (var seed = 1; seed <= 256; seed++)
         {
-            var viewModel = new MainViewModel(
-                autoAdvance: false,
-                seed: seed,
-                showSetup: false,
-                saveStore: new MemorySaveStore(),
-                useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
+            var viewModel = CreateShowcase(seed);
             if (viewModel.GeneralChoices.Any(choice => choice.SkillName == "马术"))
             {
                 return viewModel;
@@ -402,15 +355,7 @@ internal static class ActiveSkillChecks
     {
         for (var seed = 1; seed <= 256; seed++)
         {
-            var viewModel = new MainViewModel(
-                autoAdvance: false,
-                seed: seed,
-                showSetup: false,
-                saveStore: new MemorySaveStore(),
-                useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
+            var viewModel = CreateShowcase(seed);
             var qicai = viewModel.GeneralChoices.SingleOrDefault(choice => choice.SkillName == "奇才");
             if (qicai is not null)
             {
@@ -424,15 +369,7 @@ internal static class ActiveSkillChecks
                         engine.GetCombatDistance(0, 2) > 1))
                 {
                     viewModel.Dispose();
-                    return new MainViewModel(
-                        autoAdvance: false,
-                        seed: seed,
-                        showSetup: false,
-                        saveStore: new MemorySaveStore(),
-                        useExpandedContent: true)
-                    {
-                        IsMotionEnabled = false
-                    };
+                    return CreateShowcase(seed);
                 }
             }
 
@@ -448,6 +385,22 @@ internal static class ActiveSkillChecks
         {
             viewModel.StepAiCommand.Execute(null);
         }
+    }
+
+    internal static MainViewModel CreateShowcase(int seed)
+    {
+        var viewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: seed,
+            showSetup: false,
+            saveStore: new MemorySaveStore(),
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        viewModel.SelectedTableMode = viewModel.TableModes.Single(mode => mode.ModeId == "identity:active-skills-8");
+        viewModel.StartNewGameCommand.Execute(null);
+        return viewModel;
     }
 
     private static bool ResolveHuichunPrompt(MainViewModel viewModel)

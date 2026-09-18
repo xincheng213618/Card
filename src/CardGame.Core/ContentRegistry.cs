@@ -76,7 +76,17 @@ public sealed record ContentGeneralDefinition(
     string PortraitKey,
     string SkillId,
     string? FactionId = null,
-    int BaseHp = 4);
+    int BaseHp = 4,
+    IReadOnlyList<string>? AdditionalSkillIds = null)
+{
+    /// <summary>
+    /// Ordered skills for new content. <see cref="SkillId"/> remains the
+    /// compatibility primary skill used by v1-v9 checkpoints and older hosts.
+    /// </summary>
+    public IReadOnlyList<string> SkillIds => AdditionalSkillIds is { Count: > 0 }
+        ? new[] { SkillId }.Concat(AdditionalSkillIds).ToArray()
+        : [SkillId];
+}
 
 public sealed record ContentDeckCardCount(string CardDefinitionId, int Count);
 
@@ -438,6 +448,22 @@ public sealed class ContentRegistry
             .Select(general => new { general.Id, general.BaseHp }).ToArray();
         if (generalVitals.Length > 0)
             canonical = JsonSerializer.Serialize(new { HashSchema = 4, Base = JsonSerializer.Deserialize<JsonElement>(canonical), GeneralVitals = generalVitals });
+        var generalSkillExtensions = generals.Values
+            .Where(general => general.AdditionalSkillIds is { Count: > 0 })
+            .OrderBy(general => general.Id, StringComparer.Ordinal)
+            .Select(general => new
+            {
+                general.Id,
+                AdditionalSkillIds = general.AdditionalSkillIds!.ToArray()
+            })
+            .ToArray();
+        if (generalSkillExtensions.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 5,
+                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                GeneralSkillExtensions = generalSkillExtensions
+            });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
 
@@ -510,10 +536,13 @@ public sealed class ContentRegistry
         {
             foreach (var general in _generals.Values)
             {
-                if (!_skills.ContainsKey(general.SkillId))
+                foreach (var skillId in general.SkillIds)
                 {
-                    throw new InvalidOperationException(
-                        $"General '{general.Id}' references unknown skill '{general.SkillId}'.");
+                    if (!_skills.ContainsKey(skillId))
+                    {
+                        throw new InvalidOperationException(
+                            $"General '{general.Id}' references unknown skill '{skillId}'.");
+                    }
                 }
             }
 
@@ -765,7 +794,24 @@ public sealed class ContentRegistry
             ArgumentNullException.ThrowIfNull(definition);
             if (definition.BaseHp is < 1 or > 20)
                 throw new ArgumentOutOfRangeException(nameof(definition), "General base HP must be between 1 and 20.");
-            return definition;
+            var additionalSkillIds = definition.AdditionalSkillIds?.ToArray() ?? [];
+            if (string.IsNullOrWhiteSpace(definition.SkillId) ||
+                additionalSkillIds.Any(string.IsNullOrWhiteSpace) ||
+                new[] { definition.SkillId }.Concat(additionalSkillIds)
+                    .Distinct(StringComparer.Ordinal)
+                    .Count() != additionalSkillIds.Length + 1)
+            {
+                throw new ArgumentException(
+                    $"General '{definition.Id}' must reference distinct non-empty skills.",
+                    nameof(definition));
+            }
+
+            return definition with
+            {
+                AdditionalSkillIds = additionalSkillIds.Length == 0
+                    ? null
+                    : Array.AsReadOnly(additionalSkillIds)
+            };
         }
 
         private static ContentDeckRecipe NormalizeDeck(ContentDeckRecipe definition)

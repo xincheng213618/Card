@@ -487,19 +487,29 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         int sourceSeat,
         CardKind incomingCard,
-        int thoughtSequence)
+        int thoughtSequence,
+        bool takeSourceCard = false)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var profile = CardCatalog.Get(incomingCard);
-        var useScore = profile.HandKeepValue +
-                       Math.Max(0, self.MaxHp - self.HandCount) * 8d -
-                       self.HandCount * 4d;
+        var source = view.Players.Single(player => player.Seat == sourceSeat);
+        var useScore = takeSourceCard
+            ? 38d + source.HandCount * 2d + source.Equipment.Count * 8d - self.HandCount * 3d
+            : profile.HandKeepValue +
+              Math.Max(0, self.MaxHp - self.HandCount) * 8d -
+              self.HandCount * 4d;
         var skipScore = self.HandCount > self.MaxHp ? 52d : 8d;
+        var gainDescription = takeSourceCard
+            ? $"获得伤害来源的一张牌（其公开手牌数 {source.HandCount}、装备数 {source.Equipment.Count}）"
+            : $"获得{profile.DisplayName}";
+        var gainReason = takeSourceCard
+            ? $"{gainDescription}并扩大资源；只使用本座可见的生命、公开手牌数量和装备。"
+            : $"获得{profile.DisplayName}并扩大资源；只使用本座可见的生命和手牌数量。";
         var useAction = new LegalAction(
             LegalActionKind.Feedback,
             null,
             sourceSeat,
-            $"发动【反馈】获得{profile.DisplayName}");
+            $"发动【反馈】{gainDescription}");
         var skipAction = new LegalAction(
             LegalActionKind.SkipFeedback,
             null,
@@ -510,7 +520,7 @@ public sealed partial class SimpleAiBrain
             new AiCandidateScore(
                 useAction,
                 Math.Round(useScore + _random.NextDouble() * 0.001d, 3),
-                $"获得{profile.DisplayName}并扩大资源；只使用本座可见的生命和手牌数量。"),
+                gainReason),
             new AiCandidateScore(
                 skipAction,
                 Math.Round(skipScore + _random.NextDouble() * 0.001d, 3),

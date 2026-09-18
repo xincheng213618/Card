@@ -6,7 +6,8 @@ public sealed record PlayerSkillContext(
     int MaxHp,
     int HandCount,
     TurnPhase Phase,
-    IReadOnlySet<SkillKind>? UsedActiveSkillKinds = null);
+    IReadOnlySet<SkillKind>? UsedActiveSkillKinds = null,
+    bool IsOwnTurn = false);
 
 public sealed record ActiveSkillContext(
     PlayerSkillContext Owner,
@@ -43,7 +44,8 @@ public sealed record DamageSkillContext(
     int? SourceCardId = null,
     int? TargetSeat = null,
     int? TargetHp = null,
-    int? TargetMaxHp = null);
+    int? TargetMaxHp = null,
+    int SourceCardCount = 0);
 
 public sealed record JudgmentSkillContext(
     PlayerSkillContext Owner,
@@ -177,11 +179,22 @@ public sealed class FeedbackSkill : IPassiveSkill
     public SkillKind Kind => SkillKind.Feedback;
     public string Name => "反馈";
 
-    public bool OffersDamageCardChoice(DamageSkillContext context) =>
-        context.SourceCard is not null && context.SourceCardIsInProcessing;
-
+    // Rules v1-v9 and the legacy demo modes keep the original bounded rule
+    // where Feedback claims the damage card from Processing. Classic identity
+    // modes select the formal source-card effect in GameEngine instead.
     public bool ClaimsDamageCard(DamageSkillContext context) =>
         context.SourceCard is not null && context.SourceCardIsInProcessing;
+
+    public bool OffersDamageCardChoice(DamageSkillContext context) =>
+        context.Amount > 0 &&
+        context.SourceSeat is not null &&
+        context.SourceSeat != context.Owner.Seat &&
+        (context.SourceCardIsInProcessing || context.SourceCardCount > 0);
+
+    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
+        OffersDamageCardChoice(context)
+            ? DamageSkillEffectKind.TakeSourceCard
+            : DamageSkillEffectKind.None;
 }
 
 public sealed class YijiSkill : IPassiveSkill
@@ -385,7 +398,9 @@ public sealed class JijiuSkill : IPassiveSkill
     /// the engine, so this hook never creates a duplicate candidate.
     /// </summary>
     public bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) =>
-        card.Kind != CardKind.Peach && card.Suit is Suit.Heart or Suit.Diamond;
+        !owner.IsOwnTurn &&
+        card.Kind != CardKind.Peach &&
+        card.Suit is Suit.Heart or Suit.Diamond;
 }
 
 public sealed class KongchengSkill : IPassiveSkill

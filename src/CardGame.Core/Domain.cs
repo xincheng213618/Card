@@ -311,6 +311,11 @@ public sealed record Card(int Id, CardKind Kind, Suit Suit, int Rank)
     };
 }
 
+public sealed record GeneralSkillDefinition(
+    SkillKind Kind,
+    string Name,
+    string Description);
+
 public sealed record GeneralDefinition(
     string Id,
     string Name,
@@ -319,7 +324,25 @@ public sealed record GeneralDefinition(
     string SkillName,
     string SkillDescription,
     string? FactionId = null,
-    int BaseHp = 4);
+    int BaseHp = 4,
+    IReadOnlyList<GeneralSkillDefinition>? AdditionalSkills = null)
+{
+    public IReadOnlyList<GeneralSkillDefinition> Skills => AdditionalSkills is { Count: > 0 }
+        ? new[] { new GeneralSkillDefinition(Skill, SkillName, SkillDescription) }
+            .Concat(AdditionalSkills)
+            .ToArray()
+        : [new GeneralSkillDefinition(Skill, SkillName, SkillDescription)];
+
+    public IReadOnlyList<SkillKind> SkillKinds => Skills.Select(skill => skill.Kind).ToArray();
+
+    public string SkillSummary => string.Join(" / ", Skills.Select(skill => skill.Name));
+
+    public string SkillDescriptionSummary => string.Join(
+        Environment.NewLine,
+        Skills.Select(skill => $"{skill.Name}：{skill.Description}"));
+
+    public bool HasSkill(SkillKind kind) => Skills.Any(skill => skill.Kind == kind);
+}
 
 public static class GeneralCatalog
 {
@@ -376,6 +399,14 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    /// <summary>
+    /// Ordered skills visible with the primary general. The singular Skill,
+    /// SkillName and SkillDescription fields remain the v1-v9 compatibility
+    /// projection for older hosts and serialized snapshots.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<GeneralSkillDefinition>? Skills { get; init; }
+
     /// <summary>
     /// Public team membership for team modes. Identity modes keep this null, and
     /// hidden-information modes never use it to expose an identity.

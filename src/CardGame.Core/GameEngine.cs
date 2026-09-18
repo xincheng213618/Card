@@ -133,6 +133,21 @@ public sealed partial class GameEngine
     private bool SupportsLethalAfterDamageTriggers =>
         _rulesVersion >= 5;
 
+    private bool SupportsMultiSkillGenerals =>
+        _rulesVersion >= 10 && IsClassicIdentityMode;
+
+    private bool IsClassicIdentityMode =>
+        _modeDefinition.Id.StartsWith("identity:classic-", StringComparison.Ordinal);
+
+    private bool UsesGeneralBaseHp =>
+        _rulesVersion >= 10 && IsClassicIdentityMode;
+
+    private bool UsesClassicFeedbackSourceCard =>
+        _rulesVersion >= 10 && IsClassicIdentityMode;
+
+    private bool UsesClassicGanglieJudgment =>
+        _rulesVersion >= 10 && IsClassicIdentityMode;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -876,14 +891,63 @@ public sealed partial class GameEngine
             return Reject(CommandErrorCode.InvalidChoice, "The Feedback prompt has no supported response effect.");
         }
 
+        if (pending.Effect == DamageSkillEffectKind.TakeSourceCard)
+        {
+            if (response == "feedback-skip" && selected.Cards.Count == 0 && selected.Targets.Count == 0)
+            {
+                return Accept(() => HumanFeedbackCore(
+                    useFeedback: false,
+                    requestedSourceCardId: null,
+                    advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+            }
+
+            if (response != "feedback-source-card" ||
+                selected.Targets.Count != 1 ||
+                selected.Targets[0] != pending.SourceSeat ||
+                !selected.Parameters.TryGetValue("source-zone", out var sourceZone))
+            {
+                return Reject(CommandErrorCode.InvalidChoice, "The Feedback source-card choice is malformed.");
+            }
+
+            var source = _players[pending.SourceSeat];
+            int selectedCardId;
+            if (sourceZone == "hand" &&
+                selected.Cards.Count == 0 &&
+                selected.Parameters.TryGetValue("slot-index", out var slotText) &&
+                int.TryParse(
+                    slotText,
+                    System.Globalization.NumberStyles.None,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out var slot) &&
+                slot >= 0 && slot < GetHand(source).Count)
+            {
+                selectedCardId = GetHand(source)[slot].Id;
+            }
+            else if (sourceZone == "equipment" &&
+                     selected.Cards.Count == 1 &&
+                     GetEquipment(source).Any(card => card.Id == selected.Cards[0]))
+            {
+                selectedCardId = selected.Cards[0];
+            }
+            else
+            {
+                return Reject(CommandErrorCode.InvalidChoice, "The selected Feedback card is no longer available.");
+            }
+
+            return Accept(() => HumanFeedbackCore(
+                useFeedback: true,
+                requestedSourceCardId: selectedCardId,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+        }
+
         return response switch
         {
             "feedback" when selected.Cards.Count == 1 &&
                             selected.Cards[0] == pending.Card.Id &&
                             selected.Targets.Count == 0 =>
-                Accept(() => HumanFeedbackCore(useFeedback: true, advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+                Accept(() => HumanFeedbackCore(useFeedback: true, requestedSourceCardId: null, advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             "take-damage" when selected.Cards.Count == 0 && selected.Targets.Count == 0 =>
-                Accept(() => HumanFeedbackCore(useFeedback: false, advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+                Accept(() => HumanFeedbackCore(useFeedback: false, requestedSourceCardId: null, advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "The choice is malformed for the Feedback trigger.")
         };
     }
@@ -1335,35 +1399,39 @@ public sealed partial class GameEngine
                 QueueGameEvent(new TeamAssignedEvent(player.Seat, player.TeamId!));
             }
         }
-        var yijiRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Yiji)
+        var yijiRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Yiji))
             ? "，郭嘉的遗计在受伤后摸两张牌并私有选择一张交给其他存活角色"
             : string.Empty;
-        var jiemingRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Jieming)
+        var jiemingRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Jieming))
             ? "，荀彧的节命在受伤后可令一名手牌数少于体力上限的角色摸牌至上限"
             : string.Empty;
-        var yuanhuRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Yuanhu)
+        var yuanhuRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Yuanhu))
             ? "，援护者可在其他角色受伤后弃牌令其回复 1 点体力"
             : string.Empty;
-        var ganglieRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Ganglie)
-            ? "，刚烈者受伤后可判定，红色时令伤害来源弃两张手牌或承受 1 点伤害"
+        var ganglieRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Ganglie))
+            ? UsesClassicGanglieJudgment
+                ? "，夏侯惇受伤后可发动刚烈判定，结果不为红桃时令伤害来源弃两张手牌或承受 1 点伤害"
+                : "，刚烈者受伤后可判定，红色时令伤害来源弃两张手牌或承受 1 点伤害"
             : string.Empty;
-        var guicaiRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Guicai)
-            ? "，鬼才者可在判定牌生效前弃置一张手牌替换判定牌"
+        var guicaiRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Guicai))
+            ? "，司马懿可在判定牌生效前用一张手牌替换判定牌"
             : string.Empty;
-        var kujinRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Kujin)
+        var kujinRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Kujin))
             ? "，苦肉者可在出牌阶段且体力大于 0 时失去 1 点体力；若进入濒死，救援结算后再摸两张牌"
             : string.Empty;
-        var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Zhiheng)
-            ? "，制衡者可在出牌阶段弃置至少一张手牌并摸等量牌"
+        var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
+            ? "，孙权可在出牌阶段弃置至少一张手牌并摸等量牌"
             : string.Empty;
-        var rendeRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Rende)
-            ? "，仁德者可在出牌阶段将一至若干张手牌交给一名其他角色，一次交给至少两张时回复 1 点体力"
+        var rendeRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Rende))
+            ? "，刘备可在出牌阶段将一至若干张手牌交给一名其他角色，一次交给至少两张时回复 1 点体力"
             : string.Empty;
-        var qingnangRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Qingnang)
-            ? "，青囊者可在出牌阶段每回合弃置一张手牌令一名受伤角色回复 1 点体力"
+        var qingnangRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Qingnang))
+            ? "，华佗可在出牌阶段每回合弃置一张手牌令一名受伤角色回复 1 点体力"
             : string.Empty;
-        var jijiuRules = !IsNationalWarMode && _players.Any(player => player.General.Skill == SkillKind.Jijiu)
-            ? "，急救者可在濒死窗口将红色牌当作桃使用"
+        var jijiuRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Jijiu))
+            ? IsClassicIdentityMode
+                ? "，华佗可在自己的回合外将红色牌当作桃使用"
+                : "，急救者可在濒死窗口将红色牌当作桃使用"
             : string.Empty;
         if (jijiuRules.Length > 0)
         {
@@ -1737,7 +1805,7 @@ public sealed partial class GameEngine
     public EngineRunResult HumanRespondFeedback(
         bool useFeedback,
         bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanFeedbackCore(useFeedback, advanceToHumanBoundary));
+        ExecuteExclusive(() => HumanFeedbackCore(useFeedback, requestedSourceCardId: null, advanceToHumanBoundary));
 
     /// <summary>
     /// Compatibility adapter for answering the optional Ganglie trigger
@@ -1853,6 +1921,7 @@ public sealed partial class GameEngine
         {
             return HumanFeedbackCore(
                 useFeedback: false,
+                requestedSourceCardId: null,
                 advanceToHumanBoundary: advanceToHumanBoundary);
         }
 
@@ -2178,6 +2247,7 @@ public sealed partial class GameEngine
         _pendingDecision?.Kind == DecisionKind.Feedback
             ? HumanFeedbackCore(
                 useFeedback: false,
+                requestedSourceCardId: null,
                 advanceToHumanBoundary: advanceToHumanBoundary)
             : _pendingDecision?.Kind == DecisionKind.Ganglie
             ? HumanGanglieCore(
@@ -2230,6 +2300,7 @@ public sealed partial class GameEngine
 
     private EngineRunResult HumanFeedbackCore(
         bool useFeedback,
+        int? requestedSourceCardId,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.Feedback);
@@ -2241,7 +2312,10 @@ public sealed partial class GameEngine
         }
 
         ClearPendingDecision();
-        ResolveDamageSkillChoice(pending, useFeedback);
+        ResolveDamageSkillChoice(
+            pending,
+            useFeedback,
+            selectedCardId: requestedSourceCardId);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -2611,7 +2685,10 @@ public sealed partial class GameEngine
                 SecondarySkill = secondaryGeneral?.Skill,
                 SecondarySkillName = secondaryGeneral?.SkillName,
                 SecondarySkillDescription = secondaryGeneral?.SkillDescription,
-                IsSecondaryGeneralPublic = IsNationalWarMode && player.SecondaryGeneralRevealed
+                IsSecondaryGeneralPublic = IsNationalWarMode && player.SecondaryGeneralRevealed,
+                Skills = SupportsMultiSkillGenerals
+                    ? Array.AsReadOnly(general.Skills.ToArray())
+                    : null
             };
         }).ToArray();
 
@@ -2970,7 +3047,10 @@ public sealed partial class GameEngine
                     ? general
                     : throw new InvalidOperationException(
                         $"Mode '{mode.Id}' references unknown general '{id}'.");
-                var skill = contentRegistry.GetSkill(definition.SkillId);
+                var skills = definition.SkillIds
+                    .Select(contentRegistry.GetSkill)
+                    .ToArray();
+                var skill = skills[0];
                 return new GeneralDefinition(
                     definition.Id,
                     definition.Name,
@@ -2979,7 +3059,13 @@ public sealed partial class GameEngine
                     skill.Name,
                     skill.Description,
                     definition.FactionId,
-                    definition.BaseHp);
+                    definition.BaseHp,
+                    skills.Skip(1)
+                        .Select(additional => new GeneralSkillDefinition(
+                            additional.LegacyKind ?? SkillKind.None,
+                            additional.Name,
+                            additional.Description))
+                        .ToArray());
             })
             .ToArray();
     }
@@ -3075,7 +3161,10 @@ public sealed partial class GameEngine
         for (var seat = 0; seat < _playerCount; seat++)
         {
             var role = assigned[seat];
-            var maxHp = role == Role.Lord ? 5 : 4;
+            var assignedGeneral = _options.UseInteractiveSetup ? hiddenGeneral : generals[seat];
+            var maxHp = UsesGeneralBaseHp
+                ? assignedGeneral.BaseHp + (role == Role.Lord ? 1 : 0)
+                : role == Role.Lord ? 5 : 4;
             _players.Add(new PlayerRuntime
             {
                 Seat = seat,
@@ -3085,7 +3174,7 @@ public sealed partial class GameEngine
                 TeamId = null,
                 TeamRevealed = false,
                 RoleRevealed = role == Role.Lord,
-                General = _options.UseInteractiveSetup ? hiddenGeneral : generals[seat],
+                General = assignedGeneral,
                 GeneralSelected = !_options.UseInteractiveSetup,
                 GeneralRevealed = !_options.UseInteractiveSetup,
                 MaxHp = maxHp,
@@ -3504,7 +3593,7 @@ public sealed partial class GameEngine
                 : string.Empty;
             var choice = new PromptChoice(
                 new ChoiceId($"setup.general.{general.Id}"),
-                $"选择 {general.Name}（{general.SkillName}{factionSuffix}）",
+                $"选择 {general.Name}（{general.SkillSummary}{factionSuffix}）",
                 [],
                 [],
                 new Dictionary<string, string>
@@ -3514,6 +3603,21 @@ public sealed partial class GameEngine
                     ["faction-id"] = general.FactionId ?? string.Empty
                 });
             choice = choice with { ContentIds = [general.Id] };
+            if (!IsNationalWarMode && UsesGeneralBaseHp)
+            {
+                var identityMaxHp = general.BaseHp + (player.Role == Role.Lord ? 1 : 0);
+                choice = choice with
+                {
+                    Parameters = new Dictionary<string, string>(choice.Parameters, StringComparer.Ordinal)
+                    {
+                        ["base-hp"] = general.BaseHp.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        ["identity-max-hp"] = identityMaxHp.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        ["health-preview"] = player.Role == Role.Lord
+                            ? $"主公体力上限为基础 {general.BaseHp} + 1 = {identityMaxHp}。"
+                            : $"身份模式体力上限为 {identityMaxHp}。"
+                    }
+                };
+            }
             choice = WithNationalHealthPreview(choice, player, general);
             return choice;
         }).ToArray();
@@ -3576,6 +3680,11 @@ public sealed partial class GameEngine
             player.General = general;
             player.GeneralSelected = true;
             player.GeneralRevealed = false;
+            if (UsesGeneralBaseHp)
+            {
+                player.MaxHp = general.BaseHp + (player.Role == Role.Lord ? 1 : 0);
+                player.Hp = player.MaxHp;
+            }
             AddLog("GeneralSelected", $"座位 {player.Seat + 1} 完成私有选将。", player.Seat);
             QueueGameEvent(new GeneralSelectedEvent(player.Seat, general.Id));
         }
@@ -6471,7 +6580,8 @@ public sealed partial class GameEngine
                 view,
                 pending.SourceSeat,
                 pending.EffectiveCardKind,
-                ++_thoughtSequence);
+                ++_thoughtSequence,
+                UsesClassicFeedbackSourceCard);
             AddThought(thought);
             ClearPendingDecision();
             ResolveDamageSkillChoice(pending, useFeedback);
@@ -6918,26 +7028,28 @@ public sealed partial class GameEngine
         var candidates = new List<JudgmentTriggerCandidate>();
         foreach (var owner in _players.Where(player => player.IsAlive))
         {
-            var skill = SkillRegistry.Get(owner.General.Skill);
-            var context = new JudgmentSkillContext(
-                CreateSkillContext(owner),
-                targetSeat,
-                reason,
-                judgmentCard.Id,
-                judgmentCard.Kind,
-                judgmentCard.Suit,
-                judgmentCard.Rank);
-            if (!skill.CanTriggerBeforeJudgment(context) ||
-                !skill.OffersJudgmentCardChoice(context))
+            foreach (var skill in EnabledPassiveSkills(owner))
             {
-                continue;
-            }
+                var context = new JudgmentSkillContext(
+                    CreateSkillContext(owner),
+                    targetSeat,
+                    reason,
+                    judgmentCard.Id,
+                    judgmentCard.Kind,
+                    judgmentCard.Suit,
+                    judgmentCard.Rank);
+                if (!skill.CanTriggerBeforeJudgment(context) ||
+                    !skill.OffersJudgmentCardChoice(context))
+                {
+                    continue;
+                }
 
-            candidates.Add(new JudgmentTriggerCandidate(
-                owner.Seat,
-                skill.Kind,
-                skill.JudgmentTriggerId,
-                skill.JudgmentTriggerPriority));
+                candidates.Add(new JudgmentTriggerCandidate(
+                    owner.Seat,
+                    skill.Kind,
+                    skill.JudgmentTriggerId,
+                    skill.JudgmentTriggerPriority));
+            }
         }
 
         return JudgmentTriggerOrdering.Order(candidates, targetSeat, _playerCount);
@@ -6959,7 +7071,8 @@ public sealed partial class GameEngine
         }
 
         var owner = _players[pending.CurrentCandidateSeat];
-        var skill = SkillRegistry.Get(owner.General.Skill);
+        var skill = EnabledPassiveSkills(owner)
+            .Single(candidate => candidate.Kind == SkillKind.Guicai);
         var context = new JudgmentSkillContext(
             CreateSkillContext(owner),
             pending.TargetSeat,
@@ -7149,9 +7262,13 @@ public sealed partial class GameEngine
         }
 
         var frame = GetJudgmentFrame(pending.FrameId);
-        var succeeded = pending.Continuation == JudgmentContinuationKind.Lightning
-            ? IsLightningHit(judgmentCard)
-            : IsRedSuit(judgmentCard.Suit);
+        var succeeded = pending.Continuation switch
+        {
+            JudgmentContinuationKind.Lightning => IsLightningHit(judgmentCard),
+            JudgmentContinuationKind.Ganglie when UsesClassicGanglieJudgment =>
+                judgmentCard.Suit != Suit.Heart,
+            _ => IsRedSuit(judgmentCard.Suit)
+        };
         ReplaceJudgmentFrame(frame with
         {
             CardId = judgmentCard.Id,
@@ -7556,7 +7673,8 @@ public sealed partial class GameEngine
                     SourceCardId: attack.Card.Id,
                     TargetSeat: target.Seat,
                     TargetHp: target.Hp,
-                    TargetMaxHp: target.MaxHp);
+                    TargetMaxHp: target.MaxHp,
+                    SourceCardCount: GetHand(source).Count + GetEquipment(source).Count);
                 var triggerCandidates = DamageTriggerOrdering.Order(
                     CollectDamageTriggerCandidates(damageContext),
                     source.Seat,
@@ -7660,7 +7778,7 @@ public sealed partial class GameEngine
         var skill = SkillRegistry.Get(candidate.Skill);
         if (!owner.IsAlive ||
             !skill.CanTriggerAfterDamage(context) ||
-            (!skill.OffersDamageCardChoice(context) && !skill.ClaimsDamageCard(context)))
+            ResolveDamageSkillEffect(skill, context) != candidate.Effect)
         {
             AdvanceDamageTriggerCandidate(window);
             return;
@@ -7672,7 +7790,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (skill.ClaimsDamageCard(context))
+        if (candidate.Effect == DamageSkillEffectKind.ClaimDamageCard)
         {
             ClaimDamageCard(window.Attack, window.DamageFrameId, owner, skill, context);
         }
@@ -7797,10 +7915,11 @@ public sealed partial class GameEngine
 
         _pendingDecision = effect switch
         {
-            DamageSkillEffectKind.ClaimDamageCard => CreateFeedbackDecision(
+            DamageSkillEffectKind.ClaimDamageCard or DamageSkillEffectKind.TakeSourceCard => CreateFeedbackDecision(
                 owner,
                 skill,
-                attack),
+                attack,
+                effect),
             DamageSkillEffectKind.GiftDrawnCard => CreateYijiDecision(
                 owner,
                 skill,
@@ -7828,8 +7947,70 @@ public sealed partial class GameEngine
     private PendingDecision CreateFeedbackDecision(
         PlayerRuntime owner,
         IPassiveSkill skill,
-        AttackResolution attack)
+        AttackResolution attack,
+        DamageSkillEffectKind effect)
     {
+        if (effect == DamageSkillEffectKind.TakeSourceCard)
+        {
+            var source = _players[attack.SourceSeat];
+            var choices = new List<PromptChoice>();
+            var hand = GetHand(source);
+            for (var slot = 0; slot < hand.Count; slot++)
+            {
+                choices.Add(new PromptChoice(
+                    new ChoiceId($"feedback.source-{source.Seat}.hand-slot-{slot}"),
+                    $"发动【{skill.Name}】，获得 {source.Name} 的第 {slot + 1} 张暗置手牌。",
+                    [],
+                    [source.Seat],
+                    new Dictionary<string, string>
+                    {
+                        ["response"] = "feedback-source-card",
+                        ["source-zone"] = "hand",
+                        ["slot-index"] = slot.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    }));
+            }
+
+            foreach (var equipment in GetEquipment(source))
+            {
+                choices.Add(new PromptChoice(
+                    new ChoiceId($"feedback.source-{source.Seat}.equipment-{equipment.Id}"),
+                    $"发动【{skill.Name}】，获得 {source.Name} 的装备【{equipment.DisplayName}】。",
+                    [equipment.Id],
+                    [source.Seat],
+                    new Dictionary<string, string>
+                    {
+                        ["response"] = "feedback-source-card",
+                        ["source-zone"] = "equipment"
+                    }));
+            }
+
+            choices.Add(new PromptChoice(
+                new ChoiceId("feedback.skip"),
+                $"不发动【{skill.Name}】。",
+                [],
+                [],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "feedback-skip",
+                    ["action"] = "skip-damage-skill"
+                }));
+            return new PendingDecision(
+                DecisionKind.Feedback,
+                owner.Seat,
+                $"{owner.Name} 受到伤害，是否发动【{skill.Name}】获得伤害来源 {source.Name} 的一张牌？",
+                GetEquipment(source).Select(card => card.Id).ToArray(),
+                [source.Seat],
+                attack.SourceSeat,
+                attack.EffectiveCardKind)
+            {
+                PromptId = CreatePromptId(),
+                Choices = Array.AsReadOnly(choices.ToArray()),
+                RequiredCardKind = null,
+                TargetSeat = source.Seat,
+                IsPrivate = true
+            };
+        }
+
         var cardName = CardCatalog.Get(attack.Card.Kind).DisplayName;
         return new PendingDecision(
             DecisionKind.Feedback,
@@ -8413,6 +8594,8 @@ public sealed partial class GameEngine
         Card? yuanhuDiscardedCard = null;
         PlayerRuntime? yuanhuRecoveredTarget = null;
         var yuanhuRecoveryAmount = 0;
+        Card? feedbackTakenCard = null;
+        CardLocation? feedbackTakenFrom = null;
         if (useSkill)
         {
             switch (pending.Effect)
@@ -8425,6 +8608,38 @@ public sealed partial class GameEngine
                     }
 
                     ClaimDamageCard(pending.Attack, pending.DamageFrameId, owner, skill, damageContext);
+                    break;
+                case DamageSkillEffectKind.TakeSourceCard:
+                    var availableSourceCards = GetHand(source)
+                        .Select(card => (Card: card, From: CardLocation.Hand(source.Seat)))
+                        .Concat(GetEquipment(source)
+                            .Select(card => (Card: card, From: CardLocation.Equipment(source.Seat))))
+                        .ToArray();
+                    var selectedSourceCard = selectedCardId is { } sourceCardId
+                        ? availableSourceCards.SingleOrDefault(candidate => candidate.Card.Id == sourceCardId)
+                        : availableSourceCards.FirstOrDefault();
+                    if (selectedSourceCard.Card is null ||
+                        ResolveDamageSkillEffect(skill, damageContext) != DamageSkillEffectKind.TakeSourceCard)
+                    {
+                        throw new InvalidOperationException(
+                            "Feedback requires one current hand or equipment card from the damage source.");
+                    }
+
+                    feedbackTakenCard = selectedSourceCard.Card;
+                    feedbackTakenFrom = selectedSourceCard.From;
+                    MoveCard(
+                        feedbackTakenCard,
+                        feedbackTakenFrom.Value,
+                        CardLocation.Hand(owner.Seat),
+                        CardMoveReasons.FeedbackTakeSourceCard);
+                    QueueGameEvent(new DamageSkillCardTakenEvent(
+                        pending.DamageFrameId,
+                        owner.Seat,
+                        source.Seat,
+                        feedbackTakenCard.Id,
+                        feedbackTakenCard.Kind,
+                        feedbackTakenFrom.Value,
+                        pending.Skill));
                     break;
                 case DamageSkillEffectKind.GiftDrawnCard:
                     if (selectedCardId is not { } cardId ||
@@ -8563,7 +8778,8 @@ public sealed partial class GameEngine
             useSkill,
             pending.CandidateId,
             pending.Priority,
-            (yuanhuRecoveredTarget ?? jiemingTarget)?.Seat));
+            (yuanhuRecoveredTarget ?? jiemingTarget)?.Seat ??
+            (feedbackTakenCard is null ? null : source.Seat)));
         AddLog(
             "SkillTriggered",
             useSkill
@@ -8575,6 +8791,8 @@ public sealed partial class GameEngine
                         $"{owner.Name} 触发【{skill.Name}】，令 {jiemingTarget!.Name} 摸了 {jiemingDrawCount} 张牌。",
                     DamageSkillEffectKind.RecoverDamageTarget =>
                         $"{owner.Name} 触发【{skill.Name}】，弃置【{yuanhuDiscardedCard!.DisplayName}】令 {yuanhuRecoveredTarget!.Name} 回复 1 点体力。",
+                    DamageSkillEffectKind.TakeSourceCard =>
+                        $"{owner.Name} 发动【{skill.Name}】，获得了伤害来源 {source.Name} 的一张牌。",
                     _ => $"{owner.Name} 触发【{skill.Name}】。"
                 }
                 : pending.Effect switch
@@ -8584,6 +8802,8 @@ public sealed partial class GameEngine
                     DamageSkillEffectKind.DrawToMaxHand =>
                         $"{owner.Name} 选择不发动【{skill.Name}】。",
                     DamageSkillEffectKind.RecoverDamageTarget =>
+                        $"{owner.Name} 选择不发动【{skill.Name}】。",
+                    DamageSkillEffectKind.TakeSourceCard =>
                         $"{owner.Name} 选择不发动【{skill.Name}】。",
                     _ => $"{owner.Name} 选择不发动【{skill.Name}】，伤害牌将进入弃牌堆。"
                 },
@@ -8611,19 +8831,14 @@ public sealed partial class GameEngine
                     continue;
                 }
 
-                var offersChoice = skill.OffersDamageCardChoice(ownerContext);
-                var claimsCard = skill.ClaimsDamageCard(ownerContext);
-                if (!offersChoice && !claimsCard)
+                var effect = ResolveDamageSkillEffect(skill, ownerContext);
+                if (effect == DamageSkillEffectKind.None)
                 {
                     continue;
                 }
 
-                var effect = skill.GetDamageSkillEffect(ownerContext);
-                if (effect == DamageSkillEffectKind.None)
-                {
-                    throw new InvalidOperationException(
-                        $"Skill {skill.Kind} exposes a damage trigger without an effect.");
-                }
+                var offersChoice = skill.OffersDamageCardChoice(ownerContext) ||
+                                   skill.Kind == SkillKind.Feedback;
 
                 candidates.Add(new DamageTriggerCandidate(
                     owner.Seat,
@@ -8635,6 +8850,30 @@ public sealed partial class GameEngine
             }
 
         return candidates;
+    }
+
+    private DamageSkillEffectKind ResolveDamageSkillEffect(
+        IPassiveSkill skill,
+        DamageSkillContext context)
+    {
+        if (skill.Kind != SkillKind.Feedback)
+        {
+            return skill.GetDamageSkillEffect(context);
+        }
+
+        if (UsesClassicFeedbackSourceCard)
+        {
+            return context.Amount > 0 &&
+                   context.SourceSeat is not null &&
+                   context.SourceSeat != context.Owner.Seat &&
+                   context.SourceCardCount > 0
+                ? DamageSkillEffectKind.TakeSourceCard
+                : DamageSkillEffectKind.None;
+        }
+
+        return context.SourceCard is not null && context.SourceCardIsInProcessing
+            ? DamageSkillEffectKind.ClaimDamageCard
+            : DamageSkillEffectKind.None;
     }
 
     private DamageSkillContext CreateDamageSkillContext(
@@ -8653,7 +8892,9 @@ public sealed partial class GameEngine
             SourceCardId: attack.Card.Id,
             TargetSeat: attack.TargetSeat,
             TargetHp: target.Hp,
-            TargetMaxHp: target.MaxHp);
+            TargetMaxHp: target.MaxHp,
+            SourceCardCount: GetHand(_players[attack.SourceSeat]).Count +
+                             GetEquipment(_players[attack.SourceSeat]).Count);
     }
 
     private void ClaimDamageCard(
@@ -8799,10 +9040,12 @@ public sealed partial class GameEngine
 
     private Card[] GetDyingPeaches(PlayerRuntime responder)
     {
-        var skill = PassiveRules(responder);
         var context = CreateSkillContext(responder);
         return GetHand(responder)
-            .Where(card => card.Kind == CardKind.Peach || skill.CanUseAsDyingRescue(context, card))
+            .Where(card => card.Kind == CardKind.Peach || EnabledPassiveSkills(responder).Any(skill =>
+                skill.Kind == SkillKind.Jijiu && (_rulesVersion < 10 || !IsClassicIdentityMode)
+                    ? card.Kind != CardKind.Peach && card.Suit is Suit.Heart or Suit.Diamond
+                    : skill.CanUseAsDyingRescue(context, card)))
             .ToArray();
     }
 
@@ -10010,14 +10253,14 @@ public sealed partial class GameEngine
             }
         }
 
-        var activeSkill = SkillRegistry.GetActive(actor.General.Skill);
         var activeSkillContext = new ActiveSkillContext(skillContext);
-        var activeSkillTargets = activeSkill is null
-            ? new HashSet<int>()
-            : GetActiveSkillValidTargetSeats(actor, activeSkill.Kind);
-        if (activeSkill is not null &&
-            activeSkill.CanUse(activeSkillContext))
+        foreach (var activeSkill in EnabledPassiveSkills(actor)
+                     .Select(skillRule => SkillRegistry.GetActive(skillRule.Kind))
+                     .Where(candidate => candidate is not null)
+                     .Cast<IActiveSkill>())
         {
+            var activeSkillTargets = GetActiveSkillValidTargetSeats(actor, activeSkill.Kind);
+            if (!activeSkill.CanUse(activeSkillContext)) continue;
             var activeEffect = activeSkill.GetEffect(activeSkillContext);
             if (activeEffect.MinTargetCount <= activeSkillTargets.Count)
             {
@@ -10952,7 +11195,8 @@ public sealed partial class GameEngine
             player.MaxHp,
             GetHand(player).Count,
             _phase,
-            player.UsedActiveSkillKinds);
+            player.UsedActiveSkillKinds,
+            player.Seat == _currentSeat);
 
     private IReadOnlySet<int> GetActiveSkillValidTargetSeats(
         PlayerRuntime actor,
