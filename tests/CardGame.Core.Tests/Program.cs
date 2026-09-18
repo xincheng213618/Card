@@ -141,7 +141,8 @@ var tests = new (string Name, Action Body)[]
     ("Longdan converts Dodge into a typed Slash", LongdanFlow),
     ("Longdan converts Slash into Dodge in a response window", LongdanResponseFlow),
     ("dying response can use Alcohol for self rescue", DyingAlcoholRescueFlow),
-    ("dying response can use Alcohol to rescue another seat", DyingAlcoholRescueOtherFlow),
+    ("current Alcohol legality and AI allow only holder self rescue", DyingAlcoholOnlySelfRule),
+    ("rules 3 through 11 retain cross-seat Alcohol rescue", DyingAlcoholRescueOtherFlow),
     ("dying response can pause and recover with a private Peach", DyingResponseFlow),
     ("Jijiu is an opt-in content package with a typed rescue contract", JijiuChecks.ContentContract),
     ("Jijiu converts a red card through the private dying window", JijiuChecks.DyingFlow),
@@ -1155,12 +1156,23 @@ static void AiCardContentPolicy()
         victimSeat: 1,
         peaches: [],
         alcohols: [alcoholCard],
-        thoughtSequence: 3);
+        thoughtSequence: 3,
+        allowCrossSeatAlcoholRescue: true);
     False(nonVictimAlcohol.UseAlcohol);
     var nonVictimAlcoholCandidate = nonVictimAlcohol.Thought.Candidates.Single(candidate =>
         candidate.Action.Kind == LegalActionKind.Alcohol);
     Equal(1, nonVictimAlcoholCandidate.Action.TargetSeat);
     True(nonVictimAlcoholCandidate.Reason.Contains("公开濒死角色", StringComparison.Ordinal));
+    var formalNonVictimAlcohol = new SimpleAiBrain(seat: 0, seed: 5).ChooseDyingResponseWithAlcohol(
+        view,
+        victimSeat: 1,
+        peaches: [],
+        alcohols: [alcoholCard],
+        thoughtSequence: 4,
+        allowCrossSeatAlcoholRescue: false);
+    False(formalNonVictimAlcohol.UseAlcohol);
+    True(formalNonVictimAlcohol.Thought.Candidates.All(candidate =>
+        candidate.Action.Kind != LegalActionKind.Alcohol));
 
     var harvest = new SimpleAiBrain(seat: 0, seed: 5).ChooseHarvestCard(
         view,
@@ -7959,6 +7971,7 @@ static void DyingAlcoholRescueOtherFlow()
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
+        game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 11 });
         result = game.Start();
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 3_000)
@@ -8071,6 +8084,92 @@ static void DyingAlcoholRescueOtherFlow()
         gameWithDying.ResolutionStack.All(frame => frame.Id != dyingFrame.Id),
         "ally Alcohol dying frame completed");
     AssertCardInventory(gameWithDying);
+}
+
+static void DyingAlcoholOnlySelfRule()
+{
+    TrueWithMessage(GameCheckpoint.CurrentRulesVersion >= 12, "formal Alcohol rules version");
+    GameEngine? current = null;
+    CardSnapshot? alcohol = null;
+    for (var seed = 1; seed <= 4_096 && current is null; seed++)
+    {
+        var candidate = GameEngine.CreateStandard(new GameOptions
+        {
+            UseInteractiveDiscard = false,
+            Seed = seed,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            MaxTurns = 180
+        });
+        var candidateAlcohol = candidate.CreateSnapshot(0).Players[0].Hand
+            .FirstOrDefault(card => card.Kind == CardKind.Alcohol);
+        if (candidateAlcohol is not null)
+        {
+            current = candidate;
+            alcohol = candidateAlcohol;
+        }
+    }
+
+    NotNull(current);
+    NotNull(alcohol);
+    var playersField = typeof(GameEngine).GetField(
+        "_players",
+        BindingFlags.NonPublic | BindingFlags.Instance) ??
+        throw new InvalidOperationException("Runtime players field not found.");
+    var alcoholMethod = typeof(GameEngine).GetMethod(
+        "GetDyingAlcohols",
+        BindingFlags.NonPublic | BindingFlags.Instance) ??
+        throw new InvalidOperationException("Dying Alcohol query not found.");
+    static object[] RuntimePlayers(FieldInfo field, GameEngine game) =>
+        ((System.Collections.IEnumerable)field.GetValue(game)!).Cast<object>().ToArray();
+    static Card[] DyingAlcohols(MethodInfo method, GameEngine game, object responder, int victimSeat) =>
+        (Card[])method.Invoke(game, [responder, victimSeat])!;
+
+    var runtimePlayers = RuntimePlayers(playersField, current!);
+    var selfAlcohols = DyingAlcohols(alcoholMethod, current!, runtimePlayers[0], victimSeat: 0);
+    var otherAlcohols = DyingAlcohols(alcoholMethod, current!, runtimePlayers[0], victimSeat: 1);
+    TrueWithMessage(selfAlcohols.Any(card => card.Id == alcohol!.Id), "current self-rescue Alcohol legality");
+    Equal(0, otherAlcohols.Length);
+
+    var legacy = GameReplay.Restore(current!.CreateCheckpoint() with { RulesVersion = 11 });
+    var legacyPlayers = RuntimePlayers(playersField, legacy);
+    TrueWithMessage(
+        DyingAlcohols(alcoholMethod, legacy, legacyPlayers[0], victimSeat: 1)
+            .Any(card => card.Id == alcohol!.Id),
+        "rules 11 cross-seat Alcohol legality");
+
+    var view = current.CreateSnapshot(0) with
+    {
+        Players = current.CreateSnapshot(0).Players
+            .Select(player => player.Seat == 1 ? player with { Hp = 0 } : player)
+            .ToArray()
+    };
+    var physicalAlcohol = new Card(alcohol!.Id, alcohol.Kind, alcohol.Suit, alcohol.Rank);
+    var formalOther = new SimpleAiBrain(0, 791, 2).ChooseDyingResponseWithAlcohol(
+        view,
+        victimSeat: 1,
+        peaches: [],
+        alcohols: [physicalAlcohol],
+        thoughtSequence: 1,
+        allowCrossSeatAlcoholRescue: false);
+    False(formalOther.UseAlcohol);
+    TrueWithMessage(
+        formalOther.Thought.Candidates.All(candidate => candidate.Action.Kind != LegalActionKind.Alcohol),
+        "current AI omits illegal cross-seat Alcohol");
+    var formalSelf = new SimpleAiBrain(0, 791, 2).ChooseDyingResponseWithAlcohol(
+        view with
+        {
+            Players = view.Players
+                .Select(player => player.Seat == 0 ? player with { Hp = 0 } : player)
+                .ToArray()
+        },
+        victimSeat: 0,
+        peaches: [],
+        alcohols: [physicalAlcohol],
+        thoughtSequence: 2,
+        allowCrossSeatAlcoholRescue: false);
+    True(formalSelf.UseAlcohol);
+    Equal(alcohol.Id, formalSelf.AlcoholCardId);
 }
 
 static void DyingResponseFlow()

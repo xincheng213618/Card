@@ -1389,7 +1389,8 @@ public sealed partial class SimpleAiBrain
         int victimSeat,
         IReadOnlyList<Card> peaches,
         IReadOnlyList<Card> alcohols,
-        int thoughtSequence)
+        int thoughtSequence,
+        bool allowCrossSeatAlcoholRescue = false)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var victim = view.Players.Single(player => player.Seat == victimSeat);
@@ -1411,7 +1412,10 @@ public sealed partial class SimpleAiBrain
                     ? "消耗一张自己的桃，使濒死角色回到 1 点体力。"
                     : $"将自己的一张{peach.DisplayName}当桃使用，使濒死角色回到 1 点体力。"))
             .ToList();
-        candidates.AddRange(alcohols.Select(alcohol => new AiCandidateScore(
+        var legalAlcohols = self.Seat == victimSeat || allowCrossSeatAlcoholRescue
+            ? alcohols
+            : [];
+        candidates.AddRange(legalAlcohols.Select(alcohol => new AiCandidateScore(
             new LegalAction(
                 LegalActionKind.Alcohol,
                 alcohol.Id,

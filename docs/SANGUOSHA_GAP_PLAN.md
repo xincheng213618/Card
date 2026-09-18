@@ -24,6 +24,8 @@
 
 第二个施工块完成后的增量验证：Release 0 warning / 0 error，Core 139/139，WPF 46/46；正式四花色判定、鬼才针对盟友/敌人和 v10 历史评分、v10 实际延时牌流程、旧/新 WPF 指南文案均有回归。输出位于 `$env:TEMP\Card-delayed-final` 与 `$env:TEMP\Card-delayed-wpf-renders`。本块未新增视觉布局，仍不等于实际桌面鼠标、键盘或多 DPI 验收。
 
+第三个施工块完成后的增量验证：Release 0 warning / 0 error，Core 140/140，WPF 46/46；规则 v12 的真人合法性、Prompt 候选、AI 决策和指南均只允许濒死者本人用酒自救，规则 v11 的完整跨座位流程仍可恢复并回放。输出位于 `$env:TEMP\Card-alcohol-final` 与 `$env:TEMP\Card-alcohol-wpf-renders`。`dotnet format --verify-no-changes --no-restore` 仍只报告本块未触及的 `SimpleAi.cs:773–780` 既有空白格式；本块 `git diff --check` 通过。本块未新增视觉布局，仍不等于实际桌面鼠标、键盘或多 DPI 验收。
+
 ## 已有能力
 
 | 维度 | 当前证据 |
@@ -55,11 +57,11 @@
 ## 已确认的高优先级证据
 
 1. **乐不思蜀、兵粮寸断已按正式花色版本化。** 规则 v11 起，乐不思蜀仅红桃通过、否则跳过出牌阶段；兵粮寸断仅梅花通过、否则跳过摸牌阶段。`JudgmentResolvedEvent.Succeeded`/`DelayedCardResolvedEvent.JudgmentSucceeded` 对这两张牌表示“命中安全花色”，跳阶段由独立字段表达。鬼才按具体判定类型、目标阵营和当前公开结果选牌；v1–v10 保留历史红黑行为与 AI 路径，WPF 指南也按存档规则版本切换文案。
-2. **酒可跨座位救援。** `GameEngine.cs:124` 的 `SupportsCrossSeatAlcoholRescue` 对规则版本 3 起启用；`HumanRespondDyingCore` 相应允许别人用酒救人。官方基础规则仅濒死者本人用酒，其他角色用桃。历史行为已被特意版本化，修复不能直接破坏旧版。
+2. **酒已按正式濒死规则版本化。** 规则 v12 起只有濒死者本人能从自己的私有候选中使用酒自救；其他角色仍可使用桃。规则 v3–v11 的跨座位酒救援由 `UsesHistoricalCrossSeatAlcoholRescue` 保留，Prompt、AI、事件、牌区移动和恢复流程继续按旧存档版本执行；v1/v2 原本也只允许自救。
 3. **诸葛连弩增加范围。** `src/CardGame.Core/Equipment.cs:39` 配置 `AttackRangeBonus: 1`，现有说明也写范围 +1；经典连弩攻击范围为 1，核心价值是出杀次数。
 4. **首批正式武将已用独立包归位。** `standard-classic-generals@1.0.0` 新增刘备/仁德、孙权/制衡、司马懿/反馈+鬼才、夏侯惇/刚烈、华佗/青囊+急救；`ContentGeneralDefinition.AdditionalSkillIds` 与运行时有序技能投影只在经典规则 v10 启用。经典反馈取得伤害来源的一张牌，暗手牌用不透明槽位；经典刚烈为非红桃成功；经典急救只在自己回合外可用。旧演示包、内容指纹与 v1–v9 行为不变。
 5. **牌堆不是经典实体配方。** `StandardContentPackage.cs:361` 为 90 张计数配方；`src/CardGame.Core/Content.cs:316` 的建牌路径循环分配花色/点数。牌堆差异会改变闪、桃、判定、火攻、转换技与 AI 的实际收益。
-6. **存档可用，但并非完整状态快照。** `src/CardGame.Core/Replay.cs` 明确通过元数据和命令前缀重建。当前 rules=11、schema=3；v1–v10 仍逐条走旧语义。完整状态 Checkpoint 应由恢复性能/网络需求驱动，不能把命令恢复误报为完整状态序列化。
+6. **存档可用，但并非完整状态快照。** `src/CardGame.Core/Replay.cs` 明确通过元数据和命令前缀重建。当前 rules=12、schema=3；旧规则版本仍逐条走各自历史语义。完整状态 Checkpoint 应由恢复性能/网络需求驱动，不能把命令恢复误报为完整状态序列化。
 7. **后续需要实测的规则疑点。** 经典急救的回合外限制已经闭环；空城仍仅提供禁止杀目标，仁德目前是一次交牌达到两张才回复且一回合一次，制衡只选手牌。须沿 Core 调用链与选定经典版本逐项复现，再形成修复。
 
 官方核对来源（基础牌效果共通；不据此将国战专属数量/武将技能直接套用到身份模式）：
@@ -119,7 +121,7 @@
 | --- | --- | --- |
 | 已完成 | 当前项目差距审查与施工计划 | 本报告；Release 0 warning / 0 error，Core 135/135，WPF 45/45 |
 | 已完成 | P0-人物：司马懿等正式人物、技能归属与效果校正 | 提交 `50450d2`；独立经典包、v10 多技能/体力、正式反馈/刚烈/急救、WPF 默认入口与精确存档恢复；Release 0 warning / 0 error，Core 138/138，WPF 46/46 |
-| 已完成 | P0-A：版本化修正乐不思蜀/兵粮四花色判定 | rules v11 正式红桃/梅花语义、鬼才阵营评分、v1–v10 兼容、事件/日志/指南文案；Release 0 warning / 0 error，Core 139/139，WPF 46/46 |
-| 待开始 | P0-B：版本化修正酒仅自救 | 含真人、AI、Prompt、指南、旧存档 |
+| 已完成 | P0-A：版本化修正乐不思蜀/兵粮四花色判定 | 提交 `495ce4b`；rules v11 正式红桃/梅花语义、鬼才阵营评分、v1–v10 兼容、事件/日志/指南文案；Release 0 warning / 0 error，Core 139/139，WPF 46/46 |
+| 已完成 | P0-B：版本化修正酒仅自救 | rules v12 仅濒死者用酒自救，v3–v11 跨座位兼容；真人、AI、Prompt、事件、牌区移动、指南与旧存档回归；Release 0 warning / 0 error，Core 140/140，WPF 46/46 |
 | 待开始 | P0-C：连弩及防具规则核对 | 含范围、出杀次数、青釭交互、响应触发 |
 | 进行中 | P1-A：正式多技能武将与代表武将归位 | 首批五人已完成；主公技、完整标准武将池、图鉴与更多技能频次仍待后续块 |

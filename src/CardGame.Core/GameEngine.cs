@@ -121,8 +121,8 @@ public sealed partial class GameEngine
     private bool UsesTypedGanglieDamageFrames =>
         _rulesVersion >= 2 && _contentRegistry is not null;
 
-    private bool SupportsCrossSeatAlcoholRescue =>
-        _rulesVersion >= 3;
+    private bool UsesHistoricalCrossSeatAlcoholRescue =>
+        _rulesVersion is >= 3 and <= 11;
 
     private bool SupportsPrivateTargetCardSelection =>
         _rulesVersion >= 4;
@@ -1440,7 +1440,7 @@ public sealed partial class GameEngine
         {
             AddLog("Rules", $"{jijiuRules.TrimStart('，')}。");
         }
-        var dyingAlcoholRules = SupportsCrossSeatAlcoholRescue
+        var dyingAlcoholRules = UsesHistoricalCrossSeatAlcoholRescue
             ? "酒可使本回合下一张直接杀伤害 +1，也可在濒死窗口由当前 responder 救援濒死角色回复 1 点体力"
             : "酒可使本回合下一张直接杀伤害 +1，也可在濒死时仅自救 1 点体力";
         var targetCardRules = SupportsPrivateTargetCardSelection
@@ -2130,7 +2130,7 @@ public sealed partial class GameEngine
 
         if (useAlcohol)
         {
-            if (!SupportsCrossSeatAlcoholRescue && responder.Seat != pending.VictimSeat)
+            if (!UsesHistoricalCrossSeatAlcoholRescue && responder.Seat != pending.VictimSeat)
             {
                 throw new InvalidOperationException("Alcohol can only rescue its dying holder.");
             }
@@ -9071,7 +9071,7 @@ public sealed partial class GameEngine
     }
 
     private Card[] GetDyingAlcohols(PlayerRuntime responder, int victimSeat) =>
-        responder.Seat == victimSeat || SupportsCrossSeatAlcoholRescue
+        responder.Seat == victimSeat || UsesHistoricalCrossSeatAlcoholRescue
             ? GetHand(responder)
                 .Where(card => card.Kind == CardKind.Alcohol)
                 .ToArray()
@@ -9120,7 +9120,8 @@ public sealed partial class GameEngine
             dying.VictimSeat,
             peaches,
             alcohols,
-            ++_thoughtSequence);
+            ++_thoughtSequence,
+            UsesHistoricalCrossSeatAlcoholRescue);
         AddThought(thought);
         ApplyDyingResponse(responder, usePeach, peachCardId, useAlcohol, alcoholCardId);
         PublishState();
@@ -9254,7 +9255,7 @@ public sealed partial class GameEngine
         }
         if (useAlcohol)
         {
-            if (!SupportsCrossSeatAlcoholRescue && responder.Seat != victim.Seat)
+            if (!UsesHistoricalCrossSeatAlcoholRescue && responder.Seat != victim.Seat)
             {
                 throw new InvalidOperationException("Alcohol can only rescue its dying holder.");
             }
@@ -9628,7 +9629,7 @@ public sealed partial class GameEngine
         PlayerRuntime target,
         Card alcohol)
     {
-        if ((!SupportsCrossSeatAlcoholRescue && source.Seat != target.Seat) ||
+        if ((!UsesHistoricalCrossSeatAlcoholRescue && source.Seat != target.Seat) ||
             target.Hp > 0 ||
             !target.IsAlive)
         {

@@ -63,7 +63,12 @@ public sealed partial class MainViewModel
     private void InitializePlayerGuide()
     {
         RequestPlayAdviceCommand = new RelayCommand(RequestPlayAdvice, () => CanRequestPlayAdvice);
-        _guideCards = CardCatalog.ImplementedCards.Select(definition => new GuideCardEntry(definition, GetCardDescription(definition.Kind))).ToArray();
+        _guideCards = CardCatalog.ImplementedCards
+            .Select(definition => new GuideCardEntry(
+                definition,
+                GetCardDescription(definition.Kind),
+                GetCardTiming(definition.Kind)))
+            .ToArray();
         _guideRulesVersion = GameCheckpoint.CurrentRulesVersion;
         SelectedGuideSection = GuideSections[0];
         FilterGuideCards();
@@ -98,7 +103,12 @@ public sealed partial class MainViewModel
         {
             var selectedKind = SelectedGuideCard?.Kind;
             _guideRulesVersion = _game.RulesVersion;
-            _guideCards = CardCatalog.ImplementedCards.Select(definition => new GuideCardEntry(definition, GetCardDescription(definition.Kind))).ToArray();
+            _guideCards = CardCatalog.ImplementedCards
+                .Select(definition => new GuideCardEntry(
+                    definition,
+                    GetCardDescription(definition.Kind),
+                    GetCardTiming(definition.Kind)))
+                .ToArray();
             FilterGuideCards();
             SelectedGuideCard = FilteredGuideCards.FirstOrDefault(card => card.Kind == selectedKind) ?? FilteredGuideCards.FirstOrDefault();
         }
@@ -199,7 +209,9 @@ public sealed partial class MainViewModel
             (CurrentGuideTitle, steps) = prompt.Kind switch
             {
                 DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪；中央会列出合法的手牌、技能或装备选项。", "点击中央候选会立即提交响应。选择不响应可能受到伤害。" }),
-                DecisionKind.RescueDying => ("决定是否救援濒死角色", new[] { "桃和酒都可用于救援当前濒死角色；酒也会在濒死窗口中恢复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }),
+                DecisionKind.RescueDying => ("决定是否救援濒死角色", _game.RulesVersion >= 12
+                    ? new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救并回复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }
+                    : new[] { "桃和酒都可用于救援当前濒死角色；酒也会在濒死窗口中恢复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }),
                 DecisionKind.SelectHarvestCard => ("从公开牌中取走一张", new[] { "点击中央的一张公开牌，它会加入你的手牌。", "这是选牌，不需要再选择武将或点击出牌。" }),
                 DecisionKind.SelectTargetCard => ("选择一张暗牌位", new[] { "目标手牌的牌面不会展示；每个按钮只代表一个不透明的牌位。", "选择后，拆桥会弃置该牌，顺手会将该牌交给你。" }),
                 DecisionKind.Nullification => ("决定是否使用无懈可击", new[] { "看清候选写的是使锦囊失效，还是恢复已被无懈的效果。", "点击使用会消耗所选的无懈；也可跳过并保留手牌。" }),
@@ -251,26 +263,36 @@ public sealed partial class MainViewModel
             }
             : CardCatalog.Get(kind).Description;
     }
+
+    private string GetCardTiming(CardKind kind)
+    {
+        var rulesVersion = _game is null ? GameCheckpoint.CurrentRulesVersion : _game.RulesVersion;
+        return kind switch
+        {
+            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash => "出牌阶段进攻 · 决斗或南蛮入侵中响应杀",
+            CardKind.Dodge => "受到杀或万箭齐发时响应",
+            CardKind.Nullification => "锦囊响应窗口",
+            CardKind.Peach => "出牌阶段回复自己 · 濒死时救援",
+            CardKind.Alcohol when rulesVersion >= 12 => "出牌阶段饮酒 · 自己濒死时仅可自救",
+            CardKind.Alcohol => "出牌阶段饮酒 · 濒死时救援",
+            _ => "自己的出牌阶段"
+        };
+    }
 }
 
 public sealed record GuideSection(string Key, string Title, string Subtitle);
 public sealed record GuideStep(string Number, string Text);
 public sealed record GuideHandEntry(string Name, string Message);
-public sealed class GuideCardEntry(CardDefinition definition, string? effectiveDescription = null)
+public sealed class GuideCardEntry(
+    CardDefinition definition,
+    string? effectiveDescription = null,
+    string? effectiveTiming = null)
 {
     public CardKind Kind => definition.Kind;
     public string Name => definition.DisplayName;
     public string Description => effectiveDescription ?? definition.Description;
     public string Category => definition.CategoryName;
-    public string Timing => Kind switch
-    {
-        CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash => "出牌阶段进攻 · 决斗或南蛮入侵中响应杀",
-        CardKind.Dodge => "受到杀或万箭齐发时响应",
-        CardKind.Nullification => "锦囊响应窗口",
-        CardKind.Peach => "出牌阶段回复自己 · 濒死时救援",
-        CardKind.Alcohol => "出牌阶段饮酒 · 濒死时救援",
-        _ => "自己的出牌阶段"
-    };
+    public string Timing => effectiveTiming ?? "自己的出牌阶段";
     public string VerticalName => string.Join("\n", Name.ToCharArray());
     public double NameSize => Name.Length > 3 ? 24 : Name.Length > 1 ? 32 : 48;
 }

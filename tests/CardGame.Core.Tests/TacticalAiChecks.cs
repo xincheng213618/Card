@@ -77,9 +77,14 @@ internal static class TacticalAiChecks
         Require(!new SimpleAiBrain(0, 271, 2).ChooseDyingResponse(rebel, lord, peaches, 1).UsePeach, "Rebel should not save the enemy Lord.");
         var selfRescue = new SimpleAiBrain(0, 271, 2).ChooseDyingResponseWithAlcohol(Change(view, 0, player => player with { Hp = 0 }), 0, peaches, wines, 1);
         Require(selfRescue.UseAlcohol && !selfRescue.UsePeach, "Self-rescue should use wine before flexible Peach.");
-        var otherRescue = new SimpleAiBrain(0, 271, 2).ChooseDyingResponseWithAlcohol(view, lord, [], wines, 1);
-        Require(otherRescue.UseAlcohol && otherRescue.AlcoholCardId == wines[0].Id && !otherRescue.UsePeach,
-            "Wine should rescue a high-value allied Lord from another seat.");
+        var otherRescue = new SimpleAiBrain(0, 271, 2).ChooseDyingResponseWithAlcohol(
+            view, lord, [], wines, 1, allowCrossSeatAlcoholRescue: false);
+        Require(!otherRescue.UseAlcohol && otherRescue.Thought.Candidates.All(candidate => candidate.Action.Kind != LegalActionKind.Alcohol),
+            "Current Wine AI must not offer cross-seat rescue.");
+        var legacyOtherRescue = new SimpleAiBrain(0, 271, 2).ChooseDyingResponseWithAlcohol(
+            view, lord, [], wines, 2, allowCrossSeatAlcoholRescue: true);
+        Require(legacyOtherRescue.UseAlcohol && legacyOtherRescue.AlcoholCardId == wines[0].Id && !legacyOtherRescue.UsePeach,
+            "Legacy Wine AI must retain cross-seat rescue.");
     }
 
     public static void PublicEvidence()

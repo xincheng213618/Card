@@ -70,9 +70,17 @@ internal static class RecastUiChecks
             vm.GuideSearchText = "乐不思蜀";
             Require(vm.FilteredGuideCards.Single().Description.Contains("红色") && !vm.FilteredGuideCards.Single().Description.Contains("红桃"),
                 "Old save displays rules 11 delayed-card text.");
+            vm.GuideSearchText = "酒";
+            Require(vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("濒死时救援") &&
+                !vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("仅可自救"),
+                "Old save did not retain the legacy Alcohol timing text.");
             vm.StartNewGameCommand.Execute(null);
-            Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion && vm.FilteredGuideCards.Single().Description.Contains("红桃") &&
-                vm.FilteredGuideCards.Single().Description.Contains("不为"), "New match retained the old delayed-card description.");
+            Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
+                vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("仅可自救"),
+                "New match did not display the current self-rescue Alcohol timing text.");
+            vm.GuideSearchText = "乐不思蜀";
+            Require(vm.FilteredGuideCards.Single().Description.Contains("红桃") && vm.FilteredGuideCards.Single().Description.Contains("不为"),
+                "New match retained the old delayed-card description.");
             vm.GuideSearchText = "铁索连环";
             Require(vm.FilteredGuideCards.Single().Description.Contains("重铸") && vm.FilteredGuideCards.Single().Description.Contains("自己"),
                 "New match retained the old Iron Chain rule description.");

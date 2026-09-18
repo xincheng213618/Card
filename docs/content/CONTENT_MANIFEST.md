@@ -40,7 +40,7 @@
 | `standard:lightning` | 闪电 | Trick | implemented-registry | delayed-judgment, self-target, public-judgment, thunder-damage, transfer | K7：只能对自己使用；下个回合黑桃 2 至 9 命中并造成 3 点雷电伤害，否则转移到下一名存活角色；复用 `JudgmentFrame`、鬼才窗口和延时牌收尾 |
 | `standard:nullification` | 无懈可击 | Trick | implemented-registry | counter, response-chain | K7：锦囊效果前的固定座次私有响应；支持有限多层互相抵消 |
 | `standard:iron_chain` | 铁索连环 | Trick | implemented-registry | target-two, state-mark, elemental-propagation | K5/K7：精确一/二目标、公开连环标记、火/雷伤害同额传导与有限无懈窗口 |
-| `standard:alcohol` | 酒 | Basic | implemented-registry | slash-boost, one-shot, dying-rescue | K5：无目标 `CardUseFrame`、公开酒效、直接杀伤害金额与回合结束失效；当前规则版本的濒死窗口允许当前 responder 使用自己的酒救援濒死角色回复 1 点体力 |
+| `standard:alcohol` | 酒 | Basic | implemented-registry | slash-boost, one-shot, dying-self-rescue | K5：无目标 `CardUseFrame`、公开酒效、直接杀伤害金额与回合结束失效；规则 v12 起只允许濒死者用自己的酒自救 1 点体力，v3–v11 保留跨座位兼容回放 |
 
 当前可运行的牌面描述和 AI 数值仍由兼容目录 `CardGame.Core/Content.cs` 提供；Standard Registry 先冻结稳定 ID、描述和 AI 标签，后续行为迁移不改变这些 ID，也不让 UI 或录像依赖枚举顺序。
 
@@ -86,7 +86,7 @@
 | 兼容别名 | `identity_8_basic_demo` |
 | 状态 | implemented-registry |
 
-当前标准身份牌堆沿用同一个 Recipe 形状；酒的出牌阶段一次性直接杀加伤和当前规则版本的濒死窗口救援已实现，火攻的私有展示/同花色弃牌伤害已实现，乐不思蜀、兵粮寸断和闪电的公开判定区、下回合判定及红黑/命中转移效果已实现，五类装备槽、七种装备牌（含仁王盾）、换装、基础战斗距离/攻击范围 modifier、青釭剑直接杀无视防具、仁王盾阻挡黑色杀和阵亡清理已实现，无懈可击已接入效果前的有限多层响应窗口，铁索连环已接入精确一/二目标、公开状态标记和火/雷伤害传导；后续仍可追加更多锦囊和装备效果，不把当前 90 张演示牌堆误称为完整商业卡表。标准包的 ID、标签和描述保持 v1.11.0 兼容冻结，跨座位酒救援由规则行为版本 3 的 Core 语义提供。
+当前标准身份牌堆沿用同一个 Recipe 形状；酒的出牌阶段一次性直接杀加伤和濒死者自救已实现，火攻的私有展示/同花色弃牌伤害已实现，乐不思蜀、兵粮寸断和闪电的公开判定区、下回合判定及红黑/命中转移效果已实现，五类装备槽、七种装备牌（含仁王盾）、换装、基础战斗距离/攻击范围 modifier、青釭剑直接杀无视防具、仁王盾阻挡黑色杀和阵亡清理已实现，无懈可击已接入效果前的有限多层响应窗口，铁索连环已接入精确一/二目标、公开状态标记和火/雷伤害传导；后续仍可追加更多锦囊和装备效果，不把当前 90 张演示牌堆误称为完整商业卡表。标准包的 ID、标签和描述保持 v1.11.0 兼容冻结；跨座位酒救援仅由规则行为版本 v3–v11 的兼容语义提供，v12 起按正式规则仅允许濒死者自救。
 
 ## 3. 身份模式开局配置
 

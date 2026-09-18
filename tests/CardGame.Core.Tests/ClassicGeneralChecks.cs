@@ -44,8 +44,8 @@ internal static class ClassicGeneralChecks
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion == 11,
-            "Classic rules 10 and suit-specific delayed judgments in rules 11 must be replay-versioned.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 11,
+            "Classic rules 10 and suit-specific delayed judgments in rules 11 must remain replay-versioned.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
