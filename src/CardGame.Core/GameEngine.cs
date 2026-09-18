@@ -239,6 +239,9 @@ public sealed partial class GameEngine
     private bool UsesFormalKuanggu =>
         _rulesVersion >= 38 && IsClassicIdentityMode;
 
+    private bool UsesFormalWushuang =>
+        _rulesVersion >= 39 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -8153,6 +8156,16 @@ public sealed partial class GameEngine
         var resolutionId = attack.ResolutionId;
         var slashName = CardCatalog.Get(playedCardKind).DisplayName;
 
+        if (attack.SuccessfulDodgeResponses == 0)
+        {
+            attack.SetRequiredDodgeResponses(GetRequiredResponseCount(
+                source,
+                source.Seat,
+                target.Seat,
+                playedCardKind,
+                CardKind.Dodge));
+        }
+
         if (UsesFormalArmorResponseTiming &&
             !ignoresArmor &&
             slash.Suit is Suit.Spade or Suit.Club &&
@@ -8198,6 +8211,10 @@ public sealed partial class GameEngine
         var hasBagua = !ignoresArmor && HasBagua(target);
         var dodge = dodges.FirstOrDefault();
         var canRequestHujia = CanRequestHujia(target, attack);
+        var responseOrdinal = attack.SuccessfulDodgeResponses + 1;
+        var responsePrompt = attack.RequiredDodgeResponses > 1
+            ? $"{source.Name} 的【无双】要求你打出第 {responseOrdinal} 张【闪】，是否响应？"
+            : $"{source.Name} 对你使用了【{slashName}】，是否打出【闪】？";
         if ((dodges.Count > 0 || hasBagua || canRequestHujia) && target.IsHuman)
         {
             PushResponseWindow(
@@ -8209,7 +8226,7 @@ public sealed partial class GameEngine
             _pendingDecision = new PendingDecision(
                 DecisionKind.RespondDodge,
                 target.Seat,
-                $"{source.Name} 对你使用了【{slashName}】，是否打出【闪】？",
+                responsePrompt,
                 dodges.Select(card => card.Id).ToArray(),
                 [],
                 source.Seat,
@@ -8248,7 +8265,9 @@ public sealed partial class GameEngine
             _pendingDecision = new PendingDecision(
                 DecisionKind.RespondDodge,
                 target.Seat,
-                $"{source.Name} 对 {target.Name} 使用了【{slashName}】，AI 将选择是否打出【闪】。",
+                attack.RequiredDodgeResponses > 1
+                    ? $"{source.Name} 的【无双】要求 {target.Name} 打出第 {responseOrdinal} 张【闪】，AI 将选择是否响应。"
+                    : $"{source.Name} 对 {target.Name} 使用了【{slashName}】，AI 将选择是否打出【闪】。",
                 dodges.Select(card => card.Id).ToArray(),
                 [],
                 source.Seat,
@@ -8313,6 +8332,13 @@ public sealed partial class GameEngine
 
         var responder = _players[duel.ResponderSeat];
         var opponent = _players[duel.OpponentSeat];
+        var requiredSlashResponses = GetRequiredResponseCount(
+            opponent,
+            opponent.Seat,
+            responder.Seat,
+            CardKind.Duel,
+            CardKind.Slash);
+        var responseOrdinal = duel.SuccessfulSlashResponses + 1;
         var slashes = GetResponseCards(responder, CardKind.Slash);
         var canRequestJijiang = CanRequestJijiangResponse(responder, duel.Attack);
         if (slashes.Count == 0 && !canRequestJijiang)
@@ -8336,7 +8362,9 @@ public sealed partial class GameEngine
         _pendingDecision = new PendingDecision(
             DecisionKind.RespondSlash,
             responder.Seat,
-            $"{opponent.Name} 对你使用了【决斗】，是否打出【杀】？",
+            requiredSlashResponses > 1
+                ? $"{opponent.Name} 的【无双】要求你打出第 {responseOrdinal} 张【杀】响应【决斗】，是否响应？"
+                : $"{opponent.Name} 对你使用了【决斗】，是否打出【杀】？",
             slashes.Select(card => card.Id).ToArray(),
             [],
             duel.OpponentSeat,
@@ -8408,9 +8436,7 @@ public sealed partial class GameEngine
                 CardLocation.Processing,
                 CardLocation.DiscardPile,
                 CardMoveReasons.ResponseFinished);
-            duel.JijiangAttempted = false;
-            duel.ResponderSeat = duel.OpponentSeat;
-            BeginDuelResponse(duel);
+            ContinueDuelAfterSuccessfulSlash(duel, responder.Seat);
             return;
         }
 
@@ -8431,6 +8457,31 @@ public sealed partial class GameEngine
         {
             CompleteAttack(attack);
         }
+    }
+
+    private void ContinueDuelAfterSuccessfulSlash(DuelResolution duel, int responderSeat)
+    {
+        var skillOwner = _players[duel.OpponentSeat];
+        var requiredSlashResponses = GetRequiredResponseCount(
+            skillOwner,
+            skillOwner.Seat,
+            responderSeat,
+            CardKind.Duel,
+            CardKind.Slash);
+        var completedResponseSet = duel.RegisterSlashResponse(requiredSlashResponses);
+        if (requiredSlashResponses > 1)
+        {
+            QueueGameEvent(new RequiredResponseProgressEvent(
+                duel.ResolutionId,
+                skillOwner.Seat,
+                responderSeat,
+                CardKind.Duel,
+                CardKind.Slash,
+                completedResponseSet ? requiredSlashResponses : duel.SuccessfulSlashResponses,
+                requiredSlashResponses));
+        }
+
+        BeginDuelResponse(duel);
     }
 
     private void ResolveGroupResponse(
@@ -8777,7 +8828,32 @@ public sealed partial class GameEngine
                 ResponseCardKind: CardKind.Dodge));
         }
 
-        CompleteAttack(attack);
+        CompleteSuccessfulDodgeResponse(attack);
+    }
+
+    private void CompleteSuccessfulDodgeResponse(AttackResolution attack)
+    {
+        var completed = attack.RegisterDodgeResponse();
+        if (attack.RequiredDodgeResponses > 1)
+        {
+            QueueGameEvent(new RequiredResponseProgressEvent(
+                attack.ResolutionId,
+                attack.SourceSeat,
+                attack.TargetSeat,
+                RequireAttackCardKind(attack),
+                CardKind.Dodge,
+                attack.SuccessfulDodgeResponses,
+                attack.RequiredDodgeResponses));
+        }
+
+        if (completed)
+        {
+            CompleteAttack(attack);
+            return;
+        }
+
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
+        ContinueSlashAfterTieqi(attack);
     }
 
     private void CompleteHujiaBaguaResponse(AttackResolution attack, bool succeeded)
@@ -9189,9 +9265,7 @@ public sealed partial class GameEngine
                 UsedSlash: true,
                 SlashCardId: selectedSlash.Id,
                 ResponseCardKind: effectiveKind));
-            duel.JijiangAttempted = false;
-            duel.ResponderSeat = duel.OpponentSeat;
-            BeginDuelResponse(duel);
+            ContinueDuelAfterSuccessfulSlash(duel, owner.Seat);
             return;
         }
 
@@ -9888,7 +9962,7 @@ public sealed partial class GameEngine
 
         if (succeeded)
         {
-            CompleteAttack(attack);
+            CompleteSuccessfulDodgeResponse(attack);
         }
         else if (!ApplyAttackDamage(attack))
         {
@@ -10766,9 +10840,12 @@ public sealed partial class GameEngine
         var responseDescription = IsNativeResponseCard(responseCard, CardKind.Dodge)
             ? $"打出【{responseName}】"
             : $"将【{responseCard.DisplayName}】当作【{responseName}】";
+        var completesResponse = attack.SuccessfulDodgeResponses + 1 >= attack.RequiredDodgeResponses;
         AddLog(
             "CardResponded",
-            $"{defender.Name} {responseDescription}，抵消了【{incomingName}】。",
+            completesResponse
+                ? $"{defender.Name} {responseDescription}，抵消了【{incomingName}】。"
+                : $"{defender.Name} {responseDescription}响应【{incomingName}】；【无双】仍要求下一张【闪】。",
             defender.Seat,
             attack.SourceSeat);
         QueueGameEvent(new CardRespondedEvent(
@@ -10781,7 +10858,7 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardLocation.DiscardPile,
             CardMoveReasons.ResponseFinished);
-        CompleteAttack(attack);
+        CompleteSuccessfulDodgeResponse(attack);
     }
 
     private bool ApplyAttackDamage(AttackResolution attack)
@@ -14882,6 +14959,28 @@ public sealed partial class GameEngine
         owner.General.HasSkill(SkillKind.Hujia) &&
         GetHujiaCandidateSeats(owner.Seat).Count > 0;
 
+    private int GetRequiredResponseCount(
+        PlayerRuntime skillOwner,
+        int sourceSeat,
+        int responderSeat,
+        CardKind incomingCard,
+        CardKind requiredCardKind)
+    {
+        if (!UsesFormalWushuang || !skillOwner.General.HasSkill(SkillKind.Wushuang))
+        {
+            return 1;
+        }
+
+        return PassiveRules(skillOwner).ModifyRequiredResponseCount(
+            new ResponseCountSkillContext(
+                CreateSkillContext(skillOwner),
+                sourceSeat,
+                responderSeat,
+                incomingCard,
+                requiredCardKind),
+            currentCount: 1);
+    }
+
     private IReadOnlyList<int> GetHujiaCandidateSeats(int ownerSeat) =>
         Enumerable.Range(0, _playerCount)
             .Select(offset => (_currentSeat + offset) % _playerCount)
@@ -17416,6 +17515,8 @@ public sealed partial class GameEngine
         public bool LiegongResolved { get; private set; }
         public bool LiegongProhibitsDodge { get; private set; }
         public bool ProhibitsDodge { get; private set; }
+        public int RequiredDodgeResponses { get; private set; } = 1;
+        public int SuccessfulDodgeResponses { get; private set; }
 
         public void SetDamageParticipants(int sourceSeat, int targetSeat)
         {
@@ -17457,6 +17558,28 @@ public sealed partial class GameEngine
             }
 
             JijiangAttempted = true;
+        }
+
+        public void SetRequiredDodgeResponses(int count)
+        {
+            if (count < 1 || SuccessfulDodgeResponses != 0)
+            {
+                throw new InvalidOperationException("The required Dodge count cannot change after responses begin.");
+            }
+
+            RequiredDodgeResponses = count;
+        }
+
+        public bool RegisterDodgeResponse()
+        {
+            if (SuccessfulDodgeResponses >= RequiredDodgeResponses)
+            {
+                throw new InvalidOperationException("All required Dodge responses have already resolved.");
+            }
+
+            SuccessfulDodgeResponses++;
+            HujiaAttempted = false;
+            return SuccessfulDodgeResponses >= RequiredDodgeResponses;
         }
 
         public void ResolveTieqi(bool prohibitsDodge)
@@ -17662,6 +17785,26 @@ public sealed partial class GameEngine
         public int ResponderSeat { get; set; } = attack.TargetSeat;
         public int OpponentSeat => ResponderSeat == SourceSeat ? TargetSeat : SourceSeat;
         public bool JijiangAttempted { get; set; }
+        public int SuccessfulSlashResponses { get; private set; }
+
+        public bool RegisterSlashResponse(int requiredCount)
+        {
+            if (requiredCount < 1 || SuccessfulSlashResponses >= requiredCount)
+            {
+                throw new InvalidOperationException("The Duel Slash response count is invalid.");
+            }
+
+            SuccessfulSlashResponses++;
+            JijiangAttempted = false;
+            if (SuccessfulSlashResponses < requiredCount)
+            {
+                return false;
+            }
+
+            SuccessfulSlashResponses = 0;
+            ResponderSeat = OpponentSeat;
+            return true;
+        }
     }
 
     private enum GroupCardEffect

@@ -75,6 +75,8 @@ public sealed partial class GameEngine
         public bool CanReduceDrawPhase(PlayerSkillContext owner) => skills.Any(skill => skill.CanReduceDrawPhase(owner));
         public bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) =>
             skills.Any(skill => skill.CanUseAsResponse(owner, card, requiredCardKind));
+        public int ModifyRequiredResponseCount(ResponseCountSkillContext context, int currentCount) =>
+            skills.Aggregate(currentCount, (value, skill) => skill.ModifyRequiredResponseCount(context, value));
         public bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsDyingRescue(owner, card));
     }
 }

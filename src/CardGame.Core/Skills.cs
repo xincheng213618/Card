@@ -62,6 +62,13 @@ public sealed record JudgmentSkillContext(
     Suit JudgmentSuit,
     int JudgmentRank);
 
+public sealed record ResponseCountSkillContext(
+    PlayerSkillContext Owner,
+    int SourceSeat,
+    int ResponderSeat,
+    CardKind IncomingCard,
+    CardKind RequiredCardKind);
+
 /// <summary>
 /// Skills answer small rule questions. State mutation remains in GameEngine, so
 /// a skill cannot silently bypass card movement, logging, death, or victory checks.
@@ -136,6 +143,15 @@ public interface IPassiveSkill
         PlayerSkillContext owner,
         Card card,
         CardKind requiredCardKind) => false;
+
+    /// <summary>
+    /// Modifies the number of consecutive responses required from one player.
+    /// Each response still resolves through its own private prompt, physical
+    /// card movement and equipment or faction-skill continuation.
+    /// </summary>
+    int ModifyRequiredResponseCount(
+        ResponseCountSkillContext context,
+        int currentCount) => currentCount;
 
     /// <summary>
     /// Returns whether this skill can treat a physical hand card as Peach in
@@ -339,6 +355,23 @@ public sealed class KuangguSkill : IPassiveSkill
         CanTriggerAfterDamage(context)
             ? DamageSkillEffectKind.RecoverDamageSource
             : DamageSkillEffectKind.None;
+}
+
+public sealed class WushuangSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Wushuang;
+    public string Name => "无双";
+
+    public int ModifyRequiredResponseCount(
+        ResponseCountSkillContext context,
+        int currentCount) =>
+        context.Owner.Seat == context.SourceSeat &&
+        ((context.IncomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
+         context.RequiredCardKind == CardKind.Dodge ||
+         context.IncomingCard == CardKind.Duel &&
+         context.RequiredCardKind == CardKind.Slash)
+            ? Math.Max(currentCount, 2)
+            : currentCount;
 }
 
 public sealed class KejiSkill : IPassiveSkill
@@ -826,7 +859,8 @@ public static class SkillRegistry
             [SkillKind.Jizhi] = new JizhiSkill(),
             [SkillKind.Tieqi] = new TieqiSkill(),
             [SkillKind.Liegong] = new LiegongSkill(),
-            [SkillKind.Kuanggu] = new KuangguSkill()
+            [SkillKind.Kuanggu] = new KuangguSkill(),
+            [SkillKind.Wushuang] = new WushuangSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

@@ -334,6 +334,19 @@ public sealed record ResponseRequestedEvent(
     CardKind? RequiredCardKind = null) : IGameEvent;
 
 /// <summary>
+/// Public progress for a locked skill that requires consecutive responses.
+/// Every counted response has already paid its own physical or equipment cost.
+/// </summary>
+public sealed record RequiredResponseProgressEvent(
+    long ResolutionId,
+    int SkillOwnerSeat,
+    int ResponderSeat,
+    CardKind IncomingCard,
+    CardKind RequiredCardKind,
+    int ResponseCount,
+    int RequiredResponseCount) : IGameEvent;
+
+/// <summary>
 /// Publicly announces a trick-effect nullification opportunity. The responder's
 /// private hand is exposed only through that responder's filtered prompt.
 /// </summary>

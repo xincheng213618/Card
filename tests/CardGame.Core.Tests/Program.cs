@@ -67,6 +67,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Ma Chao judges through Tieqi and reduces distance through Mashu", ClassicGeneralChecks.FormalTieqiAndMashuFlow),
     ("classic Huang Zhong prohibits Dodge through eligible Liegong", ClassicGeneralChecks.FormalLiegongFlow),
     ("classic Wei Yan recovers through distance-one Kuanggu damage", ClassicGeneralChecks.FormalKuangguFlow),
+    ("classic Lu Bu requires sequential Wushuang responses", ClassicGeneralChecks.FormalWushuangFlow),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),

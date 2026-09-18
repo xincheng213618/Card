@@ -805,6 +805,28 @@ internal static class ClassicGeneralUiChecks
         kuangguDescriptionWindow.Content = null;
         kuangguDescriptionWindow.Close();
 
+        using var wushuangDescriptionViewModel = FindGeneralChoice("classic:lu-bu");
+        var luBu = wushuangDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:lu-bu");
+        Program.Assert(luBu.Name == "吕布" &&
+                       luBu.Kingdom == "群" &&
+                       luBu.SkillName == "无双" &&
+                       luBu.SkillDescription.Contains("锁定技", StringComparison.Ordinal) &&
+                       luBu.SkillDescription.Contains("两张【闪】", StringComparison.Ordinal) &&
+                       luBu.SkillDescription.Contains("两张【杀】", StringComparison.Ordinal) &&
+                       luBu.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(luBu.GeneralId),
+            "The current classic Lu Bu card must render Qun, locked Wushuang, Lord health and portrait aliasing.");
+        var wushuangDescriptionWindow = new MainWindow(wushuangDescriptionViewModel);
+        wushuangDescriptionWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)wushuangDescriptionWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "104-classic-lu-bu-card.png"));
+        wushuangDescriptionWindow.Content = null;
+        wushuangDescriptionWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

@@ -155,7 +155,8 @@ public enum SkillKind
     Jizhi,
     Tieqi,
     Liegong,
-    Kuanggu
+    Kuanggu,
+    Wushuang
 }
 
 public enum DecisionKind

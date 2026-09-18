@@ -27,6 +27,7 @@ internal static class ClassicGeneralChecks
         var jizhiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 15, 0));
         var tieqiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 16, 0));
         var liegongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 17, 0));
+        var kuangguClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 18, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -35,7 +36,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.18.0"]),
+                "standard-classic-generals@1.19.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -156,6 +157,13 @@ internal static class ClassicGeneralChecks
                     "classic:wei-yan",
                     StringComparer.Ordinal),
             "The Liegong-era classic registry must retain the 1.17 roster without Wei Yan or Kuanggu.");
+        Require(kuangguClassic.Packages.Last().Version == new Version(1, 18, 0) &&
+                !kuangguClassic.Generals.ContainsKey("classic:lu-bu") &&
+                !kuangguClassic.Skills.ContainsKey("classic:wushuang") &&
+                !kuangguClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
+                    "classic:lu-bu",
+                    StringComparer.Ordinal),
+            "The Kuanggu-era classic registry must retain the 1.18 roster without Lu Bu or Wushuang.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -259,6 +267,12 @@ internal static class ClassicGeneralChecks
                 weiYan.BaseHp == 4 &&
                 weiYan.SkillIds.SequenceEqual(["classic:kuanggu"]),
             "The current classic Wei Yan must expose formal Shu, 4-HP Kuanggu.");
+        var luBu = classic.Generals["classic:lu-bu"];
+        Require(luBu.Name == "吕布" &&
+                luBu.FactionId == "qun" &&
+                luBu.BaseHp == 4 &&
+                luBu.SkillIds.SequenceEqual(["classic:wushuang"]),
+            "The current classic Lu Bu must expose formal Qun, 4-HP Wushuang.");
 
         foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
         {
@@ -280,12 +294,13 @@ internal static class ClassicGeneralChecks
                         pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
                         pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
                         pool.Contains("classic:wei-yan", StringComparer.Ordinal) &&
+                        pool.Contains("classic:lu-bu", StringComparer.Ordinal) &&
                        !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
                 $"{modeId} must publish formal generals instead of demo placeholders.");
         }
 
-        Require(GameCheckpoint.CurrentRulesVersion >= 38,
-            "Classic Kuanggu must have an explicit replay-versioned rules boundary.");
+        Require(GameCheckpoint.CurrentRulesVersion >= 39,
+            "Classic Wushuang must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
         var feedbackContext = new DamageSkillContext(
@@ -311,6 +326,34 @@ internal static class ClassicGeneralChecks
         Require(keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: false) &&
                 !keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: true),
             "Formal Keji must allow only a Slash-free own discard phase to be skipped.");
+
+        var wushuang = SkillRegistry.Get(SkillKind.Wushuang);
+        var wushuangOwner = damaged with { Seat = 1 };
+        Require(wushuang.ModifyRequiredResponseCount(
+                    new ResponseCountSkillContext(
+                        wushuangOwner,
+                        SourceSeat: 1,
+                        ResponderSeat: 0,
+                        IncomingCard: CardKind.Slash,
+                        RequiredCardKind: CardKind.Dodge),
+                    currentCount: 1) == 2 &&
+                wushuang.ModifyRequiredResponseCount(
+                    new ResponseCountSkillContext(
+                        wushuangOwner,
+                        SourceSeat: 1,
+                        ResponderSeat: 0,
+                        IncomingCard: CardKind.Duel,
+                        RequiredCardKind: CardKind.Slash),
+                    currentCount: 1) == 2 &&
+                wushuang.ModifyRequiredResponseCount(
+                    new ResponseCountSkillContext(
+                        wushuangOwner,
+                        SourceSeat: 0,
+                        ResponderSeat: 1,
+                        IncomingCard: CardKind.Duel,
+                        RequiredCardKind: CardKind.Slash),
+                    currentCount: 1) == 1,
+            "Formal Wushuang must require two sequential responses only from the skill owner's opponent.");
 
         var tuxi = SkillRegistry.Get(SkillKind.Tuxi);
         var draw = damaged with { Phase = TurnPhase.Draw, IsOwnTurn = true };
@@ -2069,6 +2112,142 @@ internal static class ClassicGeneralChecks
                 fullHealth.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp == 4 &&
                 fullHealthEvents.OfType<KuangguRecoveredEvent>().Count() == 0,
             fullHealthResult.Error?.Message ?? "Full-health Wei Yan must not create a no-op Kuanggu recovery.");
+    }
+
+    public static void FormalWushuangFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+
+        var slashFixture = FindLuBuWushuangSlashFixture(registry);
+        var slashEventCount = slashFixture.Game.Events.Count;
+        var slashResult = SubmitPlayAction(slashFixture.Game, slashFixture.Action);
+        Require(slashResult.Accepted, slashResult.Error?.Message ?? "Lu Bu could not use the Wushuang Slash.");
+        DriveAiUntil(slashFixture.Game, () => slashFixture.Game.Events.Skip(slashEventCount)
+            .Select(item => item.Payload)
+            .OfType<RequiredResponseProgressEvent>()
+            .Count(progress => progress.RequiredCardKind == CardKind.Dodge) >= 1);
+        var secondDodgePrompt = slashFixture.Game.CreateSnapshot(slashFixture.TargetSeat).PendingDecision;
+        Require(secondDodgePrompt is
+        {
+            Kind: DecisionKind.RespondDodge,
+            PlayerSeat: var responderSeat,
+            RequiredCardKind: CardKind.Dodge
+        } &&
+                responderSeat == slashFixture.TargetSeat &&
+                secondDodgePrompt.Prompt.Contains("第 2 张", StringComparison.Ordinal),
+            "The first Wushuang Dodge must open a distinct second-Dodge response window.");
+
+        var midSlashReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(slashFixture.Game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(midSlashReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(slashFixture.Game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(midSlashReplay).SequenceEqual(EventSignatures(slashFixture.Game)),
+            "A Wushuang Slash must restore exactly between its first and second Dodge windows.");
+
+        DriveAiUntil(slashFixture.Game, () => slashFixture.Game.Events.Skip(slashEventCount)
+            .Select(item => item.Payload)
+            .OfType<RequiredResponseProgressEvent>()
+            .Count(progress => progress.RequiredCardKind == CardKind.Dodge) >= 2);
+        DriveAiUntil(midSlashReplay, () => midSlashReplay.Events.Skip(slashEventCount)
+            .Select(item => item.Payload)
+            .OfType<RequiredResponseProgressEvent>()
+            .Count(progress => progress.RequiredCardKind == CardKind.Dodge) >= 2);
+        var slashEvents = slashFixture.Game.Events.Skip(slashEventCount).Select(item => item.Payload).ToArray();
+        var slashProgress = slashEvents.OfType<RequiredResponseProgressEvent>()
+            .Where(progress => progress.RequiredCardKind == CardKind.Dodge)
+            .ToArray();
+        Require(slashProgress.Select(progress => progress.ResponseCount).SequenceEqual([1, 2]) &&
+                slashProgress.All(progress =>
+                    progress.SkillOwnerSeat == 0 &&
+                    progress.ResponderSeat == slashFixture.TargetSeat &&
+                    progress.RequiredResponseCount == 2) &&
+                slashEvents.OfType<CardRespondedEvent>().Count(response =>
+                    response.ResponderSeat == slashFixture.TargetSeat) == 2 &&
+                slashEvents.OfType<DamageAppliedEvent>().All(damage =>
+                    damage.TargetSeat != slashFixture.TargetSeat),
+            "A Wushuang Slash must consume two sequential Dodge responses before it is canceled.");
+
+        Require(SnapshotJson.Serialize(midSlashReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(slashFixture.Game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(midSlashReplay).SequenceEqual(EventSignatures(slashFixture.Game)),
+            "A resumed Wushuang Slash must finish identically after its second Dodge.");
+
+        var slashReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(slashFixture.Game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(slashReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(slashFixture.Game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(slashReplay).SequenceEqual(EventSignatures(slashFixture.Game)),
+            "A completed two-Dodge Wushuang Slash must replay exactly.");
+
+        var legacySlash = GameReplay.Restore(
+            slashFixture.BeforeAction with { RulesVersion = 38 },
+            registry);
+        var legacySlashEventCount = legacySlash.Events.Count;
+        var legacySlashResult = SubmitPlayAction(legacySlash, slashFixture.Action);
+        Require(legacySlashResult.Accepted, legacySlashResult.Error?.Message ??
+            "Rules v38 could not reproduce the Slash fixture.");
+        DriveAiUntil(legacySlash, () => legacySlash.Events.Skip(legacySlashEventCount)
+            .Select(item => item.Payload)
+            .OfType<CardRespondedEvent>()
+            .Any(response => response.ResponderSeat == slashFixture.TargetSeat));
+        var legacySlashEvents = legacySlash.Events.Skip(legacySlashEventCount).Select(item => item.Payload).ToArray();
+        Require(legacySlashEvents.OfType<CardRespondedEvent>().Count(response =>
+                    response.ResponderSeat == slashFixture.TargetSeat) == 1 &&
+                legacySlashEvents.OfType<RequiredResponseProgressEvent>().Count() == 0 &&
+                legacySlashEvents.OfType<DamageAppliedEvent>().All(damage =>
+                    damage.TargetSeat != slashFixture.TargetSeat),
+            "Rules v38 must retain the historical one-Dodge Slash response.");
+
+        var duelFixture = FindLuBuWushuangDuelFixture(registry);
+        SetPlayerHp(duelFixture.Game, duelFixture.TargetSeat, hp: 1);
+        var duelEventCount = duelFixture.Game.Events.Count;
+        var duelResult = SubmitPlayAction(duelFixture.Game, duelFixture.Action);
+        Require(duelResult.Accepted, duelResult.Error?.Message ?? "Lu Bu could not use the Wushuang Duel.");
+        DriveAiUntil(duelFixture.Game, () => duelFixture.Game.Events.Skip(duelEventCount)
+            .Select(item => item.Payload)
+            .OfType<DamageAppliedEvent>()
+            .Any(damage => damage.TargetSeat == duelFixture.TargetSeat));
+        var duelEvents = duelFixture.Game.Events.Skip(duelEventCount).Select(item => item.Payload).ToArray();
+        var duelDiagnostics = string.Join(", ", duelEvents.Select(item => item switch
+        {
+            DuelResponseEvent response => $"duel:{response.ResponderSeat}:{response.UsedSlash}",
+            RequiredResponseProgressEvent progress =>
+                $"progress:{progress.ResponderSeat}:{progress.ResponseCount}/{progress.RequiredResponseCount}",
+            DamageAppliedEvent damage => $"damage:{damage.SourceSeat}->{damage.TargetSeat}:{damage.Amount}",
+            _ => item.GetType().Name
+        }));
+        Require(duelEvents.OfType<DuelResponseEvent>().Count(response =>
+                    response.ResponderSeat == duelFixture.TargetSeat && response.UsedSlash) == 1 &&
+                duelEvents.OfType<DuelResponseEvent>().Any(response =>
+                    response.ResponderSeat == duelFixture.TargetSeat && !response.UsedSlash) &&
+                duelEvents.OfType<RequiredResponseProgressEvent>().Any(progress =>
+                    progress.SkillOwnerSeat == 0 &&
+                    progress.ResponderSeat == duelFixture.TargetSeat &&
+                    progress.IncomingCard == CardKind.Duel &&
+                    progress.RequiredCardKind == CardKind.Slash &&
+                    progress.ResponseCount == 1 &&
+                    progress.RequiredResponseCount == 2),
+            $"A Wushuang Duel opponent with one Slash must pay it and then fail the second response. {duelDiagnostics}");
+
+        var legacyDuel = GameReplay.Restore(
+            duelFixture.BeforeAction with { RulesVersion = 38 },
+            registry);
+        SetPlayerHp(legacyDuel, duelFixture.TargetSeat, hp: 1);
+        var legacyDuelEventCount = legacyDuel.Events.Count;
+        var legacyDuelResult = SubmitPlayAction(legacyDuel, duelFixture.Action);
+        Require(legacyDuelResult.Accepted, legacyDuelResult.Error?.Message ??
+            "Rules v38 could not reproduce the Duel fixture.");
+        DriveAiUntil(legacyDuel, () => legacyDuel.Events.Skip(legacyDuelEventCount)
+            .Select(item => item.Payload)
+            .OfType<DuelResponseEvent>()
+            .Any(response => response.ResponderSeat == duelFixture.TargetSeat && response.UsedSlash));
+        var legacyDuelEvents = legacyDuel.Events.Skip(legacyDuelEventCount).Select(item => item.Payload).ToArray();
+        Require(legacyDuelEvents.OfType<RequiredResponseProgressEvent>().Count() == 0 &&
+                legacyDuelEvents.OfType<DamageAppliedEvent>().All(damage =>
+                    damage.TargetSeat != duelFixture.TargetSeat),
+            "Rules v38 must let one Slash complete the opponent's Duel response set.");
     }
 
     public static void FormalFeedbackFlow()
@@ -4523,6 +4702,126 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Wei Yan Kuanggu fixture.");
+    }
+
+    private static (
+        GameEngine Game,
+        GameCheckpoint BeforeAction,
+        LegalAction Action,
+        int TargetSeat) FindLuBuWushuangSlashFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:lu-bu",
+                GameCheckpoint.CurrentRulesVersion);
+            if (game is null)
+            {
+                continue;
+            }
+
+            var full = game.CreateSnapshot(0, revealAll: true);
+            var candidate = game.GetHumanLegalActions()
+                .Where(action => action.Kind == LegalActionKind.Slash && action.TargetSeat is not null)
+                .Select(action => new
+                {
+                    Action = action,
+                    Target = full.Players.Single(player => player.Seat == action.TargetSeat)
+                })
+                .Where(item => item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
+                               item.Target.Equipment.All(card =>
+                                   card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
+                               item.Target.Skills?.All(skill =>
+                                   skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false)
+                .OrderBy(item => item.Action.CardId)
+                .ThenBy(item => item.Action.TargetSeat)
+                .FirstOrDefault();
+            if (candidate is null)
+            {
+                continue;
+            }
+
+            return (
+                game,
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+                candidate.Action,
+                candidate.Target.Seat);
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Lu Bu two-Dodge fixture.");
+    }
+
+    private static (
+        GameEngine Game,
+        GameCheckpoint BeforeAction,
+        LegalAction Action,
+        int TargetSeat) FindLuBuWushuangDuelFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:lu-bu",
+                GameCheckpoint.CurrentRulesVersion);
+            if (game is null)
+            {
+                continue;
+            }
+
+            var full = game.CreateSnapshot(0, revealAll: true);
+            if (full.Players.SelectMany(player => player.Hand)
+                .Any(card => card.Kind == CardKind.Nullification))
+            {
+                continue;
+            }
+
+            var candidate = game.GetHumanLegalActions()
+                .Where(action => action.Kind == LegalActionKind.Duel && action.TargetSeat is not null)
+                .Select(action => new
+                {
+                    Action = action,
+                    Target = full.Players.Single(player => player.Seat == action.TargetSeat)
+                })
+                .Where(item => item.Target.Hand.Count(card =>
+                                   card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == 1 &&
+                               item.Target.Skills?.All(skill =>
+                                   skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan or SkillKind.Jijiang)) != false)
+                .OrderBy(item => item.Action.CardId)
+                .ThenBy(item => item.Action.TargetSeat)
+                .FirstOrDefault();
+            if (candidate is null)
+            {
+                continue;
+            }
+
+            return (
+                game,
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+                candidate.Action,
+                candidate.Target.Seat);
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Lu Bu one-Slash Duel fixture.");
+    }
+
+    private static void DriveAiUntil(GameEngine game, Func<bool> completed)
+    {
+        for (var step = 0; step < 32 && !completed(); step++)
+        {
+            if (game.PendingDecision is { PlayerSeat: 0 })
+            {
+                throw new InvalidOperationException(
+                    $"Wushuang fixture reached an unexpected human {game.PendingDecision.Kind} prompt.");
+            }
+
+            var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Could not advance the Wushuang AI response.");
+        }
+
+        Require(completed(), "Wushuang fixture did not reach the expected response boundary.");
     }
 
     private static CommandResult SubmitPlayAction(GameEngine game, LegalAction action) =>
