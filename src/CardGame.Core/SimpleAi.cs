@@ -488,7 +488,8 @@ public sealed partial class SimpleAiBrain
         int sourceSeat,
         CardKind incomingCard,
         int thoughtSequence,
-        bool takeSourceCard = false)
+        bool takeSourceCard = false,
+        string skillName = "反馈")
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var profile = CardCatalog.Get(incomingCard);
@@ -509,12 +510,12 @@ public sealed partial class SimpleAiBrain
             LegalActionKind.Feedback,
             null,
             sourceSeat,
-            $"发动【反馈】{gainDescription}");
+            $"发动【{skillName}】{gainDescription}");
         var skipAction = new LegalAction(
             LegalActionKind.SkipFeedback,
             null,
             sourceSeat,
-            "不发动【反馈】");
+            $"不发动【{skillName}】");
         var candidates = new[]
         {
             new AiCandidateScore(
@@ -536,7 +537,7 @@ public sealed partial class SimpleAiBrain
             Seat,
             selected.Action.Description,
             candidates,
-            $"反馈触发：手牌 {self.HandCount}/{self.MaxHp}，决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
+            $"{skillName}触发：手牌 {self.HandCount}/{self.MaxHp}，决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
         return (selected.Action.Kind == LegalActionKind.Feedback, thought);
     }
 

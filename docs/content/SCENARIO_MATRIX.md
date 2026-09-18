@@ -44,6 +44,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | `skill.paoxiao.slash_limit` | `standard:paoxiao` | 出牌阶段杀次数不受 1 次限制 | 其他阶段不改变合法动作 | AI 只消费自己的视角 |
 | `skill.yingzi.draw` | `standard:yingzi` | 摸牌阶段额外摸 1 张 | 非摸牌阶段不改变摸牌 | 发牌顺序可复现 |
 | `skill.kongcheng.target_lock` | `standard:kongcheng` | 规则 v15 的经典身份局中，空手牌时不能成为普通/火/雷杀或决斗目标 | 有手牌后恢复可选；伪造决斗目标原子拒绝；v1–v14 和演示模式保留只禁杀 | AI/WPF 只消费 Core 合法动作；只公开技能与手牌数，不公开暗牌；固定 seed 的新旧版本目标集合可复现 |
+| `skill.jianxiong.claim_damage_card` | `standard:jianxiong` | 规则 v16 的经典身份局中，受到正伤害后可选择取得仍在 `Processing` 的伤害牌；同一实体牌进入曹操手牌 | 零/负伤害、无来源牌、来源牌已离开处理区、旧/伪造 Choice 必须拒绝；v1–v15 和演示模式保留自动取得杀类伤害牌 | Prompt 只投影给曹操；跳过与取得可从同一 Checkpoint 分叉，类型化事件、移动账本和固定 seed/命令流可回放 |
 | `trick.dismantlement.target_card_discard` | `standard:dismantlement` | 选择一名有手牌、公开装备或公开判定区牌的其他存活角色；手牌由来源玩家通过私有不透明牌位选择，公开装备/判定区牌通过精确 `TargetCardId` 选择后弃置 | 目标无牌、死亡、自身、伪造目标、过期牌位 Prompt 或不属于目标公开装备/判定区的 `TargetCardId` 被拒绝 | 手牌分支的普通快照和事件不含牌面；公开装备/判定区分支可带已公开的 ID/牌型；可信账本可回放 |
 | `trick.snatch.distance_one_target_card_take` | `standard:snatch` | 选择一名战斗距离为 1 且有手牌、公开装备或公开判定区牌的其他存活角色；手牌由来源玩家通过私有不透明牌位选择，公开装备/判定区牌通过精确 `TargetCardId` 选择后转入使用者手牌 | 距离大于 1 且无奇才、目标无牌、死亡、自身、伪造目标、过期牌位 Prompt 或非法装备/判定区 ID 被拒绝；坐骑 modifier 和奇才锦囊距离豁免必须由 Core 查询决定 | 手牌分支的普通快照和事件不含牌面；公开装备/判定区分支仅公开已知 ID/牌型，取得后牌面进入使用者私有快照；可信账本可回放 |
 | `trick.duel.response_chain` | `standard:duel` | 多轮杀响应可暂停、恢复并结束 | 旧 prompt、错误 responder 被拒绝 | 固定事件流可回放 |
@@ -65,7 +66,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | --- | --- | --- |
 | `k1.slash.hit` | `standard:slash` 命中 | `Hand → Processing → DiscardPile` |
 | `k1.slash.dodge` | `standard:dodge` 闪避 | 响应牌独立经过 `Processing` |
-| `k1.jianxiong.claim` | `standard:jianxiong` 奸雄取得伤害牌 | `Processing → Hand`，不复制实体牌 |
+| `k1.jianxiong.claim` | `standard:jianxiong` 奸雄选择取得伤害牌 | `Processing → Hand`，不复制实体牌；规则 v16 经典身份为可选取得 |
 | `k1.peach` | `standard:peach` | 使用牌经过 `Processing` 后弃置 |
 | `k1.deal.draw` | 发牌与摸牌 | `DrawPile → Hand`，顺序可复现 |
 | `k1.hand-limit-discard` | 手牌上限弃置 | `Hand → DiscardPile`，不得部分提交 |

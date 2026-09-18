@@ -157,6 +157,9 @@ public sealed partial class GameEngine
     private bool UsesFormalKongchengTargeting =>
         _rulesVersion >= 15 && IsClassicIdentityMode;
 
+    private bool UsesFormalJianxiongDamageCard =>
+        _rulesVersion >= 16 && IsClassicIdentityMode;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -1446,6 +1449,10 @@ public sealed partial class GameEngine
                              _players.Any(player => player.General.HasSkill(SkillKind.Kongcheng))
             ? "，诸葛亮没有手牌时不能成为杀或决斗的目标"
             : string.Empty;
+        var jianxiongRules = UsesFormalJianxiongDamageCard &&
+                            _players.Any(player => player.General.HasSkill(SkillKind.Jianxiong))
+            ? "，曹操受到伤害后可选择获得仍在处理区的伤害牌"
+            : string.Empty;
         var qingnangRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Qingnang))
             ? "，华佗可在出牌阶段每回合弃置一张手牌令一名受伤角色回复 1 点体力"
             : string.Empty;
@@ -1480,7 +1487,7 @@ public sealed partial class GameEngine
             : "八卦阵成为杀的目标时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀不能对装备者使用";
         AddLog(
             "Rules",
-            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，火攻通过目标私有展示和攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}{kongchengRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
+            $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，火攻通过目标私有展示和攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
         AddLog("Rules", $"{targetCardRules}。");
         if (ganglieRules.Length > 0)
         {
@@ -6680,7 +6687,8 @@ public sealed partial class GameEngine
                 pending.SourceSeat,
                 pending.EffectiveCardKind,
                 ++_thoughtSequence,
-                UsesClassicFeedbackSourceCard);
+                pending.Skill == SkillKind.Feedback && UsesClassicFeedbackSourceCard,
+                pending.Skill == SkillKind.Jianxiong ? "奸雄" : "反馈");
             AddThought(thought);
             ClearPendingDecision();
             ResolveDamageSkillChoice(pending, useFeedback);
@@ -8762,7 +8770,8 @@ public sealed partial class GameEngine
             switch (pending.Effect)
             {
                 case DamageSkillEffectKind.ClaimDamageCard:
-                    if (!skill.ClaimsDamageCard(damageContext))
+                    if (ResolveDamageSkillEffect(skill, damageContext) !=
+                        DamageSkillEffectKind.ClaimDamageCard)
                     {
                         throw new InvalidOperationException(
                             $"Skill {pending.Skill} cannot claim the current damage card.");
@@ -8999,7 +9008,8 @@ public sealed partial class GameEngine
                 }
 
                 var offersChoice = skill.OffersDamageCardChoice(ownerContext) ||
-                                   skill.Kind == SkillKind.Feedback;
+                                   skill.Kind == SkillKind.Feedback ||
+                                   skill.Kind == SkillKind.Jianxiong && UsesFormalJianxiongDamageCard;
 
                 candidates.Add(new DamageTriggerCandidate(
                     owner.Seat,
@@ -9017,6 +9027,15 @@ public sealed partial class GameEngine
         IPassiveSkill skill,
         DamageSkillContext context)
     {
+        if (skill.Kind == SkillKind.Jianxiong && UsesFormalJianxiongDamageCard)
+        {
+            return context.Amount > 0 &&
+                   context.SourceCard is not null &&
+                   context.SourceCardIsInProcessing
+                ? DamageSkillEffectKind.ClaimDamageCard
+                : DamageSkillEffectKind.None;
+        }
+
         if (skill.Kind != SkillKind.Feedback)
         {
             return skill.GetDamageSkillEffect(context);
@@ -10607,9 +10626,14 @@ public sealed partial class GameEngine
     };
 
     private string GetVisibleSkillDescription(SkillKind skill, string description) =>
-        UsesFormalKongchengTargeting && skill == SkillKind.Kongcheng
-            ? "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。"
-            : description;
+        skill switch
+        {
+            SkillKind.Kongcheng when UsesFormalKongchengTargeting =>
+                "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
+            SkillKind.Jianxiong when UsesFormalJianxiongDamageCard =>
+                "当你受到伤害后，你可以获得造成此伤害的牌。",
+            _ => description
+        };
 
     private bool IsSlashProhibited(PlayerRuntime target)
     {

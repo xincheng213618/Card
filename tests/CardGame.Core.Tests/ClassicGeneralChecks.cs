@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
@@ -203,6 +204,149 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(gameWithFeedback.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(restored).SequenceEqual(EventSignatures(gameWithFeedback)),
             "The formal Feedback choice must restore with identical state and events.");
+    }
+
+    public static void FormalJianxiongFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 16,
+            "Formal Jianxiong must have an explicit rules version.");
+
+        var duelContext = new DamageSkillContext(
+            new PlayerSkillContext(0, 3, 4, 2, TurnPhase.Play),
+            SourceSeat: 1,
+            SourceCard: CardKind.Duel,
+            SourceCardIsInProcessing: true,
+            Amount: 1,
+            SourceCardId: 9001,
+            TargetSeat: 0);
+        var effectMethod = typeof(GameEngine).GetMethod(
+            "ResolveDamageSkillEffect",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("Damage-skill effect resolver not found.");
+        var currentRules = CreateInteractive(registry, seed: 1);
+        var legacyRules = GameReplay.Restore(
+            CreateInteractive(registry, seed: 1).CreateCheckpoint() with { RulesVersion = 15 },
+            registry);
+        var jianxiong = SkillRegistry.Get(SkillKind.Jianxiong);
+        Require((DamageSkillEffectKind)effectMethod.Invoke(currentRules, [jianxiong, duelContext])! ==
+                DamageSkillEffectKind.ClaimDamageCard &&
+                (DamageSkillEffectKind)effectMethod.Invoke(legacyRules, [jianxiong, duelContext])! ==
+                DamageSkillEffectKind.None,
+            "Rules v16 must accept a Duel damage card while rules v15 retains Slash-only Jianxiong.");
+
+        GameEngine? selectedGame = null;
+        PendingDecision? selectedPrompt = null;
+        DamageSkillFrame? selectedFrame = null;
+        for (var seed = 1; seed <= 8_192 && selectedGame is null; seed++)
+        {
+            var game = CreateInteractive(registry, seed);
+            var started = game.Submit(new StartGameCommand());
+            Require(started.Accepted, started.Error?.Message ?? "Classic Jianxiong fixture failed to start.");
+            var caoCaoChoice = started.Result.PendingDecision?.Choices.FirstOrDefault(choice =>
+                choice.ContentIds.SequenceEqual(["standard:cao-cao"]));
+            if (caoCaoChoice is null) continue;
+
+            var selected = game.Submit(new SelectGeneralCommand(
+                0,
+                "standard:cao-cao",
+                game.Revision,
+                game.PendingDecision!.PromptId));
+            Require(selected.Accepted, selected.Error?.Message ?? "Cao Cao selection was rejected.");
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Classic Jianxiong setup did not advance.");
+            var result = advanced.Result;
+            for (var step = 0; result.Status != EngineStatus.Completed && step < 4_000; step++)
+            {
+                var frame = game.ResolutionStack.OfType<DamageSkillFrame>().SingleOrDefault(candidate =>
+                    candidate.OwnerSeat == 0 &&
+                    candidate.Skill == SkillKind.Jianxiong &&
+                    candidate.Effect == DamageSkillEffectKind.ClaimDamageCard);
+                if (result.Status == EngineStatus.AwaitingHumanResponse &&
+                    result.PendingDecision is { Kind: DecisionKind.Feedback } prompt &&
+                    frame is not null &&
+                    frame.CardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))
+                {
+                    selectedGame = game;
+                    selectedPrompt = prompt;
+                    selectedFrame = frame;
+                    break;
+                }
+
+                result = DeclineOrAdvance(game, result);
+            }
+        }
+
+        if (selectedGame is null || selectedPrompt is null || selectedFrame is null)
+            throw new InvalidOperationException("No deterministic non-Slash Jianxiong boundary was found.");
+
+        var gameWithJianxiong = selectedGame;
+        var promptAtBoundary = selectedPrompt;
+        var frameAtBoundary = selectedFrame;
+        Require(promptAtBoundary.IsPrivate && promptAtBoundary.PlayerSeat == 0 &&
+                promptAtBoundary.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "feedback") &&
+                promptAtBoundary.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "take-damage"),
+            "Formal Jianxiong must publish private take/skip choices.");
+        Require(gameWithJianxiong.CreateSnapshot(1).PendingDecision is null,
+            "Other viewers must not receive the private Jianxiong choice.");
+
+        var boundaryCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(gameWithJianxiong.CreateCheckpoint()));
+        var claimBranch = GameReplay.Restore(boundaryCheckpoint, registry);
+        Require(SnapshotJson.Serialize(claimBranch.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(gameWithJianxiong.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(claimBranch).SequenceEqual(EventSignatures(gameWithJianxiong)),
+            "The pending formal Jianxiong choice must restore exactly.");
+
+        var skipChoice = promptAtBoundary.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "take-damage");
+        var skipped = gameWithJianxiong.Submit(new AnswerPromptCommand(
+            0,
+            promptAtBoundary.PromptId,
+            skipChoice.Id,
+            gameWithJianxiong.Revision));
+        Require(skipped.Accepted, skipped.Error?.Message ?? "Formal Jianxiong skip was rejected.");
+        Require(gameWithJianxiong.Events.Select(item => item.Payload)
+                .OfType<DamageSkillResolvedEvent>()
+                .Any(resolved => resolved.Skill == SkillKind.Jianxiong && !resolved.Used) &&
+                !gameWithJianxiong.Events.Select(item => item.Payload)
+                    .OfType<DamageCardClaimedEvent>()
+                    .Any(claimed => claimed.Skill == SkillKind.Jianxiong &&
+                                    claimed.CardId == frameAtBoundary.CardId),
+            "Skipping formal Jianxiong must leave the damage card unclaimed.");
+
+        var claimPrompt = claimBranch.PendingDecision ??
+            throw new InvalidOperationException("Restored Jianxiong branch lost its prompt.");
+        var claimChoice = claimPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "feedback");
+        var claimed = claimBranch.Submit(new AnswerPromptCommand(
+            0,
+            claimPrompt.PromptId,
+            claimChoice.Id,
+            claimBranch.Revision));
+        Require(claimed.Accepted, claimed.Error?.Message ?? "Formal Jianxiong claim was rejected.");
+        Require(claimBranch.CardMovements.Any(movement =>
+                movement.CardId == frameAtBoundary.CardId &&
+                movement.From == CardLocation.Processing &&
+                movement.To == CardLocation.Hand(0) &&
+                movement.Reason == CardMoveReasons.JianxiongClaim) &&
+                claimBranch.Events.Select(item => item.Payload)
+                    .OfType<DamageCardClaimedEvent>()
+                    .Any(claim => claim.Skill == SkillKind.Jianxiong &&
+                                  claim.CardId == frameAtBoundary.CardId) &&
+                claimBranch.CreateSnapshot(0).Players[0].Hand.Any(card =>
+                    card.Id == frameAtBoundary.CardId),
+            "Formal Jianxiong must move the exact non-Slash damage card into Cao Cao's hand.");
+
+        var claimedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(claimBranch.CreateCheckpoint()));
+        var replayedClaim = GameReplay.Restore(claimedCheckpoint, registry);
+        Require(SnapshotJson.Serialize(replayedClaim.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(claimBranch.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replayedClaim).SequenceEqual(EventSignatures(claimBranch)),
+            "The claimed non-Slash Jianxiong branch must replay exactly.");
     }
 
     private static GameEngine SelectGeneral(ContentRegistry registry, string generalId, int rulesVersion)

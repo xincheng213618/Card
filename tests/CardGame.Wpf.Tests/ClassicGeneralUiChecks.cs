@@ -51,6 +51,11 @@ internal static class ClassicGeneralUiChecks
             choice.GeneralId == "standard:zhuge-liang");
         Program.Assert(zhugeLiang.SkillDescription.Contains("【杀】或【决斗】", StringComparison.Ordinal),
             "The current classic selection card must describe the formal Kongcheng target restriction.");
+        using var jianxiongViewModel = FindGeneralChoice("standard:cao-cao");
+        var caoCao = jianxiongViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "standard:cao-cao");
+        Program.Assert(caoCao.SkillDescription.Contains("造成此伤害的牌", StringComparison.Ordinal),
+            "The current classic selection card must describe formal Jianxiong's damage-card scope.");
 
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();

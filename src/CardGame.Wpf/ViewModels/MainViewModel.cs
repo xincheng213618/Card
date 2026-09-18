@@ -1703,12 +1703,22 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _ => phase.ToString()
     };
 
-    private string GetVisibleSkillDescription(ContentSkillDefinition skill) =>
-        _game.RulesVersion >= 15 &&
-        _game.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal) &&
-        skill.LegacyKind == SkillKind.Kongcheng
-            ? "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。"
-            : skill.Description;
+    private string GetVisibleSkillDescription(ContentSkillDefinition skill)
+    {
+        if (!_game.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal))
+        {
+            return skill.Description;
+        }
+
+        return skill.LegacyKind switch
+        {
+            SkillKind.Kongcheng when _game.RulesVersion >= 15 =>
+                "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
+            SkillKind.Jianxiong when _game.RulesVersion >= 16 =>
+                "当你受到伤害后，你可以获得造成此伤害的牌。",
+            _ => skill.Description
+        };
+    }
 
     private static string GetKingdom(string generalId) => generalId switch
     {
