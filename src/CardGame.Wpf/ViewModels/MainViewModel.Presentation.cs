@@ -88,7 +88,8 @@ public sealed partial class MainViewModel
     public bool HasAlternateSlash => CanPlaySelected && CanPlaySelectedAsSlash;
     public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
-    public bool HasCenterChoices => HasChoicePrompt || HasPublicTargetChoices || HasTargetCombinationChoices || HasPublicRevealedCards;
+    public bool HasCenterChoices => HasChoicePrompt || HasPublicTargetChoices || HasTargetCombinationChoices ||
+        HasPublicRevealedCards || ActiveSkillEquipmentChoices.Count > 0;
     public bool IsTableIdle => !HasCenterChoices;
     public bool HasSelection => _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
         _isSelectingActiveSkillCards || _selectedActiveSkillCardIds.Count > 0 ||
@@ -282,7 +283,7 @@ public sealed partial class MainViewModel
         var parts = new List<string>();
         if (action.MaxCardCount > 0)
         {
-            parts.Add($"{FormatSelectionRange(action.MinCardCount, action.MaxCardCount)} 张手牌");
+            parts.Add($"{FormatSelectionRange(action.MinCardCount, action.MaxCardCount)} 张牌");
         }
 
         if (action.MaxTargetCount > 0)
@@ -302,7 +303,7 @@ public sealed partial class MainViewModel
         var parts = new List<string>();
         if (action.MaxCardCount > 0)
         {
-            parts.Add($"手牌 {_selectedActiveSkillCardIds.Count}/{FormatSelectionRange(action.MinCardCount, action.MaxCardCount)}");
+            parts.Add($"牌 {_selectedActiveSkillCardIds.Count}/{FormatSelectionRange(action.MinCardCount, action.MaxCardCount)}");
         }
 
         if (action.MaxTargetCount > 0)

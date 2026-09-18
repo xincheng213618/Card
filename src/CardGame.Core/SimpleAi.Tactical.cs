@@ -125,7 +125,8 @@ public sealed partial class SimpleAiBrain
 
             if (action.Skill == SkillKind.Zhiheng)
             {
-                var discardCandidate = self.Hand
+                var selectableCards = GetActiveSkillSelectableCards(self, action);
+                var discardCandidate = selectableCards
                     .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
                     .ThenBy(card => card.Id)
                     .FirstOrDefault();
@@ -133,8 +134,8 @@ public sealed partial class SimpleAiBrain
                     ? "没有可弃置牌"
                     : $"优先弃置【{discardCandidate.DisplayName}】";
                 return (
-                    12d + Math.Min(self.HandCount, 6) * 0.7d,
-                    $"发动{action.Description}，弃置一张低保留价值手牌并摸一张；{candidateName}，只使用自己的过滤视图。 ");
+                    12d + Math.Min(selectableCards.Count, 6) * 0.7d,
+                    $"发动{action.Description}，弃置一张低保留价值牌并摸一张；{candidateName}，只使用自己的过滤视图。 ");
             }
 
             var handPressure = Math.Min(self.HandCount, 6) * 1.2d;

@@ -35,6 +35,11 @@
                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
             </Button>
         </DataTemplate>
+        <DataTemplate x:Key="ActiveSkillEquipmentChoiceTemplate">
+            <Button Command="{Binding DataContext.SelectActiveSkillEquipmentChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Margin="4" MaxWidth="380" Padding="14,9">
+                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
+            </Button>
+        </DataTemplate>
         <DataTemplate x:Key="PublicTargetChoiceTemplate">
             <Button Command="{Binding DataContext.SelectPublicTargetChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Margin="4" MaxWidth="380" Padding="14,9">
                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
@@ -331,6 +336,7 @@
                                             <ItemsControl ItemsSource="{Binding NullificationChoices}" ItemTemplate="{StaticResource NullificationChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding ResponseChoices}" ItemTemplate="{StaticResource ResponseChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding SkillChoices}" ItemTemplate="{StaticResource SkillChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
+                                            <ItemsControl x:Name="ActiveSkillEquipmentChoices" ItemsSource="{Binding ActiveSkillEquipmentChoices}" ItemTemplate="{StaticResource ActiveSkillEquipmentChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding PublicTargetChoices}" ItemTemplate="{StaticResource PublicTargetChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding TargetCombinationChoices}" ItemTemplate="{StaticResource TargetCombinationChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                         </StackPanel>

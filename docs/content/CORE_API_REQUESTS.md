@@ -85,10 +85,10 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 
 ## K5：主动技能选择切片已开放（2026-09-08）
 
-- `IActiveSkill` 只返回可序列化的合法性和效果数据；`UseSkillCommand` 既支持苦肉的空牌/空目标，也支持制衡的私有多选牌集合和回春的精确两牌/多目标集合，统一经过 Revision、PromptId、数量、重复项和所有权校验；
+- `IActiveSkill` 只返回可序列化的合法性和效果数据；`UseSkillCommand` 既支持苦肉的空牌/空目标，也支持制衡的私有手牌/公开装备多选集合和回春的精确两牌/多目标集合，统一经过 Revision、PromptId、数量、重复项和所有权校验；
 - `LegalActionKind.UseSkill`、`ActiveSkillFrame` 与 `ActiveSkillRequestedEvent`、`SkillHpLostEvent`、`SkillCardsDiscardedEvent`、`SkillCardsGivenEvent`、`SkillCardsDrawnEvent`、`ActiveSkillResolvedEvent` 接入同一提交/回放链；`skill.kujin.draw`、`skill.zhiheng.discard`、`skill.zhiheng.draw`、`skill.rende.give-card`、`skill.qingnang.discard`、`skill.huichun.discard` 记录可信移动账本；
 - `standard-active-skills@1.0.0` 依赖 `standard@1.11.0`，注册五项主动技能、`standard:mashu`/`standard:qicai` 两项被动技能和七个演示武将，WPF 默认窗口显式选择扩展 Registry；普通 Standard Registry、旧命令回放和普通玩家快照不被扩展牌 ID 污染或泄密；
-- 苦肉在出牌阶段且体力大于 0 时失去 1 点体力并摸两张牌；若正好降至 0，Core 保留 `ActiveSkillFrame`，沿共享私有 `RescueDying` 窗口完成救援或死亡清理，获救后才继续摸牌。制衡在出牌阶段弃置至少一张自己的手牌并摸等量牌；仁德在出牌阶段私有选择手牌和一名其他存活角色，经过 `Processing` 交牌并按数量恢复，当前回合只能发动一次。青囊在出牌阶段私有选择一张手牌和一名受伤存活角色，经过 `Processing` 弃置并令目标恢复 1 点体力，当前回合只能发动一次。回春在出牌阶段私有选择精确两张手牌和 2–3 名受伤存活角色，逐目标恢复 1 点体力，当前回合只能发动一次。更复杂的多目标选择和多效果结算仍属于后续 Core API。
+- 苦肉在出牌阶段且体力大于 0 时失去 1 点体力并摸两张牌；若正好降至 0，Core 保留 `ActiveSkillFrame`，沿共享私有 `RescueDying` 窗口完成救援或死亡清理，获救后才继续摸牌。规则 v17 的经典制衡在每个出牌阶段限一次，可弃置至少一张自己的手牌或公开装备并摸等量牌；v1–v16 和演示模式保留手牌限定与可重复发动。仁德在出牌阶段私有选择手牌和一名其他存活角色，经过 `Processing` 交牌并按数量恢复，当前回合只能发动一次。青囊在出牌阶段私有选择一张手牌和一名受伤存活角色，经过 `Processing` 弃置并令目标恢复 1 点体力，当前回合只能发动一次。回春在出牌阶段私有选择精确两张手牌和 2–3 名受伤存活角色，逐目标恢复 1 点体力，当前回合只能发动一次。更复杂的多目标选择和多效果结算仍属于后续 Core API。
 - 本批实测为 Core `115/115`、WPF `23/23`；Debug/Release 构建均为 0 warning / 0 error，`dotnet format --verify-no-changes` 和 `git diff --check` 通过。
 
 ## K6：距离与装备（基础切片已开放）

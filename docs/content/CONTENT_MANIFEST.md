@@ -169,7 +169,7 @@
 | `standard:guicai` | 鬼才 | 判定牌生效前用一张手牌替换 | implemented-registry | K7：`JudgmentFrame` 候选游标、私有替换 Choice、公开结果与 `skill.guicai.replace` 移动 |
 | `standard:kujin` | 苦肉 | 出牌阶段失去 1 点体力并摸两张牌；若降至 0，救援结算后再摸牌 | implemented-registry + extension | K5：`IActiveSkill`、`UseSkillCommand`、`ActiveSkillFrame`、类型化体力/摸牌事件；体力大于 0，濒死时保留主动技能帧并复用私有 `RescueDying` |
 | `standard:rende` | 仁德 | 主动交牌并按数量回复 | implemented-registry + extension | K2/K5：私有选牌/其他存活目标白名单、Processing 跨手牌移动、按数量恢复、回合一次限制 |
-| `standard:zhiheng` | 制衡 | 出牌阶段私有选择至少一张手牌弃置后摸等量牌 | implemented-registry + extension | K2/K5：主动多选、`Processing` 牌区、等量摸牌和私有 Prompt |
+| `standard:zhiheng` | 制衡 | 规则 v17 经典身份每阶段限一次，可混选自己的手牌与公开装备后弃置并摸等量牌；旧规则/演示模式仅手牌 | implemented-registry + extension | K2/K5/K6：主动多选、混合来源 `Processing` 牌区、等量摸牌和私有 Prompt |
 | `standard:qingnang` | 青囊 | 出牌阶段每回合弃置一张手牌，令一名受伤角色回复 1 点体力 | implemented-registry + extension | K5：私有手牌/受伤存活目标选择、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `standard:huichun` | 回春 | 出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力 | implemented-registry + extension | K5：私有两牌/多目标选择、逐目标 `RecoveryFrame`、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `standard:mashu` | 马术 | 计算与其他角色的距离 -1 | implemented-registry + extension | K6：`IPassiveSkill.ModifyOutgoingDistance`，由 Core 统一影响公开距离型合法性 |

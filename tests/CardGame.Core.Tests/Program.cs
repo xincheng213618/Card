@@ -57,6 +57,7 @@ var tests = new (string Name, Action Body)[]
     ("classic identity applies base HP, multiple skills and legacy replay boundaries", ClassicGeneralChecks.SetupHealthAndReplay),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
+    ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
     ("public-team mode preserves privacy and registered distribution", TeamModeChecks.ContentAndPrivacy),
     ("public-team AI matches terminate and replay deterministically", TeamModeChecks.AiMatchIsDeterministic),
     ("public-team winner rules distinguish living teams", TeamModeChecks.WinningTeamRules),

@@ -45,6 +45,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | `skill.yingzi.draw` | `standard:yingzi` | 摸牌阶段额外摸 1 张 | 非摸牌阶段不改变摸牌 | 发牌顺序可复现 |
 | `skill.kongcheng.target_lock` | `standard:kongcheng` | 规则 v15 的经典身份局中，空手牌时不能成为普通/火/雷杀或决斗目标 | 有手牌后恢复可选；伪造决斗目标原子拒绝；v1–v14 和演示模式保留只禁杀 | AI/WPF 只消费 Core 合法动作；只公开技能与手牌数，不公开暗牌；固定 seed 的新旧版本目标集合可复现 |
 | `skill.jianxiong.claim_damage_card` | `standard:jianxiong` | 规则 v16 的经典身份局中，受到正伤害后可选择取得仍在 `Processing` 的伤害牌；同一实体牌进入曹操手牌 | 零/负伤害、无来源牌、来源牌已离开处理区、旧/伪造 Choice 必须拒绝；v1–v15 和演示模式保留自动取得杀类伤害牌 | Prompt 只投影给曹操；跳过与取得可从同一 Checkpoint 分叉，类型化事件、移动账本和固定 seed/命令流可回放 |
+| `skill.zhiheng.hand_or_equipment` | `standard:zhiheng` | 规则 v17 的经典身份局中，每个出牌阶段限一次，从自己的手牌或公开装备区选择任意张牌弃置并摸等量牌 | 空选、重复 ID、他人牌、非候选牌、第二次发动及旧 Prompt 原子拒绝；v1–v16 和演示模式保留手牌限定与可重复发动 | 暗手牌候选只投影给拥有者，装备候选公开；混合来源移动、类型化事件、Checkpoint 和固定命令流可回放；WPF 提供装备选择按钮 |
 | `trick.dismantlement.target_card_discard` | `standard:dismantlement` | 选择一名有手牌、公开装备或公开判定区牌的其他存活角色；手牌由来源玩家通过私有不透明牌位选择，公开装备/判定区牌通过精确 `TargetCardId` 选择后弃置 | 目标无牌、死亡、自身、伪造目标、过期牌位 Prompt 或不属于目标公开装备/判定区的 `TargetCardId` 被拒绝 | 手牌分支的普通快照和事件不含牌面；公开装备/判定区分支可带已公开的 ID/牌型；可信账本可回放 |
 | `trick.snatch.distance_one_target_card_take` | `standard:snatch` | 选择一名战斗距离为 1 且有手牌、公开装备或公开判定区牌的其他存活角色；手牌由来源玩家通过私有不透明牌位选择，公开装备/判定区牌通过精确 `TargetCardId` 选择后转入使用者手牌 | 距离大于 1 且无奇才、目标无牌、死亡、自身、伪造目标、过期牌位 Prompt 或非法装备/判定区 ID 被拒绝；坐骑 modifier 和奇才锦囊距离豁免必须由 Core 查询决定 | 手牌分支的普通快照和事件不含牌面；公开装备/判定区分支仅公开已知 ID/牌型，取得后牌面进入使用者私有快照；可信账本可回放 |
 | `trick.duel.response_chain` | `standard:duel` | 多轮杀响应可暂停、恢复并结束 | 旧 prompt、错误 responder 被拒绝 | 固定事件流可回放 |
@@ -84,7 +85,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | `k2.prompt.answer-once` | `AnswerPromptCommand` | 错误 responder、旧 Prompt、未发布 Choice 和重复回答均拒绝 |
 | `k3.registry.isolated` | `ContentRegistry` | 两个 Registry 不共享可变注册状态，公开集合为只读投影 |
 | `k3.registry.references` | 包依赖和引用校验 | 重复 ID、未知引用、版本不足和依赖环在 Build 时失败 |
-| `k2.command.active-skill` | `UseSkillCommand` / `LegalActionKind.UseSkill` | 出牌阶段从合法动作提交无牌、无目标的 `苦肉`，提交带当前拥有者私有手牌集合的 `制衡`，或提交带私有手牌集合和其他存活目标的 `仁德`，或提交带私有手牌集合和受伤存活目标的 `青囊`，或提交带两张私有手牌和两至三名受伤存活目标的 `回春`；Core 校验技能、数量、所有权、重复项、目标白名单、PromptId 和 Revision 后才闭合主动技能帧 |
+| `k2.command.active-skill` | `UseSkillCommand` / `LegalActionKind.UseSkill` | 出牌阶段从合法动作提交无牌、无目标的 `苦肉`，提交带当前拥有者私有手牌/公开装备集合的正式 `制衡`（旧规则仅手牌），或提交带私有手牌集合和其他存活目标的 `仁德`，或提交带私有手牌集合和受伤存活目标的 `青囊`，或提交带两张私有手牌和两至三名受伤存活目标的 `回春`；Core 校验技能、数量、所有权、重复项、目标白名单、PromptId 和 Revision 后才闭合主动技能帧 |
 | `k3.registry.active-skills` | `standard-active-skills@1.0.0` | 扩展包依赖 `standard@1.11.0`，注册五项主动技能、两个被动技能、七个演示武将和 5/8 人模式；基础 Standard Registry 的内容指纹不变 |
 
 ## C0-K4 模式开局与选将

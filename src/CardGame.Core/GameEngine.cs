@@ -160,6 +160,9 @@ public sealed partial class GameEngine
     private bool UsesFormalJianxiongDamageCard =>
         _rulesVersion >= 16 && IsClassicIdentityMode;
 
+    private bool UsesFormalZhihengEquipment =>
+        _rulesVersion >= 17 && IsClassicIdentityMode;
+
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
@@ -608,8 +611,9 @@ public sealed partial class GameEngine
             return Reject(CommandErrorCode.IllegalAction, "The requested skill has no active effect.");
         }
 
-        var context = new ActiveSkillContext(
-            CreateSkillContext(actor),
+        var context = CreateActiveSkillContext(
+            actor,
+            command.Skill,
             cardIds.Length,
             targetSeats.Length);
         if (!activeSkill.CanUse(context))
@@ -620,6 +624,7 @@ public sealed partial class GameEngine
         var effect = activeSkill.GetEffect(context);
         var selectionError = ValidateActiveSkillSelection(
             actor,
+            command.Skill,
             effect,
             cardIds,
             targetSeats,
@@ -1248,6 +1253,7 @@ public sealed partial class GameEngine
 
     private CommandError? ValidateActiveSkillSelection(
         PlayerRuntime actor,
+        SkillKind skill,
         ActiveSkillEffect effect,
         IReadOnlyList<int> cardIds,
         IReadOnlyList<int> targetSeats,
@@ -1294,12 +1300,12 @@ public sealed partial class GameEngine
                 "Active-skill card selections must be distinct.");
         }
 
-        var handIds = GetHand(actor).Select(card => card.Id).ToHashSet();
-        if (cardIds.Any(cardId => !handIds.Contains(cardId)))
+        var validCardIds = GetActiveSkillValidCardIds(actor, skill);
+        if (cardIds.Any(cardId => !validCardIds.Contains(cardId)))
         {
             return new CommandError(
                 CommandErrorCode.InvalidCard,
-                "Every active-skill card selection must be in the actor's hand.");
+                "Every active-skill card selection must be one of the published candidates.");
         }
 
         if (targetSeats.Count < effect.MinTargetCount || targetSeats.Count > effect.MaxTargetCount)
@@ -1440,7 +1446,9 @@ public sealed partial class GameEngine
             ? "，苦肉者可在出牌阶段且体力大于 0 时失去 1 点体力；若进入濒死，救援结算后再摸两张牌"
             : string.Empty;
         var zhihengRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Zhiheng))
-            ? "，孙权可在出牌阶段弃置至少一张手牌并摸等量牌"
+            ? UsesFormalZhihengEquipment
+                ? "，孙权每个出牌阶段限一次弃置任意张手牌或装备区牌并摸等量牌"
+                : "，孙权可在出牌阶段弃置至少一张手牌并摸等量牌"
             : string.Empty;
         var rendeRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Rende))
             ? "，刘备可在出牌阶段将一至若干张手牌交给一名其他角色，一次交给至少两张时回复 1 点体力"
@@ -3955,8 +3963,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException($"Skill {skillKind} does not expose an active effect.");
         var cardIds = selectedCardIds?.ToArray() ?? [];
         var targetSeats = selectedTargetSeats?.ToArray() ?? [];
-        var context = new ActiveSkillContext(
-            CreateSkillContext(actor),
+        var context = CreateActiveSkillContext(
+            actor,
+            skillKind,
             cardIds.Length,
             targetSeats.Length);
         if (!skill.CanUse(context))
@@ -3967,6 +3976,7 @@ public sealed partial class GameEngine
         var effect = skill.GetEffect(context);
         var selectionError = ValidateActiveSkillSelection(
             actor,
+            skillKind,
             effect,
             cardIds,
             targetSeats,
@@ -4217,21 +4227,31 @@ public sealed partial class GameEngine
         }
 
         var hand = GetHand(actor);
+        var equipment = GetEquipment(actor);
         var discardedCards = cardIds
-            .Select(cardId => hand.Single(card => card.Id == cardId))
+            .Select(cardId =>
+            {
+                var handCard = hand.SingleOrDefault(card => card.Id == cardId);
+                return handCard is not null
+                    ? (Card: handCard, From: CardLocation.Hand(actor.Seat))
+                    : (Card: equipment.Single(card => card.Id == cardId), From: CardLocation.Equipment(actor.Seat));
+            })
             .ToArray();
-        MoveCards(
-            discardedCards,
-            CardLocation.Hand(actor.Seat),
-            CardLocation.Processing,
-            CardMoveReasons.ZhihengDiscard);
+        foreach (var discarded in discardedCards)
+        {
+            MoveCard(
+                discarded.Card,
+                discarded.From,
+                CardLocation.Processing,
+                CardMoveReasons.ZhihengDiscard);
+        }
         QueueGameEvent(new SkillCardsDiscardedEvent(
             frameId,
             actor.Seat,
             skillKind,
             Array.AsReadOnly(cardIds)));
         MoveCards(
-            discardedCards,
+            discardedCards.Select(discarded => discarded.Card).ToArray(),
             CardLocation.Processing,
             CardLocation.DiscardPile,
             CardMoveReasons.ZhihengDiscard);
@@ -4247,12 +4267,16 @@ public sealed partial class GameEngine
             skillKind,
             drawnForDiscardAndDraw));
 
+        if (skillKind == SkillKind.Zhiheng && UsesFormalZhihengEquipment)
+        {
+            actor.UsedActiveSkillKinds.Add(skillKind);
+        }
         SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
         QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
         PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
         AddLog(
             "ActiveSkill",
-            $"{actor.Name} 发动【{skill.Name}】，弃置 {discardedCards.Length} 张手牌并摸了 {drawnForDiscardAndDraw.Count} 张牌。",
+            $"{actor.Name} 发动【{skill.Name}】，弃置 {discardedCards.Length} 张牌并摸了 {drawnForDiscardAndDraw.Count} 张牌。",
             actor.Seat);
     }
 
@@ -10436,13 +10460,13 @@ public sealed partial class GameEngine
             }
         }
 
-        var activeSkillContext = new ActiveSkillContext(skillContext);
         foreach (var activeSkill in EnabledPassiveSkills(actor)
                      .Select(skillRule => SkillRegistry.GetActive(skillRule.Kind))
                      .Where(candidate => candidate is not null)
                      .Cast<IActiveSkill>())
         {
             var activeSkillTargets = GetActiveSkillValidTargetSeats(actor, activeSkill.Kind);
+            var activeSkillContext = CreateActiveSkillContext(actor, activeSkill.Kind);
             if (!activeSkill.CanUse(activeSkillContext)) continue;
             var activeEffect = activeSkill.GetEffect(activeSkillContext);
             if (activeEffect.MinTargetCount <= activeSkillTargets.Count)
@@ -10632,6 +10656,8 @@ public sealed partial class GameEngine
                 "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
             SkillKind.Jianxiong when UsesFormalJianxiongDamageCard =>
                 "当你受到伤害后，你可以获得造成此伤害的牌。",
+            SkillKind.Zhiheng when UsesFormalZhihengEquipment =>
+                "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",
             _ => description
         };
 
@@ -10676,7 +10702,11 @@ public sealed partial class GameEngine
             Choices = CreatePlayChoices(legal),
             ActiveSkillKind = activeSkill?.Skill,
             ActiveSkillValidCardIds = activeSkillNeedsCardSelection
-                ? GetHand(_players[_currentSeat]).Select(card => card.Id).ToArray()
+                ? GetActiveSkillValidCardIds(
+                        _players[_currentSeat],
+                        activeSkill!.Skill!.Value)
+                    .Order()
+                    .ToArray()
                 : null,
             ActiveSkillValidTargetSeats = activeSkillNeedsTargetSelection
                 ? GetActiveSkillValidTargetSeats(
@@ -11394,6 +11424,33 @@ public sealed partial class GameEngine
             _phase,
             player.UsedActiveSkillKinds,
             player.Seat == _currentSeat);
+
+    private ActiveSkillContext CreateActiveSkillContext(
+        PlayerRuntime actor,
+        SkillKind skill,
+        int selectedCardCount = 0,
+        int selectedTargetCount = 0) =>
+        new(
+            CreateSkillContext(actor),
+            selectedCardCount,
+            selectedTargetCount,
+            AdditionalSelectableCardCount: skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment
+                ? GetEquipment(actor).Count
+                : 0,
+            EnforceOncePerTurn: skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment);
+
+    private IReadOnlySet<int> GetActiveSkillValidCardIds(
+        PlayerRuntime actor,
+        SkillKind skill)
+    {
+        var cardIds = GetHand(actor).Select(card => card.Id).ToHashSet();
+        if (skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment)
+        {
+            cardIds.UnionWith(GetEquipment(actor).Select(card => card.Id));
+        }
+
+        return cardIds;
+    }
 
     private IReadOnlySet<int> GetActiveSkillValidTargetSeats(
         PlayerRuntime actor,

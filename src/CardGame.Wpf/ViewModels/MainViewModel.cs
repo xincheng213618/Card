@@ -74,6 +74,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         SelectNullificationChoiceCommand = new RelayCommand<PromptChoice>(SelectNullificationChoice);
         SelectResponseChoiceCommand = new RelayCommand<PromptChoice>(SelectResponseChoice);
         SelectSkillChoiceCommand = new RelayCommand<PromptChoice>(SelectSkillChoice);
+        SelectActiveSkillEquipmentChoiceCommand = new RelayCommand<PromptChoice>(SelectActiveSkillEquipmentChoice);
         SelectPublicTargetChoiceCommand = new RelayCommand<PromptChoice>(SelectPublicTargetChoice);
         SelectTargetCombinationChoiceCommand = new RelayCommand<PromptChoice>(SelectTargetCombinationChoice);
         PlaySelectedCardCommand = new RelayCommand(PlaySelectedCard, () => CanPlaySelected);
@@ -127,6 +128,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<PromptChoice> NullificationChoices { get; } = [];
     public ObservableCollection<PromptChoice> ResponseChoices { get; } = [];
     public ObservableCollection<PromptChoice> SkillChoices { get; } = [];
+    public ObservableCollection<PromptChoice> ActiveSkillEquipmentChoices { get; } = [];
     public ObservableCollection<PromptChoice> PublicTargetChoices { get; } = [];
     public ObservableCollection<PromptChoice> TargetCombinationChoices { get; } = [];
     public ObservableCollection<CardViewModel> PublicRevealedCards { get; } = [];
@@ -144,6 +146,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public ICommand SelectNullificationChoiceCommand { get; }
     public ICommand SelectResponseChoiceCommand { get; }
     public ICommand SelectSkillChoiceCommand { get; }
+    public ICommand SelectActiveSkillEquipmentChoiceCommand { get; }
     public ICommand SelectPublicTargetChoiceCommand { get; }
     public ICommand SelectTargetCombinationChoiceCommand { get; }
     public ICommand PlaySelectedCardCommand { get; }
@@ -485,6 +488,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         NullificationChoices.Clear();
         ResponseChoices.Clear();
         SkillChoices.Clear();
+        ActiveSkillEquipmentChoices.Clear();
         PublicTargetChoices.Clear();
         TargetCombinationChoices.Clear();
         PublicRevealedCards.Clear();
@@ -692,6 +696,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var handGuidance = _game.GetHumanHandGuidance().ToDictionary(item => item.CardId);
         if (human is not null)
         {
+            RebuildActiveSkillEquipmentChoices(human, activeSkillCardIds);
             var ids = human.Hand.Select(card => card.Id).ToHashSet();
             for (var i = Hand.Count - 1; i >= 0; i--)
                 if (!ids.Contains(Hand[i].Id)) Hand.RemoveAt(i);
@@ -836,8 +841,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void ToggleActiveSkillCard(CardViewModel card)
     {
+        ToggleActiveSkillCard(card.Id);
+    }
+
+    private void ToggleActiveSkillCard(int cardId)
+    {
         if (_snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } pending ||
-            pending.ActiveSkillValidCardIds?.Contains(card.Id) != true)
+            pending.ActiveSkillValidCardIds?.Contains(cardId) != true)
         {
             return;
         }
@@ -848,14 +858,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        if (!_selectedActiveSkillCardIds.Remove(card.Id))
+        if (!_selectedActiveSkillCardIds.Remove(cardId))
         {
             if (_selectedActiveSkillCardIds.Count >= action.MaxCardCount)
             {
                 return;
             }
 
-            _selectedActiveSkillCardIds.Add(card.Id);
+            _selectedActiveSkillCardIds.Add(cardId);
         }
 
         foreach (var item in Hand)
@@ -863,11 +873,49 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             item.IsSelected = _selectedActiveSkillCardIds.Contains(item.Id);
         }
 
+        RebuildActiveSkillEquipmentChoices(
+            _snapshot.Players.Single(player => player.IsHuman),
+            pending.ActiveSkillValidCardIds.ToHashSet());
+
         var skillName = _snapshot.Players.Single(player => player.IsHuman).SkillName;
         SelectedCardText = _selectedActiveSkillCardIds.Count == 0
-            ? $"未选择用于【{skillName}】的手牌"
+            ? $"未选择用于【{skillName}】的牌"
             : $"已选择 {_selectedActiveSkillCardIds.Count} 张牌用于【{skillName}】";
         RefreshSelectionHint();
+    }
+
+    private void SelectActiveSkillEquipmentChoice(PromptChoice choice)
+    {
+        if (choice.Cards.Count != 1)
+        {
+            return;
+        }
+
+        ToggleActiveSkillCard(choice.Cards[0]);
+    }
+
+    private void RebuildActiveSkillEquipmentChoices(
+        PlayerSnapshot human,
+        IReadOnlySet<int> activeSkillCardIds)
+    {
+        ActiveSkillEquipmentChoices.Clear();
+        if (!IsActiveSkillCardSelectionPending)
+        {
+            return;
+        }
+
+        foreach (var equipment in human.Equipment.Where(card => activeSkillCardIds.Contains(card.Id)))
+        {
+            var selected = _selectedActiveSkillCardIds.Contains(equipment.Id);
+            ActiveSkillEquipmentChoices.Add(new PromptChoice(
+                new ChoiceId($"active-skill.equipment-{equipment.Id}"),
+                selected
+                    ? $"✓ 已选择装备【{equipment.DisplayName}】；点击取消"
+                    : $"选择装备【{equipment.DisplayName}】",
+                [equipment.Id],
+                [],
+                new Dictionary<string, string>()));
+        }
     }
 
     private void SelectTarget(SeatViewModel seat)
@@ -1716,6 +1764,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
             SkillKind.Jianxiong when _game.RulesVersion >= 16 =>
                 "当你受到伤害后，你可以获得造成此伤害的牌。",
+            SkillKind.Zhiheng when _game.RulesVersion >= 17 =>
+                "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",
             _ => skill.Description
         };
     }

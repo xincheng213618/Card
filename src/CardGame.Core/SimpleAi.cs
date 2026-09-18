@@ -289,18 +289,26 @@ public sealed partial class SimpleAiBrain
         }
 
         var self = view.Players.Single(player => player.Seat == Seat);
-        if (action.MinCardCount > self.Hand.Count)
+        var selectableCards = GetActiveSkillSelectableCards(self, action);
+        if (action.MinCardCount > selectableCards.Count)
         {
             throw new InvalidOperationException("The active skill requires more cards than the AI owns.");
         }
 
-        return self.Hand
+        return selectableCards
             .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
             .ThenBy(card => card.Id)
             .Take(action.MinCardCount)
             .Select(card => card.Id)
             .ToArray();
     }
+
+    private static IReadOnlyList<CardSnapshot> GetActiveSkillSelectableCards(
+        PlayerSnapshot self,
+        LegalAction action) =>
+        action.Skill == SkillKind.Zhiheng && action.MaxCardCount > self.Hand.Count
+            ? self.Hand.Concat(self.Equipment).ToArray()
+            : self.Hand;
 
     /// <summary>
     /// Selects the smallest legal target subset for a target-selecting active
@@ -1592,7 +1600,8 @@ public sealed partial class SimpleAiBrain
 
             if (action.Skill == SkillKind.Zhiheng)
             {
-                var discardCandidate = self.Hand
+                var selectableCards = GetActiveSkillSelectableCards(self, action);
+                var discardCandidate = selectableCards
                     .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
                     .ThenBy(card => card.Id)
                     .FirstOrDefault();
@@ -1600,8 +1609,8 @@ public sealed partial class SimpleAiBrain
                     ? "没有可弃置牌"
                     : $"优先弃置【{discardCandidate.DisplayName}】";
                 return (
-                    10d + Math.Min(self.HandCount, 6) * 0.5d,
-                    $"发动{action.Description}，弃置一张低保留价值手牌并摸一张；{candidateName}，不读取暗牌。 ");
+                    10d + Math.Min(selectableCards.Count, 6) * 0.5d,
+                    $"发动{action.Description}，弃置一张低保留价值牌并摸一张；{candidateName}，不读取其他角色暗牌。 ");
             }
 
             var handPressure = Math.Min(self.HandCount, 6) * 0.8d;

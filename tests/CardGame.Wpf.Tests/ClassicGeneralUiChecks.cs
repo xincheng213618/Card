@@ -56,6 +56,52 @@ internal static class ClassicGeneralUiChecks
             choice.GeneralId == "standard:cao-cao");
         Program.Assert(caoCao.SkillDescription.Contains("造成此伤害的牌", StringComparison.Ordinal),
             "The current classic selection card must describe formal Jianxiong's damage-card scope.");
+        using var zhihengDescriptionViewModel = FindGeneralChoice("classic:sun-quan");
+        var sunQuan = zhihengDescriptionViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:sun-quan");
+        Program.Assert(sunQuan.SkillDescription.Contains("限一次", StringComparison.Ordinal) &&
+                       sunQuan.SkillDescription.Contains("任意张牌", StringComparison.Ordinal),
+            "The current classic selection card must describe formal Zhiheng's limit and card scope.");
+
+        using var zhihengViewModel = FindClassicZhihengEquipmentViewModel();
+        var zhihengWindow = new MainWindow(zhihengViewModel);
+        zhihengWindow.ApplyTemplate();
+        var zhihengRoot = (FrameworkElement)zhihengWindow.Content;
+        var zhihengEngine = Program.Engine(zhihengViewModel);
+        var equipmentAction = zhihengEngine.GetHumanLegalActions().First(action =>
+            action.Kind == LegalActionKind.Equip && action.CardId is not null);
+        var equipmentCard = zhihengViewModel.Hand.Single(card => card.Id == equipmentAction.CardId);
+        zhihengViewModel.SelectCardCommand.Execute(equipmentCard);
+        zhihengViewModel.PlaySelectedCardCommand.Execute(null);
+        Program.AdvanceToDecision(zhihengViewModel);
+        var beforeZhiheng = zhihengEngine.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0);
+        Program.Assert(beforeZhiheng.Equipment.Any(card => card.Id == equipmentCard.Id),
+            "The WPF Zhiheng fixture did not equip its selectable public card.");
+
+        zhihengViewModel.UseActiveSkillCommand.Execute(null);
+        var equipmentChoice = zhihengViewModel.ActiveSkillEquipmentChoices.Single(choice =>
+            choice.Cards.SequenceEqual([equipmentCard.Id]));
+        Program.Assert(equipmentChoice.Description.Contains("装备", StringComparison.Ordinal),
+            "Formal Zhiheng must render a dedicated equipment selection button.");
+        zhihengViewModel.SelectActiveSkillEquipmentChoiceCommand.Execute(equipmentChoice);
+        Program.Assert(zhihengViewModel.ActiveSkillButtonText.Contains("已选 1 张牌", StringComparison.Ordinal) &&
+                       zhihengViewModel.ActiveSkillEquipmentChoices.Single().Description.Contains("已选择", StringComparison.Ordinal),
+            "The equipment selection must participate in the shared active-skill draft.");
+        Program.Render(zhihengRoot, 1120, 740,
+            Path.Combine(output, "70-classic-zhiheng-equipment.png"));
+
+        var zhihengRevision = zhihengEngine.Revision;
+        zhihengViewModel.UseActiveSkillCommand.Execute(null);
+        var afterZhiheng = zhihengEngine.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0);
+        Program.Assert(zhihengEngine.Revision == zhihengRevision + 1 &&
+                       afterZhiheng.Equipment.All(card => card.Id != equipmentCard.Id) &&
+                       afterZhiheng.Hand.Count == beforeZhiheng.Hand.Count + 1 &&
+                       !zhihengViewModel.CanUseActiveSkill,
+            "The WPF equipment Zhiheng command must discard, draw and enforce the once-per-phase limit.");
+        zhihengWindow.Content = null;
+        zhihengWindow.Close();
 
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
@@ -115,5 +161,37 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException($"Could not find a deterministic {generalId} WPF fixture.");
+    }
+
+    private static MainViewModel FindClassicZhihengEquipmentViewModel()
+    {
+        for (var seed = 1; seed <= 2_048; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var sunQuan = candidate.GeneralChoices.SingleOrDefault(choice =>
+                choice.GeneralId == "classic:sun-quan");
+            if (sunQuan is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(sunQuan);
+                Program.AdvanceToDecision(candidate);
+                if (Program.Engine(candidate).GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Equip && action.CardId is not null))
+                {
+                    return candidate;
+                }
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic classic Zhiheng equipment WPF fixture.");
     }
 }

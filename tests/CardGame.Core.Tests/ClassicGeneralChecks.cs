@@ -349,6 +349,193 @@ internal static class ClassicGeneralChecks
             "The claimed non-Slash Jianxiong branch must replay exactly.");
     }
 
+    public static void FormalZhihengEquipmentFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(GameCheckpoint.CurrentRulesVersion >= 17,
+            "Formal Zhiheng must have an explicit rules version.");
+
+        GameEngine? current = null;
+        GameEngine? legacy = null;
+        LegalAction? equipmentAction = null;
+        for (var seed = 1; seed <= 8_192 && current is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:sun-quan",
+                GameCheckpoint.CurrentRulesVersion);
+            var candidateEquipment = candidate?.GetHumanLegalActions()
+                .FirstOrDefault(action => action.Kind == LegalActionKind.Equip && action.CardId is not null);
+            if (candidate is null || candidateEquipment is null)
+            {
+                continue;
+            }
+
+            current = candidate;
+            legacy = StartClassicGeneralAtPlay(registry, seed, "classic:sun-quan", rulesVersion: 16) ??
+                throw new InvalidOperationException("The rules-v16 Zhiheng fixture did not reproduce.");
+            equipmentAction = candidateEquipment;
+        }
+
+        if (current is null || legacy is null || equipmentAction?.CardId is not { } equipmentCardId)
+            throw new InvalidOperationException("No deterministic classic Sun Quan equipment fixture was found.");
+
+        Equip(current, equipmentCardId);
+        Equip(legacy, equipmentCardId);
+
+        var currentBefore = current.CreateSnapshot(0, revealAll: true);
+        var currentPlayerBefore = currentBefore.Players.Single(player => player.Seat == 0);
+        var currentPrompt = current.PendingDecision ??
+            throw new InvalidOperationException("Current Zhiheng fixture lost its play prompt.");
+        var currentAction = current.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng);
+        Require(currentPrompt.ActiveSkillValidCardIds?.Contains(equipmentCardId) == true &&
+                currentAction.MaxCardCount == currentPlayerBefore.Hand.Count + currentPlayerBefore.Equipment.Count,
+            "Rules v17 Zhiheng must publish hand and owned equipment cards in one private selection contract.");
+        var equipmentOnlyView = currentBefore with
+        {
+            Players = currentBefore.Players.Select(player => player.Seat == 0
+                ? player with { HandCount = 0, Hand = Array.Empty<CardSnapshot>() }
+                : player).ToArray()
+        };
+        Require(new SimpleAiBrain(0, seed: 17).ChooseActiveSkillCards(equipmentOnlyView, currentAction)
+                .SequenceEqual([equipmentCardId]),
+            "Formal Zhiheng AI must be able to select its own equipment when no hand card is available.");
+
+        var currentUsed = current.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Zhiheng,
+            [equipmentCardId],
+            [],
+            current.Revision,
+            currentPrompt.PromptId));
+        Require(currentUsed.Accepted, currentUsed.Error?.Message ?? "Equipment Zhiheng was rejected.");
+        var currentAfter = current.CreateSnapshot(0, revealAll: true);
+        var currentPlayerAfter = currentAfter.Players.Single(player => player.Seat == 0);
+        Require(currentPlayerAfter.Equipment.All(card => card.Id != equipmentCardId) &&
+                currentPlayerAfter.Hand.Count == currentPlayerBefore.Hand.Count + 1 &&
+                !current.GetHumanLegalActions().Any(action =>
+                    action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng),
+            "Rules v17 Zhiheng must discard the equipment, draw one card and enforce once per play phase.");
+        Require(current.CardMovements.Count(movement =>
+                    movement.CardId == equipmentCardId &&
+                    movement.Reason == CardMoveReasons.ZhihengDiscard) == 2 &&
+                current.CardMovements.Any(movement =>
+                    movement.CardId == equipmentCardId &&
+                    movement.From == CardLocation.Equipment(0) &&
+                    movement.To == CardLocation.Processing) &&
+                current.Events.Select(item => item.Payload)
+                    .OfType<SkillCardsDiscardedEvent>()
+                    .Any(discarded => discarded.Skill == SkillKind.Zhiheng &&
+                                      discarded.CardIds.SequenceEqual([equipmentCardId])),
+            "Equipment Zhiheng must retain the exact public source zone, processing move and typed event.");
+
+        var restored = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(current.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(currentAfter) &&
+                EventSignatures(restored).SequenceEqual(EventSignatures(current)),
+            "Equipment Zhiheng must restore with identical state and events.");
+
+        var legacyBefore = legacy.CreateSnapshot(0, revealAll: true);
+        var legacyPlayerBefore = legacyBefore.Players.Single(player => player.Seat == 0);
+        var legacyPrompt = legacy.PendingDecision ??
+            throw new InvalidOperationException("Legacy Zhiheng fixture lost its play prompt.");
+        var legacyAction = legacy.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng);
+        Require(legacyPrompt.ActiveSkillValidCardIds?.Contains(equipmentCardId) == false &&
+                legacyAction.MaxCardCount == legacyPlayerBefore.Hand.Count,
+            "Rules v16 must retain the hand-only Zhiheng candidate set.");
+        var legacyState = SnapshotJson.Serialize(legacyBefore);
+        var legacyRejected = legacy.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Zhiheng,
+            [equipmentCardId],
+            [],
+            legacy.Revision,
+            legacyPrompt.PromptId));
+        Require(!legacyRejected.Accepted && legacyRejected.Error?.Code == CommandErrorCode.InvalidCard &&
+                SnapshotJson.Serialize(legacy.CreateSnapshot(0, revealAll: true)) == legacyState,
+            "Rules v16 must reject an equipment Zhiheng selection atomically.");
+
+        var legacyHandCardId = legacyPlayerBefore.Hand.First().Id;
+        var legacyUsed = legacy.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Zhiheng,
+            [legacyHandCardId],
+            [],
+            legacy.Revision,
+            legacyPrompt.PromptId));
+        Require(legacyUsed.Accepted, legacyUsed.Error?.Message ??
+            "Rules-v16 hand-only Zhiheng was rejected.");
+        if (legacy.PendingDecision?.Kind != DecisionKind.PlayCard)
+        {
+            var advanced = legacy.Submit(new AdvanceCommand(legacy.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ??
+                "Rules-v16 Zhiheng did not return to the play boundary.");
+        }
+        Require(legacy.GetHumanLegalActions().Any(action =>
+                action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng),
+            "Rules v16 must retain the historical repeatable hand-only Zhiheng behavior.");
+    }
+
+    private static GameEngine? StartClassicGeneralAtPlay(
+        ContentRegistry registry,
+        int seed,
+        string generalId,
+        int rulesVersion)
+    {
+        var game = CreateInteractive(registry, seed);
+        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+        {
+            game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        }
+
+        var started = game.Submit(new StartGameCommand());
+        Require(started.Accepted, started.Error?.Message ?? "Classic active-skill fixture failed to start.");
+        if (started.Result.PendingDecision?.Choices.Any(choice =>
+                choice.ContentIds.SequenceEqual([generalId])) != true)
+        {
+            return null;
+        }
+
+        var selected = game.Submit(new SelectGeneralCommand(
+            0,
+            generalId,
+            game.Revision,
+            game.PendingDecision!.PromptId));
+        Require(selected.Accepted, selected.Error?.Message ?? $"Could not select {generalId}.");
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        Require(advanced.Accepted, advanced.Error?.Message ?? "Classic active-skill setup did not advance.");
+        Require(game.PendingDecision?.Kind == DecisionKind.PlayCard,
+            "Classic active-skill fixture did not stop at the human play phase.");
+        return game;
+    }
+
+    private static void Equip(GameEngine game, int cardId)
+    {
+        var prompt = game.PendingDecision ??
+            throw new InvalidOperationException("Equipment fixture lost its play prompt.");
+        var equipped = game.Submit(new PlayCardCommand(
+            0,
+            cardId,
+            [],
+            game.Revision,
+            prompt.PromptId));
+        Require(equipped.Accepted, equipped.Error?.Message ?? "Could not equip the Zhiheng fixture card.");
+        if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
+        {
+            var advanced = game.Submit(new AdvanceCommand(game.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ??
+                "Could not return the Zhiheng fixture to the human play boundary.");
+        }
+        Require(game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
+                .Equipment.Any(card => card.Id == cardId),
+            "The Zhiheng fixture card did not enter the equipment zone.");
+    }
+
     private static GameEngine SelectGeneral(ContentRegistry registry, string generalId, int rulesVersion)
     {
         for (var seed = 1; seed <= 4_096; seed++)

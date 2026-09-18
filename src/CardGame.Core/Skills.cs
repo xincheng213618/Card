@@ -12,7 +12,9 @@ public sealed record PlayerSkillContext(
 public sealed record ActiveSkillContext(
     PlayerSkillContext Owner,
     int SelectedCardCount = 0,
-    int SelectedTargetCount = 0);
+    int SelectedTargetCount = 0,
+    int AdditionalSelectableCardCount = 0,
+    bool EnforceOncePerTurn = false);
 
 public enum ActiveSkillEffectKind
 {
@@ -447,18 +449,23 @@ public sealed class ZhihengSkill : IPassiveSkill, IActiveSkill
     public string Name => "制衡";
 
     /// <summary>
-    /// The first card-selection slice keeps the rule intentionally narrow:
-    /// discard at least one hand card during Play, then draw the same count.
+    /// The engine supplies equipment as additional selectable cards only for
+    /// the versioned classic rules. Historical/demo contexts remain hand-only.
     /// The engine owns the two-step movement through Processing.
     /// </summary>
     public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play && context.Owner.HandCount > 0;
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount + context.AdditionalSelectableCardCount > 0 &&
+        (!context.EnforceOncePerTurn ||
+         context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true);
 
     public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
         new(
             ActiveSkillEffectKind.DiscardAndDraw,
             MinCardCount: 1,
-            MaxCardCount: Math.Max(0, context.Owner.HandCount));
+            MaxCardCount: Math.Max(
+                0,
+                context.Owner.HandCount + context.AdditionalSelectableCardCount));
 }
 
 public sealed class RendeSkill : IPassiveSkill, IActiveSkill
