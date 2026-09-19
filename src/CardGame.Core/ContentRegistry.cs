@@ -91,12 +91,22 @@ public sealed record ContentGeneralDefinition(
 
 public sealed record ContentDeckCardCount(string CardDefinitionId, int Count);
 
+public sealed record ContentDeckPhysicalCard(string CardDefinitionId, Suit Suit, int Rank);
+
 public sealed record ContentDeckRecipe(
     string Id,
     string Name,
     int InitialHandSize,
     int DrawPerTurn,
-    IReadOnlyList<ContentDeckCardCount> Cards);
+    IReadOnlyList<ContentDeckCardCount> Cards)
+{
+    /// <summary>
+    /// Optional ordered physical-card recipe. New packages can provide exact
+    /// suit/rank data; legacy count recipes remain byte-for-byte hash compatible.
+    /// Exactly one of Cards or PhysicalCards must contain entries.
+    /// </summary>
+    public IReadOnlyList<ContentDeckPhysicalCard>? PhysicalCards { get; init; }
+}
 
 public sealed record ContentModeDefinition(
     string Id,
@@ -477,6 +487,27 @@ public sealed class ContentRegistry
                 Base = JsonSerializer.Deserialize<JsonElement>(canonical),
                 GeneralGenderExtensions = generalGenderExtensions
             });
+        var physicalDeckExtensions = decks.Values
+            .Where(deck => deck.PhysicalCards is { Count: > 0 })
+            .OrderBy(deck => deck.Id, StringComparer.Ordinal)
+            .Select(deck => new
+            {
+                deck.Id,
+                PhysicalCards = deck.PhysicalCards!.Select(card => new
+                {
+                    card.CardDefinitionId,
+                    Suit = card.Suit.ToString(),
+                    card.Rank
+                }).ToArray()
+            })
+            .ToArray();
+        if (physicalDeckExtensions.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 7,
+                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                PhysicalDeckExtensions = physicalDeckExtensions
+            });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
 
@@ -561,7 +592,9 @@ public sealed class ContentRegistry
 
             foreach (var deck in _decks.Values)
             {
-                if (deck.InitialHandSize < 0 || deck.DrawPerTurn < 0 || deck.Cards.Count == 0)
+                var hasCounts = deck.Cards.Count > 0;
+                var hasPhysicalCards = deck.PhysicalCards is { Count: > 0 };
+                if (deck.InitialHandSize < 0 || deck.DrawPerTurn < 0 || hasCounts == hasPhysicalCards)
                 {
                     throw new InvalidOperationException($"Deck '{deck.Id}' has invalid setup values.");
                 }
@@ -580,6 +613,21 @@ public sealed class ContentRegistry
                     {
                         throw new InvalidOperationException(
                             $"Deck '{deck.Id}' references unknown card '{card.CardDefinitionId}'.");
+                    }
+                }
+
+                foreach (var card in deck.PhysicalCards ?? [])
+                {
+                    if (!_cards.ContainsKey(card.CardDefinitionId))
+                    {
+                        throw new InvalidOperationException(
+                            $"Deck '{deck.Id}' references unknown card '{card.CardDefinitionId}'.");
+                    }
+
+                    if (!Enum.IsDefined(card.Suit) || card.Rank is < 1 or > 13)
+                    {
+                        throw new InvalidOperationException(
+                            $"Deck '{deck.Id}' contains invalid physical card data.");
                     }
                 }
             }
@@ -837,7 +885,10 @@ public sealed class ContentRegistry
 
             return definition with
             {
-                Cards = Array.AsReadOnly(definition.Cards.Select(card => card with { }).ToArray())
+                Cards = Array.AsReadOnly(definition.Cards.Select(card => card with { }).ToArray()),
+                PhysicalCards = definition.PhysicalCards is null
+                    ? null
+                    : Array.AsReadOnly(definition.PhysicalCards.Select(card => card with { }).ToArray())
             };
         }
 

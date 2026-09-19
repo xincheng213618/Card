@@ -4738,6 +4738,21 @@ public sealed partial class GameEngine
         ContentRegistry contentRegistry,
         ContentDeckRecipe definition)
     {
+        if (definition.PhysicalCards is { Count: > 0 } physicalCards)
+        {
+            return physicalCards.Select((entry, index) =>
+            {
+                var cardDefinition = contentRegistry.GetCard(entry.CardDefinitionId);
+                if (cardDefinition.LegacyKind is not { } kind)
+                {
+                    throw new InvalidOperationException(
+                        $"Card '{cardDefinition.Id}' has no legacy runtime projection for this engine.");
+                }
+
+                return new Card(index + 1, kind, entry.Suit, entry.Rank);
+            }).ToArray();
+        }
+
         var cards = new List<Card>(definition.Cards.Sum(entry => entry.Count));
         var id = 1;
         foreach (var entry in definition.Cards)
