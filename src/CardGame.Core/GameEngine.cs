@@ -944,6 +944,7 @@ public sealed partial class GameEngine
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
+                DecisionKind.Guidao or
                 DecisionKind.Yingzi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
@@ -1031,7 +1032,7 @@ public sealed partial class GameEngine
             return SubmitGangliePunishmentPromptAnswer(selected);
         }
 
-        if (pending.Kind == DecisionKind.Guicai)
+        if (pending.Kind is DecisionKind.Guicai or DecisionKind.Guidao)
         {
             return SubmitGuicaiPromptAnswer(selected);
         }
@@ -1492,7 +1493,7 @@ public sealed partial class GameEngine
     private CommandResult SubmitGuicaiPromptAnswer(PromptChoice selected)
     {
         if (_pendingJudgment is not { } pending ||
-            _pendingDecision is not { Kind: DecisionKind.Guicai } decision)
+            _pendingDecision is not { Kind: DecisionKind.Guicai or DecisionKind.Guidao } decision)
         {
             return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的鬼才判定窗口。");
         }
@@ -3356,7 +3357,7 @@ public sealed partial class GameEngine
             return HumanGangliePunishmentFallbackCore(advanceToHumanBoundary);
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.Guicai)
+        if (_pendingDecision?.Kind is DecisionKind.Guicai or DecisionKind.Guidao)
         {
             return HumanGuicaiCore(
                 useGuicai: false,
@@ -3927,7 +3928,7 @@ public sealed partial class GameEngine
                 advanceToHumanBoundary: advanceToHumanBoundary)
             : _pendingDecision?.Kind == DecisionKind.GangliePunish
             ? HumanGangliePunishmentFallbackCore(advanceToHumanBoundary)
-            : _pendingDecision?.Kind == DecisionKind.Guicai
+            : _pendingDecision?.Kind is DecisionKind.Guicai or DecisionKind.Guidao
             ? HumanGuicaiCore(
                 useGuicai: false,
                 requestedCardId: null,
@@ -4109,7 +4110,8 @@ public sealed partial class GameEngine
         int? requestedCardId,
         bool advanceToHumanBoundary)
     {
-        RequireHumanDecision(DecisionKind.Guicai);
+        if (_pendingDecision?.Kind is not (DecisionKind.Guicai or DecisionKind.Guidao))
+            throw new InvalidOperationException("The current prompt is not a judgment replacement.");
         var pending = _pendingJudgment ??
             throw new InvalidOperationException("There is no Guicai judgment awaiting a response.");
         var decision = _pendingDecision ??
@@ -4124,7 +4126,7 @@ public sealed partial class GameEngine
         {
             if (requestedCardId is not { } cardId ||
                 !decision.ValidCardIds.Contains(cardId) ||
-                GetHand(_players[ownerSeat]).All(card => card.Id != cardId))
+                !decision.ValidCardIds.Contains(cardId))
             {
                 throw new InvalidOperationException("The requested Guicai card is not a published hand choice.");
             }
@@ -13552,7 +13554,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("AI Guicai continuation is missing.");
         var decision = _pendingDecision ??
             throw new InvalidOperationException("The pending AI Guicai prompt is missing.");
-        if (decision.Kind != DecisionKind.Guicai ||
+        if (decision.Kind is not (DecisionKind.Guicai or DecisionKind.Guidao) ||
             decision.PlayerSeat != pending.CurrentCandidateSeat ||
             _players[decision.PlayerSeat].IsHuman ||
             pending.CurrentCard is not { } judgmentCard)
@@ -14144,7 +14146,7 @@ public sealed partial class GameEngine
 
         var owner = _players[pending.CurrentCandidateSeat];
         var skill = EnabledPassiveSkills(owner)
-            .Single(candidate => candidate.Kind == SkillKind.Guicai);
+            .Single(candidate => candidate.Kind is SkillKind.Guicai or SkillKind.Guidao);
         var context = new JudgmentSkillContext(
             CreateSkillContext(owner),
             pending.TargetSeat,
@@ -14156,7 +14158,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive ||
             !skill.CanTriggerBeforeJudgment(context) ||
             !skill.OffersJudgmentCardChoice(context) ||
-            GetHand(owner).Count == 0)
+            GetJudgmentReplacementCards(owner, skill.Kind).Count == 0)
         {
             AdvanceJudgmentCandidate(pending);
             return;
@@ -14186,7 +14188,8 @@ public sealed partial class GameEngine
         var judgmentCard = pending.CurrentCard ??
             throw new InvalidOperationException("A Guicai prompt requires a public judgment card.");
         var target = _players[pending.TargetSeat];
-        var choices = GetHand(owner)
+        var replacementCards = GetJudgmentReplacementCards(owner, skill.Kind);
+        var choices = replacementCards
             .Select(card => new PromptChoice(
                 new ChoiceId($"guicai.replace.frame-{pending.FrameId}.card-{card.Id}"),
                 $"弃置【{card.DisplayName}】替换 {target.Name} 的判定牌。",
@@ -14210,10 +14213,10 @@ public sealed partial class GameEngine
             .ToArray();
 
         return new PendingDecision(
-            DecisionKind.Guicai,
+            skill.Kind == SkillKind.Guidao ? DecisionKind.Guidao : DecisionKind.Guicai,
             owner.Seat,
             $"{target.Name} 的【{judgmentCard.DisplayName}】（{judgmentCard.Suit}）即将判定，是否发动【{skill.Name}】替换？",
-            GetHand(owner).Select(card => card.Id).ToArray(),
+            replacementCards.Select(card => card.Id).ToArray(),
             [],
             SourceSeat: target.Seat,
             IncomingCard: judgmentCard.Kind)
@@ -14224,6 +14227,14 @@ public sealed partial class GameEngine
             TargetSeat = target.Seat
         };
     }
+
+    private IReadOnlyList<Card> GetJudgmentReplacementCards(PlayerRuntime owner, SkillKind skill) =>
+        skill == SkillKind.Guidao
+            ? GetHand(owner).Concat(GetEquipment(owner))
+                .Where(card => card.Suit is Suit.Spade or Suit.Club)
+                .OrderBy(card => card.Id)
+                .ToArray()
+            : GetHand(owner).ToArray();
 
     private void ResolveGuicaiChoice(
         JudgmentResolution pending,
@@ -14239,8 +14250,11 @@ public sealed partial class GameEngine
         var owner = _players[pending.CurrentCandidateSeat];
         if (selectedCardId is { } cardId)
         {
-            var replacement = GetHand(owner).SingleOrDefault(card => card.Id == cardId) ??
-                throw new InvalidOperationException("The selected Guicai card is not in the owner's hand.");
+            var skill = EnabledPassiveSkills(owner)
+                .Single(candidate => candidate.Kind is SkillKind.Guicai or SkillKind.Guidao);
+            var replacement = GetJudgmentReplacementCards(owner, skill.Kind)
+                .SingleOrDefault(card => card.Id == cardId) ??
+                throw new InvalidOperationException("The selected judgment replacement card is no longer owned by the skill user.");
             if (_cardZones.GetLocation(oldJudgmentCard.Id) != CardLocation.Judgment(pending.TargetSeat))
             {
                 throw new InvalidOperationException("The current judgment card is not in its judgment zone.");
@@ -14251,16 +14265,17 @@ public sealed partial class GameEngine
                 CardLocation.Judgment(pending.TargetSeat),
                 CardLocation.DiscardPile,
                 CardMoveReasons.JudgmentFinish);
+            var replacementFrom = _cardZones.GetLocation(replacement.Id);
             MoveCard(
                 replacement,
-                CardLocation.Hand(owner.Seat),
+                replacementFrom,
                 CardLocation.Processing,
-                CardMoveReasons.GuicaiReplace);
+                skill.Kind == SkillKind.Guidao ? CardMoveReasons.GuidaoReplace : CardMoveReasons.GuicaiReplace);
             MoveCard(
                 replacement,
                 CardLocation.Processing,
                 CardLocation.Judgment(pending.TargetSeat),
-                CardMoveReasons.GuicaiReplace);
+                skill.Kind == SkillKind.Guidao ? CardMoveReasons.GuidaoReplace : CardMoveReasons.GuicaiReplace);
             pending.CurrentCard = replacement;
             pending.WasReplaced = true;
             QueueGameEvent(new JudgmentReplacementResolvedEvent(
@@ -14277,12 +14292,14 @@ public sealed partial class GameEngine
                 replacement.Rank));
             AddLog(
                 "JudgmentReplaced",
-                $"{owner.Name} 发动【鬼才】替换了 {pending.Reason} 的判定牌。",
+                $"{owner.Name} 发动【{skill.Name}】替换了 {pending.Reason} 的判定牌。",
                 owner.Seat,
                 pending.TargetSeat);
         }
         else
         {
+            var skill = EnabledPassiveSkills(owner)
+                .Single(candidate => candidate.Kind is SkillKind.Guicai or SkillKind.Guidao);
             QueueGameEvent(new JudgmentReplacementResolvedEvent(
                 pending.FrameId,
                 pending.FrameId,
@@ -14297,7 +14314,7 @@ public sealed partial class GameEngine
                 NewRank: null));
             AddLog(
                 "JudgmentReplacementSkipped",
-                $"{owner.Name} 选择不发动【鬼才】，保留当前判定牌。",
+                $"{owner.Name} 选择不发动【{skill.Name}】，保留当前判定牌。",
                 owner.Seat,
                 pending.TargetSeat);
         }
@@ -22310,10 +22327,13 @@ public sealed partial class GameEngine
                   tianduDecision.Choices.Count == 2 &&
                   tianduDecision.ValidCardIds.Count == 0
                 : pendingJudgment.CurrentCandidateSeat >= 0 &&
-                  _pendingDecision is { Kind: DecisionKind.Guicai } guicaiDecision &&
+                  _pendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao } guicaiDecision &&
                   guicaiDecision.PlayerSeat == pendingJudgment.CurrentCandidateSeat &&
                   guicaiDecision.ValidCardIds.SequenceEqual(
-                      GetHand(_players[pendingJudgment.CurrentCandidateSeat]).Select(card => card.Id));
+                      GetJudgmentReplacementCards(
+                          _players[pendingJudgment.CurrentCandidateSeat],
+                          guicaiDecision.Kind == DecisionKind.Guidao ? SkillKind.Guidao : SkillKind.Guicai)
+                      .Select(card => card.Id));
             if (!promptMatches)
             {
                 throw new InvalidOperationException(
@@ -22394,7 +22414,7 @@ public sealed partial class GameEngine
             }
 
             var damageSkillPromptMatches = _pendingJudgment is { Continuation: JudgmentContinuationKind.Ganglie } judgmentContinuation
-                ? _pendingDecision is { Kind: DecisionKind.Guicai } judgmentDecision &&
+                ? _pendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao } judgmentDecision &&
                   judgmentDecision.PlayerSeat == judgmentContinuation.CurrentCandidateSeat
                 : _pendingDying is { ResumesDamageSkill: true } dyingContinuation
                 ? (_pendingDecision is { Kind: DecisionKind.RescueDying } dyingDecision &&
@@ -22637,7 +22657,7 @@ public sealed partial class GameEngine
                 "A FireAttack selection cannot exist without a FireAttack resolution.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.Guicai &&
+        if (_pendingDecision?.Kind is DecisionKind.Guicai or DecisionKind.Guidao &&
             _pendingJudgment is null)
         {
             throw new InvalidOperationException(
@@ -22732,6 +22752,7 @@ public sealed partial class GameEngine
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
+                DecisionKind.Guidao or
                 DecisionKind.Tieqi or
                 DecisionKind.Liegong or
                 DecisionKind.StoneAxe or
@@ -23006,7 +23027,7 @@ public sealed partial class GameEngine
 
     private bool IsAiJudgmentPending() =>
         _pendingJudgment is { } judgment &&
-        _pendingDecision is { Kind: DecisionKind.Guicai } decision &&
+        _pendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao } decision &&
         judgment.CurrentCandidateSeat == decision.PlayerSeat &&
         !_players[decision.PlayerSeat].IsHuman;
 

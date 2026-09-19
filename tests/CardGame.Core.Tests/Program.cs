@@ -204,6 +204,7 @@ var tests = new (string Name, Action Body)[]
     ("Yuanhu can trigger from another seat and recover the damaged player", YuanhuCrossSeatFlow),
     ("Ganglie opens a public judgment and a private source punishment", GanglieFlow),
     ("Guicai privately replaces a public judgment with a hand card", GuicaiFlow),
+    ("Guidao privately replaces judgments with exact black hand or equipment cards", GuidaoChecks.BlackHandAndEquipmentReplacement),
     ("Indulgence delays a target play phase through public judgment", IndulgenceFlow),
     ("SupplyShortage delays a target draw phase through public judgment", SupplyShortageFlow),
     ("formal SupplyShortage uses distance and preserves legacy empty-hand behavior", SupplyShortageChecks.TargetingAndResolution),

@@ -580,6 +580,16 @@ public sealed class GuicaiSkill : IPassiveSkill
         CanTriggerBeforeJudgment(context);
 }
 
+public sealed class GuidaoSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Guidao;
+    public string Name => "鬼道";
+
+    public bool CanTriggerBeforeJudgment(JudgmentSkillContext context) => true;
+
+    public bool OffersJudgmentCardChoice(JudgmentSkillContext context) => true;
+}
+
 public sealed class TianduSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Tiandu;
@@ -1086,6 +1096,7 @@ public static class SkillRegistry
             [SkillKind.Yuanhu] = new YuanhuSkill(),
             [SkillKind.Ganglie] = new GanglieSkill(),
             [SkillKind.Guicai] = new GuicaiSkill(),
+            [SkillKind.Guidao] = new GuidaoSkill(),
             [SkillKind.Tiandu] = new TianduSkill(),
             [SkillKind.Fanjian] = new FanjianSkill(),
             [SkillKind.Guanxing] = new GuanxingSkill(),

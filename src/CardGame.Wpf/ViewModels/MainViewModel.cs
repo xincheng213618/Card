@@ -637,6 +637,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Ganglie or
                     DecisionKind.GangliePunish or
                     DecisionKind.Guicai or
+                    DecisionKind.Guidao or
                     DecisionKind.Yingzi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
@@ -675,6 +676,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Ganglie or
             DecisionKind.GangliePunish or
             DecisionKind.Guicai or
+            DecisionKind.Guidao or
             DecisionKind.Yingzi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
@@ -1776,7 +1778,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     ? "        AskForResponse(Peach/Alcohol)"
                     : "        AskForResponse(Peach)");
             }
-            else if (pending.Kind == DecisionKind.Guicai)
+            else if (pending.Kind is DecisionKind.Guicai or DecisionKind.Guidao)
             {
                 EventStack.Add($"      Judgment(target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
                 EventStack.Add("        AskForSkill(Guicai)");
@@ -1874,6 +1876,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
+                DecisionKind.Guidao or
                 DecisionKind.Yingzi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
