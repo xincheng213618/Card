@@ -16,12 +16,16 @@ internal static class WushengResponseScenario
             registry,
             modeId);
 
-    public static GameEngine FindQingguoDodge(CardKind incoming = CardKind.Slash)
+    public static GameEngine FindQingguoDodge(
+        CardKind incoming = CardKind.Slash,
+        Version? packageVersion = null)
         => FindResponse(
             incoming,
             SkillKind.Qingguo,
             DecisionKind.RespondDodge,
-            StandardContentRegistry.CreateWithClassicGenerals(),
+            packageVersion is null
+                ? StandardContentRegistry.CreateWithClassicGenerals()
+                : StandardContentRegistry.CreateWithClassicGenerals(packageVersion),
             "identity:classic-8");
 
     public static GameEngine FindClassicWushengEquipmentResponse()

@@ -580,7 +580,7 @@ internal static class ClassicGeneralUiChecks
 
         using var jizhiViewModel = FindClassicJizhiViewModel();
         var jizhiEngine = Program.Engine(jizhiViewModel);
-        var drawTwo = jizhiEngine.GetHumanLegalActions().Single(action =>
+        var drawTwo = jizhiEngine.GetHumanLegalActions().First(action =>
             action.Kind == LegalActionKind.DrawTwo && action.CardId is not null);
         var jizhiCard = jizhiViewModel.Hand.Single(card => card.Id == drawTwo.CardId);
         jizhiViewModel.SelectCardCommand.Execute(jizhiCard);

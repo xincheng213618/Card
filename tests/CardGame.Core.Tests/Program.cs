@@ -54,6 +54,7 @@ var tests = new (string Name, Action Body)[]
     ("standard deck content is deterministic and balanced", StandardDeckContent),
     ("standard package builds an immutable isolated registry", StandardContentRegistryBuilds),
     ("physical deck recipes preserve exact suit, rank and content hashing", PhysicalDeckRecipeChecks.ExactSuitRankValidationAndHashing),
+    ("classic standard deck matches the official 108-card physical table", PhysicalDeckRecipeChecks.ClassicStandardDeckMatchesOfficial108CardTable),
     ("classic identity roster is opt-in, formal and replay-versioned", ClassicGeneralChecks.ContentContract),
     ("classic identity applies base HP, multiple skills and legacy replay boundaries", ClassicGeneralChecks.SetupHealthAndReplay),
     ("classic Huang Gai repeats formal Kujin and replays", ClassicGeneralChecks.FormalKujinFlow),

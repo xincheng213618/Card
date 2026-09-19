@@ -43,6 +43,7 @@ internal static class ClassicGeneralChecks
         var gudingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 31, 0));
         var zhuqueClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 32, 0));
         var tengjiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 33, 0));
+        var woodenOxClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -51,7 +52,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.35.0"]),
+                "standard-classic-generals@1.36.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -277,12 +278,15 @@ internal static class ClassicGeneralChecks
                 classic.Cards["classic:zhuque-fan"].LegacyKind == CardKind.ZhuqueFan &&
                 classic.Cards["classic:tengjia"].LegacyKind == CardKind.Tengjia &&
                 classic.Cards["classic:silver-lion"].LegacyKind == CardKind.SilverLion &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105 &&
+                woodenOxClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105 &&
+                woodenOxClassic.Decks["classic:standard-deck"].PhysicalCards is null &&
+                classic.Decks["classic:standard-deck"].Cards.Count == 0 &&
+                classic.Decks["classic:standard-deck"].PhysicalCards?.Count == 108 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.35 classic registry must opt both classic modes into the 105-card deck with Wooden Ox and typed gender.");
+            "The current classic registry must use the exact 108-card standard deck while 1.35 retains its 105-card hybrid recipe.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -1676,7 +1680,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalLuoshenAndQingguoFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
         var game = FindZhenJiFirstBlackLuoshenFixture(registry);
         var owner = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(owner.GeneralId == "classic:zhen-ji" &&
@@ -1756,7 +1760,9 @@ internal static class ClassicGeneralChecks
 
         foreach (var incoming in new[] { CardKind.Slash, CardKind.ArrowBarrage })
         {
-            var responseGame = WushengResponseScenario.FindQingguoDodge(incoming);
+            var responseGame = WushengResponseScenario.FindQingguoDodge(
+                incoming,
+                new Version(1, 35, 0));
             var responsePrompt = responseGame.PendingDecision!;
             var hand = responseGame.CreateSnapshot(0).Players[0].Hand;
             var choice = responsePrompt.Choices.First(candidate =>

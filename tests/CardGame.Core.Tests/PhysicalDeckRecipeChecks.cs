@@ -1,8 +1,59 @@
 using CardGame.Core;
+using CardGame.Content.Standard;
 using System.Reflection;
 
 internal static class PhysicalDeckRecipeChecks
 {
+    public static void ClassicStandardDeckMatchesOfficial108CardTable()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var deck = registry.Decks["classic:standard-deck"];
+        var cards = deck.PhysicalCards ?? throw new InvalidOperationException(
+            "The current classic deck must use a physical-card recipe.");
+
+        Require(deck.Cards.Count == 0 && cards.Count == 108,
+            "The standard recipe must contain exactly 108 physical cards and no count recipe.");
+        foreach (var suit in Enum.GetValues<Suit>())
+        {
+            var suited = cards.Where(card => card.Suit == suit).ToArray();
+            Require(suited.Length == 27, $"{suit} must contain exactly 27 cards.");
+            for (var rank = 1; rank <= 13; rank++)
+            {
+                var expected = IsExRank(suit, rank) ? 3 : 2;
+                Require(suited.Count(card => card.Rank == rank) == expected,
+                    $"{suit} {rank} must contain {expected} physical cards.");
+            }
+        }
+
+        var counts = cards.GroupBy(card => card.CardDefinitionId)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+        Require(Count("standard:slash") == 30 &&
+                Count("standard:dodge") == 15 &&
+                Count("standard:peach") == 8,
+            "The standard basic-card split must be 30 Slash, 15 Dodge and 8 Peach.");
+        Require(cards.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "基本牌") == 53 &&
+                cards.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "锦囊牌") == 36 &&
+                cards.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "装备牌") == 19,
+            "The standard category split must be 53 basic, 36 trick and 19 equipment cards.");
+        Require(Has("standard:lightning", Suit.Heart, 12) &&
+                Has("classic:ice-sword", Suit.Spade, 2) &&
+                Has("standard:nullification", Suit.Diamond, 12) &&
+                Has("standard:renwang_shield", Suit.Club, 2),
+            "The four EX cards must occupy the canonical heart Q, spade 2, diamond Q and club 2 slots.");
+
+        var legacy = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
+        Require(legacy.Decks["classic:standard-deck"].PhysicalCards is null &&
+                legacy.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105,
+            "The 1.35 hybrid deck must remain available for old checkpoints and scenarios.");
+
+        int Count(string id) => counts.GetValueOrDefault(id);
+        bool Has(string id, Suit suit, int rank) => cards.Any(card =>
+            card.CardDefinitionId == id && card.Suit == suit && card.Rank == rank);
+        static bool IsExRank(Suit suit, int rank) =>
+            (suit, rank) is (Suit.Heart, 12) or (Suit.Spade, 2) or
+                (Suit.Diamond, 12) or (Suit.Club, 2);
+    }
+
     public static void ExactSuitRankValidationAndHashing()
     {
         var physical = new[]

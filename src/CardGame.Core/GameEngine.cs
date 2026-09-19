@@ -4469,7 +4469,10 @@ public sealed partial class GameEngine
                 $"The supplied content registry does not contain deck '{requestedId}'.");
         }
 
-        if (definition.InitialHandSize < 0 || definition.DrawPerTurn < 0 || definition.Cards.Count == 0)
+        var hasCountRecipe = definition.Cards.Count > 0;
+        var hasPhysicalRecipe = definition.PhysicalCards is { Count: > 0 };
+        if (definition.InitialHandSize < 0 || definition.DrawPerTurn < 0 ||
+            hasCountRecipe == hasPhysicalRecipe)
         {
             throw new InvalidOperationException("The supplied deck recipe is invalid.");
         }

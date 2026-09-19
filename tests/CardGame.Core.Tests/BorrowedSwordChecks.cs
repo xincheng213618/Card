@@ -137,8 +137,10 @@ internal static class BorrowedSwordChecks
 
     public static void JijiangProvidesForcedSlash()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = BorrowedSwordScenario.FindHumanOwnerResponse(requireJijiang: true);
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
+        var game = BorrowedSwordScenario.FindHumanOwnerResponse(
+            requireJijiang: true,
+            packageVersion: new Version(1, 35, 0));
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword Jijiang fixture lost its owner prompt.");
         var targetSeat = prompt.TargetSeat ??

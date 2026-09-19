@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 35, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 36, 0))
     {
     }
 
@@ -54,12 +54,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 32, 0) &&
             version != new Version(1, 33, 0) &&
             version != new Version(1, 34, 0) &&
-            version != new Version(1, 35, 0))
+            version != new Version(1, 35, 0) &&
+            version != new Version(1, 36, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.35.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.36.0.");
         }
 
         _version = version;
@@ -347,9 +348,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 classicDeckCards.Add(new ContentDeckCardCount("classic:wooden-ox", 1));
             }
 
+            var physicalCards = _version >= new Version(1, 36, 0)
+                ? CreateStandardPhysicalDeck()
+                : null;
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 35, 0)
+                Name: _version >= new Version(1, 36, 0)
+                    ? "经典标准 108 张逐张牌堆（含 4 张 EX）"
+                    : _version >= new Version(1, 35, 0)
                     ? "经典标准牌堆（含木牛流马等扩展装备）"
                     : _version >= new Version(1, 34, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇·藤甲·白银狮子）"
@@ -376,7 +382,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     : "经典标准牌堆（借刀杀人）",
                 InitialHandSize: 4,
                 DrawPerTurn: 2,
-                Cards: classicDeckCards));
+                Cards: physicalCards is null ? classicDeckCards : [])
+            {
+                PhysicalCards = physicalCards
+            });
         }
 
         builder.AddSkill(new ContentSkillDefinition(
@@ -876,6 +885,77 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 : "standard:basic-demo",
             GeneralCandidateCount: 3,
             GeneralPoolIds: generalPoolIds));
+    }
+
+    private static IReadOnlyList<ContentDeckPhysicalCard> CreateStandardPhysicalDeck()
+    {
+        var cards = new List<ContentDeckPhysicalCard>(108);
+        Add(Suit.Heart,
+            ("standard:peach_garden", 1), ("standard:arrow_barrage", 1),
+            ("standard:dodge", 2), ("standard:dodge", 2),
+            ("standard:peach", 3), ("standard:five_grains", 3),
+            ("standard:peach", 4), ("standard:five_grains", 4),
+            ("classic:qilin-bow", 5), ("standard:offensive_horse", 5),
+            ("standard:peach", 6), ("standard:indulgence", 6),
+            ("standard:peach", 7), ("standard:draw_two", 7),
+            ("standard:peach", 8), ("standard:draw_two", 8),
+            ("standard:peach", 9), ("standard:draw_two", 9),
+            ("standard:slash", 10), ("standard:slash", 10),
+            ("standard:slash", 11), ("standard:draw_two", 11),
+            ("standard:peach", 12), ("standard:dismantlement", 12),
+            ("standard:lightning", 12),
+            ("standard:dodge", 13), ("standard:defensive_horse", 13));
+        Add(Suit.Spade,
+            ("standard:duel", 1), ("standard:lightning", 1),
+            ("classic:cixiong-double-swords", 2), ("standard:bagua", 2),
+            ("classic:ice-sword", 2),
+            ("standard:dismantlement", 3), ("standard:snatch", 3),
+            ("standard:dismantlement", 4), ("standard:snatch", 4),
+            ("classic:qinglong-crescent-blade", 5), ("standard:defensive_horse", 5),
+            ("standard:indulgence", 6), ("standard:qinggang_sword", 6),
+            ("standard:slash", 7), ("standard:barbarian_assault", 7),
+            ("standard:slash", 8), ("standard:slash", 8),
+            ("standard:slash", 9), ("standard:slash", 9),
+            ("standard:slash", 10), ("standard:slash", 10),
+            ("standard:snatch", 11), ("standard:nullification", 11),
+            ("standard:dismantlement", 12), ("classic:zhangba-serpent-spear", 12),
+            ("standard:barbarian_assault", 13), ("standard:offensive_horse", 13));
+        Add(Suit.Diamond,
+            ("standard:crossbow", 1), ("standard:duel", 1),
+            ("standard:dodge", 2), ("standard:dodge", 2),
+            ("standard:dodge", 3), ("standard:snatch", 3),
+            ("standard:dodge", 4), ("standard:snatch", 4),
+            ("standard:dodge", 5), ("classic:stone-axe", 5),
+            ("standard:slash", 6), ("standard:dodge", 6),
+            ("standard:slash", 7), ("standard:dodge", 7),
+            ("standard:slash", 8), ("standard:dodge", 8),
+            ("standard:slash", 9), ("standard:dodge", 9),
+            ("standard:slash", 10), ("standard:dodge", 10),
+            ("standard:dodge", 11), ("standard:dodge", 11),
+            ("standard:peach", 12), ("classic:fangtian-halberd", 12),
+            ("standard:nullification", 12),
+            ("standard:slash", 13), ("standard:offensive_horse", 13));
+        Add(Suit.Club,
+            ("standard:duel", 1), ("standard:crossbow", 1),
+            ("standard:slash", 2), ("standard:bagua", 2),
+            ("standard:renwang_shield", 2),
+            ("standard:slash", 3), ("standard:dismantlement", 3),
+            ("standard:slash", 4), ("standard:dismantlement", 4),
+            ("standard:slash", 5), ("standard:defensive_horse", 5),
+            ("standard:slash", 6), ("standard:indulgence", 6),
+            ("standard:slash", 7), ("standard:barbarian_assault", 7),
+            ("standard:slash", 8), ("standard:slash", 8),
+            ("standard:slash", 9), ("standard:slash", 9),
+            ("standard:slash", 10), ("standard:slash", 10),
+            ("standard:slash", 11), ("standard:slash", 11),
+            ("classic:borrowed-sword", 12), ("standard:nullification", 12),
+            ("classic:borrowed-sword", 13), ("standard:nullification", 13));
+        return cards;
+
+        void Add(Suit suit, params (string Id, int Rank)[] entries)
+        {
+            cards.AddRange(entries.Select(entry => new ContentDeckPhysicalCard(entry.Id, suit, entry.Rank)));
+        }
     }
 
     internal static IReadOnlyList<string> ClassicGeneralIds { get; } =

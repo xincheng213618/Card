@@ -69,9 +69,13 @@ internal static class BorrowedSwordScenario
             "No bounded classic Borrowed Sword source fixture with an equipped target was found.");
     }
 
-    public static GameEngine FindHumanOwnerResponse(bool requireJijiang = false)
+    public static GameEngine FindHumanOwnerResponse(
+        bool requireJijiang = false,
+        Version? packageVersion = null)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = packageVersion is null
+            ? StandardContentRegistry.CreateWithClassicGenerals()
+            : StandardContentRegistry.CreateWithClassicGenerals(packageVersion);
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
