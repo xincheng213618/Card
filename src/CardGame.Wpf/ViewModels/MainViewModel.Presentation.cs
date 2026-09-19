@@ -182,6 +182,7 @@ public sealed partial class MainViewModel
 
     private void InitializePresentation(bool autoAdvance)
     {
+        InitializeBattleLogFilters();
         InitializePlayback();
         RecastSelectedCommand = new RelayCommand(RecastSelected, () => CanRecastSelected);
         ClearSelectionCommand = new RelayCommand(ClearSelection);
@@ -232,6 +233,7 @@ public sealed partial class MainViewModel
         RefreshPlaybackPresentation();
         TopSeats.Clear();
         foreach (var seat in Seats.Where(seat => seat.Seat >= 2 && seat.Seat < Seats.Count - 1)) TopSeats.Add(seat);
+        RefreshBattleLogSeatOptions();
         foreach (var name in new[] { nameof(HumanPlayer), nameof(HumanSkillCards), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(AdditionalActiveSkillActions), nameof(ActiveSkillButtonText) })
             RaisePropertyChanged(name);
         RefreshSelectionHint();

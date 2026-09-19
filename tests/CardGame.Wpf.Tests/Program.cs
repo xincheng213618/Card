@@ -43,6 +43,7 @@ internal static class Program
             Check("the human skill rail distinguishes available active and automatic skills", () => CheckHumanSkillRail(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("lobby games reveal the dealt private opening hand without changing the match", () => CheckOpeningDealTransition(output));
+            Check("battle report combines public event and related-seat filters without changing the match", () => CheckBattleLogFilters(output));
             Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
             Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
@@ -108,7 +109,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 72 : 71)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 73 : 72)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -383,6 +384,50 @@ internal static class Program
         Assert(Engine(vm).Revision == revision && SnapshotJson.Serialize(Engine(vm).State) == state &&
                vm.Hand.Select(card => card.Id).SequenceEqual(dealtIds),
             "Dismissing the presentation changed the match or rerolled the opening hand.");
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
+        window.Content = null;
+        window.Close();
+    }
+
+    private static void CheckBattleLogFilters(string output)
+    {
+        using var vm = NewViewModel();
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
+        AdvanceToDecision(vm);
+        var action = Engine(vm).GetHumanLegalActions().First(candidate =>
+            candidate.CardId is not null && candidate.TargetSeats.Count <= 1 && candidate.TargetCardId is null);
+        vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == action.CardId));
+        if (action.TargetSeat is { } target)
+            vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == target));
+        Assert(vm.CanConfirmSelected, "Battle-report fixture could not commit its public card action.");
+        vm.ConfirmSelectedCommand.Execute(null);
+
+        Assert(vm.FilteredBattleLog.Count == vm.GameLog.Count && vm.BattleLogCategories.Count == 6 &&
+               vm.BattleLogSeats.Count == vm.Seats.Count + 2,
+            "Battle report did not index every public log or expose complete filters.");
+        var revision = Engine(vm).Revision;
+        var state = SnapshotJson.Serialize(Engine(vm).State);
+        vm.SelectBattleLogCategoryCommand.Execute("action");
+        Assert(vm.FilteredBattleLog.Count > 0 && vm.FilteredBattleLog.All(entry => entry.CategoryId == "action"),
+            "Action filter leaked another public event category.");
+        vm.SelectBattleLogSeatCommand.Execute("seat:0");
+        Assert(vm.FilteredBattleLog.Count > 0 && vm.FilteredBattleLog.All(entry => entry.ActorSeat == 0 || entry.TargetSeat == 0),
+            "Related-seat filter leaked an unrelated record.");
+        vm.SelectBattleLogCategoryCommand.Execute("all");
+        vm.SelectBattleLogSeatCommand.Execute("system");
+        Assert(vm.FilteredBattleLog.Count > 0 && vm.FilteredBattleLog.All(entry => entry.ActorSeat is null && entry.TargetSeat is null),
+            "System filter included a player-attributed record.");
+        vm.SelectBattleLogSeatCommand.Execute("all");
+        vm.IsLogOpen = true;
+        Render(root, 1120, 740, Path.Combine(output, "138-filtered-battle-report.png"));
+        Assert(((ListBox)window.FindName("FilteredBattleLogList")).Items.Count == vm.FilteredBattleLog.Count &&
+               Find<Button>(root).Count(button => button.Command == vm.SelectBattleLogCategoryCommand && button.ActualHeight > 0) == 6,
+            "Battle-report filter controls or filtered rows are inaccessible.");
+        Assert(Engine(vm).Revision == revision && SnapshotJson.Serialize(Engine(vm).State) == state,
+            "Browsing battle-report filters changed the match.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();

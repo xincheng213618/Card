@@ -721,7 +721,30 @@
                         </StackPanel>
                         <TabControl Grid.Row="2">
                             <TabItem Header="对局记录">
-                                <ListBox ItemsSource="{Binding GameLog}" />
+                                <Grid>
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                    <ItemsControl ItemsSource="{Binding BattleLogCategories}" Margin="5,7,5,0">
+                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.SelectBattleLogCategoryCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QuietButton}" Padding="7,4" FontSize="10" /></DataTemplate></ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="5,5,5,0">
+                                        <ItemsControl ItemsSource="{Binding BattleLogSeats}">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.SelectBattleLogSeatCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QuietButton}" Padding="7,4" FontSize="10" /></DataTemplate></ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                    <TextBlock Grid.Row="2" Text="{Binding BattleLogFilterSummary}" Foreground="#789083" FontSize="10" Margin="9,6,5,4" />
+                                    <ListBox x:Name="FilteredBattleLogList" Grid.Row="3" ItemsSource="{Binding FilteredBattleLog}">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="2,4">
+                                                    <TextBlock Text="{Binding Header}" Foreground="#8EA597" FontSize="9" />
+                                                    <TextBlock Text="{Binding Message}" Foreground="#D6D8C8" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
                             </TabItem>
                             <TabItem Header="AI 思考" Visibility="{Binding IsDeveloperView, Converter={StaticResource BoolToVisibility}}">
                                 <ListBox ItemsSource="{Binding AiThoughts}" />

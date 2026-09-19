@@ -408,6 +408,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _discardPromptId = null;
         SelectedCardText = "未选择手牌";
         GameLog.Clear();
+        ResetBattleLog();
         AiThoughts.Clear();
         EventStack.Clear();
         _game.LogAdded += OnLogAdded;
@@ -434,6 +435,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         RecordPublicActivity(entry);
         GameLog.Insert(0, $"#{entry.Sequence:000} · T{entry.TurnNumber:000}  {entry.Message}");
+        AddBattleLogEntry(entry);
         while (GameLog.Count > 400)
         {
             GameLog.RemoveAt(GameLog.Count - 1);
