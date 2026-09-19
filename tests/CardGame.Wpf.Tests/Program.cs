@@ -37,6 +37,7 @@ internal static class Program
             Directory.CreateDirectory(output);
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
+            Check("general gallery filters classic generals and pauses the live table", () => CheckGeneralGallery(output));
             Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
             Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
@@ -102,7 +103,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 66 : 65)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 67 : 66)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -121,6 +122,52 @@ internal static class Program
     }
 
     private static MainViewModel NewViewModel(int seed = 721019) => new(false, seed, showSetup: false, saveStore: new MemorySaveStore()) { IsMotionEnabled = false };
+
+    private static void CheckGeneralGallery(string output)
+    {
+        using var vm = new MainViewModel(false, 721019, showSetup: false, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        vm.OpenGeneralGalleryCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Assert(vm.IsGeneralGalleryOpen && vm.GeneralGalleryEntries.Count >= 20, "Gallery did not expose the classic identity roster.");
+        Assert(!((FrameworkElement)window.FindName("TableSurface")).IsEnabled, "Gallery must block table input.");
+        vm.SelectGeneralGalleryFactionCommand.Execute("wu");
+        Assert(vm.GeneralGalleryEntries.Count > 0 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wu"), "Wu filter leaked another faction.");
+        vm.SelectGeneralGalleryFactionCommand.Execute("all");
+        vm.GeneralGallerySearchText = "连营";
+        Assert(vm.GeneralGalleryEntries.Count == 1 && vm.GeneralGalleryEntries[0].Name == "陆逊", "Skill search did not find Lu Xun.");
+        vm.GeneralGallerySearchText = string.Empty;
+        Render(root, 1120, 740, Path.Combine(output, "130-general-gallery.png"));
+
+        vm.CloseGeneralGalleryCommand.Execute(null);
+        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
+        for (var i = 0; i < 20 && !vm.CanEndTurn; i++)
+        {
+            AdvanceToDecision(vm);
+            if (vm.SkillChoices.Count > 0) vm.SelectSkillChoiceCommand.Execute(vm.SkillChoices.Last());
+        }
+        Assert(vm.CanEndTurn, "Gallery lifecycle setup did not reach the human play phase.");
+        vm.EndTurnCommand.Execute(null);
+        if (vm.IsDiscardSelectionPending) ResolveDiscard(vm);
+        Assert(vm.CanStepAi, $"Expected an AI boundary for modal pause verification: status={Engine(vm).State.Status}, phase={Engine(vm).State.Phase}, prompt={vm.PromptText}.");
+        vm.IsAutoAdvance = true;
+        vm.OpenGeneralGalleryCommand.Execute(null);
+        var revision = Engine(vm).Revision;
+        Pump(TimeSpan.FromMilliseconds(750));
+        Assert(Engine(vm).Revision == revision, "AI advanced behind the general gallery.");
+        vm.CloseGeneralGalleryCommand.Execute(null);
+        Pump(TimeSpan.FromMilliseconds(750));
+        Assert(Engine(vm).Revision > revision || vm.HasGameOver, "AI did not resume after closing the general gallery.");
+        vm.IsAutoAdvance = false;
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
+        window.Content = null;
+        window.Close();
+    }
 
     internal static GameEngine Engine(MainViewModel vm) =>
         (GameEngine)typeof(MainViewModel).GetField("_game", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(vm)!;

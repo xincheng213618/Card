@@ -13,6 +13,7 @@ public partial class MainWindow : Window
     private readonly GameAudioController _audio;
     private IInputElement? _focusBeforeGuide;
     private IInputElement? _focusBeforeHistory;
+    private IInputElement? _focusBeforeGeneralGallery;
     public MainWindow() : this(new MainViewModel(useExpandedContent: true, historyStore: new FileMatchHistoryStore(),
         preferencesStore: new FilePlayerPreferencesStore()))
     { }
@@ -83,6 +84,12 @@ public partial class MainWindow : Window
     private bool HandleShortcut(Key key, ModifierKeys modifiers)
     {
         if (DataContext is not MainViewModel viewModel) return false;
+        if (viewModel.IsGeneralGalleryOpen)
+        {
+            if (key != Key.Escape) return false;
+            viewModel.IsGeneralGalleryOpen = false;
+            return true;
+        }
         if (viewModel.IsHistoryOpen && !(key == Key.M && modifiers == ModifierKeys.Control))
         {
             if (key != Key.Escape) return false;
@@ -116,7 +123,7 @@ public partial class MainWindow : Window
             }
             return false;
         }
-        if (viewModel.IsHelpOpen || viewModel.IsLogOpen || viewModel.IsNewGameSetupOpen || viewModel.HasGameOver || viewModel.IsGeneralSelectionPending) return false;
+        if (viewModel.IsHelpOpen || viewModel.IsLogOpen || viewModel.IsNewGameSetupOpen || viewModel.IsGeneralGalleryOpen || viewModel.HasGameOver || viewModel.IsGeneralSelectionPending) return false;
         if (key == Key.Enter && modifiers == ModifierKeys.Control && viewModel.CanEndTurn)
         {
             viewModel.EndTurnCommand.Execute(null);
@@ -147,6 +154,18 @@ public partial class MainWindow : Window
         {
             if (HistoryOverlay.IsVisible) HistoryPanel.FocusHistory();
             else if (_focusBeforeHistory is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
+            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+        }));
+    }
+
+    private void GeneralGalleryOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        if (GeneralGalleryOverlay.IsVisible) _focusBeforeGeneralGallery = Keyboard.FocusedElement;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+        {
+            if (GeneralGalleryOverlay.IsVisible) GeneralGallerySearchBox.Focus();
+            else if (_focusBeforeGeneralGallery is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
             else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }));
     }

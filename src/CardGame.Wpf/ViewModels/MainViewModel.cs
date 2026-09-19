@@ -126,6 +126,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         InitializeTutorial();
         InitializePreferences(preferencesStore);
         NewGame();
+        InitializeGeneralGallery();
         IsNewGameSetupOpen = showSetup;
         _initializing = false;
     }

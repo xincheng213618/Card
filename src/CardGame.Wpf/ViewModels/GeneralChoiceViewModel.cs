@@ -19,3 +19,17 @@ public sealed class GeneralChoiceViewModel
     public bool HasHealthPreview => HealthText.Length > 0;
     public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);
 }
+
+public sealed class GeneralGalleryEntryViewModel
+{
+    public required string GeneralId { get; init; }
+    public required string Name { get; init; }
+    public required string FactionId { get; init; }
+    public required string Kingdom { get; init; }
+    public required string HealthText { get; init; }
+    public required string SkillName { get; init; }
+    public required string SkillDescription { get; init; }
+    public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);
+}
+
+public sealed record GeneralGalleryFactionOption(string Id, string Name);
