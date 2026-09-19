@@ -243,6 +243,14 @@ public static class CardCatalog
                 AiPlayValue: 38,
                 AiResponseValue: 0,
                 HandKeepValue: 42),
+            [CardKind.QilinBow] = new(
+                CardKind.QilinBow,
+                "麒麟弓",
+                "装备牌",
+                "装备至武器槽；攻击范围 5，当你使用杀对目标角色造成伤害时，可弃置其装备区的一张坐骑牌。",
+                AiPlayValue: 40,
+                AiResponseValue: 0,
+                HandKeepValue: 44),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

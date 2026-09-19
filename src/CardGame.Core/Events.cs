@@ -763,6 +763,14 @@ public sealed record IceSwordResolvedEvent(
     int PreventedDamageAmount,
     IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
 
+/// <summary>Public terminal result for Qilin Bow at the Slash damage timing.</summary>
+public sealed record QilinBowResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool Used,
+    int? DiscardedMountCardId) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

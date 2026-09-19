@@ -72,7 +72,8 @@ public enum CardKind
     ZhangbaSerpentSpear,
     CixiongDoubleSwords,
     QinglongCrescentBlade,
-    IceSword
+    IceSword,
+    QilinBow
 }
 
 public enum Suit
@@ -205,7 +206,8 @@ public enum DecisionKind
     StoneAxe,
     CixiongDoubleSwords,
     QinglongCrescentBlade,
-    IceSword
+    IceSword,
+    QilinBow
 }
 
 public enum GangliePunishmentKind

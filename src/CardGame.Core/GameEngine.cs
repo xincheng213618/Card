@@ -66,6 +66,7 @@ public sealed partial class GameEngine
     private CixiongDoubleSwordsResolution? _pendingCixiongDoubleSwords;
     private QinglongCrescentBladeResolution? _pendingQinglongCrescentBlade;
     private IceSwordResolution? _pendingIceSword;
+    private QilinBowResolution? _pendingQilinBow;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
@@ -270,6 +271,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalIceSword =>
         _rulesVersion >= 47 && IsClassicIdentityMode;
+
+    private bool UsesFormalQilinBow =>
+        _rulesVersion >= 48 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -868,6 +872,7 @@ public sealed partial class GameEngine
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
+                DecisionKind.QilinBow or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -1003,6 +1008,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.IceSword)
         {
             return SubmitIceSwordPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.QilinBow)
+        {
+            return SubmitQilinBowPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1651,6 +1661,28 @@ public sealed partial class GameEngine
                 selected,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
             : Reject(CommandErrorCode.InvalidChoice, "寒冰剑必须选择目标当前的一张暗手牌/公开装备，或在首个窗口保留原伤害。");
+    }
+
+    private CommandResult SubmitQilinBowPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingQilinBow is null ||
+            _pendingDecision is not { Kind: DecisionKind.QilinBow })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的麒麟弓触发窗口。");
+        }
+
+        var action = selected.Parameters.GetValueOrDefault("action");
+        var valid = action switch
+        {
+            "qilin-bow-discard" => selected.Targets.Count == 1 && selected.Cards.Count == 1,
+            "qilin-bow-skip" => selected.Targets.Count == 0 && selected.Cards.Count == 0,
+            _ => false
+        };
+        return valid
+            ? Accept(() => HumanQilinBowCore(
+                selected,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
+            : Reject(CommandErrorCode.InvalidChoice, "麒麟弓必须选择目标当前的一张公开坐骑，或选择不发动。");
     }
 
     private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
@@ -3086,6 +3118,16 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.IceSword);
         ResolveIceSwordChoice(selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanQilinBowCore(
+        PromptChoice selected,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.QilinBow);
+        ResolveQilinBowChoice(selected);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -11373,6 +11415,12 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiResponse()
     {
+        if (_pendingQilinBow is not null)
+        {
+            ResolvePendingAiQilinBow();
+            return;
+        }
+
         if (_pendingIceSword is not null)
         {
             ResolvePendingAiIceSword();
@@ -11473,6 +11521,28 @@ public sealed partial class GameEngine
         AddThought(thought);
         var selected = decision.Choices.Single(choice => choice.Id == choiceId);
         ResolveIceSwordChoice(selected);
+        PublishState();
+    }
+
+    private void ResolvePendingAiQilinBow()
+    {
+        var pending = _pendingQilinBow ??
+            throw new InvalidOperationException("AI Qilin Bow response has no active resolution.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.QilinBow } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The pending AI Qilin Bow prompt is inconsistent.");
+        }
+
+        var (choiceId, thought) = _aiBrains[attack.SourceSeat].ChooseQilinBowChoice(
+            CreateSnapshot(attack.SourceSeat),
+            attack.TargetSeat,
+            ++_thoughtSequence);
+        AddThought(thought);
+        var selected = decision.Choices.Single(choice => choice.Id == choiceId);
+        ResolveQilinBowChoice(selected);
         PublishState();
     }
 
@@ -13096,6 +13166,7 @@ public sealed partial class GameEngine
         if (!UsesFormalIceSword ||
             attack.IceSwordAttempted ||
             attack.IsChainPropagation ||
+            attack.IsActiveSkillDamage ||
             attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
             !source.IsAlive ||
             !target.IsAlive ||
@@ -13324,6 +13395,153 @@ public sealed partial class GameEngine
         CompleteAttack(attack);
     }
 
+    private IReadOnlyList<Card> GetQilinBowTargetMounts(PlayerRuntime target) =>
+        GetEquipment(target)
+            .Where(card => EquipmentCatalog.Get(card.Kind).Slot is
+                EquipmentSlot.OffensiveHorse or EquipmentSlot.DefensiveHorse)
+            .ToArray();
+
+    private bool TryBeginQilinBowChoice(AttackResolution attack)
+    {
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        if (!UsesFormalQilinBow ||
+            attack.QilinBowAttempted ||
+            attack.IsChainPropagation ||
+            attack.IsActiveSkillDamage ||
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            !source.IsAlive ||
+            !target.IsAlive ||
+            GetEquipment(source).All(card => card.Kind != CardKind.QilinBow) ||
+            GetQilinBowTargetMounts(target).Count == 0)
+        {
+            return false;
+        }
+
+        if (_pendingQilinBow is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Qilin Bow choices at once.");
+        }
+
+        attack.MarkQilinBowAttempted();
+        _pendingQilinBow = new QilinBowResolution(attack);
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
+        PublishQilinBowChoice(_pendingQilinBow);
+        return true;
+    }
+
+    private void PublishQilinBowChoice(QilinBowResolution pending)
+    {
+        if (!ReferenceEquals(_pendingQilinBow, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.Attack))
+        {
+            throw new InvalidOperationException("The Qilin Bow choice has no current Slash continuation.");
+        }
+
+        var attack = pending.Attack;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var mounts = GetQilinBowTargetMounts(target);
+        if (mounts.Count == 0)
+        {
+            throw new InvalidOperationException("A Qilin Bow prompt requires at least one target mount.");
+        }
+
+        var choices = mounts.Select(card => new PromptChoice(
+            new ChoiceId($"qilin-bow.mount-{card.Id}.resolution-{attack.ResolutionId}"),
+            $"发动【麒麟弓】，弃置 {target.Name} 的【{card.DisplayName}】。",
+            [card.Id],
+            [target.Seat],
+            new Dictionary<string, string>
+            {
+                ["action"] = "qilin-bow-discard",
+                ["target-zone"] = "equipment"
+            })).ToList();
+        choices.Add(new PromptChoice(
+            new ChoiceId($"qilin-bow.skip.resolution-{attack.ResolutionId}"),
+            "不发动【麒麟弓】，继续结算此伤害。",
+            [],
+            [],
+            new Dictionary<string, string> { ["action"] = "qilin-bow-skip" }));
+
+        _pendingDecision = new PendingDecision(
+            DecisionKind.QilinBow,
+            source.Seat,
+            $"你的【{CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName}】将对 {target.Name} 造成伤害，是否发动【麒麟弓】弃置其一张坐骑？",
+            mounts.Select(card => card.Id).ToArray(),
+            [target.Seat],
+            SourceSeat: source.Seat,
+            IncomingCard: attack.EffectiveCardKind)
+        {
+            PromptId = source.IsHuman ? CreatePromptId() : default,
+            IsPrivate = true,
+            TargetSeat = target.Seat,
+            Choices = choices
+        };
+        _status = source.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
+    private void ResolveQilinBowChoice(PromptChoice selected)
+    {
+        var pending = _pendingQilinBow ??
+            throw new InvalidOperationException("There is no Qilin Bow choice to resolve.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.QilinBow } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The Qilin Bow choice is not the current Slash continuation.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var action = selected.Parameters.GetValueOrDefault("action");
+        Card? discardedMount = null;
+        if (action == "qilin-bow-discard" &&
+            selected.Targets.SequenceEqual([target.Seat]) &&
+            selected.Cards.Count == 1)
+        {
+            discardedMount = GetQilinBowTargetMounts(target)
+                .SingleOrDefault(card => card.Id == selected.Cards[0]) ??
+                throw new InvalidOperationException("The selected Qilin Bow mount is no longer available.");
+        }
+        else if (action != "qilin-bow-skip" ||
+                 selected.Cards.Count != 0 ||
+                 selected.Targets.Count != 0)
+        {
+            throw new InvalidOperationException("The Qilin Bow choice is malformed.");
+        }
+
+        _pendingQilinBow = null;
+        ClearPendingDecision();
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        if (discardedMount is not null)
+        {
+            MoveCard(
+                discardedMount,
+                FindOwnedCardLocation(target, discardedMount),
+                CardLocation.DiscardPile,
+                CardMoveReasons.QilinBowDiscard);
+        }
+        QueueGameEvent(new QilinBowResolvedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            Used: discardedMount is not null,
+            DiscardedMountCardId: discardedMount?.Id));
+        AddLog(
+            discardedMount is null ? "EquipmentSkipped" : "EquipmentEffect",
+            discardedMount is null
+                ? $"{source.Name} 未发动【麒麟弓】，继续对 {target.Name} 结算伤害。"
+                : $"{source.Name} 发动【麒麟弓】，弃置 {target.Name} 的【{discardedMount.DisplayName}】。",
+            source.Seat,
+            target.Seat);
+        if (!ApplyAttackDamage(attack))
+        {
+            CompleteAttack(attack);
+        }
+    }
+
     private bool ApplyAttackDamage(AttackResolution attack)
     {
         var source = _players[attack.SourceSeat];
@@ -13336,6 +13554,10 @@ public sealed partial class GameEngine
         var nature = GetDamageNature(attack);
         var amount = FinalizeAttackDamageAmount(attack);
         if (TryBeginIceSwordChoice(attack, amount))
+        {
+            return true;
+        }
+        if (TryBeginQilinBowChoice(attack))
         {
             return true;
         }
@@ -18562,6 +18784,53 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingQilinBow is { } qilinBow)
+        {
+            var qilinAttack = qilinBow.Attack;
+            var source = _players[qilinAttack.SourceSeat];
+            var target = _players[qilinAttack.TargetSeat];
+            var mountIds = GetQilinBowTargetMounts(target).Select(card => card.Id).ToArray();
+            var decision = _pendingDecision;
+            var discardChoices = decision?.Choices.Where(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "qilin-bow-discard").ToArray() ?? [];
+            if (!UsesFormalQilinBow ||
+                !ReferenceEquals(_pendingAttack, qilinAttack) ||
+                !qilinAttack.QilinBowAttempted ||
+                !qilinAttack.DamageAmountFinalized ||
+                qilinAttack.IsChainPropagation ||
+                GetEquipment(source).All(card => card.Kind != CardKind.QilinBow) ||
+                mountIds.Length == 0 ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != qilinAttack.ResolutionId ||
+                cardUse.Step != ResolutionFrameStep.AwaitingResponse ||
+                decision is not { Kind: DecisionKind.QilinBow, IsPrivate: true } ||
+                decision.PlayerSeat != qilinAttack.SourceSeat ||
+                decision.SourceSeat != qilinAttack.SourceSeat ||
+                decision.TargetSeat != qilinAttack.TargetSeat ||
+                !decision.ValidCardIds.SequenceEqual(mountIds) ||
+                !decision.ValidTargetSeats.SequenceEqual([target.Seat]) ||
+                !discardChoices.SelectMany(choice => choice.Cards).SequenceEqual(mountIds) ||
+                discardChoices.Any(choice =>
+                    choice.Cards.Count != 1 || !choice.Targets.SequenceEqual([target.Seat])) ||
+                decision.Choices.Count != mountIds.Length + 1 ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "qilin-bow-skip" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0) != 1)
+            {
+                throw new InvalidOperationException(
+                    "A Qilin Bow choice must retain its private exact-mount prompt before Slash damage.");
+            }
+
+            var expectedQilinStatus = source.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedQilinStatus)
+            {
+                throw new InvalidOperationException("A Qilin Bow prompt status does not match its owner.");
+            }
+        }
+
         if (_pendingCixiongDoubleSwords is { } cixiong)
         {
             var cixiongAttack = cixiong.Attack;
@@ -18979,6 +19248,17 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active Ice Sword choice must retain its Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingQilinBow is { } qilinContinuation)
+            {
+                if (!ReferenceEquals(qilinContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame qilinCardUse ||
+                    qilinCardUse.Id != pendingAttack.ResolutionId ||
+                    qilinCardUse.Step != ResolutionFrameStep.AwaitingResponse)
+                {
+                    throw new InvalidOperationException(
+                        "An active Qilin Bow choice must retain its Slash frame as the stack top.");
                 }
             }
             else if (_pendingCixiongDoubleSwords is { } cixiongContinuation)
@@ -19540,6 +19820,13 @@ public sealed partial class GameEngine
                 "An Ice Sword prompt cannot exist without its Slash continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.QilinBow &&
+            _pendingQilinBow is null)
+        {
+            throw new InvalidOperationException(
+                "A Qilin Bow prompt cannot exist without its Slash continuation.");
+        }
+
         if (_pendingDecision?.Kind is DecisionKind.Feedback or
             DecisionKind.Yiji or
             DecisionKind.Jieming or
@@ -19567,7 +19854,8 @@ public sealed partial class GameEngine
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.QinglongCrescentBlade or
-                DecisionKind.IceSword) &&
+                DecisionKind.IceSword or
+                DecisionKind.QilinBow) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -19645,6 +19933,7 @@ public sealed partial class GameEngine
              _pendingCixiongDoubleSwords is not null ||
              _pendingQinglongCrescentBlade is not null ||
              _pendingIceSword is not null ||
+             _pendingQilinBow is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -19761,7 +20050,8 @@ public sealed partial class GameEngine
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
             DecisionKind.QinglongCrescentBlade or
-            DecisionKind.IceSword) &&
+            DecisionKind.IceSword or
+            DecisionKind.QilinBow) &&
         _pendingDecision.PlayerSeat != _options.HumanSeat;
 
     private bool IsAiNullificationPending() =>
@@ -20641,6 +20931,7 @@ public sealed partial class GameEngine
         public bool LiegongProhibitsDodge { get; private set; }
         public bool CixiongDoubleSwordsResolved { get; private set; }
         public bool IceSwordAttempted { get; private set; }
+        public bool QilinBowAttempted { get; private set; }
         public bool ProhibitsDodge { get; private set; }
         public int RequiredDodgeResponses { get; private set; } = 1;
         public int SuccessfulDodgeResponses { get; private set; }
@@ -20745,6 +21036,16 @@ public sealed partial class GameEngine
             IceSwordAttempted = true;
         }
 
+        public void MarkQilinBowAttempted()
+        {
+            if (QilinBowAttempted)
+            {
+                throw new InvalidOperationException("Qilin Bow has already resolved for this damage event.");
+            }
+
+            QilinBowAttempted = true;
+        }
+
         public void SetChainedTargets(IReadOnlyList<int> targetSeats)
         {
             if (ChainedTargetSeats.Count != 0 || ChainedTargetIndex != 0)
@@ -20829,6 +21130,11 @@ public sealed partial class GameEngine
         public int PreventedDamageAmount { get; } = preventedDamageAmount;
         public bool Activated { get; set; }
         public List<int> DiscardedCardIds { get; } = [];
+    }
+
+    private sealed class QilinBowResolution(AttackResolution attack)
+    {
+        public AttackResolution Attack { get; } = attack;
     }
 
     private sealed class BorrowedSwordResolution(

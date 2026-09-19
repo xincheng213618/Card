@@ -1545,6 +1545,61 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses whether to discard one of the target's public mounts with Qilin
+    /// Bow. No hidden target cards are inspected by this decision.
+    /// </summary>
+    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseQilinBowChoice(
+        GameSnapshot view,
+        int targetSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var prompt = view.PendingDecision is { Kind: DecisionKind.QilinBow } decision
+            ? decision
+            : throw new InvalidOperationException("AI has no Qilin Bow prompt.");
+        var hostility = GetHostility(view, selfRole, target);
+        var publicEquipment = target.Equipment.ToDictionary(card => card.Id);
+        var candidates = prompt.Choices.Select(choice =>
+        {
+            var use = choice.Parameters.GetValueOrDefault("action") == "qilin-bow-discard";
+            var publicCardValue = use &&
+                                  choice.Cards.Count == 1 &&
+                                  publicEquipment.TryGetValue(choice.Cards[0], out var mount)
+                ? CardCatalog.Get(mount.Kind).HandKeepValue
+                : 0;
+            var score = use
+                ? hostility * 1.25d + publicCardValue * .2d
+                : 0d;
+            return new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.Equip,
+                    use ? choice.Cards.Single() : null,
+                    use ? targetSeat : null,
+                    choice.Description),
+                score,
+                use
+                    ? "只根据公开阵营关系与目标装备区的坐骑牌面价值评估弃置收益。"
+                    : "保留目标当前的公开坐骑并继续结算伤害。");
+        }).ToArray();
+        var selectedIndex = candidates
+            .Select((candidate, index) => new { Candidate = candidate, Index = index })
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Index)
+            .First().Index;
+        var selected = prompt.Choices[selectedIndex];
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Description,
+            candidates,
+            $"麒麟弓：目标敌对度 {hostility:0.##}，选择{selected.Description}");
+        return (selected.Id, thought);
+    }
+
+    /// <summary>
     /// Chooses whether to spend one of this seat's private Nullification cards
     /// on the published trick-effect context. The method receives no engine
     /// zone, draw-pile, or other-player hand access; all strategic inputs come

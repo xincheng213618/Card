@@ -82,6 +82,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 2，当你使用杀即将造成伤害且目标有手牌或装备时，可防止此伤害并依次弃置其至多两张牌。",
                 WeaponAttackRange: 2),
+            [CardKind.QilinBow] = new(
+                CardKind.QilinBow,
+                "麒麟弓",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 5，当你使用杀对目标角色造成伤害时，可弃置其装备区的一张坐骑牌。",
+                WeaponAttackRange: 5),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

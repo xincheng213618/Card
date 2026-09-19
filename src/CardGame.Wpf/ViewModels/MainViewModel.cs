@@ -624,7 +624,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.StoneAxe or
                     DecisionKind.CixiongDoubleSwords or
                     DecisionKind.QinglongCrescentBlade or
-                    DecisionKind.IceSword
+                    DecisionKind.IceSword or
+                    DecisionKind.QilinBow
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -654,7 +655,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
             DecisionKind.QinglongCrescentBlade or
-            DecisionKind.IceSword;
+            DecisionKind.IceSword or
+            DecisionKind.QilinBow;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -1773,6 +1775,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Damage(Slash)");
                 EventStack.Add("        AskForEquipment(IceSword)");
+            }
+            else if (pending.Kind == DecisionKind.QilinBow)
+            {
+                EventStack.Add("      Damage(Slash)");
+                EventStack.Add("        AskForEquipment(QilinBow)");
             }
             else if (pending.Kind is
                 DecisionKind.Feedback or
