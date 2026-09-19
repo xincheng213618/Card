@@ -31,3 +31,16 @@ public sealed record ProgramJudgmentTriggerResolvedEvent(
     string TriggerId,
     int OwnerSeat,
     bool Activated) : IGameEvent;
+
+public sealed record ProgramJudgmentReplacementResolvedEvent(
+    long JudgmentFrameId,
+    string SkillId,
+    string TriggerId,
+    int OwnerSeat,
+    int SubjectSeat,
+    bool Activated,
+    int OldCardId,
+    int? ReplacementCardId,
+    SkillProgramOldJudgmentCardDestination OldCardDestination,
+    int DrawnCards,
+    int RecoveredHp) : IGameEvent;

@@ -12,10 +12,11 @@ public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, Hp
 public enum SkillProgramTargetKind { OtherLiving, AnyLiving, OtherWounded, AnyWounded }
 public enum SkillProgramEffectOp { Draw, Recover, LoseHp, GiveSelected, DiscardSelected }
 public enum SkillProgramEffectTarget { Owner, SelectedTarget }
-public enum SkillProgramTriggerWindow { CardUseTargetsFinalized, CardResponseAccepted, JudgmentFinalized }
-public enum SkillProgramTriggerEffectOp { Draw, Recover, ObtainOpponentHandCard }
+public enum SkillProgramTriggerWindow { CardUseTargetsFinalized, CardResponseAccepted, JudgmentReplacing, JudgmentFinalized }
+public enum SkillProgramTriggerEffectOp { Draw, Recover, ObtainOpponentHandCard, ReplaceJudgment }
 public enum SkillProgramTriggerEffectTarget { Owner, Opponent }
-public enum SkillProgramTriggerSubject { Owner }
+public enum SkillProgramTriggerSubject { Owner, Any }
+public enum SkillProgramOldJudgmentCardDestination { DiscardPile, OwnerHand }
 
 public sealed class SkillProgramCondition
 {
@@ -101,12 +102,23 @@ public sealed class SkillProgramActivation
 public sealed class SkillProgramTriggerEffect
 {
     internal SkillProgramTriggerEffect(SkillProgramTriggerEffectOp op, SkillProgramTriggerEffectTarget target,
-        int amount, SkillProgramCondition condition) =>
-        (Op, Target, Amount, Condition) = (op, target, amount, condition);
+        int amount, SkillProgramCondition condition, IReadOnlyList<CardZoneKind> zones,
+        IReadOnlyList<Suit> suits, SkillProgramOldJudgmentCardDestination? oldCardDestination,
+        IReadOnlyList<Suit> replacementSuits, int minimumReplacementRank, int maximumReplacementRank) =>
+        (Op, Target, Amount, Condition, Zones, Suits, OldCardDestination, ReplacementSuits,
+            MinimumReplacementRank, MaximumReplacementRank) =
+        (op, target, amount, condition, zones, suits, oldCardDestination, replacementSuits,
+            minimumReplacementRank, maximumReplacementRank);
     public SkillProgramTriggerEffectOp Op { get; }
     public SkillProgramTriggerEffectTarget Target { get; }
     public int Amount { get; }
     public SkillProgramCondition Condition { get; }
+    public IReadOnlyList<CardZoneKind> Zones { get; }
+    public IReadOnlyList<Suit> Suits { get; }
+    public SkillProgramOldJudgmentCardDestination? OldCardDestination { get; }
+    public IReadOnlyList<Suit> ReplacementSuits { get; }
+    public int MinimumReplacementRank { get; }
+    public int MaximumReplacementRank { get; }
 }
 
 public sealed class SkillProgramTrigger
@@ -214,14 +226,15 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(root, "rules");
         CheckProperties(root, "rules", "schemaVersion", "skills");
-        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3);
+        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4);
         var runtimeVersion = schemaVersion switch
         {
             1 => RuntimeVersion,
             2 => "skill-program-v2",
-            _ => "skill-program-v3"
+            3 => "skill-program-v3",
+            _ => "skill-program-v4"
         };
-        var minimumRulesVersion = schemaVersion switch { 1 => 79, 2 => 80, _ => 81 };
+        var minimumRulesVersion = schemaVersion switch { 1 => 79, 2 => 80, 3 => 81, _ => 82 };
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
         var result = new Dictionary<string, SkillProgram>(StringComparer.Ordinal);
@@ -373,8 +386,17 @@ public sealed class SkillProgramCatalog
         RequireObject(node, path);
         CheckProperties(node, path, schemaVersion == 2
             ? ["id", "window", "sourceSkillId", "sourceViewAsId", "optional", "effects"]
-            : ["id", "window", "sourceSkillId", "sourceViewAsId", "subject", "suits",
-                "minimumRank", "maximumRank", "excludedReasons", "optional", "effects"]);
+            : ["id",
+                "window",
+                "sourceSkillId",
+                "sourceViewAsId",
+                "subject",
+                "suits",
+                "minimumRank",
+                "maximumRank",
+                "excludedReasons",
+                "optional",
+                "effects"]);
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
         string? sourceSkillId = null;
@@ -390,12 +412,24 @@ public sealed class SkillProgramCatalog
             if (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _))
                 Fail(path, "judgmentFinalized does not accept card-conversion source fields");
             subject = EnumValue<SkillProgramTriggerSubject>(node, "subject", path);
+            if (subject != SkillProgramTriggerSubject.Owner)
+                Fail(path + ".subject", "judgmentFinalized currently supports only owner judgments");
             suits = EnumArray<Suit>(node, "suits", path);
             if (suits.Count == 0) Fail(path + ".suits", "must contain at least one final suit");
             minimumRank = RequiredInt(node, "minimumRank", path);
             maximumRank = RequiredInt(node, "maximumRank", path);
             if (minimumRank is < 1 or > 13 || maximumRank is < 1 or > 13 || minimumRank > maximumRank)
                 Fail(path, "judgment rank bounds must satisfy 1 <= minimumRank <= maximumRank <= 13");
+            excludedReasons = StringArray(node, "excludedReasons", path);
+        }
+        else if (window == SkillProgramTriggerWindow.JudgmentReplacing)
+        {
+            if (schemaVersion < 4) Fail(path + ".window", "judgmentReplacing requires schema version 4");
+            if (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _) ||
+                node.TryGetProperty("suits", out _) || node.TryGetProperty("minimumRank", out _) ||
+                node.TryGetProperty("maximumRank", out _))
+                Fail(path, "judgmentReplacing accepts subject and excludedReasons, not card-action or final-result fields");
+            subject = EnumValue<SkillProgramTriggerSubject>(node, "subject", path);
             excludedReasons = StringArray(node, "excludedReasons", path);
         }
         else
@@ -419,20 +453,86 @@ public sealed class SkillProgramCatalog
         }
         var optional = RequiredBool(node, "optional", path);
         var effects = ReadArray(node, "effects", path,
-            (effect, effectPath) => ParseTriggerEffect(effect, effectPath, window));
+            (effect, effectPath) => ParseTriggerEffect(effect, effectPath, window, schemaVersion));
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
+        if (window == SkillProgramTriggerWindow.JudgmentReplacing &&
+            (effects[0].Op != SkillProgramTriggerEffectOp.ReplaceJudgment ||
+             effects.Skip(1).Any(effect => effect.Op is not
+                 (SkillProgramTriggerEffectOp.Draw or SkillProgramTriggerEffectOp.Recover))))
+            Fail(path + ".effects",
+                "judgmentReplacing requires replaceJudgment first, followed only by draw or recover effects");
         return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
             minimumRank, maximumRank, excludedReasons, optional, effects);
     }
 
     private static SkillProgramTriggerEffect ParseTriggerEffect(
-        JsonElement node, string path, SkillProgramTriggerWindow window)
+        JsonElement node, string path, SkillProgramTriggerWindow window, int schemaVersion)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "op", "target", "amount", "condition");
+        CheckProperties(node, path, schemaVersion < 4
+            ? ["op", "target", "amount", "condition"]
+            : ["op",
+                "target",
+                "amount",
+                "condition",
+                "zones",
+                "suits",
+                "oldCardDestination",
+                "replacementSuits",
+                "minimumReplacementRank",
+                "maximumReplacementRank"]);
         var op = EnumValue<SkillProgramTriggerEffectOp>(node, "op", path);
         var target = EnumValue<SkillProgramTriggerEffectTarget>(node, "target", path);
-        var amount = PositiveInt(node, "amount", path);
+        var zones = (IReadOnlyList<CardZoneKind>)Array.Empty<CardZoneKind>();
+        var suits = (IReadOnlyList<Suit>)Array.Empty<Suit>();
+        SkillProgramOldJudgmentCardDestination? oldCardDestination = null;
+        var replacementSuits = (IReadOnlyList<Suit>)Array.Empty<Suit>();
+        var minimumReplacementRank = 1;
+        var maximumReplacementRank = 13;
+        var amount = 0;
+        if (op == SkillProgramTriggerEffectOp.ReplaceJudgment)
+        {
+            if (window != SkillProgramTriggerWindow.JudgmentReplacing)
+                Fail(path + ".op", "replaceJudgment is supported only in judgmentReplacing");
+            if (node.TryGetProperty("amount", out _) || node.TryGetProperty("replacementSuits", out _) ||
+                node.TryGetProperty("minimumReplacementRank", out _) ||
+                node.TryGetProperty("maximumReplacementRank", out _))
+                Fail(path, "replaceJudgment does not accept amount or replacement-result filters");
+            if (target != SkillProgramTriggerEffectTarget.Owner)
+                Fail(path + ".target", "replaceJudgment requires target owner");
+            zones = EnumArray<CardZoneKind>(node, "zones", path);
+            if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
+                Fail(path + ".zones", "replaceJudgment requires hand and/or equipment zones");
+            suits = EnumArray<Suit>(node, "suits", path);
+            if (suits.Count == 0) Fail(path + ".suits", "replaceJudgment requires at least one effective suit");
+            oldCardDestination = EnumValue<SkillProgramOldJudgmentCardDestination>(
+                node, "oldCardDestination", path);
+        }
+        else
+        {
+            amount = PositiveInt(node, "amount", path);
+            if (node.TryGetProperty("zones", out _) || node.TryGetProperty("suits", out _) ||
+                node.TryGetProperty("oldCardDestination", out _))
+                Fail(path, "only replaceJudgment accepts card-selection and old-card fields");
+            if (window == SkillProgramTriggerWindow.JudgmentReplacing)
+            {
+                if (op is not (SkillProgramTriggerEffectOp.Draw or SkillProgramTriggerEffectOp.Recover) ||
+                    target != SkillProgramTriggerEffectTarget.Owner)
+                    Fail(path, "judgmentReplacing follow-up effects support only owner draw or recover");
+                replacementSuits = EnumArray<Suit>(node, "replacementSuits", path);
+                if (replacementSuits.Count == 0)
+                    Fail(path + ".replacementSuits", "must contain at least one committed replacement suit");
+                minimumReplacementRank = RequiredInt(node, "minimumReplacementRank", path);
+                maximumReplacementRank = RequiredInt(node, "maximumReplacementRank", path);
+                if (minimumReplacementRank is < 1 or > 13 || maximumReplacementRank is < 1 or > 13 ||
+                    minimumReplacementRank > maximumReplacementRank)
+                    Fail(path, "replacement rank bounds must satisfy 1 <= minimum <= maximum <= 13");
+            }
+            else if (node.TryGetProperty("replacementSuits", out _) ||
+                     node.TryGetProperty("minimumReplacementRank", out _) ||
+                     node.TryGetProperty("maximumReplacementRank", out _))
+                Fail(path, "replacement-result filters are supported only in judgmentReplacing");
+        }
         if (window == SkillProgramTriggerWindow.JudgmentFinalized &&
             (op == SkillProgramTriggerEffectOp.ObtainOpponentHandCard ||
              target != SkillProgramTriggerEffectTarget.Owner))
@@ -441,39 +541,43 @@ public sealed class SkillProgramCatalog
         {
             if (amount > 20) Fail(path + ".amount", "draw and recover amount must be between 1 and 20");
         }
-        else if (amount != 1 || target != SkillProgramTriggerEffectTarget.Owner)
+        else if (op == SkillProgramTriggerEffectOp.ObtainOpponentHandCard &&
+                 (amount != 1 || target != SkillProgramTriggerEffectTarget.Owner))
             Fail(path, "obtainOpponentHandCard requires amount 1 and target owner");
-        return new SkillProgramTriggerEffect(op, target, amount, OptionalCondition(node, path));
+        return new SkillProgramTriggerEffect(op, target, amount, OptionalCondition(node, path),
+            zones, suits, oldCardDestination, replacementSuits,
+            minimumReplacementRank, maximumReplacementRank);
     }
 
     private static void ValidateTriggerSources(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var owner in programs.Values)
-        foreach (var trigger in owner.Triggers)
-        {
-            var path = $"skill '{owner.Id}'.triggers.{trigger.Id}";
-            if (trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized) continue;
-            var sourceSkillId = trigger.SourceSkillId;
-            if (sourceSkillId is null)
-                Fail(path + ".sourceSkillId", $"references unknown skill '{trigger.SourceSkillId}'");
-            if (!programs.TryGetValue(sourceSkillId!, out var source))
-                Fail(path + ".sourceSkillId", $"references unknown skill '{sourceSkillId}'");
-            if (source.ViewAs.Count == 0)
-                Fail(path + ".sourceSkillId", $"skill '{trigger.SourceSkillId}' has no viewAs rules");
-            var candidates = trigger.SourceViewAsId is null
-                ? source.ViewAs
-                : source.ViewAs.Where(rule => rule.Id == trigger.SourceViewAsId).ToArray();
-            if (trigger.SourceViewAsId is not null && candidates.Count == 0)
-                Fail(path + ".sourceViewAsId", $"references unknown viewAs '{trigger.SourceViewAsId}'");
-            var supported = trigger.Window switch
+            foreach (var trigger in owner.Triggers)
             {
-                SkillProgramTriggerWindow.CardUseTargetsFinalized => candidates.Any(rule => rule.ForPlay),
-                SkillProgramTriggerWindow.CardResponseAccepted => candidates.Any(rule => rule.ForResponse),
-                _ => false
-            };
-            if (!supported)
-                Fail(path, $"source viewAs does not support window '{Camel(trigger.Window)}'");
-        }
+                var path = $"skill '{owner.Id}'.triggers.{trigger.Id}";
+                if (trigger.Window is SkillProgramTriggerWindow.JudgmentFinalized or
+                    SkillProgramTriggerWindow.JudgmentReplacing) continue;
+                var sourceSkillId = trigger.SourceSkillId;
+                if (sourceSkillId is null)
+                    Fail(path + ".sourceSkillId", $"references unknown skill '{trigger.SourceSkillId}'");
+                if (!programs.TryGetValue(sourceSkillId!, out var source))
+                    Fail(path + ".sourceSkillId", $"references unknown skill '{sourceSkillId}'");
+                if (source.ViewAs.Count == 0)
+                    Fail(path + ".sourceSkillId", $"skill '{trigger.SourceSkillId}' has no viewAs rules");
+                var candidates = trigger.SourceViewAsId is null
+                    ? source.ViewAs
+                    : source.ViewAs.Where(rule => rule.Id == trigger.SourceViewAsId).ToArray();
+                if (trigger.SourceViewAsId is not null && candidates.Count == 0)
+                    Fail(path + ".sourceViewAsId", $"references unknown viewAs '{trigger.SourceViewAsId}'");
+                var supported = trigger.Window switch
+                {
+                    SkillProgramTriggerWindow.CardUseTargetsFinalized => candidates.Any(rule => rule.ForPlay),
+                    SkillProgramTriggerWindow.CardResponseAccepted => candidates.Any(rule => rule.ForResponse),
+                    _ => false
+                };
+                if (!supported)
+                    Fail(path, $"source viewAs does not support window '{Camel(trigger.Window)}'");
+            }
     }
 
     private static string Camel<T>(T value) where T : struct, Enum

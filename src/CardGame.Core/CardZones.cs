@@ -155,6 +155,8 @@ public static class CardMoveReasons
     public static CardMoveReason GanglieDiscard { get; } = new("skill.ganglie.discard");
     public static CardMoveReason GuicaiReplace { get; } = new("skill.guicai.replace");
     public static CardMoveReason GuidaoReplace { get; } = new("skill.guidao.replace");
+    public static CardMoveReason ProgramJudgmentReplace { get; } = new("skill-program.judgment.replace");
+    public static CardMoveReason ProgramJudgmentOldCard { get; } = new("skill-program.judgment.old-card");
     public static CardMoveReason HuangtianGive { get; } = new("skill.huangtian.give-card");
     public static CardMoveReason YinghunDraw { get; } = new("skill.yinghun.draw");
     public static CardMoveReason YinghunDiscard { get; } = new("skill.yinghun.discard");

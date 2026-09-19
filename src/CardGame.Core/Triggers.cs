@@ -17,7 +17,13 @@ public sealed record JudgmentTriggerCandidate(
     int OwnerSeat,
     SkillKind Skill,
     string CandidateId,
-    int Priority = 0);
+    int Priority = 0,
+    string? ProgramId = null,
+    string? ProgramTriggerId = null,
+    string? GameplayHash = null)
+{
+    public bool IsProgram => ProgramId is not null;
+}
 
 /// <summary>
 /// Stable ordering for damage-trigger candidates. The current slice collects
@@ -123,6 +129,18 @@ public static class JudgmentTriggerOrdering
         {
             throw new ArgumentException(
                 "A judgment trigger candidate must have a stable candidate id.",
+                nameof(candidates));
+        }
+
+        if (materialized.Any(candidate =>
+                candidate.IsProgram !=
+                (candidate.ProgramTriggerId is not null && candidate.GameplayHash is not null) ||
+                !candidate.IsProgram &&
+                (candidate.ProgramTriggerId is not null || candidate.GameplayHash is not null) ||
+                candidate.IsProgram && candidate.Skill != SkillKind.None))
+        {
+            throw new ArgumentException(
+                "A configured judgment candidate must retain its program, trigger and gameplay hash.",
                 nameof(candidates));
         }
 
