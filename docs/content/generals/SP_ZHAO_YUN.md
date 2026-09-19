@@ -29,7 +29,7 @@
 - [三国杀 OL SP 赵云页](https://www.sanguosha.com/hero/108)给出龙胆与冲阵的当前简明文本。
 - [一将成名官网 SP 赵云页](https://x.sanguosha.com/hero/524.html)明确冲阵是发动龙胆使用或打出手牌时“立即”取得对方一张手牌。
 - [三国杀 OL 官方冲阵 FAQ](https://www.sanguosha.com/news/20161215_4752_4616)定义了“对方”、插入时点及流离、无双、享乐、猛进、雷击等顺序。
-- [官方军争 FAQ 打印版](https://ks3-cn-beijing.ksyun.com/attachment/74ad98665ac744c138ba8c988d85d149)明确经过武圣、龙胆、武神等一次牌名转换的【杀】不能再发动朱雀羽扇；[OL 赵云突破公告](https://www.sanguosha.com/news/20140725_3048_1013)也明确赵云不能用朱雀羽扇把【闪】直接当【火杀】使用。
+- [OL 赵云突破公告](https://www.sanguosha.com/news/20140725_3048_1013)明确赵云不能用朱雀羽扇把【闪】直接当【火杀】使用；[水木社区玩家整理的早期 FAQ 汇编](https://ks3-cn-beijing.ksyun.com/attachment/74ad98665ac744c138ba8c988d85d149)记录了经过武圣、龙胆、武神等一次牌名转换的【杀】不能再发动朱雀羽扇，仅作为旧规则交叉核对，不冒充官方发布物。
 - [BWIKI SP 赵云](https://wiki.biligame.com/sgs/SP%E8%B5%B5%E4%BA%91)与[冲阵](https://wiki.biligame.com/sgs/%E5%86%B2%E9%98%B5)用于可复现的结构化版本核对。
 
 仓库同步快照：
