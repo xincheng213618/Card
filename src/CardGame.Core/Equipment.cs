@@ -163,6 +163,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.DefensiveHorse,
                 "装备至防御坐骑槽；其他角色到你的战斗距离 +1。",
                 IncomingDistanceModifier: 1),
+            [CardKind.Hualiu] = new(
+                CardKind.Hualiu,
+                "骅骝",
+                EquipmentSlot.DefensiveHorse,
+                "装备至防御坐骑槽；其他角色到你的战斗距离 +1。",
+                IncomingDistanceModifier: 1),
             [CardKind.JadeSeal] = new(
                 CardKind.JadeSeal,
                 "玉玺",

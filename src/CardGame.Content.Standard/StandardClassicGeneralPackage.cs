@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 37, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 38, 0))
     {
     }
 
@@ -56,12 +56,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 34, 0) &&
             version != new Version(1, 35, 0) &&
             version != new Version(1, 36, 0) &&
-            version != new Version(1, 37, 0))
+            version != new Version(1, 37, 0) &&
+            version != new Version(1, 38, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.37.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.38.0.");
         }
 
         _version = version;
@@ -283,6 +284,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     "classic:zhaohuangfeidian", "爪黄飞电", "装备牌",
                     "装备至防御坐骑槽；其他角色到你的战斗距离 +1。", CardKind.Zhaohuangfeidian));
             }
+            if (_version >= new Version(1, 38, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    "classic:hualiu", "骅骝", "装备牌",
+                    "装备至防御坐骑槽；其他角色到你的战斗距离 +1。", CardKind.Hualiu));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -364,12 +371,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 classicDeckCards.Add(new ContentDeckCardCount("classic:wooden-ox", 1));
             }
 
-            var physicalCards = _version >= new Version(1, 36, 0)
+            var physicalCards = _version >= new Version(1, 38, 0)
+                ? CreateMilitaryPhysicalDeck()
+                : _version >= new Version(1, 36, 0)
                 ? CreateStandardPhysicalDeck(_version >= new Version(1, 37, 0))
                 : null;
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 37, 0)
+                Name: _version >= new Version(1, 38, 0)
+                    ? "经典军争 160 张逐张牌堆"
+                    : _version >= new Version(1, 37, 0)
                     ? "经典标准 108 张逐张牌堆（六匹实名坐骑）"
                     : _version >= new Version(1, 36, 0)
                     ? "经典标准 108 张逐张牌堆（含 4 张 EX）"
@@ -974,6 +985,49 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ("standard:slash", 11), ("standard:slash", 11),
             ("classic:borrowed-sword", 12), ("standard:nullification", 12),
             ("classic:borrowed-sword", 13), ("standard:nullification", 13));
+        return cards;
+
+        void Add(Suit suit, params (string Id, int Rank)[] entries)
+        {
+            cards.AddRange(entries.Select(entry => new ContentDeckPhysicalCard(entry.Id, suit, entry.Rank)));
+        }
+    }
+
+    private static IReadOnlyList<ContentDeckPhysicalCard> CreateMilitaryPhysicalDeck()
+    {
+        var cards = CreateStandardPhysicalDeck(distinctHorseNames: true).ToList();
+        Add(Suit.Heart,
+            ("standard:nullification", 1), ("standard:fire_attack", 2),
+            ("standard:fire_attack", 3), ("standard:fire_slash", 4),
+            ("standard:peach", 5), ("standard:peach", 6),
+            ("standard:fire_slash", 7), ("standard:dodge", 8),
+            ("standard:dodge", 9), ("standard:fire_slash", 10),
+            ("standard:dodge", 11), ("standard:dodge", 12),
+            ("standard:nullification", 13));
+        Add(Suit.Club,
+            ("classic:silver-lion", 1), ("classic:tengjia", 2),
+            ("standard:alcohol", 3), ("standard:supply_shortage", 4),
+            ("standard:thunder_slash", 5), ("standard:thunder_slash", 6),
+            ("standard:thunder_slash", 7), ("standard:thunder_slash", 8),
+            ("standard:alcohol", 9), ("standard:iron_chain", 10),
+            ("standard:iron_chain", 11), ("standard:iron_chain", 12),
+            ("standard:iron_chain", 13));
+        Add(Suit.Spade,
+            ("classic:guding-blade", 1), ("classic:tengjia", 2),
+            ("standard:alcohol", 3), ("standard:thunder_slash", 4),
+            ("standard:thunder_slash", 5), ("standard:thunder_slash", 6),
+            ("standard:thunder_slash", 7), ("standard:thunder_slash", 8),
+            ("standard:alcohol", 9), ("standard:supply_shortage", 10),
+            ("standard:iron_chain", 11), ("standard:iron_chain", 12),
+            ("standard:nullification", 13));
+        Add(Suit.Diamond,
+            ("classic:zhuque-fan", 1), ("standard:peach", 2),
+            ("standard:peach", 3), ("standard:fire_slash", 4),
+            ("standard:fire_slash", 5), ("standard:dodge", 6),
+            ("standard:dodge", 7), ("standard:dodge", 8),
+            ("standard:alcohol", 9), ("standard:dodge", 10),
+            ("standard:dodge", 11), ("standard:fire_attack", 12),
+            ("classic:hualiu", 13));
         return cards;
 
         void Add(Suit suit, params (string Id, int Rank)[] entries)

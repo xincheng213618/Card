@@ -219,6 +219,14 @@ public static class CardCatalog
                 AiPlayValue: 24,
                 AiResponseValue: 0,
                 HandKeepValue: 34),
+            [CardKind.Hualiu] = new(
+                CardKind.Hualiu,
+                "骅骝",
+                "装备牌",
+                "装备至防御坐骑槽；其他角色到你的战斗距离 +1。",
+                AiPlayValue: 24,
+                AiResponseValue: 0,
+                HandKeepValue: 34),
             [CardKind.JadeSeal] = new(
                 CardKind.JadeSeal,
                 "玉玺",

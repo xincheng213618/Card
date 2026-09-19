@@ -83,7 +83,8 @@ public enum CardKind
     Dawan,
     Zixing,
     Dilu,
-    Zhaohuangfeidian
+    Zhaohuangfeidian,
+    Hualiu
 }
 
 public enum Suit

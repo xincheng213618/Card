@@ -64,6 +64,7 @@ public sealed class CardViewModel : ObservableObject
         "紫骍" => new SolidColorBrush(Color.FromRgb(102, 70, 126)),
         "的卢" => new SolidColorBrush(Color.FromRgb(126, 118, 92)),
         "爪黄飞电" => new SolidColorBrush(Color.FromRgb(174, 128, 48)),
+        "骅骝" => new SolidColorBrush(Color.FromRgb(112, 92, 70)),
         "玉玺" => new SolidColorBrush(Color.FromRgb(166, 126, 45)),
         "无懈可击" => new SolidColorBrush(Color.FromRgb(77, 104, 116)),
         "铁索连环" => new SolidColorBrush(Color.FromRgb(122, 91, 66)),

@@ -54,7 +54,7 @@ var tests = new (string Name, Action Body)[]
     ("standard deck content is deterministic and balanced", StandardDeckContent),
     ("standard package builds an immutable isolated registry", StandardContentRegistryBuilds),
     ("physical deck recipes preserve exact suit, rank and content hashing", PhysicalDeckRecipeChecks.ExactSuitRankValidationAndHashing),
-    ("classic standard deck matches the official 108-card physical table", PhysicalDeckRecipeChecks.ClassicStandardDeckMatchesOfficial108CardTable),
+    ("classic standard and military decks match their official physical tables", PhysicalDeckRecipeChecks.ClassicPhysicalDecksMatchOfficialTables),
     ("classic identity roster is opt-in, formal and replay-versioned", ClassicGeneralChecks.ContentContract),
     ("classic identity applies base HP, multiple skills and legacy replay boundaries", ClassicGeneralChecks.SetupHealthAndReplay),
     ("classic Huang Gai repeats formal Kujin and replays", ClassicGeneralChecks.FormalKujinFlow),
@@ -590,7 +590,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(44, CardCatalog.ImplementedCards.Count);
+    Equal(45, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -615,6 +615,7 @@ static void CardCatalogDefinitions()
     Equal("紫骍", CardCatalog.Get(CardKind.Zixing).DisplayName);
     Equal("的卢", CardCatalog.Get(CardKind.Dilu).DisplayName);
     Equal("爪黄飞电", CardCatalog.Get(CardKind.Zhaohuangfeidian).DisplayName);
+    Equal("骅骝", CardCatalog.Get(CardKind.Hualiu).DisplayName);
     Equal("玉玺", CardCatalog.Get(CardKind.JadeSeal).DisplayName);
     Equal("青釭剑", CardCatalog.Get(CardKind.QinggangSword).DisplayName);
     Equal("无懈可击", CardCatalog.Get(CardKind.Nullification).DisplayName);
@@ -4095,7 +4096,7 @@ static void PublicTargetCardFlow()
 
 static void EquipmentFlow()
 {
-    Equal(23, EquipmentCatalog.Implemented.Count);
+    Equal(24, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
     Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);
@@ -4133,6 +4134,8 @@ static void EquipmentFlow()
     Equal(1, EquipmentCatalog.Get(CardKind.Dilu).IncomingDistanceModifier);
     Equal(EquipmentSlot.DefensiveHorse, EquipmentCatalog.Get(CardKind.Zhaohuangfeidian).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Zhaohuangfeidian).IncomingDistanceModifier);
+    Equal(EquipmentSlot.DefensiveHorse, EquipmentCatalog.Get(CardKind.Hualiu).Slot);
+    Equal(1, EquipmentCatalog.Get(CardKind.Hualiu).IncomingDistanceModifier);
     Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.JadeSeal).Slot);
     Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.WoodenOx).Slot);
 

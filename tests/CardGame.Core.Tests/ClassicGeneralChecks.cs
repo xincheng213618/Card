@@ -52,7 +52,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.37.0"]),
+                "standard-classic-generals@1.38.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -281,12 +281,12 @@ internal static class ClassicGeneralChecks
                 woodenOxClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105 &&
                 woodenOxClassic.Decks["classic:standard-deck"].PhysicalCards is null &&
                 classic.Decks["classic:standard-deck"].Cards.Count == 0 &&
-                classic.Decks["classic:standard-deck"].PhysicalCards?.Count == 108 &&
+                classic.Decks["classic:standard-deck"].PhysicalCards?.Count == 160 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The current classic registry must use the exact 108-card standard deck while 1.35 retains its 105-card hybrid recipe.");
+            "The current classic registry must use the exact 160-card military deck while 1.35 retains its 105-card hybrid recipe.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 

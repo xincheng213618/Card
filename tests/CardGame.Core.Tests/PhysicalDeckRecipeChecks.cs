@@ -4,9 +4,9 @@ using System.Reflection;
 
 internal static class PhysicalDeckRecipeChecks
 {
-    public static void ClassicStandardDeckMatchesOfficial108CardTable()
+    public static void ClassicPhysicalDecksMatchOfficialTables()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 37, 0));
         var deck = registry.Decks["classic:standard-deck"];
         var cards = deck.PhysicalCards ?? throw new InvalidOperationException(
             "The current classic deck must use a physical-card recipe.");
@@ -71,7 +71,31 @@ internal static class PhysicalDeckRecipeChecks
                     card.CardDefinitionId == "standard:defensive_horse") == 3,
             "The 1.36 physical deck must retain its generic mount identities and fingerprint boundary.");
 
+        var militaryRegistry = StandardContentRegistry.CreateWithClassicGenerals();
+        var militaryCards = militaryRegistry.Decks["classic:standard-deck"].PhysicalCards ?? [];
+        var expansion = militaryCards.Skip(108).ToArray();
+        Require(militaryCards.Count == 160 && expansion.Length == 52 &&
+                Enum.GetValues<Suit>().All(suit => expansion.Count(card => card.Suit == suit) == 13) &&
+                Enum.GetValues<Suit>().All(suit => Enumerable.Range(1, 13).All(rank =>
+                    expansion.Count(card => card.Suit == suit && card.Rank == rank) == 1)),
+            "The current classic deck must append one military card for every suit/rank to the 108-card standard deck.");
+        var expansionCounts = expansion.GroupBy(card => card.CardDefinitionId)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+        Require(ExpansionCount("standard:fire_slash") == 5 &&
+                ExpansionCount("standard:thunder_slash") == 9 &&
+                ExpansionCount("standard:dodge") == 9 &&
+                ExpansionCount("standard:peach") == 4 &&
+                ExpansionCount("standard:alcohol") == 5 &&
+                ExpansionCount("standard:nullification") == 3 &&
+                ExpansionCount("standard:fire_attack") == 3 &&
+                ExpansionCount("standard:supply_shortage") == 2 &&
+                ExpansionCount("standard:iron_chain") == 6 &&
+                expansion.Count(card => militaryRegistry.Cards[card.CardDefinitionId].CategoryName == "装备牌") == 6 &&
+                expansion.Single(card => card.Suit == Suit.Diamond && card.Rank == 13).CardDefinitionId == "classic:hualiu",
+            "The 52-card military expansion must match its exact card-name distribution and diamond-K Hualiu.");
+
         int Count(string id) => counts.GetValueOrDefault(id);
+        int ExpansionCount(string id) => expansionCounts.GetValueOrDefault(id);
         bool Has(string id, Suit suit, int rank) => cards.Any(card =>
             card.CardDefinitionId == id && card.Suit == suit && card.Rank == rank);
         CardKind RuntimeKind(Suit suit, int rank, EquipmentSlot slot) => runtimeCards.Single(card =>

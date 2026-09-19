@@ -17,8 +17,8 @@ internal static class BorrowedSwordChecks
                     action.Kind != LegalActionKind.BorrowedSword),
             "Rules v42 must enable Borrowed Sword while rules v41 preserves the same checkpoint without that action.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var boundary = BorrowedSwordScenario.FindHumanOwnerResponse();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 37, 0));
+        var boundary = BorrowedSwordScenario.FindHumanOwnerResponse(packageVersion: new Version(1, 37, 0));
         var prompt = boundary.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword fixture lost its private response prompt.");
         var sourceSeat = prompt.SourceSeat ??
