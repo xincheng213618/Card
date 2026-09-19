@@ -1125,6 +1125,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
+        IsIdentityRevealOpen = false;
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new CardGame.Core.SelectGeneralCommand(

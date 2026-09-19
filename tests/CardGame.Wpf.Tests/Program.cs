@@ -39,6 +39,7 @@ internal static class Program
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general gallery filters classic generals and pauses the live table", () => CheckGeneralGallery(output));
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
+            Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));
             Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
             Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
@@ -104,7 +105,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 68 : 67)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 69 : 68)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -200,6 +201,50 @@ internal static class Program
         vm.ConfirmGeneralChoiceCommand.Execute(null);
         Assert(Engine(vm).Revision > revision && !vm.IsGeneralSelectionPending && vm.SelectedGeneralChoice is null,
             "Explicit confirmation did not submit exactly one general choice.");
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
+        window.Content = null;
+        window.Close();
+    }
+
+    private static void CheckIdentityReveal(string output)
+    {
+        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "identity:classic-5");
+        vm.SelectedStartingRole = vm.StartingRoles.Single(role => role.Role == Role.Rebel);
+        vm.StartNewGameCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        var revision = Engine(vm).Revision;
+        Assert(vm.IsIdentityRevealOpen && vm.IdentityRevealTitle == "身 份 揭 示" && vm.IdentityRevealRole == "反贼" &&
+               vm.IdentityObjective.Contains("击败主公") && vm.IdentityRevealRoster.Contains("反贼 2"),
+            "Identity reveal did not follow the actual five-player role and objective.");
+        Render(root, 1120, 740, Path.Combine(output, "132-identity-reveal.png"));
+        Assert(!((FrameworkElement)window.FindName("TableSurface")).IsEnabled && (vm.IsGeneralSelectionPending || vm.CanStepAi),
+            $"Identity reveal did not block the prepared setup progression: table={((FrameworkElement)window.FindName("TableSurface")).IsEnabled}, general={vm.IsGeneralSelectionPending}, ai={vm.CanStepAi}, status={Engine(vm).State.Status}.");
+        vm.ContinueFromIdentityRevealCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Assert(!vm.IsIdentityRevealOpen && Engine(vm).Revision == revision &&
+               ((FrameworkElement)window.FindName("TableSurface")).IsEnabled,
+            "Continuing from identity reveal changed the engine or left selection inaccessible.");
+
+        vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "team:standard-2v2");
+        vm.SelectedStartingTeam = vm.StartingTeams.Single(team => team.TeamId == "team:red");
+        vm.StartNewGameCommand.Execute(null);
+        Assert(vm.IsIdentityRevealOpen && vm.IdentityRevealTitle == "阵 营 揭 示" && vm.IdentityRevealRole == "赤队" &&
+               vm.IdentityObjective.Contains("击败青队") && vm.IdentityRevealRoster.Contains("阵营公开"),
+            "Public-team reveal exposed the wrong side or objective.");
+        vm.ContinueFromIdentityRevealCommand.Execute(null);
+
+        vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "national:lite-4");
+        vm.StartNewGameCommand.Execute(null);
+        Assert(vm.IsIdentityRevealOpen && vm.IdentityRevealTitle == "势 力 揭 示" && (vm.IdentityRevealRole is "魏" or "蜀") &&
+               vm.IdentityObjective.Contains("势力同伴") && vm.IdentityRevealRoster.Contains("暗置"),
+            "National reveal did not preserve the player's private faction context.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();

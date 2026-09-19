@@ -169,7 +169,7 @@ public sealed partial class MainViewModel
     private void OnAdvanceTick(object? sender, EventArgs args)
     {
         // One committed step per tick keeps WPF responsive and pauses at every human decision.
-        if (IsAutoAdvance && CanStepAi && !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen) StepAi();
+        if (IsAutoAdvance && CanStepAi && !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen && !IsIdentityRevealOpen) StepAi();
     }
 
     private void ResetPresentation()

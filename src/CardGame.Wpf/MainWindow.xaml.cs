@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private IInputElement? _focusBeforeGuide;
     private IInputElement? _focusBeforeHistory;
     private IInputElement? _focusBeforeGeneralGallery;
+    private IInputElement? _focusBeforeIdentityReveal;
     public MainWindow() : this(new MainViewModel(useExpandedContent: true, historyStore: new FileMatchHistoryStore(),
         preferencesStore: new FilePlayerPreferencesStore()))
     { }
@@ -84,6 +85,15 @@ public partial class MainWindow : Window
     private bool HandleShortcut(Key key, ModifierKeys modifiers)
     {
         if (DataContext is not MainViewModel viewModel) return false;
+        if (viewModel.IsIdentityRevealOpen)
+        {
+            if (key is Key.Enter or Key.Space)
+            {
+                viewModel.ContinueFromIdentityRevealCommand.Execute(null);
+                return true;
+            }
+            return false;
+        }
         if (viewModel.IsGeneralGalleryOpen)
         {
             if (key != Key.Escape) return false;
@@ -180,6 +190,18 @@ public partial class MainWindow : Window
         {
             if (GeneralGalleryOverlay.IsVisible) GeneralGallerySearchBox.Focus();
             else if (_focusBeforeGeneralGallery is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
+            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+        }));
+    }
+
+    private void IdentityRevealOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        if (IdentityRevealOverlay.IsVisible) _focusBeforeIdentityReveal = Keyboard.FocusedElement;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+        {
+            if (IdentityRevealOverlay.IsVisible) ContinueFromIdentityRevealButton.Focus();
+            else if (_focusBeforeIdentityReveal is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
             else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }));
     }

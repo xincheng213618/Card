@@ -6,6 +6,7 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private bool _isNewGameSetupOpen;
+    private bool _isIdentityRevealOpen;
     private bool _manualDiscardEnabled = true;
     private StartingRoleOption _selectedStartingRole = new("主公", Role.Lord, "率领忠臣，平定叛乱");
     private TableModeOption _selectedTableMode = null!;
@@ -79,6 +80,16 @@ public sealed partial class MainViewModel
         get => _isNewGameSetupOpen;
         set { if (SetProperty(ref _isNewGameSetupOpen, value)) RefreshPlayerGuide(); }
     }
+    public bool IsIdentityRevealOpen { get => _isIdentityRevealOpen; private set => SetProperty(ref _isIdentityRevealOpen, value); }
+    public string IdentityRevealTitle => IsNationalSnapshot ? "势 力 揭 示" : IsTeamSnapshot ? "阵 营 揭 示" : "身 份 揭 示";
+    public string IdentityRevealRole => HumanPlayer?.RoleLabel ?? "未知";
+    public string IdentityRevealRoster => IsNationalSnapshot
+        ? NationalSetupText
+        : IsTeamSnapshot
+            ? "青队 2 人 · 赤队 2 人 · 阵营公开"
+            : _snapshot?.Players.Count == 5
+                ? "主公 1 · 忠臣 1 · 反贼 2 · 内奸 1"
+                : "主公 1 · 忠臣 2 · 反贼 4 · 内奸 1";
     public string TableModeText => IsTutorialActive
         ? "新手演练 · 四步基础操作"
         : IsNationalSnapshot ? NationalModeDisplayName
@@ -115,6 +126,7 @@ public sealed partial class MainViewModel
     public string TableArenaTitle => IsNationalSnapshot ? "国 战 · 暗 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
     public ICommand StartNewGameCommand { get; private set; } = null!;
     public ICommand CancelNewGameSetupCommand { get; private set; } = null!;
+    public ICommand ContinueFromIdentityRevealCommand { get; private set; } = null!;
 
     private void InitializeGameSetup()
     {
@@ -124,6 +136,7 @@ public sealed partial class MainViewModel
         SelectedTableMode = TableModes[0];
         SelectedDeck = DeckOptions.FirstOrDefault();
         RecommendDiscardCommand = new RelayCommand(RecommendDiscard);
+        ContinueFromIdentityRevealCommand = new RelayCommand(() => IsIdentityRevealOpen = false);
         StartNewGameCommand = new RelayCommand(() =>
         {
             if (IsTutorialActive) return;
@@ -131,6 +144,7 @@ public sealed partial class MainViewModel
             IsLogOpen = false;
             IsHelpOpen = false;
             NewGame();
+            IsIdentityRevealOpen = true;
         }, () => !IsTutorialActive);
         CancelNewGameSetupCommand = new RelayCommand(() => IsNewGameSetupOpen = false);
     }
@@ -146,7 +160,7 @@ public sealed partial class MainViewModel
     private void RefreshGameSetupPresentation()
     {
         RefreshNationalPresentation();
-        foreach (var name in new[] { nameof(TableModeText), nameof(WindowTitle), nameof(GeneralSelectionSubtitle), nameof(GeneralSelectionFooter), nameof(IdentityObjective), nameof(SetupIdentityLabel), nameof(TeamModeSetupText), nameof(TableArenaTitle) })
+        foreach (var name in new[] { nameof(TableModeText), nameof(WindowTitle), nameof(GeneralSelectionSubtitle), nameof(GeneralSelectionFooter), nameof(IdentityObjective), nameof(IdentityRevealTitle), nameof(IdentityRevealRole), nameof(IdentityRevealRoster), nameof(SetupIdentityLabel), nameof(TeamModeSetupText), nameof(TableArenaTitle) })
             RaisePropertyChanged(name);
     }
 }

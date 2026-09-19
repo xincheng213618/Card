@@ -100,6 +100,9 @@
                         <DataTrigger Binding="{Binding IsGeneralGalleryOpen}" Value="True">
                             <Setter Property="IsEnabled" Value="False" />
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding IsIdentityRevealOpen}" Value="True">
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
@@ -671,6 +674,25 @@
                 </Border>
             </Grid>
         </Grid>
+        <Border x:Name="IdentityRevealOverlay" Background="#F20A1419" Visibility="{Binding IsIdentityRevealOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="IdentityRevealOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
+            <Border Width="590" Padding="40,34" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#19282D" BorderBrush="#A98A50" BorderThickness="1" CornerRadius="5">
+                <StackPanel>
+                    <TextBlock Text="{Binding IdentityRevealTitle}" FontFamily="KaiTi" FontSize="25" Foreground="#BDA56F" HorizontalAlignment="Center" />
+                    <Border Width="178" Height="178" Margin="0,22,0,18" HorizontalAlignment="Center" Background="#101D22" BorderBrush="#C09B57" BorderThickness="2" CornerRadius="89">
+                        <Grid>
+                            <Ellipse Margin="9" Stroke="#66583D" StrokeThickness="1" />
+                            <TextBlock Text="{Binding IdentityRevealRole}" FontFamily="KaiTi" FontSize="49" FontWeight="Bold" Foreground="#F3D18E" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                    <TextBlock Text="{Binding IdentityObjective}" FontFamily="KaiTi" FontSize="21" Foreground="#E3D0A2" TextAlignment="Center" TextWrapping="Wrap" LineHeight="30" />
+                    <TextBlock Text="{Binding IdentityRevealRoster}" Foreground="#91A99B" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,14,0,0" />
+                    <Border Background="#112127" BorderBrush="#465C53" BorderThickness="1" Padding="12,8" Margin="36,20,36,0">
+                        <TextBlock Text="身份与目标仅在本机向你展示；其他暗置信息仍由引擎保护。" Foreground="#82968A" FontSize="10" TextAlignment="Center" TextWrapping="Wrap" />
+                    </Border>
+                    <Button x:Name="ContinueFromIdentityRevealButton" Content="查 看 候 选 武 将" Command="{Binding ContinueFromIdentityRevealCommand}" Style="{StaticResource PrimaryButton}" MinWidth="190" Padding="20,10" HorizontalAlignment="Center" Margin="0,24,0,0" />
+                </StackPanel>
+            </Border>
+        </Border>
         <Border x:Name="NewGameSetupPanel" Background="#ED0C151A" Visibility="{Binding IsNewGameSetupOpen, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" IsVisibleChanged="NewGameSetupPanel_IsVisibleChanged" FocusManager.IsFocusScope="True">
             <Border.Style>
                 <Style TargetType="Border">
