@@ -975,6 +975,10 @@ public sealed partial class GameEngine
         {
             return SubmitProgramCardTriggerAnswer(actorSeat, prompt, choice);
         }
+        if (_pendingDecision?.Kind == DecisionKind.ProgramJudgmentTrigger)
+        {
+            return SubmitProgramJudgmentTriggerAnswer(actorSeat, prompt, choice);
+        }
 
         if (!_started)
         {
@@ -2931,6 +2935,7 @@ public sealed partial class GameEngine
                     IsAiFireAttackPending() ||
                     IsAiDamageSkillPending() ||
                     IsAiJudgmentPending() ||
+                    IsAiProgramJudgmentPending() ||
                     IsAiYingziPending() ||
                     IsAiTuxiPending() ||
                     IsAiShuangxiongPending() ||
@@ -6478,6 +6483,20 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_resolutionStack.LastOrDefault() is ProgramJudgmentTriggerWindowFrame &&
+            _pendingDecision is null)
+        {
+            ContinueProgramJudgmentWindow();
+            return;
+        }
+
+        if (_pendingDecision is { Kind: DecisionKind.ProgramJudgmentTrigger } judgmentProgramDecision)
+        {
+            if (!_players[judgmentProgramDecision.PlayerSeat].IsHuman)
+                ResolveProgramJudgmentChoice(judgmentProgramDecision.Choices[0]);
+            return;
+        }
+
         if (_pendingDecision is { Kind: DecisionKind.ProgramCardTrigger } programDecision)
         {
             if (!_players[programDecision.PlayerSeat].IsHuman)
@@ -14900,6 +14919,19 @@ public sealed partial class GameEngine
             pending.TargetSeat,
             pending.SourceSeat);
         pending.ResultSucceeded = succeeded;
+        if (TryBeginProgramJudgmentWindow(pending, judgmentCard, judgmentSuit, succeeded))
+        {
+            return null;
+        }
+
+        return CompleteFinalizedJudgment(pending, judgmentCard, succeeded);
+    }
+
+    private bool? CompleteFinalizedJudgment(
+        JudgmentResolution pending,
+        Card judgmentCard,
+        bool succeeded)
+    {
         if (pending.Continuation != JudgmentContinuationKind.Luoshen &&
             TryBeginTianduChoice(pending))
         {
@@ -21822,6 +21854,7 @@ public sealed partial class GameEngine
     private void AssertCoreInvariants()
     {
         AssertProgramCardWindowState();
+        AssertProgramJudgmentWindowState();
         AssertDiscardPromptInvariant();
         AssertYinghunInvariant();
         _cardZones.AssertInvariants(_initialCardCount);
@@ -23071,13 +23104,22 @@ public sealed partial class GameEngine
             }
             else if (_pendingJudgment is { } judgmentContinuation)
             {
+                var judgmentFrame = _resolutionStack.OfType<JudgmentFrame>().LastOrDefault();
+                var judgmentIsActive = _resolutionStack.LastOrDefault() switch
+                {
+                    JudgmentFrame current => current.Id == judgmentContinuation.FrameId,
+                    ProgramJudgmentTriggerWindowFrame program =>
+                        program.ParentFrameId == judgmentContinuation.FrameId,
+                    _ => false
+                };
                 if (!ReferenceEquals(judgmentContinuation.Attack, pendingAttack) ||
-                    _resolutionStack.LastOrDefault() is not JudgmentFrame judgmentFrame ||
+                    judgmentFrame is null ||
+                    !judgmentIsActive ||
                     judgmentFrame.Id != judgmentContinuation.FrameId ||
                     judgmentFrame.ParentFrameId != judgmentContinuation.ParentFrameId)
                 {
                     throw new InvalidOperationException(
-                        "An active judgment continuation must retain its Judgment frame as the stack top.");
+                        "An active judgment continuation must retain its Judgment frame and active child window.");
                 }
             }
             else if (_pendingLieren is { } lieren)
@@ -23276,6 +23318,7 @@ public sealed partial class GameEngine
 
         if (_pendingJudgment is { } pendingJudgment)
         {
+            var programJudgmentFrame = _resolutionStack.LastOrDefault() as ProgramJudgmentTriggerWindowFrame;
             var belongsToActiveAttack = _pendingAttack is { } activeAttack &&
                                         pendingJudgment.Attack is { } judgmentAttack &&
                                         ReferenceEquals(judgmentAttack, activeAttack);
@@ -23301,7 +23344,7 @@ public sealed partial class GameEngine
             if ((!belongsToActiveAttack && !belongsToDelayedCard && !belongsToLuoshen && !belongsToShuangxiong) ||
                 pendingJudgment.CandidateIndex < 0 ||
                 pendingJudgment.CandidateIndex > pendingJudgment.CandidateSeats.Count ||
-                _resolutionStack.LastOrDefault() is not JudgmentFrame judgmentFrame ||
+                _resolutionStack.OfType<JudgmentFrame>().LastOrDefault() is not { } judgmentFrame ||
                 judgmentFrame.Id != pendingJudgment.FrameId ||
                 judgmentFrame.ParentFrameId != pendingJudgment.ParentFrameId ||
                 judgmentFrame.TargetSeat != pendingJudgment.TargetSeat ||
@@ -23315,33 +23358,42 @@ public sealed partial class GameEngine
                     "A judgment continuation must retain its public card and ordered cursor.");
             }
 
-            var isTianduChoice = pendingJudgment.ResultSucceeded is not null;
-            var expectedJudgmentOwner = isTianduChoice
-                ? pendingJudgment.TargetSeat
-                : pendingJudgment.CurrentCandidateSeat;
-            var promptMatches = isTianduChoice
-                ? UsesFormalTiandu &&
-                  _pendingDecision is { Kind: DecisionKind.Tiandu } tianduDecision &&
-                  tianduDecision.PlayerSeat == pendingJudgment.TargetSeat &&
-                  tianduDecision.Choices.Count == 2 &&
-                  tianduDecision.ValidCardIds.Count == 0
-                : pendingJudgment.CurrentCandidateSeat >= 0 &&
-                  _pendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao } guicaiDecision &&
-                  guicaiDecision.PlayerSeat == pendingJudgment.CurrentCandidateSeat &&
-                  guicaiDecision.ValidCardIds.SequenceEqual(
-                      GetJudgmentReplacementCards(
-                          _players[pendingJudgment.CurrentCandidateSeat],
-                          guicaiDecision.Kind == DecisionKind.Guidao ? SkillKind.Guidao : SkillKind.Guicai)
-                      .Select(card => card.Id));
+            var isProgramJudgmentChoice = programJudgmentFrame is not null;
+            var isTianduChoice = !isProgramJudgmentChoice && pendingJudgment.ResultSucceeded is not null;
+            var expectedJudgmentOwner = isProgramJudgmentChoice
+                ? programJudgmentFrame!.Candidates[programJudgmentFrame.CandidateIndex].OwnerSeat
+                : isTianduChoice ? pendingJudgment.TargetSeat : pendingJudgment.CurrentCandidateSeat;
+            var promptMatches = isProgramJudgmentChoice
+                ? _pendingDecision is null ||
+                  _pendingDecision is { Kind: DecisionKind.ProgramJudgmentTrigger } judgmentProgramPrompt &&
+                  judgmentProgramPrompt.PlayerSeat == expectedJudgmentOwner &&
+                  judgmentProgramPrompt.Choices.Count == 2 &&
+                  judgmentProgramPrompt.ValidCardIds.Count == 0
+                : isTianduChoice
+                    ? UsesFormalTiandu &&
+                      _pendingDecision is { Kind: DecisionKind.Tiandu } tianduDecision &&
+                      tianduDecision.PlayerSeat == pendingJudgment.TargetSeat &&
+                      tianduDecision.Choices.Count == 2 &&
+                      tianduDecision.ValidCardIds.Count == 0
+                    : pendingJudgment.CurrentCandidateSeat >= 0 &&
+                      _pendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao } guicaiDecision &&
+                      guicaiDecision.PlayerSeat == pendingJudgment.CurrentCandidateSeat &&
+                      guicaiDecision.ValidCardIds.SequenceEqual(
+                          GetJudgmentReplacementCards(
+                              _players[pendingJudgment.CurrentCandidateSeat],
+                              guicaiDecision.Kind == DecisionKind.Guidao ? SkillKind.Guidao : SkillKind.Guicai)
+                          .Select(card => card.Id));
             if (!promptMatches)
             {
                 throw new InvalidOperationException(
                     "An active judgment continuation must retain its private Guicai or Tiandu prompt.");
             }
 
-            var expectedJudgmentStatus = _players[expectedJudgmentOwner].IsHuman
-                ? EngineStatus.AwaitingHumanResponse
-                : EngineStatus.Running;
+            var expectedJudgmentStatus = isProgramJudgmentChoice && _pendingDecision is null
+                ? EngineStatus.Running
+                : _players[expectedJudgmentOwner].IsHuman
+                    ? EngineStatus.AwaitingHumanResponse
+                    : EngineStatus.Running;
             if (_status != expectedJudgmentStatus)
             {
                 throw new InvalidOperationException(
@@ -23376,6 +23428,17 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
+            var activeJudgmentFrame = _pendingJudgment is not null
+                ? _resolutionStack.OfType<JudgmentFrame>().LastOrDefault()
+                : null;
+            var judgmentWindowIsActive = activeJudgmentFrame is not null &&
+                _resolutionStack.LastOrDefault() switch
+                {
+                    JudgmentFrame current => current.Id == activeJudgmentFrame.Id,
+                    ProgramJudgmentTriggerWindowFrame program =>
+                        program.ParentFrameId == activeJudgmentFrame.Id,
+                    _ => false
+                };
             var expectedTop = _pendingDying is { ResumesDamageSkill: true } &&
                               _pendingDamageSkill is not null
                 ? _resolutionStack.LastOrDefault() is DyingFrame dyingFrame &&
@@ -23386,8 +23449,9 @@ public sealed partial class GameEngine
                   triggerFrame.Id == pendingDamageTrigger.FrameId &&
                   triggerFrame.CandidateIndex == pendingDamageTrigger.CandidateIndex
                 : _pendingJudgment is not null
-                ? _resolutionStack.LastOrDefault() is JudgmentFrame judgmentFrame &&
-                  judgmentFrame.ParentFrameId == _pendingDamageSkill.FrameId
+                ? activeJudgmentFrame is not null &&
+                  activeJudgmentFrame.ParentFrameId == _pendingDamageSkill.FrameId &&
+                  judgmentWindowIsActive
                 : _resolutionStack.LastOrDefault() is DamageSkillFrame damageSkillFrame &&
                   damageSkillFrame.ParentFrameId == pendingDamageTrigger.FrameId;
             if (!expectedTop)
@@ -23412,9 +23476,19 @@ public sealed partial class GameEngine
                     "A damage-skill continuation must retain its parent trigger window.");
             }
 
+            var activeProgramJudgmentFrame =
+                _resolutionStack.LastOrDefault() as ProgramJudgmentTriggerWindowFrame;
             var damageSkillPromptMatches = _pendingJudgment is { Continuation: JudgmentContinuationKind.Ganglie } judgmentContinuation
-                ? _pendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao } judgmentDecision &&
-                  judgmentDecision.PlayerSeat == judgmentContinuation.CurrentCandidateSeat
+                ? activeProgramJudgmentFrame is not null
+                    ? _pendingDecision is null ||
+                      _pendingDecision is { Kind: DecisionKind.ProgramJudgmentTrigger } programJudgmentDecision &&
+                      programJudgmentDecision.PlayerSeat ==
+                          activeProgramJudgmentFrame.Candidates[activeProgramJudgmentFrame.CandidateIndex].OwnerSeat
+                    : judgmentContinuation.ResultSucceeded is not null
+                        ? _pendingDecision is { Kind: DecisionKind.Tiandu } tianduDecision &&
+                          tianduDecision.PlayerSeat == judgmentContinuation.TargetSeat
+                        : _pendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao } judgmentDecision &&
+                          judgmentDecision.PlayerSeat == judgmentContinuation.CurrentCandidateSeat
                 : _pendingDying is { ResumesDamageSkill: true } dyingContinuation
                 ? (_pendingDecision is { Kind: DecisionKind.RescueDying } dyingDecision &&
                    dyingDecision.PlayerSeat == dyingContinuation.ResponderSeat) ||
@@ -23440,7 +23514,7 @@ public sealed partial class GameEngine
             }
 
             var expectedResponderSeat = _pendingJudgment is not null
-                ? _pendingDecision!.PlayerSeat
+                ? _pendingDecision?.PlayerSeat ?? pendingDamageSkill.OwnerSeat
                 : _pendingDying is { ResumesDamageSkill: true } dying
                 ? dying.ResponderSeat
                 : _pendingDecision!.PlayerSeat;
@@ -23768,7 +23842,8 @@ public sealed partial class GameEngine
                 DecisionKind.QilinBow or
                 DecisionKind.Mengjin or
                 DecisionKind.Lieren or
-                DecisionKind.ZhuqueFan or DecisionKind.ProgramCardTrigger) &&
+                DecisionKind.ZhuqueFan or DecisionKind.ProgramCardTrigger or
+                DecisionKind.ProgramJudgmentTrigger) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -23782,7 +23857,8 @@ public sealed partial class GameEngine
         var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending() ||
                                  IsAiTianxiangPending() || IsAiLierenPending() ||
                                  (_pendingDecision is { Kind: DecisionKind.ProgramCardTrigger } programDecision &&
-                                  !_players[programDecision.PlayerSeat].IsHuman);
+                                  !_players[programDecision.PlayerSeat].IsHuman) ||
+                                 IsAiProgramJudgmentPending();
         var awaitingAiNullification = IsAiNullificationPending();
         var awaitingAiJizhi = IsAiJizhiPending();
         var awaitingAiDamageSkill = IsAiDamageSkillPending();

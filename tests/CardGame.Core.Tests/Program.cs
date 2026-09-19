@@ -22,6 +22,8 @@ var tests = new (string Name, Action Body)[]
     ("skill program v2 trigger definitions validate and freeze", SkillProgramTriggerDefinitionChecks.Run),
     ("skill program card triggers require exact conversion sources and replay", SkillProgramCardTriggerChecks.Run),
     ("skill program multi-target triggers wait for every Liuli redirection", SkillProgramTargetOrderChecks.Run),
+    ("skill program v3 final judgment definitions validate and freeze", SkillProgramJudgmentTriggerChecks.Definitions),
+    ("skill program final judgment triggers resume recovery, drawing and replay", SkillProgramJudgmentTriggerChecks.WindowAndReplay),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("composed AI matches complete and replay with configured actions and responses", SkillProgramMatchChecks.ComposedMatchesCompleteAndReplay),

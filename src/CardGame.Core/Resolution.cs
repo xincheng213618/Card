@@ -30,7 +30,8 @@ public enum ResolutionFrameKind
     ActiveSkill,
     TargetCardSelection,
     ProgramSkill,
-    ProgramCardTriggerWindow
+    ProgramCardTriggerWindow,
+    ProgramJudgmentTriggerWindow
 }
 
 public enum ResolutionFrameStep
@@ -74,6 +75,7 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(TargetCardSelectionFrame), "target-card-selection")]
 [JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
 [JsonDerivedType(typeof(ProgramCardTriggerWindowFrame), "program-card-trigger-window")]
+[JsonDerivedType(typeof(ProgramJudgmentTriggerWindowFrame), "program-judgment-trigger-window")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,

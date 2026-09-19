@@ -12,9 +12,10 @@ public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, Hp
 public enum SkillProgramTargetKind { OtherLiving, AnyLiving, OtherWounded, AnyWounded }
 public enum SkillProgramEffectOp { Draw, Recover, LoseHp, GiveSelected, DiscardSelected }
 public enum SkillProgramEffectTarget { Owner, SelectedTarget }
-public enum SkillProgramTriggerWindow { CardUseTargetsFinalized, CardResponseAccepted }
+public enum SkillProgramTriggerWindow { CardUseTargetsFinalized, CardResponseAccepted, JudgmentFinalized }
 public enum SkillProgramTriggerEffectOp { Draw, Recover, ObtainOpponentHandCard }
 public enum SkillProgramTriggerEffectTarget { Owner, Opponent }
+public enum SkillProgramTriggerSubject { Owner }
 
 public sealed class SkillProgramCondition
 {
@@ -110,14 +111,23 @@ public sealed class SkillProgramTriggerEffect
 
 public sealed class SkillProgramTrigger
 {
-    internal SkillProgramTrigger(string id, SkillProgramTriggerWindow window, string sourceSkillId,
-        string? sourceViewAsId, bool optional, IReadOnlyList<SkillProgramTriggerEffect> effects) =>
-        (Id, Window, SourceSkillId, SourceViewAsId, Optional, Effects) =
-        (id, window, sourceSkillId, sourceViewAsId, optional, effects);
+    internal SkillProgramTrigger(string id, SkillProgramTriggerWindow window, string? sourceSkillId,
+        string? sourceViewAsId, SkillProgramTriggerSubject? subject, IReadOnlyList<Suit> suits,
+        int minimumRank, int maximumRank, IReadOnlyList<string> excludedReasons,
+        bool optional, IReadOnlyList<SkillProgramTriggerEffect> effects) =>
+        (Id, Window, SourceSkillId, SourceViewAsId, Subject, Suits, MinimumRank, MaximumRank,
+            ExcludedReasons, Optional, Effects) =
+        (id, window, sourceSkillId, sourceViewAsId, subject, suits, minimumRank, maximumRank,
+            excludedReasons, optional, effects);
     public string Id { get; }
     public SkillProgramTriggerWindow Window { get; }
-    public string SourceSkillId { get; }
+    public string? SourceSkillId { get; }
     public string? SourceViewAsId { get; }
+    public SkillProgramTriggerSubject? Subject { get; }
+    public IReadOnlyList<Suit> Suits { get; }
+    public int MinimumRank { get; }
+    public int MaximumRank { get; }
+    public IReadOnlyList<string> ExcludedReasons { get; }
     public bool Optional { get; }
     public IReadOnlyList<SkillProgramTriggerEffect> Effects { get; }
 }
@@ -204,9 +214,14 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(root, "rules");
         CheckProperties(root, "rules", "schemaVersion", "skills");
-        var schemaVersion = RequireVersion(root, "rules", 1, 2);
-        var runtimeVersion = schemaVersion == 1 ? RuntimeVersion : "skill-program-v2";
-        var minimumRulesVersion = schemaVersion == 1 ? 79 : 80;
+        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3);
+        var runtimeVersion = schemaVersion switch
+        {
+            1 => RuntimeVersion,
+            2 => "skill-program-v2",
+            _ => "skill-program-v3"
+        };
+        var minimumRulesVersion = schemaVersion switch { 1 => 79, 2 => 80, _ => 81 };
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
         var result = new Dictionary<string, SkillProgram>(StringComparer.Ordinal);
@@ -222,11 +237,12 @@ public sealed class SkillProgramCatalog
             var skillPath = $"skill '{id}' ({path})";
             if (result.ContainsKey(id)) Fail(skillPath, $"duplicate skill id '{id}'");
             var revision = PositiveInt(skill, "revision", skillPath);
-            var modifiers = ReadArray(skill, "modifiers", skillPath, ParseModifier, schemaVersion == 2);
-            var viewAs = ReadArray(skill, "viewAs", skillPath, ParseViewAs, schemaVersion == 2);
-            var activations = ReadArray(skill, "activations", skillPath, ParseActivation, schemaVersion == 2);
-            var triggers = schemaVersion == 2
-                ? ReadArray(skill, "triggers", skillPath, ParseTrigger, optional: true)
+            var modifiers = ReadArray(skill, "modifiers", skillPath, ParseModifier, schemaVersion >= 2);
+            var viewAs = ReadArray(skill, "viewAs", skillPath, ParseViewAs, schemaVersion >= 2);
+            var activations = ReadArray(skill, "activations", skillPath, ParseActivation, schemaVersion >= 2);
+            var triggers = schemaVersion >= 2
+                ? ReadArray(skill, "triggers", skillPath,
+                    (node, triggerPath) => ParseTrigger(node, triggerPath, schemaVersion), optional: true)
                 : Array.Empty<SkillProgramTrigger>();
             if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0 && triggers.Count == 0)
                 Fail(skillPath, "must define at least one modifier, viewAs rule, activation, or trigger");
@@ -238,7 +254,7 @@ public sealed class SkillProgramCatalog
             result.Add(id, new SkillProgram(id, revision, hash, runtimeVersion, minimumRulesVersion,
                 modifiers, viewAs, activations, triggers));
         }
-        if (schemaVersion == 2) ValidateTriggerSources(result);
+        if (schemaVersion >= 2) ValidateTriggerSources(result);
         return result;
     }
 
@@ -352,38 +368,75 @@ public sealed class SkillProgramCatalog
         return new SkillProgramEffect(op, target, amount, condition);
     }
 
-    private static SkillProgramTrigger ParseTrigger(JsonElement node, string path)
+    private static SkillProgramTrigger ParseTrigger(JsonElement node, string path, int schemaVersion)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "id", "window", "sourceSkillId", "sourceViewAsId", "optional", "effects");
+        CheckProperties(node, path, schemaVersion == 2
+            ? ["id", "window", "sourceSkillId", "sourceViewAsId", "optional", "effects"]
+            : ["id", "window", "sourceSkillId", "sourceViewAsId", "subject", "suits",
+                "minimumRank", "maximumRank", "excludedReasons", "optional", "effects"]);
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
-        var sourceSkillId = Identifier(node, "sourceSkillId", path);
+        string? sourceSkillId = null;
         string? sourceViewAsId = null;
-        if (node.TryGetProperty("sourceViewAsId", out var sourceViewAs))
+        SkillProgramTriggerSubject? subject = null;
+        IReadOnlyList<Suit> suits = Array.Empty<Suit>();
+        IReadOnlyList<string> excludedReasons = Array.Empty<string>();
+        var minimumRank = 1;
+        var maximumRank = 13;
+        if (window == SkillProgramTriggerWindow.JudgmentFinalized)
         {
-            if (sourceViewAs.ValueKind == JsonValueKind.String)
+            if (schemaVersion < 3) Fail(path + ".window", "judgmentFinalized requires schema version 3");
+            if (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _))
+                Fail(path, "judgmentFinalized does not accept card-conversion source fields");
+            subject = EnumValue<SkillProgramTriggerSubject>(node, "subject", path);
+            suits = EnumArray<Suit>(node, "suits", path);
+            if (suits.Count == 0) Fail(path + ".suits", "must contain at least one final suit");
+            minimumRank = RequiredInt(node, "minimumRank", path);
+            maximumRank = RequiredInt(node, "maximumRank", path);
+            if (minimumRank is < 1 or > 13 || maximumRank is < 1 or > 13 || minimumRank > maximumRank)
+                Fail(path, "judgment rank bounds must satisfy 1 <= minimumRank <= maximumRank <= 13");
+            excludedReasons = StringArray(node, "excludedReasons", path);
+        }
+        else
+        {
+            sourceSkillId = Identifier(node, "sourceSkillId", path);
+            if (node.TryGetProperty("subject", out _) || node.TryGetProperty("suits", out _) ||
+                node.TryGetProperty("minimumRank", out _) || node.TryGetProperty("maximumRank", out _) ||
+                node.TryGetProperty("excludedReasons", out _))
+                Fail(path, "card-action trigger windows do not accept judgment fields");
+            if (node.TryGetProperty("sourceViewAsId", out var sourceViewAs))
             {
-                sourceViewAsId = sourceViewAs.GetString();
-                if (string.IsNullOrWhiteSpace(sourceViewAsId) || sourceViewAsId.Length > 128)
-                    Fail(path + ".sourceViewAsId", "must be null or contain 1 to 128 characters");
+                if (sourceViewAs.ValueKind == JsonValueKind.String)
+                {
+                    sourceViewAsId = sourceViewAs.GetString();
+                    if (string.IsNullOrWhiteSpace(sourceViewAsId) || sourceViewAsId.Length > 128)
+                        Fail(path + ".sourceViewAsId", "must be null or contain 1 to 128 characters");
+                }
+                else if (sourceViewAs.ValueKind != JsonValueKind.Null)
+                    Fail(path + ".sourceViewAsId", "must be a string or null");
             }
-            else if (sourceViewAs.ValueKind != JsonValueKind.Null)
-                Fail(path + ".sourceViewAsId", "must be a string or null");
         }
         var optional = RequiredBool(node, "optional", path);
-        var effects = ReadArray(node, "effects", path, ParseTriggerEffect);
+        var effects = ReadArray(node, "effects", path,
+            (effect, effectPath) => ParseTriggerEffect(effect, effectPath, window));
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
-        return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, optional, effects);
+        return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
+            minimumRank, maximumRank, excludedReasons, optional, effects);
     }
 
-    private static SkillProgramTriggerEffect ParseTriggerEffect(JsonElement node, string path)
+    private static SkillProgramTriggerEffect ParseTriggerEffect(
+        JsonElement node, string path, SkillProgramTriggerWindow window)
     {
         RequireObject(node, path);
         CheckProperties(node, path, "op", "target", "amount", "condition");
         var op = EnumValue<SkillProgramTriggerEffectOp>(node, "op", path);
         var target = EnumValue<SkillProgramTriggerEffectTarget>(node, "target", path);
         var amount = PositiveInt(node, "amount", path);
+        if (window == SkillProgramTriggerWindow.JudgmentFinalized &&
+            (op == SkillProgramTriggerEffectOp.ObtainOpponentHandCard ||
+             target != SkillProgramTriggerEffectTarget.Owner))
+            Fail(path, "judgmentFinalized currently supports only owner draw or recover effects");
         if (op is SkillProgramTriggerEffectOp.Draw or SkillProgramTriggerEffectOp.Recover)
         {
             if (amount > 20) Fail(path + ".amount", "draw and recover amount must be between 1 and 20");
@@ -399,8 +452,12 @@ public sealed class SkillProgramCatalog
         foreach (var trigger in owner.Triggers)
         {
             var path = $"skill '{owner.Id}'.triggers.{trigger.Id}";
-            if (!programs.TryGetValue(trigger.SourceSkillId, out var source))
+            if (trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized) continue;
+            var sourceSkillId = trigger.SourceSkillId;
+            if (sourceSkillId is null)
                 Fail(path + ".sourceSkillId", $"references unknown skill '{trigger.SourceSkillId}'");
+            if (!programs.TryGetValue(sourceSkillId!, out var source))
+                Fail(path + ".sourceSkillId", $"references unknown skill '{sourceSkillId}'");
             if (source.ViewAs.Count == 0)
                 Fail(path + ".sourceSkillId", $"skill '{trigger.SourceSkillId}' has no viewAs rules");
             var candidates = trigger.SourceViewAsId is null
@@ -487,6 +544,21 @@ public sealed class SkillProgramCatalog
     {
         var values = ReadArray(owner, name, path, (node, itemPath) => ParseEnum<T>(node, itemPath));
         if (values.Distinct().Count() != values.Count) Fail(path + "." + name, "contains duplicate values");
+        return values;
+    }
+
+    private static IReadOnlyList<string> StringArray(JsonElement owner, string name, string path)
+    {
+        var values = ReadArray(owner, name, path, (node, itemPath) =>
+        {
+            if (node.ValueKind != JsonValueKind.String) Fail(itemPath, "must be a string");
+            var value = node.GetString()!;
+            if (string.IsNullOrWhiteSpace(value) || value.Length > 128)
+                Fail(itemPath, "must contain 1 to 128 characters");
+            return value;
+        });
+        if (values.Distinct(StringComparer.Ordinal).Count() != values.Count)
+            Fail(path + "." + name, "contains duplicate values");
         return values;
     }
 

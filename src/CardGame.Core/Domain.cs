@@ -276,7 +276,8 @@ public enum DecisionKind
     Zaiqi,
     Lieren,
     Jujian,
-    ProgramCardTrigger
+    ProgramCardTrigger,
+    ProgramJudgmentTrigger
 }
 
 public enum GangliePunishmentKind
