@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 31, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 32, 0))
     {
     }
 
@@ -50,12 +50,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 28, 0) &&
             version != new Version(1, 29, 0) &&
             version != new Version(1, 30, 0) &&
-            version != new Version(1, 31, 0))
+            version != new Version(1, 31, 0) &&
+            version != new Version(1, 32, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.31.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.32.0.");
         }
 
         _version = version;
@@ -202,6 +203,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["effect"] = "damage-plus-one"
                     }));
             }
+            if (_version >= new Version(1, 32, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:zhuque-fan",
+                    DisplayName: "朱雀羽扇",
+                    CategoryName: "装备牌",
+                    Description: "装备至武器槽；攻击范围 4，你可以将使用的普通杀改为火杀。",
+                    LegacyKind: CardKind.ZhuqueFan,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "weapon",
+                        ["trigger"] = "ordinary-slash-use",
+                        ["effect"] = "convert-to-fire-slash"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -266,10 +282,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:guding-blade", 1));
             }
+            if (_version >= new Version(1, 32, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:zhuque-fan", 1));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 31, 0)
+                Name: _version >= new Version(1, 32, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇）"
+                    : _version >= new Version(1, 31, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀）"
                     : _version >= new Version(1, 30, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟）"

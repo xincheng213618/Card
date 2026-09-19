@@ -19,6 +19,7 @@
     <Compile Include="..\Shared\QilinBowScenario.cs" Link="QilinBowScenario.cs" />
     <Compile Include="..\Shared\FangtianHalberdScenario.cs" Link="FangtianHalberdScenario.cs" />
     <Compile Include="..\Shared\GudingBladeScenario.cs" Link="GudingBladeScenario.cs" />
+    <Compile Include="..\Shared\ZhuqueFanScenario.cs" Link="ZhuqueFanScenario.cs" />
     <EmbeddedResource Include="Fixtures\legacy-ai-checkpoints.json" />
     <EmbeddedResource Include="Fixtures\group-claim-before-death.json" />
     <ProjectReference Include="..\..\src\CardGame.Core\CardGame.Core.csproj" />

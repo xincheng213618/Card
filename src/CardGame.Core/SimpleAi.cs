@@ -1341,6 +1341,49 @@ public sealed partial class SimpleAiBrain
         return (selectedIds, thought);
     }
 
+    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseZhuqueFanChoice(
+        GameSnapshot view,
+        int targetSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var prompt = view.PendingDecision is { Kind: DecisionKind.ZhuqueFan } decision
+            ? decision
+            : throw new InvalidOperationException("AI has no Zhuque Fan prompt.");
+        var selfRole = self.Role ?? Role.Renegade;
+        var chainScore = target.IsChained
+            ? view.Players
+                .Where(player => player.IsAlive && player.IsChained && player.Seat != targetSeat)
+                .Sum(player => GetHostility(view, selfRole, player) +
+                               (player.Hp <= 1 ? 22d : 0d))
+            : 0d;
+        var fireScore = 1d + chainScore;
+        const double normalScore = 0d;
+        var useFire = fireScore >= normalScore;
+        var action = useFire ? "zhuque-fan-fire" : "zhuque-fan-normal";
+        var selected = prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == action);
+        var candidates = prompt.Choices.Select(choice =>
+        {
+            var fire = choice.Parameters.GetValueOrDefault("action") == "zhuque-fan-fire";
+            return new AiCandidateScore(
+                new LegalAction(LegalActionKind.Equip, null, targetSeat, choice.Description),
+                fire ? fireScore : normalScore,
+                fire
+                    ? "火杀保留直接伤害，并按公开连环状态评估可能的属性传导。"
+                    : "保持普通杀，避免不利的公开连环传导。");
+        }).ToArray();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Description,
+            candidates,
+            $"朱雀羽扇：目标 {target.Name} 连环状态为 {(target.IsChained ? "是" : "否")}，连环净值 {chainScore:0.##}，决定{selected.Description}");
+        return (selected.Id, thought);
+    }
+
     public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseCixiongDoubleSwordsChoice(
         GameSnapshot view,
         int sourceSeat,
@@ -2738,9 +2781,19 @@ public sealed partial class SimpleAiBrain
         var gudingBlade = gudingBladeBonus > 0d
             ? $"；古锭刀对公开为空手的目标可令伤害 +1，增加 {gudingBladeBonus:0.#} 分"
             : string.Empty;
+        var zhuqueFanBonus = GetZhuqueFanConversionBonus(
+            view,
+            self,
+            selfRole,
+            action,
+            card,
+            target);
+        var zhuqueFan = zhuqueFanBonus != 0d
+            ? $"；朱雀羽扇把普通杀改为火杀，按公开连环关系调整 {zhuqueFanBonus:0.#} 分"
+            : string.Empty;
         return (
-            cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus + gudingBladeBonus,
-            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}。身份判断只使用公开信息。");
+            cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus + gudingBladeBonus + zhuqueFanBonus,
+            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}{zhuqueFan}。身份判断只使用公开信息。");
     }
 
     private static bool HasGudingBladeDamageBonus(
@@ -2751,6 +2804,33 @@ public sealed partial class SimpleAiBrain
         action.TargetSeats.Count == 1 &&
         target.HandCount == 0 &&
         self.Equipment.Any(card => card.Kind == CardKind.GudingBlade);
+
+    private double GetZhuqueFanConversionBonus(
+        GameSnapshot view,
+        PlayerSnapshot self,
+        Role selfRole,
+        LegalAction action,
+        CardSnapshot physicalCard,
+        PlayerSnapshot target)
+    {
+        if (action.Kind != LegalActionKind.Slash ||
+            action.PlayedCardKind != CardKind.FireSlash ||
+            physicalCard.Kind != CardKind.Slash ||
+            self.Equipment.All(card => card.Kind != CardKind.ZhuqueFan))
+        {
+            return 0d;
+        }
+
+        if (!target.IsChained)
+        {
+            return 1d;
+        }
+
+        return 1d + view.Players
+            .Where(player => player.IsAlive && player.IsChained && player.Seat != target.Seat)
+            .Sum(player => GetHostility(view, selfRole, player) +
+                           (player.Hp <= 1 ? 22d : 0d));
+    }
 
     private (double Score, string Reason) ScoreFangtianHalberdSlash(
         GameSnapshot view,

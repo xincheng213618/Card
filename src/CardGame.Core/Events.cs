@@ -795,6 +795,17 @@ public sealed record GudingBladeDamageIncreasedEvent(
     int BaseAmount,
     int ModifiedAmount) : IGameEvent;
 
+/// <summary>
+/// Public audit record for changing an ordinary or view-as ordinary Slash into
+/// a Fire Slash when it is used through Zhuque Fan. The physical cards remain
+/// unchanged and continue through the ordinary use pipeline.
+/// </summary>
+public sealed record ZhuqueFanConvertedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    IReadOnlyList<int> PhysicalCardIds,
+    IReadOnlyList<int> TargetSeats) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

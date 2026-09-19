@@ -40,6 +40,7 @@ internal static class ClassicGeneralChecks
         var iceSwordClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 28, 0));
         var qilinBowClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 29, 0));
         var fangtianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 30, 0));
+        var gudingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 31, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -48,7 +49,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.31.0"]),
+                "standard-classic-generals@1.32.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -250,6 +251,10 @@ internal static class ClassicGeneralChecks
                 !fangtianClassic.Cards.ContainsKey("classic:guding-blade") &&
                 fangtianClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 100,
             "The 1.30 classic registry must retain its 100-card Fangtian deck without Guding Blade.");
+        Require(gudingClassic.Cards["classic:guding-blade"].LegacyKind == CardKind.GudingBlade &&
+                !gudingClassic.Cards.ContainsKey("classic:zhuque-fan") &&
+                gudingClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 101,
+            "The 1.31 classic registry must retain its 101-card Guding deck without Zhuque Fan.");
         Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
                 classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
                 classic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
@@ -259,12 +264,13 @@ internal static class ClassicGeneralChecks
                 classic.Cards["classic:qilin-bow"].LegacyKind == CardKind.QilinBow &&
                 classic.Cards["classic:fangtian-halberd"].LegacyKind == CardKind.FangtianHalberd &&
                 classic.Cards["classic:guding-blade"].LegacyKind == CardKind.GudingBlade &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 101 &&
+                classic.Cards["classic:zhuque-fan"].LegacyKind == CardKind.ZhuqueFan &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 102 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.31 classic registry must opt both classic modes into the 101-card deck with Guding Blade and typed gender.");
+            "The 1.32 classic registry must opt both classic modes into the 102-card deck with Zhuque Fan and typed gender.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -3224,22 +3230,37 @@ internal static class ClassicGeneralChecks
                 movement.Reason == CardMoveReasons.JudgmentFinish),
             skipped.Error?.Message ?? "Skipping Tiandu did not discard the judgment card normally.");
 
-        var legacy = StartClassicGeneralAtPlay(registry, game.Seed, "classic:guo-jia", rulesVersion: 21) ??
-            throw new InvalidOperationException("The rules-v21 Tiandu fixture did not reproduce.");
-        var legacyLightning = legacy.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.Lightning && action.CardId is not null);
-        Require(legacy.Submit(new PlayCardCommand(
-            0,
-            legacyLightning.CardId!.Value,
-            legacyLightning.TargetSeats,
-            legacy.Revision,
-            legacy.PendingDecision!.PromptId)).Accepted &&
-                DriveUntilOwnLightningJudgment(legacy, expectTiandu: false, out var legacyJudgment) &&
-                legacy.PendingDecision?.Kind != DecisionKind.Tiandu &&
-                legacy.CardMovements.Any(movement =>
+        var legacyRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 1, 0));
+        GameEngine? legacy = null;
+        for (var seed = 1; seed <= 8_192 && legacy is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                legacyRegistry,
+                seed,
+                "classic:guo-jia",
+                rulesVersion: 21);
+            var legacyLightning = candidate?.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Lightning && action.CardId is not null);
+            if (candidate is null || legacyLightning is null ||
+                !candidate.Submit(new PlayCardCommand(
+                    0,
+                    legacyLightning.CardId!.Value,
+                    legacyLightning.TargetSeats,
+                    candidate.Revision,
+                    candidate.PendingDecision!.PromptId)).Accepted ||
+                !DriveUntilOwnLightningJudgment(candidate, expectTiandu: false, out var legacyJudgment) ||
+                candidate.PendingDecision?.Kind == DecisionKind.Tiandu ||
+                !candidate.CardMovements.Any(movement =>
                     movement.CardId == legacyJudgment.CardId &&
                     movement.To == CardLocation.DiscardPile &&
-                    movement.Reason == CardMoveReasons.JudgmentFinish),
+                    movement.Reason == CardMoveReasons.JudgmentFinish))
+            {
+                continue;
+            }
+
+            legacy = candidate;
+        }
+        Require(legacy is not null,
             "Rules v21 must retain the historical automatic judgment discard path.");
     }
 

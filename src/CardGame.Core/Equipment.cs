@@ -100,6 +100,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 2，锁定技，当你使用杀对没有手牌的目标造成伤害时，此伤害 +1。",
                 WeaponAttackRange: 2),
+            [CardKind.ZhuqueFan] = new(
+                CardKind.ZhuqueFan,
+                "朱雀羽扇",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 4，你可以将使用的普通杀改为火杀。",
+                WeaponAttackRange: 4),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

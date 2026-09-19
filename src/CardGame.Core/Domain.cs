@@ -75,7 +75,8 @@ public enum CardKind
     IceSword,
     QilinBow,
     FangtianHalberd,
-    GudingBlade
+    GudingBlade,
+    ZhuqueFan
 }
 
 public enum Suit
@@ -209,7 +210,8 @@ public enum DecisionKind
     CixiongDoubleSwords,
     QinglongCrescentBlade,
     IceSword,
-    QilinBow
+    QilinBow,
+    ZhuqueFan
 }
 
 public enum GangliePunishmentKind

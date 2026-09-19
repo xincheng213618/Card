@@ -282,6 +282,9 @@ public sealed partial class GameEngine
     private bool UsesFormalGudingBlade =>
         _rulesVersion >= 50 && IsClassicIdentityMode;
 
+    private bool UsesFormalZhuqueFan =>
+        _rulesVersion >= 51 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -880,6 +883,7 @@ public sealed partial class GameEngine
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
+                DecisionKind.ZhuqueFan or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -1020,6 +1024,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.QilinBow)
         {
             return SubmitQilinBowPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.ZhuqueFan)
+        {
+            return SubmitZhuqueFanPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1646,6 +1655,28 @@ public sealed partial class GameEngine
         };
     }
 
+    private CommandResult SubmitZhuqueFanPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingJijiang is not { AwaitingZhuqueFanChoice: true } pending ||
+            _pendingDecision is not { Kind: DecisionKind.ZhuqueFan } decision ||
+            decision.PlayerSeat != pending.OwnerSeat)
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的朱雀羽扇转换窗口。");
+        }
+
+        if (selected.Cards.Count != 0 ||
+            selected.Targets.Count != 0 ||
+            selected.Parameters.GetValueOrDefault("action") is not
+                ("zhuque-fan-normal" or "zhuque-fan-fire"))
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "朱雀羽扇必须选择保持普通杀或改为火杀。");
+        }
+
+        return Accept(() => HumanZhuqueFanCore(
+            selected.Parameters.GetValueOrDefault("action") == "zhuque-fan-fire",
+            advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+    }
+
     private CommandResult SubmitIceSwordPromptAnswer(PromptChoice selected)
     {
         if (_pendingIceSword is null ||
@@ -1915,6 +1946,7 @@ public sealed partial class GameEngine
                     Accept(() => HumanBorrowedSwordResponseCore(
                         useSlash: true,
                         requestedSlashCardId: selected.Cards[0],
+                        requestedEffectiveKind: ReadResponseCardKind(selected),
                         advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
                 "zhangba-slash" when selected.Cards.Count == 2 =>
                     Accept(() => HumanZhangbaSlashResponseCore(
@@ -1924,6 +1956,7 @@ public sealed partial class GameEngine
                     Accept(() => HumanBorrowedSwordResponseCore(
                         useSlash: false,
                         requestedSlashCardId: null,
+                        requestedEffectiveKind: null,
                         advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
                 _ => Reject(CommandErrorCode.InvalidChoice,
                     "The choice is malformed for this Borrowed Sword response window.")
@@ -1957,6 +1990,7 @@ public sealed partial class GameEngine
             "jijiang-slash" when selected.Cards.Count == 1 => Accept(() => HumanJijiangResponseCore(
                 useSlash: true,
                 requestedCardId: selected.Cards[0],
+                requestedEffectiveKind: ReadResponseCardKind(selected),
                 _options.AdvanceAfterHumanCommands)),
             "zhangba-slash" when selected.Cards.Count == 2 => Accept(() => HumanZhangbaSlashResponseCore(
                 selected.Cards,
@@ -1964,6 +1998,7 @@ public sealed partial class GameEngine
             "jijiang-decline" when selected.Cards.Count == 0 => Accept(() => HumanJijiangResponseCore(
                 useSlash: false,
                 requestedCardId: null,
+                requestedEffectiveKind: null,
                 _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "The prompt choice is malformed for this Jijiang response.")
         };
@@ -2892,6 +2927,7 @@ public sealed partial class GameEngine
     private EngineRunResult HumanJijiangResponseCore(
         bool useSlash,
         int? requestedCardId,
+        CardKind? requestedEffectiveKind,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.RespondSlash);
@@ -2902,7 +2938,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The current Jijiang responder is not the human seat.");
         }
 
-        ResolveJijiangCandidateResponse(pending, useSlash, requestedCardId);
+        ResolveJijiangCandidateResponse(
+            pending,
+            useSlash,
+            requestedCardId,
+            requestedEffectiveKind);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -3115,6 +3155,18 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.QinglongCrescentBlade);
         ResolveQinglongCrescentBladeChoice(selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanZhuqueFanCore(
+        bool convertToFireSlash,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.ZhuqueFan);
+        var pending = _pendingJijiang ??
+            throw new InvalidOperationException("There is no Jijiang Zhuque Fan continuation.");
+        ResolveJijiangZhuqueFanChoice(pending, convertToFireSlash);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -3396,6 +3448,7 @@ public sealed partial class GameEngine
             ? HumanJijiangResponseCore(
                 useSlash,
                 requestedSlashCardId,
+                requestedResponseCardKind,
                 advanceToHumanBoundary)
             : _pendingDecision?.Kind == DecisionKind.Feedback
             ? HumanFeedbackCore(
@@ -3493,6 +3546,7 @@ public sealed partial class GameEngine
     private EngineRunResult HumanBorrowedSwordResponseCore(
         bool useSlash,
         int? requestedSlashCardId,
+        CardKind? requestedEffectiveKind,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.RespondSlash);
@@ -3515,7 +3569,7 @@ public sealed partial class GameEngine
 
         if (slash is not null)
         {
-            ResolveBorrowedSwordSlashChoice(pending, slash);
+            ResolveBorrowedSwordSlashChoice(pending, slash, requestedEffectiveKind);
         }
         else
         {
@@ -8517,24 +8571,31 @@ public sealed partial class GameEngine
             weaponOwner.Seat,
             CardKind.BorrowedSword,
             CardKind.Slash);
-        var choices = slashes.Select(card =>
+        var choices = slashes.SelectMany(card =>
         {
-            var effectiveKind = GetEffectiveResponseKind(weaponOwner, card, CardKind.Slash);
-            var cardDescription = IsNativeResponseCard(card, CardKind.Slash)
-                ? $"使用【{CardCatalog.Get(effectiveKind).DisplayName}】"
-                : $"将【{card.DisplayName}】当作【杀】使用";
-            return new PromptChoice(
-                new ChoiceId($"borrowed-sword.slash.card-{card.Id}"),
-                $"{cardDescription}攻击 {slashTarget.Name}。",
-                [card.Id],
-                [slashTarget.Seat],
-                new Dictionary<string, string>
-                {
-                    ["response"] = "borrowed-sword-slash",
-                    ["response-card-kind"] = effectiveKind.ToString(),
-                    ["target-seat"] = slashTarget.Seat.ToString(
-                        System.Globalization.CultureInfo.InvariantCulture)
-                });
+            var baseEffectiveKind = GetEffectiveResponseKind(weaponOwner, card, CardKind.Slash);
+            return GetSlashUseKinds(weaponOwner, baseEffectiveKind).Select(effectiveKind =>
+            {
+                var usesZhuqueFan = effectiveKind != baseEffectiveKind;
+                var cardDescription = usesZhuqueFan
+                    ? $"发动【朱雀羽扇】，将【杀】改为【火杀】使用"
+                    : IsNativeResponseCard(card, CardKind.Slash)
+                        ? $"使用【{CardCatalog.Get(effectiveKind).DisplayName}】"
+                        : $"将【{card.DisplayName}】当作【杀】使用";
+                var suffix = usesZhuqueFan ? ".as-FireSlash" : string.Empty;
+                return new PromptChoice(
+                    new ChoiceId($"borrowed-sword.slash.card-{card.Id}{suffix}"),
+                    $"{cardDescription}攻击 {slashTarget.Name}。",
+                    [card.Id],
+                    [slashTarget.Seat],
+                    new Dictionary<string, string>
+                    {
+                        ["response"] = "borrowed-sword-slash",
+                        ["response-card-kind"] = effectiveKind.ToString(),
+                        ["target-seat"] = slashTarget.Seat.ToString(
+                            System.Globalization.CultureInfo.InvariantCulture)
+                    });
+            });
         }).ToList();
         foreach (var pair in zhangbaPairs)
         {
@@ -8608,14 +8669,24 @@ public sealed partial class GameEngine
 
     private void ResolveBorrowedSwordSlashChoice(
         BorrowedSwordResolution pending,
-        Card slash)
+        Card slash,
+        CardKind? requestedEffectiveKind = null)
     {
         var weaponOwner = _players[pending.WeaponOwnerSeat];
         var slashTarget = _players[pending.SlashTargetSeat];
         var selected = GetBorrowedSwordSlashCards(weaponOwner, slashTarget)
             .SingleOrDefault(card => card.Id == slash.Id) ??
             throw new InvalidOperationException("The selected Borrowed Sword Slash is no longer legal.");
-        var effectiveKind = GetEffectiveResponseKind(weaponOwner, selected, CardKind.Slash);
+        var baseEffectiveKind = GetEffectiveResponseKind(weaponOwner, selected, CardKind.Slash);
+        var effectiveKind = requestedEffectiveKind ?? baseEffectiveKind;
+        var usesZhuqueFan = IsZhuqueFanConversion(
+            weaponOwner,
+            baseEffectiveKind,
+            effectiveKind);
+        if (effectiveKind != baseEffectiveKind && !usesZhuqueFan)
+        {
+            throw new InvalidOperationException("The selected Borrowed Sword Slash conversion is no longer legal.");
+        }
 
         PopResponseWindow(pending.ResolutionId);
         SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
@@ -8629,7 +8700,8 @@ public sealed partial class GameEngine
             selected,
             effectiveKind,
             weaponOwner.Seat,
-            borrowedSword: pending);
+            borrowedSword: pending,
+            usesZhuqueFan: usesZhuqueFan);
     }
 
     private void ResolveBorrowedSwordZhangbaSlashChoice(
@@ -8784,7 +8856,13 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Slash became illegal before resolution.");
         }
 
-        ResolveSlashCore(source, target, slash, playedCardKind, source.Seat);
+        ResolveSlashCore(
+            source,
+            target,
+            slash,
+            playedCardKind,
+            source.Seat,
+            usesZhuqueFan: playedCardKind == CardKind.FireSlash && slash.Kind == CardKind.Slash);
     }
 
     private void ResolveFangtianHalberdSlash(
@@ -9122,12 +9200,18 @@ public sealed partial class GameEngine
         JijiangResolution? activeJijiang = null,
         BorrowedSwordResolution? borrowedSword = null,
         IReadOnlyList<Card>? physicalCards = null,
-        bool countsTowardSlashLimit = true)
+        bool countsTowardSlashLimit = true,
+        bool usesZhuqueFan = false)
     {
         var slashCards = physicalCards?.ToArray() ?? [slash];
         if (slashCards.Length == 0 || slashCards[0].Id != slash.Id)
         {
             throw new InvalidOperationException("A Slash use must retain its primary physical card.");
+        }
+        if (usesZhuqueFan &&
+            (!HasZhuqueFan(source) || playedCardKind != CardKind.FireSlash))
+        {
+            throw new InvalidOperationException("Zhuque Fan is no longer available for this Fire Slash conversion.");
         }
         var ignoresArmor = HasArmorBypass(source);
         var resolutionId = BeginCardUse(
@@ -9137,6 +9221,19 @@ public sealed partial class GameEngine
             playedCardKind,
             ignoresArmor,
             slashCards.Select(card => card.Id).ToArray());
+        if (usesZhuqueFan)
+        {
+            QueueGameEvent(new ZhuqueFanConvertedEvent(
+                resolutionId,
+                source.Seat,
+                Array.AsReadOnly(slashCards.Select(card => card.Id).ToArray()),
+                Array.AsReadOnly(new[] { target.Seat })));
+            AddLog(
+                "EquipmentEffect",
+                $"{source.Name} 发动【朱雀羽扇】，将本次普通【杀】改为【火杀】使用。",
+                source.Seat,
+                target.Seat);
+        }
         foreach (var physicalCard in slashCards)
         {
             MoveCard(
@@ -10986,7 +11083,8 @@ public sealed partial class GameEngine
     private void ResolveJijiangCandidateResponse(
         JijiangResolution pending,
         bool useSlash,
-        int? requestedCardId)
+        int? requestedCardId,
+        CardKind? requestedEffectiveKind = null)
     {
         if (!ReferenceEquals(_pendingJijiang, pending) ||
             !pending.AwaitingProviders ||
@@ -11010,17 +11108,48 @@ public sealed partial class GameEngine
         _status = EngineStatus.Running;
         if (selectedSlash is not null)
         {
+            var baseEffectiveKind = GetEffectiveResponseKind(provider, selectedSlash, CardKind.Slash);
+            var effectiveKind = requestedEffectiveKind ?? baseEffectiveKind;
+            if (effectiveKind != baseEffectiveKind)
+            {
+                throw new InvalidOperationException("A Jijiang provider cannot choose the owner's weapon conversion.");
+            }
+
+            if (TryBeginJijiangZhuqueFanChoice(
+                    pending,
+                    provider,
+                    [selectedSlash],
+                    baseEffectiveKind))
+            {
+                return;
+            }
+
             if (pending.IsBorrowedSwordUse)
             {
-                BeginBorrowedSwordJijiangSlash(pending, provider, selectedSlash);
+                BeginBorrowedSwordJijiangSlash(
+                    pending,
+                    provider,
+                    [selectedSlash],
+                    effectiveKind,
+                    usesZhuqueFan: false);
             }
             else if (pending.IsQinglongCrescentBladeUse)
             {
-                BeginQinglongCrescentBladeJijiangSlash(pending, provider, selectedSlash);
+                BeginQinglongCrescentBladeJijiangSlash(
+                    pending,
+                    provider,
+                    [selectedSlash],
+                    effectiveKind,
+                    usesZhuqueFan: false);
             }
             else if (pending.IsActiveUse)
             {
-                BeginProvidedJijiangSlash(pending, provider, selectedSlash);
+                BeginProvidedJijiangSlash(
+                    pending,
+                    provider,
+                    [selectedSlash],
+                    effectiveKind,
+                    usesZhuqueFan: false);
             }
             else
             {
@@ -11052,99 +11181,48 @@ public sealed partial class GameEngine
         }
 
         var owner = _players[pending.OwnerSeat];
+        if (TryBeginJijiangZhuqueFanChoice(
+                pending,
+                provider,
+                pair,
+                CardKind.Slash))
+        {
+            return;
+        }
+
         if (pending.IsBorrowedSwordUse)
         {
-            var borrowedSword = pending.BorrowedSword ??
-                throw new InvalidOperationException("A Borrowed Sword Jijiang use has no parent resolution.");
-            var target = _players[pending.TargetSeat ??
-                throw new InvalidOperationException("A Borrowed Sword Jijiang use has no target.")];
-            pending.AwaitingProviders = false;
-            borrowedSword.AwaitingSlashChoice = false;
-            borrowedSword.SlashCardId = pair[0].Id;
-            borrowedSword.EffectiveSlashKind = CardKind.Slash;
-            PopResponseWindow(borrowedSword.ResolutionId);
-            SetCardUseStep(borrowedSword.ResolutionId, ResolutionFrameStep.ResolvingEffect);
-            QueueGameEvent(new JijiangResolvedEvent(
-                borrowedSword.ResolutionId,
-                owner.Seat,
-                Succeeded: true,
-                provider.Seat,
-                pair[0].Id,
-                CardKind.Slash,
-                IsActiveUse: true,
-                target.Seat));
             ClearPendingDecision();
-            ResolveSlashCore(
-                owner,
-                target,
-                pair[0],
+            BeginBorrowedSwordJijiangSlash(
+                pending,
+                provider,
+                pair,
                 CardKind.Slash,
-                provider.Seat,
-                activeJijiang: pending,
-                borrowedSword: borrowedSword,
-                physicalCards: pair);
+                usesZhuqueFan: false);
             return;
         }
 
         if (pending.IsQinglongCrescentBladeUse)
         {
-            var qinglong = pending.QinglongCrescentBlade ??
-                throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang use has no parent resolution.");
-            var target = _players[pending.TargetSeat ??
-                throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang use has no target.")];
-            if (!ReferenceEquals(_pendingQinglongCrescentBlade, qinglong) ||
-                !CanUseQinglongCrescentBladeTarget(owner, target))
-            {
-                throw new InvalidOperationException("The Qinglong Crescent Blade Jijiang target is no longer legal.");
-            }
-
-            pending.AwaitingProviders = false;
-            QueueGameEvent(new JijiangResolvedEvent(
-                pending.ResolutionId,
-                owner.Seat,
-                Succeeded: true,
-                provider.Seat,
-                pair[0].Id,
-                CardKind.Slash,
-                IsActiveUse: true,
-                target.Seat));
             ClearPendingDecision();
-            BeginQinglongCrescentBladeFollowup(
-                qinglong,
-                pair[0],
-                CardKind.Slash,
-                provider.Seat,
+            BeginQinglongCrescentBladeJijiangSlash(
+                pending,
+                provider,
                 pair,
-                pending);
+                CardKind.Slash,
+                usesZhuqueFan: false);
             return;
         }
 
         if (pending.IsActiveUse)
         {
-            var target = _players[pending.TargetSeat ??
-                throw new InvalidOperationException("An active Jijiang use has no target.")];
-            pending.AwaitingProviders = false;
-            var frameId = pending.ActiveSkillFrameId ??
-                throw new InvalidOperationException("An active Jijiang use has no active-skill frame.");
-            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.ResolvingEffect);
-            QueueGameEvent(new JijiangResolvedEvent(
-                frameId,
-                owner.Seat,
-                Succeeded: true,
-                provider.Seat,
-                pair[0].Id,
-                CardKind.Slash,
-                IsActiveUse: true,
-                target.Seat));
             ClearPendingDecision();
-            ResolveSlashCore(
-                owner,
-                target,
-                pair[0],
+            BeginProvidedJijiangSlash(
+                pending,
+                provider,
+                pair,
                 CardKind.Slash,
-                provider.Seat,
-                activeJijiang: pending,
-                physicalCards: pair);
+                usesZhuqueFan: false);
             return;
         }
 
@@ -11380,8 +11458,12 @@ public sealed partial class GameEngine
     private void BeginProvidedJijiangSlash(
         JijiangResolution pending,
         PlayerRuntime provider,
-        Card selectedSlash)
+        IReadOnlyList<Card> physicalCards,
+        CardKind effectiveKind,
+        bool usesZhuqueFan)
     {
+        var selectedSlash = physicalCards.FirstOrDefault() ??
+            throw new InvalidOperationException("An active Jijiang Slash must retain a physical card.");
         var owner = _players[pending.OwnerSeat];
         var target = _players[pending.TargetSeat ??
             throw new InvalidOperationException("An active Jijiang use has no target.")];
@@ -11398,7 +11480,6 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Jijiang Slash limit has already been reached.");
         }
 
-        var effectiveKind = GetEffectiveResponseKind(provider, selectedSlash, CardKind.Slash);
         pending.AwaitingProviders = false;
         var frameId = pending.ActiveSkillFrameId ??
             throw new InvalidOperationException("An active Jijiang use has no active-skill frame.");
@@ -11423,14 +11504,20 @@ public sealed partial class GameEngine
             selectedSlash,
             effectiveKind,
             provider.Seat,
-            pending);
+            pending,
+            physicalCards: physicalCards,
+            usesZhuqueFan: usesZhuqueFan);
     }
 
     private void BeginBorrowedSwordJijiangSlash(
         JijiangResolution pending,
         PlayerRuntime provider,
-        Card selectedSlash)
+        IReadOnlyList<Card> physicalCards,
+        CardKind effectiveKind,
+        bool usesZhuqueFan)
     {
+        var selectedSlash = physicalCards.FirstOrDefault() ??
+            throw new InvalidOperationException("A Borrowed Sword Jijiang Slash must retain a physical card.");
         var borrowedSword = pending.BorrowedSword ??
             throw new InvalidOperationException("A Borrowed Sword Jijiang use has no parent resolution.");
         var owner = _players[pending.OwnerSeat];
@@ -11444,7 +11531,6 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Borrowed Sword Jijiang target is no longer legal.");
         }
 
-        var effectiveKind = GetEffectiveResponseKind(provider, selectedSlash, CardKind.Slash);
         pending.AwaitingProviders = false;
         borrowedSword.AwaitingSlashChoice = false;
         borrowedSword.SlashCardId = selectedSlash.Id;
@@ -11472,14 +11558,20 @@ public sealed partial class GameEngine
             effectiveKind,
             provider.Seat,
             activeJijiang: pending,
-            borrowedSword: borrowedSword);
+            borrowedSword: borrowedSword,
+            physicalCards: physicalCards,
+            usesZhuqueFan: usesZhuqueFan);
     }
 
     private void BeginQinglongCrescentBladeJijiangSlash(
         JijiangResolution pending,
         PlayerRuntime provider,
-        Card selectedSlash)
+        IReadOnlyList<Card> physicalCards,
+        CardKind effectiveKind,
+        bool usesZhuqueFan)
     {
+        var selectedSlash = physicalCards.FirstOrDefault() ??
+            throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang Slash must retain a physical card.");
         var qinglong = pending.QinglongCrescentBlade ??
             throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang use has no parent resolution.");
         var owner = _players[pending.OwnerSeat];
@@ -11493,9 +11585,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Qinglong Crescent Blade Jijiang target is no longer legal.");
         }
 
-        var effectiveKind = IsSlashCard(selectedSlash.Kind)
-            ? selectedSlash.Kind
-            : CardKind.Slash;
+        if (usesZhuqueFan)
+        {
+            throw new InvalidOperationException("Qinglong Crescent Blade cannot simultaneously provide Zhuque Fan conversion.");
+        }
         pending.AwaitingProviders = false;
         QueueGameEvent(new JijiangResolvedEvent(
             pending.ResolutionId,
@@ -11516,8 +11609,128 @@ public sealed partial class GameEngine
             selectedSlash,
             effectiveKind,
             provider.Seat,
-            [selectedSlash],
+            physicalCards,
             pending);
+    }
+
+    private bool TryBeginJijiangZhuqueFanChoice(
+        JijiangResolution pending,
+        PlayerRuntime provider,
+        IReadOnlyList<Card> physicalCards,
+        CardKind baseEffectiveKind)
+    {
+        var owner = _players[pending.OwnerSeat];
+        if ((!pending.IsActiveUse && !pending.IsBorrowedSwordUse) ||
+            baseEffectiveKind != CardKind.Slash ||
+            (physicalCards.Count == 1 && physicalCards[0].Kind != CardKind.Slash) ||
+            !HasZhuqueFan(owner))
+        {
+            return false;
+        }
+
+        if (!pending.AwaitingProviders ||
+            pending.AwaitingZhuqueFanChoice ||
+            physicalCards.Count == 0 ||
+            provider.Seat != pending.CurrentCandidateSeat)
+        {
+            throw new InvalidOperationException("The Jijiang Zhuque Fan choice cannot start from this continuation.");
+        }
+
+        ClearPendingDecision();
+        pending.AwaitingProviders = false;
+        pending.AwaitingZhuqueFanChoice = true;
+        pending.ZhuqueFanProviderSeat = provider.Seat;
+        pending.ZhuqueFanPhysicalCards = Array.AsReadOnly(physicalCards.ToArray());
+        _pendingDecision = new PendingDecision(
+            DecisionKind.ZhuqueFan,
+            owner.Seat,
+            $"{provider.Name} 已为【激将】提供普通【杀】，是否发动【朱雀羽扇】改为【火杀】？",
+            [],
+            [],
+            SourceSeat: provider.Seat,
+            IncomingCard: CardKind.Slash)
+        {
+            PromptId = CreatePromptId(),
+            TargetSeat = pending.TargetSeat,
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId("zhuque-fan.normal"),
+                    "保持为普通【杀】。",
+                    [],
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["action"] = "zhuque-fan-normal",
+                        ["equipment"] = CardKind.ZhuqueFan.ToString()
+                    }),
+                new PromptChoice(
+                    new ChoiceId("zhuque-fan.fire"),
+                    "发动【朱雀羽扇】，将此【杀】改为【火杀】。",
+                    [],
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["action"] = "zhuque-fan-fire",
+                        ["equipment"] = CardKind.ZhuqueFan.ToString()
+                    })
+            ]
+        };
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private void ResolveJijiangZhuqueFanChoice(
+        JijiangResolution pending,
+        bool convertToFireSlash)
+    {
+        if (!ReferenceEquals(_pendingJijiang, pending) ||
+            !pending.AwaitingZhuqueFanChoice ||
+            pending.AwaitingProviders ||
+            _pendingDecision is not { Kind: DecisionKind.ZhuqueFan } decision ||
+            decision.PlayerSeat != pending.OwnerSeat ||
+            pending.ZhuqueFanProviderSeat is not { } providerSeat ||
+            pending.ZhuqueFanPhysicalCards.Count == 0)
+        {
+            throw new InvalidOperationException("The Jijiang Zhuque Fan choice is not current.");
+        }
+
+        var owner = _players[pending.OwnerSeat];
+        if (convertToFireSlash && !HasZhuqueFan(owner))
+        {
+            throw new InvalidOperationException("Zhuque Fan is no longer available for this conversion.");
+        }
+
+        var provider = _players[providerSeat];
+        var physicalCards = pending.ZhuqueFanPhysicalCards;
+        pending.AwaitingZhuqueFanChoice = false;
+        pending.ZhuqueFanProviderSeat = null;
+        pending.ZhuqueFanPhysicalCards = [];
+        ClearPendingDecision();
+        _status = EngineStatus.Running;
+        var effectiveKind = convertToFireSlash ? CardKind.FireSlash : CardKind.Slash;
+        if (pending.IsBorrowedSwordUse)
+        {
+            BeginBorrowedSwordJijiangSlash(
+                pending,
+                provider,
+                physicalCards,
+                effectiveKind,
+                convertToFireSlash);
+            return;
+        }
+
+        if (!pending.IsActiveUse)
+        {
+            throw new InvalidOperationException("Only an active Jijiang Slash use can resume from Zhuque Fan.");
+        }
+
+        BeginProvidedJijiangSlash(
+            pending,
+            provider,
+            physicalCards,
+            effectiveKind,
+            convertToFireSlash);
     }
 
     private void CompleteActiveJijiang(JijiangResolution pending)
@@ -11582,6 +11795,12 @@ public sealed partial class GameEngine
         if (_pendingStoneAxe is not null)
         {
             ResolvePendingAiStoneAxe();
+            return;
+        }
+
+        if (_pendingJijiang is { AwaitingZhuqueFanChoice: true })
+        {
+            ResolvePendingAiZhuqueFan();
             return;
         }
 
@@ -11730,6 +11949,30 @@ public sealed partial class GameEngine
             ++_thoughtSequence);
         AddThought(thought);
         ResolveStoneAxeChoice(discardedCardIds);
+        PublishState();
+    }
+
+    private void ResolvePendingAiZhuqueFan()
+    {
+        var pending = _pendingJijiang ??
+            throw new InvalidOperationException("AI Zhuque Fan response has no Jijiang continuation.");
+        if (!pending.AwaitingZhuqueFanChoice ||
+            _pendingDecision is not { Kind: DecisionKind.ZhuqueFan } decision ||
+            decision.PlayerSeat != pending.OwnerSeat ||
+            pending.TargetSeat is not { } targetSeat)
+        {
+            throw new InvalidOperationException("The pending AI Zhuque Fan prompt is inconsistent.");
+        }
+
+        var (choiceId, thought) = _aiBrains[pending.OwnerSeat].ChooseZhuqueFanChoice(
+            CreateSnapshot(pending.OwnerSeat),
+            targetSeat,
+            ++_thoughtSequence);
+        AddThought(thought);
+        var selected = decision.Choices.Single(choice => choice.Id == choiceId);
+        ResolveJijiangZhuqueFanChoice(
+            pending,
+            selected.Parameters.GetValueOrDefault("action") == "zhuque-fan-fire");
         PublishState();
     }
 
@@ -16322,6 +16565,25 @@ public sealed partial class GameEngine
         GetEquipment(actor).Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
         GetHand(actor).Count >= 2;
 
+    private bool HasZhuqueFan(PlayerRuntime actor) =>
+        UsesFormalZhuqueFan &&
+        GetEquipment(actor).Any(card => card.Kind == CardKind.ZhuqueFan);
+
+    private IReadOnlyList<CardKind> GetSlashUseKinds(
+        PlayerRuntime actor,
+        CardKind baseEffectiveKind) =>
+        HasZhuqueFan(actor) && baseEffectiveKind == CardKind.Slash
+            ? [CardKind.Slash, CardKind.FireSlash]
+            : [baseEffectiveKind];
+
+    private bool IsZhuqueFanConversion(
+        PlayerRuntime actor,
+        CardKind baseEffectiveKind,
+        CardKind requestedEffectiveKind) =>
+        baseEffectiveKind == CardKind.Slash &&
+        requestedEffectiveKind == CardKind.FireSlash &&
+        HasZhuqueFan(actor);
+
     private IReadOnlyList<LegalAction> BuildNationalRevealActions(PlayerRuntime actor)
     {
         var actions = new List<LegalAction>();
@@ -16381,24 +16643,33 @@ public sealed partial class GameEngine
         {
             foreach (var slash in GetHand(actor).Where(card => IsSlashCard(card.Kind)))
             {
-                var slashName = CardCatalog.Get(slash.Kind).DisplayName;
                 var targets = GetFangtianOrderedSlashTargets(actor, slash);
-                foreach (var target in targets)
+                foreach (var effectiveKind in GetSlashUseKinds(actor, slash.Kind))
                 {
-                    actions.Add(new LegalAction(
-                        LegalActionKind.Slash,
-                        slash.Id,
-                        target.Seat,
-                        $"对 {target.Name} 使用【{slashName}】"));
-                }
+                    var slashName = CardCatalog.Get(effectiveKind).DisplayName;
+                    CardKind? playedCardKind = effectiveKind == slash.Kind
+                        ? null
+                        : effectiveKind;
+                    foreach (var target in targets)
+                    {
+                        actions.Add(new LegalAction(
+                            LegalActionKind.Slash,
+                            slash.Id,
+                            target.Seat,
+                            playedCardKind == CardKind.FireSlash
+                                ? $"发动【朱雀羽扇】，将【杀】改为【火杀】对 {target.Name} 使用"
+                                : $"对 {target.Name} 使用【{slashName}】",
+                            PlayedCardKind: playedCardKind));
+                    }
 
-                AddFangtianHalberdSlashActions(
-                    actions,
-                    actor,
-                    slash,
-                    targets,
-                    slashName,
-                    playedCardKind: null);
+                    AddFangtianHalberdSlashActions(
+                        actions,
+                        actor,
+                        slash,
+                        targets,
+                        slashName,
+                        playedCardKind);
+                }
             }
 
             foreach (var converted in GetHand(actor).Where(card =>
@@ -17430,6 +17701,10 @@ public sealed partial class GameEngine
             if (action.TargetCardId is { } targetCardId)
             {
                 choiceId += $".target-card-{targetCardId}";
+            }
+            if (action.PlayedCardKind == CardKind.FireSlash)
+            {
+                choiceId += ".as-FireSlash";
             }
 
             var parameters = new Dictionary<string, string>
@@ -18470,7 +18745,8 @@ public sealed partial class GameEngine
                 borrowedDecision.PlayerSeat == borrowedSword.WeaponOwnerSeat &&
                 responseWindow is not null &&
                 responseWindow.ResponderSeat == borrowedSword.WeaponOwnerSeat;
-            var awaitingJijiang = _pendingJijiang is { IsBorrowedSwordUse: true, AwaitingProviders: true } borrowedJijiang &&
+            var awaitingJijiang = _pendingJijiang is { IsBorrowedSwordUse: true } borrowedJijiang &&
+                (borrowedJijiang.AwaitingProviders || borrowedJijiang.AwaitingZhuqueFanChoice) &&
                 ReferenceEquals(borrowedJijiang.BorrowedSword, borrowedSword);
             var resolvingSlash = borrowedSword.ActiveAttack is { } borrowedAttack &&
                 ReferenceEquals(_pendingAttack, borrowedAttack);
@@ -19934,7 +20210,19 @@ public sealed partial class GameEngine
                                        jijiang.CandidateIndex < jijiang.CandidateSeats.Count;
             var providerPromptMatches = _pendingDecision is { Kind: DecisionKind.RespondSlash } jijiangDecision &&
                                         jijiangDecision.PlayerSeat == jijiang.CurrentCandidateSeat;
-            if (!UsesFormalJijiang || !candidateCursorValid)
+            var zhuquePromptMatches = _pendingDecision is { Kind: DecisionKind.ZhuqueFan } zhuqueDecision &&
+                                      zhuqueDecision.PlayerSeat == jijiang.OwnerSeat &&
+                                      jijiang.ZhuqueFanProviderSeat == jijiang.CurrentCandidateSeat &&
+                                      jijiang.ZhuqueFanPhysicalCards.Count > 0;
+            if (!UsesFormalJijiang ||
+                !candidateCursorValid ||
+                jijiang.AwaitingProviders && jijiang.AwaitingZhuqueFanChoice ||
+                jijiang.AwaitingZhuqueFanChoice != zhuquePromptMatches ||
+                jijiang.AwaitingZhuqueFanChoice &&
+                (!UsesFormalZhuqueFan || !HasZhuqueFan(_players[jijiang.OwnerSeat])) ||
+                !jijiang.AwaitingZhuqueFanChoice &&
+                (jijiang.ZhuqueFanProviderSeat is not null ||
+                 jijiang.ZhuqueFanPhysicalCards.Count != 0))
             {
                 throw new InvalidOperationException(
                     "A Jijiang continuation must retain its ordered Shu cursor.");
@@ -19946,14 +20234,18 @@ public sealed partial class GameEngine
                 var responseWindow = _resolutionStack.OfType<ResponseWindowFrame>().LastOrDefault(frame =>
                     borrowedParent is not null && frame.ParentFrameId == borrowedParent.ResolutionId);
                 var activeAttackMatches = !jijiang.AwaitingProviders &&
+                                          !jijiang.AwaitingZhuqueFanChoice &&
                                           jijiang.ActiveAttack is { } activeAttack &&
                                           ReferenceEquals(_pendingAttack, activeAttack) &&
                                           ReferenceEquals(borrowedParent?.ActiveAttack, activeAttack);
+                var awaitingZhuqueMatches = jijiang.AwaitingZhuqueFanChoice &&
+                                            responseWindow is not null &&
+                                            zhuquePromptMatches;
                 if (borrowedParent is null ||
                     !ReferenceEquals(_pendingBorrowedSword, borrowedParent) ||
                     (jijiang.AwaitingProviders
                         ? responseWindow is null || !providerPromptMatches
-                        : !activeAttackMatches))
+                        : !awaitingZhuqueMatches && !activeAttackMatches))
                 {
                     throw new InvalidOperationException(
                         "A Borrowed Sword Jijiang continuation must retain its parent response or nested Slash.");
@@ -19964,6 +20256,7 @@ public sealed partial class GameEngine
                 var qinglongParent = jijiang.QinglongCrescentBlade;
                 var parentAttack = qinglongParent?.Attack;
                 var activeAttackMatches = !jijiang.AwaitingProviders &&
+                                          !jijiang.AwaitingZhuqueFanChoice &&
                                           jijiang.ActiveAttack is { } activeAttack &&
                                           ReferenceEquals(_pendingAttack, activeAttack) &&
                                           _pendingQinglongCrescentBlade is null;
@@ -19985,10 +20278,15 @@ public sealed partial class GameEngine
                     ? _resolutionStack.OfType<ActiveSkillFrame>().LastOrDefault(frame => frame.Id == activeFrameId)
                     : null;
                 var activeAttackMatches = !jijiang.AwaitingProviders &&
+                                          !jijiang.AwaitingZhuqueFanChoice &&
                                           jijiang.ActiveAttack is { } activeAttack &&
                                           ReferenceEquals(_pendingAttack, activeAttack);
                 if (activeFrame is null ||
-                    (jijiang.AwaitingProviders ? !providerPromptMatches : !activeAttackMatches))
+                    (jijiang.AwaitingProviders
+                        ? !providerPromptMatches
+                        : jijiang.AwaitingZhuqueFanChoice
+                            ? !zhuquePromptMatches
+                            : !activeAttackMatches))
                 {
                     throw new InvalidOperationException(
                         "An active Jijiang continuation must retain either one provider prompt or its Slash attack.");
@@ -20107,6 +20405,13 @@ public sealed partial class GameEngine
                 "A Qilin Bow prompt cannot exist without its Slash continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.ZhuqueFan &&
+            _pendingJijiang is not { AwaitingZhuqueFanChoice: true })
+        {
+            throw new InvalidOperationException(
+                "A Zhuque Fan prompt cannot exist without its Jijiang continuation.");
+        }
+
         if (_pendingDecision?.Kind is DecisionKind.Feedback or
             DecisionKind.Yiji or
             DecisionKind.Jieming or
@@ -20135,7 +20440,8 @@ public sealed partial class GameEngine
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
-                DecisionKind.QilinBow) &&
+                DecisionKind.QilinBow or
+                DecisionKind.ZhuqueFan) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -20346,7 +20652,8 @@ public sealed partial class GameEngine
             DecisionKind.CixiongDoubleSwords or
             DecisionKind.QinglongCrescentBlade or
             DecisionKind.IceSword or
-            DecisionKind.QilinBow) &&
+            DecisionKind.QilinBow or
+            DecisionKind.ZhuqueFan) &&
         _pendingDecision.PlayerSeat != _options.HumanSeat;
 
     private bool IsAiNullificationPending() =>
@@ -21493,6 +21800,9 @@ public sealed partial class GameEngine
         public QinglongCrescentBladeResolution? QinglongCrescentBlade { get; } = qinglongCrescentBlade;
         public int CandidateIndex { get; set; }
         public bool AwaitingProviders { get; set; } = true;
+        public bool AwaitingZhuqueFanChoice { get; set; }
+        public int? ZhuqueFanProviderSeat { get; set; }
+        public IReadOnlyList<Card> ZhuqueFanPhysicalCards { get; set; } = [];
         public AttackResolution? ActiveAttack { get; set; }
         public int CurrentCandidateSeat =>
             CandidateIndex < CandidateSeats.Count ? CandidateSeats[CandidateIndex] : -1;

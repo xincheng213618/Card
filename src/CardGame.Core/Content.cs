@@ -267,6 +267,14 @@ public static class CardCatalog
                 AiPlayValue: 39,
                 AiResponseValue: 0,
                 HandKeepValue: 43),
+            [CardKind.ZhuqueFan] = new(
+                CardKind.ZhuqueFan,
+                "朱雀羽扇",
+                "装备牌",
+                "装备至武器槽；攻击范围 4，你可以将使用的普通杀改为火杀。",
+                AiPlayValue: 41,
+                AiResponseValue: 0,
+                HandKeepValue: 44),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",
