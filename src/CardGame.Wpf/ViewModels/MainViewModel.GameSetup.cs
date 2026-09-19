@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CardGame.Core;
 
@@ -12,6 +13,27 @@ public sealed partial class MainViewModel
     private TableModeOption _selectedTableMode = null!;
     private StartingTeamOption _selectedStartingTeam = null!;
     private DeckOption? _selectedDeck;
+    private ModeCategoryOption _selectedModeCategory = null!;
+
+    public IReadOnlyList<ModeCategoryOption> ModeCategories { get; } =
+    [
+        new("all", "全部", "全部可用模式"),
+        new("identity", "身份", "经典身份与技能演示"),
+        new("team", "阵营", "公开队伍协作对抗"),
+        new("national", "国战", "双将暗置试验模式")
+    ];
+    public ObservableCollection<TableModeOption> VisibleTableModes { get; } = [];
+    public ModeCategoryOption SelectedModeCategory
+    {
+        get => _selectedModeCategory;
+        set
+        {
+            if (!SetProperty(ref _selectedModeCategory, value)) return;
+            RefreshVisibleTableModes();
+            RaisePropertyChanged(nameof(ModeLobbySummary));
+        }
+    }
+    public string ModeLobbySummary => $"{SelectedModeCategory.Description} · {VisibleTableModes.Count} 个入口";
 
     public IReadOnlyList<StartingTeamOption> StartingTeams { get; } =
     [new("青队", "team:blue", "与青队同伴并肩作战"), new("赤队", "team:red", "与赤队同伴并肩作战")];
@@ -131,6 +153,7 @@ public sealed partial class MainViewModel
     private void InitializeGameSetup()
     {
         RevealNationalGeneralCommand = new RelayCommand<NationalRevealChoice>(RevealNationalGeneral);
+        SelectedModeCategory = ModeCategories[0];
         SelectedStartingTeam = StartingTeams[0];
         SelectedStartingRole = StartingRoles[1];
         SelectedTableMode = TableModes[0];
@@ -147,6 +170,22 @@ public sealed partial class MainViewModel
             IsIdentityRevealOpen = true;
         }, () => !IsTutorialActive);
         CancelNewGameSetupCommand = new RelayCommand(() => IsNewGameSetupOpen = false);
+    }
+
+    private void RefreshVisibleTableModes()
+    {
+        if (TableModes is null || SelectedModeCategory is null) return;
+        var modes = TableModes.Where(mode => SelectedModeCategory.Id switch
+        {
+            "identity" => mode.ModeId.StartsWith("identity:", StringComparison.Ordinal),
+            "team" => mode.ModeId.StartsWith("team:", StringComparison.Ordinal),
+            "national" => mode.ModeId.StartsWith("national:", StringComparison.Ordinal),
+            _ => true
+        }).ToArray();
+        VisibleTableModes.Clear();
+        foreach (var mode in modes) VisibleTableModes.Add(mode);
+        if (!modes.Contains(SelectedTableMode)) SelectedTableMode = modes.First();
+        RaisePropertyChanged(nameof(ModeLobbySummary));
     }
 
     private void OpenGameSetup()
@@ -167,5 +206,14 @@ public sealed partial class MainViewModel
 
 public sealed record StartingRoleOption(string Name, Role? Role, string Description);
 public sealed record StartingTeamOption(string Name, string TeamId, string Description);
-public sealed record TableModeOption(int PlayerCount, string Name, string Description, string ModeId);
+public sealed record TableModeOption(int PlayerCount, string Name, string Description, string ModeId)
+{
+    public string PlayerCountText => $"{PlayerCount} 人";
+    public string ModeBadge => ModeId.StartsWith("national:", StringComparison.Ordinal) ? "双将试验"
+        : ModeId.StartsWith("team:", StringComparison.Ordinal) ? "公开阵营"
+        : ModeId.Contains("active-skills", StringComparison.Ordinal) ? "机制演示"
+        : "经典身份";
+}
+
+public sealed record ModeCategoryOption(string Id, string Name, string Description);
 public sealed record DeckOption(string DeckId, string Name, string Description);

@@ -41,6 +41,7 @@ internal static class Program
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));
             Check("the human skill rail distinguishes available active and automatic skills", () => CheckHumanSkillRail(output));
+            Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
             Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
@@ -106,7 +107,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 70 : 69)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 71 : 70)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -286,6 +287,43 @@ internal static class Program
                Find<TextBlock>(cards).Any(text => text.Text == "当前可发动" && text.ActualHeight > 0),
             "The human skill rail or its actionable state is inaccessible in the minimum window.");
         Assert(Engine(vm).Revision == revision, "Rendering the human skill rail changed the game.");
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
+        window.Content = null;
+        window.Close();
+    }
+
+    private static void CheckModeLobby(string output)
+    {
+        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        var revision = Engine(vm).Revision;
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Assert(vm.VisibleTableModes.Count == 7 && vm.SelectedModeCategory.Id == "all" &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 4,
+            "The expanded mode lobby did not expose all registered entry families.");
+        Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
+        var lobby = (ListBox)window.FindName("TableModeChoices");
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 7 &&
+               (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
+            "Mode cards or category controls are inaccessible.");
+
+        vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "national");
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Assert(vm.VisibleTableModes.Count == 2 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("national:")) &&
+               vm.SelectedTableMode.ModeId.StartsWith("national:") && vm.IsNationalModeSelection,
+            "National category leaked another mode or retained an invalid selection.");
+        vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "team");
+        Assert(vm.VisibleTableModes.Count == 1 && vm.SelectedTableMode.ModeId == "team:standard-2v2" && vm.IsTeamModeSelection,
+            "Team category did not select its real registered entry.");
+        vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "identity");
+        Assert(vm.VisibleTableModes.Count == 4 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("identity:")) && vm.IsIdentityModeSelection,
+            "Identity category did not expose its four actual modes.");
+        Assert(Engine(vm).Revision == revision && vm.IsNewGameSetupOpen,
+            "Browsing the mode lobby changed or replaced the suspended match.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();

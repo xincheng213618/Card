@@ -771,17 +771,34 @@
                             </Grid>
                         </Border>
                         <TextBlock Text="{Binding SessionSaveStatus}" Visibility="{Binding HasSaveError, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" Foreground="#E5A396" Margin="4,0,4,12" />
-                        <TextBlock Text="对局模式" Foreground="#CFB985" FontSize="13" Margin="4,0,0,8" />
-                        <ListBox x:Name="TableModeChoices" ItemsSource="{Binding TableModes}" SelectedItem="{Binding SelectedTableMode}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <DockPanel Margin="4,0,4,8">
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding ModeLobbySummary}" Foreground="#758D82" FontSize="10" VerticalAlignment="Center" />
+                            <TextBlock Text="模式大厅" Foreground="#CFB985" FontSize="13" />
+                        </DockPanel>
+                        <ListBox x:Name="ModeCategoryChoices" ItemsSource="{Binding ModeCategories}" SelectedItem="{Binding SelectedModeCategory}" Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,8" AutomationProperties.Name="模式分类">
+                            <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Foreground" Value="#93A99C" /><Setter Property="Padding" Value="15,6" /><Setter Property="Margin" Value="0,0,5,0" /><Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="CategoryFrame" Background="#142329" BorderBrush="#40534B" BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}"><ContentPresenter /></Border><ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="CategoryFrame" Property="Background" Value="#8B7042" /><Setter TargetName="CategoryFrame" Property="BorderBrush" Value="#D2B46F" /><Setter Property="Foreground" Value="#FFF0C8" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                        <ListBox x:Name="TableModeChoices" ItemsSource="{Binding VisibleTableModes}" SelectedItem="{Binding SelectedTableMode}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="选择对局模式">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="{Binding TableModes.Count}" />
+                                    <UniformGrid Columns="3" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="6,5">
-                                        <TextBlock Text="{Binding Name}" FontSize="17" Foreground="#E6C58C" TextWrapping="Wrap" />
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding PlayerCountText}" Foreground="#789083" FontSize="10" VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding Name}" FontSize="17" Foreground="#E6C58C" TextWrapping="Wrap" />
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding ModeBadge}" Foreground="#B39A65" FontSize="9" Margin="0,5,0,0" />
                                         <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap" />
                                     </StackPanel>
                                 </DataTemplate>
