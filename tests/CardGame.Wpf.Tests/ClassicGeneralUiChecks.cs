@@ -1193,6 +1193,26 @@ internal static class ClassicGeneralUiChecks
         gongsunZanWindow.Content = null;
         gongsunZanWindow.Close();
 
+        using var zhangJiaoViewModel = FindGeneralChoice("classic:zhang-jiao");
+        var zhangJiao = zhangJiaoViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:zhang-jiao");
+        Program.Assert(zhangJiao.Name == "张角" && zhangJiao.Kingdom == "群" &&
+                       zhangJiao.SkillName == "鬼道 / 雷击 / 黄天" &&
+                       zhangJiao.SkillDescription.Contains("黑色牌替换", StringComparison.Ordinal) &&
+                       zhangJiao.SkillDescription.Contains("使用或打出闪", StringComparison.Ordinal) &&
+                       zhangJiao.SkillDescription.Contains("其他群势力角色", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(zhangJiao.GeneralId) &&
+                       zhangJiao.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && zhangJiao.HealthText == "体力上限 4",
+            "The current classic Zhang Jiao card must render Qun, Guidao, Leiji, Huangtian and the Lord health bonus.");
+        var zhangJiaoWindow = new MainWindow(zhangJiaoViewModel);
+        zhangJiaoWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)zhangJiaoWindow.Content, 1120, 740,
+            Path.Combine(output, "153-classic-zhang-jiao-card.png"));
+        zhangJiaoWindow.Content = null;
+        zhangJiaoWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
