@@ -310,6 +310,9 @@ public sealed partial class GameEngine
     private bool UsesFormalHuaXiong =>
         _rulesVersion >= 70 && IsClassicIdentityMode;
 
+    private bool UsesFormalGongsunZan =>
+        _rulesVersion >= 71 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -438,6 +441,8 @@ public sealed partial class GameEngine
         var equipmentDistance = baseDistance + sourceModifier + targetModifier;
         var skillDistance = PassiveRules(_players[sourceSeat])
             .ModifyOutgoingDistance(CreateSkillContext(_players[sourceSeat]), equipmentDistance);
+        skillDistance = PassiveRules(_players[targetSeat])
+            .ModifyIncomingDistance(CreateSkillContext(_players[targetSeat]), skillDistance);
         return Math.Max(1, skillDistance);
     }
 

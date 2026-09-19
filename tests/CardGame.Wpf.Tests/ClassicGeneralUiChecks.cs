@@ -1174,6 +1174,25 @@ internal static class ClassicGeneralUiChecks
         huaXiongWindow.Content = null;
         huaXiongWindow.Close();
 
+        using var gongsunZanViewModel = FindGeneralChoice("classic:gongsun-zan");
+        var gongsunZan = gongsunZanViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:gongsun-zan");
+        Program.Assert(gongsunZan.Name == "公孙瓒" && gongsunZan.Kingdom == "群" &&
+                       gongsunZan.SkillName == "义从" &&
+                       gongsunZan.SkillDescription.Contains("体力值大于2", StringComparison.Ordinal) &&
+                       gongsunZan.SkillDescription.Contains("距离+1", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(gongsunZan.GeneralId) &&
+                       gongsunZan.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && gongsunZan.HealthText == "体力上限 5",
+            "The current classic Gongsun Zan card must render Qun, Yicong and the Lord health bonus.");
+        var gongsunZanWindow = new MainWindow(gongsunZanViewModel);
+        gongsunZanWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)gongsunZanWindow.Content, 1120, 740,
+            Path.Combine(output, "152-classic-gongsun-zan-card.png"));
+        gongsunZanWindow.Content = null;
+        gongsunZanWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

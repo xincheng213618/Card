@@ -113,7 +113,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.55.0"]),
+                "standard-classic-generals@1.56.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -129,7 +129,8 @@ internal static class ClassicGeneralChecks
             "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
-            "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong"
+            "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
+            "classic:gongsun-zan"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -3317,12 +3318,9 @@ internal static class ClassicGeneralChecks
                     .OrderBy(action => action, StringComparer.Ordinal)
                     .SequenceEqual(["tiandu-claim", "tiandu-skip"]),
             "Rules v22 must pause after the judgment result with complete Tiandu choices.");
-        Require(game.CardMovements.Any(movement =>
-                movement.CardId == judgment.CardId &&
-                movement.To == CardLocation.Judgment(0)) &&
-                game.CardMovements.All(movement =>
-                    movement.CardId != judgment.CardId || movement.To != CardLocation.DiscardPile),
-            "The resolved judgment card must remain in the public judgment zone while Tiandu is pending.");
+        Require(game.CardMovements.Last(movement => movement.CardId == judgment.CardId).To ==
+                CardLocation.Judgment(0),
+            "The resolved judgment card must remain in the public judgment zone while Tiandu is pending, even after a reshuffle reuses its physical card.");
 
         var pausedCheckpoint = GameCheckpointJson.Deserialize(
             GameCheckpointJson.Serialize(game.CreateCheckpoint()));

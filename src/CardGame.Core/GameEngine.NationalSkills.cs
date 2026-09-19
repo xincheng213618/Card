@@ -14,7 +14,8 @@ public sealed partial class GameEngine
                              player.General.SkillName,
                              player.General.SkillDescription)])
             {
-                yield return SkillRegistry.Get(skill.Kind);
+                if (skill.Kind != SkillKind.Yicong || UsesFormalGongsunZan)
+                    yield return SkillRegistry.Get(skill.Kind);
             }
             yield break;
         }
@@ -60,6 +61,7 @@ public sealed partial class GameEngine
         public int ModifyDrawCount(PlayerSkillContext owner, int currentCount) => skills.Aggregate(currentCount, (value, skill) => skill.ModifyDrawCount(owner, value));
         public int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) => skills.Aggregate(currentLimit, (value, skill) => skill.ModifySlashLimit(owner, value));
         public int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) => skills.Aggregate(currentDistance, (value, skill) => skill.ModifyOutgoingDistance(owner, value));
+        public int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) => skills.Aggregate(currentDistance, (value, skill) => skill.ModifyIncomingDistance(owner, value));
         public bool IgnoresTrickDistance(PlayerSkillContext owner, CardKind trickKind) => skills.Any(skill => skill.IgnoresTrickDistance(owner, trickKind));
         public bool ProhibitsSlashTarget(PlayerSkillContext owner) => skills.Any(skill => skill.ProhibitsSlashTarget(owner));
         public bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) => skills.Any(skill => skill.ProhibitsCardTarget(owner, cardKind));

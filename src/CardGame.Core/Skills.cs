@@ -91,6 +91,8 @@ public interface IPassiveSkill
 
     int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) => currentDistance;
 
+    int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) => currentDistance;
+
     bool IgnoresTrickDistance(PlayerSkillContext owner, CardKind trickKind) => false;
 
     bool ProhibitsSlashTarget(PlayerSkillContext owner) => false;
@@ -796,6 +798,18 @@ public sealed class MashuSkill : IPassiveSkill
         currentDistance - 1;
 }
 
+public sealed class YicongSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Yicong;
+    public string Name => "义从";
+
+    public int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) =>
+        owner.Hp > 2 ? currentDistance - 1 : currentDistance;
+
+    public int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) =>
+        owner.Hp <= 2 ? currentDistance + 1 : currentDistance;
+}
+
 public sealed class QicaiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Qicai;
@@ -1113,6 +1127,7 @@ public static class SkillRegistry
             [SkillKind.Xueyi] = new XueyiSkill(),
             [SkillKind.Shensu] = new ShensuSkill(),
             [SkillKind.Yaowu] = new YaowuSkill(),
+            [SkillKind.Yicong] = new YicongSkill(),
             [SkillKind.Shuangxiong] = new ShuangxiongSkill(),
             [SkillKind.Bazhen] = new BazhenSkill(),
             [SkillKind.Huoji] = new HuojiSkill(),

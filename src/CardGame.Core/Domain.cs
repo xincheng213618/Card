@@ -205,7 +205,8 @@ public enum SkillKind
     Luanji,
     Xueyi,
     Shensu,
-    Yaowu
+    Yaowu,
+    Yicong
 }
 
 public enum DecisionKind

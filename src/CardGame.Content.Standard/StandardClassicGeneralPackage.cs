@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 55, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 56, 0))
     {
     }
 
@@ -74,12 +74,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 52, 0) &&
             version != new Version(1, 53, 0) &&
             version != new Version(1, 54, 0) &&
-            version != new Version(1, 55, 0))
+            version != new Version(1, 55, 0) &&
+            version != new Version(1, 56, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.55.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.56.0.");
         }
 
         _version = version;
@@ -754,6 +755,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:yaowu", "耀武",
                 "锁定技，当一名角色使用红色【杀】对你造成伤害后，其选择回复1点体力或摸一张牌。", SkillKind.Yaowu));
         }
+        if (_version >= new Version(1, 56, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:yicong", "义从",
+                "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。", SkillKind.Yicong));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1144,10 +1150,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:hua-xiong", "华雄", "hua_xiong",
                 "classic:yaowu", "qun", BaseHp: 6));
         }
+        if (_version >= new Version(1, 56, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:gongsun-zan", "公孙瓒", "gongsun_zan",
+                "classic:yicong", "qun", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 55 } => HuaXiongClassicGeneralIds,
+            { Major: 1, Minor: >= 56 } => GongsunZanClassicGeneralIds,
+            { Major: 1, Minor: 55 } => HuaXiongClassicGeneralIds,
             { Major: 1, Minor: 54 } => XiahouYuanClassicGeneralIds,
             { Major: 1, Minor: 53 } => YuanShaoClassicGeneralIds,
             { Major: 1, Minor: 52 } => ZhouTaiClassicGeneralIds,
@@ -1467,6 +1480,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. XiahouYuanClassicGeneralIds,
         "classic:hua-xiong"
+    ];
+
+    internal static IReadOnlyList<string> GongsunZanClassicGeneralIds { get; } =
+    [
+        .. HuaXiongClassicGeneralIds,
+        "classic:gongsun-zan"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =
