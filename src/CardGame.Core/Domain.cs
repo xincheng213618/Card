@@ -186,7 +186,9 @@ public enum SkillKind
     Lijian,
     Biyue,
     Jieyin,
-    Xiaoji
+    Xiaoji,
+    Qianxun,
+    Lianying
 }
 
 public enum DecisionKind
@@ -217,6 +219,7 @@ public enum DecisionKind
     Liuli,
     Biyue,
     Xiaoji,
+    Lianying,
     Tuxi,
     Luoyi,
     Luoshen,

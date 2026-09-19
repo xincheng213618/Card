@@ -995,6 +995,26 @@ internal static class ClassicGeneralUiChecks
         sunShangxiangWindow.Content = null;
         sunShangxiangWindow.Close();
 
+        using var luXunViewModel = FindGeneralChoice("classic:lu-xun");
+        var luXun = luXunViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:lu-xun");
+        Program.Assert(luXun.Name == "陆逊" &&
+                       luXun.Kingdom == "吴" &&
+                       luXun.SkillName == "谦逊 / 连营" &&
+                       luXun.SkillDescription.Contains("顺手牵羊", StringComparison.Ordinal) &&
+                       luXun.SkillDescription.Contains("最后的手牌", StringComparison.Ordinal) &&
+                       luXun.HealthText == "体力上限 4",
+            "The current classic Lu Xun card must render Wu, Qianxun, Lianying and the Lord health bonus.");
+        var luXunWindow = new MainWindow(luXunViewModel);
+        luXunWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)luXunWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "129-classic-lu-xun-card.png"));
+        luXunWindow.Content = null;
+        luXunWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

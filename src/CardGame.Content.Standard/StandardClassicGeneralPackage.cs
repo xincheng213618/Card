@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 42, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 43, 0))
     {
     }
 
@@ -61,12 +61,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 39, 0) &&
             version != new Version(1, 40, 0) &&
             version != new Version(1, 41, 0) &&
-            version != new Version(1, 42, 0))
+            version != new Version(1, 42, 0) &&
+            version != new Version(1, 43, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.42.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.43.0.");
         }
 
         _version = version;
@@ -650,6 +651,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你失去装备区里的一张牌后，你可以摸两张牌。",
                 SkillKind.Xiaoji));
         }
+        if (_version >= new Version(1, 43, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:qianxun",
+                "谦逊",
+                "锁定技，你不能被选择为【顺手牵羊】和【乐不思蜀】的目标。",
+                SkillKind.Qianxun));
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:lianying",
+                "连营",
+                "当你失去最后的手牌时，你可以摸一张牌。",
+                SkillKind.Lianying));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -943,10 +957,22 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:xiaoji"],
                 Gender: GeneralGender.Female));
         }
+        if (_version >= new Version(1, 43, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:lu-xun",
+                "陆逊",
+                "lu_xun",
+                "classic:qianxun",
+                "wu",
+                BaseHp: 3,
+                AdditionalSkillIds: ["classic:lianying"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 42 } => SunShangxiangClassicGeneralIds,
+            { Major: 1, Minor: >= 43 } => LuXunClassicGeneralIds,
+            { Major: 1, Minor: 42 } => SunShangxiangClassicGeneralIds,
             { Major: 1, Minor: 41 } => DiaoChanClassicGeneralIds,
             { Major: 1, Minor: 40 } => DaQiaoClassicGeneralIds,
             { Major: 1, Minor: 0 } => LegacyClassicGeneralIds,
@@ -1175,6 +1201,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. DiaoChanClassicGeneralIds,
         "classic:sun-shangxiang"
+    ];
+
+    internal static IReadOnlyList<string> LuXunClassicGeneralIds { get; } =
+    [
+        .. SunShangxiangClassicGeneralIds,
+        "classic:lu-xun"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

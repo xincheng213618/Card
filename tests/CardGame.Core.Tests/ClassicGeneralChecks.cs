@@ -46,6 +46,7 @@ internal static class ClassicGeneralChecks
         var woodenOxClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
         var daQiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 40, 0));
         var diaoChanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 41, 0));
+        var sunShangxiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 42, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -54,7 +55,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.42.0"]),
+                "standard-classic-generals@1.43.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
@@ -72,8 +73,13 @@ internal static class ClassicGeneralChecks
                     { BaseHp: 3, Gender: GeneralGender.Female } sunShangxiang &&
                 sunShangxiang.SkillIds.SequenceEqual(["classic:jieyin", "classic:xiaoji"]) &&
                 !diaoChanClassic.Generals.ContainsKey("classic:sun-shangxiang") &&
-                !diaoChanClassic.Skills.ContainsKey("classic:jieyin"),
-            "Classic 1.40 must add female 3-HP Da Qiao with Guose and Liuli without changing historical rosters.");
+                !diaoChanClassic.Skills.ContainsKey("classic:jieyin") &&
+                classic.Generals["classic:lu-xun"] is { BaseHp: 3 } luXun &&
+                luXun.SkillIds.SequenceEqual(["classic:qianxun", "classic:lianying"]) &&
+                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:lu-xun") &&
+                !sunShangxiangClassic.Generals.ContainsKey("classic:lu-xun") &&
+                !sunShangxiangClassic.Skills.ContainsKey("classic:qianxun"),
+            "Classic 1.40-1.43 must add Da Qiao, Diao Chan, Sun Shangxiang and Lu Xun without changing historical rosters.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
                     "standard:guo-jia",
@@ -4713,6 +4719,96 @@ internal static class ClassicGeneralChecks
                     move.Reason == CardMoveReasons.JieyinDiscard &&
                     move.To == CardLocation.DiscardPile) == 2,
             used.Error?.Message ?? "Jieyin must discard exactly two hand cards and recover both characters.");
+    }
+
+    public static void FormalQianxunAndLianyingFlow()
+    {
+        var qianxun = SkillRegistry.Get(SkillKind.Qianxun);
+        var context = new PlayerSkillContext(0, 3, 3, 2, TurnPhase.Play);
+        Require(qianxun.ProhibitsCardTarget(context, CardKind.Snatch) &&
+                qianxun.ProhibitsCardTarget(context, CardKind.Indulgence) &&
+                !qianxun.ProhibitsCardTarget(context, CardKind.Dismantlement),
+            "Qianxun must prohibit Snatch and Indulgence without blocking other tricks.");
+
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        GameEngine? game = null;
+        LegalAction? equipment = null;
+        for (var seed = 1; seed <= 8_192 && equipment is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:lu-xun",
+                GameCheckpoint.CurrentRulesVersion);
+            var action = candidate?.GetHumanLegalActions().FirstOrDefault(item =>
+                item.Kind == LegalActionKind.Equip && item.CardId is not null);
+            if (candidate is not null && action is not null)
+            {
+                game = candidate;
+                equipment = action;
+            }
+        }
+
+        Require(game is not null && equipment?.CardId is not null,
+            "Could not find a deterministic Lu Xun last-hand equipment fixture.");
+        var current = game!;
+        var lastCardId = equipment!.CardId!.Value;
+        KeepOnlyHandCard(current, 0, lastCardId);
+        var handBefore = current.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
+        var equipped = current.Submit(new PlayCardCommand(
+            0,
+            lastCardId,
+            [],
+            current.Revision,
+            current.PendingDecision!.PromptId));
+        Require(equipped.Accepted &&
+                current.PendingDecision is { Kind: DecisionKind.Lianying, PlayerSeat: 0 } &&
+                current.PendingDecision.Choices.Count == 2,
+            equipped.Error?.Message ?? "Losing Lu Xun's last hand card must publish an optional Lianying prompt.");
+        var prompt = current.PendingDecision!;
+        var drew = current.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "lianying-use").Id,
+            current.Revision));
+        Require(drew.Accepted && handBefore == 1 &&
+                current.CardMovements.Count(move => move.Reason == CardMoveReasons.LianyingDraw) == 1 &&
+                current.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(item =>
+                    item.SourceSeat == 0 && item.Skill == SkillKind.Lianying && item.Used && item.DrawCount == 1) &&
+                current.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == 1,
+            drew.Error?.Message ?? "Lianying must draw exactly one card after the last hand card is lost.");
+
+        var legacy = StartClassicGeneralAtPlay(registry, current.Seed, "classic:lu-xun", rulesVersion: 57) ??
+            throw new InvalidOperationException("The rules v57 Lu Xun fixture was not reproducible.");
+        KeepOnlyHandCard(legacy, 0, lastCardId);
+        var legacyEquip = legacy.Submit(new PlayCardCommand(
+            0,
+            lastCardId,
+            [],
+            legacy.Revision,
+            legacy.PendingDecision!.PromptId));
+        Require(legacyEquip.Accepted && legacy.PendingDecision?.Kind != DecisionKind.Lianying &&
+                legacy.CardMovements.All(move => move.Reason != CardMoveReasons.LianyingDraw),
+            legacyEquip.Error?.Message ?? "Rules v57 must preserve last-hand-card loss without Lianying.");
+    }
+
+    private static void KeepOnlyHandCard(GameEngine game, int seat, int keptCardId)
+    {
+        var cardZonesField = typeof(GameEngine).GetField("_cardZones", BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The runtime card-zone store was not found.");
+        var cardZones = cardZonesField.GetValue(game) ??
+            throw new InvalidOperationException("The runtime card-zone store is unavailable.");
+        var move = cardZones.GetType().GetMethod("Move", BindingFlags.Public | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The runtime card-zone move method was not found.");
+        var handIds = game.CreateSnapshot(seat, revealAll: true).Players[seat].Hand
+            .Select(card => card.Id)
+            .Where(cardId => cardId != keptCardId)
+            .ToArray();
+        foreach (var cardId in handIds)
+        {
+            _ = move.Invoke(cardZones, [cardId, CardLocation.Hand(seat), CardLocation.DiscardPile]);
+        }
     }
 
     private static void SetRuntimeHp(GameEngine game, int seat, int hp)

@@ -749,6 +749,21 @@ public sealed class KongchengSkill : IPassiveSkill
         cardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel;
 }
 
+public sealed class QianxunSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Qianxun;
+    public string Name => "谦逊";
+
+    public bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) =>
+        cardKind is CardKind.Snatch or CardKind.Indulgence;
+}
+
+public sealed class LianyingSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Lianying;
+    public string Name => "连营";
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -936,6 +951,8 @@ public static class SkillRegistry
             [SkillKind.Biyue] = new BiyueSkill(),
             [SkillKind.Jieyin] = new JieyinSkill(),
             [SkillKind.Xiaoji] = new XiaojiSkill(),
+            [SkillKind.Qianxun] = new QianxunSkill(),
+            [SkillKind.Lianying] = new LianyingSkill(),
             [SkillKind.Jizhi] = new JizhiSkill(),
             [SkillKind.Tieqi] = new TieqiSkill(),
             [SkillKind.Liegong] = new LiegongSkill(),

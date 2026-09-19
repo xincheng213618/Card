@@ -89,6 +89,7 @@ public sealed partial class GameEngine
     private JijiangResolution? _pendingJijiang;
     private DelayedTurnEffects _pendingTurnDelayedEffects;
     private readonly Queue<XiaojiTrigger> _pendingXiaojiTriggers = new();
+    private readonly Queue<LianyingTrigger> _pendingLianyingTriggers = new();
 
     private GameEngine(
         GameOptions options,
@@ -260,6 +261,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalSunShangxiang =>
         _rulesVersion >= 57 && IsClassicIdentityMode;
+
+    private bool UsesFormalLuXun =>
+        _rulesVersion >= 58 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -906,6 +910,7 @@ public sealed partial class GameEngine
                 DecisionKind.Liuli or
                 DecisionKind.Biyue or
                 DecisionKind.Xiaoji or
+                DecisionKind.Lianying or
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
@@ -1005,6 +1010,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Xiaoji)
         {
             return SubmitXiaojiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Lianying)
+        {
+            return SubmitLianyingPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Tuxi)
@@ -1825,6 +1835,25 @@ public sealed partial class GameEngine
 
         return Accept(() => HumanXiaojiCore(
             action == "xiaoji-use",
+            advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+    }
+
+    private CommandResult SubmitLianyingPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Lianying })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的连营失去最后手牌窗口。");
+        }
+
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (selected.Cards.Count != 0 || selected.Targets.Count != 0 ||
+            action is not ("lianying-use" or "lianying-skip"))
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "连营选择不符合当前失去最后手牌窗口。");
+        }
+
+        return Accept(() => HumanLianyingCore(
+            action == "lianying-use",
             advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
     }
 
@@ -3417,6 +3446,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Xiaoji);
         ResolveXiaojiChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanLianyingCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Lianying);
+        ResolveLianyingChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5907,6 +5944,12 @@ public sealed partial class GameEngine
         if (IsAiXiaojiPending())
         {
             ResolvePendingAiXiaoji();
+            return;
+        }
+
+        if (IsAiLianyingPending())
+        {
+            ResolvePendingAiLianying();
             return;
         }
 
@@ -9683,6 +9726,7 @@ public sealed partial class GameEngine
 
         var owner = _players[decision.PlayerSeat];
         PopResponseWindow(attack.ResolutionId);
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.Declared);
         ClearPendingDecision();
         if (discardedCardId is { } cardId && newTargetSeat is { } redirectedSeat)
         {
@@ -9697,6 +9741,7 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.LiuliDiscard);
             var originalTargetSeat = attack.TargetSeat;
             attack.SetDamageParticipants(attack.SourceSeat, redirectedSeat);
+            RedirectCardUseTarget(attack.ResolutionId, originalTargetSeat, redirectedSeat);
             QueueGameEvent(new LiuliRedirectedEvent(
                 attack.ResolutionId,
                 attack.SourceSeat,
@@ -16907,6 +16952,25 @@ public sealed partial class GameEngine
         _resolutionStack[index] = cardUse with { Step = step };
     }
 
+    private void RedirectCardUseTarget(long frameId, int originalTargetSeat, int redirectedTargetSeat)
+    {
+        var index = _resolutionStack.FindLastIndex(frame => frame.Id == frameId);
+        if (index < 0 || _resolutionStack[index] is not CardUseFrame cardUse)
+        {
+            throw new InvalidOperationException($"Resolution frame {frameId} is not a CardUse frame.");
+        }
+
+        var targetSeats = cardUse.TargetSeats.ToArray();
+        var targetIndex = Array.IndexOf(targetSeats, originalTargetSeat);
+        if (targetIndex < 0)
+        {
+            throw new InvalidOperationException("The redirected Slash target is absent from its CardUse frame.");
+        }
+
+        targetSeats[targetIndex] = redirectedTargetSeat;
+        _resolutionStack[index] = cardUse with { TargetSeats = targetSeats };
+    }
+
     private void SetActiveSkillFrameStep(long frameId, ResolutionFrameStep step)
     {
         var index = _resolutionStack.FindLastIndex(frame => frame.Id == frameId);
@@ -18812,6 +18876,7 @@ public sealed partial class GameEngine
         _status = EngineStatus.Completed;
         _pendingDecision = null;
         _pendingXiaojiTriggers.Clear();
+        _pendingLianyingTriggers.Clear();
         var winnerName = IsNationalWarMode && _rulesVersion >= 7
             ? _winnerFactionId is { } winnerFactionId
                 ? $"{GetFactionName(winnerFactionId)}势力"
@@ -18836,6 +18901,7 @@ public sealed partial class GameEngine
 
         _winner = Winner.Draw;
         _pendingXiaojiTriggers.Clear();
+        _pendingLianyingTriggers.Clear();
         foreach (var player in _players)
         {
             player.RoleRevealed = true;
@@ -19276,12 +19342,14 @@ public sealed partial class GameEngine
         CardLocation to,
         CardMoveReason reason)
     {
+        var lianyingOwnerSeat = GetLianyingOwnerBeforeHandLoss(from);
         _cardZones.Move(card.Id, from, to);
         RecordMovement(card, from, to, reason);
         ClearJudgmentEffectiveKindAfterMove(card, from, to);
         ResolveSilverLionRemoval(card, from, reason);
         ResolveWoodenOxMove(card, from, to);
         QueueXiaojiTrigger(card, from);
+        QueueLianyingTriggerIfHandBecameEmpty(lianyingOwnerSeat, [card.Id]);
     }
 
     private void MoveCards(
@@ -19290,6 +19358,7 @@ public sealed partial class GameEngine
         CardLocation to,
         CardMoveReason reason)
     {
+        var lianyingOwnerSeat = GetLianyingOwnerBeforeHandLoss(from);
         var moved = _cardZones.MoveMany(cards.Select(card => card.Id), from, to);
         foreach (var card in moved)
         {
@@ -19299,6 +19368,7 @@ public sealed partial class GameEngine
             ResolveWoodenOxMove(card, from, to);
             QueueXiaojiTrigger(card, from);
         }
+        QueueLianyingTriggerIfHandBecameEmpty(lianyingOwnerSeat, moved.Select(card => card.Id).ToArray());
     }
 
     private void MoveAllCards(
@@ -19306,6 +19376,7 @@ public sealed partial class GameEngine
         CardLocation to,
         CardMoveReason reason)
     {
+        var lianyingOwnerSeat = GetLianyingOwnerBeforeHandLoss(from);
         var cards = _cardZones.MoveAll(from, to);
         foreach (var card in cards)
         {
@@ -19315,6 +19386,30 @@ public sealed partial class GameEngine
             ResolveWoodenOxMove(card, from, to);
             QueueXiaojiTrigger(card, from);
         }
+        QueueLianyingTriggerIfHandBecameEmpty(lianyingOwnerSeat, cards.Select(card => card.Id).ToArray());
+    }
+
+    private int? GetLianyingOwnerBeforeHandLoss(CardLocation from)
+    {
+        if (!UsesFormalLuXun || from.Zone != CardZoneKind.Hand || from.OwnerSeat is not { } ownerSeat)
+        {
+            return null;
+        }
+
+        var owner = _players[ownerSeat];
+        return owner.IsAlive && owner.General.HasSkill(SkillKind.Lianying) && GetHand(owner).Count > 0
+            ? ownerSeat
+            : null;
+    }
+
+    private void QueueLianyingTriggerIfHandBecameEmpty(int? ownerSeat, IReadOnlyList<int> lostCardIds)
+    {
+        if (ownerSeat is not { } seat || lostCardIds.Count == 0 || GetHand(_players[seat]).Count != 0)
+        {
+            return;
+        }
+
+        _pendingLianyingTriggers.Enqueue(new LianyingTrigger(seat, lostCardIds.ToArray()));
     }
 
     private void QueueXiaojiTrigger(Card card, CardLocation from)
@@ -19850,6 +19945,7 @@ public sealed partial class GameEngine
             var source = _players[liegongAttack.SourceSeat];
             var target = _players[liegongAttack.TargetSeat];
             var slash = liegongAttack.Card;
+            var actualCardUse = _resolutionStack.LastOrDefault() as CardUseFrame;
             if (!UsesFormalLiegong ||
                 _phase != TurnPhase.Play ||
                 !ReferenceEquals(_pendingAttack, liegongAttack) ||
@@ -19861,13 +19957,13 @@ public sealed partial class GameEngine
                 slash is null ||
                 _cardZones.GetLocation(slash.Id) != CardLocation.Processing ||
                 liegongAttack.LiegongResolved ||
-                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
-                cardUse.Id != liegongAttack.ResolutionId ||
-                cardUse.SourceSeat != liegongAttack.SourceSeat ||
-                cardUse.CardId != slash.Id ||
-                cardUse.CardKind != liegongAttack.EffectiveCardKind ||
-                cardUse.Step != ResolutionFrameStep.Declared ||
-                !cardUse.TargetSeats.SequenceEqual([liegongAttack.TargetSeat]) ||
+                actualCardUse is null ||
+                actualCardUse.Id != liegongAttack.ResolutionId ||
+                actualCardUse.SourceSeat != liegongAttack.SourceSeat ||
+                actualCardUse.CardId != slash.Id ||
+                actualCardUse.CardKind != liegongAttack.EffectiveCardKind ||
+                actualCardUse.Step != ResolutionFrameStep.Declared ||
+                !actualCardUse.TargetSeats.Contains(liegongAttack.TargetSeat) ||
                 decision is not { Kind: DecisionKind.Liegong, IsPrivate: true } ||
                 decision.PlayerSeat != liegongAttack.SourceSeat ||
                 decision.SourceSeat != liegongAttack.SourceSeat ||
@@ -19881,7 +19977,12 @@ public sealed partial class GameEngine
                     choice.Parameters.GetValueOrDefault("action") == "liegong-skip") != 1)
             {
                 throw new InvalidOperationException(
-                    "A Liegong choice must retain its private prompt and exact eligible Slash continuation.");
+                    $"A Liegong choice must retain its private prompt and exact eligible Slash continuation " +
+                    $"(phase={_phase}, current={_currentSeat}, source={source.Seat}/{source.IsAlive}/{source.General.Id}, " +
+                    $"target={target.Seat}/{target.IsAlive}/hand-{GetHand(target).Count}, decision={decision?.Kind}, " +
+                    $"frame={actualCardUse?.Id}/{actualCardUse?.SourceSeat}/{actualCardUse?.CardId}/{actualCardUse?.CardKind}/{actualCardUse?.Step}/[{string.Join(',', actualCardUse?.TargetSeats ?? [])}], " +
+                    $"attack={liegongAttack.ResolutionId}/{liegongAttack.SourceSeat}/{slash?.Id}/{liegongAttack.EffectiveCardKind}/{liegongAttack.TargetSeat}, " +
+                    $"decision-context={decision?.PlayerSeat}/{decision?.SourceSeat}/{decision?.TargetSeat}/{decision?.IncomingCard}/{decision?.IsPrivate}).");
             }
 
             var expectedLiegongStatus = source.IsHuman
@@ -21695,6 +21796,21 @@ public sealed partial class GameEngine
         PublishState();
     }
 
+    private bool IsAiLianyingPending() =>
+        _pendingDecision is { Kind: DecisionKind.Lianying, PlayerSeat: var playerSeat } &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiLianying()
+    {
+        if (!IsAiLianyingPending())
+        {
+            throw new InvalidOperationException("There is no AI Lianying choice to resolve.");
+        }
+
+        ResolveLianyingChoice(useSkill: true);
+        PublishState();
+    }
+
     private bool IsAiTianduPending() =>
         _pendingJudgment is { ResultSucceeded: not null, TargetSeat: var targetSeat } &&
         _pendingDecision is { Kind: DecisionKind.Tiandu, PlayerSeat: var decisionSeat } &&
@@ -21986,6 +22102,7 @@ public sealed partial class GameEngine
     private void PublishState()
     {
         TryBeginXiaojiTrigger();
+        TryBeginLianyingTrigger();
         _pendingStateSnapshot = State;
     }
 
@@ -22076,6 +22193,74 @@ public sealed partial class GameEngine
         AddLog(
             useSkill ? "SkillTriggered" : "SkillSkipped",
             useSkill ? $"{owner.Name} 发动【枭姬】，摸两张牌。" : $"{owner.Name} 未发动【枭姬】。",
+            owner.Seat);
+    }
+
+    private void TryBeginLianyingTrigger()
+    {
+        if (_pendingDecision is not null ||
+            _resolutionStack.Count != 0 ||
+            _winner != Winner.None ||
+            _status == EngineStatus.Completed)
+        {
+            return;
+        }
+
+        while (_pendingLianyingTriggers.TryDequeue(out var trigger))
+        {
+            var owner = _players[trigger.OwnerSeat];
+            if (!owner.IsAlive || !owner.General.HasSkill(SkillKind.Lianying))
+            {
+                continue;
+            }
+
+            _pendingDecision = new PendingDecision(
+                DecisionKind.Lianying,
+                owner.Seat,
+                $"{owner.Name} 失去最后的手牌，是否发动【连营】摸一张牌？",
+                [],
+                [],
+                SourceSeat: owner.Seat)
+            {
+                PromptId = CreatePromptId(),
+                Choices =
+                [
+                    new PromptChoice(
+                        new ChoiceId($"lianying.use-{trigger.LostCardIds[0]}"),
+                        "发动【连营】，摸一张牌。",
+                        [],
+                        [],
+                        new Dictionary<string, string> { ["action"] = "lianying-use" }),
+                    new PromptChoice(
+                        new ChoiceId($"lianying.skip-{trigger.LostCardIds[0]}"),
+                        "不发动【连营】。",
+                        [],
+                        [],
+                        new Dictionary<string, string> { ["action"] = "lianying-skip" })
+                ]
+            };
+            _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+            return;
+        }
+    }
+
+    private void ResolveLianyingChoice(bool useSkill)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Lianying, PlayerSeat: var playerSeat })
+        {
+            throw new InvalidOperationException("There is no Lianying last-hand-card choice to resolve.");
+        }
+
+        var owner = _players[playerSeat];
+        ClearPendingDecision();
+        if (useSkill && owner.IsAlive)
+        {
+            DrawCards(owner, 1, log: true, reason: CardMoveReasons.LianyingDraw);
+        }
+        QueueGameEvent(new DrawSkillResolvedEvent(owner.Seat, SkillKind.Lianying, useSkill, useSkill ? 1 : 0));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill ? $"{owner.Name} 发动【连营】，摸一张牌。" : $"{owner.Name} 未发动【连营】。",
             owner.Seat);
     }
 
@@ -22979,6 +23164,8 @@ public sealed partial class GameEngine
         DelayedTurnEffects DelayedEffects);
 
     private sealed record XiaojiTrigger(int OwnerSeat, int CardId, CardKind CardKind);
+
+    private sealed record LianyingTrigger(int OwnerSeat, IReadOnlyList<int> LostCardIds);
 
     private enum GuanxingStage
     {
