@@ -350,6 +350,15 @@ public sealed record YizhongNullifiedEvent(
     int TargetSeat,
     CardKind IncomingCard) : IGameEvent;
 
+/// <summary>Public result for Xu Shu's locked Wuyan skill preventing trick-card damage.</summary>
+public sealed record WuyanDamagePreventedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    CardKind TrickCard,
+    int PreventedAmount,
+    int SkillOwnerSeat) : IGameEvent;
+
 public sealed record ResponseRequestedEvent(
     int SourceSeat,
     int TargetSeat,

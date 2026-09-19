@@ -15661,6 +15661,10 @@ public sealed partial class GameEngine
 
         var nature = GetDamageNature(attack);
         var amount = FinalizeAttackDamageAmount(attack);
+        if (TryPreventWuyanDamage(attack, amount))
+        {
+            return false;
+        }
         if (TryBeginTianxiangChoice(attack, amount, nature))
         {
             return true;
@@ -21099,6 +21103,63 @@ public sealed partial class GameEngine
 
     internal static bool CanYizhongNullify(IReadOnlyList<Card> physicalCards, bool hasArmor) =>
         !hasArmor && IsBlackCardUse(physicalCards);
+
+    internal static bool IsTrickCardDamage(CardKind kind) =>
+        CardCatalog.Get(kind).CategoryName == "锦囊牌";
+
+    internal static bool CanWuyanPreventDamage(
+        int rulesVersion,
+        bool isClassicIdentityMode,
+        CardKind kind,
+        bool sourceHasWuyan,
+        bool targetHasWuyan) =>
+        rulesVersion >= 77 &&
+        isClassicIdentityMode &&
+        IsTrickCardDamage(kind) &&
+        (sourceHasWuyan || targetHasWuyan);
+
+    private bool TryPreventWuyanDamage(AttackResolution attack, int amount)
+    {
+        if (attack.EffectiveCardKind is not { } cardKind)
+        {
+            return false;
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        if (!CanWuyanPreventDamage(
+                _rulesVersion,
+                IsClassicIdentityMode,
+                cardKind,
+                source.General.HasSkill(SkillKind.Wuyan),
+                target.General.HasSkill(SkillKind.Wuyan)))
+        {
+            return false;
+        }
+        var skillOwner = source.General.HasSkill(SkillKind.Wuyan)
+            ? source
+            : target.General.HasSkill(SkillKind.Wuyan)
+                ? target
+                : null;
+        if (skillOwner is null)
+        {
+            return false;
+        }
+
+        AddLog(
+            "DamagePrevented",
+            $"{skillOwner.Name} 的【无言】防止了【{CardCatalog.Get(cardKind).DisplayName}】造成的 {amount} 点伤害。",
+            skillOwner.Seat,
+            skillOwner.Seat == source.Seat ? target.Seat : source.Seat);
+        QueueGameEvent(new WuyanDamagePreventedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            cardKind,
+            amount,
+            skillOwner.Seat));
+        return true;
+    }
 
     private bool HasArmorBypass(PlayerRuntime player) =>
         GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).IgnoresArmor);

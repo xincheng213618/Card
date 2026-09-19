@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 61, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 62, 0))
     {
     }
 
@@ -80,12 +80,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 58, 0) &&
             version != new Version(1, 59, 0) &&
             version != new Version(1, 60, 0) &&
-            version != new Version(1, 61, 0))
+            version != new Version(1, 61, 0) &&
+            version != new Version(1, 62, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.61.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.62.0.");
         }
 
         _version = version;
@@ -797,6 +798,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(new ContentSkillDefinition("classic:yizhong", "毅重",
                 "锁定技，若你的装备区里没有防具牌，黑色的杀对你无效。", SkillKind.Yizhong));
+        }
+        if (_version >= new Version(1, 62, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:wuyan", "无言",
+                "锁定技，当锦囊牌造成伤害时，若你为伤害来源或受伤角色，防止此伤害。", SkillKind.Wuyan));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(

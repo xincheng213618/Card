@@ -51,6 +51,8 @@ public static class BattleCueProjector
                     Seats([armor.SourceSeat]), $"{CardCatalog.Get(armor.ArmorCard).DisplayName} · {CardCatalog.Get(armor.IncomingCard).DisplayName}无效", Name(armor.TargetSeat)),
                 YizhongNullifiedEvent yizhong => new(envelope.Sequence, BattleCueKind.Response, yizhong.TargetSeat,
                     Seats([yizhong.SourceSeat]), "毅重 · 黑色杀无效", Name(yizhong.TargetSeat)),
+                WuyanDamagePreventedEvent wuyan => new(envelope.Sequence, BattleCueKind.Response, wuyan.SkillOwnerSeat,
+                    Seats([wuyan.SourceSeat, wuyan.TargetSeat]), "无言 · 锦囊伤害已防止", Name(wuyan.SkillOwnerSeat)),
                 GudingBladeDamageIncreasedEvent guding => new(envelope.Sequence, BattleCueKind.Response, guding.SourceSeat,
                     Seats([guding.TargetSeat]), "古锭刀 · 伤害+1", Name(guding.SourceSeat)),
                 TengjiaFireDamageIncreasedEvent tengjia => new(envelope.Sequence, BattleCueKind.Response, tengjia.TargetSeat,

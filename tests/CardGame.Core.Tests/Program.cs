@@ -109,6 +109,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Meng Huo redirects Barbarian Assault and replaces drawing through Zaiqi", MengHuoChecks.HuoshouAndZaiqiReplay),
     ("classic Zhu Rong claims Barbarian Assault and wins cards through Lieren", ZhuRongChecks.JuxiangAndLierenReplay),
     ("classic Yu Jin nullifies black Slash through locked Yizhong", YuJinChecks.YizhongBlackSlashAndReplay),
+    ("classic Xu Shu prevents trick damage through locked Wuyan", WuyanChecks.PreventsTrickDamageWithVersionBoundary),
     ("classic Fangtian Halberd resolves exact last-hand Slash targets and replays", FangtianHalberdChecks.LastHandTargetsResolveSequentiallyAndReplay),
     ("classic Guding Blade increases direct Slash damage against empty hands", GudingBladeChecks.EmptyHandDamageAndLegacyBoundary),
     ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainJijiangAndLegacyBoundary),
