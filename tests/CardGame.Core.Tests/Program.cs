@@ -105,6 +105,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Xiahou Yuan skips phases for virtual no-distance Shensu Slash", XiahouYuanChecks.ShensuPhaseSkipsAndReplay),
     ("classic Hua Xiong rewards red Slash sources through locked Yaowu", HuaXiongChecks.RedSlashBenefitAndReplay),
     ("classic Gongsun Zan switches Yicong's outgoing and incoming distance", GongsunZanChecks.YicongDistanceAndReplay),
+    ("classic Sun Jian draws and discards exact cards through Yinghun", SunJianChecks.YinghunChoiceAndReplay),
     ("classic Fangtian Halberd resolves exact last-hand Slash targets and replays", FangtianHalberdChecks.LastHandTargetsResolveSequentiallyAndReplay),
     ("classic Guding Blade increases direct Slash damage against empty hands", GudingBladeChecks.EmptyHandDamageAndLegacyBoundary),
     ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainJijiangAndLegacyBoundary),

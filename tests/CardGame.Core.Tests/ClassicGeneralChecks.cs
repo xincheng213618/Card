@@ -105,6 +105,7 @@ internal static class ClassicGeneralChecks
         var wolongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 47, 0));
         var pangTongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 48, 0));
         var taishiCiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 49, 0));
+        var zhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 57, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -113,7 +114,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.57.0"]),
+                "standard-classic-generals@1.58.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -130,7 +131,7 @@ internal static class ClassicGeneralChecks
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
             "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
-            "classic:gongsun-zan", "classic:zhang-jiao"
+            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -140,6 +141,12 @@ internal static class ClassicGeneralChecks
                 { BaseHp: 3, FactionId: "qun" } zhangJiao &&
                 zhangJiao.SkillIds.SequenceEqual(["classic:guidao", "classic:leiji", "classic:huangtian"]),
             "Current classic Zhang Jiao must expose Guidao, Leiji and Huangtian in stable order.");
+        Require(classic.Generals["classic:sun-jian"] is
+                { BaseHp: 4, FactionId: "wu" } sunJian &&
+                sunJian.SkillIds.SequenceEqual(["classic:yinghun"]) &&
+                !zhangJiaoClassic.Generals.ContainsKey("classic:sun-jian") &&
+                !zhangJiaoClassic.Skills.ContainsKey("classic:yinghun"),
+            "Current classic Sun Jian must expose four base HP and Yinghun.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&

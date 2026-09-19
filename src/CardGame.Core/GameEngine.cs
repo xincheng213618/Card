@@ -95,6 +95,7 @@ public sealed partial class GameEngine
     private TieqiResolution? _pendingTieqi;
     private LiegongResolution? _pendingLiegong;
     private GuanxingResolution? _pendingGuanxing;
+    private YinghunResolution? _pendingYinghun;
     private HujiaResolution? _pendingHujia;
     private JijiangResolution? _pendingJijiang;
     private DelayedTurnEffects _pendingTurnDelayedEffects;
@@ -316,6 +317,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalZhangJiao =>
         _rulesVersion >= 72 && IsClassicIdentityMode;
+
+    private bool UsesFormalSunJian =>
+        _rulesVersion >= 73 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -981,6 +985,7 @@ public sealed partial class GameEngine
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Liuli or
                 DecisionKind.Tianxiang or
+                DecisionKind.Yinghun or
                 DecisionKind.Biyue or
                 DecisionKind.Jushou or
                 DecisionKind.Shensu or
@@ -1110,6 +1115,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Tianxiang)
         {
             return SubmitTianxiangPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Yinghun)
+        {
+            return SubmitYinghunPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Xiaoji)
@@ -5394,6 +5404,17 @@ public sealed partial class GameEngine
         }
 
         _pendingTurnDelayedEffects = DelayedTurnEffects.None;
+        if (UsesFormalSunJian && current.General.HasSkill(SkillKind.Yinghun) && current.Hp < current.MaxHp)
+        {
+            BeginYinghunChoice(current);
+            return;
+        }
+
+        BeginTurnStartAfterYinghun(current);
+    }
+
+    private void BeginTurnStartAfterYinghun(PlayerRuntime current)
+    {
         if (UsesFormalLuoshenAndQingguo && current.General.HasSkill(SkillKind.Luoshen))
         {
             BeginLuoshenChoice(current, isRepeat: false);
@@ -6419,6 +6440,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiYinghunPending())
+        {
+            ResolvePendingAiYinghun();
+            return;
+        }
+
         if (IsAiLuoshenPending())
         {
             ResolvePendingAiLuoshen();
@@ -6500,6 +6527,11 @@ public sealed partial class GameEngine
         if (IsAiLianyingPending())
         {
             ResolvePendingAiLianying();
+            return;
+        }
+
+        if (TryCompleteYinghunAfterLossTriggers())
+        {
             return;
         }
 
@@ -21296,6 +21328,7 @@ public sealed partial class GameEngine
     private void AssertCoreInvariants()
     {
         AssertDiscardPromptInvariant();
+        AssertYinghunInvariant();
         _cardZones.AssertInvariants(_initialCardCount);
 
         foreach (var player in _players)

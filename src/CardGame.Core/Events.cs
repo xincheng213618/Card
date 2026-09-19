@@ -946,6 +946,13 @@ public sealed record HuangtianCardGivenEvent(
     int CardId,
     CardKind CardKind) : IGameEvent;
 
+public sealed record YinghunResolvedEvent(
+    int OwnerSeat,
+    int TargetSeat,
+    int LostHp,
+    int DrawCount,
+    IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
+
 public sealed record JijiangRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

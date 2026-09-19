@@ -1213,6 +1213,21 @@ internal static class ClassicGeneralUiChecks
         zhangJiaoWindow.Content = null;
         zhangJiaoWindow.Close();
 
+        using var sunJianViewModel = FindGeneralChoice("classic:sun-jian");
+        var sunJian = sunJianViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:sun-jian");
+        Program.Assert(sunJian.Name == "孙坚" && sunJian.Kingdom == "吴" &&
+                       sunJian.SkillName == "英魂" &&
+                       sunJian.SkillDescription.Contains("摸X张牌并弃置一张牌", StringComparison.Ordinal) &&
+                       sunJian.SkillDescription.Contains("摸一张牌并弃置X张牌", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(sunJian.GeneralId) && sunJian.HealthText == "体力上限 5",
+            "The current classic Sun Jian card must render Wu, Yinghun and the Lord health bonus.");
+        var sunJianWindow = new MainWindow(sunJianViewModel);
+        sunJianWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)sunJianWindow.Content, 1120, 740,
+            Path.Combine(output, "154-classic-sun-jian-card.png"));
+        sunJianWindow.Content = null;
+        sunJianWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

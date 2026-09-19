@@ -56,7 +56,7 @@ internal static class JijiuChecks
 
     public static void EquipmentControls(string output)
     {
-        var fixture = JijiuEquipmentScenario.Find();
+        var fixture = JijiuEquipmentScenario.Find(new Version(1, 56, 0));
         var owner = fixture.CreateSnapshot(0, revealAll: true).Players[0];
         var equipmentChoice = fixture.PendingDecision!.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("response") == "peach" &&

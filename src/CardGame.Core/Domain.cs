@@ -209,7 +209,8 @@ public enum SkillKind
     Xueyi,
     Shensu,
     Yaowu,
-    Yicong
+    Yicong,
+    Yinghun
 }
 
 public enum DecisionKind
@@ -263,7 +264,8 @@ public enum DecisionKind
     Jushou,
     Shensu,
     Yaowu,
-    Tianxiang
+    Tianxiang,
+    Yinghun
 }
 
 public enum GangliePunishmentKind

@@ -66,7 +66,7 @@ internal static class AdviceChecks
 
         // Real legal action lists cover physical cards, conversions, recasts and end-play formatting.
         var checkedKinds = new HashSet<LegalActionKind>();
-        foreach (var seed in new[] { 171, 721019, 721020, 721021 })
+        foreach (var seed in Enumerable.Range(171, 24).Concat([721019, 721020, 721021]))
         {
             using var candidate = new MainViewModel(false, seed, false, new MemorySaveStore(), useExpandedContent: true);
             candidate.SelectGeneralChoiceCommand.Execute(candidate.GeneralChoices[0]);

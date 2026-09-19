@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 57, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 58, 0))
     {
     }
 
@@ -76,12 +76,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 54, 0) &&
             version != new Version(1, 55, 0) &&
             version != new Version(1, 56, 0) &&
-            version != new Version(1, 57, 0))
+            version != new Version(1, 57, 0) &&
+            version != new Version(1, 58, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.57.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.58.0.");
         }
 
         _version = version;
@@ -770,6 +771,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:huangtian", "黄天",
                 "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian));
         }
+        if (_version >= new Version(1, 58, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:yinghun", "英魂",
+                "准备阶段开始时，若你已受伤，你可以令一名其他角色摸X张牌并弃置一张牌，或摸一张牌并弃置X张牌（X为你已损失的体力值）。", SkillKind.Yinghun));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1173,10 +1179,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:guidao", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["classic:leiji", "classic:huangtian"]));
         }
+        if (_version >= new Version(1, 58, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:sun-jian", "孙坚", "sun_jian",
+                "classic:yinghun", "wu", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 57 } => ZhangJiaoClassicGeneralIds,
+            { Major: 1, Minor: >= 58 } => SunJianClassicGeneralIds,
+            { Major: 1, Minor: 57 } => ZhangJiaoClassicGeneralIds,
             { Major: 1, Minor: 56 } => GongsunZanClassicGeneralIds,
             { Major: 1, Minor: 55 } => HuaXiongClassicGeneralIds,
             { Major: 1, Minor: 54 } => XiahouYuanClassicGeneralIds,
@@ -1510,6 +1523,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. GongsunZanClassicGeneralIds,
         "classic:zhang-jiao"
+    ];
+
+    internal static IReadOnlyList<string> SunJianClassicGeneralIds { get; } =
+    [
+        .. ZhangJiaoClassicGeneralIds,
+        "classic:sun-jian"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =
