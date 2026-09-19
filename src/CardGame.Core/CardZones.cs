@@ -174,6 +174,8 @@ public static class CardMoveReasons
     public static CardMoveReason LijianDiscard { get; } = new("skill.lijian.discard");
     public static CardMoveReason BiyueDraw { get; } = new("skill.biyue.draw");
     public static CardMoveReason JushouDraw { get; } = new("skill.jushou.draw");
+    public static CardMoveReason JujianDiscard { get; } = new("skill.jujian.discard");
+    public static CardMoveReason JujianDraw { get; } = new("skill.jujian.draw");
     public static CardMoveReason ShensuDiscard { get; } = new("skill.shensu.discard-equipment");
     public static CardMoveReason JieyinDiscard { get; } = new("skill.jieyin.discard");
     public static CardMoveReason XiaojiDraw { get; } = new("skill.xiaoji.draw");

@@ -359,6 +359,27 @@ public sealed record WuyanDamagePreventedEvent(
     int PreventedAmount,
     int SkillOwnerSeat) : IGameEvent;
 
+public enum JujianBenefitKind
+{
+    DrawTwo,
+    RecoverOne,
+    RestoreGeneral
+}
+
+/// <summary>Public result for Xu Shu's end-phase Jujian support choice.</summary>
+public sealed record JujianResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    bool Used,
+    int? DiscardedCardId,
+    CardKind? DiscardedCardKind,
+    int? TargetSeat,
+    JujianBenefitKind? Benefit,
+    int DrawnCards,
+    int RecoveredHp,
+    bool? TargetIsFaceDown,
+    bool? TargetIsChained) : IGameEvent;
+
 public sealed record ResponseRequestedEvent(
     int SourceSeat,
     int TargetSeat,

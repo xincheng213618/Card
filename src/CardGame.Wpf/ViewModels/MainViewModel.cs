@@ -661,6 +661,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.QuhuPindian or
                     DecisionKind.QuhuDamageTarget or
                     DecisionKind.TianyiPindian or
+                    DecisionKind.Jujian or
                     DecisionKind.ZhuqueFan
             } skillPrompt)
         {
@@ -701,6 +702,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.QuhuPindian or
             DecisionKind.QuhuDamageTarget or
             DecisionKind.TianyiPindian or
+            DecisionKind.Jujian or
             DecisionKind.ZhuqueFan;
 
         var legalActions = _game.GetHumanLegalActions();

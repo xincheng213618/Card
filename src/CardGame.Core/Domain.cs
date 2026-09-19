@@ -216,7 +216,8 @@ public enum SkillKind
     Juxiang,
     Lieren,
     Yizhong,
-    Wuyan
+    Wuyan,
+    Jujian
 }
 
 public enum DecisionKind
@@ -273,7 +274,8 @@ public enum DecisionKind
     Tianxiang,
     Yinghun,
     Zaiqi,
-    Lieren
+    Lieren,
+    Jujian
 }
 
 public enum GangliePunishmentKind

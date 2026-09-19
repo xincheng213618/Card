@@ -109,6 +109,7 @@ internal static class ClassicGeneralChecks
         var mengHuoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 59, 0));
         var zhuRongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 60, 0));
         var yuJinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 61, 0));
+        var wuyanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 62, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -117,7 +118,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.62.0"]),
+                "standard-classic-generals@1.63.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -135,7 +136,7 @@ internal static class ClassicGeneralChecks
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
             "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
             "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong",
-            "classic:yu-jin"
+            "classic:yu-jin", "classic:xu-shu"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -167,10 +168,16 @@ internal static class ClassicGeneralChecks
                 !zhuRongClassic.Generals.ContainsKey("classic:yu-jin") &&
                 !zhuRongClassic.Skills.ContainsKey("classic:yizhong"),
             "Current classic Yu Jin must expose four base HP and Yizhong without changing package 1.60.0.");
-        Require(classic.Skills["classic:wuyan"].LegacyKind == SkillKind.Wuyan &&
-                !yuJinClassic.Skills.ContainsKey("classic:wuyan") &&
-                !classic.Generals.ContainsKey("classic:xu-shu"),
-            "Package 1.62.0 must register the Wuyan foundation without exposing an incomplete Xu Shu general.");
+        Require(classic.Generals["classic:xu-shu"] is
+                { BaseHp: 3, FactionId: "shu", Gender: GeneralGender.Male } xuShu &&
+                xuShu.SkillIds.SequenceEqual(["classic:wuyan", "classic:jujian"]) &&
+                classic.Skills["classic:wuyan"].LegacyKind == SkillKind.Wuyan &&
+                classic.Skills["classic:jujian"].LegacyKind == SkillKind.Jujian &&
+                wuyanClassic.Skills.ContainsKey("classic:wuyan") &&
+                !wuyanClassic.Skills.ContainsKey("classic:jujian") &&
+                !wuyanClassic.Generals.ContainsKey("classic:xu-shu") &&
+                !yuJinClassic.Skills.ContainsKey("classic:wuyan"),
+            "Package 1.63.0 must expose complete Xu Shu while 1.62.0 retains only the Wuyan foundation.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&

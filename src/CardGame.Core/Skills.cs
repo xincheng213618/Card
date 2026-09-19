@@ -644,6 +644,12 @@ public sealed class WuyanSkill : IPassiveSkill
     public string Name => "无言";
 }
 
+public sealed class JujianSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Jujian;
+    public string Name => "举荐";
+}
+
 public sealed class TianduSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Tiandu;
@@ -1194,6 +1200,7 @@ public static class SkillRegistry
             [SkillKind.Quhu] = new QuhuSkill(),
             [SkillKind.Tianyi] = new TianyiSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
+            [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),
             [SkillKind.Tianxiang] = new TianxiangSkill(),
             [SkillKind.Buqu] = new BuquSkill(),

@@ -46,6 +46,7 @@ public sealed partial class GameEngine
     private bool _woodenOxUsedThisTurn;
     private bool _biyueResolvedThisTurn;
     private bool _jushouResolvedThisTurn;
+    private bool _jujianResolvedThisTurn;
     private bool _shensuTwoResolvedThisTurn;
     private int _pendingShensuStage;
     private int _logSequence;
@@ -331,6 +332,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalYuJin =>
         _rulesVersion >= 76 && IsClassicIdentityMode;
+
+    private bool UsesFormalXuShu =>
+        _rulesVersion >= 78 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -999,6 +1003,7 @@ public sealed partial class GameEngine
                 DecisionKind.Yinghun or
                 DecisionKind.Zaiqi or
                 DecisionKind.Lieren or
+                DecisionKind.Jujian or
                 DecisionKind.Biyue or
                 DecisionKind.Jushou or
                 DecisionKind.Shensu or
@@ -1113,6 +1118,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Jushou)
         {
             return SubmitJushouPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Jujian)
+        {
+            return SubmitJujianPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Shensu)
@@ -6543,6 +6553,12 @@ public sealed partial class GameEngine
         if (IsAiJushouPending())
         {
             ResolvePendingAiJushou();
+            return;
+        }
+
+        if (IsAiJujianPending())
+        {
+            ResolvePendingAiJujian();
             return;
         }
 
@@ -20460,6 +20476,11 @@ public sealed partial class GameEngine
             _status = previous.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
             return;
         }
+        if (UsesFormalXuShu && !_jujianResolvedThisTurn && previous.IsAlive &&
+            previous.General.HasSkill(SkillKind.Jujian) && TryBeginJujianChoice(previous))
+        {
+            return;
+        }
         if (UsesFormalDiaoChan &&
             !_biyueResolvedThisTurn &&
             previous.IsAlive &&
@@ -20506,6 +20527,7 @@ public sealed partial class GameEngine
         _luoyiActiveThisTurn = false;
         _biyueResolvedThisTurn = false;
         _jushouResolvedThisTurn = false;
+        _jujianResolvedThisTurn = false;
         _currentSeat = FindNextAliveSeat(_currentSeat);
         _phase = TurnPhase.NotStarted;
         PublishState();
@@ -23383,6 +23405,12 @@ public sealed partial class GameEngine
                 "A Tianyi prompt cannot exist without its active-skill continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.Jujian && _pendingJujian is null)
+        {
+            throw new InvalidOperationException(
+                "A Jujian prompt cannot exist without its end-phase continuation.");
+        }
+
         if (_pendingDecision?.Kind == DecisionKind.ZhuqueFan &&
             _pendingJijiang is not { AwaitingZhuqueFanChoice: true })
         {
@@ -23500,6 +23528,7 @@ public sealed partial class GameEngine
              _pendingJizhi is not null ||
              _pendingTieqi is not null ||
              _pendingLiegong is not null ||
+             _pendingJujian is not null ||
              _pendingHujia is not null ||
              _pendingJijiang is not null ||
              _pendingBorrowedSword is not null ||

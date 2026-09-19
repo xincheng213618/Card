@@ -53,6 +53,10 @@ public static class BattleCueProjector
                     Seats([yizhong.SourceSeat]), "毅重 · 黑色杀无效", Name(yizhong.TargetSeat)),
                 WuyanDamagePreventedEvent wuyan => new(envelope.Sequence, BattleCueKind.Response, wuyan.SkillOwnerSeat,
                     Seats([wuyan.SourceSeat, wuyan.TargetSeat]), "无言 · 锦囊伤害已防止", Name(wuyan.SkillOwnerSeat)),
+                JujianResolvedEvent { Used: true } jujian => new(envelope.Sequence,
+                    jujian.Benefit == JujianBenefitKind.RecoverOne ? BattleCueKind.Recovery : BattleCueKind.Response,
+                    jujian.OwnerSeat, Seats(jujian.TargetSeat is { } target ? [target] : []),
+                    $"举荐 · {JujianBenefitLabel(jujian.Benefit)}", Name(jujian.OwnerSeat)),
                 GudingBladeDamageIncreasedEvent guding => new(envelope.Sequence, BattleCueKind.Response, guding.SourceSeat,
                     Seats([guding.TargetSeat]), "古锭刀 · 伤害+1", Name(guding.SourceSeat)),
                 TengjiaFireDamageIncreasedEvent tengjia => new(envelope.Sequence, BattleCueKind.Response, tengjia.TargetSeat,
@@ -105,6 +109,14 @@ public static class BattleCueProjector
         // A bulk run can commit many turns. Show the latest useful actions, keeping playback bounded.
         return cues.TakeLast(12).ToArray();
     }
+
+    private static string JujianBenefitLabel(JujianBenefitKind? benefit) => benefit switch
+    {
+        JujianBenefitKind.DrawTwo => "摸两张牌",
+        JujianBenefitKind.RecoverOne => "回复1点体力",
+        JujianBenefitKind.RestoreGeneral => "复原武将牌",
+        _ => "未发动"
+    };
 
     private static string JudgmentName(string reason) => reason switch
     {

@@ -335,6 +335,55 @@ public sealed partial class SimpleAiBrain
             .ToArray();
     }
 
+    public PromptChoice ChooseJujianOwnerChoice(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices)
+    {
+        var skip = choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "jujian-skip");
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var ownedCards = self.Hand.Concat(self.Equipment).ToDictionary(card => card.Id);
+        var scored = choices
+            .Where(choice => choice.Parameters.GetValueOrDefault("action") == "jujian-use" &&
+                             choice.Cards.Count == 1 && choice.Targets.Count == 1 &&
+                             ownedCards.ContainsKey(choice.Cards[0]))
+            .Select(choice =>
+            {
+                var target = view.Players.Single(player => player.Seat == choice.Targets[0]);
+                var support = -GetHostility(view, selfRole, target);
+                var need = (target.IsFaceDown || target.IsChained ? 30d : 0d) +
+                           (target.Hp < target.MaxHp ? 15d : 0d);
+                var cost = CardCatalog.Get(ownedCards[choice.Cards[0]].Kind).HandKeepValue;
+                return new { Choice = choice, Support = support, Score = support + need - cost * .35d };
+            })
+            .Where(candidate => candidate.Support > 0)
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Choice.Cards[0])
+            .ThenBy(candidate => candidate.Choice.Targets[0])
+            .FirstOrDefault();
+        return scored?.Choice ?? skip;
+    }
+
+    public PromptChoice ChooseJujianBenefit(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        PromptChoice? Find(string action) => choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("action") == action);
+        if ((self.IsFaceDown || self.IsChained) && Find("jujian-restore") is { } restore)
+        {
+            return restore;
+        }
+        if (self.Hp < self.MaxHp && self.Hp <= 2 && Find("jujian-recover") is { } recover)
+        {
+            return recover;
+        }
+        return Find("jujian-draw") ?? Find("jujian-recover") ??
+               throw new InvalidOperationException("Jujian published no legal target benefit.");
+    }
+
     private static IReadOnlyList<CardSnapshot> GetActiveSkillSelectableCards(
         PlayerSnapshot self,
         LegalAction action)

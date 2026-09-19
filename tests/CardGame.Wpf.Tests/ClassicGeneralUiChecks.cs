@@ -1281,6 +1281,25 @@ internal static class ClassicGeneralUiChecks
         yuJinWindow.Content = null;
         yuJinWindow.Close();
 
+        using var xuShuViewModel = FindGeneralChoice("classic:xu-shu");
+        var xuShu = xuShuViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:xu-shu");
+        Program.Assert(xuShu.Name == "徐庶" && xuShu.Kingdom == "蜀" &&
+                       xuShu.SkillName == "无言 / 举荐" &&
+                       xuShu.SkillDescription.Contains("锦囊牌造成伤害", StringComparison.Ordinal) &&
+                       xuShu.SkillDescription.Contains("复原武将牌", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(xuShu.GeneralId) &&
+                       xuShu.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && xuShu.HealthText == "体力上限 4",
+            "The current classic Xu Shu card must render Shu, Wuyan, Jujian and the Lord health bonus.");
+        var xuShuWindow = new MainWindow(xuShuViewModel);
+        xuShuWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)xuShuWindow.Content, 1120, 740,
+            Path.Combine(output, "158-classic-xu-shu-card.png"));
+        xuShuWindow.Content = null;
+        xuShuWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

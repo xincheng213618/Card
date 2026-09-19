@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 62, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 63, 0))
     {
     }
 
@@ -81,12 +81,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 59, 0) &&
             version != new Version(1, 60, 0) &&
             version != new Version(1, 61, 0) &&
-            version != new Version(1, 62, 0))
+            version != new Version(1, 62, 0) &&
+            version != new Version(1, 63, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.62.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.63.0.");
         }
 
         _version = version;
@@ -804,6 +805,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:wuyan", "无言",
                 "锁定技，当锦囊牌造成伤害时，若你为伤害来源或受伤角色，防止此伤害。", SkillKind.Wuyan));
         }
+        if (_version >= new Version(1, 63, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:jujian", "举荐",
+                "结束阶段开始时，你可以弃置一张非基本牌并选择一名其他角色，令其选择摸两张牌、回复1点体力或复原武将牌。", SkillKind.Jujian));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1233,9 +1239,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:yu-jin", "于禁", "yu_jin",
                 "classic:yizhong", "wei", BaseHp: 4));
         }
+        if (_version >= new Version(1, 63, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:xu-shu", "徐庶", "xu_shu",
+                "classic:wuyan", "shu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:jujian"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 63 } => XuShuClassicGeneralIds,
             { Major: 1, Minor: >= 61 } => YuJinClassicGeneralIds,
             { Major: 1, Minor: 60 } => ZhuRongClassicGeneralIds,
             { Major: 1, Minor: 59 } => MengHuoClassicGeneralIds,
@@ -1598,6 +1612,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. ZhuRongClassicGeneralIds,
         "classic:yu-jin"
+    ];
+
+    internal static IReadOnlyList<string> XuShuClassicGeneralIds { get; } =
+    [
+        .. YuJinClassicGeneralIds,
+        "classic:xu-shu"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =
