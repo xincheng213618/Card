@@ -51,6 +51,7 @@ internal static class Program
             Check("hand overflow supports wheel browsing and reveals newly selected cards", () => HandNavigationChecks.OverflowAndSelection(output));
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("skill conversion is explicit and shares the confirmation flow", CheckConversions);
+            Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
             Check("expanded content exposes the active-skill command in WPF", ActiveSkillChecks.Controls);
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
             Check("classic setup selects and persists standard or military physical decks", () => ClassicGeneralUiChecks.SelectableDeckExpansion(output));
@@ -114,7 +115,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 78 : 77)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)

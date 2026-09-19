@@ -521,7 +521,12 @@ public sealed class ContentRegistry
             {
                 HashSchema = 8,
                 Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                RuntimeVersion = SkillProgramCatalog.RuntimeVersion,
+                RuntimeVersion = string.Join("+", skills.Values
+                    .Where(skill => skill.Program is not null)
+                    .Select(skill => skill.Program!.RuntimeVersion)
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(version => version, StringComparer.Ordinal)
+                    .DefaultIfEmpty(SkillProgramCatalog.RuntimeVersion)),
                 Programs = programs
             });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));

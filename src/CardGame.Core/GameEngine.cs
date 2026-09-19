@@ -115,8 +115,14 @@ public sealed partial class GameEngine
         _options = options;
         _contentRegistry = contentRegistry;
         _rulesVersion = rulesVersion;
-        if (rulesVersion < 79 && contentRegistry?.Skills.Values.Any(skill => skill.Program is not null) == true)
-            throw new InvalidOperationException("Compiled skill programs require rules version 79 or newer.");
+        var requiredProgramRulesVersion = contentRegistry?.Skills.Values
+            .Where(skill => skill.Program is not null)
+            .Select(skill => skill.Program!.MinimumRulesVersion)
+            .DefaultIfEmpty(0)
+            .Max() ?? 0;
+        if (rulesVersion < requiredProgramRulesVersion)
+            throw new InvalidOperationException(
+                $"Compiled skill programs require rules version {requiredProgramRulesVersion} or newer.");
         _modeDefinition = ResolveModeDefinition(contentRegistry, options);
         ValidateModeOptions(options, _modeDefinition);
         _generalPool = CreateRuntimeGeneralPool(contentRegistry, _modeDefinition);
@@ -801,7 +807,8 @@ public sealed partial class GameEngine
             card,
             targets,
             command.PlayedCardKind,
-            command.TargetCardId);
+            command.TargetCardId,
+            command.ConversionSource);
 
         if (action is null)
         {
@@ -816,7 +823,8 @@ public sealed partial class GameEngine
             advanceToHumanBoundary: _options.AdvanceAfterHumanCommands,
             playedCardKind: action.PlayedCardKind,
             targetCardId: action.TargetCardId,
-            targetSeats: action.TargetSeats));
+            targetSeats: action.TargetSeats,
+            conversionSource: action.ConversionSource));
     }
 
     private CommandResult SubmitUseSkill(UseSkillCommand command)
@@ -963,6 +971,11 @@ public sealed partial class GameEngine
 
     private CommandResult SubmitPromptAnswer(int actorSeat, PromptId prompt, ChoiceId choice)
     {
+        if (_pendingDecision?.Kind == DecisionKind.ProgramCardTrigger)
+        {
+            return SubmitProgramCardTriggerAnswer(actorSeat, prompt, choice);
+        }
+
         if (!_started)
         {
             return Reject(CommandErrorCode.NotStarted, "Call StartGameCommand before answering a prompt.");
@@ -1050,6 +1063,8 @@ public sealed partial class GameEngine
         {
             return Reject(CommandErrorCode.InvalidChoice, "The choice was not published in the current prompt.");
         }
+
+        CaptureSelectedResponseConversion(selected);
 
         if (pending.Kind == DecisionKind.RescueDying)
         {
@@ -3107,7 +3122,8 @@ public sealed partial class GameEngine
         bool advanceToHumanBoundary,
         CardKind? playedCardKind = null,
         int? targetCardId = null,
-        IReadOnlyList<int>? targetSeats = null)
+        IReadOnlyList<int>? targetSeats = null,
+        CardConversionSource? conversionSource = null)
     {
         RequireHumanDecision(DecisionKind.PlayCard);
         var actor = _players[_options.HumanSeat];
@@ -3126,7 +3142,8 @@ public sealed partial class GameEngine
                 card,
                 selectedTargets,
                 playedCardKind,
-                targetCardId);
+                targetCardId,
+                conversionSource);
 
         if (action is null || action.Kind == LegalActionKind.EndPlay)
         {
@@ -6461,6 +6478,13 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is { Kind: DecisionKind.ProgramCardTrigger } programDecision)
+        {
+            if (!_players[programDecision.PlayerSeat].IsHuman)
+                ResolveProgramCardChoice(programDecision.Choices[0]);
+            return;
+        }
+
         if (IsAiTianxiangPending())
         {
             ResolvePendingAiTianxiang();
@@ -7315,6 +7339,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? activeSkillCardIds = null,
         IReadOnlyList<int>? activeSkillTargetSeats = null)
     {
+        SelectUseConversion(action);
         if (action.Kind == LegalActionKind.UseProgramSkill)
         {
             ExecuteProgramSkill(actor, action, activeSkillCardIds ?? [], activeSkillTargetSeats ?? []);
@@ -9635,7 +9660,7 @@ public sealed partial class GameEngine
             return [];
         }
 
-        return GetResponseCards(weaponOwner, CardKind.Slash)
+        return GetSlashUseCards(weaponOwner)
             .Where(card =>
             {
                 var location = _cardZones.GetLocation(card.Id);
@@ -9706,8 +9731,11 @@ public sealed partial class GameEngine
             CardKind.Slash);
         var choices = slashes.SelectMany(card =>
         {
-            var baseEffectiveKind = GetEffectiveResponseKind(weaponOwner, card, CardKind.Slash);
-            return GetSlashUseKinds(weaponOwner, baseEffectiveKind).Select(effectiveKind =>
+            var baseEffectiveKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
+            return GetSlashUseKinds(weaponOwner, baseEffectiveKind)
+                .Where(effectiveKind => _rulesVersion < 80 || effectiveKind == baseEffectiveKind ||
+                                        IsNativeResponseCard(card, CardKind.Slash))
+                .SelectMany(effectiveKind =>
             {
                 var usesZhuqueFan = effectiveKind != baseEffectiveKind;
                 var cardDescription = usesZhuqueFan
@@ -9716,8 +9744,9 @@ public sealed partial class GameEngine
                         ? $"使用【{CardCatalog.Get(effectiveKind).DisplayName}】"
                         : $"将【{card.DisplayName}】当作【杀】使用";
                 var suffix = usesZhuqueFan ? ".as-FireSlash" : string.Empty;
-                return new PromptChoice(
-                    new ChoiceId($"borrowed-sword.slash.card-{card.Id}{suffix}"),
+                return CreateConversionChoiceVariants(
+                    weaponOwner, card, baseEffectiveKind, forResponse: false,
+                    $"borrowed-sword.slash.card-{card.Id}{suffix}",
                     $"{cardDescription}攻击 {slashTarget.Name}。",
                     [card.Id],
                     [slashTarget.Seat],
@@ -9810,7 +9839,7 @@ public sealed partial class GameEngine
         var selected = GetBorrowedSwordSlashCards(weaponOwner, slashTarget)
             .SingleOrDefault(card => card.Id == slash.Id) ??
             throw new InvalidOperationException("The selected Borrowed Sword Slash is no longer legal.");
-        var baseEffectiveKind = GetEffectiveResponseKind(weaponOwner, selected, CardKind.Slash);
+        var baseEffectiveKind = IsSlashCard(selected.Kind) ? selected.Kind : CardKind.Slash;
         var effectiveKind = requestedEffectiveKind ?? baseEffectiveKind;
         var usesZhuqueFan = IsZhuqueFanConversion(
             weaponOwner,
@@ -10087,7 +10116,7 @@ public sealed partial class GameEngine
         }
 
         while (pending.TargetIndex < pending.TargetSeats.Count &&
-               !_players[pending.TargetSeats[pending.TargetIndex]].IsAlive)
+               !_players[GetFangtianEffectiveTarget(pending, pending.TargetIndex)].IsAlive)
         {
             pending.TargetIndex++;
         }
@@ -10099,7 +10128,7 @@ public sealed partial class GameEngine
 
         SetCardUseTargetIndex(pending.ResolutionId, pending.TargetIndex);
         SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.Declared);
-        var targetSeat = pending.TargetSeats[pending.TargetIndex];
+        var targetSeat = GetFangtianEffectiveTarget(pending, pending.TargetIndex);
         var attack = new AttackResolution(
             pending.ResolutionId,
             pending.SourceSeat,
@@ -10108,6 +10137,9 @@ public sealed partial class GameEngine
             pending.DamageAmount,
             pending.EffectiveCardKind,
             pending.IgnoresArmor);
+        if (_acceptedProgramUses.Contains(pending.ResolutionId) &&
+            _preparedProgramTargets.TryGetValue(pending.ResolutionId, out var prepared))
+            attack = prepared[pending.TargetIndex];
         pending.CurrentAttack = attack;
         _pendingAttack = attack;
         AddLog(
@@ -10439,6 +10471,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (PrepareProgramSlashTargets(attack)) return;
+        ContinueSlashAfterFinalizedTargets(attack);
+    }
+
+    private void ContinueSlashAfterFinalizedTargets(AttackResolution attack)
+    {
         if (TryBeginLiegongChoice(attack))
         {
             PublishState();
@@ -10468,7 +10506,9 @@ public sealed partial class GameEngine
                 candidate.Seat != target.Seat &&
                 candidate.Seat != attack.SourceSeat &&
                 (_pendingFangtianHalberd is null ||
-                 !_pendingFangtianHalberd.TargetSeats.Contains(candidate.Seat)) &&
+                 !(_rulesVersion >= 80
+                     ? _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId).TargetSeats
+                     : _pendingFangtianHalberd.TargetSeats).Contains(candidate.Seat)) &&
                 GetCombatDistance(target.Seat, candidate.Seat) <= GetAttackRange(target.Seat) &&
                 !IsSlashProhibited(candidate))
             .OrderBy(candidate => candidate.Seat)
@@ -10729,7 +10769,8 @@ public sealed partial class GameEngine
                     playedCardKind,
                     card => GetEffectiveResponseKind(target, card, CardKind.Dodge),
                     includeBagua: hasBagua,
-                    includeHujia: canRequestHujia),
+                    includeHujia: canRequestHujia,
+                    responder: target),
                 RequiredCardKind = CardKind.Dodge
             };
             _status = EngineStatus.AwaitingHumanResponse;
@@ -10770,7 +10811,8 @@ public sealed partial class GameEngine
                     playedCardKind,
                     card => GetEffectiveResponseKind(target, card, CardKind.Dodge),
                     includeBagua: hasBagua,
-                    includeHujia: canRequestHujia),
+                    includeHujia: canRequestHujia,
+                    responder: target),
                 RequiredCardKind = CardKind.Dodge
             };
             QueueGameEvent(new ResponseRequestedEvent(
@@ -11095,9 +11137,11 @@ public sealed partial class GameEngine
                 responder,
                 slash,
                 CardKind.Slash);
+            var responseConversion = GetSelectedResponseConversion(responder, slash, responseCardKind);
+            var responseFrom = FindOwnedCardLocation(responder, slash);
             MoveCard(
                 slash,
-                FindOwnedCardLocation(responder, slash),
+                responseFrom,
                 CardLocation.Processing,
                 CardMoveReasons.Respond);
             var responseName = CardCatalog.Get(responseCardKind).DisplayName;
@@ -11121,6 +11165,20 @@ public sealed partial class GameEngine
                 UsedSlash: true,
                 SlashCardId: slash.Id,
                 ResponseCardKind: responseCardKind));
+            var responseCost = new CardActionCost(slash.Id, slash.Kind, responseFrom);
+            if (TryBeginCardResponsePrograms(
+                    duel.Attack,
+                    responder,
+                    responder,
+                    requesterSeat: null,
+                    duel.OpponentSeat,
+                    responseCardKind,
+                    [responseCost],
+                    ProgramCardContinuation.DuelSlash,
+                    responseConversion))
+            {
+                return;
+            }
             MoveCard(
                 slash,
                 CardLocation.Processing,
@@ -11224,10 +11282,12 @@ public sealed partial class GameEngine
                 responder,
                 responseCard,
                 requiredCardKind);
+            var responseConversion = GetSelectedResponseConversion(responder, responseCard, responseCardKind);
+            var responseFrom = FindOwnedCardLocation(responder, responseCard);
 
             MoveCard(
                 responseCard,
-                FindOwnedCardLocation(responder, responseCard),
+                responseFrom,
                 CardLocation.Processing,
                 CardMoveReasons.Respond);
             var incomingName = CardCatalog.Get(group.Card.Kind).DisplayName;
@@ -11254,6 +11314,20 @@ public sealed partial class GameEngine
                 UsedResponse: true,
                 ResponseCardId: responseCard.Id,
                 ResponseCardKind: responseCardKind));
+            var responseCost = new CardActionCost(responseCard.Id, responseCard.Kind, responseFrom);
+            if (TryBeginCardResponsePrograms(
+                    attack,
+                    responder,
+                    responder,
+                    requesterSeat: null,
+                    group.SourceSeat,
+                    responseCardKind,
+                    [responseCost],
+                    ProgramCardContinuation.GroupResponse,
+                    responseConversion))
+            {
+                return;
+            }
             MoveCard(
                 responseCard,
                 CardLocation.Processing,
@@ -11441,14 +11515,15 @@ public sealed partial class GameEngine
         IReadOnlyList<Card> responseCards,
         bool includeBagua)
     {
-        var choices = responseCards.Select(card =>
+        var choices = responseCards.SelectMany(card =>
         {
             var responseCardKind = GetEffectiveResponseKind(provider, card, CardKind.Dodge);
             var responseDescription = IsNativeResponseCard(card, CardKind.Dodge)
                 ? "打出【闪】"
                 : $"将【{card.DisplayName}】当作【闪】";
-            return new PromptChoice(
-                new ChoiceId($"hujia.dodge.card-{card.Id}"),
+            return CreateConversionChoiceVariants(
+                provider, card, responseCardKind, forResponse: true,
+                $"hujia.dodge.card-{card.Id}",
                 $"{responseDescription}，替 {_players[pending.OwnerSeat].Name} 响应【护驾】。",
                 [card.Id],
                 [pending.OwnerSeat],
@@ -11571,19 +11646,18 @@ public sealed partial class GameEngine
         _pendingHujia = null;
         ClearPendingDecision();
         CardKind? responseCardKind = null;
+        CardConversionSource? responseConversion = null;
+        CardLocation? responseFrom = null;
         if (selectedDodge is not null)
         {
             responseCardKind = GetEffectiveResponseKind(provider, selectedDodge, CardKind.Dodge);
+            responseConversion = GetSelectedResponseConversion(provider, selectedDodge, responseCardKind.Value);
+            responseFrom = FindOwnedCardLocation(provider, selectedDodge);
             MoveCard(
                 selectedDodge,
-                FindOwnedCardLocation(provider, selectedDodge),
+                responseFrom.Value,
                 CardLocation.Processing,
                 CardMoveReasons.Respond);
-            MoveCard(
-                selectedDodge,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.ResponseFinished);
         }
 
         AddLog(
@@ -11620,6 +11694,29 @@ public sealed partial class GameEngine
                 UsedResponse: true,
                 ResponseCardId: selectedDodge?.Id,
                 ResponseCardKind: CardKind.Dodge));
+        }
+
+        if (selectedDodge is not null)
+        {
+            var responseCost = new CardActionCost(selectedDodge.Id, selectedDodge.Kind, responseFrom!.Value);
+            if (TryBeginCardResponsePrograms(
+                    attack,
+                    owner,
+                    provider,
+                    requesterSeat: owner.Seat,
+                    attack.SourceSeat,
+                    responseCardKind ?? CardKind.Dodge,
+                    [responseCost],
+                    ProgramCardContinuation.HujiaDodge,
+                    responseConversion))
+            {
+                return;
+            }
+            MoveCard(
+                selectedDodge,
+                CardLocation.Processing,
+                CardLocation.DiscardPile,
+                CardMoveReasons.ResponseFinished);
         }
 
         CompleteSuccessfulDodgeResponse(attack);
@@ -11957,7 +12054,7 @@ public sealed partial class GameEngine
         PlayerRuntime source,
         PlayerRuntime target) =>
         CanUseQinglongCrescentBladeTarget(source, target)
-            ? GetResponseCards(source, CardKind.Slash)
+            ? GetSlashUseCards(source)
             : [];
 
     private bool CanRequestQinglongCrescentBladeJijiang(
@@ -12018,14 +12115,15 @@ public sealed partial class GameEngine
         var target = _players[attack.TargetSeat];
         var effectiveKind = RequireAttackCardKind(attack);
         var slashes = GetQinglongCrescentBladeSlashCards(source, target);
-        var choices = slashes.Select(card =>
+        var choices = slashes.SelectMany(card =>
         {
             var followupKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
             var cardDescription = IsSlashCard(card.Kind)
                 ? $"使用【{CardCatalog.Get(card.Kind).DisplayName}】"
                 : $"将【{card.DisplayName}】当作【杀】使用";
-            return new PromptChoice(
-                new ChoiceId($"qinglong.slash.resolution-{attack.ResolutionId}.card-{card.Id}"),
+            return CreateConversionChoiceVariants(
+                source, card, followupKind, forResponse: false,
+                $"qinglong.slash.resolution-{attack.ResolutionId}.card-{card.Id}",
                 $"{cardDescription}，继续攻击 {target.Name}。",
                 [card.Id],
                 [target.Seat],
@@ -12399,7 +12497,8 @@ public sealed partial class GameEngine
                 attack.EffectiveCardKind,
                 card => GetEffectiveResponseKind(owner, card, CardKind.Dodge),
                 includeBagua: hasBagua,
-                includeHujia: false)
+                includeHujia: false,
+                responder: owner)
         };
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
@@ -12581,7 +12680,7 @@ public sealed partial class GameEngine
             var provider = _players[pending.CurrentCandidateSeat];
             var slashes = provider.IsAlive &&
                           string.Equals(provider.General.FactionId, "shu", StringComparison.Ordinal)
-                ? GetResponseCards(provider, CardKind.Slash)
+                ? GetJijiangSlashCards(pending, provider)
                 : [];
             var zhangbaPairs = provider.IsAlive &&
                                string.Equals(provider.General.FactionId, "shu", StringComparison.Ordinal)
@@ -12625,14 +12724,17 @@ public sealed partial class GameEngine
         var responseTargets = pending.TargetSeat is { } responseTargetSeat
             ? new[] { responseTargetSeat }
             : new[] { pending.OwnerSeat };
-        var choices = slashes.Select(card =>
+        var choices = slashes.SelectMany(card =>
         {
-            var effectiveKind = GetEffectiveResponseKind(provider, card, CardKind.Slash);
+            var effectiveKind = GetJijiangEffectiveSlashKind(pending, provider, card);
             var description = IsNativeResponseCard(card, CardKind.Slash)
                 ? $"打出【{CardCatalog.Get(effectiveKind).DisplayName}】"
                 : $"将【{card.DisplayName}】当作【杀】";
-            return new PromptChoice(
-                new ChoiceId($"jijiang.slash.card-{card.Id}"),
+            var isResponse = !pending.IsActiveUse && !pending.IsBorrowedSwordUse &&
+                             !pending.IsQinglongCrescentBladeUse;
+            return CreateConversionChoiceVariants(
+                provider, card, effectiveKind, isResponse,
+                $"jijiang.slash.card-{card.Id}",
                 $"{description}，替 {_players[pending.OwnerSeat].Name} 响应【激将】。",
                 [card.Id],
                 responseTargets,
@@ -12687,7 +12789,7 @@ public sealed partial class GameEngine
 
         var provider = _players[pending.CurrentCandidateSeat];
         var selectedSlash = useSlash
-            ? GetResponseCards(provider, CardKind.Slash)
+            ? GetJijiangSlashCards(pending, provider)
                 .FirstOrDefault(card => card.Id == requestedCardId)
             : null;
         if (useSlash && selectedSlash is null)
@@ -12699,7 +12801,7 @@ public sealed partial class GameEngine
         _status = EngineStatus.Running;
         if (selectedSlash is not null)
         {
-            var baseEffectiveKind = GetEffectiveResponseKind(provider, selectedSlash, CardKind.Slash);
+            var baseEffectiveKind = GetJijiangEffectiveSlashKind(pending, provider, selectedSlash);
             var effectiveKind = requestedEffectiveKind ?? baseEffectiveKind;
             if (effectiveKind != baseEffectiveKind)
             {
@@ -12983,6 +13085,8 @@ public sealed partial class GameEngine
 
         var owner = _players[pending.OwnerSeat];
         var effectiveKind = GetEffectiveResponseKind(provider, selectedSlash, CardKind.Slash);
+        var responseConversion = GetSelectedResponseConversion(provider, selectedSlash, effectiveKind);
+        var responseFrom = FindOwnedCardLocation(provider, selectedSlash);
         var duel = pending.Purpose == JijiangPurpose.DuelResponse
             ? _pendingDuel ?? throw new InvalidOperationException("A Duel Jijiang response has no Duel continuation.")
             : null;
@@ -12993,7 +13097,7 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         MoveCard(
             selectedSlash,
-            FindOwnedCardLocation(provider, selectedSlash),
+            responseFrom,
             CardLocation.Processing,
             CardMoveReasons.Respond);
         AddLog(
@@ -13015,11 +13119,6 @@ public sealed partial class GameEngine
             responseOpponentSeat,
             effectiveKind));
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, effectiveKind);
-        MoveCard(
-            selectedSlash,
-            CardLocation.Processing,
-            CardLocation.DiscardPile,
-            CardMoveReasons.ResponseFinished);
 
         if (pending.Purpose == JijiangPurpose.DuelResponse)
         {
@@ -13029,6 +13128,25 @@ public sealed partial class GameEngine
                 UsedSlash: true,
                 SlashCardId: selectedSlash.Id,
                 ResponseCardKind: effectiveKind));
+            var responseCost = new CardActionCost(selectedSlash.Id, selectedSlash.Kind, responseFrom);
+            if (TryBeginCardResponsePrograms(
+                    attack,
+                    owner,
+                    provider,
+                    requesterSeat: owner.Seat,
+                    responseOpponentSeat,
+                    effectiveKind,
+                    [responseCost],
+                    ProgramCardContinuation.JijiangDuelSlash,
+                    responseConversion))
+            {
+                return;
+            }
+            MoveCard(
+                selectedSlash,
+                CardLocation.Processing,
+                CardLocation.DiscardPile,
+                CardMoveReasons.ResponseFinished);
             ContinueDuelAfterSuccessfulSlash(duel, owner.Seat);
             return;
         }
@@ -13043,6 +13161,25 @@ public sealed partial class GameEngine
             UsedResponse: true,
             ResponseCardId: selectedSlash.Id,
             ResponseCardKind: effectiveKind));
+        var groupResponseCost = new CardActionCost(selectedSlash.Id, selectedSlash.Kind, responseFrom);
+        if (TryBeginCardResponsePrograms(
+                attack,
+                owner,
+                provider,
+                requesterSeat: owner.Seat,
+                responseOpponentSeat,
+                effectiveKind,
+                [groupResponseCost],
+                ProgramCardContinuation.JijiangGroupResponse,
+                responseConversion))
+        {
+            return;
+        }
+        MoveCard(
+            selectedSlash,
+            CardLocation.Processing,
+            CardLocation.DiscardPile,
+            CardMoveReasons.ResponseFinished);
         CompleteAttack(attack);
     }
 
@@ -13687,7 +13824,7 @@ public sealed partial class GameEngine
         }
 
         var provider = _players[decision.PlayerSeat];
-        var slashes = GetResponseCards(provider, CardKind.Slash);
+        var slashes = GetJijiangSlashCards(pending, provider);
         var zhangbaPair = GetZhangbaSlashPairs(provider).FirstOrDefault();
         var view = CreateSnapshot(provider.Seat);
         var (useSlash, thought) = _aiBrains[provider.Seat]
@@ -15274,9 +15411,11 @@ public sealed partial class GameEngine
             defender,
             responseCard,
             CardKind.Dodge);
+        var responseConversion = GetSelectedResponseConversion(defender, responseCard, responseCardKind);
+        var responseFrom = FindOwnedCardLocation(defender, responseCard);
         MoveCard(
             responseCard,
-            CardLocation.Hand(defender.Seat),
+            responseFrom,
             CardLocation.Processing,
             CardMoveReasons.Respond);
         var incomingName = CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName;
@@ -15297,12 +15436,66 @@ public sealed partial class GameEngine
             defender.Seat,
             attack.SourceSeat,
             responseCardKind));
+        var responseCost = new CardActionCost(responseCard.Id, responseCard.Kind, responseFrom);
+        if (TryBeginCardResponsePrograms(
+                attack,
+                defender,
+                defender,
+                requesterSeat: null,
+                attack.SourceSeat,
+                responseCardKind,
+                [responseCost],
+                ProgramCardContinuation.Dodge,
+                responseConversion))
+        {
+            return;
+        }
         MoveCard(
             responseCard,
             CardLocation.Processing,
             CardLocation.DiscardPile,
             CardMoveReasons.ResponseFinished);
         CompleteSuccessfulDodgeResponse(attack);
+    }
+
+    private void ContinueAcceptedCardResponse(
+        AttackResolution attack,
+        CardActionContext action,
+        ProgramCardContinuation continuation)
+    {
+        var processing = _cardZones.CardsAt(CardLocation.Processing);
+        foreach (var cost in action.PhysicalCards)
+        {
+            var card = processing.Single(item => item.Id == cost.CardId);
+            MoveCard(
+                card,
+                CardLocation.Processing,
+                CardLocation.DiscardPile,
+                CardMoveReasons.ResponseFinished);
+        }
+
+        switch (continuation)
+        {
+            case ProgramCardContinuation.Dodge:
+            case ProgramCardContinuation.HujiaDodge:
+                CompleteSuccessfulDodgeResponse(attack);
+                return;
+            case ProgramCardContinuation.DuelSlash:
+            case ProgramCardContinuation.JijiangDuelSlash:
+            {
+                var duel = _pendingDuel ??
+                    throw new InvalidOperationException("An accepted Duel response has no Duel continuation.");
+                ContinueDuelAfterSuccessfulSlash(duel, action.ActorSeat);
+                return;
+            }
+            case ProgramCardContinuation.GroupResponse:
+            case ProgramCardContinuation.JijiangGroupResponse:
+                CompleteAttack(attack);
+                return;
+            default:
+                throw new InvalidOperationException(
+                    $"Continuation {continuation} is not a card-response continuation.");
+        }
     }
 
     private int GetIceSwordTargetCardCount(PlayerRuntime target) =>
@@ -18141,7 +18334,7 @@ public sealed partial class GameEngine
             fangtian.CurrentAttack = null;
             fangtian.TargetIndex++;
             while (fangtian.TargetIndex < fangtian.TargetSeats.Count &&
-                   !_players[fangtian.TargetSeats[fangtian.TargetIndex]].IsAlive)
+                   !_players[GetFangtianEffectiveTarget(fangtian, fangtian.TargetIndex)].IsAlive)
             {
                 fangtian.TargetIndex++;
             }
@@ -18420,6 +18613,8 @@ public sealed partial class GameEngine
         var resolutionId = ++_resolutionSequence;
         var targets = Array.AsReadOnly(targetSeats.ToArray());
         var effectiveCardKind = playedCardKind ?? card.Kind;
+        var physicalIds = Array.AsReadOnly((physicalCardIds ?? [card.Id]).ToArray());
+        var actionContext = CaptureCardUseAction(card, sourceSeat, targets, effectiveCardKind, physicalIds);
         _resolutionStack.Add(new CardUseFrame(
             resolutionId,
             sourceSeat,
@@ -18427,7 +18622,7 @@ public sealed partial class GameEngine
             effectiveCardKind,
             targets,
             IgnoresArmor: ignoresArmor,
-            PhysicalCardIds: Array.AsReadOnly((physicalCardIds ?? [card.Id]).ToArray())));
+            PhysicalCardIds: physicalIds) { Action = actionContext });
         QueueGameEvent(new CardUseDeclaredEvent(
             resolutionId,
             card.Id,
@@ -18687,6 +18882,8 @@ public sealed partial class GameEngine
             card.Id,
             playedCardKind ?? card.Kind));
         PopResolutionFrame(frameId, ResolutionFrameKind.CardUse);
+        _acceptedProgramUses.Remove(frameId);
+        _preparedProgramTargets.Remove(frameId);
     }
 
     private void PopResolutionFrame(long frameId, ResolutionFrameKind expectedKind)
@@ -18856,29 +19053,46 @@ public sealed partial class GameEngine
                 }
             }
 
-            foreach (var converted in playableCards.Where(card =>
-                         skill.CanUseAsSlash(skillContext, card)))
+            foreach (var converted in playableCards)
             {
+                var programSources = GetProgramViewAsConversions(
+                    actor, converted, CardKind.Slash, forResponse: false);
+                var legacySources = GetLegacyViewAsConversions(
+                    actor, converted, CardKind.Slash, forResponse: false);
+                var legacyCompatibility = _rulesVersion < 80 && skill.CanUseAsSlash(skillContext, converted);
+                if (!legacyCompatibility && legacySources.Count == 0 && programSources.Count == 0) continue;
                 var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
                 var targets = GetFangtianOrderedSlashTargets(actor, converted);
-                foreach (var target in targets)
+                var sources = new List<CardConversionSource?>();
+                if (legacyCompatibility) sources.Add(null);
+                sources.AddRange(legacySources);
+                sources.AddRange(programSources);
+                foreach (var conversionSource in sources)
                 {
-                    actions.Add(new LegalAction(
-                        LegalActionKind.Slash,
-                        converted.Id,
-                        target.Seat,
-                        $"将【{physicalName}】当作【杀】对 {target.Name} 使用",
-                        PlayedCardKind: CardKind.Slash));
-                }
+                    foreach (var target in targets)
+                    {
+                        actions.Add(new LegalAction(
+                            LegalActionKind.Slash,
+                            converted.Id,
+                            target.Seat,
+                            DescribeConversion(conversionSource, $"将【{physicalName}】当作【杀】对 {target.Name} 使用"),
+                            PlayedCardKind: CardKind.Slash)
+                        {
+                            ConversionSource = conversionSource
+                        });
+                    }
 
-                AddFangtianHalberdSlashActions(
-                    actions,
-                    actor,
-                    converted,
-                    targets,
-                    "杀",
-                    CardKind.Slash);
-                AddTianyiSlashActions(actions, actor, converted, targets, "杀", CardKind.Slash);
+                    AddFangtianHalberdSlashActions(
+                        actions,
+                        actor,
+                        converted,
+                        targets,
+                        "杀",
+                        CardKind.Slash,
+                        conversionSource);
+                    AddTianyiSlashActions(
+                        actions, actor, converted, targets, "杀", CardKind.Slash, conversionSource);
+                }
             }
 
             if (UsesFormalWushengEquipment)
@@ -19515,7 +19729,8 @@ public sealed partial class GameEngine
         Card physicalCard,
         IReadOnlyList<PlayerRuntime> legalTargets,
         string slashName,
-        CardKind? playedCardKind)
+        CardKind? playedCardKind,
+        CardConversionSource? conversionSource = null)
     {
         if (!actor.TianyiWonThisTurn || legalTargets.Count < 2 ||
             UsesFormalFangtianHalberd &&
@@ -19531,9 +19746,12 @@ public sealed partial class GameEngine
         {
             var targets = new[] { ordered[first], ordered[second] };
             actions.Add(new LegalAction(LegalActionKind.Slash, physicalCard.Id, targets[0].Seat,
-                $"发动【天义】，以【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}",
+                DescribeConversion(conversionSource, $"发动【天义】，以【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}"),
                 PlayedCardKind: playedCardKind,
-                TargetSeats: targets.Select(target => target.Seat).ToArray()));
+                TargetSeats: targets.Select(target => target.Seat).ToArray())
+            {
+                ConversionSource = conversionSource
+            });
         }
     }
 
@@ -19543,7 +19761,8 @@ public sealed partial class GameEngine
         Card physicalCard,
         IReadOnlyList<PlayerRuntime> legalTargets,
         string slashName,
-        CardKind? playedCardKind)
+        CardKind? playedCardKind,
+        CardConversionSource? conversionSource = null)
     {
         if (!UsesFormalFangtianHalberd ||
             GetHand(actor).Count != 1 ||
@@ -19571,7 +19790,8 @@ public sealed partial class GameEngine
                         physicalCard,
                         slashName,
                         playedCardKind,
-                        selected);
+                        selected,
+                        conversionSource);
                     return;
                 }
 
@@ -19585,21 +19805,25 @@ public sealed partial class GameEngine
         }
     }
 
-    private static void AddFangtianHalberdSlashAction(
+    private void AddFangtianHalberdSlashAction(
         ICollection<LegalAction> actions,
         Card physicalCard,
         string slashName,
         CardKind? playedCardKind,
-        IReadOnlyList<PlayerRuntime> targets)
+        IReadOnlyList<PlayerRuntime> targets,
+        CardConversionSource? conversionSource)
     {
         var targetSeats = Array.AsReadOnly(targets.Select(target => target.Seat).ToArray());
         actions.Add(new LegalAction(
             LegalActionKind.Slash,
             physicalCard.Id,
             targetSeats[0],
-            $"发动【方天画戟】，对 {string.Join("、", targets.Select(target => target.Name))} 使用【{slashName}】",
+            DescribeConversion(conversionSource, $"发动【方天画戟】，对 {string.Join("、", targets.Select(target => target.Name))} 使用【{slashName}】"),
             PlayedCardKind: playedCardKind,
-            TargetSeats: targetSeats));
+            TargetSeats: targetSeats)
+        {
+            ConversionSource = conversionSource
+        });
     }
 
     private void AddTargetCardActions(
@@ -19720,26 +19944,43 @@ public sealed partial class GameEngine
         Card card,
         IReadOnlyList<int> targets,
         CardKind? playedCardKind,
-        int? targetCardId)
+        int? targetCardId,
+        CardConversionSource? conversionSource)
     {
         var matching = legalActions
             .Where(candidate => candidate.Kind != LegalActionKind.Recast)
             .Where(candidate => candidate.TargetSeats.SequenceEqual(targets))
             .Where(candidate => targetCardId is null || candidate.TargetCardId == targetCardId)
             .ToArray();
-        if (playedCardKind is { } requestedKind)
+        if (conversionSource is { } requestedSource)
         {
             return matching.FirstOrDefault(candidate =>
-                (candidate.PlayedCardKind ?? card.Kind) == requestedKind);
+                (candidate.PlayedCardKind ?? card.Kind) == (playedCardKind ?? card.Kind) &&
+                candidate.ConversionSource == requestedSource);
+        }
+        if (playedCardKind is { } requestedKind)
+        {
+            var kindMatches = matching.Where(candidate =>
+                (candidate.PlayedCardKind ?? card.Kind) == requestedKind).ToArray();
+            return kindMatches.Select(candidate => candidate.ConversionSource).Distinct().Count() > 1
+                ? null
+                : kindMatches.FirstOrDefault();
         }
 
         // Compatibility callers do not carry an action discriminator. Prefer a
         // native use of the physical card when one exists, then fall back to a
         // conversion such as Wusheng's red-card Slash.
-        return matching.FirstOrDefault(candidate =>
+        var selected = matching.FirstOrDefault(candidate =>
                    candidate.PlayedCardKind is null && candidate.TargetCardId is null) ??
                matching.FirstOrDefault(candidate => candidate.PlayedCardKind is null) ??
                matching.FirstOrDefault();
+        if (selected?.ConversionSource is not null &&
+            matching.Count(candidate =>
+                (candidate.PlayedCardKind ?? card.Kind) == (selected.PlayedCardKind ?? card.Kind)) > 1)
+        {
+            return null;
+        }
+        return selected;
     }
 
     private static bool IsSlashCard(CardKind kind) =>
@@ -20197,6 +20438,10 @@ public sealed partial class GameEngine
             {
                 choiceId += ".as-FireSlash";
             }
+            if (action.ConversionSource is { } conversionChoiceSource)
+            {
+                choiceId += $".conversion-{conversionChoiceSource.SkillId}-{conversionChoiceSource.BindingId}";
+            }
 
             var parameters = new Dictionary<string, string>
             {
@@ -20205,6 +20450,10 @@ public sealed partial class GameEngine
             if (action.PlayedCardKind is { } playedCardKind)
             {
                 parameters["played-card-kind"] = playedCardKind.ToString();
+            }
+            if (action.ConversionSource is { } conversionSource)
+            {
+                AddConversionParameters(parameters, conversionSource);
             }
             if (action.TargetCardId is { } targetCardIdParameter)
             {
@@ -20252,7 +20501,7 @@ public sealed partial class GameEngine
                 ? $"不打出【杀】，受到【{incomingName}】造成的伤害。"
                 : "不打出【杀】，受到【决斗】造成的伤害。";
         var choices = responseCards
-            .Select(card =>
+            .SelectMany(card =>
             {
                 var effectiveCardKind = effectiveCardKindSelector?.Invoke(card) ?? requiredCardKind;
                 var cardDescription = IsNativeResponseCard(card, requiredCardKind)
@@ -20265,17 +20514,36 @@ public sealed partial class GameEngine
                     : isGroupAttack
                         ? $"{cardDescription}，响应【{incomingName}】。"
                         : $"{cardDescription}，继续应战【决斗】。";
-                return new PromptChoice(
-                    new ChoiceId($"respond.{responseAction}.card-{card.Id}"),
-                    description,
-                    [card.Id],
-                    [],
-                    new Dictionary<string, string>
+                var programSources = responder is null
+                    ? []
+                    : GetProgramViewAsConversions(responder, card, effectiveCardKind, forResponse: true);
+                var legacySources = responder is null
+                    ? []
+                    : GetLegacyViewAsConversions(responder, card, effectiveCardKind, forResponse: true);
+                var includeUnspecified = IsNativeResponseCard(card, requiredCardKind) ||
+                    responder is null ||
+                    programSources.Count == 0 && legacySources.Count == 0;
+                var sources = new List<CardConversionSource?>();
+                if (includeUnspecified) sources.Add(null);
+                sources.AddRange(legacySources);
+                sources.AddRange(programSources);
+                return sources.Select((source, index) =>
+                {
+                    var parameters = new Dictionary<string, string>
                     {
                         ["response"] = responseAction,
                         ["required-card"] = responseName,
                         ["response-card-kind"] = effectiveCardKind.ToString()
-                    });
+                    };
+                    if (source is not null) AddConversionParameters(parameters, source);
+                    var suffix = source is null ? string.Empty : $".conversion-{index}";
+                    return new PromptChoice(
+                        new ChoiceId($"respond.{responseAction}.card-{card.Id}{suffix}"),
+                        DescribeConversion(source, description),
+                        [card.Id],
+                        [],
+                        parameters);
+                });
             })
             .ToList();
         if (!isDodge && requiredCardKind == CardKind.Slash && responder is not null)
@@ -21553,6 +21821,7 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
+        AssertProgramCardWindowState();
         AssertDiscardPromptInvariant();
         AssertYinghunInvariant();
         _cardZones.AssertInvariants(_initialCardCount);
@@ -22694,7 +22963,12 @@ public sealed partial class GameEngine
                     "An active-skill damage continuation has no parent ActiveSkill frame.");
             }
 
-            if (_pendingLiegong is { } liegongContinuation)
+            if (_programCardAttack is not null)
+            {
+                // The generic window owns the pending attack until all effects finish.
+                AssertProgramCardWindowState();
+            }
+            else if (_pendingLiegong is { } liegongContinuation)
             {
                 if (!ReferenceEquals(liegongContinuation.Attack, pendingAttack) ||
                     _resolutionStack.LastOrDefault() is not CardUseFrame liegongCardUse ||
@@ -23494,7 +23768,7 @@ public sealed partial class GameEngine
                 DecisionKind.QilinBow or
                 DecisionKind.Mengjin or
                 DecisionKind.Lieren or
-                DecisionKind.ZhuqueFan) &&
+                DecisionKind.ZhuqueFan or DecisionKind.ProgramCardTrigger) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -23506,7 +23780,9 @@ public sealed partial class GameEngine
             _pendingDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
         var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending() ||
-                                 IsAiTianxiangPending() || IsAiLierenPending();
+                                 IsAiTianxiangPending() || IsAiLierenPending() ||
+                                 (_pendingDecision is { Kind: DecisionKind.ProgramCardTrigger } programDecision &&
+                                  !_players[programDecision.PlayerSeat].IsHuman);
         var awaitingAiNullification = IsAiNullificationPending();
         var awaitingAiJizhi = IsAiJizhiPending();
         var awaitingAiDamageSkill = IsAiDamageSkillPending();
@@ -23591,6 +23867,13 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
+        if (_programCardAttack is not null &&
+            _resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame { Action.Type: CardActionType.Response } programFrame)
+        {
+            var responseIds = programFrame.Action.PhysicalCards.Select(cost => cost.CardId).ToHashSet();
+            if (responseIds.Any(id => processing.All(card => card.Id != id))) return false;
+            processing = processing.Where(card => !responseIds.Contains(card.Id)).ToArray();
+        }
         if (attack.IsLeijiDamage)
         {
             return attack.Card is null &&

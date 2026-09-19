@@ -19,6 +19,9 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("skill program v2 trigger definitions validate and freeze", SkillProgramTriggerDefinitionChecks.Run),
+    ("skill program card triggers require exact conversion sources and replay", SkillProgramCardTriggerChecks.Run),
+    ("skill program multi-target triggers wait for every Liuli redirection", SkillProgramTargetOrderChecks.Run),
     ("composed AI matches complete and replay with configured actions and responses", SkillProgramMatchChecks.ComposedMatchesCompleteAndReplay),
     ("Wusheng responds to Duel and Barbarian Assault with exact physical costs and replay", WushengResponseChecks.CommandsAndReplay),
     ("Wusheng response conversion respects national reveal slots and requested card kinds", WushengResponseChecks.NationalAndScope),

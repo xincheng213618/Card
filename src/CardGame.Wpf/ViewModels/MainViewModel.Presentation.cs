@@ -349,13 +349,15 @@ public sealed partial class MainViewModel
             action.CardId == cardId &&
             action.TargetSeats.SequenceEqual(selectedTargets) &&
             action.PlayedCardKind is { } effectiveKind &&
-            effectiveKind != physicalKind);
+            effectiveKind != physicalKind &&
+            (_selectedConversionSource is null || action.ConversionSource == _selectedConversionSource));
     }
 
     private void ClearSelection()
     {
         var wasSelectingActiveSkillCards = _isSelectingActiveSkillCards;
         _selectedCardId = null;
+        _selectedConversionSource = null;
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
         _discardCardIds.Clear();

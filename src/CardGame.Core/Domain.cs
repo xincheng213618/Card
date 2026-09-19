@@ -275,7 +275,8 @@ public enum DecisionKind
     Yinghun,
     Zaiqi,
     Lieren,
-    Jujian
+    Jujian,
+    ProgramCardTrigger
 }
 
 public enum GangliePunishmentKind
@@ -731,6 +732,9 @@ public sealed record LegalAction
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ProgramActivationId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardConversionSource? ConversionSource { get; init; }
 
     /// <summary>
     /// Selection bounds for a cardless active-skill action. The prompt carries

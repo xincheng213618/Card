@@ -29,7 +29,8 @@ public enum ResolutionFrameKind
     NullificationWindow,
     ActiveSkill,
     TargetCardSelection,
-    ProgramSkill
+    ProgramSkill,
+    ProgramCardTriggerWindow
 }
 
 public enum ResolutionFrameStep
@@ -72,6 +73,7 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(ActiveSkillFrame), "active-skill")]
 [JsonDerivedType(typeof(TargetCardSelectionFrame), "target-card-selection")]
 [JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
+[JsonDerivedType(typeof(ProgramCardTriggerWindowFrame), "program-card-trigger-window")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
@@ -100,7 +102,11 @@ public sealed record CardUseFrame(
     int TargetIndex = 0,
     bool IgnoresArmor = false,
     IReadOnlyList<int>? PhysicalCardIds = null)
-    : ResolutionFrame(Id, ResolutionFrameKind.CardUse, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.CardUse, Step)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardActionContext? Action { get; init; }
+}
 
 public sealed record ResponseWindowFrame(
     long Id,

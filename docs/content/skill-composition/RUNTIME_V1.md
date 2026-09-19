@@ -10,7 +10,7 @@
 - `composed-skills.presentation.json`：名称和描述，`schemaVersion: 1`，`skills` 是以 SkillId 为键的对象。
 - `composed-generals.json`：示例武将与技能的绑定；一个武将可以绑定多个 SkillId。
 
-规则 ID 与展示 ID 必须完全对应。规则的 `revision`、节点顺序与语义会进入 SHA-256 玩法指纹；空白、JSON 属性顺序、名称和描述不影响该指纹。已有技能 ID 和 activation ID 应保持稳定。引擎规则版本为 79，旧规则版本不会静默执行配置技能。
+规则 ID 与展示 ID 必须完全对应。规则的 `revision`、节点顺序与语义会进入 SHA-256 玩法指纹；空白、JSON 属性顺序、名称和描述不影响该指纹。已有技能 ID 和 activation ID 应保持稳定。v1 最低引擎规则版本为 79，旧规则版本不会静默执行配置技能。规则版本 80 增加了独立的 [v2 转换触发](RUNTIME_V2.md)，不改变 v1 文件的哈希。
 
 ## 一个新技能的完整规则
 
