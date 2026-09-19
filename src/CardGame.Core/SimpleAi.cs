@@ -300,6 +300,23 @@ public sealed partial class SimpleAiBrain
                 .ToArray();
         }
 
+        if (action.Skill == SkillKind.Luanji)
+        {
+            return selectableCards
+                .GroupBy(card => card.Suit)
+                .Where(group => group.Count() >= 2)
+                .Select(group => group
+                    .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                    .ThenBy(card => card.Id)
+                    .Take(2)
+                    .ToArray())
+                .OrderBy(pair => pair.Sum(card => CardCatalog.Get(card.Kind).HandKeepValue))
+                .ThenBy(pair => pair[0].Id)
+                .FirstOrDefault()?
+                .Select(card => card.Id)
+                .ToArray() ?? [];
+        }
+
         if (action.MinCardCount == 0)
         {
             return [];

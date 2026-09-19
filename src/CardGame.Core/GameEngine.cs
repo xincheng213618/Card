@@ -299,6 +299,9 @@ public sealed partial class GameEngine
     private bool UsesFormalZhouTai =>
         _rulesVersion >= 67 && IsClassicIdentityMode;
 
+    private bool UsesFormalYuanShao =>
+        _rulesVersion >= 68 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -2374,7 +2377,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndStartDuel or
                 ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
                 ActiveSkillEffectKind.PindianAndDamage or
-                ActiveSkillEffectKind.PindianForSlashBonus) ||
+                ActiveSkillEffectKind.PindianForSlashBonus or
+                ActiveSkillEffectKind.StartArrowBarrage) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -2417,6 +2421,10 @@ public sealed partial class GameEngine
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
              effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
+            effect.Kind == ActiveSkillEffectKind.StartArrowBarrage &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 2 || effect.MaxCardCount != 2 ||
+             effect.MinTargetCount != 0 || effect.MaxTargetCount != 0) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
             effect.MinTargetCount < 0 ||
@@ -6457,9 +6465,16 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndStartDuel or
                 ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
                 ActiveSkillEffectKind.PindianAndDamage or
-                ActiveSkillEffectKind.PindianForSlashBonus))
+                ActiveSkillEffectKind.PindianForSlashBonus or
+                ActiveSkillEffectKind.StartArrowBarrage))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
+        }
+
+        if (effect.Kind == ActiveSkillEffectKind.StartArrowBarrage)
+        {
+            ResolveLuanji(actor, cardIds);
+            return;
         }
 
         if (effect.Kind == ActiveSkillEffectKind.DiscardAndDraw)
@@ -7637,11 +7652,14 @@ public sealed partial class GameEngine
         SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         if (pending.EffectNullified)
         {
-            MoveCard(
-                pending.EffectCard,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.UseFinished);
+            foreach (var physicalCard in GetCardUsePhysicalCards(pending.ResolutionId))
+            {
+                MoveCard(
+                    physicalCard,
+                    CardLocation.Processing,
+                    CardLocation.DiscardPile,
+                    CardMoveReasons.UseFinished);
+            }
             AddLog(
                 "CardEffect",
                 $"【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】的效果被无懈。",
@@ -7716,22 +7734,27 @@ public sealed partial class GameEngine
         var source = _players[pending.SourceSeat];
         var requiredCardKind = pending.RequiredCardKind ??
             throw new InvalidOperationException("A group card must retain its response card kind.");
+        var physicalCards = GetCardUsePhysicalCards(pending.ResolutionId);
+        var effectiveCard = pending.EffectiveCardKind == pending.EffectCard.Kind
+            ? pending.EffectCard
+            : pending.EffectCard with { Kind = pending.EffectiveCardKind };
         var group = new GroupCardResolution(
             pending.ResolutionId,
             source.Seat,
-            pending.EffectCard,
+            effectiveCard,
             pending.TargetSeats,
             GroupCardEffect.ResponseAttack,
-            requiredCardKind);
+            requiredCardKind,
+            physicalCards);
         _pendingGroupCard = group;
         AddLog(
             "CardUsed",
-            $"{source.Name} 使用【{CardCatalog.Get(pending.EffectCard.Kind).DisplayName}】，依次攻击 {pending.TargetSeats.Count} 名角色。",
+            $"{source.Name} 使用【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】，依次攻击 {pending.TargetSeats.Count} 名角色。",
             source.Seat);
         QueueGameEvent(new GroupCardUsedEvent(
             pending.ResolutionId,
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             source.Seat,
             pending.TargetSeats));
         NotifyAiOfGroupAttack(source, pending.TargetSeats);
@@ -8259,6 +8282,60 @@ public sealed partial class GameEngine
             targets,
             actionKind,
             requiredCardKind: requiredCardKind);
+    }
+
+    private void ResolveLuanji(PlayerRuntime source, IReadOnlyList<int> selectedCardIds)
+    {
+        if (!UsesFormalYuanShao || !source.General.HasSkill(SkillKind.Luanji) ||
+            selectedCardIds.Count != 2 || selectedCardIds.Distinct().Count() != 2)
+        {
+            throw new InvalidOperationException("Luanji requires exactly two distinct hand cards.");
+        }
+        var hand = GetHand(source);
+        var cards = selectedCardIds.Select(id => hand.SingleOrDefault(card => card.Id == id)).ToArray();
+        if (cards.Any(card => card is null) || cards[0]!.Suit != cards[1]!.Suit)
+        {
+            throw new InvalidOperationException("Luanji requires two hand cards of the same suit.");
+        }
+        var physicalCards = cards.Cast<Card>().ToArray();
+        var targets = Enumerable.Range(1, _playerCount - 1)
+            .Select(offset => _players[(source.Seat + offset) % _playerCount])
+            .Where(player => player.IsAlive)
+            .Select(player => player.Seat)
+            .ToArray();
+        var representative = physicalCards[0];
+        var resolutionId = BeginCardUse(
+            representative,
+            source.Seat,
+            targets,
+            CardKind.ArrowBarrage,
+            physicalCardIds: physicalCards.Select(card => card.Id).ToArray());
+        MoveCards(physicalCards, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.Use);
+        QueueGameEvent(new LuanjiConvertedEvent(
+            resolutionId,
+            source.Seat,
+            Array.AsReadOnly(physicalCards.Select(card => card.Id).ToArray()),
+            physicalCards[0].Suit));
+        AddLog("SkillTriggered",
+            $"{source.Name} 发动【乱击】，将两张{GetSuitName(physicalCards[0].Suit)}手牌当【万箭齐发】使用。",
+            source.Seat);
+        BeginJizhiOrNullificationWindow(
+            resolutionId,
+            representative,
+            source.Seat,
+            targets,
+            LegalActionKind.ArrowBarrage,
+            requiredCardKind: CardKind.Dodge,
+            playedCardKind: CardKind.ArrowBarrage);
+    }
+
+    private IReadOnlyList<Card> GetCardUsePhysicalCards(long resolutionId)
+    {
+        var frame = _resolutionStack.OfType<CardUseFrame>().Single(cardUse => cardUse.Id == resolutionId);
+        var processing = _cardZones.CardsAt(CardLocation.Processing);
+        return (frame.PhysicalCardIds ?? [frame.CardId])
+            .Select(cardId => processing.Single(card => card.Id == cardId))
+            .ToArray();
     }
 
     private void ResolvePeachGarden(PlayerRuntime source, Card peachGarden)
@@ -9081,7 +9158,13 @@ public sealed partial class GameEngine
             return;
         }
 
-        var attack = new AttackResolution(group.ResolutionId, group.SourceSeat, target.Seat, group.Card);
+        var attack = new AttackResolution(
+            group.ResolutionId,
+            group.SourceSeat,
+            target.Seat,
+            group.Card,
+            playedCardKind: group.Card.Kind,
+            physicalCards: group.PhysicalCards);
         group.CurrentAttack = attack;
         _pendingAttack = attack;
         if (UsesFormalTengjia && HasTengjia(target) &&
@@ -17385,22 +17468,25 @@ public sealed partial class GameEngine
                 "A group card cannot finish while a target continuation is pending.");
         }
 
-        var cardLocation = _cardZones.GetLocation(group.Card.Id);
-        if (cardLocation == CardLocation.Processing)
+        foreach (var physicalCard in group.PhysicalCards)
         {
-            MoveCard(
-                group.Card,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.UseFinished);
-        }
-        else if (cardLocation != CardLocation.DiscardPile &&
-                 (cardLocation.Zone != CardZoneKind.Hand ||
-                  cardLocation.OwnerSeat is not { } ownerSeat ||
-                  !group.TargetSeats.Contains(ownerSeat)))
-        {
-            throw new InvalidOperationException(
-                $"A resolved {group.Card.Kind} left Processing through an unsupported destination: {cardLocation}.");
+            var cardLocation = _cardZones.GetLocation(physicalCard.Id);
+            if (cardLocation == CardLocation.Processing)
+            {
+                MoveCard(
+                    physicalCard,
+                    CardLocation.Processing,
+                    CardLocation.DiscardPile,
+                    CardMoveReasons.UseFinished);
+            }
+            else if (cardLocation != CardLocation.DiscardPile &&
+                     (cardLocation.Zone != CardZoneKind.Hand ||
+                      cardLocation.OwnerSeat is not { } ownerSeat ||
+                      !group.TargetSeats.Contains(ownerSeat)))
+            {
+                throw new InvalidOperationException(
+                    $"A resolved {group.Card.Kind} left Processing through an unsupported destination: {cardLocation}.");
+            }
         }
 
         SetCardUseTargetIndex(group.ResolutionId, group.TargetSeats.Count);
@@ -18483,6 +18569,12 @@ public sealed partial class GameEngine
             }
 
             if (activeSkill.Kind == SkillKind.Tianyi && !UsesFormalTaishiCi)
+            {
+                continue;
+            }
+
+            if (activeSkill.Kind == SkillKind.Luanji &&
+                (!UsesFormalYuanShao || !GetHand(actor).GroupBy(card => card.Suit).Any(group => group.Count() >= 2)))
             {
                 continue;
             }
@@ -20042,7 +20134,14 @@ public sealed partial class GameEngine
         var woundCount = UsesFormalZhouTai && player.General.HasSkill(SkillKind.Buqu)
             ? GetBuquWounds(player).Count
             : 0;
-        return woundCount > 0 ? woundCount : Math.Max(0, player.Hp);
+        var baseLimit = woundCount > 0 ? woundCount : Math.Max(0, player.Hp);
+        if (UsesFormalYuanShao && player.Role == Role.Lord && player.General.HasSkill(SkillKind.Xueyi))
+        {
+            baseLimit += _players.Count(other =>
+                other.IsAlive && other.Seat != player.Seat &&
+                string.Equals(other.General.FactionId, "qun", StringComparison.Ordinal)) * 2;
+        }
+        return baseLimit;
     }
 
     private IReadOnlyList<Card> GetPlayableCards(PlayerRuntime player) =>
@@ -20231,6 +20330,15 @@ public sealed partial class GameEngine
         }
 
         var cardIds = GetHand(actor).Select(card => card.Id).ToHashSet();
+        if (skill == SkillKind.Luanji && UsesFormalYuanShao)
+        {
+            return GetHand(actor)
+                .GroupBy(card => card.Suit)
+                .Where(group => group.Count() >= 2)
+                .SelectMany(group => group)
+                .Select(card => card.Id)
+                .ToHashSet();
+        }
         if (skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment ||
             skill == SkillKind.Lijian && UsesFormalDiaoChan)
         {
@@ -24453,7 +24561,8 @@ public sealed partial class GameEngine
         Card card,
         IReadOnlyList<int> targetSeats,
         GroupCardEffect effect,
-        CardKind? requiredCardKind)
+        CardKind? requiredCardKind,
+        IReadOnlyList<Card>? physicalCards = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; } = sourceSeat;
@@ -24461,6 +24570,7 @@ public sealed partial class GameEngine
         public IReadOnlyList<int> TargetSeats { get; } = targetSeats;
         public GroupCardEffect Effect { get; } = effect;
         public CardKind? RequiredCardKind { get; } = requiredCardKind;
+        public IReadOnlyList<Card> PhysicalCards { get; } = physicalCards ?? [card];
         public int TargetIndex { get; set; }
         public AttackResolution? CurrentAttack { get; set; }
         public bool DamageCardClaimed { get; set; }

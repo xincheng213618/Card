@@ -201,7 +201,9 @@ public enum SkillKind
     Jushou,
     Hongyan,
     Tianxiang,
-    Buqu
+    Buqu,
+    Luanji,
+    Xueyi
 }
 
 public enum DecisionKind

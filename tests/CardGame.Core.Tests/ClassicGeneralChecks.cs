@@ -113,7 +113,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.52.0"]),
+                "standard-classic-generals@1.53.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -129,12 +129,12 @@ internal static class ClassicGeneralChecks
             "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
-            "classic:zhou-tai"
+            "classic:zhou-tai", "classic:yuan-shao"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
                 .SequenceEqual(expectedCurrentRoster.Order(StringComparer.Ordinal)),
-            "Classic 1.50 must contain the complete original standard roster plus its eleven explicit expansion representatives.");
+            "The current classic package must contain the complete original standard roster plus its explicit expansion representatives.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&

@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 52, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 53, 0))
     {
     }
 
@@ -71,12 +71,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 49, 0) &&
             version != new Version(1, 50, 0) &&
             version != new Version(1, 51, 0) &&
-            version != new Version(1, 52, 0))
+            version != new Version(1, 52, 0) &&
+            version != new Version(1, 53, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.52.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.53.0.");
         }
 
         _version = version;
@@ -734,6 +735,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:buqu", "不屈",
                 "锁定技，当你处于濒死状态时，将牌堆顶一张牌置于武将牌上，称为“创”；若其点数与已有“创”均不同，你回复至1点体力，否则弃置之。若你有“创”，手牌上限等于“创”的数量。", SkillKind.Buqu));
         }
+        if (_version >= new Version(1, 53, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:luanji", "乱击",
+                "你可以将两张花色相同的手牌当【万箭齐发】使用。", SkillKind.Luanji));
+            builder.AddSkill(new ContentSkillDefinition("classic:xueyi", "血裔",
+                "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1105,10 +1113,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:zhou-tai", "周泰", "zhou_tai",
                 "classic:buqu", "wu", BaseHp: 4));
         }
+        if (_version >= new Version(1, 53, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:yuan-shao", "袁绍", "yuan_shao",
+                "classic:luanji", "qun", BaseHp: 4,
+                AdditionalSkillIds: ["classic:xueyi"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 52 } => ZhouTaiClassicGeneralIds,
+            { Major: 1, Minor: >= 53 } => YuanShaoClassicGeneralIds,
+            { Major: 1, Minor: 52 } => ZhouTaiClassicGeneralIds,
             { Major: 1, Minor: 51 } => XiaoQiaoClassicGeneralIds,
             { Major: 1, Minor: 50 } => CaoRenClassicGeneralIds,
             { Major: 1, Minor: 49 } => TaishiCiClassicGeneralIds,
@@ -1407,6 +1423,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. XiaoQiaoClassicGeneralIds,
         "classic:zhou-tai"
+    ];
+
+    internal static IReadOnlyList<string> YuanShaoClassicGeneralIds { get; } =
+    [
+        .. ZhouTaiClassicGeneralIds,
+        "classic:yuan-shao"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

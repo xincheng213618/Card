@@ -1117,6 +1117,21 @@ internal static class ClassicGeneralUiChecks
         zhouTaiWindow.Content = null;
         zhouTaiWindow.Close();
 
+        using var yuanShaoViewModel = FindGeneralChoice("classic:yuan-shao");
+        var yuanShao = yuanShaoViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:yuan-shao");
+        Program.Assert(yuanShao.Name == "袁绍" && yuanShao.Kingdom == "群" &&
+                       yuanShao.SkillName == "乱击 / 血裔" &&
+                       yuanShao.SkillDescription.Contains("花色相同", StringComparison.Ordinal) &&
+                       yuanShao.SkillDescription.Contains("其他群势力角色数的两倍", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(yuanShao.GeneralId) && yuanShao.HealthText == "体力上限 5",
+            "The current classic Yuan Shao card must render Qun, Luanji, Xueyi and the Lord health bonus.");
+        var yuanShaoWindow = new MainWindow(yuanShaoViewModel);
+        yuanShaoWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)yuanShaoWindow.Content, 1120, 740,
+            Path.Combine(output, "149-classic-yuan-shao-card.png"));
+        yuanShaoWindow.Content = null;
+        yuanShaoWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

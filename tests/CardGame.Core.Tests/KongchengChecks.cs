@@ -21,7 +21,7 @@ internal static class KongchengChecks
                 !rule.ProhibitsCardTarget(empty, CardKind.DrawTwo),
             "Kongcheng must not prohibit Duel with a hand card or unrelated card kinds.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 52, 0));
         var seed = FindSeedWithHumanDuel(registry);
         var current = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
         var legacy = CreateGame(registry, seed, rulesVersion: 14);

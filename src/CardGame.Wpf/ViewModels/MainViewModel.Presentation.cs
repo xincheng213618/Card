@@ -106,7 +106,9 @@ public sealed partial class MainViewModel
         _selectedActiveSkillCardIds.Count >= action.MinCardCount && _selectedActiveSkillCardIds.Count <= action.MaxCardCount &&
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
         _selectedActiveSkillCardIds.All(id => action.SelectableCardIds.Contains(id)) &&
-        _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat));
+        _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat)) &&
+        (action.Skill != SkillKind.Luanji || Hand.Where(card => _selectedActiveSkillCardIds.Contains(card.Id))
+            .Select(card => card.SuitGlyph).Distinct(StringComparer.Ordinal).Count() == 1);
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;
     public string ActiveSkillButtonText
     {

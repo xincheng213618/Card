@@ -809,6 +809,12 @@ public sealed record BuquResolvedEvent(
     bool RankWasUnique,
     IReadOnlyList<int> WoundCardIds) : IGameEvent;
 
+public sealed record LuanjiConvertedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    IReadOnlyList<int> PhysicalCardIds,
+    Suit Suit) : IGameEvent;
+
 /// <summary>Public terminal result for Qilin Bow at the Slash damage timing.</summary>
 public sealed record QilinBowResolvedEvent(
     long ResolutionId,
