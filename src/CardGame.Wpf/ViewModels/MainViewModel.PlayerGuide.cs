@@ -126,7 +126,10 @@ public sealed partial class MainViewModel
         RaisePropertyChanged(nameof(NationalSetupText));
         RaisePropertyChanged(nameof(NationalScopeText));
         RaisePropertyChanged(nameof(IsIdentityGuide));
-        GuideIdentity = IsNewGameSetupOpen ? $"开局选择：{SelectedTableMode.Name} · {(IsNationalModeSelection ? "系统分配势力" : IsTeamModeSelection ? SelectedStartingTeam.Name : SelectedStartingRole.Name)}" : IdentityObjective;
+        GuideIdentity = IsNewGameSetupOpen
+            ? $"开局选择：{SelectedTableMode.Name} · {(IsNationalModeSelection ? "系统分配势力" : IsTeamModeSelection ? SelectedStartingTeam.Name : SelectedStartingRole.Name)}" +
+              (IsClassicIdentityModeSelection && SelectedDeck is not null ? $" · {SelectedDeck.Name}" : string.Empty)
+            : IdentityObjective;
         string[] steps;
         if (IsNationalGuide && (IsNewGameSetupOpen || IsGeneralSelectionPending))
         {
@@ -145,8 +148,12 @@ public sealed partial class MainViewModel
         else if (IsNewGameSetupOpen)
         {
             CurrentGuideTitle = "先选择战场与身份";
-            CurrentGuideBody = "五人桌更容易熟悉节奏；主公先行动，反贼的胜利目标更直接。选定后点击「开始对局」，再选择武将。";
-            steps = ["在开局面板选择五人或八人身份场，以及想扮演的身份。", "保留「自己选择回合末弃牌」，练习决定留下哪些牌。", "已有存档时，可直接继续上次对局。关闭指南会回到原来的开局设置。"];
+            CurrentGuideBody = IsClassicIdentityModeSelection
+                ? $"五人桌更容易熟悉节奏；当前选择{SelectedDeck?.Name}。标准牌堆节奏更集中，军争牌堆加入属性伤害、铁索、酒和扩展装备。"
+                : "五人桌更容易熟悉节奏；主公先行动，反贼的胜利目标更直接。选定后点击「开始对局」，再选择武将。";
+            steps = IsClassicIdentityModeSelection
+                ? ["选择五人或八人经典身份场、牌堆扩展和想扮演的身份。", "标准 108 张不含军争牌；军争 160 张是标准、EX 与军争篇合并牌堆。", "选定后点击「开始对局」，牌堆选择会随存档与回放保存。"]
+                : ["在开局面板选择五人或八人身份场，以及想扮演的身份。", "保留「自己选择回合末弃牌」，练习决定留下哪些牌。", "已有存档时，可直接继续上次对局。关闭指南会回到原来的开局设置。"];
         }
         else if (HasGameOver)
         {

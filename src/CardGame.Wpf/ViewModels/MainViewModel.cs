@@ -109,6 +109,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 new TableModeOption(5, "五人身份", "1 主公 · 1 忠臣 · 2 反贼 · 1 内奸", "identity:standard-5"),
                 new TableModeOption(4, "2v2公开阵营", "青队 2 · 赤队 2 · 阵营公开 · 击败另一队获胜", "team:standard-2v2")
             ];
+        DeckOptions =
+        [
+            .. (_contentRegistry.Decks.ContainsKey("classic:standard-deck")
+                ? new[] { new DeckOption("classic:standard-deck", "军争 160 张", "标准版、EX 与军争篇完整合并牌堆") }
+                : []),
+            .. (_contentRegistry.Decks.ContainsKey("classic:standard-108")
+                ? new[] { new DeckOption("classic:standard-108", "标准 108 张", "标准版 104 张与 4 张 EX，不含军争篇") }
+                : [])
+        ];
         InitializePlayerGuide();
         InitializePresentation(autoAdvance);
         InitializeGameSetup();
@@ -350,6 +359,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 HumanTeamId = IsSelectedTeamMode ? SelectedStartingTeam.TeamId : null,
                 PlayerCount = SelectedTableMode.PlayerCount,
                 ModeId = SelectedTableMode.ModeId,
+                DeckId = IsClassicIdentityModeSelection ? SelectedDeck?.DeckId : null,
                 MaxTurns = 400,
                 UseInteractiveSetup = true,
                 UseInteractiveDiscard = ManualDiscardEnabled,

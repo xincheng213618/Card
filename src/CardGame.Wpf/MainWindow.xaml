@@ -712,6 +712,21 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
+                        <StackPanel Visibility="{Binding IsClassicIdentityModeSelection, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="牌堆扩展" Foreground="#CFB985" FontSize="13" Margin="4,16,0,8" />
+                            <ListBox x:Name="DeckChoices" ItemsSource="{Binding DeckOptions}" SelectedItem="{Binding SelectedDeck}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="选择牌堆扩展">
+                                <ListBox.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate></ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="6,5">
+                                            <TextBlock Text="{Binding Name}" FontSize="17" Foreground="#E6C58C" />
+                                            <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TextBlock Text="{Binding DeckSetupText}" Foreground="#80998C" FontSize="10" Margin="8,5,8,0" TextWrapping="Wrap" />
+                        </StackPanel>
                         <TextBlock Text="{Binding SetupIdentityLabel}" Foreground="#CFB985" FontSize="13" Margin="4,16,0,8" />
                         <ListBox x:Name="RoleChoices" ItemsSource="{Binding StartingRoles}" SelectedItem="{Binding SelectedStartingRole}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsIdentityModeSelection, Converter={StaticResource BoolToVisibility}}">
                             <ListBox.ItemsPanel>

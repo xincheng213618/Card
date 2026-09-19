@@ -73,6 +73,12 @@ internal static class PhysicalDeckRecipeChecks
 
         var militaryRegistry = StandardContentRegistry.CreateWithClassicGenerals();
         var militaryCards = militaryRegistry.Decks["classic:standard-deck"].PhysicalCards ?? [];
+        Require(militaryRegistry.Decks["classic:standard-108"].PhysicalCards!.SequenceEqual(cards),
+            "The current registry must expose the same exact 108-card standard recipe as a selectable deck.");
+        var militaryOnlyRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 38, 0));
+        Require(!militaryOnlyRegistry.Decks.ContainsKey("classic:standard-108") &&
+                militaryOnlyRegistry.Decks["classic:standard-deck"].PhysicalCards?.Count == 160,
+            "The 1.38 registry must retain its original single military deck and content fingerprint boundary.");
         var expansion = militaryCards.Skip(108).ToArray();
         Require(militaryCards.Count == 160 && expansion.Length == 52 &&
                 Enum.GetValues<Suit>().All(suit => expansion.Count(card => card.Suit == suit) == 13) &&

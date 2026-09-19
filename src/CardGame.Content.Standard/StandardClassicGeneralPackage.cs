@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 38, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 39, 0))
     {
     }
 
@@ -57,12 +57,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 35, 0) &&
             version != new Version(1, 36, 0) &&
             version != new Version(1, 37, 0) &&
-            version != new Version(1, 38, 0))
+            version != new Version(1, 38, 0) &&
+            version != new Version(1, 39, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.38.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.39.0.");
         }
 
         _version = version;
@@ -284,7 +285,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     "classic:zhaohuangfeidian", "爪黄飞电", "装备牌",
                     "装备至防御坐骑槽；其他角色到你的战斗距离 +1。", CardKind.Zhaohuangfeidian));
             }
-            if (_version >= new Version(1, 38, 0))
+            if (_version >= new Version(1, 39, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     "classic:hualiu", "骅骝", "装备牌",
@@ -376,6 +377,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 : _version >= new Version(1, 36, 0)
                 ? CreateStandardPhysicalDeck(_version >= new Version(1, 37, 0))
                 : null;
+            if (_version >= new Version(1, 38, 0))
+            {
+                builder.AddDeck(new ContentDeckRecipe(
+                    Id: "classic:standard-108",
+                    Name: "经典标准 108 张逐张牌堆",
+                    InitialHandSize: 4,
+                    DrawPerTurn: 2,
+                    Cards: [])
+                {
+                    PhysicalCards = CreateStandardPhysicalDeck(distinctHorseNames: true)
+                });
+            }
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
                 Name: _version >= new Version(1, 38, 0)

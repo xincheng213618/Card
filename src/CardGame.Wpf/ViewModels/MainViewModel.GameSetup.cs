@@ -10,6 +10,7 @@ public sealed partial class MainViewModel
     private StartingRoleOption _selectedStartingRole = new("主公", Role.Lord, "率领忠臣，平定叛乱");
     private TableModeOption _selectedTableMode = null!;
     private StartingTeamOption _selectedStartingTeam = null!;
+    private DeckOption? _selectedDeck;
 
     public IReadOnlyList<StartingTeamOption> StartingTeams { get; } =
     [new("青队", "team:blue", "与青队同伴并肩作战"), new("赤队", "team:red", "与赤队同伴并肩作战")];
@@ -33,6 +34,17 @@ public sealed partial class MainViewModel
         new("内奸", Role.Renegade, "伺机而动，成为最后赢家")
     ];
     public IReadOnlyList<TableModeOption> TableModes { get; private set; } = null!;
+    public IReadOnlyList<DeckOption> DeckOptions { get; private set; } = null!;
+    public DeckOption? SelectedDeck
+    {
+        get => _selectedDeck;
+        set
+        {
+            if (!SetProperty(ref _selectedDeck, value)) return;
+            RaisePropertyChanged(nameof(DeckSetupText));
+            RefreshPlayerGuide();
+        }
+    }
     public StartingRoleOption SelectedStartingRole { get => _selectedStartingRole; set { if (SetProperty(ref _selectedStartingRole, value)) RefreshPlayerGuide(); } }
     public TableModeOption SelectedTableMode
     {
@@ -43,6 +55,7 @@ public sealed partial class MainViewModel
             RaisePropertyChanged(nameof(IsTeamModeSelection));
             RaisePropertyChanged(nameof(IsIdentityModeSelection));
             RaisePropertyChanged(nameof(IsNationalModeSelection));
+            RaisePropertyChanged(nameof(IsClassicIdentityModeSelection));
             RaisePropertyChanged(nameof(SetupIdentityLabel));
             RaisePropertyChanged(nameof(TeamModeSetupText));
             RefreshPlayerGuide();
@@ -51,7 +64,12 @@ public sealed partial class MainViewModel
 
     public bool IsTeamModeSelection => IsSelectedTeamMode;
     public bool IsIdentityModeSelection => !IsTeamModeSelection && !IsNationalModeSelection;
+    public bool IsClassicIdentityModeSelection =>
+        SelectedTableMode?.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal) == true;
     public string SetupIdentityLabel => IsNationalModeSelection ? "暗置与明置" : IsTeamModeSelection ? "你的阵营" : "你的身份";
+    public string DeckSetupText => SelectedDeck is null
+        ? string.Empty
+        : $"{SelectedDeck.Name}：{SelectedDeck.Description}";
     public string TeamModeSetupText =>
         $"你将加入{SelectedStartingTeam.Name}（2 人）。双方阵营公开，击败另一队全部角色即可获胜。";
 
@@ -104,6 +122,7 @@ public sealed partial class MainViewModel
         SelectedStartingTeam = StartingTeams[0];
         SelectedStartingRole = StartingRoles[1];
         SelectedTableMode = TableModes[0];
+        SelectedDeck = DeckOptions.FirstOrDefault();
         RecommendDiscardCommand = new RelayCommand(RecommendDiscard);
         StartNewGameCommand = new RelayCommand(() =>
         {
@@ -135,3 +154,4 @@ public sealed partial class MainViewModel
 public sealed record StartingRoleOption(string Name, Role? Role, string Description);
 public sealed record StartingTeamOption(string Name, string TeamId, string Description);
 public sealed record TableModeOption(int PlayerCount, string Name, string Description, string ModeId);
+public sealed record DeckOption(string DeckId, string Name, string Description);

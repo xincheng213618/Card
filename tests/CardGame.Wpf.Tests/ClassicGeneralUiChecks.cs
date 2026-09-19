@@ -8,6 +8,47 @@ using CardGame.Wpf.ViewModels;
 
 internal static class ClassicGeneralUiChecks
 {
+    public static void SelectableDeckExpansion(string output)
+    {
+        using var viewModel = new MainViewModel(
+            autoAdvance: false,
+            seed: 137160,
+            showSetup: true,
+            useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        Program.Assert(viewModel.IsClassicIdentityModeSelection &&
+                       viewModel.DeckOptions.Select(option => option.DeckId).SequenceEqual([
+                           "classic:standard-deck",
+                           "classic:standard-108"]) &&
+                       viewModel.SelectedDeck?.DeckId == "classic:standard-deck",
+            "Expanded classic setup must default to military 160 and expose standard 108 as an explicit alternative.");
+
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)window.Content,
+            1120,
+            740,
+            Path.Combine(output, "125-classic-deck-selection.png"));
+
+        viewModel.SelectedDeck = viewModel.DeckOptions.Single(option =>
+            option.DeckId == "classic:standard-108");
+        viewModel.StartNewGameCommand.Execute(null);
+        Program.Assert(Program.Engine(viewModel).CreateCheckpoint().Options.DeckId == "classic:standard-108",
+            "Starting from the standard option must persist its exact deck id in GameOptions and checkpoints.");
+
+        viewModel.NewGameCommand.Execute(null);
+        viewModel.SelectedDeck = viewModel.DeckOptions.Single(option =>
+            option.DeckId == "classic:standard-deck");
+        viewModel.StartNewGameCommand.Execute(null);
+        Program.Assert(Program.Engine(viewModel).CreateCheckpoint().Options.DeckId == "classic:standard-deck",
+            "Starting from the military option must persist its exact 160-card deck id.");
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;
