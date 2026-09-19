@@ -275,6 +275,14 @@ public static class CardCatalog
                 AiPlayValue: 41,
                 AiResponseValue: 0,
                 HandKeepValue: 44),
+            [CardKind.Tengjia] = new(
+                CardKind.Tengjia,
+                "藤甲",
+                "装备牌",
+                "锁定技，南蛮入侵、万箭齐发和普通杀对你无效；你受到的火焰伤害 +1。",
+                AiPlayValue: 36,
+                AiResponseValue: 0,
+                HandKeepValue: 40),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

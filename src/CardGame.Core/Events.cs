@@ -795,6 +795,15 @@ public sealed record GudingBladeDamageIncreasedEvent(
     int BaseAmount,
     int ModifiedAmount) : IGameEvent;
 
+/// <summary>Public audit record for Tengjia increasing one fire-damage event.</summary>
+public sealed record TengjiaFireDamageIncreasedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    CardKind? SourceCardKind,
+    int BaseAmount,
+    int ModifiedAmount) : IGameEvent;
+
 /// <summary>
 /// Public audit record for changing an ordinary or view-as ordinary Slash into
 /// a Fire Slash when it is used through Zhuque Fan. The physical cards remain

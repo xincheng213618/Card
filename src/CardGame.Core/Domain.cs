@@ -76,7 +76,8 @@ public enum CardKind
     QilinBow,
     FangtianHalberd,
     GudingBlade,
-    ZhuqueFan
+    ZhuqueFan,
+    Tengjia
 }
 
 public enum Suit

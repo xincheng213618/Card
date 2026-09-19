@@ -117,6 +117,11 @@ public static class EquipmentCatalog
                 EquipmentSlot.Armor,
                 "装备至防具槽；黑色杀对你无效。",
                 BlocksBlackSlash: true),
+            [CardKind.Tengjia] = new(
+                CardKind.Tengjia,
+                "藤甲",
+                EquipmentSlot.Armor,
+                "锁定技，南蛮入侵、万箭齐发和普通杀对你无效；你受到的火焰伤害 +1。"),
             [CardKind.OffensiveHorse] = new(
                 CardKind.OffensiveHorse,
                 "赤兔",

@@ -285,6 +285,9 @@ public sealed partial class GameEngine
     private bool UsesFormalZhuqueFan =>
         _rulesVersion >= 51 && IsClassicIdentityMode;
 
+    private bool UsesFormalTengjia =>
+        _rulesVersion >= 52 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -8419,6 +8422,16 @@ public sealed partial class GameEngine
         var attack = new AttackResolution(group.ResolutionId, group.SourceSeat, target.Seat, group.Card);
         group.CurrentAttack = attack;
         _pendingAttack = attack;
+        if (UsesFormalTengjia && HasTengjia(target) &&
+            group.Card.Kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage)
+        {
+            AddLog("ArmorEffect", $"{target.Name} 的【藤甲】令【{CardCatalog.Get(group.Card.Kind).DisplayName}】对其无效。", target.Seat, group.SourceSeat);
+            QueueGameEvent(new ArmorEffectAppliedEvent(
+                group.ResolutionId, CardKind.Tengjia, group.SourceSeat, target.Seat, group.Card.Kind));
+            SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+            CompleteAttack(attack);
+            return;
+        }
         var requiredCardKind = group.RequiredCardKind ??
             throw new InvalidOperationException("A group response attack must declare a required card kind.");
         var responseCards = GetResponseCards(target, requiredCardKind);
@@ -9369,6 +9382,19 @@ public sealed partial class GameEngine
                 source.Seat,
                 target.Seat,
                 playedCardKind));
+            SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+            CompleteAttack(attack);
+            return;
+        }
+
+        if (UsesFormalTengjia &&
+            !ignoresArmor &&
+            playedCardKind == CardKind.Slash &&
+            HasTengjia(target))
+        {
+            AddLog("ArmorEffect", $"{target.Name} 的【藤甲】令这次普通【杀】无效。", target.Seat, source.Seat);
+            QueueGameEvent(new ArmorEffectAppliedEvent(
+                resolutionId, CardKind.Tengjia, source.Seat, target.Seat, playedCardKind));
             SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
             CompleteAttack(attack);
             return;
@@ -16002,7 +16028,10 @@ public sealed partial class GameEngine
         }
 
         if (_winner == Winner.None &&
-            attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive, out var fromSeat))
+            attack.TryAdvanceChainedTarget(
+                seat => _players[seat].IsAlive,
+                UsesFormalTengjia,
+                out var fromSeat))
         {
             QueueGameEvent(new ChainedDamagePropagatedEvent(
                 attack.ResolutionId,
@@ -17449,6 +17478,7 @@ public sealed partial class GameEngine
 
         var baseAmount = attack.DamageAmount;
         var receivesLuoyiBonus = UsesFormalLuoyi &&
+            !attack.IsChainPropagation &&
             _luoyiActiveThisTurn &&
             attack.SourceSeat == _currentSeat &&
             attack.CardUserSeat == attack.SourceSeat &&
@@ -17460,7 +17490,13 @@ public sealed partial class GameEngine
             attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
             GetHand(_players[attack.TargetSeat]).Count == 0 &&
             GetEquipment(_players[attack.SourceSeat]).Any(card => card.Kind == CardKind.GudingBlade);
-        var damageBonus = (receivesLuoyiBonus ? 1 : 0) + (receivesGudingBladeBonus ? 1 : 0);
+        var receivesTengjiaBonus = UsesFormalTengjia &&
+            GetDamageNature(attack) == DamageNature.Fire &&
+            HasTengjia(_players[attack.TargetSeat]) &&
+            (attack.IsChainPropagation || !attack.IgnoresArmor);
+        var damageBonus = (receivesLuoyiBonus ? 1 : 0) +
+                          (receivesGudingBladeBonus ? 1 : 0) +
+                          (receivesTengjiaBonus ? 1 : 0);
         attack.FinalizeDamageAmount(damageBonus);
         var runningAmount = baseAmount;
         if (receivesLuoyiBonus)
@@ -17496,6 +17532,19 @@ public sealed partial class GameEngine
                 $"{_players[attack.SourceSeat].Name} 的【古锭刀】对空手的 {_players[attack.TargetSeat].Name} 生效，本次伤害 +1。",
                 attack.SourceSeat,
                 attack.TargetSeat);
+            runningAmount = modifiedAmount;
+        }
+        if (receivesTengjiaBonus)
+        {
+            var modifiedAmount = checked(runningAmount + 1);
+            QueueGameEvent(new TengjiaFireDamageIncreasedEvent(
+                attack.ResolutionId,
+                attack.SourceSeat,
+                attack.TargetSeat,
+                attack.EffectiveCardKind,
+                runningAmount,
+                modifiedAmount));
+            AddLog("EquipmentEffect", $"{_players[attack.TargetSeat].Name} 的【藤甲】令本次火焰伤害 +1。", attack.TargetSeat, attack.SourceSeat);
         }
 
         return attack.DamageAmount;
@@ -18426,6 +18475,9 @@ public sealed partial class GameEngine
 
     private bool HasBagua(PlayerRuntime player) =>
         GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation);
+
+    private bool HasTengjia(PlayerRuntime player) =>
+        GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia);
 
     private bool CanRequestHujia(PlayerRuntime owner, AttackResolution attack) =>
         UsesFormalHujia &&
@@ -21660,6 +21712,7 @@ public sealed partial class GameEngine
 
         public bool TryAdvanceChainedTarget(
             Func<int, bool> isAlive,
+            bool resetDamageForTargetModifiers,
             out int fromSeat)
         {
             fromSeat = TargetSeat;
@@ -21673,6 +21726,10 @@ public sealed partial class GameEngine
 
                 TargetSeat = nextSeat;
                 IsChainPropagation = true;
+                if (resetDamageForTargetModifiers)
+                {
+                    DamageAmountFinalized = false;
+                }
                 return true;
             }
 

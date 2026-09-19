@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 32, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 33, 0))
     {
     }
 
@@ -51,12 +51,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 29, 0) &&
             version != new Version(1, 30, 0) &&
             version != new Version(1, 31, 0) &&
-            version != new Version(1, 32, 0))
+            version != new Version(1, 32, 0) &&
+            version != new Version(1, 33, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.32.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.33.0.");
         }
 
         _version = version;
@@ -218,6 +219,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["effect"] = "convert-to-fire-slash"
                     }));
             }
+            if (_version >= new Version(1, 33, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:tengjia",
+                    DisplayName: "藤甲",
+                    CategoryName: "装备牌",
+                    Description: "装备至防具槽；锁定技，南蛮入侵、万箭齐发和普通杀对你无效；你受到的火焰伤害 +1。",
+                    LegacyKind: CardKind.Tengjia,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "armor",
+                        ["immunity"] = "barbarian-arrow-ordinary-slash",
+                        ["fire-damage"] = "plus-one"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -286,10 +302,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:zhuque-fan", 1));
             }
+            if (_version >= new Version(1, 33, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:tengjia", 1));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 32, 0)
+                Name: _version >= new Version(1, 33, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇·藤甲）"
+                    : _version >= new Version(1, 32, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇）"
                     : _version >= new Version(1, 31, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀）"
