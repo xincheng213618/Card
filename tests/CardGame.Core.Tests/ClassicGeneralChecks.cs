@@ -31,6 +31,7 @@ internal static class ClassicGeneralChecks
         var wushuangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 19, 0));
         var paoxiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 20, 0));
         var longdanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 21, 0));
+        var wushengClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 22, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -39,7 +40,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.22.0"]),
+                "standard-classic-generals@1.23.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -200,6 +201,16 @@ internal static class ClassicGeneralChecks
                     "classic:guan-yu",
                     StringComparer.Ordinal),
             "The Longdan-era classic registry must retain the 1.21 standard Guan Yu identity.");
+        Require(wushengClassic.Packages.Last().Version == new Version(1, 22, 0) &&
+                !wushengClassic.Cards.ContainsKey("classic:borrowed-sword") &&
+                !wushengClassic.Decks.ContainsKey("classic:standard-deck") &&
+                wushengClassic.Modes["identity:classic-5"].DeckId == "standard:basic-demo",
+            "The Wusheng-era classic registry must retain the 1.22 deck without Borrowed Sword.");
+        Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 92 &&
+                classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
+                classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
+            "The 1.23 classic registry must opt both classic modes into the 92-card Borrowed Sword deck.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 

@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="..\Shared\WushengResponseScenario.cs" Link="WushengResponseScenario.cs" />
     <Compile Include="..\Shared\JijiuEquipmentScenario.cs" Link="JijiuEquipmentScenario.cs" />
+    <Compile Include="..\Shared\BorrowedSwordScenario.cs" Link="BorrowedSwordScenario.cs" />
     <EmbeddedResource Include="Fixtures\national-v7.json" />
     <ProjectReference Include="..\..\src\CardGame.Wpf\CardGame.Wpf.csproj" />
   </ItemGroup>

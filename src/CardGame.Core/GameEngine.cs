@@ -61,6 +61,7 @@ public sealed partial class GameEngine
     private AttackResolution? _pendingAttack;
     private DuelResolution? _pendingDuel;
     private GroupCardResolution? _pendingGroupCard;
+    private BorrowedSwordResolution? _pendingBorrowedSword;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
@@ -247,6 +248,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalJijiuEquipment =>
         _rulesVersion >= 41 && IsClassicIdentityMode;
+
+    private bool UsesFormalBorrowedSword =>
+        _rulesVersion >= 42 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -1647,6 +1651,27 @@ public sealed partial class GameEngine
         if (_pendingJijiang is not null)
         {
             return SubmitJijiangPromptAnswer(selected, response);
+        }
+
+        if (_pendingBorrowedSword is { AwaitingSlashChoice: true })
+        {
+            return response switch
+            {
+                "jijiang-request" when selected.Cards.Count == 0 =>
+                    Accept(() => HumanBorrowedSwordJijiangCore(_options.AdvanceAfterHumanCommands)),
+                "borrowed-sword-slash" when selected.Cards.Count == 1 =>
+                    Accept(() => HumanBorrowedSwordResponseCore(
+                        useSlash: true,
+                        requestedSlashCardId: selected.Cards[0],
+                        advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+                "borrowed-sword-give-weapon" when selected.Cards.Count == 0 =>
+                    Accept(() => HumanBorrowedSwordResponseCore(
+                        useSlash: false,
+                        requestedSlashCardId: null,
+                        advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+                _ => Reject(CommandErrorCode.InvalidChoice,
+                    "The choice is malformed for this Borrowed Sword response window.")
+            };
         }
 
         return response switch
@@ -3084,6 +3109,59 @@ public sealed partial class GameEngine
                 requestedSlashCardId,
                 requestedResponseCardKind,
                 advanceToHumanBoundary);
+
+    private EngineRunResult HumanBorrowedSwordResponseCore(
+        bool useSlash,
+        int? requestedSlashCardId,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.RespondSlash);
+        var pending = _pendingBorrowedSword ??
+            throw new InvalidOperationException("There is no Borrowed Sword awaiting a response.");
+        var owner = _players[pending.WeaponOwnerSeat];
+        if (!pending.AwaitingSlashChoice || owner.Seat != _options.HumanSeat)
+        {
+            throw new InvalidOperationException("The current Borrowed Sword responder is not the human seat.");
+        }
+
+        var slash = useSlash
+            ? GetBorrowedSwordSlashCards(owner, _players[pending.SlashTargetSeat])
+                .SingleOrDefault(card => card.Id == requestedSlashCardId)
+            : null;
+        if (useSlash && slash is null)
+        {
+            throw new InvalidOperationException("The responding player has no matching legal Slash.");
+        }
+
+        if (slash is not null)
+        {
+            ResolveBorrowedSwordSlashChoice(pending, slash);
+        }
+        else
+        {
+            CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
+        }
+
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanBorrowedSwordJijiangCore(bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.RespondSlash);
+        var pending = _pendingBorrowedSword ??
+            throw new InvalidOperationException("There is no Borrowed Sword awaiting Jijiang.");
+        if (!pending.AwaitingSlashChoice ||
+            _pendingDecision?.Choices.All(choice =>
+                choice.Parameters.GetValueOrDefault("response") != "jijiang-request") != false)
+        {
+            throw new InvalidOperationException("Jijiang is not available in the current Borrowed Sword response.");
+        }
+
+        BeginBorrowedSwordJijiangRequest(pending);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
 
     private EngineRunResult HumanFeedbackCore(
         bool useFeedback,
@@ -5908,6 +5986,18 @@ public sealed partial class GameEngine
 
                 ResolveFireAttack(actor, _players[action.TargetSeat.Value], card);
                 break;
+            case LegalActionKind.BorrowedSword:
+                if (action.TargetSeats.Count != 2)
+                {
+                    throw new InvalidOperationException("Borrowed Sword requires an ordered weapon owner and Slash target.");
+                }
+
+                ResolveBorrowedSword(
+                    actor,
+                    _players[action.TargetSeats[0]],
+                    _players[action.TargetSeats[1]],
+                    card);
+                break;
             default:
                 throw new InvalidOperationException($"Unsupported action {action.Kind}.");
         }
@@ -6466,6 +6556,9 @@ public sealed partial class GameEngine
             case LegalActionKind.FireAttack:
                 ResolveFireAttackEffect(pending);
                 break;
+            case LegalActionKind.BorrowedSword:
+                ResolveBorrowedSwordEffect(pending);
+                break;
             case LegalActionKind.Duel:
                 ResolveDuelEffect(pending);
                 break;
@@ -6857,6 +6950,28 @@ public sealed partial class GameEngine
             targetSeat));
         NotifyAiOfFireAttack(source, _players[targetSeat]);
         BeginFireAttackReveal(pendingFireAttack);
+    }
+
+    private void ResolveBorrowedSwordEffect(NullificationResolution pending)
+    {
+        if (pending.TargetSeats.Count != 2)
+        {
+            throw new InvalidOperationException("Borrowed Sword must retain its ordered two targets.");
+        }
+
+        var resolution = new BorrowedSwordResolution(
+            pending.ResolutionId,
+            pending.SourceSeat,
+            pending.TargetSeats[0],
+            pending.TargetSeats[1],
+            pending.EffectCard);
+        _pendingBorrowedSword = resolution;
+        AddLog(
+            "CardUsed",
+            $"{_players[resolution.SourceSeat].Name} 对 {_players[resolution.WeaponOwnerSeat].Name} 使用【借刀杀人】，指定其攻击 {_players[resolution.SlashTargetSeat].Name}。",
+            resolution.SourceSeat,
+            resolution.WeaponOwnerSeat);
+        BeginBorrowedSwordSlashChoice(resolution, includeJijiang: true);
     }
 
     private void SkipUnavailableTargetCardEffect(NullificationResolution pending, PlayerRuntime target, CardEffectSkipReason reason)
@@ -7323,6 +7438,36 @@ public sealed partial class GameEngine
             source.Seat,
             [target.Seat],
             LegalActionKind.FireAttack);
+    }
+
+    private void ResolveBorrowedSword(
+        PlayerRuntime source,
+        PlayerRuntime weaponOwner,
+        PlayerRuntime slashTarget,
+        Card borrowedSword)
+    {
+        var targets = new[] { weaponOwner.Seat, slashTarget.Seat };
+        var stillLegal = BuildLegalActions(source).Any(action =>
+            action.Kind == LegalActionKind.BorrowedSword &&
+            action.CardId == borrowedSword.Id &&
+            action.TargetSeats.SequenceEqual(targets));
+        if (!stillLegal)
+        {
+            throw new InvalidOperationException("Borrowed Sword became illegal before resolution.");
+        }
+
+        var resolutionId = BeginCardUse(borrowedSword, source.Seat, targets);
+        MoveCard(
+            borrowedSword,
+            CardLocation.Hand(source.Seat),
+            CardLocation.Processing,
+            CardMoveReasons.Use);
+        BeginJizhiOrNullificationWindow(
+            resolutionId,
+            borrowedSword,
+            source.Seat,
+            targets,
+            LegalActionKind.BorrowedSword);
     }
 
     private void BeginFireAttackReveal(FireAttackResolution pending)
@@ -7866,6 +8011,295 @@ public sealed partial class GameEngine
             : EngineStatus.Running;
     }
 
+    private Card? GetWeapon(PlayerRuntime player) =>
+        GetEquipment(player).SingleOrDefault(card =>
+            EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon);
+
+    private bool IsLegalBorrowedSwordSlashTarget(PlayerRuntime weaponOwner, PlayerRuntime target) =>
+        target.IsAlive &&
+        target.Seat != weaponOwner.Seat &&
+        GetCombatDistance(weaponOwner.Seat, target.Seat) <= GetAttackRange(weaponOwner.Seat) &&
+        !IsSlashProhibited(target);
+
+    private IReadOnlyList<Card> GetBorrowedSwordSlashCards(
+        PlayerRuntime weaponOwner,
+        PlayerRuntime slashTarget)
+    {
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget))
+        {
+            return [];
+        }
+
+        return GetResponseCards(weaponOwner, CardKind.Slash)
+            .Where(card =>
+            {
+                var location = _cardZones.GetLocation(card.Id);
+                if (location != CardLocation.Equipment(weaponOwner.Seat) ||
+                    EquipmentCatalog.Get(card.Kind).Slot != EquipmentSlot.Weapon)
+                {
+                    return true;
+                }
+
+                // When Wusheng spends the equipped weapon itself, that weapon
+                // cannot also provide the range needed for the forced Slash.
+                return GetCombatDistance(weaponOwner.Seat, slashTarget.Seat) <= 1;
+            })
+            .ToArray();
+    }
+
+    private bool CanRequestBorrowedSwordJijiang(BorrowedSwordResolution pending)
+    {
+        var owner = _players[pending.WeaponOwnerSeat];
+        return UsesFormalJijiang &&
+               !pending.JijiangAttempted &&
+               owner.IsAlive &&
+               owner.Role == Role.Lord &&
+               owner.General.HasSkill(SkillKind.Jijiang) &&
+               IsLegalBorrowedSwordSlashTarget(owner, _players[pending.SlashTargetSeat]) &&
+               GetJijiangCandidateSeats(owner.Seat).Count > 0;
+    }
+
+    private void BeginBorrowedSwordSlashChoice(
+        BorrowedSwordResolution pending,
+        bool includeJijiang)
+    {
+        if (!ReferenceEquals(_pendingBorrowedSword, pending) || pending.ActiveAttack is not null)
+        {
+            throw new InvalidOperationException("Borrowed Sword is not awaiting its forced Slash choice.");
+        }
+
+        var source = _players[pending.SourceSeat];
+        var weaponOwner = _players[pending.WeaponOwnerSeat];
+        var slashTarget = _players[pending.SlashTargetSeat];
+        var weapon = GetWeapon(weaponOwner);
+        if (!weaponOwner.IsAlive || weapon is null)
+        {
+            CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: false);
+            return;
+        }
+
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget))
+        {
+            CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
+            return;
+        }
+
+        var slashes = GetBorrowedSwordSlashCards(weaponOwner, slashTarget);
+        var canRequestJijiang = includeJijiang && CanRequestBorrowedSwordJijiang(pending);
+        if (slashes.Count == 0 && !canRequestJijiang)
+        {
+            CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
+            return;
+        }
+
+        PushResponseWindow(
+            pending.ResolutionId,
+            source.Seat,
+            weaponOwner.Seat,
+            CardKind.BorrowedSword,
+            CardKind.Slash);
+        var choices = slashes.Select(card =>
+        {
+            var effectiveKind = GetEffectiveResponseKind(weaponOwner, card, CardKind.Slash);
+            var cardDescription = IsNativeResponseCard(card, CardKind.Slash)
+                ? $"使用【{CardCatalog.Get(effectiveKind).DisplayName}】"
+                : $"将【{card.DisplayName}】当作【杀】使用";
+            return new PromptChoice(
+                new ChoiceId($"borrowed-sword.slash.card-{card.Id}"),
+                $"{cardDescription}攻击 {slashTarget.Name}。",
+                [card.Id],
+                [slashTarget.Seat],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "borrowed-sword-slash",
+                    ["response-card-kind"] = effectiveKind.ToString(),
+                    ["target-seat"] = slashTarget.Seat.ToString(
+                        System.Globalization.CultureInfo.InvariantCulture)
+                });
+        }).ToList();
+        if (canRequestJijiang)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId("borrowed-sword.jijiang"),
+                $"发动主公技【激将】，请求其他蜀势力角色提供【杀】攻击 {slashTarget.Name}。",
+                [],
+                [slashTarget.Seat],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "jijiang-request",
+                    ["skill"] = SkillKind.Jijiang.ToString()
+                }));
+        }
+
+        choices.Add(new PromptChoice(
+            new ChoiceId("borrowed-sword.give-weapon"),
+            $"不使用【杀】，将【{weapon.DisplayName}】交给 {source.Name}。",
+            [],
+            [source.Seat],
+            new Dictionary<string, string>
+            {
+                ["response"] = "borrowed-sword-give-weapon",
+                ["weapon-card-id"] = weapon.Id.ToString(
+                    System.Globalization.CultureInfo.InvariantCulture)
+            }));
+
+        _pendingDecision = new PendingDecision(
+            DecisionKind.RespondSlash,
+            weaponOwner.Seat,
+            $"{source.Name} 对你使用【借刀杀人】：请对 {slashTarget.Name} 使用【杀】，否则交出武器。",
+            slashes.Select(card => card.Id).ToArray(),
+            [slashTarget.Seat],
+            source.Seat,
+            CardKind.BorrowedSword)
+        {
+            PromptId = CreatePromptId(),
+            TargetSeat = slashTarget.Seat,
+            RequiredCardKind = CardKind.Slash,
+            Choices = choices
+        };
+        pending.AwaitingSlashChoice = true;
+        _status = weaponOwner.IsHuman
+            ? EngineStatus.AwaitingHumanResponse
+            : EngineStatus.Running;
+        QueueGameEvent(new ResponseRequestedEvent(
+            source.Seat,
+            weaponOwner.Seat,
+            CardKind.BorrowedSword,
+            CardKind.Slash));
+    }
+
+    private void ResolveBorrowedSwordSlashChoice(
+        BorrowedSwordResolution pending,
+        Card slash)
+    {
+        var weaponOwner = _players[pending.WeaponOwnerSeat];
+        var slashTarget = _players[pending.SlashTargetSeat];
+        var selected = GetBorrowedSwordSlashCards(weaponOwner, slashTarget)
+            .SingleOrDefault(card => card.Id == slash.Id) ??
+            throw new InvalidOperationException("The selected Borrowed Sword Slash is no longer legal.");
+        var effectiveKind = GetEffectiveResponseKind(weaponOwner, selected, CardKind.Slash);
+
+        PopResponseWindow(pending.ResolutionId);
+        SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        ClearPendingDecision();
+        pending.AwaitingSlashChoice = false;
+        pending.SlashCardId = selected.Id;
+        pending.EffectiveSlashKind = effectiveKind;
+        ResolveSlashCore(
+            weaponOwner,
+            slashTarget,
+            selected,
+            effectiveKind,
+            weaponOwner.Seat,
+            borrowedSword: pending);
+    }
+
+    private void CompleteBorrowedSwordWithoutSlash(
+        BorrowedSwordResolution pending,
+        bool transferWeapon)
+    {
+        if (!ReferenceEquals(_pendingBorrowedSword, pending) || pending.ActiveAttack is not null)
+        {
+            throw new InvalidOperationException("Borrowed Sword fallback is not current.");
+        }
+
+        if (_resolutionStack.LastOrDefault() is ResponseWindowFrame response &&
+            response.ParentFrameId == pending.ResolutionId)
+        {
+            PopResponseWindow(pending.ResolutionId);
+        }
+
+        SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        ClearPendingDecision();
+        pending.AwaitingSlashChoice = false;
+        var source = _players[pending.SourceSeat];
+        var weaponOwner = _players[pending.WeaponOwnerSeat];
+        var weapon = transferWeapon ? GetWeapon(weaponOwner) : null;
+        if (weapon is not null)
+        {
+            MoveCard(
+                weapon,
+                CardLocation.Equipment(weaponOwner.Seat),
+                CardLocation.Processing,
+                CardMoveReasons.BorrowedSwordGive);
+            MoveCard(
+                weapon,
+                CardLocation.Processing,
+                CardLocation.Hand(source.Seat),
+                CardMoveReasons.BorrowedSwordGive);
+            AddLog(
+                "CardEffect",
+                $"{weaponOwner.Name} 未使用【杀】，将【{weapon.DisplayName}】交给 {source.Name}。",
+                weaponOwner.Seat,
+                source.Seat);
+        }
+        else
+        {
+            AddLog(
+                "CardEffect",
+                $"{weaponOwner.Name} 已没有可交出的武器，【借刀杀人】结束。",
+                pending.SourceSeat,
+                weaponOwner.Seat);
+        }
+
+        QueueGameEvent(new BorrowedSwordResolvedEvent(
+            pending.ResolutionId,
+            pending.SourceSeat,
+            pending.WeaponOwnerSeat,
+            pending.SlashTargetSeat,
+            UsedSlash: false,
+            TransferredWeaponCardId: weapon?.Id,
+            TransferredWeaponKind: weapon?.Kind));
+        FinishBorrowedSword(pending);
+    }
+
+    private void CompleteBorrowedSwordAfterSlash(BorrowedSwordResolution pending)
+    {
+        if (!ReferenceEquals(_pendingBorrowedSword, pending) ||
+            pending.ActiveAttack is null ||
+            pending.SlashCardId is null ||
+            pending.EffectiveSlashKind is null)
+        {
+            throw new InvalidOperationException("Borrowed Sword Slash completion is not current.");
+        }
+
+        QueueGameEvent(new BorrowedSwordResolvedEvent(
+            pending.ResolutionId,
+            pending.SourceSeat,
+            pending.WeaponOwnerSeat,
+            pending.SlashTargetSeat,
+            UsedSlash: true,
+            SlashCardId: pending.SlashCardId,
+            EffectiveSlashKind: pending.EffectiveSlashKind));
+        AddLog(
+            "CardEffect",
+            $"{_players[pending.WeaponOwnerSeat].Name} 已按【借刀杀人】要求对 {_players[pending.SlashTargetSeat].Name} 使用【{CardCatalog.Get(pending.EffectiveSlashKind.Value).DisplayName}】。",
+            pending.WeaponOwnerSeat,
+            pending.SlashTargetSeat);
+        FinishBorrowedSword(pending);
+    }
+
+    private void FinishBorrowedSword(BorrowedSwordResolution pending)
+    {
+        SetCardUseTargetIndex(pending.ResolutionId, 2);
+        MoveCard(
+            pending.Card,
+            CardLocation.Processing,
+            CardLocation.DiscardPile,
+            CardMoveReasons.UseFinished);
+        FinishCardUse(pending.ResolutionId, pending.Card);
+        _pendingBorrowedSword = null;
+        if (_pendingJijiang?.BorrowedSword == pending)
+        {
+            _pendingJijiang = null;
+        }
+
+        if (_winner != Winner.None && _status != EngineStatus.Completed)
+        {
+            CompleteGame();
+        }
+    }
+
     private void ResolveSlash(
         PlayerRuntime source,
         PlayerRuntime target,
@@ -7895,6 +8329,7 @@ public sealed partial class GameEngine
         var targetHandAtMostAttackRange = targetHandCount <= attackRange;
         if (!UsesFormalLiegong ||
             _phase != TurnPhase.Play ||
+            _currentSeat != owner.Seat ||
             !owner.IsAlive ||
             !target.IsAlive ||
             !owner.General.HasSkill(SkillKind.Liegong) ||
@@ -8077,7 +8512,8 @@ public sealed partial class GameEngine
         Card slash,
         CardKind playedCardKind,
         int physicalOwnerSeat,
-        JijiangResolution? activeJijiang = null)
+        JijiangResolution? activeJijiang = null,
+        BorrowedSwordResolution? borrowedSword = null)
     {
         var ignoresArmor = HasArmorBypass(source);
         var resolutionId = BeginCardUse(
@@ -8091,7 +8527,10 @@ public sealed partial class GameEngine
             FindOwnedCardLocation(_players[physicalOwnerSeat], slash),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        _slashCountThisTurn++;
+        if (_phase == TurnPhase.Play && source.Seat == _currentSeat)
+        {
+            _slashCountThisTurn++;
+        }
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(source.Seat, playedCardKind);
         var damageAmount = source.HasAlcoholEffect ? 2 : 1;
         source.HasAlcoholEffect = false;
@@ -8106,6 +8545,10 @@ public sealed partial class GameEngine
         if (activeJijiang is not null)
         {
             activeJijiang.ActiveAttack = attack;
+        }
+        if (borrowedSword is not null)
+        {
+            borrowedSword.ActiveAttack = attack;
         }
         _pendingAttack = attack;
         var slashName = CardCatalog.Get(playedCardKind).DisplayName;
@@ -9003,6 +9446,43 @@ public sealed partial class GameEngine
         AdvanceJijiangCandidate();
     }
 
+    private void BeginBorrowedSwordJijiangRequest(BorrowedSwordResolution borrowedSword)
+    {
+        if (_pendingJijiang is not null ||
+            !ReferenceEquals(_pendingBorrowedSword, borrowedSword) ||
+            !borrowedSword.AwaitingSlashChoice ||
+            !CanRequestBorrowedSwordJijiang(borrowedSword))
+        {
+            throw new InvalidOperationException("Jijiang is not available for this Borrowed Sword use.");
+        }
+
+        var owner = _players[borrowedSword.WeaponOwnerSeat];
+        var candidateSeats = GetJijiangCandidateSeats(owner.Seat);
+        borrowedSword.JijiangAttempted = true;
+        borrowedSword.AwaitingSlashChoice = false;
+        _pendingJijiang = new JijiangResolution(
+            borrowedSword.ResolutionId,
+            JijiangPurpose.BorrowedSwordUse,
+            owner.Seat,
+            candidateSeats,
+            targetSeat: borrowedSword.SlashTargetSeat,
+            borrowedSword: borrowedSword);
+        ClearPendingDecision();
+        _status = EngineStatus.Running;
+        QueueGameEvent(new JijiangRequestedEvent(
+            borrowedSword.ResolutionId,
+            owner.Seat,
+            candidateSeats,
+            IsActiveUse: true,
+            borrowedSword.SlashTargetSeat));
+        AddLog(
+            "SkillTriggered",
+            $"{owner.Name} 在【借刀杀人】结算中发动主公技【激将】，请求其他蜀势力角色为其对 {_players[borrowedSword.SlashTargetSeat].Name} 提供【杀】。",
+            owner.Seat,
+            borrowedSword.SlashTargetSeat);
+        AdvanceJijiangCandidate();
+    }
+
     private void AdvanceJijiangCandidate()
     {
         var pending = _pendingJijiang ??
@@ -9109,7 +9589,11 @@ public sealed partial class GameEngine
         _status = EngineStatus.Running;
         if (selectedSlash is not null)
         {
-            if (pending.IsActiveUse)
+            if (pending.IsBorrowedSwordUse)
+            {
+                BeginBorrowedSwordJijiangSlash(pending, provider, selectedSlash);
+            }
+            else if (pending.IsActiveUse)
             {
                 BeginProvidedJijiangSlash(pending, provider, selectedSlash);
             }
@@ -9144,13 +9628,27 @@ public sealed partial class GameEngine
             ProviderSeat: null,
             SlashCardId: null,
             EffectiveSlashKind: null,
-            pending.IsActiveUse,
+            pending.IsActiveUse || pending.IsBorrowedSwordUse,
             pending.TargetSeat));
         AddLog(
             "SkillResolved",
             $"没有蜀势力角色响应 {_players[pending.OwnerSeat].Name} 的【激将】。",
             pending.OwnerSeat,
             pending.TargetSeat);
+
+        if (pending.IsBorrowedSwordUse)
+        {
+            var borrowedSword = pending.BorrowedSword ??
+                throw new InvalidOperationException("A Borrowed Sword Jijiang failure has no parent resolution.");
+            if (_resolutionStack.LastOrDefault() is ResponseWindowFrame response &&
+                response.ParentFrameId == borrowedSword.ResolutionId)
+            {
+                PopResponseWindow(borrowedSword.ResolutionId);
+            }
+
+            BeginBorrowedSwordSlashChoice(borrowedSword, includeJijiang: false);
+            return;
+        }
 
         if (!pending.IsActiveUse)
         {
@@ -9337,6 +9835,55 @@ public sealed partial class GameEngine
             pending);
     }
 
+    private void BeginBorrowedSwordJijiangSlash(
+        JijiangResolution pending,
+        PlayerRuntime provider,
+        Card selectedSlash)
+    {
+        var borrowedSword = pending.BorrowedSword ??
+            throw new InvalidOperationException("A Borrowed Sword Jijiang use has no parent resolution.");
+        var owner = _players[pending.OwnerSeat];
+        var target = _players[pending.TargetSeat ??
+            throw new InvalidOperationException("A Borrowed Sword Jijiang use has no target.")];
+        if (!ReferenceEquals(_pendingJijiang, pending) ||
+            !ReferenceEquals(_pendingBorrowedSword, borrowedSword) ||
+            !pending.IsBorrowedSwordUse ||
+            !IsLegalBorrowedSwordSlashTarget(owner, target))
+        {
+            throw new InvalidOperationException("The Borrowed Sword Jijiang target is no longer legal.");
+        }
+
+        var effectiveKind = GetEffectiveResponseKind(provider, selectedSlash, CardKind.Slash);
+        pending.AwaitingProviders = false;
+        borrowedSword.AwaitingSlashChoice = false;
+        borrowedSword.SlashCardId = selectedSlash.Id;
+        borrowedSword.EffectiveSlashKind = effectiveKind;
+        PopResponseWindow(borrowedSword.ResolutionId);
+        SetCardUseStep(borrowedSword.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        QueueGameEvent(new JijiangResolvedEvent(
+            borrowedSword.ResolutionId,
+            owner.Seat,
+            Succeeded: true,
+            provider.Seat,
+            selectedSlash.Id,
+            effectiveKind,
+            IsActiveUse: true,
+            target.Seat));
+        AddLog(
+            "CardUsed",
+            $"{provider.Name} 响应【激将】，由 {owner.Name} 按【借刀杀人】要求对 {target.Name} 使用【{CardCatalog.Get(effectiveKind).DisplayName}】。",
+            owner.Seat,
+            target.Seat);
+        ResolveSlashCore(
+            owner,
+            target,
+            selectedSlash,
+            effectiveKind,
+            provider.Seat,
+            activeJijiang: pending,
+            borrowedSword: borrowedSword);
+    }
+
     private void CompleteActiveJijiang(JijiangResolution pending)
     {
         if (!ReferenceEquals(_pendingJijiang, pending) ||
@@ -9371,6 +9918,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (_pendingBorrowedSword is { AwaitingSlashChoice: true })
+        {
+            ResolvePendingAiBorrowedSword();
+            return;
+        }
+
         if (_pendingDuel is not null)
         {
             ResolvePendingAiDuel();
@@ -9384,6 +9937,50 @@ public sealed partial class GameEngine
         }
 
         ResolvePendingAiDodge();
+    }
+
+    private void ResolvePendingAiBorrowedSword()
+    {
+        var pending = _pendingBorrowedSword ??
+            throw new InvalidOperationException("AI Borrowed Sword response has no active resolution.");
+        if (!pending.AwaitingSlashChoice ||
+            _pendingDecision is not { Kind: DecisionKind.RespondSlash } decision ||
+            decision.PlayerSeat != pending.WeaponOwnerSeat)
+        {
+            throw new InvalidOperationException("The pending AI Borrowed Sword prompt is inconsistent.");
+        }
+
+        var owner = _players[pending.WeaponOwnerSeat];
+        var target = _players[pending.SlashTargetSeat];
+        var view = CreateSnapshot(owner.Seat);
+        var (useSlash, thought) = _aiBrains[owner.Seat].ChooseBorrowedSwordResponse(
+            view,
+            pending.SourceSeat,
+            target.Seat,
+            ++_thoughtSequence);
+        AddThought(thought);
+        var canRequestJijiang = decision.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "jijiang-request");
+        if (useSlash && canRequestJijiang)
+        {
+            BeginBorrowedSwordJijiangRequest(pending);
+            PublishState();
+            return;
+        }
+
+        var selectedSlash = useSlash
+            ? GetBorrowedSwordSlashCards(owner, target).FirstOrDefault()
+            : null;
+        if (selectedSlash is not null)
+        {
+            ResolveBorrowedSwordSlashChoice(pending, selectedSlash);
+        }
+        else
+        {
+            CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
+        }
+
+        PublishState();
     }
 
     private void ResolvePendingAiJijiang()
@@ -12883,7 +13480,10 @@ public sealed partial class GameEngine
             CompleteActiveJijiang(jijiang);
         }
 
-        if (_winner != Winner.None && _status != EngineStatus.Completed)
+        if (_winner != Winner.None &&
+            _status != EngineStatus.Completed &&
+            (_pendingBorrowedSword?.ActiveAttack is not { } borrowedAttack ||
+             !ReferenceEquals(borrowedAttack, attack)))
         {
             CompleteGame();
         }
@@ -12937,11 +13537,20 @@ public sealed partial class GameEngine
             return;
         }
 
+        var borrowedSword = _pendingBorrowedSword is { ActiveAttack: { } borrowedAttack } pendingBorrowedSword &&
+                            ReferenceEquals(borrowedAttack, attack)
+            ? pendingBorrowedSword
+            : null;
         var resumesDelayedTurn = attack.IsDelayedJudgmentDamage;
         FinishAttack(attack);
         _pendingAttack = null;
         _pendingDuel = null;
         _pendingDecision = null;
+        if (borrowedSword is not null)
+        {
+            CompleteBorrowedSwordAfterSlash(borrowedSword);
+            return;
+        }
         if (resumesDelayedTurn && _winner == Winner.None && _status != EngineStatus.Completed)
         {
             ResumeAfterLightningDamage(attack);
@@ -13799,6 +14408,29 @@ public sealed partial class GameEngine
             }
         }
 
+        if (UsesFormalBorrowedSword)
+        {
+            foreach (var borrowedSword in GetHand(actor).Where(card => card.Kind == CardKind.BorrowedSword))
+            {
+                foreach (var weaponOwner in _players.Where(player =>
+                             player.IsAlive &&
+                             player.Seat != actor.Seat &&
+                             GetWeapon(player) is not null))
+                {
+                    foreach (var slashTarget in _players.Where(player =>
+                                 IsLegalBorrowedSwordSlashTarget(weaponOwner, player)))
+                    {
+                        actions.Add(new LegalAction(
+                            LegalActionKind.BorrowedSword,
+                            borrowedSword.Id,
+                            null,
+                            $"令 {weaponOwner.Name} 对 {slashTarget.Name} 使用【杀】，否则获得其武器",
+                            TargetSeats: [weaponOwner.Seat, slashTarget.Seat]));
+                    }
+                }
+            }
+        }
+
         foreach (var fireAttack in GetHand(actor).Where(card => card.Kind == CardKind.FireAttack))
         {
             foreach (var target in _players.Where(player =>
@@ -14308,6 +14940,7 @@ public sealed partial class GameEngine
                 LegalActionKind.Indulgence => "indulgence",
                 LegalActionKind.SupplyShortage => "supply-shortage",
                 LegalActionKind.Lightning => "lightning",
+                LegalActionKind.BorrowedSword => "borrowed-sword",
                 _ => throw new InvalidOperationException($"Unsupported prompt action {action.Kind}.")
             };
             var choiceId = targets.Count switch
@@ -15304,6 +15937,7 @@ public sealed partial class GameEngine
 
         var processing = _cardZones.CardsAt(CardLocation.Processing);
         var hasActiveCardResolution = _pendingAttack is not null ||
+            _pendingBorrowedSword is not null ||
             _pendingGroupCard is not null ||
             _pendingFireAttack is not null ||
             _pendingNullification is not null ||
@@ -15322,6 +15956,32 @@ public sealed partial class GameEngine
             !IsActiveAttackCardConsistent(attack, processing))
         {
             throw new InvalidOperationException("The active card resolution and Processing zone are inconsistent.");
+        }
+
+        if (_pendingBorrowedSword is { } borrowedSword)
+        {
+            var parentFrame = _resolutionStack.OfType<CardUseFrame>()
+                .FirstOrDefault(frame => frame.Id == borrowedSword.ResolutionId);
+            var parentCardInProcessing = processing.Any(card => card.Id == borrowedSword.Card.Id);
+            var responseWindow = _resolutionStack.OfType<ResponseWindowFrame>().LastOrDefault(frame =>
+                frame.ParentFrameId == borrowedSword.ResolutionId);
+            var awaitingOwnerChoice = borrowedSword.AwaitingSlashChoice &&
+                _pendingDecision is { Kind: DecisionKind.RespondSlash } borrowedDecision &&
+                borrowedDecision.PlayerSeat == borrowedSword.WeaponOwnerSeat &&
+                responseWindow is not null &&
+                responseWindow.ResponderSeat == borrowedSword.WeaponOwnerSeat;
+            var awaitingJijiang = _pendingJijiang is { IsBorrowedSwordUse: true, AwaitingProviders: true } borrowedJijiang &&
+                ReferenceEquals(borrowedJijiang.BorrowedSword, borrowedSword);
+            var resolvingSlash = borrowedSword.ActiveAttack is { } borrowedAttack &&
+                ReferenceEquals(_pendingAttack, borrowedAttack);
+            if (parentFrame is null ||
+                parentFrame.CardKind != CardKind.BorrowedSword ||
+                !parentCardInProcessing ||
+                (awaitingOwnerChoice ? 1 : 0) + (awaitingJijiang ? 1 : 0) + (resolvingSlash ? 1 : 0) != 1)
+            {
+                throw new InvalidOperationException(
+                    "A Borrowed Sword continuation must retain its parent card and exactly one response or Slash continuation.");
+            }
         }
 
         if (_pendingGroupCard is { Effect: GroupCardEffect.Recovery } recoveryGroup &&
@@ -16444,7 +17104,26 @@ public sealed partial class GameEngine
                     "A Jijiang continuation must retain its ordered Shu cursor.");
             }
 
-            if (jijiang.IsActiveUse)
+            if (jijiang.IsBorrowedSwordUse)
+            {
+                var borrowedParent = jijiang.BorrowedSword;
+                var responseWindow = _resolutionStack.OfType<ResponseWindowFrame>().LastOrDefault(frame =>
+                    borrowedParent is not null && frame.ParentFrameId == borrowedParent.ResolutionId);
+                var activeAttackMatches = !jijiang.AwaitingProviders &&
+                                          jijiang.ActiveAttack is { } activeAttack &&
+                                          ReferenceEquals(_pendingAttack, activeAttack) &&
+                                          ReferenceEquals(borrowedParent?.ActiveAttack, activeAttack);
+                if (borrowedParent is null ||
+                    !ReferenceEquals(_pendingBorrowedSword, borrowedParent) ||
+                    (jijiang.AwaitingProviders
+                        ? responseWindow is null || !providerPromptMatches
+                        : !activeAttackMatches))
+                {
+                    throw new InvalidOperationException(
+                        "A Borrowed Sword Jijiang continuation must retain its parent response or nested Slash.");
+                }
+            }
+            else if (jijiang.IsActiveUse)
             {
                 var activeFrame = jijiang.ActiveSkillFrameId is { } activeFrameId
                     ? _resolutionStack.OfType<ActiveSkillFrame>().LastOrDefault(frame => frame.Id == activeFrameId)
@@ -16580,6 +17259,8 @@ public sealed partial class GameEngine
             _pendingNullification is null &&
             _pendingJudgment is null &&
             _pendingJijiang?.IsActiveUse != true &&
+            _pendingJijiang?.IsBorrowedSwordUse != true &&
+            _pendingBorrowedSword is null &&
             _pendingDying?.ResumesActiveSkill != true &&
             (awaitingHumanResponse || awaitingHumanDying || awaitingAiResponse || awaitingAiDamageSkill || awaitingAiJudgment))
         {
@@ -16631,6 +17312,7 @@ public sealed partial class GameEngine
              _pendingLiegong is not null ||
              _pendingHujia is not null ||
              _pendingJijiang is not null ||
+             _pendingBorrowedSword is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -16666,6 +17348,26 @@ public sealed partial class GameEngine
             return activeSkillLocation.Zone is CardZoneKind.DrawPile or
                 CardZoneKind.Hand or
                 CardZoneKind.DiscardPile;
+        }
+
+        if (_pendingBorrowedSword is { ActiveAttack: { } borrowedAttack } borrowedSword &&
+            ReferenceEquals(borrowedAttack, attack))
+        {
+            if (processing.All(card => card.Id != borrowedSword.Card.Id))
+            {
+                return false;
+            }
+
+            var borrowedAttackLocation = _cardZones.GetLocation(attackCard.Id);
+            if (borrowedAttackLocation == CardLocation.Processing)
+            {
+                return processing.Count == 2 && processing.Any(card => card.Id == attackCard.Id);
+            }
+
+            return processing.Count == 1 &&
+                   borrowedAttackLocation.Zone is CardZoneKind.DrawPile or
+                       CardZoneKind.Hand or
+                       CardZoneKind.DiscardPile;
         }
 
         if (processing.Count == 1 && processing[0].Id == attackCard.Id)
@@ -17723,6 +18425,25 @@ public sealed partial class GameEngine
 
     private sealed record LiegongResolution(AttackResolution Attack);
 
+    private sealed class BorrowedSwordResolution(
+        long resolutionId,
+        int sourceSeat,
+        int weaponOwnerSeat,
+        int slashTargetSeat,
+        Card card)
+    {
+        public long ResolutionId { get; } = resolutionId;
+        public int SourceSeat { get; } = sourceSeat;
+        public int WeaponOwnerSeat { get; } = weaponOwnerSeat;
+        public int SlashTargetSeat { get; } = slashTargetSeat;
+        public Card Card { get; } = card;
+        public bool AwaitingSlashChoice { get; set; }
+        public bool JijiangAttempted { get; set; }
+        public AttackResolution? ActiveAttack { get; set; }
+        public int? SlashCardId { get; set; }
+        public CardKind? EffectiveSlashKind { get; set; }
+    }
+
     private sealed class JijiangResolution(
         long resolutionId,
         JijiangPurpose purpose,
@@ -17730,7 +18451,8 @@ public sealed partial class GameEngine
         IReadOnlyList<int> candidateSeats,
         AttackResolution? responseAttack = null,
         int? targetSeat = null,
-        long? activeSkillFrameId = null)
+        long? activeSkillFrameId = null,
+        BorrowedSwordResolution? borrowedSword = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public JijiangPurpose Purpose { get; } = purpose;
@@ -17739,12 +18461,14 @@ public sealed partial class GameEngine
         public AttackResolution? ResponseAttack { get; } = responseAttack;
         public int? TargetSeat { get; } = targetSeat;
         public long? ActiveSkillFrameId { get; } = activeSkillFrameId;
+        public BorrowedSwordResolution? BorrowedSword { get; } = borrowedSword;
         public int CandidateIndex { get; set; }
         public bool AwaitingProviders { get; set; } = true;
         public AttackResolution? ActiveAttack { get; set; }
         public int CurrentCandidateSeat =>
             CandidateIndex < CandidateSeats.Count ? CandidateSeats[CandidateIndex] : -1;
         public bool IsActiveUse => Purpose == JijiangPurpose.ActiveUse;
+        public bool IsBorrowedSwordUse => Purpose == JijiangPurpose.BorrowedSwordUse;
     }
 
     private sealed class FireAttackResolution(
@@ -17784,7 +18508,8 @@ public sealed partial class GameEngine
     {
         ActiveUse,
         DuelResponse,
-        GroupResponse
+        GroupResponse,
+        BorrowedSwordUse
     }
 
     private sealed class JudgmentResolution(

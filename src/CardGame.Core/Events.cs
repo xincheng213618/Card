@@ -691,6 +691,22 @@ public sealed record GroupResponseEvent(
     int? ResponseCardId,
     CardKind? ResponseCardKind = null) : IGameEvent;
 
+/// <summary>
+/// Public terminal result for Borrowed Sword. A successful branch records the
+/// physical Slash that opened its own nested card-use frame; the fallback
+/// records the already-public weapon transferred to the trick user.
+/// </summary>
+public sealed record BorrowedSwordResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int WeaponOwnerSeat,
+    int SlashTargetSeat,
+    bool UsedSlash,
+    int? SlashCardId = null,
+    CardKind? EffectiveSlashKind = null,
+    int? TransferredWeaponCardId = null,
+    CardKind? TransferredWeaponKind = null) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

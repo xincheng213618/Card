@@ -1215,6 +1215,60 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses whether to satisfy Borrowed Sword with a real Slash or surrender
+    /// the public weapon. The decision uses only published roles, health and the
+    /// legal choices in this seat's private prompt.
+    /// </summary>
+    public (bool UseSlash, AiThoughtRecord Thought) ChooseBorrowedSwordResponse(
+        GameSnapshot view,
+        int trickSourceSeat,
+        int slashTargetSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var source = view.Players.Single(player => player.Seat == trickSourceSeat);
+        var target = view.Players.Single(player => player.Seat == slashTargetSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var canUseSlash = view.PendingDecision is { Kind: DecisionKind.RespondSlash } prompt &&
+                          prompt.Choices.Any(choice =>
+                              choice.Parameters.GetValueOrDefault("response") is
+                                  "borrowed-sword-slash" or "jijiang-request");
+        var targetSupport = GetTacticalSupport(view, selfRole, target);
+        var sourceSupport = GetTacticalSupport(view, selfRole, source);
+        var slashScore = canUseSlash
+            ? -targetSupport * 70d + 22d + (target.Hp <= 1 ? 20d : 0d)
+            : double.NegativeInfinity;
+        var giveScore = sourceSupport * 42d + 8d;
+        var useSlash = slashScore >= giveScore;
+        var decision = useSlash ? $"对 {target.Name} 使用杀" : $"将武器交给 {source.Name}";
+        var pseudoAction = new LegalAction(
+            LegalActionKind.BorrowedSword,
+            null,
+            slashTargetSeat,
+            decision);
+        var candidates = new List<AiCandidateScore>();
+        if (canUseSlash)
+        {
+            candidates.Add(new AiCandidateScore(
+                pseudoAction with { Description = $"对 {target.Name} 使用杀" },
+                slashScore,
+                "按公开身份关系评估强制攻击目标，并保留当前装备武器。"));
+        }
+        candidates.Add(new AiCandidateScore(
+            pseudoAction with { Description = $"将武器交给 {source.Name}" },
+            giveScore,
+            "放弃强制攻击，按公开身份关系评估把武器交给锦囊来源的价值。"));
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            decision,
+            candidates,
+            $"借刀杀人响应：目标关系 {targetSupport:0.##}，来源关系 {sourceSupport:0.##}，决定{decision}。");
+        return (useSlash, thought);
+    }
+
+    /// <summary>
     /// Chooses whether to spend one of this seat's private Nullification cards
     /// on the published trick-effect context. The method receives no engine
     /// zone, draw-pile, or other-player hand access; all strategic inputs come
@@ -2181,6 +2235,29 @@ public sealed partial class SimpleAiBrain
                 $"切换 {targets.Length} 名公开连环角色的状态；只使用公开身份、体力和连环标记，不读取隐藏手牌。");
         }
 
+        if (action.Kind == LegalActionKind.BorrowedSword)
+        {
+            if (action.TargetSeats.Count != 2)
+            {
+                return (-100d, "借刀杀人缺少有序的持械者与被杀目标。");
+            }
+
+            var weaponOwner = view.Players.Single(player => player.Seat == action.TargetSeats[0]);
+            var slashTarget = view.Players.Single(player => player.Seat == action.TargetSeats[1]);
+            var ownerHostility = GetHostility(view, selfRole, weaponOwner);
+            var targetHostility = GetHostility(view, selfRole, slashTarget);
+            var weaponValue = weaponOwner.Equipment
+                .Where(equipment => EquipmentCatalog.Get(equipment.Kind).Slot == EquipmentSlot.Weapon)
+                .Select(equipment => CardCatalog.Get(equipment.Kind).AiPlayValue)
+                .DefaultIfEmpty(12)
+                .Max();
+            var borrowedFinishingBonus = slashTarget.Hp <= 1 ? 22d : 0d;
+            return (
+                cardProfile.AiPlayValue + ownerHostility * .45d + targetHostility * .65d +
+                weaponValue * .35d + borrowedFinishingBonus,
+                $"令持械的座位 {weaponOwner.Seat + 1} 对座位 {slashTarget.Seat + 1} 使用杀，否则取得其公开武器；只使用公开身份、体力、距离与装备。");
+        }
+
         var target = view.Players.Single(player => player.Seat == action.TargetSeat);
         if (action.Kind == LegalActionKind.Lightning)
         {
@@ -2336,6 +2413,7 @@ public sealed partial class SimpleAiBrain
             CardKind.Dismantlement or
             CardKind.Snatch or
             CardKind.FireAttack or
+            CardKind.BorrowedSword or
             CardKind.Indulgence or
             CardKind.SupplyShortage or
             CardKind.Lightning;

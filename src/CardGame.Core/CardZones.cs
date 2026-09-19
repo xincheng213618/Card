@@ -115,6 +115,7 @@ public static class CardMoveReasons
     public static CardMoveReason FireAttackDiscard { get; } = new("card.effect.fire-attack-discard");
     public static CardMoveReason FireAttackFinished { get; } = new("card.effect.fire-attack-finished");
     public static CardMoveReason FireAttackDiscardFinished { get; } = new("card.effect.fire-attack-discard-finished");
+    public static CardMoveReason BorrowedSwordGive { get; } = new("card.effect.borrowed-sword-give-weapon");
     public static CardMoveReason JudgmentReveal { get; } = new("judgment.reveal");
     public static CardMoveReason JudgmentFinish { get; } = new("judgment.finish");
     public static CardMoveReason EquipmentUse { get; } = new("equipment.use");

@@ -139,6 +139,14 @@ public static class CardCatalog
                 AiPlayValue: 34,
                 AiResponseValue: 0,
                 HandKeepValue: 44),
+            [CardKind.BorrowedSword] = new(
+                CardKind.BorrowedSword,
+                "借刀杀人",
+                "锦囊牌",
+                "选择一名装备武器的其他角色及其攻击范围内的另一名角色；前者需对后者使用一张杀，否则将武器交给你。",
+                AiPlayValue: 32,
+                AiResponseValue: 0,
+                HandKeepValue: 45),
             [CardKind.Crossbow] = new(
                 CardKind.Crossbow,
                 "诸葛连弩",

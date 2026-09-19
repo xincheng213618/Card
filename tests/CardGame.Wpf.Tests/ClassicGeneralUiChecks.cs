@@ -769,14 +769,15 @@ internal static class ClassicGeneralUiChecks
             1120,
             740,
             Path.Combine(output, "102-classic-liegong-choice.png"));
+        var liegongEventCount = liegongEngine.Events.Count;
         liegongViewModel.SelectSkillChoiceCommand.Execute(liegongViewModel.SkillChoices.Single(choice =>
             choice.Parameters.GetValueOrDefault("action") == "liegong-use"));
-        Program.Assert(liegongEngine.Events.Any(item => item.Payload is LiegongChoiceResolvedEvent
+        Program.Assert(liegongEngine.Events.Skip(liegongEventCount).Any(item => item.Payload is LiegongChoiceResolvedEvent
         {
             SourceSeat: 0,
             Used: true
         } resolved && resolved.TargetSeat == liegongTargetSeat) &&
-                       liegongEngine.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().All(requested =>
+                       liegongEngine.Events.Skip(liegongEventCount).Select(item => item.Payload).OfType<ResponseRequestedEvent>().All(requested =>
                            requested.TargetSeat != liegongTargetSeat ||
                            requested.RequiredCardKind != CardKind.Dodge),
             "The WPF Liegong choice must commit a typed result without publishing a Dodge response.");

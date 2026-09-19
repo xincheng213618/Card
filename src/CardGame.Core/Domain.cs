@@ -60,7 +60,8 @@ public enum CardKind
     IronChain,
     Indulgence,
     SupplyShortage,
-    Lightning
+    Lightning,
+    BorrowedSword
 }
 
 public enum Suit
@@ -271,7 +272,8 @@ public enum LegalActionKind
     SkipLuoyi,
     UseSkill,
     RevealGeneral,
-    Recast
+    Recast,
+    BorrowedSword
 }
 
 public sealed record GameOptions

@@ -71,6 +71,8 @@ var tests = new (string Name, Action Body)[]
     ("classic Zhang Fei uses multiple Slashes through formal Paoxiao", ClassicGeneralChecks.FormalPaoxiaoFlow),
     ("classic Zhao Yun converts Slash and Dodge through formal Longdan", ClassicGeneralChecks.FormalLongdanFlow),
     ("classic Guan Yu converts red equipment through formal Wusheng", ClassicGeneralChecks.FormalWushengEquipmentFlow),
+    ("classic Borrowed Sword transfers weapons or nests a real Slash and replays", BorrowedSwordChecks.TransferSlashAndReplay),
+    ("classic Borrowed Sword lets Jijiang provide its nested Slash", BorrowedSwordChecks.JijiangProvidesForcedSlash),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
@@ -567,7 +569,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(27, CardCatalog.ImplementedCards.Count);
+    Equal(28, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -597,6 +599,7 @@ static void CardCatalogDefinitions()
     True(CardCatalog.Get(CardKind.Indulgence).Description.Contains("不为红桃"));
     True(CardCatalog.Get(CardKind.SupplyShortage).Description.Contains("不为梅花"));
     Equal("闪电", CardCatalog.Get(CardKind.Lightning).DisplayName);
+    Equal("借刀杀人", CardCatalog.Get(CardKind.BorrowedSword).DisplayName);
     True(CardCatalog.ImplementedCards.All(definition =>
         !string.IsNullOrWhiteSpace(definition.Description)));
     Equal(38, CardCatalog.Get(CardKind.Peach).AiPlayValue);

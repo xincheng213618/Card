@@ -4,6 +4,8 @@
 
 ## 已实现
 
+- 借刀杀人的普通出牌界面直接列出“持武器者 → 被杀目标”的有序组合，避免两个目标的先后含义落到窗口特判；持武器者的私有响应区再列出实体杀、武圣、激将和具体武器交付选项，选择杀后沿用现有完整响应控件。Core 175/175、WPF 53/53；`110-borrowed-sword-ordered-targets.png` 与 `111-borrowed-sword-owner-response.png` 已在 1120×740 离屏人工检查，无重叠或截断。离屏渲染不等于真实鼠标、键盘或多 DPI 验收。
+
 - 新局武圣红牌可响应决斗／南蛮入侵，转化按钮明确注明当作杀或闪；国战响应中还可先明置武将并刷新当前私有候选；版本化存档、指南与教学往返、提交后续局均已验证。该阶段验证为 Core 131/131、WPF 43/43；当前全量为 Core 135/135、WPF 45/45。详见 [`WUSHENG_RESPONSES.md`](WUSHENG_RESPONSES.md)，证据在 `artifacts/wusheng-response-review/`。
 
 - 国战牌桌并排显示双将肖像及明暗状态，只在势力公开后标明同伴／对手；保持原座位选目标操作。该阶段验证为 Core 131/131、WPF 44/44，当前全量为 Core 135/135、WPF 45/45；证据在 `artifacts/dual-seat-review/`，详见 [`NATIONAL_SEAT_PRESENTATION.md`](NATIONAL_SEAT_PRESENTATION.md)。
@@ -52,7 +54,7 @@
 
 ## 规则契约
 
-战局指南现在覆盖开局至终局的当前说明、自己的手牌使用条件、身份与回合、27 种已实现牌的搜索与分类，以及操作和存档帮助。F1 随时打开，Esc 先关闭指南，保留选牌、目标与原来的自动推进策略。说明查询只读，不改变规则状态和旧回放。实际界面与验证见 [`PLAYER_GUIDE.md`](PLAYER_GUIDE.md)。
+战局指南现在覆盖开局至终局的当前说明、自己的手牌使用条件、身份与回合、28 种已实现牌的搜索与分类，以及操作和存档帮助。F1 随时打开，Esc 先关闭指南，保留选牌、目标与原来的自动推进策略。说明查询只读，不改变规则状态和旧回放。实际界面与验证见 [`PLAYER_GUIDE.md`](PLAYER_GUIDE.md)。
 
 `DecisionKind.DiscardCards` 使用私有的 `ValidCardIds` 和 `RequiredCardCount` 描述准确子集，`Choices` 为空，不枚举组合。`DiscardCardsCommand` 验证身份、PromptId、Revision、数量、重复项及所有权后才统一移动实体牌；顺序由卡牌 ID 稳定排序，成功后停在下一回合，供界面逐步推进。`HandLimitDiscardedEvent` 保留可信宿主的选牌记录，普通日志只显示弃牌数量。
 
