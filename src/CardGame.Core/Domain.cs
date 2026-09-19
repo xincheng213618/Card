@@ -191,7 +191,10 @@ public enum SkillKind
     Lianying,
     Mengjin,
     Quhu,
-    Shuangxiong
+    Shuangxiong,
+    Bazhen,
+    Huoji,
+    Kanpo
 }
 
 public enum DecisionKind

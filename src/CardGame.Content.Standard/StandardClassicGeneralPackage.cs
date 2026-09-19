@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 46, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 47, 0))
     {
     }
 
@@ -65,12 +65,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 43, 0) &&
             version != new Version(1, 44, 0) &&
             version != new Version(1, 45, 0) &&
-            version != new Version(1, 46, 0))
+            version != new Version(1, 46, 0) &&
+            version != new Version(1, 47, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.46.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.47.0.");
         }
 
         _version = version;
@@ -690,6 +691,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
                 SkillKind.Shuangxiong));
         }
+        if (_version >= new Version(1, 47, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:bazhen", "八阵",
+                "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。", SkillKind.Bazhen));
+            builder.AddSkill(new ContentSkillDefinition("classic:huoji", "火计",
+                "你可以将一张红色手牌当【火攻】使用。", SkillKind.Huoji));
+            builder.AddSkill(new ContentSkillDefinition("classic:kanpo", "看破",
+                "你可以将一张黑色手牌当【无懈可击】使用。", SkillKind.Kanpo));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1022,10 +1032,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:yan-liang-wen-chou", "颜良文丑", "yan_liang_wen_chou",
                 "classic:shuangxiong", "qun", BaseHp: 4));
         }
+        if (_version >= new Version(1, 47, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:wolong-zhuge-liang", "卧龙诸葛亮", "wolong_zhuge_liang",
+                "classic:bazhen", "shu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:huoji", "classic:kanpo"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 46 } => YanLiangWenChouClassicGeneralIds,
+            { Major: 1, Minor: >= 47 } => WolongClassicGeneralIds,
+            { Major: 1, Minor: 46 } => YanLiangWenChouClassicGeneralIds,
             { Major: 1, Minor: 45 } => XunYuClassicGeneralIds,
             { Major: 1, Minor: 44 } => PangDeClassicGeneralIds,
             { Major: 1, Minor: 43 } => LuXunClassicGeneralIds,
@@ -1282,6 +1300,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. XunYuClassicGeneralIds,
         "classic:yan-liang-wen-chou"
+    ];
+
+    internal static IReadOnlyList<string> WolongClassicGeneralIds { get; } =
+    [
+        .. YanLiangWenChouClassicGeneralIds,
+        "classic:wolong-zhuge-liang"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

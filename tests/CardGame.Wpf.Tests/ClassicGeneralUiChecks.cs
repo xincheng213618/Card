@@ -1016,6 +1016,23 @@ internal static class ClassicGeneralUiChecks
         luXunWindow.Content = null;
         luXunWindow.Close();
 
+        using var wolongViewModel = FindGeneralChoice("classic:wolong-zhuge-liang");
+        var wolong = wolongViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:wolong-zhuge-liang");
+        Program.Assert(wolong.Name == "卧龙诸葛亮" && wolong.Kingdom == "蜀" &&
+                       wolong.SkillName == "八阵 / 火计 / 看破" &&
+                       wolong.SkillDescription.Contains("八卦阵", StringComparison.Ordinal) &&
+                       wolong.SkillDescription.Contains("红色手牌", StringComparison.Ordinal) &&
+                       wolong.SkillDescription.Contains("黑色手牌", StringComparison.Ordinal) &&
+                       wolong.HealthText == "体力上限 4",
+            "The current classic Wolong card must render Shu, Bazhen, Huoji, Kanpo and the Lord health bonus.");
+        var wolongWindow = new MainWindow(wolongViewModel);
+        wolongWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)wolongWindow.Content, 1120, 740,
+            Path.Combine(output, "143-classic-wolong-card.png"));
+        wolongWindow.Content = null;
+        wolongWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
@@ -1648,6 +1665,7 @@ internal static class ClassicGeneralUiChecks
                 var engine = Program.Engine(candidate);
                 var snapshot = engine.CreateSnapshot(0, revealAll: true);
                 if (engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                    snapshot.Players.All(player => player.Skills?.All(skill => skill.Kind != SkillKind.Kanpo) != false) &&
                     snapshot.Players.SelectMany(player => player.Hand)
                         .All(card => card.Kind != CardKind.Nullification) &&
                     engine.GetHumanLegalActions().Any(action =>

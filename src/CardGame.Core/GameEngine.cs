@@ -278,6 +278,9 @@ public sealed partial class GameEngine
     private bool UsesFormalShuangxiong =>
         _rulesVersion >= 61 && IsClassicIdentityMode;
 
+    private bool UsesFormalWolong =>
+        _rulesVersion >= 62 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -3355,8 +3358,8 @@ public sealed partial class GameEngine
         {
             var cardId = requestedNullificationCardId ??
                 decision.ValidCardIds.FirstOrDefault();
-            selected = GetHand(_players[decision.PlayerSeat])
-                .SingleOrDefault(card => card.Id == cardId && card.Kind == CardKind.Nullification);
+            selected = GetNullificationCards(_players[decision.PlayerSeat])
+                .SingleOrDefault(card => card.Id == cardId);
             if (selected is null || !decision.ValidCardIds.Contains(selected.Id))
             {
                 throw new InvalidOperationException(
@@ -6962,7 +6965,7 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("FireAttack requires a target.");
                 }
 
-                ResolveFireAttack(actor, _players[action.TargetSeat.Value], card);
+                ResolveFireAttack(actor, _players[action.TargetSeat.Value], card, action.PlayedCardKind);
                 break;
             case LegalActionKind.BorrowedSword:
                 if (action.TargetSeats.Count != 2)
@@ -7306,10 +7309,8 @@ public sealed partial class GameEngine
         while (pending.CandidateIndex < pending.CandidateSeats.Count)
         {
             var responder = _players[pending.CandidateSeats[pending.CandidateIndex]];
-            var cards = GetPlayableCards(responder)
-                .Where(card => card.Kind == CardKind.Nullification)
-                .ToArray();
-            if (cards.Length == 0)
+            var cards = GetNullificationCards(responder);
+            if (cards.Count == 0)
             {
                 pending.CandidateIndex++;
                 UpdateNullificationWindowFrame(pending, ResolutionFrameStep.AwaitingResponse);
@@ -7392,6 +7393,13 @@ public sealed partial class GameEngine
         return choices;
     }
 
+    private IReadOnlyList<Card> GetNullificationCards(PlayerRuntime responder) =>
+        GetPlayableCards(responder).Where(card =>
+            card.Kind == CardKind.Nullification ||
+            UsesFormalWolong && responder.General.HasSkill(SkillKind.Kanpo) &&
+            GetHand(responder).Any(handCard => handCard.Id == card.Id) &&
+            !IsRedSuit(card.Suit)).ToArray();
+
     private void ResolveNullificationChoice(
         NullificationResolution pending,
         PlayerRuntime responder,
@@ -7412,8 +7420,8 @@ public sealed partial class GameEngine
             return;
         }
 
-        var card = GetPlayableCards(responder).SingleOrDefault(candidate =>
-            candidate.Id == selectedCard.Id && candidate.Kind == CardKind.Nullification);
+        var card = GetNullificationCards(responder).SingleOrDefault(candidate =>
+            candidate.Id == selectedCard.Id);
         if (card is null)
         {
             throw new InvalidOperationException("The selected Nullification card is not in the responder's hand.");
@@ -7914,7 +7922,8 @@ public sealed partial class GameEngine
             pending.ResolutionId,
             source.Seat,
             targetSeat,
-            pending.EffectCard);
+            pending.EffectCard,
+            pending.EffectiveCardKind);
         _pendingFireAttack = pendingFireAttack;
         AddLog(
             "CardUsed",
@@ -7923,7 +7932,7 @@ public sealed partial class GameEngine
             targetSeat);
         QueueGameEvent(new CardUsedEvent(
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             source.Seat,
             targetSeat));
         NotifyAiOfFireAttack(source, _players[targetSeat]);
@@ -8394,18 +8403,20 @@ public sealed partial class GameEngine
     private void ResolveFireAttack(
         PlayerRuntime source,
         PlayerRuntime target,
-        Card fireAttack)
+        Card fireAttack,
+        CardKind? playedCardKind = null)
     {
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == LegalActionKind.FireAttack &&
             action.CardId == fireAttack.Id &&
-            action.TargetSeat == target.Seat);
+            action.TargetSeat == target.Seat &&
+            action.PlayedCardKind == playedCardKind);
         if (!stillLegal)
         {
             throw new InvalidOperationException("FireAttack became illegal before resolution.");
         }
 
-        var resolutionId = BeginCardUse(fireAttack, source.Seat, [target.Seat]);
+        var resolutionId = BeginCardUse(fireAttack, source.Seat, [target.Seat], playedCardKind);
         MoveCard(
             fireAttack,
             FindOwnedCardLocation(source, fireAttack),
@@ -8416,7 +8427,8 @@ public sealed partial class GameEngine
             fireAttack,
             source.Seat,
             [target.Seat],
-            LegalActionKind.FireAttack);
+            LegalActionKind.FireAttack,
+            playedCardKind: playedCardKind);
     }
 
     private void ResolveBorrowedSword(
@@ -8470,7 +8482,7 @@ public sealed partial class GameEngine
             hand.Select(card => card.Id).ToArray(),
             [],
             pending.SourceSeat,
-            pending.Card.Kind)
+            pending.EffectiveCardKind)
         {
             PromptId = CreatePromptId(),
             Choices = hand
@@ -8555,7 +8567,7 @@ public sealed partial class GameEngine
             matchingCards.Select(card => card.Id).ToArray(),
             [],
             source.Seat,
-            pending.Card.Kind)
+            pending.EffectiveCardKind)
         {
             PromptId = CreatePromptId(),
             Choices = matchingCards
@@ -8636,7 +8648,7 @@ public sealed partial class GameEngine
                 CardLocation.Processing,
                 CardLocation.DiscardPile,
                 CardMoveReasons.UseFinished);
-            FinishCardUse(pending.ResolutionId, pending.Card);
+            FinishCardUse(pending.ResolutionId, pending.Card, pending.EffectiveCardKind);
             _pendingFireAttack = null;
             return;
         }
@@ -18061,6 +18073,22 @@ public sealed partial class GameEngine
             }
         }
 
+        if (UsesFormalWolong && actor.General.HasSkill(SkillKind.Huoji))
+        {
+            foreach (var converted in GetHand(actor).Where(card =>
+                         card.Kind != CardKind.FireAttack && IsRedSuit(card.Suit)))
+            {
+                foreach (var target in _players.Where(player => player.IsAlive &&
+                             (UsesFormalFireAttackReveal || player.Seat != actor.Seat) &&
+                             GetHand(player).Any(card => player.Seat != actor.Seat || card.Id != converted.Id)))
+                {
+                    actions.Add(new LegalAction(LegalActionKind.FireAttack, converted.Id, target.Seat,
+                        $"发动【火计】，将【{converted.DisplayName}】当作【火攻】对 {target.Name} 使用",
+                        PlayedCardKind: CardKind.FireAttack));
+                }
+            }
+        }
+
         foreach (var activeSkill in EnabledPassiveSkills(actor)
                      .Select(skillRule => SkillRegistry.GetActive(skillRule.Kind))
                      .Where(candidate => candidate is not null)
@@ -19595,7 +19623,9 @@ public sealed partial class GameEngine
         _cardZones.CardsAt(CardLocation.Judgment(seat));
 
     private bool HasBagua(PlayerRuntime player) =>
-        GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation);
+        GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation) ||
+        UsesFormalWolong && player.General.HasSkill(SkillKind.Bazhen) &&
+        !GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor);
 
     private bool HasTengjia(PlayerRuntime player) =>
         GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia);
@@ -20128,7 +20158,7 @@ public sealed partial class GameEngine
 
             if (_resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
                 cardUse.Id != fireAttack.ResolutionId ||
-                cardUse.CardKind != fireAttack.Card.Kind)
+                cardUse.CardKind != fireAttack.EffectiveCardKind)
             {
                 throw new InvalidOperationException(
                     "A FireAttack selection must retain its CardUse frame as the stack top.");
@@ -20201,10 +20231,8 @@ public sealed partial class GameEngine
             if (!jizhiOwnsNullification)
             {
                 var currentNullificationCards = nullification.CandidateIndex < nullification.CandidateSeats.Count
-                    ? GetPlayableCards(_players[nullification.CandidateSeats[nullification.CandidateIndex]])
-                        .Where(card => card.Kind == CardKind.Nullification)
-                        .Select(card => card.Id)
-                        .ToArray()
+                    ? GetNullificationCards(_players[nullification.CandidateSeats[nullification.CandidateIndex]])
+                        .Select(card => card.Id).ToArray()
                     : Array.Empty<int>();
                 if (_pendingDecision is not { Kind: DecisionKind.Nullification } nullificationDecision ||
                     nullification.CandidateIndex >= nullification.CandidateSeats.Count ||
@@ -23751,12 +23779,14 @@ public sealed partial class GameEngine
         long resolutionId,
         int sourceSeat,
         int targetSeat,
-        Card card)
+        Card card,
+        CardKind effectiveCardKind)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; } = sourceSeat;
         public int TargetSeat { get; } = targetSeat;
         public Card Card { get; } = card;
+        public CardKind EffectiveCardKind { get; } = effectiveCardKind;
         public int? RevealedCardId { get; set; }
     }
 

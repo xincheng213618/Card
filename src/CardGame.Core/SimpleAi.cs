@@ -1747,7 +1747,7 @@ public sealed partial class SimpleAiBrain
 
         var candidates = validCardIds
             .Select(cardId => self.Hand.SingleOrDefault(card => card.Id == cardId))
-            .Where(card => card is not null && card.Kind == CardKind.Nullification)
+            .Where(card => card is not null)
             .Select(card =>
             {
                 var score = Math.Round(
