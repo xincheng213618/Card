@@ -6,7 +6,7 @@ internal static class ZhangbaChecks
 {
     public static void ActiveUseAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
         var boundary = ZhangbaScenario.FindHumanActiveUse();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
@@ -93,7 +93,7 @@ internal static class ZhangbaChecks
 
     public static void SlashResponseAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
         var boundary = ZhangbaScenario.FindHumanResponse();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??

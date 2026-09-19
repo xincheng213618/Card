@@ -208,7 +208,7 @@ internal static class GudingBladeScenario
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        new StandardClassicGeneralPackage(new Version(1, 63, 0)),
         new GudingScenarioPackage());
 
     private sealed class GudingScenarioPackage : IGameContentPackage

@@ -153,7 +153,7 @@ internal static class ZhuqueFanScenario
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        new StandardClassicGeneralPackage(new Version(1, 63, 0)),
         new ZhuqueFanScenarioPackage());
 
     private sealed class ZhuqueFanScenarioPackage : IGameContentPackage

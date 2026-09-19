@@ -6,7 +6,7 @@ internal static class CixiongDoubleSwordsChecks
 {
     public static void StagedChoiceAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
         var boundary = CixiongDoubleSwordsScenario.FindHumanTrigger();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
@@ -164,7 +164,7 @@ internal static class CixiongDoubleSwordsChecks
 
     private static void VerifyAiBranch(Role targetRole, bool expectedDiscard)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
         var boundary = CixiongDoubleSwordsScenario.FindHumanTrigger(targetRole);
         var game = boundary.Game;
         var activation = game.PendingDecision ??

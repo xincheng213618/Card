@@ -130,6 +130,7 @@ public static class GeneralArt
     {
         var key = id.Replace("standard:", string.Empty, StringComparison.Ordinal)
             .Replace("classic:", string.Empty, StringComparison.Ordinal)
+            .Replace("sp:", "sp-", StringComparison.Ordinal)
             .Replace("national:wei-", string.Empty, StringComparison.Ordinal)
             .Replace("national:shu-", string.Empty, StringComparison.Ordinal)
             .Replace("national:ambitious-", string.Empty, StringComparison.Ordinal);

@@ -12,7 +12,7 @@ internal static class CixiongDoubleSwordsScenario
 {
     public static CixiongDoubleSwordsBoundary FindHumanTrigger(Role? targetRole = null)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

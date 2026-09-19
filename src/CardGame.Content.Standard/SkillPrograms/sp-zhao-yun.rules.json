@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 2,
+  "skills": [
+    {
+      "id": "sp:longdan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "dodge-to-slash",
+          "inputKinds": ["dodge"],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true
+        },
+        {
+          "id": "slash-to-dodge",
+          "inputKinds": ["slash", "fireSlash", "thunderSlash"],
+          "inputSuits": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ]
+    },
+    {
+      "id": "sp:chongzhen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-longdan-slash-use",
+          "window": "cardUseTargetsFinalized",
+          "sourceSkillId": "sp:longdan",
+          "sourceViewAsId": "dodge-to-slash",
+          "optional": true,
+          "effects": [
+            { "op": "obtainOpponentHandCard", "target": "owner", "amount": 1 }
+          ]
+        },
+        {
+          "id": "after-longdan-slash-response",
+          "window": "cardResponseAccepted",
+          "sourceSkillId": "sp:longdan",
+          "sourceViewAsId": "dodge-to-slash",
+          "optional": true,
+          "effects": [
+            { "op": "obtainOpponentHandCard", "target": "owner", "amount": 1 }
+          ]
+        },
+        {
+          "id": "after-longdan-dodge-response",
+          "window": "cardResponseAccepted",
+          "sourceSkillId": "sp:longdan",
+          "sourceViewAsId": "slash-to-dodge",
+          "optional": true,
+          "effects": [
+            { "op": "obtainOpponentHandCard", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

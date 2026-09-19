@@ -1300,6 +1300,26 @@ internal static class ClassicGeneralUiChecks
         xuShuWindow.Content = null;
         xuShuWindow.Close();
 
+        using var spZhaoYunViewModel = FindGeneralChoice("sp:zhao-yun");
+        var spZhaoYun = spZhaoYunViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "sp:zhao-yun");
+        Program.Assert(spZhaoYun.Name == "SP赵云" && spZhaoYun.Kingdom == "群" &&
+                       spZhaoYun.SkillName == "龙胆 / 冲阵" &&
+                       spZhaoYun.SkillDescription.Contains("【杀】当【闪】", StringComparison.Ordinal) &&
+                       spZhaoYun.SkillDescription.Contains("获得对方的一张手牌", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(spZhaoYun.GeneralId) &&
+                       spZhaoYun.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && spZhaoYun.HealthText == "体力上限 4",
+            "The current SP Zhao Yun card must render Qun, configured Longdan, Chongzhen and its attributed portrait.");
+        var spZhaoYunWindow = new MainWindow(spZhaoYunViewModel);
+        spZhaoYunWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)spZhaoYunWindow.Content, 1120, 740,
+            Path.Combine(output, "159-sp-zhao-yun-card.png"));
+        spZhaoYunWindow.Content = null;
+        spZhaoYunWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

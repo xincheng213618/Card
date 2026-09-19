@@ -1,6 +1,6 @@
 # SP 赵云迁移规格
 
-状态：目标版本、对抗上下文与场景已锁定；等待 D2 通用 `conversionChain`、用牌／响应触发窗口和暗手牌取得能力。未注册正式武将。
+状态：已完成。rules v80 与 `standard-classic-generals@1.64.0` 已用通用技能程序注册正式 SP 赵云，并保留 rules v79／经典包 1.63.0 历史边界。
 
 ## 1. 内容身份与目标版本
 
@@ -13,7 +13,7 @@
 | 势力／性别／体力 | 群／男性／3 |
 | 来源包 | 荟萃·往者可谏 |
 | 当前接入范围 | 经典身份；欢乐、斗地主等模式等各自规则可用后再注册 |
-| 进入默认池 | 龙胆和冲阵完整通过场景后一次性加入，不发布只有龙胆的半成品 SP 赵云 |
+| 进入默认池 | 已随经典包 1.64.0 一次性加入龙胆／冲阵完整武将；未发布只有龙胆的半成品版本 |
 
 锁定文案：
 
@@ -163,12 +163,14 @@ SP 赵云以手牌【杀】经龙胆作为【闪】使用或打出时：
 
 | 顺序 | 通用功能块 | 完成门槛 |
 | --- | --- | --- |
-| D2a | `CardActionContext`、稳定 actionId、`conversionChain`、actor/provider/requester/responder/opponent | 普通/SP 龙胆可复用同一程序但实例绑定不混淆；武圣、倾国、激将／护驾提供者也不误识别 |
-| D2b | `CardUseTargetsFinalized`／`CardResponseAccepted` 可暂停窗口、同一时机优先级和多目标游标 | 流离／享乐先于冲阵，冲阵先于武器与原效果；无双、决斗可嵌套恢复 |
-| D2c | 通用 `obtainOpponentHandCard` 与脱敏事件 | 不透明槽位、原子移动、AI、Checkpoint/Replay 全部通过；至少再有一个非冲阵测试组合复用 |
-| A50 | `sp:longdan`／`sp:chongzhen` 配置与完整 SP 赵云 | 不新增 SP 赵云专属 `SkillKind`、引擎分支或 WPF 页面，完整武将才进入当前池 |
-| C20 | 经典肖像正式绑定 | 来源记录、解码断言、卡面裁切和离屏视觉复核齐全 |
+| D2a | `CardActionContext`、稳定 actionId、`conversionChain`、actor/provider/requester/responder/opponent | 已完成：合法动作和运行帧保留精确技能／绑定／实例来源，不按最终牌型反推 |
+| D2b | `CardUseTargetsFinalized`／`CardResponseAccepted` 可暂停窗口、同一时机优先级和多目标游标 | 已完成：最终目标及已接受响应分别进入可暂停触发窗口，游标可重放 |
+| D2c | 通用 `obtainOpponentHandCard` 与脱敏事件 | 已完成：不透明手牌位、受控移动、公开脱敏、AI 与 Checkpoint/Replay 均由通用能力处理 |
+| A50 | `sp:longdan`／`sp:chongzhen` 配置与完整 SP 赵云 | 已完成：两个技能均为 JSON 程序，未增加 SP 赵云专属 `SkillKind`、引擎分支或 WPF 页面 |
+| C20 | 经典肖像正式绑定 | 已完成：复用已记录来源的 BWIKI 经典形象，增加 `sp:` 资源键归一化、解码断言及离屏视觉复核 |
 
-当前 `CardUseFrame` 只有来源、有效牌型、目标和实体牌列表；`ResponseWindowFrame` 只有来源、响应者和所需牌型；`CardRespondedEvent` 也只带实体牌、响应者、来源和最终有效牌型。这些字段不足以辨认 `sp:longdan`、流离后的每个对方或决斗／南蛮中的规范化 opponent。D2 应补通用 action 上下文，不在既有各条杀／闪分支中逐处调用冲阵。
+实施后的 `CardActionContext` 和两个程序触发窗口已经补齐上述来源、最终目标与规范化 opponent，冲阵不依赖既有各条杀／闪分支中的专属调用。正式场景分别验证了手牌【闪】经龙胆主动转【杀】、手牌【杀】经龙胆响应转【闪】、精确绑定选择、可跳过／发动、暗手牌取得和完成 Replay；D2 通用回归另覆盖重复转换来源拒绝、流离后的最终目标、多目标游标与观察者隐私。正式规则文件同时声明了【闪】转【杀】响应窗口，使决斗／南蛮等后续内容场景可复用同一机制，而不是扩展 SP 专属代码。
+
+WPF 选将卡使用 `sp-zhao-yun` 资源键绑定既有 `wiki-sp-zhao-yun-classic.png`，验证群势力、3 体力、主公加成后 4 体力、龙胆／冲阵文案与位图解码；1120×740 离屏结果为 `159-sp-zhao-yun-card.png`。
 
 本文件是内容任务交给通用运行时任务的可执行规则与场景契约。最终基础能力名称可以调整，但目标版本、选择主体、多目标次数、先后顺序、暗牌隐私与旧内容边界不得改变。

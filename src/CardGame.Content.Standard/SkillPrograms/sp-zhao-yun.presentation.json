@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "sp:longdan": {
+      "name": "龙胆",
+      "description": "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。"
+    },
+    "sp:chongzhen": {
+      "name": "冲阵",
+      "description": "当你发动“龙胆”使用或打出一张手牌时，你可以获得对方的一张手牌。"
+    }
+  }
+}

@@ -9,10 +9,18 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class StandardClassicGeneralPackage : IGameContentPackage
 {
+    private const string SpZhaoYunRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.sp-zhao-yun.rules.json";
+    private const string SpZhaoYunPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.sp-zhao-yun.presentation.json";
+    private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(SpZhaoYunRulesResource),
+            ReadEmbeddedText(SpZhaoYunPresentationResource)));
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 63, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 64, 0))
     {
     }
 
@@ -82,12 +90,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 60, 0) &&
             version != new Version(1, 61, 0) &&
             version != new Version(1, 62, 0) &&
-            version != new Version(1, 63, 0))
+            version != new Version(1, 63, 0) &&
+            version != new Version(1, 64, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.63.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.64.0.");
         }
 
         _version = version;
@@ -810,6 +819,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:jujian", "举荐",
                 "结束阶段开始时，你可以弃置一张非基本牌并选择一名其他角色，令其选择摸两张牌、回复1点体力或复原武将牌。", SkillKind.Jujian));
         }
+        if (_version >= new Version(1, 64, 0))
+        {
+            foreach (var (id, program) in SpZhaoYunCatalog.Value.Programs
+                         .OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                var presentation = SpZhaoYunCatalog.Value.Presentations[id];
+                builder.AddSkill(new ContentSkillDefinition(
+                    id,
+                    presentation.Name,
+                    presentation.Description)
+                {
+                    Program = program
+                });
+            }
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1246,9 +1270,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:wuyan", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:jujian"]));
         }
+        if (_version >= new Version(1, 64, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "sp:zhao-yun", "SP赵云", "zhao_yun",
+                "sp:longdan", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["sp:chongzhen"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 64 } => SpZhaoYunClassicGeneralIds,
             { Major: 1, Minor: >= 63 } => XuShuClassicGeneralIds,
             { Major: 1, Minor: >= 61 } => YuJinClassicGeneralIds,
             { Major: 1, Minor: 60 } => ZhuRongClassicGeneralIds,
@@ -1453,6 +1485,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
     }
 
+    private static string ReadEmbeddedText(string resourceName)
+    {
+        using var stream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Missing embedded skill-program resource '{resourceName}'.");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
     internal static IReadOnlyList<string> ClassicGeneralIds { get; } =
     [
         "classic:liu-bei",
@@ -1618,6 +1658,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. YuJinClassicGeneralIds,
         "classic:xu-shu"
+    ];
+
+    internal static IReadOnlyList<string> SpZhaoYunClassicGeneralIds { get; } =
+    [
+        .. XuShuClassicGeneralIds,
+        "sp:zhao-yun"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

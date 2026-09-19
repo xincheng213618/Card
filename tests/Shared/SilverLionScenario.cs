@@ -92,7 +92,9 @@ internal static class SilverLionScenario
 
     private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
-        new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new ScenarioPackage());
+        new StandardRescueSkillExpansionPackage(),
+        new StandardClassicGeneralPackage(new Version(1, 63, 0)),
+        new ScenarioPackage());
 
     private sealed class ScenarioPackage : IGameContentPackage
     {

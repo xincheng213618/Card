@@ -16,13 +16,13 @@
 - [独立中文描述](content/skill-composition/zh-CN.example.json)：只负责名字、说明和提示文案。
 - [BWIKI 概念与协作边界](content/skill-composition/BWIKI_RULE_ALIGNMENT.md)：资料版本、标签与执行语义、下一批通用机制和内容任务分工。
 
-这些旧 JSON 是完整设计契约的示例，当前 v1 加载器不会解析它们。示例中的 example 命名空间不会进入正式选将池；基础能力名称也不代表当前已经实现。可运行内容位于 `src/CardGame.Content.Standard/SkillPrograms/`，由独立的 `standard-composed-skills` 包注册。
+这些旧 JSON 是完整设计契约的示例，当前加载器不会解析它们。示例中的 example 命名空间不会进入正式选将池；基础能力名称也不代表当前已经实现。可运行内容位于 `src/CardGame.Content.Standard/SkillPrograms/`：体验内容由独立的 `standard-composed-skills` 包注册，已验收的正式武将程序也可由自己的版本化内容包注册。
 
 ### 1.1 当前 v1 已实现范围
 
 实际字段、新增技能示例和恢复语义见 [可执行配置 v1](content/skill-composition/RUNTIME_V1.md)。
 
-v2 的精确转换来源、两个卡牌动作窗口、私密取牌与暂停恢复见 [可执行配置 v2](content/skill-composition/RUNTIME_V2.md)。它没有增加武将专属引擎分支；正式 SP 赵云仍须按独立版本合同完成场景验收后入池。
+v2 的精确转换来源、两个卡牌动作窗口、私密取牌与暂停恢复见 [可执行配置 v2](content/skill-composition/RUNTIME_V2.md)。它没有增加武将专属引擎分支；正式 SP 赵云已按独立版本合同完成场景验收，并由 `standard-classic-generals@1.64.0` 注册入池。
 
 v1 使用严格校验、版本化且可计算玩法哈希的 JSON，展示文案与规则文件分离。可运行样例现有 11 项技能程序，覆盖 DrawCount、HandLimit、SlashLimit、基础距离查询修正、红色手牌化杀、龙胆式杀闪互换，以及主动步骤 draw、recover、loseHp、giveSelected、discardSelected；另有一名样例武将同时绑定增摸、手牌上限与无限杀三个程序，验证多程序叠加。WPF 通过统一合法动作读取选牌／目标边界，并用 SkillId + ActivationId 保留每个动作身份。
 
@@ -44,7 +44,7 @@ v1 暂不支持事件 trigger、判定／改判、死亡技能、标记、复杂
 几个具体问题决定了重构方向：
 
 1. GameEngine 中仍有大量技能专用的 pending 状态及续接函数。现有雷击依附于成功打出闪后的 AttackResolution；“自己使用闪电后判定”不能仅靠换描述获得支持。
-2. 现有 CardRespondedEvent 有有效牌型，却没有完整的转化技能来源。冲阵不能靠“最终牌是杀／闪”来识别，普通赵云和 SP 赵云也不能混为同一种规则。
+2. 这项历史缺口已由 v2 的 `CardActionContext`、精确 `CardConversionSource` 和已接受响应窗口补齐：冲阵不靠“最终牌是杀／闪”识别，普通赵云与 SP 赵云的技能实例也不会混用。通用伤害、判定和死亡窗口仍需后续版本扩展。
 3. 现有鬼才／鬼道共享改判函数，按技能名选择候选牌，旧判定牌统一进入弃牌堆。交换旧牌、条件摸牌应成为配置参数和后续动作。
 4. 现有死亡函数连续执行死亡、弃牌、奖惩和胜负检查；武魂需要明确的死亡技能窗口、已死拥有者资格及嵌套死亡处理。
 5. EventCommitted 在提交后向观察者发布，不能直接拿它做会修改状态的技能订阅总线。规则触发和界面通知必须保持不同的职责。

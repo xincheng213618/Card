@@ -110,6 +110,7 @@ internal static class ClassicGeneralChecks
         var zhuRongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 60, 0));
         var yuJinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 61, 0));
         var wuyanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 62, 0));
+        var xuShuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -118,7 +119,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.63.0"]),
+                "standard-classic-generals@1.64.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -136,7 +137,7 @@ internal static class ClassicGeneralChecks
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
             "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
             "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong",
-            "classic:yu-jin", "classic:xu-shu"
+            "classic:yu-jin", "classic:xu-shu", "sp:zhao-yun"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -178,6 +179,23 @@ internal static class ClassicGeneralChecks
                 !wuyanClassic.Generals.ContainsKey("classic:xu-shu") &&
                 !yuJinClassic.Skills.ContainsKey("classic:wuyan"),
             "Package 1.63.0 must expose complete Xu Shu while 1.62.0 retains only the Wuyan foundation.");
+        Require(classic.Generals["sp:zhao-yun"] is
+                { BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } spZhaoYun &&
+                spZhaoYun.SkillIds.SequenceEqual(["sp:longdan", "sp:chongzhen"]) &&
+                classic.Skills["sp:longdan"] is { LegacyKind: null, Program: { } spLongdan } &&
+                spLongdan.RuntimeVersion == "skill-program-v2" && spLongdan.MinimumRulesVersion == 80 &&
+                spLongdan.ViewAs.Select(rule => rule.Id)
+                    .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
+                spLongdan.ViewAs.Single(rule => rule.Id == "slash-to-dodge").InputKinds
+                    .SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
+                classic.Skills["sp:chongzhen"] is { LegacyKind: null, Program: { } spChongzhen } &&
+                spChongzhen.RuntimeVersion == "skill-program-v2" && spChongzhen.Triggers.Count == 3 &&
+                spChongzhen.Triggers.All(trigger => trigger.Optional && trigger.SourceSkillId == "sp:longdan") &&
+                !xuShuClassic.Skills.ContainsKey("sp:longdan") &&
+                !xuShuClassic.Skills.ContainsKey("sp:chongzhen") &&
+                !xuShuClassic.Generals.ContainsKey("sp:zhao-yun") &&
+                xuShuClassic.Generals.ContainsKey("classic:xu-shu"),
+            "Package 1.64.0 must add complete configured SP Zhao Yun without changing package 1.63.0.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
@@ -788,7 +806,7 @@ internal static class ClassicGeneralChecks
 
     public static void SetupHealthAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var currentSun = SelectGeneral(registry, "classic:sun-quan", GameCheckpoint.CurrentRulesVersion);
         var currentSunPlayer = currentSun.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(currentSunPlayer.MaxHp == 5 && currentSunPlayer.Hp == 5,
@@ -823,7 +841,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalKujinFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var game = SelectGeneral(registry, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion);
         var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:huang-gai" &&
@@ -877,7 +895,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalQixiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 28,
             "Formal Qixi must have an explicit rules-version boundary.");
 
@@ -1084,7 +1102,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalKejiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var game = SelectGeneral(registry, "classic:lu-meng", GameCheckpoint.CurrentRulesVersion);
         var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:lu-meng" &&
@@ -1224,7 +1242,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalTuxiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var game = SelectGeneral(registry, "classic:zhang-liao", GameCheckpoint.CurrentRulesVersion);
         var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:zhang-liao" &&
@@ -1522,7 +1540,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalQiangxiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var (fixture, action, targetSeat, weaponCardId) = FindDianWeiQiangxiFixture(
             registry,
             requireWeapon: true);
@@ -1732,7 +1750,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalDuanliangFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var (game, physicalCardId, targetSeat, distanceTwoSeat) =
             FindXuHuangDuanliangFixture(registry);
         var before = game.CreateSnapshot(0, revealAll: true);
@@ -2002,7 +2020,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalJizhiAndQicaiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var (game, action) = FindHuangYueyingOrdinaryTrickFixture(
             registry,
             GameCheckpoint.CurrentRulesVersion,
@@ -2139,7 +2157,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalTieqiAndMashuFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var red = FindMaChaoTieqiFixture(registry, requireRedJudgment: true);
         var owner = red.Game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(owner.GeneralId == "classic:ma-chao" &&
@@ -2445,7 +2463,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalWushuangFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
 
         var slashFixture = FindLuBuWushuangSlashFixture(registry);
         var slashEventCount = slashFixture.Game.Events.Count;
@@ -2581,7 +2599,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalPaoxiaoFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         var fixture = FindZhangFeiPaoxiaoFixture(registry);
         var game = fixture.Game;
         var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
@@ -2833,7 +2851,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalFeedbackFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         GameEngine? selectedGame = null;
         PendingDecision? selectedPrompt = null;
 
@@ -2947,7 +2965,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalJianxiongFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 16,
             "Formal Jianxiong must have an explicit rules version.");
 
@@ -3098,7 +3116,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalZhihengEquipmentFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 17,
             "Formal Zhiheng must have an explicit rules version.");
 
@@ -3230,7 +3248,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalYingziChoice()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 21,
             "Formal Yingzi must have an explicit rules version.");
 
@@ -3320,7 +3338,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalTianduJudgment()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 22,
             "Formal Tiandu must have an explicit rules version.");
         var tiandu = SkillRegistry.Get(SkillKind.Tiandu);
@@ -3481,7 +3499,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalFanjianFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 23,
             "Formal Fanjian must have an explicit rules version.");
 
@@ -3663,7 +3681,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalGuanxingFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 24,
             "Formal Guanxing must have an explicit rules version.");
 
@@ -3855,7 +3873,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalHujiaFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         Require(GameCheckpoint.CurrentRulesVersion >= 25,
             "Formal Hujia must have an explicit rules version.");
 
@@ -4583,7 +4601,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalGuoseAndLiuliFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         GameEngine? guoseGame = null;
         LegalAction? guoseAction = null;
         for (var seed = 1; seed <= 8_192 && guoseAction is null; seed++)
@@ -4662,7 +4680,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalLijianAndBiyueFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         GameEngine? game = null;
         LegalAction? action = null;
         for (var seed = 1; seed <= 4_096 && action is null; seed++)
@@ -4762,7 +4780,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalJieyinAndXiaojiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         GameEngine? xiaojiGame = null;
         LegalAction[]? equipmentActions = null;
         for (var seed = 1; seed <= 8_192 && equipmentActions is null; seed++)
@@ -4899,7 +4917,7 @@ internal static class ClassicGeneralChecks
                 !qianxun.ProhibitsCardTarget(context, CardKind.Dismantlement),
             "Qianxun must prohibit Snatch and Indulgence without blocking other tricks.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreatePreProgramClassicRegistry();
         GameEngine? game = null;
         LegalAction? equipment = null;
         for (var seed = 1; seed <= 8_192 && equipment is null; seed++)
@@ -6603,6 +6621,9 @@ internal static class ClassicGeneralChecks
                 .Equipment.Any(card => card.Id == cardId),
             "The Zhiheng fixture card did not enter the equipment zone.");
     }
+
+    private static ContentRegistry CreatePreProgramClassicRegistry() =>
+        StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
 
     private static GameEngine SelectGeneral(ContentRegistry registry, string generalId, int rulesVersion)
     {
