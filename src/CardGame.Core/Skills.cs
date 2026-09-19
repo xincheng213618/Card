@@ -596,6 +596,12 @@ public sealed class LeijiSkill : IPassiveSkill
     public string Name => "雷击";
 }
 
+public sealed class HuangtianSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Huangtian;
+    public string Name => "黄天";
+}
+
 public sealed class TianduSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Tiandu;
@@ -1104,6 +1110,7 @@ public static class SkillRegistry
             [SkillKind.Guicai] = new GuicaiSkill(),
             [SkillKind.Guidao] = new GuidaoSkill(),
             [SkillKind.Leiji] = new LeijiSkill(),
+            [SkillKind.Huangtian] = new HuangtianSkill(),
             [SkillKind.Tiandu] = new TianduSkill(),
             [SkillKind.Fanjian] = new FanjianSkill(),
             [SkillKind.Guanxing] = new GuanxingSkill(),

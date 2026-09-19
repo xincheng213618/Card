@@ -836,7 +836,7 @@ public sealed partial class SimpleAiBrain
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var cards = validCardIds
-            .Select(cardId => self.Hand.Single(card => card.Id == cardId))
+            .Select(cardId => self.Hand.Concat(self.Equipment).Single(card => card.Id == cardId))
             .ToArray();
         if (cards.Length == 0)
         {

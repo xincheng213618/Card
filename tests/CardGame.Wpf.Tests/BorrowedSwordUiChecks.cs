@@ -16,7 +16,7 @@ internal static class BorrowedSwordUiChecks
 
     private static void VerifyOrderedTargetSelection(string output)
     {
-        var fixture = BorrowedSwordScenario.FindHumanSourcePlay();
+        var fixture = BorrowedSwordScenario.FindHumanSourcePlay(new Version(1, 56, 0));
         var action = fixture.GetHumanLegalActions().First(candidate =>
             candidate.Kind == LegalActionKind.BorrowedSword);
         var cardId = action.CardId ??
@@ -78,7 +78,7 @@ internal static class BorrowedSwordUiChecks
 
     private static void VerifyOwnerResponse(string output)
     {
-        var fixture = BorrowedSwordScenario.FindHumanOwnerResponse();
+        var fixture = BorrowedSwordScenario.FindHumanOwnerResponse(packageVersion: new Version(1, 56, 0));
         var prompt = fixture.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword owner fixture lost its prompt.");
         var weapon = fixture.CreateSnapshot(0, revealAll: true).Players[0].Equipment.Single(card =>

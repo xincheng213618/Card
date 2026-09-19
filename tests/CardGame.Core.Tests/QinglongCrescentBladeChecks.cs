@@ -120,7 +120,7 @@ internal static class QinglongCrescentBladeChecks
 
     public static void AiUsesPrivatePublishedChoice()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
         GameEngine? witnessed = null;
         for (var seed = 1; seed <= 64 && witnessed is null; seed++)
         {

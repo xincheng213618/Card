@@ -194,8 +194,8 @@ internal static class JijiuChecks
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 41,
             "Formal Jijiu equipment conversion must have an explicit rules-version boundary.");
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = JijiuEquipmentScenario.Find();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
+        var game = JijiuEquipmentScenario.Find(new Version(1, 56, 0));
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("The classic Jijiu equipment fixture lost its dying prompt.");
         var owner = game.CreateSnapshot(0, revealAll: true).Players[0];

@@ -940,6 +940,12 @@ public sealed record LeijiResolvedEvent(
     int OwnerHp,
     int TargetHp) : IGameEvent;
 
+public sealed record HuangtianCardGivenEvent(
+    int ProviderSeat,
+    int LordSeat,
+    int CardId,
+    CardKind CardKind) : IGameEvent;
+
 public sealed record JijiangRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

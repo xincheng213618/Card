@@ -156,6 +156,7 @@ public enum SkillKind
     Guicai,
     Guidao,
     Leiji,
+    Huangtian,
     Tiandu,
     Fanjian,
     Guanxing,

@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 56, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 57, 0))
     {
     }
 
@@ -75,12 +75,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 53, 0) &&
             version != new Version(1, 54, 0) &&
             version != new Version(1, 55, 0) &&
-            version != new Version(1, 56, 0))
+            version != new Version(1, 56, 0) &&
+            version != new Version(1, 57, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.56.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.57.0.");
         }
 
         _version = version;
@@ -760,6 +761,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:yicong", "义从",
                 "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。", SkillKind.Yicong));
         }
+        if (_version >= new Version(1, 57, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:guidao", "鬼道",
+                "一名角色的判定牌生效前，你可以打出一张黑色牌替换之。", SkillKind.Guidao));
+            builder.AddSkill(new ContentSkillDefinition("classic:leiji", "雷击",
+                "当你使用或打出闪时，你可以令一名其他角色判定：黑桃则你对其造成2点雷电伤害；梅花则你回复1点体力，然后对其造成1点雷电伤害。", SkillKind.Leiji));
+            builder.AddSkill(new ContentSkillDefinition("classic:huangtian", "黄天",
+                "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1156,10 +1166,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:gongsun-zan", "公孙瓒", "gongsun_zan",
                 "classic:yicong", "qun", BaseHp: 4));
         }
+        if (_version >= new Version(1, 57, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhang-jiao", "张角", "zhang_jiao",
+                "classic:guidao", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:leiji", "classic:huangtian"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 56 } => GongsunZanClassicGeneralIds,
+            { Major: 1, Minor: >= 57 } => ZhangJiaoClassicGeneralIds,
+            { Major: 1, Minor: 56 } => GongsunZanClassicGeneralIds,
             { Major: 1, Minor: 55 } => HuaXiongClassicGeneralIds,
             { Major: 1, Minor: 54 } => XiahouYuanClassicGeneralIds,
             { Major: 1, Minor: 53 } => YuanShaoClassicGeneralIds,
@@ -1486,6 +1504,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. HuaXiongClassicGeneralIds,
         "classic:gongsun-zan"
+    ];
+
+    internal static IReadOnlyList<string> ZhangJiaoClassicGeneralIds { get; } =
+    [
+        .. GongsunZanClassicGeneralIds,
+        "classic:zhang-jiao"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

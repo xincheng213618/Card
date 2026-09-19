@@ -114,7 +114,7 @@ internal static class StoneAxeChecks
 
     public static void AiUsesPrivatePublishedChoices()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
         GameEngine? witnessed = null;
         for (var seed = 1; seed <= 48 && witnessed is null; seed++)
         {

@@ -3,9 +3,11 @@ using CardGame.Core;
 
 internal static class JijiuEquipmentScenario
 {
-    public static GameEngine Find()
+    public static GameEngine Find(Version? classicPackageVersion = null)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = classicPackageVersion is null
+            ? StandardContentRegistry.CreateWithClassicGenerals()
+            : StandardContentRegistry.CreateWithClassicGenerals(classicPackageVersion);
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

@@ -314,6 +314,9 @@ public sealed partial class GameEngine
     private bool UsesFormalGongsunZan =>
         _rulesVersion >= 71 && IsClassicIdentityMode;
 
+    private bool UsesFormalZhangJiao =>
+        _rulesVersion >= 72 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -813,6 +816,21 @@ public sealed partial class GameEngine
             return Reject(
                 CommandErrorCode.IllegalAction,
                 "The requested active skill is not a legal action in the current play phase.");
+        }
+
+        if (command.Skill == SkillKind.Huangtian)
+        {
+            var huangtianError = ValidateHuangtianSelection(actor, action, cardIds, targetSeats);
+            if (huangtianError is not null)
+            {
+                return Reject(huangtianError.Code, huangtianError.Message);
+            }
+
+            return Accept(() => HumanHuangtianCore(
+                actor,
+                cardIds[0],
+                targetSeats[0],
+                _options.AdvanceAfterHumanCommands));
         }
 
         var activeSkill = SkillRegistry.GetActive(command.Skill);
@@ -6644,6 +6662,19 @@ public sealed partial class GameEngine
     {
         var skillKind = action.Skill ??
             throw new InvalidOperationException("An active-skill action must identify its skill.");
+        if (skillKind == SkillKind.Huangtian)
+        {
+            var huangtianCardIds = selectedCardIds?.ToArray() ?? [];
+            var huangtianTargetSeats = selectedTargetSeats?.ToArray() ?? [];
+            var huangtianError = ValidateHuangtianSelection(actor, action, huangtianCardIds, huangtianTargetSeats);
+            if (huangtianError is not null)
+            {
+                throw new InvalidOperationException(huangtianError.Message);
+            }
+            ResolveHuangtian(actor, huangtianCardIds[0], huangtianTargetSeats[0]);
+            return;
+        }
+
         var skill = SkillRegistry.GetActive(skillKind) ??
             throw new InvalidOperationException($"Skill {skillKind} does not expose an active effect.");
         var cardIds = selectedCardIds?.ToArray() ?? [];
@@ -19100,6 +19131,33 @@ public sealed partial class GameEngine
             }
         }
 
+        if (TryGetHuangtianLord(actor, out var huangtianLord) &&
+            !actor.UsedActiveSkillKinds.Contains(SkillKind.Huangtian))
+        {
+            var giftCards = GetHand(actor)
+                .Where(card => card.Kind is CardKind.Dodge or CardKind.Lightning)
+                .Select(card => card.Id)
+                .Order()
+                .ToArray();
+            if (giftCards.Length > 0)
+            {
+                actions.Add(new LegalAction(
+                    LegalActionKind.UseSkill,
+                    null,
+                    huangtianLord.Seat,
+                    $"响应【黄天】，将一张【闪】或【闪电】交给 {huangtianLord.Name}",
+                    Skill: SkillKind.Huangtian,
+                    MinCardCount: 1,
+                    MaxCardCount: 1,
+                    MinTargetCount: 1,
+                    MaxTargetCount: 1)
+                {
+                    SelectableCardIds = giftCards,
+                    SelectableTargetSeats = [huangtianLord.Seat]
+                });
+            }
+        }
+
         foreach (var activeSkill in EnabledPassiveSkills(actor)
                      .Select(skillRule => SkillRegistry.GetActive(skillRule.Kind))
                      .Where(candidate => candidate is not null)
@@ -19193,6 +19251,75 @@ public sealed partial class GameEngine
 
         actions.Add(new LegalAction(LegalActionKind.EndPlay, null, null, "结束出牌"));
         return actions;
+    }
+
+    private bool TryGetHuangtianLord(PlayerRuntime provider, out PlayerRuntime lord)
+    {
+        lord = _players.FirstOrDefault(player =>
+            player.IsAlive &&
+            player.Role == Role.Lord &&
+            player.Seat != provider.Seat &&
+            player.General.HasSkill(SkillKind.Huangtian))!;
+        return UsesFormalZhangJiao &&
+               lord is not null &&
+               string.Equals(provider.General.FactionId, "qun", StringComparison.Ordinal);
+    }
+
+    private CommandError? ValidateHuangtianSelection(
+        PlayerRuntime provider,
+        LegalAction action,
+        IReadOnlyList<int> cardIds,
+        IReadOnlyList<int> targetSeats)
+    {
+        if (cardIds.Count != 1 || cardIds.Distinct().Count() != 1 ||
+            !action.SelectableCardIds.Contains(cardIds[0]))
+        {
+            return new CommandError(CommandErrorCode.InvalidCard,
+                "黄天必须选择一张已发布的手牌【闪】或【闪电】。");
+        }
+        if (targetSeats.Count != 1 || targetSeats.Distinct().Count() != 1 ||
+            !action.SelectableTargetSeats.Contains(targetSeats[0]) ||
+            !TryGetHuangtianLord(provider, out var lord) || lord.Seat != targetSeats[0])
+        {
+            return new CommandError(CommandErrorCode.InvalidTarget,
+                "黄天只能将牌交给当前存活的张角主公。");
+        }
+        return null;
+    }
+
+    private EngineRunResult HumanHuangtianCore(
+        PlayerRuntime provider,
+        int cardId,
+        int lordSeat,
+        bool advanceToHumanBoundary)
+    {
+        ResolveHuangtian(provider, cardId, lordSeat);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private void ResolveHuangtian(PlayerRuntime provider, int cardId, int lordSeat)
+    {
+        if (!TryGetHuangtianLord(provider, out var lord) || lord.Seat != lordSeat ||
+            provider.UsedActiveSkillKinds.Contains(SkillKind.Huangtian))
+        {
+            throw new InvalidOperationException("Huangtian is not legal in the current play phase.");
+        }
+        var card = GetHand(provider).SingleOrDefault(candidate => candidate.Id == cardId);
+        if (card is null || card.Kind is not (CardKind.Dodge or CardKind.Lightning))
+        {
+            throw new InvalidOperationException("Huangtian requires one hand Dodge or Lightning.");
+        }
+
+        MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing,
+            CardMoveReasons.HuangtianGive);
+        MoveCard(card, CardLocation.Processing, CardLocation.Hand(lord.Seat),
+            CardMoveReasons.HuangtianGive);
+        provider.UsedActiveSkillKinds.Add(SkillKind.Huangtian);
+        QueueGameEvent(new HuangtianCardGivenEvent(provider.Seat, lord.Seat, card.Id, card.Kind));
+        AddLog("SkillTriggered",
+            $"{provider.Name} 响应【黄天】，将【{card.DisplayName}】交给 {lord.Name}。",
+            provider.Seat, lord.Seat);
     }
 
     private IReadOnlyList<PlayerRuntime> GetFangtianOrderedSlashTargets(
@@ -20882,6 +21009,13 @@ public sealed partial class GameEngine
         }
 
         var cardIds = GetHand(actor).Select(card => card.Id).ToHashSet();
+        if (skill == SkillKind.Huangtian && UsesFormalZhangJiao)
+        {
+            return GetHand(actor)
+                .Where(card => card.Kind is CardKind.Dodge or CardKind.Lightning)
+                .Select(card => card.Id)
+                .ToHashSet();
+        }
         if (skill == SkillKind.Luanji && UsesFormalYuanShao)
         {
             return GetHand(actor)
@@ -20924,6 +21058,10 @@ public sealed partial class GameEngine
                 .Where(player => CanUseJijiangTarget(actor, player))
                 .Select(player => player.Seat)
                 .ToHashSet(),
+            SkillKind.Huangtian when UsesFormalZhangJiao =>
+                TryGetHuangtianLord(actor, out var huangtianLord)
+                    ? new HashSet<int> { huangtianLord.Seat }
+                    : [],
             SkillKind.Qiangxi when UsesFormalQiangxi => _players
                 .Where(player =>
                     player.IsAlive &&
@@ -21316,7 +21454,12 @@ public sealed partial class GameEngine
         {
             var jizhiOwnsNullification =
                 ReferenceEquals(_pendingJizhi?.ActiveNullification, nullification);
-            if (processing.Count != 1 || processing[0].Id != nullification.EffectCard.Id)
+            var nullificationCardUse = _resolutionStack.OfType<CardUseFrame>()
+                .SingleOrDefault(frame => frame.Id == nullification.ResolutionId);
+            var expectedPhysicalCardIds = nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
+                ? physicalCardIds
+                : [nullification.EffectCard.Id];
+            if (!processing.Select(card => card.Id).Order().SequenceEqual(expectedPhysicalCardIds.Order()))
             {
                 throw new InvalidOperationException(
                     "The active Nullification window and Processing zone are inconsistent.");
@@ -22600,7 +22743,14 @@ public sealed partial class GameEngine
                                    pendingJudgment.DamageSkill is null &&
                                    pendingJudgment.TargetSeat == _currentSeat &&
                                    _players[pendingJudgment.TargetSeat].General.HasSkill(SkillKind.Luoshen);
-            if ((!belongsToActiveAttack && !belongsToDelayedCard && !belongsToLuoshen) ||
+            var belongsToShuangxiong = pendingJudgment.Continuation == JudgmentContinuationKind.Shuangxiong &&
+                                       UsesFormalShuangxiong &&
+                                       _pendingShuangxiongDraw is { PlayerSeat: var shuangxiongSeat } &&
+                                       shuangxiongSeat == pendingJudgment.TargetSeat &&
+                                       pendingJudgment.Attack is null &&
+                                       pendingJudgment.DelayedCard is null &&
+                                       pendingJudgment.DamageSkill is null;
+            if ((!belongsToActiveAttack && !belongsToDelayedCard && !belongsToLuoshen && !belongsToShuangxiong) ||
                 pendingJudgment.CandidateIndex < 0 ||
                 pendingJudgment.CandidateIndex > pendingJudgment.CandidateSeats.Count ||
                 _resolutionStack.LastOrDefault() is not JudgmentFrame judgmentFrame ||
@@ -23159,7 +23309,14 @@ public sealed partial class GameEngine
     {
         if (attack.IsLeijiDamage)
         {
-            return attack.Card is null && processing.Count == 0;
+            return attack.Card is null &&
+                   _pendingLeiji is { } leiji &&
+                   ReferenceEquals(leiji.DamageAttack, attack) &&
+                   processing.Select(card => card.Id).Order().SequenceEqual(
+                       leiji.OriginalAttack.PhysicalCards
+                           .Where(card => _cardZones.GetLocation(card.Id) == CardLocation.Processing)
+                           .Select(card => card.Id)
+                           .Order());
         }
 
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
