@@ -203,7 +203,8 @@ public enum SkillKind
     Tianxiang,
     Buqu,
     Luanji,
-    Xueyi
+    Xueyi,
+    Shensu
 }
 
 public enum DecisionKind
@@ -253,6 +254,7 @@ public enum DecisionKind
     QuhuDamageTarget,
     TianyiPindian,
     Jushou,
+    Shensu,
     Tianxiang
 }
 

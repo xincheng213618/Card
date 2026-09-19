@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 53, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 54, 0))
     {
     }
 
@@ -72,12 +72,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 50, 0) &&
             version != new Version(1, 51, 0) &&
             version != new Version(1, 52, 0) &&
-            version != new Version(1, 53, 0))
+            version != new Version(1, 53, 0) &&
+            version != new Version(1, 54, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.53.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.54.0.");
         }
 
         _version = version;
@@ -742,6 +743,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:xueyi", "血裔",
                 "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi));
         }
+        if (_version >= new Version(1, 54, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:shensu", "神速",
+                "你可以选择一项：跳过判定阶段和摸牌阶段，或跳过出牌阶段并弃置一张装备牌；每如此做一次，视为你使用一张无距离限制的【杀】。", SkillKind.Shensu));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1120,10 +1126,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:luanji", "qun", BaseHp: 4,
                 AdditionalSkillIds: ["classic:xueyi"]));
         }
+        if (_version >= new Version(1, 54, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:xiahou-yuan", "夏侯渊", "xiahou_yuan",
+                "classic:shensu", "wei", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 53 } => YuanShaoClassicGeneralIds,
+            { Major: 1, Minor: >= 54 } => XiahouYuanClassicGeneralIds,
+            { Major: 1, Minor: 53 } => YuanShaoClassicGeneralIds,
             { Major: 1, Minor: 52 } => ZhouTaiClassicGeneralIds,
             { Major: 1, Minor: 51 } => XiaoQiaoClassicGeneralIds,
             { Major: 1, Minor: 50 } => CaoRenClassicGeneralIds,
@@ -1429,6 +1442,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. ZhouTaiClassicGeneralIds,
         "classic:yuan-shao"
+    ];
+
+    internal static IReadOnlyList<string> XiahouYuanClassicGeneralIds { get; } =
+    [
+        .. YuanShaoClassicGeneralIds,
+        "classic:xiahou-yuan"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

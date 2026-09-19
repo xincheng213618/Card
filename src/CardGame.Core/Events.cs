@@ -815,6 +815,13 @@ public sealed record LuanjiConvertedEvent(
     IReadOnlyList<int> PhysicalCardIds,
     Suit Suit) : IGameEvent;
 
+public sealed record ShensuUsedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    int Stage,
+    int? DiscardedEquipmentCardId) : IGameEvent;
+
 /// <summary>Public terminal result for Qilin Bow at the Slash damage timing.</summary>
 public sealed record QilinBowResolvedEvent(
     long ResolutionId,

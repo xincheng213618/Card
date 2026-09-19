@@ -46,6 +46,8 @@ public sealed partial class GameEngine
     private bool _woodenOxUsedThisTurn;
     private bool _biyueResolvedThisTurn;
     private bool _jushouResolvedThisTurn;
+    private bool _shensuTwoResolvedThisTurn;
+    private int _pendingShensuStage;
     private int _logSequence;
     private int _thoughtSequence;
     private int _movementSequence;
@@ -301,6 +303,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalYuanShao =>
         _rulesVersion >= 68 && IsClassicIdentityMode;
+
+    private bool UsesFormalXiahouYuan =>
+        _rulesVersion >= 69 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -949,6 +954,7 @@ public sealed partial class GameEngine
                 DecisionKind.Tianxiang or
                 DecisionKind.Biyue or
                 DecisionKind.Jushou or
+                DecisionKind.Shensu or
                 DecisionKind.Xiaoji or
                 DecisionKind.Lianying or
                 DecisionKind.QinglongCrescentBlade or
@@ -1054,6 +1060,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Jushou)
         {
             return SubmitJushouPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Shensu)
+        {
+            return SubmitShensuPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Tianxiang)
@@ -1955,6 +1966,18 @@ public sealed partial class GameEngine
             action is not ("jushou-use" or "jushou-skip"))
             return Reject(CommandErrorCode.InvalidChoice, "据守选择不符合当前结束阶段窗口。");
         return Accept(() => HumanJushouCore(action == "jushou-use", _options.AdvanceAfterHumanCommands));
+    }
+
+    private CommandResult SubmitShensuPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Shensu })
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的神速阶段窗口。");
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (action == "shensu-skip" && selected.Cards.Count == 0 && selected.Targets.Count == 0)
+            return Accept(() => HumanShensuCore(null, null, _options.AdvanceAfterHumanCommands));
+        if (action == "shensu-use" && selected.Targets.Count == 1 && selected.Cards.Count <= 1)
+            return Accept(() => HumanShensuCore(selected.Cards.Count == 0 ? null : selected.Cards[0], selected.Targets[0], _options.AdvanceAfterHumanCommands));
+        return Reject(CommandErrorCode.InvalidChoice, "神速选择不符合当前阶段窗口。");
     }
 
     private CommandResult SubmitTianxiangPromptAnswer(PromptChoice selected)
@@ -3662,6 +3685,14 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
+    private EngineRunResult HumanShensuCore(int? equipmentCardId, int? targetSeat, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Shensu);
+        ResolveShensuChoice(equipmentCardId, targetSeat);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
     private EngineRunResult HumanXiaojiCore(bool useSkill, bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.Xiaoji);
@@ -5238,6 +5269,8 @@ public sealed partial class GameEngine
         _luoyiActiveThisTurn = false;
         _shuangxiongJudgmentWasRed = null;
         _woodenOxUsedThisTurn = false;
+        _shensuTwoResolvedThisTurn = false;
+        _pendingShensuStage = 0;
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
@@ -5278,6 +5311,12 @@ public sealed partial class GameEngine
         if (UsesFormalGuanxing && current.General.HasSkill(SkillKind.Guanxing))
         {
             BeginGuanxingChoice(current);
+            return;
+        }
+
+        if (UsesFormalXiahouYuan && current.General.HasSkill(SkillKind.Shensu))
+        {
+            BeginShensuChoice(current, stage: 1);
             return;
         }
 
@@ -5930,13 +5969,101 @@ public sealed partial class GameEngine
             BeginDiscardPhase();
             AddLog("DelayedCardEffect", $"{current.Name} 因【乐不思蜀】跳过出牌阶段。", current.Seat);
         }
+        else if (UsesFormalXiahouYuan && current.General.HasSkill(SkillKind.Shensu) &&
+                 !_shensuTwoResolvedThisTurn && GetEquipment(current).Count > 0)
+        {
+            BeginShensuChoice(current, stage: 2);
+        }
         else
         {
-            _phase = TurnPhase.Play;
-            AddLog("PhaseChanged", $"{current.Name} 进入出牌阶段。", current.Seat);
-            QueueGameEvent(new PhaseChangedEvent(_phase, current.Seat));
+            EnterPlayPhase(current);
         }
         PublishState();
+    }
+
+    private void EnterPlayPhase(PlayerRuntime current)
+    {
+        _phase = TurnPhase.Play;
+        AddLog("PhaseChanged", $"{current.Name} 进入出牌阶段。", current.Seat);
+        QueueGameEvent(new PhaseChangedEvent(_phase, current.Seat));
+    }
+
+    private void BeginShensuChoice(PlayerRuntime current, int stage)
+    {
+        var targets = _players.Where(target => target.IsAlive && target.Seat != current.Seat && !IsSlashProhibited(target)).ToArray();
+        var choices = new List<PromptChoice>();
+        if (stage == 1)
+        {
+            foreach (var target in targets)
+                choices.Add(new PromptChoice(new ChoiceId($"shensu.1.target-{target.Seat}"),
+                    $"发动【神速】：跳过判定阶段和摸牌阶段，视为对 {target.Name} 使用无距离限制的【杀】。", [], [target.Seat],
+                    new Dictionary<string, string> { ["action"] = "shensu-use", ["stage"] = "1" }));
+        }
+        else
+        {
+            foreach (var equipment in GetEquipment(current))
+            foreach (var target in targets)
+                choices.Add(new PromptChoice(new ChoiceId($"shensu.2.card-{equipment.Id}.target-{target.Seat}"),
+                    $"发动【神速】：弃置装备【{equipment.DisplayName}】并跳过出牌阶段，视为对 {target.Name} 使用无距离限制的【杀】。",
+                    [equipment.Id], [target.Seat],
+                    new Dictionary<string, string> { ["action"] = "shensu-use", ["stage"] = "2" }));
+        }
+        choices.Add(new PromptChoice(new ChoiceId($"shensu.{stage}.skip"), "不发动【神速】。", [], [],
+            new Dictionary<string, string> { ["action"] = "shensu-skip", ["stage"] = stage.ToString(System.Globalization.CultureInfo.InvariantCulture) }));
+        _pendingShensuStage = stage;
+        _pendingDecision = new PendingDecision(DecisionKind.Shensu, current.Seat,
+            stage == 1 ? "是否发动【神速】跳过判定与摸牌阶段？" : "是否发动【神速】弃置装备并跳过出牌阶段？", [], targets.Select(target => target.Seat).ToArray())
+        { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices.AsReadOnly() };
+        _status = current.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        PublishState();
+    }
+
+    private void ResolveShensuChoice(int? equipmentCardId, int? targetSeat)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Shensu, PlayerSeat: var playerSeat } || playerSeat != _currentSeat || _pendingShensuStage is not (1 or 2))
+            throw new InvalidOperationException("There is no Shensu phase choice to resolve.");
+        var player = _players[playerSeat];
+        var stage = _pendingShensuStage;
+        ClearPendingDecision();
+        if (targetSeat is null)
+        {
+            _pendingShensuStage = 0;
+            AddLog("SkillSkipped", $"{player.Name} 未发动【神速】第 {stage} 项。", player.Seat);
+            if (stage == 1) BeginDelayedJudgmentOrTurnStart(player);
+            else { _shensuTwoResolvedThisTurn = true; EnterPlayPhase(player); }
+            return;
+        }
+        var target = _players[targetSeat.Value];
+        if (!target.IsAlive || target.Seat == player.Seat || IsSlashProhibited(target))
+            throw new InvalidOperationException("The selected Shensu target is no longer legal.");
+        if (stage == 2)
+        {
+            var equipment = GetEquipment(player).SingleOrDefault(card => card.Id == equipmentCardId) ??
+                throw new InvalidOperationException("Shensu's second option requires one current equipment card.");
+            MoveCard(equipment, CardLocation.Equipment(player.Seat), CardLocation.DiscardPile, CardMoveReasons.ShensuDiscard);
+            _shensuTwoResolvedThisTurn = true;
+        }
+        else if (equipmentCardId is not null)
+        {
+            throw new InvalidOperationException("Shensu's first option has no card cost.");
+        }
+        BeginShensuSlash(player, target, stage, equipmentCardId);
+    }
+
+    private void BeginShensuSlash(PlayerRuntime source, PlayerRuntime target, int stage, int? equipmentCardId)
+    {
+        var frameId = ++_resolutionSequence;
+        _resolutionStack.Add(new CardUseFrame(frameId, source.Seat, 0, CardKind.Slash,
+            Array.AsReadOnly(new[] { target.Seat }), PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())));
+        QueueGameEvent(new CardUseDeclaredEvent(frameId, 0, CardKind.Slash, source.Seat));
+        QueueGameEvent(new TargetsConfirmedEvent(frameId, Array.AsReadOnly(new[] { target.Seat })));
+        var attack = new AttackResolution(frameId, source.Seat, target.Seat, card: null,
+            playedCardKind: CardKind.Slash);
+        _pendingAttack = attack;
+        AddLog("SkillTriggered", $"{source.Name} 发动【神速】第 {stage} 项，视为对 {target.Name} 使用无距离限制的【杀】。", source.Seat, target.Seat);
+        QueueGameEvent(new ShensuUsedEvent(frameId, source.Seat, target.Seat, stage, stage == 2 ? equipmentCardId : null));
+        QueueGameEvent(new CardUsedEvent(0, CardKind.Slash, source.Seat, target.Seat));
+        ContinueSlashAfterLiegong(attack);
     }
 
     private static bool IsDelayedCard(CardKind kind) =>
@@ -6252,6 +6379,12 @@ public sealed partial class GameEngine
         if (IsAiJushouPending())
         {
             ResolvePendingAiJushou();
+            return;
+        }
+
+        if (IsAiShensuPending())
+        {
+            ResolvePendingAiShensu();
             return;
         }
 
@@ -10231,9 +10364,9 @@ public sealed partial class GameEngine
 
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
-        var slash = attack.Card ??
-            throw new InvalidOperationException("A Slash continuation must retain its physical card.");
-        var playedCardKind = attack.EffectiveCardKind ?? slash.Kind;
+        var slash = attack.Card;
+        var playedCardKind = attack.EffectiveCardKind ?? slash?.Kind ??
+            throw new InvalidOperationException("A Slash continuation must retain an effective card kind.");
         var ignoresArmor = attack.IgnoresArmor;
         var resolutionId = attack.ResolutionId;
         var slashName = CardCatalog.Get(playedCardKind).DisplayName;
@@ -10251,7 +10384,7 @@ public sealed partial class GameEngine
         if (UsesFormalArmorResponseTiming &&
             !ignoresArmor &&
             !attack.IsZhangbaSerpentSpearUse &&
-            slash.Suit is Suit.Spade or Suit.Club &&
+            slash?.Suit is Suit.Spade or Suit.Club &&
             HasBlackSlashBarrier(target))
         {
             AddLog(
@@ -17204,6 +17337,25 @@ public sealed partial class GameEngine
 
     private void FinishAttack(AttackResolution attack)
     {
+        if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
+        {
+            var stage = _pendingShensuStage;
+            var source = _players[attack.SourceSeat];
+            SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.Completed);
+            PopResolutionFrame(attack.ResolutionId, ResolutionFrameKind.CardUse);
+            _pendingShensuStage = 0;
+            if (_winner != Winner.None)
+            {
+                if (_status != EngineStatus.Completed) CompleteGame();
+                return;
+            }
+            if (stage == 1)
+                CompleteTurnStartAfterDraw(source, DelayedTurnEffects.None);
+            else
+                BeginDiscardPhase();
+            return;
+        }
+
         if (attack.IsActiveSkillDamage)
         {
             if (attack.SourceSkill == SkillKind.Lijian)
@@ -22581,6 +22733,12 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
+        if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
+        {
+            return processing.Count == 0 && _resolutionStack.OfType<CardUseFrame>().Any(frame =>
+                frame.Id == attack.ResolutionId && frame.CardId == 0 && frame.PhysicalCardIds?.Count is 0);
+        }
+
         if (attack.IsActiveSkillDamage && attack.SourceSkill == SkillKind.Qiangxi)
         {
             return attack.Card is null && processing.Count == 0;
@@ -22985,6 +23143,21 @@ public sealed partial class GameEngine
     {
         if (!IsAiJushouPending()) throw new InvalidOperationException("There is no AI Jushou choice to resolve.");
         ResolveJushouChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiShensuPending() =>
+        _pendingDecision is { Kind: DecisionKind.Shensu, PlayerSeat: var playerSeat } &&
+        playerSeat == _currentSeat && !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiShensu()
+    {
+        if (!IsAiShensuPending()) throw new InvalidOperationException("There is no AI Shensu choice to resolve.");
+        var use = _pendingDecision!.Choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "shensu-use");
+        ResolveShensuChoice(
+            use?.Cards.Count > 0 ? use.Cards[0] : null,
+            use?.Targets.Count > 0 ? use.Targets[0] : null);
         PublishState();
     }
 

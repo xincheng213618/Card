@@ -1136,6 +1136,21 @@ internal static class ClassicGeneralUiChecks
         yuanShaoWindow.Content = null;
         yuanShaoWindow.Close();
 
+        using var xiahouYuanViewModel = FindGeneralChoice("classic:xiahou-yuan");
+        var xiahouYuan = xiahouYuanViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:xiahou-yuan");
+        Program.Assert(xiahouYuan.Name == "夏侯渊" && xiahouYuan.Kingdom == "魏" &&
+                       xiahouYuan.SkillName == "神速" &&
+                       xiahouYuan.SkillDescription.Contains("跳过判定阶段和摸牌阶段", StringComparison.Ordinal) &&
+                       xiahouYuan.SkillDescription.Contains("无距离限制", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(xiahouYuan.GeneralId) && xiahouYuan.HealthText == "体力上限 5",
+            "The current classic Xiahou Yuan card must render Wei, Shensu and the Lord health bonus.");
+        var xiahouYuanWindow = new MainWindow(xiahouYuanViewModel);
+        xiahouYuanWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)xiahouYuanWindow.Content, 1120, 740,
+            Path.Combine(output, "150-classic-xiahou-yuan-card.png"));
+        xiahouYuanWindow.Content = null;
+        xiahouYuanWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
