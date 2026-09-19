@@ -164,6 +164,8 @@ public static class CardMoveReasons
     public static CardMoveReason RendeGive { get; } = new("skill.rende.give-card");
     public static CardMoveReason QingnangDiscard { get; } = new("skill.qingnang.discard");
     public static CardMoveReason HuichunDiscard { get; } = new("skill.huichun.discard");
+    public static CardMoveReason NiepanDiscard { get; } = new("skill.niepan.discard");
+    public static CardMoveReason NiepanDraw { get; } = new("skill.niepan.draw");
     public static CardMoveReason HandLimitDiscard { get; } = new("rule.hand-limit-discard");
     public static CardMoveReason DeathDiscard { get; } = new("rule.death-discard");
     public static CardMoveReason LordPenalty { get; } = new("mode.identity.lord-killed-loyalist");

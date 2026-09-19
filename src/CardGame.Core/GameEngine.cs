@@ -281,6 +281,9 @@ public sealed partial class GameEngine
     private bool UsesFormalWolong =>
         _rulesVersion >= 62 && IsClassicIdentityMode;
 
+    private bool UsesFormalPangTong =>
+        _rulesVersion >= 63 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -2245,6 +2248,8 @@ public sealed partial class GameEngine
                 useAlcohol: true,
                 requestedAlcoholCardId: selected.Cards[0],
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "niepan" when selected.Cards.Count == 0 => Accept(() => HumanNiepanCore(
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             "let-die" when selected.Cards.Count == 0 => Accept(() => HumanDyingResponseCore(
                 usePeach: false,
                 requestedPeachCardId: null,
@@ -3520,6 +3525,14 @@ public sealed partial class GameEngine
             requestedPeachCardId,
             useAlcohol,
             requestedAlcoholCardId);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanNiepanCore(bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.RescueDying);
+        ResolveNiepan();
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -6854,7 +6867,7 @@ public sealed partial class GameEngine
         switch (action.Kind)
         {
             case LegalActionKind.Recast:
-                ResolveRecast(actor, card);
+                ResolveRecast(actor, card, action.PlayedCardKind);
                 break;
             case LegalActionKind.Slash:
                 if (action.TargetSeat is null)
@@ -6917,7 +6930,7 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("IronChain requires one or two targets.");
                 }
 
-                ResolveIronChain(actor, card, action.TargetSeats);
+                ResolveIronChain(actor, card, action.TargetSeats, action.PlayedCardKind);
                 break;
             case LegalActionKind.Indulgence:
             case LegalActionKind.SupplyShortage:
@@ -8192,19 +8205,21 @@ public sealed partial class GameEngine
     private void ResolveIronChain(
         PlayerRuntime source,
         Card ironChain,
-        IReadOnlyList<int> targetSeats)
+        IReadOnlyList<int> targetSeats,
+        CardKind? playedCardKind = null)
     {
         var targets = targetSeats.ToArray();
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == LegalActionKind.IronChain &&
             action.CardId == ironChain.Id &&
-            action.TargetSeats.SequenceEqual(targets));
+            action.TargetSeats.SequenceEqual(targets) &&
+            action.PlayedCardKind == playedCardKind);
         if (!stillLegal)
         {
             throw new InvalidOperationException("IronChain became illegal before resolution.");
         }
 
-        var resolutionId = BeginCardUse(ironChain, source.Seat, targets);
+        var resolutionId = BeginCardUse(ironChain, source.Seat, targets, playedCardKind);
         MoveCard(
             ironChain,
             FindOwnedCardLocation(source, ironChain),
@@ -8215,7 +8230,8 @@ public sealed partial class GameEngine
             ironChain,
             source.Seat,
             targets,
-            LegalActionKind.IronChain);
+            LegalActionKind.IronChain,
+            playedCardKind: playedCardKind);
     }
 
     private void ResolveDelayedCard(
@@ -16434,6 +16450,11 @@ public sealed partial class GameEngine
                 .ToArray()
             : [];
 
+    private bool CanUseNiepan(PlayerRuntime responder, DyingResolution dying) =>
+        UsesFormalPangTong && responder.Seat == dying.VictimSeat && responder.IsAlive &&
+        responder.General.HasSkill(SkillKind.Niepan) &&
+        !responder.UsedLimitedSkillKinds.Contains(SkillKind.Niepan);
+
     private void RunOneDyingStep()
     {
         var dying = _pendingDying ??
@@ -16455,7 +16476,7 @@ public sealed partial class GameEngine
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
         if (responder.IsHuman)
         {
-            if (peaches.Length > 0 || alcohols.Length > 0)
+            if (peaches.Length > 0 || alcohols.Length > 0 || CanUseNiepan(responder, dying))
             {
                 RequestHumanDyingResponse(responder, peaches, alcohols);
                 return;
@@ -16467,6 +16488,13 @@ public sealed partial class GameEngine
                 peachCardId: null,
                 useAlcohol: false,
                 alcoholCardId: null);
+            PublishState();
+            return;
+        }
+
+        if (CanUseNiepan(responder, dying))
+        {
+            ResolveNiepan();
             PublishState();
             return;
         }
@@ -16501,7 +16529,7 @@ public sealed partial class GameEngine
 
         var peaches = GetDyingPeaches(responder);
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
-        if (peaches.Length > 0 || alcohols.Length > 0)
+        if (peaches.Length > 0 || alcohols.Length > 0 || CanUseNiepan(responder, dying))
         {
             RequestHumanDyingResponse(responder, peaches, alcohols);
         }
@@ -16540,13 +16568,25 @@ public sealed partial class GameEngine
                 ["response"] = "alcohol",
                 ["target-seat"] = victim.Seat.ToString(System.Globalization.CultureInfo.InvariantCulture)
             })));
+        if (CanUseNiepan(responder, dying))
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId("dying.niepan"),
+                "发动限定技【涅槃】：弃置区域内所有牌，解除连环，摸三张牌并将体力回复至 3 点。",
+                [], [],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "niepan",
+                    ["target-seat"] = victim.Seat.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                }));
+        }
         var rescueCardIds = peaches
             .Select(card => card.Id)
             .Concat(alcohols.Select(card => card.Id))
             .ToArray();
         var rescueNames = peaches.Count > 0
             ? alcohols.Count > 0 ? "桃】或【酒" : "桃"
-            : "酒";
+            : alcohols.Count > 0 ? "酒" : "涅槃";
         choices.Add(new PromptChoice(
             new ChoiceId("dying.let-die"),
             $"不使用【{rescueNames}】，让 {victim.Name} 阵亡。",
@@ -16572,6 +16612,43 @@ public sealed partial class GameEngine
         };
         _status = EngineStatus.AwaitingHumanDying;
         PublishState();
+    }
+
+    private void ResolveNiepan()
+    {
+        var dying = _pendingDying ?? throw new InvalidOperationException("There is no dying resolution for Niepan.");
+        var victim = _players[dying.VictimSeat];
+        if (!CanUseNiepan(victim, dying) ||
+            _pendingDecision is { } decision &&
+            (decision.Kind != DecisionKind.RescueDying || decision.PlayerSeat != victim.Seat))
+        {
+            throw new InvalidOperationException("Niepan is not legal in the current dying window.");
+        }
+
+        ClearPendingDecision();
+        victim.UsedLimitedSkillKinds.Add(SkillKind.Niepan);
+        var discarded = 0;
+        foreach (var card in GetHand(victim).ToArray())
+        {
+            MoveCard(card, CardLocation.Hand(victim.Seat), CardLocation.DiscardPile, CardMoveReasons.NiepanDiscard);
+            discarded++;
+        }
+        foreach (var card in GetEquipment(victim).ToArray())
+        {
+            MoveCard(card, CardLocation.Equipment(victim.Seat), CardLocation.DiscardPile, CardMoveReasons.NiepanDiscard);
+            discarded++;
+        }
+        foreach (var card in GetJudgment(victim).ToArray())
+        {
+            MoveCard(card, CardLocation.Judgment(victim.Seat), CardLocation.DiscardPile, CardMoveReasons.NiepanDiscard);
+            discarded++;
+        }
+        victim.IsChained = false;
+        victim.Hp = Math.Min(3, victim.MaxHp);
+        var drawn = DrawCards(victim, 3, log: false, reason: CardMoveReasons.NiepanDraw);
+        QueueGameEvent(new NiepanResolvedEvent(dying.FrameId, victim.Seat, discarded, drawn.Count, victim.Hp));
+        AddLog("SkillTriggered", $"{victim.Name} 发动限定技【涅槃】，弃置 {discarded} 张区域牌，摸 {drawn.Count} 张牌并回复至 {victim.Hp} 点体力。", victim.Seat);
+        CompleteDying(dying, survived: true);
     }
 
     private void ApplyDyingResponse(
@@ -17951,6 +18028,35 @@ public sealed partial class GameEngine
                         null,
                         $"对 {first.Name}、{second.Name} 使用【铁索连环】",
                         TargetSeats: [first.Seat, second.Seat]));
+                }
+            }
+        }
+
+        if (UsesFormalPangTong && actor.General.HasSkill(SkillKind.Lianhuan))
+        {
+            foreach (var converted in GetHand(actor).Where(card =>
+                         card.Kind != CardKind.IronChain && card.Suit == Suit.Club))
+            {
+                actions.Add(new LegalAction(LegalActionKind.Recast, converted.Id, null,
+                    $"发动【连环】，将【{converted.DisplayName}】当【铁索连环】重铸并摸一张牌",
+                    PlayedCardKind: CardKind.IronChain));
+                foreach (var target in ironChainTargets)
+                {
+                    actions.Add(new LegalAction(LegalActionKind.IronChain, converted.Id, target.Seat,
+                        $"发动【连环】，将【{converted.DisplayName}】当【铁索连环】对 {target.Name} 使用",
+                        PlayedCardKind: CardKind.IronChain));
+                }
+                for (var firstIndex = 0; firstIndex < ironChainTargets.Length - 1; firstIndex++)
+                {
+                    for (var secondIndex = firstIndex + 1; secondIndex < ironChainTargets.Length; secondIndex++)
+                    {
+                        var first = ironChainTargets[firstIndex];
+                        var second = ironChainTargets[secondIndex];
+                        actions.Add(new LegalAction(LegalActionKind.IronChain, converted.Id, null,
+                            $"发动【连环】，将【{converted.DisplayName}】当【铁索连环】对 {first.Name}、{second.Name} 使用",
+                            PlayedCardKind: CardKind.IronChain,
+                            TargetSeats: [first.Seat, second.Seat]));
+                    }
                 }
             }
         }
@@ -23377,6 +23483,7 @@ public sealed partial class GameEngine
         public bool AiJijiangFailedThisTurn { get; set; }
         public bool IsChained { get; set; }
         public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
+        public HashSet<SkillKind> UsedLimitedSkillKinds { get; } = [];
     }
 
     private sealed class NullificationResolution(

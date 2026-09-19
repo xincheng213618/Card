@@ -194,7 +194,9 @@ public enum SkillKind
     Shuangxiong,
     Bazhen,
     Huoji,
-    Kanpo
+    Kanpo,
+    Lianhuan,
+    Niepan
 }
 
 public enum DecisionKind

@@ -1033,6 +1033,22 @@ internal static class ClassicGeneralUiChecks
         wolongWindow.Content = null;
         wolongWindow.Close();
 
+        using var pangTongViewModel = FindGeneralChoice("classic:pang-tong");
+        var pangTong = pangTongViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:pang-tong");
+        Program.Assert(pangTong.Name == "庞统" && pangTong.Kingdom == "蜀" &&
+                       pangTong.SkillName == "连环 / 涅槃" &&
+                       pangTong.SkillDescription.Contains("梅花手牌", StringComparison.Ordinal) &&
+                       pangTong.SkillDescription.Contains("限定技", StringComparison.Ordinal) &&
+                       pangTong.HealthText == "体力上限 4",
+            "The current classic Pang Tong card must render Shu, Lianhuan, Niepan and the Lord health bonus.");
+        var pangTongWindow = new MainWindow(pangTongViewModel);
+        pangTongWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)pangTongWindow.Content, 1120, 740,
+            Path.Combine(output, "144-classic-pang-tong-card.png"));
+        pangTongWindow.Content = null;
+        pangTongWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

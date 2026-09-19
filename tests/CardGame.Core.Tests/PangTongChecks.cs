@@ -1,0 +1,139 @@
+using System.Reflection;
+using CardGame.Content.Standard;
+using CardGame.Core;
+
+internal static class PangTongChecks
+{
+    public static void LianhuanNiepanAndReplay()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 48, 0));
+        VerifyLianhuan(registry);
+        VerifyNiepan(registry);
+    }
+
+    private static void VerifyLianhuan(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = Create(seed, registry);
+            if (!SelectPangTong(game)) continue;
+            var play = Reach(game, DecisionKind.PlayCard, 64);
+            if (play is null) continue;
+            var snapshot = game.CreateSnapshot(0);
+            var actions = game.GetHumanLegalActions();
+            var converted = actions.FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Recast && action.PlayedCardKind == CardKind.IronChain &&
+                action.CardId is { } id && snapshot.Players[0].Hand.Any(card =>
+                    card.Id == id && card.Kind != CardKind.IronChain && card.Suit == Suit.Club));
+            if (converted is null) continue;
+
+            var physicalId = converted.CardId!.Value;
+            var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 62 }, registry);
+            Require(!legacy.GetHumanLegalActions().Any(action =>
+                    action.CardId == physicalId && action.PlayedCardKind == CardKind.IronChain),
+                "Rules v62 must not expose Lianhuan conversions.");
+
+            var branch = game.CreateCheckpoint();
+            var recast = game.Submit(new RecastCardCommand(0, physicalId, game.Revision, play.PromptId));
+            Require(recast.Accepted && game.Events.Any(item => item.Payload is CardRecastEvent evt &&
+                    evt.CardId == physicalId && evt.CardKind == CardKind.IronChain),
+                recast.Error?.Message ?? "Lianhuan recast was rejected.");
+            var restoredRecast = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            Require(SnapshotJson.Serialize(restoredRecast.CreateSnapshot(0, revealAll: true)) ==
+                    SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
+                "Lianhuan recast must replay exactly.");
+
+            var use = GameReplay.Restore(branch, registry);
+            var ironChain = use.GetHumanLegalActions().First(action =>
+                action.Kind == LegalActionKind.IronChain && action.CardId == physicalId &&
+                action.PlayedCardKind == CardKind.IronChain);
+            var used = use.Submit(new PlayCardCommand(0, physicalId, ironChain.TargetSeats, use.Revision,
+                use.PendingDecision!.PromptId, CardKind.IronChain));
+            Require(used.Accepted && use.Events.Any(item => item.Payload is CardUseDeclaredEvent evt &&
+                    evt.CardId == physicalId && evt.CardKind == CardKind.IronChain),
+                used.Error?.Message ?? "Lianhuan use was rejected.");
+            return;
+        }
+        throw new InvalidOperationException("No bounded Pang Tong fixture exposed a club Lianhuan conversion.");
+    }
+
+    private static void VerifyNiepan(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = Create(seed, registry);
+            if (!SelectPangTong(game)) continue;
+            if (Reach(game, DecisionKind.PlayCard, 64) is null) continue;
+            SetPlayerHp(game, 0, 1);
+            for (var step = 0; step < 600 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var prompt = game.PendingDecision;
+                if (prompt is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 } &&
+                    prompt.Choices.FirstOrDefault(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "niepan") is { } niepan)
+                {
+                    var before = game.CreateSnapshot(0, revealAll: true).Players[0];
+                    var answered = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, niepan.Id, game.Revision));
+                    var after = game.CreateSnapshot(0, revealAll: true).Players[0];
+                    var resolved = game.Events.Select(item => item.Payload).OfType<NiepanResolvedEvent>().Single();
+                    Require(answered.Accepted && after.Hp == 3 && after.HandCount == 3 && !after.IsChained &&
+                            resolved.PlayerSeat == 0 && resolved.DiscardedCardCount >= before.HandCount &&
+                            resolved.DrawnCardCount == 3,
+                        answered.Error?.Message ?? "Niepan did not restore Pang Tong to three HP with three cards.");
+                    Require(game.Events.Count(item => item.Payload is NiepanResolvedEvent) == 1,
+                        "Niepan must remain limited to one resolution.");
+                    return;
+                }
+
+                GameCommand command = prompt switch
+                {
+                    { PlayerSeat: 0, Kind: DecisionKind.PlayCard } =>
+                        new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId),
+                    { PlayerSeat: 0 } => new AnswerPromptCommand(0, prompt.PromptId,
+                        prompt.Choices.Last().Id, game.Revision),
+                    _ => new AdvanceOneStepCommand(game.Revision)
+                };
+                if (!game.Submit(command).Accepted) break;
+            }
+        }
+        throw new InvalidOperationException("No bounded Pang Tong fixture reached a human Niepan dying prompt.");
+    }
+
+    private static GameEngine Create(int seed, ContentRegistry registry) => GameEngine.CreateStandard(new GameOptions
+    {
+        Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
+        ModeId = "identity:classic-5", UseInteractiveSetup = true,
+        UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 100
+    }, registry);
+
+    private static bool SelectPangTong(GameEngine game)
+    {
+        if (!game.Submit(new StartGameCommand()).Accepted) return false;
+        var selection = game.PendingDecision;
+        return selection is { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } &&
+               selection.ValidContentIds.Contains("classic:pang-tong") &&
+               game.Submit(new SelectGeneralCommand(0, "classic:pang-tong", game.Revision, selection.PromptId)).Accepted;
+    }
+
+    private static PendingDecision? Reach(GameEngine game, DecisionKind kind, int limit)
+    {
+        for (var step = 0; step < limit; step++)
+        {
+            if (game.PendingDecision is { PlayerSeat: 0 } pending && pending.Kind == kind) return pending;
+            if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) return null;
+        }
+        return null;
+    }
+
+    private static void SetPlayerHp(GameEngine game, int seat, int hp)
+    {
+        var field = typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var players = (System.Collections.IList)field.GetValue(game)!;
+        players[seat]!.GetType().GetProperty("Hp")!.SetValue(players[seat], hp);
+    }
+
+    private static void Require(bool value, string message)
+    {
+        if (!value) throw new InvalidOperationException(message);
+    }
+}

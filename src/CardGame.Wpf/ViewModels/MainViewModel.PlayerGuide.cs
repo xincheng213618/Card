@@ -242,7 +242,7 @@ public sealed partial class MainViewModel
                     choice.Parameters.GetValueOrDefault("response") == "jijiang-slash") => ("响应刘备的激将", new[] { "你可以打出自己的一张杀；成功后视为刘备打出杀。", "也可以拒绝，系统会继续询问下一名蜀势力角色。" }),
                 DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪；中央会列出合法的手牌、技能或装备选项。", "点击中央候选会立即提交响应。选择不响应可能受到伤害。" }),
                 DecisionKind.RescueDying => ("决定是否救援濒死角色", _game.RulesVersion >= 12
-                    ? new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救并回复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }
+                    ? new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救。庞统还可发动一次限定技涅槃。", "选择使用哪张牌、发动涅槃或不救援；按当前模式的阵营关系决定希望保护谁。" }
                     : new[] { "桃和酒都可用于救援当前濒死角色；酒也会在濒死窗口中恢复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }),
                 DecisionKind.SelectHarvestCard => ("从公开牌中取走一张", new[] { "点击中央的一张公开牌，它会加入你的手牌。", "这是选牌，不需要再选择武将或点击出牌。" }),
                 DecisionKind.SelectTargetCard => ("选择一张暗牌位", new[] { "目标手牌的牌面不会展示；每个按钮只代表一个不透明的牌位。", "选择后，拆桥会弃置该牌，顺手会将该牌交给你。" }),

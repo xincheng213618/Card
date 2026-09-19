@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 47, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 48, 0))
     {
     }
 
@@ -66,12 +66,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 44, 0) &&
             version != new Version(1, 45, 0) &&
             version != new Version(1, 46, 0) &&
-            version != new Version(1, 47, 0))
+            version != new Version(1, 47, 0) &&
+            version != new Version(1, 48, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.47.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.48.0.");
         }
 
         _version = version;
@@ -700,6 +701,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:kanpo", "看破",
                 "你可以将一张黑色手牌当【无懈可击】使用。", SkillKind.Kanpo));
         }
+        if (_version >= new Version(1, 48, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:lianhuan", "连环",
+                "出牌阶段，你可以将一张梅花手牌当【铁索连环】使用或重铸。", SkillKind.Lianhuan));
+            builder.AddSkill(new ContentSkillDefinition("classic:niepan", "涅槃",
+                "限定技，当你处于濒死状态时，你可以弃置区域内所有牌，解除连环状态，摸三张牌并将体力回复至3点。", SkillKind.Niepan));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1039,10 +1047,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:bazhen", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:huoji", "classic:kanpo"]));
         }
+        if (_version >= new Version(1, 48, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:pang-tong", "庞统", "pang_tong",
+                "classic:lianhuan", "shu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:niepan"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 47 } => WolongClassicGeneralIds,
+            { Major: 1, Minor: >= 48 } => PangTongClassicGeneralIds,
+            { Major: 1, Minor: 47 } => WolongClassicGeneralIds,
             { Major: 1, Minor: 46 } => YanLiangWenChouClassicGeneralIds,
             { Major: 1, Minor: 45 } => XunYuClassicGeneralIds,
             { Major: 1, Minor: 44 } => PangDeClassicGeneralIds,
@@ -1306,6 +1322,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. YanLiangWenChouClassicGeneralIds,
         "classic:wolong-zhuge-liang"
+    ];
+
+    internal static IReadOnlyList<string> PangTongClassicGeneralIds { get; } =
+    [
+        .. WolongClassicGeneralIds,
+        "classic:pang-tong"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

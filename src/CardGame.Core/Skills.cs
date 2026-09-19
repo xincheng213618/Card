@@ -628,6 +628,18 @@ public sealed class KanpoSkill : IPassiveSkill
     public string Name => "看破";
 }
 
+public sealed class LianhuanSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Lianhuan;
+    public string Name => "连环";
+}
+
+public sealed class NiepanSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Niepan;
+    public string Name => "涅槃";
+}
+
 public sealed class LiuliSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Liuli;
@@ -1010,6 +1022,8 @@ public static class SkillRegistry
             [SkillKind.Bazhen] = new BazhenSkill(),
             [SkillKind.Huoji] = new HuojiSkill(),
             [SkillKind.Kanpo] = new KanpoSkill(),
+            [SkillKind.Lianhuan] = new LianhuanSkill(),
+            [SkillKind.Niepan] = new NiepanSkill(),
             [SkillKind.Jizhi] = new JizhiSkill(),
             [SkillKind.Tieqi] = new TieqiSkill(),
             [SkillKind.Liegong] = new LiegongSkill(),
