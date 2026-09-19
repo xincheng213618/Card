@@ -1040,8 +1040,9 @@ internal static class ClassicGeneralUiChecks
                        pangTong.SkillName == "连环 / 涅槃" &&
                        pangTong.SkillDescription.Contains("梅花手牌", StringComparison.Ordinal) &&
                        pangTong.SkillDescription.Contains("限定技", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(pangTong.GeneralId) &&
                        pangTong.HealthText == "体力上限 4",
-            "The current classic Pang Tong card must render Shu, Lianhuan, Niepan and the Lord health bonus.");
+            "The current classic Pang Tong card must render its portrait, Shu, Lianhuan, Niepan and the Lord health bonus.");
         var pangTongWindow = new MainWindow(pangTongViewModel);
         pangTongWindow.ApplyTemplate();
         Program.Render((FrameworkElement)pangTongWindow.Content, 1120, 740,
