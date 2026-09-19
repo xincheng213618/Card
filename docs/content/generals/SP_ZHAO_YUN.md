@@ -29,6 +29,7 @@
 - [三国杀 OL SP 赵云页](https://www.sanguosha.com/hero/108)给出龙胆与冲阵的当前简明文本。
 - [一将成名官网 SP 赵云页](https://x.sanguosha.com/hero/524.html)明确冲阵是发动龙胆使用或打出手牌时“立即”取得对方一张手牌。
 - [三国杀 OL 官方冲阵 FAQ](https://www.sanguosha.com/news/20161215_4752_4616)定义了“对方”、插入时点及流离、无双、享乐、猛进、雷击等顺序。
+- [官方军争 FAQ 打印版](https://ks3-cn-beijing.ksyun.com/attachment/74ad98665ac744c138ba8c988d85d149)明确经过武圣、龙胆、武神等一次牌名转换的【杀】不能再发动朱雀羽扇；[OL 赵云突破公告](https://www.sanguosha.com/news/20140725_3048_1013)也明确赵云不能用朱雀羽扇把【闪】直接当【火杀】使用。
 - [BWIKI SP 赵云](https://wiki.biligame.com/sgs/SP%E8%B5%B5%E4%BA%91)与[冲阵](https://wiki.biligame.com/sgs/%E5%86%B2%E9%98%B5)用于可复现的结构化版本核对。
 
 仓库同步快照：
@@ -58,7 +59,9 @@ D2 不能只在现有 `CardUseFrame` 或 `CardRespondedEvent` 上再加一个布
 | `currentTargets` | 主动用牌经过目标变更后的最终目标快照 |
 | `useOrResponse` | 区分主动使用、作为使用的响应和单纯打出，但三者均可被冲阵绑定 |
 
-`conversionChain` 使用稳定 SkillId／SkillInstanceId；标准赵云的 `classic:longdan` 与 SP 赵云的 `sp:longdan` 必须不同。旧 `SkillKind.Longdan` 可以继续服务历史包，但不能让冲阵监听所有最终为杀／闪的动作。
+`conversionChain` 使用稳定的转换绑定和 SkillInstanceId。内容层可以把标准赵云与 SP 赵云分别命名为 `classic:longdan`、`sp:longdan`，但运行时不能要求它们拥有两份不同的程序实现；同语义龙胆应允许复用同一通用转换程序。冲阵由内容配置引用 SP 赵云当前实例上的龙胆转换绑定，不能监听所有最终为杀／闪的动作，也不能只按某个硬编码 SkillId 猜测来源。旧 `SkillKind.Longdan` 可以继续服务历史包。
+
+`conversionChain` 只记录已经通过当前规则合法性检查的转换来源，不授予任意二次转换能力。经典身份目标版本按军争 FAQ：一张【闪】经龙胆转换为普通【杀】后，不能再发动朱雀羽扇把它转为【火杀】；该非法组合应在建立牌 action 前拒绝。若其他产品线明确允许连续转换，必须使用独立规则版本和场景，不能由通用链结构自动放宽。
 
 ## 4. “对方”映射
 
@@ -119,7 +122,8 @@ SP 赵云以手牌【杀】经龙胆作为【闪】使用或打出时：
 
 - SP 赵云闪转杀、杀转闪均触发；自然杀／闪不触发。
 - 标准赵云 `classic:longdan`、其他配置技能的杀闪转换、倾国、武圣、丈八蛇矛、八卦阵及无实体杀都不误触发。
-- 闪经 SP 龙胆转普通杀后再由朱雀羽扇转火杀，仍因转换链包含 `sp:longdan` 触发一次；不能因链中两次转换触发两次。
+- 经典身份中，闪经 SP 龙胆转为普通杀后再发动朱雀羽扇必须被合法性检查拒绝，不创建用牌 action、冲阵候选或实体牌移动；`conversionChain` 的存在不能自动放宽这一旧版 FAQ 限制。
+- 对目标产品线另有明确证据、确实允许的多节点转换，只要链中同一 SP 龙胆绑定仅出现一次，冲阵也只能触发一次；该正向场景必须放在对应独立规则版本，不能反向改变经典身份规则。
 - 只有手牌可作 SP 龙胆输入；装备区杀／闪和他人提供的实体牌不被配置偷偷放宽。
 
 ### 6.2 主动用牌
@@ -159,7 +163,7 @@ SP 赵云以手牌【杀】经龙胆作为【闪】使用或打出时：
 
 | 顺序 | 通用功能块 | 完成门槛 |
 | --- | --- | --- |
-| D2a | `CardActionContext`、稳定 actionId、`conversionChain`、actor/provider/requester/responder/opponent | 普通/SP 龙胆、武圣、倾国、激将／护驾提供者在测试中不混淆 |
+| D2a | `CardActionContext`、稳定 actionId、`conversionChain`、actor/provider/requester/responder/opponent | 普通/SP 龙胆可复用同一程序但实例绑定不混淆；武圣、倾国、激将／护驾提供者也不误识别 |
 | D2b | `CardUseTargetsFinalized`／`CardResponseAccepted` 可暂停窗口、同一时机优先级和多目标游标 | 流离／享乐先于冲阵，冲阵先于武器与原效果；无双、决斗可嵌套恢复 |
 | D2c | 通用 `obtainOpponentHandCard` 与脱敏事件 | 不透明槽位、原子移动、AI、Checkpoint/Replay 全部通过；至少再有一个非冲阵测试组合复用 |
 | A50 | `sp:longdan`／`sp:chongzhen` 配置与完整 SP 赵云 | 不新增 SP 赵云专属 `SkillKind`、引擎分支或 WPF 页面，完整武将才进入当前池 |
