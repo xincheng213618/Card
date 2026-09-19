@@ -795,6 +795,18 @@ public sealed record MengjinResolvedEvent(
     bool Used,
     int? DiscardedCardId) : IGameEvent;
 
+/// <summary>Public result after both private Pindian cards have been committed and revealed.</summary>
+public sealed record PindianResolvedEvent(
+    long ResolutionId,
+    SkillKind Skill,
+    int InitiatorSeat,
+    int OpponentSeat,
+    int InitiatorCardId,
+    int OpponentCardId,
+    int InitiatorRank,
+    int OpponentRank,
+    bool InitiatorWon) : IGameEvent;
+
 /// <summary>
 /// Public declaration that one last-hand Slash used Fangtian Halberd's target
 /// expansion. The ordered target list is exact and contains two or three seats.

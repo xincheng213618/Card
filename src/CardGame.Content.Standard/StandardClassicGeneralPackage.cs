@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 44, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 45, 0))
     {
     }
 
@@ -63,12 +63,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 41, 0) &&
             version != new Version(1, 42, 0) &&
             version != new Version(1, 43, 0) &&
-            version != new Version(1, 44, 0))
+            version != new Version(1, 44, 0) &&
+            version != new Version(1, 45, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.44.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.45.0.");
         }
 
         _version = version;
@@ -673,6 +674,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你使用的【杀】被目标角色使用的【闪】抵消后，你可以弃置其一张手牌或装备牌。",
                 SkillKind.Mengjin));
         }
+        if (_version >= new Version(1, 45, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:quhu",
+                "驱虎",
+                "出牌阶段限一次，你可以与一名体力值大于你的角色拼点：若你赢，其对其攻击范围内由你选择的另一名角色造成1点伤害；若你没赢，其对你造成1点伤害。",
+                SkillKind.Quhu));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -988,10 +997,22 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 4,
                 AdditionalSkillIds: ["classic:mengjin"]));
         }
+        if (_version >= new Version(1, 45, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:xun-yu",
+                "荀彧",
+                "xun_yu",
+                "classic:quhu",
+                "wei",
+                BaseHp: 3,
+                AdditionalSkillIds: ["standard:jieming"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 44 } => PangDeClassicGeneralIds,
+            { Major: 1, Minor: >= 45 } => XunYuClassicGeneralIds,
+            { Major: 1, Minor: 44 } => PangDeClassicGeneralIds,
             { Major: 1, Minor: 43 } => LuXunClassicGeneralIds,
             { Major: 1, Minor: 42 } => SunShangxiangClassicGeneralIds,
             { Major: 1, Minor: 41 } => DiaoChanClassicGeneralIds,
@@ -1234,6 +1255,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. LuXunClassicGeneralIds,
         "classic:pang-de"
+    ];
+
+    internal static IReadOnlyList<string> XunYuClassicGeneralIds { get; } =
+    [
+        .. PangDeClassicGeneralIds,
+        "classic:xun-yu"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

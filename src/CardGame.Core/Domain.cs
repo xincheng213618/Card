@@ -189,7 +189,8 @@ public enum SkillKind
     Xiaoji,
     Qianxun,
     Lianying,
-    Mengjin
+    Mengjin,
+    Quhu
 }
 
 public enum DecisionKind
@@ -233,7 +234,9 @@ public enum DecisionKind
     IceSword,
     QilinBow,
     ZhuqueFan,
-    Mengjin
+    Mengjin,
+    QuhuPindian,
+    QuhuDamageTarget
 }
 
 public enum GangliePunishmentKind

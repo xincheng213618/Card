@@ -70,6 +70,7 @@ public sealed partial class GameEngine
     private IceSwordResolution? _pendingIceSword;
     private QilinBowResolution? _pendingQilinBow;
     private MengjinResolution? _pendingMengjin;
+    private QuhuResolution? _pendingQuhu;
     private FangtianHalberdResolution? _pendingFangtianHalberd;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
@@ -268,6 +269,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalPangDe =>
         _rulesVersion >= 59 && IsClassicIdentityMode;
+
+    private bool UsesFormalXunYu =>
+        _rulesVersion >= 60 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -919,6 +923,8 @@ public sealed partial class GameEngine
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
                 DecisionKind.Mengjin or
+                DecisionKind.QuhuPindian or
+                DecisionKind.QuhuDamageTarget or
                 DecisionKind.ZhuqueFan or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
@@ -1080,6 +1086,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Mengjin)
         {
             return SubmitMengjinPromptAnswer(selected);
+        }
+
+        if (pending.Kind is DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget)
+        {
+            return SubmitQuhuPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Liuli)
@@ -1806,6 +1817,19 @@ public sealed partial class GameEngine
             : Reject(CommandErrorCode.InvalidChoice, "猛进必须选择目标当前的一张暗手牌/公开装备，或选择不发动。");
     }
 
+    private CommandResult SubmitQuhuPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingQuhu is null ||
+            _pendingDecision is not { Kind: DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的驱虎结算。");
+        }
+
+        return Accept(() => HumanQuhuCore(
+            selected,
+            advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+    }
+
     private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
     {
         if (_pendingDecision is not { Kind: DecisionKind.Keji })
@@ -2255,7 +2279,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.RequestSlash or
                 ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
                 ActiveSkillEffectKind.DiscardAndStartDuel or
-                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget) ||
+                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
+                ActiveSkillEffectKind.PindianAndDamage) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -2289,6 +2314,10 @@ public sealed partial class GameEngine
             effect.Kind == ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget &&
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 1 ||
              effect.MinCardCount != 2 || effect.MaxCardCount != 2 ||
+             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
+            effect.Kind == ActiveSkillEffectKind.PindianAndDamage &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
@@ -3383,6 +3412,24 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Mengjin);
         ResolveMengjinChoice(selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanQuhuCore(
+        PromptChoice selected,
+        bool advanceToHumanBoundary)
+    {
+        if (_pendingDecision?.Kind == DecisionKind.QuhuPindian)
+        {
+            RequireHumanDecision(DecisionKind.QuhuPindian);
+            ResolveQuhuPindianChoice(selected);
+        }
+        else
+        {
+            RequireHumanDecision(DecisionKind.QuhuDamageTarget);
+            ResolveQuhuDamageTargetChoice(selected);
+        }
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5923,6 +5970,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiQuhuPending())
+        {
+            ResolvePendingAiQuhu();
+            return;
+        }
+
         if (IsAiGuanxingPending())
         {
             ResolvePendingAiGuanxing();
@@ -6185,7 +6238,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.RequestSlash or
                 ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
                 ActiveSkillEffectKind.DiscardAndStartDuel or
-                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget))
+                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
+                ActiveSkillEffectKind.PindianAndDamage))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -6220,6 +6274,12 @@ public sealed partial class GameEngine
             recordedCardIds,
             recordedTargetSeats));
         SetActiveSkillFrameStep(frameId, ResolutionFrameStep.ResolvingEffect);
+
+        if (effect.Kind == ActiveSkillEffectKind.PindianAndDamage)
+        {
+            BeginQuhuPindian(actor, cardIds.Single(), targetSeats.Single(), frameId);
+            return;
+        }
 
         if (effect.Kind == ActiveSkillEffectKind.DiscardAndStartDuel)
         {
@@ -16655,6 +16715,22 @@ public sealed partial class GameEngine
                 return;
             }
 
+            if (attack.SourceSkill == SkillKind.Quhu)
+            {
+                if (attack.Card is not null || _pendingQuhu is not { } quhu ||
+                    quhu.FrameId != attack.ResolutionId)
+                {
+                    throw new InvalidOperationException("Quhu damage lost its active-skill continuation.");
+                }
+
+                CompleteQuhuResolution(quhu, attack.TargetSeat);
+                if (_winner != Winner.None && _status != EngineStatus.Completed)
+                {
+                    CompleteGame();
+                }
+                return;
+            }
+
             var activeSkillCard = RequireAttackCard(attack);
             var activeSkillLocation = _cardZones.GetLocation(activeSkillCard.Id);
             if (activeSkillLocation.Zone is not (CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.DiscardPile))
@@ -17875,6 +17951,11 @@ public sealed partial class GameEngine
             }
 
             if (activeSkill.Kind == SkillKind.Qiangxi && !UsesFormalQiangxi)
+            {
+                continue;
+            }
+
+            if (activeSkill.Kind == SkillKind.Quhu && !UsesFormalXunYu)
             {
                 continue;
             }
@@ -19590,6 +19671,14 @@ public sealed partial class GameEngine
                     player.Hp < player.MaxHp)
                 .Select(player => player.Seat)
                 .ToHashSet(),
+            SkillKind.Quhu when UsesFormalXunYu => _players
+                .Where(player =>
+                    player.IsAlive &&
+                    player.Seat != actor.Seat &&
+                    player.Hp > actor.Hp &&
+                    GetHand(player).Count > 0)
+                .Select(player => player.Seat)
+                .ToHashSet(),
             _ => []
         };
 
@@ -21145,6 +21234,16 @@ public sealed partial class GameEngine
                 activeSkillFrame.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage &&
                 _pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Qiangxi } qiangxiAttack &&
                 qiangxiAttack.ResolutionId == activeSkillFrame.Id;
+            var isQuhuContinuation =
+                activeSkillFrame.Skill == SkillKind.Quhu &&
+                activeSkillFrame.Effect == ActiveSkillEffectKind.PindianAndDamage &&
+                _pendingQuhu is { } quhu &&
+                quhu.FrameId == activeSkillFrame.Id &&
+                ((_pendingAttack is null &&
+                  activeSkillFrame.Step == ResolutionFrameStep.AwaitingResponse &&
+                  _pendingDecision is { Kind: DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget }) ||
+                 (_pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Quhu } quhuAttack &&
+                  quhuAttack.ResolutionId == activeSkillFrame.Id));
             var isLijianDuel =
                 activeSkillFrame.Skill == SkillKind.Lijian &&
                 activeSkillFrame.Effect == ActiveSkillEffectKind.DiscardAndStartDuel &&
@@ -21161,6 +21260,7 @@ public sealed partial class GameEngine
                 !isFanjianPrompt &&
                 !isFanjianDamage &&
                 !isQiangxiDamage &&
+                !isQuhuContinuation &&
                 !isLijianDuel &&
                 !isJijiangContinuation)
             {
@@ -21606,6 +21706,13 @@ public sealed partial class GameEngine
                 "A Mengjin prompt cannot exist without its Slash continuation.");
         }
 
+        if (_pendingDecision?.Kind is DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget &&
+            _pendingQuhu is null)
+        {
+            throw new InvalidOperationException(
+                "A Quhu prompt cannot exist without its active-skill continuation.");
+        }
+
         if (_pendingDecision?.Kind == DecisionKind.ZhuqueFan &&
             _pendingJijiang is not { AwaitingZhuqueFanChoice: true })
         {
@@ -21724,6 +21831,7 @@ public sealed partial class GameEngine
              _pendingIceSword is not null ||
              _pendingQilinBow is not null ||
              _pendingMengjin is not null ||
+             _pendingQuhu is not null ||
              _pendingFangtianHalberd is not null ||
              processing.Count != 0))
         {
@@ -21736,6 +21844,11 @@ public sealed partial class GameEngine
         IReadOnlyList<Card> processing)
     {
         if (attack.IsActiveSkillDamage && attack.SourceSkill == SkillKind.Qiangxi)
+        {
+            return attack.Card is null && processing.Count == 0;
+        }
+
+        if (attack.IsActiveSkillDamage && attack.SourceSkill == SkillKind.Quhu)
         {
             return attack.Card is null && processing.Count == 0;
         }
@@ -22178,6 +22291,50 @@ public sealed partial class GameEngine
         PublishState();
     }
 
+    private bool IsAiQuhuPending() =>
+        _pendingQuhu is not null &&
+        _pendingDecision is { Kind: DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget } decision &&
+        !_players[decision.PlayerSeat].IsHuman;
+
+    private void ResolvePendingAiQuhu()
+    {
+        if (!IsAiQuhuPending() || _pendingDecision is not { } decision)
+        {
+            throw new InvalidOperationException("There is no AI Quhu choice to resolve.");
+        }
+
+        PromptChoice selected;
+        if (decision.Kind == DecisionKind.QuhuPindian)
+        {
+            var hand = GetHand(_players[decision.PlayerSeat]);
+            var cardId = hand.OrderByDescending(card => card.Rank).ThenBy(card => card.Id).First().Id;
+            selected = decision.Choices.Single(choice => choice.Cards.SequenceEqual([cardId]));
+            AddThought(new AiThoughtRecord(
+                ++_thoughtSequence,
+                _turnNumber,
+                decision.PlayerSeat,
+                selected.Description,
+                [],
+                "驱虎拼点：仅使用自己的私有手牌，选择点数最高的牌。"));
+            ResolveQuhuPindianChoice(selected);
+        }
+        else
+        {
+            var source = _players[decision.PlayerSeat];
+            selected = decision.Choices.OrderBy(choice => choice.Targets.Single()).First();
+            AddThought(new AiThoughtRecord(
+                ++_thoughtSequence,
+                _turnNumber,
+                source.Seat,
+                selected.Description,
+                [],
+                "驱虎获胜：按公开阵营关系选择受伤目标。"));
+            ResolveQuhuDamageTargetChoice(selected);
+        }
+
+        PublishState();
+    }
+
     private void ResolveFanjianChoice(Suit chosenSuit)
     {
         if (_pendingDecision is not { Kind: DecisionKind.Fanjian } decision ||
@@ -22272,6 +22429,202 @@ public sealed partial class GameEngine
             activeSkill.Skill,
             activeSkill.Effect));
         PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
+    }
+
+    private void BeginQuhuPindian(
+        PlayerRuntime source,
+        int sourceCardId,
+        int opponentSeat,
+        long frameId)
+    {
+        var opponent = _players[opponentSeat];
+        var sourceCard = GetHand(source).SingleOrDefault(card => card.Id == sourceCardId);
+        if (!UsesFormalXunYu ||
+            !source.General.HasSkill(SkillKind.Quhu) ||
+            sourceCard is null ||
+            !opponent.IsAlive ||
+            opponent.Seat == source.Seat ||
+            opponent.Hp <= source.Hp ||
+            GetHand(opponent).Count == 0 ||
+            _pendingQuhu is not null)
+        {
+            throw new InvalidOperationException("The selected Quhu Pindian is no longer legal.");
+        }
+
+        source.UsedActiveSkillKinds.Add(SkillKind.Quhu);
+        _pendingQuhu = new QuhuResolution(frameId, source.Seat, opponent.Seat, sourceCard.Id);
+        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.AwaitingResponse);
+        PublishQuhuPindianChoice(_pendingQuhu);
+    }
+
+    private void PublishQuhuPindianChoice(QuhuResolution pending)
+    {
+        var source = _players[pending.SourceSeat];
+        var opponent = _players[pending.OpponentSeat];
+        var hand = GetHand(opponent);
+        if (!ReferenceEquals(_pendingQuhu, pending) || hand.Count == 0)
+        {
+            throw new InvalidOperationException("The Quhu opponent has no Pindian card.");
+        }
+
+        _pendingDecision = new PendingDecision(
+            DecisionKind.QuhuPindian,
+            opponent.Seat,
+            $"{source.Name} 对你发动【驱虎】，请选择一张手牌作为拼点牌。",
+            hand.Select(card => card.Id).ToArray(),
+            [],
+            SourceSeat: source.Seat)
+        {
+            PromptId = opponent.IsHuman ? CreatePromptId() : default,
+            TargetSeat = opponent.Seat,
+            IsPrivate = true,
+            Choices = hand.Select(card => new PromptChoice(
+                new ChoiceId($"quhu-pindian-{card.Id}.resolution-{pending.FrameId}"),
+                $"以【{card.DisplayName}】（{card.Rank}）参与拼点",
+                [card.Id],
+                [],
+                new Dictionary<string, string> { ["action"] = "quhu-pindian" })).ToArray()
+        };
+        _status = opponent.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
+    private void ResolveQuhuPindianChoice(PromptChoice selected)
+    {
+        var pending = _pendingQuhu ?? throw new InvalidOperationException("There is no Quhu Pindian.");
+        if (_pendingDecision is not { Kind: DecisionKind.QuhuPindian } decision ||
+            decision.PlayerSeat != pending.OpponentSeat ||
+            selected.Parameters.GetValueOrDefault("action") != "quhu-pindian" ||
+            selected.Cards.Count != 1)
+        {
+            throw new InvalidOperationException("The Quhu Pindian choice is malformed.");
+        }
+
+        var source = _players[pending.SourceSeat];
+        var opponent = _players[pending.OpponentSeat];
+        var sourceCard = GetHand(source).Single(card => card.Id == pending.SourceCardId);
+        var opponentCard = GetHand(opponent).Single(card => card.Id == selected.Cards[0]);
+        ClearPendingDecision();
+        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.ResolvingEffect);
+        MoveCard(sourceCard, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
+        MoveCard(opponentCard, CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
+        pending.OpponentCardId = opponentCard.Id;
+        pending.SourceWon = sourceCard.Rank > opponentCard.Rank;
+        QueueGameEvent(new PindianResolvedEvent(
+            pending.FrameId,
+            SkillKind.Quhu,
+            source.Seat,
+            opponent.Seat,
+            sourceCard.Id,
+            opponentCard.Id,
+            sourceCard.Rank,
+            opponentCard.Rank,
+            pending.SourceWon));
+        MoveCard(sourceCard, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.PindianFinish);
+        MoveCard(opponentCard, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.PindianFinish);
+        AddLog(
+            "Pindian",
+            $"{source.Name} 以 {sourceCard.Rank} 点与 {opponent.Name} 的 {opponentCard.Rank} 点拼点，" +
+            (pending.SourceWon ? "驱虎成功。" : "驱虎未赢。"),
+            source.Seat,
+            opponent.Seat);
+
+        if (!pending.SourceWon)
+        {
+            BeginQuhuDamage(pending, opponent.Seat, source.Seat);
+            return;
+        }
+
+        var victims = _players.Where(player =>
+                player.IsAlive &&
+                player.Seat != opponent.Seat &&
+                GetCombatDistance(opponent.Seat, player.Seat) <= GetAttackRange(opponent.Seat))
+            .Select(player => player.Seat)
+            .ToArray();
+        if (victims.Length == 0)
+        {
+            CompleteQuhuResolution(pending, damageTargetSeat: null);
+            return;
+        }
+
+        _pendingDecision = new PendingDecision(
+            DecisionKind.QuhuDamageTarget,
+            source.Seat,
+            $"【驱虎】拼点获胜：请选择由 {opponent.Name} 对其造成1点伤害的角色。",
+            [],
+            victims,
+            SourceSeat: opponent.Seat)
+        {
+            PromptId = source.IsHuman ? CreatePromptId() : default,
+            TargetSeat = opponent.Seat,
+            IsPrivate = true,
+            Choices = victims.Select(seat => new PromptChoice(
+                new ChoiceId($"quhu-damage-seat-{seat}.resolution-{pending.FrameId}"),
+                $"令 {opponent.Name} 对 {_players[seat].Name} 造成1点伤害",
+                [],
+                [seat],
+                new Dictionary<string, string> { ["action"] = "quhu-damage" })).ToArray()
+        };
+        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.AwaitingResponse);
+        _status = source.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
+    private void ResolveQuhuDamageTargetChoice(PromptChoice selected)
+    {
+        var pending = _pendingQuhu ?? throw new InvalidOperationException("There is no Quhu target choice.");
+        if (_pendingDecision is not { Kind: DecisionKind.QuhuDamageTarget } decision ||
+            decision.PlayerSeat != pending.SourceSeat ||
+            selected.Parameters.GetValueOrDefault("action") != "quhu-damage" ||
+            selected.Targets.Count != 1 ||
+            !decision.ValidTargetSeats.Contains(selected.Targets[0]))
+        {
+            throw new InvalidOperationException("The Quhu damage target choice is malformed.");
+        }
+
+        ClearPendingDecision();
+        BeginQuhuDamage(pending, pending.OpponentSeat, selected.Targets[0]);
+    }
+
+    private void BeginQuhuDamage(QuhuResolution pending, int damageSourceSeat, int damageTargetSeat)
+    {
+        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.ResolvingEffect);
+        var attack = new AttackResolution(
+            pending.FrameId,
+            damageSourceSeat,
+            damageTargetSeat,
+            card: null,
+            damageAmount: 1,
+            sourceSkill: SkillKind.Quhu,
+            damageNatureOverride: DamageNature.Normal);
+        _pendingAttack = attack;
+        if (!ApplyAttackDamage(attack))
+        {
+            CompleteAttack(attack);
+        }
+    }
+
+    private void CompleteQuhuResolution(QuhuResolution pending, int? damageTargetSeat)
+    {
+        if (!ReferenceEquals(_pendingQuhu, pending))
+        {
+            throw new InvalidOperationException("The completed Quhu resolution is not current.");
+        }
+
+        _pendingQuhu = null;
+        ClearPendingDecision();
+        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.Completed);
+        QueueGameEvent(new ActiveSkillResolvedEvent(
+            pending.FrameId,
+            pending.SourceSeat,
+            SkillKind.Quhu,
+            ActiveSkillEffectKind.PindianAndDamage));
+        PopResolutionFrame(pending.FrameId, ResolutionFrameKind.ActiveSkill);
+        AddLog(
+            "ActiveSkill",
+            damageTargetSeat is { } seat
+                ? $"{_players[pending.SourceSeat].Name} 的【驱虎】结算完成，{_players[seat].Name} 受到伤害。"
+                : $"{_players[pending.SourceSeat].Name} 的【驱虎】拼点获胜，但目标攻击范围内没有可受伤角色。",
+            pending.SourceSeat,
+            damageTargetSeat);
     }
 
     private void BeginQiangxiDamage(
@@ -23174,6 +23527,20 @@ public sealed partial class GameEngine
     }
 
     private sealed record MengjinResolution(AttackResolution Attack);
+
+    private sealed class QuhuResolution(
+        long frameId,
+        int sourceSeat,
+        int opponentSeat,
+        int sourceCardId)
+    {
+        public long FrameId { get; } = frameId;
+        public int SourceSeat { get; } = sourceSeat;
+        public int OpponentSeat { get; } = opponentSeat;
+        public int SourceCardId { get; } = sourceCardId;
+        public int? OpponentCardId { get; set; }
+        public bool SourceWon { get; set; }
+    }
 
     private sealed class FangtianHalberdResolution(
         long resolutionId,

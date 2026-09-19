@@ -125,6 +125,8 @@ public static class CardMoveReasons
     public static CardMoveReason IceSwordDiscard { get; } = new("equipment.ice-sword.discard");
     public static CardMoveReason QilinBowDiscard { get; } = new("equipment.qilin-bow.discard-mount");
     public static CardMoveReason MengjinDiscard { get; } = new("skill.mengjin.discard");
+    public static CardMoveReason PindianReveal { get; } = new("skill.pindian.reveal");
+    public static CardMoveReason PindianFinish { get; } = new("skill.pindian.finish");
     public static CardMoveReason JudgmentReveal { get; } = new("judgment.reveal");
     public static CardMoveReason JudgmentFinish { get; } = new("judgment.finish");
     public static CardMoveReason EquipmentUse { get; } = new("equipment.use");

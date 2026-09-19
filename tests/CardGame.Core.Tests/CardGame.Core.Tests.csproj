@@ -18,6 +18,7 @@
     <Compile Include="..\Shared\IceSwordScenario.cs" Link="IceSwordScenario.cs" />
     <Compile Include="..\Shared\QilinBowScenario.cs" Link="QilinBowScenario.cs" />
     <Compile Include="..\Shared\MengjinScenario.cs" Link="MengjinScenario.cs" />
+    <Compile Include="..\Shared\QuhuScenario.cs" Link="QuhuScenario.cs" />
     <Compile Include="..\Shared\FangtianHalberdScenario.cs" Link="FangtianHalberdScenario.cs" />
     <Compile Include="..\Shared\GudingBladeScenario.cs" Link="GudingBladeScenario.cs" />
     <Compile Include="..\Shared\ZhuqueFanScenario.cs" Link="ZhuqueFanScenario.cs" />

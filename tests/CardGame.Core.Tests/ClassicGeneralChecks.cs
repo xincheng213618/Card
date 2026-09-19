@@ -48,6 +48,7 @@ internal static class ClassicGeneralChecks
         var diaoChanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 41, 0));
         var sunShangxiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 42, 0));
         var luXunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 43, 0));
+        var pangDeClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 44, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -56,7 +57,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.44.0"]),
+                "standard-classic-generals@1.45.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -70,12 +71,12 @@ internal static class ClassicGeneralChecks
             "classic:diao-chan",
             // Current expansion representatives already shipped by this package.
             "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
-            "classic:pang-de"
+            "classic:pang-de", "classic:xun-yu"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
                 .SequenceEqual(expectedCurrentRoster.Order(StringComparer.Ordinal)),
-            "Classic 1.44 must contain the complete original standard roster plus its five explicit expansion representatives.");
+            "Classic 1.45 must contain the complete original standard roster plus its six explicit expansion representatives.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
@@ -102,8 +103,12 @@ internal static class ClassicGeneralChecks
                 pangDe.SkillIds.SequenceEqual(["standard:mashu", "classic:mengjin"]) &&
                 classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:pang-de") &&
                 !luXunClassic.Generals.ContainsKey("classic:pang-de") &&
-                !luXunClassic.Skills.ContainsKey("classic:mengjin"),
-            "Classic 1.40-1.44 must add Da Qiao, Diao Chan, Sun Shangxiang, Lu Xun and Pang De without changing historical rosters.");
+                !luXunClassic.Skills.ContainsKey("classic:mengjin") &&
+                classic.Generals["classic:xun-yu"] is { BaseHp: 3, FactionId: "wei" } xunYu &&
+                xunYu.SkillIds.SequenceEqual(["classic:quhu", "standard:jieming"]) &&
+                !pangDeClassic.Generals.ContainsKey("classic:xun-yu") &&
+                !pangDeClassic.Skills.ContainsKey("classic:quhu"),
+            "Classic 1.40-1.45 must add Da Qiao, Diao Chan, Sun Shangxiang, Lu Xun, Pang De and Xun Yu without changing historical rosters.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
                     "standard:guo-jia",
@@ -1228,7 +1233,9 @@ internal static class ClassicGeneralChecks
 
     public static void FormalLuoyiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        // Keep this deterministic combat fixture on the roster it was authored
+        // against; later expansion generals legitimately change setup shuffles.
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 44, 0));
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
         var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:xu-chu" &&
