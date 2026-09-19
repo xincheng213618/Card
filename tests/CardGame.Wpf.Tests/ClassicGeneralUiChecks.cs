@@ -1142,7 +1142,11 @@ internal static class ClassicGeneralUiChecks
                        xiahouYuan.SkillName == "神速" &&
                        xiahouYuan.SkillDescription.Contains("跳过判定阶段和摸牌阶段", StringComparison.Ordinal) &&
                        xiahouYuan.SkillDescription.Contains("无距离限制", StringComparison.Ordinal) &&
-                       GeneralArt.HasPortrait(xiahouYuan.GeneralId) && xiahouYuan.HealthText == "体力上限 5",
+                       GeneralArt.HasPortrait(xiahouYuan.GeneralId) &&
+                       xiahouYuan.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && xiahouYuan.HealthText == "体力上限 5",
             "The current classic Xiahou Yuan card must render Wei, Shensu and the Lord health bonus.");
         var xiahouYuanWindow = new MainWindow(xiahouYuanViewModel);
         xiahouYuanWindow.ApplyTemplate();
