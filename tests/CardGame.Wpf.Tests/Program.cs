@@ -83,6 +83,7 @@ internal static class Program
             Check("history modal preserves selected actions and pauses then resumes AI", () => HistoryChecks.ModalLifecycle(output));
             Check("device preferences persist before play and survive legacy loads and tutorials", () => PreferencesChecks.StartupAndMigration(output));
             Check("invalid preferences remain recoverable and slider writes coalesce safely", () => PreferencesChecks.FailuresAndDebounce(output));
+            Check("settings modal groups real preferences and match pacing without changing the game", () => CheckSettingsPanel(output));
             Check("play advice uses private player views and preserves the original selection", () => AdviceChecks.ControlsAndPrivacy(output));
             Check("playback speed persists and dead players can pause and resume observation", () => PlaybackChecks.SettingsAndSpectating(output));
             Check("expanded rescue content renders and commits Jijiu dying choices", JijiuChecks.ControlsAndDying);
@@ -109,7 +110,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 73 : 72)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 74 : 73)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -128,6 +129,56 @@ internal static class Program
     }
 
     private static MainViewModel NewViewModel(int seed = 721019) => new(false, seed, showSetup: false, saveStore: new MemorySaveStore()) { IsMotionEnabled = false };
+
+    private static void CheckSettingsPanel(string output)
+    {
+        using var vm = NewViewModel();
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        var table = (FrameworkElement)window.FindName("TableSurface");
+        var revision = Engine(vm).Revision;
+        var state = SnapshotJson.Serialize(Engine(vm).State);
+
+        vm.IsLogOpen = true;
+        vm.OpenSettingsCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Assert(vm.IsSettingsOpen && !vm.IsLogOpen && !vm.IsHelpOpen && !vm.IsHistoryOpen && !vm.IsGeneralGalleryOpen,
+            "Opening settings did not establish one modal surface.");
+        Assert(!table.IsEnabled, "Settings did not block the table.");
+        Assert(((CheckBox)window.FindName("SettingsSoundToggle")).IsChecked == vm.IsSoundEnabled &&
+               ((CheckBox)window.FindName("SettingsMotionToggle")).IsChecked == vm.IsMotionEnabled &&
+               ((CheckBox)window.FindName("SettingsAutoAdvanceToggle")).IsChecked == vm.IsAutoAdvance &&
+               ((ListBox)window.FindName("SettingsPlaybackSpeedSelector")).Items.Count == vm.PlaybackSpeeds.Count,
+            "Settings controls are not bound to the real preference and pacing state.");
+
+        vm.IsSoundEnabled = !vm.IsSoundEnabled;
+        vm.IsMotionEnabled = !vm.IsMotionEnabled;
+        vm.SelectedPlaybackSpeed = vm.PlaybackSpeeds.Last();
+        Render(root, 1120, 740, Path.Combine(output, "139-settings.png"));
+        Assert(((FrameworkElement)window.FindName("SettingsPanel")).ActualWidth > 0,
+            "Settings did not fit in the small window.");
+        Assert(Engine(vm).Revision == revision && SnapshotJson.Serialize(Engine(vm).State) == state,
+            "Changing presentation settings changed the match.");
+
+        vm.CloseSettingsCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Assert(!vm.IsSettingsOpen && table.IsEnabled, "Closing settings left the table disabled.");
+
+        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
+        Assert(vm.CanStepAi, "Settings timer fixture has no AI continuation.");
+        vm.IsAutoAdvance = true;
+        vm.OpenSettingsCommand.Execute(null);
+        var paused = SnapshotJson.Serialize(Engine(vm).State);
+        Pump(TimeSpan.FromMilliseconds(1400));
+        Assert(SnapshotJson.Serialize(Engine(vm).State) == paused && vm.IsAutoAdvance,
+            "Settings changed the game while the original auto timer was enabled.");
+        vm.CloseSettingsCommand.Execute(null);
+        Pump(TimeSpan.FromMilliseconds(750));
+        Assert(SnapshotJson.Serialize(Engine(vm).State) != paused && vm.IsAutoAdvance,
+            "Closing settings did not resume the original auto-advance policy.");
+        vm.IsAutoAdvance = false;
+    }
 
     private static void CheckGeneralGallery(string output)
     {

@@ -100,6 +100,9 @@
                         <DataTrigger Binding="{Binding IsGeneralGalleryOpen}" Value="True">
                             <Setter Property="IsEnabled" Value="False" />
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
                         <DataTrigger Binding="{Binding IsIdentityRevealOpen}" Value="True">
                             <Setter Property="IsEnabled" Value="False" />
                         </DataTrigger>
@@ -182,6 +185,7 @@
                         <Button Content="指南" Command="{Binding ToggleHelpCommand}" ToolTip="当前操作与卡牌图鉴 · F1" Style="{StaticResource QuietButton}" Padding="10,8" />
                         <Button Content="战报 / 存档" Command="{Binding ToggleLogCommand}" Style="{StaticResource QuietButton}" Padding="10,8" />
                         <Button x:Name="HistoryButton" Content="战绩" Command="{Binding OpenHistoryCommand}" Style="{StaticResource QuietButton}" Padding="10,8" />
+                        <Button Content="设置" Command="{Binding OpenSettingsCommand}" Style="{StaticResource QuietButton}" Padding="10,8" />
                         <Button Content="保存" Command="{Binding SaveGameCommand}" ToolTip="保存到手动存档 · F5" Style="{StaticResource QuietButton}" />
                         <Button Content="新对局" Command="{Binding NewGameCommand}" Style="{StaticResource ToolbarButton}" Margin="12,0,0,0" Padding="15,8" />
                     </StackPanel>
@@ -1002,6 +1006,81 @@
         </Border>
         <Border x:Name="HistoryOverlay" Background="#ED0B151A" Visibility="{Binding IsHistoryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="HistoryOverlay_IsVisibleChanged">
             <controls:MatchHistoryPanel x:Name="HistoryPanel" />
+        </Border>
+        <Border x:Name="SettingsOverlay" Background="#ED0B151A" Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="SettingsOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
+            <Border x:Name="SettingsPanel" Width="680" MaxHeight="650" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#F414242A" BorderBrush="#9A8158" BorderThickness="1" CornerRadius="5" Padding="28">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <DockPanel>
+                        <Button x:Name="CloseSettingsButton" DockPanel.Dock="Right" Content="返回牌桌" Command="{Binding CloseSettingsCommand}" Style="{StaticResource ToolbarButton}" Padding="15,8" />
+                        <StackPanel>
+                            <TextBlock Text="牌 局 设 置" FontFamily="KaiTi" FontSize="28" Foreground="#E8CA8D" />
+                            <TextBlock Text="辅助表现独立于规则结算；调整后不会替你选牌或提交行动。" Foreground="#8EA397" FontSize="11" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+                    <Border Grid.Row="1" Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18" Margin="0,22,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="基础表现" FontFamily="KaiTi" FontSize="20" Foreground="#DFC081" />
+                                <TextBlock Text="保存在本机" Foreground="#72887D" FontSize="10" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <CheckBox x:Name="SettingsSoundToggle" Content="游戏音效" IsChecked="{Binding IsSoundEnabled}" />
+                                <Slider Value="{Binding SoundVolume}" Minimum="0" Maximum="1" TickFrequency="0.05" Margin="0,10,0,0" ToolTip="游戏音量" />
+                                <TextBlock Text="{Binding SoundStatusText}" Foreground="#879C90" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                <CheckBox x:Name="SettingsMotionToggle" Content="动画与战场反馈" IsChecked="{Binding IsMotionEnabled}" Margin="0,14,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="2" Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18" Margin="0,12,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="对局节奏" FontFamily="KaiTi" FontSize="20" Foreground="#DFC081" />
+                                <TextBlock Text="随当前存档恢复" Foreground="#72887D" FontSize="10" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <CheckBox x:Name="SettingsAutoAdvanceToggle" Content="自动推进其他角色行动" IsChecked="{Binding IsAutoAdvance}" />
+                                <ListBox x:Name="SettingsPlaybackSpeedSelector" ItemsSource="{Binding PlaybackSpeeds}" SelectedItem="{Binding SelectedPlaybackSpeed}" Background="Transparent" BorderThickness="0" Padding="0" Margin="0,10,0,0" HorizontalContentAlignment="Stretch">
+                                    <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ListBox.ItemTemplate>
+                                    <ListBox.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ListBox.ItemsPanel>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Foreground" Value="#B6C8B8" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <Border x:Name="SettingsPaceFrame" Background="#233237" BorderBrush="#52635A" BorderThickness="1" CornerRadius="2" Padding="10,7" Margin="2,0"><ContentPresenter HorizontalAlignment="Center" /></Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsSelected" Value="True"><Setter TargetName="SettingsPaceFrame" Property="Background" Value="#AB8B4E" /><Setter Property="Foreground" Value="#171E19" /></Trigger>
+                                                            <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="SettingsPaceFrame" Property="BorderBrush" Value="#FFE2A0" /></Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                </ListBox>
+                                <TextBlock Text="只改变自动行动的等待时间；轮到你出牌、响应或选择时仍会停下。" Foreground="#879C90" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="3" BorderBrush="#4B5D54" BorderThickness="1,0,0,0" Padding="14,0,0,0" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="输入与隐私" FontFamily="KaiTi" FontSize="18" Foreground="#D3B97F" />
+                            <TextBlock Text="Esc 关闭面板 · F1 打开指南 · F5 手动存档 · Ctrl+M 静音" Foreground="#9AADA2" FontSize="11" Margin="0,6,0,0" />
+                            <TextBlock Text="设置只读取本方已知状态；不会展示暗置身份、其他角色手牌或 AI 私有判断。" Foreground="#71877B" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
         </Border>
     </Grid>
 </Window>

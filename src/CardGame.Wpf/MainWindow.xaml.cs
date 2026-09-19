@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private IInputElement? _focusBeforeGuide;
     private IInputElement? _focusBeforeHistory;
     private IInputElement? _focusBeforeGeneralGallery;
+    private IInputElement? _focusBeforeSettings;
     private IInputElement? _focusBeforeIdentityReveal;
     public MainWindow() : this(new MainViewModel(useExpandedContent: true, historyStore: new FileMatchHistoryStore(),
         preferencesStore: new FilePlayerPreferencesStore()))
@@ -109,6 +110,12 @@ public partial class MainWindow : Window
             viewModel.IsGeneralGalleryOpen = false;
             return true;
         }
+        if (viewModel.IsSettingsOpen && !(key == Key.M && modifiers == ModifierKeys.Control))
+        {
+            if (key != Key.Escape) return false;
+            viewModel.IsSettingsOpen = false;
+            return true;
+        }
         if (viewModel.IsHistoryOpen && !(key == Key.M && modifiers == ModifierKeys.Control))
         {
             if (key != Key.Escape) return false;
@@ -156,7 +163,7 @@ public partial class MainWindow : Window
             }
             return false;
         }
-        if (viewModel.IsHelpOpen || viewModel.IsLogOpen || viewModel.IsNewGameSetupOpen || viewModel.IsGeneralGalleryOpen || viewModel.HasGameOver || viewModel.IsGeneralSelectionPending) return false;
+        if (viewModel.IsHelpOpen || viewModel.IsLogOpen || viewModel.IsNewGameSetupOpen || viewModel.IsGeneralGalleryOpen || viewModel.IsSettingsOpen || viewModel.HasGameOver || viewModel.IsGeneralSelectionPending) return false;
         if (key == Key.Enter && modifiers == ModifierKeys.Control && viewModel.CanEndTurn)
         {
             viewModel.EndTurnCommand.Execute(null);
@@ -211,6 +218,18 @@ public partial class MainWindow : Window
         {
             if (IdentityRevealOverlay.IsVisible) ContinueFromIdentityRevealButton.Focus();
             else if (_focusBeforeIdentityReveal is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
+            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+        }));
+    }
+
+    private void SettingsOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        if (SettingsOverlay.IsVisible) _focusBeforeSettings = Keyboard.FocusedElement;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+        {
+            if (SettingsOverlay.IsVisible) SettingsSoundToggle.Focus();
+            else if (_focusBeforeSettings is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
             else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }));
     }
