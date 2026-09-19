@@ -259,6 +259,14 @@ public static class CardCatalog
                 AiPlayValue: 42,
                 AiResponseValue: 0,
                 HandKeepValue: 45),
+            [CardKind.GudingBlade] = new(
+                CardKind.GudingBlade,
+                "古锭刀",
+                "装备牌",
+                "装备至武器槽；攻击范围 2，锁定技，当你使用杀对没有手牌的目标造成伤害时，此伤害 +1。",
+                AiPlayValue: 39,
+                AiResponseValue: 0,
+                HandKeepValue: 43),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

@@ -74,7 +74,8 @@ public enum CardKind
     QinglongCrescentBlade,
     IceSword,
     QilinBow,
-    FangtianHalberd
+    FangtianHalberd,
+    GudingBlade
 }
 
 public enum Suit

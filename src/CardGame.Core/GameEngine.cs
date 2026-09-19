@@ -279,6 +279,9 @@ public sealed partial class GameEngine
     private bool UsesFormalFangtianHalberd =>
         _rulesVersion >= 49 && IsClassicIdentityMode;
 
+    private bool UsesFormalGudingBlade =>
+        _rulesVersion >= 50 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -17179,20 +17182,47 @@ public sealed partial class GameEngine
             attack.SourceSeat == _currentSeat &&
             attack.CardUserSeat == attack.SourceSeat &&
             attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel;
-        attack.FinalizeDamageAmount(receivesLuoyiBonus ? 1 : 0);
+        var receivesGudingBladeBonus = UsesFormalGudingBlade &&
+            !attack.IsChainPropagation &&
+            !attack.IsActiveSkillDamage &&
+            attack.CardUserSeat == attack.SourceSeat &&
+            attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+            GetHand(_players[attack.TargetSeat]).Count == 0 &&
+            GetEquipment(_players[attack.SourceSeat]).Any(card => card.Kind == CardKind.GudingBlade);
+        var damageBonus = (receivesLuoyiBonus ? 1 : 0) + (receivesGudingBladeBonus ? 1 : 0);
+        attack.FinalizeDamageAmount(damageBonus);
+        var runningAmount = baseAmount;
         if (receivesLuoyiBonus)
         {
+            var modifiedAmount = checked(runningAmount + 1);
             QueueGameEvent(new DamageModifiedBySkillEvent(
                 attack.ResolutionId,
                 attack.SourceSeat,
                 attack.TargetSeat,
                 SkillKind.Luoyi,
                 RequireAttackCardKind(attack),
-                baseAmount,
-                attack.DamageAmount));
+                runningAmount,
+                modifiedAmount));
             AddLog(
                 "SkillTriggered",
                 $"{_players[attack.SourceSeat].Name} 的【裸衣】令本次【{CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName}】伤害 +1。",
+                attack.SourceSeat,
+                attack.TargetSeat);
+            runningAmount = modifiedAmount;
+        }
+        if (receivesGudingBladeBonus)
+        {
+            var modifiedAmount = checked(runningAmount + 1);
+            QueueGameEvent(new GudingBladeDamageIncreasedEvent(
+                attack.ResolutionId,
+                attack.SourceSeat,
+                attack.TargetSeat,
+                RequireAttackCardKind(attack),
+                runningAmount,
+                modifiedAmount));
+            AddLog(
+                "EquipmentEffect",
+                $"{_players[attack.SourceSeat].Name} 的【古锭刀】对空手的 {_players[attack.TargetSeat].Name} 生效，本次伤害 +1。",
                 attack.SourceSeat,
                 attack.TargetSeat);
         }

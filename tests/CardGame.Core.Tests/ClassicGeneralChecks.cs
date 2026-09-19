@@ -39,6 +39,7 @@ internal static class ClassicGeneralChecks
         var qinglongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 27, 0));
         var iceSwordClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 28, 0));
         var qilinBowClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 29, 0));
+        var fangtianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 30, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -47,7 +48,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.30.0"]),
+                "standard-classic-generals@1.31.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -245,6 +246,10 @@ internal static class ClassicGeneralChecks
                 !qilinBowClassic.Cards.ContainsKey("classic:fangtian-halberd") &&
                 qilinBowClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 99,
             "The 1.29 classic registry must retain its 99-card Qilin Bow deck without Fangtian Halberd.");
+        Require(fangtianClassic.Cards["classic:fangtian-halberd"].LegacyKind == CardKind.FangtianHalberd &&
+                !fangtianClassic.Cards.ContainsKey("classic:guding-blade") &&
+                fangtianClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 100,
+            "The 1.30 classic registry must retain its 100-card Fangtian deck without Guding Blade.");
         Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
                 classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
                 classic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
@@ -253,12 +258,13 @@ internal static class ClassicGeneralChecks
                 classic.Cards["classic:ice-sword"].LegacyKind == CardKind.IceSword &&
                 classic.Cards["classic:qilin-bow"].LegacyKind == CardKind.QilinBow &&
                 classic.Cards["classic:fangtian-halberd"].LegacyKind == CardKind.FangtianHalberd &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 100 &&
+                classic.Cards["classic:guding-blade"].LegacyKind == CardKind.GudingBlade &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 101 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.30 classic registry must opt both classic modes into the 100-card deck with Fangtian Halberd and typed gender.");
+            "The 1.31 classic registry must opt both classic modes into the 101-card deck with Guding Blade and typed gender.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -2208,21 +2214,17 @@ internal static class ClassicGeneralChecks
                 EventSignatures(replayed).SequenceEqual(EventSignatures(game)),
             "A completed Kuanggu recovery must replay exactly.");
 
-        var legacy = GameReplay.Restore(
-            fixture.BeforeDamage with { RulesVersion = 37 },
-            registry);
-        var legacyEventCount = legacy.Events.Count;
-        var legacyResult = SubmitPlayAction(legacy, fixture.Action);
-        var legacyEvents = legacy.Events.Skip(legacyEventCount).Select(item => item.Payload).ToArray();
-        Require(legacyResult.Accepted &&
-                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp ==
-                fixture.SourceHpBefore &&
+        var legacyFixture = FindWeiYanKuangguFixture(registry, rulesVersion: 37);
+        var legacy = legacyFixture.Game;
+        var legacyEvents = legacy.Events.Skip(legacyFixture.EventCount).Select(item => item.Payload).ToArray();
+        Require(legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp ==
+                legacyFixture.SourceHpBefore &&
                 legacyEvents.OfType<DamageAppliedEvent>().Any(damage =>
-                    damage.TargetSeat == fixture.TargetSeat && damage.Amount == 1) &&
+                    damage.TargetSeat == legacyFixture.TargetSeat && damage.Amount == 1) &&
                 legacyEvents.OfType<KuangguRecoveredEvent>().Count() == 0 &&
                 legacyEvents.OfType<RecoveryAppliedEvent>().All(recovery =>
                     recovery.TargetSeat != 0),
-            legacyResult.Error?.Message ?? "Rules v37 must not resolve Kuanggu.");
+            "A match created under rules v37 must not resolve Kuanggu.");
 
         var fullHealth = GameReplay.Restore(fixture.BeforeDamage, registry);
         SetPlayerHp(fullHealth, seat: 0, hp: 4);
@@ -4981,11 +4983,19 @@ internal static class ClassicGeneralChecks
         int EventCount,
         int TargetSeat,
         int SourceHpBefore,
-        int Distance) FindWeiYanKuangguFixture(ContentRegistry registry)
+        int Distance) FindWeiYanKuangguFixture(
+            ContentRegistry registry,
+            int rulesVersion = GameCheckpoint.CurrentRulesVersion)
     {
         for (var seed = 1; seed <= 2_048; seed++)
         {
             var game = CreateInteractive(registry, seed, Role.Rebel);
+            if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
+            {
+                game = GameReplay.Restore(
+                    game.CreateCheckpoint() with { RulesVersion = rulesVersion },
+                    registry);
+            }
             var started = game.Submit(new StartGameCommand());
             Require(started.Accepted, started.Error?.Message ?? "Wei Yan fixture failed to start.");
             if (game.PendingDecision?.Choices.Any(choice =>
@@ -5046,7 +5056,8 @@ internal static class ClassicGeneralChecks
                                 continue;
                             }
 
-                            if (!game.Events.Skip(eventCount).Any(item =>
+                            if (rulesVersion >= 38 &&
+                                !game.Events.Skip(eventCount).Any(item =>
                                     item.Payload is KuangguRecoveredEvent))
                             {
                                 var resolved = game.Submit(new AdvanceOneStepCommand(game.Revision));
@@ -5056,8 +5067,15 @@ internal static class ClassicGeneralChecks
                                 }
                             }
 
-                            if (game.Events.Skip(eventCount).Any(item =>
-                                    item.Payload is KuangguRecoveredEvent))
+                            var newEvents = game.Events.Skip(eventCount)
+                                .Select(item => item.Payload)
+                                .ToArray();
+                            if ((rulesVersion >= 38 && newEvents.Any(item =>
+                                    item is KuangguRecoveredEvent)) ||
+                                (rulesVersion < 38 && newEvents.Any(item =>
+                                    item is DamageAppliedEvent damage &&
+                                    damage.SourceSeat == 0 &&
+                                    damage.TargetSeat == candidate.Target.Seat)))
                             {
                                 return (
                                     game,

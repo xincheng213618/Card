@@ -2734,10 +2734,23 @@ public sealed partial class SimpleAiBrain
                          !IsSlashCard(card.Kind)
             ? $"；将{CardCatalog.Get(card.Kind).DisplayName}当作杀使用"
             : string.Empty;
+        var gudingBladeBonus = HasGudingBladeDamageBonus(self, action, target) ? 42d : 0d;
+        var gudingBlade = gudingBladeBonus > 0d
+            ? $"；古锭刀对公开为空手的目标可令伤害 +1，增加 {gudingBladeBonus:0.#} 分"
+            : string.Empty;
         return (
-            cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus,
-            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}。身份判断只使用公开信息。");
+            cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus + gudingBladeBonus,
+            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}。身份判断只使用公开信息。");
     }
+
+    private static bool HasGudingBladeDamageBonus(
+        PlayerSnapshot self,
+        LegalAction action,
+        PlayerSnapshot target) =>
+        action.Kind == LegalActionKind.Slash &&
+        action.TargetSeats.Count == 1 &&
+        target.HandCount == 0 &&
+        self.Equipment.Any(card => card.Kind == CardKind.GudingBlade);
 
     private (double Score, string Reason) ScoreFangtianHalberdSlash(
         GameSnapshot view,

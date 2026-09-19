@@ -782,6 +782,19 @@ public sealed record FangtianHalberdUsedEvent(
     CardKind EffectiveSlashKind,
     IReadOnlyList<int> TargetSeats) : IGameEvent;
 
+/// <summary>
+/// Public audit record for Guding Blade's locked damage increase. The target
+/// hand count is checked at the direct Slash damage timing, before damage is
+/// requested and before any elemental chain propagation begins.
+/// </summary>
+public sealed record GudingBladeDamageIncreasedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    CardKind EffectiveSlashKind,
+    int BaseAmount,
+    int ModifiedAmount) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

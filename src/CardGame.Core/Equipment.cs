@@ -94,6 +94,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 4，当你使用最后的手牌杀时，可额外指定至多两个合法目标。",
                 WeaponAttackRange: 4),
+            [CardKind.GudingBlade] = new(
+                CardKind.GudingBlade,
+                "古锭刀",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 2，锁定技，当你使用杀对没有手牌的目标造成伤害时，此伤害 +1。",
+                WeaponAttackRange: 2),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

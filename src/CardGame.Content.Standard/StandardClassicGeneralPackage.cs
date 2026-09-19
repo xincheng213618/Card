@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 30, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 31, 0))
     {
     }
 
@@ -49,12 +49,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 27, 0) &&
             version != new Version(1, 28, 0) &&
             version != new Version(1, 29, 0) &&
-            version != new Version(1, 30, 0))
+            version != new Version(1, 30, 0) &&
+            version != new Version(1, 31, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.30.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.31.0.");
         }
 
         _version = version;
@@ -186,6 +187,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["effect"] = "up-to-two-extra-targets"
                     }));
             }
+            if (_version >= new Version(1, 31, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:guding-blade",
+                    DisplayName: "古锭刀",
+                    CategoryName: "装备牌",
+                    Description: "装备至武器槽；攻击范围 2，锁定技，当你使用杀对没有手牌的目标造成伤害时，此伤害 +1。",
+                    LegacyKind: CardKind.GudingBlade,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "weapon",
+                        ["trigger"] = "slash-causes-damage-to-empty-hand",
+                        ["effect"] = "damage-plus-one"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -246,10 +262,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:fangtian-halberd", 1));
             }
+            if (_version >= new Version(1, 31, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:guding-blade", 1));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 30, 0)
+                Name: _version >= new Version(1, 31, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀）"
+                    : _version >= new Version(1, 30, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟）"
                     : _version >= new Version(1, 29, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓）"
