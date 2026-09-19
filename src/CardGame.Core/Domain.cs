@@ -184,7 +184,9 @@ public enum SkillKind
     Guose,
     Liuli,
     Lijian,
-    Biyue
+    Biyue,
+    Jieyin,
+    Xiaoji
 }
 
 public enum DecisionKind
@@ -214,6 +216,7 @@ public enum DecisionKind
     Keji,
     Liuli,
     Biyue,
+    Xiaoji,
     Tuxi,
     Luoyi,
     Luoshen,

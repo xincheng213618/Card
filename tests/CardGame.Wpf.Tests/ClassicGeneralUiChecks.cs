@@ -974,6 +974,26 @@ internal static class ClassicGeneralUiChecks
         diaoChanWindow.Content = null;
         diaoChanWindow.Close();
 
+        using var sunShangxiangViewModel = FindGeneralChoice("classic:sun-shangxiang");
+        var sunShangxiang = sunShangxiangViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:sun-shangxiang");
+        Program.Assert(sunShangxiang.Name == "孙尚香" &&
+                       sunShangxiang.Kingdom == "吴" &&
+                       sunShangxiang.SkillName == "结姻 / 枭姬" &&
+                       sunShangxiang.SkillDescription.Contains("两张手牌", StringComparison.Ordinal) &&
+                       sunShangxiang.SkillDescription.Contains("失去装备区", StringComparison.Ordinal) &&
+                       sunShangxiang.HealthText == "体力上限 4",
+            "The current classic Sun Shangxiang card must render Wu, Jieyin, Xiaoji and the Lord health bonus.");
+        var sunShangxiangWindow = new MainWindow(sunShangxiangViewModel);
+        sunShangxiangWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)sunShangxiangWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "128-classic-sun-shangxiang-card.png"));
+        sunShangxiangWindow.Content = null;
+        sunShangxiangWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

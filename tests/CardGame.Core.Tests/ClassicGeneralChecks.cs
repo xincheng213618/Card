@@ -45,6 +45,7 @@ internal static class ClassicGeneralChecks
         var tengjiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 33, 0));
         var woodenOxClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
         var daQiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 40, 0));
+        var diaoChanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 41, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -53,7 +54,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.41.0"]),
+                "standard-classic-generals@1.42.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
@@ -66,7 +67,12 @@ internal static class ClassicGeneralChecks
                 diaoChan.SkillIds.SequenceEqual(["classic:biyue", "classic:lijian"]) &&
                 classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:diao-chan") &&
                 !daQiaoClassic.Generals.ContainsKey("classic:diao-chan") &&
-                !daQiaoClassic.Skills.ContainsKey("classic:lijian"),
+                !daQiaoClassic.Skills.ContainsKey("classic:lijian") &&
+                classic.Generals["classic:sun-shangxiang"] is
+                    { BaseHp: 3, Gender: GeneralGender.Female } sunShangxiang &&
+                sunShangxiang.SkillIds.SequenceEqual(["classic:jieyin", "classic:xiaoji"]) &&
+                !diaoChanClassic.Generals.ContainsKey("classic:sun-shangxiang") &&
+                !diaoChanClassic.Skills.ContainsKey("classic:jieyin"),
             "Classic 1.40 must add female 3-HP Da Qiao with Guose and Liuli without changing historical rosters.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -4577,6 +4583,148 @@ internal static class ClassicGeneralChecks
         Require(drew.Accepted && biyue.CardMovements.Any(move => move.Reason == CardMoveReasons.BiyueDraw) &&
                 biyue.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == handBefore + 1,
             drew.Error?.Message ?? "Biyue must draw exactly one card before ending the turn.");
+    }
+
+    public static void FormalJieyinAndXiaojiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        GameEngine? xiaojiGame = null;
+        LegalAction[]? equipmentActions = null;
+        for (var seed = 1; seed <= 8_192 && equipmentActions is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:sun-shangxiang",
+                GameCheckpoint.CurrentRulesVersion);
+            if (candidate is null) continue;
+            var equipments = candidate.GetHumanLegalActions()
+                .Where(action => action.Kind == LegalActionKind.Equip && action.CardId is not null)
+                .Select(action => new
+                {
+                    Action = action,
+                    Slot = EquipmentCatalog.Get(candidate.CreateSnapshot(0, revealAll: true).Players[0].Hand
+                        .Single(card => card.Id == action.CardId).Kind).Slot
+                })
+                .GroupBy(item => item.Slot)
+                .Select(group => group.Select(item => item.Action).Take(2).ToArray())
+                .FirstOrDefault(group => group.Length == 2);
+            if (equipments is not null)
+            {
+                xiaojiGame = candidate;
+                equipmentActions = equipments;
+            }
+        }
+
+        Require(xiaojiGame is not null && equipmentActions is { Length: 2 },
+            "Could not find a deterministic Sun Shangxiang equipment-replacement fixture.");
+        var xiaoji = xiaojiGame!;
+        var legacyXiaoji = StartClassicGeneralAtPlay(
+            registry,
+            xiaoji.Seed,
+            "classic:sun-shangxiang",
+            rulesVersion: 56) ?? throw new InvalidOperationException("The rules v56 Xiaoji fixture was not reproducible.");
+        foreach (var equipment in equipmentActions!)
+        {
+            if (legacyXiaoji.PendingDecision is null)
+            {
+                var continued = legacyXiaoji.Submit(new AdvanceCommand(legacyXiaoji.Revision));
+                Require(continued.Accepted && legacyXiaoji.PendingDecision?.Kind == DecisionKind.PlayCard,
+                    continued.Error?.Message ?? "The rules v56 fixture did not return to play.");
+            }
+            var equipped = legacyXiaoji.Submit(new PlayCardCommand(
+                0,
+                equipment.CardId!.Value,
+                [],
+                legacyXiaoji.Revision,
+                legacyXiaoji.PendingDecision!.PromptId));
+            Require(equipped.Accepted, equipped.Error?.Message ?? "The rules v56 fixture could not equip.");
+        }
+        Require(legacyXiaoji.PendingDecision?.Kind != DecisionKind.Xiaoji &&
+                legacyXiaoji.CardMovements.All(move => move.Reason != CardMoveReasons.XiaojiDraw),
+            "Rules v56 must preserve equipment replacement without Xiaoji.");
+
+        foreach (var equipment in equipmentActions!)
+        {
+            if (xiaoji.PendingDecision is null)
+            {
+                var continued = xiaoji.Submit(new AdvanceCommand(xiaoji.Revision));
+                Require(continued.Accepted && xiaoji.PendingDecision?.Kind == DecisionKind.PlayCard,
+                    continued.Error?.Message ?? "Sun Shangxiang did not return to play after equipping.");
+            }
+            var prompt = xiaoji.PendingDecision!;
+            var equipped = xiaoji.Submit(new PlayCardCommand(
+                0,
+                equipment.CardId!.Value,
+                [],
+                xiaoji.Revision,
+                prompt.PromptId));
+            Require(equipped.Accepted, equipped.Error?.Message ?? "Sun Shangxiang could not equip the fixture card.");
+        }
+
+        Require(xiaoji.PendingDecision is { Kind: DecisionKind.Xiaoji, PlayerSeat: 0 } &&
+                xiaoji.PendingDecision.Choices.Count == 2,
+            "Replacing Sun Shangxiang's equipment must publish an optional Xiaoji prompt.");
+        var xiaojiPrompt = xiaoji.PendingDecision!;
+        var paused = xiaoji.CreateCheckpoint();
+        var pausedRestore = GameReplay.Restore(paused, registry);
+        Require(pausedRestore.PendingDecision?.Kind == DecisionKind.Xiaoji,
+            "A paused Xiaoji prompt must replay exactly.");
+        var handBeforeXiaoji = xiaoji.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
+        var drew = xiaoji.Submit(new AnswerPromptCommand(
+            0,
+            xiaojiPrompt.PromptId,
+            xiaojiPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "xiaoji-use").Id,
+            xiaoji.Revision));
+        Require(drew.Accepted &&
+                xiaoji.CardMovements.Count(move => move.Reason == CardMoveReasons.XiaojiDraw) == 2 &&
+                xiaoji.Events.Select(item => item.Payload).OfType<EquipmentLossSkillResolvedEvent>().Any(item =>
+                    item.SourceSeat == 0 && item.Skill == SkillKind.Xiaoji && item.Used && item.DrawCount == 2) &&
+                xiaoji.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == handBeforeXiaoji + 2,
+            drew.Error?.Message ?? "Xiaoji must draw exactly two cards after one equipment leaves.");
+
+        var jieyin = SelectGeneral(registry, "classic:sun-shangxiang", GameCheckpoint.CurrentRulesVersion);
+        var reached = jieyin.Submit(new AdvanceCommand(jieyin.Revision));
+        Require(reached.Accepted && jieyin.PendingDecision?.Kind == DecisionKind.PlayCard,
+            reached.Error?.Message ?? "Sun Shangxiang did not reach her play phase.");
+        var full = jieyin.CreateSnapshot(0, revealAll: true);
+        var maleTarget = full.Players.First(player =>
+            player.Seat != 0 &&
+            registry.Generals[player.GeneralId!].Gender == GeneralGender.Male);
+        SetRuntimeHp(jieyin, 0, full.Players[0].MaxHp - 1);
+        SetRuntimeHp(jieyin, maleTarget.Seat, maleTarget.MaxHp - 1);
+        var jieyinAction = jieyin.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Jieyin);
+        var cost = jieyinAction.SelectableCardIds.Take(2).ToArray();
+        var used = jieyin.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Jieyin,
+            cost,
+            [maleTarget.Seat],
+            jieyin.Revision,
+            jieyin.PendingDecision!.PromptId));
+        var after = jieyin.CreateSnapshot(0, revealAll: true);
+        Require(used.Accepted &&
+                after.Players[0].Hp == after.Players[0].MaxHp &&
+                after.Players[maleTarget.Seat].Hp == after.Players[maleTarget.Seat].MaxHp &&
+                jieyin.CardMovements.Count(move =>
+                    cost.Contains(move.CardId) &&
+                    move.Reason == CardMoveReasons.JieyinDiscard &&
+                    move.To == CardLocation.DiscardPile) == 2,
+            used.Error?.Message ?? "Jieyin must discard exactly two hand cards and recover both characters.");
+    }
+
+    private static void SetRuntimeHp(GameEngine game, int seat, int hp)
+    {
+        var playersField = typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The runtime player list was not found.");
+        var players = (System.Collections.IList)(playersField.GetValue(game) ??
+            throw new InvalidOperationException("The runtime player list is unavailable."));
+        var player = players[seat] ?? throw new InvalidOperationException("The runtime player is unavailable.");
+        var hpProperty = player.GetType().GetProperty("Hp") ??
+            throw new InvalidOperationException("The runtime HP property was not found.");
+        hpProperty.SetValue(player, hp);
     }
 
     private static GameEngine FindDaQiaoLiuliFixture(ContentRegistry registry)

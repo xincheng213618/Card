@@ -27,7 +27,8 @@ public enum ActiveSkillEffectKind
     RevealGiftAndDamage,
     RequestSlash,
     PayHpOrDiscardWeaponAndDamage,
-    DiscardAndStartDuel
+    DiscardAndStartDuel,
+    DiscardAndRecoverSelfAndTarget
 }
 
 public sealed record ActiveSkillEffect(
@@ -635,6 +636,33 @@ public sealed class BiyueSkill : IPassiveSkill
     public string Name => "闭月";
 }
 
+public sealed class JieyinSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Jieyin;
+    public string Name => "结姻";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.IsOwnTurn &&
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount >= 2 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget,
+            MinCardCount: 2,
+            MaxCardCount: 2,
+            MinTargetCount: 1,
+            MaxTargetCount: 1,
+            RecoveryAmount: 1);
+}
+
+public sealed class XiaojiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Xiaoji;
+    public string Name => "枭姬";
+}
+
 public sealed class PaoxiaoSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Paoxiao;
@@ -906,6 +934,8 @@ public static class SkillRegistry
             [SkillKind.Liuli] = new LiuliSkill(),
             [SkillKind.Lijian] = new LijianSkill(),
             [SkillKind.Biyue] = new BiyueSkill(),
+            [SkillKind.Jieyin] = new JieyinSkill(),
+            [SkillKind.Xiaoji] = new XiaojiSkill(),
             [SkillKind.Jizhi] = new JizhiSkill(),
             [SkillKind.Tieqi] = new TieqiSkill(),
             [SkillKind.Liegong] = new LiegongSkill(),

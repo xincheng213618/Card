@@ -88,6 +88,7 @@ public sealed partial class GameEngine
     private HujiaResolution? _pendingHujia;
     private JijiangResolution? _pendingJijiang;
     private DelayedTurnEffects _pendingTurnDelayedEffects;
+    private readonly Queue<XiaojiTrigger> _pendingXiaojiTriggers = new();
 
     private GameEngine(
         GameOptions options,
@@ -256,6 +257,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalDiaoChan =>
         _rulesVersion >= 56 && IsClassicIdentityMode;
+
+    private bool UsesFormalSunShangxiang =>
+        _rulesVersion >= 57 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -901,6 +905,7 @@ public sealed partial class GameEngine
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Liuli or
                 DecisionKind.Biyue or
+                DecisionKind.Xiaoji or
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
@@ -995,6 +1000,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Biyue)
         {
             return SubmitBiyuePromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Xiaoji)
+        {
+            return SubmitXiaojiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Tuxi)
@@ -1799,6 +1809,25 @@ public sealed partial class GameEngine
             advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
     }
 
+    private CommandResult SubmitXiaojiPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Xiaoji })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的枭姬装备离场窗口。");
+        }
+
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (selected.Cards.Count != 0 || selected.Targets.Count != 0 ||
+            action is not ("xiaoji-use" or "xiaoji-skip"))
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "枭姬选择不符合当前装备离场窗口。");
+        }
+
+        return Accept(() => HumanXiaojiCore(
+            action == "xiaoji-use",
+            advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+    }
+
     private CommandResult SubmitLiuliPromptAnswer(PromptChoice selected)
     {
         if (_pendingAttack is not { } attack ||
@@ -2164,14 +2193,16 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.RevealGiftAndDamage or
                 ActiveSkillEffectKind.RequestSlash or
                 ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
-                ActiveSkillEffectKind.DiscardAndStartDuel) ||
+                ActiveSkillEffectKind.DiscardAndStartDuel or
+                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
             effect.RecoveryAmount < 0 ||
             effect.Kind is not (ActiveSkillEffectKind.GiveCardsAndRecover or
                 ActiveSkillEffectKind.DiscardAndRecover or
-                ActiveSkillEffectKind.DiscardAndRecoverTargets) && effect.RecoveryAmount != 0 ||
+                ActiveSkillEffectKind.DiscardAndRecoverTargets or
+                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget) && effect.RecoveryAmount != 0 ||
             effect.Kind == ActiveSkillEffectKind.GiveCardsAndRecover &&
             (effect.HpCost != 0 || effect.DrawCount != 0) ||
             (effect.Kind is ActiveSkillEffectKind.DiscardAndRecover or
@@ -2194,6 +2225,10 @@ public sealed partial class GameEngine
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
              effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
              effect.MinTargetCount != 2 || effect.MaxTargetCount != 2) ||
+            effect.Kind == ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 1 ||
+             effect.MinCardCount != 2 || effect.MaxCardCount != 2 ||
+             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
             effect.MinTargetCount < 0 ||
@@ -3374,6 +3409,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Biyue);
         ResolveBiyueChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanXiaojiCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Xiaoji);
+        ResolveXiaojiChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5861,6 +5904,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiXiaojiPending())
+        {
+            ResolvePendingAiXiaoji();
+            return;
+        }
+
         if (IsAiTuxiPending())
         {
             ResolvePendingAiTuxi();
@@ -6050,7 +6099,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.RevealGiftAndDamage or
                 ActiveSkillEffectKind.RequestSlash or
                 ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
-                ActiveSkillEffectKind.DiscardAndStartDuel))
+                ActiveSkillEffectKind.DiscardAndStartDuel or
+                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -6122,6 +6172,49 @@ public sealed partial class GameEngine
                 actor.Seat,
                 duelTarget.Seat);
             BeginDuelResponse(_pendingDuel);
+            return;
+        }
+
+        if (effect.Kind == ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget)
+        {
+            var jieyinHand = GetHand(actor);
+            var discarded = cardIds.Select(cardId => jieyinHand.Single(card => card.Id == cardId)).ToArray();
+            MoveCards(discarded, CardLocation.Hand(actor.Seat), CardLocation.Processing, CardMoveReasons.JieyinDiscard);
+            QueueGameEvent(new SkillCardsDiscardedEvent(
+                frameId,
+                actor.Seat,
+                skillKind,
+                Array.AsReadOnly(cardIds)));
+            MoveCards(discarded, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.JieyinDiscard);
+
+            var target = _players[targetSeats.Single()];
+            foreach (var recovering in new[] { actor, target })
+            {
+                if (recovering.IsAlive && recovering.Hp < recovering.MaxHp)
+                {
+                    var recovery = Math.Min(effect.RecoveryAmount, recovering.MaxHp - recovering.Hp);
+                    var recoveryFrameId = BeginRecovery(frameId, actor.Seat, recovering.Seat, recovery);
+                    try
+                    {
+                        recovering.Hp += recovery;
+                        QueueGameEvent(new RecoveryAppliedEvent(actor.Seat, recovering.Seat, recovery, recovering.Hp));
+                    }
+                    finally
+                    {
+                        PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
+                    }
+                }
+            }
+
+            actor.UsedActiveSkillKinds.Add(skillKind);
+            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
+            QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
+            PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
+            AddLog(
+                "ActiveSkill",
+                $"{actor.Name} 发动【结姻】，弃置两张手牌，令自己与 {target.Name} 各回复 1 点体力。",
+                actor.Seat,
+                target.Seat);
             return;
         }
 
@@ -18718,6 +18811,7 @@ public sealed partial class GameEngine
         _phase = TurnPhase.Finished;
         _status = EngineStatus.Completed;
         _pendingDecision = null;
+        _pendingXiaojiTriggers.Clear();
         var winnerName = IsNationalWarMode && _rulesVersion >= 7
             ? _winnerFactionId is { } winnerFactionId
                 ? $"{GetFactionName(winnerFactionId)}势力"
@@ -18741,6 +18835,7 @@ public sealed partial class GameEngine
         }
 
         _winner = Winner.Draw;
+        _pendingXiaojiTriggers.Clear();
         foreach (var player in _players)
         {
             player.RoleRevealed = true;
@@ -19164,6 +19259,14 @@ public sealed partial class GameEngine
                 .Where(player => player.IsAlive && player.General.Gender == GeneralGender.Male)
                 .Select(player => player.Seat)
                 .ToHashSet(),
+            SkillKind.Jieyin when UsesFormalSunShangxiang => _players
+                .Where(player =>
+                    player.IsAlive &&
+                    player.Seat != actor.Seat &&
+                    player.General.Gender == GeneralGender.Male &&
+                    player.Hp < player.MaxHp)
+                .Select(player => player.Seat)
+                .ToHashSet(),
             _ => []
         };
 
@@ -19178,6 +19281,7 @@ public sealed partial class GameEngine
         ClearJudgmentEffectiveKindAfterMove(card, from, to);
         ResolveSilverLionRemoval(card, from, reason);
         ResolveWoodenOxMove(card, from, to);
+        QueueXiaojiTrigger(card, from);
     }
 
     private void MoveCards(
@@ -19193,6 +19297,7 @@ public sealed partial class GameEngine
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
             ResolveSilverLionRemoval(card, from, reason);
             ResolveWoodenOxMove(card, from, to);
+            QueueXiaojiTrigger(card, from);
         }
     }
 
@@ -19208,6 +19313,23 @@ public sealed partial class GameEngine
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
             ResolveSilverLionRemoval(card, from, reason);
             ResolveWoodenOxMove(card, from, to);
+            QueueXiaojiTrigger(card, from);
+        }
+    }
+
+    private void QueueXiaojiTrigger(Card card, CardLocation from)
+    {
+        if (!UsesFormalSunShangxiang ||
+            from.Zone != CardZoneKind.Equipment ||
+            from.OwnerSeat is not { } ownerSeat)
+        {
+            return;
+        }
+
+        var owner = _players[ownerSeat];
+        if (owner.IsAlive && owner.General.HasSkill(SkillKind.Xiaoji))
+        {
+            _pendingXiaojiTriggers.Enqueue(new XiaojiTrigger(ownerSeat, card.Id, card.Kind));
         }
     }
 
@@ -21558,6 +21680,21 @@ public sealed partial class GameEngine
         PublishState();
     }
 
+    private bool IsAiXiaojiPending() =>
+        _pendingDecision is { Kind: DecisionKind.Xiaoji, PlayerSeat: var playerSeat } &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiXiaoji()
+    {
+        if (!IsAiXiaojiPending())
+        {
+            throw new InvalidOperationException("There is no AI Xiaoji choice to resolve.");
+        }
+
+        ResolveXiaojiChoice(useSkill: true);
+        PublishState();
+    }
+
     private bool IsAiTianduPending() =>
         _pendingJudgment is { ResultSucceeded: not null, TargetSeat: var targetSeat } &&
         _pendingDecision is { Kind: DecisionKind.Tiandu, PlayerSeat: var decisionSeat } &&
@@ -21846,7 +21983,101 @@ public sealed partial class GameEngine
         }
     }
 
-    private void PublishState() => _pendingStateSnapshot = State;
+    private void PublishState()
+    {
+        TryBeginXiaojiTrigger();
+        _pendingStateSnapshot = State;
+    }
+
+    private void TryBeginXiaojiTrigger()
+    {
+        if (_pendingDecision is not null ||
+            _resolutionStack.Count != 0 ||
+            _winner != Winner.None ||
+            _status == EngineStatus.Completed)
+        {
+            return;
+        }
+
+        while (_pendingXiaojiTriggers.TryDequeue(out var trigger))
+        {
+            var owner = _players[trigger.OwnerSeat];
+            if (!owner.IsAlive || !owner.General.HasSkill(SkillKind.Xiaoji))
+            {
+                continue;
+            }
+
+            _pendingDecision = new PendingDecision(
+                DecisionKind.Xiaoji,
+                owner.Seat,
+                $"{owner.Name} 失去装备【{CardCatalog.Get(trigger.CardKind).DisplayName}】，是否发动【枭姬】摸两张牌？",
+                [],
+                [],
+                SourceSeat: owner.Seat)
+            {
+                PromptId = CreatePromptId(),
+                Choices =
+                [
+                    new PromptChoice(
+                        new ChoiceId($"xiaoji.use-{trigger.CardId}"),
+                        "发动【枭姬】，摸两张牌。",
+                        [],
+                        [],
+                        new Dictionary<string, string>
+                        {
+                            ["action"] = "xiaoji-use",
+                            ["lost-card-id"] = trigger.CardId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                            ["lost-card-kind"] = trigger.CardKind.ToString()
+                        }),
+                    new PromptChoice(
+                        new ChoiceId($"xiaoji.skip-{trigger.CardId}"),
+                        "不发动【枭姬】。",
+                        [],
+                        [],
+                        new Dictionary<string, string>
+                        {
+                            ["action"] = "xiaoji-skip",
+                            ["lost-card-id"] = trigger.CardId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                            ["lost-card-kind"] = trigger.CardKind.ToString()
+                        })
+                ]
+            };
+            _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+            return;
+        }
+    }
+
+    private void ResolveXiaojiChoice(bool useSkill)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Xiaoji, PlayerSeat: var playerSeat } decision)
+        {
+            throw new InvalidOperationException("There is no Xiaoji equipment-loss choice to resolve.");
+        }
+
+        var owner = _players[playerSeat];
+        var selected = decision.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("action") == (useSkill ? "xiaoji-use" : "xiaoji-skip"));
+        var lostCardId = int.Parse(
+            selected.Parameters["lost-card-id"],
+            System.Globalization.CultureInfo.InvariantCulture);
+        var lostCardKind = Enum.Parse<CardKind>(selected.Parameters["lost-card-kind"]);
+        ClearPendingDecision();
+        if (useSkill && owner.IsAlive)
+        {
+            DrawCards(owner, 2, log: true, reason: CardMoveReasons.XiaojiDraw);
+        }
+        QueueGameEvent(new EquipmentLossSkillResolvedEvent(
+            owner.Seat,
+            SkillKind.Xiaoji,
+            lostCardId,
+            lostCardKind,
+            useSkill,
+            useSkill ? 2 : 0));
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill ? $"{owner.Name} 发动【枭姬】，摸两张牌。" : $"{owner.Name} 未发动【枭姬】。",
+            owner.Seat);
+    }
 
     private void AddLog(string type, string message, int? actor = null, int? target = null)
     {
@@ -22746,6 +22977,8 @@ public sealed partial class GameEngine
     private sealed record LuoyiDrawResolution(
         int PlayerSeat,
         DelayedTurnEffects DelayedEffects);
+
+    private sealed record XiaojiTrigger(int OwnerSeat, int CardId, CardKind CardKind);
 
     private enum GuanxingStage
     {

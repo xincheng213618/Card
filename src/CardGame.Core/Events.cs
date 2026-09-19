@@ -214,6 +214,15 @@ public sealed record DrawSkillResolvedEvent(
     bool Used,
     int DrawCount) : IGameEvent;
 
+/// <summary>Public result of an optional skill caused by one equipment leaving its owner's area.</summary>
+public sealed record EquipmentLossSkillResolvedEvent(
+    int SourceSeat,
+    SkillKind Skill,
+    int LostCardId,
+    CardKind LostCardKind,
+    bool Used,
+    int DrawCount) : IGameEvent;
+
 /// <summary>Public result of an optional phase-skip skill decision.</summary>
 public sealed record PhaseSkillResolvedEvent(
     int SourceSeat,
