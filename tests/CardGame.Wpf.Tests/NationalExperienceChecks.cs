@@ -38,6 +38,8 @@ internal static class NationalExperienceChecks
         }
         Require(selected.Count == 2 && selected.Distinct().Count() == 2 && vm.CanEndTurn, "Human national setup did not select two distinct generals and reach play.");
         Require(vm.IsNationalSnapshot && vm.HumanPlayer!.HasSecondaryGeneral && vm.NationalRevealChoices.Count == 2, "Dual-general presentation or reveal actions are missing.");
+        Require(vm.HumanSkillCards.Count == 2 && vm.HumanSkillCards.All(skill => skill.IsDisabled && skill.StateText.Contains("尚未启用")),
+            "Hidden national generals exposed enabled skills in the human skill rail.");
         var own = Program.Engine(vm).CreateSnapshot(0).Players[0];
         Require(vm.HumanPlayer!.RoleLabel is "魏" or "蜀" && !own.IsGeneralPublic && !own.IsSecondaryGeneralPublic, "Own private faction or hidden slots are wrong.");
         Require(vm.Seats.Where(seat => !seat.IsHuman).All(seat => seat.RoleLabel == "未明势力"), "Unrevealed opponents exposed their faction.");
@@ -51,6 +53,8 @@ internal static class NationalExperienceChecks
         Program.AdvanceToDecision(vm);
         Require(vm.NationalRevealChoices.Count == 1 && Program.Engine(vm).CreateSnapshot(1).Players[0] is { IsGeneralPublic: true, IsSecondaryGeneralPublic: false },
             "Primary reveal leaked or revealed the secondary slot.");
+        Require(vm.HumanSkillCards.Count(skill => !skill.IsDisabled) == 1 && vm.HumanSkillCards.Count(skill => skill.IsDisabled) == 1,
+            "The human skill rail did not enable only the revealed national slot.");
         var half = State(vm);
         vm.RevealNationalGeneralCommand.Execute(primary);
         Require(State(vm) == half, "Stale reveal command mutated the game.");

@@ -40,6 +40,7 @@ internal static class Program
             Check("general gallery filters classic generals and pauses the live table", () => CheckGeneralGallery(output));
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));
+            Check("the human skill rail distinguishes available active and automatic skills", () => CheckHumanSkillRail(output));
             Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
             Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
@@ -105,7 +106,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 69 : 68)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 70 : 69)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -245,6 +246,46 @@ internal static class Program
         Assert(vm.IsIdentityRevealOpen && vm.IdentityRevealTitle == "势 力 揭 示" && (vm.IdentityRevealRole is "魏" or "蜀") &&
                vm.IdentityObjective.Contains("势力同伴") && vm.IdentityRevealRoster.Contains("暗置"),
             "National reveal did not preserve the player's private faction context.");
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
+        window.Content = null;
+        window.Close();
+    }
+
+    private static void CheckHumanSkillRail(string output)
+    {
+        MainViewModel? found = null;
+        for (var seed = 1; seed <= 256; seed++)
+        {
+            var candidate = new MainViewModel(false, seed, showSetup: false, saveStore: new MemorySaveStore(), useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var sunQuan = candidate.GeneralChoices.FirstOrDefault(choice => choice.GeneralId == "classic:sun-quan");
+            if (sunQuan is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(sunQuan);
+                AdvanceToDecision(candidate);
+                if (candidate.CanEndTurn) { found = candidate; break; }
+            }
+            candidate.Dispose();
+        }
+
+        using var vm = found ?? throw new InvalidOperationException("No bounded classic Sun Quan skill-rail fixture reached play.");
+        var skills = vm.HumanSkillCards;
+        Assert(skills.Count == 2 && skills.Any(skill => skill.Name == "制衡" && skill.TypeText == "主动技" && skill.IsAvailable && skill.StateText == "当前可发动") &&
+               skills.Any(skill => skill.Name == "救援" && skill.TypeText == "触发 / 锁定" && !skill.IsAvailable && skill.StateText == "规则自动生效"),
+            "The human skill rail did not distinguish Sun Quan's active and automatic skills.");
+        var revision = Engine(vm).Revision;
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Render(root, 1120, 740, Path.Combine(output, "133-human-skill-rail.png"));
+        var panel = (FrameworkElement)window.FindName("HumanSkillPanel");
+        var cards = (ItemsControl)window.FindName("HumanSkillCards");
+        Assert(panel.ActualWidth >= 180 && panel.ActualHeight > 170 && cards.Items.Count == 2 &&
+               Find<TextBlock>(cards).Any(text => text.Text == "当前可发动" && text.ActualHeight > 0),
+            "The human skill rail or its actionable state is inaccessible in the minimum window.");
+        Assert(Engine(vm).Revision == revision, "Rendering the human skill rail changed the game.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();

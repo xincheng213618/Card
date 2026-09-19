@@ -434,11 +434,52 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="158" />
+                            <ColumnDefinition Width="194" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="124" />
                         </Grid.ColumnDefinitions>
                         <ContentControl Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" HorizontalAlignment="Left" />
-                        <Grid Grid.Column="1" Margin="14,0">
+                        <Border x:Name="HumanSkillPanel" Grid.Column="1" Margin="8,0,6,0" Padding="8,7" Background="#142329" BorderBrush="#40534B" BorderThickness="1" CornerRadius="3" AutomationProperties.Name="本方技能区">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                <DockPanel Margin="1,0,1,6">
+                                    <TextBlock DockPanel.Dock="Right" Text="始终可查" Foreground="#667F74" FontSize="9" VerticalAlignment="Center" />
+                                    <TextBlock Text="我 的 技 能" Foreground="#C5A96F" FontSize="11" FontWeight="SemiBold" />
+                                </DockPanel>
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <ItemsControl x:Name="HumanSkillCards" ItemsSource="{Binding HumanSkillCards}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border x:Name="SkillCardFrame" Margin="0,0,0,5" Padding="7,6" Background="#101C21" BorderBrush="#46594F" BorderThickness="1" CornerRadius="2" ToolTip="{Binding Description}">
+                                                    <StackPanel>
+                                                        <DockPanel>
+                                                            <TextBlock DockPanel.Dock="Right" Text="{Binding TypeText}" Foreground="#71897D" FontSize="9" VerticalAlignment="Center" />
+                                                            <TextBlock Text="{Binding Name}" Foreground="#E2C27F" FontFamily="KaiTi" FontSize="17" FontWeight="Bold" />
+                                                        </DockPanel>
+                                                        <TextBlock Text="{Binding Description}" Foreground="#A9B6AD" FontSize="9" LineHeight="14" MaxHeight="29" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+                                                        <DockPanel Margin="0,4,0,0">
+                                                            <TextBlock DockPanel.Dock="Right" Text="{Binding SourceText}" Foreground="#657B71" FontSize="8" />
+                                                            <TextBlock x:Name="SkillStateText" Text="{Binding StateText}" Foreground="#8FA99A" FontSize="9" />
+                                                        </DockPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                                <DataTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding IsAvailable}" Value="True">
+                                                        <Setter TargetName="SkillCardFrame" Property="Background" Value="#253C34" />
+                                                        <Setter TargetName="SkillCardFrame" Property="BorderBrush" Value="#B89958" />
+                                                        <Setter TargetName="SkillStateText" Property="Foreground" Value="#F0CE83" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                                                        <Setter TargetName="SkillCardFrame" Property="Opacity" Value="0.58" />
+                                                    </DataTrigger>
+                                                </DataTemplate.Triggers>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Column="2" Margin="8,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="20" />
                                 <RowDefinition Height="*" />
@@ -473,7 +514,7 @@
                                 </ItemsControl>
                             </controls:HandScrollViewer>
                         </Grid>
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0">
+                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,0,0,0">
                             <TextBlock Text="对 局 控 制" Foreground="#A9966C" FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,8" />
                             <CheckBox Content="自动推进" IsChecked="{Binding IsAutoAdvance}" ToolTip="每次推进一步，在需要你出牌或响应时自动停下。" HorizontalAlignment="Center" />
                             <ListBox x:Name="PlaybackSpeedSelector" ItemsSource="{Binding PlaybackSpeeds}" SelectedItem="{Binding SelectedPlaybackSpeed}" Width="108" Margin="0,6,0,0" Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Center" ToolTip="对局速度：只影响自动推进节奏，不会替你出牌或响应。" AutomationProperties.Name="对局速度">

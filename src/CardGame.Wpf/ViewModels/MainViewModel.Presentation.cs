@@ -20,6 +20,54 @@ public sealed partial class MainViewModel
     public SeatViewModel? LeftPlayer => Seats.FirstOrDefault(seat => seat.Seat == 1);
     public SeatViewModel? RightPlayer => Seats.LastOrDefault(seat => !seat.IsHuman);
     public string HandCountText => $"手牌  {Hand.Count:00}";
+    public IReadOnlyList<HumanSkillViewModel> HumanSkillCards
+    {
+        get
+        {
+            if (_snapshot is null || _snapshot.Players.SingleOrDefault(player => player.IsHuman) is not { } human)
+                return [];
+
+            var available = HumanActiveSkillActions
+                .Where(action => action.Skill is not null)
+                .Select(action => action.Skill!.Value)
+                .ToHashSet();
+            if (IsNationalSnapshot)
+            {
+                return new[] { GeneralSlotViewModel.FromPlayer(human, false, _game.RulesVersion), GeneralSlotViewModel.FromPlayer(human, true, _game.RulesVersion) }
+                    .Where(slot => slot.IsKnown && slot.SkillName != "无")
+                    .Select(slot =>
+                    {
+                        var kind = slot.SlotLabel == "主" ? human.Skill : human.SecondarySkill ?? SkillKind.None;
+                        var active = SkillRegistry.GetActive(kind) is not null;
+                        return new HumanSkillViewModel(
+                            slot.SkillName,
+                            slot.SkillDescription,
+                            active ? "主动技" : "触发 / 锁定",
+                            !slot.IsSkillEnabled ? "暗置中 · 尚未启用" : available.Contains(kind) ? "当前可发动" : active ? "当前不可发动" : "已启用",
+                            $"{slot.SlotLabel}将 · {(slot.IsRevealed ? "明置" : "暗置")}",
+                            slot.IsSkillEnabled && available.Contains(kind),
+                            !slot.IsSkillEnabled);
+                    })
+                    .ToArray();
+            }
+
+            return (human.Skills ?? [new(human.Skill, human.SkillName, human.SkillDescription)])
+                .Where(skill => skill.Kind != SkillKind.None)
+                .Select(skill =>
+                {
+                    var active = SkillRegistry.GetActive(skill.Kind) is not null;
+                    return new HumanSkillViewModel(
+                        skill.Name,
+                        skill.Description,
+                        active ? "主动技" : "触发 / 锁定",
+                        available.Contains(skill.Kind) ? "当前可发动" : active ? "当前不可发动" : "规则自动生效",
+                        human.GeneralName,
+                        available.Contains(skill.Kind),
+                        false);
+                })
+                .ToArray();
+        }
+    }
     public string AliveText => IsTeamSnapshot
         ? $"青队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:blue")} · 赤队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:red")} 存活"
         : $"{Seats.Count(seat => seat.IsAlive)} / {Seats.Count} 人存活";
@@ -184,7 +232,7 @@ public sealed partial class MainViewModel
         RefreshPlaybackPresentation();
         TopSeats.Clear();
         foreach (var seat in Seats.Where(seat => seat.Seat >= 2 && seat.Seat < Seats.Count - 1)) TopSeats.Add(seat);
-        foreach (var name in new[] { nameof(HumanPlayer), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(AdditionalActiveSkillActions), nameof(ActiveSkillButtonText) })
+        foreach (var name in new[] { nameof(HumanPlayer), nameof(HumanSkillCards), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(AdditionalActiveSkillActions), nameof(ActiveSkillButtonText) })
             RaisePropertyChanged(name);
         RefreshSelectionHint();
         RefreshGameSetupPresentation();
