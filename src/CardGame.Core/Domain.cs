@@ -79,7 +79,11 @@ public enum CardKind
     ZhuqueFan,
     Tengjia,
     SilverLion,
-    WoodenOx
+    WoodenOx,
+    Dawan,
+    Zixing,
+    Dilu,
+    Zhaohuangfeidian
 }
 
 public enum Suit

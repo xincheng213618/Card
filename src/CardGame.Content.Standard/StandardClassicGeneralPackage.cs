@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 36, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 37, 0))
     {
     }
 
@@ -55,12 +55,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 33, 0) &&
             version != new Version(1, 34, 0) &&
             version != new Version(1, 35, 0) &&
-            version != new Version(1, 36, 0))
+            version != new Version(1, 36, 0) &&
+            version != new Version(1, 37, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.36.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.37.0.");
         }
 
         _version = version;
@@ -267,6 +268,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["transfer"] = "equipment-to-equipment"
                     }));
             }
+            if (_version >= new Version(1, 37, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    "classic:dawan", "大宛", "装备牌",
+                    "装备至进攻坐骑槽；你到其他角色的战斗距离 -1。", CardKind.Dawan));
+                builder.AddCard(new ContentCardDefinition(
+                    "classic:zixing", "紫骍", "装备牌",
+                    "装备至进攻坐骑槽；你到其他角色的战斗距离 -1。", CardKind.Zixing));
+                builder.AddCard(new ContentCardDefinition(
+                    "classic:dilu", "的卢", "装备牌",
+                    "装备至防御坐骑槽；其他角色到你的战斗距离 +1。", CardKind.Dilu));
+                builder.AddCard(new ContentCardDefinition(
+                    "classic:zhaohuangfeidian", "爪黄飞电", "装备牌",
+                    "装备至防御坐骑槽；其他角色到你的战斗距离 +1。", CardKind.Zhaohuangfeidian));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -349,11 +365,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             }
 
             var physicalCards = _version >= new Version(1, 36, 0)
-                ? CreateStandardPhysicalDeck()
+                ? CreateStandardPhysicalDeck(_version >= new Version(1, 37, 0))
                 : null;
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 36, 0)
+                Name: _version >= new Version(1, 37, 0)
+                    ? "经典标准 108 张逐张牌堆（六匹实名坐骑）"
+                    : _version >= new Version(1, 36, 0)
                     ? "经典标准 108 张逐张牌堆（含 4 张 EX）"
                     : _version >= new Version(1, 35, 0)
                     ? "经典标准牌堆（含木牛流马等扩展装备）"
@@ -887,8 +905,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             GeneralPoolIds: generalPoolIds));
     }
 
-    private static IReadOnlyList<ContentDeckPhysicalCard> CreateStandardPhysicalDeck()
+    private static IReadOnlyList<ContentDeckPhysicalCard> CreateStandardPhysicalDeck(bool distinctHorseNames)
     {
+        var dawan = distinctHorseNames ? "classic:dawan" : "standard:offensive_horse";
+        var zixing = distinctHorseNames ? "classic:zixing" : "standard:offensive_horse";
+        var dilu = distinctHorseNames ? "classic:dilu" : "standard:defensive_horse";
+        var zhaohuangfeidian = distinctHorseNames
+            ? "classic:zhaohuangfeidian"
+            : "standard:defensive_horse";
         var cards = new List<ContentDeckPhysicalCard>(108);
         Add(Suit.Heart,
             ("standard:peach_garden", 1), ("standard:arrow_barrage", 1),
@@ -904,7 +928,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ("standard:slash", 11), ("standard:draw_two", 11),
             ("standard:peach", 12), ("standard:dismantlement", 12),
             ("standard:lightning", 12),
-            ("standard:dodge", 13), ("standard:defensive_horse", 13));
+            ("standard:dodge", 13), (zhaohuangfeidian, 13));
         Add(Suit.Spade,
             ("standard:duel", 1), ("standard:lightning", 1),
             ("classic:cixiong-double-swords", 2), ("standard:bagua", 2),
@@ -919,7 +943,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ("standard:slash", 10), ("standard:slash", 10),
             ("standard:snatch", 11), ("standard:nullification", 11),
             ("standard:dismantlement", 12), ("classic:zhangba-serpent-spear", 12),
-            ("standard:barbarian_assault", 13), ("standard:offensive_horse", 13));
+            ("standard:barbarian_assault", 13), (dawan, 13));
         Add(Suit.Diamond,
             ("standard:crossbow", 1), ("standard:duel", 1),
             ("standard:dodge", 2), ("standard:dodge", 2),
@@ -934,14 +958,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ("standard:dodge", 11), ("standard:dodge", 11),
             ("standard:peach", 12), ("classic:fangtian-halberd", 12),
             ("standard:nullification", 12),
-            ("standard:slash", 13), ("standard:offensive_horse", 13));
+            ("standard:slash", 13), (zixing, 13));
         Add(Suit.Club,
             ("standard:duel", 1), ("standard:crossbow", 1),
             ("standard:slash", 2), ("standard:bagua", 2),
             ("standard:renwang_shield", 2),
             ("standard:slash", 3), ("standard:dismantlement", 3),
             ("standard:slash", 4), ("standard:dismantlement", 4),
-            ("standard:slash", 5), ("standard:defensive_horse", 5),
+            ("standard:slash", 5), (dilu, 5),
             ("standard:slash", 6), ("standard:indulgence", 6),
             ("standard:slash", 7), ("standard:barbarian_assault", 7),
             ("standard:slash", 8), ("standard:slash", 8),

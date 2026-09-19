@@ -590,7 +590,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(40, CardCatalog.ImplementedCards.Count);
+    Equal(44, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -611,6 +611,10 @@ static void CardCatalogDefinitions()
     Equal("仁王盾", CardCatalog.Get(CardKind.RenwangShield).DisplayName);
     Equal("赤兔", CardCatalog.Get(CardKind.OffensiveHorse).DisplayName);
     Equal("绝影", CardCatalog.Get(CardKind.DefensiveHorse).DisplayName);
+    Equal("大宛", CardCatalog.Get(CardKind.Dawan).DisplayName);
+    Equal("紫骍", CardCatalog.Get(CardKind.Zixing).DisplayName);
+    Equal("的卢", CardCatalog.Get(CardKind.Dilu).DisplayName);
+    Equal("爪黄飞电", CardCatalog.Get(CardKind.Zhaohuangfeidian).DisplayName);
     Equal("玉玺", CardCatalog.Get(CardKind.JadeSeal).DisplayName);
     Equal("青釭剑", CardCatalog.Get(CardKind.QinggangSword).DisplayName);
     Equal("无懈可击", CardCatalog.Get(CardKind.Nullification).DisplayName);
@@ -4091,7 +4095,7 @@ static void PublicTargetCardFlow()
 
 static void EquipmentFlow()
 {
-    Equal(19, EquipmentCatalog.Implemented.Count);
+    Equal(23, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
     Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);
@@ -4121,6 +4125,14 @@ static void EquipmentFlow()
     Equal(EquipmentSlot.Armor, EquipmentCatalog.Get(CardKind.RenwangShield).Slot);
     Equal(EquipmentSlot.OffensiveHorse, EquipmentCatalog.Get(CardKind.OffensiveHorse).Slot);
     Equal(EquipmentSlot.DefensiveHorse, EquipmentCatalog.Get(CardKind.DefensiveHorse).Slot);
+    Equal(EquipmentSlot.OffensiveHorse, EquipmentCatalog.Get(CardKind.Dawan).Slot);
+    Equal(-1, EquipmentCatalog.Get(CardKind.Dawan).OutgoingDistanceModifier);
+    Equal(EquipmentSlot.OffensiveHorse, EquipmentCatalog.Get(CardKind.Zixing).Slot);
+    Equal(-1, EquipmentCatalog.Get(CardKind.Zixing).OutgoingDistanceModifier);
+    Equal(EquipmentSlot.DefensiveHorse, EquipmentCatalog.Get(CardKind.Dilu).Slot);
+    Equal(1, EquipmentCatalog.Get(CardKind.Dilu).IncomingDistanceModifier);
+    Equal(EquipmentSlot.DefensiveHorse, EquipmentCatalog.Get(CardKind.Zhaohuangfeidian).Slot);
+    Equal(1, EquipmentCatalog.Get(CardKind.Zhaohuangfeidian).IncomingDistanceModifier);
     Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.JadeSeal).Slot);
     Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.WoodenOx).Slot);
 

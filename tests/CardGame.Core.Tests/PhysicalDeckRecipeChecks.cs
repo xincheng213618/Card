@@ -40,15 +40,43 @@ internal static class PhysicalDeckRecipeChecks
                 Has("standard:nullification", Suit.Diamond, 12) &&
                 Has("standard:renwang_shield", Suit.Club, 2),
             "The four EX cards must occupy the canonical heart Q, spade 2, diamond Q and club 2 slots.");
+        Require(Has("standard:offensive_horse", Suit.Heart, 5) &&
+                Has("classic:dawan", Suit.Spade, 13) &&
+                Has("classic:zixing", Suit.Diamond, 13) &&
+                Has("standard:defensive_horse", Suit.Spade, 5) &&
+                Has("classic:dilu", Suit.Club, 5) &&
+                Has("classic:zhaohuangfeidian", Suit.Heart, 13),
+            "All six standard mounts must retain their canonical names, suits and ranks.");
+
+        var createDeck = typeof(GameEngine).GetMethod(
+            "CreateDeckFromRegistry", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var runtimeCards = (IReadOnlyList<Card>)createDeck.Invoke(null, [registry, deck])!;
+        Require(RuntimeKind(Suit.Heart, 5, EquipmentSlot.OffensiveHorse) == CardKind.OffensiveHorse &&
+                RuntimeKind(Suit.Spade, 13, EquipmentSlot.OffensiveHorse) == CardKind.Dawan &&
+                RuntimeKind(Suit.Diamond, 13, EquipmentSlot.OffensiveHorse) == CardKind.Zixing &&
+                RuntimeKind(Suit.Spade, 5, EquipmentSlot.DefensiveHorse) == CardKind.DefensiveHorse &&
+                RuntimeKind(Suit.Club, 5, EquipmentSlot.DefensiveHorse) == CardKind.Dilu &&
+                RuntimeKind(Suit.Heart, 13, EquipmentSlot.DefensiveHorse) == CardKind.Zhaohuangfeidian,
+            "The physical recipe must preserve six distinct mount identities at runtime.");
 
         var legacy = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
         Require(legacy.Decks["classic:standard-deck"].PhysicalCards is null &&
                 legacy.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105,
             "The 1.35 hybrid deck must remain available for old checkpoints and scenarios.");
+        var genericPhysical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 36, 0));
+        Require(!genericPhysical.Cards.ContainsKey("classic:dawan") &&
+                genericPhysical.Decks["classic:standard-deck"].PhysicalCards!.Count(card =>
+                    card.CardDefinitionId == "standard:offensive_horse") == 3 &&
+                genericPhysical.Decks["classic:standard-deck"].PhysicalCards!.Count(card =>
+                    card.CardDefinitionId == "standard:defensive_horse") == 3,
+            "The 1.36 physical deck must retain its generic mount identities and fingerprint boundary.");
 
         int Count(string id) => counts.GetValueOrDefault(id);
         bool Has(string id, Suit suit, int rank) => cards.Any(card =>
             card.CardDefinitionId == id && card.Suit == suit && card.Rank == rank);
+        CardKind RuntimeKind(Suit suit, int rank, EquipmentSlot slot) => runtimeCards.Single(card =>
+            card.Suit == suit && card.Rank == rank &&
+            EquipmentCatalog.IsEquipment(card.Kind) && EquipmentCatalog.Get(card.Kind).Slot == slot).Kind;
         static bool IsExRank(Suit suit, int rank) =>
             (suit, rank) is (Suit.Heart, 12) or (Suit.Spade, 2) or
                 (Suit.Diamond, 12) or (Suit.Club, 2);

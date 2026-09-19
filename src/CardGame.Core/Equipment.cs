@@ -139,6 +139,30 @@ public static class EquipmentCatalog
                 EquipmentSlot.DefensiveHorse,
                 "装备至防御坐骑槽；其他角色到你的战斗距离 +1。",
                 IncomingDistanceModifier: 1),
+            [CardKind.Dawan] = new(
+                CardKind.Dawan,
+                "大宛",
+                EquipmentSlot.OffensiveHorse,
+                "装备至进攻坐骑槽；你到其他角色的战斗距离 -1。",
+                OutgoingDistanceModifier: -1),
+            [CardKind.Zixing] = new(
+                CardKind.Zixing,
+                "紫骍",
+                EquipmentSlot.OffensiveHorse,
+                "装备至进攻坐骑槽；你到其他角色的战斗距离 -1。",
+                OutgoingDistanceModifier: -1),
+            [CardKind.Dilu] = new(
+                CardKind.Dilu,
+                "的卢",
+                EquipmentSlot.DefensiveHorse,
+                "装备至防御坐骑槽；其他角色到你的战斗距离 +1。",
+                IncomingDistanceModifier: 1),
+            [CardKind.Zhaohuangfeidian] = new(
+                CardKind.Zhaohuangfeidian,
+                "爪黄飞电",
+                EquipmentSlot.DefensiveHorse,
+                "装备至防御坐骑槽；其他角色到你的战斗距离 +1。",
+                IncomingDistanceModifier: 1),
             [CardKind.JadeSeal] = new(
                 CardKind.JadeSeal,
                 "玉玺",
