@@ -438,4 +438,5 @@
 | 已完成 | P2-U12：独立牌局设置面板 | 工具栏模态入口集中本机音效/音量/动画与当前存档自动推进/节奏；打开暂停 AI、关闭恢复原策略，明确不自动选牌或提交；小窗口边界、真实绑定、快照不变及 1120×740 离屏视觉复核；Release 0 warning / 0 error，Core 200/200，WPF 73/73 |
 | 已完成 | P1-A31：庞德马术/猛进归位 | `standard-classic-generals@1.44.0` 的 `classic:pang-de` 群势力 4 体力+马术/经典猛进；rules v59 全部闪完成后私有暗手牌位/公开装备/跳过 Choice、判定区排除、连续武器时序、AI/牌区/事件/回放及 v58/包 1.43.0 兼容；Release 0 warning / 0 error，Core 201/201，WPF 74/74 |
 | 已完成 | P1-A32：荀彧驱虎/节命归位 | `standard-classic-generals@1.45.0` 的 `classic:xun-yu` 魏势力 3 体力+驱虎/节命；rules v60 私有双方拼点、公开点数/弃牌、平点未赢、胜负伤害分支、获胜后实时攻击范围强制选目标、AI/牌区/事件/回放及 v59/包 1.44.0 兼容；Release 0 warning / 0 error，Core 202/202，WPF 75/75 |
-| 进行中 | P1-A：正式多技能武将与代表武将归位 | 原版标准 25 将、三项主公技及典韦、徐晃、黄忠、魏延、庞德、荀彧六名扩展代表已完成并有当前池精确集合断言；后续扩展包人物与更多技能频次仍待后续块 |
+| 已完成 | P1-A33：颜良文丑双雄归位 | `standard-classic-generals@1.46.0` 的 `classic:yan-liang-wen-chou` 群势力 4 体力+双雄；rules v61 摸牌阶段可选判定替代、鬼才后的最终判定牌取得、本回合相反颜色手牌不限次转决斗、有效/物理牌型分离、无懈与决斗响应链复用、v60/包 1.45.0 兼容及存档重放；官方依据为 [经典服武将页](https://www.sanguosha.com/hero/40) 与 [官方旧版 FAQ](https://ks3-cn-beijing.ksyun.com/attachment/74ad98665ac744c138ba8c988d85d149)；Release 0 warning / 0 error，Core 203/203，WPF 76/76；离屏图 `142-shuangxiong-draw-choice.png` |
+| 进行中 | P1-A：正式多技能武将与代表武将归位 | 原版标准 25 将、三项主公技及典韦、徐晃、黄忠、魏延、庞德、荀彧、颜良文丑七名扩展代表已完成并有当前池精确集合断言；后续扩展包人物与更多技能频次仍待后续块 |

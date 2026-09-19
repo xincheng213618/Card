@@ -146,6 +146,7 @@ public static class CardMoveReasons
     public static CardMoveReason GanglieDiscard { get; } = new("skill.ganglie.discard");
     public static CardMoveReason GuicaiReplace { get; } = new("skill.guicai.replace");
     public static CardMoveReason TianduClaim { get; } = new("skill.tiandu.claim-judgment");
+    public static CardMoveReason ShuangxiongClaim { get; } = new("skill.shuangxiong.claim-judgment");
     public static CardMoveReason LuoshenClaim { get; } = new("skill.luoshen.claim-judgment");
     public static CardMoveReason JizhiDraw { get; } = new("skill.jizhi.draw");
     public static CardMoveReason FanjianGive { get; } = new("skill.fanjian.give-card");

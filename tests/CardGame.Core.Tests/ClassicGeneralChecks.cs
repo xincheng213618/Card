@@ -5,6 +5,57 @@ using CardGame.Core;
 
 internal static class ClassicGeneralChecks
 {
+    public static void FormalShuangxiongFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 46, 0));
+        for (var seed = 1; seed <= 16_384; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
+                ModeId = "identity:classic-5", UseInteractiveSetup = true,
+                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 80
+            }, registry);
+            Require(game.Submit(new StartGameCommand()).Accepted, "Shuangxiong fixture failed to start.");
+            var select = game.PendingDecision;
+            if (select is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } ||
+                !select.ValidContentIds.Contains("classic:yan-liang-wen-chou")) continue;
+            Require(game.Submit(new SelectGeneralCommand(0, "classic:yan-liang-wen-chou", game.Revision, select.PromptId)).Accepted,
+                "Shuangxiong fixture could not select Yan Liang and Wen Chou.");
+            for (var step = 0; step < 32 && game.PendingDecision?.Kind != DecisionKind.Shuangxiong; step++)
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Shuangxiong fixture could not reach Draw phase.");
+            var offer = game.PendingDecision;
+            if (offer is not { Kind: DecisionKind.Shuangxiong, PlayerSeat: 0, IsPrivate: true }) continue;
+            var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 60 }, registry);
+            Require(legacy.PendingDecision?.Kind != DecisionKind.Shuangxiong,
+                "Rules v60 must not publish the Shuangxiong draw replacement.");
+            var use = offer.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "shuangxiong-use");
+            var accepted = game.Submit(new AnswerPromptCommand(0, offer.PromptId, use.Id, game.Revision));
+            Require(accepted.Accepted, accepted.Error?.Message ?? "Shuangxiong fixture could not accept the skill.");
+            for (var step = 0; step < 32 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Shuangxiong judgment could not finish.");
+            var judgment = game.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
+                .Last(item => item.Reason == JudgmentReasons.Shuangxiong);
+            var claim = game.Events.Select(item => item.Payload).OfType<JudgmentCardClaimedEvent>()
+                .LastOrDefault(item => item.Skill == SkillKind.Shuangxiong);
+            var red = judgment.Suit is Suit.Heart or Suit.Diamond;
+            var actions = game.GetHumanLegalActions().Where(action =>
+                action.Kind == LegalActionKind.Duel && action.PlayedCardKind == CardKind.Duel).ToArray();
+            if (actions.Length == 0) continue;
+            var hand = game.CreateSnapshot(0).Players[0].Hand.ToDictionary(card => card.Id);
+            Require(claim is { Used: true } && hand.ContainsKey(judgment.CardId!.Value) &&
+                    actions.All(action => action.CardId is { } id &&
+                        (hand[id].Suit is Suit.Heart or Suit.Diamond) != red),
+                "Shuangxiong must claim the final judgment card and expose only opposite-color hand cards as Duel.");
+            var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            Require(restored.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                    restored.GetHumanLegalActions().Count(action => action.Kind == LegalActionKind.Duel && action.PlayedCardKind == CardKind.Duel) == actions.Length,
+                "Shuangxiong converted Duel actions must replay exactly.");
+            return;
+        }
+        throw new InvalidOperationException("No bounded Shuangxiong fixture exposed an opposite-color Duel conversion.");
+    }
+
     public static void ContentContract()
     {
         var legacy = StandardContentRegistry.CreateWithRescueSkills();
@@ -49,6 +100,7 @@ internal static class ClassicGeneralChecks
         var sunShangxiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 42, 0));
         var luXunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 43, 0));
         var pangDeClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 44, 0));
+        var xunYuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 45, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -57,7 +109,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.45.0"]),
+                "standard-classic-generals@1.46.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -71,12 +123,12 @@ internal static class ClassicGeneralChecks
             "classic:diao-chan",
             // Current expansion representatives already shipped by this package.
             "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
-            "classic:pang-de", "classic:xun-yu"
+            "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
                 .SequenceEqual(expectedCurrentRoster.Order(StringComparer.Ordinal)),
-            "Classic 1.45 must contain the complete original standard roster plus its six explicit expansion representatives.");
+            "Classic 1.46 must contain the complete original standard roster plus its seven explicit expansion representatives.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
@@ -107,8 +159,12 @@ internal static class ClassicGeneralChecks
                 classic.Generals["classic:xun-yu"] is { BaseHp: 3, FactionId: "wei" } xunYu &&
                 xunYu.SkillIds.SequenceEqual(["classic:quhu", "standard:jieming"]) &&
                 !pangDeClassic.Generals.ContainsKey("classic:xun-yu") &&
-                !pangDeClassic.Skills.ContainsKey("classic:quhu"),
-            "Classic 1.40-1.45 must add Da Qiao, Diao Chan, Sun Shangxiang, Lu Xun, Pang De and Xun Yu without changing historical rosters.");
+                !pangDeClassic.Skills.ContainsKey("classic:quhu") &&
+                classic.Generals["classic:yan-liang-wen-chou"] is { BaseHp: 4, FactionId: "qun" } yanLiangWenChou &&
+                yanLiangWenChou.SkillIds.SequenceEqual(["classic:shuangxiong"]) &&
+                !xunYuClassic.Generals.ContainsKey("classic:yan-liang-wen-chou") &&
+                !xunYuClassic.Skills.ContainsKey("classic:shuangxiong"),
+            "Classic 1.40-1.46 must add the seven expansion representatives without changing historical rosters.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
                     "standard:guo-jia",

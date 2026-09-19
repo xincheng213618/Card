@@ -71,6 +71,7 @@ internal static class Program
             Check("Qilin Bow restores and commits an exact public mount choice", () => QilinBowUiChecks.ExactMountChoice(output));
             Check("Mengjin restores and commits an opaque hand or public equipment choice", () => MengjinUiChecks.OpaqueTargetCardChoice(output));
             Check("Quhu restores and commits its winning attributed damage target", () => QuhuUiChecks.WinningDamageTarget(output));
+            Check("Shuangxiong restores its private draw replacement choice", () => ShuangxiongUiChecks.DrawChoice(output));
             Check("Fangtian Halberd restores and commits an exact multi-target Slash", () => FangtianHalberdUiChecks.ExactTargetCombination(output));
             Check("Guding Blade renders its locked empty-hand damage increase", () => GudingBladeUiChecks.LockedDamageFeedback(output));
             Check("Zhuque Fan exposes and renders its Fire Slash conversion", () => ZhuqueFanUiChecks.FireSlashConversionFeedback(output));
@@ -112,7 +113,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 76 : 75)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 77 : 76)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)

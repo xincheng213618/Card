@@ -190,7 +190,8 @@ public enum SkillKind
     Qianxun,
     Lianying,
     Mengjin,
-    Quhu
+    Quhu,
+    Shuangxiong
 }
 
 public enum DecisionKind
@@ -233,6 +234,7 @@ public enum DecisionKind
     QinglongCrescentBlade,
     IceSword,
     QilinBow,
+    Shuangxiong,
     ZhuqueFan,
     Mengjin,
     QuhuPindian,

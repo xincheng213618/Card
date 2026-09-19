@@ -604,6 +604,12 @@ public sealed class GuoseSkill : IPassiveSkill
         owner.Phase == TurnPhase.Play && card.Suit == Suit.Diamond;
 }
 
+public sealed class ShuangxiongSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Shuangxiong;
+    public string Name => "双雄";
+}
+
 public sealed class LiuliSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Liuli;
@@ -982,6 +988,7 @@ public static class SkillRegistry
             [SkillKind.Lianying] = new LianyingSkill(),
             [SkillKind.Mengjin] = new MengjinSkill(),
             [SkillKind.Quhu] = new QuhuSkill(),
+            [SkillKind.Shuangxiong] = new ShuangxiongSkill(),
             [SkillKind.Jizhi] = new JizhiSkill(),
             [SkillKind.Tieqi] = new TieqiSkill(),
             [SkillKind.Liegong] = new LiegongSkill(),

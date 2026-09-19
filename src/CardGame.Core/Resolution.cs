@@ -8,6 +8,7 @@ public static class JudgmentReasons
     public const string Ganglie = "skill.ganglie";
     public const string Luoshen = "skill.luoshen";
     public const string Tieqi = "skill.tieqi";
+    public const string Shuangxiong = "skill.shuangxiong";
     public const string Indulgence = "trick.indulgence";
     public const string SupplyShortage = "trick.supply-shortage";
     public const string Lightning = "trick.lightning";

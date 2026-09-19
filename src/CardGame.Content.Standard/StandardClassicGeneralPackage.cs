@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 45, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 46, 0))
     {
     }
 
@@ -64,12 +64,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 42, 0) &&
             version != new Version(1, 43, 0) &&
             version != new Version(1, 44, 0) &&
-            version != new Version(1, 45, 0))
+            version != new Version(1, 45, 0) &&
+            version != new Version(1, 46, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.45.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.46.0.");
         }
 
         _version = version;
@@ -682,6 +683,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "出牌阶段限一次，你可以与一名体力值大于你的角色拼点：若你赢，其对其攻击范围内由你选择的另一名角色造成1点伤害；若你没赢，其对你造成1点伤害。",
                 SkillKind.Quhu));
         }
+        if (_version >= new Version(1, 46, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:shuangxiong", "双雄",
+                "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
+                SkillKind.Shuangxiong));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1008,10 +1016,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds: ["standard:jieming"]));
         }
+        if (_version >= new Version(1, 46, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:yan-liang-wen-chou", "颜良文丑", "yan_liang_wen_chou",
+                "classic:shuangxiong", "qun", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 45 } => XunYuClassicGeneralIds,
+            { Major: 1, Minor: >= 46 } => YanLiangWenChouClassicGeneralIds,
+            { Major: 1, Minor: 45 } => XunYuClassicGeneralIds,
             { Major: 1, Minor: 44 } => PangDeClassicGeneralIds,
             { Major: 1, Minor: 43 } => LuXunClassicGeneralIds,
             { Major: 1, Minor: 42 } => SunShangxiangClassicGeneralIds,
@@ -1261,6 +1276,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. PangDeClassicGeneralIds,
         "classic:xun-yu"
+    ];
+
+    internal static IReadOnlyList<string> YanLiangWenChouClassicGeneralIds { get; } =
+    [
+        .. XunYuClassicGeneralIds,
+        "classic:yan-liang-wen-chou"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

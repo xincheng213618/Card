@@ -42,6 +42,7 @@ public sealed partial class GameEngine
     private int _slashCountThisTurn;
     private bool _usedOrPlayedSlashDuringPlayPhase;
     private bool _luoyiActiveThisTurn;
+    private bool? _shuangxiongJudgmentWasRed;
     private bool _woodenOxUsedThisTurn;
     private bool _biyueResolvedThisTurn;
     private int _logSequence;
@@ -82,6 +83,7 @@ public sealed partial class GameEngine
     private YingziDrawResolution? _pendingYingziDraw;
     private TuxiDrawResolution? _pendingTuxiDraw;
     private LuoyiDrawResolution? _pendingLuoyiDraw;
+    private ShuangxiongDrawResolution? _pendingShuangxiongDraw;
     private LuoshenResolution? _pendingLuoshen;
     private JizhiResolution? _pendingJizhi;
     private TieqiResolution? _pendingTieqi;
@@ -272,6 +274,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalXunYu =>
         _rulesVersion >= 60 && IsClassicIdentityMode;
+
+    private bool UsesFormalShuangxiong =>
+        _rulesVersion >= 61 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -908,6 +913,7 @@ public sealed partial class GameEngine
                 DecisionKind.Guanxing or
                 DecisionKind.Keji or
                 DecisionKind.Tuxi or
+                DecisionKind.Shuangxiong or
                 DecisionKind.Luoyi or
                 DecisionKind.Luoshen or
                 DecisionKind.Jizhi or
@@ -1031,6 +1037,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Tuxi)
         {
             return SubmitTuxiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Shuangxiong)
+        {
+            return SubmitShuangxiongPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Luoyi)
@@ -1497,6 +1508,24 @@ public sealed partial class GameEngine
                     [],
                     advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "突袭目标必须是一至两名有手牌的其他角色。")
+        };
+    }
+
+    private CommandResult SubmitShuangxiongPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingShuangxiongDraw is null || _pendingDecision is not { Kind: DecisionKind.Shuangxiong })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的双雄摸牌阶段窗口。");
+        }
+        if (!selected.Parameters.TryGetValue("action", out var action) || selected.Cards.Count != 0 || selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "双雄选择不符合当前摸牌阶段窗口。");
+        }
+        return action switch
+        {
+            "shuangxiong-use" => Accept(() => HumanShuangxiongCore(true, _options.AdvanceAfterHumanCommands)),
+            "shuangxiong-skip" => Accept(() => HumanShuangxiongCore(false, _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "双雄提示没有可识别的选择效果。")
         };
     }
 
@@ -2648,6 +2677,7 @@ public sealed partial class GameEngine
                     IsAiJudgmentPending() ||
                     IsAiYingziPending() ||
                     IsAiTuxiPending() ||
+                    IsAiShuangxiongPending() ||
                     IsAiLuoyiPending() ||
                     IsAiLuoshenPending() ||
                     IsAiJizhiPending() ||
@@ -3561,6 +3591,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Luoyi);
         ResolveLuoyiDrawChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanShuangxiongCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Shuangxiong);
+        ResolveShuangxiongDrawChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5092,6 +5130,7 @@ public sealed partial class GameEngine
         _slashCountThisTurn = 0;
         _usedOrPlayedSlashDuringPlayPhase = false;
         _luoyiActiveThisTurn = false;
+        _shuangxiongJudgmentWasRed = null;
         _woodenOxUsedThisTurn = false;
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
@@ -5477,6 +5516,11 @@ public sealed partial class GameEngine
         {
             AddLog("DelayedCardEffect", $"{current.Name} 因【兵粮寸断】跳过摸牌阶段。", current.Seat);
         }
+        else if (UsesFormalShuangxiong && current.General.HasSkill(SkillKind.Shuangxiong))
+        {
+            BeginShuangxiongDrawChoice(current, delayedEffects);
+            return;
+        }
         else if (UsesFormalTuxi &&
                  current.General.HasSkill(SkillKind.Tuxi) &&
                  PassiveRules(current).CanReplaceDrawPhase(CreateSkillContext(current)) &&
@@ -5511,6 +5555,42 @@ public sealed partial class GameEngine
             .Select(card => EquipmentCatalog.Get(card.Kind).DrawCountBonus)
             .Sum();
         return PassiveRules(current).ModifyDrawCount(CreateSkillContext(current), drawCount);
+    }
+
+    private void BeginShuangxiongDrawChoice(PlayerRuntime current, DelayedTurnEffects delayedEffects)
+    {
+        _pendingShuangxiongDraw = new ShuangxiongDrawResolution(current.Seat, delayedEffects);
+        _pendingDecision = new PendingDecision(DecisionKind.Shuangxiong, current.Seat,
+            "是否发动【双雄】，放弃通常摸牌并进行一次判定？", [], [])
+        {
+            PromptId = CreatePromptId(), IsPrivate = true,
+            Choices =
+            [
+                new PromptChoice(new ChoiceId("shuangxiong.use"), "发动【双雄】：判定并获得判定牌。", [], [],
+                    new Dictionary<string, string> { ["action"] = "shuangxiong-use" }),
+                new PromptChoice(new ChoiceId("shuangxiong.skip"), "不发动【双雄】，按通常数量摸牌。", [], [],
+                    new Dictionary<string, string> { ["action"] = "shuangxiong-skip" })
+            ]
+        };
+        _status = current.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        PublishState();
+    }
+
+    private void ResolveShuangxiongDrawChoice(bool useSkill)
+    {
+        var pending = _pendingShuangxiongDraw ?? throw new InvalidOperationException("There is no Shuangxiong draw choice.");
+        var current = _players[pending.PlayerSeat];
+        ClearPendingDecision();
+        if (!useSkill)
+        {
+            DrawCards(current, GetTurnDrawCount(current), log: true);
+            _pendingShuangxiongDraw = null;
+            CompleteTurnStartAfterDraw(current, pending.DelayedEffects);
+            return;
+        }
+        AddLog("SkillTriggered", $"{current.Name} 发动【双雄】，以判定替代摸牌。", current.Seat);
+        BeginJudgment(null, current.Seat, JudgmentReasons.Shuangxiong, 0, null,
+            JudgmentContinuationKind.Shuangxiong, null, sourceSeat: current.Seat);
     }
 
     private IReadOnlyList<int> GetTuxiCandidateSeats(PlayerRuntime current) =>
@@ -6051,6 +6131,12 @@ public sealed partial class GameEngine
         if (IsAiTuxiPending())
         {
             ResolvePendingAiTuxi();
+            return;
+        }
+
+        if (IsAiShuangxiongPending())
+        {
+            ResolvePendingAiShuangxiong();
             return;
         }
 
@@ -6799,7 +6885,7 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("Duel requires a target.");
                 }
 
-                ResolveDuel(actor, _players[action.TargetSeat.Value], card);
+                ResolveDuel(actor, _players[action.TargetSeat.Value], card, action.PlayedCardKind);
                 break;
             case LegalActionKind.DrawTwo:
                 ResolveDrawTwo(actor, card);
@@ -7885,14 +7971,15 @@ public sealed partial class GameEngine
             pending.ResolutionId,
             source.Seat,
             target.Seat,
-            pending.EffectCard);
+            pending.EffectCard,
+            playedCardKind: pending.EffectiveCardKind);
         _pendingAttack = attack;
         var duel = new DuelResolution(attack);
         _pendingDuel = duel;
         AddLog("CardUsed", $"{source.Name} 对 {target.Name} 使用【决斗】。", source.Seat, target.Seat);
         QueueGameEvent(new CardUsedEvent(
             pending.EffectCard.Id,
-            pending.EffectCard.Kind,
+            pending.EffectiveCardKind,
             source.Seat,
             target.Seat));
         NotifyAiOfDuel(source, target);
@@ -10263,18 +10350,19 @@ public sealed partial class GameEngine
         ContinueSlashAfterTieqi(attack);
     }
 
-    private void ResolveDuel(PlayerRuntime source, PlayerRuntime target, Card duel)
+    private void ResolveDuel(PlayerRuntime source, PlayerRuntime target, Card duel, CardKind? playedCardKind = null)
     {
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == LegalActionKind.Duel &&
             action.CardId == duel.Id &&
-            action.TargetSeat == target.Seat);
+            action.TargetSeat == target.Seat &&
+            action.PlayedCardKind == playedCardKind);
         if (!stillLegal)
         {
             throw new InvalidOperationException("Duel became illegal before resolution.");
         }
 
-        var resolutionId = BeginCardUse(duel, source.Seat, [target.Seat]);
+        var resolutionId = BeginCardUse(duel, source.Seat, [target.Seat], playedCardKind);
         MoveCard(
             duel,
             FindOwnedCardLocation(source, duel),
@@ -10285,7 +10373,8 @@ public sealed partial class GameEngine
             duel,
             source.Seat,
             [target.Seat],
-            LegalActionKind.Duel);
+            LegalActionKind.Duel,
+            playedCardKind: playedCardKind);
     }
 
     private void BeginDuelResponse(DuelResolution duel)
@@ -13513,7 +13602,7 @@ public sealed partial class GameEngine
                 sourceSeat ?? attack?.SourceSeat);
             PopResolutionFrame(frameId, ResolutionFrameKind.Judgment);
             if (IsDelayedJudgmentContinuation(continuation) ||
-                continuation == JudgmentContinuationKind.Luoshen)
+                continuation is JudgmentContinuationKind.Luoshen or JudgmentContinuationKind.Shuangxiong)
             {
                 var exhaustedJudgment = new JudgmentResolution(
                     frameId,
@@ -13581,7 +13670,7 @@ public sealed partial class GameEngine
             var succeeded = FinalizeJudgment(pending);
             if (succeeded is { } completed &&
                 (IsDelayedJudgmentContinuation(continuation) ||
-                 continuation == JudgmentContinuationKind.Luoshen))
+                 continuation is JudgmentContinuationKind.Luoshen or JudgmentContinuationKind.Shuangxiong))
             {
                 ResumeCompletedJudgment(pending, completed);
             }
@@ -13852,6 +13941,7 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.SupplyShortage when UsesSuitSpecificDelayedJudgments =>
                 judgmentCard.Suit == Suit.Club,
             JudgmentContinuationKind.Luoshen => !IsRedSuit(judgmentCard.Suit),
+            JudgmentContinuationKind.Shuangxiong => IsRedSuit(judgmentCard.Suit),
             _ => IsRedSuit(judgmentCard.Suit)
         };
         ReplaceJudgmentFrame(frame with
@@ -13883,6 +13973,7 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.Lightning => "闪电",
             JudgmentContinuationKind.Luoshen => "洛神",
             JudgmentContinuationKind.Tieqi => "铁骑",
+            JudgmentContinuationKind.Shuangxiong => "双雄",
             _ => pending.Reason
         };
         var judgmentResult = pending.Continuation == JudgmentContinuationKind.Lightning
@@ -13901,9 +13992,16 @@ public sealed partial class GameEngine
         }
 
         var claimedByLuoshen = pending.Continuation == JudgmentContinuationKind.Luoshen && succeeded;
+        var claimedByShuangxiong = pending.Continuation == JudgmentContinuationKind.Shuangxiong;
         FinishResolvedJudgment(
             pending,
-            claimedByLuoshen ? SkillKind.Luoshen : null);
+            claimedByLuoshen ? SkillKind.Luoshen : claimedByShuangxiong ? SkillKind.Shuangxiong : null);
+        if (claimedByShuangxiong)
+        {
+            _shuangxiongJudgmentWasRed = IsRedSuit(judgmentCard.Suit);
+            QueueGameEvent(new JudgmentCardClaimedEvent(pending.FrameId, pending.TargetSeat,
+                SkillKind.Shuangxiong, true, judgmentCard.Id, judgmentCard.Kind));
+        }
         if (pending.Continuation == JudgmentContinuationKind.Luoshen)
         {
             QueueGameEvent(new JudgmentCardClaimedEvent(
@@ -14028,6 +14126,7 @@ public sealed partial class GameEngine
                 {
                     SkillKind.Tiandu => CardMoveReasons.TianduClaim,
                     SkillKind.Luoshen => CardMoveReasons.LuoshenClaim,
+                    SkillKind.Shuangxiong => CardMoveReasons.ShuangxiongClaim,
                     _ => CardMoveReasons.JudgmentFinish
                 });
         }
@@ -14195,6 +14294,13 @@ public sealed partial class GameEngine
 
     private void ResumeCompletedJudgment(JudgmentResolution pending, bool succeeded)
     {
+        if (pending.Continuation == JudgmentContinuationKind.Shuangxiong)
+        {
+            var draw = _pendingShuangxiongDraw ?? throw new InvalidOperationException("A Shuangxiong judgment has no draw continuation.");
+            _pendingShuangxiongDraw = null;
+            CompleteTurnStartAfterDraw(_players[draw.PlayerSeat], draw.DelayedEffects);
+            return;
+        }
         if (pending.Continuation == JudgmentContinuationKind.Tieqi)
         {
             var attack = pending.Attack ??
@@ -17645,6 +17751,21 @@ public sealed partial class GameEngine
                     duel.Id,
                     target.Seat,
                     $"对 {target.Name} 使用【决斗】"));
+            }
+        }
+
+        if (UsesFormalShuangxiong && actor.General.HasSkill(SkillKind.Shuangxiong) &&
+            _shuangxiongJudgmentWasRed is { } judgmentWasRed)
+        {
+            foreach (var converted in playableCards.Where(card => IsRedSuit(card.Suit) != judgmentWasRed))
+            {
+                foreach (var target in _players.Where(player => player.IsAlive && player.Seat != actor.Seat &&
+                             (!UsesFormalKongchengTargeting || !IsCardTargetProhibited(player, CardKind.Duel))))
+                {
+                    actions.Add(new LegalAction(LegalActionKind.Duel, converted.Id, target.Seat,
+                        $"发动【双雄】，将【{converted.DisplayName}】当作【决斗】对 {target.Name} 使用",
+                        PlayedCardKind: CardKind.Duel));
+                }
             }
         }
 
@@ -22083,6 +22204,18 @@ public sealed partial class GameEngine
         playerSeat == decisionSeat &&
         !_players[playerSeat].IsHuman;
 
+    private bool IsAiShuangxiongPending() =>
+        _pendingShuangxiongDraw is { PlayerSeat: var playerSeat } &&
+        _pendingDecision is { Kind: DecisionKind.Shuangxiong, PlayerSeat: var decisionSeat } &&
+        playerSeat == decisionSeat && !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiShuangxiong()
+    {
+        if (!IsAiShuangxiongPending()) throw new InvalidOperationException("There is no AI Shuangxiong choice.");
+        ResolveShuangxiongDrawChoice(useSkill: true);
+        PublishState();
+    }
+
     private void ResolvePendingAiTuxi()
     {
         if (!IsAiTuxiPending())
@@ -23641,6 +23774,7 @@ public sealed partial class GameEngine
         HujiaBagua,
         Ganglie,
         Luoshen,
+        Shuangxiong,
         Tieqi,
         Indulgence,
         SupplyShortage,
@@ -23864,6 +23998,8 @@ public sealed partial class GameEngine
     private sealed record LuoyiDrawResolution(
         int PlayerSeat,
         DelayedTurnEffects DelayedEffects);
+
+    private sealed record ShuangxiongDrawResolution(int PlayerSeat, DelayedTurnEffects DelayedEffects);
 
     private sealed record XiaojiTrigger(int OwnerSeat, int CardId, CardKind CardKind);
 
