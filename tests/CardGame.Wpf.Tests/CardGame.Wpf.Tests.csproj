@@ -14,6 +14,7 @@
     <Compile Include="..\Shared\ZhangbaScenario.cs" Link="ZhangbaScenario.cs" />
     <Compile Include="..\Shared\CixiongDoubleSwordsScenario.cs" Link="CixiongDoubleSwordsScenario.cs" />
     <Compile Include="..\Shared\QinglongCrescentBladeScenario.cs" Link="QinglongCrescentBladeScenario.cs" />
+    <Compile Include="..\Shared\IceSwordScenario.cs" Link="IceSwordScenario.cs" />
     <EmbeddedResource Include="Fixtures\national-v7.json" />
     <ProjectReference Include="..\..\src\CardGame.Wpf\CardGame.Wpf.csproj" />
   </ItemGroup>

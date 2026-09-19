@@ -1,16 +1,16 @@
 using CardGame.Content.Standard;
 using CardGame.Core;
 
-internal sealed record QinglongCrescentBladeBoundary(
+internal sealed record IceSwordBoundary(
     GameEngine Game,
     GameCheckpoint BeforeSlash,
     LegalAction SlashAction,
     int TargetSeat,
     int WeaponCardId);
 
-internal static class QinglongCrescentBladeScenario
+internal static class IceSwordScenario
 {
-    public static QinglongCrescentBladeBoundary FindHumanTrigger(bool requireJijiang = false)
+    public static IceSwordBoundary FindHumanTrigger()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 32_768; seed++)
@@ -29,19 +29,12 @@ internal static class QinglongCrescentBladeScenario
                 AiPolicyVersion = 2
             }, registry);
             Require(game.Submit(new StartGameCommand()).Accepted,
-                "Qinglong Crescent Blade fixture failed to start.");
-            var generalChoice = requireJijiang
-                ? game.PendingDecision?.Choices.FirstOrDefault(choice =>
-                    choice.ContentIds.SequenceEqual(["classic:liu-bei"]))
-                : game.PendingDecision?.Choices.FirstOrDefault(choice =>
-                    choice.ContentIds.Count == 1 &&
-                    registry.Generals[choice.ContentIds[0]].SkillIds
-                        .Select(registry.GetSkill)
-                        .All(skill => skill.LegacyKind is not (
-                            SkillKind.Tieqi or
-                            SkillKind.Liegong or
-                            SkillKind.Wusheng or
-                            SkillKind.Longdan)));
+                "Ice Sword fixture failed to start.");
+            var generalChoice = game.PendingDecision?.Choices.FirstOrDefault(choice =>
+                choice.ContentIds.Count == 1 &&
+                registry.Generals[choice.ContentIds[0]].SkillIds
+                    .Select(registry.GetSkill)
+                    .All(skill => skill.LegacyKind is not (SkillKind.Tieqi or SkillKind.Liegong)));
             if (generalChoice is null)
             {
                 continue;
@@ -52,9 +45,9 @@ internal static class QinglongCrescentBladeScenario
                 generalChoice.ContentIds[0],
                 game.Revision,
                 game.PendingDecision!.PromptId)).Accepted,
-                "Qinglong Crescent Blade fixture could not select a general.");
+                "Ice Sword fixture could not select a general.");
             Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
-                "Qinglong Crescent Blade fixture did not reach play.");
+                "Ice Sword fixture did not reach play.");
             if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } play)
             {
                 continue;
@@ -62,11 +55,10 @@ internal static class QinglongCrescentBladeScenario
 
             var full = game.CreateSnapshot(0, revealAll: true);
             var source = full.Players[0];
-            var weapon = source.Hand.FirstOrDefault(card => card.Kind == CardKind.QinglongCrescentBlade);
+            var weapon = source.Hand.FirstOrDefault(card => card.Kind == CardKind.IceSword);
             if (weapon is null ||
-                source.Hand.Count(card =>
-                    card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) <
-                    (requireJijiang ? 1 : 2))
+                source.Hand.All(card =>
+                    card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)))
             {
                 continue;
             }
@@ -77,12 +69,12 @@ internal static class QinglongCrescentBladeScenario
                 [],
                 game.Revision,
                 play.PromptId));
-            Require(equipped.Accepted, equipped.Error?.Message ??
-                "Qinglong Crescent Blade fixture could not equip the weapon.");
+            Require(equipped.Accepted,
+                equipped.Error?.Message ?? "Ice Sword fixture could not equip the weapon.");
             if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
             {
                 Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
-                    "Qinglong Crescent Blade fixture did not return to play after equipping.");
+                    "Ice Sword fixture did not return to play after equipping.");
             }
             if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } afterEquip)
             {
@@ -106,15 +98,12 @@ internal static class QinglongCrescentBladeScenario
                 })
                 .Where(item =>
                     item.Target.Hp > 1 &&
-                    item.Target.Hand.Any(card => card.Kind == CardKind.Dodge) &&
+                    item.Target.Hand.Count + item.Target.Equipment.Count >= 2 &&
+                    item.Target.Hand.All(card => card.Kind != CardKind.Dodge) &&
                     item.Target.Equipment.All(card =>
                         card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
                     item.Target.Skills?.All(skill =>
                         skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false)
-                .Where(item => !requireJijiang || HasHelpingShuProvider(
-                    full,
-                    registry,
-                    item.Target.Seat))
                 .OrderBy(item => item.Action.CardId)
                 .ThenBy(item => item.Action.TargetSeat)
                 .FirstOrDefault();
@@ -131,19 +120,13 @@ internal static class QinglongCrescentBladeScenario
                 game.Revision,
                 afterEquip.PromptId,
                 slash.Action.PlayedCardKind));
-            Require(played.Accepted, played.Error?.Message ??
-                "Qinglong Crescent Blade fixture could not use Slash.");
+            Require(played.Accepted,
+                played.Error?.Message ?? "Ice Sword fixture could not use Slash.");
             for (var step = 0; step < 16 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.QinglongCrescentBlade, PlayerSeat: 0 })
+                if (game.PendingDecision is { Kind: DecisionKind.IceSword, PlayerSeat: 0 })
                 {
-                    if (requireJijiang && !game.PendingDecision.Choices.Any(choice =>
-                            choice.Parameters.GetValueOrDefault("action") == "qinglong-jijiang"))
-                    {
-                        break;
-                    }
-
-                    return new QinglongCrescentBladeBoundary(
+                    return new IceSwordBoundary(
                         game,
                         beforeSlash,
                         slash.Action,
@@ -157,27 +140,13 @@ internal static class QinglongCrescentBladeScenario
                 }
 
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                    "Qinglong Crescent Blade fixture could not advance the target's Dodge response.");
+                    "Ice Sword fixture could not advance to its damage replacement window.");
             }
         }
 
         throw new InvalidOperationException(
-            "No bounded classic Qinglong Crescent Blade trigger with a human source was found.");
+            "No bounded classic Ice Sword trigger with a human source was found.");
     }
-
-    private static bool HasHelpingShuProvider(
-        GameSnapshot snapshot,
-        ContentRegistry registry,
-        int targetSeat) =>
-        snapshot.Players.Any(player =>
-            player.Seat != 0 &&
-            player.Seat != targetSeat &&
-            player.Role is Role.Loyalist or Role.Renegade &&
-            string.Equals(registry.Generals[player.GeneralId].FactionId, "shu", StringComparison.Ordinal) &&
-            (player.Hand.Any(card => card.Kind is
-                 CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
-             player.Equipment.Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
-             player.Hand.Count >= 2));
 
     private static void Require(bool value, string message)
     {

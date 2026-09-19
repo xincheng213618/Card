@@ -65,6 +65,7 @@ public sealed partial class GameEngine
     private StoneAxeResolution? _pendingStoneAxe;
     private CixiongDoubleSwordsResolution? _pendingCixiongDoubleSwords;
     private QinglongCrescentBladeResolution? _pendingQinglongCrescentBlade;
+    private IceSwordResolution? _pendingIceSword;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
@@ -266,6 +267,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalQinglongCrescentBlade =>
         _rulesVersion >= 46 && IsClassicIdentityMode;
+
+    private bool UsesFormalIceSword =>
+        _rulesVersion >= 47 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -863,6 +867,7 @@ public sealed partial class GameEngine
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.QinglongCrescentBlade or
+                DecisionKind.IceSword or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -993,6 +998,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.QinglongCrescentBlade)
         {
             return SubmitQinglongCrescentBladePromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.IceSword)
+        {
+            return SubmitIceSwordPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1617,6 +1627,30 @@ public sealed partial class GameEngine
                     advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "青龙偃月刀必须对同一目标使用提示中精确的一张杀、发动激将，或选择不发动。")
         };
+    }
+
+    private CommandResult SubmitIceSwordPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingIceSword is null ||
+            _pendingDecision is not { Kind: DecisionKind.IceSword })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的寒冰剑触发窗口。");
+        }
+
+        var action = selected.Parameters.GetValueOrDefault("action");
+        var valid = action switch
+        {
+            "ice-sword-discard" => selected.Targets.Count == 1 && selected.Cards.Count is 0 or 1,
+            "ice-sword-damage" => !_pendingIceSword.Activated &&
+                                  selected.Targets.Count == 0 &&
+                                  selected.Cards.Count == 0,
+            _ => false
+        };
+        return valid
+            ? Accept(() => HumanIceSwordCore(
+                selected,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
+            : Reject(CommandErrorCode.InvalidChoice, "寒冰剑必须选择目标当前的一张暗手牌/公开装备，或在首个窗口保留原伤害。");
     }
 
     private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
@@ -3042,6 +3076,16 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.QinglongCrescentBlade);
         ResolveQinglongCrescentBladeChoice(selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanIceSwordCore(
+        PromptChoice selected,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.IceSword);
+        ResolveIceSwordChoice(selected);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -11329,6 +11373,12 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiResponse()
     {
+        if (_pendingIceSword is not null)
+        {
+            ResolvePendingAiIceSword();
+            return;
+        }
+
         if (_pendingQinglongCrescentBlade is not null &&
             _pendingDecision?.Kind == DecisionKind.QinglongCrescentBlade)
         {
@@ -11400,6 +11450,29 @@ public sealed partial class GameEngine
         AddThought(thought);
         var selected = decision.Choices.Single(choice => choice.Id == choiceId);
         ResolveQinglongCrescentBladeChoice(selected);
+        PublishState();
+    }
+
+    private void ResolvePendingAiIceSword()
+    {
+        var pending = _pendingIceSword ??
+            throw new InvalidOperationException("AI Ice Sword response has no active resolution.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.IceSword } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The pending AI Ice Sword prompt is inconsistent.");
+        }
+
+        var (choiceId, thought) = _aiBrains[attack.SourceSeat].ChooseIceSwordChoice(
+            CreateSnapshot(attack.SourceSeat),
+            attack.TargetSeat,
+            pending.PreventedDamageAmount,
+            ++_thoughtSequence);
+        AddThought(thought);
+        var selected = decision.Choices.Single(choice => choice.Id == choiceId);
+        ResolveIceSwordChoice(selected);
         PublishState();
     }
 
@@ -13013,6 +13086,244 @@ public sealed partial class GameEngine
         CompleteSuccessfulDodgeResponse(attack);
     }
 
+    private int GetIceSwordTargetCardCount(PlayerRuntime target) =>
+        GetHand(target).Count + GetEquipment(target).Count;
+
+    private bool TryBeginIceSwordChoice(AttackResolution attack, int preventedDamageAmount)
+    {
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        if (!UsesFormalIceSword ||
+            attack.IceSwordAttempted ||
+            attack.IsChainPropagation ||
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            !source.IsAlive ||
+            !target.IsAlive ||
+            GetEquipment(source).All(card => card.Kind != CardKind.IceSword) ||
+            GetIceSwordTargetCardCount(target) == 0)
+        {
+            return false;
+        }
+
+        if (_pendingIceSword is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Ice Sword choices at once.");
+        }
+
+        attack.MarkIceSwordAttempted();
+        _pendingIceSword = new IceSwordResolution(attack, preventedDamageAmount);
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
+        PublishIceSwordChoice(_pendingIceSword);
+        return true;
+    }
+
+    private void PublishIceSwordChoice(IceSwordResolution pending)
+    {
+        if (!ReferenceEquals(_pendingIceSword, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.Attack))
+        {
+            throw new InvalidOperationException("The Ice Sword choice has no current Slash continuation.");
+        }
+
+        var attack = pending.Attack;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var hand = GetHand(target);
+        var equipment = GetEquipment(target);
+        if (hand.Count + equipment.Count == 0)
+        {
+            FinishIceSwordPrevention(pending);
+            return;
+        }
+
+        var choices = new List<PromptChoice>();
+        for (var slot = 0; slot < hand.Count; slot++)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"ice-sword.hand-slot-{slot}.resolution-{attack.ResolutionId}.pick-{pending.DiscardedCardIds.Count + 1}"),
+                $"弃置 {target.Name} 的第 {slot + 1} 个暗手牌位。",
+                [],
+                [target.Seat],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "ice-sword-discard",
+                    ["target-zone"] = "hand",
+                    ["slot-index"] = slot.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["pick-index"] = (pending.DiscardedCardIds.Count + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                }));
+        }
+        foreach (var card in equipment)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"ice-sword.equipment-{card.Id}.resolution-{attack.ResolutionId}.pick-{pending.DiscardedCardIds.Count + 1}"),
+                $"弃置 {target.Name} 装备区的【{card.DisplayName}】。",
+                [card.Id],
+                [target.Seat],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "ice-sword-discard",
+                    ["target-zone"] = "equipment",
+                    ["pick-index"] = (pending.DiscardedCardIds.Count + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                }));
+        }
+        if (!pending.Activated)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"ice-sword.damage.resolution-{attack.ResolutionId}"),
+                $"不发动【寒冰剑】，对 {target.Name} 造成 {pending.PreventedDamageAmount} 点伤害。",
+                [],
+                [],
+                new Dictionary<string, string> { ["action"] = "ice-sword-damage" }));
+        }
+
+        _pendingDecision = new PendingDecision(
+            DecisionKind.IceSword,
+            source.Seat,
+            pending.Activated
+                ? $"【寒冰剑】已防止伤害，请继续弃置 {target.Name} 的第二张牌。"
+                : $"你的【{CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName}】将对 {target.Name} 造成 {pending.PreventedDamageAmount} 点伤害，是否发动【寒冰剑】？",
+            equipment.Select(card => card.Id).ToArray(),
+            [target.Seat],
+            SourceSeat: source.Seat,
+            IncomingCard: attack.EffectiveCardKind)
+        {
+            PromptId = source.IsHuman ? CreatePromptId() : default,
+            IsPrivate = true,
+            TargetSeat = target.Seat,
+            Choices = choices
+        };
+        _status = source.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
+    private void ResolveIceSwordChoice(PromptChoice selected)
+    {
+        var pending = _pendingIceSword ??
+            throw new InvalidOperationException("There is no Ice Sword choice to resolve.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.IceSword } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The Ice Sword choice is not the current Slash continuation.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (action == "ice-sword-damage")
+        {
+            if (pending.Activated || selected.Cards.Count != 0 || selected.Targets.Count != 0)
+            {
+                throw new InvalidOperationException("Ice Sword damage may only be retained before its first discard.");
+            }
+
+            _pendingIceSword = null;
+            ClearPendingDecision();
+            SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+            QueueGameEvent(new IceSwordResolvedEvent(
+                attack.ResolutionId,
+                source.Seat,
+                target.Seat,
+                Used: false,
+                PreventedDamageAmount: 0,
+                DiscardedCardIds: []));
+            AddLog(
+                "EquipmentSkipped",
+                $"{source.Name} 未发动【寒冰剑】，{target.Name} 继续受到 {pending.PreventedDamageAmount} 点伤害。",
+                source.Seat,
+                target.Seat);
+            if (!ApplyAttackDamage(attack))
+            {
+                CompleteAttack(attack);
+            }
+            return;
+        }
+
+        if (action != "ice-sword-discard" ||
+            !selected.Targets.SequenceEqual([target.Seat]))
+        {
+            throw new InvalidOperationException("The Ice Sword discard choice is malformed.");
+        }
+
+        Card discarded;
+        var targetZone = selected.Parameters.GetValueOrDefault("target-zone");
+        if (targetZone == "hand" &&
+            selected.Cards.Count == 0 &&
+            selected.Parameters.TryGetValue("slot-index", out var slotText) &&
+            int.TryParse(
+                slotText,
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var slot) &&
+            slot >= 0 && slot < GetHand(target).Count)
+        {
+            discarded = GetHand(target)[slot];
+        }
+        else if (targetZone == "equipment" &&
+                 selected.Cards.Count == 1 &&
+                 GetEquipment(target).FirstOrDefault(card => card.Id == selected.Cards[0]) is { } equipment)
+        {
+            discarded = equipment;
+        }
+        else
+        {
+            throw new InvalidOperationException("The selected Ice Sword target card is no longer available.");
+        }
+
+        pending.Activated = true;
+        ClearPendingDecision();
+        MoveCard(
+            discarded,
+            FindOwnedCardLocation(target, discarded),
+            CardLocation.DiscardPile,
+            CardMoveReasons.IceSwordDiscard);
+        pending.DiscardedCardIds.Add(discarded.Id);
+        AddLog(
+            "EquipmentEffect",
+            $"{source.Name} 发动【寒冰剑】，弃置 {target.Name} 的【{discarded.DisplayName}】。",
+            source.Seat,
+            target.Seat);
+
+        if (pending.DiscardedCardIds.Count < 2 && GetIceSwordTargetCardCount(target) > 0)
+        {
+            PublishIceSwordChoice(pending);
+            return;
+        }
+
+        FinishIceSwordPrevention(pending);
+    }
+
+    private void FinishIceSwordPrevention(IceSwordResolution pending)
+    {
+        if (!ReferenceEquals(_pendingIceSword, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.Attack) ||
+            !pending.Activated ||
+            pending.DiscardedCardIds.Count is < 1 or > 2)
+        {
+            throw new InvalidOperationException("The completed Ice Sword prevention is invalid.");
+        }
+
+        var attack = pending.Attack;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        _pendingIceSword = null;
+        ClearPendingDecision();
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        QueueGameEvent(new IceSwordResolvedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            Used: true,
+            pending.PreventedDamageAmount,
+            Array.AsReadOnly(pending.DiscardedCardIds.ToArray())));
+        AddLog(
+            "DamagePrevented",
+            $"{source.Name} 的【寒冰剑】防止了对 {target.Name} 的 {pending.PreventedDamageAmount} 点伤害，并依次弃置其 {pending.DiscardedCardIds.Count} 张牌。",
+            source.Seat,
+            target.Seat);
+        CompleteAttack(attack);
+    }
+
     private bool ApplyAttackDamage(AttackResolution attack)
     {
         var source = _players[attack.SourceSeat];
@@ -13024,6 +13335,10 @@ public sealed partial class GameEngine
 
         var nature = GetDamageNature(attack);
         var amount = FinalizeAttackDamageAmount(attack);
+        if (TryBeginIceSwordChoice(attack, amount))
+        {
+            return true;
+        }
         if (!attack.IsChainPropagation &&
             (nature is DamageNature.Fire or DamageNature.Thunder) &&
             target.IsChained)
@@ -18192,6 +18507,61 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingIceSword is { } iceSword)
+        {
+            var iceSwordAttack = iceSword.Attack;
+            var source = _players[iceSwordAttack.SourceSeat];
+            var target = _players[iceSwordAttack.TargetSeat];
+            var handCount = GetHand(target).Count;
+            var equipmentIds = GetEquipment(target).Select(card => card.Id).ToArray();
+            var decision = _pendingDecision;
+            var discardChoices = decision?.Choices.Where(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "ice-sword-discard").ToArray() ?? [];
+            var expectedSkipCount = iceSword.Activated ? 0 : 1;
+            var handSlots = discardChoices
+                .Where(choice => choice.Parameters.GetValueOrDefault("target-zone") == "hand")
+                .Select(choice => choice.Parameters.GetValueOrDefault("slot-index"))
+                .ToArray();
+            if (!UsesFormalIceSword ||
+                !ReferenceEquals(_pendingAttack, iceSwordAttack) ||
+                !iceSwordAttack.IceSwordAttempted ||
+                !iceSwordAttack.DamageAmountFinalized ||
+                iceSwordAttack.IsChainPropagation ||
+                GetEquipment(source).All(card => card.Kind != CardKind.IceSword) ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != iceSwordAttack.ResolutionId ||
+                cardUse.Step != ResolutionFrameStep.AwaitingResponse ||
+                decision is not { Kind: DecisionKind.IceSword, IsPrivate: true } ||
+                decision.PlayerSeat != iceSwordAttack.SourceSeat ||
+                decision.SourceSeat != iceSwordAttack.SourceSeat ||
+                decision.TargetSeat != iceSwordAttack.TargetSeat ||
+                !decision.ValidCardIds.SequenceEqual(equipmentIds) ||
+                !decision.ValidTargetSeats.SequenceEqual([target.Seat]) ||
+                discardChoices.Length != handCount + equipmentIds.Length ||
+                decision.Choices.Count != discardChoices.Length + expectedSkipCount ||
+                handSlots.Length != handCount ||
+                !handSlots.SequenceEqual(Enumerable.Range(0, handCount)
+                    .Select(slot => slot.ToString(System.Globalization.CultureInfo.InvariantCulture))) ||
+                discardChoices.Any(choice => !choice.Targets.SequenceEqual([target.Seat])) ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0) != expectedSkipCount ||
+                iceSword.DiscardedCardIds.Count != (iceSword.Activated ? 1 : 0))
+            {
+                throw new InvalidOperationException(
+                    "An Ice Sword choice must retain its private staged target-card prompt before Slash damage.");
+            }
+
+            var expectedIceSwordStatus = source.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedIceSwordStatus)
+            {
+                throw new InvalidOperationException("An Ice Sword prompt status does not match its owner.");
+            }
+        }
+
         if (_pendingCixiongDoubleSwords is { } cixiong)
         {
             var cixiongAttack = cixiong.Attack;
@@ -18598,6 +18968,17 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active Qinglong Crescent Blade choice must retain its Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingIceSword is { } iceSwordContinuation)
+            {
+                if (!ReferenceEquals(iceSwordContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame iceSwordCardUse ||
+                    iceSwordCardUse.Id != pendingAttack.ResolutionId ||
+                    iceSwordCardUse.Step != ResolutionFrameStep.AwaitingResponse)
+                {
+                    throw new InvalidOperationException(
+                        "An active Ice Sword choice must retain its Slash frame as the stack top.");
                 }
             }
             else if (_pendingCixiongDoubleSwords is { } cixiongContinuation)
@@ -19152,6 +19533,13 @@ public sealed partial class GameEngine
                 "A Qinglong Crescent Blade prompt cannot exist without its Slash continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.IceSword &&
+            _pendingIceSword is null)
+        {
+            throw new InvalidOperationException(
+                "An Ice Sword prompt cannot exist without its Slash continuation.");
+        }
+
         if (_pendingDecision?.Kind is DecisionKind.Feedback or
             DecisionKind.Yiji or
             DecisionKind.Jieming or
@@ -19178,7 +19566,8 @@ public sealed partial class GameEngine
                 DecisionKind.Liegong or
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
-                DecisionKind.QinglongCrescentBlade) &&
+                DecisionKind.QinglongCrescentBlade or
+                DecisionKind.IceSword) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -19255,6 +19644,7 @@ public sealed partial class GameEngine
              _pendingStoneAxe is not null ||
              _pendingCixiongDoubleSwords is not null ||
              _pendingQinglongCrescentBlade is not null ||
+             _pendingIceSword is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -19370,7 +19760,8 @@ public sealed partial class GameEngine
             DecisionKind.RespondSlash or
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
-            DecisionKind.QinglongCrescentBlade) &&
+            DecisionKind.QinglongCrescentBlade or
+            DecisionKind.IceSword) &&
         _pendingDecision.PlayerSeat != _options.HumanSeat;
 
     private bool IsAiNullificationPending() =>
@@ -20249,6 +20640,7 @@ public sealed partial class GameEngine
         public bool LiegongResolved { get; private set; }
         public bool LiegongProhibitsDodge { get; private set; }
         public bool CixiongDoubleSwordsResolved { get; private set; }
+        public bool IceSwordAttempted { get; private set; }
         public bool ProhibitsDodge { get; private set; }
         public int RequiredDodgeResponses { get; private set; } = 1;
         public int SuccessfulDodgeResponses { get; private set; }
@@ -20343,6 +20735,16 @@ public sealed partial class GameEngine
 
         public void MarkCixiongDoubleSwordsResolved() => CixiongDoubleSwordsResolved = true;
 
+        public void MarkIceSwordAttempted()
+        {
+            if (IceSwordAttempted)
+            {
+                throw new InvalidOperationException("Ice Sword has already resolved for this damage event.");
+            }
+
+            IceSwordAttempted = true;
+        }
+
         public void SetChainedTargets(IReadOnlyList<int> targetSeats)
         {
             if (ChainedTargetSeats.Count != 0 || ChainedTargetIndex != 0)
@@ -20417,6 +20819,16 @@ public sealed partial class GameEngine
     {
         public AttackResolution Attack { get; } = attack;
         public bool JijiangAttempted { get; set; }
+    }
+
+    private sealed class IceSwordResolution(
+        AttackResolution attack,
+        int preventedDamageAmount)
+    {
+        public AttackResolution Attack { get; } = attack;
+        public int PreventedDamageAmount { get; } = preventedDamageAmount;
+        public bool Activated { get; set; }
+        public List<int> DiscardedCardIds { get; } = [];
     }
 
     private sealed class BorrowedSwordResolution(

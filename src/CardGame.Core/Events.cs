@@ -751,6 +751,18 @@ public sealed record QinglongCrescentBladeResolvedEvent(
     IReadOnlyList<int> SlashCardIds,
     CardKind? EffectiveSlashKind = null) : IGameEvent;
 
+/// <summary>
+/// Public terminal result for Ice Sword. Used results prevent the pending
+/// Slash damage and record the target cards discarded in their exact order.
+/// </summary>
+public sealed record IceSwordResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool Used,
+    int PreventedDamageAmount,
+    IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

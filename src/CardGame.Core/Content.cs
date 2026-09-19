@@ -235,6 +235,14 @@ public static class CardCatalog
                 AiPlayValue: 39,
                 AiResponseValue: 0,
                 HandKeepValue: 43),
+            [CardKind.IceSword] = new(
+                CardKind.IceSword,
+                "寒冰剑",
+                "装备牌",
+                "装备至武器槽；攻击范围 2，当你使用杀即将造成伤害且目标有手牌或装备时，可防止此伤害并依次弃置其至多两张牌。",
+                AiPlayValue: 38,
+                AiResponseValue: 0,
+                HandKeepValue: 42),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

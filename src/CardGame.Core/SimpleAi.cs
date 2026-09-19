@@ -1479,6 +1479,72 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses whether to replace Slash damage with Ice Sword discards, then
+    /// selects only from the opaque hand slots and public equipment published
+    /// by the private prompt.
+    /// </summary>
+    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseIceSwordChoice(
+        GameSnapshot view,
+        int targetSeat,
+        int preventedDamageAmount,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var prompt = view.PendingDecision is { Kind: DecisionKind.IceSword } decision
+            ? decision
+            : throw new InvalidOperationException("AI has no Ice Sword prompt.");
+        var support = GetTacticalSupport(view, selfRole, target);
+        var availableCardCount = target.HandCount + target.Equipment.Count;
+        var discardPotential = Math.Min(2, availableCardCount) * 32d;
+        var lethalAdjustment = target.Hp <= preventedDamageAmount
+            ? support >= 0d ? 90d : -90d
+            : 0d;
+        var equipment = target.Equipment.ToDictionary(card => card.Id);
+        var candidates = prompt.Choices.Select(choice =>
+        {
+            var retainsDamage = choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage";
+            var publicCardValue = choice.Cards.Count == 1 &&
+                                  equipment.TryGetValue(choice.Cards[0], out var publicCard)
+                ? CardCatalog.Get(publicCard.Kind).HandKeepValue
+                : 32;
+            var score = retainsDamage
+                ? -support * preventedDamageAmount * 40d
+                : support * preventedDamageAmount * 45d -
+                  support * discardPotential * 1.4d +
+                  lethalAdjustment -
+                  support * publicCardValue * .08d;
+            return new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.Equip,
+                    choice.Cards.Count == 1 ? choice.Cards[0] : null,
+                    retainsDamage ? null : targetSeat,
+                    choice.Description),
+                score,
+                retainsDamage
+                    ? "比较伤害收益、目标体力与公开关系后保留原伤害。"
+                    : choice.Cards.Count == 0
+                        ? "仅把暗手牌视为不透明牌位，结合目标牌量与伤害价值评估。"
+                        : "公开装备可以按牌面保留价值参与寒冰剑弃牌选择。");
+        }).ToArray();
+        var selectedIndex = candidates
+            .Select((candidate, index) => new { Candidate = candidate, Index = index })
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Index)
+            .First().Index;
+        var selected = prompt.Choices[selectedIndex];
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Description,
+            candidates,
+            $"寒冰剑：目标关系 {support:0.##}，待造成 {preventedDamageAmount} 点伤害，选择{selected.Description}");
+        return (selected.Id, thought);
+    }
+
+    /// <summary>
     /// Chooses whether to spend one of this seat's private Nullification cards
     /// on the published trick-effect context. The method receives no engine
     /// zone, draw-pile, or other-player hand access; all strategic inputs come

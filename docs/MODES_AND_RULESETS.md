@@ -60,6 +60,8 @@
 
 2026-09-19 增量：`standard-classic-generals@1.27.0` 注册 `classic:qinglong-crescent-blade`，把 `classic:standard-deck` 扩为 97 张。规则 v46 在杀被最后一张闪抵消后发布来源私有的精确同目标杀/跳过 Choice；发动时原杀先结束，再创建一张不计普通次数的新杀，所以完整响应、连续青龙触发和存档恢复沿用现有攻击链。包 1.26.0 与 rules v45 保留 96 张历史牌堆且不发布该窗口。
 
+2026-09-19 增量：`standard-classic-generals@1.28.0` 注册 `classic:ice-sword`，把 `classic:standard-deck` 扩为 98 张。规则 v47 在杀伤害生效前发布来源私有的目标手牌不透明牌位/公开装备 Choice；发动后防止全部伤害，目标有两张以上牌时必须依次弃置两张。包 1.27.0 与 rules v46 保留 97 张历史牌堆且不发布该窗口。
+
 2026-09-18 增量：规则 v16 在 `identity:classic-*` 中把奸雄从自动取得杀类伤害牌改为私有可选触发，并把范围扩到当前仍在 `Processing` 的任意伤害牌。真人和 AI 共用 `DamageSkillFrame` 的取得/跳过 Choice，同一实体牌以 `skill.jianxiong.claim-damage-card` 进入曹操手牌；v1–v15 和演示模式保留旧自动杀类语义。延时锦囊等位于其他公开牌区的伤害来源不在本切片内。
 
 2026-09-18 增量：规则 v17 在 `identity:classic-*` 中把制衡补齐为每个出牌阶段限一次，并允许从自己的手牌与公开装备区中任意选择至少一张牌。混合来源逐张经过各自牌区到 `Processing`，再统一进入弃牌堆并摸等量牌；WPF 为装备提供中央选择按钮，AI 只从自己的手牌和公开装备中选择。v1–v16 和演示模式保留历史手牌限定与可重复发动语义。

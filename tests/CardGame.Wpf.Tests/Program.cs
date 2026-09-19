@@ -59,6 +59,7 @@ internal static class Program
             Check("Zhangba selects two hand cards and one Slash target through WPF", () => ZhangbaUiChecks.ActiveDraft(output));
             Check("Cixiong restores and commits its staged private WPF choice", () => CixiongDoubleSwordsUiChecks.ActivationChoice(output));
             Check("Qinglong restores and commits an exact same-target Slash choice", () => QinglongCrescentBladeUiChecks.ExactFollowupChoice(output));
+            Check("Ice Sword restores and commits sequential opaque target-card choices", () => IceSwordUiChecks.SequentialOpaqueChoices(output));
             Check("national Wusheng reveal during response refreshes the WPF controls", () => WushengResponseChecks.NationalRevealDuringResponse(output));
             Check("Iron Chain selects seats directly and preserves multi-target drafts through guides and tutorials", () => CardTargetChecks.DirectSelection(output));
             Check("recast uses a distinct action, public feedback and version-aware saved rules", () => RecastUiChecks.ControlsAndOldSaves(output));
@@ -94,7 +95,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 58 : 57)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 59 : 58)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)

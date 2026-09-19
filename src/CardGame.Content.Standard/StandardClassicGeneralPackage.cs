@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 27, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 28, 0))
     {
     }
 
@@ -46,12 +46,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 24, 0) &&
             version != new Version(1, 25, 0) &&
             version != new Version(1, 26, 0) &&
-            version != new Version(1, 27, 0))
+            version != new Version(1, 27, 0) &&
+            version != new Version(1, 28, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.27.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.28.0.");
         }
 
         _version = version;
@@ -138,6 +139,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["continuation"] = "same-target-slash"
                     }));
             }
+            if (_version >= new Version(1, 28, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:ice-sword",
+                    DisplayName: "寒冰剑",
+                    CategoryName: "装备牌",
+                    Description: "装备至武器槽；攻击范围 2，当你使用杀即将造成伤害且目标有手牌或装备时，可防止此伤害并依次弃置其至多两张牌。",
+                    LegacyKind: CardKind.IceSword,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "weapon",
+                        ["trigger"] = "slash-would-deal-damage",
+                        ["replacement"] = "discard-up-to-two-target-cards"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -186,10 +202,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:qinglong-crescent-blade", 1));
             }
+            if (_version >= new Version(1, 28, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:ice-sword", 1));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 27, 0)
+                Name: _version >= new Version(1, 28, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑）"
+                    : _version >= new Version(1, 27, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀）"
                     : _version >= new Version(1, 26, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑）"

@@ -36,6 +36,7 @@ internal static class ClassicGeneralChecks
         var stoneAxeClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 24, 0));
         var zhangbaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 25, 0));
         var cixiongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 26, 0));
+        var qinglongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 27, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -44,7 +45,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.27.0"]),
+                "standard-classic-generals@1.28.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -230,17 +231,22 @@ internal static class ClassicGeneralChecks
                 cixiongClassic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 cixiongClassic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female,
             "The 1.26 classic registry must retain its 96-card Cixiong deck and typed gender.");
+        Require(qinglongClassic.Cards["classic:qinglong-crescent-blade"].LegacyKind == CardKind.QinglongCrescentBlade &&
+                !qinglongClassic.Cards.ContainsKey("classic:ice-sword") &&
+                qinglongClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 97,
+            "The 1.27 classic registry must retain its 97-card Qinglong deck without Ice Sword.");
         Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
                 classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
                 classic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
                 classic.Cards["classic:cixiong-double-swords"].LegacyKind == CardKind.CixiongDoubleSwords &&
                 classic.Cards["classic:qinglong-crescent-blade"].LegacyKind == CardKind.QinglongCrescentBlade &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 97 &&
+                classic.Cards["classic:ice-sword"].LegacyKind == CardKind.IceSword &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 98 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.27 classic registry must opt both classic modes into the 97-card deck with Qinglong and typed gender.");
+            "The 1.28 classic registry must opt both classic modes into the 98-card deck with Ice Sword and typed gender.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
