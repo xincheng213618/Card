@@ -1050,6 +1050,23 @@ internal static class ClassicGeneralUiChecks
         pangTongWindow.Content = null;
         pangTongWindow.Close();
 
+        using var taishiCiViewModel = FindGeneralChoice("classic:taishi-ci");
+        var taishiCi = taishiCiViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:taishi-ci");
+        Program.Assert(taishiCi.Name == "太史慈" && taishiCi.Kingdom == "吴" &&
+                       taishiCi.SkillName == "天义" &&
+                       taishiCi.SkillDescription.Contains("拼点", StringComparison.Ordinal) &&
+                       taishiCi.SkillDescription.Contains("无距离限制", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(taishiCi.GeneralId) &&
+                       taishiCi.HealthText == "体力上限 5",
+            "The current classic Taishi Ci card must render Wu, Tianyi and the Lord health bonus.");
+        var taishiCiWindow = new MainWindow(taishiCiViewModel);
+        taishiCiWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)taishiCiWindow.Content, 1120, 740,
+            Path.Combine(output, "145-classic-taishi-ci-card.png"));
+        taishiCiWindow.Content = null;
+        taishiCiWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

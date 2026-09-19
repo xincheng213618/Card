@@ -658,6 +658,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Mengjin or
                     DecisionKind.QuhuPindian or
                     DecisionKind.QuhuDamageTarget or
+                    DecisionKind.TianyiPindian or
                     DecisionKind.ZhuqueFan
             } skillPrompt)
         {
@@ -695,6 +696,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Mengjin or
             DecisionKind.QuhuPindian or
             DecisionKind.QuhuDamageTarget or
+            DecisionKind.TianyiPindian or
             DecisionKind.ZhuqueFan;
 
         var legalActions = _game.GetHumanLegalActions();
@@ -1849,6 +1851,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      ActiveSkill(Quhu)");
                 EventStack.Add($"        AskForSkill({pending.Kind})");
+            }
+            else if (pending.Kind == DecisionKind.TianyiPindian)
+            {
+                EventStack.Add("      ActiveSkill(Tianyi)");
+                EventStack.Add("        AskForSkill(TianyiPindian)");
             }
             else if (pending.Kind == DecisionKind.ZhuqueFan)
             {

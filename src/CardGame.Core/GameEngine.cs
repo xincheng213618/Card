@@ -72,6 +72,7 @@ public sealed partial class GameEngine
     private QilinBowResolution? _pendingQilinBow;
     private MengjinResolution? _pendingMengjin;
     private QuhuResolution? _pendingQuhu;
+    private TianyiResolution? _pendingTianyi;
     private FangtianHalberdResolution? _pendingFangtianHalberd;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
@@ -283,6 +284,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalPangTong =>
         _rulesVersion >= 63 && IsClassicIdentityMode;
+
+    private bool UsesFormalTaishiCi =>
+        _rulesVersion >= 64 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -937,6 +941,7 @@ public sealed partial class GameEngine
                 DecisionKind.Mengjin or
                 DecisionKind.QuhuPindian or
                 DecisionKind.QuhuDamageTarget or
+                DecisionKind.TianyiPindian or
                 DecisionKind.ZhuqueFan or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
@@ -1108,6 +1113,11 @@ public sealed partial class GameEngine
         if (pending.Kind is DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget)
         {
             return SubmitQuhuPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.TianyiPindian)
+        {
+            return SubmitTianyiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Liuli)
@@ -2317,7 +2327,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
                 ActiveSkillEffectKind.DiscardAndStartDuel or
                 ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
-                ActiveSkillEffectKind.PindianAndDamage) ||
+                ActiveSkillEffectKind.PindianAndDamage or
+                ActiveSkillEffectKind.PindianForSlashBonus) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -2353,6 +2364,10 @@ public sealed partial class GameEngine
              effect.MinCardCount != 2 || effect.MaxCardCount != 2 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
             effect.Kind == ActiveSkillEffectKind.PindianAndDamage &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
+             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
+            effect.Kind == ActiveSkillEffectKind.PindianForSlashBonus &&
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
              effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
@@ -3468,6 +3483,14 @@ public sealed partial class GameEngine
             RequireHumanDecision(DecisionKind.QuhuDamageTarget);
             ResolveQuhuDamageTargetChoice(selected);
         }
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanTianyiCore(PromptChoice selected, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.TianyiPindian);
+        ResolveTianyiPindianChoice(selected);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5151,6 +5174,8 @@ public sealed partial class GameEngine
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
+        current.TianyiWonThisTurn = false;
+        current.TianyiLostThisTurn = false;
         _phase = TurnPhase.Draw;
         AddLog(
             "TurnStarted",
@@ -6072,6 +6097,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiTianyiPending())
+        {
+            ResolvePendingAiTianyi();
+            return;
+        }
+
         if (IsAiGuanxingPending())
         {
             ResolvePendingAiGuanxing();
@@ -6341,7 +6372,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
                 ActiveSkillEffectKind.DiscardAndStartDuel or
                 ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
-                ActiveSkillEffectKind.PindianAndDamage))
+                ActiveSkillEffectKind.PindianAndDamage or
+                ActiveSkillEffectKind.PindianForSlashBonus))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -6380,6 +6412,12 @@ public sealed partial class GameEngine
         if (effect.Kind == ActiveSkillEffectKind.PindianAndDamage)
         {
             BeginQuhuPindian(actor, cardIds.Single(), targetSeats.Single(), frameId);
+            return;
+        }
+
+        if (effect.Kind == ActiveSkillEffectKind.PindianForSlashBonus)
+        {
+            BeginTianyiPindian(actor, cardIds.Single(), targetSeats.Single(), frameId);
             return;
         }
 
@@ -9425,17 +9463,17 @@ public sealed partial class GameEngine
         CardKind playedCardKind)
     {
         var targetSeats = targets.Select(target => target.Seat).ToArray();
-        var stillLegal = targetSeats.Length is 2 or 3 &&
+        var stillLegal = targetSeats.Length is >= 2 and <= 4 &&
             BuildLegalActions(source).Any(action =>
                 action.Kind == LegalActionKind.Slash &&
                 action.CardId == slash.Id &&
                 action.TargetSeats.SequenceEqual(targetSeats) &&
                 (action.PlayedCardKind ?? slash.Kind) == playedCardKind);
-        if (!stillLegal ||
-            !UsesFormalFangtianHalberd ||
-            GetHand(source).Count != 1 ||
-            GetHand(source)[0].Id != slash.Id ||
-            GetEquipment(source).All(card => card.Kind != CardKind.FangtianHalberd))
+        var usesFangtian = UsesFormalFangtianHalberd &&
+            GetHand(source).Count == 1 && GetHand(source)[0].Id == slash.Id &&
+            GetEquipment(source).Any(card => card.Kind == CardKind.FangtianHalberd);
+        var usesTianyi = UsesFormalTaishiCi && source.TianyiWonThisTurn && targetSeats.Length == 2;
+        if (!stillLegal || (!usesFangtian && !usesTianyi))
         {
             throw new InvalidOperationException("Fangtian Halberd Slash became illegal before resolution.");
         }
@@ -9449,7 +9487,7 @@ public sealed partial class GameEngine
             ignoresArmor);
         MoveCard(
             slash,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, slash),
             CardLocation.Processing,
             CardMoveReasons.Use);
         if (_phase == TurnPhase.Play && source.Seat == _currentSeat)
@@ -9467,14 +9505,18 @@ public sealed partial class GameEngine
             playedCardKind,
             ignoresArmor,
             damageAmount,
-            targetSeats);
+            targetSeats,
+            usesFangtian);
         _pendingFangtianHalberd = pending;
-        QueueGameEvent(new FangtianHalberdUsedEvent(
-            resolutionId,
-            source.Seat,
-            slash.Id,
-            playedCardKind,
-            Array.AsReadOnly(targetSeats)));
+        if (usesFangtian)
+        {
+            QueueGameEvent(new FangtianHalberdUsedEvent(
+                resolutionId,
+                source.Seat,
+                slash.Id,
+                playedCardKind,
+                Array.AsReadOnly(targetSeats)));
+        }
         QueueGameEvent(new CardUsedEvent(
             slash.Id,
             playedCardKind,
@@ -9483,8 +9525,8 @@ public sealed partial class GameEngine
             IgnoresArmor: ignoresArmor));
         var slashName = CardCatalog.Get(playedCardKind).DisplayName;
         AddLog(
-            "EquipmentEffect",
-            $"{source.Name} 发动【方天画戟】，以最后的手牌【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}。",
+            usesFangtian ? "EquipmentEffect" : "SkillTriggered",
+            $"{source.Name} 发动【{(usesFangtian ? "方天画戟" : "天义")}】，以【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}。",
             source.Seat,
             targetSeats[0]);
         foreach (var target in targets)
@@ -9528,7 +9570,7 @@ public sealed partial class GameEngine
         _pendingAttack = attack;
         AddLog(
             "CardEffect",
-            $"【方天画戟】的【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】开始结算 {_players[targetSeat].Name}。",
+            $"【{(pending.UsesFangtian ? "方天画戟" : "天义")}】的【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】开始结算 {_players[targetSeat].Name}。",
             pending.SourceSeat,
             targetSeat);
         BeginSlashTargetResolution(attack);
@@ -17711,8 +17753,11 @@ public sealed partial class GameEngine
         var playableCards = GetPlayableCards(actor);
         var skill = PassiveRules(actor);
         var skillContext = CreateSkillContext(actor);
-        var slashLimit = GetSlashLimit(actor, skill, skillContext);
-        if (_slashCountThisTurn < slashLimit)
+        var baseSlashLimit = GetSlashLimit(actor, skill, skillContext);
+        var slashLimit = actor.TianyiWonThisTurn && baseSlashLimit < int.MaxValue
+            ? baseSlashLimit + 1
+            : baseSlashLimit;
+        if (!actor.TianyiLostThisTurn && _slashCountThisTurn < slashLimit)
         {
             foreach (var slash in playableCards.Where(card => IsSlashCard(card.Kind)))
             {
@@ -17742,6 +17787,7 @@ public sealed partial class GameEngine
                         targets,
                         slashName,
                         playedCardKind);
+                    AddTianyiSlashActions(actions, actor, slash, targets, slashName, playedCardKind);
                 }
             }
 
@@ -17767,6 +17813,7 @@ public sealed partial class GameEngine
                     targets,
                     "杀",
                     CardKind.Slash);
+                AddTianyiSlashActions(actions, actor, converted, targets, "杀", CardKind.Slash);
             }
 
             if (UsesFormalWushengEquipment)
@@ -17775,8 +17822,8 @@ public sealed partial class GameEngine
                              CanUseAsFormalWushengSlash(actor, card)))
                 {
                     var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
-                    foreach (var target in _players.Where(player =>
-                                 CanUseSlashTarget(actor, player, converted)))
+                    var targets = GetFangtianOrderedSlashTargets(actor, converted);
+                    foreach (var target in targets)
                     {
                         actions.Add(new LegalAction(
                             LegalActionKind.Slash,
@@ -17785,6 +17832,7 @@ public sealed partial class GameEngine
                             $"将装备区【{physicalName}】当作【杀】对 {target.Name} 使用",
                             PlayedCardKind: CardKind.Slash));
                     }
+                    AddTianyiSlashActions(actions, actor, converted, targets, "杀", CardKind.Slash);
                 }
             }
 
@@ -18215,6 +18263,11 @@ public sealed partial class GameEngine
                 continue;
             }
 
+            if (activeSkill.Kind == SkillKind.Tianyi && !UsesFormalTaishiCi)
+            {
+                continue;
+            }
+
             if (activeSkill.Kind == SkillKind.Jijiang && !CanUseActiveJijiang(actor))
             {
                 continue;
@@ -18283,8 +18336,38 @@ public sealed partial class GameEngine
         PlayerRuntime actor,
         Card slash) =>
         _players
-            .Where(player => CanUseSlashTarget(actor, player, slash))
+            .Where(player => actor.TianyiWonThisTurn
+                ? player.IsAlive && player.Seat != actor.Seat && !IsSlashProhibited(actor, player, slash)
+                : CanUseSlashTarget(actor, player, slash))
             .ToArray();
+
+    private void AddTianyiSlashActions(
+        ICollection<LegalAction> actions,
+        PlayerRuntime actor,
+        Card physicalCard,
+        IReadOnlyList<PlayerRuntime> legalTargets,
+        string slashName,
+        CardKind? playedCardKind)
+    {
+        if (!actor.TianyiWonThisTurn || legalTargets.Count < 2 ||
+            UsesFormalFangtianHalberd &&
+            GetHand(actor).Count == 1 &&
+            GetHand(actor)[0].Id == physicalCard.Id &&
+            GetEquipment(actor).Any(card => card.Kind == CardKind.FangtianHalberd))
+        {
+            return;
+        }
+        var ordered = legalTargets.OrderBy(player => (player.Seat - actor.Seat + _playerCount) % _playerCount).ToArray();
+        for (var first = 0; first < ordered.Length - 1; first++)
+        for (var second = first + 1; second < ordered.Length; second++)
+        {
+            var targets = new[] { ordered[first], ordered[second] };
+            actions.Add(new LegalAction(LegalActionKind.Slash, physicalCard.Id, targets[0].Seat,
+                $"发动【天义】，以【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}",
+                PlayedCardKind: playedCardKind,
+                TargetSeats: targets.Select(target => target.Seat).ToArray()));
+        }
+    }
 
     private void AddFangtianHalberdSlashActions(
         ICollection<LegalAction> actions,
@@ -18306,31 +18389,29 @@ public sealed partial class GameEngine
         var orderedTargets = legalTargets
             .OrderBy(player => (player.Seat - actor.Seat + _playerCount) % _playerCount)
             .ToArray();
-        var maximumTargets = Math.Min(3, orderedTargets.Length);
-        for (var first = 0; first < orderedTargets.Length - 1; first++)
+        var maximumTargets = Math.Min(actor.TianyiWonThisTurn ? 4 : 3, orderedTargets.Length);
+        for (var targetCount = 2; targetCount <= maximumTargets; targetCount++)
         {
-            for (var second = first + 1; second < orderedTargets.Length; second++)
+            AddCombinations(0, []);
+
+            void AddCombinations(int startIndex, IReadOnlyList<PlayerRuntime> selected)
             {
-                AddFangtianHalberdSlashAction(
-                    actions,
-                    physicalCard,
-                    slashName,
-                    playedCardKind,
-                    [orderedTargets[first], orderedTargets[second]]);
-
-                if (maximumTargets < 3)
-                {
-                    continue;
-                }
-
-                for (var third = second + 1; third < orderedTargets.Length; third++)
+                if (selected.Count == targetCount)
                 {
                     AddFangtianHalberdSlashAction(
                         actions,
                         physicalCard,
                         slashName,
                         playedCardKind,
-                        [orderedTargets[first], orderedTargets[second], orderedTargets[third]]);
+                        selected);
+                    return;
+                }
+
+                for (var index = startIndex;
+                     index <= orderedTargets.Length - (targetCount - selected.Count);
+                     index++)
+                {
+                    AddCombinations(index + 1, [.. selected, orderedTargets[index]]);
                 }
             }
         }
@@ -19936,6 +20017,10 @@ public sealed partial class GameEngine
                     GetHand(player).Count > 0)
                 .Select(player => player.Seat)
                 .ToHashSet(),
+            SkillKind.Tianyi when UsesFormalTaishiCi => _players
+                .Where(player => player.IsAlive && player.Seat != actor.Seat && GetHand(player).Count > 0)
+                .Select(player => player.Seat)
+                .ToHashSet(),
             _ => []
         };
 
@@ -21499,6 +21584,13 @@ public sealed partial class GameEngine
                   _pendingDecision is { Kind: DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget }) ||
                  (_pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Quhu } quhuAttack &&
                   quhuAttack.ResolutionId == activeSkillFrame.Id));
+            var isTianyiContinuation =
+                activeSkillFrame.Skill == SkillKind.Tianyi &&
+                activeSkillFrame.Effect == ActiveSkillEffectKind.PindianForSlashBonus &&
+                _pendingTianyi is { } tianyi &&
+                tianyi.FrameId == activeSkillFrame.Id &&
+                activeSkillFrame.Step == ResolutionFrameStep.AwaitingResponse &&
+                _pendingDecision is { Kind: DecisionKind.TianyiPindian };
             var isLijianDuel =
                 activeSkillFrame.Skill == SkillKind.Lijian &&
                 activeSkillFrame.Effect == ActiveSkillEffectKind.DiscardAndStartDuel &&
@@ -21516,6 +21608,7 @@ public sealed partial class GameEngine
                 !isFanjianDamage &&
                 !isQiangxiDamage &&
                 !isQuhuContinuation &&
+                !isTianyiContinuation &&
                 !isLijianDuel &&
                 !isJijiangContinuation)
             {
@@ -21966,6 +22059,12 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException(
                 "A Quhu prompt cannot exist without its active-skill continuation.");
+        }
+
+        if (_pendingDecision?.Kind == DecisionKind.TianyiPindian && _pendingTianyi is null)
+        {
+            throw new InvalidOperationException(
+                "A Tianyi prompt cannot exist without its active-skill continuation.");
         }
 
         if (_pendingDecision?.Kind == DecisionKind.ZhuqueFan &&
@@ -23484,6 +23583,8 @@ public sealed partial class GameEngine
         public bool IsChained { get; set; }
         public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
         public HashSet<SkillKind> UsedLimitedSkillKinds { get; } = [];
+        public bool TianyiWonThisTurn { get; set; }
+        public bool TianyiLostThisTurn { get; set; }
     }
 
     private sealed class NullificationResolution(
@@ -23817,7 +23918,8 @@ public sealed partial class GameEngine
         CardKind effectiveCardKind,
         bool ignoresArmor,
         int damageAmount,
-        IReadOnlyList<int> targetSeats)
+        IReadOnlyList<int> targetSeats,
+        bool usesFangtian)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; } = sourceSeat;
@@ -23825,6 +23927,7 @@ public sealed partial class GameEngine
         public CardKind EffectiveCardKind { get; } = effectiveCardKind;
         public bool IgnoresArmor { get; } = ignoresArmor;
         public int DamageAmount { get; } = damageAmount;
+        public bool UsesFangtian { get; } = usesFangtian;
         public IReadOnlyList<int> TargetSeats { get; } = Array.AsReadOnly(targetSeats.ToArray());
         public int TargetIndex { get; set; }
         public AttackResolution? CurrentAttack { get; set; }

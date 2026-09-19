@@ -97,6 +97,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Yan Liang and Wen Chou claim Shuangxiong judgment and convert opposite-color Duels", ClassicGeneralChecks.FormalShuangxiongFlow),
     ("classic Wolong converts Huoji and Kanpo and provides virtual Bazhen", WolongChecks.ConversionsBazhenAndReplay),
     ("classic Pang Tong converts Lianhuan and revives once through Niepan", PangTongChecks.LianhuanNiepanAndReplay),
+    ("classic Taishi Ci resolves Tianyi win and loss Slash rules", TianyiChecks.WinLossSlashRulesAndReplay),
     ("classic Fangtian Halberd resolves exact last-hand Slash targets and replays", FangtianHalberdChecks.LastHandTargetsResolveSequentiallyAndReplay),
     ("classic Guding Blade increases direct Slash damage against empty hands", GudingBladeChecks.EmptyHandDamageAndLegacyBoundary),
     ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainJijiangAndLegacyBoundary),

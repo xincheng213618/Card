@@ -40,6 +40,7 @@ public static class GeneralArt
             ["ma-chao"] = "zhao-yun",
             ["huang-zhong"] = "liu-bei",
             ["wei-yan"] = "zhao-yun",
+            ["taishi-ci"] = "zhao-yun",
             ["lu-bu"] = "zhang-fei",
             ["demo-kujin"] = "sun-quan",
             ["demo-zhiheng"] = "sun-quan",

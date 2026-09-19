@@ -29,7 +29,8 @@ public enum ActiveSkillEffectKind
     PayHpOrDiscardWeaponAndDamage,
     DiscardAndStartDuel,
     DiscardAndRecoverSelfAndTarget,
-    PindianAndDamage
+    PindianAndDamage,
+    PindianForSlashBonus
 }
 
 public sealed record ActiveSkillEffect(
@@ -827,6 +828,26 @@ public sealed class QuhuSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
+public sealed class TianyiSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Tianyi;
+    public string Name => "天义";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.IsOwnTurn &&
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount > 0 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.PindianForSlashBonus,
+            MinCardCount: 1,
+            MaxCardCount: 1,
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -1018,6 +1039,7 @@ public static class SkillRegistry
             [SkillKind.Lianying] = new LianyingSkill(),
             [SkillKind.Mengjin] = new MengjinSkill(),
             [SkillKind.Quhu] = new QuhuSkill(),
+            [SkillKind.Tianyi] = new TianyiSkill(),
             [SkillKind.Shuangxiong] = new ShuangxiongSkill(),
             [SkillKind.Bazhen] = new BazhenSkill(),
             [SkillKind.Huoji] = new HuojiSkill(),

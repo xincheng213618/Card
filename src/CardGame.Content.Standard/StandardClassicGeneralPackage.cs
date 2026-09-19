@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 48, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 49, 0))
     {
     }
 
@@ -67,12 +67,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 45, 0) &&
             version != new Version(1, 46, 0) &&
             version != new Version(1, 47, 0) &&
-            version != new Version(1, 48, 0))
+            version != new Version(1, 48, 0) &&
+            version != new Version(1, 49, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.48.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.49.0.");
         }
 
         _version = version;
@@ -708,6 +709,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:niepan", "涅槃",
                 "限定技，当你处于濒死状态时，你可以弃置区域内所有牌，解除连环状态，摸三张牌并将体力回复至3点。", SkillKind.Niepan));
         }
+        if (_version >= new Version(1, 49, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:tianyi", "天义",
+                "出牌阶段限一次，你可以与一名其他角色拼点。若你赢，本回合可额外使用一张【杀】、使用【杀】无距离限制且目标上限+1；若你没赢，本回合不能使用【杀】。", SkillKind.Tianyi));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1054,10 +1060,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:lianhuan", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:niepan"]));
         }
+        if (_version >= new Version(1, 49, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:taishi-ci", "太史慈", "taishi_ci",
+                "classic:tianyi", "wu", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 48 } => PangTongClassicGeneralIds,
+            { Major: 1, Minor: >= 49 } => TaishiCiClassicGeneralIds,
+            { Major: 1, Minor: 48 } => PangTongClassicGeneralIds,
             { Major: 1, Minor: 47 } => WolongClassicGeneralIds,
             { Major: 1, Minor: 46 } => YanLiangWenChouClassicGeneralIds,
             { Major: 1, Minor: 45 } => XunYuClassicGeneralIds,
@@ -1328,6 +1341,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. WolongClassicGeneralIds,
         "classic:pang-tong"
+    ];
+
+    internal static IReadOnlyList<string> TaishiCiClassicGeneralIds { get; } =
+    [
+        .. PangTongClassicGeneralIds,
+        "classic:taishi-ci"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =
