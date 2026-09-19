@@ -54,6 +54,10 @@
 
 2026-09-19 增量：`standard-classic-generals@1.24.0` 注册 `classic:stone-axe` 并把 `classic:standard-deck` 扩为 93 张。规则 v43 只在当前杀的最后一张有效闪生效后向攻击来源发布私有贯石斧 Choice；候选是自己手牌与装备区中所有两牌精确组合，可包含贯石斧本身。支付后恢复同一杀的伤害链，跳过则保留闪抵消结果；包 1.23.0 与 rules v42 继续使用 92 张牌堆且不发布该 Choice。
 
+2026-09-19 增量：`standard-classic-generals@1.25.0` 注册 `classic:zhangba-serpent-spear` 并把 `classic:standard-deck` 扩为 94 张。规则 v44 将自己的两张手牌组成一个无固定花色的有效【杀】，覆盖主动使用、决斗/南蛮入侵响应、借刀杀人和激将提供牌；双实体牌共同进入处理区并结束。包 1.24.0 与 rules v43 保留 93 张牌堆且不发布该动作。
+
+2026-09-19 增量：`standard-classic-generals@1.26.0` 注册 `classic:cixiong-double-swords`、为甄姬和黄月英投影女性性别，并把 `classic:standard-deck` 扩为 96 张。规则 v45 在对异性角色使用【杀】指定目标后，先询问来源是否发动，再让目标精确弃置一张自己的手牌或令来源摸一张；两阶段私有 Choice 都冻结并恢复同一 `AttackResolution`。包 1.25.0 与 rules v44 保留 94 张牌堆、默认男性历史投影且不发布该窗口。
+
 2026-09-18 增量：规则 v16 在 `identity:classic-*` 中把奸雄从自动取得杀类伤害牌改为私有可选触发，并把范围扩到当前仍在 `Processing` 的任意伤害牌。真人和 AI 共用 `DamageSkillFrame` 的取得/跳过 Choice，同一实体牌以 `skill.jianxiong.claim-damage-card` 进入曹操手牌；v1–v15 和演示模式保留旧自动杀类语义。延时锦囊等位于其他公开牌区的伤害来源不在本切片内。
 
 2026-09-18 增量：规则 v17 在 `identity:classic-*` 中把制衡补齐为每个出牌阶段限一次，并允许从自己的手牌与公开装备区中任意选择至少一张牌。混合来源逐张经过各自牌区到 `Processing`，再统一进入弃牌堆并摸等量牌；WPF 为装备提供中央选择按钮，AI 只从自己的手牌和公开装备中选择。v1–v16 和演示模式保留历史手牌限定与可重复发动语义。

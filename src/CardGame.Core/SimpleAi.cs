@@ -1341,6 +1341,84 @@ public sealed partial class SimpleAiBrain
         return (selectedIds, thought);
     }
 
+    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseCixiongDoubleSwordsChoice(
+        GameSnapshot view,
+        int sourceSeat,
+        int targetSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var source = view.Players.Single(player => player.Seat == sourceSeat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var prompt = view.PendingDecision is { Kind: DecisionKind.CixiongDoubleSwords } decision
+            ? decision
+            : throw new InvalidOperationException("AI has no Cixiong Double Swords prompt.");
+        var selfRole = self.Role ?? Role.Renegade;
+        var isActivation = prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "cixiong-use");
+        PromptChoice selected;
+        var candidates = new List<AiCandidateScore>();
+        if (isActivation)
+        {
+            var hostility = GetHostility(view, selfRole, target);
+            foreach (var choice in prompt.Choices)
+            {
+                var use = choice.Parameters.GetValueOrDefault("action") == "cixiong-use";
+                var score = use ? hostility : 0d;
+                candidates.Add(new AiCandidateScore(
+                    new LegalAction(LegalActionKind.Equip, null, targetSeat, choice.Description),
+                    score,
+                    use
+                        ? "只依据公开阵营关系决定是否让异性目标作出资源选择。"
+                        : "保留装备触发，不向友方或低敌对目标施压。"));
+            }
+            selected = prompt.Choices
+                .Select((choice, index) => new { Choice = choice, Index = index })
+                .OrderByDescending(item => candidates[item.Index].Score)
+                .ThenBy(item => item.Index)
+                .First().Choice;
+        }
+        else
+        {
+            var sourceSupport = GetTacticalSupport(view, selfRole, source);
+            var hand = self.Hand.ToDictionary(card => card.Id);
+            foreach (var choice in prompt.Choices)
+            {
+                var discard = choice.Parameters.GetValueOrDefault("action") == "cixiong-discard";
+                var cost = discard && choice.Cards.Count == 1 && hand.TryGetValue(choice.Cards[0], out var card)
+                    ? CardCatalog.Get(card.Kind).HandKeepValue
+                    : 0;
+                var score = discard
+                    ? -sourceSupport * 35d - cost * .35d
+                    : sourceSupport * 45d;
+                candidates.Add(new AiCandidateScore(
+                    new LegalAction(
+                        LegalActionKind.Equip,
+                        choice.Cards.Count == 1 ? choice.Cards[0] : null,
+                        sourceSeat,
+                        choice.Description),
+                    score,
+                    discard
+                        ? "只从自己的私有手牌中评估最低保留价值代价。"
+                        : "依据公开阵营关系评估让杀的来源摸一张牌。"));
+            }
+            selected = prompt.Choices
+                .Select((choice, index) => new { Choice = choice, Index = index })
+                .OrderByDescending(item => candidates[item.Index].Score)
+                .ThenBy(item => item.Index)
+                .First().Choice;
+        }
+
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Description,
+            candidates,
+            $"雌雄双股剑：选择{selected.Description}");
+        return (selected.Id, thought);
+    }
+
     /// <summary>
     /// Chooses whether to spend one of this seat's private Nullification cards
     /// on the published trick-effect context. The method receives no engine

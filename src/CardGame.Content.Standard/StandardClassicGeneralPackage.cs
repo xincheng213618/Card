@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 25, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 26, 0))
     {
     }
 
@@ -44,12 +44,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 22, 0) &&
             version != new Version(1, 23, 0) &&
             version != new Version(1, 24, 0) &&
-            version != new Version(1, 25, 0))
+            version != new Version(1, 25, 0) &&
+            version != new Version(1, 26, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.25.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.26.0.");
         }
 
         _version = version;
@@ -107,6 +108,20 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["conversion"] = "two-hand-cards-as-slash"
                     }));
             }
+            if (_version >= new Version(1, 26, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:cixiong-double-swords",
+                    DisplayName: "雌雄双股剑",
+                    CategoryName: "装备牌",
+                    Description: "装备至武器槽；攻击范围 2，使用杀指定异性目标后，可令其弃一张手牌或令你摸一张牌。",
+                    LegacyKind: CardKind.CixiongDoubleSwords,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "weapon",
+                        ["trigger"] = "opposite-gender-slash-target"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -147,10 +162,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:zhangba-serpent-spear", 1));
             }
+            if (_version >= new Version(1, 26, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:cixiong-double-swords", 2));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 25, 0)
+                Name: _version >= new Version(1, 26, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑）"
+                    : _version >= new Version(1, 25, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛）"
                     : _version >= new Version(1, 24, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧）"
@@ -505,7 +526,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:luoshen",
                 "wei",
                 BaseHp: 3,
-                AdditionalSkillIds: ["classic:qingguo"]));
+                AdditionalSkillIds: ["classic:qingguo"],
+                Gender: _version >= new Version(1, 26, 0)
+                    ? GeneralGender.Female
+                    : GeneralGender.Male));
         }
         if (_version >= new Version(1, 15, 0))
         {
@@ -516,7 +540,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:jizhi",
                 "shu",
                 BaseHp: 3,
-                AdditionalSkillIds: ["standard:qicai"]));
+                AdditionalSkillIds: ["standard:qicai"],
+                Gender: _version >= new Version(1, 26, 0)
+                    ? GeneralGender.Female
+                    : GeneralGender.Male));
         }
         if (_version >= new Version(1, 16, 0))
         {

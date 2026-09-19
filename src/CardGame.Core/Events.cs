@@ -729,6 +729,15 @@ public sealed record ZhangbaSerpentSpearConvertedEvent(
     bool IsUse,
     int? TargetSeat = null) : IGameEvent;
 
+public sealed record CixiongDoubleSwordsResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool Activated,
+    bool TargetDiscarded,
+    int? DiscardedCardId = null,
+    int SourceDrawCount = 0) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

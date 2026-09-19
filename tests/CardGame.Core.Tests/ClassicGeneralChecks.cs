@@ -34,6 +34,7 @@ internal static class ClassicGeneralChecks
         var wushengClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 22, 0));
         var borrowedSwordClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 23, 0));
         var stoneAxeClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 24, 0));
+        var zhangbaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 25, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -42,7 +43,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.25.0"]),
+                "standard-classic-generals@1.26.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -216,13 +217,22 @@ internal static class ClassicGeneralChecks
                 !stoneAxeClassic.Cards.ContainsKey("classic:zhangba-serpent-spear") &&
                 stoneAxeClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 93,
             "The 1.24 classic registry must retain its 93-card Stone Axe deck without Zhangba.");
+        Require(zhangbaClassic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
+                !zhangbaClassic.Cards.ContainsKey("classic:cixiong-double-swords") &&
+                zhangbaClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 94 &&
+                zhangbaClassic.Generals["classic:zhen-ji"].Gender == GeneralGender.Male &&
+                zhangbaClassic.Generals["classic:huang-yueying"].Gender == GeneralGender.Male,
+            "The 1.25 classic registry must retain its 94-card Zhangba deck and legacy gender-neutral projection.");
         Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
                 classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
                 classic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 94 &&
+                classic.Cards["classic:cixiong-double-swords"].LegacyKind == CardKind.CixiongDoubleSwords &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 96 &&
+                classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
+                classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.25 classic registry must opt both classic modes into the 94-card deck with Zhangba.");
+            "The 1.26 classic registry must opt both classic modes into the 96-card deck with Cixiong and typed gender.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 

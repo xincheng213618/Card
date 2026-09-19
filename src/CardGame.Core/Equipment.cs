@@ -64,6 +64,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 3，你可以将两张手牌当一张杀使用或打出。",
                 WeaponAttackRange: 3),
+            [CardKind.CixiongDoubleSwords] = new(
+                CardKind.CixiongDoubleSwords,
+                "雌雄双股剑",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 2，使用杀指定异性目标后，可令其弃一张手牌或令你摸一张牌。",
+                WeaponAttackRange: 2),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

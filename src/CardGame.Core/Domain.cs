@@ -32,6 +32,12 @@ public enum GeneralSelectionSlot
     Secondary
 }
 
+public enum GeneralGender
+{
+    Male,
+    Female
+}
+
 public enum CardKind
 {
     Slash,
@@ -63,7 +69,8 @@ public enum CardKind
     Lightning,
     BorrowedSword,
     StoneAxe,
-    ZhangbaSerpentSpear
+    ZhangbaSerpentSpear,
+    CixiongDoubleSwords
 }
 
 public enum Suit
@@ -193,7 +200,8 @@ public enum DecisionKind
     Jizhi,
     Tieqi,
     Liegong,
-    StoneAxe
+    StoneAxe,
+    CixiongDoubleSwords
 }
 
 public enum GangliePunishmentKind
@@ -366,7 +374,8 @@ public sealed record GeneralDefinition(
     string SkillDescription,
     string? FactionId = null,
     int BaseHp = 4,
-    IReadOnlyList<GeneralSkillDefinition>? AdditionalSkills = null)
+    IReadOnlyList<GeneralSkillDefinition>? AdditionalSkills = null,
+    GeneralGender Gender = GeneralGender.Male)
 {
     public IReadOnlyList<GeneralSkillDefinition> Skills => AdditionalSkills is { Count: > 0 }
         ? new[] { new GeneralSkillDefinition(Skill, SkillName, SkillDescription) }

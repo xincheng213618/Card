@@ -63,6 +63,7 @@ public sealed partial class GameEngine
     private GroupCardResolution? _pendingGroupCard;
     private BorrowedSwordResolution? _pendingBorrowedSword;
     private StoneAxeResolution? _pendingStoneAxe;
+    private CixiongDoubleSwordsResolution? _pendingCixiongDoubleSwords;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
@@ -258,6 +259,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalZhangbaSerpentSpear =>
         _rulesVersion >= 44 && IsClassicIdentityMode;
+
+    private bool UsesFormalCixiongDoubleSwords =>
+        _rulesVersion >= 45 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -853,6 +857,7 @@ public sealed partial class GameEngine
                 DecisionKind.Tieqi or
                 DecisionKind.Liegong or
                 DecisionKind.StoneAxe or
+                DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -973,6 +978,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.StoneAxe)
         {
             return SubmitStoneAxePromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.CixiongDoubleSwords)
+        {
+            return SubmitCixiongDoubleSwordsPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1531,6 +1541,40 @@ public sealed partial class GameEngine
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "贯石斧必须精确弃置两张牌，或选择不发动。")
         };
+    }
+
+    private CommandResult SubmitCixiongDoubleSwordsPromptAnswer(PromptChoice selected)
+    {
+        var pending = _pendingCixiongDoubleSwords;
+        if (pending is null ||
+            _pendingDecision is not { Kind: DecisionKind.CixiongDoubleSwords } decision ||
+            decision.PlayerSeat != (pending.Stage == CixiongDoubleSwordsStage.SourceActivation
+                ? pending.Attack.SourceSeat
+                : pending.Attack.TargetSeat))
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的雌雄双股剑触发窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "雌雄双股剑选择不符合当前攻击窗口。");
+        }
+
+        var valid = pending.Stage switch
+        {
+            CixiongDoubleSwordsStage.SourceActivation =>
+                action is "cixiong-use" or "cixiong-skip" && selected.Cards.Count == 0,
+            CixiongDoubleSwordsStage.TargetChoice =>
+                action == "cixiong-draw" && selected.Cards.Count == 0 ||
+                action == "cixiong-discard" && selected.Cards.Count == 1,
+            _ => false
+        };
+        return valid
+            ? Accept(() => HumanCixiongDoubleSwordsCore(
+                selected,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
+            : Reject(CommandErrorCode.InvalidChoice, "雌雄双股剑必须发动或跳过；发动后目标须弃一张手牌或令来源摸一张牌。");
     }
 
     private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
@@ -2940,6 +2984,16 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
+    private EngineRunResult HumanCixiongDoubleSwordsCore(
+        PromptChoice selected,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.CixiongDoubleSwords);
+        ResolveCixiongDoubleSwordsChoice(selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
     private EngineRunResult HumanDyingResponseCore(
         bool usePeach,
         int? requestedPeachCardId,
@@ -4160,7 +4214,8 @@ public sealed partial class GameEngine
                             additional.LegacyKind ?? SkillKind.None,
                             additional.Name,
                             additional.Description))
-                        .ToArray());
+                        .ToArray(),
+                    definition.Gender);
             })
             .ToArray();
     }
@@ -8898,6 +8953,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Tieqi continuation does not own the current Slash.");
         }
 
+        if (TryBeginCixiongDoubleSwordsChoice(attack))
+        {
+            return;
+        }
+
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
         var slash = attack.Card ??
@@ -9048,6 +9108,199 @@ public sealed partial class GameEngine
         {
             CompleteAttack(attack);
         }
+    }
+
+    private bool TryBeginCixiongDoubleSwordsChoice(AttackResolution attack)
+    {
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        if (!UsesFormalCixiongDoubleSwords ||
+            attack.CixiongDoubleSwordsResolved ||
+            !source.IsAlive ||
+            !target.IsAlive ||
+            source.General.Gender == target.General.Gender ||
+            GetEquipment(source).All(card => card.Kind != CardKind.CixiongDoubleSwords))
+        {
+            return false;
+        }
+
+        if (_pendingCixiongDoubleSwords is not null)
+        {
+            throw new InvalidOperationException("Only one Cixiong Double Swords choice may be active.");
+        }
+
+        _pendingCixiongDoubleSwords = new CixiongDoubleSwordsResolution(attack);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.CixiongDoubleSwords,
+            source.Seat,
+            $"你对异性角色 {target.Name} 使用了【杀】，是否发动【雌雄双股剑】？",
+            [],
+            [],
+            source.Seat,
+            attack.EffectiveCardKind)
+        {
+            PromptId = CreatePromptId(),
+            TargetSeat = target.Seat,
+            Choices =
+            [
+                new PromptChoice(
+                    new ChoiceId("cixiong.activate"),
+                    $"发动【雌雄双股剑】，令 {target.Name} 弃一张手牌或令你摸一张牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "cixiong-use" }),
+                new PromptChoice(
+                    new ChoiceId("cixiong.skip"),
+                    "不发动【雌雄双股剑】。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "cixiong-skip" })
+            ]
+        };
+        _status = source.IsHuman
+            ? EngineStatus.AwaitingHumanResponse
+            : EngineStatus.Running;
+        return true;
+    }
+
+    private void ResolveCixiongDoubleSwordsChoice(PromptChoice selected)
+    {
+        var pending = _pendingCixiongDoubleSwords ??
+            throw new InvalidOperationException("There is no Cixiong Double Swords choice to resolve.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.CixiongDoubleSwords } decision ||
+            !selected.Parameters.TryGetValue("action", out var action))
+        {
+            throw new InvalidOperationException("The Cixiong Double Swords continuation is inconsistent.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        if (pending.Stage == CixiongDoubleSwordsStage.SourceActivation)
+        {
+            if (decision.PlayerSeat != source.Seat || action is not ("cixiong-use" or "cixiong-skip"))
+            {
+                throw new InvalidOperationException("The Cixiong activation choice is not current.");
+            }
+
+            if (action == "cixiong-skip")
+            {
+                CompleteCixiongDoubleSwords(
+                    pending,
+                    activated: false,
+                    targetDiscarded: false,
+                    discardedCardId: null,
+                    sourceDrawCount: 0);
+                return;
+            }
+
+            pending.Stage = CixiongDoubleSwordsStage.TargetChoice;
+            var hand = GetHand(target).OrderBy(card => card.Id).ToArray();
+            var choices = hand.Select(card => new PromptChoice(
+                    new ChoiceId($"cixiong.discard.card-{card.Id}"),
+                    $"弃置【{card.DisplayName}】（{card.RankText}）。",
+                    [card.Id],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "cixiong-discard" }))
+                .Append(new PromptChoice(
+                    new ChoiceId("cixiong.allow-draw"),
+                    $"令 {source.Name} 摸一张牌。",
+                    [],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "cixiong-draw" }))
+                .ToArray();
+            _pendingDecision = new PendingDecision(
+                DecisionKind.CixiongDoubleSwords,
+                target.Seat,
+                $"{source.Name} 发动【雌雄双股剑】，请选择弃置一张手牌，或令其摸一张牌。",
+                hand.Select(card => card.Id).ToArray(),
+                [],
+                source.Seat,
+                attack.EffectiveCardKind)
+            {
+                PromptId = CreatePromptId(),
+                TargetSeat = target.Seat,
+                Choices = choices
+            };
+            _status = target.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            return;
+        }
+
+        if (decision.PlayerSeat != target.Seat ||
+            pending.Stage != CixiongDoubleSwordsStage.TargetChoice)
+        {
+            throw new InvalidOperationException("The Cixiong target choice is not current.");
+        }
+
+        if (action == "cixiong-discard")
+        {
+            if (selected.Cards.Count != 1)
+            {
+                throw new InvalidOperationException("Cixiong requires exactly one discarded hand card.");
+            }
+            var card = GetHand(target).SingleOrDefault(candidate => candidate.Id == selected.Cards[0]) ??
+                throw new InvalidOperationException("The selected Cixiong discard is no longer in hand.");
+            MoveCard(
+                card,
+                CardLocation.Hand(target.Seat),
+                CardLocation.DiscardPile,
+                CardMoveReasons.CixiongDiscard);
+            CompleteCixiongDoubleSwords(
+                pending,
+                activated: true,
+                targetDiscarded: true,
+                discardedCardId: card.Id,
+                sourceDrawCount: 0);
+            return;
+        }
+
+        if (action != "cixiong-draw" || selected.Cards.Count != 0)
+        {
+            throw new InvalidOperationException("The Cixiong target choice is invalid.");
+        }
+        var drawn = DrawCards(source, 1, log: true, CardMoveReasons.CixiongDraw);
+        CompleteCixiongDoubleSwords(
+            pending,
+            activated: true,
+            targetDiscarded: false,
+            discardedCardId: null,
+            sourceDrawCount: drawn.Count);
+    }
+
+    private void CompleteCixiongDoubleSwords(
+        CixiongDoubleSwordsResolution pending,
+        bool activated,
+        bool targetDiscarded,
+        int? discardedCardId,
+        int sourceDrawCount)
+    {
+        var attack = pending.Attack;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        attack.MarkCixiongDoubleSwordsResolved();
+        _pendingCixiongDoubleSwords = null;
+        ClearPendingDecision();
+        QueueGameEvent(new CixiongDoubleSwordsResolvedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            activated,
+            targetDiscarded,
+            discardedCardId,
+            sourceDrawCount));
+        AddLog(
+            activated ? "EquipmentEffect" : "EquipmentSkipped",
+            !activated
+                ? $"{source.Name} 未发动【雌雄双股剑】。"
+                : targetDiscarded
+                    ? $"{source.Name} 发动【雌雄双股剑】，{target.Name} 弃置了一张手牌。"
+                    : $"{source.Name} 发动【雌雄双股剑】并摸了一张牌。",
+            source.Seat,
+            target.Seat);
+        ContinueSlashAfterTieqi(attack);
     }
 
     private void ResolveDuel(PlayerRuntime source, PlayerRuntime target, Card duel)
@@ -10628,6 +10881,12 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiResponse()
     {
+        if (_pendingCixiongDoubleSwords is not null)
+        {
+            ResolvePendingAiCixiongDoubleSwords();
+            return;
+        }
+
         if (_pendingStoneAxe is not null)
         {
             ResolvePendingAiStoneAxe();
@@ -10665,6 +10924,32 @@ public sealed partial class GameEngine
         }
 
         ResolvePendingAiDodge();
+    }
+
+    private void ResolvePendingAiCixiongDoubleSwords()
+    {
+        var pending = _pendingCixiongDoubleSwords ??
+            throw new InvalidOperationException("AI Cixiong Double Swords response has no active resolution.");
+        var attack = pending.Attack;
+        var responderSeat = pending.Stage == CixiongDoubleSwordsStage.SourceActivation
+            ? attack.SourceSeat
+            : attack.TargetSeat;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.CixiongDoubleSwords } decision ||
+            decision.PlayerSeat != responderSeat)
+        {
+            throw new InvalidOperationException("The pending AI Cixiong Double Swords prompt is inconsistent.");
+        }
+
+        var (choiceId, thought) = _aiBrains[responderSeat].ChooseCixiongDoubleSwordsChoice(
+            CreateSnapshot(responderSeat),
+            attack.SourceSeat,
+            attack.TargetSeat,
+            ++_thoughtSequence);
+        AddThought(thought);
+        var selected = decision.Choices.Single(choice => choice.Id == choiceId);
+        ResolveCixiongDoubleSwordsChoice(selected);
+        PublishState();
     }
 
     private void ResolvePendingAiStoneAxe()
@@ -17369,6 +17654,78 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingCixiongDoubleSwords is { } cixiong)
+        {
+            var cixiongAttack = cixiong.Attack;
+            var decision = _pendingDecision;
+            var source = _players[cixiongAttack.SourceSeat];
+            var target = _players[cixiongAttack.TargetSeat];
+            var targetHandIds = GetHand(target).OrderBy(card => card.Id).Select(card => card.Id).ToArray();
+            var sourceActivationPromptMatches =
+                cixiong.Stage == CixiongDoubleSwordsStage.SourceActivation &&
+                decision?.PlayerSeat == source.Seat &&
+                decision.ValidCardIds.Count == 0 &&
+                decision.ValidTargetSeats.Count == 0 &&
+                decision.Choices.Count == 2 &&
+                decision.Choices.All(choice => choice.Cards.Count == 0 && choice.Targets.Count == 0) &&
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "cixiong-use") == 1 &&
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "cixiong-skip") == 1;
+            var targetChoicePromptMatches =
+                cixiong.Stage == CixiongDoubleSwordsStage.TargetChoice &&
+                decision?.PlayerSeat == target.Seat &&
+                decision.ValidCardIds.SequenceEqual(targetHandIds) &&
+                decision.ValidTargetSeats.Count == 0 &&
+                decision.Choices.Count == targetHandIds.Length + 1 &&
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "cixiong-draw" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0) == 1 &&
+                decision.Choices.Where(choice =>
+                        choice.Parameters.GetValueOrDefault("action") == "cixiong-discard")
+                    .SelectMany(choice => choice.Cards)
+                    .OrderBy(id => id)
+                    .SequenceEqual(targetHandIds) &&
+                decision.Choices.Where(choice =>
+                        choice.Parameters.GetValueOrDefault("action") == "cixiong-discard")
+                    .All(choice => choice.Cards.Count == 1 && choice.Targets.Count == 0);
+            if (!UsesFormalCixiongDoubleSwords ||
+                !ReferenceEquals(_pendingAttack, cixiongAttack) ||
+                !source.IsAlive ||
+                !target.IsAlive ||
+                source.General.Gender == target.General.Gender ||
+                GetEquipment(source).All(card => card.Kind != CardKind.CixiongDoubleSwords) ||
+                cixiongAttack.CixiongDoubleSwordsResolved ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != cixiongAttack.ResolutionId ||
+                cardUse.SourceSeat != cixiongAttack.SourceSeat ||
+                cardUse.CardKind != cixiongAttack.EffectiveCardKind ||
+                cardUse.Step != ResolutionFrameStep.Declared ||
+                !cardUse.TargetSeats.SequenceEqual([cixiongAttack.TargetSeat]) ||
+                decision is not { Kind: DecisionKind.CixiongDoubleSwords, IsPrivate: true } ||
+                decision.SourceSeat != cixiongAttack.SourceSeat ||
+                decision.TargetSeat != cixiongAttack.TargetSeat ||
+                decision.IncomingCard != cixiongAttack.EffectiveCardKind ||
+                !(sourceActivationPromptMatches || targetChoicePromptMatches))
+            {
+                throw new InvalidOperationException(
+                    "A Cixiong Double Swords choice must retain its private staged prompt and exact Slash continuation.");
+            }
+
+            var responder = cixiong.Stage == CixiongDoubleSwordsStage.SourceActivation
+                ? source
+                : target;
+            var expectedCixiongStatus = responder.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedCixiongStatus)
+            {
+                throw new InvalidOperationException(
+                    "A Cixiong Double Swords prompt status does not match its responder.");
+            }
+        }
+
         if (_pendingGuanxing is { } guanxing)
         {
             var selectedIds = guanxing.TopCardIds.Concat(guanxing.BottomCardIds).ToArray();
@@ -17692,6 +18049,17 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active Stone Axe choice must retain its Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingCixiongDoubleSwords is { } cixiongContinuation)
+            {
+                if (!ReferenceEquals(cixiongContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame cixiongCardUse ||
+                    cixiongCardUse.Id != pendingAttack.ResolutionId ||
+                    cixiongCardUse.Step != ResolutionFrameStep.Declared)
+                {
+                    throw new InvalidOperationException(
+                        "An active Cixiong Double Swords choice must retain its declared Slash frame as the stack top.");
                 }
             }
             else if (_pendingJudgment is { } judgmentContinuation)
@@ -18201,6 +18569,13 @@ public sealed partial class GameEngine
                 "A Stone Axe prompt cannot exist without its Slash continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.CixiongDoubleSwords &&
+            _pendingCixiongDoubleSwords is null)
+        {
+            throw new InvalidOperationException(
+                "A Cixiong Double Swords prompt cannot exist without its Slash continuation.");
+        }
+
         if (_pendingDecision?.Kind is DecisionKind.Feedback or
             DecisionKind.Yiji or
             DecisionKind.Jieming or
@@ -18225,7 +18600,8 @@ public sealed partial class GameEngine
                 DecisionKind.Guicai or
                 DecisionKind.Tieqi or
                 DecisionKind.Liegong or
-                DecisionKind.StoneAxe) &&
+                DecisionKind.StoneAxe or
+                DecisionKind.CixiongDoubleSwords) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -18300,6 +18676,7 @@ public sealed partial class GameEngine
              _pendingJijiang is not null ||
              _pendingBorrowedSword is not null ||
              _pendingStoneAxe is not null ||
+             _pendingCixiongDoubleSwords is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -18411,7 +18788,10 @@ public sealed partial class GameEngine
         _pendingDecision is { } decision && decision.PlayerSeat == _options.HumanSeat;
 
     private bool IsAiResponsePending() =>
-        (_pendingDecision?.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.StoneAxe) &&
+        (_pendingDecision?.Kind is DecisionKind.RespondDodge or
+            DecisionKind.RespondSlash or
+            DecisionKind.StoneAxe or
+            DecisionKind.CixiongDoubleSwords) &&
         _pendingDecision.PlayerSeat != _options.HumanSeat;
 
     private bool IsAiNullificationPending() =>
@@ -19289,6 +19669,7 @@ public sealed partial class GameEngine
         public bool TieqiProhibitsDodge { get; private set; }
         public bool LiegongResolved { get; private set; }
         public bool LiegongProhibitsDodge { get; private set; }
+        public bool CixiongDoubleSwordsResolved { get; private set; }
         public bool ProhibitsDodge { get; private set; }
         public int RequiredDodgeResponses { get; private set; } = 1;
         public int SuccessfulDodgeResponses { get; private set; }
@@ -19381,6 +19762,8 @@ public sealed partial class GameEngine
             ProhibitsDodge |= prohibitsDodge;
         }
 
+        public void MarkCixiongDoubleSwordsResolved() => CixiongDoubleSwordsResolved = true;
+
         public void SetChainedTargets(IReadOnlyList<int> targetSeats)
         {
             if (ChainedTargetSeats.Count != 0 || ChainedTargetIndex != 0)
@@ -19437,6 +19820,18 @@ public sealed partial class GameEngine
         public AttackResolution Attack { get; } = attack;
         public IReadOnlyList<int> CandidateCardIds { get; } =
             Array.AsReadOnly(candidateCardIds.ToArray());
+    }
+
+    private enum CixiongDoubleSwordsStage
+    {
+        SourceActivation,
+        TargetChoice
+    }
+
+    private sealed class CixiongDoubleSwordsResolution(AttackResolution attack)
+    {
+        public AttackResolution Attack { get; } = attack;
+        public CixiongDoubleSwordsStage Stage { get; set; }
     }
 
     private sealed class BorrowedSwordResolution(

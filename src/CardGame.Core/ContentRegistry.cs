@@ -77,7 +77,8 @@ public sealed record ContentGeneralDefinition(
     string SkillId,
     string? FactionId = null,
     int BaseHp = 4,
-    IReadOnlyList<string>? AdditionalSkillIds = null)
+    IReadOnlyList<string>? AdditionalSkillIds = null,
+    GeneralGender Gender = GeneralGender.Male)
 {
     /// <summary>
     /// Ordered skills for new content. <see cref="SkillId"/> remains the
@@ -463,6 +464,18 @@ public sealed class ContentRegistry
                 HashSchema = 5,
                 Base = JsonSerializer.Deserialize<JsonElement>(canonical),
                 GeneralSkillExtensions = generalSkillExtensions
+            });
+        var generalGenderExtensions = generals.Values
+            .Where(general => general.Gender != GeneralGender.Male)
+            .OrderBy(general => general.Id, StringComparer.Ordinal)
+            .Select(general => new { general.Id, Gender = general.Gender.ToString() })
+            .ToArray();
+        if (generalGenderExtensions.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 6,
+                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                GeneralGenderExtensions = generalGenderExtensions
             });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }

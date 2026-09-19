@@ -219,6 +219,14 @@ public static class CardCatalog
                 AiPlayValue: 38,
                 AiResponseValue: 0,
                 HandKeepValue: 42),
+            [CardKind.CixiongDoubleSwords] = new(
+                CardKind.CixiongDoubleSwords,
+                "雌雄双股剑",
+                "装备牌",
+                "装备至武器槽；攻击范围 2，使用杀指定异性目标后，可令其弃一张手牌或令你摸一张牌。",
+                AiPlayValue: 37,
+                AiResponseValue: 0,
+                HandKeepValue: 41),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",
