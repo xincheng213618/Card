@@ -49,8 +49,7 @@ public static class GeneralArt
             ["xiahou-dun"] = "zhang-fei",
             ["sima-yi"] = "guo-jia",
             ["ambitious-lu-bu"] = "zhang-fei",
-            ["ambitious-diao-chan"] = "liu-bei",
-            ["sun-jian"] = "sun-quan"
+            ["ambitious-diao-chan"] = "liu-bei"
         };
 
     private static readonly IReadOnlyDictionary<string, string> StandalonePortraits =
@@ -69,7 +68,8 @@ public static class GeneralArt
             ["xiahou-yuan"] = "general-xiahou-yuan.png",
             ["hua-xiong"] = "general-hua-xiong.png",
             ["gongsun-zan"] = "general-gongsun-zan.png",
-            ["zhang-jiao"] = "general-zhang-jiao.png"
+            ["zhang-jiao"] = "general-zhang-jiao.png",
+            ["sun-jian"] = "general-sun-jian.png"
         };
 
     private static readonly Lazy<BitmapImage> Atlas = new(() =>

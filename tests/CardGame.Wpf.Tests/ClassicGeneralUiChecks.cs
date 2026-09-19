@@ -1219,7 +1219,11 @@ internal static class ClassicGeneralUiChecks
                        sunJian.SkillName == "英魂" &&
                        sunJian.SkillDescription.Contains("摸X张牌并弃置一张牌", StringComparison.Ordinal) &&
                        sunJian.SkillDescription.Contains("摸一张牌并弃置X张牌", StringComparison.Ordinal) &&
-                       GeneralArt.HasPortrait(sunJian.GeneralId) && sunJian.HealthText == "体力上限 5",
+                       GeneralArt.HasPortrait(sunJian.GeneralId) &&
+                       sunJian.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && sunJian.HealthText == "体力上限 5",
             "The current classic Sun Jian card must render Wu, Yinghun and the Lord health bonus.");
         var sunJianWindow = new MainWindow(sunJianViewModel);
         sunJianWindow.ApplyTemplate();
