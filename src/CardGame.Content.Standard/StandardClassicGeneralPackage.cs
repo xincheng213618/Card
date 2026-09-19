@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 26, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 27, 0))
     {
     }
 
@@ -45,12 +45,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 23, 0) &&
             version != new Version(1, 24, 0) &&
             version != new Version(1, 25, 0) &&
-            version != new Version(1, 26, 0))
+            version != new Version(1, 26, 0) &&
+            version != new Version(1, 27, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.26.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.27.0.");
         }
 
         _version = version;
@@ -122,6 +123,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["trigger"] = "opposite-gender-slash-target"
                     }));
             }
+            if (_version >= new Version(1, 27, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:qinglong-crescent-blade",
+                    DisplayName: "青龙偃月刀",
+                    CategoryName: "装备牌",
+                    Description: "装备至武器槽；攻击范围 3，当你的杀被闪抵消后，可对同一目标再使用一张杀（无距离限制）。",
+                    LegacyKind: CardKind.QinglongCrescentBlade,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "weapon",
+                        ["trigger"] = "slash-canceled-by-dodge",
+                        ["continuation"] = "same-target-slash"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -166,10 +182,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:cixiong-double-swords", 2));
             }
+            if (_version >= new Version(1, 27, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:qinglong-crescent-blade", 1));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 26, 0)
+                Name: _version >= new Version(1, 27, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀）"
+                    : _version >= new Version(1, 26, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑）"
                     : _version >= new Version(1, 25, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛）"

@@ -70,6 +70,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 2，使用杀指定异性目标后，可令其弃一张手牌或令你摸一张牌。",
                 WeaponAttackRange: 2),
+            [CardKind.QinglongCrescentBlade] = new(
+                CardKind.QinglongCrescentBlade,
+                "青龙偃月刀",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 3，当你使用的杀被闪抵消后，你可以对同一目标再使用一张杀（无距离限制）。",
+                WeaponAttackRange: 3),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

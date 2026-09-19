@@ -61,7 +61,12 @@ internal static class ZhangbaChecks
                     move.CardId == cardId && move.To == CardLocation.DiscardPile &&
                     move.Reason == CardMoveReasons.UseFinished)) &&
                 targetAfter.Hp is var hp && hp >= targetHp - 1,
-            "Zhangba must retain, move and finish both physical hand cards through one virtual Slash.");
+            $"Zhangba must retain, move and finish both physical hand cards through one virtual Slash. " +
+            $"Costs={string.Join(',', boundary.CostCardIds)}; " +
+            $"moves={string.Join(" | ", game.CardMovements.Where(move => boundary.CostCardIds.Contains(move.CardId)).Select(move => $"{move.CardId}:{move.From}->{move.To}/{move.Reason.Value}"))}; " +
+            $"converted={string.Join(',', converted.PhysicalCardIds)}; hp={targetAfter.Hp}/{targetHp}; " +
+            $"pending={game.PendingDecision?.Kind}/{game.PendingDecision?.PlayerSeat}; status={game.State.Status}; " +
+            $"stack={string.Join(" | ", game.ResolutionStack.Select(frame => $"{frame.Kind}:{frame.Step}"))}.");
         Require(game.AcceptedCommands.OfType<UseEquipmentEffectCommand>().Single().CardIds
                 .SequenceEqual(boundary.CostCardIds),
             "The accepted journal must retain both exact Zhangba cost ids.");

@@ -1420,6 +1420,65 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses one exact Slash from the private Qinglong prompt. The decision
+    /// uses only the filtered snapshot, the public relation to the fixed target,
+    /// and this seat's own published card identities.
+    /// </summary>
+    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseQinglongCrescentBladeChoice(
+        GameSnapshot view,
+        int targetSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var prompt = view.PendingDecision is { Kind: DecisionKind.QinglongCrescentBlade } decision
+            ? decision
+            : throw new InvalidOperationException("AI has no Qinglong Crescent Blade prompt.");
+        var ownedCards = self.Hand.Concat(self.Equipment).ToDictionary(card => card.Id);
+        var hostility = GetHostility(view, selfRole, target);
+        var candidates = prompt.Choices.Select(choice =>
+        {
+            var action = choice.Parameters.GetValueOrDefault("action");
+            var usesOwnSlash = action == "qinglong-slash";
+            var requestsJijiang = action == "qinglong-jijiang";
+            var continuesAttack = usesOwnSlash || requestsJijiang;
+            var cardCost = usesOwnSlash && choice.Cards.Count == 1 && ownedCards.TryGetValue(choice.Cards[0], out var card)
+                ? CardCatalog.Get(card.Kind).HandKeepValue
+                : 0;
+            var score = continuesAttack
+                ? hostility * 1.2d + (target.Hp <= 1 ? 45d : 0d) - cardCost * .45d - (requestsJijiang ? 2d : 0d)
+                : 0d;
+            return new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.Equip,
+                    choice.Cards.Count == 1 ? choice.Cards[0] : null,
+                    continuesAttack ? targetSeat : null,
+                    choice.Description),
+                score,
+                continuesAttack
+                    ? requestsJijiang
+                        ? "结合公开阵营关系评估是否请求蜀势力角色提供追杀用的杀。"
+                        : "从自己的私有合法候选中评估继续追杀同一目标的收益与牌值。"
+                    : "保留杀牌并接受当前杀被闪抵消。");
+        }).ToArray();
+        var selectedIndex = candidates
+            .Select((candidate, index) => new { Candidate = candidate, Index = index })
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Index)
+            .First().Index;
+        var selected = prompt.Choices[selectedIndex];
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Description,
+            candidates,
+            $"青龙偃月刀：目标敌对度 {hostility:0.##}，选择{selected.Description}");
+        return (selected.Id, thought);
+    }
+
+    /// <summary>
     /// Chooses whether to spend one of this seat's private Nullification cards
     /// on the published trick-effect context. The method receives no engine
     /// zone, draw-pile, or other-player hand access; all strategic inputs come

@@ -227,6 +227,14 @@ public static class CardCatalog
                 AiPlayValue: 37,
                 AiResponseValue: 0,
                 HandKeepValue: 41),
+            [CardKind.QinglongCrescentBlade] = new(
+                CardKind.QinglongCrescentBlade,
+                "青龙偃月刀",
+                "装备牌",
+                "装备至武器槽；攻击范围 3，当你使用的杀被闪抵消后，你可以对同一目标再使用一张杀（无距离限制）。",
+                AiPlayValue: 39,
+                AiResponseValue: 0,
+                HandKeepValue: 43),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

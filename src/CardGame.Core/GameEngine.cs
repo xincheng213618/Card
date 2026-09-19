@@ -64,6 +64,7 @@ public sealed partial class GameEngine
     private BorrowedSwordResolution? _pendingBorrowedSword;
     private StoneAxeResolution? _pendingStoneAxe;
     private CixiongDoubleSwordsResolution? _pendingCixiongDoubleSwords;
+    private QinglongCrescentBladeResolution? _pendingQinglongCrescentBlade;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
@@ -262,6 +263,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalCixiongDoubleSwords =>
         _rulesVersion >= 45 && IsClassicIdentityMode;
+
+    private bool UsesFormalQinglongCrescentBlade =>
+        _rulesVersion >= 46 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -858,6 +862,7 @@ public sealed partial class GameEngine
                 DecisionKind.Liegong or
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
+                DecisionKind.QinglongCrescentBlade or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -983,6 +988,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.CixiongDoubleSwords)
         {
             return SubmitCixiongDoubleSwordsPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.QinglongCrescentBlade)
+        {
+            return SubmitQinglongCrescentBladePromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1575,6 +1585,38 @@ public sealed partial class GameEngine
                 selected,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
             : Reject(CommandErrorCode.InvalidChoice, "雌雄双股剑必须发动或跳过；发动后目标须弃一张手牌或令来源摸一张牌。");
+    }
+
+    private CommandResult SubmitQinglongCrescentBladePromptAnswer(PromptChoice selected)
+    {
+        if (_pendingQinglongCrescentBlade is null ||
+            _pendingDecision is not { Kind: DecisionKind.QinglongCrescentBlade })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的青龙偃月刀触发窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Targets.Count is not 0 and not 1)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "青龙偃月刀选择不符合当前攻击窗口。");
+        }
+
+        return action switch
+        {
+            "qinglong-slash" when selected.Cards.Count == 1 && selected.Targets.Count == 1 =>
+                Accept(() => HumanQinglongCrescentBladeCore(
+                    selected,
+                    advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "qinglong-jijiang" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
+                Accept(() => HumanQinglongCrescentBladeCore(
+                    selected,
+                    advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "qinglong-skip" when selected.Cards.Count == 0 && selected.Targets.Count == 0 =>
+                Accept(() => HumanQinglongCrescentBladeCore(
+                    selected,
+                    advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "青龙偃月刀必须对同一目标使用提示中精确的一张杀、发动激将，或选择不发动。")
+        };
     }
 
     private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
@@ -2990,6 +3032,16 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.CixiongDoubleSwords);
         ResolveCixiongDoubleSwordsChoice(selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanQinglongCrescentBladeCore(
+        PromptChoice selected,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.QinglongCrescentBlade);
+        ResolveQinglongCrescentBladeChoice(selected);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -8849,7 +8901,8 @@ public sealed partial class GameEngine
         int physicalOwnerSeat,
         JijiangResolution? activeJijiang = null,
         BorrowedSwordResolution? borrowedSword = null,
-        IReadOnlyList<Card>? physicalCards = null)
+        IReadOnlyList<Card>? physicalCards = null,
+        bool countsTowardSlashLimit = true)
     {
         var slashCards = physicalCards?.ToArray() ?? [slash];
         if (slashCards.Length == 0 || slashCards[0].Id != slash.Id)
@@ -8872,7 +8925,7 @@ public sealed partial class GameEngine
                 CardLocation.Processing,
                 CardMoveReasons.Use);
         }
-        if (_phase == TurnPhase.Play && source.Seat == _currentSeat)
+        if (countsTowardSlashLimit && _phase == TurnPhase.Play && source.Seat == _currentSeat)
         {
             _slashCountThisTurn++;
         }
@@ -9962,6 +10015,11 @@ public sealed partial class GameEngine
 
         if (completed)
         {
+            if (TryBeginQinglongCrescentBladeChoice(attack))
+            {
+                return;
+            }
+
             if (TryBeginStoneAxeChoice(attack))
             {
                 return;
@@ -9973,6 +10031,257 @@ public sealed partial class GameEngine
 
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
         ContinueSlashAfterTieqi(attack);
+    }
+
+    private bool CanUseQinglongCrescentBladeTarget(PlayerRuntime source, PlayerRuntime target) =>
+        source.IsAlive &&
+        target.IsAlive &&
+        source.Seat != target.Seat &&
+        !IsSlashProhibited(target) &&
+        GetEquipment(source).Any(card => card.Kind == CardKind.QinglongCrescentBlade);
+
+    private IReadOnlyList<Card> GetQinglongCrescentBladeSlashCards(
+        PlayerRuntime source,
+        PlayerRuntime target) =>
+        CanUseQinglongCrescentBladeTarget(source, target)
+            ? GetResponseCards(source, CardKind.Slash)
+            : [];
+
+    private bool CanRequestQinglongCrescentBladeJijiang(
+        QinglongCrescentBladeResolution pending)
+    {
+        var source = _players[pending.Attack.SourceSeat];
+        var target = _players[pending.Attack.TargetSeat];
+        return UsesFormalJijiang &&
+               _pendingJijiang is null &&
+               !pending.JijiangAttempted &&
+               source.Role == Role.Lord &&
+               source.General.HasSkill(SkillKind.Jijiang) &&
+               CanUseQinglongCrescentBladeTarget(source, target) &&
+               GetJijiangCandidateSeats(source.Seat).Count > 0;
+    }
+
+    private bool TryBeginQinglongCrescentBladeChoice(AttackResolution attack)
+    {
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var effectiveKind = RequireAttackCardKind(attack);
+        if (!UsesFormalQinglongCrescentBlade ||
+            effectiveKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))
+        {
+            return false;
+        }
+
+        if (_pendingQinglongCrescentBlade is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Qinglong Crescent Blade choices at once.");
+        }
+
+        var pending = new QinglongCrescentBladeResolution(attack);
+        var slashes = GetQinglongCrescentBladeSlashCards(source, target);
+        if (slashes.Count == 0 && !CanRequestQinglongCrescentBladeJijiang(pending))
+        {
+            return false;
+        }
+
+        _pendingQinglongCrescentBlade = pending;
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
+        PublishQinglongCrescentBladeChoice(pending, includeJijiang: true);
+        return true;
+    }
+
+    private void PublishQinglongCrescentBladeChoice(
+        QinglongCrescentBladeResolution pending,
+        bool includeJijiang)
+    {
+        if (!ReferenceEquals(_pendingQinglongCrescentBlade, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.Attack))
+        {
+            throw new InvalidOperationException("The Qinglong Crescent Blade choice has no current Slash continuation.");
+        }
+
+        var attack = pending.Attack;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var effectiveKind = RequireAttackCardKind(attack);
+        var slashes = GetQinglongCrescentBladeSlashCards(source, target);
+        var choices = slashes.Select(card =>
+        {
+            var followupKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
+            var cardDescription = IsSlashCard(card.Kind)
+                ? $"使用【{CardCatalog.Get(card.Kind).DisplayName}】"
+                : $"将【{card.DisplayName}】当作【杀】使用";
+            return new PromptChoice(
+                new ChoiceId($"qinglong.slash.resolution-{attack.ResolutionId}.card-{card.Id}"),
+                $"{cardDescription}，继续攻击 {target.Name}。",
+                [card.Id],
+                [target.Seat],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "qinglong-slash",
+                    ["response-card-kind"] = followupKind.ToString()
+                });
+        }).ToList();
+        if (includeJijiang && CanRequestQinglongCrescentBladeJijiang(pending))
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"qinglong.jijiang.resolution-{attack.ResolutionId}"),
+                $"发动【激将】，请求其他蜀势力角色为你对 {target.Name} 提供一张【杀】。",
+                [],
+                [target.Seat],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "qinglong-jijiang",
+                    ["skill"] = SkillKind.Jijiang.ToString()
+                }));
+        }
+        choices.Add(new PromptChoice(
+            new ChoiceId($"qinglong.skip.resolution-{attack.ResolutionId}"),
+            "不发动【青龙偃月刀】，此【杀】被【闪】抵消。",
+            [],
+            [],
+            new Dictionary<string, string> { ["action"] = "qinglong-skip" }));
+
+        _pendingDecision = new PendingDecision(
+            DecisionKind.QinglongCrescentBlade,
+            source.Seat,
+            $"{target.Name} 已用【闪】抵消你的【{CardCatalog.Get(effectiveKind).DisplayName}】，是否发动【青龙偃月刀】对其再使用一张【杀】？",
+            slashes.Select(card => card.Id).ToArray(),
+            [target.Seat],
+            SourceSeat: source.Seat,
+            IncomingCard: effectiveKind)
+        {
+            PromptId = source.IsHuman ? CreatePromptId() : default,
+            IsPrivate = true,
+            TargetSeat = target.Seat,
+            Choices = choices
+        };
+        _status = source.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
+    private void ResolveQinglongCrescentBladeChoice(PromptChoice selected)
+    {
+        var pending = _pendingQinglongCrescentBlade ??
+            throw new InvalidOperationException("There is no Qinglong Crescent Blade choice to resolve.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.QinglongCrescentBlade } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The Qinglong Crescent Blade choice is not the current Slash continuation.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var action = selected.Parameters.GetValueOrDefault("action");
+        var usesSlash = action == "qinglong-slash";
+        var requestsJijiang = action == "qinglong-jijiang";
+        Card? slash = null;
+        CardKind? effectiveSlashKind = null;
+        if (usesSlash)
+        {
+            if (!CanUseQinglongCrescentBladeTarget(source, target) ||
+                selected.Cards.Count != 1 ||
+                !selected.Targets.SequenceEqual([target.Seat]))
+            {
+                throw new InvalidOperationException("Qinglong Crescent Blade must retain its source, weapon and same target.");
+            }
+
+            slash = GetQinglongCrescentBladeSlashCards(source, target)
+                .SingleOrDefault(card => card.Id == selected.Cards[0]) ??
+                throw new InvalidOperationException("The selected Qinglong Crescent Blade Slash is no longer available.");
+            effectiveSlashKind = IsSlashCard(slash.Kind) ? slash.Kind : CardKind.Slash;
+        }
+        else if (requestsJijiang)
+        {
+            if (selected.Cards.Count != 0 ||
+                !selected.Targets.SequenceEqual([target.Seat]) ||
+                !CanRequestQinglongCrescentBladeJijiang(pending))
+            {
+                throw new InvalidOperationException("Qinglong Crescent Blade Jijiang is no longer available.");
+            }
+
+            BeginQinglongCrescentBladeJijiangRequest(pending);
+            return;
+        }
+        else if (action != "qinglong-skip" || selected.Cards.Count != 0 || selected.Targets.Count != 0)
+        {
+            throw new InvalidOperationException("The Qinglong Crescent Blade choice is malformed.");
+        }
+
+        if (usesSlash)
+        {
+            BeginQinglongCrescentBladeFollowup(
+                pending,
+                slash!,
+                effectiveSlashKind!.Value,
+                source.Seat,
+                [slash!]);
+            return;
+        }
+
+        _pendingQinglongCrescentBlade = null;
+        ClearPendingDecision();
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        QueueGameEvent(new QinglongCrescentBladeResolvedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            Used: false,
+            SlashCardIds: [],
+            EffectiveSlashKind: null));
+        AddLog(
+            "EquipmentSkipped",
+            $"{source.Name} 未发动【青龙偃月刀】，对 {target.Name} 的【杀】被【闪】抵消。",
+            source.Seat,
+            target.Seat);
+
+        CompleteAttack(attack);
+    }
+
+    private void BeginQinglongCrescentBladeFollowup(
+        QinglongCrescentBladeResolution pending,
+        Card slash,
+        CardKind effectiveSlashKind,
+        int physicalOwnerSeat,
+        IReadOnlyList<Card> physicalCards,
+        JijiangResolution? jijiang = null)
+    {
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingQinglongCrescentBlade, pending) ||
+            !ReferenceEquals(_pendingAttack, attack))
+        {
+            throw new InvalidOperationException("The Qinglong Crescent Blade follow-up is not current.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        _pendingQinglongCrescentBlade = null;
+        ClearPendingDecision();
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        QueueGameEvent(new QinglongCrescentBladeResolvedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            Used: true,
+            Array.AsReadOnly(physicalCards.Select(card => card.Id).ToArray()),
+            effectiveSlashKind));
+        AddLog(
+            "EquipmentEffect",
+            $"{source.Name} 发动【青龙偃月刀】，对 {target.Name} 再使用一张【{CardCatalog.Get(effectiveSlashKind).DisplayName}】。",
+            source.Seat,
+            target.Seat);
+
+        CompleteAttack(attack);
+        ResolveSlashCore(
+            source,
+            target,
+            slash,
+            effectiveSlashKind,
+            physicalOwnerSeat,
+            activeJijiang: jijiang,
+            physicalCards: physicalCards,
+            countsTowardSlashLimit: false);
     }
 
     private bool TryBeginStoneAxeChoice(AttackResolution attack)
@@ -10308,6 +10617,43 @@ public sealed partial class GameEngine
         AdvanceJijiangCandidate();
     }
 
+    private void BeginQinglongCrescentBladeJijiangRequest(
+        QinglongCrescentBladeResolution qinglong)
+    {
+        if (_pendingJijiang is not null ||
+            !ReferenceEquals(_pendingQinglongCrescentBlade, qinglong) ||
+            !CanRequestQinglongCrescentBladeJijiang(qinglong))
+        {
+            throw new InvalidOperationException("Jijiang is not available for this Qinglong Crescent Blade use.");
+        }
+
+        var attack = qinglong.Attack;
+        var owner = _players[attack.SourceSeat];
+        var candidateSeats = GetJijiangCandidateSeats(owner.Seat);
+        qinglong.JijiangAttempted = true;
+        _pendingJijiang = new JijiangResolution(
+            attack.ResolutionId,
+            JijiangPurpose.QinglongCrescentBladeUse,
+            owner.Seat,
+            candidateSeats,
+            targetSeat: attack.TargetSeat,
+            qinglongCrescentBlade: qinglong);
+        ClearPendingDecision();
+        _status = EngineStatus.Running;
+        QueueGameEvent(new JijiangRequestedEvent(
+            attack.ResolutionId,
+            owner.Seat,
+            candidateSeats,
+            IsActiveUse: true,
+            attack.TargetSeat));
+        AddLog(
+            "SkillTriggered",
+            $"{owner.Name} 在【青龙偃月刀】结算中发动主公技【激将】，请求其他蜀势力角色为其对 {_players[attack.TargetSeat].Name} 提供【杀】。",
+            owner.Seat,
+            attack.TargetSeat);
+        AdvanceJijiangCandidate();
+    }
+
     private void AdvanceJijiangCandidate()
     {
         var pending = _pendingJijiang ??
@@ -10443,6 +10789,10 @@ public sealed partial class GameEngine
             {
                 BeginBorrowedSwordJijiangSlash(pending, provider, selectedSlash);
             }
+            else if (pending.IsQinglongCrescentBladeUse)
+            {
+                BeginQinglongCrescentBladeJijiangSlash(pending, provider, selectedSlash);
+            }
             else if (pending.IsActiveUse)
             {
                 BeginProvidedJijiangSlash(pending, provider, selectedSlash);
@@ -10508,6 +10858,39 @@ public sealed partial class GameEngine
                 activeJijiang: pending,
                 borrowedSword: borrowedSword,
                 physicalCards: pair);
+            return;
+        }
+
+        if (pending.IsQinglongCrescentBladeUse)
+        {
+            var qinglong = pending.QinglongCrescentBlade ??
+                throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang use has no parent resolution.");
+            var target = _players[pending.TargetSeat ??
+                throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang use has no target.")];
+            if (!ReferenceEquals(_pendingQinglongCrescentBlade, qinglong) ||
+                !CanUseQinglongCrescentBladeTarget(owner, target))
+            {
+                throw new InvalidOperationException("The Qinglong Crescent Blade Jijiang target is no longer legal.");
+            }
+
+            pending.AwaitingProviders = false;
+            QueueGameEvent(new JijiangResolvedEvent(
+                pending.ResolutionId,
+                owner.Seat,
+                Succeeded: true,
+                provider.Seat,
+                pair[0].Id,
+                CardKind.Slash,
+                IsActiveUse: true,
+                target.Seat));
+            ClearPendingDecision();
+            BeginQinglongCrescentBladeFollowup(
+                qinglong,
+                pair[0],
+                CardKind.Slash,
+                provider.Seat,
+                pair,
+                pending);
             return;
         }
 
@@ -10602,7 +10985,7 @@ public sealed partial class GameEngine
             ProviderSeat: null,
             SlashCardId: null,
             EffectiveSlashKind: null,
-            pending.IsActiveUse || pending.IsBorrowedSwordUse,
+            pending.IsActiveUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse,
             pending.TargetSeat));
         AddLog(
             "SkillResolved",
@@ -10621,6 +11004,14 @@ public sealed partial class GameEngine
             }
 
             BeginBorrowedSwordSlashChoice(borrowedSword, includeJijiang: false);
+            return;
+        }
+
+        if (pending.IsQinglongCrescentBladeUse)
+        {
+            var qinglong = pending.QinglongCrescentBlade ??
+                throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang failure has no parent resolution.");
+            PublishQinglongCrescentBladeChoice(qinglong, includeJijiang: false);
             return;
         }
 
@@ -10859,6 +11250,51 @@ public sealed partial class GameEngine
             borrowedSword: borrowedSword);
     }
 
+    private void BeginQinglongCrescentBladeJijiangSlash(
+        JijiangResolution pending,
+        PlayerRuntime provider,
+        Card selectedSlash)
+    {
+        var qinglong = pending.QinglongCrescentBlade ??
+            throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang use has no parent resolution.");
+        var owner = _players[pending.OwnerSeat];
+        var target = _players[pending.TargetSeat ??
+            throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang use has no target.")];
+        if (!ReferenceEquals(_pendingJijiang, pending) ||
+            !ReferenceEquals(_pendingQinglongCrescentBlade, qinglong) ||
+            !pending.IsQinglongCrescentBladeUse ||
+            !CanUseQinglongCrescentBladeTarget(owner, target))
+        {
+            throw new InvalidOperationException("The Qinglong Crescent Blade Jijiang target is no longer legal.");
+        }
+
+        var effectiveKind = IsSlashCard(selectedSlash.Kind)
+            ? selectedSlash.Kind
+            : CardKind.Slash;
+        pending.AwaitingProviders = false;
+        QueueGameEvent(new JijiangResolvedEvent(
+            pending.ResolutionId,
+            owner.Seat,
+            Succeeded: true,
+            provider.Seat,
+            selectedSlash.Id,
+            effectiveKind,
+            IsActiveUse: true,
+            target.Seat));
+        AddLog(
+            "CardUsed",
+            $"{provider.Name} 响应【激将】，由 {owner.Name} 发动【青龙偃月刀】对 {target.Name} 使用【{CardCatalog.Get(effectiveKind).DisplayName}】。",
+            owner.Seat,
+            target.Seat);
+        BeginQinglongCrescentBladeFollowup(
+            qinglong,
+            selectedSlash,
+            effectiveKind,
+            provider.Seat,
+            [selectedSlash],
+            pending);
+    }
+
     private void CompleteActiveJijiang(JijiangResolution pending)
     {
         if (!ReferenceEquals(_pendingJijiang, pending) ||
@@ -10879,8 +11315,27 @@ public sealed partial class GameEngine
         _pendingJijiang = null;
     }
 
+    private void CompleteQinglongCrescentBladeJijiang(JijiangResolution pending)
+    {
+        if (!ReferenceEquals(_pendingJijiang, pending) ||
+            !pending.IsQinglongCrescentBladeUse ||
+            pending.AwaitingProviders)
+        {
+            throw new InvalidOperationException("The completed Qinglong Crescent Blade Jijiang continuation is invalid.");
+        }
+
+        _pendingJijiang = null;
+    }
+
     private void ResolvePendingAiResponse()
     {
+        if (_pendingQinglongCrescentBlade is not null &&
+            _pendingDecision?.Kind == DecisionKind.QinglongCrescentBlade)
+        {
+            ResolvePendingAiQinglongCrescentBlade();
+            return;
+        }
+
         if (_pendingCixiongDoubleSwords is not null)
         {
             ResolvePendingAiCixiongDoubleSwords();
@@ -10924,6 +11379,28 @@ public sealed partial class GameEngine
         }
 
         ResolvePendingAiDodge();
+    }
+
+    private void ResolvePendingAiQinglongCrescentBlade()
+    {
+        var pending = _pendingQinglongCrescentBlade ??
+            throw new InvalidOperationException("AI Qinglong Crescent Blade response has no active resolution.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.QinglongCrescentBlade } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The pending AI Qinglong Crescent Blade prompt is inconsistent.");
+        }
+
+        var (choiceId, thought) = _aiBrains[attack.SourceSeat].ChooseQinglongCrescentBladeChoice(
+            CreateSnapshot(attack.SourceSeat),
+            attack.TargetSeat,
+            ++_thoughtSequence);
+        AddThought(thought);
+        var selected = decision.Choices.Single(choice => choice.Id == choiceId);
+        ResolveQinglongCrescentBladeChoice(selected);
+        PublishState();
     }
 
     private void ResolvePendingAiCixiongDoubleSwords()
@@ -14565,6 +15042,11 @@ public sealed partial class GameEngine
         {
             CompleteActiveJijiang(jijiang);
         }
+        else if (_pendingJijiang is { IsQinglongCrescentBladeUse: true, AwaitingProviders: false } qinglongJijiang &&
+                 ReferenceEquals(qinglongJijiang.ActiveAttack, attack))
+        {
+            CompleteQinglongCrescentBladeJijiang(qinglongJijiang);
+        }
 
         if (_winner != Winner.None &&
             _status != EngineStatus.Completed &&
@@ -17654,6 +18136,62 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingQinglongCrescentBlade is { } qinglong &&
+            _pendingJijiang?.IsQinglongCrescentBladeUse != true)
+        {
+            var qinglongAttack = qinglong.Attack;
+            var decision = _pendingDecision;
+            var source = _players[qinglongAttack.SourceSeat];
+            var target = _players[qinglongAttack.TargetSeat];
+            var currentCandidates = GetQinglongCrescentBladeSlashCards(source, target)
+                .Select(card => card.Id)
+                .ToArray();
+            var canRequestJijiang = CanRequestQinglongCrescentBladeJijiang(qinglong);
+            if (!UsesFormalQinglongCrescentBlade ||
+                !ReferenceEquals(_pendingAttack, qinglongAttack) ||
+                qinglongAttack.SuccessfulDodgeResponses != qinglongAttack.RequiredDodgeResponses ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != qinglongAttack.ResolutionId ||
+                cardUse.SourceSeat != qinglongAttack.SourceSeat ||
+                cardUse.CardKind != qinglongAttack.EffectiveCardKind ||
+                cardUse.Step != ResolutionFrameStep.AwaitingResponse ||
+                decision is not { Kind: DecisionKind.QinglongCrescentBlade, IsPrivate: true } ||
+                decision.PlayerSeat != qinglongAttack.SourceSeat ||
+                decision.SourceSeat != qinglongAttack.SourceSeat ||
+                decision.TargetSeat != qinglongAttack.TargetSeat ||
+                decision.IncomingCard != qinglongAttack.EffectiveCardKind ||
+                !decision.ValidCardIds.SequenceEqual(currentCandidates) ||
+                !decision.ValidTargetSeats.SequenceEqual([target.Seat]) ||
+                decision.Choices.Count != currentCandidates.Length + 1 + (canRequestJijiang ? 1 : 0) ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "qinglong-skip" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0) != 1 ||
+                !decision.Choices.Where(choice =>
+                        choice.Parameters.GetValueOrDefault("action") == "qinglong-slash")
+                    .SelectMany(choice => choice.Cards)
+                    .SequenceEqual(currentCandidates) ||
+                decision.Choices.Where(choice =>
+                        choice.Parameters.GetValueOrDefault("action") == "qinglong-slash")
+                    .Any(choice => choice.Cards.Count != 1 || !choice.Targets.SequenceEqual([target.Seat])) ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "qinglong-jijiang" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.SequenceEqual([target.Seat])) != (canRequestJijiang ? 1 : 0))
+            {
+                throw new InvalidOperationException(
+                    "A Qinglong Crescent Blade choice must retain its private exact-Slash prompt and completed Dodge continuation.");
+            }
+
+            var expectedQinglongStatus = source.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedQinglongStatus)
+            {
+                throw new InvalidOperationException("A Qinglong Crescent Blade prompt status does not match its owner.");
+            }
+        }
+
         if (_pendingCixiongDoubleSwords is { } cixiong)
         {
             var cixiongAttack = cixiong.Attack;
@@ -18049,6 +18587,17 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active Stone Axe choice must retain its Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingQinglongCrescentBlade is { } qinglongContinuation)
+            {
+                if (!ReferenceEquals(qinglongContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame qinglongCardUse ||
+                    qinglongCardUse.Id != pendingAttack.ResolutionId ||
+                    qinglongCardUse.Step != ResolutionFrameStep.AwaitingResponse)
+                {
+                    throw new InvalidOperationException(
+                        "An active Qinglong Crescent Blade choice must retain its Slash frame as the stack top.");
                 }
             }
             else if (_pendingCixiongDoubleSwords is { } cixiongContinuation)
@@ -18469,6 +19018,26 @@ public sealed partial class GameEngine
                         "A Borrowed Sword Jijiang continuation must retain its parent response or nested Slash.");
                 }
             }
+            else if (jijiang.IsQinglongCrescentBladeUse)
+            {
+                var qinglongParent = jijiang.QinglongCrescentBlade;
+                var parentAttack = qinglongParent?.Attack;
+                var activeAttackMatches = !jijiang.AwaitingProviders &&
+                                          jijiang.ActiveAttack is { } activeAttack &&
+                                          ReferenceEquals(_pendingAttack, activeAttack) &&
+                                          _pendingQinglongCrescentBlade is null;
+                var awaitingProviderMatches = jijiang.AwaitingProviders &&
+                                              ReferenceEquals(_pendingQinglongCrescentBlade, qinglongParent) &&
+                                              ReferenceEquals(_pendingAttack, parentAttack) &&
+                                              providerPromptMatches;
+                if (qinglongParent is null ||
+                    jijiang.TargetSeat != parentAttack?.TargetSeat ||
+                    (!awaitingProviderMatches && !activeAttackMatches))
+                {
+                    throw new InvalidOperationException(
+                        "A Qinglong Crescent Blade Jijiang continuation must retain its parent choice or nested Slash.");
+                }
+            }
             else if (jijiang.IsActiveUse)
             {
                 var activeFrame = jijiang.ActiveSkillFrameId is { } activeFrameId
@@ -18576,6 +19145,13 @@ public sealed partial class GameEngine
                 "A Cixiong Double Swords prompt cannot exist without its Slash continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.QinglongCrescentBlade &&
+            _pendingQinglongCrescentBlade is null)
+        {
+            throw new InvalidOperationException(
+                "A Qinglong Crescent Blade prompt cannot exist without its Slash continuation.");
+        }
+
         if (_pendingDecision?.Kind is DecisionKind.Feedback or
             DecisionKind.Yiji or
             DecisionKind.Jieming or
@@ -18601,7 +19177,8 @@ public sealed partial class GameEngine
                 DecisionKind.Tieqi or
                 DecisionKind.Liegong or
                 DecisionKind.StoneAxe or
-                DecisionKind.CixiongDoubleSwords) &&
+                DecisionKind.CixiongDoubleSwords or
+                DecisionKind.QinglongCrescentBlade) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -18677,6 +19254,7 @@ public sealed partial class GameEngine
              _pendingBorrowedSword is not null ||
              _pendingStoneAxe is not null ||
              _pendingCixiongDoubleSwords is not null ||
+             _pendingQinglongCrescentBlade is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -18791,7 +19369,8 @@ public sealed partial class GameEngine
         (_pendingDecision?.Kind is DecisionKind.RespondDodge or
             DecisionKind.RespondSlash or
             DecisionKind.StoneAxe or
-            DecisionKind.CixiongDoubleSwords) &&
+            DecisionKind.CixiongDoubleSwords or
+            DecisionKind.QinglongCrescentBlade) &&
         _pendingDecision.PlayerSeat != _options.HumanSeat;
 
     private bool IsAiNullificationPending() =>
@@ -19834,6 +20413,12 @@ public sealed partial class GameEngine
         public CixiongDoubleSwordsStage Stage { get; set; }
     }
 
+    private sealed class QinglongCrescentBladeResolution(AttackResolution attack)
+    {
+        public AttackResolution Attack { get; } = attack;
+        public bool JijiangAttempted { get; set; }
+    }
+
     private sealed class BorrowedSwordResolution(
         long resolutionId,
         int sourceSeat,
@@ -19861,7 +20446,8 @@ public sealed partial class GameEngine
         AttackResolution? responseAttack = null,
         int? targetSeat = null,
         long? activeSkillFrameId = null,
-        BorrowedSwordResolution? borrowedSword = null)
+        BorrowedSwordResolution? borrowedSword = null,
+        QinglongCrescentBladeResolution? qinglongCrescentBlade = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public JijiangPurpose Purpose { get; } = purpose;
@@ -19871,6 +20457,7 @@ public sealed partial class GameEngine
         public int? TargetSeat { get; } = targetSeat;
         public long? ActiveSkillFrameId { get; } = activeSkillFrameId;
         public BorrowedSwordResolution? BorrowedSword { get; } = borrowedSword;
+        public QinglongCrescentBladeResolution? QinglongCrescentBlade { get; } = qinglongCrescentBlade;
         public int CandidateIndex { get; set; }
         public bool AwaitingProviders { get; set; } = true;
         public AttackResolution? ActiveAttack { get; set; }
@@ -19878,6 +20465,7 @@ public sealed partial class GameEngine
             CandidateIndex < CandidateSeats.Count ? CandidateSeats[CandidateIndex] : -1;
         public bool IsActiveUse => Purpose == JijiangPurpose.ActiveUse;
         public bool IsBorrowedSwordUse => Purpose == JijiangPurpose.BorrowedSwordUse;
+        public bool IsQinglongCrescentBladeUse => Purpose == JijiangPurpose.QinglongCrescentBladeUse;
     }
 
     private sealed class FireAttackResolution(
@@ -19918,7 +20506,8 @@ public sealed partial class GameEngine
         ActiveUse,
         DuelResponse,
         GroupResponse,
-        BorrowedSwordUse
+        BorrowedSwordUse,
+        QinglongCrescentBladeUse
     }
 
     private sealed class JudgmentResolution(

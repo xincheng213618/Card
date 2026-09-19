@@ -70,7 +70,8 @@ public enum CardKind
     BorrowedSword,
     StoneAxe,
     ZhangbaSerpentSpear,
-    CixiongDoubleSwords
+    CixiongDoubleSwords,
+    QinglongCrescentBlade
 }
 
 public enum Suit
@@ -201,7 +202,8 @@ public enum DecisionKind
     Tieqi,
     Liegong,
     StoneAxe,
-    CixiongDoubleSwords
+    CixiongDoubleSwords,
+    QinglongCrescentBlade
 }
 
 public enum GangliePunishmentKind

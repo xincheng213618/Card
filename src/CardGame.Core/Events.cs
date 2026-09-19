@@ -738,6 +738,19 @@ public sealed record CixiongDoubleSwordsResolvedEvent(
     int? DiscardedCardId = null,
     int SourceDrawCount = 0) : IGameEvent;
 
+/// <summary>
+/// Public terminal result for Qinglong Crescent Blade. A successful result
+/// records the exact physical cards that immediately open a new Slash use
+/// against the same target; an empty card list records a declined trigger.
+/// </summary>
+public sealed record QinglongCrescentBladeResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool Used,
+    IReadOnlyList<int> SlashCardIds,
+    CardKind? EffectiveSlashKind = null) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

@@ -6,17 +6,18 @@ internal static class BorrowedSwordChecks
 {
     public static void TransferSlashAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var sourceBoundary = BorrowedSwordScenario.FindHumanSourcePlay();
+        var sourceRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 23, 0));
+        var sourceBoundary = BorrowedSwordScenario.FindHumanSourcePlay(new Version(1, 23, 0));
         var legacyRules = GameReplay.Restore(
             RoundTrip(sourceBoundary.CreateCheckpoint()) with { RulesVersion = 41 },
-            registry);
+            sourceRegistry);
         Require(sourceBoundary.GetHumanLegalActions().Any(action =>
                     action.Kind == LegalActionKind.BorrowedSword) &&
                 legacyRules.GetHumanLegalActions().All(action =>
                     action.Kind != LegalActionKind.BorrowedSword),
             "Rules v42 must enable Borrowed Sword while rules v41 preserves the same checkpoint without that action.");
 
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = BorrowedSwordScenario.FindHumanOwnerResponse();
         var prompt = boundary.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword fixture lost its private response prompt.");

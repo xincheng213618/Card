@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.26.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；在 1.25.0 的丈八蛇矛与 94 张历史牌堆上注册 `classic:cixiong-double-swords`，当前 `classic:standard-deck` 为 96 张，rules v45 接入异性杀后的两阶段资源选择，并为甄姬、黄月英投影女性性别；rules v44 保留丈八双手牌当杀的主动使用与组合响应；关羽/武圣已归位为经典 ID 并在 rules v40 开放装备区红牌，rules v41 又为既有华佗急救开放装备区红牌；赵云为龙胆，张飞为咆哮，吕布为无双，魏延为旧版狂骨，黄忠为烈弓，马超为铁骑+马术，黄月英为集智+奇才，甄姬为洛神+倾国，徐晃为断粮、典韦为强袭、许褚为裸衣、张辽为突袭、吕蒙为克己、甘宁为奇袭、黄盖为苦肉，孙权为制衡+救援、刘备为仁德+激将、曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.25.0 历史定义及牌堆按存档签名保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.27.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；在 1.26.0 的雌雄双股剑与 96 张历史牌堆上注册 `classic:qinglong-crescent-blade`，当前 `classic:standard-deck` 为 97 张，rules v46 接入最后一张闪后的精确同目标新杀；rules v45 保留雌雄双股剑两阶段资源选择及甄姬、黄月英女性性别投影，rules v44 保留丈八双手牌当杀；关羽/武圣已归位为经典 ID 并在 rules v40 开放装备区红牌，rules v41 又为既有华佗急救开放装备区红牌；赵云为龙胆，张飞为咆哮，吕布为无双，魏延为旧版狂骨，黄忠为烈弓，马超为铁骑+马术，黄月英为集智+奇才，甄姬为洛神+倾国，徐晃为断粮、典韦为强袭、许褚为裸衣、张辽为突袭、吕蒙为克己、甘宁为奇袭、黄盖为苦肉，孙权为制衡+救援、刘备为仁德+激将、曹操为奸雄+护驾、郭嘉为天妒+遗计、周瑜为英姿+反间、诸葛亮为观星+空城；1.0.0–1.26.0 历史定义及牌堆按存档签名保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -88,7 +88,7 @@
 | 兼容别名 | `identity_8_basic_demo` |
 | 状态 | implemented-registry |
 
-基础 Standard 身份牌堆沿用同一个 90 张 Recipe 形状；经典包从 1.23.0 起使用含两张借刀杀人的 92 张 `classic:standard-deck`，1.24.0 加入一张贯石斧形成 93 张历史配方，1.25.0 再加入一张丈八蛇矛形成 94 张历史配方，1.26.0 再加入两张雌雄双股剑形成当前 96 张配方。酒的出牌阶段一次性直接杀加伤和濒死者自救已实现，火攻的私有展示/同花色弃牌伤害已实现，乐不思蜀、兵粮寸断和闪电的公开判定区、下回合判定及红黑/命中转移效果已实现，五类装备槽、十种装备牌（含贯石斧、丈八蛇矛、雌雄双股剑、仁王盾）、换装、规则 v13 武器牌面攻击范围与 v1–v12 旧范围兼容、青釭剑直接杀无视防具、贯石斧闪后弃两牌恢复伤害、丈八蛇矛双手牌转杀、雌雄双股剑异性杀后的弃牌/摸牌分支、仁王盾阻挡黑色杀和阵亡清理已实现，无懈可击已接入效果前的有限多层响应窗口，铁索连环已接入精确一/二目标、公开状态标记和火/雷伤害传导；后续仍可追加更多锦囊和装备效果，不把这些演示配方误称为完整商业卡表。标准包的 ID、标签和描述保持 v1.11.0 兼容冻结；跨座位酒救援仅由规则行为版本 v3–v11 的兼容语义提供，v12 起按正式规则仅允许濒死者自救。
+基础 Standard 身份牌堆沿用同一个 90 张 Recipe 形状；经典包从 1.23.0 起使用含两张借刀杀人的 92 张 `classic:standard-deck`，1.24.0 加入一张贯石斧形成 93 张历史配方，1.25.0 再加入一张丈八蛇矛形成 94 张历史配方，1.26.0 再加入两张雌雄双股剑形成 96 张历史配方，1.27.0 再加入一张青龙偃月刀形成当前 97 张配方。酒的出牌阶段一次性直接杀加伤和濒死者自救已实现，火攻的私有展示/同花色弃牌伤害已实现，乐不思蜀、兵粮寸断和闪电的公开判定区、下回合判定及红黑/命中转移效果已实现，五类装备槽、十一种装备牌（含贯石斧、丈八蛇矛、雌雄双股剑、青龙偃月刀、仁王盾）、换装、规则 v13 武器牌面攻击范围与 v1–v12 旧范围兼容、青釭剑直接杀无视防具、贯石斧闪后弃两牌恢复伤害、丈八蛇矛双手牌转杀、雌雄双股剑异性杀后的弃牌/摸牌分支、青龙偃月刀闪后同目标新杀、仁王盾阻挡黑色杀和阵亡清理已实现，无懈可击已接入效果前的有限多层响应窗口，铁索连环已接入精确一/二目标、公开状态标记和火/雷伤害传导；后续仍可追加更多锦囊和装备效果，不把这些演示配方误称为完整商业卡表。标准包的 ID、标签和描述保持 v1.11.0 兼容冻结；跨座位酒救援仅由规则行为版本 v3–v11 的兼容语义提供，v12 起按正式规则仅允许濒死者自救。
 
 ## 3. 身份模式开局配置
 
@@ -179,6 +179,8 @@
 
 经典包 1.13.0 再加入徐晃/断粮，以黑色基本牌或装备牌的实体来源、有效兵粮寸断牌型、距离 2 修正和判定区持久有效身份复用延时锦囊链；1.14.0 再加入甄姬/洛神+倾国，以可重复私有 Choice、判定牌取得和黑色手牌转闪复用判定与响应链；1.15.0 再加入黄月英/集智+奇才，以普通锦囊声明后的私有 Choice、精确摸牌和父结算游标续接复用无懈与效果链；1.16.0 再加入马超/铁骑+马术，以杀指定目标后的私有 Choice、共享判定/鬼才替换和当前杀闪响应禁止复用攻击链；1.17.0 再加入黄忠/烈弓，以公开手牌数、当前体力、攻击范围条件和私有 Choice 复用同一杀闪响应禁止链；1.18.0 再加入魏延/旧版狂骨，以实际伤害来源、公开战斗距离、伤害量和统一恢复帧复用伤害后触发链；1.19.0 再加入吕布/无双，以连续响应计数复用杀、决斗、八卦阵、护驾、激将和转换牌链；1.20.0 用经典张飞/咆哮 ID 复用出杀次数查询；1.21.0 用经典赵云/龙胆 ID 复用杀闪双向转化链；1.22.0 用经典关羽/武圣 ID 并以 rules v40 补齐装备区红牌主动/响应转换；1.23.0 注册借刀杀人与版本化 92 张牌堆，并以 rules v42 接入有序目标、持武器者私有 Choice、真实子杀和武器转移；1.24.0 再注册贯石斧与 93 张牌堆，以 rules v43 接入最后一张闪后的精确两牌费用和原杀伤害续接；1.25.0 再注册丈八蛇矛与 94 张牌堆，以 rules v44 接入精确两手牌的主动杀和组合杀响应；1.26.0 再注册雌雄双股剑与 96 张牌堆，以 rules v45 接入版本化性别和异性杀后的两阶段资源选择。1.25.0 及更早包继续保留对应历史牌堆、武将池、默认性别投影和内容指纹。
 
+经典包 1.27.0 再注册青龙偃月刀与 97 张牌堆，以 rules v46 接入最后一张闪后的私有精确同目标新杀；刘备可在该窗口发动激将，由蜀势力提供者支付实体杀或丈八双牌。新杀不计普通杀次数并重新经过完整攻击链。1.26.0 及更早包继续保留各自历史牌堆、武将池、性别投影和内容指纹。
+
 规则行为版本 5 的结算约定：当前伤害若使目标降至 0 点体力，已注册的伤害后候选仍在 `DyingFrame` 创建前按稳定游标完成；该行为由 `GameCheckpoint.CurrentRulesVersion` 标识，普通快照只投影对应 responder 可见的选择。
 
 ### 技能状态清单
@@ -244,13 +246,14 @@
 | `classic:stone-axe` | 贯石斧 | Weapon | attack, range-three, dodge-override, exact-two-card-cost | implemented-registry + classic 1.24 | rules v43：攻击范围 3；最后一张有效闪抵消杀后，从自己的手牌/装备区精确弃置两张牌（可含贯石斧自身），再沿同一 `AttackResolution` 造成伤害；rules v42 不发布 Choice |
 | `classic:zhangba-serpent-spear` | 丈八蛇矛 | Weapon | attack, range-three, two-hand-cards-as-slash | implemented-registry + classic 1.25 | rules v44：攻击范围 3；自己的两张手牌以精确组合当作一张无固定花色的杀主动使用或响应；覆盖决斗、南蛮入侵、借刀杀人与激将，双实体牌共同进入处理区并结束；rules v43 不发布动作 |
 | `classic:cixiong-double-swords` | 雌雄双股剑 | Weapon | attack, range-two, opposite-gender-resource-choice | implemented-registry + classic 1.26 | rules v45：攻击范围 2；对异性角色使用杀指定目标后，来源可发动，目标再从自己每张手牌的精确弃置 Choice 与令来源摸一张之间选择；rules v44 不发布窗口 |
+| `classic:qinglong-crescent-blade` | 青龙偃月刀 | Weapon | attack, range-three, same-target-followup-slash | implemented-registry + classic 1.27 | rules v46：攻击范围 3；最后一张有效闪抵消杀后，来源可从当前精确杀候选或刘备的激将中选择同目标真实新杀，提供者可支付实体杀或丈八双牌，新杀不计普通次数并可再次触发；rules v45 不发布窗口 |
 | `standard:bagua` | 八卦阵 | Armor | response, judgment | implemented-registry | K6：防具槽和公开生命周期；K7：`JudgmentFrame`、判定区移动和红色判定视为闪；规则 v14 覆盖直接杀与万箭齐发，v1–v13 保留直接杀响应 |
 | `standard:renwang_shield` | 仁王盾 | Armor | defense, block-black-slash | implemented-registry | 规则 v14：黑色杀指定目标后的公开无效结算与 `ArmorEffectAppliedEvent`，青釭剑可绕过；v1–v13 保留合法目标过滤 |
 | `standard:offensive_horse` | 赤兔 | OffensiveHorse | range, attack | implemented-registry | K6：进攻坐骑槽、战斗距离 -1 |
 | `standard:defensive_horse` | 绝影 | DefensiveHorse | defense, distance | implemented-registry | K6：防御坐骑槽、战斗距离 +1 |
 | `standard:jade_seal` | 玉玺 | Treasure | draw, modifier | implemented-registry | K6：宝物槽、摸牌 +1 |
 
-装备内容必须进入 `Equipment` 区域，拥有替换、失效、死亡清理和持久 modifier 语义；当前 K6 基础切片已开放五类槽位、十种装备牌（含贯石斧、丈八蛇矛、雌雄双股剑、仁王盾）、换装、战斗距离/攻击范围查询、玉玺摸牌、青釭剑无视防具、贯石斧精确两牌支付、丈八蛇矛双手牌转杀、雌雄双股剑两阶段资源选择以及阵亡清理；规则 v14 已为八卦阵接入直接杀/万箭齐发闪响应中的公开判定，为仁王盾接入目标确定后的黑色杀无效事件，v1–v13 保留旧时机；闪电接入自用延时判定、命中伤害和失败转移；复杂判定区目标选择及复杂失效/卸载效果仍待后续入口，不把装备伪装成普通手牌或一次性锦囊。
+装备内容必须进入 `Equipment` 区域，拥有替换、失效、死亡清理和持久 modifier 语义；当前 K6 基础切片已开放五类槽位、十一种装备牌（含贯石斧、丈八蛇矛、雌雄双股剑、青龙偃月刀、仁王盾）、换装、战斗距离/攻击范围查询、玉玺摸牌、青釭剑无视防具、贯石斧精确两牌支付、丈八蛇矛双手牌转杀、雌雄双股剑两阶段资源选择、青龙偃月刀同目标新杀以及阵亡清理；规则 v14 已为八卦阵接入直接杀/万箭齐发闪响应中的公开判定，为仁王盾接入目标确定后的黑色杀无效事件，v1–v13 保留旧时机；闪电接入自用延时判定、命中伤害和失败转移；复杂判定区目标选择及复杂失效/卸载效果仍待后续入口，不把装备伪装成普通手牌或一次性锦囊。
 
 ## 7. 内容级 AI 标签约定
 

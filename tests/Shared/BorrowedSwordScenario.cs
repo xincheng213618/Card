@@ -3,9 +3,11 @@ using CardGame.Core;
 
 internal static class BorrowedSwordScenario
 {
-    public static GameEngine FindHumanSourcePlay()
+    public static GameEngine FindHumanSourcePlay(Version? packageVersion = null)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = packageVersion is null
+            ? StandardContentRegistry.CreateWithClassicGenerals()
+            : StandardContentRegistry.CreateWithClassicGenerals(packageVersion);
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -108,8 +110,7 @@ internal static class BorrowedSwordScenario
 
             var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
             var weapon = owner.Hand.FirstOrDefault(card =>
-                EquipmentCatalog.IsEquipment(card.Kind) &&
-                EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon);
+                card.Kind is CardKind.Crossbow or CardKind.QinggangSword);
             if (weapon is null)
             {
                 continue;

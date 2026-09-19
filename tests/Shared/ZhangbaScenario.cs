@@ -96,7 +96,13 @@ internal static class ZhangbaScenario
 
             var full = game.CreateSnapshot(0, revealAll: true);
             var targetSeat = action.SelectableTargetSeats
-                .Where(seat => full.Players.Single(player => player.Seat == seat).Hp > 1)
+                .Where(seat =>
+                {
+                    var target = full.Players.Single(player => player.Seat == seat);
+                    return target.Hp > 1 &&
+                           target.Skills?.All(skill =>
+                               skill.Kind is not (SkillKind.Jianxiong or SkillKind.Ganglie)) != false;
+                })
                 .Order()
                 .FirstOrDefault(-1);
             if (targetSeat < 0)
@@ -195,6 +201,7 @@ internal static class ZhangbaScenario
             for (var step = 0; step < 256 && game.State.Status != EngineStatus.Completed; step++)
             {
                 if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 } response &&
+                    response.IncomingCard != CardKind.BorrowedSword &&
                     response.Choices.Any(choice =>
                         choice.Parameters.GetValueOrDefault("response") == "zhangba-slash" &&
                         choice.Cards.Count == 2))
