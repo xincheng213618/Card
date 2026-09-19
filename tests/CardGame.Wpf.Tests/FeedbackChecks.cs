@@ -65,8 +65,33 @@ internal static class FeedbackChecks
             armorCues.Count == 2 &&
             armorCues[0].Label.Contains("仁王盾") &&
             armorCues[0].Label.Contains("无效") &&
-            armorCues[1].Label == "八卦阵 · 闪",
+            armorCues[1].Kind == BattleCueKind.Judgment &&
+            armorCues[1].Label == "八卦阵 · ♥7" &&
+            armorCues[1].Detail == "红色 · 视为打出闪",
             "Formal armor outcomes were not projected as public battle feedback.");
+        var judgmentCues = BattleCueProjector.Project(
+        [
+            Envelope(new JudgmentRequestedEvent(10, 7, 1, JudgmentReasons.Indulgence, CardKind.Indulgence)),
+            Envelope(new JudgmentReplacementResolvedEvent(11, 10, 1, 0, JudgmentReasons.Indulgence, true,
+                40, 41, CardKind.Peach, Suit.Heart, 12)),
+            Envelope(new JudgmentResolvedEvent(10, 7, 1, JudgmentReasons.Indulgence, 41, CardKind.Peach,
+                Suit.Heart, 12, true)),
+            Envelope(new JudgmentResolvedEvent(12, 8, 1, JudgmentReasons.Lightning, 43, CardKind.Slash,
+                Suit.Spade, 5, true))
+        ], view);
+        Assert(judgmentCues.Count == 4 &&
+               judgmentCues[0] is { Kind: BattleCueKind.Judgment, Label: "乐不思蜀 · 判定中" } &&
+               judgmentCues[1] is { SourceSeat: 0, TargetSeats: [1], Label: "鬼才改判 · ♥Q", Detail: "最终判定牌已替换" } &&
+               judgmentCues[2] is { Label: "乐不思蜀 · ♥Q", Detail: "红桃 · 不跳过出牌阶段" } &&
+               judgmentCues[3] is { Label: "闪电 · ♠5", Detail: "黑桃 2–9 · 命中" },
+            "Judgment lifecycle, replacement, card face, or rule outcome was not projected exactly.");
+        var legacyJudgment = BattleCueProjector.Project(
+        [
+            Envelope(new JudgmentResolvedEvent(13, 9, 1, JudgmentReasons.SupplyShortage, 44,
+                CardKind.Peach, Suit.Heart, 6, true))
+        ], view, rulesVersion: 10).Single();
+        Assert(legacyJudgment.Detail == "红色 · 不跳过摸牌阶段",
+            "Legacy red/black delayed-judgment feedback was rewritten as the formal suit rule.");
     }
 
     public static void HandAndPreferences(string output)
@@ -135,6 +160,19 @@ internal static class FeedbackChecks
         AdvanceToDecision(vm);
         vm.BattleCues.Clear();
         segmentSounds.Clear();
+        var judgmentState = SnapshotJson.Serialize(Engine(vm).CreateSnapshot(0, true));
+        var judgmentRevision = Engine(vm).Revision;
+        var judgmentEnvelope = new EventEnvelope(new EventId(90001), null, 90001, 1, "judgment-visual-check",
+            new JudgmentResolvedEvent(90001, 90000, 1, JudgmentReasons.Lightning, 43, CardKind.Slash,
+                Suit.Spade, 5, true));
+        foreach (var cue in BattleCueProjector.Project([judgmentEnvelope], Engine(vm).CreateSnapshot(0))) vm.BattleCues.Add(cue);
+        clock.Advance(.22);
+        layer.InvalidateVisual();
+        Render(root, 1120, 740, Path.Combine(output, "136-judgment-feedback.png"));
+        Assert(layer.ActiveEffectCount == 1 && Engine(vm).Revision == judgmentRevision &&
+               SnapshotJson.Serialize(Engine(vm).CreateSnapshot(0, true)) == judgmentState,
+            "Rendering public judgment feedback changed the match or failed to stay visible.");
+        vm.BattleCues.Clear();
         var action = Engine(vm).GetHumanLegalActions().First(candidate => candidate.CardId is { } id && candidate.TargetSeats.Count == 1 &&
             candidate.TargetCardId is null && vm.Hand.Single(card => card.Id == id).Name == "杀");
         Play(vm, action);

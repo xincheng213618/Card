@@ -2,15 +2,17 @@ using CardGame.Core;
 
 namespace CardGame.Wpf.Presentation;
 
-public enum BattleCueKind { Card, Response, Damage, Recovery, Turn, Dying, Death }
+public enum BattleCueKind { Card, Response, Judgment, Damage, Recovery, Turn, Dying, Death }
 
 /// <summary>Presentation data containing only actions and values that are already public.</summary>
 public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat,
-    IReadOnlyList<int> TargetSeats, string Label, string ActorName, DamageNature Nature = DamageNature.Normal);
+    IReadOnlyList<int> TargetSeats, string Label, string ActorName, DamageNature Nature = DamageNature.Normal,
+    string? Detail = null);
 
 public static class BattleCueProjector
 {
-    public static IReadOnlyList<BattleCue> Project(IEnumerable<EventEnvelope> source, GameSnapshot playerView)
+    public static IReadOnlyList<BattleCue> Project(IEnumerable<EventEnvelope> source, GameSnapshot playerView,
+        int rulesVersion = GameCheckpoint.CurrentRulesVersion)
     {
         var events = source.ToArray();
         var targets = events.Select(item => item.Payload).OfType<TargetsConfirmedEvent>()
@@ -40,13 +42,16 @@ public static class BattleCueProjector
                     Seats([silverLion.PlayerSeat]), "白银狮子 · +1", Name(silverLion.PlayerSeat)),
                 ZhuqueFanConvertedEvent zhuque => new(envelope.Sequence, BattleCueKind.Response, zhuque.SourceSeat,
                     Seats(zhuque.TargetSeats), "朱雀羽扇 · 火杀", Name(zhuque.SourceSeat)),
-                JudgmentResolvedEvent judgment when judgment.Reason == JudgmentReasons.BaguaDefense => new(
-                    envelope.Sequence,
-                    BattleCueKind.Response,
-                    judgment.TargetSeat,
-                    [],
-                    judgment.Succeeded ? "八卦阵 · 闪" : "八卦阵 · 判定失败",
-                    Name(judgment.TargetSeat)),
+                JudgmentRequestedEvent judgment => new(envelope.Sequence, BattleCueKind.Judgment, judgment.TargetSeat,
+                    Seats([judgment.TargetSeat]), $"{JudgmentName(judgment.Reason)} · 判定中", Name(judgment.TargetSeat)),
+                JudgmentReplacementResolvedEvent { Used: true } replacement => new(envelope.Sequence, BattleCueKind.Judgment,
+                    replacement.OwnerSeat, Seats([replacement.TargetSeat]),
+                    $"鬼才改判 · {JudgmentCard(replacement.NewSuit, replacement.NewRank)}", Name(replacement.OwnerSeat),
+                    Detail: "最终判定牌已替换"),
+                JudgmentResolvedEvent judgment => new(envelope.Sequence, BattleCueKind.Judgment, judgment.TargetSeat,
+                    Seats([judgment.TargetSeat]),
+                    $"{JudgmentName(judgment.Reason)} · {JudgmentCard(judgment.Suit, judgment.Rank)}", Name(judgment.TargetSeat),
+                    Detail: JudgmentOutcome(judgment, rulesVersion)),
                 DamageAppliedEvent damage when damage.Amount > 0 => new(envelope.Sequence, BattleCueKind.Damage, damage.SourceSeat,
                     Seats([damage.TargetSeat]), $"−{damage.Amount}", Name(damage.TargetSeat), damage.Nature),
                 RecoveryAppliedEvent recovery when recovery.Amount > 0 => new(envelope.Sequence, BattleCueKind.Recovery, recovery.SourceSeat,
@@ -78,5 +83,42 @@ public static class BattleCueProjector
 
         // A bulk run can commit many turns. Show the latest useful actions, keeping playback bounded.
         return cues.TakeLast(12).ToArray();
+    }
+
+    private static string JudgmentName(string reason) => reason switch
+    {
+        JudgmentReasons.BaguaDefense => "八卦阵",
+        JudgmentReasons.Ganglie => "刚烈",
+        JudgmentReasons.Luoshen => "洛神",
+        JudgmentReasons.Tieqi => "铁骑",
+        JudgmentReasons.Indulgence => "乐不思蜀",
+        JudgmentReasons.SupplyShortage => "兵粮寸断",
+        JudgmentReasons.Lightning => "闪电",
+        _ => "判定"
+    };
+
+    private static string JudgmentCard(Suit? suit, int? rank)
+    {
+        if (suit is null || rank is null) return "牌堆耗尽";
+        var glyph = suit switch { Suit.Heart => "♥", Suit.Diamond => "♦", Suit.Club => "♣", Suit.Spade => "♠", _ => "?" };
+        var rankText = rank switch { 1 => "A", 11 => "J", 12 => "Q", 13 => "K", _ => rank.Value.ToString() };
+        return $"{glyph}{rankText}";
+    }
+
+    private static string JudgmentOutcome(JudgmentResolvedEvent judgment, int rulesVersion)
+    {
+        if (judgment.CardId is null) return "没有可用的判定牌";
+        return judgment.Reason switch
+        {
+            JudgmentReasons.BaguaDefense => judgment.Succeeded ? "红色 · 视为打出闪" : "黑色 · 未提供闪",
+            JudgmentReasons.Indulgence when rulesVersion < 11 => judgment.Succeeded ? "红色 · 不跳过出牌阶段" : "黑色 · 跳过出牌阶段",
+            JudgmentReasons.SupplyShortage when rulesVersion < 11 => judgment.Succeeded ? "红色 · 不跳过摸牌阶段" : "黑色 · 跳过摸牌阶段",
+            JudgmentReasons.Indulgence => judgment.Succeeded ? "红桃 · 不跳过出牌阶段" : "非红桃 · 跳过出牌阶段",
+            JudgmentReasons.SupplyShortage => judgment.Succeeded ? "梅花 · 不跳过摸牌阶段" : "非梅花 · 跳过摸牌阶段",
+            JudgmentReasons.Lightning => judgment.Succeeded ? "黑桃 2–9 · 命中" : "未命中 · 移至下家",
+            JudgmentReasons.Luoshen => judgment.Succeeded ? "黑色 · 继续判定" : "红色 · 结束",
+            JudgmentReasons.Tieqi => judgment.Succeeded ? "红色 · 目标不能使用闪" : "黑色 · 可正常响应",
+            _ => judgment.Succeeded ? "判定成功" : "判定失败"
+        };
     }
 }
