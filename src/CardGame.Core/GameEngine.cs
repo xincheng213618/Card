@@ -71,6 +71,7 @@ public sealed partial class GameEngine
     private QinglongCrescentBladeResolution? _pendingQinglongCrescentBlade;
     private IceSwordResolution? _pendingIceSword;
     private QilinBowResolution? _pendingQilinBow;
+    private TianxiangResolution? _pendingTianxiang;
     private MengjinResolution? _pendingMengjin;
     private QuhuResolution? _pendingQuhu;
     private TianyiResolution? _pendingTianyi;
@@ -291,6 +292,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalCaoRen =>
         _rulesVersion >= 65 && IsClassicIdentityMode;
+
+    private bool UsesFormalXiaoQiao =>
+        _rulesVersion >= 66 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -936,6 +940,7 @@ public sealed partial class GameEngine
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Liuli or
+                DecisionKind.Tianxiang or
                 DecisionKind.Biyue or
                 DecisionKind.Jushou or
                 DecisionKind.Xiaoji or
@@ -1043,6 +1048,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Jushou)
         {
             return SubmitJushouPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Tianxiang)
+        {
+            return SubmitTianxiangPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Xiaoji)
@@ -1939,6 +1949,18 @@ public sealed partial class GameEngine
             action is not ("jushou-use" or "jushou-skip"))
             return Reject(CommandErrorCode.InvalidChoice, "据守选择不符合当前结束阶段窗口。");
         return Accept(() => HumanJushouCore(action == "jushou-use", _options.AdvanceAfterHumanCommands));
+    }
+
+    private CommandResult SubmitTianxiangPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingTianxiang is null || _pendingDecision is not { Kind: DecisionKind.Tianxiang })
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的天香伤害转移窗口。");
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (action == "tianxiang-skip" && selected.Cards.Count == 0 && selected.Targets.Count == 0)
+            return Accept(() => ResolveTianxiangChoice(null, null, _options.AdvanceAfterHumanCommands));
+        if (action == "tianxiang-use" && selected.Cards.Count == 1 && selected.Targets.Count == 1)
+            return Accept(() => ResolveTianxiangChoice(selected.Cards[0], selected.Targets[0], _options.AdvanceAfterHumanCommands));
+        return Reject(CommandErrorCode.InvalidChoice, "天香选择不符合当前伤害转移窗口。");
     }
 
     private CommandResult SubmitXiaojiPromptAnswer(PromptChoice selected)
@@ -6128,6 +6150,12 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (IsAiTianxiangPending())
+        {
+            ResolvePendingAiTianxiang();
+            return;
+        }
+
         if (IsAiLiuliPending())
         {
             ResolvePendingAiLiuli();
@@ -14050,24 +14078,26 @@ public sealed partial class GameEngine
         }
 
         var frame = GetJudgmentFrame(pending.FrameId);
+        var judgmentSuit = EffectiveSuit(_players[pending.TargetSeat], judgmentCard);
         var succeeded = pending.Continuation switch
         {
-            JudgmentContinuationKind.Lightning => IsLightningHit(judgmentCard),
+            JudgmentContinuationKind.Lightning =>
+                judgmentSuit == Suit.Spade && judgmentCard.Rank is >= 2 and <= 9,
             JudgmentContinuationKind.Ganglie when UsesClassicGanglieJudgment =>
-                judgmentCard.Suit != Suit.Heart,
+                judgmentSuit != Suit.Heart,
             JudgmentContinuationKind.Indulgence when UsesSuitSpecificDelayedJudgments =>
-                judgmentCard.Suit == Suit.Heart,
+                judgmentSuit == Suit.Heart,
             JudgmentContinuationKind.SupplyShortage when UsesSuitSpecificDelayedJudgments =>
-                judgmentCard.Suit == Suit.Club,
-            JudgmentContinuationKind.Luoshen => !IsRedSuit(judgmentCard.Suit),
-            JudgmentContinuationKind.Shuangxiong => IsRedSuit(judgmentCard.Suit),
-            _ => IsRedSuit(judgmentCard.Suit)
+                judgmentSuit == Suit.Club,
+            JudgmentContinuationKind.Luoshen => !IsRedSuit(judgmentSuit),
+            JudgmentContinuationKind.Shuangxiong => IsRedSuit(judgmentSuit),
+            _ => IsRedSuit(judgmentSuit)
         };
         ReplaceJudgmentFrame(frame with
         {
             CardId = judgmentCard.Id,
             CardKind = judgmentCard.Kind,
-            Suit = judgmentCard.Suit,
+            Suit = judgmentSuit,
             Succeeded = succeeded,
             ReplacementCandidateSeats = Array.AsReadOnly(pending.CandidateSeats.ToArray()),
             ReplacementCandidateIndex = pending.CandidateIndex,
@@ -14080,7 +14110,7 @@ public sealed partial class GameEngine
             pending.Reason,
             judgmentCard.Id,
             judgmentCard.Kind,
-            judgmentCard.Suit,
+            judgmentSuit,
             judgmentCard.Rank,
             succeeded));
         var abilityName = pending.Continuation switch
@@ -14966,6 +14996,10 @@ public sealed partial class GameEngine
 
         var nature = GetDamageNature(attack);
         var amount = FinalizeAttackDamageAmount(attack);
+        if (TryBeginTianxiangChoice(attack, amount, nature))
+        {
+            return true;
+        }
         if (TryBeginIceSwordChoice(attack, amount))
         {
             return true;
@@ -15099,6 +15133,85 @@ public sealed partial class GameEngine
         }
 
         return awaitingDying || awaitingDamageTrigger;
+    }
+
+    private bool TryBeginTianxiangChoice(AttackResolution attack, int amount, DamageNature nature)
+    {
+        if (!UsesFormalXiaoQiao || attack.TianxiangResolved)
+            return false;
+        var owner = _players[attack.TargetSeat];
+        attack.MarkTianxiangResolved();
+        if (!owner.General.HasSkill(SkillKind.Tianxiang))
+            return false;
+        var cards = GetHand(owner).Where(card => EffectiveSuit(owner, card) == Suit.Heart)
+            .OrderBy(card => card.Id).ToArray();
+        var targets = _players.Where(player => player.IsAlive && player.Seat != owner.Seat)
+            .OrderBy(player => player.Seat).ToArray();
+        if (cards.Length == 0 || targets.Length == 0)
+            return false;
+        var choices = cards.SelectMany(card => targets.Select(target => new PromptChoice(
+                new ChoiceId($"tianxiang-{card.Id}-{target.Seat}"),
+                $"弃置【{CardCatalog.Get(card.Kind).DisplayName}】，将 {amount} 点伤害转移给 {target.Name}",
+                [card.Id], [target.Seat],
+                new Dictionary<string, string> { ["action"] = "tianxiang-use" })))
+            .Append(new PromptChoice(new ChoiceId("tianxiang-skip"), "不发动【天香】", [], [],
+                new Dictionary<string, string> { ["action"] = "tianxiang-skip" }))
+            .ToArray();
+        _pendingTianxiang = new TianxiangResolution(attack, owner.Seat, amount, nature);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Tianxiang, owner.Seat, $"你即将受到 {amount} 点伤害，是否发动【天香】？",
+            cards.Select(card => card.Id).ToArray(), targets.Select(player => player.Seat).ToArray(),
+            attack.SourceSeat, attack.EffectiveCardKind)
+        { PromptId = CreatePromptId(), Choices = choices };
+        PushResponseWindow(
+            attack.ResolutionId,
+            attack.SourceSeat,
+            owner.Seat,
+            attack.EffectiveCardKind ?? CardKind.Slash,
+            attack.EffectiveCardKind ?? CardKind.Slash);
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private Suit EffectiveSuit(PlayerRuntime owner, Card card) =>
+        UsesFormalXiaoQiao && owner.General.HasSkill(SkillKind.Hongyan) && card.Suit == Suit.Spade
+            ? Suit.Heart
+            : card.Suit;
+
+    private EngineRunResult ResolveTianxiangChoice(int? discardedCardId, int? targetSeat, bool advance)
+    {
+        var pending = _pendingTianxiang ?? throw new InvalidOperationException("天香结算不存在。");
+        var attack = pending.Attack;
+        var owner = _players[pending.OwnerSeat];
+        PopResponseWindow(attack.ResolutionId);
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        _pendingTianxiang = null;
+        ClearPendingDecision();
+        if (discardedCardId is { } cardId && targetSeat is { } redirectedSeat)
+        {
+            var card = GetHand(owner).Single(card => card.Id == cardId && EffectiveSuit(owner, card) == Suit.Heart);
+            var target = _players.Single(player => player.Seat == redirectedSeat && player.IsAlive && player.Seat != owner.Seat);
+            MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.Processing, CardMoveReasons.TianxiangDiscard);
+            MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.TianxiangDiscard);
+            attack.RedirectFinalizedDamageTarget(target.Seat);
+            attack.SetTianxiangDraw(owner.Seat, target.Seat);
+            QueueGameEvent(new TianxiangTransferredEvent(attack.ResolutionId, owner.Seat, attack.SourceSeat,
+                target.Seat, card.Id, pending.Amount, pending.Nature));
+            AddLog("SkillTriggered", $"{owner.Name} 发动【天香】，将 {pending.Amount} 点伤害转移给 {target.Name}。", owner.Seat, target.Seat);
+        }
+        if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
+        PublishState();
+        return advance ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private bool IsAiTianxiangPending() => _pendingDecision is { Kind: DecisionKind.Tianxiang, PlayerSeat: var seat } &&
+        !_players[seat].IsHuman;
+
+    private void ResolvePendingAiTianxiang()
+    {
+        var decision = _pendingDecision ?? throw new InvalidOperationException("AI 天香提示不存在。");
+        var use = decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("action") == "tianxiang-use");
+        ResolveTianxiangChoice(use?.Cards.SingleOrDefault(), use?.Targets.SingleOrDefault(), false);
     }
 
     private void BeginDamageTriggerWindow(
@@ -17112,6 +17225,16 @@ public sealed partial class GameEngine
         if (_pendingDying is not null)
         {
             throw new InvalidOperationException("A card cannot finish while its dying resolution is pending.");
+        }
+
+        if (attack.TryConsumeTianxiangDraw(out var tianxiangOwnerSeat, out var tianxiangTargetSeat))
+        {
+            var target = _players[tianxiangTargetSeat];
+            var drawCount = target.IsAlive ? Math.Max(0, target.MaxHp - target.Hp) : 0;
+            if (drawCount > 0)
+                DrawCards(target, drawCount, log: true, reason: CardMoveReasons.TianxiangDraw);
+            QueueGameEvent(new TianxiangCardsDrawnEvent(
+                attack.ResolutionId, tianxiangOwnerSeat, tianxiangTargetSeat, drawCount));
         }
 
         if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group)
@@ -22178,6 +22301,7 @@ public sealed partial class GameEngine
             (_pendingDecision?.Kind is DecisionKind.RespondDodge or
                 DecisionKind.RespondSlash or
                 DecisionKind.Liuli or
+                DecisionKind.Tianxiang or
                 DecisionKind.Feedback or
                 DecisionKind.Yiji or
                 DecisionKind.Jieming or
@@ -22204,7 +22328,7 @@ public sealed partial class GameEngine
         var awaitingHumanDying =
             _pendingDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
-        var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending();
+        var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending() || IsAiTianxiangPending();
         var awaitingAiNullification = IsAiNullificationPending();
         var awaitingAiJizhi = IsAiJizhiPending();
         var awaitingAiDamageSkill = IsAiDamageSkillPending();
@@ -22272,6 +22396,7 @@ public sealed partial class GameEngine
              _pendingQinglongCrescentBlade is not null ||
              _pendingIceSword is not null ||
              _pendingQilinBow is not null ||
+             _pendingTianxiang is not null ||
              _pendingMengjin is not null ||
              _pendingQuhu is not null ||
              _pendingFangtianHalberd is not null ||
@@ -23779,6 +23904,9 @@ public sealed partial class GameEngine
         public bool IceSwordAttempted { get; private set; }
         public bool QilinBowAttempted { get; private set; }
         public bool LiuliResolved { get; private set; }
+        public bool TianxiangResolved { get; private set; }
+        private int? TianxiangOwnerSeat { get; set; }
+        private int? TianxiangTargetSeat { get; set; }
         public bool ProhibitsDodge { get; private set; }
         public int RequiredDodgeResponses { get; private set; } = 1;
         public int SuccessfulDodgeResponses { get; private set; }
@@ -23795,6 +23923,25 @@ public sealed partial class GameEngine
         }
 
         public void MarkLiuliResolved() => LiuliResolved = true;
+
+        public void MarkTianxiangResolved() => TianxiangResolved = true;
+
+        public void RedirectFinalizedDamageTarget(int targetSeat) => TargetSeat = targetSeat;
+
+        public void SetTianxiangDraw(int ownerSeat, int targetSeat)
+        {
+            TianxiangOwnerSeat = ownerSeat;
+            TianxiangTargetSeat = targetSeat;
+        }
+
+        public bool TryConsumeTianxiangDraw(out int ownerSeat, out int targetSeat)
+        {
+            ownerSeat = TianxiangOwnerSeat ?? -1;
+            targetSeat = TianxiangTargetSeat ?? -1;
+            TianxiangOwnerSeat = null;
+            TianxiangTargetSeat = null;
+            return ownerSeat >= 0 && targetSeat >= 0;
+        }
 
         public void FinalizeDamageAmount(int bonus, int? maximum = null)
         {
@@ -23994,6 +24141,12 @@ public sealed partial class GameEngine
     {
         public AttackResolution Attack { get; } = attack;
     }
+
+    private sealed record TianxiangResolution(
+        AttackResolution Attack,
+        int OwnerSeat,
+        int Amount,
+        DamageNature Nature);
 
     private sealed record MengjinResolution(AttackResolution Attack);
 

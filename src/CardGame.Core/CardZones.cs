@@ -123,6 +123,8 @@ public static class CardMoveReasons
     public static CardMoveReason CixiongDiscard { get; } = new("equipment.cixiong-double-swords.discard");
     public static CardMoveReason CixiongDraw { get; } = new("equipment.cixiong-double-swords.draw");
     public static CardMoveReason IceSwordDiscard { get; } = new("equipment.ice-sword.discard");
+    public static CardMoveReason TianxiangDiscard { get; } = new("skill.tianxiang.discard");
+    public static CardMoveReason TianxiangDraw { get; } = new("skill.tianxiang.draw");
     public static CardMoveReason QilinBowDiscard { get; } = new("equipment.qilin-bow.discard-mount");
     public static CardMoveReason MengjinDiscard { get; } = new("skill.mengjin.discard");
     public static CardMoveReason PindianReveal { get; } = new("skill.pindian.reveal");

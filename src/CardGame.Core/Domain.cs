@@ -198,7 +198,9 @@ public enum SkillKind
     Lianhuan,
     Niepan,
     Tianyi,
-    Jushou
+    Jushou,
+    Hongyan,
+    Tianxiang
 }
 
 public enum DecisionKind
@@ -247,7 +249,8 @@ public enum DecisionKind
     QuhuPindian,
     QuhuDamageTarget,
     TianyiPindian,
-    Jushou
+    Jushou,
+    Tianxiang
 }
 
 public enum GangliePunishmentKind

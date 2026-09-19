@@ -1083,6 +1083,21 @@ internal static class ClassicGeneralUiChecks
         caoRenWindow.Content = null;
         caoRenWindow.Close();
 
+        using var xiaoQiaoViewModel = FindGeneralChoice("classic:xiao-qiao");
+        var xiaoQiao = xiaoQiaoViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:xiao-qiao");
+        Program.Assert(xiaoQiao.Name == "小乔" && xiaoQiao.Kingdom == "吴" &&
+                       xiaoQiao.SkillName == "红颜 / 天香" &&
+                       xiaoQiao.SkillDescription.Contains("黑桃牌均视为红桃牌", StringComparison.Ordinal) &&
+                       xiaoQiao.SkillDescription.Contains("防止此伤害", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(xiaoQiao.GeneralId) && xiaoQiao.HealthText == "体力上限 4",
+            "The current classic Xiao Qiao card must render Wu, Hongyan, Tianxiang and the Lord health bonus.");
+        var xiaoQiaoWindow = new MainWindow(xiaoQiaoViewModel);
+        xiaoQiaoWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)xiaoQiaoWindow.Content, 1120, 740,
+            Path.Combine(output, "147-classic-xiao-qiao-card.png"));
+        xiaoQiaoWindow.Content = null;
+        xiaoQiaoWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

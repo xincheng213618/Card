@@ -113,7 +113,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.50.0"]),
+                "standard-classic-generals@1.51.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -128,7 +128,7 @@ internal static class ClassicGeneralChecks
             // Current expansion representatives already shipped by this package.
             "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
-            "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren"
+            "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -2333,7 +2333,9 @@ internal static class ClassicGeneralChecks
 
     public static void FormalKuangguFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        // Keep this deterministic search on the roster it was authored for;
+        // later generals add private response boundaries to the same seeds.
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 50, 0));
         var fixture = FindWeiYanKuangguFixture(registry);
         var game = fixture.Game;
         var events = game.Events.Skip(fixture.EventCount).Select(item => item.Payload).ToArray();

@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 50, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 51, 0))
     {
     }
 
@@ -69,12 +69,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 47, 0) &&
             version != new Version(1, 48, 0) &&
             version != new Version(1, 49, 0) &&
-            version != new Version(1, 50, 0))
+            version != new Version(1, 50, 0) &&
+            version != new Version(1, 51, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.50.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.51.0.");
         }
 
         _version = version;
@@ -720,6 +721,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:jushou", "据守",
                 "结束阶段，你可以摸三张牌，然后将武将牌翻面。", SkillKind.Jushou));
         }
+        if (_version >= new Version(1, 51, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:hongyan", "红颜",
+                "锁定技，你的黑桃牌均视为红桃牌。", SkillKind.Hongyan));
+            builder.AddSkill(new ContentSkillDefinition("classic:tianxiang", "天香",
+                "当你受到伤害时，你可以弃置一张红桃手牌并选择一名其他角色，防止此伤害并令其受到等量伤害，然后其摸等同于其已损失体力值的牌。", SkillKind.Tianxiang));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1078,10 +1086,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:cao-ren", "曹仁", "cao_ren",
                 "classic:jushou", "wei", BaseHp: 4));
         }
+        if (_version >= new Version(1, 51, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:xiao-qiao", "小乔", "xiao_qiao",
+                "classic:hongyan", "wu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:tianxiang"], Gender: GeneralGender.Female));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 50 } => CaoRenClassicGeneralIds,
+            { Major: 1, Minor: >= 51 } => XiaoQiaoClassicGeneralIds,
+            { Major: 1, Minor: 50 } => CaoRenClassicGeneralIds,
             { Major: 1, Minor: 49 } => TaishiCiClassicGeneralIds,
             { Major: 1, Minor: 48 } => PangTongClassicGeneralIds,
             { Major: 1, Minor: 47 } => WolongClassicGeneralIds,
@@ -1366,6 +1382,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. TaishiCiClassicGeneralIds,
         "classic:cao-ren"
+    ];
+
+    internal static IReadOnlyList<string> XiaoQiaoClassicGeneralIds { get; } =
+    [
+        .. CaoRenClassicGeneralIds,
+        "classic:xiao-qiao"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =
