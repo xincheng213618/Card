@@ -92,6 +92,23 @@ internal static class FeedbackChecks
         ], view, rulesVersion: 10).Single();
         Assert(legacyJudgment.Detail == "红色 · 不跳过摸牌阶段",
             "Legacy red/black delayed-judgment feedback was rewritten as the formal suit rule.");
+        var responseCues = BattleCueProjector.Project(
+        [
+            Envelope(new ResponseRequestedEvent(0, 1, CardKind.Slash, CardKind.Dodge)),
+            Envelope(new RequiredResponseProgressEvent(20, 0, 1, CardKind.Slash, CardKind.Dodge, 1, 2)),
+            Envelope(new NullificationRequestedEvent(21, 45, CardKind.Duel, 0, 1, false, 0)),
+            Envelope(new NullificationRespondedEvent(21, 45, CardKind.Duel, 1, 46, true, 1)),
+            Envelope(new NullificationRequestedEvent(21, 45, CardKind.Duel, 0, 2, true, 1)),
+            Envelope(new NullificationResolvedEvent(21, 45, CardKind.Duel, true, 1))
+        ], view);
+        Assert(responseCues.Count == 6 &&
+               responseCues[0] is { Kind: BattleCueKind.ResponseWindow, SourceSeat: 1, TargetSeats: [0], Label: "等待闪响应", Detail: "响应【杀】" } &&
+               responseCues[1] is { Label: "连续响应 1 / 2", Detail: "已打出【闪】" } &&
+               responseCues[2] is { Label: "无懈可击询问中 · 第 1 层", Detail: "当前锦囊生效中 · 可令其失效" } &&
+               responseCues[3] is { Kind: BattleCueKind.Response, Label: "打出无懈可击 · 第 1 层", Detail: "锦囊暂时失效" } &&
+               responseCues[4] is { Label: "无懈可击询问中 · 第 2 层", Detail: "当前锦囊已失效 · 可反制恢复" } &&
+               responseCues[5] is { SourceSeat: -1, Label: "决斗 · 已失效", Detail: "无懈链共 1 次响应" },
+            "Response request, locked progress, or layered Nullification state was not projected exactly.");
     }
 
     public static void HandAndPreferences(string output)
@@ -172,6 +189,17 @@ internal static class FeedbackChecks
         Assert(layer.ActiveEffectCount == 1 && Engine(vm).Revision == judgmentRevision &&
                SnapshotJson.Serialize(Engine(vm).CreateSnapshot(0, true)) == judgmentState,
             "Rendering public judgment feedback changed the match or failed to stay visible.");
+        vm.BattleCues.Clear();
+        var nullificationEnvelope = new EventEnvelope(new EventId(90002), null, 90002, 1, "response-visual-check",
+            new NullificationRequestedEvent(90002, 44, CardKind.Duel, 0, 1, false, 0));
+        foreach (var cue in BattleCueProjector.Project([nullificationEnvelope], Engine(vm).CreateSnapshot(0))) vm.BattleCues.Add(cue);
+        clock.Advance(.18);
+        layer.InvalidateVisual();
+        Render(root, 1120, 740, Path.Combine(output, "137-nullification-window.png"));
+        Assert(layer.ActiveEffectCount == 1 && vm.BattleCues.Single() is
+               { Kind: BattleCueKind.ResponseWindow, Label: "无懈可击询问中 · 第 1 层" } &&
+               Engine(vm).Revision == judgmentRevision && SnapshotJson.Serialize(Engine(vm).CreateSnapshot(0, true)) == judgmentState,
+            "Rendering a public response window changed the match or exposed the wrong state.");
         vm.BattleCues.Clear();
         var action = Engine(vm).GetHumanLegalActions().First(candidate => candidate.CardId is { } id && candidate.TargetSeats.Count == 1 &&
             candidate.TargetCardId is null && vm.Hand.Single(card => card.Id == id).Name == "杀");

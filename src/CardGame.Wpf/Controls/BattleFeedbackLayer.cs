@@ -123,6 +123,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     {
         BattleCueKind.Card => .9,
         BattleCueKind.Turn => .95,
+        BattleCueKind.ResponseWindow => 1.25,
         BattleCueKind.Judgment => 1.45,
         BattleCueKind.Dying or BattleCueKind.Death => 1.5,
         _ => 1.15
@@ -181,6 +182,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             BattleCueKind.Damage => cue.Nature == DamageNature.Thunder ? Color.FromRgb(179, 173, 255) : Color.FromRgb(255, 126, 99),
             BattleCueKind.Recovery => Color.FromRgb(145, 227, 170),
             BattleCueKind.Response => Color.FromRgb(145, 221, 218),
+            BattleCueKind.ResponseWindow => Color.FromRgb(125, 190, 205),
             BattleCueKind.Judgment => Color.FromRgb(238, 196, 112),
             BattleCueKind.Dying or BattleCueKind.Death => Color.FromRgb(232, 145, 120),
             _ => Color.FromRgb(246, 210, 145)
@@ -216,9 +218,10 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             if (!IsPromptVisible)
                 Badge(dc, center + new Vector(0, -22 + 10 * Math.Pow(1 - progress, 3)), cue.Label, ink, 24, cue.ActorName);
         }
-        else if (cue.Kind == BattleCueKind.Response)
+        else if (cue.Kind is BattleCueKind.Response or BattleCueKind.ResponseWindow)
         {
-            Badge(dc, from + new Vector(0, -28 - 25 * progress), cue.Label, ink, 21);
+            Badge(dc, from + new Vector(0, -28 - 25 * progress), cue.Label, ink,
+                cue.Kind == BattleCueKind.ResponseWindow ? 18 : 21, cue.Detail);
         }
         else if (cue.Kind == BattleCueKind.Judgment)
         {

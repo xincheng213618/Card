@@ -2,7 +2,7 @@ using CardGame.Core;
 
 namespace CardGame.Wpf.Presentation;
 
-public enum BattleCueKind { Card, Response, Judgment, Damage, Recovery, Turn, Dying, Death }
+public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Recovery, Turn, Dying, Death }
 
 /// <summary>Presentation data containing only actions and values that are already public.</summary>
 public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat,
@@ -30,6 +30,23 @@ public static class BattleCueProjector
                     $"重铸{CardCatalog.Get(recast.CardKind).DisplayName}", Name(recast.ActorSeat)),
                 CardUseDeclaredEvent card => new(envelope.Sequence, BattleCueKind.Card, card.SourceSeat,
                     Seats(targets.GetValueOrDefault(card.ResolutionId) ?? []), CardCatalog.Get(card.CardKind).DisplayName, Name(card.SourceSeat)),
+                ResponseRequestedEvent request => new(envelope.Sequence, BattleCueKind.ResponseWindow, request.TargetSeat,
+                    Seats([request.SourceSeat]), $"等待{CardCatalog.Get(request.RequiredCardKind ?? CardKind.Dodge).DisplayName}响应",
+                    Name(request.TargetSeat), Detail: $"响应【{CardCatalog.Get(request.IncomingCard).DisplayName}】"),
+                RequiredResponseProgressEvent progress => new(envelope.Sequence, BattleCueKind.ResponseWindow, progress.ResponderSeat,
+                    Seats([progress.SkillOwnerSeat]),
+                    $"连续响应 {progress.ResponseCount} / {progress.RequiredResponseCount}", Name(progress.ResponderSeat),
+                    Detail: $"已打出【{CardCatalog.Get(progress.RequiredCardKind).DisplayName}】"),
+                NullificationRequestedEvent nullification => new(envelope.Sequence, BattleCueKind.ResponseWindow,
+                    nullification.ResponderSeat, Seats([nullification.SourceSeat]),
+                    $"无懈可击询问中 · 第 {nullification.ChainDepth + 1} 层", Name(nullification.ResponderSeat),
+                    Detail: nullification.EffectCurrentlyNullified ? "当前锦囊已失效 · 可反制恢复" : "当前锦囊生效中 · 可令其失效"),
+                NullificationRespondedEvent nullification => new(envelope.Sequence, BattleCueKind.Response,
+                    nullification.ResponderSeat, [], $"打出无懈可击 · 第 {nullification.ChainDepth} 层",
+                    Name(nullification.ResponderSeat), Detail: nullification.EffectNullified ? "锦囊暂时失效" : "锦囊恢复生效"),
+                NullificationResolvedEvent nullification => new(envelope.Sequence, BattleCueKind.ResponseWindow, -1, [],
+                    $"{CardCatalog.Get(nullification.EffectCardKind).DisplayName} · {(nullification.EffectNullified ? "已失效" : "继续生效")}",
+                    "响应链结束", Detail: $"无懈链共 {nullification.ChainDepth} 次响应"),
                 ArmorEffectAppliedEvent armor => new(envelope.Sequence, BattleCueKind.Response, armor.TargetSeat,
                     Seats([armor.SourceSeat]), $"{CardCatalog.Get(armor.ArmorCard).DisplayName} · {CardCatalog.Get(armor.IncomingCard).DisplayName}无效", Name(armor.TargetSeat)),
                 GudingBladeDamageIncreasedEvent guding => new(envelope.Sequence, BattleCueKind.Response, guding.SourceSeat,
