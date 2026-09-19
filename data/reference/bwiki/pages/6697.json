@@ -1,0 +1,46 @@
+{
+  "pageid": 6697,
+  "namespace": 0,
+  "title": "庞德公",
+  "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E5%BE%B7%E5%85%AC",
+  "revid": 77670,
+  "parentid": 74732,
+  "timestamp": "2026-05-09T01:45:53Z",
+  "sourceSha256": "199964bcf54db812b79cc0c481ab2f523237e35ac947f1d6f076e8163eac645e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6697,
+      "namespace": 0,
+      "title": "庞德公",
+      "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E5%BE%B7%E5%85%AC",
+      "revid": 77670,
+      "parentid": 74732,
+      "timestamp": "2026-05-09T01:45:53Z",
+      "sourceSha256": "199964bcf54db812b79cc0c481ab2f523237e35ac947f1d6f076e8163eac645e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "庞德公",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-烽火连天",
+        "经典体力": "3",
+        "经典定位": "控制,辅助,防御"
+      },
+      "source": "{{武将\n|武将名=庞德公\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-烽火连天\n|经典体力=3\n|经典定位=控制,辅助,防御\n}}",
+      "name": "庞德公",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

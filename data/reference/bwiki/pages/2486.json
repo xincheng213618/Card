@@ -1,0 +1,76 @@
+{
+  "pageid": 2486,
+  "namespace": 0,
+  "title": "红颜",
+  "url": "https://wiki.biligame.com/sgs/%E7%BA%A2%E9%A2%9C",
+  "revid": 40356,
+  "parentid": 23640,
+  "timestamp": "2022-09-27T12:20:40Z",
+  "sourceSha256": "f8089d69f5ac95cdb66a46f4005ede307b34f9bc71caf5bf2d16326568c1130f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2486,
+      "namespace": 0,
+      "title": "红颜",
+      "url": "https://wiki.biligame.com/sgs/%E7%BA%A2%E9%A2%9C",
+      "revid": 40356,
+      "parentid": 23640,
+      "timestamp": "2022-09-27T12:20:40Z",
+      "sourceSha256": "f8089d69f5ac95cdb66a46f4005ede307b34f9bc71caf5bf2d16326568c1130f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "红颜",
+        "所属武将": "小乔",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "你的♠️牌均视为♥️牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=红颜\n|所属武将=小乔\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=你的♠️牌均视为♥️牌。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "红颜",
+      "generals": [
+        "小乔"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "你的♠️牌均视为♥️牌。"
+      }
+    },
+    {
+      "pageid": 2486,
+      "namespace": 0,
+      "title": "红颜",
+      "url": "https://wiki.biligame.com/sgs/%E7%BA%A2%E9%A2%9C",
+      "revid": 40356,
+      "parentid": 23640,
+      "timestamp": "2022-09-27T12:20:40Z",
+      "sourceSha256": "f8089d69f5ac95cdb66a46f4005ede307b34f9bc71caf5bf2d16326568c1130f",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "2",
+        "技能名": "红颜",
+        "所属武将": "小乔",
+        "国战技能描述": "'''锁定技，'''你的♠️牌均视为♥️牌。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=2\n|技能名=红颜\n|所属武将=小乔\n|国战技能描述='''锁定技，'''你的♠️牌均视为♥️牌。\n}}",
+      "name": "红颜",
+      "generals": [
+        "小乔"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "国战技能描述": "'''锁定技，'''你的♠️牌均视为♥️牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 8800,
+  "namespace": 0,
+  "title": "董贵人",
+  "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E8%B4%B5%E4%BA%BA",
+  "revid": 75314,
+  "parentid": 71042,
+  "timestamp": "2026-02-10T03:49:46Z",
+  "sourceSha256": "def3ad128deddaeb28557d0edbab2bd8f118a9e63c13fc4ce8b89ba0e7ced966",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8800,
+      "namespace": 0,
+      "title": "董贵人",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E8%B4%B5%E4%BA%BA",
+      "revid": 75314,
+      "parentid": 71042,
+      "timestamp": "2026-02-10T03:49:46Z",
+      "sourceSha256": "def3ad128deddaeb28557d0edbab2bd8f118a9e63c13fc4ce8b89ba0e7ced966",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "董贵人",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "蓝貂蝉、3血孙笨、董废人、董贵物、最弱祈福",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "3",
+        "经典定位": "辅助,控制,攻击"
+      },
+      "source": "{{武将\n|武将名=董贵人\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=蓝貂蝉、3血孙笨、董废人、董贵物、最弱祈福\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=3\n|经典定位=辅助,控制,攻击\n}}",
+      "name": "董贵人",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

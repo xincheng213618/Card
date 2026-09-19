@@ -1,0 +1,47 @@
+{
+  "pageid": 7282,
+  "namespace": 0,
+  "title": "助势",
+  "url": "https://wiki.biligame.com/sgs/%E5%8A%A9%E5%8A%BF",
+  "revid": 64898,
+  "parentid": 37920,
+  "timestamp": "2024-09-16T16:26:34Z",
+  "sourceSha256": "8f74dfef5c34898d01f9cd61d65ae13bc958349360042d66b6e4ec00f0ceb52a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7282,
+      "namespace": 0,
+      "title": "助势",
+      "url": "https://wiki.biligame.com/sgs/%E5%8A%A9%E5%8A%BF",
+      "revid": 64898,
+      "parentid": 37920,
+      "timestamp": "2024-09-16T16:26:34Z",
+      "sourceSha256": "8f74dfef5c34898d01f9cd61d65ae13bc958349360042d66b6e4ec00f0ceb52a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "助势",
+        "所属武将": "曹髦",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每名其他魏势力的角色的回合限一次，当该角色回复体力时，其可以令你摸一张牌。",
+        "经典技能类型": "主公技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=助势\n|所属武将=曹髦\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每名其他魏势力的角色的回合限一次，当该角色回复体力时，其可以令你摸一张牌。\n|经典技能类型=主公技\n|经典技能定位=过牌\n}}",
+      "name": "助势",
+      "generals": [
+        "曹髦"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每名其他魏势力的角色的回合限一次，当该角色回复体力时，其可以令你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

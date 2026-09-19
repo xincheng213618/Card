@@ -1,0 +1,44 @@
+{
+  "pageid": 14929,
+  "namespace": 0,
+  "title": "波仔",
+  "url": "https://wiki.biligame.com/sgs/%E6%B3%A2%E4%BB%94",
+  "revid": 76104,
+  "parentid": 75465,
+  "timestamp": "2026-03-07T06:59:59Z",
+  "sourceSha256": "f4f442e80e51f7c8519a467b5558aa266ae14a431d72b16aa65aceec169c825e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14929,
+      "namespace": 0,
+      "title": "波仔",
+      "url": "https://wiki.biligame.com/sgs/%E6%B3%A2%E4%BB%94",
+      "revid": 76104,
+      "parentid": 75465,
+      "timestamp": "2026-03-07T06:59:59Z",
+      "sourceSha256": "f4f442e80e51f7c8519a467b5558aa266ae14a431d72b16aa65aceec169c825e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "波仔",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "喵喵杀",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=波仔\n|势力=群\n|性别=男\n|出现模式=喵喵杀\n|称号=\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "波仔",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

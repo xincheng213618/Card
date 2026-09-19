@@ -1,0 +1,47 @@
+{
+  "pageid": 8475,
+  "namespace": 0,
+  "title": "手谈",
+  "url": "https://wiki.biligame.com/sgs/%E6%89%8B%E8%B0%88",
+  "revid": 45088,
+  "parentid": 45034,
+  "timestamp": "2022-12-16T00:15:50Z",
+  "sourceSha256": "0afbca3b3a8d51dedc16eea855bf5cd93c7702c77f68d6679eb336a51357365f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8475,
+      "namespace": 0,
+      "title": "手谈",
+      "url": "https://wiki.biligame.com/sgs/%E6%89%8B%E8%B0%88",
+      "revid": 45088,
+      "parentid": 45034,
+      "timestamp": "2022-12-16T00:15:50Z",
+      "sourceSha256": "0afbca3b3a8d51dedc16eea855bf5cd93c7702c77f68d6679eb336a51357365f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "手谈",
+        "所属武将": "卢弈",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，<br>\n'''阳：'''你可以弃置一张非黑色手牌；<br>\n'''阴：'''你可以弃置一张黑色手牌。<br>",
+        "经典技能类型": "转换技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=手谈\n|所属武将=卢弈\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，<br>\n'''阳：'''你可以弃置一张非黑色手牌；<br>\n'''阴：'''你可以弃置一张黑色手牌。<br>\n|经典技能类型=转换技\n|经典技能定位=负面\n}}",
+      "name": "手谈",
+      "generals": [
+        "卢弈"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，<br>\n'''阳：'''你可以弃置一张非黑色手牌；<br>\n'''阴：'''你可以弃置一张黑色手牌。<br>"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

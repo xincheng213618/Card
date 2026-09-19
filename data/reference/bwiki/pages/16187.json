@@ -1,0 +1,46 @@
+{
+  "pageid": 16187,
+  "namespace": 0,
+  "title": "吕伯奢",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%95%E4%BC%AF%E5%A5%A2",
+  "revid": 79808,
+  "parentid": 79803,
+  "timestamp": "2026-08-25T03:13:39Z",
+  "sourceSha256": "861c753c5556718d7e7a1b4d19bead6ae39aa2609e9f87b37cf14ab81b71815c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16187,
+      "namespace": 0,
+      "title": "吕伯奢",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%95%E4%BC%AF%E5%A5%A2",
+      "revid": 79808,
+      "parentid": 79803,
+      "timestamp": "2026-08-25T03:13:39Z",
+      "sourceSha256": "861c753c5556718d7e7a1b4d19bead6ae39aa2609e9f87b37cf14ab81b71815c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吕伯奢",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-江湖之远",
+        "经典体力": "8",
+        "经典定位": "爆发,攻击"
+      },
+      "source": "{{武将\n|武将名=吕伯奢\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-江湖之远\n|经典体力=8\n|经典定位=爆发,攻击\n}}",
+      "name": "吕伯奢",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

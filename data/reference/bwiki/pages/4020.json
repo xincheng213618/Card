@@ -1,0 +1,47 @@
+{
+  "pageid": 4020,
+  "namespace": 0,
+  "title": "登楼",
+  "url": "https://wiki.biligame.com/sgs/%E7%99%BB%E6%A5%BC",
+  "revid": 68218,
+  "parentid": 68146,
+  "timestamp": "2025-02-07T09:19:39Z",
+  "sourceSha256": "826a3bcf677ea2b614fb824e36b5367931e2a995e8cd0f0da2b7cd75c8b605cb",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4020,
+      "namespace": 0,
+      "title": "登楼",
+      "url": "https://wiki.biligame.com/sgs/%E7%99%BB%E6%A5%BC",
+      "revid": 68218,
+      "parentid": 68146,
+      "timestamp": "2025-02-07T09:19:39Z",
+      "sourceSha256": "826a3bcf677ea2b614fb824e36b5367931e2a995e8cd0f0da2b7cd75c8b605cb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "登楼",
+        "所属武将": "王粲",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并以任意顺序使用其中的基本牌（不能使用则弃置）。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "过牌,攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=登楼\n|所属武将=王粲\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并以任意顺序使用其中的基本牌（不能使用则弃置）。\n|经典技能类型=限定技\n|经典技能定位=过牌,攻击\n}}",
+      "name": "登楼",
+      "generals": [
+        "王粲"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并以任意顺序使用其中的基本牌（不能使用则弃置）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

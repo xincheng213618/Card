@@ -1,0 +1,47 @@
+{
+  "pageid": 14739,
+  "namespace": 0,
+  "title": "龙魂/神赵云（高达一号）",
+  "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E9%AD%82/%E7%A5%9E%E8%B5%B5%E4%BA%91%EF%BC%88%E9%AB%98%E8%BE%BE%E4%B8%80%E5%8F%B7%EF%BC%89",
+  "revid": 73153,
+  "parentid": 73130,
+  "timestamp": "2025-10-25T13:34:42Z",
+  "sourceSha256": "0593824035e5ebb73fc54ebb3fe9aa8158a5f5eeecec9297c68c0bad6d6be897",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14739,
+      "namespace": 0,
+      "title": "龙魂/神赵云（高达一号）",
+      "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E9%AD%82/%E7%A5%9E%E8%B5%B5%E4%BA%91%EF%BC%88%E9%AB%98%E8%BE%BE%E4%B8%80%E5%8F%B7%EF%BC%89",
+      "revid": 73153,
+      "parentid": 73130,
+      "timestamp": "2025-10-25T13:34:42Z",
+      "sourceSha256": "0593824035e5ebb73fc54ebb3fe9aa8158a5f5eeecec9297c68c0bad6d6be897",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "龙魂",
+        "所属武将": "神赵云（高达一号）",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你的牌可以按以下规则使用或打出：♥️牌当【桃】；♦️牌当火【杀】，♣️牌当【闪】，♠️牌当【无懈可击】。（单回合限制20次）",
+        "经典技能类型": "一般技",
+        "经典技能定位": "全能"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=龙魂\n|所属武将=神赵云（高达一号）\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你的牌可以按以下规则使用或打出：♥️牌当【桃】；♦️牌当火【杀】，♣️牌当【闪】，♠️牌当【无懈可击】。（单回合限制20次）\n|经典技能类型=一般技\n|经典技能定位=全能\n}}",
+      "name": "龙魂",
+      "generals": [
+        "神赵云（高达一号）"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你的牌可以按以下规则使用或打出：♥️牌当【桃】；♦️牌当火【杀】，♣️牌当【闪】，♠️牌当【无懈可击】。（单回合限制20次）"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

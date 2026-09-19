@@ -1,0 +1,45 @@
+{
+  "pageid": 13437,
+  "namespace": 0,
+  "title": "莫琼树",
+  "url": "https://wiki.biligame.com/sgs/%E8%8E%AB%E7%90%BC%E6%A0%91",
+  "revid": 67630,
+  "parentid": 66294,
+  "timestamp": "2024-12-27T16:39:04Z",
+  "sourceSha256": "d4e4c5f0e3d3ceb9ef34f8c9387a93904861a628e47fdbc0da0f68c18063623a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13437,
+      "namespace": 0,
+      "title": "莫琼树",
+      "url": "https://wiki.biligame.com/sgs/%E8%8E%AB%E7%90%BC%E6%A0%91",
+      "revid": 67630,
+      "parentid": 66294,
+      "timestamp": "2024-12-27T16:39:04Z",
+      "sourceSha256": "d4e4c5f0e3d3ceb9ef34f8c9387a93904861a628e47fdbc0da0f68c18063623a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "莫琼树",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=莫琼树\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "莫琼树",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

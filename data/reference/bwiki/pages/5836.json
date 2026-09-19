@@ -1,0 +1,45 @@
+{
+  "pageid": 5836,
+  "namespace": 0,
+  "title": "曹休",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E4%BC%91",
+  "revid": 75116,
+  "parentid": 74757,
+  "timestamp": "2026-02-04T02:40:22Z",
+  "sourceSha256": "e30da83b6446435893d3e70b2dc6561c1c0beae759a131e3c401edb265e8297e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5836,
+      "namespace": 0,
+      "title": "曹休",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E4%BC%91",
+      "revid": 75116,
+      "parentid": 74757,
+      "timestamp": "2026-02-04T02:40:22Z",
+      "sourceSha256": "e30da83b6446435893d3e70b2dc6561c1c0beae759a131e3c401edb265e8297e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹休",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "千里骐骥",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2015",
+        "经典体力": "4",
+        "经典定位": "攻击\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=曹休\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=千里骐骥\n|别称=\n|规则集问答=\n|武将包=一将成名-2015\n|经典体力=4\n|经典定位=攻击\n<!-- 界限 -->\n}}",
+      "name": "曹休",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

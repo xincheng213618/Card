@@ -1,0 +1,46 @@
+{
+  "pageid": 16093,
+  "namespace": 0,
+  "title": "星诸葛瑾",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%AF%B8%E8%91%9B%E7%91%BE",
+  "revid": 79484,
+  "parentid": 79483,
+  "timestamp": "2026-08-08T14:38:53Z",
+  "sourceSha256": "71dd945968ca2f36d9c9471914a09267d2c82e4fb61571680c0473de4cefc1a3",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16093,
+      "namespace": 0,
+      "title": "星诸葛瑾",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%AF%B8%E8%91%9B%E7%91%BE",
+      "revid": 79484,
+      "parentid": 79483,
+      "timestamp": "2026-08-08T14:38:53Z",
+      "sourceSha256": "71dd945968ca2f36d9c9471914a09267d2c82e4fb61571680c0473de4cefc1a3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星诸葛瑾",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天璇",
+        "经典体力": "3",
+        "经典定位": "辅助,防御"
+      },
+      "source": "{{武将\n|武将名=星诸葛瑾\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-天璇\n|经典体力=3\n|经典定位=辅助,防御\n}}",
+      "name": "星诸葛瑾",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

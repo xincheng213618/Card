@@ -1,0 +1,47 @@
+{
+  "pageid": 12690,
+  "namespace": 0,
+  "title": "飒影",
+  "url": "https://wiki.biligame.com/sgs/%E9%A3%92%E5%BD%B1",
+  "revid": 63709,
+  "parentid": 63665,
+  "timestamp": "2024-07-08T02:15:32Z",
+  "sourceSha256": "7c1fd85f511c30af979f72dbb7a173dfdca3fa5c36a227bae201af80bfd2a9c6",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12690,
+      "namespace": 0,
+      "title": "飒影",
+      "url": "https://wiki.biligame.com/sgs/%E9%A3%92%E5%BD%B1",
+      "revid": 63709,
+      "parentid": 63665,
+      "timestamp": "2024-07-08T02:15:32Z",
+      "sourceSha256": "7c1fd85f511c30af979f72dbb7a173dfdca3fa5c36a227bae201af80bfd2a9c6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "飒影",
+        "所属武将": "星孙尚香",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每轮每种牌名限一次，当你需要使用一张【杀】或【闪】/【桃】或【酒】时，你可以使用一张装备牌/获得一张装备区里的牌，视为使用之。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "攻击,防御"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=飒影\n|所属武将=星孙尚香\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每轮每种牌名限一次，当你需要使用一张【杀】或【闪】/【桃】或【酒】时，你可以使用一张装备牌/获得一张装备区里的牌，视为使用之。\n|经典技能类型=一般技\n|经典技能定位=攻击,防御\n}}",
+      "name": "飒影",
+      "generals": [
+        "星孙尚香"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每轮每种牌名限一次，当你需要使用一张【杀】或【闪】/【桃】或【酒】时，你可以使用一张装备牌/获得一张装备区里的牌，视为使用之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

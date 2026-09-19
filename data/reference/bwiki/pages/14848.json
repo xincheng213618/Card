@@ -1,0 +1,45 @@
+{
+  "pageid": 14848,
+  "namespace": 0,
+  "title": "陶璜",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%B6%E7%92%9C",
+  "revid": 75684,
+  "parentid": 75683,
+  "timestamp": "2026-02-14T14:15:30Z",
+  "sourceSha256": "86a41397c6fc1344bf726b2f109412cfda891acab56c869d4742a6c7199ebf76",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14848,
+      "namespace": 0,
+      "title": "陶璜",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%B6%E7%92%9C",
+      "revid": 75684,
+      "parentid": 75683,
+      "timestamp": "2026-02-14T14:15:30Z",
+      "sourceSha256": "86a41397c6fc1344bf726b2f109412cfda891acab56c869d4742a6c7199ebf76",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陶璜",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "威惠素著",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=陶璜\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=威惠素著\n|别称=\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=辅助\n}}",
+      "name": "陶璜",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

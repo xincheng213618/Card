@@ -1,0 +1,46 @@
+{
+  "pageid": 5844,
+  "namespace": 0,
+  "title": "刘谌",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E8%B0%8C",
+  "revid": 77555,
+  "parentid": 69148,
+  "timestamp": "2026-05-09T01:38:19Z",
+  "sourceSha256": "4d4c783e05895528911ab7cc3606f6623d521ff8a2c58ddb86c031ae8551e629",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5844,
+      "namespace": 0,
+      "title": "刘谌",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E8%B0%8C",
+      "revid": 77555,
+      "parentid": 69148,
+      "timestamp": "2026-05-09T01:38:19Z",
+      "sourceSha256": "4d4c783e05895528911ab7cc3606f6623d521ff8a2c58ddb86c031ae8551e629",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘谌",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "血荐轩辕",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2015",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=刘谌\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=血荐轩辕\n|别称=\n|规则集问答=\n|武将包=一将成名-2015\n|经典体力=4\n|经典定位=攻击,爆发\n<!-- 界限 -->\n}}",
+      "name": "刘谌",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

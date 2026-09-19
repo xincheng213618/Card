@@ -1,0 +1,47 @@
+{
+  "pageid": 14361,
+  "namespace": 0,
+  "title": "围计",
+  "url": "https://wiki.biligame.com/sgs/%E5%9B%B4%E8%AE%A1",
+  "revid": 73034,
+  "parentid": 72134,
+  "timestamp": "2025-10-19T05:22:28Z",
+  "sourceSha256": "2d0ea6b2660bd2ce2e270a2daf88ccfc3122d832d0b3e9cff7be471498476559",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14361,
+      "namespace": 0,
+      "title": "围计",
+      "url": "https://wiki.biligame.com/sgs/%E5%9B%B4%E8%AE%A1",
+      "revid": 73034,
+      "parentid": 72134,
+      "timestamp": "2025-10-19T05:22:28Z",
+      "sourceSha256": "2d0ea6b2660bd2ce2e270a2daf88ccfc3122d832d0b3e9cff7be471498476559",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "围计",
+        "所属武将": "田忌",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你使用牌指定其他角色后，可以秘密选择1~3中一个数字然后令目标猜测你选择的数字。若目标猜错，你摸所选数字张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "爆发"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=围计\n|所属武将=田忌\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你使用牌指定其他角色后，可以秘密选择1~3中一个数字然后令目标猜测你选择的数字。若目标猜错，你摸所选数字张牌。\n|经典技能类型=一般技\n|经典技能定位=爆发\n}}",
+      "name": "围计",
+      "generals": [
+        "田忌"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你使用牌指定其他角色后，可以秘密选择1~3中一个数字然后令目标猜测你选择的数字。若目标猜错，你摸所选数字张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

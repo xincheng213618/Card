@@ -1,0 +1,45 @@
+{
+  "pageid": 2345,
+  "namespace": 0,
+  "title": "曹节",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%8A%82",
+  "revid": 78750,
+  "parentid": 60214,
+  "timestamp": "2026-07-02T06:49:07Z",
+  "sourceSha256": "3205ef00d076443c322a03b767e1207bd85908de4e0da7493173c31bedbd6d82",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 2345,
+      "namespace": 0,
+      "title": "曹节",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%8A%82",
+      "revid": 78750,
+      "parentid": 60214,
+      "timestamp": "2026-07-02T06:49:07Z",
+      "sourceSha256": "3205ef00d076443c322a03b767e1207bd85908de4e0da7493173c31bedbd6d82",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹节",
+        "势力": "群",
+        "性别": "女",
+        "别称": "",
+        "称号": "献穆皇后",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "星火燎原-天府",
+        "经典体力": "3",
+        "经典定位": "防御,辅助"
+      },
+      "source": "{{武将\n|武将名=曹节\n|势力=群\n|性别=女\n|别称=\n|称号=献穆皇后\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=星火燎原-天府\n|经典体力=3\n|经典定位=防御,辅助\n}}",
+      "name": "曹节",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

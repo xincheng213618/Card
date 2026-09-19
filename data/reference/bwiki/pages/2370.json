@@ -1,0 +1,47 @@
+{
+  "pageid": 2370,
+  "namespace": 0,
+  "title": "鹰扬",
+  "url": "https://wiki.biligame.com/sgs/%E9%B9%B0%E6%89%AC",
+  "revid": 61616,
+  "parentid": 60602,
+  "timestamp": "2024-01-12T20:27:25Z",
+  "sourceSha256": "07171389b53e17c118a09584f00e20545062e71922ac838de527c8c13e2d221c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2370,
+      "namespace": 0,
+      "title": "鹰扬",
+      "url": "https://wiki.biligame.com/sgs/%E9%B9%B0%E6%89%AC",
+      "revid": 61616,
+      "parentid": 60602,
+      "timestamp": "2024-01-12T20:27:25Z",
+      "sourceSha256": "07171389b53e17c118a09584f00e20545062e71922ac838de527c8c13e2d221c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "鹰扬",
+        "所属武将": "孙策",
+        "是衍生技": "",
+        "技能版本": "国",
+        "国战技能描述": "当你的拼点牌亮出后，你可以令此牌的点数+3或-3（至少为A，至多为K）。",
+        "国战技能类型": "一般技",
+        "国战技能定位": "加点"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=鹰扬\n|所属武将=孙策\n|是衍生技=\n|技能版本=国\n|国战技能描述=当你的拼点牌亮出后，你可以令此牌的点数+3或-3（至少为A，至多为K）。\n|国战技能类型=一般技\n|国战技能定位=加点\n}}",
+      "name": "鹰扬",
+      "generals": [
+        "孙策"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "当你的拼点牌亮出后，你可以令此牌的点数+3或-3（至少为A，至多为K）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

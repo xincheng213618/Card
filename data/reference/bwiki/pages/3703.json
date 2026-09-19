@@ -1,0 +1,46 @@
+{
+  "pageid": 3703,
+  "namespace": 0,
+  "title": "毒逝",
+  "url": "https://wiki.biligame.com/sgs/%E6%AF%92%E9%80%9D",
+  "revid": 67362,
+  "parentid": 67361,
+  "timestamp": "2024-12-24T05:35:03Z",
+  "sourceSha256": "89218c6d119205fa4cf726d8f8d36d66b8fe7b347e34013dfdaa24c79cac1e7a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3703,
+      "namespace": 0,
+      "title": "毒逝",
+      "url": "https://wiki.biligame.com/sgs/%E6%AF%92%E9%80%9D",
+      "revid": 67362,
+      "parentid": 67361,
+      "timestamp": "2024-12-24T05:35:03Z",
+      "sourceSha256": "89218c6d119205fa4cf726d8f8d36d66b8fe7b347e34013dfdaa24c79cac1e7a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "毒逝",
+        "所属武将": "刘辩",
+        "技能版本": "经典",
+        "经典技能描述": "①当你死亡时，你令一名其他角色获得此技能；<br>\n②当你进入濒死状态时，其他角色不能在此次濒死结算中对你使用【桃】。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=毒逝\n|所属武将=刘辩\n|技能版本=经典\n|经典技能描述=①当你死亡时，你令一名其他角色获得此技能；<br>\n②当你进入濒死状态时，其他角色不能在此次濒死结算中对你使用【桃】。\n|经典技能类型=锁定技\n|经典技能定位=负面,控制\n}}",
+      "name": "毒逝",
+      "generals": [
+        "刘辩"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①当你死亡时，你令一名其他角色获得此技能；<br>\n②当你进入濒死状态时，其他角色不能在此次濒死结算中对你使用【桃】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

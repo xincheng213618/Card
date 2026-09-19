@@ -1,0 +1,47 @@
+{
+  "pageid": 1764,
+  "namespace": 0,
+  "title": "枪舞",
+  "url": "https://wiki.biligame.com/sgs/%E6%9E%AA%E8%88%9E",
+  "revid": 63358,
+  "parentid": 52040,
+  "timestamp": "2024-06-03T07:59:55Z",
+  "sourceSha256": "ead0ce85d57e32aa2e7694ab5312b41cb21cc176473b6ac0466ab0c4549c3f54",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 1764,
+      "namespace": 0,
+      "title": "枪舞",
+      "url": "https://wiki.biligame.com/sgs/%E6%9E%AA%E8%88%9E",
+      "revid": 63358,
+      "parentid": 52040,
+      "timestamp": "2024-06-03T07:59:55Z",
+      "sourceSha256": "ead0ce85d57e32aa2e7694ab5312b41cb21cc176473b6ac0466ab0c4549c3f54",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "枪舞",
+        "所属武将": "张星彩",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可以进行一次判定，然后本回合你使用点数小于/大于判定结果的【杀】无距离/次数限制。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=枪舞\n|所属武将=张星彩\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可以进行一次判定，然后本回合你使用点数小于/大于判定结果的【杀】无距离/次数限制。\n|经典技能类型=一般技\n|经典技能定位=攻击,距离\n}}",
+      "name": "枪舞",
+      "generals": [
+        "张星彩"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以进行一次判定，然后本回合你使用点数小于/大于判定结果的【杀】无距离/次数限制。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

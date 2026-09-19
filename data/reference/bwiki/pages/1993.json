@@ -1,0 +1,45 @@
+{
+  "pageid": 1993,
+  "namespace": 0,
+  "title": "周妃",
+  "url": "https://wiki.biligame.com/sgs/%E5%91%A8%E5%A6%83",
+  "revid": 77598,
+  "parentid": 59953,
+  "timestamp": "2026-05-09T01:42:05Z",
+  "sourceSha256": "4930a65645ba7e0c0e7c40d2efbd40c78dbbee00e7357ccac4a3e1a6dfd276c5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1993,
+      "namespace": 0,
+      "title": "周妃",
+      "url": "https://wiki.biligame.com/sgs/%E5%91%A8%E5%A6%83",
+      "revid": 77598,
+      "parentid": 59953,
+      "timestamp": "2026-05-09T01:42:05Z",
+      "sourceSha256": "4930a65645ba7e0c0e7c40d2efbd40c78dbbee00e7357ccac4a3e1a6dfd276c5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "周妃",
+        "势力": "吴",
+        "性别": "女",
+        "别称": "雷吕蒙",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "神话再临-雷包",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=周妃\n|势力=吴\n|性别=女\n|别称=雷吕蒙\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=神话再临-雷包\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "周妃",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

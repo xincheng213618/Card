@@ -1,0 +1,46 @@
+{
+  "pageid": 14847,
+  "namespace": 0,
+  "title": "崔烈",
+  "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E7%83%88",
+  "revid": 80049,
+  "parentid": 80044,
+  "timestamp": "2026-09-11T17:24:00Z",
+  "sourceSha256": "125b406f1982ae9c82fa3423ecb6f7ef58d453cbc25a4f2be75d986b0480f693",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14847,
+      "namespace": 0,
+      "title": "崔烈",
+      "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E7%83%88",
+      "revid": 80049,
+      "parentid": 80044,
+      "timestamp": "2026-09-11T17:24:00Z",
+      "sourceSha256": "125b406f1982ae9c82fa3423ecb6f7ef58d453cbc25a4f2be75d986b0480f693",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "崔烈",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "镇纲责僭",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-食禄尽忠",
+        "经典体力": "4",
+        "经典定位": "保护,辅助"
+      },
+      "source": "{{武将\n|武将名=崔烈\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=镇纲责僭\n|别称=\n|规则集问答=\n|武将包=荟萃-食禄尽忠\n|经典体力=4\n|经典定位=保护,辅助\n}}",
+      "name": "崔烈",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

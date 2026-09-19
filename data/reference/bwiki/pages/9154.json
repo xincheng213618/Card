@@ -1,0 +1,46 @@
+{
+  "pageid": 9154,
+  "namespace": 0,
+  "title": "周宣",
+  "url": "https://wiki.biligame.com/sgs/%E5%91%A8%E5%AE%A3",
+  "revid": 77600,
+  "parentid": 74948,
+  "timestamp": "2026-05-09T01:42:08Z",
+  "sourceSha256": "7c16a7df990ebc9f9e8fd12746e0207cc22ca1eb484aeeb6a3070694f24a56e9",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9154,
+      "namespace": 0,
+      "title": "周宣",
+      "url": "https://wiki.biligame.com/sgs/%E5%91%A8%E5%AE%A3",
+      "revid": 77600,
+      "parentid": 74948,
+      "timestamp": "2026-05-09T01:42:08Z",
+      "sourceSha256": "7c16a7df990ebc9f9e8fd12746e0207cc22ca1eb484aeeb6a3070694f24a56e9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "周宣",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "蓝赵直、神刘禅、大梦仙尊",
+        "规则集问答": "{{faq|寤寐的额外回合结束后，回复体力能否触发良助等技能？|不能，调整体力值不触发任何结算。}}",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "3",
+        "经典定位": "续航,辅助,控制"
+      },
+      "source": "{{武将\n|武将名=周宣\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=蓝赵直、神刘禅、大梦仙尊\n|规则集问答={{faq|寤寐的额外回合结束后，回复体力能否触发良助等技能？|不能，调整体力值不触发任何结算。}}\n|武将包=荟萃-奇人异士\n|经典体力=3\n|经典定位=续航,辅助,控制\n}}",
+      "name": "周宣",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

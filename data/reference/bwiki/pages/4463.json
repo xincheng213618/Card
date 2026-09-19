@@ -1,0 +1,46 @@
+{
+  "pageid": 4463,
+  "namespace": 0,
+  "title": "进趋",
+  "url": "https://wiki.biligame.com/sgs/%E8%BF%9B%E8%B6%8B",
+  "revid": 38810,
+  "parentid": 35580,
+  "timestamp": "2022-07-25T09:27:37Z",
+  "sourceSha256": "0254a04197c9c8f0613f9f515a39245c3b2785b4faaf764dfe53fbbc7f50c37f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4463,
+      "namespace": 0,
+      "title": "进趋",
+      "url": "https://wiki.biligame.com/sgs/%E8%BF%9B%E8%B6%8B",
+      "revid": 38810,
+      "parentid": 35580,
+      "timestamp": "2022-07-25T09:27:37Z",
+      "sourceSha256": "0254a04197c9c8f0613f9f515a39245c3b2785b4faaf764dfe53fbbc7f50c37f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "进趋",
+        "所属武将": "王基",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以摸两张牌，然后若你的手牌数大于X，你将手牌弃置至X张（X为你本回合发动过“{{技能/引用|奇制}}”的次数）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=进趋\n|所属武将=王基\n|技能版本=经典\n|经典技能描述=结束阶段，你可以摸两张牌，然后若你的手牌数大于X，你将手牌弃置至X张（X为你本回合发动过“{{技能/引用|奇制}}”的次数）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "进趋",
+      "generals": [
+        "王基"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以摸两张牌，然后若你的手牌数大于X，你将手牌弃置至X张（X为你本回合发动过“{{技能/引用|奇制}}”的次数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

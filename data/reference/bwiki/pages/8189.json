@@ -1,0 +1,46 @@
+{
+  "pageid": 8189,
+  "namespace": 0,
+  "title": "刘徽",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%BE%BD",
+  "revid": 77543,
+  "parentid": 69141,
+  "timestamp": "2026-05-09T01:36:07Z",
+  "sourceSha256": "b5de2374c6f385b8b0736c67dfaf7d92b3707ebd0d37a9c16e11a18b37ca0d96",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8189,
+      "namespace": 0,
+      "title": "刘徽",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%BE%BD",
+      "revid": 77543,
+      "parentid": 69141,
+      "timestamp": "2026-05-09T01:36:07Z",
+      "sourceSha256": "b5de2374c6f385b8b0736c67dfaf7d92b3707ebd0d37a9c16e11a18b37ca0d96",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘徽",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "刘五万、大数学家",
+        "规则集问答": "",
+        "武将包": "限定-高山仰止",
+        "经典体力": "4",
+        "经典定位": "发育,爆发"
+      },
+      "source": "{{武将\n|武将名=刘徽\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=刘五万、大数学家\n|规则集问答=\n|武将包=限定-高山仰止\n|经典体力=4\n|经典定位=发育,爆发\n}}",
+      "name": "刘徽",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

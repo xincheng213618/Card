@@ -1,0 +1,47 @@
+{
+  "pageid": 4994,
+  "namespace": 0,
+  "title": "英姿/孙策",
+  "url": "https://wiki.biligame.com/sgs/%E8%8B%B1%E5%A7%BF/%E5%AD%99%E7%AD%96",
+  "revid": 61613,
+  "parentid": 39415,
+  "timestamp": "2024-01-12T20:25:56Z",
+  "sourceSha256": "fe07b233c72bd20bc9efbe98cd1694721f56d2ebdb0954bb1d1ed006d7122df6",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4994,
+      "namespace": 0,
+      "title": "英姿/孙策",
+      "url": "https://wiki.biligame.com/sgs/%E8%8B%B1%E5%A7%BF/%E5%AD%99%E7%AD%96",
+      "revid": 61613,
+      "parentid": 39415,
+      "timestamp": "2024-01-12T20:25:56Z",
+      "sourceSha256": "fe07b233c72bd20bc9efbe98cd1694721f56d2ebdb0954bb1d1ed006d7122df6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "英姿",
+        "所属武将": "孙策",
+        "是衍生技": "是",
+        "技能版本": "经典,国",
+        "经典技能描述": "①摸牌阶段，你多摸一张牌；<br>\n②你的手牌上限等于X（X为你的体力上限）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=英姿\n|所属武将=孙策\n|是衍生技=是\n|技能版本=经典,国\n|经典技能描述=①摸牌阶段，你多摸一张牌；<br>\n②你的手牌上限等于X（X为你的体力上限）。\n|经典技能类型=锁定技\n|经典技能定位=过牌,屯牌\n}}",
+      "name": "英姿",
+      "generals": [
+        "孙策"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "①摸牌阶段，你多摸一张牌；<br>\n②你的手牌上限等于X（X为你的体力上限）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

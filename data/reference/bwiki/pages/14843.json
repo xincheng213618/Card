@@ -1,0 +1,46 @@
+{
+  "pageid": 14843,
+  "namespace": 0,
+  "title": "神孙权",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%AD%99%E6%9D%83",
+  "revid": 79016,
+  "parentid": 78991,
+  "timestamp": "2026-07-20T12:20:44Z",
+  "sourceSha256": "11aa74ded24556abf66fedb9fac395d16fbb751b6fc8387a014f8902a035831e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14843,
+      "namespace": 0,
+      "title": "神孙权",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%AD%99%E6%9D%83",
+      "revid": 79016,
+      "parentid": 78991,
+      "timestamp": "2026-07-20T12:20:44Z",
+      "sourceSha256": "11aa74ded24556abf66fedb9fac395d16fbb751b6fc8387a014f8902a035831e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神孙权",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "瀚海碧君",
+        "别称": "神大宝",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=神孙权\n|势力=神\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=瀚海碧君\n|别称=神大宝\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "神孙权",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

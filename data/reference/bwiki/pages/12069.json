@@ -1,0 +1,45 @@
+{
+  "pageid": 12069,
+  "namespace": 0,
+  "title": "柏灵筠",
+  "url": "https://wiki.biligame.com/sgs/%E6%9F%8F%E7%81%B5%E7%AD%A0",
+  "revid": 75309,
+  "parentid": 70198,
+  "timestamp": "2026-02-10T03:49:33Z",
+  "sourceSha256": "c3f5f32869e84457116d2ab59d6b5e4dc7320143cbddb54f3228c5e521ddc513",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12069,
+      "namespace": 0,
+      "title": "柏灵筠",
+      "url": "https://wiki.biligame.com/sgs/%E6%9F%8F%E7%81%B5%E7%AD%A0",
+      "revid": 75309,
+      "parentid": 70198,
+      "timestamp": "2026-02-10T03:49:33Z",
+      "sourceSha256": "c3f5f32869e84457116d2ab59d6b5e4dc7320143cbddb54f3228c5e521ddc513",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "柏灵筠",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "柏夫人、百夫人、百灵云",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "续航,生存,辅助"
+      },
+      "source": "{{武将\n|武将名=柏灵筠\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=柏夫人、百夫人、百灵云\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=续航,生存,辅助\n}}",
+      "name": "柏灵筠",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

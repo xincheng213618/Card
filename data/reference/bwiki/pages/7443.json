@@ -1,0 +1,46 @@
+{
+  "pageid": 7443,
+  "namespace": 0,
+  "title": "张勋",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%8B%8B",
+  "revid": 77674,
+  "parentid": 74726,
+  "timestamp": "2026-05-09T01:45:57Z",
+  "sourceSha256": "c1a8c6838b65b9fe390f6fdc6d06ca55ff96572dcda5a4fb90b9cbe00b4fecb4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7443,
+      "namespace": 0,
+      "title": "张勋",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%8B%8B",
+      "revid": 77674,
+      "parentid": 74726,
+      "timestamp": "2026-05-09T01:45:57Z",
+      "sourceSha256": "c1a8c6838b65b9fe390f6fdc6d06ca55ff96572dcda5a4fb90b9cbe00b4fecb4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张勋",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-代汉涂高",
+        "经典体力": "4",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=张勋\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-代汉涂高\n|经典体力=4\n|经典定位=辅助,攻击\n}}",
+      "name": "张勋",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

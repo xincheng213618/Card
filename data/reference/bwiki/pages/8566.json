@@ -1,0 +1,76 @@
+{
+  "pageid": 8566,
+  "namespace": 0,
+  "title": "节行",
+  "url": "https://wiki.biligame.com/sgs/%E8%8A%82%E8%A1%8C",
+  "revid": 59571,
+  "parentid": 54541,
+  "timestamp": "2023-12-01T12:16:02Z",
+  "sourceSha256": "e3183051e217aa1b1a343fae2c0decdf02bbc55b982090c41c7b8e995bc4f81d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8566,
+      "namespace": 0,
+      "title": "节行",
+      "url": "https://wiki.biligame.com/sgs/%E8%8A%82%E8%A1%8C",
+      "revid": 59571,
+      "parentid": 54541,
+      "timestamp": "2023-12-01T12:16:02Z",
+      "sourceSha256": "e3183051e217aa1b1a343fae2c0decdf02bbc55b982090c41c7b8e995bc4f81d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "节行",
+        "所属武将": "袁姬",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你的体力值变化后，你可以摸一张牌（不计入你本回合的手牌上限）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=节行\n|所属武将=袁姬\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你的体力值变化后，你可以摸一张牌（不计入你本回合的手牌上限）。\n|经典技能类型=一般技\n|经典技能定位=过牌,屯牌\n}}",
+      "name": "节行",
+      "generals": [
+        "袁姬"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你的体力值变化后，你可以摸一张牌（不计入你本回合的手牌上限）。"
+      }
+    },
+    {
+      "pageid": 8566,
+      "namespace": 0,
+      "title": "节行",
+      "url": "https://wiki.biligame.com/sgs/%E8%8A%82%E8%A1%8C",
+      "revid": 59571,
+      "parentid": 54541,
+      "timestamp": "2023-12-01T12:16:02Z",
+      "sourceSha256": "e3183051e217aa1b1a343fae2c0decdf02bbc55b982090c41c7b8e995bc4f81d",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "测试服原版",
+        "技能序号": "2",
+        "技能名": "节行",
+        "所属武将": "袁姬",
+        "经典技能描述": "当你的体力值变化后，你可以摸一张牌（不计入你本回合的手牌上限）。"
+      },
+      "source": "{{技能/武将\n|历史版本=测试服原版\n|技能序号=2\n|技能名=节行\n|所属武将=袁姬\n|经典技能描述=当你的体力值变化后，你可以摸一张牌（不计入你本回合的手牌上限）。\n}}",
+      "name": "节行",
+      "generals": [
+        "袁姬"
+      ],
+      "mode": null,
+      "version": "测试服原版",
+      "descriptions": {
+        "经典技能描述": "当你的体力值变化后，你可以摸一张牌（不计入你本回合的手牌上限）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

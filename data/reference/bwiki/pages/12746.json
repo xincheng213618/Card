@@ -1,0 +1,46 @@
+{
+  "pageid": 12746,
+  "namespace": 0,
+  "title": "卞玥",
+  "url": "https://wiki.biligame.com/sgs/%E5%8D%9E%E7%8E%A5",
+  "revid": 77565,
+  "parentid": 71661,
+  "timestamp": "2026-05-09T01:39:08Z",
+  "sourceSha256": "e6ad0b9f634a3d4978aa14579019556852a3a510955f3503431c8681d2db9344",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12746,
+      "namespace": 0,
+      "title": "卞玥",
+      "url": "https://wiki.biligame.com/sgs/%E5%8D%9E%E7%8E%A5",
+      "revid": 77565,
+      "parentid": 71661,
+      "timestamp": "2026-05-09T01:39:08Z",
+      "sourceSha256": "e6ad0b9f634a3d4978aa14579019556852a3a510955f3503431c8681d2db9344",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "卞玥",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "卞皇后",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "续航,控制"
+      },
+      "source": "{{武将\n|武将名=卞玥\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=卞皇后\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=续航,控制\n}}",
+      "name": "卞玥",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

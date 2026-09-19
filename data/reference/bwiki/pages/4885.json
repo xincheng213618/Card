@@ -1,0 +1,47 @@
+{
+  "pageid": 4885,
+  "namespace": 0,
+  "title": "奋威/甘宁",
+  "url": "https://wiki.biligame.com/sgs/%E5%A5%8B%E5%A8%81/%E7%94%98%E5%AE%81",
+  "revid": 72698,
+  "parentid": 68214,
+  "timestamp": "2025-10-02T02:59:01Z",
+  "sourceSha256": "8ef655130b2c215f3e10a47af67ce8725da34ae8c57778792a2d7183196f33b8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4885,
+      "namespace": 0,
+      "title": "奋威/甘宁",
+      "url": "https://wiki.biligame.com/sgs/%E5%A5%8B%E5%A8%81/%E7%94%98%E5%AE%81",
+      "revid": 72698,
+      "parentid": 68214,
+      "timestamp": "2025-10-02T02:59:01Z",
+      "sourceSha256": "8ef655130b2c215f3e10a47af67ce8725da34ae8c57778792a2d7183196f33b8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "奋威",
+        "所属武将": "甘宁",
+        "是衍生技": "",
+        "技能版本": "界",
+        "界限技能描述": "当一张锦囊牌指定至少两个目标后，你可以令此牌对其中任意名目标角色无效。",
+        "界限技能类型": "限定技",
+        "界限技能定位": "保护,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=奋威\n|所属武将=甘宁\n|是衍生技=\n|技能版本=界\n|界限技能描述=当一张锦囊牌指定至少两个目标后，你可以令此牌对其中任意名目标角色无效。\n|界限技能类型=限定技\n|界限技能定位=保护,控制\n}}",
+      "name": "奋威",
+      "generals": [
+        "甘宁"
+      ],
+      "mode": "界",
+      "version": "界",
+      "descriptions": {
+        "界限技能描述": "当一张锦囊牌指定至少两个目标后，你可以令此牌对其中任意名目标角色无效。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

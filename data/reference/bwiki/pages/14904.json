@@ -1,0 +1,45 @@
+{
+  "pageid": 14904,
+  "namespace": 0,
+  "title": "韩嵩",
+  "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E5%B5%A9",
+  "revid": 75251,
+  "parentid": 74530,
+  "timestamp": "2026-02-10T01:00:32Z",
+  "sourceSha256": "caa6ba3f9078579254764eed98e5c6e5a06d57bfecba664bd2ab6b14c550ed36",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14904,
+      "namespace": 0,
+      "title": "韩嵩",
+      "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E5%B5%A9",
+      "revid": 75251,
+      "parentid": 74530,
+      "timestamp": "2026-02-10T01:00:32Z",
+      "sourceSha256": "caa6ba3f9078579254764eed98e5c6e5a06d57bfecba664bd2ab6b14c550ed36",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "韩嵩",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "喉不纳言",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-群雄伺动",
+        "经典体力": "3",
+        "经典定位": "攻击,控制,续航"
+      },
+      "source": "{{武将\n|武将名=韩嵩\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=喉不纳言\n|别称=\n|规则集问答=\n|武将包=荟萃-群雄伺动\n|经典体力=3\n|经典定位=攻击,控制,续航\n}}",
+      "name": "韩嵩",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

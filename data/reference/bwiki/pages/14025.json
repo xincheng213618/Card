@@ -1,0 +1,46 @@
+{
+  "pageid": 14025,
+  "namespace": 0,
+  "title": "张奂",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%A5%82",
+  "revid": 77675,
+  "parentid": 73411,
+  "timestamp": "2026-05-09T01:46:01Z",
+  "sourceSha256": "a71dd4741bcbd02ec0215b1204b0c1fe0351cece95563349132847b39a976f43",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14025,
+      "namespace": 0,
+      "title": "张奂",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%A5%82",
+      "revid": 77675,
+      "parentid": 73411,
+      "timestamp": "2026-05-09T01:46:01Z",
+      "sourceSha256": "a71dd4741bcbd02ec0215b1204b0c1fe0351cece95563349132847b39a976f43",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张奂",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "正身洁己",
+        "别称": "奂神",
+        "规则集问答": "",
+        "武将包": "一将成名-2025",
+        "经典体力": "4",
+        "经典定位": "过牌,爆发"
+      },
+      "source": "{{武将\n|武将名=张奂\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=正身洁己\n|别称=奂神\n|规则集问答=\n|武将包=一将成名-2025\n|经典体力=4\n|经典定位=过牌,爆发\n}}",
+      "name": "张奂",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

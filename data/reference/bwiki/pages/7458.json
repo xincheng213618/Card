@@ -1,0 +1,45 @@
+{
+  "pageid": 7458,
+  "namespace": 0,
+  "title": "黄祖",
+  "url": "https://wiki.biligame.com/sgs/%E9%BB%84%E7%A5%96",
+  "revid": 74699,
+  "parentid": 74531,
+  "timestamp": "2026-01-22T17:36:57Z",
+  "sourceSha256": "8e81a2f9afebb32f9cda70da0c069a997c83fc826a9e5326b05fbb2f10e9e2e8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7458,
+      "namespace": 0,
+      "title": "黄祖",
+      "url": "https://wiki.biligame.com/sgs/%E9%BB%84%E7%A5%96",
+      "revid": 74699,
+      "parentid": 74531,
+      "timestamp": "2026-01-22T17:36:57Z",
+      "sourceSha256": "8e81a2f9afebb32f9cda70da0c069a997c83fc826a9e5326b05fbb2f10e9e2e8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "黄祖",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=黄祖\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "黄祖",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

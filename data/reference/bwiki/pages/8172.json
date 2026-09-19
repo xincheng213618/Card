@@ -1,0 +1,45 @@
+{
+  "pageid": 8172,
+  "namespace": 0,
+  "title": "陈珪",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%8F%AA",
+  "revid": 79825,
+  "parentid": 79823,
+  "timestamp": "2026-08-25T12:26:14Z",
+  "sourceSha256": "8b1434c3eb8906b06ba0fe3ec339c0454c88fe1cb56daf52d2015ff9a227ae26",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8172,
+      "namespace": 0,
+      "title": "陈珪",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%8F%AA",
+      "revid": 79825,
+      "parentid": 79823,
+      "timestamp": "2026-08-25T12:26:14Z",
+      "sourceSha256": "8b1434c3eb8906b06ba0fe3ec339c0454c88fe1cb56daf52d2015ff9a227ae26",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陈珪",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "珪神",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=陈珪\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=珪神\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "陈珪",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

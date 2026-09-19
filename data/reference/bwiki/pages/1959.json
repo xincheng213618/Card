@@ -1,0 +1,47 @@
+{
+  "pageid": 1959,
+  "namespace": 0,
+  "title": "亦算",
+  "url": "https://wiki.biligame.com/sgs/%E4%BA%A6%E7%AE%97",
+  "revid": 38129,
+  "parentid": 37518,
+  "timestamp": "2022-07-02T08:02:09Z",
+  "sourceSha256": "366f099abe1bc7d5115395ada090f8f576dd249557b59351d4fe4dc51e770401",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 1959,
+      "namespace": 0,
+      "title": "亦算",
+      "url": "https://wiki.biligame.com/sgs/%E4%BA%A6%E7%AE%97",
+      "revid": 38129,
+      "parentid": 37518,
+      "timestamp": "2022-07-02T08:02:09Z",
+      "sourceSha256": "366f099abe1bc7d5115395ada090f8f576dd249557b59351d4fe4dc51e770401",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "亦算",
+        "所属武将": "李傕",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，当你使用锦囊牌结算结束后置入弃牌堆时，你可以减1点体力上限，获得之。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=亦算\n|所属武将=李傕\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，当你使用锦囊牌结算结束后置入弃牌堆时，你可以减1点体力上限，获得之。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "亦算",
+      "generals": [
+        "李傕"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，当你使用锦囊牌结算结束后置入弃牌堆时，你可以减1点体力上限，获得之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

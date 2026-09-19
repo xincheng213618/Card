@@ -1,0 +1,47 @@
+{
+  "pageid": 2328,
+  "namespace": 0,
+  "title": "伏骑",
+  "url": "https://wiki.biligame.com/sgs/%E4%BC%8F%E9%AA%91",
+  "revid": 44319,
+  "parentid": 40627,
+  "timestamp": "2022-12-10T15:19:27Z",
+  "sourceSha256": "1dabf799aa434c99d26cab6f2700df74370a51d24bc7d9081add4376387e4b42",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2328,
+      "namespace": 0,
+      "title": "伏骑",
+      "url": "https://wiki.biligame.com/sgs/%E4%BC%8F%E9%AA%91",
+      "revid": 44319,
+      "parentid": 40627,
+      "timestamp": "2022-12-10T15:19:27Z",
+      "sourceSha256": "1dabf799aa434c99d26cab6f2700df74370a51d24bc7d9081add4376387e4b42",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "伏骑",
+        "所属武将": "麴义",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用【杀】或普通锦囊牌指定目标后，你距离其为1的其他角色不能响应此牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=伏骑\n|所属武将=麴义\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用【杀】或普通锦囊牌指定目标后，你距离其为1的其他角色不能响应此牌。\n|经典技能类型=锁定技\n|经典技能定位=攻击,控制\n}}",
+      "name": "伏骑",
+      "generals": [
+        "麴义"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用【杀】或普通锦囊牌指定目标后，你距离其为1的其他角色不能响应此牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

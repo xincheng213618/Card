@@ -1,0 +1,45 @@
+{
+  "pageid": 9550,
+  "namespace": 0,
+  "title": "杨彪",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%A8%E5%BD%AA",
+  "revid": 70187,
+  "parentid": 69935,
+  "timestamp": "2025-05-20T03:43:59Z",
+  "sourceSha256": "47d0a82716d1dc085af7781922311b5718a6f468df30c19b1aafe804f2f50b31",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9550,
+      "namespace": 0,
+      "title": "杨彪",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%A8%E5%BD%AA",
+      "revid": 70187,
+      "parentid": 69935,
+      "timestamp": "2025-05-20T03:43:59Z",
+      "sourceSha256": "47d0a82716d1dc085af7781922311b5718a6f468df30c19b1aafe804f2f50b31",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "杨彪",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=杨彪\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=辅助,攻击\n}}",
+      "name": "杨彪",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

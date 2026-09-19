@@ -1,0 +1,47 @@
+{
+  "pageid": 10397,
+  "namespace": 0,
+  "title": "龙宫",
+  "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E5%AE%AB",
+  "revid": 72946,
+  "parentid": 72926,
+  "timestamp": "2025-10-18T13:31:05Z",
+  "sourceSha256": "ba0d94a2769a95e24d392de2c5edcc5cb48ee9a9debb3bd82a68b05ea5ce9d55",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10397,
+      "namespace": 0,
+      "title": "龙宫",
+      "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E5%AE%AB",
+      "revid": 72946,
+      "parentid": 72926,
+      "timestamp": "2025-10-18T13:31:05Z",
+      "sourceSha256": "ba0d94a2769a95e24d392de2c5edcc5cb48ee9a9debb3bd82a68b05ea5ce9d55",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "龙宫",
+        "所属武将": "东海龙王",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合一次，当你受到伤害时，你可以防止此伤害，令伤害来源随机获得牌堆中一张装备牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "防御"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=龙宫\n|所属武将=东海龙王\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合一次，当你受到伤害时，你可以防止此伤害，令伤害来源随机获得牌堆中一张装备牌。\n|经典技能类型=一般技\n|经典技能定位=防御\n}}",
+      "name": "龙宫",
+      "generals": [
+        "东海龙王"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合一次，当你受到伤害时，你可以防止此伤害，令伤害来源随机获得牌堆中一张装备牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

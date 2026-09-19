@@ -1,0 +1,46 @@
+{
+  "pageid": 16135,
+  "namespace": 0,
+  "title": "神貂蝉",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E8%B2%82%E8%9D%89",
+  "revid": 79499,
+  "parentid": 0,
+  "timestamp": "2026-08-10T02:10:47Z",
+  "sourceSha256": "2ad7fa09a2e7c2aff30766520796b322ab24f149b5ac45ef1371ef88d4b0c8d1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16135,
+      "namespace": 0,
+      "title": "神貂蝉",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E8%B2%82%E8%9D%89",
+      "revid": 79499,
+      "parentid": 0,
+      "timestamp": "2026-08-10T02:10:47Z",
+      "sourceSha256": "2ad7fa09a2e7c2aff30766520796b322ab24f149b5ac45ef1371ef88d4b0c8d1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神貂蝉",
+        "势力": "神",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=神貂蝉\n|势力=神\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "神貂蝉",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

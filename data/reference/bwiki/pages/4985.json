@@ -1,0 +1,47 @@
+{
+  "pageid": 4985,
+  "namespace": 0,
+  "title": "崩坏/董卓",
+  "url": "https://wiki.biligame.com/sgs/%E5%B4%A9%E5%9D%8F/%E8%91%A3%E5%8D%93",
+  "revid": 39704,
+  "parentid": 23774,
+  "timestamp": "2022-09-14T13:05:32Z",
+  "sourceSha256": "0583d2738b09c8321e44bb84bc38d9f601aba6ad3b4ee7301621d55bf5597ab6",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4985,
+      "namespace": 0,
+      "title": "崩坏/董卓",
+      "url": "https://wiki.biligame.com/sgs/%E5%B4%A9%E5%9D%8F/%E8%91%A3%E5%8D%93",
+      "revid": 39704,
+      "parentid": 23774,
+      "timestamp": "2022-09-14T13:05:32Z",
+      "sourceSha256": "0583d2738b09c8321e44bb84bc38d9f601aba6ad3b4ee7301621d55bf5597ab6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "崩坏",
+        "所属武将": "董卓",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，若你不是全场体力值最低的角色，你选择一项：1.失去1点体力；2.减1点体力上限。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=崩坏\n|所属武将=董卓\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，若你不是全场体力值最低的角色，你选择一项：1.失去1点体力；2.减1点体力上限。\n|经典技能类型=锁定技\n|经典技能定位=负面\n}}",
+      "name": "崩坏",
+      "generals": [
+        "董卓"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，若你不是全场体力值最低的角色，你选择一项：1.失去1点体力；2.减1点体力上限。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

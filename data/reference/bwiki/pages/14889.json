@@ -1,0 +1,45 @@
+{
+  "pageid": 14889,
+  "namespace": 0,
+  "title": "谋吕蒙",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%90%95%E8%92%99",
+  "revid": 76484,
+  "parentid": 76457,
+  "timestamp": "2026-03-28T04:14:17Z",
+  "sourceSha256": "c510867f009ed58a2e4b05f2e52f5597534be568703545a874238291b8544988",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14889,
+      "namespace": 0,
+      "title": "谋吕蒙",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%90%95%E8%92%99",
+      "revid": 76484,
+      "parentid": 76457,
+      "timestamp": "2026-03-28T04:14:17Z",
+      "sourceSha256": "c510867f009ed58a2e4b05f2e52f5597534be568703545a874238291b8544988",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋吕蒙",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "诡识渐近",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-子敬邀刀",
+        "经典体力": "4",
+        "经典定位": "攻击,发育"
+      },
+      "source": "{{武将\n|武将名=谋吕蒙\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=诡识渐近\n|别称=\n|规则集问答=\n|武将包=谋定-子敬邀刀\n|经典体力=4\n|经典定位=攻击,发育\n}}",
+      "name": "谋吕蒙",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

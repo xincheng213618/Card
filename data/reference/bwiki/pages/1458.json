@@ -1,0 +1,45 @@
+{
+  "pageid": 1458,
+  "namespace": 0,
+  "title": "张虎",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E8%99%8E",
+  "revid": 77698,
+  "parentid": 74692,
+  "timestamp": "2026-05-09T01:47:27Z",
+  "sourceSha256": "1fec07cd0120b9eb2645b19239448300c8ddd42b7cc89f2b69f9962aaf328187",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1458,
+      "namespace": 0,
+      "title": "张虎",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E8%99%8E",
+      "revid": 77698,
+      "parentid": 74692,
+      "timestamp": "2026-05-09T01:47:27Z",
+      "sourceSha256": "1fec07cd0120b9eb2645b19239448300c8ddd42b7cc89f2b69f9962aaf328187",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张虎",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "4",
+        "经典定位": "发育,控制"
+      },
+      "source": "{{武将\n|武将名=张虎\n|势力=魏\n|性别=男\n|别称=\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=4\n|经典定位=发育,控制\n}}",
+      "name": "张虎",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

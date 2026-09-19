@@ -1,0 +1,47 @@
+{
+  "pageid": 11449,
+  "namespace": 0,
+  "title": "诗仙",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%97%E4%BB%99",
+  "revid": 72960,
+  "parentid": 72942,
+  "timestamp": "2025-10-18T13:46:58Z",
+  "sourceSha256": "c5a44c93209a392dbf8357611d86e30d22f4c84bff0c91b566df369f85d81d12",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11449,
+      "namespace": 0,
+      "title": "诗仙",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%97%E4%BB%99",
+      "revid": 72960,
+      "parentid": 72942,
+      "timestamp": "2025-10-18T13:46:58Z",
+      "sourceSha256": "c5a44c93209a392dbf8357611d86e30d22f4c84bff0c91b566df369f85d81d12",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "诗仙",
+        "所属武将": "李白",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用一张牌时，若此牌与你使用的上一张牌押韵，你可以摸一张牌，并令此牌额外结算一次。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,爆发,攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=诗仙\n|所属武将=李白\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用一张牌时，若此牌与你使用的上一张牌押韵，你可以摸一张牌，并令此牌额外结算一次。\n|经典技能类型=一般技\n|经典技能定位=过牌,爆发,攻击\n}}",
+      "name": "诗仙",
+      "generals": [
+        "李白"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用一张牌时，若此牌与你使用的上一张牌押韵，你可以摸一张牌，并令此牌额外结算一次。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

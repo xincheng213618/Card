@@ -1,0 +1,76 @@
+{
+  "pageid": 6174,
+  "namespace": 0,
+  "title": "腹鳞",
+  "url": "https://wiki.biligame.com/sgs/%E8%85%B9%E9%B3%9E",
+  "revid": 66052,
+  "parentid": 64525,
+  "timestamp": "2024-11-22T16:09:11Z",
+  "sourceSha256": "399763a8a1532d7b4ce23ae5d04aec3481f5dfe394cc1a07d3280a972843fea0",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6174,
+      "namespace": 0,
+      "title": "腹鳞",
+      "url": "https://wiki.biligame.com/sgs/%E8%85%B9%E9%B3%9E",
+      "revid": 66052,
+      "parentid": 64525,
+      "timestamp": "2024-11-22T16:09:11Z",
+      "sourceSha256": "399763a8a1532d7b4ce23ae5d04aec3481f5dfe394cc1a07d3280a972843fea0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "腹鳞",
+        "所属武将": "李严",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你于回合内获得的牌不计入你本回合的手牌上限。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=腹鳞\n|所属武将=李严\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你于回合内获得的牌不计入你本回合的手牌上限。\n|经典技能类型=锁定技\n|经典技能定位=屯牌\n}}",
+      "name": "腹鳞",
+      "generals": [
+        "李严"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你于回合内获得的牌不计入你本回合的手牌上限。"
+      }
+    },
+    {
+      "pageid": 6174,
+      "namespace": 0,
+      "title": "腹鳞",
+      "url": "https://wiki.biligame.com/sgs/%E8%85%B9%E9%B3%9E",
+      "revid": 66052,
+      "parentid": 64525,
+      "timestamp": "2024-11-22T16:09:11Z",
+      "sourceSha256": "399763a8a1532d7b4ce23ae5d04aec3481f5dfe394cc1a07d3280a972843fea0",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "2",
+        "技能名": "腹鳞",
+        "所属武将": "李严",
+        "经典技能描述": "'''锁定技，'''你于回合内获得的牌不计入你本回合的手牌上限。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=2\n|技能名=腹鳞\n|所属武将=李严\n|经典技能描述='''锁定技，'''你于回合内获得的牌不计入你本回合的手牌上限。\n}}",
+      "name": "腹鳞",
+      "generals": [
+        "李严"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "'''锁定技，'''你于回合内获得的牌不计入你本回合的手牌上限。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

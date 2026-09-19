@@ -1,0 +1,46 @@
+{
+  "pageid": 13982,
+  "namespace": 0,
+  "title": "诸葛均",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E5%9D%87",
+  "revid": 78508,
+  "parentid": 77345,
+  "timestamp": "2026-06-19T05:24:12Z",
+  "sourceSha256": "f500fdb35332e2ec8d695fcf479a3c411e424a2bd15ef1cd74ab72afdd5b70f8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13982,
+      "namespace": 0,
+      "title": "诸葛均",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E5%9D%87",
+      "revid": 78508,
+      "parentid": 77345,
+      "timestamp": "2026-06-19T05:24:12Z",
+      "sourceSha256": "f500fdb35332e2ec8d695fcf479a3c411e424a2bd15ef1cd74ab72afdd5b70f8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛均",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "三珠之隐根",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "爆发,防御"
+      },
+      "source": "{{武将\n|武将名=诸葛均\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=三珠之隐根\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=爆发,防御\n}}",
+      "name": "诸葛均",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

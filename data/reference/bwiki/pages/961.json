@@ -1,0 +1,46 @@
+{
+  "pageid": 961,
+  "namespace": 0,
+  "title": "士燮",
+  "url": "https://wiki.biligame.com/sgs/%E5%A3%AB%E7%87%AE",
+  "revid": 77606,
+  "parentid": 69522,
+  "timestamp": "2026-05-09T01:42:18Z",
+  "sourceSha256": "c80a1da45d5a4188f361678f402202f8fcdd3f2199b4c593f17504606e2a5aef",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 961,
+      "namespace": 0,
+      "title": "士燮",
+      "url": "https://wiki.biligame.com/sgs/%E5%A3%AB%E7%87%AE",
+      "revid": 77606,
+      "parentid": 69522,
+      "timestamp": "2026-05-09T01:42:18Z",
+      "sourceSha256": "c80a1da45d5a4188f361678f402202f8fcdd3f2199b4c593f17504606e2a5aef",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "士燮",
+        "势力": "群",
+        "性别": "男",
+        "别称": "土鳖",
+        "称号": "雄长百越",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "防御,辅助"
+      },
+      "source": "{{武将\n|武将名=士燮\n|势力=群\n|性别=男\n|别称=土鳖\n|称号=雄长百越\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=防御,辅助\n}}",
+      "name": "士燮",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

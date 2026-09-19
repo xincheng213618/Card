@@ -1,0 +1,47 @@
+{
+  "pageid": 16072,
+  "namespace": 0,
+  "title": "谦素",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%A6%E7%B4%A0",
+  "revid": 79093,
+  "parentid": 0,
+  "timestamp": "2026-07-28T07:41:27Z",
+  "sourceSha256": "a8d83d808de6cd1a32abc620e06338f2061b28477d456c64a3b284b46812a086",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 16072,
+      "namespace": 0,
+      "title": "谦素",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%A6%E7%B4%A0",
+      "revid": 79093,
+      "parentid": 0,
+      "timestamp": "2026-07-28T07:41:27Z",
+      "sourceSha256": "a8d83d808de6cd1a32abc620e06338f2061b28477d456c64a3b284b46812a086",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "谦素",
+        "所属武将": "费祎",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "其他角色的结束阶段，若其手牌数比你多，你可以摸三张牌，然后交给该角色其中一张。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=谦素\n|所属武将=费祎\n|是衍生技=\n|技能版本=经典\n|经典技能描述=其他角色的结束阶段，若其手牌数比你多，你可以摸三张牌，然后交给该角色其中一张。\n|经典技能类型=一般技\n|经典技能定位=辅助,过牌\n}}",
+      "name": "谦素",
+      "generals": [
+        "费祎"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "其他角色的结束阶段，若其手牌数比你多，你可以摸三张牌，然后交给该角色其中一张。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 3906,
+  "namespace": 0,
+  "title": "祸首",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%B8%E9%A6%96",
+  "revid": 38275,
+  "parentid": 23749,
+  "timestamp": "2022-07-10T08:40:47Z",
+  "sourceSha256": "3fced747c3d7ff80ed1626bceb0a5e01cebb94ceefbb2dc3f844fafc6b96fba7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3906,
+      "namespace": 0,
+      "title": "祸首",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%B8%E9%A6%96",
+      "revid": 38275,
+      "parentid": 23749,
+      "timestamp": "2022-07-10T08:40:47Z",
+      "sourceSha256": "3fced747c3d7ff80ed1626bceb0a5e01cebb94ceefbb2dc3f844fafc6b96fba7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "祸首",
+        "所属武将": "孟获",
+        "技能版本": "经典,国",
+        "经典技能描述": "①【南蛮入侵】对你无效；<br>\n②当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌的伤害来源。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=祸首\n|所属武将=孟获\n|技能版本=经典,国\n|经典技能描述=①【南蛮入侵】对你无效；<br>\n②当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌的伤害来源。\n|经典技能类型=锁定技\n|经典技能定位=防御,负面\n}}",
+      "name": "祸首",
+      "generals": [
+        "孟获"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "①【南蛮入侵】对你无效；<br>\n②当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌的伤害来源。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

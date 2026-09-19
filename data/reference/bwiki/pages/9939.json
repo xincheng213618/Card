@@ -1,0 +1,45 @@
+{
+  "pageid": 9939,
+  "namespace": 0,
+  "title": "袁胤",
+  "url": "https://wiki.biligame.com/sgs/%E8%A2%81%E8%83%A4",
+  "revid": 66069,
+  "parentid": 66040,
+  "timestamp": "2024-11-24T10:25:12Z",
+  "sourceSha256": "99b2fcced1944a6e280511c1c96aabf14dd0fcc74dd46934088a521b8e3ec8b5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9939,
+      "namespace": 0,
+      "title": "袁胤",
+      "url": "https://wiki.biligame.com/sgs/%E8%A2%81%E8%83%A4",
+      "revid": 66069,
+      "parentid": 66040,
+      "timestamp": "2024-11-24T10:25:12Z",
+      "sourceSha256": "99b2fcced1944a6e280511c1c96aabf14dd0fcc74dd46934088a521b8e3ec8b5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "袁胤",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-代汉涂高",
+        "经典体力": "3",
+        "经典定位": "续航,辅助"
+      },
+      "source": "{{武将\n|武将名=袁胤\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-代汉涂高\n|经典体力=3\n|经典定位=续航,辅助\n}}",
+      "name": "袁胤",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

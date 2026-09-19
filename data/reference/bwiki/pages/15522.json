@@ -1,0 +1,44 @@
+{
+  "pageid": 15522,
+  "namespace": 0,
+  "title": "美腿之神",
+  "url": "https://wiki.biligame.com/sgs/%E7%BE%8E%E8%85%BF%E4%B9%8B%E7%A5%9E",
+  "revid": 76087,
+  "parentid": 75876,
+  "timestamp": "2026-03-07T04:29:12Z",
+  "sourceSha256": "cbd18759e6253e3bdc88de4f70b52b334930832a65ce04bb7fededa377420cd2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15522,
+      "namespace": 0,
+      "title": "美腿之神",
+      "url": "https://wiki.biligame.com/sgs/%E7%BE%8E%E8%85%BF%E4%B9%8B%E7%A5%9E",
+      "revid": 76087,
+      "parentid": 75876,
+      "timestamp": "2026-03-07T04:29:12Z",
+      "sourceSha256": "cbd18759e6253e3bdc88de4f70b52b334930832a65ce04bb7fededa377420cd2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "美腿之神",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "喵喵杀",
+        "称号": "气球",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=美腿之神\n|势力=神\n|性别=男\n|出现模式=喵喵杀\n|称号=气球\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=3\n|经典定位=攻击,爆发\n}}",
+      "name": "美腿之神",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

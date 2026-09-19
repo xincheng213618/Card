@@ -1,0 +1,47 @@
+{
+  "pageid": 9607,
+  "namespace": 0,
+  "title": "勤慎",
+  "url": "https://wiki.biligame.com/sgs/%E5%8B%A4%E6%85%8E",
+  "revid": 59611,
+  "parentid": 52718,
+  "timestamp": "2023-12-04T07:49:49Z",
+  "sourceSha256": "62861251bbf9a10beac54eefc50fc82deaffd566f2c54b4bbee3fd25874b0468",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9607,
+      "namespace": 0,
+      "title": "勤慎",
+      "url": "https://wiki.biligame.com/sgs/%E5%8B%A4%E6%85%8E",
+      "revid": 59611,
+      "parentid": 52718,
+      "timestamp": "2023-12-04T07:49:49Z",
+      "sourceSha256": "62861251bbf9a10beac54eefc50fc82deaffd566f2c54b4bbee3fd25874b0468",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "勤慎",
+        "所属武将": "孙资刘放",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "弃牌阶段结束时，你可以摸X张牌（X为本回合未进入弃牌堆的花色数）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=勤慎\n|所属武将=孙资刘放\n|是衍生技=\n|技能版本=经典\n|经典技能描述=弃牌阶段结束时，你可以摸X张牌（X为本回合未进入弃牌堆的花色数）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "勤慎",
+      "generals": [
+        "孙资刘放"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "弃牌阶段结束时，你可以摸X张牌（X为本回合未进入弃牌堆的花色数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

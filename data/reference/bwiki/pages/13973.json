@@ -1,0 +1,47 @@
+{
+  "pageid": 13973,
+  "namespace": 0,
+  "title": "险拒",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%A9%E6%8B%92",
+  "revid": 77398,
+  "parentid": 75764,
+  "timestamp": "2026-05-02T14:25:50Z",
+  "sourceSha256": "e4fece80f5a786c8d92a175f0a7497265dcfa809e8850aff2c8628c6bc1693d6",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 13973,
+      "namespace": 0,
+      "title": "险拒",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%A9%E6%8B%92",
+      "revid": 77398,
+      "parentid": 75764,
+      "timestamp": "2026-05-02T14:25:50Z",
+      "sourceSha256": "e4fece80f5a786c8d92a175f0a7497265dcfa809e8850aff2c8628c6bc1693d6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "险拒",
+        "所属武将": "谋曹洪",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可获得攻击范围内所有角色1张牌，若如此做，出牌阶段结束时，你弃置攻击范围外角色数张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=险拒\n|所属武将=谋曹洪\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可获得攻击范围内所有角色1张牌，若如此做，出牌阶段结束时，你弃置攻击范围外角色数张牌。\n|经典技能类型=一般技\n|经典技能定位=控制\n}}",
+      "name": "险拒",
+      "generals": [
+        "谋曹洪"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可获得攻击范围内所有角色1张牌，若如此做，出牌阶段结束时，你弃置攻击范围外角色数张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

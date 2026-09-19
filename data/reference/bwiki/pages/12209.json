@@ -1,0 +1,45 @@
+{
+  "pageid": 12209,
+  "namespace": 0,
+  "title": "谋司马懿",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%8F%B8%E9%A9%AC%E6%87%BF",
+  "revid": 75261,
+  "parentid": 75253,
+  "timestamp": "2026-02-10T01:02:32Z",
+  "sourceSha256": "4413b511bf17b85c2dcdfbd2f7d0e5b848c9376a1233e61eaa080de685f7c59c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12209,
+      "namespace": 0,
+      "title": "谋司马懿",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%8F%B8%E9%A9%AC%E6%87%BF",
+      "revid": 75261,
+      "parentid": 75253,
+      "timestamp": "2026-02-10T01:02:32Z",
+      "sourceSha256": "4413b511bf17b85c2dcdfbd2f7d0e5b848c9376a1233e61eaa080de685f7c59c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋司马懿",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3",
+        "经典定位": "攻击,控制\n<!-- 谋 -->"
+      },
+      "source": "{{武将\n|武将名=谋司马懿\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3\n|经典定位=攻击,控制\n<!-- 谋 -->\n}}",
+      "name": "谋司马懿",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

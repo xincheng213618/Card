@@ -1,0 +1,47 @@
+{
+  "pageid": 3577,
+  "namespace": 0,
+  "title": "血裔",
+  "url": "https://wiki.biligame.com/sgs/%E8%A1%80%E8%A3%94",
+  "revid": 41296,
+  "parentid": 32004,
+  "timestamp": "2022-10-30T16:33:34Z",
+  "sourceSha256": "45be46996033fc22a433d2489989d8a6fff6cbf7dc959b40f657ce6b12afdca0",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3577,
+      "namespace": 0,
+      "title": "血裔",
+      "url": "https://wiki.biligame.com/sgs/%E8%A1%80%E8%A3%94",
+      "revid": 41296,
+      "parentid": 32004,
+      "timestamp": "2022-10-30T16:33:34Z",
+      "sourceSha256": "45be46996033fc22a433d2489989d8a6fff6cbf7dc959b40f657ce6b12afdca0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "血裔",
+        "所属武将": "袁绍",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你的手牌上限+X（X为其他群势力角色数的两倍）。",
+        "经典技能类型": "主公技,锁定技",
+        "经典技能定位": "屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=血裔\n|所属武将=袁绍\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你的手牌上限+X（X为其他群势力角色数的两倍）。\n|经典技能类型=主公技,锁定技\n|经典技能定位=屯牌\n}}",
+      "name": "血裔",
+      "generals": [
+        "袁绍"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你的手牌上限+X（X为其他群势力角色数的两倍）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

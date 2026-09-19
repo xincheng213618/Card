@@ -1,0 +1,47 @@
+{
+  "pageid": 11913,
+  "namespace": 0,
+  "title": "长姬",
+  "url": "https://wiki.biligame.com/sgs/%E9%95%BF%E5%A7%AC",
+  "revid": 65677,
+  "parentid": 65581,
+  "timestamp": "2024-10-24T10:52:21Z",
+  "sourceSha256": "e3c63abfe3a751724f0a92f25d08c22c31d073c635fa95c8fb303a22d20aad61",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11913,
+      "namespace": 0,
+      "title": "长姬",
+      "url": "https://wiki.biligame.com/sgs/%E9%95%BF%E5%A7%AC",
+      "revid": 65677,
+      "parentid": 65581,
+      "timestamp": "2024-10-24T10:52:21Z",
+      "sourceSha256": "e3c63abfe3a751724f0a92f25d08c22c31d073c635fa95c8fb303a22d20aad61",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "长姬",
+        "所属武将": "清河公主",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当一张牌指定目标时，若此牌目标数大于1且你为目标之一，此牌优先对你生效，然后你摸其余目标数张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=长姬\n|所属武将=清河公主\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当一张牌指定目标时，若此牌目标数大于1且你为目标之一，此牌优先对你生效，然后你摸其余目标数张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "长姬",
+      "generals": [
+        "清河公主"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一张牌指定目标时，若此牌目标数大于1且你为目标之一，此牌优先对你生效，然后你摸其余目标数张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

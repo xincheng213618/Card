@@ -1,0 +1,47 @@
+{
+  "pageid": 4072,
+  "namespace": 0,
+  "title": "巨贾",
+  "url": "https://wiki.biligame.com/sgs/%E5%B7%A8%E8%B4%BE",
+  "revid": 39420,
+  "parentid": 30222,
+  "timestamp": "2022-08-29T11:42:11Z",
+  "sourceSha256": "32da024184473785cea57abdd3c4611ed56b9d3e33fddd65a947d4b0c1c5d2c0",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4072,
+      "namespace": 0,
+      "title": "巨贾",
+      "url": "https://wiki.biligame.com/sgs/%E5%B7%A8%E8%B4%BE",
+      "revid": 39420,
+      "parentid": 30222,
+      "timestamp": "2022-08-29T11:42:11Z",
+      "sourceSha256": "32da024184473785cea57abdd3c4611ed56b9d3e33fddd65a947d4b0c1c5d2c0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "巨贾",
+        "所属武将": "糜竺",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①你的手牌上限+X；<br>\n②游戏开始时，你多摸X张牌（X为你的体力上限）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "屯牌,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=巨贾\n|所属武将=糜竺\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①你的手牌上限+X；<br>\n②游戏开始时，你多摸X张牌（X为你的体力上限）。\n|经典技能类型=锁定技\n|经典技能定位=屯牌,过牌\n}}",
+      "name": "巨贾",
+      "generals": [
+        "糜竺"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①你的手牌上限+X；<br>\n②游戏开始时，你多摸X张牌（X为你的体力上限）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

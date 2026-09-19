@@ -1,0 +1,45 @@
+{
+  "pageid": 7662,
+  "namespace": 0,
+  "title": "陆凯",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%86%E5%87%AF",
+  "revid": 74703,
+  "parentid": 71256,
+  "timestamp": "2026-01-22T16:31:17Z",
+  "sourceSha256": "0db2cde9056c228de6fcdde139904c1a58ebcbb0c9c8c44dedfe7a022cb8037a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7662,
+      "namespace": 0,
+      "title": "陆凯",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%86%E5%87%AF",
+      "revid": 74703,
+      "parentid": 71256,
+      "timestamp": "2026-01-22T16:31:17Z",
+      "sourceSha256": "0db2cde9056c228de6fcdde139904c1a58ebcbb0c9c8c44dedfe7a022cb8037a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陆凯",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "SP许攸、许攸·超",
+        "规则集问答": "",
+        "武将包": "一将成名-2022",
+        "经典体力": "4",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=陆凯\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=SP许攸、许攸·超\n|规则集问答=\n|武将包=一将成名-2022\n|经典体力=4\n|经典定位=续航,爆发\n}}",
+      "name": "陆凯",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

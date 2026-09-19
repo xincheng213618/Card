@@ -1,0 +1,47 @@
+{
+  "pageid": 12672,
+  "namespace": 0,
+  "title": "亢勇",
+  "url": "https://wiki.biligame.com/sgs/%E4%BA%A2%E5%8B%87",
+  "revid": 63703,
+  "parentid": 63572,
+  "timestamp": "2024-07-05T16:43:30Z",
+  "sourceSha256": "583fc9aff9fd815f85d93a060e7a3316d50dfc0daf2054bbcd33d6bc3ccdfd7d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12672,
+      "namespace": 0,
+      "title": "亢勇",
+      "url": "https://wiki.biligame.com/sgs/%E4%BA%A2%E5%8B%87",
+      "revid": 63703,
+      "parentid": 63572,
+      "timestamp": "2024-07-05T16:43:30Z",
+      "sourceSha256": "583fc9aff9fd815f85d93a060e7a3316d50dfc0daf2054bbcd33d6bc3ccdfd7d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "亢勇",
+        "所属武将": "谋典韦",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "回合开始时，你将体力值回复至体力上限，然后于此回合结束时失去等量点体力（至多失去至1点）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=亢勇\n|所属武将=谋典韦\n|是衍生技=\n|技能版本=经典\n|经典技能描述=回合开始时，你将体力值回复至体力上限，然后于此回合结束时失去等量点体力（至多失去至1点）。\n|经典技能类型=锁定技\n|经典技能定位=屯牌\n}}",
+      "name": "亢勇",
+      "generals": [
+        "谋典韦"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "回合开始时，你将体力值回复至体力上限，然后于此回合结束时失去等量点体力（至多失去至1点）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

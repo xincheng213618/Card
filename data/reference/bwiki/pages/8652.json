@@ -1,0 +1,47 @@
+{
+  "pageid": 8652,
+  "namespace": 0,
+  "title": "链祸",
+  "url": "https://wiki.biligame.com/sgs/%E9%93%BE%E7%A5%B8",
+  "revid": 49283,
+  "parentid": 49282,
+  "timestamp": "2023-02-23T01:57:11Z",
+  "sourceSha256": "c642a15bf6c4c14a65d2fed2e20d707c9215573fa0ffaa797e5937ea7e336f74",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8652,
+      "namespace": 0,
+      "title": "链祸",
+      "url": "https://wiki.biligame.com/sgs/%E9%93%BE%E7%A5%B8",
+      "revid": 49283,
+      "parentid": 49282,
+      "timestamp": "2023-02-23T01:57:11Z",
+      "sourceSha256": "c642a15bf6c4c14a65d2fed2e20d707c9215573fa0ffaa797e5937ea7e336f74",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "链祸",
+        "所属武将": "岑昏",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你受到火焰伤害时，若你处于“'''连环状态'''”且是传导伤害的起点，此伤害+1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=链祸\n|所属武将=岑昏\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你受到火焰伤害时，若你处于“'''连环状态'''”且是传导伤害的起点，此伤害+1。\n|经典技能类型=锁定技\n|经典技能定位=负面\n}}",
+      "name": "链祸",
+      "generals": [
+        "岑昏"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你受到火焰伤害时，若你处于“'''连环状态'''”且是传导伤害的起点，此伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

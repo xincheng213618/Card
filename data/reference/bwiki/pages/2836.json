@@ -1,0 +1,45 @@
+{
+  "pageid": 2836,
+  "namespace": 0,
+  "title": "孙鲁育",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E9%B2%81%E8%82%B2",
+  "revid": 77652,
+  "parentid": 69582,
+  "timestamp": "2026-05-09T01:44:59Z",
+  "sourceSha256": "ad06d5ee374224d191e53efc70f0470cf45b32b4fa20ed27992b2eaed17ee7b4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 2836,
+      "namespace": 0,
+      "title": "孙鲁育",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E9%B2%81%E8%82%B2",
+      "revid": 77652,
+      "parentid": 69582,
+      "timestamp": "2026-05-09T01:44:59Z",
+      "sourceSha256": "ad06d5ee374224d191e53efc70f0470cf45b32b4fa20ed27992b2eaed17ee7b4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙鲁育",
+        "势力": "吴",
+        "性别": "女",
+        "别称": "小虎",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "{{faq|拥有“止息”的角色使用【杀】时没有手牌，如何结算？|无需弃牌。}}\n{{faq|拥有“止息”的角色视为使用的【杀】是否需要弃牌？|需要}}",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=孙鲁育\n|势力=吴\n|性别=女\n|别称=小虎\n|出现模式=身份,欢乐,斗地主\n|规则集问答={{faq|拥有“止息”的角色使用【杀】时没有手牌，如何结算？|无需弃牌。}}\n{{faq|拥有“止息”的角色视为使用的【杀】是否需要弃牌？|需要}}\n|武将包=荟萃-才子佳人\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "孙鲁育",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

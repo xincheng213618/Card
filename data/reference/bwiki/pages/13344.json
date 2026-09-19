@@ -1,0 +1,46 @@
+{
+  "pageid": 13344,
+  "namespace": 0,
+  "title": "庞凤衣",
+  "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E5%87%A4%E8%A1%A3",
+  "revid": 77666,
+  "parentid": 75302,
+  "timestamp": "2026-05-09T01:45:39Z",
+  "sourceSha256": "510f4b6659d46a232bf15369a30d3eb89184e4aa7ddf3d8c1f1d4d29ce9c8f0e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13344,
+      "namespace": 0,
+      "title": "庞凤衣",
+      "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E5%87%A4%E8%A1%A3",
+      "revid": 77666,
+      "parentid": 75302,
+      "timestamp": "2026-05-09T01:45:39Z",
+      "sourceSha256": "510f4b6659d46a232bf15369a30d3eb89184e4aa7ddf3d8c1f1d4d29ce9c8f0e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "庞凤衣",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限定-隐山之玉",
+        "经典体力": "3",
+        "经典定位": "生存,辅助"
+      },
+      "source": "{{武将\n|武将名=庞凤衣\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限定-隐山之玉\n|经典体力=3\n|经典定位=生存,辅助\n}}",
+      "name": "庞凤衣",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

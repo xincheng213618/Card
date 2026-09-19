@@ -1,0 +1,45 @@
+{
+  "pageid": 8807,
+  "namespace": 0,
+  "title": "是仪",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%AF%E4%BB%AA",
+  "revid": 70114,
+  "parentid": 69862,
+  "timestamp": "2025-05-20T03:36:04Z",
+  "sourceSha256": "f6f7de0406db6882adef8e314de24a78e9f5d149b603ab69286e79b7d7b52227",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8807,
+      "namespace": 0,
+      "title": "是仪",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%AF%E4%BB%AA",
+      "revid": 70114,
+      "parentid": 69862,
+      "timestamp": "2025-05-20T03:36:04Z",
+      "sourceSha256": "f6f7de0406db6882adef8e314de24a78e9f5d149b603ab69286e79b7d7b52227",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "是仪",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-兵临城下",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=是仪\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-兵临城下\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "是仪",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

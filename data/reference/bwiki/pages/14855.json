@@ -1,0 +1,46 @@
+{
+  "pageid": 14855,
+  "namespace": 0,
+  "title": "威孙策",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%AD%99%E7%AD%96",
+  "revid": 78301,
+  "parentid": 77623,
+  "timestamp": "2026-06-13T15:16:39Z",
+  "sourceSha256": "10d6c86c3b047b4df8a0430b67961c09ca6bd033f93db56c55459530bae4452d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14855,
+      "namespace": 0,
+      "title": "威孙策",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%AD%99%E7%AD%96",
+      "revid": 78301,
+      "parentid": 77623,
+      "timestamp": "2026-06-13T15:16:39Z",
+      "sourceSha256": "10d6c86c3b047b4df8a0430b67961c09ca6bd033f93db56c55459530bae4452d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威孙策",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "勇冠三江势",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-君威盖世",
+        "经典体力": "5",
+        "经典定位": "爆发,生存"
+      },
+      "source": "{{武将\n|武将名=威孙策\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=勇冠三江势\n|别称=\n|规则集问答=\n|武将包=威震-君威盖世\n|经典体力=5\n|经典定位=爆发,生存\n}}",
+      "name": "威孙策",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

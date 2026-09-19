@@ -1,0 +1,47 @@
+{
+  "pageid": 4373,
+  "namespace": 0,
+  "title": "太史慈",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%AA%E5%8F%B2%E6%85%88",
+  "revid": 77617,
+  "parentid": 59833,
+  "timestamp": "2026-05-09T01:43:04Z",
+  "sourceSha256": "55408d08e2dc93c8172afcd0bdf14cc5460c4358732de8b4081dedb9491d615a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4373,
+      "namespace": 0,
+      "title": "太史慈",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%AA%E5%8F%B2%E6%85%88",
+      "revid": 77617,
+      "parentid": 59833,
+      "timestamp": "2026-05-09T01:43:04Z",
+      "sourceSha256": "55408d08e2dc93c8172afcd0bdf14cc5460c4358732de8b4081dedb9491d615a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "太史慈",
+        "势力": "吴",
+        "性别": "男",
+        "称号": "笃烈之士",
+        "别称": "大吏兹、大狸子",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "规则集问答": "",
+        "武将包": "神话再临-火包",
+        "经典体力": "4",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=太史慈\n|势力=吴\n|性别=男\n|称号=笃烈之士\n|别称=大吏兹、大狸子\n|出现模式=身份,欢乐,斗地主,国战\n|规则集问答=\n|武将包=神话再临-火包\n|经典体力=4\n|经典定位=控制,攻击\n}}",
+      "name": "太史慈",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

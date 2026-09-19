@@ -1,0 +1,46 @@
+{
+  "pageid": 12769,
+  "namespace": 0,
+  "title": "孙礼",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%A4%BC",
+  "revid": 77643,
+  "parentid": 69574,
+  "timestamp": "2026-05-09T01:44:21Z",
+  "sourceSha256": "4e8ffbbeca422a1abb362390b26e97e46c14c26be1ec7bb6b66fcbd7a0eb14be",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12769,
+      "namespace": 0,
+      "title": "孙礼",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%A4%BC",
+      "revid": 77643,
+      "parentid": 69574,
+      "timestamp": "2026-05-09T01:44:21Z",
+      "sourceSha256": "4e8ffbbeca422a1abb362390b26e97e46c14c26be1ec7bb6b66fcbd7a0eb14be",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙礼",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "孙吧之礼——打个胶先",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "4",
+        "经典定位": "卖血,爆发"
+      },
+      "source": "{{武将\n|武将名=孙礼\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=孙吧之礼——打个胶先\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=4\n|经典定位=卖血,爆发\n}}",
+      "name": "孙礼",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

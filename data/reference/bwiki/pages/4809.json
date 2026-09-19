@@ -1,0 +1,47 @@
+{
+  "pageid": 4809,
+  "namespace": 0,
+  "title": "龙胆/童渊",
+  "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E8%83%86/%E7%AB%A5%E6%B8%8A",
+  "revid": 23273,
+  "parentid": 19633,
+  "timestamp": "2021-12-24T03:33:14Z",
+  "sourceSha256": "479a3db2105a19951b8f9cada37e24e10e5c233d309b979a12cf46211dac98d3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4809,
+      "namespace": 0,
+      "title": "龙胆/童渊",
+      "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E8%83%86/%E7%AB%A5%E6%B8%8A",
+      "revid": 23273,
+      "parentid": 19633,
+      "timestamp": "2021-12-24T03:33:14Z",
+      "sourceSha256": "479a3db2105a19951b8f9cada37e24e10e5c233d309b979a12cf46211dac98d3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "龙胆",
+        "所属武将": "童渊",
+        "技能版本": "经典",
+        "是衍生技": "是",
+        "经典技能描述": "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "防御,攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=龙胆\n|所属武将=童渊\n|技能版本=经典\n|是衍生技=是\n|经典技能描述=你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。\n|经典技能类型=一般技\n|经典技能定位=防御,攻击\n}}",
+      "name": "龙胆",
+      "generals": [
+        "童渊"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

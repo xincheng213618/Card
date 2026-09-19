@@ -1,0 +1,46 @@
+{
+  "pageid": 16054,
+  "namespace": 0,
+  "title": "孙和",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E5%92%8C",
+  "revid": 79042,
+  "parentid": 79025,
+  "timestamp": "2026-07-23T07:50:18Z",
+  "sourceSha256": "74d3dcd8468328d89fdf1a92d4efdbbdbc9c7d06cd0c569fca84f903caf58027",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16054,
+      "namespace": 0,
+      "title": "孙和",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E5%92%8C",
+      "revid": 79042,
+      "parentid": 79025,
+      "timestamp": "2026-07-23T07:50:18Z",
+      "sourceSha256": "74d3dcd8468328d89fdf1a92d4efdbbdbc9c7d06cd0c569fca84f903caf58027",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙和",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "4",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=孙和\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=4\n|经典定位=控制,攻击\n}}",
+      "name": "孙和",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

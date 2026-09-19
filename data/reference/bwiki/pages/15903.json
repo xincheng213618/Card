@@ -1,0 +1,46 @@
+{
+  "pageid": 15903,
+  "namespace": 0,
+  "title": "谋马谡",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%A9%AC%E8%B0%A1",
+  "revid": 80180,
+  "parentid": 80132,
+  "timestamp": "2026-09-19T04:21:26Z",
+  "sourceSha256": "29f4332033fc2b11202cb8b1c9f88d8f817b34319a95830dcf663ed2a05b334e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15903,
+      "namespace": 0,
+      "title": "谋马谡",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%A9%AC%E8%B0%A1",
+      "revid": 80180,
+      "parentid": 80132,
+      "timestamp": "2026-09-19T04:21:26Z",
+      "sourceSha256": "29f4332033fc2b11202cb8b1c9f88d8f817b34319a95830dcf663ed2a05b334e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋马谡",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "服心屈兵",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-武侯定南",
+        "经典体力": "4",
+        "经典定位": "辅助,控制,攻击"
+      },
+      "source": "{{武将\n|武将名=谋马谡\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=服心屈兵\n|别称=\n|规则集问答=\n|武将包=谋定-武侯定南\n|经典体力=4\n|经典定位=辅助,控制,攻击\n}}",
+      "name": "谋马谡",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 4883,
+  "namespace": 0,
+  "title": "天妒/戏志才",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E5%A6%92/%E6%88%8F%E5%BF%97%E6%89%8D",
+  "revid": 76715,
+  "parentid": 76714,
+  "timestamp": "2026-04-06T14:06:26Z",
+  "sourceSha256": "bfa8818413081625667ebaff24d55cf8f7dbbd13c51ddeffb9be0c0a4b7fae8b",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4883,
+      "namespace": 0,
+      "title": "天妒/戏志才",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E5%A6%92/%E6%88%8F%E5%BF%97%E6%89%8D",
+      "revid": 76715,
+      "parentid": 76714,
+      "timestamp": "2026-04-06T14:06:26Z",
+      "sourceSha256": "bfa8818413081625667ebaff24d55cf8f7dbbd13c51ddeffb9be0c0a4b7fae8b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "天妒",
+        "所属武将": "戏志才",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你的判定牌生效后，你可以获得之。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=天妒\n|所属武将=戏志才\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你的判定牌生效后，你可以获得之。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "天妒",
+      "generals": [
+        "戏志才"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你的判定牌生效后，你可以获得之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

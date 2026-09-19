@@ -1,0 +1,45 @@
+{
+  "pageid": 13970,
+  "namespace": 0,
+  "title": "武皇甫嵩",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E7%9A%87%E7%94%AB%E5%B5%A9",
+  "revid": 76710,
+  "parentid": 76709,
+  "timestamp": "2026-04-06T05:47:18Z",
+  "sourceSha256": "67c009a209a2f2e31348ffd8885385ae8b79360a815180c94b0bf16e7b5a51fb",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13970,
+      "namespace": 0,
+      "title": "武皇甫嵩",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E7%9A%87%E7%94%AB%E5%B5%A9",
+      "revid": 76710,
+      "parentid": 76709,
+      "timestamp": "2026-04-06T05:47:18Z",
+      "sourceSha256": "67c009a209a2f2e31348ffd8885385ae8b79360a815180c94b0bf16e7b5a51fb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "武皇甫嵩",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "襄武翼汉",
+        "别称": "武皇，减速带大人",
+        "规则集问答": "",
+        "武将包": "限定-武庙",
+        "经典体力": "1/4",
+        "经典定位": "爆发,攻击"
+      },
+      "source": "{{武将\n|武将名=武皇甫嵩\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=襄武翼汉\n|别称=武皇，减速带大人\n|规则集问答=\n|武将包=限定-武庙\n|经典体力=1/4\n|经典定位=爆发,攻击\n}}",
+      "name": "武皇甫嵩",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

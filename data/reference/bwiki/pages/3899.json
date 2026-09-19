@@ -1,0 +1,46 @@
+{
+  "pageid": 3899,
+  "namespace": 0,
+  "title": "天覆",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E8%A6%86",
+  "revid": 66225,
+  "parentid": 43378,
+  "timestamp": "2024-12-06T19:14:32Z",
+  "sourceSha256": "3a56b4fa04b580bd489aecfadd1564cbe286d7a03d469ec5e16552626f771c6e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3899,
+      "namespace": 0,
+      "title": "天覆",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E8%A6%86",
+      "revid": 66225,
+      "parentid": 43378,
+      "timestamp": "2024-12-06T19:14:32Z",
+      "sourceSha256": "3a56b4fa04b580bd489aecfadd1564cbe286d7a03d469ec5e16552626f771c6e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "天覆",
+        "所属武将": "姜维",
+        "技能版本": "国",
+        "国战技能描述": "与你处于同一队列的角色的回合内，你拥有技能“{{技能/引用|看破/姜维|国战}}”。",
+        "国战技能类型": "主将技,阵法技",
+        "国战技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=天覆\n|所属武将=姜维\n|技能版本=国\n|国战技能描述=与你处于同一队列的角色的回合内，你拥有技能“{{技能/引用|看破/姜维|国战}}”。\n|国战技能类型=主将技,阵法技\n|国战技能定位=中性\n}}",
+      "name": "天覆",
+      "generals": [
+        "姜维"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "与你处于同一队列的角色的回合内，你拥有技能“{{技能/引用|看破/姜维|国战}}”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 7665,
+  "namespace": 0,
+  "title": "忠壮",
+  "url": "https://wiki.biligame.com/sgs/%E5%BF%A0%E5%A3%AE",
+  "revid": 39502,
+  "parentid": 39485,
+  "timestamp": "2022-09-02T02:51:19Z",
+  "sourceSha256": "ef4113e5ba8e90682594d1811efce88f67733bb862068690e2962facf7f899f8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7665,
+      "namespace": 0,
+      "title": "忠壮",
+      "url": "https://wiki.biligame.com/sgs/%E5%BF%A0%E5%A3%AE",
+      "revid": 39502,
+      "parentid": 39485,
+      "timestamp": "2022-09-02T02:51:19Z",
+      "sourceSha256": "ef4113e5ba8e90682594d1811efce88f67733bb862068690e2962facf7f899f8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "忠壮",
+        "所属武将": "陆凯",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用【杀】造成伤害时，若你的攻击范围：大于3，此伤害+1；小于3，将此次伤害的伤害值改为1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=忠壮\n|所属武将=陆凯\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用【杀】造成伤害时，若你的攻击范围：大于3，此伤害+1；小于3，将此次伤害的伤害值改为1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,负面\n}}",
+      "name": "忠壮",
+      "generals": [
+        "陆凯"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用【杀】造成伤害时，若你的攻击范围：大于3，此伤害+1；小于3，将此次伤害的伤害值改为1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

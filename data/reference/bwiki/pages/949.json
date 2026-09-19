@@ -1,0 +1,45 @@
+{
+  "pageid": 949,
+  "namespace": 0,
+  "title": "李傕",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%82%95",
+  "revid": 70169,
+  "parentid": 69917,
+  "timestamp": "2025-05-20T03:41:48Z",
+  "sourceSha256": "405239fd9dd99c47dcd11e9706d7a4fa573dfe7b919ec6a1eac4e465a6885d80",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 949,
+      "namespace": 0,
+      "title": "李傕",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%82%95",
+      "revid": 70169,
+      "parentid": 69917,
+      "timestamp": "2025-05-20T03:41:48Z",
+      "sourceSha256": "405239fd9dd99c47dcd11e9706d7a4fa573dfe7b919ec6a1eac4e465a6885d80",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李傕",
+        "势力": "群",
+        "性别": "男",
+        "别称": "袭羊羊、李0",
+        "称号": "奸谋恶勇",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4/6",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=李傕\n|势力=群\n|性别=男\n|别称=袭羊羊、李0\n|称号=奸谋恶勇\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4/6\n|经典定位=攻击\n}}",
+      "name": "李傕",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

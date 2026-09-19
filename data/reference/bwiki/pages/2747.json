@@ -1,0 +1,47 @@
+{
+  "pageid": 2747,
+  "namespace": 0,
+  "title": "活气",
+  "url": "https://wiki.biligame.com/sgs/%E6%B4%BB%E6%B0%94",
+  "revid": 36095,
+  "parentid": 31070,
+  "timestamp": "2022-04-04T12:49:59Z",
+  "sourceSha256": "c4afc90bda7cda403f071b4d032845a296d934964ff2b7f5488ff224b2e68e10",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2747,
+      "namespace": 0,
+      "title": "活气",
+      "url": "https://wiki.biligame.com/sgs/%E6%B4%BB%E6%B0%94",
+      "revid": 36095,
+      "parentid": 31070,
+      "timestamp": "2022-04-04T12:49:59Z",
+      "sourceSha256": "c4afc90bda7cda403f071b4d032845a296d934964ff2b7f5488ff224b2e68e10",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "活气",
+        "所属武将": "写满技能的天书",
+        "是衍生技": "是",
+        "技能版本": "经典,国",
+        "经典技能描述": "出牌阶段限一次，你可以弃置一张牌，令全场体力值最低的一名角色回复1点体力并摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,回血,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=活气\n|所属武将=写满技能的天书\n|是衍生技=是\n|技能版本=经典,国\n|经典技能描述=出牌阶段限一次，你可以弃置一张牌，令全场体力值最低的一名角色回复1点体力并摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=辅助,回血,过牌\n}}",
+      "name": "活气",
+      "generals": [
+        "写满技能的天书"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以弃置一张牌，令全场体力值最低的一名角色回复1点体力并摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

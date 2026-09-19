@@ -1,0 +1,47 @@
+{
+  "pageid": 6327,
+  "namespace": 0,
+  "title": "神威/吕玲绮",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%A8%81/%E5%90%95%E7%8E%B2%E7%BB%AE",
+  "revid": 48363,
+  "parentid": 40384,
+  "timestamp": "2023-02-08T08:22:52Z",
+  "sourceSha256": "7fcd6fec02f889efc495f5a2497eb72891d9a7a73a2c03be7fee5d4e1c2923f4",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6327,
+      "namespace": 0,
+      "title": "神威/吕玲绮",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%A8%81/%E5%90%95%E7%8E%B2%E7%BB%AE",
+      "revid": 48363,
+      "parentid": 40384,
+      "timestamp": "2023-02-08T08:22:52Z",
+      "sourceSha256": "7fcd6fec02f889efc495f5a2497eb72891d9a7a73a2c03be7fee5d4e1c2923f4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "神威",
+        "所属武将": "吕玲绮",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "①摸牌阶段，你多摸两张牌；<br>\n②你的手牌上限+2。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=神威\n|所属武将=吕玲绮\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=①摸牌阶段，你多摸两张牌；<br>\n②你的手牌上限+2。\n|经典技能类型=锁定技\n|经典技能定位=过牌,屯牌\n}}",
+      "name": "神威",
+      "generals": [
+        "吕玲绮"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①摸牌阶段，你多摸两张牌；<br>\n②你的手牌上限+2。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

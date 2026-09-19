@@ -1,0 +1,47 @@
+{
+  "pageid": 8604,
+  "namespace": 0,
+  "title": "安辽",
+  "url": "https://wiki.biligame.com/sgs/%E5%AE%89%E8%BE%BD",
+  "revid": 45641,
+  "parentid": 45556,
+  "timestamp": "2022-12-24T03:04:15Z",
+  "sourceSha256": "f2c46a4e2f0ea23067de9989d964beb687e3ec75a19e470edf86f70e0d1b863d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8604,
+      "namespace": 0,
+      "title": "安辽",
+      "url": "https://wiki.biligame.com/sgs/%E5%AE%89%E8%BE%BD",
+      "revid": 45641,
+      "parentid": 45556,
+      "timestamp": "2022-12-24T03:04:15Z",
+      "sourceSha256": "f2c46a4e2f0ea23067de9989d964beb687e3ec75a19e470edf86f70e0d1b863d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "安辽",
+        "所属武将": "公孙度",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限X次（X为群势力角色数），你可以重铸一名角色的一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=安辽\n|所属武将=公孙度\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限X次（X为群势力角色数），你可以重铸一名角色的一张牌。\n|经典技能类型=一般技\n|经典技能定位=控制,辅助\n}}",
+      "name": "安辽",
+      "generals": [
+        "公孙度"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限X次（X为群势力角色数），你可以重铸一名角色的一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

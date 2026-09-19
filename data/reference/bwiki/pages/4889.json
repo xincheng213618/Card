@@ -1,0 +1,47 @@
+{
+  "pageid": 4889,
+  "namespace": 0,
+  "title": "流离/大乔",
+  "url": "https://wiki.biligame.com/sgs/%E6%B5%81%E7%A6%BB/%E5%A4%A7%E4%B9%94",
+  "revid": 72575,
+  "parentid": 68222,
+  "timestamp": "2025-09-25T03:15:18Z",
+  "sourceSha256": "5cfff2f44641f0b42dd4f57f2efb8ff0f276d7851282fdf8c33ec8eac657c7a9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4889,
+      "namespace": 0,
+      "title": "流离/大乔",
+      "url": "https://wiki.biligame.com/sgs/%E6%B5%81%E7%A6%BB/%E5%A4%A7%E4%B9%94",
+      "revid": 72575,
+      "parentid": 68222,
+      "timestamp": "2025-09-25T03:15:18Z",
+      "sourceSha256": "5cfff2f44641f0b42dd4f57f2efb8ff0f276d7851282fdf8c33ec8eac657c7a9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "流离",
+        "所属武将": "大乔",
+        "是衍生技": "",
+        "技能版本": "经典,界,国",
+        "经典技能描述": "当你成为其他角色使用【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内的另一名其他角色。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "防御,转移"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=流离\n|所属武将=大乔\n|是衍生技=\n|技能版本=经典,界,国\n|经典技能描述=当你成为其他角色使用【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内的另一名其他角色。\n|经典技能类型=一般技\n|经典技能定位=防御,转移\n}}",
+      "name": "流离",
+      "generals": [
+        "大乔"
+      ],
+      "mode": "经典,界,国",
+      "version": "经典,界,国",
+      "descriptions": {
+        "经典技能描述": "当你成为其他角色使用【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内的另一名其他角色。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

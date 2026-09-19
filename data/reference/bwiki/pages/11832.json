@@ -1,0 +1,45 @@
+{
+  "pageid": 11832,
+  "namespace": 0,
+  "title": "谋鲁肃",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%B2%81%E8%82%83",
+  "revid": 80171,
+  "parentid": 78641,
+  "timestamp": "2026-09-19T04:24:46Z",
+  "sourceSha256": "586e3cd038f792d9dacd608d79f27220c89917c49b9ae1697b292ef41c74068d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11832,
+      "namespace": 0,
+      "title": "谋鲁肃",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%B2%81%E8%82%83",
+      "revid": 80171,
+      "parentid": 78641,
+      "timestamp": "2026-09-19T04:24:46Z",
+      "sourceSha256": "586e3cd038f792d9dacd608d79f27220c89917c49b9ae1697b292ef41c74068d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋鲁肃",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=谋鲁肃\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "谋鲁肃",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

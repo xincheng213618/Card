@@ -1,0 +1,45 @@
+{
+  "pageid": 10835,
+  "namespace": 0,
+  "title": "王濬",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%BF%AC",
+  "revid": 73945,
+  "parentid": 70598,
+  "timestamp": "2025-12-07T09:09:03Z",
+  "sourceSha256": "e0f234f7ab9cf6a845121917f77ec17f285ed4e72633723e761009c59b060a08",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10835,
+      "namespace": 0,
+      "title": "王濬",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%BF%AC",
+      "revid": 73945,
+      "parentid": 70598,
+      "timestamp": "2025-12-07T09:09:03Z",
+      "sourceSha256": "e0f234f7ab9cf6a845121917f77ec17f285ed4e72633723e761009c59b060a08",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王濬",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "{{faq|左慈变换势力会影响“统业”吗？|不会，“统业”检测势力的时机是游戏开始时和其他角色死亡后。}}",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "爆发,过牌"
+      },
+      "source": "{{武将\n|武将名=王濬\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答={{faq|左慈变换势力会影响“统业”吗？|不会，“统业”检测势力的时机是游戏开始时和其他角色死亡后。}}\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=爆发,过牌\n}}",
+      "name": "王濬",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

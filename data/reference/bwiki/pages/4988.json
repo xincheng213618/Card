@@ -1,0 +1,47 @@
+{
+  "pageid": 4988,
+  "namespace": 0,
+  "title": "急袭/邓艾（国战）",
+  "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E8%A2%AD/%E9%82%93%E8%89%BE%EF%BC%88%E5%9B%BD%E6%88%98%EF%BC%89",
+  "revid": 76828,
+  "parentid": 38138,
+  "timestamp": "2026-04-16T07:00:26Z",
+  "sourceSha256": "cff407d412962457b19aa1fe6bf5cd664d4f397d0aacd818203d49167a98edf3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4988,
+      "namespace": 0,
+      "title": "急袭/邓艾（国战）",
+      "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E8%A2%AD/%E9%82%93%E8%89%BE%EF%BC%88%E5%9B%BD%E6%88%98%EF%BC%89",
+      "revid": 76828,
+      "parentid": 38138,
+      "timestamp": "2026-04-16T07:00:26Z",
+      "sourceSha256": "cff407d412962457b19aa1fe6bf5cd664d4f397d0aacd818203d49167a98edf3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "急袭",
+        "所属武将": "邓艾",
+        "是衍生技": "",
+        "技能版本": "国",
+        "国战技能描述": "你计算体力上限时减少1个单独的阴阳鱼。<br>\n出牌阶段，你可以将一张“'''田'''”当【顺手牵羊】使用。",
+        "国战技能类型": "主将技",
+        "国战技能定位": "控制,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=急袭\n|所属武将=邓艾\n|是衍生技=\n|技能版本=国\n|国战技能描述=你计算体力上限时减少1个单独的阴阳鱼。<br>\n出牌阶段，你可以将一张“'''田'''”当【顺手牵羊】使用。\n|国战技能类型=主将技\n|国战技能定位=控制,过牌\n}}",
+      "name": "急袭",
+      "generals": [
+        "邓艾"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "你计算体力上限时减少1个单独的阴阳鱼。<br>\n出牌阶段，你可以将一张“'''田'''”当【顺手牵羊】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

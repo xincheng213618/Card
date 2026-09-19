@@ -1,0 +1,44 @@
+{
+  "pageid": 14928,
+  "namespace": 0,
+  "title": "香蕉端午",
+  "url": "https://wiki.biligame.com/sgs/%E9%A6%99%E8%95%89%E7%AB%AF%E5%8D%88",
+  "revid": 76103,
+  "parentid": 75467,
+  "timestamp": "2026-03-07T06:59:51Z",
+  "sourceSha256": "642d62b4b43caae8aed123bb0f0d7846088599d04e80ec9ac1ccd5c566e28c8c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14928,
+      "namespace": 0,
+      "title": "香蕉端午",
+      "url": "https://wiki.biligame.com/sgs/%E9%A6%99%E8%95%89%E7%AB%AF%E5%8D%88",
+      "revid": 76103,
+      "parentid": 75467,
+      "timestamp": "2026-03-07T06:59:51Z",
+      "sourceSha256": "642d62b4b43caae8aed123bb0f0d7846088599d04e80ec9ac1ccd5c566e28c8c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "香蕉端午",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "喵喵杀",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "4",
+        "经典定位": "过牌,发育"
+      },
+      "source": "{{武将\n|武将名=香蕉端午\n|势力=群\n|性别=女\n|出现模式=喵喵杀\n|称号=\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=4\n|经典定位=过牌,发育\n}}",
+      "name": "香蕉端午",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

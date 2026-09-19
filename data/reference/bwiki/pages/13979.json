@@ -1,0 +1,45 @@
+{
+  "pageid": 13979,
+  "namespace": 0,
+  "title": "谋荀彧",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%8D%80%E5%BD%A7",
+  "revid": 75264,
+  "parentid": 75256,
+  "timestamp": "2026-02-10T01:02:53Z",
+  "sourceSha256": "6e8a6d7ce0362a1fc6d6e3223586153b99b9fffce95f9d7df86cfede3c741669",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13979,
+      "namespace": 0,
+      "title": "谋荀彧",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%8D%80%E5%BD%A7",
+      "revid": 75264,
+      "parentid": 75256,
+      "timestamp": "2026-02-10T01:02:53Z",
+      "sourceSha256": "6e8a6d7ce0362a1fc6d6e3223586153b99b9fffce95f9d7df86cfede3c741669",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋荀彧",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "贞谋弼汉",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=谋荀彧\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=贞谋弼汉\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "谋荀彧",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

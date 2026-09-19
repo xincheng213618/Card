@@ -1,0 +1,46 @@
+{
+  "pageid": 13978,
+  "namespace": 0,
+  "title": "乐诸葛果",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E8%AF%B8%E8%91%9B%E6%9E%9C",
+  "revid": 78242,
+  "parentid": 78235,
+  "timestamp": "2026-06-06T14:11:56Z",
+  "sourceSha256": "64b83243225e18f92ace9f5b5d7345d1c90481a1cbb44a6c743dde494df831bc",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13978,
+      "namespace": 0,
+      "title": "乐诸葛果",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E8%AF%B8%E8%91%9B%E6%9E%9C",
+      "revid": 78242,
+      "parentid": 78235,
+      "timestamp": "2026-06-06T14:11:56Z",
+      "sourceSha256": "64b83243225e18f92ace9f5b5d7345d1c90481a1cbb44a6c743dde494df831bc",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐诸葛果",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "玉笛朝真",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-正音雅乐",
+        "经典体力": "3",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=乐诸葛果\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=玉笛朝真\n|别称=\n|规则集问答=\n|武将包=荟萃-正音雅乐\n|经典体力=3\n|经典定位=爆发,控制\n}}",
+      "name": "乐诸葛果",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

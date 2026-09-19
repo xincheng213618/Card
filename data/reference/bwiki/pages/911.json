@@ -1,0 +1,44 @@
+{
+  "pageid": 911,
+  "namespace": 0,
+  "title": "段煨",
+  "url": "https://wiki.biligame.com/sgs/%E6%AE%B5%E7%85%A8",
+  "revid": 74720,
+  "parentid": 70231,
+  "timestamp": "2026-01-22T17:03:50Z",
+  "sourceSha256": "ba0842b2a2a6ef0af8d921f568b7708e706128ac83620eebbfd270c81f96f0e8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 911,
+      "namespace": 0,
+      "title": "段煨",
+      "url": "https://wiki.biligame.com/sgs/%E6%AE%B5%E7%85%A8",
+      "revid": 74720,
+      "parentid": 70231,
+      "timestamp": "2026-01-22T17:03:50Z",
+      "sourceSha256": "ba0842b2a2a6ef0af8d921f568b7708e706128ac83620eebbfd270c81f96f0e8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "段煨",
+        "势力": "群",
+        "性别": "男",
+        "别称": "小朱然、SP朱然、狼灭哥",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4",
+        "经典定位": "续航,攻击"
+      },
+      "source": "{{武将\n|武将名=段煨\n|势力=群\n|性别=男\n|别称=小朱然、SP朱然、狼灭哥\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4\n|经典定位=续航,攻击\n}}",
+      "name": "段煨",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

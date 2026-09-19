@@ -1,0 +1,45 @@
+{
+  "pageid": 5798,
+  "namespace": 0,
+  "title": "韩浩史涣",
+  "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E6%B5%A9%E5%8F%B2%E6%B6%A3",
+  "revid": 71391,
+  "parentid": 71289,
+  "timestamp": "2025-05-21T01:14:28Z",
+  "sourceSha256": "b34703895d303dcc57df5177ad4f468d98f52ac36b3a3d9b9db76b772fa8b4b8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5798,
+      "namespace": 0,
+      "title": "韩浩史涣",
+      "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E6%B5%A9%E5%8F%B2%E6%B6%A3",
+      "revid": 71391,
+      "parentid": 71289,
+      "timestamp": "2025-05-21T01:14:28Z",
+      "sourceSha256": "b34703895d303dcc57df5177ad4f468d98f52ac36b3a3d9b9db76b772fa8b4b8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "韩浩史涣",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "中军之主",
+        "别称": "含屎",
+        "规则集问答": "",
+        "武将包": "一将成名-2014",
+        "经典体力": "4",
+        "经典定位": "控制,攻击\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=韩浩史涣\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=中军之主\n|别称=含屎\n|规则集问答=\n|武将包=一将成名-2014\n|经典体力=4\n|经典定位=控制,攻击\n<!-- 界限 -->\n}}",
+      "name": "韩浩史涣",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

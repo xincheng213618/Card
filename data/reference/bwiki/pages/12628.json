@@ -1,0 +1,45 @@
+{
+  "pageid": 12628,
+  "namespace": 0,
+  "title": "谋关平",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%85%B3%E5%B9%B3",
+  "revid": 74272,
+  "parentid": 71106,
+  "timestamp": "2026-01-01T14:57:34Z",
+  "sourceSha256": "75a62ea74bdcaa57ebccac6d35bcf027ee576ff23f9606da6808e8b1b38f011c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12628,
+      "namespace": 0,
+      "title": "谋关平",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%85%B3%E5%B9%B3",
+      "revid": 74272,
+      "parentid": 71106,
+      "timestamp": "2026-01-01T14:57:34Z",
+      "sourceSha256": "75a62ea74bdcaa57ebccac6d35bcf027ee576ff23f9606da6808e8b1b38f011c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋关平",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-子敬邀刀",
+        "经典体力": "4",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=谋关平\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-子敬邀刀\n|经典体力=4\n|经典定位=爆发\n}}",
+      "name": "谋关平",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

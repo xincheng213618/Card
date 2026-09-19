@@ -1,0 +1,46 @@
+{
+  "pageid": 4603,
+  "namespace": 0,
+  "title": "疑城",
+  "url": "https://wiki.biligame.com/sgs/%E7%96%91%E5%9F%8E",
+  "revid": 64748,
+  "parentid": 32942,
+  "timestamp": "2024-09-08T08:55:45Z",
+  "sourceSha256": "d8248d8c39fdff4eb52bb3d0bf0d76065d96251234c1fa20e1b03c96c9ad932b",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4603,
+      "namespace": 0,
+      "title": "疑城",
+      "url": "https://wiki.biligame.com/sgs/%E7%96%91%E5%9F%8E",
+      "revid": 64748,
+      "parentid": 32942,
+      "timestamp": "2024-09-08T08:55:45Z",
+      "sourceSha256": "d8248d8c39fdff4eb52bb3d0bf0d76065d96251234c1fa20e1b03c96c9ad932b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "疑城",
+        "所属武将": "徐盛",
+        "技能版本": "国",
+        "国战技能描述": "当一名与你势力相同的角色成为【杀】的目标后，你可以令其摸一张牌并弃置一张牌。",
+        "经典技能类型": "一般技",
+        "国战技能定位": "辅助,换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=疑城\n|所属武将=徐盛\n|技能版本=国\n|国战技能描述=当一名与你势力相同的角色成为【杀】的目标后，你可以令其摸一张牌并弃置一张牌。\n|经典技能类型=一般技\n|国战技能定位=辅助,换牌\n}}",
+      "name": "疑城",
+      "generals": [
+        "徐盛"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "当一名与你势力相同的角色成为【杀】的目标后，你可以令其摸一张牌并弃置一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

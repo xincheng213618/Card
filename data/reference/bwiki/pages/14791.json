@@ -1,0 +1,44 @@
+{
+  "pageid": 14791,
+  "namespace": 0,
+  "title": "藤甲男孩",
+  "url": "https://wiki.biligame.com/sgs/%E8%97%A4%E7%94%B2%E7%94%B7%E5%AD%A9",
+  "revid": 75923,
+  "parentid": 75808,
+  "timestamp": "2026-02-26T00:49:09Z",
+  "sourceSha256": "90dffa0cc6899518fd8ccf97d28a4d07762ba583e3c7434dc4db4a4de00b46fa",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14791,
+      "namespace": 0,
+      "title": "藤甲男孩",
+      "url": "https://wiki.biligame.com/sgs/%E8%97%A4%E7%94%B2%E7%94%B7%E5%AD%A9",
+      "revid": 75923,
+      "parentid": 75808,
+      "timestamp": "2026-02-26T00:49:09Z",
+      "sourceSha256": "90dffa0cc6899518fd8ccf97d28a4d07762ba583e3c7434dc4db4a4de00b46fa",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "藤甲男孩",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "刀枪不入",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "1/4",
+        "经典定位": "爆发,生存"
+      },
+      "source": "{{武将\n|武将名=藤甲男孩\n|势力=群\n|性别=男\n|出现模式=斗地主\n|称号=刀枪不入\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=1/4\n|经典定位=爆发,生存\n}}",
+      "name": "藤甲男孩",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

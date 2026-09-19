@@ -1,0 +1,46 @@
+{
+  "pageid": 2443,
+  "namespace": 0,
+  "title": "郭皇后",
+  "url": "https://wiki.biligame.com/sgs/%E9%83%AD%E7%9A%87%E5%90%8E",
+  "revid": 71191,
+  "parentid": 70940,
+  "timestamp": "2025-05-20T07:50:22Z",
+  "sourceSha256": "ee545646fb5325995d11c25925d2328c18889dad52c60497d14cc8ca6150c339",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 2443,
+      "namespace": 0,
+      "title": "郭皇后",
+      "url": "https://wiki.biligame.com/sgs/%E9%83%AD%E7%9A%87%E5%90%8E",
+      "revid": 71191,
+      "parentid": 70940,
+      "timestamp": "2025-05-20T07:50:22Z",
+      "sourceSha256": "ee545646fb5325995d11c25925d2328c18889dad52c60497d14cc8ca6150c339",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "郭皇后",
+        "势力": "魏",
+        "性别": "女",
+        "别称": "明元郭皇后",
+        "称号": "月华驱霾",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "星火燎原-天机",
+        "经典体力": "3",
+        "经典定位": "卖血,攻击,控制",
+        "界限定位": "全能"
+      },
+      "source": "{{武将\n|武将名=郭皇后\n|势力=魏\n|性别=女\n|别称=明元郭皇后\n|称号=月华驱霾\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=星火燎原-天机\n|经典体力=3\n|经典定位=卖血,攻击,控制\n|界限定位=全能\n}}",
+      "name": "郭皇后",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

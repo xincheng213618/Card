@@ -1,0 +1,47 @@
+{
+  "pageid": 5505,
+  "namespace": 0,
+  "title": "何太后",
+  "url": "https://wiki.biligame.com/sgs/%E4%BD%95%E5%A4%AA%E5%90%8E",
+  "revid": 77512,
+  "parentid": 69077,
+  "timestamp": "2026-05-09T01:34:37Z",
+  "sourceSha256": "8cdaf49b6923285268d6ebe62d992a749e2d4c49d2c61cf9482cedcd5bb2e92c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5505,
+      "namespace": 0,
+      "title": "何太后",
+      "url": "https://wiki.biligame.com/sgs/%E4%BD%95%E5%A4%AA%E5%90%8E",
+      "revid": 77512,
+      "parentid": 69077,
+      "timestamp": "2026-05-09T01:34:37Z",
+      "sourceSha256": "8cdaf49b6923285268d6ebe62d992a749e2d4c49d2c61cf9482cedcd5bb2e92c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "何太后",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "称号": "弄权之蛇蝎",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-戚宦之争",
+        "经典体力": "3",
+        "经典定位": "攻击\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=何太后\n|势力=群\n|性别=女\n|出现模式=身份,欢乐,斗地主,国战\n|称号=弄权之蛇蝎\n|别称=\n|规则集问答=\n|武将包=荟萃-戚宦之争\n|经典体力=3\n|经典定位=攻击\n<!-- 国战 -->\n}}",
+      "name": "何太后",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

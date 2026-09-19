@@ -1,0 +1,46 @@
+{
+  "pageid": 9609,
+  "namespace": 0,
+  "title": "傅肜傅佥",
+  "url": "https://wiki.biligame.com/sgs/%E5%82%85%E8%82%9C%E5%82%85%E4%BD%A5",
+  "revid": 77517,
+  "parentid": 74511,
+  "timestamp": "2026-05-09T01:34:54Z",
+  "sourceSha256": "ecfb726e6841a466add25c8e96063bec7aef58ab40e2a9974ef9ab1e1b137732",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9609,
+      "namespace": 0,
+      "title": "傅肜傅佥",
+      "url": "https://wiki.biligame.com/sgs/%E5%82%85%E8%82%9C%E5%82%85%E4%BD%A5",
+      "revid": 77517,
+      "parentid": 74511,
+      "timestamp": "2026-05-09T01:34:54Z",
+      "sourceSha256": "ecfb726e6841a466add25c8e96063bec7aef58ab40e2a9974ef9ab1e1b137732",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "傅肜傅佥",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "二傅",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "4/6",
+        "经典定位": "保护,辅助,续航"
+      },
+      "source": "{{武将\n|武将名=傅肜傅佥\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=二傅\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=4/6\n|经典定位=保护,辅助,续航\n}}",
+      "name": "傅肜傅佥",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

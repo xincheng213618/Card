@@ -1,0 +1,46 @@
+{
+  "pageid": 7817,
+  "namespace": 0,
+  "title": "全惠解",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%A8%E6%83%A0%E8%A7%A3",
+  "revid": 77519,
+  "parentid": 74750,
+  "timestamp": "2026-05-09T01:34:56Z",
+  "sourceSha256": "e997c786a587d664e43d2e4689467f41499b1fad714242a3da4e0d04c36aac16",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7817,
+      "namespace": 0,
+      "title": "全惠解",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%A8%E6%83%A0%E8%A7%A3",
+      "revid": 77519,
+      "parentid": 74750,
+      "timestamp": "2026-05-09T01:34:56Z",
+      "sourceSha256": "e997c786a587d664e43d2e4689467f41499b1fad714242a3da4e0d04c36aac16",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "全惠解",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "吴元帅、吴赵襄、全会解",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "发育,爆发"
+      },
+      "source": "{{武将\n|武将名=全惠解\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=吴元帅、吴赵襄、全会解\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=发育,爆发\n}}",
+      "name": "全惠解",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

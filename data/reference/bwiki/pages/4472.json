@@ -1,0 +1,46 @@
+{
+  "pageid": 4472,
+  "namespace": 0,
+  "title": "严颜",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%A5%E9%A2%9C",
+  "revid": 77490,
+  "parentid": 59929,
+  "timestamp": "2026-05-09T01:33:48Z",
+  "sourceSha256": "e421aad44f3e4a9d3e3b9e6e12f379792509afdb9e7fcf1cc15eb726b0383c14",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4472,
+      "namespace": 0,
+      "title": "严颜",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%A5%E9%A2%9C",
+      "revid": 77490,
+      "parentid": 59929,
+      "timestamp": "2026-05-09T01:33:48Z",
+      "sourceSha256": "e421aad44f3e4a9d3e3b9e6e12f379792509afdb9e7fcf1cc15eb726b0383c14",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "严颜",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "铁王八",
+        "称号": "断头将军",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "神话再临-阴包",
+        "经典体力": "4",
+        "经典定位": "防御"
+      },
+      "source": "{{武将\n|武将名=严颜\n|势力=蜀\n|性别=男\n|别称=铁王八\n|称号=断头将军\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=神话再临-阴包\n|经典体力=4\n|经典定位=防御\n}}",
+      "name": "严颜",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

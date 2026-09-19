@@ -1,0 +1,47 @@
+{
+  "pageid": 2832,
+  "namespace": 0,
+  "title": "归心",
+  "url": "https://wiki.biligame.com/sgs/%E5%BD%92%E5%BF%83",
+  "revid": 68213,
+  "parentid": 68181,
+  "timestamp": "2025-02-07T09:16:48Z",
+  "sourceSha256": "c9c0e89cda998b2d22787b11c5f0c1f45980febe7e9f67c3e63cb14d2d406714",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2832,
+      "namespace": 0,
+      "title": "归心",
+      "url": "https://wiki.biligame.com/sgs/%E5%BD%92%E5%BF%83",
+      "revid": 68213,
+      "parentid": 68181,
+      "timestamp": "2025-02-07T09:16:48Z",
+      "sourceSha256": "c9c0e89cda998b2d22787b11c5f0c1f45980febe7e9f67c3e63cb14d2d406714",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "归心",
+        "所属武将": "神曹操",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后你翻面。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "卖血,过牌,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=归心\n|所属武将=神曹操\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后你翻面。\n|经典技能类型=一般技\n|经典技能定位=卖血,过牌,控制\n}}",
+      "name": "归心",
+      "generals": [
+        "神曹操"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后你翻面。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

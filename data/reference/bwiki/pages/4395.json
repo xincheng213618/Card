@@ -1,0 +1,47 @@
+{
+  "pageid": 4395,
+  "namespace": 0,
+  "title": "凿险",
+  "url": "https://wiki.biligame.com/sgs/%E5%87%BF%E9%99%A9",
+  "revid": 76825,
+  "parentid": 68241,
+  "timestamp": "2026-04-16T06:28:17Z",
+  "sourceSha256": "4bf91065914981ea2cda1e9f711a686d3ff49d92b8b02a652238db9f7ef44366",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4395,
+      "namespace": 0,
+      "title": "凿险",
+      "url": "https://wiki.biligame.com/sgs/%E5%87%BF%E9%99%A9",
+      "revid": 76825,
+      "parentid": 68241,
+      "timestamp": "2026-04-16T06:28:17Z",
+      "sourceSha256": "4bf91065914981ea2cda1e9f711a686d3ff49d92b8b02a652238db9f7ef44366",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "凿险",
+        "所属武将": "邓艾",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "准备阶段，若“'''田'''”的数量不小于3，你减1点体力上限，然后获得技能“[[急袭]]”。",
+        "经典技能类型": "觉醒技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=凿险\n|所属武将=邓艾\n|是衍生技=\n|技能版本=经典\n|经典技能描述=准备阶段，若“'''田'''”的数量不小于3，你减1点体力上限，然后获得技能“[[急袭]]”。\n|经典技能类型=觉醒技\n|经典技能定位=中性\n}}",
+      "name": "凿险",
+      "generals": [
+        "邓艾"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "准备阶段，若“'''田'''”的数量不小于3，你减1点体力上限，然后获得技能“[[急袭]]”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

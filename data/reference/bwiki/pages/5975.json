@@ -1,0 +1,47 @@
+{
+  "pageid": 5975,
+  "namespace": 0,
+  "title": "马术/马腾",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/%E9%A9%AC%E8%85%BE",
+  "revid": 64410,
+  "parentid": 28877,
+  "timestamp": "2024-08-21T14:49:54Z",
+  "sourceSha256": "46b8fd2c179061d5025d8bc6772edca13ae7c1f309bc57687f25a18e3d4ac296",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5975,
+      "namespace": 0,
+      "title": "马术/马腾",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/%E9%A9%AC%E8%85%BE",
+      "revid": 64410,
+      "parentid": 28877,
+      "timestamp": "2024-08-21T14:49:54Z",
+      "sourceSha256": "46b8fd2c179061d5025d8bc6772edca13ae7c1f309bc57687f25a18e3d4ac296",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "马术",
+        "所属武将": "马腾",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "你计算与其他角色的距离-1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=马术\n|所属武将=马腾\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=你计算与其他角色的距离-1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,距离\n}}",
+      "name": "马术",
+      "generals": [
+        "马腾"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "你计算与其他角色的距离-1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

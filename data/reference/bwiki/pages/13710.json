@@ -1,0 +1,46 @@
+{
+  "pageid": 13710,
+  "namespace": 0,
+  "title": "张翼",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E7%BF%BC",
+  "revid": 77697,
+  "parentid": 68278,
+  "timestamp": "2026-05-09T01:47:26Z",
+  "sourceSha256": "cbd2cfbbfc86d65f57929c21c3e4078ddbec6793e592400cca6e0ed37be74891",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13710,
+      "namespace": 0,
+      "title": "张翼",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E7%BF%BC",
+      "revid": 77697,
+      "parentid": 68278,
+      "timestamp": "2026-05-09T01:47:26Z",
+      "sourceSha256": "cbd2cfbbfc86d65f57929c21c3e4078ddbec6793e592400cca6e0ed37be74891",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张翼",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "4",
+        "经典定位": "攻击,续航"
+      },
+      "source": "{{武将\n|武将名=张翼\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=4\n|经典定位=攻击,续航\n}}",
+      "name": "张翼",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

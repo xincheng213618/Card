@@ -1,0 +1,44 @@
+{
+  "pageid": 15516,
+  "namespace": 0,
+  "title": "抉择之神",
+  "url": "https://wiki.biligame.com/sgs/%E6%8A%89%E6%8B%A9%E4%B9%8B%E7%A5%9E",
+  "revid": 76084,
+  "parentid": 75857,
+  "timestamp": "2026-03-07T04:28:16Z",
+  "sourceSha256": "f0890f8de61be2014d1bbf8958cac03664569964cce4a9a47979d8165428425d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15516,
+      "namespace": 0,
+      "title": "抉择之神",
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%89%E6%8B%A9%E4%B9%8B%E7%A5%9E",
+      "revid": 76084,
+      "parentid": 75857,
+      "timestamp": "2026-03-07T04:28:16Z",
+      "sourceSha256": "f0890f8de61be2014d1bbf8958cac03664569964cce4a9a47979d8165428425d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "抉择之神",
+        "势力": "神",
+        "性别": "女",
+        "出现模式": "喵喵杀",
+        "称号": "超级无敌大开门",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "4",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=抉择之神\n|势力=神\n|性别=女\n|出现模式=喵喵杀\n|称号=超级无敌大开门\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=4\n|经典定位=控制\n}}",
+      "name": "抉择之神",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 15336,
+  "namespace": 0,
+  "title": "仁善",
+  "url": "https://wiki.biligame.com/sgs/%E4%BB%81%E5%96%84",
+  "revid": 77892,
+  "parentid": 74913,
+  "timestamp": "2026-05-16T14:59:37Z",
+  "sourceSha256": "a4d295ee3c8bc24c6ef81bed67f58efbef2765fecb8ccc953d5e8edc90f44856",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 15336,
+      "namespace": 0,
+      "title": "仁善",
+      "url": "https://wiki.biligame.com/sgs/%E4%BB%81%E5%96%84",
+      "revid": 77892,
+      "parentid": 74913,
+      "timestamp": "2026-05-16T14:59:37Z",
+      "sourceSha256": "a4d295ee3c8bc24c6ef81bed67f58efbef2765fecb8ccc953d5e8edc90f44856",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "仁善",
+        "所属武将": "谋刘璋",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合限X次，你不以此法获得牌后，你可以摸一张牌并交给一名手牌数不大于你的其他角色一张牌（X为你的体力值）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=仁善\n|所属武将=谋刘璋\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合限X次，你不以此法获得牌后，你可以摸一张牌并交给一名手牌数不大于你的其他角色一张牌（X为你的体力值）。\n|经典技能类型=一般技\n|经典技能定位=辅助,过牌\n}}",
+      "name": "仁善",
+      "generals": [
+        "谋刘璋"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合限X次，你不以此法获得牌后，你可以摸一张牌并交给一名手牌数不大于你的其他角色一张牌（X为你的体力值）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

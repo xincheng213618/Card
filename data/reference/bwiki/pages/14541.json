@@ -1,0 +1,46 @@
+{
+  "pageid": 14541,
+  "namespace": 0,
+  "title": "张燕",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E7%87%95",
+  "revid": 77694,
+  "parentid": 72642,
+  "timestamp": "2026-05-09T01:47:11Z",
+  "sourceSha256": "6c1f1fd2e519b3aaa6cf9a93091126aac93e40c5f1ac89cee8c1e9a2242e675b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14541,
+      "namespace": 0,
+      "title": "张燕",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E7%87%95",
+      "revid": 77694,
+      "parentid": 72642,
+      "timestamp": "2026-05-09T01:47:11Z",
+      "sourceSha256": "6c1f1fd2e519b3aaa6cf9a93091126aac93e40c5f1ac89cee8c1e9a2242e675b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张燕",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "黑山飞燕",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2025",
+        "经典体力": "4",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=张燕\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=黑山飞燕\n|别称=\n|规则集问答=\n|武将包=一将成名-2025\n|经典体力=4\n|经典定位=控制,攻击\n}}",
+      "name": "张燕",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 16140,
+  "namespace": 0,
+  "title": "于毒",
+  "url": "https://wiki.biligame.com/sgs/%E4%BA%8E%E6%AF%92",
+  "revid": 79508,
+  "parentid": 79507,
+  "timestamp": "2026-08-10T02:47:45Z",
+  "sourceSha256": "bd075c5ecfcd50f8482a3415d0c8c94ae50b4c3ebdcd8bbea917d92f39c5bbb6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16140,
+      "namespace": 0,
+      "title": "于毒",
+      "url": "https://wiki.biligame.com/sgs/%E4%BA%8E%E6%AF%92",
+      "revid": 79508,
+      "parentid": 79507,
+      "timestamp": "2026-08-10T02:47:45Z",
+      "sourceSha256": "bd075c5ecfcd50f8482a3415d0c8c94ae50b4c3ebdcd8bbea917d92f39c5bbb6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "于毒",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2025",
+        "经典体力": "4",
+        "经典定位": "爆发,攻击"
+      },
+      "source": "{{武将\n|武将名=于毒\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2025\n|经典体力=4\n|经典定位=爆发,攻击\n}}",
+      "name": "于毒",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

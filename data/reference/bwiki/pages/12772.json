@@ -1,0 +1,46 @@
+{
+  "pageid": 12772,
+  "namespace": 0,
+  "title": "徐琨",
+  "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E7%90%A8",
+  "revid": 77708,
+  "parentid": 69672,
+  "timestamp": "2026-05-09T01:48:39Z",
+  "sourceSha256": "0cac402cf155b185f48449490e6ae7386ab8e46f2b7490ec704a34d809d7b333",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12772,
+      "namespace": 0,
+      "title": "徐琨",
+      "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E7%90%A8",
+      "revid": 77708,
+      "parentid": 69672,
+      "timestamp": "2026-05-09T01:48:39Z",
+      "sourceSha256": "0cac402cf155b185f48449490e6ae7386ab8e46f2b7490ec704a34d809d7b333",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "徐琨",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "cxk、徐坤",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "4",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=徐琨\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=cxk、徐坤\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=4\n|经典定位=辅助,攻击\n}}",
+      "name": "徐琨",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

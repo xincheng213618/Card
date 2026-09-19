@@ -1,0 +1,46 @@
+{
+  "pageid": 14540,
+  "namespace": 0,
+  "title": "崔令仪",
+  "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E4%BB%A4%E4%BB%AA",
+  "revid": 77661,
+  "parentid": 75883,
+  "timestamp": "2026-05-09T01:45:26Z",
+  "sourceSha256": "0ea9667d58a181072cb38cf20638d6c2e58078fe18797e152c7752710d59954f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14540,
+      "namespace": 0,
+      "title": "崔令仪",
+      "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E4%BB%A4%E4%BB%AA",
+      "revid": 77661,
+      "parentid": 75883,
+      "timestamp": "2026-05-09T01:45:26Z",
+      "sourceSha256": "0ea9667d58a181072cb38cf20638d6c2e58078fe18797e152c7752710d59954f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "崔令仪",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "鸾裾织命",
+        "别称": "小高达，魏张璇",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "过牌，爆发"
+      },
+      "source": "{{武将\n|武将名=崔令仪\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=鸾裾织命\n|别称=小高达，魏张璇\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=过牌，爆发\n}}",
+      "name": "崔令仪",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 3223,
+  "namespace": 0,
+  "title": "辛宪英",
+  "url": "https://wiki.biligame.com/sgs/%E8%BE%9B%E5%AE%AA%E8%8B%B1",
+  "revid": 71165,
+  "parentid": 70915,
+  "timestamp": "2025-05-20T07:48:58Z",
+  "sourceSha256": "f06ad6a899429e77d78be9d993f4c55868b3900754b79b470cefcdcaf203a131",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3223,
+      "namespace": 0,
+      "title": "辛宪英",
+      "url": "https://wiki.biligame.com/sgs/%E8%BE%9B%E5%AE%AA%E8%8B%B1",
+      "revid": 71165,
+      "parentid": 70915,
+      "timestamp": "2025-05-20T07:48:58Z",
+      "sourceSha256": "f06ad6a899429e77d78be9d993f4c55868b3900754b79b470cefcdcaf203a131",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "辛宪英",
+        "势力": "魏",
+        "性别": "女",
+        "别称": "辛村姑、辛笨",
+        "称号": "名门智女",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=辛宪英\n|势力=魏\n|性别=女\n|别称=辛村姑、辛笨\n|称号=名门智女\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "辛宪英",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 13383,
+  "namespace": 0,
+  "title": "偕举",
+  "url": "https://wiki.biligame.com/sgs/%E5%81%95%E4%B8%BE",
+  "revid": 67729,
+  "parentid": 65896,
+  "timestamp": "2024-12-30T12:00:07Z",
+  "sourceSha256": "daad24cde4972d57014eb7bd8b2fe2c9814353962f97617e9a74efb8d7221dff",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 13383,
+      "namespace": 0,
+      "title": "偕举",
+      "url": "https://wiki.biligame.com/sgs/%E5%81%95%E4%B8%BE",
+      "revid": 67729,
+      "parentid": 65896,
+      "timestamp": "2024-12-30T12:00:07Z",
+      "sourceSha256": "daad24cde4972d57014eb7bd8b2fe2c9814353962f97617e9a74efb8d7221dff",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "偕举",
+        "所属武将": "文钦",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可以选择任意名本回合成为过牌的目标的角色，这些角色依次视为使用一张【杀】。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=偕举\n|所属武将=文钦\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可以选择任意名本回合成为过牌的目标的角色，这些角色依次视为使用一张【杀】。\n|经典技能类型=一般技\n|经典技能定位=攻击\n}}",
+      "name": "偕举",
+      "generals": [
+        "文钦"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以选择任意名本回合成为过牌的目标的角色，这些角色依次视为使用一张【杀】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

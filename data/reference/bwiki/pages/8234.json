@@ -1,0 +1,47 @@
+{
+  "pageid": 8234,
+  "namespace": 0,
+  "title": "秉纪",
+  "url": "https://wiki.biligame.com/sgs/%E7%A7%89%E7%BA%AA",
+  "revid": 65913,
+  "parentid": 64255,
+  "timestamp": "2024-11-14T04:55:43Z",
+  "sourceSha256": "5a79f30582dc47ffcac2437b4c4a4c6d799778da35e7f13f1b44ceaff1b0fa87",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8234,
+      "namespace": 0,
+      "title": "秉纪",
+      "url": "https://wiki.biligame.com/sgs/%E7%A7%89%E7%BA%AA",
+      "revid": 65913,
+      "parentid": 64255,
+      "timestamp": "2024-11-14T04:55:43Z",
+      "sourceSha256": "5a79f30582dc47ffcac2437b4c4a4c6d799778da35e7f13f1b44ceaff1b0fa87",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "秉纪",
+        "所属武将": "赵俨",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段每种花色限一次，若你有手牌且花色均相同，你可以展示所有手牌，视为对一名其他角色使用一张【桃】或无次数限制的【杀】。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "攻击,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=秉纪\n|所属武将=赵俨\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段每种花色限一次，若你有手牌且花色均相同，你可以展示所有手牌，视为对一名其他角色使用一张【桃】或无次数限制的【杀】。\n|经典技能类型=一般技\n|经典技能定位=攻击,辅助\n}}",
+      "name": "秉纪",
+      "generals": [
+        "赵俨"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段每种花色限一次，若你有手牌且花色均相同，你可以展示所有手牌，视为对一名其他角色使用一张【桃】或无次数限制的【杀】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

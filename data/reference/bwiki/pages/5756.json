@@ -1,0 +1,47 @@
+{
+  "pageid": 5756,
+  "namespace": 0,
+  "title": "御策",
+  "url": "https://wiki.biligame.com/sgs/%E5%BE%A1%E7%AD%96",
+  "revid": 66012,
+  "parentid": 58821,
+  "timestamp": "2024-11-21T14:34:57Z",
+  "sourceSha256": "8f058044e64315200464a9aaa576a9e0d65f394d030bf7dab2ea01cdc5ae1d6f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5756,
+      "namespace": 0,
+      "title": "御策",
+      "url": "https://wiki.biligame.com/sgs/%E5%BE%A1%E7%AD%96",
+      "revid": 66012,
+      "parentid": 58821,
+      "timestamp": "2024-11-21T14:34:57Z",
+      "sourceSha256": "8f058044e64315200464a9aaa576a9e0d65f394d030bf7dab2ea01cdc5ae1d6f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "御策",
+        "所属武将": "满宠",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "当你受到伤害后，你可以展示一张手牌，除非伤害来源弃置一张与你展示的牌类别不同的手牌，否则你回复1点体力。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "卖血,回血,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=御策\n|所属武将=满宠\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=当你受到伤害后，你可以展示一张手牌，除非伤害来源弃置一张与你展示的牌类别不同的手牌，否则你回复1点体力。\n|经典技能类型=一般技\n|经典技能定位=卖血,回血,控制\n}}",
+      "name": "御策",
+      "generals": [
+        "满宠"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当你受到伤害后，你可以展示一张手牌，除非伤害来源弃置一张与你展示的牌类别不同的手牌，否则你回复1点体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

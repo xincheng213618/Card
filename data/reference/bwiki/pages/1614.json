@@ -1,0 +1,44 @@
+{
+  "pageid": 1614,
+  "namespace": 0,
+  "title": "麴义",
+  "url": "https://wiki.biligame.com/sgs/%E9%BA%B4%E4%B9%89",
+  "revid": 71460,
+  "parentid": 71358,
+  "timestamp": "2025-05-21T01:28:30Z",
+  "sourceSha256": "d43fb93dd03061058d17d7fd03736ded0cc719e20ae359a1dbcedcb0a49f3400",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1614,
+      "namespace": 0,
+      "title": "麴义",
+      "url": "https://wiki.biligame.com/sgs/%E9%BA%B4%E4%B9%89",
+      "revid": 71460,
+      "parentid": 71358,
+      "timestamp": "2025-05-21T01:28:30Z",
+      "sourceSha256": "d43fb93dd03061058d17d7fd03736ded0cc719e20ae359a1dbcedcb0a49f3400",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "麴义",
+        "势力": "群",
+        "性别": "男",
+        "别称": "白马",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-诸侯伐董",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=麴义\n|势力=群\n|性别=男\n|别称=白马\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-诸侯伐董\n|经典体力=4\n|经典定位=攻击,爆发\n}}",
+      "name": "麴义",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

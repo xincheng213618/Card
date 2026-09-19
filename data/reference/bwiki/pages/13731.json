@@ -1,0 +1,46 @@
+{
+  "pageid": 13731,
+  "namespace": 0,
+  "title": "徐馨",
+  "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E9%A6%A8",
+  "revid": 77712,
+  "parentid": 72459,
+  "timestamp": "2026-05-09T01:48:40Z",
+  "sourceSha256": "e08c66dde67fa13dea5a84fe8e3157beb7ec964a3f0b8f3b8da6d31902103b6b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13731,
+      "namespace": 0,
+      "title": "徐馨",
+      "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E9%A6%A8",
+      "revid": 77712,
+      "parentid": 72459,
+      "timestamp": "2026-05-09T01:48:40Z",
+      "sourceSha256": "e08c66dde67fa13dea5a84fe8e3157beb7ec964a3f0b8f3b8da6d31902103b6b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "徐馨",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=徐馨\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=辅助\n}}",
+      "name": "徐馨",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

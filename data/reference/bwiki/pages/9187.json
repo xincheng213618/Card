@@ -1,0 +1,45 @@
+{
+  "pageid": 9187,
+  "namespace": 0,
+  "title": "神张角",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%BC%A0%E8%A7%92",
+  "revid": 80081,
+  "parentid": 80048,
+  "timestamp": "2026-09-12T05:21:46Z",
+  "sourceSha256": "88d1228b3652a10624da593c9d0325c412d9e8d1e6aa84ee231de5c38bd4176f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9187,
+      "namespace": 0,
+      "title": "神张角",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%BC%A0%E8%A7%92",
+      "revid": 80081,
+      "parentid": 80048,
+      "timestamp": "2026-09-12T05:21:46Z",
+      "sourceSha256": "88d1228b3652a10624da593c9d0325c412d9e8d1e6aa84ee231de5c38bd4176f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神张角",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "妙脆角",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "防御,续航,攻击"
+      },
+      "source": "{{武将\n|武将名=神张角\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=妙脆角\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=防御,续航,攻击\n}}",
+      "name": "神张角",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

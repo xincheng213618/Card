@@ -1,0 +1,47 @@
+{
+  "pageid": 9640,
+  "namespace": 0,
+  "title": "幽栖",
+  "url": "https://wiki.biligame.com/sgs/%E5%B9%BD%E6%A0%96",
+  "revid": 51785,
+  "parentid": 51711,
+  "timestamp": "2023-03-17T16:54:06Z",
+  "sourceSha256": "aa6742bfd0b4e997e36904b983a43226ec6a7915cf1365966593a0ec1af23bf5",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9640,
+      "namespace": 0,
+      "title": "幽栖",
+      "url": "https://wiki.biligame.com/sgs/%E5%B9%BD%E6%A0%96",
+      "revid": 51785,
+      "parentid": 51711,
+      "timestamp": "2023-03-17T16:54:06Z",
+      "sourceSha256": "aa6742bfd0b4e997e36904b983a43226ec6a7915cf1365966593a0ec1af23bf5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "幽栖",
+        "所属武将": "孟节",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当其他角色因“{{技能/引用|引路}}”的标记弃置牌时，你有概率获得之。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=幽栖\n|所属武将=孟节\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当其他角色因“{{技能/引用|引路}}”的标记弃置牌时，你有概率获得之。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "幽栖",
+      "generals": [
+        "孟节"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当其他角色因“{{技能/引用|引路}}”的标记弃置牌时，你有概率获得之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

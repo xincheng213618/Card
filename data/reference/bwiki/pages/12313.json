@@ -1,0 +1,47 @@
+{
+  "pageid": 12313,
+  "namespace": 0,
+  "title": "拒谏",
+  "url": "https://wiki.biligame.com/sgs/%E6%8B%92%E8%B0%8F",
+  "revid": 62704,
+  "parentid": 62674,
+  "timestamp": "2024-04-03T18:10:50Z",
+  "sourceSha256": "fcf2b29e0084a9f8c4ff4d9d45977ecba27f230b9bfbc834cef448597a3b26af",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12313,
+      "namespace": 0,
+      "title": "拒谏",
+      "url": "https://wiki.biligame.com/sgs/%E6%8B%92%E8%B0%8F",
+      "revid": 62704,
+      "parentid": 62674,
+      "timestamp": "2024-04-03T18:10:50Z",
+      "sourceSha256": "fcf2b29e0084a9f8c4ff4d9d45977ecba27f230b9bfbc834cef448597a3b26af",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "拒谏",
+        "所属武将": "曹芳",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可以令一名其他魏势力角色摸一张牌，然后本轮其使用的普通锦囊牌对你无效。",
+        "经典技能类型": "主公技",
+        "经典技能定位": "辅助,防御"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=拒谏\n|所属武将=曹芳\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可以令一名其他魏势力角色摸一张牌，然后本轮其使用的普通锦囊牌对你无效。\n|经典技能类型=主公技\n|经典技能定位=辅助,防御\n}}",
+      "name": "拒谏",
+      "generals": [
+        "曹芳"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以令一名其他魏势力角色摸一张牌，然后本轮其使用的普通锦囊牌对你无效。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

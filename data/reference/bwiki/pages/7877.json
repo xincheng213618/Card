@@ -1,0 +1,45 @@
+{
+  "pageid": 7877,
+  "namespace": 0,
+  "title": "蔡阳",
+  "url": "https://wiki.biligame.com/sgs/%E8%94%A1%E9%98%B3",
+  "revid": 71051,
+  "parentid": 70801,
+  "timestamp": "2025-05-20T07:35:31Z",
+  "sourceSha256": "c9b21d8d65469c94d1c5eece6a69125ac092b89b5402683209fc048f77fb103c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7877,
+      "namespace": 0,
+      "title": "蔡阳",
+      "url": "https://wiki.biligame.com/sgs/%E8%94%A1%E9%98%B3",
+      "revid": 71051,
+      "parentid": 70801,
+      "timestamp": "2025-05-20T07:35:31Z",
+      "sourceSha256": "c9b21d8d65469c94d1c5eece6a69125ac092b89b5402683209fc048f77fb103c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "蔡阳",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-无双上将",
+        "经典体力": "4",
+        "经典定位": "攻击,续航"
+      },
+      "source": "{{武将\n|武将名=蔡阳\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-无双上将\n|经典体力=4\n|经典定位=攻击,续航\n}}",
+      "name": "蔡阳",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

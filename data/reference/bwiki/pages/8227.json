@@ -1,0 +1,45 @@
+{
+  "pageid": 8227,
+  "namespace": 0,
+  "title": "王烈",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E7%83%88",
+  "revid": 74740,
+  "parentid": 74524,
+  "timestamp": "2026-01-22T17:34:52Z",
+  "sourceSha256": "341a89048de92524ee1916b70c4f4692d1a864a20c7b85a5d56f9052d5239959",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8227,
+      "namespace": 0,
+      "title": "王烈",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E7%83%88",
+      "revid": 74740,
+      "parentid": 74524,
+      "timestamp": "2026-01-22T17:34:52Z",
+      "sourceSha256": "341a89048de92524ee1916b70c4f4692d1a864a20c7b85a5d56f9052d5239959",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王烈",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-江湖之远",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=王烈\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-江湖之远\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "王烈",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

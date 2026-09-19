@@ -1,0 +1,45 @@
+{
+  "pageid": 12322,
+  "namespace": 0,
+  "title": "谋王凌",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%8E%8B%E5%87%8C",
+  "revid": 74525,
+  "parentid": 74499,
+  "timestamp": "2026-01-10T02:26:13Z",
+  "sourceSha256": "d02b546f2bad429c205e85f4169b89e9bb81e5f36ffd6016fb26d13c78a933f5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12322,
+      "namespace": 0,
+      "title": "谋王凌",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%8E%8B%E5%87%8C",
+      "revid": 74525,
+      "parentid": 74499,
+      "timestamp": "2026-01-10T02:26:13Z",
+      "sourceSha256": "d02b546f2bad429c205e85f4169b89e9bb81e5f36ffd6016fb26d13c78a933f5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋王凌",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-冢虎狼顾",
+        "经典体力": "4",
+        "经典定位": "续航"
+      },
+      "source": "{{武将\n|武将名=谋王凌\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-冢虎狼顾\n|经典体力=4\n|经典定位=续航\n}}",
+      "name": "谋王凌",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

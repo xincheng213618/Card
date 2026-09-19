@@ -1,0 +1,45 @@
+{
+  "pageid": 4464,
+  "namespace": 0,
+  "title": "蒯良蒯越",
+  "url": "https://wiki.biligame.com/sgs/%E8%92%AF%E8%89%AF%E8%92%AF%E8%B6%8A",
+  "revid": 59934,
+  "parentid": 33451,
+  "timestamp": "2023-12-14T10:29:39Z",
+  "sourceSha256": "3f9158c5f4622322065a09b5f5e7869d9fa5deebe0d679adf1c330f53d0c92d7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4464,
+      "namespace": 0,
+      "title": "蒯良蒯越",
+      "url": "https://wiki.biligame.com/sgs/%E8%92%AF%E8%89%AF%E8%92%AF%E8%B6%8A",
+      "revid": 59934,
+      "parentid": 33451,
+      "timestamp": "2023-12-14T10:29:39Z",
+      "sourceSha256": "3f9158c5f4622322065a09b5f5e7869d9fa5deebe0d679adf1c330f53d0c92d7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "蒯良蒯越",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "筷子兄弟",
+        "称号": "雍论臼谋",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "神话再临-阴包",
+        "经典体力": "3",
+        "经典定位": "攻击,卖血,辅助"
+      },
+      "source": "{{武将\n|武将名=蒯良蒯越\n|势力=魏\n|性别=男\n|别称=筷子兄弟\n|称号=雍论臼谋\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=神话再临-阴包\n|经典体力=3\n|经典定位=攻击,卖血,辅助\n}}",
+      "name": "蒯良蒯越",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

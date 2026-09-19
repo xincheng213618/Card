@@ -1,0 +1,45 @@
+{
+  "pageid": 7233,
+  "namespace": 0,
+  "title": "李采薇",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E9%87%87%E8%96%87",
+  "revid": 74712,
+  "parentid": 70176,
+  "timestamp": "2026-01-22T16:46:37Z",
+  "sourceSha256": "26972ea78e08cb00e0b5cc3247b282b89f717c7dd264b6550ea398c5f24bb86e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7233,
+      "namespace": 0,
+      "title": "李采薇",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E9%87%87%E8%96%87",
+      "revid": 74712,
+      "parentid": 70176,
+      "timestamp": "2026-01-22T16:46:37Z",
+      "sourceSha256": "26972ea78e08cb00e0b5cc3247b282b89f717c7dd264b6550ea398c5f24bb86e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李采薇",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-兵临城下",
+        "经典体力": "3",
+        "经典定位": "辅助,续航"
+      },
+      "source": "{{武将\n|武将名=李采薇\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-兵临城下\n|经典体力=3\n|经典定位=辅助,续航\n}}",
+      "name": "李采薇",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

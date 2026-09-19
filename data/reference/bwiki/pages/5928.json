@@ -1,0 +1,47 @@
+{
+  "pageid": 5928,
+  "namespace": 0,
+  "title": "明哲",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%8E%E5%93%B2",
+  "revid": 53883,
+  "parentid": 28264,
+  "timestamp": "2023-06-08T11:08:26Z",
+  "sourceSha256": "50062faac5d11c07d1a4f6b4e38aeb17e70a2cdf9f8abee11a32daadfab2c855",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5928,
+      "namespace": 0,
+      "title": "明哲",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%8E%E5%93%B2",
+      "revid": 53883,
+      "parentid": 28264,
+      "timestamp": "2023-06-08T11:08:26Z",
+      "sourceSha256": "50062faac5d11c07d1a4f6b4e38aeb17e70a2cdf9f8abee11a32daadfab2c855",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "明哲",
+        "所属武将": "诸葛瑾",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你于回合外因使用、打出或弃置而失去一张红色牌时，你可以摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=明哲\n|所属武将=诸葛瑾\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你于回合外因使用、打出或弃置而失去一张红色牌时，你可以摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "明哲",
+      "generals": [
+        "诸葛瑾"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你于回合外因使用、打出或弃置而失去一张红色牌时，你可以摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

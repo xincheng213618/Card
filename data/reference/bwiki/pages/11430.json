@@ -1,0 +1,46 @@
+{
+  "pageid": 11430,
+  "namespace": 0,
+  "title": "SP赵云",
+  "url": "https://wiki.biligame.com/sgs/SP%E8%B5%B5%E4%BA%91",
+  "revid": 77479,
+  "parentid": 68987,
+  "timestamp": "2026-05-09T01:33:09Z",
+  "sourceSha256": "afc56e5d8dc02265c5432bd586b25df4fe531dd208edcc5260335977813cfa88",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11430,
+      "namespace": 0,
+      "title": "SP赵云",
+      "url": "https://wiki.biligame.com/sgs/SP%E8%B5%B5%E4%BA%91",
+      "revid": 77479,
+      "parentid": 68987,
+      "timestamp": "2026-05-09T01:33:09Z",
+      "sourceSha256": "afc56e5d8dc02265c5432bd586b25df4fe531dd208edcc5260335977813cfa88",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP赵云",
+        "势力": "群",
+        "性别": "男",
+        "别称": "小学云、流氓云",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "常山的游龙",
+        "规则集问答": "",
+        "武将包": "荟萃-往者可谏",
+        "经典体力": "3",
+        "经典定位": "攻击,防御,控制"
+      },
+      "source": "{{武将\n|武将名=SP赵云\n|势力=群\n|性别=男\n|别称=小学云、流氓云\n|出现模式=身份,欢乐,斗地主\n|称号=常山的游龙\n|规则集问答=\n|武将包=荟萃-往者可谏\n|经典体力=3\n|经典定位=攻击,防御,控制\n}}",
+      "name": "SP赵云",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

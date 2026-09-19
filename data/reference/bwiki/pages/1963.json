@@ -1,0 +1,45 @@
+{
+  "pageid": 1963,
+  "namespace": 0,
+  "title": "郭汜",
+  "url": "https://wiki.biligame.com/sgs/%E9%83%AD%E6%B1%9C",
+  "revid": 71186,
+  "parentid": 70937,
+  "timestamp": "2025-05-20T07:50:14Z",
+  "sourceSha256": "872ccd901524b0b405fe1797ac447f1f8495fbd4b6cd7bccf6cfd022f455aea7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1963,
+      "namespace": 0,
+      "title": "郭汜",
+      "url": "https://wiki.biligame.com/sgs/%E9%83%AD%E6%B1%9C",
+      "revid": 71186,
+      "parentid": 70937,
+      "timestamp": "2025-05-20T07:50:14Z",
+      "sourceSha256": "872ccd901524b0b405fe1797ac447f1f8495fbd4b6cd7bccf6cfd022f455aea7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "郭汜",
+        "势力": "群",
+        "性别": "男",
+        "别称": "",
+        "称号": "党豺为虐",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=郭汜\n|势力=群\n|性别=男\n|别称=\n|称号=党豺为虐\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "郭汜",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,22 @@
+{
+  "pageid": 15589,
+  "namespace": 0,
+  "title": "面杀抽将",
+  "url": "https://wiki.biligame.com/sgs/%E9%9D%A2%E6%9D%80%E6%8A%BD%E5%B0%86",
+  "revid": 76185,
+  "parentid": 76184,
+  "timestamp": "2026-03-08T09:08:25Z",
+  "sourceSha256": "5e6f632c2a260eb613a1d2789168d0f9d80054bc3990b278c0295f99e2d584f2",
+  "image": {},
+  "kind": "general",
+  "records": [],
+  "unparsedTemplateNames": [
+    "Tabs",
+    "#arraydefine:武将池",
+    "#arraysort:武将池",
+    "#arrayslice:随机武将",
+    "#arraymap:{{#arrayprint:随机武将|,}}",
+    "#arraymap:4,5,6,7,8",
+    "自动刷新"
+  ]
+}

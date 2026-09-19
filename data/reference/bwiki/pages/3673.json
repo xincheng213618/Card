@@ -1,0 +1,46 @@
+{
+  "pageid": 3673,
+  "namespace": 0,
+  "title": "勤学",
+  "url": "https://wiki.biligame.com/sgs/%E5%8B%A4%E5%AD%A6",
+  "revid": 63027,
+  "parentid": 59707,
+  "timestamp": "2024-05-01T04:04:11Z",
+  "sourceSha256": "74f8dc6350c78bed2af25b22abde661414e6199b8cc09be7ba8ce8137c7e9737",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3673,
+      "namespace": 0,
+      "title": "勤学",
+      "url": "https://wiki.biligame.com/sgs/%E5%8B%A4%E5%AD%A6",
+      "revid": 63027,
+      "parentid": 59707,
+      "timestamp": "2024-05-01T04:04:11Z",
+      "sourceSha256": "74f8dc6350c78bed2af25b22abde661414e6199b8cc09be7ba8ce8137c7e9737",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "勤学",
+        "所属武将": "吕蒙",
+        "技能版本": "界",
+        "界限技能描述": "准备阶段，若你的手牌数减体力值至少为3（若游戏人数不小于7则改为2），你减1点体力上限，然后获得技能“{{技能/引用|攻心/吕蒙}}”。",
+        "界限技能类型": "觉醒技",
+        "界限技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=勤学\n|所属武将=吕蒙\n|技能版本=界\n|界限技能描述=准备阶段，若你的手牌数减体力值至少为3（若游戏人数不小于7则改为2），你减1点体力上限，然后获得技能“{{技能/引用|攻心/吕蒙}}”。\n|界限技能类型=觉醒技\n|界限技能定位=中性\n}}",
+      "name": "勤学",
+      "generals": [
+        "吕蒙"
+      ],
+      "mode": "界",
+      "version": "界",
+      "descriptions": {
+        "界限技能描述": "准备阶段，若你的手牌数减体力值至少为3（若游戏人数不小于7则改为2），你减1点体力上限，然后获得技能“{{技能/引用|攻心/吕蒙}}”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

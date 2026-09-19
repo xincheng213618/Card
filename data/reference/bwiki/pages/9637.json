@@ -1,0 +1,47 @@
+{
+  "pageid": 9637,
+  "namespace": 0,
+  "title": "藿溪",
+  "url": "https://wiki.biligame.com/sgs/%E8%97%BF%E6%BA%AA",
+  "revid": 51825,
+  "parentid": 51776,
+  "timestamp": "2023-03-18T16:15:24Z",
+  "sourceSha256": "5b7ed50486eecc37737083f08e27e0bc68cb1905db9df62b704ee48bb38b39f9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9637,
+      "namespace": 0,
+      "title": "藿溪",
+      "url": "https://wiki.biligame.com/sgs/%E8%97%BF%E6%BA%AA",
+      "revid": 51825,
+      "parentid": 51776,
+      "timestamp": "2023-03-18T16:15:24Z",
+      "sourceSha256": "5b7ed50486eecc37737083f08e27e0bc68cb1905db9df62b704ee48bb38b39f9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "藿溪",
+        "所属武将": "引路标记效果",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以弃置一张♥️牌，摸两张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=藿溪\n|所属武将=引路标记效果\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你可以弃置一张♥️牌，摸两张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "藿溪",
+      "generals": [
+        "引路标记效果"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以弃置一张♥️牌，摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

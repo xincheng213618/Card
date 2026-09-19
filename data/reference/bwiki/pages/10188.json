@@ -1,0 +1,45 @@
+{
+  "pageid": 10188,
+  "namespace": 0,
+  "title": "陈泰",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%88%E6%B3%B0",
+  "revid": 71263,
+  "parentid": 71013,
+  "timestamp": "2025-05-20T07:53:42Z",
+  "sourceSha256": "459a106aece086a02843fa05177296edf3d992e13bce9d00139cf3f2f31fc8af",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10188,
+      "namespace": 0,
+      "title": "陈泰",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E6%B3%B0",
+      "revid": 71263,
+      "parentid": 71013,
+      "timestamp": "2025-05-20T07:53:42Z",
+      "sourceSha256": "459a106aece086a02843fa05177296edf3d992e13bce9d00139cf3f2f31fc8af",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陈泰",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击,辅助,续航"
+      },
+      "source": "{{武将\n|武将名=陈泰\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击,辅助,续航\n}}",
+      "name": "陈泰",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

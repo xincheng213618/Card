@@ -1,0 +1,47 @@
+{
+  "pageid": 12894,
+  "namespace": 0,
+  "title": "暮往",
+  "url": "https://wiki.biligame.com/sgs/%E6%9A%AE%E5%BE%80",
+  "revid": 64763,
+  "parentid": 64521,
+  "timestamp": "2024-09-09T03:48:43Z",
+  "sourceSha256": "732945421499fe0ce7eae1133fd7cb8a17bfa7cba33dec4445a85ce66b1f2faf",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12894,
+      "namespace": 0,
+      "title": "暮往",
+      "url": "https://wiki.biligame.com/sgs/%E6%9A%AE%E5%BE%80",
+      "revid": 64763,
+      "parentid": 64521,
+      "timestamp": "2024-09-09T03:48:43Z",
+      "sourceSha256": "732945421499fe0ce7eae1133fd7cb8a17bfa7cba33dec4445a85ce66b1f2faf",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "暮往",
+        "所属武将": "谋沮授",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你每回合第一次失去基本牌或普通锦囊牌时，你从弃牌堆中随机获得其中一张。若如此做，当你本回合下一次失去此牌后，你弃置一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=暮往\n|所属武将=谋沮授\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你每回合第一次失去基本牌或普通锦囊牌时，你从弃牌堆中随机获得其中一张。若如此做，当你本回合下一次失去此牌后，你弃置一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌,负面\n}}",
+      "name": "暮往",
+      "generals": [
+        "谋沮授"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你每回合第一次失去基本牌或普通锦囊牌时，你从弃牌堆中随机获得其中一张。若如此做，当你本回合下一次失去此牌后，你弃置一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,44 @@
+{
+  "pageid": 14753,
+  "namespace": 0,
+  "title": "经典刘备",
+  "url": "https://wiki.biligame.com/sgs/%E7%BB%8F%E5%85%B8%E5%88%98%E5%A4%87",
+  "revid": 75919,
+  "parentid": 75815,
+  "timestamp": "2026-02-26T00:47:28Z",
+  "sourceSha256": "315f6bfbf6822eedb3da83cf28d586d39778518462c5268f5995c69b99d46fe7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14753,
+      "namespace": 0,
+      "title": "经典刘备",
+      "url": "https://wiki.biligame.com/sgs/%E7%BB%8F%E5%85%B8%E5%88%98%E5%A4%87",
+      "revid": 75919,
+      "parentid": 75815,
+      "timestamp": "2026-02-26T00:47:28Z",
+      "sourceSha256": "315f6bfbf6822eedb3da83cf28d586d39778518462c5268f5995c69b99d46fe7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "经典刘备",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "乱世的枭雄",
+        "别称": "缺德备",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "4",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=经典刘备\n|势力=蜀\n|性别=男\n|出现模式=斗地主\n|称号=乱世的枭雄\n|别称=缺德备\n|规则集问答=\n|武将包=限时地主\n|经典体力=4\n|经典定位=控制\n}}",
+      "name": "经典刘备",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

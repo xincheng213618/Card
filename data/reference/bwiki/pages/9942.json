@@ -1,0 +1,45 @@
+{
+  "pageid": 9942,
+  "namespace": 0,
+  "title": "高翔",
+  "url": "https://wiki.biligame.com/sgs/%E9%AB%98%E7%BF%94",
+  "revid": 71443,
+  "parentid": 71341,
+  "timestamp": "2025-05-21T01:24:51Z",
+  "sourceSha256": "1207825240de2a8079a17099dbf8e91670f061e62dd3490580c857951dcc604f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9942,
+      "namespace": 0,
+      "title": "高翔",
+      "url": "https://wiki.biligame.com/sgs/%E9%AB%98%E7%BF%94",
+      "revid": 71443,
+      "parentid": 71341,
+      "timestamp": "2025-05-21T01:24:51Z",
+      "sourceSha256": "1207825240de2a8079a17099dbf8e91670f061e62dd3490580c857951dcc604f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "高翔",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "4",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=高翔\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=4\n|经典定位=控制,辅助\n}}",
+      "name": "高翔",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

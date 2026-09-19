@@ -1,0 +1,44 @@
+{
+  "pageid": 591,
+  "namespace": 0,
+  "title": "潘淑",
+  "url": "https://wiki.biligame.com/sgs/%E6%BD%98%E6%B7%91",
+  "revid": 74691,
+  "parentid": 72801,
+  "timestamp": "2026-01-22T17:23:23Z",
+  "sourceSha256": "18d016f21fc98b67f32499a5e046589787526d7f798a38df40683944f8dc0ff0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 591,
+      "namespace": 0,
+      "title": "潘淑",
+      "url": "https://wiki.biligame.com/sgs/%E6%BD%98%E6%B7%91",
+      "revid": 74691,
+      "parentid": 72801,
+      "timestamp": "2026-01-22T17:23:23Z",
+      "sourceSha256": "18d016f21fc98b67f32499a5e046589787526d7f798a38df40683944f8dc0ff0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "潘淑",
+        "势力": "吴",
+        "性别": "女",
+        "别称": "{{颜色链接|{{势力色|吴}}|潘子}}",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-章台春望",
+        "经典体力": "3",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=潘淑\n|势力=吴\n|性别=女\n|别称={{颜色链接|{{势力色|吴}}|潘子}}\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-章台春望\n|经典体力=3\n|经典定位=控制,爆发\n}}",
+      "name": "潘淑",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

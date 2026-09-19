@@ -1,0 +1,46 @@
+{
+  "pageid": 15637,
+  "namespace": 0,
+  "title": "曹豹",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%B1%B9",
+  "revid": 77922,
+  "parentid": 77895,
+  "timestamp": "2026-05-16T15:42:08Z",
+  "sourceSha256": "694b89d21ed333b85e7324c589d2bf1e2961908dbf0c17d0fa56684d42dbfb54",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15637,
+      "namespace": 0,
+      "title": "曹豹",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%B1%B9",
+      "revid": 77922,
+      "parentid": 77895,
+      "timestamp": "2026-05-16T15:42:08Z",
+      "sourceSha256": "694b89d21ed333b85e7324c589d2bf1e2961908dbf0c17d0fa56684d42dbfb54",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹豹",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "杯盏游神",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-徐州风云",
+        "经典体力": "4/5",
+        "经典定位": "爆发,过牌"
+      },
+      "source": "{{武将\n|武将名=曹豹\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=杯盏游神\n|别称=\n|规则集问答=\n|武将包=荟萃-徐州风云\n|经典体力=4/5\n|经典定位=爆发,过牌\n}}",
+      "name": "曹豹",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

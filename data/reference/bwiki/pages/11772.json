@@ -1,0 +1,45 @@
+{
+  "pageid": 11772,
+  "namespace": 0,
+  "title": "曹轶",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%BD%B6",
+  "revid": 75307,
+  "parentid": 72725,
+  "timestamp": "2026-02-10T03:49:31Z",
+  "sourceSha256": "abf0c24f294d0188b36b93f8c93230b82815f93800d555fbd093610d95c93f18",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11772,
+      "namespace": 0,
+      "title": "曹轶",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%BD%B6",
+      "revid": 75307,
+      "parentid": 72725,
+      "timestamp": "2026-02-10T03:49:31Z",
+      "sourceSha256": "abf0c24f294d0188b36b93f8c93230b82815f93800d555fbd093610d95c93f18",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹轶",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "小白虎",
+        "规则集问答": "",
+        "武将包": "限定-隐山之玉",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=曹轶\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=小白虎\n|规则集问答=\n|武将包=限定-隐山之玉\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "曹轶",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

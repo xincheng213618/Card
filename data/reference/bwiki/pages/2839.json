@@ -1,0 +1,77 @@
+{
+  "pageid": 2839,
+  "namespace": 0,
+  "title": "止息",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A2%E6%81%AF",
+  "revid": 63519,
+  "parentid": 48449,
+  "timestamp": "2024-06-22T10:41:52Z",
+  "sourceSha256": "7497b939b63098c29d0ff7f5c4274b97b25c3ca10c94367f64789bbfe0829d62",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2839,
+      "namespace": 0,
+      "title": "止息",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A2%E6%81%AF",
+      "revid": 63519,
+      "parentid": 48449,
+      "timestamp": "2024-06-22T10:41:52Z",
+      "sourceSha256": "7497b939b63098c29d0ff7f5c4274b97b25c3ca10c94367f64789bbfe0829d62",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "止息",
+        "所属武将": "孙鲁育",
+        "技能版本": "经典",
+        "是衍生技": "是",
+        "经典技能描述": "当你于出牌阶段使用【杀】或普通锦囊牌时，弃置一张手牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=止息\n|所属武将=孙鲁育\n|技能版本=经典\n|是衍生技=是\n|经典技能描述=当你于出牌阶段使用【杀】或普通锦囊牌时，弃置一张手牌。\n|经典技能类型=锁定技\n|经典技能定位=负面\n}}",
+      "name": "止息",
+      "generals": [
+        "孙鲁育"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你于出牌阶段使用【杀】或普通锦囊牌时，弃置一张手牌。"
+      }
+    },
+    {
+      "pageid": 2839,
+      "namespace": 0,
+      "title": "止息",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A2%E6%81%AF",
+      "revid": 63519,
+      "parentid": 48449,
+      "timestamp": "2024-06-22T10:41:52Z",
+      "sourceSha256": "7497b939b63098c29d0ff7f5c4274b97b25c3ca10c94367f64789bbfe0829d62",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "3",
+        "技能名": "止息",
+        "所属武将": "孙鲁育",
+        "是衍生技": "是",
+        "经典技能描述": "'''锁定技，'''当你于出牌阶段使用【杀】或普通锦囊牌时，弃置一张手牌。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=3\n|技能名=止息\n|所属武将=孙鲁育\n|是衍生技=是\n|经典技能描述='''锁定技，'''当你于出牌阶段使用【杀】或普通锦囊牌时，弃置一张手牌。\n}}",
+      "name": "止息",
+      "generals": [
+        "孙鲁育"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "'''锁定技，'''当你于出牌阶段使用【杀】或普通锦囊牌时，弃置一张手牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

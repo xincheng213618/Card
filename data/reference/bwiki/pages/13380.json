@@ -1,0 +1,45 @@
+{
+  "pageid": 13380,
+  "namespace": 0,
+  "title": "文钦",
+  "url": "https://wiki.biligame.com/sgs/%E6%96%87%E9%92%A6",
+  "revid": 77420,
+  "parentid": 77419,
+  "timestamp": "2026-05-05T01:57:47Z",
+  "sourceSha256": "ca9845f916dd820920e61d4bb128c84f60e3bc4157f238fc81060ee90cb2af04",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13380,
+      "namespace": 0,
+      "title": "文钦",
+      "url": "https://wiki.biligame.com/sgs/%E6%96%87%E9%92%A6",
+      "revid": 77420,
+      "parentid": 77419,
+      "timestamp": "2026-05-05T01:57:47Z",
+      "sourceSha256": "ca9845f916dd820920e61d4bb128c84f60e3bc4157f238fc81060ee90cb2af04",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "文钦",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=文钦\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "文钦",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

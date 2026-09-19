@@ -1,0 +1,46 @@
+{
+  "pageid": 14372,
+  "namespace": 0,
+  "title": "吴质",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E8%B4%A8",
+  "revid": 78118,
+  "parentid": 77987,
+  "timestamp": "2026-06-05T04:30:06Z",
+  "sourceSha256": "16bd53c25b76a58f27beac10212da35d08111e77bf0faf95722e37960d26951a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14372,
+      "namespace": 0,
+      "title": "吴质",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E8%B4%A8",
+      "revid": 78118,
+      "parentid": 77987,
+      "timestamp": "2026-06-05T04:30:06Z",
+      "sourceSha256": "16bd53c25b76a58f27beac10212da35d08111e77bf0faf95722e37960d26951a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吴质",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "佐世佯悲",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "辅助,攻击,控制"
+      },
+      "source": "{{武将\n|武将名=吴质\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=佐世佯悲\n|别称=\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=辅助,攻击,控制\n}}",
+      "name": "吴质",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

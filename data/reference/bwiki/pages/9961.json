@@ -1,0 +1,46 @@
+{
+  "pageid": 9961,
+  "namespace": 0,
+  "title": "严白虎",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%A5%E7%99%BD%E8%99%8E",
+  "revid": 77489,
+  "parentid": 69014,
+  "timestamp": "2026-05-09T01:33:46Z",
+  "sourceSha256": "32a85b39fda3833cf5b11f7a073629436cf6e9d43d3122aa49d6bbc1958adde2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9961,
+      "namespace": 0,
+      "title": "严白虎",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%A5%E7%99%BD%E8%99%8E",
+      "revid": 77489,
+      "parentid": 69014,
+      "timestamp": "2026-05-09T01:33:46Z",
+      "sourceSha256": "32a85b39fda3833cf5b11f7a073629436cf6e9d43d3122aa49d6bbc1958adde2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "严白虎",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-群雄伺动",
+        "经典体力": "4",
+        "经典定位": "控制,随势"
+      },
+      "source": "{{武将\n|武将名=严白虎\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-群雄伺动\n|经典体力=4\n|经典定位=控制,随势\n}}",
+      "name": "严白虎",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

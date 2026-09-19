@@ -1,0 +1,45 @@
+{
+  "pageid": 1505,
+  "namespace": 0,
+  "title": "丘力居",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%98%E5%8A%9B%E5%B1%85",
+  "revid": 77486,
+  "parentid": 69008,
+  "timestamp": "2026-05-09T01:33:31Z",
+  "sourceSha256": "092025c50fa991b209db14298de91c61e2dd3c6b23703875b4ddb654a7e2de74",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1505,
+      "namespace": 0,
+      "title": "丘力居",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%98%E5%8A%9B%E5%B1%85",
+      "revid": 77486,
+      "parentid": 69008,
+      "timestamp": "2026-05-09T01:33:31Z",
+      "sourceSha256": "092025c50fa991b209db14298de91c61e2dd3c6b23703875b4ddb654a7e2de74",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "丘力居",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-徐州风云",
+        "经典体力": "4/6",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=丘力居\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|别称=\n|规则集问答=\n|武将包=荟萃-徐州风云\n|经典体力=4/6\n|经典定位=控制,爆发\n}}",
+      "name": "丘力居",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,44 @@
+{
+  "pageid": 15517,
+  "namespace": 0,
+  "title": "委屈之神",
+  "url": "https://wiki.biligame.com/sgs/%E5%A7%94%E5%B1%88%E4%B9%8B%E7%A5%9E",
+  "revid": 76083,
+  "parentid": 75862,
+  "timestamp": "2026-03-07T04:28:04Z",
+  "sourceSha256": "5d2cefeb7a04f9d78646f5ed7ba7df7187b4491560ebad422806db4417ad0b4b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15517,
+      "namespace": 0,
+      "title": "委屈之神",
+      "url": "https://wiki.biligame.com/sgs/%E5%A7%94%E5%B1%88%E4%B9%8B%E7%A5%9E",
+      "revid": 76083,
+      "parentid": 75862,
+      "timestamp": "2026-03-07T04:28:04Z",
+      "sourceSha256": "5d2cefeb7a04f9d78646f5ed7ba7df7187b4491560ebad422806db4417ad0b4b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "委屈之神",
+        "势力": "神",
+        "性别": "女",
+        "出现模式": "喵喵杀",
+        "称号": "咣当",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "3",
+        "经典定位": "防御"
+      },
+      "source": "{{武将\n|武将名=委屈之神\n|势力=神\n|性别=女\n|出现模式=喵喵杀\n|称号=咣当\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=3\n|经典定位=防御\n}}",
+      "name": "委屈之神",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

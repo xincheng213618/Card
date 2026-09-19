@@ -1,0 +1,46 @@
+{
+  "pageid": 11413,
+  "namespace": 0,
+  "title": "SP黄月英",
+  "url": "https://wiki.biligame.com/sgs/SP%E9%BB%84%E6%9C%88%E8%8B%B1",
+  "revid": 77481,
+  "parentid": 68989,
+  "timestamp": "2026-05-09T01:33:10Z",
+  "sourceSha256": "b67959d89b750fb389f61f1730dc33b2aee0f76339e31537f88bbd88ba7bc171",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11413,
+      "namespace": 0,
+      "title": "SP黄月英",
+      "url": "https://wiki.biligame.com/sgs/SP%E9%BB%84%E6%9C%88%E8%8B%B1",
+      "revid": 77481,
+      "parentid": 68989,
+      "timestamp": "2026-05-09T01:33:10Z",
+      "sourceSha256": "b67959d89b750fb389f61f1730dc33b2aee0f76339e31537f88bbd88ba7bc171",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP黄月英",
+        "势力": "群",
+        "性别": "女",
+        "别称": "",
+        "称号": "闺中璞玉",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "星火燎原-天同",
+        "经典体力": "3",
+        "经典定位": "续航,防御"
+      },
+      "source": "{{武将\n|武将名=SP黄月英\n|势力=群\n|性别=女\n|别称=\n|称号=闺中璞玉\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=星火燎原-天同\n|经典体力=3\n|经典定位=续航,防御\n}}",
+      "name": "SP黄月英",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

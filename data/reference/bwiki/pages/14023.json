@@ -1,0 +1,47 @@
+{
+  "pageid": 14023,
+  "namespace": 0,
+  "title": "义拒",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%89%E6%8B%92",
+  "revid": 72606,
+  "parentid": 71619,
+  "timestamp": "2025-10-01T01:49:10Z",
+  "sourceSha256": "a48264a18bfeed908e485aae6c7cfed0552b0367785078e5a1fa9dd43c97cf02",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14023,
+      "namespace": 0,
+      "title": "义拒",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%89%E6%8B%92",
+      "revid": 72606,
+      "parentid": 71619,
+      "timestamp": "2025-10-01T01:49:10Z",
+      "sourceSha256": "a48264a18bfeed908e485aae6c7cfed0552b0367785078e5a1fa9dd43c97cf02",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "义拒",
+        "所属武将": "张奂",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "其他角色使用牌指定你为唯一目标后，你弃置一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=义拒\n|所属武将=张奂\n|是衍生技=\n|技能版本=经典\n|经典技能描述=其他角色使用牌指定你为唯一目标后，你弃置一张牌。\n|经典技能类型=锁定技\n|经典技能定位=负面\n}}",
+      "name": "义拒",
+      "generals": [
+        "张奂"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "其他角色使用牌指定你为唯一目标后，你弃置一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

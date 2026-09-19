@@ -1,0 +1,44 @@
+{
+  "pageid": 1320,
+  "namespace": 0,
+  "title": "王荣",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E8%8D%A3",
+  "revid": 70599,
+  "parentid": 70349,
+  "timestamp": "2025-05-20T05:01:56Z",
+  "sourceSha256": "dcee7f903ecceccfa615b217cc16b938aca3f50b428166943eb52cf8fb52ca5d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1320,
+      "namespace": 0,
+      "title": "王荣",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E8%8D%A3",
+      "revid": 70599,
+      "parentid": 70349,
+      "timestamp": "2025-05-20T05:01:56Z",
+      "sourceSha256": "dcee7f903ecceccfa615b217cc16b938aca3f50b428166943eb52cf8fb52ca5d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王荣",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "别称": "白丝",
+        "规则集问答": "",
+        "武将包": "荟萃-诸侯伐董",
+        "经典体力": "3",
+        "经典定位": "续航,爆发,生存,辅助"
+      },
+      "source": "{{武将\n|武将名=王荣\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|别称=白丝\n|规则集问答=\n|武将包=荟萃-诸侯伐董\n|经典体力=3\n|经典定位=续航,爆发,生存,辅助\n}}",
+      "name": "王荣",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

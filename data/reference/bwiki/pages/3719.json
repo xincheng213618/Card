@@ -1,0 +1,47 @@
+{
+  "pageid": 3719,
+  "namespace": 0,
+  "title": "公清",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%AC%E6%B8%85",
+  "revid": 53305,
+  "parentid": 33616,
+  "timestamp": "2023-05-07T05:53:00Z",
+  "sourceSha256": "136a72b7cab64f7e10711f3a3c39fe37920885975fabed7cfe060bb4a9e2781f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3719,
+      "namespace": 0,
+      "title": "公清",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%AC%E6%B8%85",
+      "revid": 53305,
+      "parentid": 33616,
+      "timestamp": "2023-05-07T05:53:00Z",
+      "sourceSha256": "136a72b7cab64f7e10711f3a3c39fe37920885975fabed7cfe060bb4a9e2781f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "公清",
+        "所属武将": "潘濬",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你受到伤害时，若伤害来源的攻击范围：小于3，将此次伤害的伤害值改为1；大于3，此伤害+1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=公清\n|所属武将=潘濬\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你受到伤害时，若伤害来源的攻击范围：小于3，将此次伤害的伤害值改为1；大于3，此伤害+1。\n|经典技能类型=锁定技\n|经典技能定位=防御,负面\n}}",
+      "name": "公清",
+      "generals": [
+        "潘濬"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你受到伤害时，若伤害来源的攻击范围：小于3，将此次伤害的伤害值改为1；大于3，此伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 15057,
+  "namespace": 0,
+  "title": "谋法正",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%B3%95%E6%AD%A3",
+  "revid": 76336,
+  "parentid": 76330,
+  "timestamp": "2026-03-21T05:00:46Z",
+  "sourceSha256": "1d1548f659085c4647f38cf79f7312d6dfbfa2c96aeebeb41a048047dac9938a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15057,
+      "namespace": 0,
+      "title": "谋法正",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%B3%95%E6%AD%A3",
+      "revid": 76336,
+      "parentid": 76330,
+      "timestamp": "2026-03-21T05:00:46Z",
+      "sourceSha256": "1d1548f659085c4647f38cf79f7312d6dfbfa2c96aeebeb41a048047dac9938a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋法正",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "洞人识心",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-凤雏溯攻",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=谋法正\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=洞人识心\n|别称=\n|规则集问答=\n|武将包=谋定-凤雏溯攻\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "谋法正",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

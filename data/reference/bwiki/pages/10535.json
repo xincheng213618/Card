@@ -1,0 +1,45 @@
+{
+  "pageid": 10535,
+  "namespace": 0,
+  "title": "武诸葛亮",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E8%AF%B8%E8%91%9B%E4%BA%AE",
+  "revid": 74308,
+  "parentid": 74296,
+  "timestamp": "2026-01-02T10:43:09Z",
+  "sourceSha256": "e1d2acd674efb5b7653156f69480b6fb0070ac5f79c54e0ca18bef8ba8ee13de",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10535,
+      "namespace": 0,
+      "title": "武诸葛亮",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E8%AF%B8%E8%91%9B%E4%BA%AE",
+      "revid": 74308,
+      "parentid": 74296,
+      "timestamp": "2026-01-02T10:43:09Z",
+      "sourceSha256": "e1d2acd674efb5b7653156f69480b6fb0070ac5f79c54e0ca18bef8ba8ee13de",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "武诸葛亮",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "武租哥",
+        "规则集问答": "",
+        "武将包": "限定-武庙",
+        "经典体力": "4/7",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=武诸葛亮\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=武租哥\n|规则集问答=\n|武将包=限定-武庙\n|经典体力=4/7\n|经典定位=全能\n}}",
+      "name": "武诸葛亮",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 15673,
+  "namespace": 0,
+  "title": "邓晚棠",
+  "url": "https://wiki.biligame.com/sgs/%E9%82%93%E6%99%9A%E6%A3%A0",
+  "revid": 78980,
+  "parentid": 78670,
+  "timestamp": "2026-07-16T23:28:44Z",
+  "sourceSha256": "c675ad19613e6cbc363f94c4ec8db35245775fe5ed882b0abfbca2e9a05cdbf1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15673,
+      "namespace": 0,
+      "title": "邓晚棠",
+      "url": "https://wiki.biligame.com/sgs/%E9%82%93%E6%99%9A%E6%A3%A0",
+      "revid": 78980,
+      "parentid": 78670,
+      "timestamp": "2026-07-16T23:28:44Z",
+      "sourceSha256": "c675ad19613e6cbc363f94c4ec8db35245775fe5ed882b0abfbca2e9a05cdbf1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "邓晚棠",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "4",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=邓晚棠\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=4\n|经典定位=续航,爆发\n}}",
+      "name": "邓晚棠",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

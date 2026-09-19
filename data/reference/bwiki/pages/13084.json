@@ -1,0 +1,45 @@
+{
+  "pageid": 13084,
+  "namespace": 0,
+  "title": "谋陈琳",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%99%88%E7%90%B3",
+  "revid": 78645,
+  "parentid": 71123,
+  "timestamp": "2026-07-01T13:36:55Z",
+  "sourceSha256": "28001bae914730f38b2713275e72679a4f5f7f9711fa73fb04e564d9d1b6674b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13084,
+      "namespace": 0,
+      "title": "谋陈琳",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%99%88%E7%90%B3",
+      "revid": 78645,
+      "parentid": 71123,
+      "timestamp": "2026-07-01T13:36:55Z",
+      "sourceSha256": "28001bae914730f38b2713275e72679a4f5f7f9711fa73fb04e564d9d1b6674b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋陈琳",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-奇佐论胜",
+        "经典体力": "3",
+        "经典定位": "控制,辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=谋陈琳\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-奇佐论胜\n|经典体力=3\n|经典定位=控制,辅助,爆发\n}}",
+      "name": "谋陈琳",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 10394,
+  "namespace": 0,
+  "title": "慈悲",
+  "url": "https://wiki.biligame.com/sgs/%E6%85%88%E6%82%B2",
+  "revid": 72951,
+  "parentid": 72931,
+  "timestamp": "2025-10-18T13:34:55Z",
+  "sourceSha256": "fab20d9a6b63b977acef00eca77f89af07f5d9d52a0a5545ea1c4c196630db73",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10394,
+      "namespace": 0,
+      "title": "慈悲",
+      "url": "https://wiki.biligame.com/sgs/%E6%85%88%E6%82%B2",
+      "revid": 72951,
+      "parentid": 72931,
+      "timestamp": "2025-10-18T13:34:55Z",
+      "sourceSha256": "fab20d9a6b63b977acef00eca77f89af07f5d9d52a0a5545ea1c4c196630db73",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "慈悲",
+        "所属武将": "孙悟空",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合每名角色限一次，当你对其他角色造成伤害时，你可以防止此伤害，摸五张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=慈悲\n|所属武将=孙悟空\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合每名角色限一次，当你对其他角色造成伤害时，你可以防止此伤害，摸五张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "慈悲",
+      "generals": [
+        "孙悟空"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合每名角色限一次，当你对其他角色造成伤害时，你可以防止此伤害，摸五张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

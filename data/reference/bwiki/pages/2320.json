@@ -1,0 +1,47 @@
+{
+  "pageid": 2320,
+  "namespace": 0,
+  "title": "伤逝",
+  "url": "https://wiki.biligame.com/sgs/%E4%BC%A4%E9%80%9D",
+  "revid": 68233,
+  "parentid": 68174,
+  "timestamp": "2025-02-07T09:32:27Z",
+  "sourceSha256": "e8f9e1bc14c79d110e987ce46518535ca49bfc43475c285a63e66f2e2ff3cee7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2320,
+      "namespace": 0,
+      "title": "伤逝",
+      "url": "https://wiki.biligame.com/sgs/%E4%BC%A4%E9%80%9D",
+      "revid": 68233,
+      "parentid": 68174,
+      "timestamp": "2025-02-07T09:32:27Z",
+      "sourceSha256": "e8f9e1bc14c79d110e987ce46518535ca49bfc43475c285a63e66f2e2ff3cee7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "伤逝",
+        "所属武将": "张春华",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "当你的手牌数小于X时，你可以将手牌摸至X张（X为你已损失的体力值）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "卖血,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=伤逝\n|所属武将=张春华\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=当你的手牌数小于X时，你可以将手牌摸至X张（X为你已损失的体力值）。\n|经典技能类型=一般技\n|经典技能定位=卖血,过牌\n}}",
+      "name": "伤逝",
+      "generals": [
+        "张春华"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当你的手牌数小于X时，你可以将手牌摸至X张（X为你已损失的体力值）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 5926,
+  "namespace": 0,
+  "title": "弘援",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%98%E6%8F%B4",
+  "revid": 46323,
+  "parentid": 28262,
+  "timestamp": "2023-01-12T04:44:14Z",
+  "sourceSha256": "7beb8e92083d8078155fbe9ceeddf3ebba0182973e894e3406d1f28c1c7f13c4",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5926,
+      "namespace": 0,
+      "title": "弘援",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%98%E6%8F%B4",
+      "revid": 46323,
+      "parentid": 28262,
+      "timestamp": "2023-01-12T04:44:14Z",
+      "sourceSha256": "7beb8e92083d8078155fbe9ceeddf3ebba0182973e894e3406d1f28c1c7f13c4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "弘援",
+        "所属武将": "诸葛瑾",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "摸牌阶段，你可以少摸一张牌，令至多两名其他角色各摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=弘援\n|所属武将=诸葛瑾\n|是衍生技=\n|技能版本=经典\n|经典技能描述=摸牌阶段，你可以少摸一张牌，令至多两名其他角色各摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=辅助\n}}",
+      "name": "弘援",
+      "generals": [
+        "诸葛瑾"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "摸牌阶段，你可以少摸一张牌，令至多两名其他角色各摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

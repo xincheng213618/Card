@@ -1,0 +1,47 @@
+{
+  "pageid": 12465,
+  "namespace": 0,
+  "title": "输粮",
+  "url": "https://wiki.biligame.com/sgs/%E8%BE%93%E7%B2%AE",
+  "revid": 63082,
+  "parentid": 63075,
+  "timestamp": "2024-05-09T17:34:35Z",
+  "sourceSha256": "18e100e043444c36afb3ac8b967d55fe51ed2bb207255b14ce89b42b0e5f60c7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12465,
+      "namespace": 0,
+      "title": "输粮",
+      "url": "https://wiki.biligame.com/sgs/%E8%BE%93%E7%B2%AE",
+      "revid": 63082,
+      "parentid": 63075,
+      "timestamp": "2024-05-09T17:34:35Z",
+      "sourceSha256": "18e100e043444c36afb3ac8b967d55fe51ed2bb207255b14ce89b42b0e5f60c7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "输粮",
+        "所属武将": "李丰",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "一名角色的回合结束时，你可以交给任意名没有手牌的其他角色各一张牌。若此牌可以指定该角色自己为目标，其可以使用之。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=输粮\n|所属武将=李丰\n|是衍生技=\n|技能版本=经典\n|经典技能描述=一名角色的回合结束时，你可以交给任意名没有手牌的其他角色各一张牌。若此牌可以指定该角色自己为目标，其可以使用之。\n|经典技能类型=一般技\n|经典技能定位=辅助\n}}",
+      "name": "输粮",
+      "generals": [
+        "李丰"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "一名角色的回合结束时，你可以交给任意名没有手牌的其他角色各一张牌。若此牌可以指定该角色自己为目标，其可以使用之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

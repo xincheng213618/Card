@@ -1,0 +1,47 @@
+{
+  "pageid": 5735,
+  "namespace": 0,
+  "title": "咆哮/关兴张苞",
+  "url": "https://wiki.biligame.com/sgs/%E5%92%86%E5%93%AE/%E5%85%B3%E5%85%B4%E5%BC%A0%E8%8B%9E",
+  "revid": 64959,
+  "parentid": 64278,
+  "timestamp": "2024-09-20T05:12:08Z",
+  "sourceSha256": "b2a462ddaa531a5e27a26acf1d9f184d2442c5ff1d1d4c7aa072e284c71fbce9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5735,
+      "namespace": 0,
+      "title": "咆哮/关兴张苞",
+      "url": "https://wiki.biligame.com/sgs/%E5%92%86%E5%93%AE/%E5%85%B3%E5%85%B4%E5%BC%A0%E8%8B%9E",
+      "revid": 64959,
+      "parentid": 64278,
+      "timestamp": "2024-09-20T05:12:08Z",
+      "sourceSha256": "b2a462ddaa531a5e27a26acf1d9f184d2442c5ff1d1d4c7aa072e284c71fbce9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "咆哮",
+        "所属武将": "关兴张苞",
+        "是衍生技": "是",
+        "技能版本": "经典,界",
+        "经典技能描述": "①你使用【杀】无次数限制；<br>\n②当你使用的【杀】被抵消后，你本回合下一次使用【杀】造成的伤害+1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,爆发,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=咆哮\n|所属武将=关兴张苞\n|是衍生技=是\n|技能版本=经典,界\n|经典技能描述=①你使用【杀】无次数限制；<br>\n②当你使用的【杀】被抵消后，你本回合下一次使用【杀】造成的伤害+1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,爆发,距离\n}}",
+      "name": "咆哮",
+      "generals": [
+        "关兴张苞"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "①你使用【杀】无次数限制；<br>\n②当你使用的【杀】被抵消后，你本回合下一次使用【杀】造成的伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

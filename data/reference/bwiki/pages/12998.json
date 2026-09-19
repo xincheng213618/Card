@@ -1,0 +1,45 @@
+{
+  "pageid": 12998,
+  "namespace": 0,
+  "title": "星荀彧",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%8D%80%E5%BD%A7",
+  "revid": 79358,
+  "parentid": 70101,
+  "timestamp": "2026-08-05T05:32:34Z",
+  "sourceSha256": "cdee58204074be5d52f70f1d5f4c1122e6cfa6c446e6e3aceea058d4289ea578",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12998,
+      "namespace": 0,
+      "title": "星荀彧",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%8D%80%E5%BD%A7",
+      "revid": 79358,
+      "parentid": 70101,
+      "timestamp": "2026-08-05T05:32:34Z",
+      "sourceSha256": "cdee58204074be5d52f70f1d5f4c1122e6cfa6c446e6e3aceea058d4289ea578",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星荀彧",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "勾或",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天璇",
+        "经典体力": "3",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=星荀彧\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=勾或\n|规则集问答=\n|武将包=星河璀璨-天璇\n|经典体力=3\n|经典定位=辅助\n}}",
+      "name": "星荀彧",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

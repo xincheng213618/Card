@@ -1,0 +1,45 @@
+{
+  "pageid": 9617,
+  "namespace": 0,
+  "title": "滕芳兰",
+  "url": "https://wiki.biligame.com/sgs/%E6%BB%95%E8%8A%B3%E5%85%B0",
+  "revid": 75311,
+  "parentid": 70537,
+  "timestamp": "2026-02-10T03:49:35Z",
+  "sourceSha256": "d022b780e416e799db5daaf3682fb3d77b8076f5e18affdddac8e316a8d6ac2b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9617,
+      "namespace": 0,
+      "title": "滕芳兰",
+      "url": "https://wiki.biligame.com/sgs/%E6%BB%95%E8%8A%B3%E5%85%B0",
+      "revid": 75311,
+      "parentid": 70537,
+      "timestamp": "2026-02-10T03:49:35Z",
+      "sourceSha256": "d022b780e416e799db5daaf3682fb3d77b8076f5e18affdddac8e316a8d6ac2b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "滕芳兰",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "滕皇后",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=滕芳兰\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=滕皇后\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "滕芳兰",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

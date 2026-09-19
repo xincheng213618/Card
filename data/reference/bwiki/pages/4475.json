@@ -1,0 +1,45 @@
+{
+  "pageid": 4475,
+  "namespace": 0,
+  "title": "孙亮",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E4%BA%AE",
+  "revid": 77633,
+  "parentid": 69565,
+  "timestamp": "2026-05-09T01:44:03Z",
+  "sourceSha256": "1de1daff3a55405e0314988f9e34b12365b7b34a3cc1cc16b1e983ea4cd24036",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4475,
+      "namespace": 0,
+      "title": "孙亮",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E4%BA%AE",
+      "revid": 77633,
+      "parentid": 69565,
+      "timestamp": "2026-05-09T01:44:03Z",
+      "sourceSha256": "1de1daff3a55405e0314988f9e34b12365b7b34a3cc1cc16b1e983ea4cd24036",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙亮",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "枯木枯木落",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "神话再临-阴包",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=孙亮\n|势力=吴\n|性别=男\n|别称=枯木枯木落\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=神话再临-阴包\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "孙亮",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 1688,
+  "namespace": 0,
+  "title": "虎啸",
+  "url": "https://wiki.biligame.com/sgs/%E8%99%8E%E5%95%B8",
+  "revid": 62202,
+  "parentid": 53947,
+  "timestamp": "2024-02-22T12:39:44Z",
+  "sourceSha256": "9a59a5dbb5eda4851a7fb02dd94fd1d34544a9b3fbe5b1ec2e8bd2d150d46c88",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 1688,
+      "namespace": 0,
+      "title": "虎啸",
+      "url": "https://wiki.biligame.com/sgs/%E8%99%8E%E5%95%B8",
+      "revid": 62202,
+      "parentid": 53947,
+      "timestamp": "2024-02-22T12:39:44Z",
+      "sourceSha256": "9a59a5dbb5eda4851a7fb02dd94fd1d34544a9b3fbe5b1ec2e8bd2d150d46c88",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "虎啸",
+        "所属武将": "关银屏",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你对一名角色造成火焰伤害后，其摸一张牌，然后你本回合对其使用牌无次数限制。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面,爆发"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=虎啸\n|所属武将=关银屏\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你对一名角色造成火焰伤害后，其摸一张牌，然后你本回合对其使用牌无次数限制。\n|经典技能类型=锁定技\n|经典技能定位=负面,爆发\n}}",
+      "name": "虎啸",
+      "generals": [
+        "关银屏"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你对一名角色造成火焰伤害后，其摸一张牌，然后你本回合对其使用牌无次数限制。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

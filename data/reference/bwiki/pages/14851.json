@@ -1,0 +1,45 @@
+{
+  "pageid": 14851,
+  "namespace": 0,
+  "title": "谋朱然",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9C%B1%E7%84%B6",
+  "revid": 78840,
+  "parentid": 74945,
+  "timestamp": "2026-07-10T06:13:13Z",
+  "sourceSha256": "2da7bef0178f7568cf4bbbc99e14286ddf4209f81c44c9c26ed4c59fafba8b62",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14851,
+      "namespace": 0,
+      "title": "谋朱然",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9C%B1%E7%84%B6",
+      "revid": 78840,
+      "parentid": 74945,
+      "timestamp": "2026-07-10T06:13:13Z",
+      "sourceSha256": "2da7bef0178f7568cf4bbbc99e14286ddf4209f81c44c9c26ed4c59fafba8b62",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋朱然",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "孤城镇岳",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-伯言绽火",
+        "经典体力": "4",
+        "经典定位": "攻击,控制,辅助"
+      },
+      "source": "{{武将\n|武将名=谋朱然\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=孤城镇岳\n|别称=\n|规则集问答=\n|武将包=谋定-伯言绽火\n|经典体力=4\n|经典定位=攻击,控制,辅助\n}}",
+      "name": "谋朱然",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

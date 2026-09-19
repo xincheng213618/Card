@@ -1,0 +1,44 @@
+{
+  "pageid": 14655,
+  "namespace": 0,
+  "title": "孙悟空",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E6%82%9F%E7%A9%BA",
+  "revid": 75426,
+  "parentid": 74989,
+  "timestamp": "2026-02-12T02:10:05Z",
+  "sourceSha256": "ea2e03fcc225e8bce2a29aeed2ca696e6f34d5b89f1799f987a7ef439d7d2b12",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14655,
+      "namespace": 0,
+      "title": "孙悟空",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E6%82%9F%E7%A9%BA",
+      "revid": 75426,
+      "parentid": 74989,
+      "timestamp": "2026-02-12T02:10:05Z",
+      "sourceSha256": "ea2e03fcc225e8bce2a29aeed2ca696e6f34d5b89f1799f987a7ef439d7d2b12",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙悟空",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "控制,过牌,攻击"
+      },
+      "source": "{{武将\n|武将名=孙悟空\n|势力=神\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=控制,过牌,攻击\n}}",
+      "name": "孙悟空",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

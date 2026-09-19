@@ -1,0 +1,47 @@
+{
+  "pageid": 2213,
+  "namespace": 0,
+  "title": "天命",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E5%91%BD",
+  "revid": 64482,
+  "parentid": 64481,
+  "timestamp": "2024-08-23T06:45:51Z",
+  "sourceSha256": "f8fbe50e7cf9de0de88415d5d8321a7d1048cc59cd481ddcadd7426f989b5179",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2213,
+      "namespace": 0,
+      "title": "天命",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E5%91%BD",
+      "revid": 64482,
+      "parentid": 64481,
+      "timestamp": "2024-08-23T06:45:51Z",
+      "sourceSha256": "f8fbe50e7cf9de0de88415d5d8321a7d1048cc59cd481ddcadd7426f989b5179",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "天命",
+        "所属武将": "刘协",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃）并摸两张牌。然后全场体力值唯一最多的其他角色也可以如此做。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=天命\n|所属武将=刘协\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃）并摸两张牌。然后全场体力值唯一最多的其他角色也可以如此做。\n|经典技能类型=一般技\n|经典技能定位=过牌,换牌\n}}",
+      "name": "天命",
+      "generals": [
+        "刘协"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃）并摸两张牌。然后全场体力值唯一最多的其他角色也可以如此做。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

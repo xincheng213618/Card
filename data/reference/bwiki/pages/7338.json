@@ -1,0 +1,45 @@
+{
+  "pageid": 7338,
+  "namespace": 0,
+  "title": "管宁",
+  "url": "https://wiki.biligame.com/sgs/%E7%AE%A1%E5%AE%81",
+  "revid": 78816,
+  "parentid": 76291,
+  "timestamp": "2026-07-09T23:23:23Z",
+  "sourceSha256": "34fcc60fda3d0174f233ff481d93c313dfbb0997ddd0ed9caf067d97eea8d81f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7338,
+      "namespace": 0,
+      "title": "管宁",
+      "url": "https://wiki.biligame.com/sgs/%E7%AE%A1%E5%AE%81",
+      "revid": 78816,
+      "parentid": 76291,
+      "timestamp": "2026-07-09T23:23:23Z",
+      "sourceSha256": "34fcc60fda3d0174f233ff481d93c313dfbb0997ddd0ed9caf067d97eea8d81f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "管宁",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "管大仙、铁王八、玄武大帝",
+        "规则集问答": "",
+        "武将包": "荟萃-江湖之远",
+        "经典体力": "3/7",
+        "经典定位": "全能,发育"
+      },
+      "source": "{{武将\n|武将名=管宁\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=管大仙、铁王八、玄武大帝\n|规则集问答=\n|武将包=荟萃-江湖之远\n|经典体力=3/7\n|经典定位=全能,发育\n}}",
+      "name": "管宁",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

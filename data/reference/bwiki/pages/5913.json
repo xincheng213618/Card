@@ -1,0 +1,45 @@
+{
+  "pageid": 5913,
+  "namespace": 0,
+  "title": "诸葛诞",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E8%AF%9E",
+  "revid": 68402,
+  "parentid": 68389,
+  "timestamp": "2025-03-08T11:07:23Z",
+  "sourceSha256": "bc75e970d386b8ec0d208cc81f1cfc4f40423706e7268697fb04f11a120159c8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5913,
+      "namespace": 0,
+      "title": "诸葛诞",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E8%AF%9E",
+      "revid": 68402,
+      "parentid": 68389,
+      "timestamp": "2025-03-08T11:07:23Z",
+      "sourceSha256": "bc75e970d386b8ec0d208cc81f1cfc4f40423706e7268697fb04f11a120159c8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛诞",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "薤露蒿里",
+        "别称": "煮个蛋、蛋神",
+        "规则集问答": "",
+        "武将包": "星火燎原-天府",
+        "经典体力": "4",
+        "经典定位": "发育,爆发\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=诸葛诞\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=薤露蒿里\n|别称=煮个蛋、蛋神\n|规则集问答=\n|武将包=星火燎原-天府\n|经典体力=4\n|经典定位=发育,爆发\n<!-- 界限 -->\n}}",
+      "name": "诸葛诞",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

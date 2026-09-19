@@ -1,0 +1,47 @@
+{
+  "pageid": 3584,
+  "namespace": 0,
+  "title": "佐定",
+  "url": "https://wiki.biligame.com/sgs/%E4%BD%90%E5%AE%9A",
+  "revid": 57444,
+  "parentid": 57302,
+  "timestamp": "2023-09-27T10:54:42Z",
+  "sourceSha256": "a2eaf3b45d159cc8ada1236da8dc406b819bc14e312474ace01f85a33451ea8c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3584,
+      "namespace": 0,
+      "title": "佐定",
+      "url": "https://wiki.biligame.com/sgs/%E4%BD%90%E5%AE%9A",
+      "revid": 57444,
+      "parentid": 57302,
+      "timestamp": "2023-09-27T10:54:42Z",
+      "sourceSha256": "a2eaf3b45d159cc8ada1236da8dc406b819bc14e312474ace01f85a33451ea8c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "佐定",
+        "所属武将": "钟繇",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "当其他角色于其出牌阶段内使用♠️牌指定目标后，若本阶段没有角色受到过伤害，你可以令其中一名目标角色摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=佐定\n|所属武将=钟繇\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=当其他角色于其出牌阶段内使用♠️牌指定目标后，若本阶段没有角色受到过伤害，你可以令其中一名目标角色摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=辅助,过牌\n}}",
+      "name": "佐定",
+      "generals": [
+        "钟繇"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当其他角色于其出牌阶段内使用♠️牌指定目标后，若本阶段没有角色受到过伤害，你可以令其中一名目标角色摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 10685,
+  "namespace": 0,
+  "title": "吴班",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E7%8F%AD",
+  "revid": 77591,
+  "parentid": 69213,
+  "timestamp": "2026-05-09T01:41:46Z",
+  "sourceSha256": "05eae3167f479db4c61561ba4db8e8bb7aceb55cf179bee21a19c4a4e3883391",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10685,
+      "namespace": 0,
+      "title": "吴班",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E7%8F%AD",
+      "revid": 77591,
+      "parentid": 69213,
+      "timestamp": "2026-05-09T01:41:46Z",
+      "sourceSha256": "05eae3167f479db4c61561ba4db8e8bb7aceb55cf179bee21a19c4a4e3883391",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吴班",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=吴班\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "吴班",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

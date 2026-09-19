@@ -1,0 +1,46 @@
+{
+  "pageid": 14067,
+  "namespace": 0,
+  "title": "任婉",
+  "url": "https://wiki.biligame.com/sgs/%E4%BB%BB%E5%A9%89",
+  "revid": 79589,
+  "parentid": 77507,
+  "timestamp": "2026-08-17T01:48:02Z",
+  "sourceSha256": "7b2e096b878a9d9b5e86eb6e12ffe6acb489d99665f4e91c32ead0e9a7d50a8d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14067,
+      "namespace": 0,
+      "title": "任婉",
+      "url": "https://wiki.biligame.com/sgs/%E4%BB%BB%E5%A9%89",
+      "revid": 79589,
+      "parentid": 77507,
+      "timestamp": "2026-08-17T01:48:02Z",
+      "sourceSha256": "7b2e096b878a9d9b5e86eb6e12ffe6acb489d99665f4e91c32ead0e9a7d50a8d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "任婉",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "孤贞不徙",
+        "别称": "自爆小卡车，婉豪",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "3",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=任婉\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=孤贞不徙\n|别称=自爆小卡车，婉豪\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=3\n|经典定位=爆发\n}}",
+      "name": "任婉",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

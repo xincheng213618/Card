@@ -1,0 +1,45 @@
+{
+  "pageid": 11889,
+  "namespace": 0,
+  "title": "曹宪",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%AE%AA",
+  "revid": 75975,
+  "parentid": 70134,
+  "timestamp": "2026-02-28T15:08:39Z",
+  "sourceSha256": "6abe82922af867d409eb20b1b338cb897a167b000a893223b141c3251a2d16f2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11889,
+      "namespace": 0,
+      "title": "曹宪",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%AE%AA",
+      "revid": 75975,
+      "parentid": 70134,
+      "timestamp": "2026-02-28T15:08:39Z",
+      "sourceSha256": "6abe82922af867d409eb20b1b338cb897a167b000a893223b141c3251a2d16f2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹宪",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "女周宣、小牌王、三点护甲",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "续航,控制"
+      },
+      "source": "{{武将\n|武将名=曹宪\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=女周宣、小牌王、三点护甲\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=续航,控制\n}}",
+      "name": "曹宪",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

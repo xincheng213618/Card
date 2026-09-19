@@ -1,0 +1,45 @@
+{
+  "pageid": 9627,
+  "namespace": 0,
+  "title": "桥蕤",
+  "url": "https://wiki.biligame.com/sgs/%E6%A1%A5%E8%95%A4",
+  "revid": 74520,
+  "parentid": 74496,
+  "timestamp": "2026-01-10T02:26:11Z",
+  "sourceSha256": "2a5485b49d5992356a801ce7632086ad288005453196c435c03780f7ff87429c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9627,
+      "namespace": 0,
+      "title": "桥蕤",
+      "url": "https://wiki.biligame.com/sgs/%E6%A1%A5%E8%95%A4",
+      "revid": 74520,
+      "parentid": 74496,
+      "timestamp": "2026-01-10T02:26:11Z",
+      "sourceSha256": "2a5485b49d5992356a801ce7632086ad288005453196c435c03780f7ff87429c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "桥蕤",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-代汉涂高",
+        "经典体力": "4",
+        "经典定位": "续航,攻击"
+      },
+      "source": "{{武将\n|武将名=桥蕤\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-代汉涂高\n|经典体力=4\n|经典定位=续航,攻击\n}}",
+      "name": "桥蕤",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -11,6 +11,7 @@
 - 武圣在新局中可用手中红牌当杀响应决斗或南蛮入侵，转化时按钮明确显示「当作杀打出」；旧存档沿用原规则。详见 [`WUSHENG_RESPONSES.md`](docs/WUSHENG_RESPONSES.md)。
 - 2v2 公开阵营可选择青队或赤队；牌桌标明队友、对手和双方存活人数，指南、存档与再战跟随实际队伍。详见 [`TEAM_EXPERIENCE.md`](docs/TEAM_EXPERIENCE.md)。
 - 主动技能统一由主按钮或 Enter 确认，显示所需牌与目标数量；指南和教程往返保留选择。详见 [`SKILL_INTERACTION.md`](docs/SKILL_INTERACTION.md)。
+- 「技能组合体验」是独立的五人选将模式：11 项技能程序全部来自内嵌 JSON，展示额外摸牌、手牌上限、无限出杀、红牌化杀、龙胆式杀闪互换，以及摸牌、回复、失去体力、给牌和弃牌组成的主动效果；「合律者」还把三个独立规则程序叠加到同一武将。它使用独立内容包，不改变既有标准包和旧存档的内容指纹。实现边界见 [`SKILL_COMPOSITION_DESIGN.md`](docs/SKILL_COMPOSITION_DESIGN.md)。
 - 铁索连环直接点击牌桌上的一到两名武将，再按主按钮或 Enter 确认；选中数量、高亮、取消和武圣转化使用统一操作。详见 [`CARD_TARGET_SELECTION.md`](docs/CARD_TARGET_SELECTION.md)。
 - 新开局的铁索可选择自己，或不选目标点击「重铸换牌」；AI 支持重铸，旧存档继续按原规则运行。详见 [`IRON_CHAIN_RECAST.md`](docs/IRON_CHAIN_RECAST.md)。
 - 杀／闪响应、救援、无懈和火攻可从手牌选择后确认，转化效果明确显示；修复反馈取得群体牌后阵亡导致后续结算中断。详见 [`HAND_RESPONSES.md`](docs/HAND_RESPONSES.md)。
@@ -25,7 +26,7 @@
 - 固定随机种子、状态快照和逐步推进；
 - 手牌、摸牌堆、处理区、弃牌堆等唯一牌区与移动账本；
 - 状态提交后通知及观察者异常隔离；
-- 五人/八人 WPF 牌桌、原创武将肖像、手牌与目标选择、自动推进 AI、战报及开发者侧栏。
+- 五人/八人 WPF 牌桌、本地武将肖像、手牌与目标选择、自动推进 AI、战报及开发者侧栏。
 - 基础牌内容目录、标准演示牌堆配置和可复现的发牌参数。
 - `Submit(GameCommand)`、Revision、PromptId 和精确 Choice；WPF 操作全部进入命令记录，Core 的旧方法作为兼容适配器保留。
 - 自动存档、F5 独立手动存档，以及下次启动时继续对局；损坏或不兼容的存档不会替换当前牌局。详见 [`SAVE_AND_RESUME.md`](docs/SAVE_AND_RESUME.md)。
@@ -41,7 +42,7 @@
 - 可暂停的模式化开局、私有武将候选、共享池去重、AI 选将和逐轮发牌；旧构造式 Demo 仍可用作兼容路径。
 - 杀/火杀/雷杀/闪/桃/酒/决斗/无中生有/南蛮入侵/万箭齐发/桃园结义/五谷丰登/过河拆桥/顺手牵羊/火攻/伤害链路的可序列化 `ResolutionFrame` 栈、交替响应、群体逐目标响应、无目标即时摸牌、酒的一次性杀伤害修正、规则 v12 酒仅自救与 v3–v11 跨座位兼容回放、规则 v20 出牌阶段酒每回合限一次与 v1–v19 旧合法动作兼容、可暂停多目标恢复、公开牌 draft、隐藏目标牌的不透明牌位选择、公开装备/判定区牌目标选择、规则 v19 火攻自选目标及“公开但仍在手牌”的展示状态、v1–v18 历史移动兼容、装备生命周期和基础濒死求桃及提交后的类型化结算事件；伤害事件携带 `DamageNature` 与实际金额，规则版本 5 起致命伤害也会先完成独立的伤害后触发候选游标和暂停/恢复边界，再进入 `DyingFrame`，遗计与节命分别覆盖跨手牌分配和补牌至上限，援护覆盖一次明确的跨座位弃牌恢复效果。
 
-界面采用原创生成的武将肖像与 WPF 文字牌面，素材随程序内嵌，可离线运行。图集和生成提示词位于 `src/CardGame.Wpf/Assets/`，没有引入商业游戏或开源项目的美术素材。
+界面采用本地武将肖像与 WPF 文字牌面，素材随程序内嵌，可离线运行。原创生成图集和提示词位于 `src/CardGame.Wpf/Assets/`；张角已使用 BWIKI 经典形象，另备有神关羽、SP 赵云的独立图像资源。外部图像的文件页、原图地址和哈希见 [`bwiki-portraits.json`](docs/content/bwiki-portraits.json)，不属于项目原创素材。
 - 经典司马懿的反馈在伤害后发布私有来源牌选择：暗手牌只暴露不透明槽位，公开装备按实体牌选择；发动后通过 `DamageSkillCardTakenEvent` 与 `skill.feedback.take-source-card` 精确转移一张牌。旧演示包中的反馈仍取得处理区伤害牌，并保留 `DamageCardClaimedEvent` 与历史回放顺序。
 - 郭嘉的遗计在受伤后由 `DamageSkillFrame` 记录两张私有摸牌，AI 或人类从合法的牌/目标组合中选择一张交给其他存活角色；`DamageSkillCardsDrawnEvent`、`DamageSkillCardGivenEvent` 和 `skill.yiji.*` 移动原因只属于可信宿主，普通观察者不会看到候选牌面。
 - 规则 v22 的经典郭嘉在自己的公开判定牌生效后获得私有天妒发动/跳过选择；发动时同一实体牌按 `Judgment(owner) → Hand(owner)` 与 `skill.tiandu.claim-judgment` 移动，`JudgmentCardClaimedEvent` 记录结果，答复后继续原八卦、延时牌或刚烈结算。v1–v21 与旧 `standard-classic-generals@1.0.0` 存档保持原自动弃置路径。
@@ -88,6 +89,12 @@ dotnet build .\CardGame.sln -c Debug
 dotnet run --project .\src\CardGame.Wpf\CardGame.Wpf.csproj
 ```
 
+启动后选择「新对局」→「身份」→「技能组合体验」。选将页会直接显示配置中的技能名和独立说明；主动技能继续使用现有的选牌、选目标、Enter 确认和 Esc 取消交互。
+
+体验包的规则、中文说明和武将绑定分别位于 `composed-skills.rules.json`、`composed-skills.presentation.json` 与 `composed-generals.json`。修改这些 JSON 后重新编译即可生效；新增已有基础能力可以表达的技能及体验武将时不需要修改注册代码。
+
+字段、完整配置示例与当前能力边界见 [可执行技能配置 v1](docs/content/skill-composition/RUNTIME_V1.md)。
+
 不依赖测试框架或第三方 NuGet 包的核心自测：
 
 ```powershell
@@ -132,6 +139,9 @@ dotnet run --project .\tests\CardGame.Core.Tests\CardGame.Core.Tests.csproj -c R
 
 - [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md)：总路线、核心/内容分工和阶段门槛；
 - [`docs/CORE_CONTROL_DESIGN.md`](docs/CORE_CONTROL_DESIGN.md)：命令、询问、结算栈、牌区、事件和投影契约；
+- [`docs/SKILL_COMPOSITION_DESIGN.md`](docs/SKILL_COMPOSITION_DESIGN.md)：技能组合重构设计、独立描述、配置示例和分阶段迁移验收；当前已有可运行 v1 薄切片，完整触发／判定／死亡模型仍在后续阶段；
+- [`docs/content/BWIKI_REFERENCE_DATA.md`](docs/content/BWIKI_REFERENCE_DATA.md)：武将／技能参考资料的实际抓取范围、版本记录、缺项和刷新命令；
+- [`docs/content/BWIKI_CONTENT_BACKLOG.md`](docs/content/BWIKI_CONTENT_BACKLOG.md)：持续迭代任务负责的武将版本、通用能力需求与逐批验收清单；
 - [`docs/MODES_AND_RULESETS.md`](docs/MODES_AND_RULESETS.md)：选将、发牌、5/8 人身份、2v2 和国战拆分；
 - [`docs/LUNA_CONTENT_BACKLOG.md`](docs/LUNA_CONTENT_BACKLOG.md)：Luna Max 长期内容队列；
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)：当前 Demo 的实际调用链。

@@ -1,0 +1,45 @@
+{
+  "pageid": 14803,
+  "namespace": 0,
+  "title": "谋骆统",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%AA%86%E7%BB%9F",
+  "revid": 79223,
+  "parentid": 74222,
+  "timestamp": "2026-07-31T01:17:53Z",
+  "sourceSha256": "46ddf39ca55e2baaadce9a30ef2da6700e4fa891dcd3175380e5e5ff0763da15",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14803,
+      "namespace": 0,
+      "title": "谋骆统",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%AA%86%E7%BB%9F",
+      "revid": 79223,
+      "parentid": 74222,
+      "timestamp": "2026-07-31T01:17:53Z",
+      "sourceSha256": "46ddf39ca55e2baaadce9a30ef2da6700e4fa891dcd3175380e5e5ff0763da15",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋骆统",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "知寒始北",
+        "别称": "敏感肌",
+        "规则集问答": "",
+        "武将包": "谋定-伯言绽火",
+        "经典体力": "3",
+        "经典定位": "爆发,续航"
+      },
+      "source": "{{武将\n|武将名=谋骆统\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=知寒始北\n|别称=敏感肌\n|规则集问答=\n|武将包=谋定-伯言绽火\n|经典体力=3\n|经典定位=爆发,续航\n}}",
+      "name": "谋骆统",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

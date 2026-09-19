@@ -1,0 +1,46 @@
+{
+  "pageid": 7521,
+  "namespace": 0,
+  "title": "刘巴",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%B7%B4",
+  "revid": 77542,
+  "parentid": 74714,
+  "timestamp": "2026-05-09T01:36:00Z",
+  "sourceSha256": "a0db7da051ca46869beef27f754b04687b523a0e99af0837e3d90d90306eb02b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7521,
+      "namespace": 0,
+      "title": "刘巴",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%B7%B4",
+      "revid": 77542,
+      "parentid": 74714,
+      "timestamp": "2026-05-09T01:36:00Z",
+      "sourceSha256": "a0db7da051ca46869beef27f754b04687b523a0e99af0837e3d90d90306eb02b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘巴",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "铸币哥",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "控制,续航"
+      },
+      "source": "{{武将\n|武将名=刘巴\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=铸币哥\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=控制,续航\n}}",
+      "name": "刘巴",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

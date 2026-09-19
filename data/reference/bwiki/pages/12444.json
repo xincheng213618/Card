@@ -1,0 +1,45 @@
+{
+  "pageid": 12444,
+  "namespace": 0,
+  "title": "星孙坚",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%AD%99%E5%9D%9A",
+  "revid": 79349,
+  "parentid": 70092,
+  "timestamp": "2026-08-05T05:32:05Z",
+  "sourceSha256": "669f23d4346d3556f78ac8f331fc7361581e18b44ffa8cc9ac1d66d97ce826e0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12444,
+      "namespace": 0,
+      "title": "星孙坚",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%AD%99%E5%9D%9A",
+      "revid": 79349,
+      "parentid": 70092,
+      "timestamp": "2026-08-05T05:32:05Z",
+      "sourceSha256": "669f23d4346d3556f78ac8f331fc7361581e18b44ffa8cc9ac1d66d97ce826e0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星孙坚",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-开阳",
+        "经典体力": "4/5",
+        "经典定位": "攻击,续航"
+      },
+      "source": "{{武将\n|武将名=星孙坚\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-开阳\n|经典体力=4/5\n|经典定位=攻击,续航\n}}",
+      "name": "星孙坚",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

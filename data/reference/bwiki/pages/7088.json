@@ -1,0 +1,47 @@
+{
+  "pageid": 7088,
+  "namespace": 0,
+  "title": "延祸",
+  "url": "https://wiki.biligame.com/sgs/%E5%BB%B6%E7%A5%B8",
+  "revid": 62039,
+  "parentid": 60949,
+  "timestamp": "2024-02-06T13:26:42Z",
+  "sourceSha256": "6c1eef3a1dad4ba789363873597947f6cbd90c864e805ed89afab29d326c82b6",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7088,
+      "namespace": 0,
+      "title": "延祸",
+      "url": "https://wiki.biligame.com/sgs/%E5%BB%B6%E7%A5%B8",
+      "revid": 62039,
+      "parentid": 60949,
+      "timestamp": "2024-02-06T13:26:42Z",
+      "sourceSha256": "6c1eef3a1dad4ba789363873597947f6cbd90c864e805ed89afab29d326c82b6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "延祸",
+        "所属武将": "何进",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你死亡时，你可以令接下来所有【杀】造成的伤害+1。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=延祸\n|所属武将=何进\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你死亡时，你可以令接下来所有【杀】造成的伤害+1。\n|经典技能类型=一般技\n|经典技能定位=中性\n}}",
+      "name": "延祸",
+      "generals": [
+        "何进"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你死亡时，你可以令接下来所有【杀】造成的伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 8232,
+  "namespace": 0,
+  "title": "赵俨",
+  "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E4%BF%A8",
+  "revid": 71138,
+  "parentid": 70888,
+  "timestamp": "2025-05-20T07:45:58Z",
+  "sourceSha256": "bf5c5ffaa6baf3459c347b7ae366446e7d6576dc2426c8e71ad45fcb47155b3f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8232,
+      "namespace": 0,
+      "title": "赵俨",
+      "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E4%BF%A8",
+      "revid": 71138,
+      "parentid": 70888,
+      "timestamp": "2025-05-20T07:45:58Z",
+      "sourceSha256": "bf5c5ffaa6baf3459c347b7ae366446e7d6576dc2426c8e71ad45fcb47155b3f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "赵俨",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "魏顾雍、赵五刀",
+        "规则集问答": "",
+        "武将包": "荟萃-兵临城下",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发,辅助,续航"
+      },
+      "source": "{{武将\n|武将名=赵俨\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=魏顾雍、赵五刀\n|规则集问答=\n|武将包=荟萃-兵临城下\n|经典体力=3\n|经典定位=攻击,爆发,辅助,续航\n}}",
+      "name": "赵俨",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

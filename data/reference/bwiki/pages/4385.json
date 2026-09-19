@@ -1,0 +1,47 @@
+{
+  "pageid": 4385,
+  "namespace": 0,
+  "title": "缔盟",
+  "url": "https://wiki.biligame.com/sgs/%E7%BC%94%E7%9B%9F",
+  "revid": 68209,
+  "parentid": 68201,
+  "timestamp": "2025-02-07T09:12:39Z",
+  "sourceSha256": "cff819b8086424db3471c022e0406ccc02317e0d21aadbd691834ee295cfb2f0",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4385,
+      "namespace": 0,
+      "title": "缔盟",
+      "url": "https://wiki.biligame.com/sgs/%E7%BC%94%E7%9B%9F",
+      "revid": 68209,
+      "parentid": 68201,
+      "timestamp": "2025-02-07T09:12:39Z",
+      "sourceSha256": "cff819b8086424db3471c022e0406ccc02317e0d21aadbd691834ee295cfb2f0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "缔盟",
+        "所属武将": "鲁肃",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "出牌阶段限一次，你可以选择两名其他角色并弃置X张牌（X为这两名角色手牌数的差），然后令这两名角色交换手牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=缔盟\n|所属武将=鲁肃\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=出牌阶段限一次，你可以选择两名其他角色并弃置X张牌（X为这两名角色手牌数的差），然后令这两名角色交换手牌。\n|经典技能类型=一般技\n|经典技能定位=控制,辅助\n}}",
+      "name": "缔盟",
+      "generals": [
+        "鲁肃"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以选择两名其他角色并弃置X张牌（X为这两名角色手牌数的差），然后令这两名角色交换手牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 6039,
+  "namespace": 0,
+  "title": "臧霸",
+  "url": "https://wiki.biligame.com/sgs/%E8%87%A7%E9%9C%B8",
+  "revid": 77756,
+  "parentid": 70748,
+  "timestamp": "2026-05-09T01:55:00Z",
+  "sourceSha256": "d7384a4934e4a812ec7962154bddf3a43b388eff3fab8a18be691e236a955d44",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6039,
+      "namespace": 0,
+      "title": "臧霸",
+      "url": "https://wiki.biligame.com/sgs/%E8%87%A7%E9%9C%B8",
+      "revid": 77756,
+      "parentid": 70748,
+      "timestamp": "2026-05-09T01:55:00Z",
+      "sourceSha256": "d7384a4934e4a812ec7962154bddf3a43b388eff3fab8a18be691e236a955d44",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "臧霸",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "金刚芭比",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "4",
+        "经典定位": "卖血,控制\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=臧霸\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=金刚芭比\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=4\n|经典定位=卖血,控制\n<!-- 国战 -->\n}}",
+      "name": "臧霸",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

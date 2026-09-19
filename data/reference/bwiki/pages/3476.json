@@ -1,0 +1,44 @@
+{
+  "pageid": 3476,
+  "namespace": 0,
+  "title": "韩遂",
+  "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E9%81%82",
+  "revid": 71392,
+  "parentid": 71290,
+  "timestamp": "2025-05-21T01:14:31Z",
+  "sourceSha256": "ced578c01ff56507a488cd85a117ca1b2303d574090941c0922ccd7f48771dd8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3476,
+      "namespace": 0,
+      "title": "韩遂",
+      "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E9%81%82",
+      "revid": 71392,
+      "parentid": 71290,
+      "timestamp": "2025-05-21T01:14:31Z",
+      "sourceSha256": "ced578c01ff56507a488cd85a117ca1b2303d574090941c0922ccd7f48771dd8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "韩遂",
+        "势力": "群",
+        "性别": "男",
+        "别称": "",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "{{faq|发动“{{技能/引用|逆乱}}”使用的【杀】需要满足攻击范围的限制吗？|需要。}}",
+        "武将包": "荟萃-黄巾之乱",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=韩遂\n|势力=群\n|性别=男\n|别称=\n|出现模式=身份,欢乐\n|规则集问答={{faq|发动“{{技能/引用|逆乱}}”使用的【杀】需要满足攻击范围的限制吗？|需要。}}\n|武将包=荟萃-黄巾之乱\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "韩遂",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

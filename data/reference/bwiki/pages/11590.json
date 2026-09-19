@@ -1,0 +1,47 @@
+{
+  "pageid": 11590,
+  "namespace": 0,
+  "title": "豪首",
+  "url": "https://wiki.biligame.com/sgs/%E8%B1%AA%E9%A6%96",
+  "revid": 59697,
+  "parentid": 59648,
+  "timestamp": "2023-12-08T16:30:11Z",
+  "sourceSha256": "b61b6d54708d35867ec29e4f0e7db7df650fd50dbb8125b19d9ef6e9608841f0",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11590,
+      "namespace": 0,
+      "title": "豪首",
+      "url": "https://wiki.biligame.com/sgs/%E8%B1%AA%E9%A6%96",
+      "revid": 59697,
+      "parentid": 59648,
+      "timestamp": "2023-12-08T16:30:11Z",
+      "sourceSha256": "b61b6d54708d35867ec29e4f0e7db7df650fd50dbb8125b19d9ef6e9608841f0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "豪首",
+        "所属武将": "星董卓",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当其他群势力角色使用【酒】后，其可以令你回复1点体力。",
+        "经典技能类型": "主公技",
+        "经典技能定位": "回血"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=豪首\n|所属武将=星董卓\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当其他群势力角色使用【酒】后，其可以令你回复1点体力。\n|经典技能类型=主公技\n|经典技能定位=回血\n}}",
+      "name": "豪首",
+      "generals": [
+        "星董卓"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当其他群势力角色使用【酒】后，其可以令你回复1点体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

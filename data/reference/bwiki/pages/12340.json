@@ -1,0 +1,46 @@
+{
+  "pageid": 12340,
+  "namespace": 0,
+  "title": "SP甄姬",
+  "url": "https://wiki.biligame.com/sgs/SP%E7%94%84%E5%A7%AC",
+  "revid": 77475,
+  "parentid": 72767,
+  "timestamp": "2026-05-09T01:32:49Z",
+  "sourceSha256": "16718d22e8a0d3a7e7901e9bcb0c2b38f1b34b5f13f7ce55f16ac209c47c7537",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12340,
+      "namespace": 0,
+      "title": "SP甄姬",
+      "url": "https://wiki.biligame.com/sgs/SP%E7%94%84%E5%A7%AC",
+      "revid": 77475,
+      "parentid": 72767,
+      "timestamp": "2026-05-09T01:32:49Z",
+      "sourceSha256": "16718d22e8a0d3a7e7901e9bcb0c2b38f1b34b5f13f7ce55f16ac209c47c7537",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP甄姬",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "善言贤女",
+        "别称": "独立女性",
+        "规则集问答": "",
+        "武将包": "荟萃-往者可谏",
+        "经典体力": "3",
+        "经典定位": "控制,续航"
+      },
+      "source": "{{武将\n|武将名=SP甄姬\n|势力=群\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=善言贤女\n|别称=独立女性\n|规则集问答=\n|武将包=荟萃-往者可谏\n|经典体力=3\n|经典定位=控制,续航\n}}",
+      "name": "SP甄姬",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

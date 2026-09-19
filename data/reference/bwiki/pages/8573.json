@@ -1,0 +1,47 @@
+{
+  "pageid": 8573,
+  "namespace": 0,
+  "title": "弃子",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%83%E5%AD%90",
+  "revid": 46442,
+  "parentid": 46435,
+  "timestamp": "2023-01-13T10:54:21Z",
+  "sourceSha256": "46fda40412155a03c4060154c5158891ae688ae883fce8572711247f83b1f3b3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8573,
+      "namespace": 0,
+      "title": "弃子",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%83%E5%AD%90",
+      "revid": 46442,
+      "parentid": 46435,
+      "timestamp": "2023-01-13T10:54:21Z",
+      "sourceSha256": "46fda40412155a03c4060154c5158891ae688ae883fce8572711247f83b1f3b3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "弃子",
+        "所属武将": "陈矫",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你不能对距离其大于2且处于濒死状态的其他角色使用【桃】。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=弃子\n|所属武将=陈矫\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你不能对距离其大于2且处于濒死状态的其他角色使用【桃】。\n|经典技能类型=锁定技\n|经典技能定位=负面\n}}",
+      "name": "弃子",
+      "generals": [
+        "陈矫"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你不能对距离其大于2且处于濒死状态的其他角色使用【桃】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 6156,
+  "namespace": 0,
+  "title": "挑衅/姜维",
+  "url": "https://wiki.biligame.com/sgs/%E6%8C%91%E8%A1%85/%E5%A7%9C%E7%BB%B4",
+  "revid": 64900,
+  "parentid": 64895,
+  "timestamp": "2024-09-16T16:31:53Z",
+  "sourceSha256": "5d18b16ff083f5aa245c4e48d39f56a674aa06a3f5738e9e9f040f9d3c5ebf8c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6156,
+      "namespace": 0,
+      "title": "挑衅/姜维",
+      "url": "https://wiki.biligame.com/sgs/%E6%8C%91%E8%A1%85/%E5%A7%9C%E7%BB%B4",
+      "revid": 64900,
+      "parentid": 64895,
+      "timestamp": "2024-09-16T16:31:53Z",
+      "sourceSha256": "5d18b16ff083f5aa245c4e48d39f56a674aa06a3f5738e9e9f040f9d3c5ebf8c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "挑衅",
+        "所属武将": "姜维",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "出牌阶段限一次，你可以选择一名攻击范围内含你的其他角色，除非其对你使用一张【杀】，否则你弃置其一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=挑衅\n|所属武将=姜维\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=出牌阶段限一次，你可以选择一名攻击范围内含你的其他角色，除非其对你使用一张【杀】，否则你弃置其一张牌。\n|经典技能类型=一般技\n|经典技能定位=控制,负面\n}}",
+      "name": "挑衅",
+      "generals": [
+        "姜维"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以选择一名攻击范围内含你的其他角色，除非其对你使用一张【杀】，否则你弃置其一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

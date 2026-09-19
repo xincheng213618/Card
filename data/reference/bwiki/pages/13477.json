@@ -1,0 +1,45 @@
+{
+  "pageid": 13477,
+  "namespace": 0,
+  "title": "裴秀",
+  "url": "https://wiki.biligame.com/sgs/%E8%A3%B4%E7%A7%80",
+  "revid": 78660,
+  "parentid": 78648,
+  "timestamp": "2026-07-01T23:04:55Z",
+  "sourceSha256": "702ad3ffdceaa1bbc59d3f8da645ceda426c09b3a2f631b7b8fa38ce46cc4a70",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13477,
+      "namespace": 0,
+      "title": "裴秀",
+      "url": "https://wiki.biligame.com/sgs/%E8%A3%B4%E7%A7%80",
+      "revid": 78660,
+      "parentid": 78648,
+      "timestamp": "2026-07-01T23:04:55Z",
+      "sourceSha256": "702ad3ffdceaa1bbc59d3f8da645ceda426c09b3a2f631b7b8fa38ce46cc4a70",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "裴秀",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "3",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=裴秀\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=3\n|经典定位=控制,攻击\n}}",
+      "name": "裴秀",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

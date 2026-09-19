@@ -1,0 +1,44 @@
+{
+  "pageid": 14638,
+  "namespace": 0,
+  "title": "有诸葛亮",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%89%E8%AF%B8%E8%91%9B%E4%BA%AE",
+  "revid": 75435,
+  "parentid": 74998,
+  "timestamp": "2026-02-12T02:11:27Z",
+  "sourceSha256": "7a4a452d1adb41f407ec112f34e2284a388788d6e6cde466b2a300ee619cdc33",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14638,
+      "namespace": 0,
+      "title": "有诸葛亮",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%89%E8%AF%B8%E8%91%9B%E4%BA%AE",
+      "revid": 75435,
+      "parentid": 74998,
+      "timestamp": "2026-02-12T02:11:27Z",
+      "sourceSha256": "7a4a452d1adb41f407ec112f34e2284a388788d6e6cde466b2a300ee619cdc33",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "有诸葛亮",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=有诸葛亮\n|势力=蜀\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=爆发\n}}",
+      "name": "有诸葛亮",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

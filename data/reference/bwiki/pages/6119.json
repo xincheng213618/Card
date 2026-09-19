@@ -1,0 +1,45 @@
+{
+  "pageid": 6119,
+  "namespace": 0,
+  "title": "薛综",
+  "url": "https://wiki.biligame.com/sgs/%E8%96%9B%E7%BB%BC",
+  "revid": 60254,
+  "parentid": 29875,
+  "timestamp": "2023-12-15T06:50:38Z",
+  "sourceSha256": "bb3f6706f655b64f430ea7a292887cf705dfd217981fa26b8991c52092073725",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6119,
+      "namespace": 0,
+      "title": "薛综",
+      "url": "https://wiki.biligame.com/sgs/%E8%96%9B%E7%BB%BC",
+      "revid": 60254,
+      "parentid": 29875,
+      "timestamp": "2023-12-15T06:50:38Z",
+      "sourceSha256": "bb3f6706f655b64f430ea7a292887cf705dfd217981fa26b8991c52092073725",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "薛综",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "彬彬之玊",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星火燎原-天机",
+        "经典体力": "3",
+        "经典定位": "控制\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=薛综\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=彬彬之玊\n|别称=\n|规则集问答=\n|武将包=星火燎原-天机\n|经典体力=3\n|经典定位=控制\n<!-- 界限 -->\n}}",
+      "name": "薛综",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

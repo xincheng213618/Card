@@ -1,0 +1,47 @@
+{
+  "pageid": 8660,
+  "namespace": 0,
+  "title": "德释",
+  "url": "https://wiki.biligame.com/sgs/%E5%BE%B7%E9%87%8A",
+  "revid": 45797,
+  "parentid": 45787,
+  "timestamp": "2022-12-31T07:12:03Z",
+  "sourceSha256": "16cd8a87317b6a84d81f57eae13cadf8a6ee67be0dba110dccbf6f6284f2e9d3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8660,
+      "namespace": 0,
+      "title": "德释",
+      "url": "https://wiki.biligame.com/sgs/%E5%BE%B7%E9%87%8A",
+      "revid": 45797,
+      "parentid": 45787,
+      "timestamp": "2022-12-31T07:12:03Z",
+      "sourceSha256": "16cd8a87317b6a84d81f57eae13cadf8a6ee67be0dba110dccbf6f6284f2e9d3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "德释",
+        "所属武将": "胡金定",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你受到【杀】造成的伤害时，若你已受伤，你防止此伤害，获得一张【杀】，然后你减1点体力上限。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=德释\n|所属武将=胡金定\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你受到【杀】造成的伤害时，若你已受伤，你防止此伤害，获得一张【杀】，然后你减1点体力上限。\n|经典技能类型=锁定技\n|经典技能定位=防御,过牌\n}}",
+      "name": "德释",
+      "generals": [
+        "胡金定"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你受到【杀】造成的伤害时，若你已受伤，你防止此伤害，获得一张【杀】，然后你减1点体力上限。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

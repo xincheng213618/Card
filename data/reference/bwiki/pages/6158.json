@@ -1,0 +1,47 @@
+{
+  "pageid": 6158,
+  "namespace": 0,
+  "title": "逢亮",
+  "url": "https://wiki.biligame.com/sgs/%E9%80%A2%E4%BA%AE",
+  "revid": 62892,
+  "parentid": 59041,
+  "timestamp": "2024-04-25T18:21:45Z",
+  "sourceSha256": "f86aeee26a5ebb9c2cafcd838afa21fd7e485ef23d3a56ff0cb711ebf346ac36",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6158,
+      "namespace": 0,
+      "title": "逢亮",
+      "url": "https://wiki.biligame.com/sgs/%E9%80%A2%E4%BA%AE",
+      "revid": 62892,
+      "parentid": 59041,
+      "timestamp": "2024-04-25T18:21:45Z",
+      "sourceSha256": "f86aeee26a5ebb9c2cafcd838afa21fd7e485ef23d3a56ff0cb711ebf346ac36",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "逢亮",
+        "所属武将": "SP姜维",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你进入濒死状态时，你减1点体力上限并将体力回复至2点，获得技能“{{技能/引用|挑衅/SP姜维}}”，将“{{技能/引用|困奋}}”修改为非锁定技。",
+        "经典技能类型": "觉醒技",
+        "经典技能定位": "回血"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=逢亮\n|所属武将=SP姜维\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你进入濒死状态时，你减1点体力上限并将体力回复至2点，获得技能“{{技能/引用|挑衅/SP姜维}}”，将“{{技能/引用|困奋}}”修改为非锁定技。\n|经典技能类型=觉醒技\n|经典技能定位=回血\n}}",
+      "name": "逢亮",
+      "generals": [
+        "SP姜维"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你进入濒死状态时，你减1点体力上限并将体力回复至2点，获得技能“{{技能/引用|挑衅/SP姜维}}”，将“{{技能/引用|困奋}}”修改为非锁定技。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

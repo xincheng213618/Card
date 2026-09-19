@@ -1,0 +1,45 @@
+{
+  "pageid": 14952,
+  "namespace": 0,
+  "title": "田畴",
+  "url": "https://wiki.biligame.com/sgs/%E7%94%B0%E7%95%B4",
+  "revid": 76788,
+  "parentid": 73959,
+  "timestamp": "2026-04-11T09:49:55Z",
+  "sourceSha256": "791dc04d18abc11022be8f88786429bc4e80a1f03319a0aea5eefde538a46084",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14952,
+      "namespace": 0,
+      "title": "田畴",
+      "url": "https://wiki.biligame.com/sgs/%E7%94%B0%E7%95%B4",
+      "revid": 76788,
+      "parentid": 73959,
+      "timestamp": "2026-04-11T09:49:55Z",
+      "sourceSha256": "791dc04d18abc11022be8f88786429bc4e80a1f03319a0aea5eefde538a46084",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "田畴",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "善刀而藏",
+        "别称": "冲动之牛",
+        "规则集问答": "",
+        "武将包": "荟萃-江湖之远",
+        "经典体力": "4",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=田畴\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=善刀而藏\n|别称=冲动之牛\n|规则集问答=\n|武将包=荟萃-江湖之远\n|经典体力=4\n|经典定位=辅助,攻击\n}}",
+      "name": "田畴",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 12147,
+  "namespace": 0,
+  "title": "公孙修",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%AC%E5%AD%99%E4%BF%AE",
+  "revid": 79164,
+  "parentid": 77521,
+  "timestamp": "2026-07-29T13:26:45Z",
+  "sourceSha256": "816bd89cb87b8a30ad4d3d4da1b9d4d0d164f3a703e594bcc652f35fb715cf66",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12147,
+      "namespace": 0,
+      "title": "公孙修",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%AC%E5%AD%99%E4%BF%AE",
+      "revid": 79164,
+      "parentid": 77521,
+      "timestamp": "2026-07-29T13:26:45Z",
+      "sourceSha256": "816bd89cb87b8a30ad4d3d4da1b9d4d0d164f3a703e594bcc652f35fb715cf66",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "公孙修",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-异军突起",
+        "经典体力": "5",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=公孙修\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-异军突起\n|经典体力=5\n|经典定位=控制,爆发\n}}",
+      "name": "公孙修",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

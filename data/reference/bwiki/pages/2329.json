@@ -1,0 +1,47 @@
+{
+  "pageid": 2329,
+  "namespace": 0,
+  "title": "骄恣",
+  "url": "https://wiki.biligame.com/sgs/%E9%AA%84%E6%81%A3",
+  "revid": 40626,
+  "parentid": 31390,
+  "timestamp": "2022-10-12T04:43:53Z",
+  "sourceSha256": "935f8eba720a2029bc618893cd57a29d251ede946aadb64ba8056dccf9c22334",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2329,
+      "namespace": 0,
+      "title": "骄恣",
+      "url": "https://wiki.biligame.com/sgs/%E9%AA%84%E6%81%A3",
+      "revid": 40626,
+      "parentid": 31390,
+      "timestamp": "2022-10-12T04:43:53Z",
+      "sourceSha256": "935f8eba720a2029bc618893cd57a29d251ede946aadb64ba8056dccf9c22334",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "骄恣",
+        "所属武将": "麴义",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你造成或受到伤害时，若你的手牌数是全场唯一最多，此伤害+1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,爆发,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=骄恣\n|所属武将=麴义\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你造成或受到伤害时，若你的手牌数是全场唯一最多，此伤害+1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,爆发,负面\n}}",
+      "name": "骄恣",
+      "generals": [
+        "麴义"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你造成或受到伤害时，若你的手牌数是全场唯一最多，此伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

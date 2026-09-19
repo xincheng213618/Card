@@ -1,0 +1,45 @@
+{
+  "pageid": 15081,
+  "namespace": 0,
+  "title": "星张郃",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E9%83%83",
+  "revid": 79354,
+  "parentid": 76018,
+  "timestamp": "2026-08-05T05:32:18Z",
+  "sourceSha256": "d01742fa6d70df80499df439e45e071e9445001cb57edac2eead11f7e50e9234",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15081,
+      "namespace": 0,
+      "title": "星张郃",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E9%83%83",
+      "revid": 79354,
+      "parentid": 76018,
+      "timestamp": "2026-08-05T05:32:18Z",
+      "sourceSha256": "d01742fa6d70df80499df439e45e071e9445001cb57edac2eead11f7e50e9234",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星张郃",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "河北之庭柱",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-玉衡",
+        "经典体力": "4",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=星张郃\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=河北之庭柱\n|别称=\n|规则集问答=\n|武将包=星河璀璨-玉衡\n|经典体力=4\n|经典定位=控制,攻击\n}}",
+      "name": "星张郃",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

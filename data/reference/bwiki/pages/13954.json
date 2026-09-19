@@ -1,0 +1,45 @@
+{
+  "pageid": 13954,
+  "namespace": 0,
+  "title": "星张让",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E8%AE%A9",
+  "revid": 79353,
+  "parentid": 72749,
+  "timestamp": "2026-08-05T05:32:18Z",
+  "sourceSha256": "68bcb79b81f51d95d51e76bb395ad2d65a52b11b1cffe3f384d0138cd1b06d4b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13954,
+      "namespace": 0,
+      "title": "星张让",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E8%AE%A9",
+      "revid": 79353,
+      "parentid": 72749,
+      "timestamp": "2026-08-05T05:32:18Z",
+      "sourceSha256": "68bcb79b81f51d95d51e76bb395ad2d65a52b11b1cffe3f384d0138cd1b06d4b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星张让",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天枢",
+        "经典体力": "3",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=星张让\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-天枢\n|经典体力=3\n|经典定位=攻击,控制\n}}",
+      "name": "星张让",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 13836,
+  "namespace": 0,
+  "title": "曹媛",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%AA%9B",
+  "revid": 68617,
+  "parentid": 68373,
+  "timestamp": "2025-04-03T10:35:07Z",
+  "sourceSha256": "09286a023d4bbb8fb5cab071064eba78f112159d3959e3cf0376512bf5063d92",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13836,
+      "namespace": 0,
+      "title": "曹媛",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%AA%9B",
+      "revid": 68617,
+      "parentid": 68373,
+      "timestamp": "2025-04-03T10:35:07Z",
+      "sourceSha256": "09286a023d4bbb8fb5cab071064eba78f112159d3959e3cf0376512bf5063d92",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹媛",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=曹媛\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "曹媛",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

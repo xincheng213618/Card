@@ -1,0 +1,45 @@
+{
+  "pageid": 12880,
+  "namespace": 0,
+  "title": "谋程昱",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%A8%8B%E6%98%B1",
+  "revid": 76364,
+  "parentid": 76218,
+  "timestamp": "2026-03-21T07:04:34Z",
+  "sourceSha256": "0d9d54594bd4f02e3f8acdc67739a940aa42e9c3a58b7258397ac409d00bb042",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12880,
+      "namespace": 0,
+      "title": "谋程昱",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%A8%8B%E6%98%B1",
+      "revid": 76364,
+      "parentid": 76218,
+      "timestamp": "2026-03-21T07:04:34Z",
+      "sourceSha256": "0d9d54594bd4f02e3f8acdc67739a940aa42e9c3a58b7258397ac409d00bb042",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋程昱",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-周郎将计",
+        "经典体力": "3",
+        "经典定位": "控制,防御"
+      },
+      "source": "{{武将\n|武将名=谋程昱\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-周郎将计\n|经典体力=3\n|经典定位=控制,防御\n}}",
+      "name": "谋程昱",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

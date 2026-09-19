@@ -1,0 +1,46 @@
+{
+  "pageid": 15888,
+  "namespace": 0,
+  "title": "星夏侯霸",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+  "revid": 79347,
+  "parentid": 78600,
+  "timestamp": "2026-08-05T05:32:05Z",
+  "sourceSha256": "cb7260f38b001a8459452f24117722b930a829705813733eb2911e50f0aba55e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15888,
+      "namespace": 0,
+      "title": "星夏侯霸",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+      "revid": 79347,
+      "parentid": 78600,
+      "timestamp": "2026-08-05T05:32:05Z",
+      "sourceSha256": "cb7260f38b001a8459452f24117722b930a829705813733eb2911e50f0aba55e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星夏侯霸",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "箍围抗尽",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-开阳",
+        "经典体力": "4",
+        "经典定位": "爆发,攻击"
+      },
+      "source": "{{武将\n|武将名=星夏侯霸\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=箍围抗尽\n|别称=\n|规则集问答=\n|武将包=星河璀璨-开阳\n|经典体力=4\n|经典定位=爆发,攻击\n}}",
+      "name": "星夏侯霸",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

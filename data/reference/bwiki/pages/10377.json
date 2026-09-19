@@ -1,0 +1,46 @@
+{
+  "pageid": 10377,
+  "namespace": 0,
+  "title": "向朗",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%91%E6%9C%97",
+  "revid": 77577,
+  "parentid": 69200,
+  "timestamp": "2026-05-09T01:40:32Z",
+  "sourceSha256": "24b24f88dd0e4cb8aa80a171d6c11865210ed019c145c4b6273b26e451122f3a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10377,
+      "namespace": 0,
+      "title": "向朗",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%91%E6%9C%97",
+      "revid": 77577,
+      "parentid": 69200,
+      "timestamp": "2026-05-09T01:40:32Z",
+      "sourceSha256": "24b24f88dd0e4cb8aa80a171d6c11865210ed019c145c4b6273b26e451122f3a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "向朗",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "续航"
+      },
+      "source": "{{武将\n|武将名=向朗\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=续航\n}}",
+      "name": "向朗",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

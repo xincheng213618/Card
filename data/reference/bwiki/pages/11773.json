@@ -1,0 +1,46 @@
+{
+  "pageid": 11773,
+  "namespace": 0,
+  "title": "夏侯楙",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E6%A5%99",
+  "revid": 77611,
+  "parentid": 69525,
+  "timestamp": "2026-05-09T01:42:44Z",
+  "sourceSha256": "2b19e191e026c66975b2bf77c5173a6f14d8c4b627345a7107cae772c05ed7d9",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11773,
+      "namespace": 0,
+      "title": "夏侯楙",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E6%A5%99",
+      "revid": 77611,
+      "parentid": 69525,
+      "timestamp": "2026-05-09T01:42:44Z",
+      "sourceSha256": "2b19e191e026c66975b2bf77c5173a6f14d8c4b627345a7107cae772c05ed7d9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "夏侯楙",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "夏侯猫",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=夏侯楙\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=夏侯猫\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "夏侯楙",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

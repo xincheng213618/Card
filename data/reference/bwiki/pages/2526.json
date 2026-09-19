@@ -1,0 +1,47 @@
+{
+  "pageid": 2526,
+  "namespace": 0,
+  "title": "横征",
+  "url": "https://wiki.biligame.com/sgs/%E6%A8%AA%E5%BE%81",
+  "revid": 68223,
+  "parentid": 68187,
+  "timestamp": "2025-02-07T09:24:13Z",
+  "sourceSha256": "7fc451f24740a5d0f2d8ee54280761c55faf80e6accdb84f33eb360a507bee91",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2526,
+      "namespace": 0,
+      "title": "横征",
+      "url": "https://wiki.biligame.com/sgs/%E6%A8%AA%E5%BE%81",
+      "revid": 68223,
+      "parentid": 68187,
+      "timestamp": "2025-02-07T09:24:13Z",
+      "sourceSha256": "7fc451f24740a5d0f2d8ee54280761c55faf80e6accdb84f33eb360a507bee91",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "横征",
+        "所属武将": "董卓",
+        "是衍生技": "",
+        "技能版本": "国",
+        "国战技能描述": "摸牌阶段，若你没有手牌或体力值为1，你可以改为获得每名其他角色区域内的一张牌。",
+        "国战技能类型": "一般技",
+        "国战技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=横征\n|所属武将=董卓\n|是衍生技=\n|技能版本=国\n|国战技能描述=摸牌阶段，若你没有手牌或体力值为1，你可以改为获得每名其他角色区域内的一张牌。\n|国战技能类型=一般技\n|国战技能定位=过牌\n}}",
+      "name": "横征",
+      "generals": [
+        "董卓"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "摸牌阶段，若你没有手牌或体力值为1，你可以改为获得每名其他角色区域内的一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

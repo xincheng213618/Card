@@ -1,0 +1,46 @@
+{
+  "pageid": 2365,
+  "namespace": 0,
+  "title": "放权",
+  "url": "https://wiki.biligame.com/sgs/%E6%94%BE%E6%9D%83",
+  "revid": 63029,
+  "parentid": 43308,
+  "timestamp": "2024-05-01T04:30:51Z",
+  "sourceSha256": "94f84485fe3da953c9c62a8e724b6191db6f4fb87f990f54830f4bbf6ea1e65a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2365,
+      "namespace": 0,
+      "title": "放权",
+      "url": "https://wiki.biligame.com/sgs/%E6%94%BE%E6%9D%83",
+      "revid": 63029,
+      "parentid": 43308,
+      "timestamp": "2024-05-01T04:30:51Z",
+      "sourceSha256": "94f84485fe3da953c9c62a8e724b6191db6f4fb87f990f54830f4bbf6ea1e65a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "放权",
+        "所属武将": "刘禅",
+        "技能版本": "经典,国",
+        "经典技能描述": "你可以跳过出牌阶段，然后本回合结束时，你可以弃置一张手牌，令一名其他角色执行一个额外的回合。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=放权\n|所属武将=刘禅\n|技能版本=经典,国\n|经典技能描述=你可以跳过出牌阶段，然后本回合结束时，你可以弃置一张手牌，令一名其他角色执行一个额外的回合。\n|经典技能类型=一般技\n|经典技能定位=辅助\n}}",
+      "name": "放权",
+      "generals": [
+        "刘禅"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "你可以跳过出牌阶段，然后本回合结束时，你可以弃置一张手牌，令一名其他角色执行一个额外的回合。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

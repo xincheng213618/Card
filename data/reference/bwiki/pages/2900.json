@@ -1,0 +1,44 @@
+{
+  "pageid": 2900,
+  "namespace": 0,
+  "title": "梁兴",
+  "url": "https://wiki.biligame.com/sgs/%E6%A2%81%E5%85%B4",
+  "revid": 74702,
+  "parentid": 70208,
+  "timestamp": "2026-01-22T16:29:41Z",
+  "sourceSha256": "82ec3e88e2b5c4acfad73637a629ecbd945ebb3ea20f22ddbb2705526c9f1d7d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 2900,
+      "namespace": 0,
+      "title": "梁兴",
+      "url": "https://wiki.biligame.com/sgs/%E6%A2%81%E5%85%B4",
+      "revid": 74702,
+      "parentid": 70208,
+      "timestamp": "2026-01-22T16:29:41Z",
+      "sourceSha256": "82ec3e88e2b5c4acfad73637a629ecbd945ebb3ea20f22ddbb2705526c9f1d7d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "梁兴",
+        "势力": "群",
+        "性别": "男",
+        "别称": "sp离婚蝉、抗阴神将",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=梁兴\n|势力=群\n|性别=男\n|别称=sp离婚蝉、抗阴神将\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "梁兴",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

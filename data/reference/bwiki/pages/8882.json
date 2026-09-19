@@ -1,0 +1,46 @@
+{
+  "pageid": 8882,
+  "namespace": 0,
+  "title": "乐就",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E5%B0%B1",
+  "revid": 77495,
+  "parentid": 76213,
+  "timestamp": "2026-05-09T01:33:56Z",
+  "sourceSha256": "91ac852df9127da8e37d64eefc0609a9f05b5c5acc80f23153cab39146c511da",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8882,
+      "namespace": 0,
+      "title": "乐就",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E5%B0%B1",
+      "revid": 77495,
+      "parentid": 76213,
+      "timestamp": "2026-05-09T01:33:56Z",
+      "sourceSha256": "91ac852df9127da8e37d64eefc0609a9f05b5c5acc80f23153cab39146c511da",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐就",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-代汉涂高",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=乐就\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-代汉涂高\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "乐就",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

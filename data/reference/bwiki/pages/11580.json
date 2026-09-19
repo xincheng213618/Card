@@ -1,0 +1,45 @@
+{
+  "pageid": 11580,
+  "namespace": 0,
+  "title": "诸葛若雪",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E8%8B%A5%E9%9B%AA",
+  "revid": 72320,
+  "parentid": 72316,
+  "timestamp": "2025-09-13T14:42:19Z",
+  "sourceSha256": "3a8aa038bad38ccfe17e3b148872015ce07ba3a5b088abe0699efd43804a5da0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11580,
+      "namespace": 0,
+      "title": "诸葛若雪",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E8%8B%A5%E9%9B%AA",
+      "revid": 72320,
+      "parentid": 72316,
+      "timestamp": "2025-09-13T14:42:19Z",
+      "sourceSha256": "3a8aa038bad38ccfe17e3b148872015ce07ba3a5b088abe0699efd43804a5da0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛若雪",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=诸葛若雪\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "诸葛若雪",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

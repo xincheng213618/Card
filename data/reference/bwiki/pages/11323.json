@@ -1,0 +1,45 @@
+{
+  "pageid": 11323,
+  "namespace": 0,
+  "title": "陈式",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%88%E5%BC%8F",
+  "revid": 74701,
+  "parentid": 71261,
+  "timestamp": "2026-01-22T17:44:49Z",
+  "sourceSha256": "57bd9dd516d67950ca37e716ce2c9c5f76ec3fe24580bd36cbd698eebb90429e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11323,
+      "namespace": 0,
+      "title": "陈式",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E5%BC%8F",
+      "revid": 74701,
+      "parentid": 71261,
+      "timestamp": "2026-01-22T17:44:49Z",
+      "sourceSha256": "57bd9dd516d67950ca37e716ce2c9c5f76ec3fe24580bd36cbd698eebb90429e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陈式",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "胖武陆逊、好果子神将",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "4",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=陈式\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=胖武陆逊、好果子神将\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=4\n|经典定位=爆发\n}}",
+      "name": "陈式",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

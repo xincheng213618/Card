@@ -1,0 +1,47 @@
+{
+  "pageid": 16142,
+  "namespace": 0,
+  "title": "好酒",
+  "url": "https://wiki.biligame.com/sgs/%E5%A5%BD%E9%85%92",
+  "revid": 79531,
+  "parentid": 79530,
+  "timestamp": "2026-08-10T07:16:53Z",
+  "sourceSha256": "92b6cd5b8b0e7cb017ee5b0585d359933bf3425a3fa8736e27981aa1a3b434eb",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 16142,
+      "namespace": 0,
+      "title": "好酒",
+      "url": "https://wiki.biligame.com/sgs/%E5%A5%BD%E9%85%92",
+      "revid": 79531,
+      "parentid": 79530,
+      "timestamp": "2026-08-10T07:16:53Z",
+      "sourceSha256": "92b6cd5b8b0e7cb017ee5b0585d359933bf3425a3fa8736e27981aa1a3b434eb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "好酒",
+        "所属武将": "古锭刀少女",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你可以将一张点数为9的牌当作一张：'''阳'''：【酒】；'''阴'''：【无中生有】使用。",
+        "经典技能类型": "转换技",
+        "经典技能定位": "攻击,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=好酒\n|所属武将=古锭刀少女\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你可以将一张点数为9的牌当作一张：'''阳'''：【酒】；'''阴'''：【无中生有】使用。\n|经典技能类型=转换技\n|经典技能定位=攻击,过牌\n}}",
+      "name": "好酒",
+      "generals": [
+        "古锭刀少女"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你可以将一张点数为9的牌当作一张：'''阳'''：【酒】；'''阴'''：【无中生有】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

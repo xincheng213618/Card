@@ -1,0 +1,46 @@
+{
+  "pageid": 16092,
+  "namespace": 0,
+  "title": "蒋琬",
+  "url": "https://wiki.biligame.com/sgs/%E8%92%8B%E7%90%AC",
+  "revid": 79399,
+  "parentid": 79397,
+  "timestamp": "2026-08-06T11:07:17Z",
+  "sourceSha256": "175e529ffff6d6cb023f1158347f6a113c36d98588cca2c858454b1234d56e0f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16092,
+      "namespace": 0,
+      "title": "蒋琬",
+      "url": "https://wiki.biligame.com/sgs/%E8%92%8B%E7%90%AC",
+      "revid": 79399,
+      "parentid": 79397,
+      "timestamp": "2026-08-06T11:07:17Z",
+      "sourceSha256": "175e529ffff6d6cb023f1158347f6a113c36d98588cca2c858454b1234d56e0f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "蒋琬",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=蒋琬\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=辅助,攻击\n}}",
+      "name": "蒋琬",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

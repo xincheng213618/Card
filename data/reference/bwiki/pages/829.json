@@ -1,0 +1,45 @@
+{
+  "pageid": 829,
+  "namespace": 0,
+  "title": "曹婴",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%A9%B4",
+  "revid": 70132,
+  "parentid": 69881,
+  "timestamp": "2025-05-20T03:37:25Z",
+  "sourceSha256": "2b2f552c82c8f329f8ef1613c129a4f148dcec639974ca7949325a1f36039b48",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 829,
+      "namespace": 0,
+      "title": "曹婴",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%A9%B4",
+      "revid": 70132,
+      "parentid": 69881,
+      "timestamp": "2025-05-20T03:37:25Z",
+      "sourceSha256": "2b2f552c82c8f329f8ef1613c129a4f148dcec639974ca7949325a1f36039b48",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹婴",
+        "势力": "魏",
+        "性别": "女",
+        "别称": "曹嘤、嘤嘤怪、里面暖神将",
+        "出现模式": "身份,欢乐",
+        "称号": "龙城凤鸣",
+        "规则集问答": "",
+        "武将包": "限定-祈福",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=曹婴\n|势力=魏\n|性别=女\n|别称=曹嘤、嘤嘤怪、里面暖神将\n|出现模式=身份,欢乐\n|称号=龙城凤鸣\n|规则集问答=\n|武将包=限定-祈福\n|经典体力=4\n|经典定位=攻击,爆发\n}}",
+      "name": "曹婴",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

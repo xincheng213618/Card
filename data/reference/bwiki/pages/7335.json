@@ -1,0 +1,47 @@
+{
+  "pageid": 7335,
+  "namespace": 0,
+  "title": "皙秀",
+  "url": "https://wiki.biligame.com/sgs/%E7%9A%99%E7%A7%80",
+  "revid": 39324,
+  "parentid": 38206,
+  "timestamp": "2022-08-25T04:04:49Z",
+  "sourceSha256": "a7ffb7d5ba2ec2890ec6cc6e18cc03de8edd3295b15c857e6dbe8c78aaaae500",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7335,
+      "namespace": 0,
+      "title": "皙秀",
+      "url": "https://wiki.biligame.com/sgs/%E7%9A%99%E7%A7%80",
+      "revid": 39324,
+      "parentid": 38206,
+      "timestamp": "2022-08-25T04:04:49Z",
+      "sourceSha256": "a7ffb7d5ba2ec2890ec6cc6e18cc03de8edd3295b15c857e6dbe8c78aaaae500",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "皙秀",
+        "所属武将": "滕胤",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①当其他角色弃置你装备区里的最后一张牌时，取消之；<br>\n②当你成为其他角色使用的牌的目标时，若你的装备区里有与此牌花色相同的牌，你摸一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,防御"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=皙秀\n|所属武将=滕胤\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①当其他角色弃置你装备区里的最后一张牌时，取消之；<br>\n②当你成为其他角色使用的牌的目标时，若你的装备区里有与此牌花色相同的牌，你摸一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌,防御\n}}",
+      "name": "皙秀",
+      "generals": [
+        "滕胤"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①当其他角色弃置你装备区里的最后一张牌时，取消之；<br>\n②当你成为其他角色使用的牌的目标时，若你的装备区里有与此牌花色相同的牌，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

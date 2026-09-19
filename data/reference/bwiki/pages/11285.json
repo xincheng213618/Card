@@ -1,0 +1,45 @@
+{
+  "pageid": 11285,
+  "namespace": 0,
+  "title": "星曹仁",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E6%9B%B9%E4%BB%81",
+  "revid": 79355,
+  "parentid": 72403,
+  "timestamp": "2026-08-05T05:32:20Z",
+  "sourceSha256": "4372b0193ea498e221b4ac9e86a6c685b70875a76fa84991d9bdff1b1ffb6287",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11285,
+      "namespace": 0,
+      "title": "星曹仁",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E6%9B%B9%E4%BB%81",
+      "revid": 79355,
+      "parentid": 72403,
+      "timestamp": "2026-08-05T05:32:20Z",
+      "sourceSha256": "4372b0193ea498e221b4ac9e86a6c685b70875a76fa84991d9bdff1b1ffb6287",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星曹仁",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "星赵俨，蓝高达",
+        "规则集问答": "",
+        "武将包": "星河璀璨-玉衡",
+        "经典体力": "4",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=星曹仁\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=星赵俨，蓝高达\n|规则集问答=\n|武将包=星河璀璨-玉衡\n|经典体力=4\n|经典定位=续航,爆发\n}}",
+      "name": "星曹仁",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 12213,
+  "namespace": 0,
+  "title": "谋曹爽",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9B%B9%E7%88%BD",
+  "revid": 71113,
+  "parentid": 70863,
+  "timestamp": "2025-05-20T07:42:02Z",
+  "sourceSha256": "4f371c574692605d593c59c5dacf224113252a41d93d947d7756f622df7a5e60",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12213,
+      "namespace": 0,
+      "title": "谋曹爽",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9B%B9%E7%88%BD",
+      "revid": 71113,
+      "parentid": 70863,
+      "timestamp": "2025-05-20T07:42:02Z",
+      "sourceSha256": "4f371c574692605d593c59c5dacf224113252a41d93d947d7756f622df7a5e60",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋曹爽",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "托孤傲臣",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-冢虎狼顾",
+        "经典体力": "4",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=谋曹爽\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=托孤傲臣\n|别称=\n|规则集问答=\n|武将包=谋定-冢虎狼顾\n|经典体力=4\n|经典定位=控制\n}}",
+      "name": "谋曹爽",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

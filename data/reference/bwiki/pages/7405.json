@@ -1,0 +1,45 @@
+{
+  "pageid": 7405,
+  "namespace": 0,
+  "title": "滕公主",
+  "url": "https://wiki.biligame.com/sgs/%E6%BB%95%E5%85%AC%E4%B8%BB",
+  "revid": 74734,
+  "parentid": 70535,
+  "timestamp": "2026-01-22T17:23:55Z",
+  "sourceSha256": "ce58506fdf245eccc11246c49690783dc088bace634a09e921ffa59bfa2b88ab",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7405,
+      "namespace": 0,
+      "title": "滕公主",
+      "url": "https://wiki.biligame.com/sgs/%E6%BB%95%E5%85%AC%E4%B8%BB",
+      "revid": 74734,
+      "parentid": 70535,
+      "timestamp": "2026-01-22T17:23:55Z",
+      "sourceSha256": "ce58506fdf245eccc11246c49690783dc088bace634a09e921ffa59bfa2b88ab",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "滕公主",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "疼公主",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "3",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=滕公主\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=疼公主\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=3\n|经典定位=续航,爆发\n}}",
+      "name": "滕公主",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

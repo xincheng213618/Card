@@ -1,0 +1,46 @@
+{
+  "pageid": 4457,
+  "namespace": 0,
+  "title": "遗礼",
+  "url": "https://wiki.biligame.com/sgs/%E9%81%97%E7%A4%BC",
+  "revid": 38091,
+  "parentid": 32016,
+  "timestamp": "2022-07-01T04:32:40Z",
+  "sourceSha256": "f4e07a3d13b93708fc21316b31179e648b9ccdacbca915186e0f07e74e60e539",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4457,
+      "namespace": 0,
+      "title": "遗礼",
+      "url": "https://wiki.biligame.com/sgs/%E9%81%97%E7%A4%BC",
+      "revid": 38091,
+      "parentid": 32016,
+      "timestamp": "2022-07-01T04:32:40Z",
+      "sourceSha256": "f4e07a3d13b93708fc21316b31179e648b9ccdacbca915186e0f07e74e60e539",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "遗礼",
+        "所属武将": "陆绩",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段开始时，你可以失去1点体力或移去1个“'''橘'''”，令一名其他角色获得1个“'''橘'''”。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=遗礼\n|所属武将=陆绩\n|技能版本=经典\n|经典技能描述=出牌阶段开始时，你可以失去1点体力或移去1个“'''橘'''”，令一名其他角色获得1个“'''橘'''”。\n|经典技能类型=一般技\n|经典技能定位=辅助\n}}",
+      "name": "遗礼",
+      "generals": [
+        "陆绩"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段开始时，你可以失去1点体力或移去1个“'''橘'''”，令一名其他角色获得1个“'''橘'''”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

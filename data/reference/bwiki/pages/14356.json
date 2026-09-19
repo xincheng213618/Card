@@ -1,0 +1,47 @@
+{
+  "pageid": 14356,
+  "namespace": 0,
+  "title": "求索",
+  "url": "https://wiki.biligame.com/sgs/%E6%B1%82%E7%B4%A2",
+  "revid": 72962,
+  "parentid": 72128,
+  "timestamp": "2025-10-18T13:51:17Z",
+  "sourceSha256": "49abd5953fdfa996576be26333c932883805e5053aae83d179fec26f5e1a0ece",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14356,
+      "namespace": 0,
+      "title": "求索",
+      "url": "https://wiki.biligame.com/sgs/%E6%B1%82%E7%B4%A2",
+      "revid": 72962,
+      "parentid": 72128,
+      "timestamp": "2025-10-18T13:51:17Z",
+      "sourceSha256": "49abd5953fdfa996576be26333c932883805e5053aae83d179fec26f5e1a0ece",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "求索",
+        "所属武将": "屈原",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你造成或受到伤害后，获得一张【铁索连环】。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=求索\n|所属武将=屈原\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你造成或受到伤害后，获得一张【铁索连环】。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "求索",
+      "generals": [
+        "屈原"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你造成或受到伤害后，获得一张【铁索连环】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

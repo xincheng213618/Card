@@ -1,0 +1,47 @@
+{
+  "pageid": 6005,
+  "namespace": 0,
+  "title": "曹洪",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%B4%AA",
+  "revid": 77742,
+  "parentid": 70139,
+  "timestamp": "2026-05-09T01:53:39Z",
+  "sourceSha256": "0dbfe710444ba9892cdabe30ed7c274f24de79fb70faa1c2ed096a4af944f8e9",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6005,
+      "namespace": 0,
+      "title": "曹洪",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%B4%AA",
+      "revid": 77742,
+      "parentid": 70139,
+      "timestamp": "2026-05-09T01:53:39Z",
+      "sourceSha256": "0dbfe710444ba9892cdabe30ed7c274f24de79fb70faa1c2ed096a4af944f8e9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹洪",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=曹洪\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "曹洪",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

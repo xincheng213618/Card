@@ -1,0 +1,45 @@
+{
+  "pageid": 15110,
+  "namespace": 0,
+  "title": "谋许攸",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%AE%B8%E6%94%B8",
+  "revid": 78298,
+  "parentid": 78297,
+  "timestamp": "2026-06-13T15:14:16Z",
+  "sourceSha256": "f4a105dbe83ea411bc3183f2d66e657dc926b3f20e1eb221b39215797bc495e7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15110,
+      "namespace": 0,
+      "title": "谋许攸",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%AE%B8%E6%94%B8",
+      "revid": 78298,
+      "parentid": 78297,
+      "timestamp": "2026-06-13T15:14:16Z",
+      "sourceSha256": "f4a105dbe83ea411bc3183f2d66e657dc926b3f20e1eb221b39215797bc495e7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋许攸",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "智士濡足",
+        "别称": "小武陆逊",
+        "规则集问答": "",
+        "武将包": "谋定-奇佐论胜",
+        "经典体力": "3",
+        "经典定位": "爆发,过牌"
+      },
+      "source": "{{武将\n|武将名=谋许攸\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=智士濡足\n|别称=小武陆逊\n|规则集问答=\n|武将包=谋定-奇佐论胜\n|经典体力=3\n|经典定位=爆发,过牌\n}}",
+      "name": "谋许攸",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

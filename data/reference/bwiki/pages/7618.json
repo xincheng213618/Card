@@ -1,0 +1,45 @@
+{
+  "pageid": 7618,
+  "namespace": 0,
+  "title": "李婉",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%A9%89",
+  "revid": 74725,
+  "parentid": 70173,
+  "timestamp": "2026-01-22T17:11:02Z",
+  "sourceSha256": "55fe369f21d6e68acaea75c4f5c3ebbe07878b3f6531776871f6edbe9f2edc6e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7618,
+      "namespace": 0,
+      "title": "李婉",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%A9%89",
+      "revid": 74725,
+      "parentid": 70173,
+      "timestamp": "2026-01-22T17:11:02Z",
+      "sourceSha256": "55fe369f21d6e68acaea75c4f5c3ebbe07878b3f6531776871f6edbe9f2edc6e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李婉",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2022",
+        "经典体力": "3",
+        "经典定位": "辅助,防御"
+      },
+      "source": "{{武将\n|武将名=李婉\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2022\n|经典体力=3\n|经典定位=辅助,防御\n}}",
+      "name": "李婉",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

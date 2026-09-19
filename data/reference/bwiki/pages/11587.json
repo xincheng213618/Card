@@ -1,0 +1,45 @@
+{
+  "pageid": 11587,
+  "namespace": 0,
+  "title": "星董卓",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%91%A3%E5%8D%93",
+  "revid": 79359,
+  "parentid": 70100,
+  "timestamp": "2026-08-05T05:32:35Z",
+  "sourceSha256": "8ff134a5208d0cfec8e4d8579da3f18ac63c36adeecf6a9345411a54ce3cfda7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11587,
+      "namespace": 0,
+      "title": "星董卓",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%91%A3%E5%8D%93",
+      "revid": 79359,
+      "parentid": 70100,
+      "timestamp": "2026-08-05T05:32:35Z",
+      "sourceSha256": "8ff134a5208d0cfec8e4d8579da3f18ac63c36adeecf6a9345411a54ce3cfda7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星董卓",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天枢",
+        "经典体力": "5",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=星董卓\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-天枢\n|经典体力=5\n|经典定位=攻击,控制\n}}",
+      "name": "星董卓",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

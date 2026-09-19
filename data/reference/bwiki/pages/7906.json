@@ -1,0 +1,46 @@
+{
+  "pageid": 7906,
+  "namespace": 0,
+  "title": "吕旷吕翔",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%95%E6%97%B7%E5%90%95%E7%BF%94",
+  "revid": 77582,
+  "parentid": 74675,
+  "timestamp": "2026-05-09T01:40:36Z",
+  "sourceSha256": "444c14f09d54020a4669eae04c8644b3dccc62472261f213136b71a265d98166",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7906,
+      "namespace": 0,
+      "title": "吕旷吕翔",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%95%E6%97%B7%E5%90%95%E7%BF%94",
+      "revid": 77582,
+      "parentid": 74675,
+      "timestamp": "2026-05-09T01:40:36Z",
+      "sourceSha256": "444c14f09d54020a4669eae04c8644b3dccc62472261f213136b71a265d98166",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吕旷吕翔",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "二吕",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "4",
+        "经典定位": "控制,爆发,发育"
+      },
+      "source": "{{武将\n|武将名=吕旷吕翔\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=二吕\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=4\n|经典定位=控制,爆发,发育\n}}",
+      "name": "吕旷吕翔",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

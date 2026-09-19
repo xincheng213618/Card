@@ -1,0 +1,45 @@
+{
+  "pageid": 14849,
+  "namespace": 0,
+  "title": "谋徐盛",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%BE%90%E7%9B%9B",
+  "revid": 78990,
+  "parentid": 78863,
+  "timestamp": "2026-07-18T08:52:40Z",
+  "sourceSha256": "c466f1d7d789b18fe017f566ed981c0e08d974bef88be0a7377d5114e8a0da2b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14849,
+      "namespace": 0,
+      "title": "谋徐盛",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%BE%90%E7%9B%9B",
+      "revid": 78990,
+      "parentid": 78863,
+      "timestamp": "2026-07-18T08:52:40Z",
+      "sourceSha256": "c466f1d7d789b18fe017f566ed981c0e08d974bef88be0a7377d5114e8a0da2b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋徐盛",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "穰苴之风",
+        "别称": "大宝{{黑幕|一将成名Ver}}",
+        "规则集问答": "",
+        "武将包": "谋定-伯言绽火",
+        "经典体力": "4",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=谋徐盛\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=穰苴之风\n|别称=大宝{{黑幕|一将成名Ver}}\n|规则集问答=\n|武将包=谋定-伯言绽火\n|经典体力=4\n|经典定位=爆发,控制\n}}",
+      "name": "谋徐盛",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

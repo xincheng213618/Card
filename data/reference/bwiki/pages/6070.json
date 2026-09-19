@@ -1,0 +1,47 @@
+{
+  "pageid": 6070,
+  "namespace": 0,
+  "title": "莲佑",
+  "url": "https://wiki.biligame.com/sgs/%E8%8E%B2%E4%BD%91",
+  "revid": 37963,
+  "parentid": 37962,
+  "timestamp": "2022-06-27T15:32:32Z",
+  "sourceSha256": "e8ffe87c6dbe77eb6c13737be8f46c80d35952f9666631f962744bed8122be69",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6070,
+      "namespace": 0,
+      "title": "莲佑",
+      "url": "https://wiki.biligame.com/sgs/%E8%8E%B2%E4%BD%91",
+      "revid": 37963,
+      "parentid": 37962,
+      "timestamp": "2022-06-27T15:32:32Z",
+      "sourceSha256": "e8ffe87c6dbe77eb6c13737be8f46c80d35952f9666631f962744bed8122be69",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "莲佑",
+        "所属武将": "周夷",
+        "是衍生技": "",
+        "技能版本": "国",
+        "国战技能描述": "当你死亡时，你可以令一名其他角色获得技能技能“{{技能/引用|兴火}}”。",
+        "国战技能类型": "一般技",
+        "国战技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=莲佑\n|所属武将=周夷\n|是衍生技=\n|技能版本=国\n|国战技能描述=当你死亡时，你可以令一名其他角色获得技能技能“{{技能/引用|兴火}}”。\n|国战技能类型=一般技\n|国战技能定位=辅助\n}}",
+      "name": "莲佑",
+      "generals": [
+        "周夷"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "当你死亡时，你可以令一名其他角色获得技能技能“{{技能/引用|兴火}}”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

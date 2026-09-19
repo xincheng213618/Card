@@ -1,0 +1,46 @@
+{
+  "pageid": 15879,
+  "namespace": 0,
+  "title": "环怀瑾",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%AF%E6%80%80%E7%91%BE",
+  "revid": 79937,
+  "parentid": 79931,
+  "timestamp": "2026-09-05T15:51:23Z",
+  "sourceSha256": "ad15075706a7f5276cbf2161ced861be4e24417155410a882fe29d7acb6d110f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15879,
+      "namespace": 0,
+      "title": "环怀瑾",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%AF%E6%80%80%E7%91%BE",
+      "revid": 79937,
+      "parentid": 79931,
+      "timestamp": "2026-09-05T15:51:23Z",
+      "sourceSha256": "ad15075706a7f5276cbf2161ced861be4e24417155410a882fe29d7acb6d110f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "环怀瑾",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "慧心育麟",
+        "别称": "杯杯紧",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=环怀瑾\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=慧心育麟\n|别称=杯杯紧\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "环怀瑾",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

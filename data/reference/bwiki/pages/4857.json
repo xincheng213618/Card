@@ -1,0 +1,76 @@
+{
+  "pageid": 4857,
+  "namespace": 0,
+  "title": "马术/马云騄",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/%E9%A9%AC%E4%BA%91%E9%A8%84",
+  "revid": 53572,
+  "parentid": 30336,
+  "timestamp": "2023-05-24T11:06:21Z",
+  "sourceSha256": "83d8182de0ad2ab2ea4b6107957ec57013114be1e042fcea37bf75ed4b72ac77",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4857,
+      "namespace": 0,
+      "title": "马术/马云騄",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/%E9%A9%AC%E4%BA%91%E9%A8%84",
+      "revid": 53572,
+      "parentid": 30336,
+      "timestamp": "2023-05-24T11:06:21Z",
+      "sourceSha256": "83d8182de0ad2ab2ea4b6107957ec57013114be1e042fcea37bf75ed4b72ac77",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "马术",
+        "所属武将": "马云騄",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你计算与其他角色的距离-1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=马术\n|所属武将=马云騄\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你计算与其他角色的距离-1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,距离\n}}",
+      "name": "马术",
+      "generals": [
+        "马云騄"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你计算与其他角色的距离-1。"
+      }
+    },
+    {
+      "pageid": 4857,
+      "namespace": 0,
+      "title": "马术/马云騄",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/%E9%A9%AC%E4%BA%91%E9%A8%84",
+      "revid": 53572,
+      "parentid": 30336,
+      "timestamp": "2023-05-24T11:06:21Z",
+      "sourceSha256": "83d8182de0ad2ab2ea4b6107957ec57013114be1e042fcea37bf75ed4b72ac77",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "2",
+        "技能名": "马术",
+        "所属武将": "马云騄",
+        "经典技能描述": "'''锁定技，'''你计算与其他角色的距离-1。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=2\n|技能名=马术\n|所属武将=马云騄\n|经典技能描述='''锁定技，'''你计算与其他角色的距离-1。\n}}",
+      "name": "马术",
+      "generals": [
+        "马云騄"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "'''锁定技，'''你计算与其他角色的距离-1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

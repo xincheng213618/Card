@@ -1,0 +1,47 @@
+{
+  "pageid": 2748,
+  "namespace": 0,
+  "title": "鬼助",
+  "url": "https://wiki.biligame.com/sgs/%E9%AC%BC%E5%8A%A9",
+  "revid": 36096,
+  "parentid": 31071,
+  "timestamp": "2022-04-04T12:51:21Z",
+  "sourceSha256": "c7e5779da8d3de6ffd61e11f380eb43b3ecca885c7e67dc77560e6dbac14e6ef",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2748,
+      "namespace": 0,
+      "title": "鬼助",
+      "url": "https://wiki.biligame.com/sgs/%E9%AC%BC%E5%8A%A9",
+      "revid": 36096,
+      "parentid": 31071,
+      "timestamp": "2022-04-04T12:51:21Z",
+      "sourceSha256": "c7e5779da8d3de6ffd61e11f380eb43b3ecca885c7e67dc77560e6dbac14e6ef",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "鬼助",
+        "所属武将": "写满技能的天书",
+        "是衍生技": "是",
+        "技能版本": "经典,国",
+        "经典技能描述": "每回合限一次，当一名角色进入濒死状态时，你可以摸两张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=鬼助\n|所属武将=写满技能的天书\n|是衍生技=是\n|技能版本=经典,国\n|经典技能描述=每回合限一次，当一名角色进入濒死状态时，你可以摸两张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "鬼助",
+      "generals": [
+        "写满技能的天书"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "每回合限一次，当一名角色进入濒死状态时，你可以摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

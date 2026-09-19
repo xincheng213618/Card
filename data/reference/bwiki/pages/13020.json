@@ -1,0 +1,76 @@
+{
+  "pageid": 13020,
+  "namespace": 0,
+  "title": "匮饬",
+  "url": "https://wiki.biligame.com/sgs/%E5%8C%AE%E9%A5%AC",
+  "revid": 68622,
+  "parentid": 65512,
+  "timestamp": "2025-04-03T10:42:15Z",
+  "sourceSha256": "5c9aff40da9f9087171129ccc3637a0d7fcddae9968902d1513267b39952cac4",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 13020,
+      "namespace": 0,
+      "title": "匮饬",
+      "url": "https://wiki.biligame.com/sgs/%E5%8C%AE%E9%A5%AC",
+      "revid": 68622,
+      "parentid": 65512,
+      "timestamp": "2025-04-03T10:42:15Z",
+      "sourceSha256": "5c9aff40da9f9087171129ccc3637a0d7fcddae9968902d1513267b39952cac4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "匮饬",
+        "所属武将": "文鸳",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "回合结束时，若你本回合摸牌数与造成的伤害值均不小于体力上限，你失去1点体力。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=匮饬\n|所属武将=文鸳\n|是衍生技=\n|技能版本=经典\n|经典技能描述=回合结束时，若你本回合摸牌数与造成的伤害值均不小于体力上限，你失去1点体力。\n|经典技能类型=锁定技\n|经典技能定位=负面\n}}",
+      "name": "匮饬",
+      "generals": [
+        "文鸳"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "回合结束时，若你本回合摸牌数与造成的伤害值均不小于体力上限，你失去1点体力。"
+      }
+    },
+    {
+      "pageid": 13020,
+      "namespace": 0,
+      "title": "匮饬",
+      "url": "https://wiki.biligame.com/sgs/%E5%8C%AE%E9%A5%AC",
+      "revid": 68622,
+      "parentid": 65512,
+      "timestamp": "2025-04-03T10:42:15Z",
+      "sourceSha256": "5c9aff40da9f9087171129ccc3637a0d7fcddae9968902d1513267b39952cac4",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "第I版",
+        "技能序号": "2",
+        "技能名": "匮饬",
+        "所属武将": "文鸳",
+        "经典技能描述": "'''锁定技，'''回合结束时，若你本回合摸牌数与造成的伤害值均不小于体力上限，你失去1点体力。"
+      },
+      "source": "{{技能/武将\n|历史版本=第I版\n|技能序号=2\n|技能名=匮饬\n|所属武将=文鸳\n|经典技能描述='''锁定技，'''回合结束时，若你本回合摸牌数与造成的伤害值均不小于体力上限，你失去1点体力。\n}}",
+      "name": "匮饬",
+      "generals": [
+        "文鸳"
+      ],
+      "mode": null,
+      "version": "第I版",
+      "descriptions": {
+        "经典技能描述": "'''锁定技，'''回合结束时，若你本回合摸牌数与造成的伤害值均不小于体力上限，你失去1点体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 6861,
+  "namespace": 0,
+  "title": "轻幔",
+  "url": "https://wiki.biligame.com/sgs/%E8%BD%BB%E5%B9%94",
+  "revid": 61112,
+  "parentid": 36852,
+  "timestamp": "2023-12-28T14:04:43Z",
+  "sourceSha256": "e9f770e40b5889adfbad23b6875a5943fd61a8a8d894b48c61cbd91b927cda36",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6861,
+      "namespace": 0,
+      "title": "轻幔",
+      "url": "https://wiki.biligame.com/sgs/%E8%BD%BB%E5%B9%94",
+      "revid": 61112,
+      "parentid": 36852,
+      "timestamp": "2023-12-28T14:04:43Z",
+      "sourceSha256": "e9f770e40b5889adfbad23b6875a5943fd61a8a8d894b48c61cbd91b927cda36",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "轻幔",
+        "所属武将": "赵嫣",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "一名角色的回合结束时，你将手牌数摸至X张（X为该角色的空置装备栏数）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=轻幔\n|所属武将=赵嫣\n|是衍生技=\n|技能版本=经典\n|经典技能描述=一名角色的回合结束时，你将手牌数摸至X张（X为该角色的空置装备栏数）。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "轻幔",
+      "generals": [
+        "赵嫣"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "一名角色的回合结束时，你将手牌数摸至X张（X为该角色的空置装备栏数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

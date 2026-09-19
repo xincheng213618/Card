@@ -1,0 +1,105 @@
+{
+  "pageid": 8855,
+  "namespace": 0,
+  "title": "修文",
+  "url": "https://wiki.biligame.com/sgs/%E4%BF%AE%E6%96%87",
+  "revid": 62859,
+  "parentid": 54198,
+  "timestamp": "2024-04-25T12:38:16Z",
+  "sourceSha256": "39de867327026b9a46aa444c37fb7007c8b3f03f4748e252ee0b7ceb980b0309",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8855,
+      "namespace": 0,
+      "title": "修文",
+      "url": "https://wiki.biligame.com/sgs/%E4%BF%AE%E6%96%87",
+      "revid": 62859,
+      "parentid": 54198,
+      "timestamp": "2024-04-25T12:38:16Z",
+      "sourceSha256": "39de867327026b9a46aa444c37fb7007c8b3f03f4748e252ee0b7ceb980b0309",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "修文",
+        "所属武将": "关宁",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=修文\n|所属武将=关宁\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "修文",
+      "generals": [
+        "关宁"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。"
+      }
+    },
+    {
+      "pageid": 8855,
+      "namespace": 0,
+      "title": "修文",
+      "url": "https://wiki.biligame.com/sgs/%E4%BF%AE%E6%96%87",
+      "revid": 62859,
+      "parentid": 54198,
+      "timestamp": "2024-04-25T12:38:16Z",
+      "sourceSha256": "39de867327026b9a46aa444c37fb7007c8b3f03f4748e252ee0b7ceb980b0309",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "正式服I版",
+        "技能序号": "1",
+        "技能名": "修文",
+        "所属武将": "关宁",
+        "经典技能描述": "当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。"
+      },
+      "source": "{{技能/武将\n|历史版本=正式服I版\n|技能序号=1\n|技能名=修文\n|所属武将=关宁\n|经典技能描述=当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。\n}}",
+      "name": "修文",
+      "generals": [
+        "关宁"
+      ],
+      "mode": null,
+      "version": "正式服I版",
+      "descriptions": {
+        "经典技能描述": "当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。"
+      }
+    },
+    {
+      "pageid": 8855,
+      "namespace": 0,
+      "title": "修文",
+      "url": "https://wiki.biligame.com/sgs/%E4%BF%AE%E6%96%87",
+      "revid": 62859,
+      "parentid": 54198,
+      "timestamp": "2024-04-25T12:38:16Z",
+      "sourceSha256": "39de867327026b9a46aa444c37fb7007c8b3f03f4748e252ee0b7ceb980b0309",
+      "image": {},
+      "templateOrdinal": 3,
+      "fields": {
+        "历史版本": "测试服版",
+        "技能序号": "1",
+        "技能名": "修文",
+        "所属武将": "关宁",
+        "经典技能描述": "当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。"
+      },
+      "source": "{{技能/武将\n|历史版本=测试服版\n|技能序号=1\n|技能名=修文\n|所属武将=关宁\n|经典技能描述=当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。\n}}",
+      "name": "修文",
+      "generals": [
+        "关宁"
+      ],
+      "mode": null,
+      "version": "测试服版",
+      "descriptions": {
+        "经典技能描述": "当你使用一张牌时，你可以摸一张牌（每种牌名每局游戏限一次）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

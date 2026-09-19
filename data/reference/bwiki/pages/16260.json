@@ -1,0 +1,46 @@
+{
+  "pageid": 16260,
+  "namespace": 0,
+  "title": "谋卫瓘",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%8D%AB%E7%93%98",
+  "revid": 80121,
+  "parentid": 0,
+  "timestamp": "2026-09-18T10:27:11Z",
+  "sourceSha256": "9d75765182a3e1b2f32beb35ae29c66f84cf1589842146dca234489fe160a0be",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16260,
+      "namespace": 0,
+      "title": "谋卫瓘",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%8D%AB%E7%93%98",
+      "revid": 80121,
+      "parentid": 0,
+      "timestamp": "2026-09-18T10:27:11Z",
+      "sourceSha256": "9d75765182a3e1b2f32beb35ae29c66f84cf1589842146dca234489fe160a0be",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋卫瓘",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-幼麟绝战",
+        "经典体力": "4",
+        "经典定位": "攻击,卖血"
+      },
+      "source": "{{武将\n|武将名=谋卫瓘\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-幼麟绝战\n|经典体力=4\n|经典定位=攻击,卖血\n}}",
+      "name": "谋卫瓘",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

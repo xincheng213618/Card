@@ -1,0 +1,44 @@
+{
+  "pageid": 3455,
+  "namespace": 0,
+  "title": "阚泽",
+  "url": "https://wiki.biligame.com/sgs/%E9%98%9A%E6%B3%BD",
+  "revid": 74686,
+  "parentid": 71252,
+  "timestamp": "2026-01-22T17:14:54Z",
+  "sourceSha256": "cf1f995ca85cffa3bebd061a752f9fd332770be68baa71410c0c2512058e1c9b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3455,
+      "namespace": 0,
+      "title": "阚泽",
+      "url": "https://wiki.biligame.com/sgs/%E9%98%9A%E6%B3%BD",
+      "revid": 74686,
+      "parentid": 71252,
+      "timestamp": "2026-01-22T17:14:54Z",
+      "sourceSha256": "cf1f995ca85cffa3bebd061a752f9fd332770be68baa71410c0c2512058e1c9b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "阚泽",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "[[皮皮虾]]",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=阚泽\n|势力=吴\n|性别=男\n|别称=[[皮皮虾]]\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "阚泽",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 8241,
+  "namespace": 0,
+  "title": "轲比能",
+  "url": "https://wiki.biligame.com/sgs/%E8%BD%B2%E6%AF%94%E8%83%BD",
+  "revid": 74708,
+  "parentid": 71156,
+  "timestamp": "2026-01-22T16:42:45Z",
+  "sourceSha256": "a41dff3d29c1fb011c97b06faa201aa43073ba1a9d32df849419b9d9a2b51565",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8241,
+      "namespace": 0,
+      "title": "轲比能",
+      "url": "https://wiki.biligame.com/sgs/%E8%BD%B2%E6%AF%94%E8%83%BD",
+      "revid": 74708,
+      "parentid": 71156,
+      "timestamp": "2026-01-22T16:42:45Z",
+      "sourceSha256": "a41dff3d29c1fb011c97b06faa201aa43073ba1a9d32df849419b9d9a2b51565",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "轲比能",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "科比",
+        "规则集问答": "",
+        "武将包": "一将成名-2022",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=轲比能\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=科比\n|规则集问答=\n|武将包=一将成名-2022\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "轲比能",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

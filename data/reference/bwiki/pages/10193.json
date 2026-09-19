@@ -1,0 +1,46 @@
+{
+  "pageid": 10193,
+  "namespace": 0,
+  "title": "乐綝",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E7%B6%9D",
+  "revid": 77498,
+  "parentid": 69039,
+  "timestamp": "2026-05-09T01:34:05Z",
+  "sourceSha256": "71def13f2772bd1cfb9f774fb675f808802ecd0c14f4fc84ef43d213f7433da4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10193,
+      "namespace": 0,
+      "title": "乐綝",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E7%B6%9D",
+      "revid": 77498,
+      "parentid": 69039,
+      "timestamp": "2026-05-09T01:34:05Z",
+      "sourceSha256": "71def13f2772bd1cfb9f774fb675f808802ecd0c14f4fc84ef43d213f7433da4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐綝",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "乐琳",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=乐綝\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=乐琳\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "乐綝",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

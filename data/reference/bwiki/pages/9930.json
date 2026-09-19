@@ -1,0 +1,45 @@
+{
+  "pageid": 9930,
+  "namespace": 0,
+  "title": "笮融",
+  "url": "https://wiki.biligame.com/sgs/%E7%AC%AE%E8%9E%8D",
+  "revid": 70696,
+  "parentid": 70446,
+  "timestamp": "2025-05-20T05:09:11Z",
+  "sourceSha256": "9156f2d8a5ae4152aa6531a82d31b43ad49c88f62251a9b96e6fe0e0d22b2aa4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9930,
+      "namespace": 0,
+      "title": "笮融",
+      "url": "https://wiki.biligame.com/sgs/%E7%AC%AE%E8%9E%8D",
+      "revid": 70696,
+      "parentid": 70446,
+      "timestamp": "2025-05-20T05:09:11Z",
+      "sourceSha256": "9156f2d8a5ae4152aa6531a82d31b43ad49c88f62251a9b96e6fe0e0d22b2aa4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "笮融",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "佛祖、光头、唐三葬",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "4",
+        "经典定位": "辅助,攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=笮融\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=佛祖、光头、唐三葬\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=4\n|经典定位=辅助,攻击,爆发\n}}",
+      "name": "笮融",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

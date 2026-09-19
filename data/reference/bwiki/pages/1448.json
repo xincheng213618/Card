@@ -1,0 +1,44 @@
+{
+  "pageid": 1448,
+  "namespace": 0,
+  "title": "牛金",
+  "url": "https://wiki.biligame.com/sgs/%E7%89%9B%E9%87%91",
+  "revid": 70573,
+  "parentid": 70323,
+  "timestamp": "2025-05-20T04:58:00Z",
+  "sourceSha256": "a79122e480e2a981653b8b24f8d6d89a6bb52721e612af21c3f872e04dc97744",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1448,
+      "namespace": 0,
+      "title": "牛金",
+      "url": "https://wiki.biligame.com/sgs/%E7%89%9B%E9%87%91",
+      "revid": 70573,
+      "parentid": 70323,
+      "timestamp": "2025-05-20T04:58:00Z",
+      "sourceSha256": "a79122e480e2a981653b8b24f8d6d89a6bb52721e612af21c3f872e04dc97744",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "牛金",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "金牛、牛筋",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-兵临城下",
+        "经典体力": "4",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=牛金\n|势力=魏\n|性别=男\n|别称=金牛、牛筋\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-兵临城下\n|经典体力=4\n|经典定位=爆发,控制\n}}",
+      "name": "牛金",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

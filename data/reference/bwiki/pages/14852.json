@@ -1,0 +1,46 @@
+{
+  "pageid": 14852,
+  "namespace": 0,
+  "title": "威曹操",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E6%9B%B9%E6%93%8D",
+  "revid": 77627,
+  "parentid": 76711,
+  "timestamp": "2026-05-09T01:43:51Z",
+  "sourceSha256": "e24add4128bdcdd4d5c8f885d229f14e44b6db7372a8c790e6504fa9e04e331d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14852,
+      "namespace": 0,
+      "title": "威曹操",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E6%9B%B9%E6%93%8D",
+      "revid": 77627,
+      "parentid": 76711,
+      "timestamp": "2026-05-09T01:43:51Z",
+      "sourceSha256": "e24add4128bdcdd4d5c8f885d229f14e44b6db7372a8c790e6504fa9e04e331d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威曹操",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "山海归心",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-君威盖世",
+        "经典体力": "4",
+        "经典定位": "爆发,控制,续航"
+      },
+      "source": "{{武将\n|武将名=威曹操\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=山海归心\n|别称=\n|规则集问答=\n|武将包=威震-君威盖世\n|经典体力=4\n|经典定位=爆发,控制,续航\n}}",
+      "name": "威曹操",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

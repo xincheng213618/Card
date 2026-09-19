@@ -1,0 +1,47 @@
+{
+  "pageid": 10395,
+  "namespace": 0,
+  "title": "如意",
+  "url": "https://wiki.biligame.com/sgs/%E5%A6%82%E6%84%8F",
+  "revid": 72950,
+  "parentid": 72930,
+  "timestamp": "2025-10-18T13:34:17Z",
+  "sourceSha256": "df49f8740cc7e6a85df9e25c0faab985067bcda28d230aefa2cd294f2fbb8e7d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10395,
+      "namespace": 0,
+      "title": "如意",
+      "url": "https://wiki.biligame.com/sgs/%E5%A6%82%E6%84%8F",
+      "revid": 72950,
+      "parentid": 72930,
+      "timestamp": "2025-10-18T13:34:17Z",
+      "sourceSha256": "df49f8740cc7e6a85df9e25c0faab985067bcda28d230aefa2cd294f2fbb8e7d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "如意",
+        "所属武将": "孙悟空",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①你始终装备【[[如意金箍棒]]】；<br>\n②你手牌中的武器牌均视为【杀】。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=如意\n|所属武将=孙悟空\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①你始终装备【[[如意金箍棒]]】；<br>\n②你手牌中的武器牌均视为【杀】。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "如意",
+      "generals": [
+        "孙悟空"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①你始终装备【[[如意金箍棒]]】；<br>\n②你手牌中的武器牌均视为【杀】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

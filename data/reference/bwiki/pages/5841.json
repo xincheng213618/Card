@@ -1,0 +1,47 @@
+{
+  "pageid": 5841,
+  "namespace": 0,
+  "title": "千驹",
+  "url": "https://wiki.biligame.com/sgs/%E5%8D%83%E9%A9%B9",
+  "revid": 59231,
+  "parentid": 39754,
+  "timestamp": "2023-11-09T11:39:30Z",
+  "sourceSha256": "9d9c65ea4bacbfecdc5748d864f00bc042aec4663c9848a81fe7fe8ca44ea838",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5841,
+      "namespace": 0,
+      "title": "千驹",
+      "url": "https://wiki.biligame.com/sgs/%E5%8D%83%E9%A9%B9",
+      "revid": 59231,
+      "parentid": 39754,
+      "timestamp": "2023-11-09T11:39:30Z",
+      "sourceSha256": "9d9c65ea4bacbfecdc5748d864f00bc042aec4663c9848a81fe7fe8ca44ea838",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "千驹",
+        "所属武将": "曹休",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "你计算与其他角色的距离-X（X为你已损失的体力值）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=千驹\n|所属武将=曹休\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=你计算与其他角色的距离-X（X为你已损失的体力值）。\n|经典技能类型=锁定技\n|经典技能定位=攻击,距离\n}}",
+      "name": "千驹",
+      "generals": [
+        "曹休"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "你计算与其他角色的距离-X（X为你已损失的体力值）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

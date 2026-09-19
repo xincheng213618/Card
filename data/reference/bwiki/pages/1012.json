@@ -1,0 +1,44 @@
+{
+  "pageid": 1012,
+  "namespace": 0,
+  "title": "韩馥",
+  "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E9%A6%A5",
+  "revid": 71393,
+  "parentid": 71291,
+  "timestamp": "2025-05-21T01:14:34Z",
+  "sourceSha256": "77e82902be3be8a05bb73e1d472c6e83a01af8bfd706266a4df548f6b389824b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1012,
+      "namespace": 0,
+      "title": "韩馥",
+      "url": "https://wiki.biligame.com/sgs/%E9%9F%A9%E9%A6%A5",
+      "revid": 71393,
+      "parentid": 71291,
+      "timestamp": "2025-05-21T01:14:34Z",
+      "sourceSha256": "77e82902be3be8a05bb73e1d472c6e83a01af8bfd706266a4df548f6b389824b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "韩馥",
+        "势力": "群",
+        "性别": "男",
+        "别称": "SP荀彧",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-诸侯伐董",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=韩馥\n|势力=群\n|性别=男\n|别称=SP荀彧\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-诸侯伐董\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "韩馥",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

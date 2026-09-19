@@ -1,0 +1,46 @@
+{
+  "pageid": 13713,
+  "namespace": 0,
+  "title": "威吕布",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%90%95%E5%B8%83",
+  "revid": 77620,
+  "parentid": 75329,
+  "timestamp": "2026-05-09T01:43:20Z",
+  "sourceSha256": "c5dc3de0faeb1a0cd2c34069369238f958c474d97520b68f3605746cfe92a18c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13713,
+      "namespace": 0,
+      "title": "威吕布",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%90%95%E5%B8%83",
+      "revid": 77620,
+      "parentid": 75329,
+      "timestamp": "2026-05-09T01:43:20Z",
+      "sourceSha256": "c5dc3de0faeb1a0cd2c34069369238f958c474d97520b68f3605746cfe92a18c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威吕布",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "野狗",
+        "规则集问答": "",
+        "武将包": "威震-威震天下",
+        "经典体力": "5",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=威吕布\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=野狗\n|规则集问答=\n|武将包=威震-威震天下\n|经典体力=5\n|经典定位=爆发\n}}",
+      "name": "威吕布",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 2928,
+  "namespace": 0,
+  "title": "札符",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%AD%E7%AC%A6",
+  "revid": 79275,
+  "parentid": 61492,
+  "timestamp": "2026-08-03T03:09:02Z",
+  "sourceSha256": "6fc114f780061aef16e1e8fecdd78a425998e6042931e6dd89d1e5bf4bda121e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2928,
+      "namespace": 0,
+      "title": "札符",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%AD%E7%AC%A6",
+      "revid": 79275,
+      "parentid": 61492,
+      "timestamp": "2026-08-03T03:09:02Z",
+      "sourceSha256": "6fc114f780061aef16e1e8fecdd78a425998e6042931e6dd89d1e5bf4bda121e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "札符",
+        "所属武将": "葛玄",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以选择一名其他角色。该角色的下一个弃牌阶段开始时，其选择一张手牌，将其余的手牌交给你。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "控制,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=札符\n|所属武将=葛玄\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以选择一名其他角色。该角色的下一个弃牌阶段开始时，其选择一张手牌，将其余的手牌交给你。\n|经典技能类型=限定技\n|经典技能定位=控制,过牌\n}}",
+      "name": "札符",
+      "generals": [
+        "葛玄"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以选择一名其他角色。该角色的下一个弃牌阶段开始时，其选择一张手牌，将其余的手牌交给你。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

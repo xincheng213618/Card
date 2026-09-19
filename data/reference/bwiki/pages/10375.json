@@ -1,0 +1,77 @@
+{
+  "pageid": 10375,
+  "namespace": 0,
+  "title": "马术/SP关羽",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/SP%E5%85%B3%E7%BE%BD",
+  "revid": 62864,
+  "parentid": 58854,
+  "timestamp": "2024-04-25T12:53:07Z",
+  "sourceSha256": "28505b0122534a226180de54ce834629384275a978e627d66918cf182f33db26",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10375,
+      "namespace": 0,
+      "title": "马术/SP关羽",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/SP%E5%85%B3%E7%BE%BD",
+      "revid": 62864,
+      "parentid": 58854,
+      "timestamp": "2024-04-25T12:53:07Z",
+      "sourceSha256": "28505b0122534a226180de54ce834629384275a978e627d66918cf182f33db26",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "马术",
+        "所属武将": "SP关羽",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "你计算与其他角色的距离-1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=马术\n|所属武将=SP关羽\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=你计算与其他角色的距离-1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,距离\n}}",
+      "name": "马术",
+      "generals": [
+        "SP关羽"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你计算与其他角色的距离-1。"
+      }
+    },
+    {
+      "pageid": 10375,
+      "namespace": 0,
+      "title": "马术/SP关羽",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/SP%E5%85%B3%E7%BE%BD",
+      "revid": 62864,
+      "parentid": 58854,
+      "timestamp": "2024-04-25T12:53:07Z",
+      "sourceSha256": "28505b0122534a226180de54ce834629384275a978e627d66918cf182f33db26",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "3",
+        "技能名": "马术",
+        "所属武将": "SP关羽",
+        "是衍生技": "是",
+        "经典技能描述": "'''锁定技，'''你计算与其他角色的距离-1。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=3\n|技能名=马术\n|所属武将=SP关羽\n|是衍生技=是\n|经典技能描述='''锁定技，'''你计算与其他角色的距离-1。\n}}",
+      "name": "马术",
+      "generals": [
+        "SP关羽"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "'''锁定技，'''你计算与其他角色的距离-1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

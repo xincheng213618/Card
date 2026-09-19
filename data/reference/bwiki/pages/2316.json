@@ -1,0 +1,47 @@
+{
+  "pageid": 2316,
+  "namespace": 0,
+  "title": "寸目",
+  "url": "https://wiki.biligame.com/sgs/%E5%AF%B8%E7%9B%AE",
+  "revid": 53643,
+  "parentid": 32938,
+  "timestamp": "2023-05-26T09:50:08Z",
+  "sourceSha256": "9ccfea3adf3a6d9d79b93eb6ad0f642cd9969d6f93fc532800f1a77be809bcd0",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2316,
+      "namespace": 0,
+      "title": "寸目",
+      "url": "https://wiki.biligame.com/sgs/%E5%AF%B8%E7%9B%AE",
+      "revid": 53643,
+      "parentid": 32938,
+      "timestamp": "2023-05-26T09:50:08Z",
+      "sourceSha256": "9ccfea3adf3a6d9d79b93eb6ad0f642cd9969d6f93fc532800f1a77be809bcd0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "寸目",
+        "所属武将": "许攸",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你摸牌时，改为从牌堆底摸牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=寸目\n|所属武将=许攸\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你摸牌时，改为从牌堆底摸牌。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "寸目",
+      "generals": [
+        "许攸"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你摸牌时，改为从牌堆底摸牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

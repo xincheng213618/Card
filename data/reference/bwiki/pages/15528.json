@@ -1,0 +1,45 @@
+{
+  "pageid": 15528,
+  "namespace": 0,
+  "title": "星张松",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E6%9D%BE",
+  "revid": 79352,
+  "parentid": 77233,
+  "timestamp": "2026-08-05T05:32:15Z",
+  "sourceSha256": "605f9de8b4786982f4b60b65e9a6a7e00571c888a0f7fa4b53377ce0dd23cbf7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15528,
+      "namespace": 0,
+      "title": "星张松",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E6%9D%BE",
+      "revid": 79352,
+      "parentid": 77233,
+      "timestamp": "2026-08-05T05:32:15Z",
+      "sourceSha256": "605f9de8b4786982f4b60b65e9a6a7e00571c888a0f7fa4b53377ce0dd23cbf7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星张松",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "乌鹊折槁",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天璇",
+        "经典体力": "3",
+        "经典定位": "控制,续航"
+      },
+      "source": "{{武将\n|武将名=星张松\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=乌鹊折槁\n|别称=\n|规则集问答=\n|武将包=星河璀璨-天璇\n|经典体力=3\n|经典定位=控制,续航\n}}",
+      "name": "星张松",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

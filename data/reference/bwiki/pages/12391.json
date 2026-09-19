@@ -1,0 +1,46 @@
+{
+  "pageid": 12391,
+  "namespace": 0,
+  "title": "关樾",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%B3%E6%A8%BE",
+  "revid": 77528,
+  "parentid": 75294,
+  "timestamp": "2026-05-09T01:35:15Z",
+  "sourceSha256": "217c63a8b4bffca4cfea05e233bb7a95c052d395dbee0126b7d0c57df49e761a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12391,
+      "namespace": 0,
+      "title": "关樾",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%B3%E6%A8%BE",
+      "revid": 77528,
+      "parentid": 75294,
+      "timestamp": "2026-05-09T01:35:15Z",
+      "sourceSha256": "217c63a8b4bffca4cfea05e233bb7a95c052d395dbee0126b7d0c57df49e761a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "关樾",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "关羽孙子、元帅之子",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "4",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=关樾\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=关羽孙子、元帅之子\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=4\n|经典定位=续航,爆发\n}}",
+      "name": "关樾",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 9503,
+  "namespace": 0,
+  "title": "存畏",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%98%E7%95%8F",
+  "revid": 61669,
+  "parentid": 61017,
+  "timestamp": "2024-01-17T18:58:22Z",
+  "sourceSha256": "ed1c52230253dde71c1b8ed5902568cc44b3ee60bf207d36944487fc65dcc4f6",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9503,
+      "namespace": 0,
+      "title": "存畏",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%98%E7%95%8F",
+      "revid": 61669,
+      "parentid": 61017,
+      "timestamp": "2024-01-17T18:58:22Z",
+      "sourceSha256": "ed1c52230253dde71c1b8ed5902568cc44b3ee60bf207d36944487fc65dcc4f6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "存畏",
+        "所属武将": "黄皓",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你成为锦囊牌的目标后，若你为唯一目标，则你摸一张牌，否则你弃置一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=存畏\n|所属武将=黄皓\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你成为锦囊牌的目标后，若你为唯一目标，则你摸一张牌，否则你弃置一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "存畏",
+      "generals": [
+        "黄皓"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你成为锦囊牌的目标后，若你为唯一目标，则你摸一张牌，否则你弃置一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

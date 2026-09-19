@@ -1,0 +1,47 @@
+{
+  "pageid": 12018,
+  "namespace": 0,
+  "title": "骄妄",
+  "url": "https://wiki.biligame.com/sgs/%E9%AA%84%E5%A6%84",
+  "revid": 61863,
+  "parentid": 61784,
+  "timestamp": "2024-02-01T02:24:31Z",
+  "sourceSha256": "7ccc823928914d005726a22fb4bf30fd138b90862aab81f3dcb9f2324fd66cf9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12018,
+      "namespace": 0,
+      "title": "骄妄",
+      "url": "https://wiki.biligame.com/sgs/%E9%AA%84%E5%A6%84",
+      "revid": 61863,
+      "parentid": 61784,
+      "timestamp": "2024-02-01T02:24:31Z",
+      "sourceSha256": "7ccc823928914d005726a22fb4bf30fd138b90862aab81f3dcb9f2324fd66cf9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "骄妄",
+        "所属武将": "星袁绍",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每轮结束时，若本轮没有角色死亡，你失去1点体力，发动一次“{{技能/引用|硝焰}}”。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=骄妄\n|所属武将=星袁绍\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每轮结束时，若本轮没有角色死亡，你失去1点体力，发动一次“{{技能/引用|硝焰}}”。\n|经典技能类型=锁定技\n|经典技能定位=攻击\n}}",
+      "name": "骄妄",
+      "generals": [
+        "星袁绍"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每轮结束时，若本轮没有角色死亡，你失去1点体力，发动一次“{{技能/引用|硝焰}}”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

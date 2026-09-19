@@ -1,0 +1,45 @@
+{
+  "pageid": 12311,
+  "namespace": 0,
+  "title": "曹芳",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%8A%B3",
+  "revid": 75306,
+  "parentid": 72765,
+  "timestamp": "2026-02-10T03:49:24Z",
+  "sourceSha256": "130f9f66ecf76425319b3cb79ba27e20ecf9ab38e79936c4a9ecc181b2e07be2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12311,
+      "namespace": 0,
+      "title": "曹芳",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E8%8A%B3",
+      "revid": 75306,
+      "parentid": 72765,
+      "timestamp": "2026-02-10T03:49:24Z",
+      "sourceSha256": "130f9f66ecf76425319b3cb79ba27e20ecf9ab38e79936c4a9ecc181b2e07be2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹芳",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "矮达一号",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "4",
+        "经典定位": "续航"
+      },
+      "source": "{{武将\n|武将名=曹芳\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=矮达一号\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=4\n|经典定位=续航\n}}",
+      "name": "曹芳",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

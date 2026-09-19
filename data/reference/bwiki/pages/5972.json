@@ -1,0 +1,47 @@
+{
+  "pageid": 5972,
+  "namespace": 0,
+  "title": "马腾",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E8%85%BE",
+  "revid": 77779,
+  "parentid": 71413,
+  "timestamp": "2026-05-09T01:56:19Z",
+  "sourceSha256": "21cd0dc5385aa9af27be347a48a17c3e07e9dcac75569696e145cf3af10339fe",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5972,
+      "namespace": 0,
+      "title": "马腾",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E8%85%BE",
+      "revid": 77779,
+      "parentid": 71413,
+      "timestamp": "2026-05-09T01:56:19Z",
+      "sourceSha256": "21cd0dc5385aa9af27be347a48a17c3e07e9dcac75569696e145cf3af10339fe",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "马腾",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "马老板",
+        "规则集问答": "",
+        "武将包": "荟萃-异军突起",
+        "经典体力": "4",
+        "经典定位": "辅助,爆发\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=马腾\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=马老板\n|规则集问答=\n|武将包=荟萃-异军突起\n|经典体力=4\n|经典定位=辅助,爆发\n<!-- 国战 -->\n}}",
+      "name": "马腾",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

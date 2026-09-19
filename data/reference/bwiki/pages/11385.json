@@ -1,0 +1,45 @@
+{
+  "pageid": 11385,
+  "namespace": 0,
+  "title": "SP蔡文姬",
+  "url": "https://wiki.biligame.com/sgs/SP%E8%94%A1%E6%96%87%E5%A7%AC",
+  "revid": 77477,
+  "parentid": 58964,
+  "timestamp": "2026-05-09T01:33:00Z",
+  "sourceSha256": "603781699197fda7c7524cd5c5130c9ab142f58d56a9d98ffde973bb0c9b66c2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11385,
+      "namespace": 0,
+      "title": "SP蔡文姬",
+      "url": "https://wiki.biligame.com/sgs/SP%E8%94%A1%E6%96%87%E5%A7%AC",
+      "revid": 77477,
+      "parentid": 58964,
+      "timestamp": "2026-05-09T01:33:00Z",
+      "sourceSha256": "603781699197fda7c7524cd5c5130c9ab142f58d56a9d98ffde973bb0c9b66c2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP蔡文姬",
+        "势力": "魏",
+        "性别": "女",
+        "别称": "魏菜",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "星火燎原-天同",
+        "经典体力": "3",
+        "经典定位": "攻击,辅助"
+      },
+      "source": "{{武将\n|武将名=SP蔡文姬\n|势力=魏\n|性别=女\n|别称=魏菜\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=星火燎原-天同\n|经典体力=3\n|经典定位=攻击,辅助\n}}",
+      "name": "SP蔡文姬",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

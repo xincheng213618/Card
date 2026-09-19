@@ -1,0 +1,47 @@
+{
+  "pageid": 5984,
+  "namespace": 0,
+  "title": "纪灵",
+  "url": "https://wiki.biligame.com/sgs/%E7%BA%AA%E7%81%B5",
+  "revid": 77754,
+  "parentid": 70713,
+  "timestamp": "2026-05-09T01:54:58Z",
+  "sourceSha256": "5087ee281a0cfbfbf4e35be9b6f71dd4f6ec0b724e9fbd67a6bc310eae4d502f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5984,
+      "namespace": 0,
+      "title": "纪灵",
+      "url": "https://wiki.biligame.com/sgs/%E7%BA%AA%E7%81%B5",
+      "revid": 77754,
+      "parentid": 70713,
+      "timestamp": "2026-05-09T01:54:58Z",
+      "sourceSha256": "5087ee281a0cfbfbf4e35be9b6f71dd4f6ec0b724e9fbd67a6bc310eae4d502f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "纪灵",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-代汉涂高",
+        "经典体力": "4",
+        "经典定位": "攻击,控制\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=纪灵\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-代汉涂高\n|经典体力=4\n|经典定位=攻击,控制\n<!-- 国战 -->\n}}",
+      "name": "纪灵",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

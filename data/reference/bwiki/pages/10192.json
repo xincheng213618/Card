@@ -1,0 +1,46 @@
+{
+  "pageid": 10192,
+  "namespace": 0,
+  "title": "刘宠骆俊",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%AE%A0%E9%AA%86%E4%BF%8A",
+  "revid": 77540,
+  "parentid": 69138,
+  "timestamp": "2026-05-09T01:35:51Z",
+  "sourceSha256": "41a59842ab0da3d66bcfb8b2e35a7f9ab196335a1338e47eb1d85fa4e6e81f05",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10192,
+      "namespace": 0,
+      "title": "刘宠骆俊",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%AE%A0%E9%AA%86%E4%BF%8A",
+      "revid": 77540,
+      "parentid": 69138,
+      "timestamp": "2026-05-09T01:35:51Z",
+      "sourceSha256": "41a59842ab0da3d66bcfb8b2e35a7f9ab196335a1338e47eb1d85fa4e6e81f05",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘宠骆俊",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-悬壶济世",
+        "经典体力": "3",
+        "经典定位": "辅助,卖血,攻击"
+      },
+      "source": "{{武将\n|武将名=刘宠骆俊\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-悬壶济世\n|经典体力=3\n|经典定位=辅助,卖血,攻击\n}}",
+      "name": "刘宠骆俊",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

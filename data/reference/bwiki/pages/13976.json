@@ -1,0 +1,46 @@
+{
+  "pageid": 13976,
+  "namespace": 0,
+  "title": "谋曹洪",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9B%B9%E6%B4%AA",
+  "revid": 78313,
+  "parentid": 72745,
+  "timestamp": "2026-06-14T00:12:23Z",
+  "sourceSha256": "669c3f905801aa5af1a07b2d1ab76ae980c1e0d5176ac69c473007956de4772b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13976,
+      "namespace": 0,
+      "title": "谋曹洪",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9B%B9%E6%B4%AA",
+      "revid": 78313,
+      "parentid": 72745,
+      "timestamp": "2026-06-14T00:12:23Z",
+      "sourceSha256": "669c3f905801aa5af1a07b2d1ab76ae980c1e0d5176ac69c473007956de4772b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋曹洪",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "奉令西迎",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-王佐倡义",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=谋曹洪\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=奉令西迎\n|别称=\n|规则集问答=\n|武将包=谋定-王佐倡义\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "谋曹洪",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

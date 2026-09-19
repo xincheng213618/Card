@@ -1,0 +1,48 @@
+{
+  "pageid": 6059,
+  "namespace": 0,
+  "title": "卞夫人",
+  "url": "https://wiki.biligame.com/sgs/%E5%8D%9E%E5%A4%AB%E4%BA%BA",
+  "revid": 77564,
+  "parentid": 69180,
+  "timestamp": "2026-05-09T01:39:08Z",
+  "sourceSha256": "16be1bef324d9e5e16499974fde942e341fbca44c0310a0c4c379cd24d18a594",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6059,
+      "namespace": 0,
+      "title": "卞夫人",
+      "url": "https://wiki.biligame.com/sgs/%E5%8D%9E%E5%A4%AB%E4%BA%BA",
+      "revid": 77564,
+      "parentid": 69180,
+      "timestamp": "2026-05-09T01:39:08Z",
+      "sourceSha256": "16be1bef324d9e5e16499974fde942e341fbca44c0310a0c4c379cd24d18a594",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "卞夫人",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "续航",
+        "国战定位": "续航,辅助"
+      },
+      "source": "{{武将\n|武将名=卞夫人\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主,国战\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=续航\n|国战定位=续航,辅助\n}}",
+      "name": "卞夫人",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 7972,
+  "namespace": 0,
+  "title": "尹夫人",
+  "url": "https://wiki.biligame.com/sgs/%E5%B0%B9%E5%A4%AB%E4%BA%BA",
+  "revid": 77659,
+  "parentid": 74710,
+  "timestamp": "2026-05-09T01:45:12Z",
+  "sourceSha256": "dc8fd21a4660af7a87f06296f9e3dca6607fc0deae0b4acb85ac77a2ab8b6e81",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7972,
+      "namespace": 0,
+      "title": "尹夫人",
+      "url": "https://wiki.biligame.com/sgs/%E5%B0%B9%E5%A4%AB%E4%BA%BA",
+      "revid": 77659,
+      "parentid": 74710,
+      "timestamp": "2026-05-09T01:45:12Z",
+      "sourceSha256": "dc8fd21a4660af7a87f06296f9e3dca6607fc0deae0b4acb85ac77a2ab8b6e81",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "尹夫人",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=尹夫人\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "尹夫人",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

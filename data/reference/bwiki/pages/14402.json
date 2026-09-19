@@ -1,0 +1,45 @@
+{
+  "pageid": 14402,
+  "namespace": 0,
+  "title": "谋邓艾",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%82%93%E8%89%BE",
+  "revid": 76281,
+  "parentid": 75351,
+  "timestamp": "2026-03-14T08:23:08Z",
+  "sourceSha256": "dea8cb385d8fb92d79a43b247c7a3f87d8b10357bb43684b34413895b4c4d73e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14402,
+      "namespace": 0,
+      "title": "谋邓艾",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%82%93%E8%89%BE",
+      "revid": 76281,
+      "parentid": 75351,
+      "timestamp": "2026-03-14T08:23:08Z",
+      "sourceSha256": "dea8cb385d8fb92d79a43b247c7a3f87d8b10357bb43684b34413895b4c4d73e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋邓艾",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "奇锋厄川",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-幼麟绝战",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=谋邓艾\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=奇锋厄川\n|别称=\n|规则集问答=\n|武将包=谋定-幼麟绝战\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "谋邓艾",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

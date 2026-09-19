@@ -1,0 +1,47 @@
+{
+  "pageid": 4306,
+  "namespace": 0,
+  "title": "解围",
+  "url": "https://wiki.biligame.com/sgs/%E8%A7%A3%E5%9B%B4",
+  "revid": 40051,
+  "parentid": 36570,
+  "timestamp": "2022-09-19T14:50:51Z",
+  "sourceSha256": "0e9fcc3e8fe8d4686a702bd0e7e43746dbba3fa6fd87c88c54bf7febe99a41c7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4306,
+      "namespace": 0,
+      "title": "解围",
+      "url": "https://wiki.biligame.com/sgs/%E8%A7%A3%E5%9B%B4",
+      "revid": 40051,
+      "parentid": 36570,
+      "timestamp": "2022-09-19T14:50:51Z",
+      "sourceSha256": "0e9fcc3e8fe8d4686a702bd0e7e43746dbba3fa6fd87c88c54bf7febe99a41c7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "解围",
+        "所属武将": "曹仁",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①你可以将装备区里的一张牌当【无懈可击】使用；<br>\n②当你的武将牌从背面翻至正面时，你可以弃置一张牌，然后移动场上的一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "防御,辅助,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=解围\n|所属武将=曹仁\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①你可以将装备区里的一张牌当【无懈可击】使用；<br>\n②当你的武将牌从背面翻至正面时，你可以弃置一张牌，然后移动场上的一张牌。\n|经典技能类型=一般技\n|经典技能定位=防御,辅助,控制\n}}",
+      "name": "解围",
+      "generals": [
+        "曹仁"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①你可以将装备区里的一张牌当【无懈可击】使用；<br>\n②当你的武将牌从背面翻至正面时，你可以弃置一张牌，然后移动场上的一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

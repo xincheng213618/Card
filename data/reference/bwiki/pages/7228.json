@@ -1,0 +1,46 @@
+{
+  "pageid": 7228,
+  "namespace": 0,
+  "title": "吉平",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%89%E5%B9%B3",
+  "revid": 77573,
+  "parentid": 74669,
+  "timestamp": "2026-05-09T01:40:28Z",
+  "sourceSha256": "6c9e6e01b1ac32552e0cada592730ae319f5c7530a15605869b49cb5ae0bdbc5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7228,
+      "namespace": 0,
+      "title": "吉平",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%89%E5%B9%B3",
+      "revid": 77573,
+      "parentid": 74669,
+      "timestamp": "2026-05-09T01:40:28Z",
+      "sourceSha256": "6c9e6e01b1ac32552e0cada592730ae319f5c7530a15605869b49cb5ae0bdbc5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吉平",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "极品、黑心医生",
+        "规则集问答": "",
+        "武将包": "荟萃-悬壶济世",
+        "经典体力": "3",
+        "经典定位": "发育,辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=吉平\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=极品、黑心医生\n|规则集问答=\n|武将包=荟萃-悬壶济世\n|经典体力=3\n|经典定位=发育,辅助,爆发\n}}",
+      "name": "吉平",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

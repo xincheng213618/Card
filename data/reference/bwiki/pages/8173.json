@@ -1,0 +1,45 @@
+{
+  "pageid": 8173,
+  "namespace": 0,
+  "title": "胡班",
+  "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E7%8F%AD",
+  "revid": 74671,
+  "parentid": 70741,
+  "timestamp": "2026-01-22T16:34:40Z",
+  "sourceSha256": "483424cf87b001c40565e2cda356a94493b15c15551e4993fd9b52ef10a8500d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8173,
+      "namespace": 0,
+      "title": "胡班",
+      "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E7%8F%AD",
+      "revid": 74671,
+      "parentid": 70741,
+      "timestamp": "2026-01-22T16:34:40Z",
+      "sourceSha256": "483424cf87b001c40565e2cda356a94493b15c15551e4993fd9b52ef10a8500d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "胡班",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-千里单骑",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=胡班\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-千里单骑\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "胡班",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

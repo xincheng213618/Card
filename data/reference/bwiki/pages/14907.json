@@ -1,0 +1,46 @@
+{
+  "pageid": 14907,
+  "namespace": 0,
+  "title": "侯昭宁",
+  "url": "https://wiki.biligame.com/sgs/%E4%BE%AF%E6%98%AD%E5%AE%81",
+  "revid": 77516,
+  "parentid": 76647,
+  "timestamp": "2026-05-09T01:34:54Z",
+  "sourceSha256": "486c11aa93da42ef2c75b318d803f6c15e23ff3f825fe0fae669735ed92f7b08",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14907,
+      "namespace": 0,
+      "title": "侯昭宁",
+      "url": "https://wiki.biligame.com/sgs/%E4%BE%AF%E6%98%AD%E5%AE%81",
+      "revid": 77516,
+      "parentid": 76647,
+      "timestamp": "2026-05-09T01:34:54Z",
+      "sourceSha256": "486c11aa93da42ef2c75b318d803f6c15e23ff3f825fe0fae669735ed92f7b08",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "侯昭宁",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "贤助抚外",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=侯昭宁\n|势力=群\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=贤助抚外\n|别称=\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "侯昭宁",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

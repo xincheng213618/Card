@@ -1,0 +1,46 @@
+{
+  "pageid": 15666,
+  "namespace": 0,
+  "title": "武张飞",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E5%BC%A0%E9%A3%9E",
+  "revid": 78413,
+  "parentid": 78410,
+  "timestamp": "2026-06-18T14:30:00Z",
+  "sourceSha256": "bbb2410d92bd2f0be49038416a4c6ef21538db725552bdc61f74cc5a77b84171",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15666,
+      "namespace": 0,
+      "title": "武张飞",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E5%BC%A0%E9%A3%9E",
+      "revid": 78413,
+      "parentid": 78410,
+      "timestamp": "2026-06-18T14:30:00Z",
+      "sourceSha256": "bbb2410d92bd2f0be49038416a4c6ef21538db725552bdc61f74cc5a77b84171",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "武张飞",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限定-武庙",
+        "经典体力": "4",
+        "经典定位": "爆发,攻击"
+      },
+      "source": "{{武将\n|武将名=武张飞\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限定-武庙\n|经典体力=4\n|经典定位=爆发,攻击\n}}",
+      "name": "武张飞",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

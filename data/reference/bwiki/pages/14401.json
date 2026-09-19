@@ -1,0 +1,45 @@
+{
+  "pageid": 14401,
+  "namespace": 0,
+  "title": "谋姜维",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%A7%9C%E7%BB%B4",
+  "revid": 78622,
+  "parentid": 75289,
+  "timestamp": "2026-07-01T06:55:53Z",
+  "sourceSha256": "996f5f7dab1fd27af29f5ed1b27eba9c563a311e4c69a0a9c135d4fe7c8f0927",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14401,
+      "namespace": 0,
+      "title": "谋姜维",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%A7%9C%E7%BB%B4",
+      "revid": 78622,
+      "parentid": 75289,
+      "timestamp": "2026-07-01T06:55:53Z",
+      "sourceSha256": "996f5f7dab1fd27af29f5ed1b27eba9c563a311e4c69a0a9c135d4fe7c8f0927",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋姜维",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "锲谋昭汉",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3/4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=谋姜维\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=锲谋昭汉\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3/4\n|经典定位=控制,爆发\n}}",
+      "name": "谋姜维",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

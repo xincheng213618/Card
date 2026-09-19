@@ -1,0 +1,45 @@
+{
+  "pageid": 8835,
+  "namespace": 0,
+  "title": "袁谭袁尚袁熙",
+  "url": "https://wiki.biligame.com/sgs/%E8%A2%81%E8%B0%AD%E8%A2%81%E5%B0%9A%E8%A2%81%E7%86%99",
+  "revid": 71083,
+  "parentid": 70833,
+  "timestamp": "2025-05-20T07:38:28Z",
+  "sourceSha256": "206845a5cc4cb1d5431bf6f57abf19347cdb076b273e4d4fa5fb3c20a86fe71f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8835,
+      "namespace": 0,
+      "title": "袁谭袁尚袁熙",
+      "url": "https://wiki.biligame.com/sgs/%E8%A2%81%E8%B0%AD%E8%A2%81%E5%B0%9A%E8%A2%81%E7%86%99",
+      "revid": 71083,
+      "parentid": 70833,
+      "timestamp": "2025-05-20T07:38:28Z",
+      "sourceSha256": "206845a5cc4cb1d5431bf6f57abf19347cdb076b273e4d4fa5fb3c20a86fe71f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "袁谭袁尚袁熙",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "三次袁、三袁、三次元",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=袁谭袁尚袁熙\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=三次袁、三袁、三次元\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=4\n|经典定位=攻击,爆发\n}}",
+      "name": "袁谭袁尚袁熙",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

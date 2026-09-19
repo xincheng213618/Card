@@ -1,0 +1,47 @@
+{
+  "pageid": 7832,
+  "namespace": 0,
+  "title": "途绝",
+  "url": "https://wiki.biligame.com/sgs/%E9%80%94%E7%BB%9D",
+  "revid": 41280,
+  "parentid": 41265,
+  "timestamp": "2022-10-29T05:46:18Z",
+  "sourceSha256": "ffd111ae8b1e878d15de366bfa76d7f625f0da9a067aee1a66a8cfdd73be55cd",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7832,
+      "namespace": 0,
+      "title": "途绝",
+      "url": "https://wiki.biligame.com/sgs/%E9%80%94%E7%BB%9D",
+      "revid": 41280,
+      "parentid": 41265,
+      "timestamp": "2022-10-29T05:46:18Z",
+      "sourceSha256": "ffd111ae8b1e878d15de366bfa76d7f625f0da9a067aee1a66a8cfdd73be55cd",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "途绝",
+        "所属武将": "黄权",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你处于濒死状态时，你可以交给一名其他角色所有牌，然后你回复等量的体力并摸等量的牌。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "辅助,回血,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=途绝\n|所属武将=黄权\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你处于濒死状态时，你可以交给一名其他角色所有牌，然后你回复等量的体力并摸等量的牌。\n|经典技能类型=限定技\n|经典技能定位=辅助,回血,过牌\n}}",
+      "name": "途绝",
+      "generals": [
+        "黄权"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你处于濒死状态时，你可以交给一名其他角色所有牌，然后你回复等量的体力并摸等量的牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

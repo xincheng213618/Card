@@ -1,0 +1,46 @@
+{
+  "pageid": 11404,
+  "namespace": 0,
+  "title": "SP姜维",
+  "url": "https://wiki.biligame.com/sgs/SP%E5%A7%9C%E7%BB%B4",
+  "revid": 77467,
+  "parentid": 60262,
+  "timestamp": "2026-05-09T01:32:19Z",
+  "sourceSha256": "9dd101730d98b9a285b4dd9b7351d4f272012c3f6e9f561e4369655811efa6f5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11404,
+      "namespace": 0,
+      "title": "SP姜维",
+      "url": "https://wiki.biligame.com/sgs/SP%E5%A7%9C%E7%BB%B4",
+      "revid": 77467,
+      "parentid": 60262,
+      "timestamp": "2026-05-09T01:32:19Z",
+      "sourceSha256": "9dd101730d98b9a285b4dd9b7351d4f272012c3f6e9f561e4369655811efa6f5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP姜维",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "幼麒",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星火燎原-天同",
+        "经典体力": "4",
+        "经典定位": "生存,控制"
+      },
+      "source": "{{武将\n|武将名=SP姜维\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=幼麒\n|别称=\n|规则集问答=\n|武将包=星火燎原-天同\n|经典体力=4\n|经典定位=生存,控制\n}}",
+      "name": "SP姜维",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

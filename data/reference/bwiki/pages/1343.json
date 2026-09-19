@@ -1,0 +1,44 @@
+{
+  "pageid": 1343,
+  "namespace": 0,
+  "title": "曹安民",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%AE%89%E6%B0%91",
+  "revid": 74704,
+  "parentid": 70133,
+  "timestamp": "2026-01-22T16:32:20Z",
+  "sourceSha256": "9dd1c9ba4795106c723a2984bd14c665e44af3102bd851fccdce63054ec892ac",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1343,
+      "namespace": 0,
+      "title": "曹安民",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%AE%89%E6%B0%91",
+      "revid": 74704,
+      "parentid": 70133,
+      "timestamp": "2026-01-22T16:32:20Z",
+      "sourceSha256": "9dd1c9ba4795106c723a2984bd14c665e44af3102bd851fccdce63054ec892ac",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹安民",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-中原狼烟",
+        "经典体力": "4",
+        "经典定位": "辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=曹安民\n|势力=魏\n|性别=男\n|别称=\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-中原狼烟\n|经典体力=4\n|经典定位=辅助,爆发\n}}",
+      "name": "曹安民",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

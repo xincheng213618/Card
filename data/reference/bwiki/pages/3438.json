@@ -1,0 +1,47 @@
+{
+  "pageid": 3438,
+  "namespace": 0,
+  "title": "天辩",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E8%BE%A9",
+  "revid": 67834,
+  "parentid": 60601,
+  "timestamp": "2025-01-14T01:33:58Z",
+  "sourceSha256": "b9b7385238bca967f6ec90116294160259d15ecb5863ea3700883e83f8adc73f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3438,
+      "namespace": 0,
+      "title": "天辩",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%A9%E8%BE%A9",
+      "revid": 67834,
+      "parentid": 60601,
+      "timestamp": "2025-01-14T01:33:58Z",
+      "sourceSha256": "b9b7385238bca967f6ec90116294160259d15ecb5863ea3700883e83f8adc73f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "天辩",
+        "所属武将": "秦宓",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①当你拼点时，你可以改为用牌堆顶的一张牌拼点；<br>\n②当你的拼点牌亮出后，若花色为♥️，则点数视为K。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "加点"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=天辩\n|所属武将=秦宓\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①当你拼点时，你可以改为用牌堆顶的一张牌拼点；<br>\n②当你的拼点牌亮出后，若花色为♥️，则点数视为K。\n|经典技能类型=一般技\n|经典技能定位=加点\n}}",
+      "name": "天辩",
+      "generals": [
+        "秦宓"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①当你拼点时，你可以改为用牌堆顶的一张牌拼点；<br>\n②当你的拼点牌亮出后，若花色为♥️，则点数视为K。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

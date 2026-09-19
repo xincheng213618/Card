@@ -1,0 +1,46 @@
+{
+  "pageid": 13659,
+  "namespace": 0,
+  "title": "司马孚",
+  "url": "https://wiki.biligame.com/sgs/%E5%8F%B8%E9%A9%AC%E5%AD%9A",
+  "revid": 77570,
+  "parentid": 67795,
+  "timestamp": "2026-05-09T01:40:13Z",
+  "sourceSha256": "68355fac84c4951162c1ca0f420093b3cd98c2f36c95a0021a28b8e39f0a719a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13659,
+      "namespace": 0,
+      "title": "司马孚",
+      "url": "https://wiki.biligame.com/sgs/%E5%8F%B8%E9%A9%AC%E5%AD%9A",
+      "revid": 77570,
+      "parentid": 67795,
+      "timestamp": "2026-05-09T01:40:13Z",
+      "sourceSha256": "68355fac84c4951162c1ca0f420093b3cd98c2f36c95a0021a28b8e39f0a719a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "司马孚",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "3",
+        "经典定位": "续航,防御"
+      },
+      "source": "{{武将\n|武将名=司马孚\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=3\n|经典定位=续航,防御\n}}",
+      "name": "司马孚",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

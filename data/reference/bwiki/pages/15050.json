@@ -1,0 +1,45 @@
+{
+  "pageid": 15050,
+  "namespace": 0,
+  "title": "谋庞统",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%BA%9E%E7%BB%9F",
+  "revid": 78182,
+  "parentid": 76317,
+  "timestamp": "2026-06-05T09:21:22Z",
+  "sourceSha256": "b326891c88d69387613bb92b3e3bba124a80f89960a9f206f298fadd743120bb",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15050,
+      "namespace": 0,
+      "title": "谋庞统",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%BA%9E%E7%BB%9F",
+      "revid": 78182,
+      "parentid": 76317,
+      "timestamp": "2026-06-05T09:21:22Z",
+      "sourceSha256": "b326891c88d69387613bb92b3e3bba124a80f89960a9f206f298fadd743120bb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋庞统",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "机谋辟业",
+        "别称": "拿破仑",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3",
+        "经典定位": "辅助,控制,爆发"
+      },
+      "source": "{{武将\n|武将名=谋庞统\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=机谋辟业\n|别称=拿破仑\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3\n|经典定位=辅助,控制,爆发\n}}",
+      "name": "谋庞统",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 6063,
+  "namespace": 0,
+  "title": "李傕郭汜",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%82%95%E9%83%AD%E6%B1%9C",
+  "revid": 77744,
+  "parentid": 70170,
+  "timestamp": "2026-05-09T01:53:52Z",
+  "sourceSha256": "c3ebc424b47a3a3f4b98787970166c0d3f5b54df937f6c26a8e4ac51ec705c85",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6063,
+      "namespace": 0,
+      "title": "李傕郭汜",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%82%95%E9%83%AD%E6%B1%9C",
+      "revid": 77744,
+      "parentid": 70170,
+      "timestamp": "2026-05-09T01:53:52Z",
+      "sourceSha256": "c3ebc424b47a3a3f4b98787970166c0d3f5b54df937f6c26a8e4ac51ec705c85",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李傕郭汜",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=李傕郭汜\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4\n|经典定位=攻击,爆发\n<!-- 国战 -->\n}}",
+      "name": "李傕郭汜",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 12494,
+  "namespace": 0,
+  "title": "谋诸葛瑾",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%AF%B8%E8%91%9B%E7%91%BE",
+  "revid": 71119,
+  "parentid": 70870,
+  "timestamp": "2025-05-20T07:43:10Z",
+  "sourceSha256": "e1837d994244204a5ccace3041c64751a0fc78fb1c17bba5a53ea17b14d29dd8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12494,
+      "namespace": 0,
+      "title": "谋诸葛瑾",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%AF%B8%E8%91%9B%E7%91%BE",
+      "revid": 71119,
+      "parentid": 70870,
+      "timestamp": "2025-05-20T07:43:10Z",
+      "sourceSha256": "e1837d994244204a5ccace3041c64751a0fc78fb1c17bba5a53ea17b14d29dd8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋诸葛瑾",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-子敬邀刀",
+        "经典体力": "3",
+        "经典定位": "控制,防御"
+      },
+      "source": "{{武将\n|武将名=谋诸葛瑾\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-子敬邀刀\n|经典体力=3\n|经典定位=控制,防御\n}}",
+      "name": "谋诸葛瑾",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

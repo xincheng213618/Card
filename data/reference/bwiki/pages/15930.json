@@ -1,0 +1,46 @@
+{
+  "pageid": 15930,
+  "namespace": 0,
+  "title": "威关银屏",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%85%B3%E9%93%B6%E5%B1%8F",
+  "revid": 78196,
+  "parentid": 78192,
+  "timestamp": "2026-06-05T11:16:43Z",
+  "sourceSha256": "fe10059e82424a5e57bd73e32617deacc5526dbe2078ff9e93dcf6598c080e40",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15930,
+      "namespace": 0,
+      "title": "威关银屏",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%85%B3%E9%93%B6%E5%B1%8F",
+      "revid": 78196,
+      "parentid": 78192,
+      "timestamp": "2026-06-05T11:16:43Z",
+      "sourceSha256": "fe10059e82424a5e57bd73e32617deacc5526dbe2078ff9e93dcf6598c080e40",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威关银屏",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-片羽威凤",
+        "经典体力": "4",
+        "经典定位": "续航,生存,爆发"
+      },
+      "source": "{{武将\n|武将名=威关银屏\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=威震-片羽威凤\n|经典体力=4\n|经典定位=续航,生存,爆发\n}}",
+      "name": "威关银屏",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

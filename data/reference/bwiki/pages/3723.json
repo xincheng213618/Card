@@ -1,0 +1,47 @@
+{
+  "pageid": 3723,
+  "namespace": 0,
+  "title": "八阵",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%AB%E9%98%B5",
+  "revid": 66009,
+  "parentid": 66008,
+  "timestamp": "2024-11-21T14:03:25Z",
+  "sourceSha256": "0bcb67fd8244ce217ea2a3115d091e1e9fadacd9bf28a7ad102d4871c994860f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3723,
+      "namespace": 0,
+      "title": "八阵",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%AB%E9%98%B5",
+      "revid": 66009,
+      "parentid": 66008,
+      "timestamp": "2024-11-21T14:03:25Z",
+      "sourceSha256": "0bcb67fd8244ce217ea2a3115d091e1e9fadacd9bf28a7ad102d4871c994860f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "八阵",
+        "所属武将": "卧龙诸葛",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "若你的装备区里没有防具牌，视为你装备着【[[八卦阵|{{颜色字|八卦阵|black}}]]】。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=八阵\n|所属武将=卧龙诸葛\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=若你的装备区里没有防具牌，视为你装备着【[[八卦阵|{{颜色字|八卦阵|black}}]]】。\n|经典技能类型=锁定技\n|经典技能定位=防御\n}}",
+      "name": "八阵",
+      "generals": [
+        "卧龙诸葛"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "若你的装备区里没有防具牌，视为你装备着【[[八卦阵|{{颜色字|八卦阵|black}}]]】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

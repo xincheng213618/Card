@@ -1,0 +1,45 @@
+{
+  "pageid": 12630,
+  "namespace": 0,
+  "title": "费曜",
+  "url": "https://wiki.biligame.com/sgs/%E8%B4%B9%E6%9B%9C",
+  "revid": 71133,
+  "parentid": 70883,
+  "timestamp": "2025-05-20T07:45:23Z",
+  "sourceSha256": "20d3f2587572ae122a62b638f939c8cb54cd9e8b437717987f8db533f59fb8e1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12630,
+      "namespace": 0,
+      "title": "费曜",
+      "url": "https://wiki.biligame.com/sgs/%E8%B4%B9%E6%9B%9C",
+      "revid": 71133,
+      "parentid": 70883,
+      "timestamp": "2025-05-20T07:45:23Z",
+      "sourceSha256": "20d3f2587572ae122a62b638f939c8cb54cd9e8b437717987f8db533f59fb8e1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "费曜",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "4",
+        "经典定位": "续航,攻击"
+      },
+      "source": "{{武将\n|武将名=费曜\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=4\n|经典定位=续航,攻击\n}}",
+      "name": "费曜",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

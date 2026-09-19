@@ -1,0 +1,47 @@
+{
+  "pageid": 14027,
+  "namespace": 0,
+  "title": "济困",
+  "url": "https://wiki.biligame.com/sgs/%E6%B5%8E%E5%9B%B0",
+  "revid": 73426,
+  "parentid": 71618,
+  "timestamp": "2025-11-08T15:34:25Z",
+  "sourceSha256": "d6f9a44a557fbefa27616e5abbb47fb153ffd0dd26fae1c3a36a00f19669ac3c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14027,
+      "namespace": 0,
+      "title": "济困",
+      "url": "https://wiki.biligame.com/sgs/%E6%B5%8E%E5%9B%B0",
+      "revid": 73426,
+      "parentid": 71618,
+      "timestamp": "2025-11-08T15:34:25Z",
+      "sourceSha256": "d6f9a44a557fbefa27616e5abbb47fb153ffd0dd26fae1c3a36a00f19669ac3c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "济困",
+        "所属武将": "夏侯徽",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每当你累计失去5张牌后，你可令一名其他角色随机获得手牌数最多的角色的1张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=济困\n|所属武将=夏侯徽\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每当你累计失去5张牌后，你可令一名其他角色随机获得手牌数最多的角色的1张牌。\n|经典技能类型=一般技\n|经典技能定位=控制,辅助\n}}",
+      "name": "济困",
+      "generals": [
+        "夏侯徽"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每当你累计失去5张牌后，你可令一名其他角色随机获得手牌数最多的角色的1张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

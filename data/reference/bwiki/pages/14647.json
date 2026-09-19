@@ -1,0 +1,44 @@
+{
+  "pageid": 14647,
+  "namespace": 0,
+  "title": "小约翰可汗",
+  "url": "https://wiki.biligame.com/sgs/%E5%B0%8F%E7%BA%A6%E7%BF%B0%E5%8F%AF%E6%B1%97",
+  "revid": 75428,
+  "parentid": 74991,
+  "timestamp": "2026-02-12T02:10:41Z",
+  "sourceSha256": "ab0fe4f05cb261adfe84ea543b7d5334d4138a0d53145045bfec4259c20914cf",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14647,
+      "namespace": 0,
+      "title": "小约翰可汗",
+      "url": "https://wiki.biligame.com/sgs/%E5%B0%8F%E7%BA%A6%E7%BF%B0%E5%8F%AF%E6%B1%97",
+      "revid": 75428,
+      "parentid": 74991,
+      "timestamp": "2026-02-12T02:10:41Z",
+      "sourceSha256": "ab0fe4f05cb261adfe84ea543b7d5334d4138a0d53145045bfec4259c20914cf",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "小约翰可汗",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "过牌,攻击"
+      },
+      "source": "{{武将\n|武将名=小约翰可汗\n|势力=群\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=过牌,攻击\n}}",
+      "name": "小约翰可汗",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

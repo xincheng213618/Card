@@ -1,0 +1,46 @@
+{
+  "pageid": 15768,
+  "namespace": 0,
+  "title": "李昭仪",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E6%98%AD%E4%BB%AA",
+  "revid": 79152,
+  "parentid": 79151,
+  "timestamp": "2026-07-29T10:35:44Z",
+  "sourceSha256": "46969aa02338907f7812ea8f73d9e134956ef5d6e1e10967a62f630d1a5a5413",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15768,
+      "namespace": 0,
+      "title": "李昭仪",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E6%98%AD%E4%BB%AA",
+      "revid": 79152,
+      "parentid": 79151,
+      "timestamp": "2026-07-29T10:35:44Z",
+      "sourceSha256": "46969aa02338907f7812ea8f73d9e134956ef5d6e1e10967a62f630d1a5a5413",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李昭仪",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "贞骨陨玉",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "辅助,防御"
+      },
+      "source": "{{武将\n|武将名=李昭仪\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=贞骨陨玉\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=辅助,防御\n}}",
+      "name": "李昭仪",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

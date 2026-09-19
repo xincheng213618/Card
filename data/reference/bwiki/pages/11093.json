@@ -1,0 +1,45 @@
+{
+  "pageid": 11093,
+  "namespace": 0,
+  "title": "武陆逊",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E9%99%86%E9%80%8A",
+  "revid": 77411,
+  "parentid": 77410,
+  "timestamp": "2026-05-04T12:07:58Z",
+  "sourceSha256": "09b7dc13d30590fc83977207c91658619c5d23f86d6b5ddede0aabf014a32e43",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11093,
+      "namespace": 0,
+      "title": "武陆逊",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E9%99%86%E9%80%8A",
+      "revid": 77411,
+      "parentid": 77410,
+      "timestamp": "2026-05-04T12:07:58Z",
+      "sourceSha256": "09b7dc13d30590fc83977207c91658619c5d23f86d6b5ddede0aabf014a32e43",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "武陆逊",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "武沙摩柯",
+        "规则集问答": "",
+        "武将包": "限定-武庙",
+        "经典体力": "3",
+        "经典定位": "过牌,爆发"
+      },
+      "source": "{{武将\n|武将名=武陆逊\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=武沙摩柯\n|规则集问答=\n|武将包=限定-武庙\n|经典体力=3\n|经典定位=过牌,爆发\n}}",
+      "name": "武陆逊",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

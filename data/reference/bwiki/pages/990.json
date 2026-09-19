@@ -1,0 +1,44 @@
+{
+  "pageid": 990,
+  "namespace": 0,
+  "title": "陆绩",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%86%E7%BB%A9",
+  "revid": 59941,
+  "parentid": 33468,
+  "timestamp": "2023-12-14T10:50:00Z",
+  "sourceSha256": "8e2d44b2592874857e5f0b4e7bb5274d408ec8e57222619ced2603a66ffc6568",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 990,
+      "namespace": 0,
+      "title": "陆绩",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%86%E7%BB%A9",
+      "revid": 59941,
+      "parentid": 33468,
+      "timestamp": "2023-12-14T10:50:00Z",
+      "sourceSha256": "8e2d44b2592874857e5f0b4e7bb5274d408ec8e57222619ced2603a66ffc6568",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陆绩",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "橘子哥",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "神话再临-阴包",
+        "经典体力": "3",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=陆绩\n|势力=吴\n|性别=男\n|别称=橘子哥\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=神话再临-阴包\n|经典体力=3\n|经典定位=辅助\n}}",
+      "name": "陆绩",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 1043,
+  "namespace": 0,
+  "title": "曹叡",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%8F%A1",
+  "revid": 70131,
+  "parentid": 69880,
+  "timestamp": "2025-05-20T03:37:14Z",
+  "sourceSha256": "81c316a129161307dcc7a454bb8e3d498499c45d9bcde6276e2aa21c952a19ed",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1043,
+      "namespace": 0,
+      "title": "曹叡",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%8F%A1",
+      "revid": 70131,
+      "parentid": 69880,
+      "timestamp": "2025-05-20T03:37:14Z",
+      "sourceSha256": "81c316a129161307dcc7a454bb8e3d498499c45d9bcde6276e2aa21c952a19ed",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹叡",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "",
+        "出现模式": "身份,欢乐",
+        "称号": "天资的明君",
+        "规则集问答": "",
+        "武将包": "一将成名-2015",
+        "经典体力": "3",
+        "经典定位": "卖血,生存,辅助"
+      },
+      "source": "{{武将\n|武将名=曹叡\n|势力=魏\n|性别=男\n|别称=\n|出现模式=身份,欢乐\n|称号=天资的明君\n|规则集问答=\n|武将包=一将成名-2015\n|经典体力=3\n|经典定位=卖血,生存,辅助\n}}",
+      "name": "曹叡",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

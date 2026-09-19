@@ -1,0 +1,45 @@
+{
+  "pageid": 11319,
+  "namespace": 0,
+  "title": "星袁术",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%A2%81%E6%9C%AF",
+  "revid": 79360,
+  "parentid": 70102,
+  "timestamp": "2026-08-05T05:32:42Z",
+  "sourceSha256": "05bfb76b9724978ef046434d403017b0db72a76c56fe77a63525cfdb19774acf",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11319,
+      "namespace": 0,
+      "title": "星袁术",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%A2%81%E6%9C%AF",
+      "revid": 79360,
+      "parentid": 70102,
+      "timestamp": "2026-08-05T05:32:42Z",
+      "sourceSha256": "05bfb76b9724978ef046434d403017b0db72a76c56fe77a63525cfdb19774acf",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星袁术",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天枢",
+        "经典体力": "4",
+        "经典定位": "生存,续航"
+      },
+      "source": "{{武将\n|武将名=星袁术\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-天枢\n|经典体力=4\n|经典定位=生存,续航\n}}",
+      "name": "星袁术",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

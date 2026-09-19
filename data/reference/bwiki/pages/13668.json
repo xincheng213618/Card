@@ -1,0 +1,45 @@
+{
+  "pageid": 13668,
+  "namespace": 0,
+  "title": "神庞统",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%BA%9E%E7%BB%9F",
+  "revid": 76549,
+  "parentid": 73207,
+  "timestamp": "2026-03-29T07:58:11Z",
+  "sourceSha256": "cc408eb95e29902fc88acb725c8a3ace18818d2769408cdbdb9026b7a15c8280",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13668,
+      "namespace": 0,
+      "title": "神庞统",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%BA%9E%E7%BB%9F",
+      "revid": 76549,
+      "parentid": 73207,
+      "timestamp": "2026-03-29T07:58:11Z",
+      "sourceSha256": "cc408eb95e29902fc88acb725c8a3ace18818d2769408cdbdb9026b7a15c8280",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神庞统",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "1",
+        "经典定位": "攻击,控制,生存"
+      },
+      "source": "{{武将\n|武将名=神庞统\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=1\n|经典定位=攻击,控制,生存\n}}",
+      "name": "神庞统",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

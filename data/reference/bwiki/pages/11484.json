@@ -1,0 +1,45 @@
+{
+  "pageid": 11484,
+  "namespace": 0,
+  "title": "马伶俐",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E4%BC%B6%E4%BF%90",
+  "revid": 71408,
+  "parentid": 71307,
+  "timestamp": "2025-05-21T01:16:49Z",
+  "sourceSha256": "af682c9c6812fe4736b0aed4749bcef50052d3028e4f1ed55b34e8c02e8f8fec",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11484,
+      "namespace": 0,
+      "title": "马伶俐",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E4%BC%B6%E4%BF%90",
+      "revid": 71408,
+      "parentid": 71307,
+      "timestamp": "2025-05-21T01:16:49Z",
+      "sourceSha256": "af682c9c6812fe4736b0aed4749bcef50052d3028e4f1ed55b34e8c02e8f8fec",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "马伶俐",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "马女、小马、阳光彩虹小白马",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=马伶俐\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=马女、小马、阳光彩虹小白马\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=攻击\n}}",
+      "name": "马伶俐",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

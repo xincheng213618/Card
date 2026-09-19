@@ -1,0 +1,44 @@
+{
+  "pageid": 818,
+  "namespace": 0,
+  "title": "阮瑀",
+  "url": "https://wiki.biligame.com/sgs/%E9%98%AE%E7%91%80",
+  "revid": 75318,
+  "parentid": 74733,
+  "timestamp": "2026-02-10T03:49:51Z",
+  "sourceSha256": "e83e951e60add2cf6156b250e7e533ce3b51b0e33a5d874f8cc0a0685f47f46a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 818,
+      "namespace": 0,
+      "title": "阮瑀",
+      "url": "https://wiki.biligame.com/sgs/%E9%98%AE%E7%91%80",
+      "revid": 75318,
+      "parentid": 74733,
+      "timestamp": "2026-02-10T03:49:51Z",
+      "sourceSha256": "e83e951e60add2cf6156b250e7e533ce3b51b0e33a5d874f8cc0a0685f47f46a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "阮瑀",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "软鱼、玩偶",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-章台春望",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=阮瑀\n|势力=魏\n|性别=男\n|别称=软鱼、玩偶\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-章台春望\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "阮瑀",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

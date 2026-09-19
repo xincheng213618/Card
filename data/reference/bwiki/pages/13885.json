@@ -1,0 +1,46 @@
+{
+  "pageid": 13885,
+  "namespace": 0,
+  "title": "刘衿刘佩",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E8%A1%BF%E5%88%98%E4%BD%A9",
+  "revid": 77554,
+  "parentid": 75293,
+  "timestamp": "2026-05-09T01:38:17Z",
+  "sourceSha256": "25e9916e70985da0a7403c7b3b8e617e44a4da1fdbc389491cada19a7cd81b11",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13885,
+      "namespace": 0,
+      "title": "刘衿刘佩",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E8%A1%BF%E5%88%98%E4%BD%A9",
+      "revid": 77554,
+      "parentid": 75293,
+      "timestamp": "2026-05-09T01:38:17Z",
+      "sourceSha256": "25e9916e70985da0a7403c7b3b8e617e44a4da1fdbc389491cada19a7cd81b11",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘衿刘佩",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "并蒂连枝",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=刘衿刘佩\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=并蒂连枝\n|别称=\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "刘衿刘佩",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 7439,
+  "namespace": 0,
+  "title": "羊祜",
+  "url": "https://wiki.biligame.com/sgs/%E7%BE%8A%E7%A5%9C",
+  "revid": 78728,
+  "parentid": 78715,
+  "timestamp": "2026-07-02T01:44:29Z",
+  "sourceSha256": "75defc6d254f41f1339acfa2b019954c9e3735b2433025b424b547f87f5f1669",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7439,
+      "namespace": 0,
+      "title": "羊祜",
+      "url": "https://wiki.biligame.com/sgs/%E7%BE%8A%E7%A5%9C",
+      "revid": 78728,
+      "parentid": 78715,
+      "timestamp": "2026-07-02T01:44:29Z",
+      "sourceSha256": "75defc6d254f41f1339acfa2b019954c9e3735b2433025b424b547f87f5f1669",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "羊祜",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-纵横捭阖",
+        "经典体力": "3",
+        "经典定位": "控制,攻击\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=羊祜\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-纵横捭阖\n|经典体力=3\n|经典定位=控制,攻击\n<!-- 国战 -->\n}}",
+      "name": "羊祜",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

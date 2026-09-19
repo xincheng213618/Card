@@ -1,0 +1,45 @@
+{
+  "pageid": 13832,
+  "namespace": 0,
+  "title": "星丁奉",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E4%B8%81%E5%A5%89",
+  "revid": 68419,
+  "parentid": 68418,
+  "timestamp": "2025-03-08T11:29:19Z",
+  "sourceSha256": "e7c1d72f6e9b75ac2ee49f2f17e83c445502b2bb9a57d5943c66be5084a8e03a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13832,
+      "namespace": 0,
+      "title": "星丁奉",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E4%B8%81%E5%A5%89",
+      "revid": 68419,
+      "parentid": 68418,
+      "timestamp": "2025-03-08T11:29:19Z",
+      "sourceSha256": "e7c1d72f6e9b75ac2ee49f2f17e83c445502b2bb9a57d5943c66be5084a8e03a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星丁奉",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-瑶光",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=星丁奉\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-瑶光\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "星丁奉",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 10289,
+  "namespace": 0,
+  "title": "段巧笑",
+  "url": "https://wiki.biligame.com/sgs/%E6%AE%B5%E5%B7%A7%E7%AC%91",
+  "revid": 70230,
+  "parentid": 69978,
+  "timestamp": "2025-05-20T03:49:31Z",
+  "sourceSha256": "8f4b5865157ec76cd118f6ddb2174064cd8858fb018392355e60a5ad817b1172",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10289,
+      "namespace": 0,
+      "title": "段巧笑",
+      "url": "https://wiki.biligame.com/sgs/%E6%AE%B5%E5%B7%A7%E7%AC%91",
+      "revid": 70230,
+      "parentid": 69978,
+      "timestamp": "2025-05-20T03:49:31Z",
+      "sourceSha256": "8f4b5865157ec76cd118f6ddb2174064cd8858fb018392355e60a5ad817b1172",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "段巧笑",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "段搞笑",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "续航"
+      },
+      "source": "{{武将\n|武将名=段巧笑\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=段搞笑\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=续航\n}}",
+      "name": "段巧笑",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

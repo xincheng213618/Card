@@ -1,0 +1,46 @@
+{
+  "pageid": 7632,
+  "namespace": 0,
+  "title": "张嫙",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%AB%99",
+  "revid": 79305,
+  "parentid": 78254,
+  "timestamp": "2026-08-04T03:52:19Z",
+  "sourceSha256": "1e672e5692e1701962fc6e918b8446d442c4f9e5933a448d0e400e49d1b313f6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7632,
+      "namespace": 0,
+      "title": "张嫙",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%AB%99",
+      "revid": 79305,
+      "parentid": 78254,
+      "timestamp": "2026-08-04T03:52:19Z",
+      "sourceSha256": "1e672e5692e1701962fc6e918b8446d442c4f9e5933a448d0e400e49d1b313f6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张嫙",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "星怒",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "4",
+        "经典定位": "控制,攻击,续航"
+      },
+      "source": "{{武将\n|武将名=张嫙\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=星怒\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=4\n|经典定位=控制,攻击,续航\n}}",
+      "name": "张嫙",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

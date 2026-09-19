@@ -1,0 +1,46 @@
+{
+  "pageid": 3936,
+  "namespace": 0,
+  "title": "孙乾",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E4%B9%BE",
+  "revid": 77632,
+  "parentid": 60243,
+  "timestamp": "2026-05-09T01:44:02Z",
+  "sourceSha256": "389c4cc4778e59d4850bb75cf0c5e494bc16d3217aae32e92ca28e183ee1bb9e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3936,
+      "namespace": 0,
+      "title": "孙乾",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E4%B9%BE",
+      "revid": 77632,
+      "parentid": 60243,
+      "timestamp": "2026-05-09T01:44:02Z",
+      "sourceSha256": "389c4cc4778e59d4850bb75cf0c5e494bc16d3217aae32e92ca28e183ee1bb9e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙乾",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "",
+        "称号": "折冲樽俎",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "星火燎原-天机",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=孙乾\n|势力=蜀\n|性别=男\n|别称=\n|称号=折冲樽俎\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=星火燎原-天机\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "孙乾",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

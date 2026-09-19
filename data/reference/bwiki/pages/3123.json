@@ -1,0 +1,46 @@
+{
+  "pageid": 3123,
+  "namespace": 0,
+  "title": "大乔小乔",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%A7%E4%B9%94%E5%B0%8F%E4%B9%94",
+  "revid": 77616,
+  "parentid": 69536,
+  "timestamp": "2026-05-09T01:42:57Z",
+  "sourceSha256": "907f3008025f08e2dc8645390aa5d695403d7d9c1e00aa4be7df09f619001b61",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3123,
+      "namespace": 0,
+      "title": "大乔小乔",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%A7%E4%B9%94%E5%B0%8F%E4%B9%94",
+      "revid": 77616,
+      "parentid": 69536,
+      "timestamp": "2026-05-09T01:42:57Z",
+      "sourceSha256": "907f3008025f08e2dc8645390aa5d695403d7d9c1e00aa4be7df09f619001b61",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "大乔小乔",
+        "势力": "吴",
+        "性别": "女",
+        "别称": "大小乔、{{黑幕|姐妹叠双飞}}",
+        "称号": "江东之花",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-往者可谏",
+        "经典体力": "3",
+        "经典定位": "防御,爆发"
+      },
+      "source": "{{武将\n|武将名=大乔小乔\n|势力=吴\n|性别=女\n|别称=大小乔、{{黑幕|姐妹叠双飞}}\n|称号=江东之花\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-往者可谏\n|经典体力=3\n|经典定位=防御,爆发\n}}",
+      "name": "大乔小乔",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

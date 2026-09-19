@@ -1,0 +1,45 @@
+{
+  "pageid": 12876,
+  "namespace": 0,
+  "title": "诸葛京",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E4%BA%AC",
+  "revid": 75315,
+  "parentid": 71096,
+  "timestamp": "2026-02-10T03:49:47Z",
+  "sourceSha256": "11640ae06cc25e1d1fad9051274a2d044dd5be8b57142dae65db638de3e58f24",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12876,
+      "namespace": 0,
+      "title": "诸葛京",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E4%BA%AC",
+      "revid": 75315,
+      "parentid": 71096,
+      "timestamp": "2026-02-10T03:49:47Z",
+      "sourceSha256": "11640ae06cc25e1d1fad9051274a2d044dd5be8b57142dae65db638de3e58f24",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛京",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "京爷",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "4",
+        "经典定位": "攻击,防御,爆发"
+      },
+      "source": "{{武将\n|武将名=诸葛京\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=京爷\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=4\n|经典定位=攻击,防御,爆发\n}}",
+      "name": "诸葛京",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

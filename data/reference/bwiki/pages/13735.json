@@ -1,0 +1,46 @@
+{
+  "pageid": 13735,
+  "namespace": 0,
+  "title": "侯成",
+  "url": "https://wiki.biligame.com/sgs/%E4%BE%AF%E6%88%90",
+  "revid": 77515,
+  "parentid": 74509,
+  "timestamp": "2026-05-09T01:34:51Z",
+  "sourceSha256": "cd65d77dcfe2ace26c0718f6adf3a4b640422c64c9575e3ee91ccd23cd2f471d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13735,
+      "namespace": 0,
+      "title": "侯成",
+      "url": "https://wiki.biligame.com/sgs/%E4%BE%AF%E6%88%90",
+      "revid": 77515,
+      "parentid": 74509,
+      "timestamp": "2026-05-09T01:34:51Z",
+      "sourceSha256": "cd65d77dcfe2ace26c0718f6adf3a4b640422c64c9575e3ee91ccd23cd2f471d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "侯成",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "5",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=侯成\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=5\n|经典定位=控制,辅助\n}}",
+      "name": "侯成",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

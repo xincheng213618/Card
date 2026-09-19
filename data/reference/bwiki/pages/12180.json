@@ -1,0 +1,45 @@
+{
+  "pageid": 12180,
+  "namespace": 0,
+  "title": "星张春华",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E6%98%A5%E5%8D%8E",
+  "revid": 79350,
+  "parentid": 70094,
+  "timestamp": "2026-08-05T05:32:05Z",
+  "sourceSha256": "3b4d658e4c503597e040eb644d15aa34ab27b7a04f014347fe5f4be1ae6ac7a2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12180,
+      "namespace": 0,
+      "title": "星张春华",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E6%98%A5%E5%8D%8E",
+      "revid": 79350,
+      "parentid": 70094,
+      "timestamp": "2026-08-05T05:32:05Z",
+      "sourceSha256": "3b4d658e4c503597e040eb644d15aa34ab27b7a04f014347fe5f4be1ae6ac7a2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星张春华",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-玉衡",
+        "经典体力": "3",
+        "经典定位": "辅助,控制,攻击"
+      },
+      "source": "{{武将\n|武将名=星张春华\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-玉衡\n|经典体力=3\n|经典定位=辅助,控制,攻击\n}}",
+      "name": "星张春华",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

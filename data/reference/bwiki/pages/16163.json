@@ -1,0 +1,46 @@
+{
+  "pageid": 16163,
+  "namespace": 0,
+  "title": "张昭",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%98%AD",
+  "revid": 79627,
+  "parentid": 79603,
+  "timestamp": "2026-08-18T14:02:44Z",
+  "sourceSha256": "2bc888d7a771e83bcdaf8b7e0fefcffa5401ed6638ab1e7adcfbe625a0a99804",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16163,
+      "namespace": 0,
+      "title": "张昭",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%98%AD",
+      "revid": 79627,
+      "parentid": 79603,
+      "timestamp": "2026-08-18T14:02:44Z",
+      "sourceSha256": "2bc888d7a771e83bcdaf8b7e0fefcffa5401ed6638ab1e7adcfbe625a0a99804",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张昭",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-江海同舟",
+        "经典体力": "3",
+        "经典定位": "辅助,控制,续航"
+      },
+      "source": "{{武将\n|武将名=张昭\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-江海同舟\n|经典体力=3\n|经典定位=辅助,控制,续航\n}}",
+      "name": "张昭",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

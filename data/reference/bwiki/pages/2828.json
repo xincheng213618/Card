@@ -1,0 +1,47 @@
+{
+  "pageid": 2828,
+  "namespace": 0,
+  "title": "良助",
+  "url": "https://wiki.biligame.com/sgs/%E8%89%AF%E5%8A%A9",
+  "revid": 58916,
+  "parentid": 30099,
+  "timestamp": "2023-11-01T14:53:05Z",
+  "sourceSha256": "17ebc9730e2d17347317578f1a68d4b5aa2c0590bc14fa7d6f4b4b2fccc91a59",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2828,
+      "namespace": 0,
+      "title": "良助",
+      "url": "https://wiki.biligame.com/sgs/%E8%89%AF%E5%8A%A9",
+      "revid": 58916,
+      "parentid": 30099,
+      "timestamp": "2023-11-01T14:53:05Z",
+      "sourceSha256": "17ebc9730e2d17347317578f1a68d4b5aa2c0590bc14fa7d6f4b4b2fccc91a59",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "良助",
+        "所属武将": "SP孙尚香",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当一名角色于其出牌阶段内回复体力后，你可以选择一项：1.摸一张牌；2.令其摸两张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=良助\n|所属武将=SP孙尚香\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当一名角色于其出牌阶段内回复体力后，你可以选择一项：1.摸一张牌；2.令其摸两张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌,辅助\n}}",
+      "name": "良助",
+      "generals": [
+        "SP孙尚香"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一名角色于其出牌阶段内回复体力后，你可以选择一项：1.摸一张牌；2.令其摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

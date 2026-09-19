@@ -1,0 +1,44 @@
+{
+  "pageid": 741,
+  "namespace": 0,
+  "title": "留赞",
+  "url": "https://wiki.biligame.com/sgs/%E7%95%99%E8%B5%9E",
+  "revid": 75312,
+  "parentid": 74728,
+  "timestamp": "2026-02-10T03:49:45Z",
+  "sourceSha256": "1026bdba2474627c6b4fb9b6066b8a5e284b7087cc9c3123d2acf4049500fb37",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 741,
+      "namespace": 0,
+      "title": "留赞",
+      "url": "https://wiki.biligame.com/sgs/%E7%95%99%E8%B5%9E",
+      "revid": 75312,
+      "parentid": 74728,
+      "timestamp": "2026-02-10T03:49:45Z",
+      "sourceSha256": "1026bdba2474627c6b4fb9b6066b8a5e284b7087cc9c3123d2acf4049500fb37",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "留赞",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "歌王、全扩最强的单挑王",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=留赞\n|势力=吴\n|性别=男\n|别称=歌王、全扩最强的单挑王\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击,爆发\n}}",
+      "name": "留赞",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

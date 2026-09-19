@@ -1,0 +1,44 @@
+{
+  "pageid": 14743,
+  "namespace": 0,
+  "title": "神赵云（高达一号）",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E8%B5%B5%E4%BA%91%EF%BC%88%E9%AB%98%E8%BE%BE%E4%B8%80%E5%8F%B7%EF%BC%89",
+  "revid": 75445,
+  "parentid": 75008,
+  "timestamp": "2026-02-12T02:12:26Z",
+  "sourceSha256": "8956d4cf2b40bd8560d45626a675277625c8481bef03b86c29fff8951118f555",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14743,
+      "namespace": 0,
+      "title": "神赵云（高达一号）",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E8%B5%B5%E4%BA%91%EF%BC%88%E9%AB%98%E8%BE%BE%E4%B8%80%E5%8F%B7%EF%BC%89",
+      "revid": 75445,
+      "parentid": 75008,
+      "timestamp": "2026-02-12T02:12:26Z",
+      "sourceSha256": "8956d4cf2b40bd8560d45626a675277625c8481bef03b86c29fff8951118f555",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神赵云（高达一号）",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "1",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=神赵云（高达一号）\n|势力=神\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=1\n|经典定位=全能\n}}",
+      "name": "神赵云（高达一号）",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

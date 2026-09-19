@@ -1,0 +1,49 @@
+{
+  "pageid": 5918,
+  "namespace": 0,
+  "title": "威重",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E9%87%8D",
+  "revid": 68414,
+  "parentid": 68388,
+  "timestamp": "2025-03-08T11:11:07Z",
+  "sourceSha256": "082adf4747f65add301a6e8881eae32b479ee0c24514e0a0876d000c1accc4f5",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5918,
+      "namespace": 0,
+      "title": "威重",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E9%87%8D",
+      "revid": 68414,
+      "parentid": 68388,
+      "timestamp": "2025-03-08T11:11:07Z",
+      "sourceSha256": "082adf4747f65add301a6e8881eae32b479ee0c24514e0a0876d000c1accc4f5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "威重",
+        "所属武将": "诸葛诞",
+        "是衍生技": "是",
+        "技能版本": "经典,界",
+        "经典技能描述": "当你的体力上限变化时，你摸一张牌。",
+        "界限技能描述": "当你的体力上限变化时，你摸两张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=威重\n|所属武将=诸葛诞\n|是衍生技=是\n|技能版本=经典,界\n|经典技能描述=当你的体力上限变化时，你摸一张牌。\n|界限技能描述=当你的体力上限变化时，你摸两张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "威重",
+      "generals": [
+        "诸葛诞"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当你的体力上限变化时，你摸一张牌。",
+        "界限技能描述": "当你的体力上限变化时，你摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

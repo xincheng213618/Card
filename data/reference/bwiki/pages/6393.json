@@ -1,0 +1,47 @@
+{
+  "pageid": 6393,
+  "namespace": 0,
+  "title": "连环",
+  "url": "https://wiki.biligame.com/sgs/%E8%BF%9E%E7%8E%AF",
+  "revid": 36104,
+  "parentid": 36103,
+  "timestamp": "2022-04-04T13:03:59Z",
+  "sourceSha256": "3204b1a28df859c3948a50266b80e665165b62cda7e6c2251e9f932eabad69b9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6393,
+      "namespace": 0,
+      "title": "连环",
+      "url": "https://wiki.biligame.com/sgs/%E8%BF%9E%E7%8E%AF",
+      "revid": 36104,
+      "parentid": 36103,
+      "timestamp": "2022-04-04T13:03:59Z",
+      "sourceSha256": "3204b1a28df859c3948a50266b80e665165b62cda7e6c2251e9f932eabad69b9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "连环",
+        "所属武将": "庞统",
+        "技能版本": "经典,国",
+        "是衍生技": "",
+        "经典技能描述": "出牌阶段，你可以将一张♣️手牌当【铁索连环】使用或重铸。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=连环\n|所属武将=庞统\n|技能版本=经典,国\n|是衍生技=\n|经典技能描述=出牌阶段，你可以将一张♣️手牌当【铁索连环】使用或重铸。\n|经典技能类型=一般技\n|经典技能定位=控制,换牌\n}}",
+      "name": "连环",
+      "generals": [
+        "庞统"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以将一张♣️手牌当【铁索连环】使用或重铸。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

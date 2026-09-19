@@ -1,0 +1,45 @@
+{
+  "pageid": 1953,
+  "namespace": 0,
+  "title": "张济",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%B5%8E",
+  "revid": 77692,
+  "parentid": 69652,
+  "timestamp": "2026-05-09T01:47:07Z",
+  "sourceSha256": "100b882b763424a3baff1917519d88626333686a44138b526d3cb44d83e29729",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1953,
+      "namespace": 0,
+      "title": "张济",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%B5%8E",
+      "revid": 77692,
+      "parentid": 69652,
+      "timestamp": "2026-05-09T01:47:07Z",
+      "sourceSha256": "100b882b763424a3baff1917519d88626333686a44138b526d3cb44d83e29729",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张济",
+        "势力": "群",
+        "性别": "男",
+        "别称": "",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4",
+        "经典定位": "控制,辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=张济\n|势力=群\n|性别=男\n|别称=\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4\n|经典定位=控制,辅助,爆发\n}}",
+      "name": "张济",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

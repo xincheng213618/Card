@@ -1,0 +1,47 @@
+{
+  "pageid": 6043,
+  "namespace": 0,
+  "title": "糜夫人",
+  "url": "https://wiki.biligame.com/sgs/%E7%B3%9C%E5%A4%AB%E4%BA%BA",
+  "revid": 77753,
+  "parentid": 67655,
+  "timestamp": "2026-05-09T01:54:52Z",
+  "sourceSha256": "e578c34760f937cf85e5db4e66c2f5d9103aa33846291fc62b52c89ecb24e47d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6043,
+      "namespace": 0,
+      "title": "糜夫人",
+      "url": "https://wiki.biligame.com/sgs/%E7%B3%9C%E5%A4%AB%E4%BA%BA",
+      "revid": 77753,
+      "parentid": 67655,
+      "timestamp": "2026-05-09T01:54:52Z",
+      "sourceSha256": "e578c34760f937cf85e5db4e66c2f5d9103aa33846291fc62b52c89ecb24e47d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "糜夫人",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "辅助\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=糜夫人\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=辅助\n<!-- 国战 -->\n}}",
+      "name": "糜夫人",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

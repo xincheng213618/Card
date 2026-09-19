@@ -1,0 +1,45 @@
+{
+  "pageid": 8665,
+  "namespace": 0,
+  "title": "胡金定",
+  "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E9%87%91%E5%AE%9A",
+  "revid": 75882,
+  "parentid": 74670,
+  "timestamp": "2026-02-22T05:16:16Z",
+  "sourceSha256": "1b8305488c68094f6a549adbe264431d3789d2621d9e01976ddcd9c4f3dcd13b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8665,
+      "namespace": 0,
+      "title": "胡金定",
+      "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E9%87%91%E5%AE%9A",
+      "revid": 75882,
+      "parentid": 74670,
+      "timestamp": "2026-02-22T05:16:16Z",
+      "sourceSha256": "1b8305488c68094f6a549adbe264431d3789d2621d9e01976ddcd9c4f3dcd13b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "胡金定",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "胡金锭（麻将模式梗）",
+        "规则集问答": "",
+        "武将包": "荟萃-千里单骑",
+        "经典体力": "3/6",
+        "经典定位": "防御,辅助"
+      },
+      "source": "{{武将\n|武将名=胡金定\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=胡金锭（麻将模式梗）\n|规则集问答=\n|武将包=荟萃-千里单骑\n|经典体力=3/6\n|经典定位=防御,辅助\n}}",
+      "name": "胡金定",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

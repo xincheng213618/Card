@@ -1,0 +1,47 @@
+{
+  "pageid": 3269,
+  "namespace": 0,
+  "title": "粮营",
+  "url": "https://wiki.biligame.com/sgs/%E7%B2%AE%E8%90%A5",
+  "revid": 61622,
+  "parentid": 61621,
+  "timestamp": "2024-01-12T20:40:28Z",
+  "sourceSha256": "b3bd7325d23779c43704106b4e5ae85ff85b2170aacaf7f6d3f51322288a8766",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3269,
+      "namespace": 0,
+      "title": "粮营",
+      "url": "https://wiki.biligame.com/sgs/%E7%B2%AE%E8%90%A5",
+      "revid": 61622,
+      "parentid": 61621,
+      "timestamp": "2024-01-12T20:40:28Z",
+      "sourceSha256": "b3bd7325d23779c43704106b4e5ae85ff85b2170aacaf7f6d3f51322288a8766",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "粮营",
+        "所属武将": "淳于琼",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "弃牌阶段开始时，你可以摸至多“'''粮'''”标记数张牌，将等量张手牌交给等量名角色各一张。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=粮营\n|所属武将=淳于琼\n|是衍生技=\n|技能版本=经典\n|经典技能描述=弃牌阶段开始时，你可以摸至多“'''粮'''”标记数张牌，将等量张手牌交给等量名角色各一张。\n|经典技能类型=一般技\n|经典技能定位=过牌,辅助\n}}",
+      "name": "粮营",
+      "generals": [
+        "淳于琼"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "弃牌阶段开始时，你可以摸至多“'''粮'''”标记数张牌，将等量张手牌交给等量名角色各一张。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

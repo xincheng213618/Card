@@ -1,0 +1,47 @@
+{
+  "pageid": 1572,
+  "namespace": 0,
+  "title": "张任",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E4%BB%BB",
+  "revid": 77673,
+  "parentid": 69636,
+  "timestamp": "2026-05-09T01:45:56Z",
+  "sourceSha256": "b25e7f5bf47a878b7710c8e969c9442fdaed92deb677a36f473ec52d80dd0bcb",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1572,
+      "namespace": 0,
+      "title": "张任",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E4%BB%BB",
+      "revid": 77673,
+      "parentid": 69636,
+      "timestamp": "2026-05-09T01:45:56Z",
+      "sourceSha256": "b25e7f5bf47a878b7710c8e969c9442fdaed92deb677a36f473ec52d80dd0bcb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张任",
+        "势力": "群",
+        "性别": "男",
+        "别称": "",
+        "称号": "",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "控制\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=张任\n|势力=群\n|性别=男\n|别称=\n|称号=\n|出现模式=身份,欢乐,斗地主,国战\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=控制\n<!-- 国战 -->\n}}",
+      "name": "张任",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

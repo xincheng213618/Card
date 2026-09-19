@@ -1,0 +1,45 @@
+{
+  "pageid": 8471,
+  "namespace": 0,
+  "title": "神张飞",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%BC%A0%E9%A3%9E",
+  "revid": 79382,
+  "parentid": 75112,
+  "timestamp": "2026-08-05T23:45:22Z",
+  "sourceSha256": "35e10b39f71362ffd749ee37850b271670acb5767d07a7be42b558fdc8bff85b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8471,
+      "namespace": 0,
+      "title": "神张飞",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%BC%A0%E9%A3%9E",
+      "revid": 79382,
+      "parentid": 75112,
+      "timestamp": "2026-08-05T23:45:22Z",
+      "sourceSha256": "35e10b39f71362ffd749ee37850b271670acb5767d07a7be42b558fdc8bff85b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神张飞",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "顺飞",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=神张飞\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=顺飞\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "神张飞",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

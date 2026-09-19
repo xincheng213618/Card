@@ -1,0 +1,45 @@
+{
+  "pageid": 6404,
+  "namespace": 0,
+  "title": "曹金玉",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E9%87%91%E7%8E%89",
+  "revid": 73220,
+  "parentid": 72802,
+  "timestamp": "2025-10-26T06:17:54Z",
+  "sourceSha256": "dd7a46473a39abb5c40af0c143f10c1058819596c043e88bf7cae1a710b909d8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6404,
+      "namespace": 0,
+      "title": "曹金玉",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E9%87%91%E7%8E%89",
+      "revid": 73220,
+      "parentid": 72802,
+      "timestamp": "2025-10-26T06:17:54Z",
+      "sourceSha256": "dd7a46473a39abb5c40af0c143f10c1058819596c043e88bf7cae1a710b909d8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹金玉",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "草金鱼、断头将军、金鱼大帝、一轮80牌无名小卒",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "卖血,辅助"
+      },
+      "source": "{{武将\n|武将名=曹金玉\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=草金鱼、断头将军、金鱼大帝、一轮80牌无名小卒\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=卖血,辅助\n}}",
+      "name": "曹金玉",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

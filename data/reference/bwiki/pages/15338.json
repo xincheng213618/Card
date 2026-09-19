@@ -1,0 +1,46 @@
+{
+  "pageid": 15338,
+  "namespace": 0,
+  "title": "威公孙瓒",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%85%AC%E5%AD%99%E7%93%92",
+  "revid": 77618,
+  "parentid": 76677,
+  "timestamp": "2026-05-09T01:43:08Z",
+  "sourceSha256": "1f6130dd273936d58f1ff4e0dc8ac55927b731c65bb5bb47d33c47a21f132aad",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15338,
+      "namespace": 0,
+      "title": "威公孙瓒",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%85%AC%E5%AD%99%E7%93%92",
+      "revid": 77618,
+      "parentid": 76677,
+      "timestamp": "2026-05-09T01:43:08Z",
+      "sourceSha256": "1f6130dd273936d58f1ff4e0dc8ac55927b731c65bb5bb47d33c47a21f132aad",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威公孙瓒",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "武勇戾猛",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-威震天下",
+        "经典体力": "4",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=威公孙瓒\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=武勇戾猛\n|别称=\n|规则集问答=\n|武将包=威震-威震天下\n|经典体力=4\n|经典定位=爆发,控制\n}}",
+      "name": "威公孙瓒",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

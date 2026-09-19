@@ -1,0 +1,46 @@
+{
+  "pageid": 8854,
+  "namespace": 0,
+  "title": "关宁",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%B3%E5%AE%81",
+  "revid": 78814,
+  "parentid": 77526,
+  "timestamp": "2026-07-09T23:22:55Z",
+  "sourceSha256": "4c7bd36a945a18c6f081815023157db3a0e13bd46b262b1fbf5cada41943d699",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8854,
+      "namespace": 0,
+      "title": "关宁",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%B3%E5%AE%81",
+      "revid": 78814,
+      "parentid": 77526,
+      "timestamp": "2026-07-09T23:22:55Z",
+      "sourceSha256": "4c7bd36a945a18c6f081815023157db3a0e13bd46b262b1fbf5cada41943d699",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "关宁",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-千里单骑",
+        "经典体力": "3",
+        "经典定位": "续航,辅助"
+      },
+      "source": "{{武将\n|武将名=关宁\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-千里单骑\n|经典体力=3\n|经典定位=续航,辅助\n}}",
+      "name": "关宁",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

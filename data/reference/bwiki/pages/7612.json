@@ -1,0 +1,45 @@
+{
+  "pageid": 7612,
+  "namespace": 0,
+  "title": "王昶",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%98%B6",
+  "revid": 74738,
+  "parentid": 70594,
+  "timestamp": "2026-01-22T17:32:37Z",
+  "sourceSha256": "1d4f92fb812946397dab7ac4251ab61917cc583dd887c23148432db6a6da532c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7612,
+      "namespace": 0,
+      "title": "王昶",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%98%B6",
+      "revid": 74738,
+      "parentid": 70594,
+      "timestamp": "2026-01-22T17:32:37Z",
+      "sourceSha256": "1d4f92fb812946397dab7ac4251ab61917cc583dd887c23148432db6a6da532c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王昶",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "大曹纯、十万年公主",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "续航,控制,攻击"
+      },
+      "source": "{{武将\n|武将名=王昶\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=大曹纯、十万年公主\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=续航,控制,攻击\n}}",
+      "name": "王昶",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

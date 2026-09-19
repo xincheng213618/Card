@@ -1,0 +1,46 @@
+{
+  "pageid": 997,
+  "namespace": 0,
+  "title": "徐氏",
+  "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E6%B0%8F",
+  "revid": 77709,
+  "parentid": 60294,
+  "timestamp": "2026-05-09T01:48:39Z",
+  "sourceSha256": "1a1d7fd270b53022c74e91e2edf885f25e7e690e99a716fe8f2b6b718e911d5e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 997,
+      "namespace": 0,
+      "title": "徐氏",
+      "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E6%B0%8F",
+      "revid": 77709,
+      "parentid": 60294,
+      "timestamp": "2026-05-09T01:48:39Z",
+      "sourceSha256": "1a1d7fd270b53022c74e91e2edf885f25e7e690e99a716fe8f2b6b718e911d5e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "徐氏",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "别称": "徐寡妇",
+        "称号": "节义双全",
+        "规则集问答": "",
+        "武将包": "星火燎原-七杀",
+        "经典体力": "3",
+        "经典定位": "辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=徐氏\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|别称=徐寡妇\n|称号=节义双全\n|规则集问答=\n|武将包=星火燎原-七杀\n|经典体力=3\n|经典定位=辅助,爆发\n}}",
+      "name": "徐氏",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

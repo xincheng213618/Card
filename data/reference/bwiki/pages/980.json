@@ -1,0 +1,46 @@
+{
+  "pageid": 980,
+  "namespace": 0,
+  "title": "刘焉",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%84%89",
+  "revid": 77547,
+  "parentid": 60234,
+  "timestamp": "2026-05-09T01:37:21Z",
+  "sourceSha256": "4b067d0b6b3f6065d0f75884d165687a17757b5d1d763159f4d53064dfcc6855",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 980,
+      "namespace": 0,
+      "title": "刘焉",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%84%89",
+      "revid": 77547,
+      "parentid": 60234,
+      "timestamp": "2026-05-09T01:37:21Z",
+      "sourceSha256": "4b067d0b6b3f6065d0f75884d165687a17757b5d1d763159f4d53064dfcc6855",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘焉",
+        "势力": "群",
+        "性别": "男",
+        "别称": "刘老板",
+        "称号": "裂土之宗",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "星火燎原-天梁",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=刘焉\n|势力=群\n|性别=男\n|别称=刘老板\n|称号=裂土之宗\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=星火燎原-天梁\n|经典体力=3\n|经典定位=攻击,爆发\n}}",
+      "name": "刘焉",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 9014,
+  "namespace": 0,
+  "title": "青刃",
+  "url": "https://wiki.biligame.com/sgs/%E9%9D%92%E5%88%83",
+  "revid": 50377,
+  "parentid": 48936,
+  "timestamp": "2023-03-02T16:15:36Z",
+  "sourceSha256": "453c5da038eb02692aaba68502a2fae624b40ca754dc2cce8ace8d2bf85ccc13",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9014,
+      "namespace": 0,
+      "title": "青刃",
+      "url": "https://wiki.biligame.com/sgs/%E9%9D%92%E5%88%83",
+      "revid": 50377,
+      "parentid": 48936,
+      "timestamp": "2023-03-02T16:15:36Z",
+      "sourceSha256": "453c5da038eb02692aaba68502a2fae624b40ca754dc2cce8ace8d2bf85ccc13",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "青刃",
+        "所属武将": "赵统赵广",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以摸X张牌（X为你本回合发动“{{技能/引用|翊赞}}”的次数）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=青刃\n|所属武将=赵统赵广\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你可以摸X张牌（X为你本回合发动“{{技能/引用|翊赞}}”的次数）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "青刃",
+      "generals": [
+        "赵统赵广"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以摸X张牌（X为你本回合发动“{{技能/引用|翊赞}}”的次数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

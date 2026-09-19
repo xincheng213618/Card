@@ -1,0 +1,44 @@
+{
+  "pageid": 14760,
+  "namespace": 0,
+  "title": "SP蒲元",
+  "url": "https://wiki.biligame.com/sgs/SP%E8%92%B2%E5%85%83",
+  "revid": 78661,
+  "parentid": 78364,
+  "timestamp": "2026-07-01T23:06:36Z",
+  "sourceSha256": "dcd812e596082455c1b17782a8f245c77c6b29b130fca4283346779d48cea4b4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14760,
+      "namespace": 0,
+      "title": "SP蒲元",
+      "url": "https://wiki.biligame.com/sgs/SP%E8%92%B2%E5%85%83",
+      "revid": 78661,
+      "parentid": 78364,
+      "timestamp": "2026-07-01T23:06:36Z",
+      "sourceSha256": "dcd812e596082455c1b17782a8f245c77c6b29b130fca4283346779d48cea4b4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP蒲元",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "4",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=SP蒲元\n|势力=蜀\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=4\n|经典定位=爆发\n}}",
+      "name": "SP蒲元",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

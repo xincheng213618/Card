@@ -1,0 +1,46 @@
+{
+  "pageid": 8436,
+  "namespace": 0,
+  "title": "诸葛尚",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E5%B0%9A",
+  "revid": 79744,
+  "parentid": 79743,
+  "timestamp": "2026-08-22T01:08:22Z",
+  "sourceSha256": "6e4450e22c670d502cab6559ac49984329a28aa516090360860c4ebf0f3f7080",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8436,
+      "namespace": 0,
+      "title": "诸葛尚",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E5%B0%9A",
+      "revid": 79744,
+      "parentid": 79743,
+      "timestamp": "2026-08-22T01:08:22Z",
+      "sourceSha256": "6e4450e22c670d502cab6559ac49984329a28aa516090360860c4ebf0f3f7080",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛尚",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2022",
+        "经典体力": "3",
+        "经典定位": "辅助,生存"
+      },
+      "source": "{{武将\n|武将名=诸葛尚\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2022\n|经典体力=3\n|经典定位=辅助,生存\n}}",
+      "name": "诸葛尚",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

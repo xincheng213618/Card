@@ -1,0 +1,47 @@
+{
+  "pageid": 7891,
+  "namespace": 0,
+  "title": "望橹",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%9B%E6%A9%B9",
+  "revid": 42504,
+  "parentid": 40506,
+  "timestamp": "2022-11-16T08:59:18Z",
+  "sourceSha256": "dbe332f3f131ae5f50b9202603add1cbb04c633b8f53c625a268cedfc94a409c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7891,
+      "namespace": 0,
+      "title": "望橹",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%9B%E6%A9%B9",
+      "revid": 42504,
+      "parentid": 40506,
+      "timestamp": "2022-11-16T08:59:18Z",
+      "sourceSha256": "dbe332f3f131ae5f50b9202603add1cbb04c633b8f53c625a268cedfc94a409c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "望橹",
+        "所属武将": "张奋",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "回合开始时，若你的装备区里没有【[[大攻车]]】，则将之置入你的装备区，否则你执行一个额外的出牌阶段。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=望橹\n|所属武将=张奋\n|是衍生技=\n|技能版本=经典\n|经典技能描述=回合开始时，若你的装备区里没有【[[大攻车]]】，则将之置入你的装备区，否则你执行一个额外的出牌阶段。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "望橹",
+      "generals": [
+        "张奋"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "回合开始时，若你的装备区里没有【[[大攻车]]】，则将之置入你的装备区，否则你执行一个额外的出牌阶段。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

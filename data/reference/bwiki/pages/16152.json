@@ -1,0 +1,46 @@
+{
+  "pageid": 16152,
+  "namespace": 0,
+  "title": "王元姬",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E5%85%83%E5%A7%AC",
+  "revid": 80176,
+  "parentid": 80174,
+  "timestamp": "2026-09-19T04:34:16Z",
+  "sourceSha256": "6e709a5b417dd6ec1d6eba19039f3a00b6853223f773ce9e78b9fb6500545964",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16152,
+      "namespace": 0,
+      "title": "王元姬",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E5%85%83%E5%A7%AC",
+      "revid": 80176,
+      "parentid": 80174,
+      "timestamp": "2026-09-19T04:34:16Z",
+      "sourceSha256": "6e709a5b417dd6ec1d6eba19039f3a00b6853223f773ce9e78b9fb6500545964",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王元姬",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "素业谦冲",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-章台春望",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=王元姬\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=素业谦冲\n|别称=\n|规则集问答=\n|武将包=荟萃-章台春望\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "王元姬",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

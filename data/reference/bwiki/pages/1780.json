@@ -1,0 +1,47 @@
+{
+  "pageid": 1780,
+  "namespace": 0,
+  "title": "旋略",
+  "url": "https://wiki.biligame.com/sgs/%E6%97%8B%E7%95%A5",
+  "revid": 79126,
+  "parentid": 68239,
+  "timestamp": "2026-07-29T01:41:41Z",
+  "sourceSha256": "088b51242197f29030d6085c1652a7e7bcf9d87bec8cf78355dc98745e1b76ac",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 1780,
+      "namespace": 0,
+      "title": "旋略",
+      "url": "https://wiki.biligame.com/sgs/%E6%97%8B%E7%95%A5",
+      "revid": 79126,
+      "parentid": 68239,
+      "timestamp": "2026-07-29T01:41:41Z",
+      "sourceSha256": "088b51242197f29030d6085c1652a7e7bcf9d87bec8cf78355dc98745e1b76ac",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "旋略",
+        "所属武将": "凌统",
+        "是衍生技": "",
+        "技能版本": "国",
+        "国战技能描述": "当你失去装备区的牌后，你可以弃置一名其他角色的一张牌。",
+        "国战技能类型": "一般技",
+        "国战技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=旋略\n|所属武将=凌统\n|是衍生技=\n|技能版本=国\n|国战技能描述=当你失去装备区的牌后，你可以弃置一名其他角色的一张牌。\n|国战技能类型=一般技\n|国战技能定位=控制\n}}",
+      "name": "旋略",
+      "generals": [
+        "凌统"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "当你失去装备区的牌后，你可以弃置一名其他角色的一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

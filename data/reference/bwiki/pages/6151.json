@@ -1,0 +1,47 @@
+{
+  "pageid": 6151,
+  "namespace": 0,
+  "title": "马术/SP庞德",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/SP%E5%BA%9E%E5%BE%B7",
+  "revid": 59059,
+  "parentid": 59058,
+  "timestamp": "2023-11-02T10:03:19Z",
+  "sourceSha256": "3a247d85bae9fc894b39fd326c06c5e1197f3344e6229ca59f4cc9d18a3e9b32",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6151,
+      "namespace": 0,
+      "title": "马术/SP庞德",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/SP%E5%BA%9E%E5%BE%B7",
+      "revid": 59059,
+      "parentid": 59058,
+      "timestamp": "2023-11-02T10:03:19Z",
+      "sourceSha256": "3a247d85bae9fc894b39fd326c06c5e1197f3344e6229ca59f4cc9d18a3e9b32",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "马术",
+        "所属武将": "SP庞德",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你计算与其他角色的距离-1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=马术\n|所属武将=SP庞德\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你计算与其他角色的距离-1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,距离\n}}",
+      "name": "马术",
+      "generals": [
+        "SP庞德"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你计算与其他角色的距离-1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

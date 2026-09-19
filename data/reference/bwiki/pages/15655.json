@@ -1,0 +1,46 @@
+{
+  "pageid": 15655,
+  "namespace": 0,
+  "title": "史阿",
+  "url": "https://wiki.biligame.com/sgs/%E5%8F%B2%E9%98%BF",
+  "revid": 78390,
+  "parentid": 78377,
+  "timestamp": "2026-06-18T05:58:53Z",
+  "sourceSha256": "d09362cb5ec5c1d4a9b22ae593446745341a17f65bc95bcefe240804800e2eaa",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15655,
+      "namespace": 0,
+      "title": "史阿",
+      "url": "https://wiki.biligame.com/sgs/%E5%8F%B2%E9%98%BF",
+      "revid": 78390,
+      "parentid": 78377,
+      "timestamp": "2026-06-18T05:58:53Z",
+      "sourceSha256": "d09362cb5ec5c1d4a9b22ae593446745341a17f65bc95bcefe240804800e2eaa",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "史阿",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "5",
+        "经典定位": "续航,防御,攻击"
+      },
+      "source": "{{武将\n|武将名=史阿\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=5\n|经典定位=续航,防御,攻击\n}}",
+      "name": "史阿",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

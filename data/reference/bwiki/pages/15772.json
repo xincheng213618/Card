@@ -1,0 +1,47 @@
+{
+  "pageid": 15772,
+  "namespace": 0,
+  "title": "安慰",
+  "url": "https://wiki.biligame.com/sgs/%E5%AE%89%E6%85%B0",
+  "revid": 77009,
+  "parentid": 76991,
+  "timestamp": "2026-04-25T15:22:53Z",
+  "sourceSha256": "ae83a9ce0b39273b2e4e179df745e83f4ad5b397ba251e0c4a8206f5a527e9a7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 15772,
+      "namespace": 0,
+      "title": "安慰",
+      "url": "https://wiki.biligame.com/sgs/%E5%AE%89%E6%85%B0",
+      "revid": 77009,
+      "parentid": 76991,
+      "timestamp": "2026-04-25T15:22:53Z",
+      "sourceSha256": "ae83a9ce0b39273b2e4e179df745e83f4ad5b397ba251e0c4a8206f5a527e9a7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "安慰",
+        "所属武将": "香蕉猫",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你于回合外失去牌时，你摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=安慰\n|所属武将=香蕉猫\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你于回合外失去牌时，你摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "安慰",
+      "generals": [
+        "香蕉猫"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你于回合外失去牌时，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

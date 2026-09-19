@@ -1,0 +1,47 @@
+{
+  "pageid": 3181,
+  "namespace": 0,
+  "title": "清侧",
+  "url": "https://wiki.biligame.com/sgs/%E6%B8%85%E4%BE%A7",
+  "revid": 46116,
+  "parentid": 36027,
+  "timestamp": "2023-01-05T12:55:17Z",
+  "sourceSha256": "09576eda239802e078d8ece520ee7cce2847faa68dd274f9f5271e1d20e65973",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3181,
+      "namespace": 0,
+      "title": "清侧",
+      "url": "https://wiki.biligame.com/sgs/%E6%B8%85%E4%BE%A7",
+      "revid": 46116,
+      "parentid": 36027,
+      "timestamp": "2023-01-05T12:55:17Z",
+      "sourceSha256": "09576eda239802e078d8ece520ee7cce2847faa68dd274f9f5271e1d20e65973",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "清侧",
+        "所属武将": "毌丘俭",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以移去一张“'''荣'''”，弃置场上的一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,保护"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=清侧\n|所属武将=毌丘俭\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以移去一张“'''荣'''”，弃置场上的一张牌。\n|经典技能类型=一般技\n|经典技能定位=控制,保护\n}}",
+      "name": "清侧",
+      "generals": [
+        "毌丘俭"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以移去一张“'''荣'''”，弃置场上的一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

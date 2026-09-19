@@ -1,0 +1,45 @@
+{
+  "pageid": 7125,
+  "namespace": 0,
+  "title": "朱灵",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E7%81%B5",
+  "revid": 74685,
+  "parentid": 70162,
+  "timestamp": "2026-01-22T17:12:51Z",
+  "sourceSha256": "6711d05821fb8ca7f67a76be7b90adb0e8877da181941d292d75f44828da0507",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7125,
+      "namespace": 0,
+      "title": "朱灵",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E7%81%B5",
+      "revid": 74685,
+      "parentid": 70162,
+      "timestamp": "2026-01-22T17:12:51Z",
+      "sourceSha256": "6711d05821fb8ca7f67a76be7b90adb0e8877da181941d292d75f44828da0507",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "朱灵",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-虓虎悲歌",
+        "经典体力": "4",
+        "经典定位": "攻击,控制,爆发"
+      },
+      "source": "{{武将\n|武将名=朱灵\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-虓虎悲歌\n|经典体力=4\n|经典定位=攻击,控制,爆发\n}}",
+      "name": "朱灵",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

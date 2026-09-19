@@ -1,0 +1,44 @@
+{
+  "pageid": 1304,
+  "namespace": 0,
+  "title": "董白",
+  "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%99%BD",
+  "revid": 71039,
+  "parentid": 70789,
+  "timestamp": "2025-05-20T07:34:25Z",
+  "sourceSha256": "87122f35cb48a87740c42a10a8c3a5739d225413d0aae1175201bdf60239e540",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1304,
+      "namespace": 0,
+      "title": "董白",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%99%BD",
+      "revid": 71039,
+      "parentid": 70789,
+      "timestamp": "2025-05-20T07:34:25Z",
+      "sourceSha256": "87122f35cb48a87740c42a10a8c3a5739d225413d0aae1175201bdf60239e540",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "董白",
+        "势力": "群",
+        "性别": "女",
+        "别称": "小白白",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=董白\n|势力=群\n|性别=女\n|别称=小白白\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "董白",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

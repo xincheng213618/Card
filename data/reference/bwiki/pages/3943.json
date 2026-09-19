@@ -1,0 +1,47 @@
+{
+  "pageid": 3943,
+  "namespace": 0,
+  "title": "庞德",
+  "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E5%BE%B7",
+  "revid": 77669,
+  "parentid": 59837,
+  "timestamp": "2026-05-09T01:45:53Z",
+  "sourceSha256": "2b17836be8878299b4c33930004e1e19906a173c2848988e0a5755c0244bbba7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3943,
+      "namespace": 0,
+      "title": "庞德",
+      "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E5%BE%B7",
+      "revid": 77669,
+      "parentid": 59837,
+      "timestamp": "2026-05-09T01:45:53Z",
+      "sourceSha256": "2b17836be8878299b4c33930004e1e19906a173c2848988e0a5755c0244bbba7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "庞德",
+        "势力": "群",
+        "性别": "男",
+        "别称": "拆迁办",
+        "称号": "人马一体",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "规则集问答": "",
+        "武将包": "神话再临-火包",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=庞德\n|势力=群\n|性别=男\n|别称=拆迁办\n|称号=人马一体\n|出现模式=身份,欢乐,斗地主,国战\n|规则集问答=\n|武将包=神话再临-火包\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "庞德",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

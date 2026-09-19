@@ -1,0 +1,47 @@
+{
+  "pageid": 7974,
+  "namespace": 0,
+  "title": "媵予",
+  "url": "https://wiki.biligame.com/sgs/%E5%AA%B5%E4%BA%88",
+  "revid": 61157,
+  "parentid": 40861,
+  "timestamp": "2023-12-28T15:03:25Z",
+  "sourceSha256": "6d6a232cac7bc9584721596d901ff57ee125713f9595eae5de421ee72cd3e1b4",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7974,
+      "namespace": 0,
+      "title": "媵予",
+      "url": "https://wiki.biligame.com/sgs/%E5%AA%B5%E4%BA%88",
+      "revid": 61157,
+      "parentid": 40861,
+      "timestamp": "2023-12-28T15:03:25Z",
+      "sourceSha256": "6d6a232cac7bc9584721596d901ff57ee125713f9595eae5de421ee72cd3e1b4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "媵予",
+        "所属武将": "尹夫人",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "准备阶段，你可以展示两名角色的各一张手牌，若这两张牌花色不同，你令其中一名角色获得另一名角色的展示牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=媵予\n|所属武将=尹夫人\n|是衍生技=\n|技能版本=经典\n|经典技能描述=准备阶段，你可以展示两名角色的各一张手牌，若这两张牌花色不同，你令其中一名角色获得另一名角色的展示牌。\n|经典技能类型=一般技\n|经典技能定位=控制,辅助\n}}",
+      "name": "媵予",
+      "generals": [
+        "尹夫人"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "准备阶段，你可以展示两名角色的各一张手牌，若这两张牌花色不同，你令其中一名角色获得另一名角色的展示牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

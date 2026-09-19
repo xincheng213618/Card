@@ -1,0 +1,45 @@
+{
+  "pageid": 13566,
+  "namespace": 0,
+  "title": "星张昭",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E6%98%AD",
+  "revid": 79351,
+  "parentid": 71525,
+  "timestamp": "2026-08-05T05:32:11Z",
+  "sourceSha256": "c2e446440eaf28414311a7e9294c527a69b77aa8acfedd1d6e40cab8cba299c3",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13566,
+      "namespace": 0,
+      "title": "星张昭",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E5%BC%A0%E6%98%AD",
+      "revid": 79351,
+      "parentid": 71525,
+      "timestamp": "2026-08-05T05:32:11Z",
+      "sourceSha256": "c2e446440eaf28414311a7e9294c527a69b77aa8acfedd1d6e40cab8cba299c3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星张昭",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天璇",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=星张昭\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-天璇\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "星张昭",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

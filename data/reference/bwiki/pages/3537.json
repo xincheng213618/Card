@@ -1,0 +1,46 @@
+{
+  "pageid": 3537,
+  "namespace": 0,
+  "title": "兵略",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%B5%E7%95%A5",
+  "revid": 35581,
+  "parentid": 24203,
+  "timestamp": "2022-03-25T08:58:49Z",
+  "sourceSha256": "ca4f90dae9dd9e12079aaae419278364b8570c69fab8a649064903b9ed2d51c7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3537,
+      "namespace": 0,
+      "title": "兵略",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%B5%E7%95%A5",
+      "revid": 35581,
+      "parentid": 24203,
+      "timestamp": "2022-03-25T08:58:49Z",
+      "sourceSha256": "ca4f90dae9dd9e12079aaae419278364b8570c69fab8a649064903b9ed2d51c7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "兵略",
+        "所属武将": "王平",
+        "技能版本": "经典",
+        "经典技能描述": "当你对每名其他角色第一次发动“{{技能/引用|飞军}}”时，你摸两张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=兵略\n|所属武将=王平\n|技能版本=经典\n|经典技能描述=当你对每名其他角色第一次发动“{{技能/引用|飞军}}”时，你摸两张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "兵略",
+      "generals": [
+        "王平"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你对每名其他角色第一次发动“{{技能/引用|飞军}}”时，你摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

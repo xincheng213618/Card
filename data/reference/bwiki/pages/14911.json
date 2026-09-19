@@ -1,0 +1,47 @@
+{
+  "pageid": 14911,
+  "namespace": 0,
+  "title": "许愿",
+  "url": "https://wiki.biligame.com/sgs/%E8%AE%B8%E6%84%BF",
+  "revid": 73724,
+  "parentid": 73719,
+  "timestamp": "2025-11-30T04:50:48Z",
+  "sourceSha256": "12231e83ee431490b774a5f874d84a4222ed464c47b7d8dea2e2cad412ddd901",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14911,
+      "namespace": 0,
+      "title": "许愿",
+      "url": "https://wiki.biligame.com/sgs/%E8%AE%B8%E6%84%BF",
+      "revid": 73724,
+      "parentid": 73719,
+      "timestamp": "2025-11-30T04:50:48Z",
+      "sourceSha256": "12231e83ee431490b774a5f874d84a4222ed464c47b7d8dea2e2cad412ddd901",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "许愿",
+        "所属武将": "香蕉端午",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段开始时，你可选择一个花色和一个装备的副类别，然后从牌堆中随机将一张满足要求的装备牌置入你的装备区。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=许愿\n|所属武将=香蕉端午\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段开始时，你可选择一个花色和一个装备的副类别，然后从牌堆中随机将一张满足要求的装备牌置入你的装备区。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "许愿",
+      "generals": [
+        "香蕉端午"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段开始时，你可选择一个花色和一个装备的副类别，然后从牌堆中随机将一张满足要求的装备牌置入你的装备区。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

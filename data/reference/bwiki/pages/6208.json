@@ -1,0 +1,47 @@
+{
+  "pageid": 6208,
+  "namespace": 0,
+  "title": "断发",
+  "url": "https://wiki.biligame.com/sgs/%E6%96%AD%E5%8F%91",
+  "revid": 54777,
+  "parentid": 54776,
+  "timestamp": "2023-07-14T14:02:40Z",
+  "sourceSha256": "96f3880085a0ed1e9f0b647cac55f9ea1294556efdb422c4b430096861051407",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6208,
+      "namespace": 0,
+      "title": "断发",
+      "url": "https://wiki.biligame.com/sgs/%E6%96%AD%E5%8F%91",
+      "revid": 54777,
+      "parentid": 54776,
+      "timestamp": "2023-07-14T14:02:40Z",
+      "sourceSha256": "96f3880085a0ed1e9f0b647cac55f9ea1294556efdb422c4b430096861051407",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "断发",
+        "所属武将": "周鲂",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以弃置任意张黑色牌（本阶段至多以此法弃置体力上限张牌），摸等量张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=断发\n|所属武将=周鲂\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以弃置任意张黑色牌（本阶段至多以此法弃置体力上限张牌），摸等量张牌。\n|经典技能类型=一般技\n|经典技能定位=换牌\n}}",
+      "name": "断发",
+      "generals": [
+        "周鲂"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以弃置任意张黑色牌（本阶段至多以此法弃置体力上限张牌），摸等量张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

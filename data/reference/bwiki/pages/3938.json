@@ -1,0 +1,47 @@
+{
+  "pageid": 3938,
+  "namespace": 0,
+  "title": "说盟",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B4%E7%9B%9F",
+  "revid": 57476,
+  "parentid": 57475,
+  "timestamp": "2023-09-28T01:45:30Z",
+  "sourceSha256": "64a8b7286d4a31d7f6c190c33f7e0f5e03ee75187a015e1ba47ab88f0bd2ceef",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3938,
+      "namespace": 0,
+      "title": "说盟",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B4%E7%9B%9F",
+      "revid": 57476,
+      "parentid": 57475,
+      "timestamp": "2023-09-28T01:45:30Z",
+      "sourceSha256": "64a8b7286d4a31d7f6c190c33f7e0f5e03ee75187a015e1ba47ab88f0bd2ceef",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "说盟",
+        "所属武将": "孙乾",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段结束时，你可以与一名角色拼点。若你赢，则你视为使用一张【无中生有】，否则其视为对你使用一张【过河拆桥】。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,过牌,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=说盟\n|所属武将=孙乾\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段结束时，你可以与一名角色拼点。若你赢，则你视为使用一张【无中生有】，否则其视为对你使用一张【过河拆桥】。\n|经典技能类型=一般技\n|经典技能定位=控制,过牌,负面\n}}",
+      "name": "说盟",
+      "generals": [
+        "孙乾"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段结束时，你可以与一名角色拼点。若你赢，则你视为使用一张【无中生有】，否则其视为对你使用一张【过河拆桥】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

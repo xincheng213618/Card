@@ -1,0 +1,47 @@
+{
+  "pageid": 5075,
+  "namespace": 0,
+  "title": "倾国",
+  "url": "https://wiki.biligame.com/sgs/%E5%80%BE%E5%9B%BD",
+  "revid": 53217,
+  "parentid": 53216,
+  "timestamp": "2023-04-29T08:34:11Z",
+  "sourceSha256": "b8fce9c2e1fcd540292c358ca69515c3b39e03b52cbde4a9e3299c652a4ce21c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5075,
+      "namespace": 0,
+      "title": "倾国",
+      "url": "https://wiki.biligame.com/sgs/%E5%80%BE%E5%9B%BD",
+      "revid": 53217,
+      "parentid": 53216,
+      "timestamp": "2023-04-29T08:34:11Z",
+      "sourceSha256": "b8fce9c2e1fcd540292c358ca69515c3b39e03b52cbde4a9e3299c652a4ce21c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "倾国",
+        "所属武将": "甄姬",
+        "是衍生技": "",
+        "技能版本": "经典,界,国",
+        "经典技能描述": "你可以将一张黑色手牌当【闪】使用或打出。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "防御"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=倾国\n|所属武将=甄姬\n|是衍生技=\n|技能版本=经典,界,国\n|经典技能描述=你可以将一张黑色手牌当【闪】使用或打出。\n|经典技能类型=一般技\n|经典技能定位=防御\n}}",
+      "name": "倾国",
+      "generals": [
+        "甄姬"
+      ],
+      "mode": "经典,界,国",
+      "version": "经典,界,国",
+      "descriptions": {
+        "经典技能描述": "你可以将一张黑色手牌当【闪】使用或打出。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

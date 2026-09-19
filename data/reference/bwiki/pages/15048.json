@@ -1,0 +1,45 @@
+{
+  "pageid": 15048,
+  "namespace": 0,
+  "title": "谋蒋干",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%92%8B%E5%B9%B2",
+  "revid": 74436,
+  "parentid": 74416,
+  "timestamp": "2026-01-09T16:08:30Z",
+  "sourceSha256": "23e44d934dd253e45201d6cb93f490ebd96ae848295abd7e37e610d36f8f0dc6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15048,
+      "namespace": 0,
+      "title": "谋蒋干",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%92%8B%E5%B9%B2",
+      "revid": 74436,
+      "parentid": 74416,
+      "timestamp": "2026-01-09T16:08:30Z",
+      "sourceSha256": "23e44d934dd253e45201d6cb93f490ebd96ae848295abd7e37e610d36f8f0dc6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋蒋干",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "反笺沉江",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-周郎将计",
+        "经典体力": "3",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=谋蒋干\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=反笺沉江\n|别称=\n|规则集问答=\n|武将包=谋定-周郎将计\n|经典体力=3\n|经典定位=攻击\n}}",
+      "name": "谋蒋干",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

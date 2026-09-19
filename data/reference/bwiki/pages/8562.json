@@ -1,0 +1,45 @@
+{
+  "pageid": 8562,
+  "namespace": 0,
+  "title": "李异谢旌",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%BC%82%E8%B0%A2%E6%97%8C",
+  "revid": 70174,
+  "parentid": 69922,
+  "timestamp": "2025-05-20T03:42:50Z",
+  "sourceSha256": "ecedf8df698c1dde9b373f65da0f2235ecd516b8f49c375a9e8281ad8a8886ff",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8562,
+      "namespace": 0,
+      "title": "李异谢旌",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%BC%82%E8%B0%A2%E6%97%8C",
+      "revid": 70174,
+      "parentid": 69922,
+      "timestamp": "2025-05-20T03:42:50Z",
+      "sourceSha256": "ecedf8df698c1dde9b373f65da0f2235ecd516b8f49c375a9e8281ad8a8886ff",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李异谢旌",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-兵临城下",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=李异谢旌\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-兵临城下\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "李异谢旌",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

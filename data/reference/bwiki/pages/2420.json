@@ -1,0 +1,49 @@
+{
+  "pageid": 2420,
+  "namespace": 0,
+  "title": "断肠",
+  "url": "https://wiki.biligame.com/sgs/%E6%96%AD%E8%82%A0",
+  "revid": 68225,
+  "parentid": 68184,
+  "timestamp": "2025-02-07T09:26:16Z",
+  "sourceSha256": "7d0dd9eeeb62aeea27492e4c44671a2a7141e0a840f4eb30f2ea83c78ea2fa93",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2420,
+      "namespace": 0,
+      "title": "断肠",
+      "url": "https://wiki.biligame.com/sgs/%E6%96%AD%E8%82%A0",
+      "revid": 68225,
+      "parentid": 68184,
+      "timestamp": "2025-02-07T09:26:16Z",
+      "sourceSha256": "7d0dd9eeeb62aeea27492e4c44671a2a7141e0a840f4eb30f2ea83c78ea2fa93",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "断肠",
+        "所属武将": "蔡文姬",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "当你死亡时，杀死你的角色失去所有武将技能。",
+        "国战技能描述": "当你死亡时，你令杀死你的角色失去一张武将牌的所有技能。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=断肠\n|所属武将=蔡文姬\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=当你死亡时，杀死你的角色失去所有武将技能。\n|国战技能描述=当你死亡时，你令杀死你的角色失去一张武将牌的所有技能。\n|经典技能类型=锁定技\n|经典技能定位=控制\n}}",
+      "name": "断肠",
+      "generals": [
+        "蔡文姬"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "当你死亡时，杀死你的角色失去所有武将技能。",
+        "国战技能描述": "当你死亡时，你令杀死你的角色失去一张武将牌的所有技能。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

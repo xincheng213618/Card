@@ -1,0 +1,45 @@
+{
+  "pageid": 13347,
+  "namespace": 0,
+  "title": "星法正",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E6%B3%95%E6%AD%A3",
+  "revid": 79356,
+  "parentid": 78720,
+  "timestamp": "2026-08-05T05:32:21Z",
+  "sourceSha256": "a78d0c97bbf81b7eddfde44f40dbf1d85586c2fd1a8deeece92e64bcc4956c0d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13347,
+      "namespace": 0,
+      "title": "星法正",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E6%B3%95%E6%AD%A3",
+      "revid": 79356,
+      "parentid": 78720,
+      "timestamp": "2026-08-05T05:32:21Z",
+      "sourceSha256": "a78d0c97bbf81b7eddfde44f40dbf1d85586c2fd1a8deeece92e64bcc4956c0d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星法正",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-天璇",
+        "经典体力": "3",
+        "经典定位": "续航,攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=星法正\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=星河璀璨-天璇\n|经典体力=3\n|经典定位=续航,攻击,爆发\n}}",
+      "name": "星法正",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

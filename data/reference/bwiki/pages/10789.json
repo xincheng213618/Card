@@ -1,0 +1,47 @@
+{
+  "pageid": 10789,
+  "namespace": 0,
+  "title": "聆乐",
+  "url": "https://wiki.biligame.com/sgs/%E8%81%86%E4%B9%90",
+  "revid": 56217,
+  "parentid": 56122,
+  "timestamp": "2023-08-18T01:28:52Z",
+  "sourceSha256": "6eb2d25d1b8e820c1fb6e3a61faf6a0c3920cdf2d3fdb60d5ede69681120f96c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10789,
+      "namespace": 0,
+      "title": "聆乐",
+      "url": "https://wiki.biligame.com/sgs/%E8%81%86%E4%B9%90",
+      "revid": 56217,
+      "parentid": 56122,
+      "timestamp": "2023-08-18T01:28:52Z",
+      "sourceSha256": "6eb2d25d1b8e820c1fb6e3a61faf6a0c3920cdf2d3fdb60d5ede69681120f96c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "聆乐",
+        "所属武将": "孙翎鸾",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当一名角色造成其本轮的第一次伤害后，你摸一张牌（若此时为其回合外，你改为摸X张牌，X为本回合全场造成的伤害值）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=聆乐\n|所属武将=孙翎鸾\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当一名角色造成其本轮的第一次伤害后，你摸一张牌（若此时为其回合外，你改为摸X张牌，X为本回合全场造成的伤害值）。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "聆乐",
+      "generals": [
+        "孙翎鸾"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一名角色造成其本轮的第一次伤害后，你摸一张牌（若此时为其回合外，你改为摸X张牌，X为本回合全场造成的伤害值）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

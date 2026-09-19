@@ -1,0 +1,45 @@
+{
+  "pageid": 8567,
+  "namespace": 0,
+  "title": "赵直",
+  "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E7%9B%B4",
+  "revid": 71142,
+  "parentid": 70892,
+  "timestamp": "2025-05-20T07:46:21Z",
+  "sourceSha256": "530636ca24a20dd42726e1cf4ed02f2c6a5698ff981af0a23fe51dce14ba0772",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8567,
+      "namespace": 0,
+      "title": "赵直",
+      "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E7%9B%B4",
+      "revid": 71142,
+      "parentid": 70892,
+      "timestamp": "2025-05-20T07:46:21Z",
+      "sourceSha256": "530636ca24a20dd42726e1cf4ed02f2c6a5698ff981af0a23fe51dce14ba0772",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "赵直",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=赵直\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "赵直",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

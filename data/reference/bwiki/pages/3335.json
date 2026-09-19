@@ -1,0 +1,47 @@
+{
+  "pageid": 3335,
+  "namespace": 0,
+  "title": "涯角",
+  "url": "https://wiki.biligame.com/sgs/%E6%B6%AF%E8%A7%92",
+  "revid": 39569,
+  "parentid": 23293,
+  "timestamp": "2022-09-05T15:56:26Z",
+  "sourceSha256": "23cd41d93042380b5fc9eafcc9f6f09512143c84b3cdb1eb0934b38de239b0ad",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3335,
+      "namespace": 0,
+      "title": "涯角",
+      "url": "https://wiki.biligame.com/sgs/%E6%B6%AF%E8%A7%92",
+      "revid": 39569,
+      "parentid": 23293,
+      "timestamp": "2022-09-05T15:56:26Z",
+      "sourceSha256": "23cd41d93042380b5fc9eafcc9f6f09512143c84b3cdb1eb0934b38de239b0ad",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "涯角",
+        "所属武将": "赵云",
+        "是衍生技": "",
+        "技能版本": "界",
+        "界限技能描述": "当你于回合外使用或打出手牌时，你可以展示牌堆顶的一张牌并将之交给一名角色，然后若这两张牌类别不同，你弃置一张牌。",
+        "界限技能类型": "一般技",
+        "界限技能定位": "防御,过牌,换牌,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=涯角\n|所属武将=赵云\n|是衍生技=\n|技能版本=界\n|界限技能描述=当你于回合外使用或打出手牌时，你可以展示牌堆顶的一张牌并将之交给一名角色，然后若这两张牌类别不同，你弃置一张牌。\n|界限技能类型=一般技\n|界限技能定位=防御,过牌,换牌,辅助\n}}",
+      "name": "涯角",
+      "generals": [
+        "赵云"
+      ],
+      "mode": "界",
+      "version": "界",
+      "descriptions": {
+        "界限技能描述": "当你于回合外使用或打出手牌时，你可以展示牌堆顶的一张牌并将之交给一名角色，然后若这两张牌类别不同，你弃置一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

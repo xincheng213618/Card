@@ -1,0 +1,45 @@
+{
+  "pageid": 7201,
+  "namespace": 0,
+  "title": "马日磾",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%97%A5%E7%A3%BE",
+  "revid": 74711,
+  "parentid": 71412,
+  "timestamp": "2026-01-22T16:45:42Z",
+  "sourceSha256": "0eba0e3f8ce34553b51c627b16a3ca58d06e1ac7600eec66ac6c4dc319c6f200",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7201,
+      "namespace": 0,
+      "title": "马日磾",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%97%A5%E7%A3%BE",
+      "revid": 74711,
+      "parentid": 71412,
+      "timestamp": "2026-01-22T16:45:42Z",
+      "sourceSha256": "0eba0e3f8ce34553b51c627b16a3ca58d06e1ac7600eec66ac6c4dc319c6f200",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "马日磾",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-代汉涂高",
+        "经典体力": "4/6",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=马日磾\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-代汉涂高\n|经典体力=4/6\n|经典定位=控制\n}}",
+      "name": "马日磾",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

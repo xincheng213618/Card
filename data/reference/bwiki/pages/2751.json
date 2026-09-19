@@ -1,0 +1,47 @@
+{
+  "pageid": 2751,
+  "namespace": 0,
+  "title": "观月",
+  "url": "https://wiki.biligame.com/sgs/%E8%A7%82%E6%9C%88",
+  "revid": 36099,
+  "parentid": 31074,
+  "timestamp": "2022-04-04T12:53:47Z",
+  "sourceSha256": "a644b2d4b28ac41e338438743082cbdec2fe8755a0a0889f73fa031daf63de17",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2751,
+      "namespace": 0,
+      "title": "观月",
+      "url": "https://wiki.biligame.com/sgs/%E8%A7%82%E6%9C%88",
+      "revid": 36099,
+      "parentid": 31074,
+      "timestamp": "2022-04-04T12:53:47Z",
+      "sourceSha256": "a644b2d4b28ac41e338438743082cbdec2fe8755a0a0889f73fa031daf63de17",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "6",
+        "技能名": "观月",
+        "所属武将": "写满技能的天书",
+        "是衍生技": "是",
+        "技能版本": "经典,国",
+        "经典技能描述": "结束阶段，你可以观看牌堆顶两张牌，获得其中一张牌，并将另一张牌放回牌堆顶。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,控顶"
+      },
+      "source": "{{技能/武将\n|技能序号=6\n|技能名=观月\n|所属武将=写满技能的天书\n|是衍生技=是\n|技能版本=经典,国\n|经典技能描述=结束阶段，你可以观看牌堆顶两张牌，获得其中一张牌，并将另一张牌放回牌堆顶。\n|经典技能类型=一般技\n|经典技能定位=过牌,控顶\n}}",
+      "name": "观月",
+      "generals": [
+        "写满技能的天书"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以观看牌堆顶两张牌，获得其中一张牌，并将另一张牌放回牌堆顶。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

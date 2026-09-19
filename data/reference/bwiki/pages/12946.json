@@ -1,0 +1,47 @@
+{
+  "pageid": 12946,
+  "namespace": 0,
+  "title": "势斩",
+  "url": "https://wiki.biligame.com/sgs/%E5%8A%BF%E6%96%A9",
+  "revid": 64371,
+  "parentid": 0,
+  "timestamp": "2024-08-21T13:01:53Z",
+  "sourceSha256": "a9bfc82ab99131a8de78ae86b9cdcf78ca0d1d99b8daf97e7fd239c5e57952da",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12946,
+      "namespace": 0,
+      "title": "势斩",
+      "url": "https://wiki.biligame.com/sgs/%E5%8A%BF%E6%96%A9",
+      "revid": 64371,
+      "parentid": 0,
+      "timestamp": "2024-08-21T13:01:53Z",
+      "sourceSha256": "a9bfc82ab99131a8de78ae86b9cdcf78ca0d1d99b8daf97e7fd239c5e57952da",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "势斩",
+        "所属武将": "华雄",
+        "是衍生技": "",
+        "技能版本": "界",
+        "界限技能描述": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。",
+        "界限技能类型": "一般技",
+        "界限技能定位": "攻击,负面,卖血"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=势斩\n|所属武将=华雄\n|是衍生技=\n|技能版本=界\n|界限技能描述=出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。\n|界限技能类型=一般技\n|界限技能定位=攻击,负面,卖血\n}}",
+      "name": "势斩",
+      "generals": [
+        "华雄"
+      ],
+      "mode": "界",
+      "version": "界",
+      "descriptions": {
+        "界限技能描述": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 819,
+  "namespace": 0,
+  "title": "丁原",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%81%E5%8E%9F",
+  "revid": 77482,
+  "parentid": 68992,
+  "timestamp": "2026-05-09T01:33:13Z",
+  "sourceSha256": "7cb7f0ffdcfccc4f914d7aab6652d9039ee61a7c829f298ec85782bd5cc3f09d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 819,
+      "namespace": 0,
+      "title": "丁原",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%81%E5%8E%9F",
+      "revid": 77482,
+      "parentid": 68992,
+      "timestamp": "2026-05-09T01:33:13Z",
+      "sourceSha256": "7cb7f0ffdcfccc4f914d7aab6652d9039ee61a7c829f298ec85782bd5cc3f09d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "丁原",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-诸侯伐董",
+        "经典体力": "4",
+        "经典定位": "攻击,控制,爆发"
+      },
+      "source": "{{武将\n|武将名=丁原\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|别称=\n|规则集问答=\n|武将包=荟萃-诸侯伐董\n|经典体力=4\n|经典定位=攻击,控制,爆发\n}}",
+      "name": "丁原",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,44 @@
+{
+  "pageid": 1511,
+  "namespace": 0,
+  "title": "朱儁",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E5%84%81",
+  "revid": 70158,
+  "parentid": 69907,
+  "timestamp": "2025-05-20T03:40:52Z",
+  "sourceSha256": "28b588aa5aa251021579038ce53f9e0f0be44703ce417641140ab71b793fb4fa",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1511,
+      "namespace": 0,
+      "title": "朱儁",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E5%84%81",
+      "revid": 70158,
+      "parentid": 69907,
+      "timestamp": "2025-05-20T03:40:52Z",
+      "sourceSha256": "28b588aa5aa251021579038ce53f9e0f0be44703ce417641140ab71b793fb4fa",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "朱儁",
+        "势力": "群",
+        "性别": "男",
+        "别称": "朱扒皮",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-黄巾之乱",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=朱儁\n|势力=群\n|性别=男\n|别称=朱扒皮\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-黄巾之乱\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "朱儁",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 4458,
+  "namespace": 0,
+  "title": "整论",
+  "url": "https://wiki.biligame.com/sgs/%E6%95%B4%E8%AE%BA",
+  "revid": 63028,
+  "parentid": 41411,
+  "timestamp": "2024-05-01T04:29:45Z",
+  "sourceSha256": "46c061f6406be8162367bafd02bc5199430c89c3ef76eb88f993a793a553135a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4458,
+      "namespace": 0,
+      "title": "整论",
+      "url": "https://wiki.biligame.com/sgs/%E6%95%B4%E8%AE%BA",
+      "revid": 63028,
+      "parentid": 41411,
+      "timestamp": "2024-05-01T04:29:45Z",
+      "sourceSha256": "46c061f6406be8162367bafd02bc5199430c89c3ef76eb88f993a793a553135a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "整论",
+        "所属武将": "陆绩",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "若你没有“'''橘'''”，你可以跳过摸牌阶段，获得1个“'''橘'''”。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=整论\n|所属武将=陆绩\n|是衍生技=\n|技能版本=经典\n|经典技能描述=若你没有“'''橘'''”，你可以跳过摸牌阶段，获得1个“'''橘'''”。\n|经典技能类型=一般技\n|经典技能定位=中性\n}}",
+      "name": "整论",
+      "generals": [
+        "陆绩"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "若你没有“'''橘'''”，你可以跳过摸牌阶段，获得1个“'''橘'''”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

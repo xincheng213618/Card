@@ -1,0 +1,45 @@
+{
+  "pageid": 14857,
+  "namespace": 0,
+  "title": "武陆抗",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E9%99%86%E6%8A%97",
+  "revid": 74318,
+  "parentid": 74111,
+  "timestamp": "2026-01-03T01:22:25Z",
+  "sourceSha256": "8756e3e660584e40b33c8f236818493da8346cccca23683d2eaf30dd3b6cbb7a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14857,
+      "namespace": 0,
+      "title": "武陆抗",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E9%99%86%E6%8A%97",
+      "revid": 74318,
+      "parentid": 74111,
+      "timestamp": "2026-01-03T01:22:25Z",
+      "sourceSha256": "8756e3e660584e40b33c8f236818493da8346cccca23683d2eaf30dd3b6cbb7a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "武陆抗",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "56抗",
+        "规则集问答": "",
+        "武将包": "限定-武庙",
+        "经典体力": "4",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=武陆抗\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=56抗\n|规则集问答=\n|武将包=限定-武庙\n|经典体力=4\n|经典定位=爆发,控制\n}}",
+      "name": "武陆抗",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

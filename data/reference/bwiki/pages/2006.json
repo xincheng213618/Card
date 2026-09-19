@@ -1,0 +1,47 @@
+{
+  "pageid": 2006,
+  "namespace": 0,
+  "title": "节命",
+  "url": "https://wiki.biligame.com/sgs/%E8%8A%82%E5%91%BD",
+  "revid": 68219,
+  "parentid": 68150,
+  "timestamp": "2025-02-07T09:20:39Z",
+  "sourceSha256": "31d5c563e85dbac01f3a34f3fecfd6f332075a82743b30bca9c09263c8a3db85",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2006,
+      "namespace": 0,
+      "title": "节命",
+      "url": "https://wiki.biligame.com/sgs/%E8%8A%82%E5%91%BD",
+      "revid": 68219,
+      "parentid": 68150,
+      "timestamp": "2025-02-07T09:20:39Z",
+      "sourceSha256": "31d5c563e85dbac01f3a34f3fecfd6f332075a82743b30bca9c09263c8a3db85",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "节命",
+        "所属武将": "荀彧",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "当你受到1点伤害后，你可以令一名角色将手牌摸至体力上限（至多摸至五张）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "卖血,过牌,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=节命\n|所属武将=荀彧\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=当你受到1点伤害后，你可以令一名角色将手牌摸至体力上限（至多摸至五张）。\n|经典技能类型=一般技\n|经典技能定位=卖血,过牌,辅助\n}}",
+      "name": "节命",
+      "generals": [
+        "荀彧"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "当你受到1点伤害后，你可以令一名角色将手牌摸至体力上限（至多摸至五张）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

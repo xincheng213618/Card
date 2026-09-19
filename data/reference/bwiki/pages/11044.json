@@ -1,0 +1,45 @@
+{
+  "pageid": 11044,
+  "namespace": 0,
+  "title": "神典韦",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%85%B8%E9%9F%A6",
+  "revid": 77318,
+  "parentid": 77317,
+  "timestamp": "2026-05-01T04:06:40Z",
+  "sourceSha256": "b1b08694da700bd4139ce28fb06c05d3e5e28cf74c2260ea8045668a13ddc2bf",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11044,
+      "namespace": 0,
+      "title": "神典韦",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%85%B8%E9%9F%A6",
+      "revid": 77318,
+      "parentid": 77317,
+      "timestamp": "2026-05-01T04:06:40Z",
+      "sourceSha256": "b1b08694da700bd4139ce28fb06c05d3e5e28cf74c2260ea8045668a13ddc2bf",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神典韦",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "冯陵猩衃",
+        "别称": "【杀】左慈、伽刚特尔",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=神典韦\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=冯陵猩衃\n|别称=【杀】左慈、伽刚特尔\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=爆发\n}}",
+      "name": "神典韦",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

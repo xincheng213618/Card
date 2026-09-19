@@ -1,0 +1,46 @@
+{
+  "pageid": 13536,
+  "namespace": 0,
+  "title": "威孙权",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%AD%99%E6%9D%83",
+  "revid": 77622,
+  "parentid": 76062,
+  "timestamp": "2026-05-09T01:43:28Z",
+  "sourceSha256": "5c2a547733166e58e57910d297f63ce2df9150f0f871b2f79df203f3d9fd4a0e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13536,
+      "namespace": 0,
+      "title": "威孙权",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%AD%99%E6%9D%83",
+      "revid": 77622,
+      "parentid": 76062,
+      "timestamp": "2026-05-09T01:43:28Z",
+      "sourceSha256": "5c2a547733166e58e57910d297f63ce2df9150f0f871b2f79df203f3d9fd4a0e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威孙权",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "大猩猩",
+        "规则集问答": "",
+        "武将包": "威震-君威盖世",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=威孙权\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=大猩猩\n|规则集问答=\n|武将包=威震-君威盖世\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "威孙权",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

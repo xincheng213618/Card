@@ -1,0 +1,47 @@
+{
+  "pageid": 14671,
+  "namespace": 0,
+  "title": "眷侣",
+  "url": "https://wiki.biligame.com/sgs/%E7%9C%B7%E4%BE%A3",
+  "revid": 72987,
+  "parentid": 72986,
+  "timestamp": "2025-10-19T02:43:07Z",
+  "sourceSha256": "13604b0559112f5ca7d718ef479ca35cb0882b3b60db27e8e60ad2e7ad98b523",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14671,
+      "namespace": 0,
+      "title": "眷侣",
+      "url": "https://wiki.biligame.com/sgs/%E7%9C%B7%E4%BE%A3",
+      "revid": 72987,
+      "parentid": 72986,
+      "timestamp": "2025-10-19T02:43:07Z",
+      "sourceSha256": "13604b0559112f5ca7d718ef479ca35cb0882b3b60db27e8e60ad2e7ad98b523",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "眷侣",
+        "所属武将": "刘协曹节",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用牌指定一名异性角色为目标后，你可以令其选择一项：1.弃置一张手牌；2.令你摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=眷侣\n|所属武将=刘协曹节\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用牌指定一名异性角色为目标后，你可以令其选择一项：1.弃置一张手牌；2.令你摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=控制\n}}",
+      "name": "眷侣",
+      "generals": [
+        "刘协曹节"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用牌指定一名异性角色为目标后，你可以令其选择一项：1.弃置一张手牌；2.令你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

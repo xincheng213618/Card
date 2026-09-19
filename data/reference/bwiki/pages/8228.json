@@ -1,0 +1,47 @@
+{
+  "pageid": 8228,
+  "namespace": 0,
+  "title": "崇望",
+  "url": "https://wiki.biligame.com/sgs/%E5%B4%87%E6%9C%9B",
+  "revid": 61191,
+  "parentid": 45333,
+  "timestamp": "2023-12-28T15:31:38Z",
+  "sourceSha256": "dab93fa35750bdd7efe1c03a1ad89f7eb6689496e286d2f913b0dc0d46cac6c8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8228,
+      "namespace": 0,
+      "title": "崇望",
+      "url": "https://wiki.biligame.com/sgs/%E5%B4%87%E6%9C%9B",
+      "revid": 61191,
+      "parentid": 45333,
+      "timestamp": "2023-12-28T15:31:38Z",
+      "sourceSha256": "dab93fa35750bdd7efe1c03a1ad89f7eb6689496e286d2f913b0dc0d46cac6c8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "崇望",
+        "所属武将": "王烈",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当其他角色使用基本牌或普通锦囊牌时，若使用本局游戏上一张牌的角色为你，你可以令其收回此牌或令此牌无效。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=崇望\n|所属武将=王烈\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当其他角色使用基本牌或普通锦囊牌时，若使用本局游戏上一张牌的角色为你，你可以令其收回此牌或令此牌无效。\n|经典技能类型=一般技\n|经典技能定位=控制,辅助\n}}",
+      "name": "崇望",
+      "generals": [
+        "王烈"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当其他角色使用基本牌或普通锦囊牌时，若使用本局游戏上一张牌的角色为你，你可以令其收回此牌或令此牌无效。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

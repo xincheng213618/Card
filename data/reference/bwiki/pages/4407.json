@@ -1,0 +1,47 @@
+{
+  "pageid": 4407,
+  "namespace": 0,
+  "title": "涉猎",
+  "url": "https://wiki.biligame.com/sgs/%E6%B6%89%E7%8C%8E",
+  "revid": 57473,
+  "parentid": 52435,
+  "timestamp": "2023-09-28T01:10:59Z",
+  "sourceSha256": "f5ac25990d9ca79cf341516e3605e4a065ad57e6e2c82cd5548930ccb5de06f8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4407,
+      "namespace": 0,
+      "title": "涉猎",
+      "url": "https://wiki.biligame.com/sgs/%E6%B6%89%E7%8C%8E",
+      "revid": 57473,
+      "parentid": 52435,
+      "timestamp": "2023-09-28T01:10:59Z",
+      "sourceSha256": "f5ac25990d9ca79cf341516e3605e4a065ad57e6e2c82cd5548930ccb5de06f8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "涉猎",
+        "所属武将": "神吕蒙",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "摸牌阶段，你可以改为亮出牌堆顶的五张牌，获得其中每种花色的牌各一张。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=涉猎\n|所属武将=神吕蒙\n|是衍生技=\n|技能版本=经典\n|经典技能描述=摸牌阶段，你可以改为亮出牌堆顶的五张牌，获得其中每种花色的牌各一张。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "涉猎",
+      "generals": [
+        "神吕蒙"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "摸牌阶段，你可以改为亮出牌堆顶的五张牌，获得其中每种花色的牌各一张。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

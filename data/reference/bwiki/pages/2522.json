@@ -1,0 +1,47 @@
+{
+  "pageid": 2522,
+  "namespace": 0,
+  "title": "酒池",
+  "url": "https://wiki.biligame.com/sgs/%E9%85%92%E6%B1%A0",
+  "revid": 68208,
+  "parentid": 68202,
+  "timestamp": "2025-02-07T04:15:03Z",
+  "sourceSha256": "0dc362d53904d24e54a488ddaf3503a752bb68184d20ffada638b8034fcd4b66",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2522,
+      "namespace": 0,
+      "title": "酒池",
+      "url": "https://wiki.biligame.com/sgs/%E9%85%92%E6%B1%A0",
+      "revid": 68208,
+      "parentid": 68202,
+      "timestamp": "2025-02-07T04:15:03Z",
+      "sourceSha256": "0dc362d53904d24e54a488ddaf3503a752bb68184d20ffada638b8034fcd4b66",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "酒池",
+        "所属武将": "董卓",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你可以将一张♠️手牌当【酒】使用。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "回血,爆发"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=酒池\n|所属武将=董卓\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你可以将一张♠️手牌当【酒】使用。\n|经典技能类型=一般技\n|经典技能定位=回血,爆发\n}}",
+      "name": "酒池",
+      "generals": [
+        "董卓"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你可以将一张♠️手牌当【酒】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

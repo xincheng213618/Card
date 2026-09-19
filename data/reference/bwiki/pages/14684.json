@@ -1,0 +1,44 @@
+{
+  "pageid": 14684,
+  "namespace": 0,
+  "title": "双璧孙策",
+  "url": "https://wiki.biligame.com/sgs/%E5%8F%8C%E7%92%A7%E5%AD%99%E7%AD%96",
+  "revid": 75820,
+  "parentid": 75423,
+  "timestamp": "2026-02-20T02:31:55Z",
+  "sourceSha256": "4b7601bb5237836cdb53b571c9c1c89cc3f26fd48f6e5965b5dca6ab2063f0fc",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14684,
+      "namespace": 0,
+      "title": "双璧孙策",
+      "url": "https://wiki.biligame.com/sgs/%E5%8F%8C%E7%92%A7%E5%AD%99%E7%AD%96",
+      "revid": 75820,
+      "parentid": 75423,
+      "timestamp": "2026-02-20T02:31:55Z",
+      "sourceSha256": "4b7601bb5237836cdb53b571c9c1c89cc3f26fd48f6e5965b5dca6ab2063f0fc",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "双璧孙策",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "江东双璧",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=双璧孙策\n|势力=吴\n|性别=男\n|出现模式=斗地主\n|称号=江东双璧\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "双璧孙策",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

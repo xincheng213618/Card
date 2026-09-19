@@ -1,0 +1,44 @@
+{
+  "pageid": 724,
+  "namespace": 0,
+  "title": "樊玉凤",
+  "url": "https://wiki.biligame.com/sgs/%E6%A8%8A%E7%8E%89%E5%87%A4",
+  "revid": 74689,
+  "parentid": 70213,
+  "timestamp": "2026-01-22T17:20:37Z",
+  "sourceSha256": "ae2a641771e3c6d340f52661b06cbf5ecf0ce9feba62abbb837b4038ced1b032",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 724,
+      "namespace": 0,
+      "title": "樊玉凤",
+      "url": "https://wiki.biligame.com/sgs/%E6%A8%8A%E7%8E%89%E5%87%A4",
+      "revid": 74689,
+      "parentid": 70213,
+      "timestamp": "2026-01-22T17:20:37Z",
+      "sourceSha256": "ae2a641771e3c6d340f52661b06cbf5ecf0ce9feba62abbb837b4038ced1b032",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "樊玉凤",
+        "势力": "群",
+        "性别": "女",
+        "别称": "凤姐",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-章台春望",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=樊玉凤\n|势力=群\n|性别=女\n|别称=凤姐\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-章台春望\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "樊玉凤",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 13778,
+  "namespace": 0,
+  "title": "张怀",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%80%80",
+  "revid": 77682,
+  "parentid": 68689,
+  "timestamp": "2026-05-09T01:46:14Z",
+  "sourceSha256": "9fc2cbf23f1ee0d0d4840e32721be0e7e80f742c01831b7f9c1c2ae162404130",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13778,
+      "namespace": 0,
+      "title": "张怀",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%80%80",
+      "revid": 77682,
+      "parentid": 68689,
+      "timestamp": "2026-05-09T01:46:14Z",
+      "sourceSha256": "9fc2cbf23f1ee0d0d4840e32721be0e7e80f742c01831b7f9c1c2ae162404130",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张怀",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=张怀\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "张怀",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

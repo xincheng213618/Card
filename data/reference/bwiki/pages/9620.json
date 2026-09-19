@@ -1,0 +1,45 @@
+{
+  "pageid": 9620,
+  "namespace": 0,
+  "title": "杨弘",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%A8%E5%BC%98",
+  "revid": 70186,
+  "parentid": 69934,
+  "timestamp": "2025-05-20T03:43:56Z",
+  "sourceSha256": "b365780e06f105aba978214fb76e601fe19b191027e121eadc5a0ee3de38c280",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9620,
+      "namespace": 0,
+      "title": "杨弘",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%A8%E5%BC%98",
+      "revid": 70186,
+      "parentid": 69934,
+      "timestamp": "2025-05-20T03:43:56Z",
+      "sourceSha256": "b365780e06f105aba978214fb76e601fe19b191027e121eadc5a0ee3de38c280",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "杨弘",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-计将安出",
+        "经典体力": "3",
+        "经典定位": "控制,距离"
+      },
+      "source": "{{武将\n|武将名=杨弘\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-计将安出\n|经典体力=3\n|经典定位=控制,距离\n}}",
+      "name": "杨弘",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

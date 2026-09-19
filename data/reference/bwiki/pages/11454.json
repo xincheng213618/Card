@@ -1,0 +1,47 @@
+{
+  "pageid": 11454,
+  "namespace": 0,
+  "title": "法器",
+  "url": "https://wiki.biligame.com/sgs/%E6%B3%95%E5%99%A8",
+  "revid": 59390,
+  "parentid": 59229,
+  "timestamp": "2023-11-12T12:58:10Z",
+  "sourceSha256": "81478d0e3268268549ab2a6ee0baf9f7fd1f8ce7106b02c3ae73691d2b33e268",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11454,
+      "namespace": 0,
+      "title": "法器",
+      "url": "https://wiki.biligame.com/sgs/%E6%B3%95%E5%99%A8",
+      "revid": 59390,
+      "parentid": 59229,
+      "timestamp": "2023-11-12T12:58:10Z",
+      "sourceSha256": "81478d0e3268268549ab2a6ee0baf9f7fd1f8ce7106b02c3ae73691d2b33e268",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "法器",
+        "所属武将": "哪吒",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，当你使用装备牌后，你可以视为使用一张普通锦囊牌（每回合每种牌名限一次）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "全能"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=法器\n|所属武将=哪吒\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段，当你使用装备牌后，你可以视为使用一张普通锦囊牌（每回合每种牌名限一次）。\n|经典技能类型=一般技\n|经典技能定位=全能\n}}",
+      "name": "法器",
+      "generals": [
+        "哪吒"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，当你使用装备牌后，你可以视为使用一张普通锦囊牌（每回合每种牌名限一次）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

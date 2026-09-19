@@ -1,0 +1,46 @@
+{
+  "pageid": 16165,
+  "namespace": 0,
+  "title": "桥公",
+  "url": "https://wiki.biligame.com/sgs/%E6%A1%A5%E5%85%AC",
+  "revid": 79672,
+  "parentid": 79605,
+  "timestamp": "2026-08-20T06:41:57Z",
+  "sourceSha256": "daa8022d007a0b11d01a77049ea458ee0658adf0888fb6e7ca375ad793443169",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16165,
+      "namespace": 0,
+      "title": "桥公",
+      "url": "https://wiki.biligame.com/sgs/%E6%A1%A5%E5%85%AC",
+      "revid": 79672,
+      "parentid": 79605,
+      "timestamp": "2026-08-20T06:41:57Z",
+      "sourceSha256": "daa8022d007a0b11d01a77049ea458ee0658adf0888fb6e7ca375ad793443169",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "桥公",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-江海同舟",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=桥公\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-江海同舟\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "桥公",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

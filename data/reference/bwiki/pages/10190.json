@@ -1,0 +1,46 @@
+{
+  "pageid": 10190,
+  "namespace": 0,
+  "title": "孙瑜",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%91%9C",
+  "revid": 77640,
+  "parentid": 69571,
+  "timestamp": "2026-05-09T01:44:12Z",
+  "sourceSha256": "fc93e322de948e2803f0ab1b7d167d7937260459e4f50b8a8a96bcb147d68032",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10190,
+      "namespace": 0,
+      "title": "孙瑜",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%91%9C",
+      "revid": 77640,
+      "parentid": 69571,
+      "timestamp": "2026-05-09T01:44:12Z",
+      "sourceSha256": "fc93e322de948e2803f0ab1b7d167d7937260459e4f50b8a8a96bcb147d68032",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙瑜",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=孙瑜\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "孙瑜",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

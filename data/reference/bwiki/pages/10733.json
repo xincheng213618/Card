@@ -1,0 +1,47 @@
+{
+  "pageid": 10733,
+  "namespace": 0,
+  "title": "伉厉",
+  "url": "https://wiki.biligame.com/sgs/%E4%BC%89%E5%8E%89",
+  "revid": 64668,
+  "parentid": 63795,
+  "timestamp": "2024-09-01T13:13:43Z",
+  "sourceSha256": "2fc577c9dc45426d7a32c108ed660ad6387f6763de49c826e142c2fe28598ae1",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10733,
+      "namespace": 0,
+      "title": "伉厉",
+      "url": "https://wiki.biligame.com/sgs/%E4%BC%89%E5%8E%89",
+      "revid": 64668,
+      "parentid": 63795,
+      "timestamp": "2024-09-01T13:13:43Z",
+      "sourceSha256": "2fc577c9dc45426d7a32c108ed660ad6387f6763de49c826e142c2fe28598ae1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "伉厉",
+        "所属武将": "孙礼",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你造成或受到伤害后，你可以摸两张牌（当你造成伤害时，弃置这些牌）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "卖血,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=伉厉\n|所属武将=孙礼\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你造成或受到伤害后，你可以摸两张牌（当你造成伤害时，弃置这些牌）。\n|经典技能类型=一般技\n|经典技能定位=卖血,过牌\n}}",
+      "name": "伉厉",
+      "generals": [
+        "孙礼"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你造成或受到伤害后，你可以摸两张牌（当你造成伤害时，弃置这些牌）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 11533,
+  "namespace": 0,
+  "title": "董昭",
+  "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E6%98%AD",
+  "revid": 73993,
+  "parentid": 71038,
+  "timestamp": "2025-12-17T05:03:55Z",
+  "sourceSha256": "40cfe92943cc46c6f19eb50d020dcd868dec5e09fb3e10a5e4285d543b35712e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11533,
+      "namespace": 0,
+      "title": "董昭",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E6%98%AD",
+      "revid": 73993,
+      "parentid": 71038,
+      "timestamp": "2025-12-17T05:03:55Z",
+      "sourceSha256": "40cfe92943cc46c6f19eb50d020dcd868dec5e09fb3e10a5e4285d543b35712e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "董昭",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=董昭\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "董昭",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

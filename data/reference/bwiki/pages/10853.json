@@ -1,0 +1,45 @@
+{
+  "pageid": 10853,
+  "namespace": 0,
+  "title": "董翓",
+  "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%BF%93",
+  "revid": 71041,
+  "parentid": 70791,
+  "timestamp": "2025-05-20T07:34:44Z",
+  "sourceSha256": "cff78b2e476dde7422cb5e9ba9681a4fffec17bcde971f379bdad353fc750de5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10853,
+      "namespace": 0,
+      "title": "董翓",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%BF%93",
+      "revid": 71041,
+      "parentid": 70791,
+      "timestamp": "2025-05-20T07:34:44Z",
+      "sourceSha256": "cff78b2e476dde7422cb5e9ba9681a4fffec17bcde971f379bdad353fc750de5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "董翓",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=董翓\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "董翓",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

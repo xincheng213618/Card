@@ -1,0 +1,45 @@
+{
+  "pageid": 3529,
+  "namespace": 0,
+  "title": "曹真",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E7%9C%9F",
+  "revid": 70140,
+  "parentid": 69889,
+  "timestamp": "2025-05-20T03:38:31Z",
+  "sourceSha256": "b0c22647a9d5d8c1e53f3653e1cee6da77e8481bf3c0d9e21ec0076b08a09d98",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3529,
+      "namespace": 0,
+      "title": "曹真",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E7%9C%9F",
+      "revid": 70140,
+      "parentid": 69889,
+      "timestamp": "2025-05-20T03:38:31Z",
+      "sourceSha256": "b0c22647a9d5d8c1e53f3653e1cee6da77e8481bf3c0d9e21ec0076b08a09d98",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹真",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "",
+        "称号": "荷国天督",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "{{faq|没有使用【杀】和没有使用锦囊牌是并列关系吗？|是的，需要分开结算。}}",
+        "武将包": "一将成名-2014",
+        "经典体力": "4",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=曹真\n|势力=魏\n|性别=男\n|别称=\n|称号=荷国天督\n|出现模式=身份,欢乐\n|规则集问答={{faq|没有使用【杀】和没有使用锦囊牌是并列关系吗？|是的，需要分开结算。}}\n|武将包=一将成名-2014\n|经典体力=4\n|经典定位=控制\n}}",
+      "name": "曹真",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

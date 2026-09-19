@@ -1,0 +1,47 @@
+{
+  "pageid": 2935,
+  "namespace": 0,
+  "title": "冲阵",
+  "url": "https://wiki.biligame.com/sgs/%E5%86%B2%E9%98%B5",
+  "revid": 59146,
+  "parentid": 40779,
+  "timestamp": "2023-11-02T14:28:23Z",
+  "sourceSha256": "541b48856606117d03fe8d255846de96bdda79429b7e37fd1001b337463bbd1a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2935,
+      "namespace": 0,
+      "title": "冲阵",
+      "url": "https://wiki.biligame.com/sgs/%E5%86%B2%E9%98%B5",
+      "revid": 59146,
+      "parentid": 40779,
+      "timestamp": "2023-11-02T14:28:23Z",
+      "sourceSha256": "541b48856606117d03fe8d255846de96bdda79429b7e37fd1001b337463bbd1a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "冲阵",
+        "所属武将": "SP赵云",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你发动“{{技能/引用|龙胆/SP赵云}}”使用或打出一张手牌时，你可以获得对方的一张手牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=冲阵\n|所属武将=SP赵云\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你发动“{{技能/引用|龙胆/SP赵云}}”使用或打出一张手牌时，你可以获得对方的一张手牌。\n|经典技能类型=一般技\n|经典技能定位=控制,过牌\n}}",
+      "name": "冲阵",
+      "generals": [
+        "SP赵云"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你发动“{{技能/引用|龙胆/SP赵云}}”使用或打出一张手牌时，你可以获得对方的一张手牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

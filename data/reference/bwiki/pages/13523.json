@@ -1,0 +1,46 @@
+{
+  "pageid": 13523,
+  "namespace": 0,
+  "title": "吕据",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%95%E6%8D%AE",
+  "revid": 77580,
+  "parentid": 67569,
+  "timestamp": "2026-05-09T01:40:35Z",
+  "sourceSha256": "4e6a3788246f9f93228183234680cab6beae5e3398066e6ff324e47e0ae8ff15",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13523,
+      "namespace": 0,
+      "title": "吕据",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%95%E6%8D%AE",
+      "revid": 77580,
+      "parentid": 67569,
+      "timestamp": "2026-05-09T01:40:35Z",
+      "sourceSha256": "4e6a3788246f9f93228183234680cab6beae5e3398066e6ff324e47e0ae8ff15",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吕据",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "SP孙翊",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "续航"
+      },
+      "source": "{{武将\n|武将名=吕据\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=SP孙翊\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=续航\n}}",
+      "name": "吕据",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

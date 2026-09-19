@@ -1,0 +1,46 @@
+{
+  "pageid": 12070,
+  "namespace": 0,
+  "title": "刘理",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%90%86",
+  "revid": 77548,
+  "parentid": 75370,
+  "timestamp": "2026-05-09T01:37:22Z",
+  "sourceSha256": "5c95fdc67c69aa51fc455cf14d8cc277b6c5c9b4e127df322c8a380a701eeecd",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12070,
+      "namespace": 0,
+      "title": "刘理",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%90%86",
+      "revid": 77548,
+      "parentid": 75370,
+      "timestamp": "2026-05-09T01:37:22Z",
+      "sourceSha256": "5c95fdc67c69aa51fc455cf14d8cc277b6c5c9b4e127df322c8a380a701eeecd",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘理",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "琉璃、流离",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "3",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=刘理\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=琉璃、流离\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=3\n|经典定位=爆发,控制\n}}",
+      "name": "刘理",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

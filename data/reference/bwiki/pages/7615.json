@@ -1,0 +1,47 @@
+{
+  "pageid": 7615,
+  "namespace": 0,
+  "title": "开济",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%80%E6%B5%8E",
+  "revid": 62800,
+  "parentid": 39844,
+  "timestamp": "2024-04-18T13:50:14Z",
+  "sourceSha256": "c9eaf158cdf43f60ae5b26f402fda6bf3bf8a9e5fdd2f81ff3a620c08e9e3581",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7615,
+      "namespace": 0,
+      "title": "开济",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%80%E6%B5%8E",
+      "revid": 62800,
+      "parentid": 39844,
+      "timestamp": "2024-04-18T13:50:14Z",
+      "sourceSha256": "c9eaf158cdf43f60ae5b26f402fda6bf3bf8a9e5fdd2f81ff3a620c08e9e3581",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "开济",
+        "所属武将": "王昶",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，<br>\n'''阳：'''你可以摸体力上限数张牌；<br>\n'''阴：'''你可以弃置至多体力上限数张牌。",
+        "经典技能类型": "转换技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=开济\n|所属武将=王昶\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，<br>\n'''阳：'''你可以摸体力上限数张牌；<br>\n'''阴：'''你可以弃置至多体力上限数张牌。\n|经典技能类型=转换技\n|经典技能定位=过牌\n}}",
+      "name": "开济",
+      "generals": [
+        "王昶"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，<br>\n'''阳：'''你可以摸体力上限数张牌；<br>\n'''阴：'''你可以弃置至多体力上限数张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

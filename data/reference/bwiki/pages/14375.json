@@ -1,0 +1,45 @@
+{
+  "pageid": 14375,
+  "namespace": 0,
+  "title": "谋曹昂",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9B%B9%E6%98%82",
+  "revid": 73061,
+  "parentid": 72155,
+  "timestamp": "2025-10-20T08:58:57Z",
+  "sourceSha256": "b332e04fbdd2ff7c33891fb1ec1d3336a0d7a6d9284f27c4aea64c21a349bc58",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14375,
+      "namespace": 0,
+      "title": "谋曹昂",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9B%B9%E6%98%82",
+      "revid": 73061,
+      "parentid": 72155,
+      "timestamp": "2025-10-20T08:58:57Z",
+      "sourceSha256": "b332e04fbdd2ff7c33891fb1ec1d3336a0d7a6d9284f27c4aea64c21a349bc58",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋曹昂",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "两全忠孝",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-毒士鸩计",
+        "经典体力": "4",
+        "经典定位": "续航，攻击"
+      },
+      "source": "{{武将\n|武将名=谋曹昂\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=两全忠孝\n|别称=\n|规则集问答=\n|武将包=谋定-毒士鸩计\n|经典体力=4\n|经典定位=续航，攻击\n}}",
+      "name": "谋曹昂",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

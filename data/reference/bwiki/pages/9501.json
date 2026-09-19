@@ -1,0 +1,47 @@
+{
+  "pageid": 9501,
+  "namespace": 0,
+  "title": "寝情",
+  "url": "https://wiki.biligame.com/sgs/%E5%AF%9D%E6%83%85",
+  "revid": 56212,
+  "parentid": 56130,
+  "timestamp": "2023-08-18T01:21:44Z",
+  "sourceSha256": "ac564928eb05d3b8b8da3d32922a4bf65d2d84b13af644a2ae867dafd18e6bd3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9501,
+      "namespace": 0,
+      "title": "寝情",
+      "url": "https://wiki.biligame.com/sgs/%E5%AF%9D%E6%83%85",
+      "revid": 56212,
+      "parentid": 56130,
+      "timestamp": "2023-08-18T01:21:44Z",
+      "sourceSha256": "ac564928eb05d3b8b8da3d32922a4bf65d2d84b13af644a2ae867dafd18e6bd3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "寝情",
+        "所属武将": "黄皓",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以弃置一名攻击范围内含有一号位的其他角色的一张牌。若其手牌数大于一号位，你摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=寝情\n|所属武将=黄皓\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你可以弃置一名攻击范围内含有一号位的其他角色的一张牌。若其手牌数大于一号位，你摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=控制,过牌\n}}",
+      "name": "寝情",
+      "generals": [
+        "黄皓"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以弃置一名攻击范围内含有一号位的其他角色的一张牌。若其手牌数大于一号位，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

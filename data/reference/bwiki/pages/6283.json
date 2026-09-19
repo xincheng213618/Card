@@ -1,0 +1,47 @@
+{
+  "pageid": 6283,
+  "namespace": 0,
+  "title": "急援",
+  "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E6%8F%B4",
+  "revid": 30909,
+  "parentid": 0,
+  "timestamp": "2022-01-22T04:56:19Z",
+  "sourceSha256": "ba2d6ce95601997b5d615f0e2295e4559c5f2de536883b7b88e278dacb7b7021",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6283,
+      "namespace": 0,
+      "title": "急援",
+      "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E6%8F%B4",
+      "revid": 30909,
+      "parentid": 0,
+      "timestamp": "2022-01-22T04:56:19Z",
+      "sourceSha256": "ba2d6ce95601997b5d615f0e2295e4559c5f2de536883b7b88e278dacb7b7021",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "急援",
+        "所属武将": "伊籍",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当一名角色进入濒死状态时，或当你交给一名其他角色牌时，你可以令其摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=急援\n|所属武将=伊籍\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当一名角色进入濒死状态时，或当你交给一名其他角色牌时，你可以令其摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=辅助,过牌\n}}",
+      "name": "急援",
+      "generals": [
+        "伊籍"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一名角色进入濒死状态时，或当你交给一名其他角色牌时，你可以令其摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

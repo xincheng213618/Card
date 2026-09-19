@@ -1,0 +1,47 @@
+{
+  "pageid": 6986,
+  "namespace": 0,
+  "title": "邓芝",
+  "url": "https://wiki.biligame.com/sgs/%E9%82%93%E8%8A%9D",
+  "revid": 77770,
+  "parentid": 74721,
+  "timestamp": "2026-05-09T01:55:46Z",
+  "sourceSha256": "731d240f209b95d7a6699723815b83bba0b124a710d04ac425a3bdf97fee0530",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6986,
+      "namespace": 0,
+      "title": "邓芝",
+      "url": "https://wiki.biligame.com/sgs/%E9%82%93%E8%8A%9D",
+      "revid": 77770,
+      "parentid": 74721,
+      "timestamp": "2026-05-09T01:55:46Z",
+      "sourceSha256": "731d240f209b95d7a6699723815b83bba0b124a710d04ac425a3bdf97fee0530",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "邓芝",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-纵横捭阖",
+        "经典体力": "3",
+        "经典定位": "辅助,控制\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=邓芝\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-纵横捭阖\n|经典体力=3\n|经典定位=辅助,控制\n<!-- 国战 -->\n}}",
+      "name": "邓芝",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

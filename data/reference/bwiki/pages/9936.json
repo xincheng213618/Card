@@ -1,0 +1,45 @@
+{
+  "pageid": 9936,
+  "namespace": 0,
+  "title": "董绾",
+  "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%BB%BE",
+  "revid": 71040,
+  "parentid": 70790,
+  "timestamp": "2025-05-20T07:34:36Z",
+  "sourceSha256": "8c02ca720ddfd52e1687f995e0fa99bb0e8708d8607b82cbbb3389ea04b237df",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9936,
+      "namespace": 0,
+      "title": "董绾",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%BB%BE",
+      "revid": 71040,
+      "parentid": 70790,
+      "timestamp": "2025-05-20T07:34:36Z",
+      "sourceSha256": "8c02ca720ddfd52e1687f995e0fa99bb0e8708d8607b82cbbb3389ea04b237df",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "董绾",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-代汉涂高",
+        "经典体力": "3",
+        "经典定位": "攻击,续航"
+      },
+      "source": "{{武将\n|武将名=董绾\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-代汉涂高\n|经典体力=3\n|经典定位=攻击,续航\n}}",
+      "name": "董绾",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

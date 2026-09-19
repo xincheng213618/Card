@@ -1,0 +1,47 @@
+{
+  "pageid": 2331,
+  "namespace": 0,
+  "title": "先率",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%88%E7%8E%87",
+  "revid": 65420,
+  "parentid": 65419,
+  "timestamp": "2024-10-04T11:08:14Z",
+  "sourceSha256": "56208235f40a8439d1cdfb7cfe44ea9ccc82918df3577846a4449ec6fd77e78d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2331,
+      "namespace": 0,
+      "title": "先率",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%88%E7%8E%87",
+      "revid": 65420,
+      "parentid": 65419,
+      "timestamp": "2024-10-04T11:08:14Z",
+      "sourceSha256": "56208235f40a8439d1cdfb7cfe44ea9ccc82918df3577846a4449ec6fd77e78d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "先率",
+        "所属武将": "丁原",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "本轮的第一次伤害造成后，你摸一张牌，若你为此次伤害的伤害来源，你对受伤角色造成1点伤害。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=先率\n|所属武将=丁原\n|是衍生技=\n|技能版本=经典\n|经典技能描述=本轮的第一次伤害造成后，你摸一张牌，若你为此次伤害的伤害来源，你对受伤角色造成1点伤害。\n|经典技能类型=锁定技\n|经典技能定位=过牌,攻击\n}}",
+      "name": "先率",
+      "generals": [
+        "丁原"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "本轮的第一次伤害造成后，你摸一张牌，若你为此次伤害的伤害来源，你对受伤角色造成1点伤害。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

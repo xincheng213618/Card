@@ -1,0 +1,46 @@
+{
+  "pageid": 13959,
+  "namespace": 0,
+  "title": "乐蔡邕",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E8%94%A1%E9%82%95",
+  "revid": 77938,
+  "parentid": 77500,
+  "timestamp": "2026-05-17T04:43:46Z",
+  "sourceSha256": "06285cffed8fb37772b53477108b3aa3368179345ba3ec45e14cdf38a0d11866",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13959,
+      "namespace": 0,
+      "title": "乐蔡邕",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E8%94%A1%E9%82%95",
+      "revid": 77938,
+      "parentid": 77500,
+      "timestamp": "2026-05-17T04:43:46Z",
+      "sourceSha256": "06285cffed8fb37772b53477108b3aa3368179345ba3ec45e14cdf38a0d11866",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐蔡邕",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "焦尾识音",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-正音雅乐",
+        "经典体力": "3",
+        "经典定位": "爆发,过牌"
+      },
+      "source": "{{武将\n|武将名=乐蔡邕\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=焦尾识音\n|别称=\n|规则集问答=\n|武将包=荟萃-正音雅乐\n|经典体力=3\n|经典定位=爆发,过牌\n}}",
+      "name": "乐蔡邕",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 3169,
+  "namespace": 0,
+  "title": "谦节",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%A6%E8%8A%82",
+  "revid": 58252,
+  "parentid": 51994,
+  "timestamp": "2023-10-19T08:16:35Z",
+  "sourceSha256": "49e30e1ee8969c96103768c0e8cf1abc0959f6538c4c39a5ae8f152ad1a4329f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3169,
+      "namespace": 0,
+      "title": "谦节",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%A6%E8%8A%82",
+      "revid": 58252,
+      "parentid": 51994,
+      "timestamp": "2023-10-19T08:16:35Z",
+      "sourceSha256": "49e30e1ee8969c96103768c0e8cf1abc0959f6538c4c39a5ae8f152ad1a4329f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "谦节",
+        "所属武将": "陆抗",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①当你即将被横置时，取消之；<br>\n②你不能成为延时锦囊牌或其他角色拼点的目标。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=谦节\n|所属武将=陆抗\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①当你即将被横置时，取消之；<br>\n②你不能成为延时锦囊牌或其他角色拼点的目标。\n|经典技能类型=锁定技\n|经典技能定位=防御\n}}",
+      "name": "谦节",
+      "generals": [
+        "陆抗"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①当你即将被横置时，取消之；<br>\n②你不能成为延时锦囊牌或其他角色拼点的目标。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

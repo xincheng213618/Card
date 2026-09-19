@@ -1,0 +1,46 @@
+{
+  "pageid": 15876,
+  "namespace": 0,
+  "title": "傅干",
+  "url": "https://wiki.biligame.com/sgs/%E5%82%85%E5%B9%B2",
+  "revid": 79437,
+  "parentid": 79436,
+  "timestamp": "2026-08-07T23:58:28Z",
+  "sourceSha256": "5f14789b9c53df1892d2442788d8cd2a95d1443dd6cd7166694b708317756aa5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15876,
+      "namespace": 0,
+      "title": "傅干",
+      "url": "https://wiki.biligame.com/sgs/%E5%82%85%E5%B9%B2",
+      "revid": 79437,
+      "parentid": 79436,
+      "timestamp": "2026-08-07T23:58:28Z",
+      "sourceSha256": "5f14789b9c53df1892d2442788d8cd2a95d1443dd6cd7166694b708317756aa5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "傅干",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "察策明谏",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=傅干\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=察策明谏\n|别称=\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "傅干",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

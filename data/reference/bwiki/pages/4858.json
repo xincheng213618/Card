@@ -1,0 +1,47 @@
+{
+  "pageid": 4858,
+  "namespace": 0,
+  "title": "马术/马岱",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/%E9%A9%AC%E5%B2%B1",
+  "revid": 35323,
+  "parentid": 30337,
+  "timestamp": "2022-03-23T10:04:26Z",
+  "sourceSha256": "73e40bdc1e1d13c0185c9e594e93f74b4a6fbe5aab12d4fa842060c7f87b23a8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4858,
+      "namespace": 0,
+      "title": "马术/马岱",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E6%9C%AF/%E9%A9%AC%E5%B2%B1",
+      "revid": 35323,
+      "parentid": 30337,
+      "timestamp": "2022-03-23T10:04:26Z",
+      "sourceSha256": "73e40bdc1e1d13c0185c9e594e93f74b4a6fbe5aab12d4fa842060c7f87b23a8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "马术",
+        "所属武将": "马岱",
+        "是衍生技": "",
+        "技能版本": "经典,界,国",
+        "经典技能描述": "你计算与其他角色的距离-1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=马术\n|所属武将=马岱\n|是衍生技=\n|技能版本=经典,界,国\n|经典技能描述=你计算与其他角色的距离-1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,距离\n}}",
+      "name": "马术",
+      "generals": [
+        "马岱"
+      ],
+      "mode": "经典,界,国",
+      "version": "经典,界,国",
+      "descriptions": {
+        "经典技能描述": "你计算与其他角色的距离-1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 2749,
+  "namespace": 0,
+  "title": "仙授",
+  "url": "https://wiki.biligame.com/sgs/%E4%BB%99%E6%8E%88",
+  "revid": 64699,
+  "parentid": 64475,
+  "timestamp": "2024-09-04T01:26:23Z",
+  "sourceSha256": "0fb401996146fba5e7f6f999d3560df9ac1d3055d2f1ddc133dba007eb453202",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2749,
+      "namespace": 0,
+      "title": "仙授",
+      "url": "https://wiki.biligame.com/sgs/%E4%BB%99%E6%8E%88",
+      "revid": 64699,
+      "parentid": 64475,
+      "timestamp": "2024-09-04T01:26:23Z",
+      "sourceSha256": "0fb401996146fba5e7f6f999d3560df9ac1d3055d2f1ddc133dba007eb453202",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "仙授",
+        "所属武将": "写满技能的天书",
+        "是衍生技": "是",
+        "技能版本": "经典,国",
+        "经典技能描述": "出牌阶段限一次，你可以选择一名角色，若其已受伤，则其摸一张牌，否则其摸两张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=仙授\n|所属武将=写满技能的天书\n|是衍生技=是\n|技能版本=经典,国\n|经典技能描述=出牌阶段限一次，你可以选择一名角色，若其已受伤，则其摸一张牌，否则其摸两张牌。\n|经典技能类型=一般技\n|经典技能定位=辅助,过牌\n}}",
+      "name": "仙授",
+      "generals": [
+        "写满技能的天书"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以选择一名角色，若其已受伤，则其摸一张牌，否则其摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

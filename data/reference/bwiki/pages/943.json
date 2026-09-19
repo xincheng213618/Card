@@ -1,0 +1,45 @@
+{
+  "pageid": 943,
+  "namespace": 0,
+  "title": "张让",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E8%AE%A9",
+  "revid": 77700,
+  "parentid": 74718,
+  "timestamp": "2026-05-09T01:47:45Z",
+  "sourceSha256": "5bed923e09ffcdaa6f6153b31ffda75555968411e97f7a8578137a2a73ed92ac",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 943,
+      "namespace": 0,
+      "title": "张让",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E8%AE%A9",
+      "revid": 77700,
+      "parentid": 74718,
+      "timestamp": "2026-05-09T01:47:45Z",
+      "sourceSha256": "5bed923e09ffcdaa6f6153b31ffda75555968411e97f7a8578137a2a73ed92ac",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张让",
+        "势力": "群",
+        "性别": "男",
+        "别称": "公公",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "{{faq|回合外能否发动滔乱？|可以，【闪】、【无懈可击】等回合外使用的牌都可以使用一次。}}",
+        "武将包": "荟萃-戚宦之争",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=张让\n|势力=群\n|性别=男\n|别称=公公\n|出现模式=身份,欢乐,斗地主\n|规则集问答={{faq|回合外能否发动滔乱？|可以，【闪】、【无懈可击】等回合外使用的牌都可以使用一次。}}\n|武将包=荟萃-戚宦之争\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "张让",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

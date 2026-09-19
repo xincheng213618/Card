@@ -1,0 +1,46 @@
+{
+  "pageid": 7365,
+  "namespace": 0,
+  "title": "张媱",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%AA%B1",
+  "revid": 79307,
+  "parentid": 79306,
+  "timestamp": "2026-08-04T03:52:58Z",
+  "sourceSha256": "38052dfd7668fbbb097849d7531379c734f8a39750698d961cd011d007350d14",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7365,
+      "namespace": 0,
+      "title": "张媱",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%AA%B1",
+      "revid": 79307,
+      "parentid": 79306,
+      "timestamp": "2026-08-04T03:52:58Z",
+      "sourceSha256": "38052dfd7668fbbb097849d7531379c734f8a39750698d961cd011d007350d14",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张媱",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "怨妇",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "3",
+        "经典定位": "控制,发育"
+      },
+      "source": "{{武将\n|武将名=张媱\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=怨妇\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=3\n|经典定位=控制,发育\n}}",
+      "name": "张媱",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 4397,
+  "namespace": 0,
+  "title": "资粮",
+  "url": "https://wiki.biligame.com/sgs/%E8%B5%84%E7%B2%AE",
+  "revid": 76830,
+  "parentid": 43381,
+  "timestamp": "2026-04-16T07:06:54Z",
+  "sourceSha256": "7d84d55219da856b2c5bfe151c5c52cf0efe39bb2046104b4b347fa5400efec3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4397,
+      "namespace": 0,
+      "title": "资粮",
+      "url": "https://wiki.biligame.com/sgs/%E8%B5%84%E7%B2%AE",
+      "revid": 76830,
+      "parentid": 43381,
+      "timestamp": "2026-04-16T07:06:54Z",
+      "sourceSha256": "7d84d55219da856b2c5bfe151c5c52cf0efe39bb2046104b4b347fa5400efec3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "5",
+        "技能名": "资粮",
+        "所属武将": "邓艾",
+        "技能版本": "国",
+        "国战技能描述": "当一名与你势力相同的角色受到伤害后，你可以将一张“'''田'''”交给该角色。",
+        "国战技能类型": "副将技",
+        "国战技能定位": "卖血,辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=5\n|技能名=资粮\n|所属武将=邓艾\n|技能版本=国\n|国战技能描述=当一名与你势力相同的角色受到伤害后，你可以将一张“'''田'''”交给该角色。\n|国战技能类型=副将技\n|国战技能定位=卖血,辅助,过牌\n}}",
+      "name": "资粮",
+      "generals": [
+        "邓艾"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "当一名与你势力相同的角色受到伤害后，你可以将一张“'''田'''”交给该角色。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

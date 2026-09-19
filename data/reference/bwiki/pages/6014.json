@@ -1,0 +1,46 @@
+{
+  "pageid": 6014,
+  "namespace": 0,
+  "title": "蒋钦",
+  "url": "https://wiki.biligame.com/sgs/%E8%92%8B%E9%92%A6",
+  "revid": 77762,
+  "parentid": 71045,
+  "timestamp": "2026-05-09T01:55:18Z",
+  "sourceSha256": "68ddac348f471c584d8fcf087fc5772181a0a9beb37ee3754d32e7fa94593cf6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6014,
+      "namespace": 0,
+      "title": "蒋钦",
+      "url": "https://wiki.biligame.com/sgs/%E8%92%8B%E9%92%A6",
+      "revid": 77762,
+      "parentid": 71045,
+      "timestamp": "2026-05-09T01:55:18Z",
+      "sourceSha256": "68ddac348f471c584d8fcf087fc5772181a0a9beb37ee3754d32e7fa94593cf6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "蒋钦",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "控制,攻击\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=蒋钦\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=控制,攻击\n<!-- 国战 -->\n}}",
+      "name": "蒋钦",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

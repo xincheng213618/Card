@@ -1,0 +1,47 @@
+{
+  "pageid": 11448,
+  "namespace": 0,
+  "title": "酒仙",
+  "url": "https://wiki.biligame.com/sgs/%E9%85%92%E4%BB%99",
+  "revid": 72959,
+  "parentid": 72943,
+  "timestamp": "2025-10-18T13:46:39Z",
+  "sourceSha256": "dd14189c656a7ed9f57ed2c4520a47d902713287d49b11ad7a419903bb9e6d29",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11448,
+      "namespace": 0,
+      "title": "酒仙",
+      "url": "https://wiki.biligame.com/sgs/%E9%85%92%E4%BB%99",
+      "revid": 72959,
+      "parentid": 72943,
+      "timestamp": "2025-10-18T13:46:39Z",
+      "sourceSha256": "dd14189c656a7ed9f57ed2c4520a47d902713287d49b11ad7a419903bb9e6d29",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "酒仙",
+        "所属武将": "李白",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①你使用【酒】无次数限制；<br>\n②你可以将一张多目标锦囊牌当【酒】使用。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "攻击,生存"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=酒仙\n|所属武将=李白\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①你使用【酒】无次数限制；<br>\n②你可以将一张多目标锦囊牌当【酒】使用。\n|经典技能类型=一般技\n|经典技能定位=攻击,生存\n}}",
+      "name": "酒仙",
+      "generals": [
+        "李白"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①你使用【酒】无次数限制；<br>\n②你可以将一张多目标锦囊牌当【酒】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

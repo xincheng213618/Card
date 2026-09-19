@@ -1,0 +1,45 @@
+{
+  "pageid": 7453,
+  "namespace": 0,
+  "title": "曹华",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%8D%8E",
+  "revid": 75305,
+  "parentid": 70130,
+  "timestamp": "2026-02-10T03:49:21Z",
+  "sourceSha256": "460e3ca32450247a0edd2d56f5ba8d7bb71583ce386de703fc3b0a920ffef2a9",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7453,
+      "namespace": 0,
+      "title": "曹华",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%8D%8E",
+      "revid": 75305,
+      "parentid": 70130,
+      "timestamp": "2026-02-10T03:49:21Z",
+      "sourceSha256": "460e3ca32450247a0edd2d56f5ba8d7bb71583ce386de703fc3b0a920ffef2a9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹华",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=曹华\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "曹华",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

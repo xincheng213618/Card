@@ -1,0 +1,47 @@
+{
+  "pageid": 6157,
+  "namespace": 0,
+  "title": "困奋",
+  "url": "https://wiki.biligame.com/sgs/%E5%9B%B0%E5%A5%8B",
+  "revid": 59035,
+  "parentid": 30150,
+  "timestamp": "2023-11-02T09:36:12Z",
+  "sourceSha256": "decb77c773c9b0497218a6a18d4bd377f31558e44fe5f8147945f6e6b243718b",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6157,
+      "namespace": 0,
+      "title": "困奋",
+      "url": "https://wiki.biligame.com/sgs/%E5%9B%B0%E5%A5%8B",
+      "revid": 59035,
+      "parentid": 30150,
+      "timestamp": "2023-11-02T09:36:12Z",
+      "sourceSha256": "decb77c773c9b0497218a6a18d4bd377f31558e44fe5f8147945f6e6b243718b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "困奋",
+        "所属武将": "SP姜维",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你失去1点体力，摸两张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=困奋\n|所属武将=SP姜维\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你失去1点体力，摸两张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "困奋",
+      "generals": [
+        "SP姜维"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你失去1点体力，摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

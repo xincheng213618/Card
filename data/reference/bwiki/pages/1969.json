@@ -1,0 +1,44 @@
+{
+  "pageid": 1969,
+  "namespace": 0,
+  "title": "樊稠",
+  "url": "https://wiki.biligame.com/sgs/%E6%A8%8A%E7%A8%A0",
+  "revid": 77056,
+  "parentid": 70214,
+  "timestamp": "2026-04-26T01:59:12Z",
+  "sourceSha256": "511ea588a97bc7f28f2c194bc65f4e857ce8f4b1e0cb11ec5af4a4b6207aa1e7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1969,
+      "namespace": 0,
+      "title": "樊稠",
+      "url": "https://wiki.biligame.com/sgs/%E6%A8%8A%E7%A8%A0",
+      "revid": 77056,
+      "parentid": 70214,
+      "timestamp": "2026-04-26T01:59:12Z",
+      "sourceSha256": "511ea588a97bc7f28f2c194bc65f4e857ce8f4b1e0cb11ec5af4a4b6207aa1e7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "樊稠",
+        "势力": "群",
+        "性别": "男",
+        "别称": "六哥、樊老六",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4",
+        "经典定位": "续航"
+      },
+      "source": "{{武将\n|武将名=樊稠\n|势力=群\n|性别=男\n|别称=六哥、樊老六\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4\n|经典定位=续航\n}}",
+      "name": "樊稠",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

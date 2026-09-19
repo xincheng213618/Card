@@ -1,0 +1,76 @@
+{
+  "pageid": 13019,
+  "namespace": 0,
+  "title": "铿锵",
+  "url": "https://wiki.biligame.com/sgs/%E9%93%BF%E9%94%B5",
+  "revid": 68621,
+  "parentid": 65511,
+  "timestamp": "2025-04-03T10:41:32Z",
+  "sourceSha256": "c2d0b34abb2abe69fc917ab18b3edd296fc11bff2ba8feb3ad2e559f0fb81cac",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 13019,
+      "namespace": 0,
+      "title": "铿锵",
+      "url": "https://wiki.biligame.com/sgs/%E9%93%BF%E9%94%B5",
+      "revid": 68621,
+      "parentid": 65511,
+      "timestamp": "2025-04-03T10:41:32Z",
+      "sourceSha256": "c2d0b34abb2abe69fc917ab18b3edd296fc11bff2ba8feb3ad2e559f0fb81cac",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "铿锵",
+        "所属武将": "文鸳",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合限一次，当你{{版本对比|增改|使用伤害牌}}时，你可以选择一项：1.摸X张牌（X为你的体力上限）；2.令此伤害+1并获得造成伤害的牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=铿锵\n|所属武将=文鸳\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合限一次，当你{{版本对比|增改|使用伤害牌}}时，你可以选择一项：1.摸X张牌（X为你的体力上限）；2.令此伤害+1并获得造成伤害的牌。\n|经典技能类型=一般技\n|经典技能定位=过牌,攻击\n}}",
+      "name": "铿锵",
+      "generals": [
+        "文鸳"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合限一次，当你{{版本对比|增改|使用伤害牌}}时，你可以选择一项：1.摸X张牌（X为你的体力上限）；2.令此伤害+1并获得造成伤害的牌。"
+      }
+    },
+    {
+      "pageid": 13019,
+      "namespace": 0,
+      "title": "铿锵",
+      "url": "https://wiki.biligame.com/sgs/%E9%93%BF%E9%94%B5",
+      "revid": 68621,
+      "parentid": 65511,
+      "timestamp": "2025-04-03T10:41:32Z",
+      "sourceSha256": "c2d0b34abb2abe69fc917ab18b3edd296fc11bff2ba8feb3ad2e559f0fb81cac",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "第I版",
+        "技能序号": "1",
+        "技能名": "铿锵",
+        "所属武将": "文鸳",
+        "经典技能描述": "每回合限一次，当你造成伤害时，你可以选择一项：1.摸X张牌（X为你的体力上限）；2.令此伤害+1并获得造成伤害的牌。"
+      },
+      "source": "{{技能/武将\n|历史版本=第I版\n|技能序号=1\n|技能名=铿锵\n|所属武将=文鸳\n|经典技能描述=每回合限一次，当你造成伤害时，你可以选择一项：1.摸X张牌（X为你的体力上限）；2.令此伤害+1并获得造成伤害的牌。\n}}",
+      "name": "铿锵",
+      "generals": [
+        "文鸳"
+      ],
+      "mode": null,
+      "version": "第I版",
+      "descriptions": {
+        "经典技能描述": "每回合限一次，当你造成伤害时，你可以选择一项：1.摸X张牌（X为你的体力上限）；2.令此伤害+1并获得造成伤害的牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

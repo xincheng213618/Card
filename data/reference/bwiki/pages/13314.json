@@ -1,0 +1,45 @@
+{
+  "pageid": 13314,
+  "namespace": 0,
+  "title": "清河公主",
+  "url": "https://wiki.biligame.com/sgs/%E6%B8%85%E6%B2%B3%E5%85%AC%E4%B8%BB",
+  "revid": 70271,
+  "parentid": 70018,
+  "timestamp": "2025-05-20T04:02:24Z",
+  "sourceSha256": "a1db91debd6cad3c0db09bfcfe298a936f69de11e1dd81b8a694b367d1217d5f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13314,
+      "namespace": 0,
+      "title": "清河公主",
+      "url": "https://wiki.biligame.com/sgs/%E6%B8%85%E6%B2%B3%E5%85%AC%E4%B8%BB",
+      "revid": 70271,
+      "parentid": 70018,
+      "timestamp": "2025-05-20T04:02:24Z",
+      "sourceSha256": "a1db91debd6cad3c0db09bfcfe298a936f69de11e1dd81b8a694b367d1217d5f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "清河公主",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=清河公主\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "清河公主",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

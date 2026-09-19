@@ -1,0 +1,44 @@
+{
+  "pageid": 14683,
+  "namespace": 0,
+  "title": "刘协曹节",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%8D%8F%E6%9B%B9%E8%8A%82",
+  "revid": 75765,
+  "parentid": 75422,
+  "timestamp": "2026-02-15T10:53:06Z",
+  "sourceSha256": "fb26a6ae82c8a5ecec67912f6922ac92cc4626d527d1dfe3a2ee7c038320e7eb",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14683,
+      "namespace": 0,
+      "title": "刘协曹节",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%8D%8F%E6%9B%B9%E8%8A%82",
+      "revid": 75765,
+      "parentid": 75422,
+      "timestamp": "2026-02-15T10:53:06Z",
+      "sourceSha256": "fb26a6ae82c8a5ecec67912f6922ac92cc4626d527d1dfe3a2ee7c038320e7eb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘协曹节",
+        "势力": "群",
+        "性别": "男/女",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "神雌雄双股剑",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "2",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=刘协曹节\n|势力=群\n|性别=男/女\n|出现模式=斗地主\n|称号=\n|别称=神雌雄双股剑\n|规则集问答=\n|武将包=限时地主\n|经典体力=2\n|经典定位=控制\n}}",
+      "name": "刘协曹节",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

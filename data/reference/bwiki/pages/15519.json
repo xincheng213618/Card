@@ -1,0 +1,44 @@
+{
+  "pageid": 15519,
+  "namespace": 0,
+  "title": "变幻之神",
+  "url": "https://wiki.biligame.com/sgs/%E5%8F%98%E5%B9%BB%E4%B9%8B%E7%A5%9E",
+  "revid": 76085,
+  "parentid": 75875,
+  "timestamp": "2026-03-07T04:28:46Z",
+  "sourceSha256": "98f834c456eabcf8fe0c40fa15053e5add4675f1b030173a775dee97c1ae53dc",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15519,
+      "namespace": 0,
+      "title": "变幻之神",
+      "url": "https://wiki.biligame.com/sgs/%E5%8F%98%E5%B9%BB%E4%B9%8B%E7%A5%9E",
+      "revid": 76085,
+      "parentid": 75875,
+      "timestamp": "2026-03-07T04:28:46Z",
+      "sourceSha256": "98f834c456eabcf8fe0c40fa15053e5add4675f1b030173a775dee97c1ae53dc",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "变幻之神",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "喵喵杀",
+        "称号": "五花肉",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=变幻之神\n|势力=神\n|性别=男\n|出现模式=喵喵杀\n|称号=五花肉\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "变幻之神",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

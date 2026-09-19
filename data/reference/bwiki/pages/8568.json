@@ -1,0 +1,47 @@
+{
+  "pageid": 8568,
+  "namespace": 0,
+  "title": "统观",
+  "url": "https://wiki.biligame.com/sgs/%E7%BB%9F%E8%A7%82",
+  "revid": 50485,
+  "parentid": 46854,
+  "timestamp": "2023-03-03T08:48:21Z",
+  "sourceSha256": "d9dff829155b83f9c8aac2624ed81d42517c862f62910b63a016bb39f10b32b8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8568,
+      "namespace": 0,
+      "title": "统观",
+      "url": "https://wiki.biligame.com/sgs/%E7%BB%9F%E8%A7%82",
+      "revid": 50485,
+      "parentid": 46854,
+      "timestamp": "2023-03-03T08:48:21Z",
+      "sourceSha256": "d9dff829155b83f9c8aac2624ed81d42517c862f62910b63a016bb39f10b32b8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "统观",
+        "所属武将": "赵直",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "一名角色的第一个回合的准备阶段开始时，你为其选择一种属性（每种属性至多被选择两次）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=统观\n|所属武将=赵直\n|是衍生技=\n|技能版本=经典\n|经典技能描述=一名角色的第一个回合的准备阶段开始时，你为其选择一种属性（每种属性至多被选择两次）。\n|经典技能类型=一般技\n|经典技能定位=中性\n}}",
+      "name": "统观",
+      "generals": [
+        "赵直"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "一名角色的第一个回合的准备阶段开始时，你为其选择一种属性（每种属性至多被选择两次）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

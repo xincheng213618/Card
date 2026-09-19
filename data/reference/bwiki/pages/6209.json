@@ -1,0 +1,47 @@
+{
+  "pageid": 6209,
+  "namespace": 0,
+  "title": "诱敌",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B1%E6%95%8C",
+  "revid": 59701,
+  "parentid": 37500,
+  "timestamp": "2023-12-11T06:31:27Z",
+  "sourceSha256": "bdb6c6313756f5a1aac799f008043751a23d92cdfa54bd6c91e3b29ec6f77431",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6209,
+      "namespace": 0,
+      "title": "诱敌",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B1%E6%95%8C",
+      "revid": 59701,
+      "parentid": 37500,
+      "timestamp": "2023-12-11T06:31:27Z",
+      "sourceSha256": "bdb6c6313756f5a1aac799f008043751a23d92cdfa54bd6c91e3b29ec6f77431",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "诱敌",
+        "所属武将": "周鲂",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以令一名其他角色弃置你的一张手牌，若此牌不为：【杀】，你获得其一张牌；黑色牌，你摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=诱敌\n|所属武将=周鲂\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你可以令一名其他角色弃置你的一张手牌，若此牌不为：【杀】，你获得其一张牌；黑色牌，你摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=控制,换牌\n}}",
+      "name": "诱敌",
+      "generals": [
+        "周鲂"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以令一名其他角色弃置你的一张手牌，若此牌不为：【杀】，你获得其一张牌；黑色牌，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

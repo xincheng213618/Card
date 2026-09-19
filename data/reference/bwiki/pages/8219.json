@@ -1,0 +1,76 @@
+{
+  "pageid": 8219,
+  "namespace": 0,
+  "title": "画策",
+  "url": "https://wiki.biligame.com/sgs/%E7%94%BB%E7%AD%96",
+  "revid": 51928,
+  "parentid": 51838,
+  "timestamp": "2023-03-22T09:09:22Z",
+  "sourceSha256": "1e6bc2ae8e4d105e58f2ad8db4be1a1dad1cf97126efb6a6261696e35fbd65da",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8219,
+      "namespace": 0,
+      "title": "画策",
+      "url": "https://wiki.biligame.com/sgs/%E7%94%BB%E7%AD%96",
+      "revid": 51928,
+      "parentid": 51838,
+      "timestamp": "2023-03-22T09:09:22Z",
+      "sourceSha256": "1e6bc2ae8e4d105e58f2ad8db4be1a1dad1cf97126efb6a6261696e35fbd65da",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "画策",
+        "所属武将": "刘晔",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可以将一张手牌当任意一种普通锦囊牌使用（上一轮游戏中所有角色使用过的普通锦囊牌除外）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "全能"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=画策\n|所属武将=刘晔\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可以将一张手牌当任意一种普通锦囊牌使用（上一轮游戏中所有角色使用过的普通锦囊牌除外）。\n|经典技能类型=一般技\n|经典技能定位=全能\n}}",
+      "name": "画策",
+      "generals": [
+        "刘晔"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以将一张手牌当任意一种普通锦囊牌使用（上一轮游戏中所有角色使用过的普通锦囊牌除外）。"
+      }
+    },
+    {
+      "pageid": 8219,
+      "namespace": 0,
+      "title": "画策",
+      "url": "https://wiki.biligame.com/sgs/%E7%94%BB%E7%AD%96",
+      "revid": 51928,
+      "parentid": 51838,
+      "timestamp": "2023-03-22T09:09:22Z",
+      "sourceSha256": "1e6bc2ae8e4d105e58f2ad8db4be1a1dad1cf97126efb6a6261696e35fbd65da",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "2",
+        "技能名": "画策",
+        "所属武将": "刘晔",
+        "经典技能描述": "出牌阶段限一次，你可以将一张手牌当任意一种普通锦囊牌使用（上一轮游戏中所有角色使用过的普通锦囊牌除外）。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=2\n|技能名=画策\n|所属武将=刘晔\n|经典技能描述=出牌阶段限一次，你可以将一张手牌当任意一种普通锦囊牌使用（上一轮游戏中所有角色使用过的普通锦囊牌除外）。\n}}",
+      "name": "画策",
+      "generals": [
+        "刘晔"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以将一张手牌当任意一种普通锦囊牌使用（上一轮游戏中所有角色使用过的普通锦囊牌除外）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

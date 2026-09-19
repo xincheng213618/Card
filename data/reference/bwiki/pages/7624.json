@@ -1,0 +1,46 @@
+{
+  "pageid": 7624,
+  "namespace": 0,
+  "title": "冯方",
+  "url": "https://wiki.biligame.com/sgs/%E5%86%AF%E6%96%B9",
+  "revid": 77533,
+  "parentid": 77065,
+  "timestamp": "2026-05-09T01:35:27Z",
+  "sourceSha256": "9548e6763551848ebf19f1925bfa5cc3ca5293d3ee6275f3c49d6db57a92a13f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7624,
+      "namespace": 0,
+      "title": "冯方",
+      "url": "https://wiki.biligame.com/sgs/%E5%86%AF%E6%96%B9",
+      "revid": 77533,
+      "parentid": 77065,
+      "timestamp": "2026-05-09T01:35:27Z",
+      "sourceSha256": "9548e6763551848ebf19f1925bfa5cc3ca5293d3ee6275f3c49d6db57a92a13f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "冯方",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-戚宦之争",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=冯方\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-戚宦之争\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "冯方",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

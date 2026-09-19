@@ -1,0 +1,47 @@
+{
+  "pageid": 2746,
+  "namespace": 0,
+  "title": "阴兵",
+  "url": "https://wiki.biligame.com/sgs/%E9%98%B4%E5%85%B5",
+  "revid": 39423,
+  "parentid": 36094,
+  "timestamp": "2022-08-30T01:02:33Z",
+  "sourceSha256": "65ee23ad206e6cd6c6c22daafb986b8a84b4e4a0c301e13f46cf5dd262b17dc8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2746,
+      "namespace": 0,
+      "title": "阴兵",
+      "url": "https://wiki.biligame.com/sgs/%E9%98%B4%E5%85%B5",
+      "revid": 39423,
+      "parentid": 36094,
+      "timestamp": "2022-08-30T01:02:33Z",
+      "sourceSha256": "65ee23ad206e6cd6c6c22daafb986b8a84b4e4a0c301e13f46cf5dd262b17dc8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "阴兵",
+        "所属武将": "写满技能的天书",
+        "是衍生技": "是",
+        "技能版本": "经典,国",
+        "经典技能描述": "①你使用【杀】造成的伤害均视为失去体力；<br>\n②当其他角色失去体力后，你摸一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "控制,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=阴兵\n|所属武将=写满技能的天书\n|是衍生技=是\n|技能版本=经典,国\n|经典技能描述=①你使用【杀】造成的伤害均视为失去体力；<br>\n②当其他角色失去体力后，你摸一张牌。\n|经典技能类型=锁定技\n|经典技能定位=控制,过牌\n}}",
+      "name": "阴兵",
+      "generals": [
+        "写满技能的天书"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "①你使用【杀】造成的伤害均视为失去体力；<br>\n②当其他角色失去体力后，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

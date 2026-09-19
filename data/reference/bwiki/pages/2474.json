@@ -1,0 +1,76 @@
+{
+  "pageid": 2474,
+  "namespace": 0,
+  "title": "急救",
+  "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E6%95%91",
+  "revid": 40373,
+  "parentid": 23423,
+  "timestamp": "2022-09-27T12:48:43Z",
+  "sourceSha256": "f94d0628778f9d99ba6f3c2b9e048f1088939d1f5493fff8a16b36843a3e4bf7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2474,
+      "namespace": 0,
+      "title": "急救",
+      "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E6%95%91",
+      "revid": 40373,
+      "parentid": 23423,
+      "timestamp": "2022-09-27T12:48:43Z",
+      "sourceSha256": "f94d0628778f9d99ba6f3c2b9e048f1088939d1f5493fff8a16b36843a3e4bf7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "急救",
+        "所属武将": "华佗",
+        "是衍生技": "",
+        "技能版本": "经典,界,国",
+        "经典技能描述": "你的回合外，你可以将一张红色牌当【桃】使用。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "回血,防御,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=急救\n|所属武将=华佗\n|是衍生技=\n|技能版本=经典,界,国\n|经典技能描述=你的回合外，你可以将一张红色牌当【桃】使用。\n|经典技能类型=一般技\n|经典技能定位=回血,防御,辅助\n}}",
+      "name": "急救",
+      "generals": [
+        "华佗"
+      ],
+      "mode": "经典,界,国",
+      "version": "经典,界,国",
+      "descriptions": {
+        "经典技能描述": "你的回合外，你可以将一张红色牌当【桃】使用。"
+      }
+    },
+    {
+      "pageid": 2474,
+      "namespace": 0,
+      "title": "急救",
+      "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E6%95%91",
+      "revid": 40373,
+      "parentid": 23423,
+      "timestamp": "2022-09-27T12:48:43Z",
+      "sourceSha256": "f94d0628778f9d99ba6f3c2b9e048f1088939d1f5493fff8a16b36843a3e4bf7",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "1",
+        "技能名": "急救",
+        "所属武将": "华佗",
+        "国战技能描述": "你的回合外，你可以将一张红色牌当【桃】使用。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=1\n|技能名=急救\n|所属武将=华佗\n|国战技能描述=你的回合外，你可以将一张红色牌当【桃】使用。\n}}",
+      "name": "急救",
+      "generals": [
+        "华佗"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "国战技能描述": "你的回合外，你可以将一张红色牌当【桃】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

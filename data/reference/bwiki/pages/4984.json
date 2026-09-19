@@ -1,0 +1,47 @@
+{
+  "pageid": 4984,
+  "namespace": 0,
+  "title": "完杀/贾诩",
+  "url": "https://wiki.biligame.com/sgs/%E5%AE%8C%E6%9D%80/%E8%B4%BE%E8%AF%A9",
+  "revid": 45526,
+  "parentid": 23767,
+  "timestamp": "2022-12-23T02:04:32Z",
+  "sourceSha256": "4257e1af57a9f37c56141f68ac156f79e28630b5db511e112a15d065bffc89d8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4984,
+      "namespace": 0,
+      "title": "完杀/贾诩",
+      "url": "https://wiki.biligame.com/sgs/%E5%AE%8C%E6%9D%80/%E8%B4%BE%E8%AF%A9",
+      "revid": 45526,
+      "parentid": 23767,
+      "timestamp": "2022-12-23T02:04:32Z",
+      "sourceSha256": "4257e1af57a9f37c56141f68ac156f79e28630b5db511e112a15d065bffc89d8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "完杀",
+        "所属武将": "贾诩",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "你的回合内，当一名角色进入濒死状态时，你令除你和其以外的角色不能对其使用【桃】直到此次濒死结算结束。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=完杀\n|所属武将=贾诩\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=你的回合内，当一名角色进入濒死状态时，你令除你和其以外的角色不能对其使用【桃】直到此次濒死结算结束。\n|经典技能类型=锁定技\n|经典技能定位=控制\n}}",
+      "name": "完杀",
+      "generals": [
+        "贾诩"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "你的回合内，当一名角色进入濒死状态时，你令除你和其以外的角色不能对其使用【桃】直到此次濒死结算结束。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

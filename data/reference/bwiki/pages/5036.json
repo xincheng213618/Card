@@ -1,0 +1,47 @@
+{
+  "pageid": 5036,
+  "namespace": 0,
+  "title": "鬼才/神司马懿",
+  "url": "https://wiki.biligame.com/sgs/%E9%AC%BC%E6%89%8D/%E7%A5%9E%E5%8F%B8%E9%A9%AC%E6%87%BF",
+  "revid": 68127,
+  "parentid": 68126,
+  "timestamp": "2025-02-07T03:52:43Z",
+  "sourceSha256": "0fe560837af3b930929bc984764f9e0baa011a4ed789c1fab2b801f604c6a471",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5036,
+      "namespace": 0,
+      "title": "鬼才/神司马懿",
+      "url": "https://wiki.biligame.com/sgs/%E9%AC%BC%E6%89%8D/%E7%A5%9E%E5%8F%B8%E9%A9%AC%E6%87%BF",
+      "revid": 68127,
+      "parentid": 68126,
+      "timestamp": "2025-02-07T03:52:43Z",
+      "sourceSha256": "0fe560837af3b930929bc984764f9e0baa011a4ed789c1fab2b801f604c6a471",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "5",
+        "技能名": "鬼才",
+        "所属武将": "神司马懿",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "当一名角色的判定牌生效前，你可以打出一张牌代替之。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "改判"
+      },
+      "source": "{{技能/武将\n|技能序号=5\n|技能名=鬼才\n|所属武将=神司马懿\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=当一名角色的判定牌生效前，你可以打出一张牌代替之。\n|经典技能类型=一般技\n|经典技能定位=改判\n}}",
+      "name": "鬼才",
+      "generals": [
+        "神司马懿"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一名角色的判定牌生效前，你可以打出一张牌代替之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

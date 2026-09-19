@@ -1,0 +1,45 @@
+{
+  "pageid": 13117,
+  "namespace": 0,
+  "title": "黄舞蝶",
+  "url": "https://wiki.biligame.com/sgs/%E9%BB%84%E8%88%9E%E8%9D%B6",
+  "revid": 76305,
+  "parentid": 71467,
+  "timestamp": "2026-03-15T04:03:38Z",
+  "sourceSha256": "ed9692c42626ea9ef1371fb5a0ab2d0010aecc426f2804b984dc40a4e4d7f5c7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13117,
+      "namespace": 0,
+      "title": "黄舞蝶",
+      "url": "https://wiki.biligame.com/sgs/%E9%BB%84%E8%88%9E%E8%9D%B6",
+      "revid": 76305,
+      "parentid": 71467,
+      "timestamp": "2026-03-15T04:03:38Z",
+      "sourceSha256": "ed9692c42626ea9ef1371fb5a0ab2d0010aecc426f2804b984dc40a4e4d7f5c7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "黄舞蝶",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=黄舞蝶\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "黄舞蝶",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

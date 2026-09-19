@@ -1,0 +1,46 @@
+{
+  "pageid": 7701,
+  "namespace": 0,
+  "title": "孙茹",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E8%8C%B9",
+  "revid": 77648,
+  "parentid": 74698,
+  "timestamp": "2026-05-09T01:44:46Z",
+  "sourceSha256": "a75352b1a352c62915fcea4320af8286233f7c4e20f0b266d76dfeceb5a31fd6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7701,
+      "namespace": 0,
+      "title": "孙茹",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E8%8C%B9",
+      "revid": 77648,
+      "parentid": 74698,
+      "timestamp": "2026-05-09T01:44:46Z",
+      "sourceSha256": "a75352b1a352c62915fcea4320af8286233f7c4e20f0b266d76dfeceb5a31fd6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙茹",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "神徐荣",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=孙茹\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=神徐荣\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "孙茹",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

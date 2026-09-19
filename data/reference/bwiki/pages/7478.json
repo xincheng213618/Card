@@ -1,0 +1,45 @@
+{
+  "pageid": 7478,
+  "namespace": 0,
+  "title": "神马超",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E9%A9%AC%E8%B6%85",
+  "revid": 70663,
+  "parentid": 70413,
+  "timestamp": "2025-05-20T05:05:03Z",
+  "sourceSha256": "cefef6563636f7d17464b820ac13e95f4ab94ae72ceb1d12eea06e2590bccb36",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7478,
+      "namespace": 0,
+      "title": "神马超",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E9%A9%AC%E8%B6%85",
+      "revid": 70663,
+      "parentid": 70413,
+      "timestamp": "2025-05-20T05:05:03Z",
+      "sourceSha256": "cefef6563636f7d17464b820ac13e95f4ab94ae72ceb1d12eea06e2590bccb36",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神马超",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "神马、飞天忙牙长",
+        "规则集问答": "{{faq|神马超获得其他角色的坐骑会触发“枭姬”或“旋风”吗？|不会。}}",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "控制,攻击,防御"
+      },
+      "source": "{{武将\n|武将名=神马超\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=神马、飞天忙牙长\n|规则集问答={{faq|神马超获得其他角色的坐骑会触发“枭姬”或“旋风”吗？|不会。}}\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=控制,攻击,防御\n}}",
+      "name": "神马超",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

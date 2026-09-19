@@ -1,0 +1,45 @@
+{
+  "pageid": 14888,
+  "namespace": 0,
+  "title": "马邈",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E9%82%88",
+  "revid": 80063,
+  "parentid": 80062,
+  "timestamp": "2026-09-12T03:56:10Z",
+  "sourceSha256": "02d7539786c84d9aacf196df1042afb91c03a4f5e0cc6d610de2100610f30f34",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14888,
+      "namespace": 0,
+      "title": "马邈",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E9%82%88",
+      "revid": 80063,
+      "parentid": 80062,
+      "timestamp": "2026-09-12T03:56:10Z",
+      "sourceSha256": "02d7539786c84d9aacf196df1042afb91c03a4f5e0cc6d610de2100610f30f34",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "马邈",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "退路自有",
+        "别称": "SP陈珪",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "4",
+        "经典定位": "控制,生存"
+      },
+      "source": "{{武将\n|武将名=马邈\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=退路自有\n|别称=SP陈珪\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=4\n|经典定位=控制,生存\n}}",
+      "name": "马邈",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

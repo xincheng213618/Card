@@ -1,0 +1,45 @@
+{
+  "pageid": 9933,
+  "namespace": 0,
+  "title": "谢灵毓",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%A2%E7%81%B5%E6%AF%93",
+  "revid": 71127,
+  "parentid": 70877,
+  "timestamp": "2025-05-20T07:44:43Z",
+  "sourceSha256": "85b110da6346d03d51385ec7368bb169cd637d70091722a0aa371216d21df8c6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9933,
+      "namespace": 0,
+      "title": "谢灵毓",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%A2%E7%81%B5%E6%AF%93",
+      "revid": 71127,
+      "parentid": 70877,
+      "timestamp": "2025-05-20T07:44:43Z",
+      "sourceSha256": "85b110da6346d03d51385ec7368bb169cd637d70091722a0aa371216d21df8c6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谢灵毓",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "辅助,控制,续航"
+      },
+      "source": "{{武将\n|武将名=谢灵毓\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=辅助,控制,续航\n}}",
+      "name": "谢灵毓",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

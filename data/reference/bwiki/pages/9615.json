@@ -1,0 +1,47 @@
+{
+  "pageid": 9615,
+  "namespace": 0,
+  "title": "同心",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%8C%E5%BF%83",
+  "revid": 52995,
+  "parentid": 51650,
+  "timestamp": "2023-04-26T10:29:03Z",
+  "sourceSha256": "b5b097b2c83251d03f0f571384fad7158f54c2bf04bd633841614a33b7711167",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9615,
+      "namespace": 0,
+      "title": "同心",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%8C%E5%BF%83",
+      "revid": 52995,
+      "parentid": 51650,
+      "timestamp": "2023-04-26T10:29:03Z",
+      "sourceSha256": "b5b097b2c83251d03f0f571384fad7158f54c2bf04bd633841614a33b7711167",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "同心",
+        "所属武将": "关兴张苞",
+        "是衍生技": "",
+        "技能版本": "界",
+        "界限技能描述": "你的攻击范围+2。",
+        "界限技能类型": "锁定技",
+        "界限技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=同心\n|所属武将=关兴张苞\n|是衍生技=\n|技能版本=界\n|界限技能描述=你的攻击范围+2。\n|界限技能类型=锁定技\n|界限技能定位=攻击,距离\n}}",
+      "name": "同心",
+      "generals": [
+        "关兴张苞"
+      ],
+      "mode": "界",
+      "version": "界",
+      "descriptions": {
+        "界限技能描述": "你的攻击范围+2。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

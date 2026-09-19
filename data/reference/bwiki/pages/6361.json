@@ -1,0 +1,46 @@
+{
+  "pageid": 6361,
+  "namespace": 0,
+  "title": "夏侯杰",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E6%9D%B0",
+  "revid": 77610,
+  "parentid": 58557,
+  "timestamp": "2026-05-09T01:42:44Z",
+  "sourceSha256": "c3d520f3b69f2d46592d9e2eb9c0a66edc3e37487eaae35a4775beee3f70abe9",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6361,
+      "namespace": 0,
+      "title": "夏侯杰",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E6%9D%B0",
+      "revid": 77610,
+      "parentid": 58557,
+      "timestamp": "2026-05-09T01:42:44Z",
+      "sourceSha256": "c3d520f3b69f2d46592d9e2eb9c0a66edc3e37487eaae35a4775beee3f70abe9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "夏侯杰",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "杰哥",
+        "规则集问答": "",
+        "武将包": "荟萃-无双上将",
+        "经典体力": "5",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=夏侯杰\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=杰哥\n|规则集问答=\n|武将包=荟萃-无双上将\n|经典体力=5\n|经典定位=续航,爆发\n}}",
+      "name": "夏侯杰",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

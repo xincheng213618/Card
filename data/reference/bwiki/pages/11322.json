@@ -1,0 +1,76 @@
+{
+  "pageid": 11322,
+  "namespace": 0,
+  "title": "冢骨",
+  "url": "https://wiki.biligame.com/sgs/%E5%86%A2%E9%AA%A8",
+  "revid": 63555,
+  "parentid": 58777,
+  "timestamp": "2024-06-26T12:34:01Z",
+  "sourceSha256": "c4be00a040ee8dd55efc96caca3dba8bb39bbdb24ac0f6533cd9ce821d910a32",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11322,
+      "namespace": 0,
+      "title": "冢骨",
+      "url": "https://wiki.biligame.com/sgs/%E5%86%A2%E9%AA%A8",
+      "revid": 63555,
+      "parentid": 58777,
+      "timestamp": "2024-06-26T12:34:01Z",
+      "sourceSha256": "c4be00a040ee8dd55efc96caca3dba8bb39bbdb24ac0f6533cd9ce821d910a32",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "冢骨",
+        "所属武将": "星袁术",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "摸牌阶段，若游戏轮数不小于群势力角色数，则你多摸两张牌，否则你少摸一张牌。",
+        "经典技能类型": "主公技,锁定技",
+        "经典技能定位": "过牌,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=冢骨\n|所属武将=星袁术\n|是衍生技=\n|技能版本=经典\n|经典技能描述=摸牌阶段，若游戏轮数不小于群势力角色数，则你多摸两张牌，否则你少摸一张牌。\n|经典技能类型=主公技,锁定技\n|经典技能定位=过牌,负面\n}}",
+      "name": "冢骨",
+      "generals": [
+        "星袁术"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "摸牌阶段，若游戏轮数不小于群势力角色数，则你多摸两张牌，否则你少摸一张牌。"
+      }
+    },
+    {
+      "pageid": 11322,
+      "namespace": 0,
+      "title": "冢骨",
+      "url": "https://wiki.biligame.com/sgs/%E5%86%A2%E9%AA%A8",
+      "revid": 63555,
+      "parentid": 58777,
+      "timestamp": "2024-06-26T12:34:01Z",
+      "sourceSha256": "c4be00a040ee8dd55efc96caca3dba8bb39bbdb24ac0f6533cd9ce821d910a32",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "3",
+        "技能名": "冢骨",
+        "所属武将": "星袁术",
+        "经典技能描述": "'''主公技，锁定技，'''摸牌阶段，若游戏轮数不小于群势力角色数，则你多摸两张牌，否则你少摸一张牌。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=3\n|技能名=冢骨\n|所属武将=星袁术\n|经典技能描述='''主公技，锁定技，'''摸牌阶段，若游戏轮数不小于群势力角色数，则你多摸两张牌，否则你少摸一张牌。\n}}",
+      "name": "冢骨",
+      "generals": [
+        "星袁术"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "'''主公技，锁定技，'''摸牌阶段，若游戏轮数不小于群势力角色数，则你多摸两张牌，否则你少摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 6286,
+  "namespace": 0,
+  "title": "邢道荣",
+  "url": "https://wiki.biligame.com/sgs/%E9%82%A2%E9%81%93%E8%8D%A3",
+  "revid": 71179,
+  "parentid": 70930,
+  "timestamp": "2025-05-20T07:49:50Z",
+  "sourceSha256": "8fe09a429d65e3666c93dd435a723d0087cd4708e2c91b9c42c2d2645098052e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6286,
+      "namespace": 0,
+      "title": "邢道荣",
+      "url": "https://wiki.biligame.com/sgs/%E9%82%A2%E9%81%93%E8%8D%A3",
+      "revid": 71179,
+      "parentid": 70930,
+      "timestamp": "2025-05-20T07:49:50Z",
+      "sourceSha256": "8fe09a429d65e3666c93dd435a723d0087cd4708e2c91b9c42c2d2645098052e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "邢道荣",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "00上将",
+        "规则集问答": "",
+        "武将包": "荟萃-无双上将",
+        "经典体力": "4/6",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=邢道荣\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=00上将\n|规则集问答=\n|武将包=荟萃-无双上将\n|经典体力=4/6\n|经典定位=控制,辅助\n}}",
+      "name": "邢道荣",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

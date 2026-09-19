@@ -1,0 +1,45 @@
+{
+  "pageid": 8814,
+  "namespace": 0,
+  "title": "武安国",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E5%AE%89%E5%9B%BD",
+  "revid": 70226,
+  "parentid": 69974,
+  "timestamp": "2025-05-20T03:48:27Z",
+  "sourceSha256": "16efdde7ca5b7ad96255a90989af74a1aac44a43f5e545bf33c80b7c800e592c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8814,
+      "namespace": 0,
+      "title": "武安国",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E5%AE%89%E5%9B%BD",
+      "revid": 70226,
+      "parentid": 69974,
+      "timestamp": "2025-05-20T03:48:27Z",
+      "sourceSha256": "16efdde7ca5b7ad96255a90989af74a1aac44a43f5e545bf33c80b7c800e592c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "武安国",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2022",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=武安国\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2022\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "武安国",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

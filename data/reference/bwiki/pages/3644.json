@@ -1,0 +1,45 @@
+{
+  "pageid": 3644,
+  "namespace": 0,
+  "title": "张邈",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E9%82%88",
+  "revid": 77702,
+  "parentid": 69659,
+  "timestamp": "2026-05-09T01:48:01Z",
+  "sourceSha256": "e9fee79e2f4bc374d8c6a758ee42fecf7c81cc9d884b9d192ef9b35b43d98b68",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3644,
+      "namespace": 0,
+      "title": "张邈",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E9%82%88",
+      "revid": 77702,
+      "parentid": 69659,
+      "timestamp": "2026-05-09T01:48:01Z",
+      "sourceSha256": "e9fee79e2f4bc374d8c6a758ee42fecf7c81cc9d884b9d192ef9b35b43d98b68",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张邈",
+        "势力": "群",
+        "性别": "男",
+        "别称": "全自动AK",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "{{faq|“纵反”是否一定要交给其他角色牌？|不一定，可以不交给其他角色牌，不增加体力上限和回复体力，但是也会失去“谋逆”获得“战孤”。}}",
+        "武将包": "荟萃-徐州风云",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发,续航"
+      },
+      "source": "{{武将\n|武将名=张邈\n|势力=群\n|性别=男\n|别称=全自动AK\n|出现模式=身份,欢乐,斗地主\n|规则集问答={{faq|“纵反”是否一定要交给其他角色牌？|不一定，可以不交给其他角色牌，不增加体力上限和回复体力，但是也会失去“谋逆”获得“战孤”。}}\n|武将包=荟萃-徐州风云\n|经典体力=4\n|经典定位=攻击,爆发,续航\n}}",
+      "name": "张邈",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 14669,
+  "namespace": 0,
+  "title": "智囊",
+  "url": "https://wiki.biligame.com/sgs/%E6%99%BA%E5%9B%8A",
+  "revid": 72984,
+  "parentid": 0,
+  "timestamp": "2025-10-19T02:26:50Z",
+  "sourceSha256": "eef37df5a95bbcc5397237120db2ab4db6cc8d6521c8bede737afa84bbeae95e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14669,
+      "namespace": 0,
+      "title": "智囊",
+      "url": "https://wiki.biligame.com/sgs/%E6%99%BA%E5%9B%8A",
+      "revid": 72984,
+      "parentid": 0,
+      "timestamp": "2025-10-19T02:26:50Z",
+      "sourceSha256": "eef37df5a95bbcc5397237120db2ab4db6cc8d6521c8bede737afa84bbeae95e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "智囊",
+        "所属武将": "荀彧荀攸",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用锦囊/装备牌后，你可以获得一个技能台词/技能名包含“谋”的技能直到下次因使用此类别的牌获得技能。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "全能"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=智囊\n|所属武将=荀彧荀攸\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用锦囊/装备牌后，你可以获得一个技能台词/技能名包含“谋”的技能直到下次因使用此类别的牌获得技能。\n|经典技能类型=一般技\n|经典技能定位=全能\n}}",
+      "name": "智囊",
+      "generals": [
+        "荀彧荀攸"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用锦囊/装备牌后，你可以获得一个技能台词/技能名包含“谋”的技能直到下次因使用此类别的牌获得技能。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

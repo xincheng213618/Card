@@ -1,0 +1,47 @@
+{
+  "pageid": 9636,
+  "namespace": 0,
+  "title": "乐泉",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E6%B3%89",
+  "revid": 51824,
+  "parentid": 51773,
+  "timestamp": "2023-03-18T16:14:32Z",
+  "sourceSha256": "074d6ea7024e83caaadc987c288d91b7d859273d714e1ffa152ad7ddf3d3d0d2",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9636,
+      "namespace": 0,
+      "title": "乐泉",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E6%B3%89",
+      "revid": 51824,
+      "parentid": 51773,
+      "timestamp": "2023-03-18T16:14:32Z",
+      "sourceSha256": "074d6ea7024e83caaadc987c288d91b7d859273d714e1ffa152ad7ddf3d3d0d2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "乐泉",
+        "所属武将": "引路标记效果",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以弃置一张♦️牌，回复1点体力。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "回血"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=乐泉\n|所属武将=引路标记效果\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你可以弃置一张♦️牌，回复1点体力。\n|经典技能类型=一般技\n|经典技能定位=回血\n}}",
+      "name": "乐泉",
+      "generals": [
+        "引路标记效果"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以弃置一张♦️牌，回复1点体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 12643,
+  "namespace": 0,
+  "title": "乐邹氏",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E9%82%B9%E6%B0%8F",
+  "revid": 77503,
+  "parentid": 69043,
+  "timestamp": "2026-05-09T01:34:20Z",
+  "sourceSha256": "a887bac6259d43eb7ff0d2c5d1f4cc241025744f9bca612ea4c4f662f2d7a886",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12643,
+      "namespace": 0,
+      "title": "乐邹氏",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E9%82%B9%E6%B0%8F",
+      "revid": 77503,
+      "parentid": 69043,
+      "timestamp": "2026-05-09T01:34:20Z",
+      "sourceSha256": "a887bac6259d43eb7ff0d2c5d1f4cc241025744f9bca612ea4c4f662f2d7a886",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐邹氏",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-正音雅乐",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=乐邹氏\n|势力=群\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-正音雅乐\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "乐邹氏",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

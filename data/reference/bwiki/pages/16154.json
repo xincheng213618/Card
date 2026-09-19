@@ -1,0 +1,46 @@
+{
+  "pageid": 16154,
+  "namespace": 0,
+  "title": "刘盼兮",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%9B%BC%E5%85%AE",
+  "revid": 79570,
+  "parentid": 79549,
+  "timestamp": "2026-08-13T06:52:59Z",
+  "sourceSha256": "03d940bcda40a9ea3027fd390632bdefceb39eb1580d6d85d3a1fbbf99332dab",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16154,
+      "namespace": 0,
+      "title": "刘盼兮",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%9B%BC%E5%85%AE",
+      "revid": 79570,
+      "parentid": 79549,
+      "timestamp": "2026-08-13T06:52:59Z",
+      "sourceSha256": "03d940bcda40a9ea3027fd390632bdefceb39eb1580d6d85d3a1fbbf99332dab",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘盼兮",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "中华小厨娘，预制菜",
+        "规则集问答": "",
+        "武将包": "限定-隐山之玉",
+        "经典体力": "4",
+        "经典定位": "续航,爆发,辅助"
+      },
+      "source": "{{武将\n|武将名=刘盼兮\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=中华小厨娘，预制菜\n|规则集问答=\n|武将包=限定-隐山之玉\n|经典体力=4\n|经典定位=续航,爆发,辅助\n}}",
+      "name": "刘盼兮",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

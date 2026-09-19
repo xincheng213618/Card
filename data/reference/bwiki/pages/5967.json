@@ -1,0 +1,47 @@
+{
+  "pageid": 5967,
+  "namespace": 0,
+  "title": "丁奉",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%81%E5%A5%89",
+  "revid": 77483,
+  "parentid": 68993,
+  "timestamp": "2026-05-09T01:33:17Z",
+  "sourceSha256": "474feea091f0147d589fc1a0f084ccf998e2cc5b0e5bb55ade6161a04878a427",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5967,
+      "namespace": 0,
+      "title": "丁奉",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%81%E5%A5%89",
+      "revid": 77483,
+      "parentid": 68993,
+      "timestamp": "2026-05-09T01:33:17Z",
+      "sourceSha256": "474feea091f0147d589fc1a0f084ccf998e2cc5b0e5bb55ade6161a04878a427",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "丁奉",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "称号": "",
+        "别称": "丁分叉、丁奉先",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=丁奉\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主,国战\n|称号=\n|别称=丁分叉、丁奉先\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "丁奉",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

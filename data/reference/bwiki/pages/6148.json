@@ -1,0 +1,47 @@
+{
+  "pageid": 6148,
+  "namespace": 0,
+  "title": "送丧",
+  "url": "https://wiki.biligame.com/sgs/%E9%80%81%E4%B8%A7",
+  "revid": 64704,
+  "parentid": 64700,
+  "timestamp": "2024-09-04T04:37:13Z",
+  "sourceSha256": "9ca3a5a194f5a2ab535e553869979b7aed89bd619dde079eeeb06d99eab7756c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6148,
+      "namespace": 0,
+      "title": "送丧",
+      "url": "https://wiki.biligame.com/sgs/%E9%80%81%E4%B8%A7",
+      "revid": 64704,
+      "parentid": 64700,
+      "timestamp": "2024-09-04T04:37:13Z",
+      "sourceSha256": "9ca3a5a194f5a2ab535e553869979b7aed89bd619dde079eeeb06d99eab7756c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "送丧",
+        "所属武将": "SP庞统",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当其他角色死亡时，若你已受伤/未受伤，你可以回复1点体力/加1点体力上限，然后你获得技能“{{技能/引用|展骥}}”。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "回血"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=送丧\n|所属武将=SP庞统\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当其他角色死亡时，若你已受伤/未受伤，你可以回复1点体力/加1点体力上限，然后你获得技能“{{技能/引用|展骥}}”。\n|经典技能类型=限定技\n|经典技能定位=回血\n}}",
+      "name": "送丧",
+      "generals": [
+        "SP庞统"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当其他角色死亡时，若你已受伤/未受伤，你可以回复1点体力/加1点体力上限，然后你获得技能“{{技能/引用|展骥}}”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

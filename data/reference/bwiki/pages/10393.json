@@ -1,0 +1,47 @@
+{
+  "pageid": 10393,
+  "namespace": 0,
+  "title": "金睛",
+  "url": "https://wiki.biligame.com/sgs/%E9%87%91%E7%9D%9B",
+  "revid": 72949,
+  "parentid": 72929,
+  "timestamp": "2025-10-18T13:33:36Z",
+  "sourceSha256": "c79cccbb0a32fb13508e7b7ef4bded229eeb099c1bcd5b74584bcecda2dcb491",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10393,
+      "namespace": 0,
+      "title": "金睛",
+      "url": "https://wiki.biligame.com/sgs/%E9%87%91%E7%9D%9B",
+      "revid": 72949,
+      "parentid": 72929,
+      "timestamp": "2025-10-18T13:33:36Z",
+      "sourceSha256": "c79cccbb0a32fb13508e7b7ef4bded229eeb099c1bcd5b74584bcecda2dcb491",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "金睛",
+        "所属武将": "孙悟空",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "其他角色的手牌始终对你可见。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=金睛\n|所属武将=孙悟空\n|是衍生技=\n|技能版本=经典\n|经典技能描述=其他角色的手牌始终对你可见。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "金睛",
+      "generals": [
+        "孙悟空"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "其他角色的手牌始终对你可见。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

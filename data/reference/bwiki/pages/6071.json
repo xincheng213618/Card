@@ -1,0 +1,47 @@
+{
+  "pageid": 6071,
+  "namespace": 0,
+  "title": "兴火",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%B4%E7%81%AB",
+  "revid": 37964,
+  "parentid": 29520,
+  "timestamp": "2022-06-27T15:33:25Z",
+  "sourceSha256": "b886c98c96eb520a5fe16724ce8bff8fc085c658ab5bba605b32ab55e5c16e0d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6071,
+      "namespace": 0,
+      "title": "兴火",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%B4%E7%81%AB",
+      "revid": 37964,
+      "parentid": 29520,
+      "timestamp": "2022-06-27T15:33:25Z",
+      "sourceSha256": "b886c98c96eb520a5fe16724ce8bff8fc085c658ab5bba605b32ab55e5c16e0d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "兴火",
+        "所属武将": "周夷",
+        "是衍生技": "是",
+        "技能版本": "国",
+        "国战技能描述": "当你造成火焰伤害时，此伤害+1。",
+        "国战技能类型": "锁定技",
+        "国战技能定位": "攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=兴火\n|所属武将=周夷\n|是衍生技=是\n|技能版本=国\n|国战技能描述=当你造成火焰伤害时，此伤害+1。\n|国战技能类型=锁定技\n|国战技能定位=攻击\n}}",
+      "name": "兴火",
+      "generals": [
+        "周夷"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "当你造成火焰伤害时，此伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,44 @@
+{
+  "pageid": 14658,
+  "namespace": 0,
+  "title": "哪吒",
+  "url": "https://wiki.biligame.com/sgs/%E5%93%AA%E5%90%92",
+  "revid": 75819,
+  "parentid": 75425,
+  "timestamp": "2026-02-20T02:31:12Z",
+  "sourceSha256": "ae60b9bf462bf082749bac055f81ff996f809f3fc02d27e03341cebab5e7bbbe",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14658,
+      "namespace": 0,
+      "title": "哪吒",
+      "url": "https://wiki.biligame.com/sgs/%E5%93%AA%E5%90%92",
+      "revid": 75819,
+      "parentid": 75425,
+      "timestamp": "2026-02-20T02:31:12Z",
+      "sourceSha256": "ae60b9bf462bf082749bac055f81ff996f809f3fc02d27e03341cebab5e7bbbe",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "哪吒",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "三太子",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=哪吒\n|势力=神\n|性别=男\n|出现模式=斗地主\n|称号=三太子\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=攻击\n}}",
+      "name": "哪吒",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

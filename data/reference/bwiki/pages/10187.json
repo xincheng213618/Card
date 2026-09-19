@@ -1,0 +1,46 @@
+{
+  "pageid": 10187,
+  "namespace": 0,
+  "title": "孟优",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%9F%E4%BC%98",
+  "revid": 77653,
+  "parentid": 69583,
+  "timestamp": "2026-05-09T01:44:59Z",
+  "sourceSha256": "48bb4546ec708bdaa1eaa550850a31d55af1e6dbd18fd4094fed8c3af3bb4403",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10187,
+      "namespace": 0,
+      "title": "孟优",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%9F%E4%BC%98",
+      "revid": 77653,
+      "parentid": 69583,
+      "timestamp": "2026-05-09T01:44:59Z",
+      "sourceSha256": "48bb4546ec708bdaa1eaa550850a31d55af1e6dbd18fd4094fed8c3af3bb4403",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孟优",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-异军突起",
+        "经典体力": "5",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=孟优\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-异军突起\n|经典体力=5\n|经典定位=控制,辅助\n}}",
+      "name": "孟优",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

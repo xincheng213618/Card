@@ -1,0 +1,46 @@
+{
+  "pageid": 1998,
+  "namespace": 0,
+  "title": "刘封",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%B0%81",
+  "revid": 77541,
+  "parentid": 69139,
+  "timestamp": "2026-05-09T01:35:57Z",
+  "sourceSha256": "dbaf7d89832e53ea2f3220799c4fd8489f510da7928928de4107bfc89ccb7557",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1998,
+      "namespace": 0,
+      "title": "刘封",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%B0%81",
+      "revid": 77541,
+      "parentid": 69139,
+      "timestamp": "2026-05-09T01:35:57Z",
+      "sourceSha256": "dbaf7d89832e53ea2f3220799c4fd8489f510da7928928de4107bfc89ccb7557",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘封",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "别称": "",
+        "称号": "骑虎之殇",
+        "规则集问答": "",
+        "武将包": "一将成名-2013",
+        "经典体力": "4",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=刘封\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|别称=\n|称号=骑虎之殇\n|规则集问答=\n|武将包=一将成名-2013\n|经典体力=4\n|经典定位=控制\n}}",
+      "name": "刘封",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

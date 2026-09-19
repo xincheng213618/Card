@@ -1,0 +1,45 @@
+{
+  "pageid": 6228,
+  "namespace": 0,
+  "title": "祖茂",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%96%E8%8C%82",
+  "revid": 60293,
+  "parentid": 30569,
+  "timestamp": "2023-12-15T08:12:52Z",
+  "sourceSha256": "99c43cbddb74a8fff104e75e5d7f563c69de4b06d952053e33adc40d36e27c23",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6228,
+      "namespace": 0,
+      "title": "祖茂",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%96%E8%8C%82",
+      "revid": 60293,
+      "parentid": 30569,
+      "timestamp": "2023-12-15T08:12:52Z",
+      "sourceSha256": "99c43cbddb74a8fff104e75e5d7f563c69de4b06d952053e33adc40d36e27c23",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "祖茂",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "将军走此小道",
+        "规则集问答": "",
+        "武将包": "星火燎原-七杀",
+        "经典体力": "4",
+        "经典定位": "辅助\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=祖茂\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=将军走此小道\n|规则集问答=\n|武将包=星火燎原-七杀\n|经典体力=4\n|经典定位=辅助\n<!-- 界限 -->\n}}",
+      "name": "祖茂",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

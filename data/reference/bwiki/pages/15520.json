@@ -1,0 +1,44 @@
+{
+  "pageid": 15520,
+  "namespace": 0,
+  "title": "逆转之神",
+  "url": "https://wiki.biligame.com/sgs/%E9%80%86%E8%BD%AC%E4%B9%8B%E7%A5%9E",
+  "revid": 76088,
+  "parentid": 75877,
+  "timestamp": "2026-03-07T04:29:27Z",
+  "sourceSha256": "23939a730718850d896f83db8a491e6883936c595487a129d0517375575820d6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15520,
+      "namespace": 0,
+      "title": "逆转之神",
+      "url": "https://wiki.biligame.com/sgs/%E9%80%86%E8%BD%AC%E4%B9%8B%E7%A5%9E",
+      "revid": 76088,
+      "parentid": 75877,
+      "timestamp": "2026-03-07T04:29:27Z",
+      "sourceSha256": "23939a730718850d896f83db8a491e6883936c595487a129d0517375575820d6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "逆转之神",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "喵喵杀",
+        "称号": "奶米",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "4/5",
+        "经典定位": "生存,爆发"
+      },
+      "source": "{{武将\n|武将名=逆转之神\n|势力=神\n|性别=男\n|出现模式=喵喵杀\n|称号=奶米\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=4/5\n|经典定位=生存,爆发\n}}",
+      "name": "逆转之神",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

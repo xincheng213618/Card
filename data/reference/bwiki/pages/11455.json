@@ -1,0 +1,47 @@
+{
+  "pageid": 11455,
+  "namespace": 0,
+  "title": "骊马",
+  "url": "https://wiki.biligame.com/sgs/%E9%AA%8A%E9%A9%AC",
+  "revid": 59327,
+  "parentid": 59232,
+  "timestamp": "2023-11-10T12:35:49Z",
+  "sourceSha256": "c1243d7d1c6359b2917ec3fca6bc9c51b3c1944cd7336eb1d01c37ae8e4d499e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11455,
+      "namespace": 0,
+      "title": "骊马",
+      "url": "https://wiki.biligame.com/sgs/%E9%AA%8A%E9%A9%AC",
+      "revid": 59327,
+      "parentid": 59232,
+      "timestamp": "2023-11-10T12:35:49Z",
+      "sourceSha256": "c1243d7d1c6359b2917ec3fca6bc9c51b3c1944cd7336eb1d01c37ae8e4d499e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "骊马",
+        "所属武将": "马伶俐",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你计算与其他角色的距离-X（X为场上的坐骑牌数，至少为1）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=骊马\n|所属武将=马伶俐\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你计算与其他角色的距离-X（X为场上的坐骑牌数，至少为1）。\n|经典技能类型=锁定技\n|经典技能定位=攻击,距离\n}}",
+      "name": "骊马",
+      "generals": [
+        "马伶俐"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你计算与其他角色的距离-X（X为场上的坐骑牌数，至少为1）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

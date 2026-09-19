@@ -1,0 +1,46 @@
+{
+  "pageid": 2511,
+  "namespace": 0,
+  "title": "吴苋",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E8%8B%8B",
+  "revid": 77592,
+  "parentid": 60207,
+  "timestamp": "2026-05-09T01:41:47Z",
+  "sourceSha256": "6fb98d02f5b33a0694744bab0e77244a95b19874a98afac89e6b1f6bcb053da1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 2511,
+      "namespace": 0,
+      "title": "吴苋",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E8%8B%8B",
+      "revid": 77592,
+      "parentid": 60207,
+      "timestamp": "2026-05-09T01:41:47Z",
+      "sourceSha256": "6fb98d02f5b33a0694744bab0e77244a95b19874a98afac89e6b1f6bcb053da1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吴苋",
+        "势力": "蜀",
+        "性别": "女",
+        "别称": "",
+        "称号": "穆皇后",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "星火燎原-天府",
+        "经典体力": "3",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=吴苋\n|势力=蜀\n|性别=女\n|别称=\n|称号=穆皇后\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=星火燎原-天府\n|经典体力=3\n|经典定位=辅助\n}}",
+      "name": "吴苋",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

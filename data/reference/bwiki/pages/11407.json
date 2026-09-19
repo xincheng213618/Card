@@ -1,0 +1,46 @@
+{
+  "pageid": 11407,
+  "namespace": 0,
+  "title": "SP庞德",
+  "url": "https://wiki.biligame.com/sgs/SP%E5%BA%9E%E5%BE%B7",
+  "revid": 77472,
+  "parentid": 60263,
+  "timestamp": "2026-05-09T01:32:45Z",
+  "sourceSha256": "fd413f64c03cf3946f67d24bd8071ccc1d938d6e25e7a12b0ff34943f9e8c169",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11407,
+      "namespace": 0,
+      "title": "SP庞德",
+      "url": "https://wiki.biligame.com/sgs/SP%E5%BA%9E%E5%BE%B7",
+      "revid": 77472,
+      "parentid": 60263,
+      "timestamp": "2026-05-09T01:32:45Z",
+      "sourceSha256": "fd413f64c03cf3946f67d24bd8071ccc1d938d6e25e7a12b0ff34943f9e8c169",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP庞德",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "抬榇之悟",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星火燎原-天同",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=SP庞德\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=抬榇之悟\n|别称=\n|规则集问答=\n|武将包=星火燎原-天同\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "SP庞德",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

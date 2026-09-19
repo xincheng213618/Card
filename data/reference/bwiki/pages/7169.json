@@ -1,0 +1,46 @@
+{
+  "pageid": 7169,
+  "namespace": 0,
+  "title": "吴范",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E8%8C%83",
+  "revid": 77593,
+  "parentid": 74737,
+  "timestamp": "2026-05-09T01:41:47Z",
+  "sourceSha256": "bad19e65398b603f808af575aef2195e90652ab9497c091728d74f558468c3b4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7169,
+      "namespace": 0,
+      "title": "吴范",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E8%8C%83",
+      "revid": 77593,
+      "parentid": 74737,
+      "timestamp": "2026-05-09T01:41:47Z",
+      "sourceSha256": "bad19e65398b603f808af575aef2195e90652ab9497c091728d74f558468c3b4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吴范",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "sp张松",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "4",
+        "经典定位": "爆发,辅助"
+      },
+      "source": "{{武将\n|武将名=吴范\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=sp张松\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=4\n|经典定位=爆发,辅助\n}}",
+      "name": "吴范",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

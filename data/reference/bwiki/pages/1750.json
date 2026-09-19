@@ -1,0 +1,46 @@
+{
+  "pageid": 1750,
+  "namespace": 0,
+  "title": "吴兰",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E5%85%B0",
+  "revid": 77983,
+  "parentid": 77587,
+  "timestamp": "2026-05-23T23:51:26Z",
+  "sourceSha256": "6fe3c60efb7c512f17a6156115dda22634899513c857239be81916ef6b6db486",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1750,
+      "namespace": 0,
+      "title": "吴兰",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E5%85%B0",
+      "revid": 77983,
+      "parentid": 77587,
+      "timestamp": "2026-05-23T23:51:26Z",
+      "sourceSha256": "6fe3c60efb7c512f17a6156115dda22634899513c857239be81916ef6b6db486",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吴兰",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "",
+        "称号": "剑齿之鼍",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=吴兰\n|势力=蜀\n|性别=男\n|别称=\n|称号=剑齿之鼍\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=控制\n}}",
+      "name": "吴兰",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

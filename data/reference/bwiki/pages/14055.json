@@ -1,0 +1,45 @@
+{
+  "pageid": 14055,
+  "namespace": 0,
+  "title": "车胄",
+  "url": "https://wiki.biligame.com/sgs/%E8%BD%A6%E8%83%84",
+  "revid": 76168,
+  "parentid": 71724,
+  "timestamp": "2026-03-08T03:53:56Z",
+  "sourceSha256": "f55e6277725c1ccc7873c4c058e874b7ffd81cfe78ff3c3d1da138a54908ae25",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14055,
+      "namespace": 0,
+      "title": "车胄",
+      "url": "https://wiki.biligame.com/sgs/%E8%BD%A6%E8%83%84",
+      "revid": 76168,
+      "parentid": 71724,
+      "timestamp": "2026-03-08T03:53:56Z",
+      "sourceSha256": "f55e6277725c1ccc7873c4c058e874b7ffd81cfe78ff3c3d1da138a54908ae25",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "车胄",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-群雄伺动",
+        "经典体力": "4",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=车胄\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-群雄伺动\n|经典体力=4\n|经典定位=控制\n}}",
+      "name": "车胄",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

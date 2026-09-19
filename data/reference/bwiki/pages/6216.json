@@ -1,0 +1,46 @@
+{
+  "pageid": 6216,
+  "namespace": 0,
+  "title": "刘繇",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%B9%87",
+  "revid": 77551,
+  "parentid": 60281,
+  "timestamp": "2026-05-09T01:37:50Z",
+  "sourceSha256": "ab6eefeae7d9fa7491e9e890fd2dfc42ca54e8e18dfae569304ffca660ae68b5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6216,
+      "namespace": 0,
+      "title": "刘繇",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%B9%87",
+      "revid": 77551,
+      "parentid": 60281,
+      "timestamp": "2026-05-09T01:37:50Z",
+      "sourceSha256": "ab6eefeae7d9fa7491e9e890fd2dfc42ca54e8e18dfae569304ffca660ae68b5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘繇",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "宗英外镇",
+        "别称": "流油",
+        "规则集问答": "",
+        "武将包": "星火燎原-天相",
+        "经典体力": "4",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=刘繇\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=宗英外镇\n|别称=流油\n|规则集问答=\n|武将包=星火燎原-天相\n|经典体力=4\n|经典定位=控制,辅助\n}}",
+      "name": "刘繇",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

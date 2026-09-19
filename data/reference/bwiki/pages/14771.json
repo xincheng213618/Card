@@ -1,0 +1,45 @@
+{
+  "pageid": 14771,
+  "namespace": 0,
+  "title": "星蒋琬",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%92%8B%E7%90%AC",
+  "revid": 73245,
+  "parentid": 73244,
+  "timestamp": "2025-11-01T05:32:43Z",
+  "sourceSha256": "0e02701ba422a7f19982ca460f269beb8aca2fcddc8f8178a9254e884bc11700",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14771,
+      "namespace": 0,
+      "title": "星蒋琬",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%92%8B%E7%90%AC",
+      "revid": 73245,
+      "parentid": 73244,
+      "timestamp": "2025-11-01T05:32:43Z",
+      "sourceSha256": "0e02701ba422a7f19982ca460f269beb8aca2fcddc8f8178a9254e884bc11700",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星蒋琬",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "讬忠赞业",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-玉衡",
+        "经典体力": "3",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=星蒋琬\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=讬忠赞业\n|别称=\n|规则集问答=\n|武将包=星河璀璨-玉衡\n|经典体力=3\n|经典定位=辅助,攻击\n}}",
+      "name": "星蒋琬",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

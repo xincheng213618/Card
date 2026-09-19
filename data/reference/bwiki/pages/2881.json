@@ -1,0 +1,46 @@
+{
+  "pageid": 2881,
+  "namespace": 0,
+  "title": "乱武",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%B1%E6%AD%A6",
+  "revid": 58032,
+  "parentid": 23768,
+  "timestamp": "2023-10-12T05:23:28Z",
+  "sourceSha256": "c5f9daae38aeef6848717a369ea9227798d4ccbd87733f034ae9427c4468e51f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2881,
+      "namespace": 0,
+      "title": "乱武",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%B1%E6%AD%A6",
+      "revid": 58032,
+      "parentid": 23768,
+      "timestamp": "2023-10-12T05:23:28Z",
+      "sourceSha256": "c5f9daae38aeef6848717a369ea9227798d4ccbd87733f034ae9427c4468e51f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "乱武",
+        "所属武将": "贾诩",
+        "技能版本": "经典,国",
+        "经典技能描述": "出牌阶段，你可以令所有其他角色依次选择一项：1.对其攻击范围内距离最近的另一名角色使用一张【杀】；2.失去1点体力。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "攻击,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=乱武\n|所属武将=贾诩\n|技能版本=经典,国\n|经典技能描述=出牌阶段，你可以令所有其他角色依次选择一项：1.对其攻击范围内距离最近的另一名角色使用一张【杀】；2.失去1点体力。\n|经典技能类型=限定技\n|经典技能定位=攻击,控制\n}}",
+      "name": "乱武",
+      "generals": [
+        "贾诩"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以令所有其他角色依次选择一项：1.对其攻击范围内距离最近的另一名角色使用一张【杀】；2.失去1点体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

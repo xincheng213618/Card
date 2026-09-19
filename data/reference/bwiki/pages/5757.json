@@ -1,0 +1,46 @@
+{
+  "pageid": 5757,
+  "namespace": 0,
+  "title": "潘璋马忠",
+  "url": "https://wiki.biligame.com/sgs/%E6%BD%98%E7%92%8B%E9%A9%AC%E5%BF%A0",
+  "revid": 70546,
+  "parentid": 70296,
+  "timestamp": "2025-05-20T04:55:14Z",
+  "sourceSha256": "bc50cfb75f4ea595a30278e17e4e898433a49a0106813125f0b98f019edc9b72",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5757,
+      "namespace": 0,
+      "title": "潘璋马忠",
+      "url": "https://wiki.biligame.com/sgs/%E6%BD%98%E7%92%8B%E9%A9%AC%E5%BF%A0",
+      "revid": 70546,
+      "parentid": 70296,
+      "timestamp": "2025-05-20T04:55:14Z",
+      "sourceSha256": "bc50cfb75f4ea595a30278e17e4e898433a49a0106813125f0b98f019edc9b72",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "潘璋马忠",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "擒龙伏虎",
+        "别称": "潘马",
+        "规则集问答": "",
+        "武将包": "一将成名-2013",
+        "经典体力": "4",
+        "经典定位": "卖血,控制,攻击",
+        "界限定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=潘璋马忠\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=擒龙伏虎\n|别称=潘马\n|规则集问答=\n|武将包=一将成名-2013\n|经典体力=4\n|经典定位=卖血,控制,攻击\n|界限定位=控制,攻击\n}}",
+      "name": "潘璋马忠",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

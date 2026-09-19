@@ -1,0 +1,45 @@
+{
+  "pageid": 4107,
+  "namespace": 0,
+  "title": "万年公主",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%87%E5%B9%B4%E5%85%AC%E4%B8%BB",
+  "revid": 77485,
+  "parentid": 74729,
+  "timestamp": "2026-05-09T01:33:18Z",
+  "sourceSha256": "0755cb5bb44ccfe95f7bfbb09ab6b4bcb38ef23ef156b7974650fda7f393da40",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4107,
+      "namespace": 0,
+      "title": "万年公主",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%87%E5%B9%B4%E5%85%AC%E4%B8%BB",
+      "revid": 77485,
+      "parentid": 74729,
+      "timestamp": "2026-05-09T01:33:18Z",
+      "sourceSha256": "0755cb5bb44ccfe95f7bfbb09ab6b4bcb38ef23ef156b7974650fda7f393da40",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "万年公主",
+        "势力": "群",
+        "性别": "女",
+        "别称": "万年曹纯",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "{{faq|“兴汉”计算摸牌数量的攻击范围是怎么算的？|攻击范围为武器加上额外增加的攻击范围（如枕戈）。}}",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "3",
+        "经典定位": "攻击,辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=万年公主\n|势力=群\n|性别=女\n|别称=万年曹纯\n|出现模式=身份,欢乐,斗地主\n|规则集问答={{faq|“兴汉”计算摸牌数量的攻击范围是怎么算的？|攻击范围为武器加上额外增加的攻击范围（如枕戈）。}}\n|武将包=荟萃-芝兰玉树\n|经典体力=3\n|经典定位=攻击,辅助,爆发\n}}",
+      "name": "万年公主",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

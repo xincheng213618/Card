@@ -1,0 +1,47 @@
+{
+  "pageid": 12835,
+  "namespace": 0,
+  "title": "伏械",
+  "url": "https://wiki.biligame.com/sgs/%E4%BC%8F%E6%A2%B0",
+  "revid": 65422,
+  "parentid": 65218,
+  "timestamp": "2024-10-04T16:08:56Z",
+  "sourceSha256": "509bf88419c639d7381f115106127465ca426f415de4da8b9866b855d2dedb07",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12835,
+      "namespace": 0,
+      "title": "伏械",
+      "url": "https://wiki.biligame.com/sgs/%E4%BC%8F%E6%A2%B0",
+      "revid": 65422,
+      "parentid": 65218,
+      "timestamp": "2024-10-04T16:08:56Z",
+      "sourceSha256": "509bf88419c639d7381f115106127465ca426f415de4da8b9866b855d2dedb07",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "伏械",
+        "所属武将": "黄舞蝶",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以弃置一张武器牌或失去一个其他技能，令一名其他角色弃置两张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=伏械\n|所属武将=黄舞蝶\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以弃置一张武器牌或失去一个其他技能，令一名其他角色弃置两张牌。\n|经典技能类型=一般技\n|经典技能定位=控制\n}}",
+      "name": "伏械",
+      "generals": [
+        "黄舞蝶"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以弃置一张武器牌或失去一个其他技能，令一名其他角色弃置两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

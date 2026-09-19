@@ -1,0 +1,47 @@
+{
+  "pageid": 6328,
+  "namespace": 0,
+  "title": "神威/吕玲绮（国战）",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%A8%81/%E5%90%95%E7%8E%B2%E7%BB%AE%EF%BC%88%E5%9B%BD%E6%88%98%EF%BC%89",
+  "revid": 59348,
+  "parentid": 59347,
+  "timestamp": "2023-11-10T13:12:39Z",
+  "sourceSha256": "150e3a1dc28f35d1f998fbe04d736585c4de9c03a84c6790d39d6c2dde227136",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6328,
+      "namespace": 0,
+      "title": "神威/吕玲绮（国战）",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%A8%81/%E5%90%95%E7%8E%B2%E7%BB%AE%EF%BC%88%E5%9B%BD%E6%88%98%EF%BC%89",
+      "revid": 59348,
+      "parentid": 59347,
+      "timestamp": "2023-11-10T13:12:39Z",
+      "sourceSha256": "150e3a1dc28f35d1f998fbe04d736585c4de9c03a84c6790d39d6c2dde227136",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "神威",
+        "所属武将": "吕玲绮",
+        "是衍生技": "",
+        "技能版本": "国",
+        "国战技能描述": "你计算体力上限时减少1个单独的阴阳鱼。<br>\n①摸牌阶段，你多摸两张牌；<br>\n②你的手牌上限+2。",
+        "国战技能类型": "主将技,锁定技",
+        "国战技能定位": "过牌,屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=神威\n|所属武将=吕玲绮\n|是衍生技=\n|技能版本=国\n|国战技能描述=你计算体力上限时减少1个单独的阴阳鱼。<br>\n①摸牌阶段，你多摸两张牌；<br>\n②你的手牌上限+2。\n|国战技能类型=主将技,锁定技\n|国战技能定位=过牌,屯牌\n}}",
+      "name": "神威",
+      "generals": [
+        "吕玲绮"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "你计算体力上限时减少1个单独的阴阳鱼。<br>\n①摸牌阶段，你多摸两张牌；<br>\n②你的手牌上限+2。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

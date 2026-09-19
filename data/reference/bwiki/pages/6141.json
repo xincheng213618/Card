@@ -1,0 +1,47 @@
+{
+  "pageid": 6141,
+  "namespace": 0,
+  "title": "枭姬/SP孙尚香",
+  "url": "https://wiki.biligame.com/sgs/%E6%9E%AD%E5%A7%AC/SP%E5%AD%99%E5%B0%9A%E9%A6%99",
+  "revid": 58920,
+  "parentid": 58918,
+  "timestamp": "2023-11-01T14:55:09Z",
+  "sourceSha256": "242bb01277c22d330f78b92c9ec04480ab0ad67d6b2743005c789e2226d48a7e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6141,
+      "namespace": 0,
+      "title": "枭姬/SP孙尚香",
+      "url": "https://wiki.biligame.com/sgs/%E6%9E%AD%E5%A7%AC/SP%E5%AD%99%E5%B0%9A%E9%A6%99",
+      "revid": 58920,
+      "parentid": 58918,
+      "timestamp": "2023-11-01T14:55:09Z",
+      "sourceSha256": "242bb01277c22d330f78b92c9ec04480ab0ad67d6b2743005c789e2226d48a7e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "枭姬",
+        "所属武将": "SP孙尚香",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "当你失去装备区里的一张牌后，你可以摸两张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=枭姬\n|所属武将=SP孙尚香\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=当你失去装备区里的一张牌后，你可以摸两张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "枭姬",
+      "generals": [
+        "SP孙尚香"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你失去装备区里的一张牌后，你可以摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

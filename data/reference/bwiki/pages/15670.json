@@ -1,0 +1,46 @@
+{
+  "pageid": 15670,
+  "namespace": 0,
+  "title": "谋关羽",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%85%B3%E7%BE%BD",
+  "revid": 78411,
+  "parentid": 78391,
+  "timestamp": "2026-06-18T14:14:10Z",
+  "sourceSha256": "d18259e2f76a506a23470ad862dee3e04e3eab520add471ab483ccccf4e83b27",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15670,
+      "namespace": 0,
+      "title": "谋关羽",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%85%B3%E7%BE%BD",
+      "revid": 78411,
+      "parentid": 78391,
+      "timestamp": "2026-06-18T14:14:10Z",
+      "sourceSha256": "d18259e2f76a506a23470ad862dee3e04e3eab520add471ab483ccccf4e83b27",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋关羽",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-子敬邀刀",
+        "经典体力": "4",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=谋关羽\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-子敬邀刀\n|经典体力=4\n|经典定位=爆发\n}}",
+      "name": "谋关羽",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

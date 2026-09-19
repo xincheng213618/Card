@@ -1,0 +1,47 @@
+{
+  "pageid": 2509,
+  "namespace": 0,
+  "title": "巨象",
+  "url": "https://wiki.biligame.com/sgs/%E5%B7%A8%E8%B1%A1",
+  "revid": 38274,
+  "parentid": 23754,
+  "timestamp": "2022-07-10T08:35:55Z",
+  "sourceSha256": "18a86ebef432023b766b06b9852a1a427116db1c0ce931a8041b196e0f75c8fd",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2509,
+      "namespace": 0,
+      "title": "巨象",
+      "url": "https://wiki.biligame.com/sgs/%E5%B7%A8%E8%B1%A1",
+      "revid": 38274,
+      "parentid": 23754,
+      "timestamp": "2022-07-10T08:35:55Z",
+      "sourceSha256": "18a86ebef432023b766b06b9852a1a427116db1c0ce931a8041b196e0f75c8fd",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "巨象",
+        "所属武将": "祝融",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "①【南蛮入侵】对你无效；<br>\n②当其他角色使用的【南蛮入侵】结算结束后置入弃牌堆时，你获得之。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=巨象\n|所属武将=祝融\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=①【南蛮入侵】对你无效；<br>\n②当其他角色使用的【南蛮入侵】结算结束后置入弃牌堆时，你获得之。\n|经典技能类型=锁定技\n|经典技能定位=防御,过牌\n}}",
+      "name": "巨象",
+      "generals": [
+        "祝融"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "①【南蛮入侵】对你无效；<br>\n②当其他角色使用的【南蛮入侵】结算结束后置入弃牌堆时，你获得之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

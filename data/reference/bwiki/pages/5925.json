@@ -1,0 +1,45 @@
+{
+  "pageid": 5925,
+  "namespace": 0,
+  "title": "诸葛瑾",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E7%91%BE",
+  "revid": 60230,
+  "parentid": 46337,
+  "timestamp": "2023-12-15T05:32:59Z",
+  "sourceSha256": "c5015c0ecc214555ad413de0068351c5cce13caa7ca72774dc526f20e93b70fb",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5925,
+      "namespace": 0,
+      "title": "诸葛瑾",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E7%91%BE",
+      "revid": 60230,
+      "parentid": 46337,
+      "timestamp": "2023-12-15T05:32:59Z",
+      "sourceSha256": "c5015c0ecc214555ad413de0068351c5cce13caa7ca72774dc526f20e93b70fb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛瑾",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "联盟的维系者",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星火燎原-天梁",
+        "经典体力": "3",
+        "经典定位": "辅助,改判"
+      },
+      "source": "{{武将\n|武将名=诸葛瑾\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=联盟的维系者\n|别称=\n|规则集问答=\n|武将包=星火燎原-天梁\n|经典体力=3\n|经典定位=辅助,改判\n}}",
+      "name": "诸葛瑾",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

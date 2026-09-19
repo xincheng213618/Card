@@ -1,0 +1,47 @@
+{
+  "pageid": 4808,
+  "namespace": 0,
+  "title": "龙胆/SP赵云",
+  "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E8%83%86/SP%E8%B5%B5%E4%BA%91",
+  "revid": 59145,
+  "parentid": 59144,
+  "timestamp": "2023-11-02T14:27:45Z",
+  "sourceSha256": "366b40a47b5932a97e92aa0eec6ed523d52c5ba404cbd4317a1f9d80d9960447",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4808,
+      "namespace": 0,
+      "title": "龙胆/SP赵云",
+      "url": "https://wiki.biligame.com/sgs/%E9%BE%99%E8%83%86/SP%E8%B5%B5%E4%BA%91",
+      "revid": 59145,
+      "parentid": 59144,
+      "timestamp": "2023-11-02T14:27:45Z",
+      "sourceSha256": "366b40a47b5932a97e92aa0eec6ed523d52c5ba404cbd4317a1f9d80d9960447",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "龙胆",
+        "所属武将": "SP赵云",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "防御,攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=龙胆\n|所属武将=SP赵云\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。\n|经典技能类型=一般技\n|经典技能定位=防御,攻击\n}}",
+      "name": "龙胆",
+      "generals": [
+        "SP赵云"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

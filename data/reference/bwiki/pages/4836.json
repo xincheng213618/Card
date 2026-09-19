@@ -1,0 +1,47 @@
+{
+  "pageid": 4836,
+  "namespace": 0,
+  "title": "行殇/曹丕",
+  "url": "https://wiki.biligame.com/sgs/%E8%A1%8C%E6%AE%87/%E6%9B%B9%E4%B8%95",
+  "revid": 68236,
+  "parentid": 68151,
+  "timestamp": "2025-02-07T09:33:41Z",
+  "sourceSha256": "ce37149af72ecec58c4909acc793144120d827d03b838bc8277c8abf99c36c2d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4836,
+      "namespace": 0,
+      "title": "行殇/曹丕",
+      "url": "https://wiki.biligame.com/sgs/%E8%A1%8C%E6%AE%87/%E6%9B%B9%E4%B8%95",
+      "revid": 68236,
+      "parentid": 68151,
+      "timestamp": "2025-02-07T09:33:41Z",
+      "sourceSha256": "ce37149af72ecec58c4909acc793144120d827d03b838bc8277c8abf99c36c2d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "行殇",
+        "所属武将": "曹丕",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "当其他角色死亡时，你可以获得其所有牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=行殇\n|所属武将=曹丕\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=当其他角色死亡时，你可以获得其所有牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "行殇",
+      "generals": [
+        "曹丕"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "当其他角色死亡时，你可以获得其所有牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

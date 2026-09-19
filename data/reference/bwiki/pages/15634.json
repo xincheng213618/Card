@@ -1,0 +1,46 @@
+{
+  "pageid": 15634,
+  "namespace": 0,
+  "title": "刘璿",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%92%BF",
+  "revid": 78103,
+  "parentid": 77550,
+  "timestamp": "2026-06-05T04:03:49Z",
+  "sourceSha256": "3d472c74a1dbe81d16148769f45d49771596cdc8a4c32f8a8ec5d9de1dbf235f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15634,
+      "namespace": 0,
+      "title": "刘璿",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%92%BF",
+      "revid": 78103,
+      "parentid": 77550,
+      "timestamp": "2026-06-05T04:03:49Z",
+      "sourceSha256": "3d472c74a1dbe81d16148769f45d49771596cdc8a4c32f8a8ec5d9de1dbf235f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘璿",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "依劝移行",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "4",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=刘璿\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=依劝移行\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=4\n|经典定位=辅助\n}}",
+      "name": "刘璿",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

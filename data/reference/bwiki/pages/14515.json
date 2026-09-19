@@ -1,0 +1,47 @@
+{
+  "pageid": 14515,
+  "namespace": 0,
+  "title": "谪厄",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%AA%E5%8E%84",
+  "revid": 79858,
+  "parentid": 73808,
+  "timestamp": "2026-08-31T12:32:28Z",
+  "sourceSha256": "1e9eaf69d8f40cfe9d01c56fdbc58dcf6c3524cdd6bb5b8fa3026afdecf403ef",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14515,
+      "namespace": 0,
+      "title": "谪厄",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%AA%E5%8E%84",
+      "revid": 79858,
+      "parentid": 73808,
+      "timestamp": "2026-08-31T12:32:28Z",
+      "sourceSha256": "1e9eaf69d8f40cfe9d01c56fdbc58dcf6c3524cdd6bb5b8fa3026afdecf403ef",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "谪厄",
+        "所属武将": "郭缇萦",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "游戏开始时/一名角色的回合结束时，从牌堆/弃牌堆中将【闪电】置入你的判定区。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=谪厄\n|所属武将=郭缇萦\n|是衍生技=\n|技能版本=经典\n|经典技能描述=游戏开始时/一名角色的回合结束时，从牌堆/弃牌堆中将【闪电】置入你的判定区。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "谪厄",
+      "generals": [
+        "郭缇萦"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "游戏开始时/一名角色的回合结束时，从牌堆/弃牌堆中将【闪电】置入你的判定区。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

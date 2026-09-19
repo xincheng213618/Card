@@ -1,0 +1,46 @@
+{
+  "pageid": 15929,
+  "namespace": 0,
+  "title": "谋王平",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%8E%8B%E5%B9%B3",
+  "revid": 79985,
+  "parentid": 79982,
+  "timestamp": "2026-09-06T05:35:03Z",
+  "sourceSha256": "9314d9f4883509f54cc73796ebc8226fe2c994aa008106e27b733fd59aed53f1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15929,
+      "namespace": 0,
+      "title": "谋王平",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%8E%8B%E5%B9%B3",
+      "revid": 79985,
+      "parentid": 79982,
+      "timestamp": "2026-09-06T05:35:03Z",
+      "sourceSha256": "9314d9f4883509f54cc73796ebc8226fe2c994aa008106e27b733fd59aed53f1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋王平",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "佯败溯战",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-武侯定南",
+        "经典体力": "5",
+        "经典定位": "辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=谋王平\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=佯败溯战\n|别称=\n|规则集问答=\n|武将包=谋定-武侯定南\n|经典体力=5\n|经典定位=辅助,爆发\n}}",
+      "name": "谋王平",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

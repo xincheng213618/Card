@@ -1,0 +1,47 @@
+{
+  "pageid": 4041,
+  "namespace": 0,
+  "title": "执笏",
+  "url": "https://wiki.biligame.com/sgs/%E6%89%A7%E7%AC%8F",
+  "revid": 38332,
+  "parentid": 31280,
+  "timestamp": "2022-07-14T02:08:41Z",
+  "sourceSha256": "44f951cc00b276ce92075773838fd80c2348f4e60f621a29b09592cfabaa26a9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4041,
+      "namespace": 0,
+      "title": "执笏",
+      "url": "https://wiki.biligame.com/sgs/%E6%89%A7%E7%AC%8F",
+      "revid": 38332,
+      "parentid": 31280,
+      "timestamp": "2022-07-14T02:08:41Z",
+      "sourceSha256": "44f951cc00b276ce92075773838fd80c2348f4e60f621a29b09592cfabaa26a9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "执笏",
+        "所属武将": "刘宏",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "每回合限两次，当你对其他角色造成伤害后，你摸两张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=执笏\n|所属武将=刘宏\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=每回合限两次，当你对其他角色造成伤害后，你摸两张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "执笏",
+      "generals": [
+        "刘宏"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合限两次，当你对其他角色造成伤害后，你摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 16256,
+  "namespace": 0,
+  "title": "冥赵云",
+  "url": "https://wiki.biligame.com/sgs/%E5%86%A5%E8%B5%B5%E4%BA%91",
+  "revid": 80114,
+  "parentid": 0,
+  "timestamp": "2026-09-18T09:57:47Z",
+  "sourceSha256": "d2e50520cad92a73a305aa4b73a70745018ec31c30532ac758d9204a3313925c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16256,
+      "namespace": 0,
+      "title": "冥赵云",
+      "url": "https://wiki.biligame.com/sgs/%E5%86%A5%E8%B5%B5%E4%BA%91",
+      "revid": 80114,
+      "parentid": 0,
+      "timestamp": "2026-09-18T09:57:47Z",
+      "sourceSha256": "d2e50520cad92a73a305aa4b73a70745018ec31c30532ac758d9204a3313925c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "冥赵云",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限定-冥",
+        "经典体力": "5",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=冥赵云\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限定-冥\n|经典体力=5\n|经典定位=爆发,控制\n}}",
+      "name": "冥赵云",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

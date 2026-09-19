@@ -1,0 +1,47 @@
+{
+  "pageid": 6149,
+  "namespace": 0,
+  "title": "展骥",
+  "url": "https://wiki.biligame.com/sgs/%E5%B1%95%E9%AA%A5",
+  "revid": 59698,
+  "parentid": 58904,
+  "timestamp": "2023-12-08T17:29:04Z",
+  "sourceSha256": "74f5f5d530641c5f51c6d4e98abc44a14f38ab1105de755d74ee4482501834ac",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6149,
+      "namespace": 0,
+      "title": "展骥",
+      "url": "https://wiki.biligame.com/sgs/%E5%B1%95%E9%AA%A5",
+      "revid": 59698,
+      "parentid": 58904,
+      "timestamp": "2023-12-08T17:29:04Z",
+      "sourceSha256": "74f5f5d530641c5f51c6d4e98abc44a14f38ab1105de755d74ee4482501834ac",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "展骥",
+        "所属武将": "SP庞统",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "当你于出牌阶段内不因此技能摸牌时，你摸一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=展骥\n|所属武将=SP庞统\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=当你于出牌阶段内不因此技能摸牌时，你摸一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "展骥",
+      "generals": [
+        "SP庞统"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你于出牌阶段内不因此技能摸牌时，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

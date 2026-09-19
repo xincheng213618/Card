@@ -1,0 +1,44 @@
+{
+  "pageid": 830,
+  "namespace": 0,
+  "title": "曹嵩",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%B5%A9",
+  "revid": 70135,
+  "parentid": 69884,
+  "timestamp": "2025-05-20T03:37:43Z",
+  "sourceSha256": "bd7af57b261df93b93f95bd2635cb237e336d935c51b88807d0e8be88fc1af51",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 830,
+      "namespace": 0,
+      "title": "曹嵩",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E5%B5%A9",
+      "revid": 70135,
+      "parentid": 69884,
+      "timestamp": "2025-05-20T03:37:43Z",
+      "sourceSha256": "bd7af57b261df93b93f95bd2635cb237e336d935c51b88807d0e8be88fc1af51",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹嵩",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "别称": "曹爹",
+        "规则集问答": "",
+        "武将包": "荟萃-徐州风云",
+        "经典体力": "4",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=曹嵩\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|别称=曹爹\n|规则集问答=\n|武将包=荟萃-徐州风云\n|经典体力=4\n|经典定位=辅助\n}}",
+      "name": "曹嵩",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

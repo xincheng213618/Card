@@ -1,0 +1,45 @@
+{
+  "pageid": 10630,
+  "namespace": 0,
+  "title": "甘夫人糜夫人",
+  "url": "https://wiki.biligame.com/sgs/%E7%94%98%E5%A4%AB%E4%BA%BA%E7%B3%9C%E5%A4%AB%E4%BA%BA",
+  "revid": 74193,
+  "parentid": 70615,
+  "timestamp": "2025-12-28T01:46:47Z",
+  "sourceSha256": "66134999ea4208f3fd48b64909d8091269e3907ca92f9f9a3df4cbeae259af98",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10630,
+      "namespace": 0,
+      "title": "甘夫人糜夫人",
+      "url": "https://wiki.biligame.com/sgs/%E7%94%98%E5%A4%AB%E4%BA%BA%E7%B3%9C%E5%A4%AB%E4%BA%BA",
+      "revid": 74193,
+      "parentid": 70615,
+      "timestamp": "2025-12-28T01:46:47Z",
+      "sourceSha256": "66134999ea4208f3fd48b64909d8091269e3907ca92f9f9a3df4cbeae259af98",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "甘夫人糜夫人",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "甘密、甘米、甘糜夫人",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=甘夫人糜夫人\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=甘密、甘米、甘糜夫人\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=攻击,控制\n}}",
+      "name": "甘夫人糜夫人",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

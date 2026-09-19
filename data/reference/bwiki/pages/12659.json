@@ -1,0 +1,46 @@
+{
+  "pageid": 12659,
+  "namespace": 0,
+  "title": "乐祢衡",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E7%A5%A2%E8%A1%A1",
+  "revid": 77497,
+  "parentid": 69038,
+  "timestamp": "2026-05-09T01:34:05Z",
+  "sourceSha256": "216936784b4a79a1ef5292acd4937c26772cd39db271cb9f7687bfb09ac45ea0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12659,
+      "namespace": 0,
+      "title": "乐祢衡",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E7%A5%A2%E8%A1%A1",
+      "revid": 77497,
+      "parentid": 69038,
+      "timestamp": "2026-05-09T01:34:05Z",
+      "sourceSha256": "216936784b4a79a1ef5292acd4937c26772cd39db271cb9f7687bfb09ac45ea0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐祢衡",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-正音雅乐",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=乐祢衡\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-正音雅乐\n|经典体力=3\n|经典定位=攻击,爆发\n}}",
+      "name": "乐祢衡",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

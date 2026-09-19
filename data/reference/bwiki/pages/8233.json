@@ -1,0 +1,47 @@
+{
+  "pageid": 8233,
+  "namespace": 0,
+  "title": "抚宁",
+  "url": "https://wiki.biligame.com/sgs/%E6%8A%9A%E5%AE%81",
+  "revid": 60575,
+  "parentid": 60574,
+  "timestamp": "2023-12-21T14:04:48Z",
+  "sourceSha256": "4800f7332ee4b1c58a6a64123a7351869b319129b9b6735e4c19d82ee1abaa0c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8233,
+      "namespace": 0,
+      "title": "抚宁",
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%9A%E5%AE%81",
+      "revid": 60575,
+      "parentid": 60574,
+      "timestamp": "2023-12-21T14:04:48Z",
+      "sourceSha256": "4800f7332ee4b1c58a6a64123a7351869b319129b9b6735e4c19d82ee1abaa0c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "抚宁",
+        "所属武将": "赵俨",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用一张牌时，你可以摸两张牌，弃置X张牌（X为本回合此技能发动次数）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=抚宁\n|所属武将=赵俨\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用一张牌时，你可以摸两张牌，弃置X张牌（X为本回合此技能发动次数）。\n|经典技能类型=一般技\n|经典技能定位=过牌,换牌\n}}",
+      "name": "抚宁",
+      "generals": [
+        "赵俨"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用一张牌时，你可以摸两张牌，弃置X张牌（X为本回合此技能发动次数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

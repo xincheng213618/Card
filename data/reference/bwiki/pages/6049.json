@@ -1,0 +1,47 @@
+{
+  "pageid": 6049,
+  "namespace": 0,
+  "title": "陈武董袭",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%88%E6%AD%A6%E8%91%A3%E8%A2%AD",
+  "revid": 77776,
+  "parentid": 71262,
+  "timestamp": "2026-05-09T01:56:01Z",
+  "sourceSha256": "45b591b6a937fb03a948af975c92d066545ce270afe04d50d043285b3a980bea",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6049,
+      "namespace": 0,
+      "title": "陈武董袭",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E6%AD%A6%E8%91%A3%E8%A2%AD",
+      "revid": 77776,
+      "parentid": 71262,
+      "timestamp": "2026-05-09T01:56:01Z",
+      "sourceSha256": "45b591b6a937fb03a948af975c92d066545ce270afe04d50d043285b3a980bea",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陈武董袭",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "控制\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=陈武董袭\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=控制\n<!-- 国战 -->\n}}",
+      "name": "陈武董袭",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

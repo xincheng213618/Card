@@ -1,0 +1,47 @@
+{
+  "pageid": 5167,
+  "namespace": 0,
+  "title": "宗预",
+  "url": "https://wiki.biligame.com/sgs/%E5%AE%97%E9%A2%84",
+  "revid": 77656,
+  "parentid": 69589,
+  "timestamp": "2026-05-09T01:45:05Z",
+  "sourceSha256": "4d84e09ed0fa14e73a04c774d38f2b9cac94ae6a3c499be111c0ccebf0f1e69d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5167,
+      "namespace": 0,
+      "title": "宗预",
+      "url": "https://wiki.biligame.com/sgs/%E5%AE%97%E9%A2%84",
+      "revid": 77656,
+      "parentid": 69589,
+      "timestamp": "2026-05-09T01:45:05Z",
+      "sourceSha256": "4d84e09ed0fa14e73a04c774d38f2b9cac94ae6a3c499be111c0ccebf0f1e69d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "宗预",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-纵横捭阖",
+        "经典体力": "3",
+        "经典定位": "续航,控制\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=宗预\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主,国战\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-纵横捭阖\n|经典体力=3\n|经典定位=续航,控制\n<!-- 国战 -->\n}}",
+      "name": "宗预",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

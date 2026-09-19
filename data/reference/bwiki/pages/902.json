@@ -1,0 +1,44 @@
+{
+  "pageid": 902,
+  "namespace": 0,
+  "title": "花鬘",
+  "url": "https://wiki.biligame.com/sgs/%E8%8A%B1%E9%AC%98",
+  "revid": 70762,
+  "parentid": 70512,
+  "timestamp": "2025-05-20T05:12:08Z",
+  "sourceSha256": "c1053ed418a90a2a80faa5cbeeb3d0b23c95fbfe0e81dd940c1f535a1146da13",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 902,
+      "namespace": 0,
+      "title": "花鬘",
+      "url": "https://wiki.biligame.com/sgs/%E8%8A%B1%E9%AC%98",
+      "revid": 70762,
+      "parentid": 70512,
+      "timestamp": "2025-05-20T05:12:08Z",
+      "sourceSha256": "c1053ed418a90a2a80faa5cbeeb3d0b23c95fbfe0e81dd940c1f535a1146da13",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "花鬘",
+        "势力": "蜀",
+        "性别": "女",
+        "别称": "花姑娘",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "攻击,防御,爆发"
+      },
+      "source": "{{武将\n|武将名=花鬘\n|势力=蜀\n|性别=女\n|别称=花姑娘\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=攻击,防御,爆发\n}}",
+      "name": "花鬘",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

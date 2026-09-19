@@ -1,0 +1,47 @@
+{
+  "pageid": 4031,
+  "namespace": 0,
+  "title": "无言",
+  "url": "https://wiki.biligame.com/sgs/%E6%97%A0%E8%A8%80",
+  "revid": 58944,
+  "parentid": 46733,
+  "timestamp": "2023-11-01T15:46:10Z",
+  "sourceSha256": "8d2fcc5d3fa0f21c2d0cf8429eea70ae5484cb9638c0018640674da3a8944c2b",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4031,
+      "namespace": 0,
+      "title": "无言",
+      "url": "https://wiki.biligame.com/sgs/%E6%97%A0%E8%A8%80",
+      "revid": 58944,
+      "parentid": 46733,
+      "timestamp": "2023-11-01T15:46:10Z",
+      "sourceSha256": "8d2fcc5d3fa0f21c2d0cf8429eea70ae5484cb9638c0018640674da3a8944c2b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "无言",
+        "所属武将": "SP徐庶",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用锦囊牌造成伤害时，或受到锦囊牌造成的伤害时，防止此伤害。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=无言\n|所属武将=SP徐庶\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用锦囊牌造成伤害时，或受到锦囊牌造成的伤害时，防止此伤害。\n|经典技能类型=锁定技\n|经典技能定位=防御,负面\n}}",
+      "name": "无言",
+      "generals": [
+        "SP徐庶"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用锦囊牌造成伤害时，或受到锦囊牌造成的伤害时，防止此伤害。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 14853,
+  "namespace": 0,
+  "title": "徐妏",
+  "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E5%A6%8F",
+  "revid": 78979,
+  "parentid": 77707,
+  "timestamp": "2026-07-16T23:26:43Z",
+  "sourceSha256": "2b727d115666842cb164c48b1ade4262e6d41dd62e540e3c864cc1f93b2631b0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14853,
+      "namespace": 0,
+      "title": "徐妏",
+      "url": "https://wiki.biligame.com/sgs/%E5%BE%90%E5%A6%8F",
+      "revid": 78979,
+      "parentid": 77707,
+      "timestamp": "2026-07-16T23:26:43Z",
+      "sourceSha256": "2b727d115666842cb164c48b1ade4262e6d41dd62e540e3c864cc1f93b2631b0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "徐妏",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "笔授魂赋",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "全能,辅助"
+      },
+      "source": "{{武将\n|武将名=徐妏\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=笔授魂赋\n|别称=\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=全能,辅助\n}}",
+      "name": "徐妏",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

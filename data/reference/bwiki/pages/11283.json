@@ -1,0 +1,47 @@
+{
+  "pageid": 11283,
+  "namespace": 0,
+  "title": "砺锋",
+  "url": "https://wiki.biligame.com/sgs/%E7%A0%BA%E9%94%8B",
+  "revid": 63362,
+  "parentid": 58791,
+  "timestamp": "2024-06-06T00:30:40Z",
+  "sourceSha256": "c23a5bf0a01907fef37964f27b4996d512664b2cdf337f77fabd6d430122bf75",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11283,
+      "namespace": 0,
+      "title": "砺锋",
+      "url": "https://wiki.biligame.com/sgs/%E7%A0%BA%E9%94%8B",
+      "revid": 63362,
+      "parentid": 58791,
+      "timestamp": "2024-06-06T00:30:40Z",
+      "sourceSha256": "c23a5bf0a01907fef37964f27b4996d512664b2cdf337f77fabd6d430122bf75",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "砺锋",
+        "所属武将": "星曹仁",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你可以将一张手牌（本回合被使用过牌的颜色除外）当【无懈可击】或不计入次数的【杀】使用。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "攻击,控制,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=砺锋\n|所属武将=星曹仁\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你可以将一张手牌（本回合被使用过牌的颜色除外）当【无懈可击】或不计入次数的【杀】使用。\n|经典技能类型=一般技\n|经典技能定位=攻击,控制,辅助\n}}",
+      "name": "砺锋",
+      "generals": [
+        "星曹仁"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你可以将一张手牌（本回合被使用过牌的颜色除外）当【无懈可击】或不计入次数的【杀】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

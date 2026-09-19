@@ -1,0 +1,47 @@
+{
+  "pageid": 3184,
+  "namespace": 0,
+  "title": "吕范",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%95%E8%8C%83",
+  "revid": 77584,
+  "parentid": 69204,
+  "timestamp": "2026-05-09T01:40:51Z",
+  "sourceSha256": "b18e1b0d6e2256c8e8fd4e07301026f398365d59642cf051d0dca49f5483f94e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3184,
+      "namespace": 0,
+      "title": "吕范",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%95%E8%8C%83",
+      "revid": 77584,
+      "parentid": 69204,
+      "timestamp": "2026-05-09T01:40:51Z",
+      "sourceSha256": "b18e1b0d6e2256c8e8fd4e07301026f398365d59642cf051d0dca49f5483f94e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吕范",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "",
+        "称号": "",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "规则集问答": "",
+        "武将包": "荟萃-计将安出",
+        "经典体力": "3",
+        "经典定位": "续航,辅助\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=吕范\n|势力=吴\n|性别=男\n|别称=\n|称号=\n|出现模式=身份,欢乐,斗地主,国战\n|规则集问答=\n|武将包=荟萃-计将安出\n|经典体力=3\n|经典定位=续航,辅助\n<!-- 国战 -->\n}}",
+      "name": "吕范",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

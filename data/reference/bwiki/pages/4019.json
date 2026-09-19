@@ -1,0 +1,46 @@
+{
+  "pageid": 4019,
+  "namespace": 0,
+  "title": "七哀",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%83%E5%93%80",
+  "revid": 47093,
+  "parentid": 30084,
+  "timestamp": "2023-01-29T05:01:11Z",
+  "sourceSha256": "4fa09d38386f1d9391fec1e52abe7cb17bd459475938465366a0e74e89045e32",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4019,
+      "namespace": 0,
+      "title": "七哀",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%83%E5%93%80",
+      "revid": 47093,
+      "parentid": 30084,
+      "timestamp": "2023-01-29T05:01:11Z",
+      "sourceSha256": "4fa09d38386f1d9391fec1e52abe7cb17bd459475938465366a0e74e89045e32",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "七哀",
+        "所属武将": "王粲",
+        "技能版本": "经典",
+        "经典技能描述": "当你进入濒死状态时，你可以令所有其他角色同时交给你一张牌。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "过牌,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=七哀\n|所属武将=王粲\n|技能版本=经典\n|经典技能描述=当你进入濒死状态时，你可以令所有其他角色同时交给你一张牌。\n|经典技能类型=限定技\n|经典技能定位=过牌,控制\n}}",
+      "name": "七哀",
+      "generals": [
+        "王粲"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你进入濒死状态时，你可以令所有其他角色同时交给你一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

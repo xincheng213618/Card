@@ -1,0 +1,45 @@
+{
+  "pageid": 13393,
+  "namespace": 0,
+  "title": "马钧",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E9%92%A7",
+  "revid": 68005,
+  "parentid": 67963,
+  "timestamp": "2025-02-06T15:53:42Z",
+  "sourceSha256": "318955244be44e4a564c7e2c4c934c047bcb200f22f917287109baeff92cac71",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13393,
+      "namespace": 0,
+      "title": "马钧",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E9%92%A7",
+      "revid": 68005,
+      "parentid": 67963,
+      "timestamp": "2025-02-06T15:53:42Z",
+      "sourceSha256": "318955244be44e4a564c7e2c4c934c047bcb200f22f917287109baeff92cac71",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "马钧",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2023",
+        "经典体力": "3",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=马钧\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=一将成名-2023\n|经典体力=3\n|经典定位=续航,爆发\n}}",
+      "name": "马钧",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

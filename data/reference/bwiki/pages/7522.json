@@ -1,0 +1,47 @@
+{
+  "pageid": 7522,
+  "namespace": 0,
+  "title": "铸币",
+  "url": "https://wiki.biligame.com/sgs/%E9%93%B8%E5%B8%81",
+  "revid": 64542,
+  "parentid": 38888,
+  "timestamp": "2024-08-27T03:24:24Z",
+  "sourceSha256": "3fba5cf307098fb95baf4009ee7ec1fd9397ab50964fd36f755799b0cea55597",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7522,
+      "namespace": 0,
+      "title": "铸币",
+      "url": "https://wiki.biligame.com/sgs/%E9%93%B8%E5%B8%81",
+      "revid": 64542,
+      "parentid": 38888,
+      "timestamp": "2024-08-27T03:24:24Z",
+      "sourceSha256": "3fba5cf307098fb95baf4009ee7ec1fd9397ab50964fd36f755799b0cea55597",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "铸币",
+        "所属武将": "刘巴",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当♦️牌因弃置而置入弃牌堆后，你可以将牌堆或弃牌堆中的一张【无中生有】置于牌堆顶。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控顶"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=铸币\n|所属武将=刘巴\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当♦️牌因弃置而置入弃牌堆后，你可以将牌堆或弃牌堆中的一张【无中生有】置于牌堆顶。\n|经典技能类型=一般技\n|经典技能定位=控顶\n}}",
+      "name": "铸币",
+      "generals": [
+        "刘巴"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当♦️牌因弃置而置入弃牌堆后，你可以将牌堆或弃牌堆中的一张【无中生有】置于牌堆顶。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

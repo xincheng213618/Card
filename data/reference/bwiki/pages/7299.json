@@ -1,0 +1,45 @@
+{
+  "pageid": 7299,
+  "namespace": 0,
+  "title": "骆统",
+  "url": "https://wiki.biligame.com/sgs/%E9%AA%86%E7%BB%9F",
+  "revid": 71437,
+  "parentid": 71335,
+  "timestamp": "2025-05-21T01:23:44Z",
+  "sourceSha256": "dee6d9cb69e0ea8e9f4d390b4652dd35856830766a71aa24eab34160a8fa5900",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7299,
+      "namespace": 0,
+      "title": "骆统",
+      "url": "https://wiki.biligame.com/sgs/%E9%AA%86%E7%BB%9F",
+      "revid": 71437,
+      "parentid": 71335,
+      "timestamp": "2025-05-21T01:23:44Z",
+      "sourceSha256": "dee6d9cb69e0ea8e9f4d390b4652dd35856830766a71aa24eab34160a8fa5900",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "骆统",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "骆驼",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "攻击,防御,续航"
+      },
+      "source": "{{武将\n|武将名=骆统\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=骆驼\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=攻击,防御,续航\n}}",
+      "name": "骆统",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 10785,
+  "namespace": 0,
+  "title": "周不疑",
+  "url": "https://wiki.biligame.com/sgs/%E5%91%A8%E4%B8%8D%E7%96%91",
+  "revid": 77595,
+  "parentid": 74513,
+  "timestamp": "2026-05-09T01:41:56Z",
+  "sourceSha256": "59b98067ecc4839c6eb09900a02051f3765300c6715f19a3a3856bdce2f3820b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10785,
+      "namespace": 0,
+      "title": "周不疑",
+      "url": "https://wiki.biligame.com/sgs/%E5%91%A8%E4%B8%8D%E7%96%91",
+      "revid": 77595,
+      "parentid": 74513,
+      "timestamp": "2026-05-09T01:41:56Z",
+      "sourceSha256": "59b98067ecc4839c6eb09900a02051f3765300c6715f19a3a3856bdce2f3820b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "周不疑",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "小孩、{{黑幕|布姨}}",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "3",
+        "经典定位": "辅助,卖血"
+      },
+      "source": "{{武将\n|武将名=周不疑\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=小孩、{{黑幕|布姨}}\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=3\n|经典定位=辅助,卖血\n}}",
+      "name": "周不疑",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

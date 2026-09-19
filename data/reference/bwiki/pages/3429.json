@@ -1,0 +1,47 @@
+{
+  "pageid": 3429,
+  "namespace": 0,
+  "title": "纵适",
+  "url": "https://wiki.biligame.com/sgs/%E7%BA%B5%E9%80%82",
+  "revid": 66013,
+  "parentid": 65885,
+  "timestamp": "2024-11-21T14:37:32Z",
+  "sourceSha256": "d819da74b8eaf7b6b4333b7d1621268e7e5028ca1fc6fc0e518f06ad0258ba3d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3429,
+      "namespace": 0,
+      "title": "纵适",
+      "url": "https://wiki.biligame.com/sgs/%E7%BA%B5%E9%80%82",
+      "revid": 66013,
+      "parentid": 65885,
+      "timestamp": "2024-11-21T14:37:32Z",
+      "sourceSha256": "d819da74b8eaf7b6b4333b7d1621268e7e5028ca1fc6fc0e518f06ad0258ba3d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "纵适",
+        "所属武将": "简雍",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "当你拼点后，你可以获得两张拼点牌中点数较小的一张（若你没赢，则只获得你的拼点牌）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=纵适\n|所属武将=简雍\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=当你拼点后，你可以获得两张拼点牌中点数较小的一张（若你没赢，则只获得你的拼点牌）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "纵适",
+      "generals": [
+        "简雍"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当你拼点后，你可以获得两张拼点牌中点数较小的一张（若你没赢，则只获得你的拼点牌）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

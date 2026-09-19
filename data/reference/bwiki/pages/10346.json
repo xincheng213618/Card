@@ -1,0 +1,45 @@
+{
+  "pageid": 10346,
+  "namespace": 0,
+  "title": "郑浑",
+  "url": "https://wiki.biligame.com/sgs/%E9%83%91%E6%B5%91",
+  "revid": 71182,
+  "parentid": 70932,
+  "timestamp": "2025-05-20T07:49:54Z",
+  "sourceSha256": "7bfb388f3d5581c8bccd7d95e449d43d34431efad15f12bdf7072aed2d4b7198",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10346,
+      "namespace": 0,
+      "title": "郑浑",
+      "url": "https://wiki.biligame.com/sgs/%E9%83%91%E6%B5%91",
+      "revid": 71182,
+      "parentid": 70932,
+      "timestamp": "2025-05-20T07:49:54Z",
+      "sourceSha256": "7bfb388f3d5581c8bccd7d95e449d43d34431efad15f12bdf7072aed2d4b7198",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "郑浑",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-悬壶济世",
+        "经典体力": "3",
+        "经典定位": "控制,续航"
+      },
+      "source": "{{武将\n|武将名=郑浑\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-悬壶济世\n|经典体力=3\n|经典定位=控制,续航\n}}",
+      "name": "郑浑",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

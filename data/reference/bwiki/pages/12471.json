@@ -1,0 +1,45 @@
+{
+  "pageid": 12471,
+  "namespace": 0,
+  "title": "谋贾诩",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%B4%BE%E8%AF%A9",
+  "revid": 78957,
+  "parentid": 75285,
+  "timestamp": "2026-07-11T09:05:48Z",
+  "sourceSha256": "d6e4a31bc06c7d6f0d6f518c38b1a4528109264b4e4c7b1e3d249a0f58b9d9c6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12471,
+      "namespace": 0,
+      "title": "谋贾诩",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%B4%BE%E8%AF%A9",
+      "revid": 78957,
+      "parentid": 75285,
+      "timestamp": "2026-07-11T09:05:48Z",
+      "sourceSha256": "d6e4a31bc06c7d6f0d6f518c38b1a4528109264b4e4c7b1e3d249a0f58b9d9c6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋贾诩",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=谋贾诩\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3\n|经典定位=控制,爆发\n}}",
+      "name": "谋贾诩",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

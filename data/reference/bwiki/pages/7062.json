@@ -1,0 +1,48 @@
+{
+  "pageid": 7062,
+  "namespace": 0,
+  "title": "祢衡",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%A2%E8%A1%A1",
+  "revid": 77752,
+  "parentid": 74672,
+  "timestamp": "2026-05-09T01:54:46Z",
+  "sourceSha256": "8de265791de2a60f322bb5a0a36f6b76d8511d8d6c9a46b88f6ae8093572fe31",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7062,
+      "namespace": 0,
+      "title": "祢衡",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%A2%E8%A1%A1",
+      "revid": 77752,
+      "parentid": 74672,
+      "timestamp": "2026-05-09T01:54:46Z",
+      "sourceSha256": "8de265791de2a60f322bb5a0a36f6b76d8511d8d6c9a46b88f6ae8093572fe31",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "祢衡",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "",
+        "别称": "猕猴、猴子",
+        "规则集问答": "",
+        "武将包": "荟萃-纵横捭阖",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发,续航,控制\n<!-- 国战 -->",
+        "国战定位": "攻击,爆发,控制"
+      },
+      "source": "{{武将\n|武将名=祢衡\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=\n|别称=猕猴、猴子\n|规则集问答=\n|武将包=荟萃-纵横捭阖\n|经典体力=3\n|经典定位=攻击,爆发,续航,控制\n<!-- 国战 -->\n|国战定位=攻击,爆发,控制\n}}",
+      "name": "祢衡",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

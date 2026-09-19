@@ -1,0 +1,44 @@
+{
+  "pageid": 14656,
+  "namespace": 0,
+  "title": "东海龙王",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%9C%E6%B5%B7%E9%BE%99%E7%8E%8B",
+  "revid": 75421,
+  "parentid": 74981,
+  "timestamp": "2026-02-12T02:09:45Z",
+  "sourceSha256": "a84e0f055cdafa889ca96b55d87a9dd4b8a927483b175c6448b2d82a38d2e2fe",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14656,
+      "namespace": 0,
+      "title": "东海龙王",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%9C%E6%B5%B7%E9%BE%99%E7%8E%8B",
+      "revid": 75421,
+      "parentid": 74981,
+      "timestamp": "2026-02-12T02:09:45Z",
+      "sourceSha256": "a84e0f055cdafa889ca96b55d87a9dd4b8a927483b175c6448b2d82a38d2e2fe",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "东海龙王",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=东海龙王\n|势力=神\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=控制,攻击\n}}",
+      "name": "东海龙王",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

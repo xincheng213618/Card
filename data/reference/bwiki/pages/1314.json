@@ -1,0 +1,46 @@
+{
+  "pageid": 1314,
+  "namespace": 0,
+  "title": "王异",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E5%BC%82",
+  "revid": 70592,
+  "parentid": 70342,
+  "timestamp": "2025-05-20T05:01:27Z",
+  "sourceSha256": "82416f6346585f978b851c97e5e29a1885556616163576152cdfaedf2ffa6570",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1314,
+      "namespace": 0,
+      "title": "王异",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E5%BC%82",
+      "revid": 70592,
+      "parentid": 70342,
+      "timestamp": "2025-05-20T05:01:27Z",
+      "sourceSha256": "82416f6346585f978b851c97e5e29a1885556616163576152cdfaedf2ffa6570",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王异",
+        "势力": "魏",
+        "性别": "女",
+        "别称": "王姨妈",
+        "称号": "决意的巾帼",
+        "出现模式": "欢乐,身份",
+        "规则集问答": "",
+        "武将包": "一将成名-2012",
+        "经典体力": "3",
+        "经典定位": "卖血,控制",
+        "界限体力": "4"
+      },
+      "source": "{{武将\n|武将名=王异\n|势力=魏\n|性别=女\n|别称=王姨妈\n|称号=决意的巾帼\n|出现模式=欢乐,身份\n|规则集问答=\n|武将包=一将成名-2012\n|经典体力=3\n|经典定位=卖血,控制\n|界限体力=4\n}}",
+      "name": "王异",
+      "modes": [
+        "欢乐",
+        "身份"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

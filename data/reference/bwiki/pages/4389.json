@@ -1,0 +1,47 @@
+{
+  "pageid": 4389,
+  "namespace": 0,
+  "title": "截辎",
+  "url": "https://wiki.biligame.com/sgs/%E6%88%AA%E8%BE%8E",
+  "revid": 68216,
+  "parentid": 68197,
+  "timestamp": "2025-02-07T09:18:28Z",
+  "sourceSha256": "db4791402b826d3c543e2b0610adc537fd89cff27526a3bf5f51dfdab4dd0d18",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4389,
+      "namespace": 0,
+      "title": "截辎",
+      "url": "https://wiki.biligame.com/sgs/%E6%88%AA%E8%BE%8E",
+      "revid": 68216,
+      "parentid": 68197,
+      "timestamp": "2025-02-07T09:18:28Z",
+      "sourceSha256": "db4791402b826d3c543e2b0610adc537fd89cff27526a3bf5f51dfdab4dd0d18",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "截辎",
+        "所属武将": "徐晃",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当一名其他角色跳过摸牌阶段后，你摸一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=截辎\n|所属武将=徐晃\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当一名其他角色跳过摸牌阶段后，你摸一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "截辎",
+      "generals": [
+        "徐晃"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一名其他角色跳过摸牌阶段后，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 12945,
+  "namespace": 0,
+  "title": "谋郭嘉",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%83%AD%E5%98%89",
+  "revid": 75266,
+  "parentid": 75258,
+  "timestamp": "2026-02-10T01:03:09Z",
+  "sourceSha256": "699b47f0e9741c348069e47ee4def45b3e3c51788c1d69b6d4d094a3eb618b0a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12945,
+      "namespace": 0,
+      "title": "谋郭嘉",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%83%AD%E5%98%89",
+      "revid": 75266,
+      "parentid": 75258,
+      "timestamp": "2026-02-10T01:03:09Z",
+      "sourceSha256": "699b47f0e9741c348069e47ee4def45b3e3c51788c1d69b6d4d094a3eb618b0a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋郭嘉",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3",
+        "经典定位": "控制,续航"
+      },
+      "source": "{{武将\n|武将名=谋郭嘉\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3\n|经典定位=控制,续航\n}}",
+      "name": "谋郭嘉",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

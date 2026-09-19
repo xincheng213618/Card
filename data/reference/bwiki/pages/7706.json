@@ -1,0 +1,47 @@
+{
+  "pageid": 7706,
+  "namespace": 0,
+  "title": "忠节",
+  "url": "https://wiki.biligame.com/sgs/%E5%BF%A0%E8%8A%82",
+  "revid": 62169,
+  "parentid": 39636,
+  "timestamp": "2024-02-17T09:28:08Z",
+  "sourceSha256": "bd87f42add237980ec373d476e216787f928966eafcd9708791f422fbd5b25c1",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7706,
+      "namespace": 0,
+      "title": "忠节",
+      "url": "https://wiki.biligame.com/sgs/%E5%BF%A0%E8%8A%82",
+      "revid": 62169,
+      "parentid": 39636,
+      "timestamp": "2024-02-17T09:28:08Z",
+      "sourceSha256": "bd87f42add237980ec373d476e216787f928966eafcd9708791f422fbd5b25c1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "忠节",
+        "所属武将": "赵昂",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每轮限一次，当一名角色失去体力进入濒死状态时，你可以令其回复1点体力并摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,回血,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=忠节\n|所属武将=赵昂\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每轮限一次，当一名角色失去体力进入濒死状态时，你可以令其回复1点体力并摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=辅助,回血,过牌\n}}",
+      "name": "忠节",
+      "generals": [
+        "赵昂"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每轮限一次，当一名角色失去体力进入濒死状态时，你可以令其回复1点体力并摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

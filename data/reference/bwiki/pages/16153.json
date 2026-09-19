@@ -1,0 +1,46 @@
+{
+  "pageid": 16153,
+  "namespace": 0,
+  "title": "羊徽瑜",
+  "url": "https://wiki.biligame.com/sgs/%E7%BE%8A%E5%BE%BD%E7%91%9C",
+  "revid": 79694,
+  "parentid": 79557,
+  "timestamp": "2026-08-20T13:35:03Z",
+  "sourceSha256": "c8c309641e525fad3cb77812170cd0b07a4f06556cc8cbc22eec7866f6ca2dce",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16153,
+      "namespace": 0,
+      "title": "羊徽瑜",
+      "url": "https://wiki.biligame.com/sgs/%E7%BE%8A%E5%BE%BD%E7%91%9C",
+      "revid": 79694,
+      "parentid": 79557,
+      "timestamp": "2026-08-20T13:35:03Z",
+      "sourceSha256": "c8c309641e525fad3cb77812170cd0b07a4f06556cc8cbc22eec7866f6ca2dce",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "羊徽瑜",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "美羊羊",
+        "规则集问答": "",
+        "武将包": "荟萃-章台春望",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=羊徽瑜\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=美羊羊\n|规则集问答=\n|武将包=荟萃-章台春望\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "羊徽瑜",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

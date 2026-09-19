@@ -1,0 +1,47 @@
+{
+  "pageid": 4986,
+  "namespace": 0,
+  "title": "崩坏/董卓（国战）",
+  "url": "https://wiki.biligame.com/sgs/%E5%B4%A9%E5%9D%8F/%E8%91%A3%E5%8D%93%EF%BC%88%E5%9B%BD%E6%88%98%EF%BC%89",
+  "revid": 39705,
+  "parentid": 23775,
+  "timestamp": "2022-09-14T13:06:05Z",
+  "sourceSha256": "0172da108e29a6935f8cf7bfa7929fe35064d2f45f5d1ac1c6f8d74977bf59a9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4986,
+      "namespace": 0,
+      "title": "崩坏/董卓（国战）",
+      "url": "https://wiki.biligame.com/sgs/%E5%B4%A9%E5%9D%8F/%E8%91%A3%E5%8D%93%EF%BC%88%E5%9B%BD%E6%88%98%EF%BC%89",
+      "revid": 39705,
+      "parentid": 23775,
+      "timestamp": "2022-09-14T13:06:05Z",
+      "sourceSha256": "0172da108e29a6935f8cf7bfa7929fe35064d2f45f5d1ac1c6f8d74977bf59a9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "崩坏",
+        "所属武将": "董卓",
+        "是衍生技": "是",
+        "技能版本": "国",
+        "国战技能描述": "结束阶段，若你不是全场体力值最低的角色，你选择一项：1.失去1点体力；2.减1点体力上限。",
+        "国战技能类型": "锁定技",
+        "经典技能定位": "负面"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=崩坏\n|所属武将=董卓\n|是衍生技=是\n|技能版本=国\n|国战技能描述=结束阶段，若你不是全场体力值最低的角色，你选择一项：1.失去1点体力；2.减1点体力上限。\n|国战技能类型=锁定技\n|经典技能定位=负面\n}}",
+      "name": "崩坏",
+      "generals": [
+        "董卓"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "结束阶段，若你不是全场体力值最低的角色，你选择一项：1.失去1点体力；2.减1点体力上限。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

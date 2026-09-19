@@ -1,0 +1,46 @@
+{
+  "pageid": 15902,
+  "namespace": 0,
+  "title": "陆文漪",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%86%E6%96%87%E6%BC%AA",
+  "revid": 79234,
+  "parentid": 79147,
+  "timestamp": "2026-07-31T09:40:17Z",
+  "sourceSha256": "7aa7b153f03b22ca83f8dc7ebcb015762341902703c0fa5ec7aa659eae872f58",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15902,
+      "namespace": 0,
+      "title": "陆文漪",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%86%E6%96%87%E6%BC%AA",
+      "revid": 79234,
+      "parentid": 79147,
+      "timestamp": "2026-07-31T09:40:17Z",
+      "sourceSha256": "7aa7b153f03b22ca83f8dc7ebcb015762341902703c0fa5ec7aa659eae872f58",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陆文漪",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "卷中避世",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "辅助,防御"
+      },
+      "source": "{{武将\n|武将名=陆文漪\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=卷中避世\n|别称=\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=辅助,防御\n}}",
+      "name": "陆文漪",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

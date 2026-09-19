@@ -1,0 +1,45 @@
+{
+  "pageid": 6960,
+  "namespace": 0,
+  "title": "郝萌",
+  "url": "https://wiki.biligame.com/sgs/%E9%83%9D%E8%90%8C",
+  "revid": 71184,
+  "parentid": 70934,
+  "timestamp": "2025-05-20T07:50:02Z",
+  "sourceSha256": "b7667d52354e4d4fea97f9392c47608833e2860103bbe9f6e696ae3615bbd309",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6960,
+      "namespace": 0,
+      "title": "郝萌",
+      "url": "https://wiki.biligame.com/sgs/%E9%83%9D%E8%90%8C",
+      "revid": 71184,
+      "parentid": 70934,
+      "timestamp": "2025-05-20T07:50:02Z",
+      "sourceSha256": "b7667d52354e4d4fea97f9392c47608833e2860103bbe9f6e696ae3615bbd309",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "郝萌",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "好萌",
+        "规则集问答": "",
+        "武将包": "荟萃-虓虎悲歌",
+        "经典体力": "7",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=郝萌\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=好萌\n|规则集问答=\n|武将包=荟萃-虓虎悲歌\n|经典体力=7\n|经典定位=攻击,爆发\n}}",
+      "name": "郝萌",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

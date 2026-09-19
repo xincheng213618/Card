@@ -1,0 +1,46 @@
+{
+  "pageid": 16056,
+  "namespace": 0,
+  "title": "威曹彰",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E6%9B%B9%E5%BD%B0",
+  "revid": 79043,
+  "parentid": 79029,
+  "timestamp": "2026-07-23T07:50:46Z",
+  "sourceSha256": "4ae2dbea3fd0b63ccafe2d00f8186ebf65db2ba2ad94af9a6e457c065d6249e5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16056,
+      "namespace": 0,
+      "title": "威曹彰",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E6%9B%B9%E5%BD%B0",
+      "revid": 79043,
+      "parentid": 79029,
+      "timestamp": "2026-07-23T07:50:46Z",
+      "sourceSha256": "4ae2dbea3fd0b63ccafe2d00f8186ebf65db2ba2ad94af9a6e457c065d6249e5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威曹彰",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-威震天下",
+        "经典体力": "5",
+        "经典定位": "爆发,辅助"
+      },
+      "source": "{{武将\n|武将名=威曹彰\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=威震-威震天下\n|经典体力=5\n|经典定位=爆发,辅助\n}}",
+      "name": "威曹彰",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 14612,
+  "namespace": 0,
+  "title": "马铁",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E9%93%81",
+  "revid": 77414,
+  "parentid": 76167,
+  "timestamp": "2026-05-04T23:40:31Z",
+  "sourceSha256": "c561d19cb1f336d78f9d3c2edbd82d5c74b6c70a9091699d061af01aafefcfd6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14612,
+      "namespace": 0,
+      "title": "马铁",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E9%93%81",
+      "revid": 77414,
+      "parentid": 76167,
+      "timestamp": "2026-05-04T23:40:31Z",
+      "sourceSha256": "c561d19cb1f336d78f9d3c2edbd82d5c74b6c70a9091699d061af01aafefcfd6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "马铁",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "继志伏波",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-群雄伺动",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=马铁\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=继志伏波\n|别称=\n|规则集问答=\n|武将包=荟萃-群雄伺动\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "马铁",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

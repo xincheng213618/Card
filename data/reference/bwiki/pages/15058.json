@@ -1,0 +1,45 @@
+{
+  "pageid": 15058,
+  "namespace": 0,
+  "title": "谋淳于琼",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%B7%B3%E4%BA%8E%E7%90%BC",
+  "revid": 76319,
+  "parentid": 76075,
+  "timestamp": "2026-03-20T14:27:30Z",
+  "sourceSha256": "409c6743dab9af979e50151a716ffdce885dbb83467f66f09dc9d82fa96efd77",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15058,
+      "namespace": 0,
+      "title": "谋淳于琼",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%B7%B3%E4%BA%8E%E7%90%BC",
+      "revid": 76319,
+      "parentid": 76075,
+      "timestamp": "2026-03-20T14:27:30Z",
+      "sourceSha256": "409c6743dab9af979e50151a716ffdce885dbb83467f66f09dc9d82fa96efd77",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋淳于琼",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-奇佐论胜",
+        "经典体力": "5",
+        "经典定位": "生存,攻击"
+      },
+      "source": "{{武将\n|武将名=谋淳于琼\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-奇佐论胜\n|经典体力=5\n|经典定位=生存,攻击\n}}",
+      "name": "谋淳于琼",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

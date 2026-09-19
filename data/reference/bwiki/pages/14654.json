@@ -1,0 +1,42 @@
+{
+  "pageid": 14654,
+  "namespace": 0,
+  "title": "李白",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E7%99%BD",
+  "revid": 75437,
+  "parentid": 75000,
+  "timestamp": "2026-02-12T02:11:51Z",
+  "sourceSha256": "ede3f3b8c12de15d6bb278ffd487b830f83d06a1bdc7d373464bbc54079353e6",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14654,
+      "namespace": 0,
+      "title": "李白",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E7%99%BD",
+      "revid": 75437,
+      "parentid": 75000,
+      "timestamp": "2026-02-12T02:11:51Z",
+      "sourceSha256": "ede3f3b8c12de15d6bb278ffd487b830f83d06a1bdc7d373464bbc54079353e6",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李白",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=李白\n|势力=群\n|性别=男\n|出现模式=\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=爆发\n}}",
+      "name": "李白",
+      "modes": []
+    }
+  ],
+  "unparsedTemplateNames": []
+}

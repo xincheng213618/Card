@@ -1,0 +1,46 @@
+{
+  "pageid": 15958,
+  "namespace": 0,
+  "title": "星董允",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%91%A3%E5%85%81",
+  "revid": 80100,
+  "parentid": 79935,
+  "timestamp": "2026-09-13T06:25:11Z",
+  "sourceSha256": "dab768d062510482136b92618a333bb797654ba513bddfe0e2d2d8751959cf37",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15958,
+      "namespace": 0,
+      "title": "星董允",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E8%91%A3%E5%85%81",
+      "revid": 80100,
+      "parentid": 79935,
+      "timestamp": "2026-09-13T06:25:11Z",
+      "sourceSha256": "dab768d062510482136b92618a333bb797654ba513bddfe0e2d2d8751959cf37",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星董允",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "謇谔镇慝",
+        "别称": "小谋荀彧",
+        "规则集问答": "",
+        "武将包": "星河璀璨-玉衡",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=星董允\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=謇谔镇慝\n|别称=小谋荀彧\n|规则集问答=\n|武将包=星河璀璨-玉衡\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "星董允",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 15339,
+  "namespace": 0,
+  "title": "魏讽",
+  "url": "https://wiki.biligame.com/sgs/%E9%AD%8F%E8%AE%BD",
+  "revid": 76796,
+  "parentid": 76707,
+  "timestamp": "2026-04-12T02:20:54Z",
+  "sourceSha256": "9a14b0766cf52fb3ff3608d145e5d02db28993f784b0544d555f901812ef3d80",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15339,
+      "namespace": 0,
+      "title": "魏讽",
+      "url": "https://wiki.biligame.com/sgs/%E9%AD%8F%E8%AE%BD",
+      "revid": 76796,
+      "parentid": 76707,
+      "timestamp": "2026-04-12T02:20:54Z",
+      "sourceSha256": "9a14b0766cf52fb3ff3608d145e5d02db28993f784b0544d555f901812ef3d80",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "魏讽",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "趁浪逐波",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-绕庭之鸦",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=魏讽\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=趁浪逐波\n|别称=\n|规则集问答=\n|武将包=荟萃-绕庭之鸦\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "魏讽",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

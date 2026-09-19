@@ -1,0 +1,47 @@
+{
+  "pageid": 12427,
+  "namespace": 0,
+  "title": "锻体",
+  "url": "https://wiki.biligame.com/sgs/%E9%94%BB%E4%BD%93",
+  "revid": 62976,
+  "parentid": 62963,
+  "timestamp": "2024-04-29T18:14:43Z",
+  "sourceSha256": "88ceebf1bbe986d0580bb38199a966435a6e9a09d4d180d49052a94c2135c7c0",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12427,
+      "namespace": 0,
+      "title": "锻体",
+      "url": "https://wiki.biligame.com/sgs/%E9%94%BB%E4%BD%93",
+      "revid": 62976,
+      "parentid": 62963,
+      "timestamp": "2024-04-29T18:14:43Z",
+      "sourceSha256": "88ceebf1bbe986d0580bb38199a966435a6e9a09d4d180d49052a94c2135c7c0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "锻体",
+        "所属武将": "吴普",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你每使用或打出五张牌后，你回复1点体力，加1点体力上限（至多加5点）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "回血"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=锻体\n|所属武将=吴普\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你每使用或打出五张牌后，你回复1点体力，加1点体力上限（至多加5点）。\n|经典技能类型=锁定技\n|经典技能定位=回血\n}}",
+      "name": "锻体",
+      "generals": [
+        "吴普"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你每使用或打出五张牌后，你回复1点体力，加1点体力上限（至多加5点）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

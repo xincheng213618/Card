@@ -1,0 +1,45 @@
+{
+  "pageid": 3894,
+  "namespace": 0,
+  "title": "夏侯霸",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+  "revid": 77614,
+  "parentid": 69527,
+  "timestamp": "2026-05-09T01:42:53Z",
+  "sourceSha256": "4e26e1a167ecf59d71284cabf663d92fc3be0e74cc7cb0583bb8c3f3d643aa7e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3894,
+      "namespace": 0,
+      "title": "夏侯霸",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+      "revid": 77614,
+      "parentid": 69527,
+      "timestamp": "2026-05-09T01:42:53Z",
+      "sourceSha256": "4e26e1a167ecf59d71284cabf663d92fc3be0e74cc7cb0583bb8c3f3d643aa7e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "夏侯霸",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "万元神将",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=夏侯霸\n|势力=蜀\n|性别=男\n|别称=万元神将\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击,爆发\n}}",
+      "name": "夏侯霸",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

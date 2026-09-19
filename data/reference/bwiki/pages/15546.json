@@ -1,0 +1,46 @@
+{
+  "pageid": 15546,
+  "namespace": 0,
+  "title": "张裕",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E8%A3%95",
+  "revid": 78114,
+  "parentid": 77699,
+  "timestamp": "2026-06-05T04:20:40Z",
+  "sourceSha256": "e5f4d2eb3f70bf15be3ebc27700aa7ec7119de1e1a87ffed0b766f5071142494",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15546,
+      "namespace": 0,
+      "title": "张裕",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E8%A3%95",
+      "revid": 78114,
+      "parentid": 77699,
+      "timestamp": "2026-06-05T04:20:40Z",
+      "sourceSha256": "e5f4d2eb3f70bf15be3ebc27700aa7ec7119de1e1a87ffed0b766f5071142494",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张裕",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "预己知命",
+        "别称": "界许劭，章鱼",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=张裕\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=预己知命\n|别称=界许劭，章鱼\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "张裕",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

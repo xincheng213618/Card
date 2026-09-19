@@ -1,0 +1,44 @@
+{
+  "pageid": 1975,
+  "namespace": 0,
+  "title": "胡车儿",
+  "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E8%BD%A6%E5%84%BF",
+  "revid": 70742,
+  "parentid": 70492,
+  "timestamp": "2025-05-20T05:11:30Z",
+  "sourceSha256": "471ccff8f550fb47d460d106f851976c1eb9cea2d99170e6ea475abb01f34c3d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1975,
+      "namespace": 0,
+      "title": "胡车儿",
+      "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E8%BD%A6%E5%84%BF",
+      "revid": 70742,
+      "parentid": 70492,
+      "timestamp": "2025-05-20T05:11:30Z",
+      "sourceSha256": "471ccff8f550fb47d460d106f851976c1eb9cea2d99170e6ea475abb01f34c3d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "胡车儿",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-中原狼烟",
+        "经典体力": "4",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=胡车儿\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|别称=\n|规则集问答=\n|武将包=荟萃-中原狼烟\n|经典体力=4\n|经典定位=控制,攻击\n}}",
+      "name": "胡车儿",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

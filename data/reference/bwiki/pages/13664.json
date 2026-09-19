@@ -1,0 +1,45 @@
+{
+  "pageid": 13664,
+  "namespace": 0,
+  "title": "星文丑",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E6%96%87%E4%B8%91",
+  "revid": 76668,
+  "parentid": 71551,
+  "timestamp": "2026-04-04T00:54:40Z",
+  "sourceSha256": "b3fbb840c6490f3c0d19d1b5b57a5a1f3a7175743f0482ba6a59348c4d4ee6ef",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13664,
+      "namespace": 0,
+      "title": "星文丑",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E6%96%87%E4%B8%91",
+      "revid": 76668,
+      "parentid": 71551,
+      "timestamp": "2026-04-04T00:54:40Z",
+      "sourceSha256": "b3fbb840c6490f3c0d19d1b5b57a5a1f3a7175743f0482ba6a59348c4d4ee6ef",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星文丑",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "红牛",
+        "规则集问答": "",
+        "武将包": "星河璀璨-瑶光",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=星文丑\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=红牛\n|规则集问答=\n|武将包=星河璀璨-瑶光\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "星文丑",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

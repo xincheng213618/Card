@@ -1,0 +1,47 @@
+{
+  "pageid": 8662,
+  "namespace": 0,
+  "title": "怀子",
+  "url": "https://wiki.biligame.com/sgs/%E6%80%80%E5%AD%90",
+  "revid": 45743,
+  "parentid": 0,
+  "timestamp": "2022-12-30T06:04:10Z",
+  "sourceSha256": "a78bc6a6930493c3b61ee1f573030181336c38e54ed60140011a9ab807438407",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8662,
+      "namespace": 0,
+      "title": "怀子",
+      "url": "https://wiki.biligame.com/sgs/%E6%80%80%E5%AD%90",
+      "revid": 45743,
+      "parentid": 0,
+      "timestamp": "2022-12-30T06:04:10Z",
+      "sourceSha256": "a78bc6a6930493c3b61ee1f573030181336c38e54ed60140011a9ab807438407",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "怀子",
+        "所属武将": "胡金定",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你的手牌上限等于体力上限。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=怀子\n|所属武将=胡金定\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你的手牌上限等于体力上限。\n|经典技能类型=锁定技\n|经典技能定位=屯牌\n}}",
+      "name": "怀子",
+      "generals": [
+        "胡金定"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你的手牌上限等于体力上限。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

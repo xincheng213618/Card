@@ -1,0 +1,47 @@
+{
+  "pageid": 2437,
+  "namespace": 0,
+  "title": "膂力",
+  "url": "https://wiki.biligame.com/sgs/%E8%86%82%E5%8A%9B",
+  "revid": 60609,
+  "parentid": 48313,
+  "timestamp": "2023-12-22T10:54:56Z",
+  "sourceSha256": "3b7a3e0f9b6ad4a40cf3a02239bccbc8286e1304e2cec442fc4a6b1bb21a5333",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2437,
+      "namespace": 0,
+      "title": "膂力",
+      "url": "https://wiki.biligame.com/sgs/%E8%86%82%E5%8A%9B",
+      "revid": 60609,
+      "parentid": 48313,
+      "timestamp": "2023-12-22T10:54:56Z",
+      "sourceSha256": "3b7a3e0f9b6ad4a40cf3a02239bccbc8286e1304e2cec442fc4a6b1bb21a5333",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "膂力",
+        "所属武将": "文鸯",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合限一次，当你造成伤害后，你可以将手牌摸至体力值或将体力回复至手牌数。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,回血"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=膂力\n|所属武将=文鸯\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合限一次，当你造成伤害后，你可以将手牌摸至体力值或将体力回复至手牌数。\n|经典技能类型=一般技\n|经典技能定位=过牌,回血\n}}",
+      "name": "膂力",
+      "generals": [
+        "文鸯"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合限一次，当你造成伤害后，你可以将手牌摸至体力值或将体力回复至手牌数。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

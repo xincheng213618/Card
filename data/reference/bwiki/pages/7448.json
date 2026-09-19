@@ -1,0 +1,46 @@
+{
+  "pageid": 7448,
+  "namespace": 0,
+  "title": "夏侯令女",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E4%BB%A4%E5%A5%B3",
+  "revid": 79086,
+  "parentid": 77607,
+  "timestamp": "2026-07-28T02:55:52Z",
+  "sourceSha256": "8ea3fe2ee6bfeeb8c750dfff096b6ea5dc0601ef090e1838e3b8b926e15ea459",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7448,
+      "namespace": 0,
+      "title": "夏侯令女",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E4%BB%A4%E5%A5%B3",
+      "revid": 79086,
+      "parentid": 77607,
+      "timestamp": "2026-07-28T02:55:52Z",
+      "sourceSha256": "8ea3fe2ee6bfeeb8c750dfff096b6ea5dc0601ef090e1838e3b8b926e15ea459",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "夏侯令女",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "4",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=夏侯令女\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=4\n|经典定位=全能\n}}",
+      "name": "夏侯令女",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,44 @@
+{
+  "pageid": 2457,
+  "namespace": 0,
+  "title": "诸葛瞻",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E7%9E%BB",
+  "revid": 71102,
+  "parentid": 70852,
+  "timestamp": "2025-05-20T07:40:39Z",
+  "sourceSha256": "11e0ce8f2a4bec321f1e8b30ea05aacdd73fcb0586617d8f543b116d4706c875",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 2457,
+      "namespace": 0,
+      "title": "诸葛瞻",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E7%9E%BB",
+      "revid": 71102,
+      "parentid": 70852,
+      "timestamp": "2025-05-20T07:40:39Z",
+      "sourceSha256": "11e0ce8f2a4bec321f1e8b30ea05aacdd73fcb0586617d8f543b116d4706c875",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛瞻",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "诸葛龟",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "神话再临-雷包",
+        "经典体力": "3",
+        "经典定位": "控制,防御"
+      },
+      "source": "{{武将\n|武将名=诸葛瞻\n|势力=蜀\n|性别=男\n|别称=诸葛龟\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=神话再临-雷包\n|经典体力=3\n|经典定位=控制,防御\n}}",
+      "name": "诸葛瞻",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

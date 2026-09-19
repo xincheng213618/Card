@@ -1,0 +1,44 @@
+{
+  "pageid": 14704,
+  "namespace": 0,
+  "title": "无名",
+  "url": "https://wiki.biligame.com/sgs/%E6%97%A0%E5%90%8D",
+  "revid": 76924,
+  "parentid": 75433,
+  "timestamp": "2026-04-22T15:22:04Z",
+  "sourceSha256": "badd5b7570d5a56f07e7ad38b86b3f3ba520f9d8696b26570660817e4d502a74",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14704,
+      "namespace": 0,
+      "title": "无名",
+      "url": "https://wiki.biligame.com/sgs/%E6%97%A0%E5%90%8D",
+      "revid": 76924,
+      "parentid": 75433,
+      "timestamp": "2026-04-22T15:22:04Z",
+      "sourceSha256": "badd5b7570d5a56f07e7ad38b86b3f3ba520f9d8696b26570660817e4d502a74",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "无名",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=无名\n|势力=群\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "无名",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

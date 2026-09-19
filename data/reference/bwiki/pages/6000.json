@@ -1,0 +1,47 @@
+{
+  "pageid": 6000,
+  "namespace": 0,
+  "title": "蒋琬费祎",
+  "url": "https://wiki.biligame.com/sgs/%E8%92%8B%E7%90%AC%E8%B4%B9%E7%A5%8E",
+  "revid": 77763,
+  "parentid": 71044,
+  "timestamp": "2026-05-09T01:55:18Z",
+  "sourceSha256": "28b668a03361427dd96e7f385a059335cd13761e6222059890be5bc412a379e4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6000,
+      "namespace": 0,
+      "title": "蒋琬费祎",
+      "url": "https://wiki.biligame.com/sgs/%E8%92%8B%E7%90%AC%E8%B4%B9%E7%A5%8E",
+      "revid": 77763,
+      "parentid": 71044,
+      "timestamp": "2026-05-09T01:55:18Z",
+      "sourceSha256": "28b668a03361427dd96e7f385a059335cd13761e6222059890be5bc412a379e4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "蒋琬费祎",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "社稷股肱",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "续航,辅助\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=蒋琬费祎\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=社稷股肱\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=续航,辅助\n<!-- 国战 -->\n}}",
+      "name": "蒋琬费祎",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

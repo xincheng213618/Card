@@ -1,0 +1,45 @@
+{
+  "pageid": 7901,
+  "namespace": 0,
+  "title": "杜夔",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%9C%E5%A4%94",
+  "revid": 74741,
+  "parentid": 74522,
+  "timestamp": "2026-01-22T17:35:33Z",
+  "sourceSha256": "829098e4c3b4f72ad4cb05b35ff4abac4df68298292f61cd503d062d024b3728",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7901,
+      "namespace": 0,
+      "title": "杜夔",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%9C%E5%A4%94",
+      "revid": 74741,
+      "parentid": 74522,
+      "timestamp": "2026-01-22T17:35:33Z",
+      "sourceSha256": "829098e4c3b4f72ad4cb05b35ff4abac4df68298292f61cd503d062d024b3728",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "杜夔",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "杜老头",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "3",
+        "经典定位": "控制"
+      },
+      "source": "{{武将\n|武将名=杜夔\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=杜老头\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=3\n|经典定位=控制\n}}",
+      "name": "杜夔",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

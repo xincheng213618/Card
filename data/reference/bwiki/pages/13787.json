@@ -1,0 +1,46 @@
+{
+  "pageid": 13787,
+  "namespace": 0,
+  "title": "威董卓",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E8%91%A3%E5%8D%93",
+  "revid": 79626,
+  "parentid": 79205,
+  "timestamp": "2026-08-18T12:57:58Z",
+  "sourceSha256": "9bb0d74930585dc05dc84a3b1d12fc48df730a106f932565d2314469c066f751",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13787,
+      "namespace": 0,
+      "title": "威董卓",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E8%91%A3%E5%8D%93",
+      "revid": 79626,
+      "parentid": 79205,
+      "timestamp": "2026-08-18T12:57:58Z",
+      "sourceSha256": "9bb0d74930585dc05dc84a3b1d12fc48df730a106f932565d2314469c066f751",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威董卓",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "魔震西凉",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-威震天下",
+        "经典体力": "6",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=威董卓\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=魔震西凉\n|别称=\n|规则集问答=\n|武将包=威震-威震天下\n|经典体力=6\n|经典定位=爆发,控制\n}}",
+      "name": "威董卓",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

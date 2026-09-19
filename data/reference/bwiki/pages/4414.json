@@ -1,0 +1,76 @@
+{
+  "pageid": 4414,
+  "namespace": 0,
+  "title": "军略",
+  "url": "https://wiki.biligame.com/sgs/%E5%86%9B%E7%95%A5",
+  "revid": 36882,
+  "parentid": 32035,
+  "timestamp": "2022-05-15T06:48:12Z",
+  "sourceSha256": "f470d34a04af652d087b21d7a5fe5e8c78c78c422bea3a98809b9fc2c4ed8f94",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4414,
+      "namespace": 0,
+      "title": "军略",
+      "url": "https://wiki.biligame.com/sgs/%E5%86%9B%E7%95%A5",
+      "revid": 36882,
+      "parentid": 32035,
+      "timestamp": "2022-05-15T06:48:12Z",
+      "sourceSha256": "f470d34a04af652d087b21d7a5fe5e8c78c78c422bea3a98809b9fc2c4ed8f94",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "军略",
+        "所属武将": "神陆逊",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你造成或受到1点伤害后，你获得1枚“'''军略'''”标记。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=军略\n|所属武将=神陆逊\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你造成或受到1点伤害后，你获得1枚“'''军略'''”标记。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "军略",
+      "generals": [
+        "神陆逊"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你造成或受到1点伤害后，你获得1枚“'''军略'''”标记。"
+      }
+    },
+    {
+      "pageid": 4414,
+      "namespace": 0,
+      "title": "军略",
+      "url": "https://wiki.biligame.com/sgs/%E5%86%9B%E7%95%A5",
+      "revid": 36882,
+      "parentid": 32035,
+      "timestamp": "2022-05-15T06:48:12Z",
+      "sourceSha256": "f470d34a04af652d087b21d7a5fe5e8c78c78c422bea3a98809b9fc2c4ed8f94",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "1",
+        "技能名": "军略",
+        "所属武将": "神陆逊",
+        "经典技能描述": "当你造成或受到1点伤害后，你获得1枚“'''军略'''”标记。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=1\n|技能名=军略\n|所属武将=神陆逊\n|经典技能描述=当你造成或受到1点伤害后，你获得1枚“'''军略'''”标记。\n}}",
+      "name": "军略",
+      "generals": [
+        "神陆逊"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "当你造成或受到1点伤害后，你获得1枚“'''军略'''”标记。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

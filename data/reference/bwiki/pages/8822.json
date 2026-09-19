@@ -1,0 +1,45 @@
+{
+  "pageid": 8822,
+  "namespace": 0,
+  "title": "霍峻",
+  "url": "https://wiki.biligame.com/sgs/%E9%9C%8D%E5%B3%BB",
+  "revid": 71384,
+  "parentid": 71282,
+  "timestamp": "2025-05-21T01:13:15Z",
+  "sourceSha256": "b1be2f75cadb7cfdca1b98c2c417c1d5ba3c5f988fd1ebe359a0dfb798b9a709",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8822,
+      "namespace": 0,
+      "title": "霍峻",
+      "url": "https://wiki.biligame.com/sgs/%E9%9C%8D%E5%B3%BB",
+      "revid": 71384,
+      "parentid": 71282,
+      "timestamp": "2025-05-21T01:13:15Z",
+      "sourceSha256": "b1be2f75cadb7cfdca1b98c2c417c1d5ba3c5f988fd1ebe359a0dfb798b9a709",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "霍峻",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "4",
+        "经典定位": "攻击,防御"
+      },
+      "source": "{{武将\n|武将名=霍峻\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=4\n|经典定位=攻击,防御\n}}",
+      "name": "霍峻",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

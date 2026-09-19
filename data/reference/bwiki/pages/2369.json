@@ -1,0 +1,47 @@
+{
+  "pageid": 2369,
+  "namespace": 0,
+  "title": "激昂",
+  "url": "https://wiki.biligame.com/sgs/%E6%BF%80%E6%98%82",
+  "revid": 41353,
+  "parentid": 39033,
+  "timestamp": "2022-11-03T07:07:26Z",
+  "sourceSha256": "c82470a21d467626c4790fc354fa77e4b51cb698abb8cc3499b88fcb98548a6a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2369,
+      "namespace": 0,
+      "title": "激昂",
+      "url": "https://wiki.biligame.com/sgs/%E6%BF%80%E6%98%82",
+      "revid": 41353,
+      "parentid": 39033,
+      "timestamp": "2022-11-03T07:07:26Z",
+      "sourceSha256": "c82470a21d467626c4790fc354fa77e4b51cb698abb8cc3499b88fcb98548a6a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "激昂",
+        "所属武将": "孙策",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=激昂\n|所属武将=孙策\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "激昂",
+      "generals": [
+        "孙策"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 6192,
+  "namespace": 0,
+  "title": "贺齐",
+  "url": "https://wiki.biligame.com/sgs/%E8%B4%BA%E9%BD%90",
+  "revid": 60280,
+  "parentid": 37756,
+  "timestamp": "2023-12-15T07:50:27Z",
+  "sourceSha256": "4f38f305c6f3a7799e951bd7e45de15954016edf3c381beda35f4525ff517fb4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6192,
+      "namespace": 0,
+      "title": "贺齐",
+      "url": "https://wiki.biligame.com/sgs/%E8%B4%BA%E9%BD%90",
+      "revid": 60280,
+      "parentid": 37756,
+      "timestamp": "2023-12-15T07:50:27Z",
+      "sourceSha256": "4f38f305c6f3a7799e951bd7e45de15954016edf3c381beda35f4525ff517fb4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "贺齐",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "马踏群峦",
+        "别称": "贺笨、贺神将",
+        "规则集问答": "",
+        "武将包": "星火燎原-天相",
+        "经典体力": "4",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=贺齐\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=马踏群峦\n|别称=贺笨、贺神将\n|规则集问答=\n|武将包=星火燎原-天相\n|经典体力=4\n|经典定位=全能\n}}",
+      "name": "贺齐",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

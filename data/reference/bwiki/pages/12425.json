@@ -1,0 +1,46 @@
+{
+  "pageid": 12425,
+  "namespace": 0,
+  "title": "吴普",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E6%99%AE",
+  "revid": 77590,
+  "parentid": 76010,
+  "timestamp": "2026-05-09T01:41:43Z",
+  "sourceSha256": "5e77980b7c7b1c27f770591880ddc9c2b2281427c72b897aad53b2dcbe1624cc",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12425,
+      "namespace": 0,
+      "title": "吴普",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E6%99%AE",
+      "revid": 77590,
+      "parentid": 76010,
+      "timestamp": "2026-05-09T01:41:43Z",
+      "sourceSha256": "5e77980b7c7b1c27f770591880ddc9c2b2281427c72b897aad53b2dcbe1624cc",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吴普",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "体育生",
+        "规则集问答": "",
+        "武将包": "荟萃-悬壶济世",
+        "经典体力": "4",
+        "经典定位": "续航,生存"
+      },
+      "source": "{{武将\n|武将名=吴普\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=体育生\n|规则集问答=\n|武将包=荟萃-悬壶济世\n|经典体力=4\n|经典定位=续航,生存\n}}",
+      "name": "吴普",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

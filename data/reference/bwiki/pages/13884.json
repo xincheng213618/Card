@@ -1,0 +1,76 @@
+{
+  "pageid": 13884,
+  "namespace": 0,
+  "title": "纠思",
+  "url": "https://wiki.biligame.com/sgs/%E7%BA%A0%E6%80%9D",
+  "revid": 68692,
+  "parentid": 68668,
+  "timestamp": "2025-04-21T03:53:12Z",
+  "sourceSha256": "6c449f18321332bef6a216e127f2ff97c80893cdbf208551b4fc1dea3a1c04f3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 13884,
+      "namespace": 0,
+      "title": "纠思",
+      "url": "https://wiki.biligame.com/sgs/%E7%BA%A0%E6%80%9D",
+      "revid": 68692,
+      "parentid": 68668,
+      "timestamp": "2025-04-21T03:53:12Z",
+      "sourceSha256": "6c449f18321332bef6a216e127f2ff97c80893cdbf208551b4fc1dea3a1c04f3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "纠思",
+        "所属武将": "刘衿刘佩",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合限一次，你可以翻面，视为使用一张基本牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "全能"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=纠思\n|所属武将=刘衿刘佩\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合限一次，你可以翻面，视为使用一张基本牌。\n|经典技能类型=一般技\n|经典技能定位=全能\n}}",
+      "name": "纠思",
+      "generals": [
+        "刘衿刘佩"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合限一次，你可以翻面，视为使用一张基本牌。"
+      }
+    },
+    {
+      "pageid": 13884,
+      "namespace": 0,
+      "title": "纠思",
+      "url": "https://wiki.biligame.com/sgs/%E7%BA%A0%E6%80%9D",
+      "revid": 68692,
+      "parentid": 68668,
+      "timestamp": "2025-04-21T03:53:12Z",
+      "sourceSha256": "6c449f18321332bef6a216e127f2ff97c80893cdbf208551b4fc1dea3a1c04f3",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "测试服版",
+        "技能序号": "2",
+        "技能名": "纠思",
+        "所属武将": "刘衿刘佩",
+        "经典技能描述": "每回合限一次，你可以翻面，视为使用一张基本牌。"
+      },
+      "source": "{{技能/武将\n|历史版本=测试服版\n|技能序号=2\n|技能名=纠思\n|所属武将=刘衿刘佩\n|经典技能描述=每回合限一次，你可以翻面，视为使用一张基本牌。\n}}",
+      "name": "纠思",
+      "generals": [
+        "刘衿刘佩"
+      ],
+      "mode": null,
+      "version": "测试服版",
+      "descriptions": {
+        "经典技能描述": "每回合限一次，你可以翻面，视为使用一张基本牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

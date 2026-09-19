@@ -1,0 +1,47 @@
+{
+  "pageid": 4032,
+  "namespace": 0,
+  "title": "举荐",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%BE%E8%8D%90",
+  "revid": 58943,
+  "parentid": 46732,
+  "timestamp": "2023-11-01T15:45:53Z",
+  "sourceSha256": "1cb76f2a00d7bc813b44ad81394189faf3a0496bfef2bf7cd641e3076899f277",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4032,
+      "namespace": 0,
+      "title": "举荐",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%BE%E8%8D%90",
+      "revid": 58943,
+      "parentid": 46732,
+      "timestamp": "2023-11-01T15:45:53Z",
+      "sourceSha256": "1cb76f2a00d7bc813b44ad81394189faf3a0496bfef2bf7cd641e3076899f277",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "举荐",
+        "所属武将": "SP徐庶",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以弃置一张非基本牌，令一名其他角色选择一项：1.摸两张牌；2.回复1点体力；3.复原武将牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=举荐\n|所属武将=SP徐庶\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你可以弃置一张非基本牌，令一名其他角色选择一项：1.摸两张牌；2.回复1点体力；3.复原武将牌。\n|经典技能类型=一般技\n|经典技能定位=辅助\n}}",
+      "name": "举荐",
+      "generals": [
+        "SP徐庶"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以弃置一张非基本牌，令一名其他角色选择一项：1.摸两张牌；2.回复1点体力；3.复原武将牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

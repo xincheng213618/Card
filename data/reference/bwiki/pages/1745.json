@@ -1,0 +1,44 @@
+{
+  "pageid": 1745,
+  "namespace": 0,
+  "title": "诸葛恪",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E6%81%AA",
+  "revid": 71099,
+  "parentid": 70849,
+  "timestamp": "2025-05-20T07:40:12Z",
+  "sourceSha256": "81725d59ad33ec301e12b49c000ed164bd27c302e14745096d333e060188b77b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1745,
+      "namespace": 0,
+      "title": "诸葛恪",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%B8%E8%91%9B%E6%81%AA",
+      "revid": 71099,
+      "parentid": 70849,
+      "timestamp": "2025-05-20T07:40:12Z",
+      "sourceSha256": "81725d59ad33ec301e12b49c000ed164bd27c302e14745096d333e060188b77b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "诸葛恪",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "诸葛氪",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=诸葛恪\n|势力=吴\n|性别=男\n|别称=诸葛氪\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=攻击,爆发\n}}",
+      "name": "诸葛恪",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

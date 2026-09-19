@@ -1,0 +1,47 @@
+{
+  "pageid": 2327,
+  "namespace": 0,
+  "title": "追德",
+  "url": "https://wiki.biligame.com/sgs/%E8%BF%BD%E5%BE%B7",
+  "revid": 48197,
+  "parentid": 31339,
+  "timestamp": "2023-02-07T08:49:59Z",
+  "sourceSha256": "e1d3dab52b8f59502c0650965a2f71b708fa2904da1274a9f7a1d1c391610ba7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2327,
+      "namespace": 0,
+      "title": "追德",
+      "url": "https://wiki.biligame.com/sgs/%E8%BF%BD%E5%BE%B7",
+      "revid": 48197,
+      "parentid": 31339,
+      "timestamp": "2023-02-07T08:49:59Z",
+      "sourceSha256": "e1d3dab52b8f59502c0650965a2f71b708fa2904da1274a9f7a1d1c391610ba7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "追德",
+        "所属武将": "王荣",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你死亡时，你可以令一名其他角色获得四张不同牌名的基本牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=追德\n|所属武将=王荣\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你死亡时，你可以令一名其他角色获得四张不同牌名的基本牌。\n|经典技能类型=一般技\n|经典技能定位=辅助\n}}",
+      "name": "追德",
+      "generals": [
+        "王荣"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你死亡时，你可以令一名其他角色获得四张不同牌名的基本牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

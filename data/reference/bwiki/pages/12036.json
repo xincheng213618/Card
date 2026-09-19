@@ -1,0 +1,46 @@
+{
+  "pageid": 12036,
+  "namespace": 0,
+  "title": "乐大乔",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E5%A4%A7%E4%B9%94",
+  "revid": 79265,
+  "parentid": 79153,
+  "timestamp": "2026-08-02T13:16:03Z",
+  "sourceSha256": "5609e2e4c83a66ff2ccf294ad2f2766e581c14d88d3a30ad2e5b125e8c559fa8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12036,
+      "namespace": 0,
+      "title": "乐大乔",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E5%A4%A7%E4%B9%94",
+      "revid": 79265,
+      "parentid": 79153,
+      "timestamp": "2026-08-02T13:16:03Z",
+      "sourceSha256": "5609e2e4c83a66ff2ccf294ad2f2766e581c14d88d3a30ad2e5b125e8c559fa8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐大乔",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "牢大",
+        "规则集问答": "",
+        "武将包": "荟萃-正音雅乐",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=乐大乔\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=牢大\n|规则集问答=\n|武将包=荟萃-正音雅乐\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "乐大乔",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

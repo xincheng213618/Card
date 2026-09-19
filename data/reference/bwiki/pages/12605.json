@@ -1,0 +1,47 @@
+{
+  "pageid": 12605,
+  "namespace": 0,
+  "title": "慑伏",
+  "url": "https://wiki.biligame.com/sgs/%E6%85%91%E4%BC%8F",
+  "revid": 71704,
+  "parentid": 71702,
+  "timestamp": "2025-07-31T06:26:04Z",
+  "sourceSha256": "7b855c85b0c7cbcd7c5727284e5b3d8bb30cd8f9577bfe2cc7ea6fe935ab0473",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12605,
+      "namespace": 0,
+      "title": "慑伏",
+      "url": "https://wiki.biligame.com/sgs/%E6%85%91%E4%BC%8F",
+      "revid": 71704,
+      "parentid": 71702,
+      "timestamp": "2025-07-31T06:26:04Z",
+      "sourceSha256": "7b855c85b0c7cbcd7c5727284e5b3d8bb30cd8f9577bfe2cc7ea6fe935ab0473",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "慑伏",
+        "所属武将": "车胄",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "你的牌造成的伤害改为X，其他角色的牌对你造成的伤害改为X（X为此牌在使用者手牌区中的轮数）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=慑伏\n|所属武将=车胄\n|是衍生技=\n|技能版本=经典\n|经典技能描述=你的牌造成的伤害改为X，其他角色的牌对你造成的伤害改为X（X为此牌在使用者手牌区中的轮数）。\n|经典技能类型=锁定技\n|经典技能定位=攻击,负面\n}}",
+      "name": "慑伏",
+      "generals": [
+        "车胄"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "你的牌造成的伤害改为X，其他角色的牌对你造成的伤害改为X（X为此牌在使用者手牌区中的轮数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,17 @@
+{
+  "attemptedAt": "2026-09-19T19:33:32.246346+00:00",
+  "api": "https://wiki.biligame.com/sgs/api.php",
+  "publishedSnapshotPreserved": false,
+  "preservedDataFiles": [
+    "category-generals.json",
+    "category-skills.json",
+    "generals.json",
+    "skills.json",
+    "pages/*.json"
+  ],
+  "overwrittenBeforeReliabilityFix": [
+    "manifest.json"
+  ],
+  "recovery": "manifest.json reconstructed from preserved snapshot and prior successful run summary; retrieval time and continuation tokens marked unavailable",
+  "fatalError": "ApiError: API request failed after retries: HTTP Error 567: Unknown Status"
+}

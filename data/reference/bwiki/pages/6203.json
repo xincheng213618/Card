@@ -1,0 +1,47 @@
+{
+  "pageid": 6203,
+  "namespace": 0,
+  "title": "奋威/贺齐",
+  "url": "https://wiki.biligame.com/sgs/%E5%A5%8B%E5%A8%81/%E8%B4%BA%E9%BD%90",
+  "revid": 54201,
+  "parentid": 54200,
+  "timestamp": "2023-06-23T03:05:19Z",
+  "sourceSha256": "6022ec6abfc6f785b7d771195b0d2c5eb36a068d136d26f56f6274b0b8bc658f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6203,
+      "namespace": 0,
+      "title": "奋威/贺齐",
+      "url": "https://wiki.biligame.com/sgs/%E5%A5%8B%E5%A8%81/%E8%B4%BA%E9%BD%90",
+      "revid": 54201,
+      "parentid": 54200,
+      "timestamp": "2023-06-23T03:05:19Z",
+      "sourceSha256": "6022ec6abfc6f785b7d771195b0d2c5eb36a068d136d26f56f6274b0b8bc658f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "6",
+        "技能名": "奋威",
+        "所属武将": "贺齐",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "当一张锦囊牌指定至少两个目标后，你可以令此牌对其中任意名目标角色无效。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "爆发,保护,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=6\n|技能名=奋威\n|所属武将=贺齐\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=当一张锦囊牌指定至少两个目标后，你可以令此牌对其中任意名目标角色无效。\n|经典技能类型=限定技\n|经典技能定位=爆发,保护,控制\n}}",
+      "name": "奋威",
+      "generals": [
+        "贺齐"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一张锦囊牌指定至少两个目标后，你可以令此牌对其中任意名目标角色无效。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 12680,
+  "namespace": 0,
+  "title": "谋典韦",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%85%B8%E9%9F%A6",
+  "revid": 71107,
+  "parentid": 70857,
+  "timestamp": "2025-05-20T07:40:55Z",
+  "sourceSha256": "b507d04cfcaedd78f2144f00d08b6084692926e760ce066d1d928c63e55eaa2d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12680,
+      "namespace": 0,
+      "title": "谋典韦",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%85%B8%E9%9F%A6",
+      "revid": 71107,
+      "parentid": 70857,
+      "timestamp": "2025-05-20T07:40:55Z",
+      "sourceSha256": "b507d04cfcaedd78f2144f00d08b6084692926e760ce066d1d928c63e55eaa2d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋典韦",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-毒士鸩计",
+        "经典体力": "4/5",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=谋典韦\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-毒士鸩计\n|经典体力=4/5\n|经典定位=控制,攻击\n}}",
+      "name": "谋典韦",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

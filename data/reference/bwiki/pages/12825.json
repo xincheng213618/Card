@@ -1,0 +1,45 @@
+{
+  "pageid": 12825,
+  "namespace": 0,
+  "title": "柳婒",
+  "url": "https://wiki.biligame.com/sgs/%E6%9F%B3%E5%A9%92",
+  "revid": 75310,
+  "parentid": 73408,
+  "timestamp": "2026-02-10T03:49:35Z",
+  "sourceSha256": "93a2d357580c9b5d25e026e1753418ec8e0e3056aebf59deccab497a3fc28423",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12825,
+      "namespace": 0,
+      "title": "柳婒",
+      "url": "https://wiki.biligame.com/sgs/%E6%9F%B3%E5%A9%92",
+      "revid": 75310,
+      "parentid": 73408,
+      "timestamp": "2026-02-10T03:49:35Z",
+      "sourceSha256": "93a2d357580c9b5d25e026e1753418ec8e0e3056aebf59deccab497a3fc28423",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "柳婒",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "维情所止",
+        "别称": "标张奂",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "续航,攻击"
+      },
+      "source": "{{武将\n|武将名=柳婒\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐\n|称号=维情所止\n|别称=标张奂\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=续航,攻击\n}}",
+      "name": "柳婒",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 6282,
+  "namespace": 0,
+  "title": "机捷",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%BA%E6%8D%B7",
+  "revid": 30908,
+  "parentid": 0,
+  "timestamp": "2022-01-22T04:54:18Z",
+  "sourceSha256": "2f503c44a2857295a66b6c5bcf4619675c70046c1dc30f9579b975674a3d371e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6282,
+      "namespace": 0,
+      "title": "机捷",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%BA%E6%8D%B7",
+      "revid": 30908,
+      "parentid": 0,
+      "timestamp": "2022-01-22T04:54:18Z",
+      "sourceSha256": "2f503c44a2857295a66b6c5bcf4619675c70046c1dc30f9579b975674a3d371e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "机捷",
+        "所属武将": "伊籍",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可以观看牌堆底的一张牌，然后你将此牌交给任意一名角色。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=机捷\n|所属武将=伊籍\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可以观看牌堆底的一张牌，然后你将此牌交给任意一名角色。\n|经典技能类型=一般技\n|经典技能定位=辅助,过牌\n}}",
+      "name": "机捷",
+      "generals": [
+        "伊籍"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以观看牌堆底的一张牌，然后你将此牌交给任意一名角色。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

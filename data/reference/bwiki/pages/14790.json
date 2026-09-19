@@ -1,0 +1,44 @@
+{
+  "pageid": 14790,
+  "namespace": 0,
+  "title": "寒冰剑少女",
+  "url": "https://wiki.biligame.com/sgs/%E5%AF%92%E5%86%B0%E5%89%91%E5%B0%91%E5%A5%B3",
+  "revid": 75922,
+  "parentid": 75807,
+  "timestamp": "2026-02-26T00:49:04Z",
+  "sourceSha256": "2e873eee0144d73b4a68a9d74685407cde83bae8dde6a0ab6aec0fc6bdf4b94e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14790,
+      "namespace": 0,
+      "title": "寒冰剑少女",
+      "url": "https://wiki.biligame.com/sgs/%E5%AF%92%E5%86%B0%E5%89%91%E5%B0%91%E5%A5%B3",
+      "revid": 75922,
+      "parentid": 75807,
+      "timestamp": "2026-02-26T00:49:04Z",
+      "sourceSha256": "2e873eee0144d73b4a68a9d74685407cde83bae8dde6a0ab6aec0fc6bdf4b94e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "寒冰剑少女",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "斗地主",
+        "称号": "绝对零度",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=寒冰剑少女\n|势力=群\n|性别=女\n|出现模式=斗地主\n|称号=绝对零度\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=控制,爆发\n}}",
+      "name": "寒冰剑少女",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

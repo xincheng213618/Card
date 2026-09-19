@@ -1,0 +1,46 @@
+{
+  "pageid": 15937,
+  "namespace": 0,
+  "title": "崔芷",
+  "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E8%8A%B7",
+  "revid": 79793,
+  "parentid": 78683,
+  "timestamp": "2026-08-24T14:27:12Z",
+  "sourceSha256": "05dc68bc17e8a8a5f3e2781fadce9058a114031f1aba9b331c3f639afbd9d8fb",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15937,
+      "namespace": 0,
+      "title": "崔芷",
+      "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E8%8A%B7",
+      "revid": 79793,
+      "parentid": 78683,
+      "timestamp": "2026-08-24T14:27:12Z",
+      "sourceSha256": "05dc68bc17e8a8a5f3e2781fadce9058a114031f1aba9b331c3f639afbd9d8fb",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "崔芷",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=崔芷\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "崔芷",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 8570,
+  "namespace": 0,
+  "title": "陈矫",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%9F%AB",
+  "revid": 71267,
+  "parentid": 71017,
+  "timestamp": "2025-05-20T07:54:11Z",
+  "sourceSha256": "ca27bf66408ab7d5c1e93abd2b3c9eb758943d2af54307753cc2ed1697dbf13c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8570,
+      "namespace": 0,
+      "title": "陈矫",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%9F%AB",
+      "revid": 71267,
+      "parentid": 71017,
+      "timestamp": "2025-05-20T07:54:11Z",
+      "sourceSha256": "ca27bf66408ab7d5c1e93abd2b3c9eb758943d2af54307753cc2ed1697dbf13c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陈矫",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "3",
+        "经典定位": "辅助,续航"
+      },
+      "source": "{{武将\n|武将名=陈矫\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=3\n|经典定位=辅助,续航\n}}",
+      "name": "陈矫",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 11551,
+  "namespace": 0,
+  "title": "苏飞",
+  "url": "https://wiki.biligame.com/sgs/%E8%8B%8F%E9%A3%9E",
+  "revid": 70768,
+  "parentid": 70518,
+  "timestamp": "2025-05-20T05:12:30Z",
+  "sourceSha256": "9a7818af841c6e7b9c7cb627590e6ce6dd773469e5b8c41eb7764e00c263f765",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11551,
+      "namespace": 0,
+      "title": "苏飞",
+      "url": "https://wiki.biligame.com/sgs/%E8%8B%8F%E9%A3%9E",
+      "revid": 70768,
+      "parentid": 70518,
+      "timestamp": "2025-05-20T05:12:30Z",
+      "sourceSha256": "9a7818af841c6e7b9c7cb627590e6ce6dd773469e5b8c41eb7764e00c263f765",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "苏飞",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "苏菲",
+        "规则集问答": "",
+        "武将包": "一将成名-2022",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=苏飞\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=苏菲\n|规则集问答=\n|武将包=一将成名-2022\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "苏飞",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

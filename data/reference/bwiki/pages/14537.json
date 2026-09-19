@@ -1,0 +1,46 @@
+{
+  "pageid": 14537,
+  "namespace": 0,
+  "title": "威马超",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E9%A9%AC%E8%B6%85",
+  "revid": 77630,
+  "parentid": 75299,
+  "timestamp": "2026-05-09T01:43:56Z",
+  "sourceSha256": "d20788f62debd1ee5a0e55cd54340b2b943dfbbcebda712b148eb3e77249142a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14537,
+      "namespace": 0,
+      "title": "威马超",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E9%A9%AC%E8%B6%85",
+      "revid": 77630,
+      "parentid": 75299,
+      "timestamp": "2026-05-09T01:43:56Z",
+      "sourceSha256": "d20788f62debd1ee5a0e55cd54340b2b943dfbbcebda712b148eb3e77249142a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威马超",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "雄烈盖世",
+        "别称": "杀威马",
+        "规则集问答": "",
+        "武将包": "威震-威震天下",
+        "经典体力": "4",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=威马超\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=雄烈盖世\n|别称=杀威马\n|规则集问答=\n|武将包=威震-威震天下\n|经典体力=4\n|经典定位=爆发,控制\n}}",
+      "name": "威马超",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

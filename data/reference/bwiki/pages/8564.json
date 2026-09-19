@@ -1,0 +1,45 @@
+{
+  "pageid": 8564,
+  "namespace": 0,
+  "title": "袁姬",
+  "url": "https://wiki.biligame.com/sgs/%E8%A2%81%E5%A7%AC",
+  "revid": 71080,
+  "parentid": 70830,
+  "timestamp": "2025-05-20T07:38:07Z",
+  "sourceSha256": "a5c3c28e0f994fea77d8757079afc74cdc490b59fda86b3685050dc8400e74e4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8564,
+      "namespace": 0,
+      "title": "袁姬",
+      "url": "https://wiki.biligame.com/sgs/%E8%A2%81%E5%A7%AC",
+      "revid": 71080,
+      "parentid": 70830,
+      "timestamp": "2025-05-20T07:38:07Z",
+      "sourceSha256": "a5c3c28e0f994fea77d8757079afc74cdc490b59fda86b3685050dc8400e74e4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "袁姬",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "生存"
+      },
+      "source": "{{武将\n|武将名=袁姬\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=生存\n}}",
+      "name": "袁姬",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

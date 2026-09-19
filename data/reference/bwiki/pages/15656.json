@@ -1,0 +1,46 @@
+{
+  "pageid": 15656,
+  "namespace": 0,
+  "title": "王越",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E8%B6%8A",
+  "revid": 80084,
+  "parentid": 79480,
+  "timestamp": "2026-09-12T06:54:12Z",
+  "sourceSha256": "04f2c7a2472160c839783a9c830c5dd6e0d9e2a32ca9c00855ae98dae02bbb18",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15656,
+      "namespace": 0,
+      "title": "王越",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E8%B6%8A",
+      "revid": 80084,
+      "parentid": 79480,
+      "timestamp": "2026-09-12T06:54:12Z",
+      "sourceSha256": "04f2c7a2472160c839783a9c830c5dd6e0d9e2a32ca9c00855ae98dae02bbb18",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王越",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "锐通玄极",
+        "别称": "剑圣，老嘉豪",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "4",
+        "经典定位": "爆发,发育"
+      },
+      "source": "{{武将\n|武将名=王越\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=锐通玄极\n|别称=剑圣，老嘉豪\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=4\n|经典定位=爆发,发育\n}}",
+      "name": "王越",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

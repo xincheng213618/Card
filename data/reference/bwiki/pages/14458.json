@@ -1,0 +1,46 @@
+{
+  "pageid": 14458,
+  "namespace": 0,
+  "title": "吉邈吉穆",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%89%E9%82%88%E5%90%89%E7%A9%86",
+  "revid": 77575,
+  "parentid": 74096,
+  "timestamp": "2026-05-09T01:40:30Z",
+  "sourceSha256": "ed48a432a3c85b91f0513f6268bf9e6dce31a6b7e709f5bc89d18f4e513edd21",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14458,
+      "namespace": 0,
+      "title": "吉邈吉穆",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%89%E9%82%88%E5%90%89%E7%A9%86",
+      "revid": 77575,
+      "parentid": 74096,
+      "timestamp": "2026-05-09T01:40:30Z",
+      "sourceSha256": "ed48a432a3c85b91f0513f6268bf9e6dce31a6b7e709f5bc89d18f4e513edd21",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吉邈吉穆",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "戮力同心",
+        "别称": "吉良吉影",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "4",
+        "经典定位": "辅助,控制,爆发"
+      },
+      "source": "{{武将\n|武将名=吉邈吉穆\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=戮力同心\n|别称=吉良吉影\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=4\n|经典定位=辅助,控制,爆发\n}}",
+      "name": "吉邈吉穆",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

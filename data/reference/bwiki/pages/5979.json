@@ -1,0 +1,47 @@
+{
+  "pageid": 5979,
+  "namespace": 0,
+  "title": "孔融",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%94%E8%9E%8D",
+  "revid": 77631,
+  "parentid": 69564,
+  "timestamp": "2026-05-09T01:43:58Z",
+  "sourceSha256": "a4ef39e6bbe7f3919cb7fe6b51c05f9616c22eb16690e1de2de39d9e4ef70062",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5979,
+      "namespace": 0,
+      "title": "孔融",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%94%E8%9E%8D",
+      "revid": 77631,
+      "parentid": 69564,
+      "timestamp": "2026-05-09T01:43:58Z",
+      "sourceSha256": "a4ef39e6bbe7f3919cb7fe6b51c05f9616c22eb16690e1de2de39d9e4ef70062",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孔融",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "称号": "",
+        "别称": "梨子哥",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "3",
+        "经典定位": "防御,辅助"
+      },
+      "source": "{{武将\n|武将名=孔融\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主,国战\n|称号=\n|别称=梨子哥\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=3\n|经典定位=防御,辅助\n}}",
+      "name": "孔融",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

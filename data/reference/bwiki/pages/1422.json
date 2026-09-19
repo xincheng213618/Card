@@ -1,0 +1,45 @@
+{
+  "pageid": 1422,
+  "namespace": 0,
+  "title": "曹植",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%A4%8D",
+  "revid": 70138,
+  "parentid": 69887,
+  "timestamp": "2025-05-20T03:38:12Z",
+  "sourceSha256": "5c1a721a843b343b13db0ac7afafdfe6878247770f397be5afcd2c7fc8ef8f87",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1422,
+      "namespace": 0,
+      "title": "曹植",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%A4%8D",
+      "revid": 70138,
+      "parentid": 69887,
+      "timestamp": "2025-05-20T03:38:12Z",
+      "sourceSha256": "5c1a721a843b343b13db0ac7afafdfe6878247770f397be5afcd2c7fc8ef8f87",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹植",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "子建",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "一将成名-2011",
+        "经典体力": "3",
+        "经典定位": "卖血,生存",
+        "界限定位": "卖血,生存,攻击"
+      },
+      "source": "{{武将\n|武将名=曹植\n|势力=魏\n|性别=男\n|别称=子建\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=一将成名-2011\n|经典体力=3\n|经典定位=卖血,生存\n|界限定位=卖血,生存,攻击\n}}",
+      "name": "曹植",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

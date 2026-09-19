@@ -1,0 +1,46 @@
+{
+  "pageid": 958,
+  "namespace": 0,
+  "title": "孙皓",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%9A%93",
+  "revid": 77642,
+  "parentid": 69573,
+  "timestamp": "2026-05-09T01:44:20Z",
+  "sourceSha256": "f71d4a379c7ccd670195498909635d259ac8fd295a815d2c2c134bfc1a54060c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 958,
+      "namespace": 0,
+      "title": "孙皓",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%9A%93",
+      "revid": 77642,
+      "parentid": 69573,
+      "timestamp": "2026-05-09T01:44:20Z",
+      "sourceSha256": "f71d4a379c7ccd670195498909635d259ac8fd295a815d2c2c134bfc1a54060c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙皓",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "",
+        "称号": "时日曷丧",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "5",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=孙皓\n|势力=吴\n|性别=男\n|别称=\n|称号=时日曷丧\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=5\n|经典定位=爆发\n}}",
+      "name": "孙皓",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

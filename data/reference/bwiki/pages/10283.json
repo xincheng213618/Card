@@ -1,0 +1,46 @@
+{
+  "pageid": 10283,
+  "namespace": 0,
+  "title": "张瑾云",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E7%91%BE%E4%BA%91",
+  "revid": 77696,
+  "parentid": 75304,
+  "timestamp": "2026-05-09T01:47:24Z",
+  "sourceSha256": "65d55725d0a5f80008db664b540bd2c7279f0e7ea9fea04504ff111a589f5fce",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10283,
+      "namespace": 0,
+      "title": "张瑾云",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E7%91%BE%E4%BA%91",
+      "revid": 77696,
+      "parentid": 75304,
+      "timestamp": "2026-05-09T01:47:24Z",
+      "sourceSha256": "65d55725d0a5f80008db664b540bd2c7279f0e7ea9fea04504ff111a589f5fce",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张瑾云",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "小张后",
+        "规则集问答": "",
+        "武将包": "荟萃-钟灵毓秀",
+        "经典体力": "3",
+        "经典定位": "爆发,辅助"
+      },
+      "source": "{{武将\n|武将名=张瑾云\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=小张后\n|规则集问答=\n|武将包=荟萃-钟灵毓秀\n|经典体力=3\n|经典定位=爆发,辅助\n}}",
+      "name": "张瑾云",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,49 @@
+{
+  "pageid": 2882,
+  "namespace": 0,
+  "title": "帷幕",
+  "url": "https://wiki.biligame.com/sgs/%E5%B8%B7%E5%B9%95",
+  "revid": 68215,
+  "parentid": 68196,
+  "timestamp": "2025-02-07T09:18:12Z",
+  "sourceSha256": "81918174a20bdaaea05930b11a4b5ab4e171efb01104f9b11d3b1cb5091af3fa",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2882,
+      "namespace": 0,
+      "title": "帷幕",
+      "url": "https://wiki.biligame.com/sgs/%E5%B8%B7%E5%B9%95",
+      "revid": 68215,
+      "parentid": 68196,
+      "timestamp": "2025-02-07T09:18:12Z",
+      "sourceSha256": "81918174a20bdaaea05930b11a4b5ab4e171efb01104f9b11d3b1cb5091af3fa",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "帷幕",
+        "所属武将": "贾诩",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "你不能成为黑色锦囊牌的目标。",
+        "国战技能描述": "当你成为黑色锦囊牌的目标时，取消之。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=帷幕\n|所属武将=贾诩\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=你不能成为黑色锦囊牌的目标。\n|国战技能描述=当你成为黑色锦囊牌的目标时，取消之。\n|经典技能类型=锁定技\n|经典技能定位=防御\n}}",
+      "name": "帷幕",
+      "generals": [
+        "贾诩"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "你不能成为黑色锦囊牌的目标。",
+        "国战技能描述": "当你成为黑色锦囊牌的目标时，取消之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

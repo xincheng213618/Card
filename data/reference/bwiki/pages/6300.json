@@ -1,0 +1,45 @@
+{
+  "pageid": 6300,
+  "namespace": 0,
+  "title": "赵忠",
+  "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E5%BF%A0",
+  "revid": 71655,
+  "parentid": 71140,
+  "timestamp": "2025-07-19T03:14:28Z",
+  "sourceSha256": "9bc99888da4a77b93c1e7865ed83de9d6fc0f1b6c24e181ae520c22b51400f61",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6300,
+      "namespace": 0,
+      "title": "赵忠",
+      "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E5%BF%A0",
+      "revid": 71655,
+      "parentid": 71140,
+      "timestamp": "2025-07-19T03:14:28Z",
+      "sourceSha256": "9bc99888da4a77b93c1e7865ed83de9d6fc0f1b6c24e181ae520c22b51400f61",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "赵忠",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "二公公、小白马",
+        "规则集问答": "",
+        "武将包": "荟萃-戚宦之争",
+        "经典体力": "6",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=赵忠\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=二公公、小白马\n|规则集问答=\n|武将包=荟萃-戚宦之争\n|经典体力=6\n|经典定位=控制,爆发\n}}",
+      "name": "赵忠",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

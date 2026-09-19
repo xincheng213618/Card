@@ -1,0 +1,46 @@
+{
+  "pageid": 1071,
+  "namespace": 0,
+  "title": "张星彩",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%98%9F%E5%BD%A9",
+  "revid": 77685,
+  "parentid": 64872,
+  "timestamp": "2026-05-09T01:46:26Z",
+  "sourceSha256": "03e5d88ef5984c9587702ee38345e49997683cd223d4d0568299fcb8df373e63",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1071,
+      "namespace": 0,
+      "title": "张星彩",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%98%9F%E5%BD%A9",
+      "revid": 77685,
+      "parentid": 64872,
+      "timestamp": "2026-05-09T01:46:26Z",
+      "sourceSha256": "03e5d88ef5984c9587702ee38345e49997683cd223d4d0568299fcb8df373e63",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张星彩",
+        "势力": "蜀",
+        "性别": "女",
+        "称号": "敬哀皇后",
+        "别称": "大张后、张k彩",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "星火燎原-天府",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发,续航"
+      },
+      "source": "{{武将\n|武将名=张星彩\n|势力=蜀\n|性别=女\n|称号=敬哀皇后\n|别称=大张后、张k彩\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=星火燎原-天府\n|经典体力=3\n|经典定位=攻击,爆发,续航\n}}",
+      "name": "张星彩",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

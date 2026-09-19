@@ -1,0 +1,46 @@
+{
+  "pageid": 12653,
+  "namespace": 0,
+  "title": "朱佩兰",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E4%BD%A9%E5%85%B0",
+  "revid": 78316,
+  "parentid": 70157,
+  "timestamp": "2026-06-14T00:15:32Z",
+  "sourceSha256": "2a06b8383c3f9ff3601a7f3defbb00571742d574cf3fdb1e0cb7980b7a8d5787",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12653,
+      "namespace": 0,
+      "title": "朱佩兰",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E4%BD%A9%E5%85%B0",
+      "revid": 78316,
+      "parentid": 70157,
+      "timestamp": "2026-06-14T00:15:32Z",
+      "sourceSha256": "2a06b8383c3f9ff3601a7f3defbb00571742d574cf3fdb1e0cb7980b7a8d5787",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "朱佩兰",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "小猪佩奇",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "防御,辅助"
+      },
+      "source": "{{武将\n|武将名=朱佩兰\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=小猪佩奇\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=防御,辅助\n}}",
+      "name": "朱佩兰",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

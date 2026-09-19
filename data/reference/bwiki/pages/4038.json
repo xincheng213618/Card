@@ -1,0 +1,45 @@
+{
+  "pageid": 4038,
+  "namespace": 0,
+  "title": "刘宏",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%AE%8F",
+  "revid": 77539,
+  "parentid": 69137,
+  "timestamp": "2026-05-09T01:35:50Z",
+  "sourceSha256": "6822ca90fbd646d9ed933ddd1c5095cf755ac755e1b79e173b3eeda99e0b2e74",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4038,
+      "namespace": 0,
+      "title": "刘宏",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E5%AE%8F",
+      "revid": 77539,
+      "parentid": 69137,
+      "timestamp": "2026-05-09T01:35:50Z",
+      "sourceSha256": "6822ca90fbd646d9ed933ddd1c5095cf755ac755e1b79e173b3eeda99e0b2e74",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘宏",
+        "势力": "群",
+        "性别": "男",
+        "别称": "",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "{{faq|“图兴”的装备栏包括宝物栏吗？|包括。}}",
+        "武将包": "荟萃-黄巾之乱",
+        "经典体力": "4",
+        "经典定位": "辅助,生存,攻击"
+      },
+      "source": "{{武将\n|武将名=刘宏\n|势力=群\n|性别=男\n|别称=\n|出现模式=身份,欢乐,斗地主\n|规则集问答={{faq|“图兴”的装备栏包括宝物栏吗？|包括。}}\n|武将包=荟萃-黄巾之乱\n|经典体力=4\n|经典定位=辅助,生存,攻击\n}}",
+      "name": "刘宏",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

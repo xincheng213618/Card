@@ -1,0 +1,46 @@
+{
+  "pageid": 4249,
+  "namespace": 0,
+  "title": "马谡",
+  "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E8%B0%A1",
+  "revid": 71414,
+  "parentid": 71312,
+  "timestamp": "2025-05-21T01:18:39Z",
+  "sourceSha256": "6703c5ae4a800c743348f22f33505b0b7c94f25e30b6e64cc2e63c4a2e48f6f3",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4249,
+      "namespace": 0,
+      "title": "马谡",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E8%B0%A1",
+      "revid": 71414,
+      "parentid": 71312,
+      "timestamp": "2025-05-21T01:18:39Z",
+      "sourceSha256": "6703c5ae4a800c743348f22f33505b0b7c94f25e30b6e64cc2e63c4a2e48f6f3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "马谡",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "马参军",
+        "称号": "军略之才器、帷幄经谋（国战）",
+        "出现模式": "身份,国战,欢乐",
+        "规则集问答": "",
+        "武将包": "一将成名-2011",
+        "经典体力": "3",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=马谡\n|势力=蜀\n|性别=男\n|别称=马参军\n|称号=军略之才器、帷幄经谋（国战）\n|出现模式=身份,国战,欢乐\n|规则集问答=\n|武将包=一将成名-2011\n|经典体力=3\n|经典定位=攻击,控制\n}}",
+      "name": "马谡",
+      "modes": [
+        "身份",
+        "国战",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

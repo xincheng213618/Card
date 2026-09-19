@@ -1,0 +1,47 @@
+{
+  "pageid": 14747,
+  "namespace": 0,
+  "title": "奸雄/经典曹操",
+  "url": "https://wiki.biligame.com/sgs/%E5%A5%B8%E9%9B%84/%E7%BB%8F%E5%85%B8%E6%9B%B9%E6%93%8D",
+  "revid": 75810,
+  "parentid": 73142,
+  "timestamp": "2026-02-20T02:24:44Z",
+  "sourceSha256": "0085c7ba56e750e0d6cfaff017fa129d2dfd919534a8114d39a233c2909e9ef1",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14747,
+      "namespace": 0,
+      "title": "奸雄/经典曹操",
+      "url": "https://wiki.biligame.com/sgs/%E5%A5%B8%E9%9B%84/%E7%BB%8F%E5%85%B8%E6%9B%B9%E6%93%8D",
+      "revid": 75810,
+      "parentid": 73142,
+      "timestamp": "2026-02-20T02:24:44Z",
+      "sourceSha256": "0085c7ba56e750e0d6cfaff017fa129d2dfd919534a8114d39a233c2909e9ef1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "奸雄",
+        "所属武将": "经典曹操",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你受到伤害后，你可以摸1张牌，并获得造成此伤害的牌。每次发动此技能，摸牌数永久+1（至多为5）",
+        "经典技能类型": "一般技",
+        "经典技能定位": "卖血"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=奸雄\n|所属武将=经典曹操\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你受到伤害后，你可以摸1张牌，并获得造成此伤害的牌。每次发动此技能，摸牌数永久+1（至多为5）\n|经典技能类型=一般技\n|经典技能定位=卖血\n}}",
+      "name": "奸雄",
+      "generals": [
+        "经典曹操"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你受到伤害后，你可以摸1张牌，并获得造成此伤害的牌。每次发动此技能，摸牌数永久+1（至多为5）"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

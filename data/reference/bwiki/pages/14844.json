@@ -1,0 +1,45 @@
+{
+  "pageid": 14844,
+  "namespace": 0,
+  "title": "星颜良",
+  "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E9%A2%9C%E8%89%AF",
+  "revid": 79363,
+  "parentid": 79362,
+  "timestamp": "2026-08-05T05:34:49Z",
+  "sourceSha256": "a522699254fb763135a2c0db11fb57ae7ed55aea7a885325e005c39d61597c61",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14844,
+      "namespace": 0,
+      "title": "星颜良",
+      "url": "https://wiki.biligame.com/sgs/%E6%98%9F%E9%A2%9C%E8%89%AF",
+      "revid": 79363,
+      "parentid": 79362,
+      "timestamp": "2026-08-05T05:34:49Z",
+      "sourceSha256": "a522699254fb763135a2c0db11fb57ae7ed55aea7a885325e005c39d61597c61",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "星颜良",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "狰颤四方",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星河璀璨-瑶光",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=星颜良\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=狰颤四方\n|别称=\n|规则集问答=\n|武将包=星河璀璨-瑶光\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "星颜良",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

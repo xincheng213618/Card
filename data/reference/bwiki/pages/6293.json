@@ -1,0 +1,45 @@
+{
+  "pageid": 6293,
+  "namespace": 0,
+  "title": "雷铜",
+  "url": "https://wiki.biligame.com/sgs/%E9%9B%B7%E9%93%9C",
+  "revid": 77984,
+  "parentid": 71381,
+  "timestamp": "2026-05-23T23:52:03Z",
+  "sourceSha256": "a39dcaa75785588b2885b2ad81bbee566a14ff330ff26702937e953a3df546d3",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6293,
+      "namespace": 0,
+      "title": "雷铜",
+      "url": "https://wiki.biligame.com/sgs/%E9%9B%B7%E9%93%9C",
+      "revid": 77984,
+      "parentid": 71381,
+      "timestamp": "2026-05-23T23:52:03Z",
+      "sourceSha256": "a39dcaa75785588b2885b2ad81bbee566a14ff330ff26702937e953a3df546d3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "雷铜",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "雷同",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=雷铜\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=雷同\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击,爆发\n}}",
+      "name": "雷铜",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

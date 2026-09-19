@@ -1,0 +1,46 @@
+{
+  "pageid": 2366,
+  "namespace": 0,
+  "title": "若愚",
+  "url": "https://wiki.biligame.com/sgs/%E8%8B%A5%E6%84%9A",
+  "revid": 43307,
+  "parentid": 23831,
+  "timestamp": "2022-11-24T15:06:31Z",
+  "sourceSha256": "b6f6efe113d1bb471ffaf1c36ab69b95ab6d48406382a9c82d2aa555c420545c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2366,
+      "namespace": 0,
+      "title": "若愚",
+      "url": "https://wiki.biligame.com/sgs/%E8%8B%A5%E6%84%9A",
+      "revid": 43307,
+      "parentid": 23831,
+      "timestamp": "2022-11-24T15:06:31Z",
+      "sourceSha256": "b6f6efe113d1bb471ffaf1c36ab69b95ab6d48406382a9c82d2aa555c420545c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "若愚",
+        "所属武将": "刘禅",
+        "技能版本": "经典",
+        "经典技能描述": "准备阶段，若你是体力值最小的角色，你加1点体力上限并回复1点体力，然后获得技能“{{技能/引用|激将/刘禅|经典}}”。",
+        "经典技能类型": "主公技,觉醒技",
+        "经典技能定位": "回血"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=若愚\n|所属武将=刘禅\n|技能版本=经典\n|经典技能描述=准备阶段，若你是体力值最小的角色，你加1点体力上限并回复1点体力，然后获得技能“{{技能/引用|激将/刘禅|经典}}”。\n|经典技能类型=主公技,觉醒技\n|经典技能定位=回血\n}}",
+      "name": "若愚",
+      "generals": [
+        "刘禅"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "准备阶段，若你是体力值最小的角色，你加1点体力上限并回复1点体力，然后获得技能“{{技能/引用|激将/刘禅|经典}}”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

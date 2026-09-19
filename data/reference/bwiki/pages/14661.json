@@ -1,0 +1,44 @@
+{
+  "pageid": 14661,
+  "namespace": 0,
+  "title": "屈原",
+  "url": "https://wiki.biligame.com/sgs/%E5%B1%88%E5%8E%9F",
+  "revid": 75824,
+  "parentid": 75823,
+  "timestamp": "2026-02-20T02:34:49Z",
+  "sourceSha256": "30e09673fc8fbc54e9e10b72835afa15689fa9da587f1642f0f0939e6d0fa9f9",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14661,
+      "namespace": 0,
+      "title": "屈原",
+      "url": "https://wiki.biligame.com/sgs/%E5%B1%88%E5%8E%9F",
+      "revid": 75824,
+      "parentid": 75823,
+      "timestamp": "2026-02-20T02:34:49Z",
+      "sourceSha256": "30e09673fc8fbc54e9e10b72835afa15689fa9da587f1642f0f0939e6d0fa9f9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "屈原",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "楚辞之祖",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=屈原\n|势力=群\n|性别=男\n|出现模式=斗地主\n|称号=楚辞之祖\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=控制,攻击\n}}",
+      "name": "屈原",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

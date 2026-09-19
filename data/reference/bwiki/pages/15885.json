@@ -1,0 +1,45 @@
+{
+  "pageid": 15885,
+  "namespace": 0,
+  "title": "谋诸葛亮",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%AF%B8%E8%91%9B%E4%BA%AE",
+  "revid": 80093,
+  "parentid": 80061,
+  "timestamp": "2026-09-12T09:32:47Z",
+  "sourceSha256": "ec78dacf8899d17545cfa2eb0aa87831e667116e5300ecacb91a11a23b8d0751",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15885,
+      "namespace": 0,
+      "title": "谋诸葛亮",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%AF%B8%E8%91%9B%E4%BA%AE",
+      "revid": 80093,
+      "parentid": 80061,
+      "timestamp": "2026-09-12T09:32:47Z",
+      "sourceSha256": "ec78dacf8899d17545cfa2eb0aa87831e667116e5300ecacb91a11a23b8d0751",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋诸葛亮",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "威谋定疆",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "4",
+        "经典定位": "爆发,控制,防御"
+      },
+      "source": "{{武将\n|武将名=谋诸葛亮\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=威谋定疆\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=4\n|经典定位=爆发,控制,防御\n}}",
+      "name": "谋诸葛亮",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

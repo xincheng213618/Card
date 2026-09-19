@@ -1,0 +1,45 @@
+{
+  "pageid": 4234,
+  "namespace": 0,
+  "title": "张宁",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%AE%81",
+  "revid": 77679,
+  "parentid": 69641,
+  "timestamp": "2026-05-09T01:46:04Z",
+  "sourceSha256": "7a5ad3ada61ff4974d23b104c3df32c616dfac4ec63c0fe9507768d08839739f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4234,
+      "namespace": 0,
+      "title": "张宁",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%AE%81",
+      "revid": 77679,
+      "parentid": 69641,
+      "timestamp": "2026-05-09T01:46:04Z",
+      "sourceSha256": "7a5ad3ada61ff4974d23b104c3df32c616dfac4ec63c0fe9507768d08839739f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张宁",
+        "势力": "群",
+        "性别": "女",
+        "别称": "",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-烽火连天",
+        "经典体力": "3",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=张宁\n|势力=群\n|性别=女\n|别称=\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-烽火连天\n|经典体力=3\n|经典定位=控制,攻击\n}}",
+      "name": "张宁",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

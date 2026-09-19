@@ -1,0 +1,47 @@
+{
+  "pageid": 1760,
+  "namespace": 0,
+  "title": "秘计",
+  "url": "https://wiki.biligame.com/sgs/%E7%A7%98%E8%AE%A1",
+  "revid": 62796,
+  "parentid": 52455,
+  "timestamp": "2024-04-18T13:29:41Z",
+  "sourceSha256": "8a4cfcaed35a94549d9605e9122733cfa80209ccfb5cdc35b77a8c24c2a14c9a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 1760,
+      "namespace": 0,
+      "title": "秘计",
+      "url": "https://wiki.biligame.com/sgs/%E7%A7%98%E8%AE%A1",
+      "revid": 62796,
+      "parentid": 52455,
+      "timestamp": "2024-04-18T13:29:41Z",
+      "sourceSha256": "8a4cfcaed35a94549d9605e9122733cfa80209ccfb5cdc35b77a8c24c2a14c9a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "秘计",
+        "所属武将": "王异",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "结束阶段，你可以摸X张牌（X为你已损失的体力值），然后可以将等量的手牌交给其他角色。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌,辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=秘计\n|所属武将=王异\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=结束阶段，你可以摸X张牌（X为你已损失的体力值），然后可以将等量的手牌交给其他角色。\n|经典技能类型=一般技\n|经典技能定位=过牌,辅助\n}}",
+      "name": "秘计",
+      "generals": [
+        "王异"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以摸X张牌（X为你已损失的体力值），然后可以将等量的手牌交给其他角色。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

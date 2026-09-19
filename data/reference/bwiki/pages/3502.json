@@ -1,0 +1,47 @@
+{
+  "pageid": 3502,
+  "namespace": 0,
+  "title": "崔琰毛玠",
+  "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E7%90%B0%E6%AF%9B%E7%8E%A0",
+  "revid": 77663,
+  "parentid": 69606,
+  "timestamp": "2026-05-09T01:45:32Z",
+  "sourceSha256": "40c3758dd1c9018969d39868902fe1f11b2bb6c19f0e73a4df5f2acc00f69071",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 3502,
+      "namespace": 0,
+      "title": "崔琰毛玠",
+      "url": "https://wiki.biligame.com/sgs/%E5%B4%94%E7%90%B0%E6%AF%9B%E7%8E%A0",
+      "revid": 77663,
+      "parentid": 69606,
+      "timestamp": "2026-05-09T01:45:32Z",
+      "sourceSha256": "40c3758dd1c9018969d39868902fe1f11b2bb6c19f0e73a4df5f2acc00f69071",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "崔琰毛玠",
+        "势力": "魏",
+        "性别": "男",
+        "称号": "",
+        "别称": "崔毛",
+        "出现模式": "身份,欢乐,斗地主,国战",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "控制\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=崔琰毛玠\n|势力=魏\n|性别=男\n|称号=\n|别称=崔毛\n|出现模式=身份,欢乐,斗地主,国战\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=控制\n<!-- 国战 -->\n}}",
+      "name": "崔琰毛玠",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主",
+        "国战"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

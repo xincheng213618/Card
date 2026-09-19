@@ -1,0 +1,45 @@
+{
+  "pageid": 6626,
+  "namespace": 0,
+  "title": "王桃",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%A1%83",
+  "revid": 74681,
+  "parentid": 70596,
+  "timestamp": "2026-01-22T17:05:01Z",
+  "sourceSha256": "77b24489edff2298b45ee0e322bbff4d3c02d7ef20d17fc4c3fa31700d40d343",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6626,
+      "namespace": 0,
+      "title": "王桃",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%A1%83",
+      "revid": 74681,
+      "parentid": 70596,
+      "timestamp": "2026-01-22T17:05:01Z",
+      "sourceSha256": "77b24489edff2298b45ee0e322bbff4d3c02d7ef20d17fc4c3fa31700d40d343",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王桃",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "3",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=王桃\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=3\n|经典定位=辅助\n}}",
+      "name": "王桃",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

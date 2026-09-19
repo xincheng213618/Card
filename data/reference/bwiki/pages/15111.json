@@ -1,0 +1,45 @@
+{
+  "pageid": 15111,
+  "namespace": 0,
+  "title": "阎象",
+  "url": "https://wiki.biligame.com/sgs/%E9%98%8E%E8%B1%A1",
+  "revid": 76438,
+  "parentid": 76326,
+  "timestamp": "2026-03-22T05:22:59Z",
+  "sourceSha256": "8951a3e7e55561349b0a3518e7efc317a035e0a793339d1efce47a9f104b43f7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15111,
+      "namespace": 0,
+      "title": "阎象",
+      "url": "https://wiki.biligame.com/sgs/%E9%98%8E%E8%B1%A1",
+      "revid": 76438,
+      "parentid": 76326,
+      "timestamp": "2026-03-22T05:22:59Z",
+      "sourceSha256": "8951a3e7e55561349b0a3518e7efc317a035e0a793339d1efce47a9f104b43f7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "阎象",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "冢中鸣鸮",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-群雄伺动",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=阎象\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=冢中鸣鸮\n|别称=\n|规则集问答=\n|武将包=荟萃-群雄伺动\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "阎象",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

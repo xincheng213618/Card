@@ -1,0 +1,46 @@
+{
+  "pageid": 16006,
+  "namespace": 0,
+  "title": "夏侯恩",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E6%81%A9",
+  "revid": 78788,
+  "parentid": 78741,
+  "timestamp": "2026-07-06T03:20:01Z",
+  "sourceSha256": "2b8ae6f8a883718e138bb47510a28680a2d713b0e5d164597750efabe2ad8752",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16006,
+      "namespace": 0,
+      "title": "夏侯恩",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%8F%E4%BE%AF%E6%81%A9",
+      "revid": 78788,
+      "parentid": 78741,
+      "timestamp": "2026-07-06T03:20:01Z",
+      "sourceSha256": "2b8ae6f8a883718e138bb47510a28680a2d713b0e5d164597750efabe2ad8752",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "夏侯恩",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "乌禾同仓",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-无双上将",
+        "经典体力": "5",
+        "经典定位": "攻击,辅助"
+      },
+      "source": "{{武将\n|武将名=夏侯恩\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=乌禾同仓\n|别称=\n|规则集问答=\n|武将包=荟萃-无双上将\n|经典体力=5\n|经典定位=攻击,辅助\n}}",
+      "name": "夏侯恩",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 3988,
+  "namespace": 0,
+  "title": "颂威",
+  "url": "https://wiki.biligame.com/sgs/%E9%A2%82%E5%A8%81",
+  "revid": 72708,
+  "parentid": 68207,
+  "timestamp": "2025-10-02T07:27:31Z",
+  "sourceSha256": "ea17bf237da1b0ea43985e406d42df2bc5ee223f867445f871139486f2ab8000",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3988,
+      "namespace": 0,
+      "title": "颂威",
+      "url": "https://wiki.biligame.com/sgs/%E9%A2%82%E5%A8%81",
+      "revid": 72708,
+      "parentid": 68207,
+      "timestamp": "2025-10-02T07:27:31Z",
+      "sourceSha256": "ea17bf237da1b0ea43985e406d42df2bc5ee223f867445f871139486f2ab8000",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "颂威",
+        "所属武将": "曹丕",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当其他魏势力角色的黑色判定牌生效后，其可以令你摸一张牌。",
+        "经典技能类型": "主公技",
+        "经典技能定位": "辅助"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=颂威\n|所属武将=曹丕\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当其他魏势力角色的黑色判定牌生效后，其可以令你摸一张牌。\n|经典技能类型=主公技\n|经典技能定位=辅助\n}}",
+      "name": "颂威",
+      "generals": [
+        "曹丕"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当其他魏势力角色的黑色判定牌生效后，其可以令你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

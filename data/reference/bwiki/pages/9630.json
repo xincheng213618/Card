@@ -1,0 +1,45 @@
+{
+  "pageid": 9630,
+  "namespace": 0,
+  "title": "朱建平",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E5%BB%BA%E5%B9%B3",
+  "revid": 70159,
+  "parentid": 69908,
+  "timestamp": "2025-05-20T03:40:53Z",
+  "sourceSha256": "b8a582cb9e63672ea1327155eeb2085a0c6d919f3ff5b780a17c1c502f3344d1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9630,
+      "namespace": 0,
+      "title": "朱建平",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E5%BB%BA%E5%B9%B3",
+      "revid": 70159,
+      "parentid": 69908,
+      "timestamp": "2025-05-20T03:40:53Z",
+      "sourceSha256": "b8a582cb9e63672ea1327155eeb2085a0c6d919f3ff5b780a17c1c502f3344d1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "朱建平",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "3",
+        "经典定位": "控制,续航"
+      },
+      "source": "{{武将\n|武将名=朱建平\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=3\n|经典定位=控制,续航\n}}",
+      "name": "朱建平",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

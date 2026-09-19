@@ -1,0 +1,45 @@
+{
+  "pageid": 7273,
+  "namespace": 0,
+  "title": "高览",
+  "url": "https://wiki.biligame.com/sgs/%E9%AB%98%E8%A7%88",
+  "revid": 71444,
+  "parentid": 71342,
+  "timestamp": "2025-05-21T01:24:53Z",
+  "sourceSha256": "2ee3dc837f20e8c43a120368d8435373abb3ab8aa2327dade88f6e312a2701cf",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7273,
+      "namespace": 0,
+      "title": "高览",
+      "url": "https://wiki.biligame.com/sgs/%E9%AB%98%E8%A7%88",
+      "revid": 71444,
+      "parentid": 71342,
+      "timestamp": "2025-05-21T01:24:53Z",
+      "sourceSha256": "2ee3dc837f20e8c43a120368d8435373abb3ab8aa2327dade88f6e312a2701cf",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "高览",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "4",
+        "经典定位": "攻击,辅助"
+      },
+      "source": "{{武将\n|武将名=高览\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=4\n|经典定位=攻击,辅助\n}}",
+      "name": "高览",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

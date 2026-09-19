@@ -1,0 +1,45 @@
+{
+  "pageid": 12997,
+  "namespace": 0,
+  "title": "谋胡车儿",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%83%A1%E8%BD%A6%E5%84%BF",
+  "revid": 79175,
+  "parentid": 79172,
+  "timestamp": "2026-07-29T13:49:23Z",
+  "sourceSha256": "bc8393450600455b58f19b31e6e30ec53142a5b3736f417a9dc683f96f1f2f83",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12997,
+      "namespace": 0,
+      "title": "谋胡车儿",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E8%83%A1%E8%BD%A6%E5%84%BF",
+      "revid": 79175,
+      "parentid": 79172,
+      "timestamp": "2026-07-29T13:49:23Z",
+      "sourceSha256": "bc8393450600455b58f19b31e6e30ec53142a5b3736f417a9dc683f96f1f2f83",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋胡车儿",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-毒士鸩计",
+        "经典体力": "4",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=谋胡车儿\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-毒士鸩计\n|经典体力=4\n|经典定位=控制,攻击\n}}",
+      "name": "谋胡车儿",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

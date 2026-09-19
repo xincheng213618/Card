@@ -1,0 +1,47 @@
+{
+  "pageid": 5859,
+  "namespace": 0,
+  "title": "诏缚",
+  "url": "https://wiki.biligame.com/sgs/%E8%AF%8F%E7%BC%9A",
+  "revid": 68220,
+  "parentid": 68125,
+  "timestamp": "2025-02-07T09:21:02Z",
+  "sourceSha256": "87f63a8380d47560590b67d90abc92d47859e98c219b3000f08cde8d693a2877",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5859,
+      "namespace": 0,
+      "title": "诏缚",
+      "url": "https://wiki.biligame.com/sgs/%E8%AF%8F%E7%BC%9A",
+      "revid": 68220,
+      "parentid": 68125,
+      "timestamp": "2025-02-07T09:21:02Z",
+      "sourceSha256": "87f63a8380d47560590b67d90abc92d47859e98c219b3000f08cde8d693a2877",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "诏缚",
+        "所属武将": "孙休",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "你距离为1的角色视为在其他吴势力角色的攻击范围内。",
+        "经典技能类型": "主公技,锁定技",
+        "经典技能定位": "辅助,攻击,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=诏缚\n|所属武将=孙休\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=你距离为1的角色视为在其他吴势力角色的攻击范围内。\n|经典技能类型=主公技,锁定技\n|经典技能定位=辅助,攻击,距离\n}}",
+      "name": "诏缚",
+      "generals": [
+        "孙休"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "你距离为1的角色视为在其他吴势力角色的攻击范围内。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

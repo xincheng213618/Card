@@ -1,0 +1,46 @@
+{
+  "pageid": 16201,
+  "namespace": 0,
+  "title": "张仲景",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E4%BB%B2%E6%99%AF",
+  "revid": 79891,
+  "parentid": 79885,
+  "timestamp": "2026-09-05T05:14:47Z",
+  "sourceSha256": "5b0ba896ba1cda55f49fe1161ac19a6f8da260034222a54eba3de8e8622da6d0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16201,
+      "namespace": 0,
+      "title": "张仲景",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E4%BB%B2%E6%99%AF",
+      "revid": 79891,
+      "parentid": 79885,
+      "timestamp": "2026-09-05T05:14:47Z",
+      "sourceSha256": "5b0ba896ba1cda55f49fe1161ac19a6f8da260034222a54eba3de8e8622da6d0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张仲景",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-悬壶济世",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=张仲景\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-悬壶济世\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "张仲景",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 14020,
+  "namespace": 0,
+  "title": "神钟会",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E9%92%9F%E4%BC%9A",
+  "revid": 73715,
+  "parentid": 72860,
+  "timestamp": "2025-11-30T02:24:37Z",
+  "sourceSha256": "8460fd15f6c7a05da270e3747ca887768d9f598b615a3e5d08df0ee12cdd204a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14020,
+      "namespace": 0,
+      "title": "神钟会",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E9%92%9F%E4%BC%9A",
+      "revid": 73715,
+      "parentid": 72860,
+      "timestamp": "2025-11-30T02:24:37Z",
+      "sourceSha256": "8460fd15f6c7a05da270e3747ca887768d9f598b615a3e5d08df0ee12cdd204a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神钟会",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "荡徊的蜚螭",
+        "别称": "虐素王",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "发育,控制,爆发"
+      },
+      "source": "{{武将\n|武将名=神钟会\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=荡徊的蜚螭\n|别称=虐素王\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=发育,控制,爆发\n}}",
+      "name": "神钟会",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

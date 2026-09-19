@@ -1,0 +1,47 @@
+{
+  "pageid": 4987,
+  "namespace": 0,
+  "title": "急袭/邓艾",
+  "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E8%A2%AD/%E9%82%93%E8%89%BE",
+  "revid": 76824,
+  "parentid": 68242,
+  "timestamp": "2026-04-16T06:23:58Z",
+  "sourceSha256": "b8992793dbfe90ef04f30865cc1c878fc32a14edbefefec27644efb6fc7f7fb3",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4987,
+      "namespace": 0,
+      "title": "急袭/邓艾",
+      "url": "https://wiki.biligame.com/sgs/%E6%80%A5%E8%A2%AD/%E9%82%93%E8%89%BE",
+      "revid": 76824,
+      "parentid": 68242,
+      "timestamp": "2026-04-16T06:23:58Z",
+      "sourceSha256": "b8992793dbfe90ef04f30865cc1c878fc32a14edbefefec27644efb6fc7f7fb3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "急袭",
+        "所属武将": "邓艾",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以将一张“'''田'''”当【顺手牵羊】使用。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=急袭\n|所属武将=邓艾\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以将一张“'''田'''”当【顺手牵羊】使用。\n|经典技能类型=一般技\n|经典技能定位=控制,过牌\n}}",
+      "name": "急袭",
+      "generals": [
+        "邓艾"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以将一张“'''田'''”当【顺手牵羊】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

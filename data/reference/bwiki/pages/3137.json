@@ -1,0 +1,75 @@
+{
+  "pageid": 3137,
+  "namespace": 0,
+  "title": "推演",
+  "url": "https://wiki.biligame.com/sgs/%E6%8E%A8%E6%BC%94",
+  "revid": 64671,
+  "parentid": 34912,
+  "timestamp": "2024-09-02T00:56:49Z",
+  "sourceSha256": "3fc61abfaf2be395d6f9d57b06dae4e90acd032e44471401ed8908c149cdea56",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3137,
+      "namespace": 0,
+      "title": "推演",
+      "url": "https://wiki.biligame.com/sgs/%E6%8E%A8%E6%BC%94",
+      "revid": 64671,
+      "parentid": 34912,
+      "timestamp": "2024-09-02T00:56:49Z",
+      "sourceSha256": "3fc61abfaf2be395d6f9d57b06dae4e90acd032e44471401ed8908c149cdea56",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "推演",
+        "所属武将": "管辂",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段开始时，你可以观看牌堆顶的{{版本对比|增改|三}}张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控顶"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=推演\n|所属武将=管辂\n|技能版本=经典\n|经典技能描述=出牌阶段开始时，你可以观看牌堆顶的{{版本对比|增改|三}}张牌。\n|经典技能类型=一般技\n|经典技能定位=控顶\n}}",
+      "name": "推演",
+      "generals": [
+        "管辂"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段开始时，你可以观看牌堆顶的{{版本对比|增改|三}}张牌。"
+      }
+    },
+    {
+      "pageid": 3137,
+      "namespace": 0,
+      "title": "推演",
+      "url": "https://wiki.biligame.com/sgs/%E6%8E%A8%E6%BC%94",
+      "revid": 64671,
+      "parentid": 34912,
+      "timestamp": "2024-09-02T00:56:49Z",
+      "sourceSha256": "3fc61abfaf2be395d6f9d57b06dae4e90acd032e44471401ed8908c149cdea56",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "原版",
+        "技能序号": "1",
+        "技能名": "推演",
+        "所属武将": "管辂",
+        "经典技能描述": "出牌阶段开始时，你可以观看牌堆顶的两张牌。"
+      },
+      "source": "{{技能/武将\n|历史版本=原版\n|技能序号=1\n|技能名=推演\n|所属武将=管辂\n|经典技能描述=出牌阶段开始时，你可以观看牌堆顶的两张牌。\n}}",
+      "name": "推演",
+      "generals": [
+        "管辂"
+      ],
+      "mode": null,
+      "version": "原版",
+      "descriptions": {
+        "经典技能描述": "出牌阶段开始时，你可以观看牌堆顶的两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

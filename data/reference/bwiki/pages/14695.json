@@ -1,0 +1,44 @@
+{
+  "pageid": 14695,
+  "namespace": 0,
+  "title": "田忌",
+  "url": "https://wiki.biligame.com/sgs/%E7%94%B0%E5%BF%8C",
+  "revid": 75443,
+  "parentid": 75006,
+  "timestamp": "2026-02-12T02:12:21Z",
+  "sourceSha256": "c1cbdc20bb927379572aad74412633f9927ceef9c8d8641d5c4915ebdabc0a39",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14695,
+      "namespace": 0,
+      "title": "田忌",
+      "url": "https://wiki.biligame.com/sgs/%E7%94%B0%E5%BF%8C",
+      "revid": 75443,
+      "parentid": 75006,
+      "timestamp": "2026-02-12T02:12:21Z",
+      "sourceSha256": "c1cbdc20bb927379572aad74412633f9927ceef9c8d8641d5c4915ebdabc0a39",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "田忌",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "过牌,攻击"
+      },
+      "source": "{{武将\n|武将名=田忌\n|势力=群\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=过牌,攻击\n}}",
+      "name": "田忌",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

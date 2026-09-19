@@ -1,0 +1,45 @@
+{
+  "pageid": 12463,
+  "namespace": 0,
+  "title": "李丰",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E4%B8%B0",
+  "revid": 70168,
+  "parentid": 69916,
+  "timestamp": "2025-05-20T03:41:48Z",
+  "sourceSha256": "97569769368eca48c3293f5c7331778a3126c32234ebda00a2f59c706bedb4b2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12463,
+      "namespace": 0,
+      "title": "李丰",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E4%B8%B0",
+      "revid": 70168,
+      "parentid": 69916,
+      "timestamp": "2025-05-20T03:41:48Z",
+      "sourceSha256": "97569769368eca48c3293f5c7331778a3126c32234ebda00a2f59c706bedb4b2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李丰",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "生存,辅助"
+      },
+      "source": "{{武将\n|武将名=李丰\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=生存,辅助\n}}",
+      "name": "李丰",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

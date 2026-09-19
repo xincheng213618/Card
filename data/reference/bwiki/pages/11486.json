@@ -1,0 +1,45 @@
+{
+  "pageid": 11486,
+  "namespace": 0,
+  "title": "贾充",
+  "url": "https://wiki.biligame.com/sgs/%E8%B4%BE%E5%85%85",
+  "revid": 74529,
+  "parentid": 74502,
+  "timestamp": "2026-01-10T02:26:16Z",
+  "sourceSha256": "3b5a10fb6839ac8115837928a618646d1c17cc5940ccc7dafdde057c23c923b1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11486,
+      "namespace": 0,
+      "title": "贾充",
+      "url": "https://wiki.biligame.com/sgs/%E8%B4%BE%E5%85%85",
+      "revid": 74529,
+      "parentid": 74502,
+      "timestamp": "2026-01-10T02:26:16Z",
+      "sourceSha256": "3b5a10fb6839ac8115837928a618646d1c17cc5940ccc7dafdde057c23c923b1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "贾充",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "甲虫",
+        "规则集问答": "",
+        "武将包": "荟萃-绕庭之鸦",
+        "经典体力": "3",
+        "经典定位": "控制,生存"
+      },
+      "source": "{{武将\n|武将名=贾充\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=甲虫\n|规则集问答=\n|武将包=荟萃-绕庭之鸦\n|经典体力=3\n|经典定位=控制,生存\n}}",
+      "name": "贾充",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 16255,
+  "namespace": 0,
+  "title": "暗赍",
+  "url": "https://wiki.biligame.com/sgs/%E6%9A%97%E8%B5%8D",
+  "revid": 80113,
+  "parentid": 0,
+  "timestamp": "2026-09-18T09:55:54Z",
+  "sourceSha256": "fa3cfd7d4edfc14bbb3ba573fa5ccec2de8c3a8561d570fba5bde365c3f15ece",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 16255,
+      "namespace": 0,
+      "title": "暗赍",
+      "url": "https://wiki.biligame.com/sgs/%E6%9A%97%E8%B5%8D",
+      "revid": 80113,
+      "parentid": 0,
+      "timestamp": "2026-09-18T09:55:54Z",
+      "sourceSha256": "fa3cfd7d4edfc14bbb3ba573fa5ccec2de8c3a8561d570fba5bde365c3f15ece",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "暗赍",
+        "所属武将": "冥赵云",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以弃置X张黑色手牌（X为本阶段你发动此技能的次数），然后视为使用一张无次数限制的【杀】，若此【杀】造成伤害，你可以防止之，令目标摸一张牌并获得其一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "攻击,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=暗赍\n|所属武将=冥赵云\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以弃置X张黑色手牌（X为本阶段你发动此技能的次数），然后视为使用一张无次数限制的【杀】，若此【杀】造成伤害，你可以防止之，令目标摸一张牌并获得其一张牌。\n|经典技能类型=一般技\n|经典技能定位=攻击,控制\n}}",
+      "name": "暗赍",
+      "generals": [
+        "冥赵云"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以弃置X张黑色手牌（X为本阶段你发动此技能的次数），然后视为使用一张无次数限制的【杀】，若此【杀】造成伤害，你可以防止之，令目标摸一张牌并获得其一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

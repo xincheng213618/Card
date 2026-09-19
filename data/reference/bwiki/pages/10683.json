@@ -1,0 +1,45 @@
+{
+  "pageid": 10683,
+  "namespace": 0,
+  "title": "杜预",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%9C%E9%A2%84",
+  "revid": 79249,
+  "parentid": 79248,
+  "timestamp": "2026-08-01T13:17:25Z",
+  "sourceSha256": "cc9cd3c85419b408a21741ccaaa8eae67144e3cda8b7df2cec61a040adaf339c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10683,
+      "namespace": 0,
+      "title": "杜预",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%9C%E9%A2%84",
+      "revid": 79249,
+      "parentid": 79248,
+      "timestamp": "2026-08-01T13:17:25Z",
+      "sourceSha256": "cc9cd3c85419b408a21741ccaaa8eae67144e3cda8b7df2cec61a040adaf339c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "杜预",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "杜武库",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "控制,辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=杜预\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=杜武库\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=控制,辅助,攻击\n}}",
+      "name": "杜预",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

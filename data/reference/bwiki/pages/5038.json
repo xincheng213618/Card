@@ -1,0 +1,47 @@
+{
+  "pageid": 5038,
+  "namespace": 0,
+  "title": "放逐/神司马懿",
+  "url": "https://wiki.biligame.com/sgs/%E6%94%BE%E9%80%90/%E7%A5%9E%E5%8F%B8%E9%A9%AC%E6%87%BF",
+  "revid": 60611,
+  "parentid": 60406,
+  "timestamp": "2023-12-22T11:00:57Z",
+  "sourceSha256": "1c318a5c92be23b0500e8ca9a2dee7d4cc9042a535ab6170ebde4f326a3c4111",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5038,
+      "namespace": 0,
+      "title": "放逐/神司马懿",
+      "url": "https://wiki.biligame.com/sgs/%E6%94%BE%E9%80%90/%E7%A5%9E%E5%8F%B8%E9%A9%AC%E6%87%BF",
+      "revid": 60611,
+      "parentid": 60406,
+      "timestamp": "2023-12-22T11:00:57Z",
+      "sourceSha256": "1c318a5c92be23b0500e8ca9a2dee7d4cc9042a535ab6170ebde4f326a3c4111",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "6",
+        "技能名": "放逐",
+        "所属武将": "神司马懿",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "当你受到伤害后，你可以令一名其他角色摸X张牌（X为你已损失的体力值）并翻面。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "卖血,控制,辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=6\n|技能名=放逐\n|所属武将=神司马懿\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=当你受到伤害后，你可以令一名其他角色摸X张牌（X为你已损失的体力值）并翻面。\n|经典技能类型=一般技\n|经典技能定位=卖血,控制,辅助,过牌\n}}",
+      "name": "放逐",
+      "generals": [
+        "神司马懿"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你受到伤害后，你可以令一名其他角色摸X张牌（X为你已损失的体力值）并翻面。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 6396,
+  "namespace": 0,
+  "title": "挑衅/夏侯霸",
+  "url": "https://wiki.biligame.com/sgs/%E6%8C%91%E8%A1%85/%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+  "revid": 64902,
+  "parentid": 64894,
+  "timestamp": "2024-09-16T16:34:06Z",
+  "sourceSha256": "a78eefbd0ded6c04c7e9974a4a70a441ed2685b3ede29d28418404133fcbb906",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6396,
+      "namespace": 0,
+      "title": "挑衅/夏侯霸",
+      "url": "https://wiki.biligame.com/sgs/%E6%8C%91%E8%A1%85/%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+      "revid": 64902,
+      "parentid": 64894,
+      "timestamp": "2024-09-16T16:34:06Z",
+      "sourceSha256": "a78eefbd0ded6c04c7e9974a4a70a441ed2685b3ede29d28418404133fcbb906",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "挑衅",
+        "所属武将": "夏侯霸",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可以选择一名攻击范围内含你的其他角色，除非其对你使用一张【杀】，否则你弃置其一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=挑衅\n|所属武将=夏侯霸\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可以选择一名攻击范围内含你的其他角色，除非其对你使用一张【杀】，否则你弃置其一张牌。\n|经典技能类型=一般技\n|经典技能定位=控制,负面\n}}",
+      "name": "挑衅",
+      "generals": [
+        "夏侯霸"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以选择一名攻击范围内含你的其他角色，除非其对你使用一张【杀】，否则你弃置其一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

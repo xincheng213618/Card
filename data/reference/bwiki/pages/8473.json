@@ -1,0 +1,47 @@
+{
+  "pageid": 8473,
+  "namespace": 0,
+  "title": "复学",
+  "url": "https://wiki.biligame.com/sgs/%E5%A4%8D%E5%AD%A6",
+  "revid": 60356,
+  "parentid": 45677,
+  "timestamp": "2023-12-15T14:56:28Z",
+  "sourceSha256": "2d922752cc95df9f7710690f75eb171b1dbcec818dd7ba3407f499a4f630192a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 8473,
+      "namespace": 0,
+      "title": "复学",
+      "url": "https://wiki.biligame.com/sgs/%E5%A4%8D%E5%AD%A6",
+      "revid": 60356,
+      "parentid": 45677,
+      "timestamp": "2023-12-15T14:56:28Z",
+      "sourceSha256": "2d922752cc95df9f7710690f75eb171b1dbcec818dd7ba3407f499a4f630192a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "复学",
+        "所属武将": "卢弈",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①准备阶段，你可以选择并获得弃牌堆中的至多X张不因使用而置入的牌；<br>\n②结束阶段，若你的手牌中没有以此法获得的牌，你摸X张牌（X为你的体力值）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=复学\n|所属武将=卢弈\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①准备阶段，你可以选择并获得弃牌堆中的至多X张不因使用而置入的牌；<br>\n②结束阶段，若你的手牌中没有以此法获得的牌，你摸X张牌（X为你的体力值）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "复学",
+      "generals": [
+        "卢弈"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①准备阶段，你可以选择并获得弃牌堆中的至多X张不因使用而置入的牌；<br>\n②结束阶段，若你的手牌中没有以此法获得的牌，你摸X张牌（X为你的体力值）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

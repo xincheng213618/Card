@@ -1,0 +1,47 @@
+{
+  "pageid": 4896,
+  "namespace": 0,
+  "title": "荀谌",
+  "url": "https://wiki.biligame.com/sgs/%E8%8D%80%E8%B0%8C",
+  "revid": 77758,
+  "parentid": 74679,
+  "timestamp": "2026-05-09T01:55:12Z",
+  "sourceSha256": "170af521efca0e8e5b0b75bc806d8e44557386952fb9896ff1e7007cc36a7f54",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4896,
+      "namespace": 0,
+      "title": "荀谌",
+      "url": "https://wiki.biligame.com/sgs/%E8%8D%80%E8%B0%8C",
+      "revid": 77758,
+      "parentid": 74679,
+      "timestamp": "2026-05-09T01:55:12Z",
+      "sourceSha256": "170af521efca0e8e5b0b75bc806d8e44557386952fb9896ff1e7007cc36a7f54",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "荀谌",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,国战,斗地主",
+        "称号": "三公谋主",
+        "别称": "苟甚（狗剩）",
+        "规则集问答": "",
+        "武将包": "荟萃-纵横捭阖",
+        "经典体力": "3",
+        "经典定位": "控制,辅助,攻击\n<!-- 国战 -->"
+      },
+      "source": "{{武将\n|武将名=荀谌\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,国战,斗地主\n|称号=三公谋主\n|别称=苟甚（狗剩）\n|规则集问答=\n|武将包=荟萃-纵横捭阖\n|经典体力=3\n|经典定位=控制,辅助,攻击\n<!-- 国战 -->\n}}",
+      "name": "荀谌",
+      "modes": [
+        "身份",
+        "欢乐",
+        "国战",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

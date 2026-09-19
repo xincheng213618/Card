@@ -1,0 +1,45 @@
+{
+  "pageid": 7264,
+  "namespace": 0,
+  "title": "神姜维",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%A7%9C%E7%BB%B4",
+  "revid": 70654,
+  "parentid": 70403,
+  "timestamp": "2025-05-20T05:04:05Z",
+  "sourceSha256": "1a9cc00454053e25dc17e506344a8b68c5848599652147403011e9c5fdb2af02",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7264,
+      "namespace": 0,
+      "title": "神姜维",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%A7%9C%E7%BB%B4",
+      "revid": 70654,
+      "parentid": 70403,
+      "timestamp": "2025-05-20T05:04:05Z",
+      "sourceSha256": "1a9cc00454053e25dc17e506344a8b68c5848599652147403011e9c5fdb2af02",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神姜维",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "神姜（生姜）",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "发育,爆发"
+      },
+      "source": "{{武将\n|武将名=神姜维\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=神姜（生姜）\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=发育,爆发\n}}",
+      "name": "神姜维",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

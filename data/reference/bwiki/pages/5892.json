@@ -1,0 +1,46 @@
+{
+  "pageid": 5892,
+  "namespace": 0,
+  "title": "孙登",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%99%BB",
+  "revid": 77641,
+  "parentid": 69572,
+  "timestamp": "2026-05-09T01:44:18Z",
+  "sourceSha256": "4b6bf6a89d43e46a35efec3d03bb64822a9fbf27647c6833673285e77015f93f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5892,
+      "namespace": 0,
+      "title": "孙登",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%99%BB",
+      "revid": 77641,
+      "parentid": 69572,
+      "timestamp": "2026-05-09T01:44:18Z",
+      "sourceSha256": "4b6bf6a89d43e46a35efec3d03bb64822a9fbf27647c6833673285e77015f93f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙登",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "才高德茂",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星火燎原-天府",
+        "经典体力": "4",
+        "经典定位": "辅助\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=孙登\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=才高德茂\n|别称=\n|规则集问答=\n|武将包=星火燎原-天府\n|经典体力=4\n|经典定位=辅助\n<!-- 界限 -->\n}}",
+      "name": "孙登",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

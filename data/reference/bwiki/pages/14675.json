@@ -1,0 +1,44 @@
+{
+  "pageid": 14675,
+  "namespace": 0,
+  "title": "忍姜维",
+  "url": "https://wiki.biligame.com/sgs/%E5%BF%8D%E5%A7%9C%E7%BB%B4",
+  "revid": 77285,
+  "parentid": 75924,
+  "timestamp": "2026-04-30T19:19:46Z",
+  "sourceSha256": "5dcb0f07ce4ae7ed21d3b03d016a3a91ebc9d0c52267df1885b0d719dc7d1110",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14675,
+      "namespace": 0,
+      "title": "忍姜维",
+      "url": "https://wiki.biligame.com/sgs/%E5%BF%8D%E5%A7%9C%E7%BB%B4",
+      "revid": 77285,
+      "parentid": 75924,
+      "timestamp": "2026-04-30T19:19:46Z",
+      "sourceSha256": "5dcb0f07ce4ae7ed21d3b03d016a3a91ebc9d0c52267df1885b0d719dc7d1110",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "忍姜维",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "忍辱负重",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=忍姜维\n|势力=蜀\n|性别=男\n|出现模式=斗地主\n|称号=忍辱负重\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "忍姜维",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

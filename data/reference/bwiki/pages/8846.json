@@ -1,0 +1,45 @@
+{
+  "pageid": 8846,
+  "namespace": 0,
+  "title": "程秉",
+  "url": "https://wiki.biligame.com/sgs/%E7%A8%8B%E7%A7%89",
+  "revid": 74523,
+  "parentid": 74508,
+  "timestamp": "2026-01-10T02:26:12Z",
+  "sourceSha256": "e58778adaa55602c2bc6d34bcab3345be58deeb5ff59babaa8fb9c76de6849ec",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8846,
+      "namespace": 0,
+      "title": "程秉",
+      "url": "https://wiki.biligame.com/sgs/%E7%A8%8B%E7%A7%89",
+      "revid": 74523,
+      "parentid": 74508,
+      "timestamp": "2026-01-10T02:26:12Z",
+      "sourceSha256": "e58778adaa55602c2bc6d34bcab3345be58deeb5ff59babaa8fb9c76de6849ec",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "程秉",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "控制,防御"
+      },
+      "source": "{{武将\n|武将名=程秉\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=控制,防御\n}}",
+      "name": "程秉",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

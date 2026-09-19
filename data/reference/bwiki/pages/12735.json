@@ -1,0 +1,46 @@
+{
+  "pageid": 12735,
+  "namespace": 0,
+  "title": "SP孙策",
+  "url": "https://wiki.biligame.com/sgs/SP%E5%AD%99%E7%AD%96",
+  "revid": 77470,
+  "parentid": 67660,
+  "timestamp": "2026-05-09T01:32:29Z",
+  "sourceSha256": "1eff3ef765079bb2b2bc0b2d775299fa7c950624a086ab26f674eceaa76a6a0f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12735,
+      "namespace": 0,
+      "title": "SP孙策",
+      "url": "https://wiki.biligame.com/sgs/SP%E5%AD%99%E7%AD%96",
+      "revid": 77470,
+      "parentid": 67660,
+      "timestamp": "2026-05-09T01:32:29Z",
+      "sourceSha256": "1eff3ef765079bb2b2bc0b2d775299fa7c950624a086ab26f674eceaa76a6a0f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP孙策",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-往者可谏",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=SP孙策\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-往者可谏\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "SP孙策",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

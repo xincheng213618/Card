@@ -1,0 +1,45 @@
+{
+  "pageid": 7705,
+  "namespace": 0,
+  "title": "赵昂",
+  "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E6%98%82",
+  "revid": 74700,
+  "parentid": 71141,
+  "timestamp": "2026-01-22T17:40:07Z",
+  "sourceSha256": "11512d6bcb69ce8fdf1f6d434b8214519ba0166387c07604b1851fe62b8de1c8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7705,
+      "namespace": 0,
+      "title": "赵昂",
+      "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E6%98%82",
+      "revid": 74700,
+      "parentid": 71141,
+      "timestamp": "2026-01-22T17:40:07Z",
+      "sourceSha256": "11512d6bcb69ce8fdf1f6d434b8214519ba0166387c07604b1851fe62b8de1c8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "赵昂",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-计将安出",
+        "经典体力": "3/4",
+        "经典定位": "辅助,续航,控制"
+      },
+      "source": "{{武将\n|武将名=赵昂\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-计将安出\n|经典体力=3/4\n|经典定位=辅助,续航,控制\n}}",
+      "name": "赵昂",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

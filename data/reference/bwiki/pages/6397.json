@@ -1,0 +1,47 @@
+{
+  "pageid": 6397,
+  "namespace": 0,
+  "title": "咆哮/夏侯霸",
+  "url": "https://wiki.biligame.com/sgs/%E5%92%86%E5%93%AE/%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+  "revid": 64958,
+  "parentid": 64277,
+  "timestamp": "2024-09-20T05:11:25Z",
+  "sourceSha256": "4b844278b69cc5e604a9c33ba18bc95a2d9faa8b6fb102a7d594fc843c340b62",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6397,
+      "namespace": 0,
+      "title": "咆哮/夏侯霸",
+      "url": "https://wiki.biligame.com/sgs/%E5%92%86%E5%93%AE/%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+      "revid": 64958,
+      "parentid": 64277,
+      "timestamp": "2024-09-20T05:11:25Z",
+      "sourceSha256": "4b844278b69cc5e604a9c33ba18bc95a2d9faa8b6fb102a7d594fc843c340b62",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "咆哮",
+        "所属武将": "夏侯霸",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "①你使用【杀】无次数限制；<br>\n②当你使用的【杀】被抵消后，你本回合下一次使用【杀】造成的伤害+1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "攻击,爆发,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=咆哮\n|所属武将=夏侯霸\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=①你使用【杀】无次数限制；<br>\n②当你使用的【杀】被抵消后，你本回合下一次使用【杀】造成的伤害+1。\n|经典技能类型=锁定技\n|经典技能定位=攻击,爆发,距离\n}}",
+      "name": "咆哮",
+      "generals": [
+        "夏侯霸"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①你使用【杀】无次数限制；<br>\n②当你使用的【杀】被抵消后，你本回合下一次使用【杀】造成的伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

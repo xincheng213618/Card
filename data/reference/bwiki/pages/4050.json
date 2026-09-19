@@ -1,0 +1,47 @@
+{
+  "pageid": 4050,
+  "namespace": 0,
+  "title": "智迟",
+  "url": "https://wiki.biligame.com/sgs/%E6%99%BA%E8%BF%9F",
+  "revid": 45716,
+  "parentid": 45402,
+  "timestamp": "2022-12-27T17:54:38Z",
+  "sourceSha256": "e9da3144bdf75cf3c7459d51b6a1a530e0bb38c2f066009a5eecf9fed0e94c5e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4050,
+      "namespace": 0,
+      "title": "智迟",
+      "url": "https://wiki.biligame.com/sgs/%E6%99%BA%E8%BF%9F",
+      "revid": 45716,
+      "parentid": 45402,
+      "timestamp": "2022-12-27T17:54:38Z",
+      "sourceSha256": "e9da3144bdf75cf3c7459d51b6a1a530e0bb38c2f066009a5eecf9fed0e94c5e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "智迟",
+        "所属武将": "陈宫",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=智迟\n|所属武将=陈宫\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。\n|经典技能类型=锁定技\n|经典技能定位=防御\n}}",
+      "name": "智迟",
+      "generals": [
+        "陈宫"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

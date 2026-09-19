@@ -1,0 +1,47 @@
+{
+  "pageid": 2856,
+  "namespace": 0,
+  "title": "法恩",
+  "url": "https://wiki.biligame.com/sgs/%E6%B3%95%E6%81%A9",
+  "revid": 51300,
+  "parentid": 51299,
+  "timestamp": "2023-03-10T14:25:18Z",
+  "sourceSha256": "bfcc4a0c6818c29846e013af34f1a6bab451e606f253fa40a13b1cd821de9708",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2856,
+      "namespace": 0,
+      "title": "法恩",
+      "url": "https://wiki.biligame.com/sgs/%E6%B3%95%E6%81%A9",
+      "revid": 51300,
+      "parentid": 51299,
+      "timestamp": "2023-03-10T14:25:18Z",
+      "sourceSha256": "bfcc4a0c6818c29846e013af34f1a6bab451e606f253fa40a13b1cd821de9708",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "法恩",
+        "所属武将": "陈群",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "当一名角色翻至正面或横置后，你可以令其摸一张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=法恩\n|所属武将=陈群\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=当一名角色翻至正面或横置后，你可以令其摸一张牌。\n|经典技能类型=一般技\n|经典技能定位=辅助,过牌\n}}",
+      "name": "法恩",
+      "generals": [
+        "陈群"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当一名角色翻至正面或横置后，你可以令其摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

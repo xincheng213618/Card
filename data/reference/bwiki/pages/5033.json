@@ -1,0 +1,47 @@
+{
+  "pageid": 5033,
+  "namespace": 0,
+  "title": "飞影",
+  "url": "https://wiki.biligame.com/sgs/%E9%A3%9E%E5%BD%B1",
+  "revid": 37696,
+  "parentid": 37695,
+  "timestamp": "2022-06-18T14:49:40Z",
+  "sourceSha256": "88eeecb25a1554b34065f1f3d35e966c74f27ab5a9422ea3d3862aa94cc3ef31",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 5033,
+      "namespace": 0,
+      "title": "飞影",
+      "url": "https://wiki.biligame.com/sgs/%E9%A3%9E%E5%BD%B1",
+      "revid": 37696,
+      "parentid": 37695,
+      "timestamp": "2022-06-18T14:49:40Z",
+      "sourceSha256": "88eeecb25a1554b34065f1f3d35e966c74f27ab5a9422ea3d3862aa94cc3ef31",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "飞影",
+        "所属武将": "神曹操",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "其他角色计算与你的距离+1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "防御,距离"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=飞影\n|所属武将=神曹操\n|是衍生技=\n|技能版本=经典\n|经典技能描述=其他角色计算与你的距离+1。\n|经典技能类型=锁定技\n|经典技能定位=防御,距离\n}}",
+      "name": "飞影",
+      "generals": [
+        "神曹操"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "其他角色计算与你的距离+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

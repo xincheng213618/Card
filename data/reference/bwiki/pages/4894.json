@@ -1,0 +1,47 @@
+{
+  "pageid": 4894,
+  "namespace": 0,
+  "title": "落英",
+  "url": "https://wiki.biligame.com/sgs/%E8%90%BD%E8%8B%B1",
+  "revid": 53231,
+  "parentid": 53230,
+  "timestamp": "2023-04-29T09:25:35Z",
+  "sourceSha256": "99d8fde87ae171e877ed047aa027b3efcd7d2d216c322c968db1ad3e6a655238",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4894,
+      "namespace": 0,
+      "title": "落英",
+      "url": "https://wiki.biligame.com/sgs/%E8%90%BD%E8%8B%B1",
+      "revid": 53231,
+      "parentid": 53230,
+      "timestamp": "2023-04-29T09:25:35Z",
+      "sourceSha256": "99d8fde87ae171e877ed047aa027b3efcd7d2d216c322c968db1ad3e6a655238",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "落英",
+        "所属武将": "曹植",
+        "是衍生技": "",
+        "技能版本": "经典,界",
+        "经典技能描述": "当其他角色的♣️牌因判定或弃置而进入弃牌堆时，你可以获得之。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=落英\n|所属武将=曹植\n|是衍生技=\n|技能版本=经典,界\n|经典技能描述=当其他角色的♣️牌因判定或弃置而进入弃牌堆时，你可以获得之。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "落英",
+      "generals": [
+        "曹植"
+      ],
+      "mode": "经典,界",
+      "version": "经典,界",
+      "descriptions": {
+        "经典技能描述": "当其他角色的♣️牌因判定或弃置而进入弃牌堆时，你可以获得之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

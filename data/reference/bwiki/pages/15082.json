@@ -1,0 +1,45 @@
+{
+  "pageid": 15082,
+  "namespace": 0,
+  "title": "谋吴懿",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%90%B4%E6%87%BF",
+  "revid": 76867,
+  "parentid": 76866,
+  "timestamp": "2026-04-18T05:14:57Z",
+  "sourceSha256": "f4caf9d06a22655032a34fc10c77350f9b11e8a2e46862536c50a78de275c6d5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15082,
+      "namespace": 0,
+      "title": "谋吴懿",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%90%B4%E6%87%BF",
+      "revid": 76867,
+      "parentid": 76866,
+      "timestamp": "2026-04-18T05:14:57Z",
+      "sourceSha256": "f4caf9d06a22655032a34fc10c77350f9b11e8a2e46862536c50a78de275c6d5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋吴懿",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "恤下媲子",
+        "别称": "SP陈珪",
+        "规则集问答": "",
+        "武将包": "谋定-凤雏溯攻",
+        "经典体力": "4",
+        "经典定位": "保护,攻击"
+      },
+      "source": "{{武将\n|武将名=谋吴懿\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=恤下媲子\n|别称=SP陈珪\n|规则集问答=\n|武将包=谋定-凤雏溯攻\n|经典体力=4\n|经典定位=保护,攻击\n}}",
+      "name": "谋吴懿",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

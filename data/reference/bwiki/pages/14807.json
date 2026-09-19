@@ -1,0 +1,45 @@
+{
+  "pageid": 14807,
+  "namespace": 0,
+  "title": "谋黄权",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%BB%84%E6%9D%83",
+  "revid": 78211,
+  "parentid": 73646,
+  "timestamp": "2026-06-06T03:23:08Z",
+  "sourceSha256": "6a7bd0ef9c3b5dd97f45c1a75a04ee7a9f71c1445420e2eb1e59683e01362cb7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14807,
+      "namespace": 0,
+      "title": "谋黄权",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%BB%84%E6%9D%83",
+      "revid": 78211,
+      "parentid": 73646,
+      "timestamp": "2026-06-06T03:23:08Z",
+      "sourceSha256": "6a7bd0ef9c3b5dd97f45c1a75a04ee7a9f71c1445420e2eb1e59683e01362cb7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋黄权",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "智答魏诏",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-伯言绽火",
+        "经典体力": "3",
+        "经典定位": "辅助,续航,防御"
+      },
+      "source": "{{武将\n|武将名=谋黄权\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=智答魏诏\n|别称=\n|规则集问答=\n|武将包=谋定-伯言绽火\n|经典体力=3\n|经典定位=辅助,续航,防御\n}}",
+      "name": "谋黄权",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

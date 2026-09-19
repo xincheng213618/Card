@@ -1,0 +1,46 @@
+{
+  "pageid": 896,
+  "namespace": 0,
+  "title": "关索",
+  "url": "https://wiki.biligame.com/sgs/%E5%85%B3%E7%B4%A2",
+  "revid": 77529,
+  "parentid": 69110,
+  "timestamp": "2026-05-09T01:35:17Z",
+  "sourceSha256": "b3d6f485f958528507c922e2257328212d1dc4fa3915700a3d2abc1b3829665c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 896,
+      "namespace": 0,
+      "title": "关索",
+      "url": "https://wiki.biligame.com/sgs/%E5%85%B3%E7%B4%A2",
+      "revid": 77529,
+      "parentid": 69110,
+      "timestamp": "2026-05-09T01:35:17Z",
+      "sourceSha256": "b3d6f485f958528507c922e2257328212d1dc4fa3915700a3d2abc1b3829665c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "关索",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "苟住就赢的食尸鬼",
+        "称号": "倜傥孑侠",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "限定-祈福",
+        "经典体力": "4",
+        "经典定位": "攻击,发育,爆发"
+      },
+      "source": "{{武将\n|武将名=关索\n|势力=蜀\n|性别=男\n|别称=苟住就赢的食尸鬼\n|称号=倜傥孑侠\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=限定-祈福\n|经典体力=4\n|经典定位=攻击,发育,爆发\n}}",
+      "name": "关索",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 12568,
+  "namespace": 0,
+  "title": "谋张绣",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%BC%A0%E7%BB%A3",
+  "revid": 71112,
+  "parentid": 70862,
+  "timestamp": "2025-05-20T07:41:39Z",
+  "sourceSha256": "7e3ce6da54141c233a38af63d4ff16f4c9117c9c603ed767e90a75870d541c29",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12568,
+      "namespace": 0,
+      "title": "谋张绣",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%BC%A0%E7%BB%A3",
+      "revid": 71112,
+      "parentid": 70862,
+      "timestamp": "2025-05-20T07:41:39Z",
+      "sourceSha256": "7e3ce6da54141c233a38af63d4ff16f4c9117c9c603ed767e90a75870d541c29",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋张绣",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-毒士鸩计",
+        "经典体力": "4",
+        "经典定位": "控制,攻击,辅助"
+      },
+      "source": "{{武将\n|武将名=谋张绣\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-毒士鸩计\n|经典体力=4\n|经典定位=控制,攻击,辅助\n}}",
+      "name": "谋张绣",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 7896,
+  "namespace": 0,
+  "title": "拆械",
+  "url": "https://wiki.biligame.com/sgs/%E6%8B%86%E6%A2%B0",
+  "revid": 40508,
+  "parentid": 40446,
+  "timestamp": "2022-10-01T02:15:04Z",
+  "sourceSha256": "f8acc43c5c9d4c60f9fb3d837ae1d56dcd508dee3eadad5bb4d7cdc821f7aee7",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7896,
+      "namespace": 0,
+      "title": "拆械",
+      "url": "https://wiki.biligame.com/sgs/%E6%8B%86%E6%A2%B0",
+      "revid": 40508,
+      "parentid": 40446,
+      "timestamp": "2022-10-01T02:15:04Z",
+      "sourceSha256": "f8acc43c5c9d4c60f9fb3d837ae1d56dcd508dee3eadad5bb4d7cdc821f7aee7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "拆械",
+        "所属武将": "张奋",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当【[[大攻车]]】移出游戏后，你摸X张牌（X为此【[[大攻车]]】的升级次数）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=拆械\n|所属武将=张奋\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当【[[大攻车]]】移出游戏后，你摸X张牌（X为此【[[大攻车]]】的升级次数）。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "拆械",
+      "generals": [
+        "张奋"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当【[[大攻车]]】移出游戏后，你摸X张牌（X为此【[[大攻车]]】的升级次数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

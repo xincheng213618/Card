@@ -1,0 +1,46 @@
+{
+  "pageid": 14074,
+  "namespace": 0,
+  "title": "威曹丕",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E6%9B%B9%E4%B8%95",
+  "revid": 77626,
+  "parentid": 75885,
+  "timestamp": "2026-05-09T01:43:51Z",
+  "sourceSha256": "6c73c66cab58a0eb55db6c99095c71eba5f1664f35473a6c0a1a4e9a38a2175a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14074,
+      "namespace": 0,
+      "title": "威曹丕",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E6%9B%B9%E4%B8%95",
+      "revid": 77626,
+      "parentid": 75885,
+      "timestamp": "2026-05-09T01:43:51Z",
+      "sourceSha256": "6c73c66cab58a0eb55db6c99095c71eba5f1664f35473a6c0a1a4e9a38a2175a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威曹丕",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "威泽四海都",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-君威盖世",
+        "经典体力": "4",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=威曹丕\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=威泽四海都\n|别称=\n|规则集问答=\n|武将包=威震-君威盖世\n|经典体力=4\n|经典定位=控制,爆发\n}}",
+      "name": "威曹丕",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

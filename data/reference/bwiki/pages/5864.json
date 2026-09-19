@@ -1,0 +1,45 @@
+{
+  "pageid": 5864,
+  "namespace": 0,
+  "title": "朱治",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E6%B2%BB",
+  "revid": 70161,
+  "parentid": 69910,
+  "timestamp": "2025-05-20T03:41:01Z",
+  "sourceSha256": "30f944ee4b0ddb88007c2350defaae1da4cb44140ec238a79029cdd8401c8cda",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5864,
+      "namespace": 0,
+      "title": "朱治",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%B1%E6%B2%BB",
+      "revid": 70161,
+      "parentid": 69910,
+      "timestamp": "2025-05-20T03:41:01Z",
+      "sourceSha256": "30f944ee4b0ddb88007c2350defaae1da4cb44140ec238a79029cdd8401c8cda",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "朱治",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "王事靡盬",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2015",
+        "经典体力": "4",
+        "经典定位": "辅助\n<!-- 界限 -->"
+      },
+      "source": "{{武将\n|武将名=朱治\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=王事靡盬\n|别称=\n|规则集问答=\n|武将包=一将成名-2015\n|经典体力=4\n|经典定位=辅助\n<!-- 界限 -->\n}}",
+      "name": "朱治",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 15617,
+  "namespace": 0,
+  "title": "威张星彩",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%BC%A0%E6%98%9F%E5%BD%A9",
+  "revid": 78964,
+  "parentid": 78842,
+  "timestamp": "2026-07-13T01:17:54Z",
+  "sourceSha256": "935f0cf39d9b912f9da2ec4fa8ba091d26574ca92795765c4b3fe0f1b4283951",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15617,
+      "namespace": 0,
+      "title": "威张星彩",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%BC%A0%E6%98%9F%E5%BD%A9",
+      "revid": 78964,
+      "parentid": 78842,
+      "timestamp": "2026-07-13T01:17:54Z",
+      "sourceSha256": "935f0cf39d9b912f9da2ec4fa8ba091d26574ca92795765c4b3fe0f1b4283951",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威张星彩",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-片羽威凤",
+        "经典体力": "3",
+        "经典定位": "辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=威张星彩\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=威震-片羽威凤\n|经典体力=3\n|经典定位=辅助,爆发\n}}",
+      "name": "威张星彩",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

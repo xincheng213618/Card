@@ -1,0 +1,45 @@
+{
+  "pageid": 7830,
+  "namespace": 0,
+  "title": "黄权",
+  "url": "https://wiki.biligame.com/sgs/%E9%BB%84%E6%9D%83",
+  "revid": 74745,
+  "parentid": 71463,
+  "timestamp": "2026-01-22T17:39:01Z",
+  "sourceSha256": "4a352f7f15eaf5f5c624f6044cd57164c4b83c84f3536821df5957bdc1a39fa4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7830,
+      "namespace": 0,
+      "title": "黄权",
+      "url": "https://wiki.biligame.com/sgs/%E9%BB%84%E6%9D%83",
+      "revid": 74745,
+      "parentid": 71463,
+      "timestamp": "2026-01-22T17:39:01Z",
+      "sourceSha256": "4a352f7f15eaf5f5c624f6044cd57164c4b83c84f3536821df5957bdc1a39fa4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "黄权",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=黄权\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "黄权",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

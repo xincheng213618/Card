@@ -1,0 +1,46 @@
+{
+  "pageid": 998,
+  "namespace": 0,
+  "title": "孙休",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E4%BC%91",
+  "revid": 77634,
+  "parentid": 75995,
+  "timestamp": "2026-05-09T01:44:03Z",
+  "sourceSha256": "89a3357ceecc0aa7e37e6b026a34221fc8a90e3d7a6c0e1c038c1f807a15dd95",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 998,
+      "namespace": 0,
+      "title": "孙休",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E4%BC%91",
+      "revid": 77634,
+      "parentid": 75995,
+      "timestamp": "2026-05-09T01:44:03Z",
+      "sourceSha256": "89a3357ceecc0aa7e37e6b026a34221fc8a90e3d7a6c0e1c038c1f807a15dd95",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙休",
+        "势力": "吴",
+        "性别": "男",
+        "别称": "",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "弥殇的景君",
+        "规则集问答": "",
+        "武将包": "一将成名-2015",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=孙休\n|势力=吴\n|性别=男\n|别称=\n|出现模式=身份,欢乐,斗地主\n|称号=弥殇的景君\n|规则集问答=\n|武将包=一将成名-2015\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "孙休",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 3039,
+  "namespace": 0,
+  "title": "图射",
+  "url": "https://wiki.biligame.com/sgs/%E5%9B%BE%E5%B0%84",
+  "revid": 48455,
+  "parentid": 29610,
+  "timestamp": "2023-02-09T07:06:46Z",
+  "sourceSha256": "cb0333277dbb7d0ee27aaab2d8686fa12e7cdeb16cce04b0491d618db87d5d04",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3039,
+      "namespace": 0,
+      "title": "图射",
+      "url": "https://wiki.biligame.com/sgs/%E5%9B%BE%E5%B0%84",
+      "revid": 48455,
+      "parentid": 29610,
+      "timestamp": "2023-02-09T07:06:46Z",
+      "sourceSha256": "cb0333277dbb7d0ee27aaab2d8686fa12e7cdeb16cce04b0491d618db87d5d04",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "图射",
+        "所属武将": "刘焉",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用非装备牌指定目标后，若你没有基本牌，你可以摸X张牌（X为此牌目标数）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=图射\n|所属武将=刘焉\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用非装备牌指定目标后，若你没有基本牌，你可以摸X张牌（X为此牌目标数）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "图射",
+      "generals": [
+        "刘焉"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用非装备牌指定目标后，若你没有基本牌，你可以摸X张牌（X为此牌目标数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

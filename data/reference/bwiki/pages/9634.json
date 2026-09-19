@@ -1,0 +1,46 @@
+{
+  "pageid": 9634,
+  "namespace": 0,
+  "title": "孟节",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%9F%E8%8A%82",
+  "revid": 77654,
+  "parentid": 69584,
+  "timestamp": "2026-05-09T01:45:01Z",
+  "sourceSha256": "cfef8a325b19ddab144874c2f6480a45f0245a78d80c32c28d176d331f80cd1c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9634,
+      "namespace": 0,
+      "title": "孟节",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%9F%E8%8A%82",
+      "revid": 77654,
+      "parentid": 69584,
+      "timestamp": "2026-05-09T01:45:01Z",
+      "sourceSha256": "cfef8a325b19ddab144874c2f6480a45f0245a78d80c32c28d176d331f80cd1c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孟节",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-江湖之远",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=孟节\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-江湖之远\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "孟节",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 10178,
+  "namespace": 0,
+  "title": "沉勇",
+  "url": "https://wiki.biligame.com/sgs/%E6%B2%89%E5%8B%87",
+  "revid": 55056,
+  "parentid": 54995,
+  "timestamp": "2023-07-29T00:35:06Z",
+  "sourceSha256": "c68731b5ce6c77994495e0d49afe42134c416ab88e3f0a94f3cf148e4eb1877f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 10178,
+      "namespace": 0,
+      "title": "沉勇",
+      "url": "https://wiki.biligame.com/sgs/%E6%B2%89%E5%8B%87",
+      "revid": 55056,
+      "parentid": 54995,
+      "timestamp": "2023-07-29T00:35:06Z",
+      "sourceSha256": "c68731b5ce6c77994495e0d49afe42134c416ab88e3f0a94f3cf148e4eb1877f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "沉勇",
+        "所属武将": "陈泰",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "结束阶段，你可以摸X张牌（X为你本回合使用过牌的类别数）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=沉勇\n|所属武将=陈泰\n|是衍生技=\n|技能版本=经典\n|经典技能描述=结束阶段，你可以摸X张牌（X为你本回合使用过牌的类别数）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "沉勇",
+      "generals": [
+        "陈泰"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "结束阶段，你可以摸X张牌（X为你本回合使用过牌的类别数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

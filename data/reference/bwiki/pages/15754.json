@@ -1,0 +1,45 @@
+{
+  "pageid": 15754,
+  "namespace": 0,
+  "title": "神曹丕",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E6%9B%B9%E4%B8%95",
+  "revid": 78932,
+  "parentid": 78931,
+  "timestamp": "2026-07-11T05:20:32Z",
+  "sourceSha256": "f8ea8af8b38c84f3e04afd88a74100078b7eb81c86958a139d9bc4b3b880546e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15754,
+      "namespace": 0,
+      "title": "神曹丕",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E6%9B%B9%E4%B8%95",
+      "revid": 78932,
+      "parentid": 78931,
+      "timestamp": "2026-07-11T05:20:32Z",
+      "sourceSha256": "f8ea8af8b38c84f3e04afd88a74100078b7eb81c86958a139d9bc4b3b880546e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神曹丕",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "月晦书轮回",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "4",
+        "经典定位": "控制,卖血"
+      },
+      "source": "{{武将\n|武将名=神曹丕\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=月晦书轮回\n|别称=\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=4\n|经典定位=控制,卖血\n}}",
+      "name": "神曹丕",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

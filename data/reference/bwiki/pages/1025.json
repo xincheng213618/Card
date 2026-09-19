@@ -1,0 +1,45 @@
+{
+  "pageid": 1025,
+  "namespace": 0,
+  "title": "董允",
+  "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E5%85%81",
+  "revid": 60219,
+  "parentid": 40559,
+  "timestamp": "2023-12-15T05:30:52Z",
+  "sourceSha256": "179335d7e15053c273b8eb20d3827690a1aaf370c28e8f9f20d60bbe161317b7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1025,
+      "namespace": 0,
+      "title": "董允",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E5%85%81",
+      "revid": 60219,
+      "parentid": 40559,
+      "timestamp": "2023-12-15T05:30:52Z",
+      "sourceSha256": "179335d7e15053c273b8eb20d3827690a1aaf370c28e8f9f20d60bbe161317b7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "董允",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "改日哥",
+        "出现模式": "身份,欢乐",
+        "称号": "骨鲠良相",
+        "规则集问答": "",
+        "武将包": "星火燎原-天梁",
+        "经典体力": "3",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=董允\n|势力=蜀\n|性别=男\n|别称=改日哥\n|出现模式=身份,欢乐\n|称号=骨鲠良相\n|规则集问答=\n|武将包=星火燎原-天梁\n|经典体力=3\n|经典定位=辅助\n}}",
+      "name": "董允",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

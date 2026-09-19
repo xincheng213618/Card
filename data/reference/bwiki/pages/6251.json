@@ -1,0 +1,47 @@
+{
+  "pageid": 6251,
+  "namespace": 0,
+  "title": "业仇",
+  "url": "https://wiki.biligame.com/sgs/%E4%B8%9A%E4%BB%87",
+  "revid": 60915,
+  "parentid": 39035,
+  "timestamp": "2023-12-26T14:57:49Z",
+  "sourceSha256": "9e35b57758fff0b0098b4a5e2a533f10b11485eb981d356e29a63eb5f2b940a9",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6251,
+      "namespace": 0,
+      "title": "业仇",
+      "url": "https://wiki.biligame.com/sgs/%E4%B8%9A%E4%BB%87",
+      "revid": 60915,
+      "parentid": 39035,
+      "timestamp": "2023-12-26T14:57:49Z",
+      "sourceSha256": "9e35b57758fff0b0098b4a5e2a533f10b11485eb981d356e29a63eb5f2b940a9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "业仇",
+        "所属武将": "许贡",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你死亡时，你可以选择一名已损失体力值大于1的角色。直到其下个回合开始，其于每个回合结束时失去1点体力。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=业仇\n|所属武将=许贡\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你死亡时，你可以选择一名已损失体力值大于1的角色。直到其下个回合开始，其于每个回合结束时失去1点体力。\n|经典技能类型=一般技\n|经典技能定位=控制\n}}",
+      "name": "业仇",
+      "generals": [
+        "许贡"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你死亡时，你可以选择一名已损失体力值大于1的角色。直到其下个回合开始，其于每个回合结束时失去1点体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

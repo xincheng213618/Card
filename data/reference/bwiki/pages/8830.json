@@ -1,0 +1,45 @@
+{
+  "pageid": 8830,
+  "namespace": 0,
+  "title": "赵统赵广",
+  "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E7%BB%9F%E8%B5%B5%E5%B9%BF",
+  "revid": 71143,
+  "parentid": 70893,
+  "timestamp": "2025-05-20T07:46:21Z",
+  "sourceSha256": "54472462fda9d27e042edc4d7c79b2d3e0bfc54f6155b26e0497e0b9dbb8d344",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8830,
+      "namespace": 0,
+      "title": "赵统赵广",
+      "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E7%BB%9F%E8%B5%B5%E5%B9%BF",
+      "revid": 71143,
+      "parentid": 70893,
+      "timestamp": "2025-05-20T07:46:21Z",
+      "sourceSha256": "54472462fda9d27e042edc4d7c79b2d3e0bfc54f6155b26e0497e0b9dbb8d344",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "赵统赵广",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "二赵",
+        "规则集问答": "",
+        "武将包": "荟萃-芝兰玉树",
+        "经典体力": "4",
+        "经典定位": "攻击,防御,辅助"
+      },
+      "source": "{{武将\n|武将名=赵统赵广\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=二赵\n|规则集问答=\n|武将包=荟萃-芝兰玉树\n|经典体力=4\n|经典定位=攻击,防御,辅助\n}}",
+      "name": "赵统赵广",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

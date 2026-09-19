@@ -1,0 +1,47 @@
+{
+  "pageid": 2525,
+  "namespace": 0,
+  "title": "暴虐",
+  "url": "https://wiki.biligame.com/sgs/%E6%9A%B4%E8%99%90",
+  "revid": 68211,
+  "parentid": 68198,
+  "timestamp": "2025-02-07T09:14:45Z",
+  "sourceSha256": "fe8714c30f3f7b8b85d8d5338d30ef27bfa047a91c60c5673333d275b4f3926d",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2525,
+      "namespace": 0,
+      "title": "暴虐",
+      "url": "https://wiki.biligame.com/sgs/%E6%9A%B4%E8%99%90",
+      "revid": 68211,
+      "parentid": 68198,
+      "timestamp": "2025-02-07T09:14:45Z",
+      "sourceSha256": "fe8714c30f3f7b8b85d8d5338d30ef27bfa047a91c60c5673333d275b4f3926d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "暴虐",
+        "所属武将": "董卓",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当其他群势力角色造成伤害后，其可以进行一次判定，若结果为♠️，你回复1点体力。",
+        "经典技能类型": "主公技",
+        "经典技能定位": "回血"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=暴虐\n|所属武将=董卓\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当其他群势力角色造成伤害后，其可以进行一次判定，若结果为♠️，你回复1点体力。\n|经典技能类型=主公技\n|经典技能定位=回血\n}}",
+      "name": "暴虐",
+      "generals": [
+        "董卓"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当其他群势力角色造成伤害后，其可以进行一次判定，若结果为♠️，你回复1点体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

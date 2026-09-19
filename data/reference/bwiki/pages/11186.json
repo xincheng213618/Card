@@ -1,0 +1,45 @@
+{
+  "pageid": 11186,
+  "namespace": 0,
+  "title": "谯周",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%AF%E5%91%A8",
+  "revid": 71128,
+  "parentid": 70879,
+  "timestamp": "2025-05-20T07:44:50Z",
+  "sourceSha256": "4d51173e185cfc4787f8c5f9bd4ab5db466744364890ca0110d991187aff2b79",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11186,
+      "namespace": 0,
+      "title": "谯周",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%AF%E5%91%A8",
+      "revid": 71128,
+      "parentid": 70879,
+      "timestamp": "2025-05-20T07:44:50Z",
+      "sourceSha256": "4d51173e185cfc4787f8c5f9bd4ab5db466744364890ca0110d991187aff2b79",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谯周",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "带投大哥",
+        "规则集问答": "",
+        "武将包": "一将成名-2022",
+        "经典体力": "3",
+        "经典定位": "辅助"
+      },
+      "source": "{{武将\n|武将名=谯周\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=带投大哥\n|规则集问答=\n|武将包=一将成名-2022\n|经典体力=3\n|经典定位=辅助\n}}",
+      "name": "谯周",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

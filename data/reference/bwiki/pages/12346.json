@@ -1,0 +1,47 @@
+{
+  "pageid": 12346,
+  "namespace": 0,
+  "title": "静域",
+  "url": "https://wiki.biligame.com/sgs/%E9%9D%99%E5%9F%9F",
+  "revid": 80064,
+  "parentid": 62971,
+  "timestamp": "2026-09-12T04:00:01Z",
+  "sourceSha256": "a6f2d7fd1d182e6c0b0a24b400af0f4c92c7da154b631b81fb0bbe6d6900d600",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12346,
+      "namespace": 0,
+      "title": "静域",
+      "url": "https://wiki.biligame.com/sgs/%E9%9D%99%E5%9F%9F",
+      "revid": 80064,
+      "parentid": 62971,
+      "timestamp": "2026-09-12T04:00:01Z",
+      "sourceSha256": "a6f2d7fd1d182e6c0b0a24b400af0f4c92c7da154b631b81fb0bbe6d6900d600",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "静域",
+        "所属武将": "神华佗",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每轮每个技能限一次，当一名角色发动除此技能外的技能时，你摸一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=静域\n|所属武将=神华佗\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每轮每个技能限一次，当一名角色发动除此技能外的技能时，你摸一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "静域",
+      "generals": [
+        "神华佗"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每轮每个技能限一次，当一名角色发动除此技能外的技能时，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

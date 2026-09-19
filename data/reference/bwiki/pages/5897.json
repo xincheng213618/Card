@@ -1,0 +1,45 @@
+{
+  "pageid": 5897,
+  "namespace": 0,
+  "title": "步骘",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A5%E9%AA%98",
+  "revid": 78805,
+  "parentid": 78804,
+  "timestamp": "2026-07-06T13:52:00Z",
+  "sourceSha256": "ecde4c81e1dd45fbfe365b6a26b7b82543079b9fb23d37bc2bd0a419c52d468f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5897,
+      "namespace": 0,
+      "title": "步骘",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A5%E9%AA%98",
+      "revid": 78805,
+      "parentid": 78804,
+      "timestamp": "2026-07-06T13:52:00Z",
+      "sourceSha256": "ecde4c81e1dd45fbfe365b6a26b7b82543079b9fb23d37bc2bd0a419c52d468f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "步骘",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "积跬靖边",
+        "别称": "步恋狮",
+        "规则集问答": "",
+        "武将包": "星火燎原-天府",
+        "经典体力": "3",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=步骘\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=积跬靖边\n|别称=步恋狮\n|规则集问答=\n|武将包=星火燎原-天府\n|经典体力=3\n|经典定位=辅助,控制\n}}",
+      "name": "步骘",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

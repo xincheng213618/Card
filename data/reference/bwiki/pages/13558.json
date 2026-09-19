@@ -1,0 +1,47 @@
+{
+  "pageid": 13558,
+  "namespace": 0,
+  "title": "觊嫡",
+  "url": "https://wiki.biligame.com/sgs/%E8%A7%8A%E5%AB%A1",
+  "revid": 68343,
+  "parentid": 67364,
+  "timestamp": "2025-02-16T06:33:41Z",
+  "sourceSha256": "376665796ff8dc6b5402f101fd41aed1876b796a33c2e95015608ab0de39321f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 13558,
+      "namespace": 0,
+      "title": "觊嫡",
+      "url": "https://wiki.biligame.com/sgs/%E8%A7%8A%E5%AB%A1",
+      "revid": 68343,
+      "parentid": 67364,
+      "timestamp": "2025-02-16T06:33:41Z",
+      "sourceSha256": "376665796ff8dc6b5402f101fd41aed1876b796a33c2e95015608ab0de39321f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "觊嫡",
+        "所属武将": "孙霸",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你受到其他角色造成的伤害时，若其体力值/手牌数大于你，其失去1点体力/随机弃置两张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "威慑,卖血,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=觊嫡\n|所属武将=孙霸\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你受到其他角色造成的伤害时，若其体力值/手牌数大于你，其失去1点体力/随机弃置两张牌。\n|经典技能类型=锁定技\n|经典技能定位=威慑,卖血,控制\n}}",
+      "name": "觊嫡",
+      "generals": [
+        "孙霸"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你受到其他角色造成的伤害时，若其体力值/手牌数大于你，其失去1点体力/随机弃置两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 7833,
+  "namespace": 0,
+  "title": "胡昭",
+  "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E6%98%AD",
+  "revid": 74742,
+  "parentid": 70740,
+  "timestamp": "2026-01-22T17:37:35Z",
+  "sourceSha256": "8bd3d78f54fd355fc17db1d26325f7f0d17aae8434a8e7526bcd57501a21393f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7833,
+      "namespace": 0,
+      "title": "胡昭",
+      "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E6%98%AD",
+      "revid": 74742,
+      "parentid": 70740,
+      "timestamp": "2026-01-22T17:37:35Z",
+      "sourceSha256": "8bd3d78f54fd355fc17db1d26325f7f0d17aae8434a8e7526bcd57501a21393f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "胡昭",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-江湖之远",
+        "经典体力": "3",
+        "经典定位": "辅助,爆发,防御"
+      },
+      "source": "{{武将\n|武将名=胡昭\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-江湖之远\n|经典体力=3\n|经典定位=辅助,爆发,防御\n}}",
+      "name": "胡昭",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 10854,
+  "namespace": 0,
+  "title": "田尚衣",
+  "url": "https://wiki.biligame.com/sgs/%E7%94%B0%E5%B0%9A%E8%A1%A3",
+  "revid": 70618,
+  "parentid": 70368,
+  "timestamp": "2025-05-20T05:03:46Z",
+  "sourceSha256": "8ccf952a87aa5681ccaaf8b16659afb50378a39b985df5a08cd1dae521870762",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10854,
+      "namespace": 0,
+      "title": "田尚衣",
+      "url": "https://wiki.biligame.com/sgs/%E7%94%B0%E5%B0%9A%E8%A1%A3",
+      "revid": 70618,
+      "parentid": 70368,
+      "timestamp": "2025-05-20T05:03:46Z",
+      "sourceSha256": "8ccf952a87aa5681ccaaf8b16659afb50378a39b985df5a08cd1dae521870762",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "田尚衣",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-豆蔻梢头",
+        "经典体力": "3",
+        "经典定位": "攻击,辅助"
+      },
+      "source": "{{武将\n|武将名=田尚衣\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-豆蔻梢头\n|经典体力=3\n|经典定位=攻击,辅助\n}}",
+      "name": "田尚衣",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

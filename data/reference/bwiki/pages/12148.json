@@ -1,0 +1,45 @@
+{
+  "pageid": 12148,
+  "namespace": 0,
+  "title": "胡遵",
+  "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E9%81%B5",
+  "revid": 76066,
+  "parentid": 68693,
+  "timestamp": "2026-03-06T02:31:45Z",
+  "sourceSha256": "8a4d8a6e92ae8aa7b71f05a68182cfe0c8511a50f543575974a37a7702823dc7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12148,
+      "namespace": 0,
+      "title": "胡遵",
+      "url": "https://wiki.biligame.com/sgs/%E8%83%A1%E9%81%B5",
+      "revid": 76066,
+      "parentid": 68693,
+      "timestamp": "2026-03-06T02:31:45Z",
+      "sourceSha256": "8a4d8a6e92ae8aa7b71f05a68182cfe0c8511a50f543575974a37a7702823dc7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "胡遵",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "蓝翎紫璧",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "4",
+        "经典定位": "攻击,辅助"
+      },
+      "source": "{{武将\n|武将名=胡遵\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=蓝翎紫璧\n|别称=\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=4\n|经典定位=攻击,辅助\n}}",
+      "name": "胡遵",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

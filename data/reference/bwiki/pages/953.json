@@ -1,0 +1,45 @@
+{
+  "pageid": 953,
+  "namespace": 0,
+  "title": "杨修",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%A8%E4%BF%AE",
+  "revid": 70184,
+  "parentid": 69932,
+  "timestamp": "2025-05-20T03:43:38Z",
+  "sourceSha256": "51a0f464fe91907d863326654feb2b0cbad109e7a72f5dc5090cb9a812deaf88",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 953,
+      "namespace": 0,
+      "title": "杨修",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%A8%E4%BF%AE",
+      "revid": 70184,
+      "parentid": 69932,
+      "timestamp": "2025-05-20T03:43:38Z",
+      "sourceSha256": "51a0f464fe91907d863326654feb2b0cbad109e7a72f5dc5090cb9a812deaf88",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "杨修",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "鸡肋哥、杨主簿",
+        "称号": "恃才放旷",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "卖血,控制"
+      },
+      "source": "{{武将\n|武将名=杨修\n|势力=魏\n|性别=男\n|别称=鸡肋哥、杨主簿\n|称号=恃才放旷\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=卖血,控制\n}}",
+      "name": "杨修",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

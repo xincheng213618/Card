@@ -1,0 +1,47 @@
+{
+  "pageid": 4018,
+  "namespace": 0,
+  "title": "散文",
+  "url": "https://wiki.biligame.com/sgs/%E6%95%A3%E6%96%87",
+  "revid": 46223,
+  "parentid": 30083,
+  "timestamp": "2023-01-10T10:36:08Z",
+  "sourceSha256": "4216c38b4bb53ecbbb90161a8241ebbf1ae146c17ca6c41ff499fdc7e69ff530",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4018,
+      "namespace": 0,
+      "title": "散文",
+      "url": "https://wiki.biligame.com/sgs/%E6%95%A3%E6%96%87",
+      "revid": 46223,
+      "parentid": 30083,
+      "timestamp": "2023-01-10T10:36:08Z",
+      "sourceSha256": "4216c38b4bb53ecbbb90161a8241ebbf1ae146c17ca6c41ff499fdc7e69ff530",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "散文",
+        "所属武将": "王粲",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合限一次，当你获得牌时，若你手中有与这些牌牌名相同的牌，你可以展示之，弃置获得的同名牌，摸弃牌数两倍数量的牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=散文\n|所属武将=王粲\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合限一次，当你获得牌时，若你手中有与这些牌牌名相同的牌，你可以展示之，弃置获得的同名牌，摸弃牌数两倍数量的牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "散文",
+      "generals": [
+        "王粲"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合限一次，当你获得牌时，若你手中有与这些牌牌名相同的牌，你可以展示之，弃置获得的同名牌，摸弃牌数两倍数量的牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

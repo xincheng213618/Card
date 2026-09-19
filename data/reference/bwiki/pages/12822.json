@@ -1,0 +1,76 @@
+{
+  "pageid": 12822,
+  "namespace": 0,
+  "title": "精益",
+  "url": "https://wiki.biligame.com/sgs/%E7%B2%BE%E7%9B%8A",
+  "revid": 68029,
+  "parentid": 67962,
+  "timestamp": "2025-02-06T15:56:08Z",
+  "sourceSha256": "e939e653c9ad313eeaecab790aede83f9fbf031d81be428b5dda5be13d635978",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12822,
+      "namespace": 0,
+      "title": "精益",
+      "url": "https://wiki.biligame.com/sgs/%E7%B2%BE%E7%9B%8A",
+      "revid": 68029,
+      "parentid": 67962,
+      "timestamp": "2025-02-06T15:56:08Z",
+      "sourceSha256": "e939e653c9ad313eeaecab790aede83f9fbf031d81be428b5dda5be13d635978",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "精益",
+        "所属武将": "马钧",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当有牌进入你的装备区后{{版本对比|增改|（每种副类别每回合限一次）}}，你摸X张牌，弃置两张牌（X为你装备区内的牌数）。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=精益\n|所属武将=马钧\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当有牌进入你的装备区后{{版本对比|增改|（每种副类别每回合限一次）}}，你摸X张牌，弃置两张牌（X为你装备区内的牌数）。\n|经典技能类型=锁定技\n|经典技能定位=过牌,换牌\n}}",
+      "name": "精益",
+      "generals": [
+        "马钧"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当有牌进入你的装备区后{{版本对比|增改|（每种副类别每回合限一次）}}，你摸X张牌，弃置两张牌（X为你装备区内的牌数）。"
+      }
+    },
+    {
+      "pageid": 12822,
+      "namespace": 0,
+      "title": "精益",
+      "url": "https://wiki.biligame.com/sgs/%E7%B2%BE%E7%9B%8A",
+      "revid": 68029,
+      "parentid": 67962,
+      "timestamp": "2025-02-06T15:56:08Z",
+      "sourceSha256": "e939e653c9ad313eeaecab790aede83f9fbf031d81be428b5dda5be13d635978",
+      "image": {},
+      "templateOrdinal": 2,
+      "fields": {
+        "历史版本": "测试服版",
+        "技能序号": "2",
+        "技能名": "精益",
+        "所属武将": "马钧",
+        "经典技能描述": "'''锁定技，'''当有牌进入你的装备区后，你摸X张牌，弃置两张牌（X为你装备区内的牌数）。"
+      },
+      "source": "{{技能/武将\n|历史版本=测试服版\n|技能序号=2\n|技能名=精益\n|所属武将=马钧\n|经典技能描述='''锁定技，'''当有牌进入你的装备区后，你摸X张牌，弃置两张牌（X为你装备区内的牌数）。\n}}",
+      "name": "精益",
+      "generals": [
+        "马钧"
+      ],
+      "mode": null,
+      "version": "测试服版",
+      "descriptions": {
+        "经典技能描述": "'''锁定技，'''当有牌进入你的装备区后，你摸X张牌，弃置两张牌（X为你装备区内的牌数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

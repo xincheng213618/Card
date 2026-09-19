@@ -1,0 +1,45 @@
+{
+  "pageid": 936,
+  "namespace": 0,
+  "title": "刘辩",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E8%BE%A9",
+  "revid": 77557,
+  "parentid": 74731,
+  "timestamp": "2026-05-09T01:38:26Z",
+  "sourceSha256": "0c858b2eb604a8f8fe32649bf72c69c2047f3919a3574bd4b132245af2e77cfc",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 936,
+      "namespace": 0,
+      "title": "刘辩",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E8%BE%A9",
+      "revid": 77557,
+      "parentid": 74731,
+      "timestamp": "2026-05-09T01:38:26Z",
+      "sourceSha256": "0c858b2eb604a8f8fe32649bf72c69c2047f3919a3574bd4b132245af2e77cfc",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘辩",
+        "势力": "群",
+        "性别": "男",
+        "别称": "遇事摸牌的废天子",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3",
+        "经典定位": "续航,爆发"
+      },
+      "source": "{{武将\n|武将名=刘辩\n|势力=群\n|性别=男\n|别称=遇事摸牌的废天子\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3\n|经典定位=续航,爆发\n}}",
+      "name": "刘辩",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

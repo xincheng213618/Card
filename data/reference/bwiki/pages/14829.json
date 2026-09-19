@@ -1,0 +1,47 @@
+{
+  "pageid": 14829,
+  "namespace": 0,
+  "title": "谏立",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8F%E7%AB%8B",
+  "revid": 75927,
+  "parentid": 75926,
+  "timestamp": "2026-02-26T03:06:38Z",
+  "sourceSha256": "c9f1e44edeff8c70a4af18903c269fe68cca4d0803db7a5b9bfc64d4cbb4c7fd",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14829,
+      "namespace": 0,
+      "title": "谏立",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8F%E7%AB%8B",
+      "revid": 75927,
+      "parentid": 75926,
+      "timestamp": "2026-02-26T03:06:38Z",
+      "sourceSha256": "c9f1e44edeff8c70a4af18903c269fe68cca4d0803db7a5b9bfc64d4cbb4c7fd",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "谏立",
+        "所属武将": "桓阶",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限两次，你可交给一名其他角色至多两张牌并令其可使用一张手牌，若其未造成伤害，你受到其造成的1点伤害。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,卖血"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=谏立\n|所属武将=桓阶\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限两次，你可交给一名其他角色至多两张牌并令其可使用一张手牌，若其未造成伤害，你受到其造成的1点伤害。\n|经典技能类型=一般技\n|经典技能定位=辅助,卖血\n}}",
+      "name": "谏立",
+      "generals": [
+        "桓阶"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限两次，你可交给一名其他角色至多两张牌并令其可使用一张手牌，若其未造成伤害，你受到其造成的1点伤害。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

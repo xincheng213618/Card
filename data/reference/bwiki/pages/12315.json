@@ -1,0 +1,45 @@
+{
+  "pageid": 12315,
+  "namespace": 0,
+  "title": "谋司马师",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%8F%B8%E9%A9%AC%E5%B8%88",
+  "revid": 71108,
+  "parentid": 70858,
+  "timestamp": "2025-05-20T07:41:02Z",
+  "sourceSha256": "36935ff48ff0262d151aa3a4ae29530a671c105f3edd5b143054e3e28e533d6a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12315,
+      "namespace": 0,
+      "title": "谋司马师",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%8F%B8%E9%A9%AC%E5%B8%88",
+      "revid": 71108,
+      "parentid": 70858,
+      "timestamp": "2025-05-20T07:41:02Z",
+      "sourceSha256": "36935ff48ff0262d151aa3a4ae29530a671c105f3edd5b143054e3e28e533d6a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋司马师",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-冢虎狼顾",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=谋司马师\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-冢虎狼顾\n|经典体力=3\n|经典定位=攻击,爆发\n}}",
+      "name": "谋司马师",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

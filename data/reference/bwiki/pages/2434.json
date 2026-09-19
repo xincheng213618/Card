@@ -1,0 +1,47 @@
+{
+  "pageid": 2434,
+  "namespace": 0,
+  "title": "雄乱",
+  "url": "https://wiki.biligame.com/sgs/%E9%9B%84%E4%B9%B1",
+  "revid": 51667,
+  "parentid": 38993,
+  "timestamp": "2023-03-16T05:22:03Z",
+  "sourceSha256": "7cfee04e3a26cc7705bdaea34fde2ee0796a11cc9100f46b2c82e1eefd259dde",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 2434,
+      "namespace": 0,
+      "title": "雄乱",
+      "url": "https://wiki.biligame.com/sgs/%E9%9B%84%E4%B9%B1",
+      "revid": 51667,
+      "parentid": 38993,
+      "timestamp": "2023-03-16T05:22:03Z",
+      "sourceSha256": "7cfee04e3a26cc7705bdaea34fde2ee0796a11cc9100f46b2c82e1eefd259dde",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "雄乱",
+        "所属武将": "张绣",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以废除你的判定区和装备区并选择一名其他角色，然后本回合：你对其使用牌无距离和次数限制、其不能使用或打出手牌。",
+        "经典技能类型": "限定技",
+        "经典技能定位": "攻击,距离,控制,爆发"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=雄乱\n|所属武将=张绣\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以废除你的判定区和装备区并选择一名其他角色，然后本回合：你对其使用牌无距离和次数限制、其不能使用或打出手牌。\n|经典技能类型=限定技\n|经典技能定位=攻击,距离,控制,爆发\n}}",
+      "name": "雄乱",
+      "generals": [
+        "张绣"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以废除你的判定区和装备区并选择一名其他角色，然后本回合：你对其使用牌无距离和次数限制、其不能使用或打出手牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

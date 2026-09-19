@@ -1,0 +1,45 @@
+{
+  "pageid": 6859,
+  "namespace": 0,
+  "title": "赵嫣",
+  "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E5%AB%A3",
+  "revid": 74677,
+  "parentid": 74676,
+  "timestamp": "2026-01-22T16:56:16Z",
+  "sourceSha256": "d32e927da328dd4aac74b2d55057a9fdd537b3346150e1032dca28f3a343a1f8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6859,
+      "namespace": 0,
+      "title": "赵嫣",
+      "url": "https://wiki.biligame.com/sgs/%E8%B5%B5%E5%AB%A3",
+      "revid": 74677,
+      "parentid": 74676,
+      "timestamp": "2026-01-22T16:56:16Z",
+      "sourceSha256": "d32e927da328dd4aac74b2d55057a9fdd537b3346150e1032dca28f3a343a1f8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "赵嫣",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-才子佳人",
+        "经典体力": "3",
+        "经典定位": "攻击,控制,续航"
+      },
+      "source": "{{武将\n|武将名=赵嫣\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-才子佳人\n|经典体力=3\n|经典定位=攻击,控制,续航\n}}",
+      "name": "赵嫣",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

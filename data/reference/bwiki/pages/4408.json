@@ -1,0 +1,47 @@
+{
+  "pageid": 4408,
+  "namespace": 0,
+  "title": "绝境/神赵云",
+  "url": "https://wiki.biligame.com/sgs/%E7%BB%9D%E5%A2%83/%E7%A5%9E%E8%B5%B5%E4%BA%91",
+  "revid": 73121,
+  "parentid": 58246,
+  "timestamp": "2025-10-25T11:37:11Z",
+  "sourceSha256": "f1c607067f7462ff034f0832a1900383e2cfe03cdb7b5eb5951d98d424f1de5c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4408,
+      "namespace": 0,
+      "title": "绝境/神赵云",
+      "url": "https://wiki.biligame.com/sgs/%E7%BB%9D%E5%A2%83/%E7%A5%9E%E8%B5%B5%E4%BA%91",
+      "revid": 73121,
+      "parentid": 58246,
+      "timestamp": "2025-10-25T11:37:11Z",
+      "sourceSha256": "f1c607067f7462ff034f0832a1900383e2cfe03cdb7b5eb5951d98d424f1de5c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "绝境",
+        "所属武将": "神赵云",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "①你的手牌上限+2；<br>\n②当你进入或脱离濒死状态时，你摸一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=绝境\n|所属武将=神赵云\n|是衍生技=\n|技能版本=经典\n|经典技能描述=①你的手牌上限+2；<br>\n②当你进入或脱离濒死状态时，你摸一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌,屯牌\n}}",
+      "name": "绝境",
+      "generals": [
+        "神赵云"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "①你的手牌上限+2；<br>\n②当你进入或脱离濒死状态时，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

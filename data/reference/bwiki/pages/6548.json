@@ -1,0 +1,45 @@
+{
+  "pageid": 6548,
+  "namespace": 0,
+  "title": "陈登",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%99%BB",
+  "revid": 74736,
+  "parentid": 71266,
+  "timestamp": "2026-01-22T17:26:20Z",
+  "sourceSha256": "68875878c04f25d232d10f6ba2b9a9fa575bc8b1e1144bad161db457463b6629",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6548,
+      "namespace": 0,
+      "title": "陈登",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%99%BB",
+      "revid": 74736,
+      "parentid": 71266,
+      "timestamp": "2026-01-22T17:26:20Z",
+      "sourceSha256": "68875878c04f25d232d10f6ba2b9a9fa575bc8b1e1144bad161db457463b6629",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陈登",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "3",
+        "经典定位": "防御,控制,辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=陈登\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=3\n|经典定位=防御,控制,辅助,攻击\n}}",
+      "name": "陈登",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

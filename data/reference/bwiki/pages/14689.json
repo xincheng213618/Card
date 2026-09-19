@@ -1,0 +1,44 @@
+{
+  "pageid": 14689,
+  "namespace": 0,
+  "title": "食岑昏",
+  "url": "https://wiki.biligame.com/sgs/%E9%A3%9F%E5%B2%91%E6%98%8F",
+  "revid": 76926,
+  "parentid": 75452,
+  "timestamp": "2026-04-22T15:23:58Z",
+  "sourceSha256": "463915dd83c5cb1e631ec46e527a646e9a7562f32ef7d463959d194661b2d81d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14689,
+      "namespace": 0,
+      "title": "食岑昏",
+      "url": "https://wiki.biligame.com/sgs/%E9%A3%9F%E5%B2%91%E6%98%8F",
+      "revid": 76926,
+      "parentid": 75452,
+      "timestamp": "2026-04-22T15:23:58Z",
+      "sourceSha256": "463915dd83c5cb1e631ec46e527a646e9a7562f32ef7d463959d194661b2d81d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "食岑昏",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=食岑昏\n|势力=吴\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=爆发\n}}",
+      "name": "食岑昏",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

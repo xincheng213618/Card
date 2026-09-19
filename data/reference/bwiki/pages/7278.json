@@ -1,0 +1,45 @@
+{
+  "pageid": 7278,
+  "namespace": 0,
+  "title": "曹髦",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E9%AB%A6",
+  "revid": 70145,
+  "parentid": 69895,
+  "timestamp": "2025-05-20T03:38:50Z",
+  "sourceSha256": "b7c659937128835c9407d9d4bcbf55feb3d15af21d0d2742eb3f0af0555a02bf",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7278,
+      "namespace": 0,
+      "title": "曹髦",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E9%AB%A6",
+      "revid": 70145,
+      "parentid": 69895,
+      "timestamp": "2025-05-20T03:38:50Z",
+      "sourceSha256": "b7c659937128835c9407d9d4bcbf55feb3d15af21d0d2742eb3f0af0555a02bf",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹髦",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "草帽",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "3/4",
+        "经典定位": "卖血,控制,攻击"
+      },
+      "source": "{{武将\n|武将名=曹髦\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=草帽\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=3/4\n|经典定位=卖血,控制,攻击\n}}",
+      "name": "曹髦",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

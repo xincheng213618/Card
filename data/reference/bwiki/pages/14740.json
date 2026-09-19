@@ -1,0 +1,47 @@
+{
+  "pageid": 14740,
+  "namespace": 0,
+  "title": "斩将",
+  "url": "https://wiki.biligame.com/sgs/%E6%96%A9%E5%B0%86",
+  "revid": 73131,
+  "parentid": 0,
+  "timestamp": "2025-10-25T11:44:13Z",
+  "sourceSha256": "10b46a1bdcfa210a8ae368ae8b2fd1c04ff20bd0f9f5a98f6df5ebdcac59fdf1",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 14740,
+      "namespace": 0,
+      "title": "斩将",
+      "url": "https://wiki.biligame.com/sgs/%E6%96%A9%E5%B0%86",
+      "revid": 73131,
+      "parentid": 0,
+      "timestamp": "2025-10-25T11:44:13Z",
+      "sourceSha256": "10b46a1bdcfa210a8ae368ae8b2fd1c04ff20bd0f9f5a98f6df5ebdcac59fdf1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "斩将",
+        "所属武将": "神赵云（高达一号）",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "准备阶段，如果场上有【青釭剑】，你可以获得之。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=斩将\n|所属武将=神赵云（高达一号）\n|是衍生技=\n|技能版本=经典\n|经典技能描述=准备阶段，如果场上有【青釭剑】，你可以获得之。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "斩将",
+      "generals": [
+        "神赵云（高达一号）"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "准备阶段，如果场上有【青釭剑】，你可以获得之。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

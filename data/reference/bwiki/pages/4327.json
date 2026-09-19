@@ -1,0 +1,44 @@
+{
+  "pageid": 4327,
+  "namespace": 0,
+  "title": "曹性",
+  "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%80%A7",
+  "revid": 70137,
+  "parentid": 69886,
+  "timestamp": "2025-05-20T03:38:11Z",
+  "sourceSha256": "a1be5c27a18af0eeab60c2198d7baff3042621e318da041d2d2cb685b003a921",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4327,
+      "namespace": 0,
+      "title": "曹性",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%80%A7",
+      "revid": 70137,
+      "parentid": 69886,
+      "timestamp": "2025-05-20T03:38:11Z",
+      "sourceSha256": "a1be5c27a18af0eeab60c2198d7baff3042621e318da041d2d2cb685b003a921",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "曹性",
+        "势力": "群",
+        "性别": "男",
+        "别称": "银河射手",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-无双上将",
+        "经典体力": "4",
+        "经典定位": "攻击,控制"
+      },
+      "source": "{{武将\n|武将名=曹性\n|势力=群\n|性别=男\n|别称=银河射手\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-无双上将\n|经典体力=4\n|经典定位=攻击,控制\n}}",
+      "name": "曹性",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

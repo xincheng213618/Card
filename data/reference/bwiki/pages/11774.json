@@ -1,0 +1,45 @@
+{
+  "pageid": 11774,
+  "namespace": 0,
+  "title": "谋周瑜",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%91%A8%E7%91%9C",
+  "revid": 79696,
+  "parentid": 76217,
+  "timestamp": "2026-08-20T13:38:45Z",
+  "sourceSha256": "3ab5383c23431b93b39b03a1ba25a67694546ff4894c0dc8b6a791478221dc9b",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11774,
+      "namespace": 0,
+      "title": "谋周瑜",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E5%91%A8%E7%91%9C",
+      "revid": 79696,
+      "parentid": 76217,
+      "timestamp": "2026-08-20T13:38:45Z",
+      "sourceSha256": "3ab5383c23431b93b39b03a1ba25a67694546ff4894c0dc8b6a791478221dc9b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋周瑜",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发,控制"
+      },
+      "source": "{{武将\n|武将名=谋周瑜\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=4\n|经典定位=攻击,爆发,控制\n}}",
+      "name": "谋周瑜",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

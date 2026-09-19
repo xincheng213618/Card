@@ -1,0 +1,46 @@
+{
+  "pageid": 16205,
+  "namespace": 0,
+  "title": "李娴",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%A8%B4",
+  "revid": 79900,
+  "parentid": 0,
+  "timestamp": "2026-09-05T05:42:35Z",
+  "sourceSha256": "b30523bc2c242193adef9a16b02996924f1ac2677cc84eb122433b2f9be1d939",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16205,
+      "namespace": 0,
+      "title": "李娴",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%8E%E5%A8%B4",
+      "revid": 79900,
+      "parentid": 0,
+      "timestamp": "2026-09-05T05:42:35Z",
+      "sourceSha256": "b30523bc2c242193adef9a16b02996924f1ac2677cc84eb122433b2f9be1d939",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "李娴",
+        "势力": "蜀",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-食禄尽忠",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=李娴\n|势力=蜀\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-食禄尽忠\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "李娴",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

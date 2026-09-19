@@ -1,0 +1,47 @@
+{
+  "pageid": 16130,
+  "namespace": 0,
+  "title": "绯祸",
+  "url": "https://wiki.biligame.com/sgs/%E7%BB%AF%E7%A5%B8",
+  "revid": 79491,
+  "parentid": 79488,
+  "timestamp": "2026-08-10T02:01:56Z",
+  "sourceSha256": "a6a8b3186b71bbba1e97ae3dcb89294cf87c2b5d2a94a6a13ae873bc55a4209f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 16130,
+      "namespace": 0,
+      "title": "绯祸",
+      "url": "https://wiki.biligame.com/sgs/%E7%BB%AF%E7%A5%B8",
+      "revid": 79491,
+      "parentid": 79488,
+      "timestamp": "2026-08-10T02:01:56Z",
+      "sourceSha256": "a6a8b3186b71bbba1e97ae3dcb89294cf87c2b5d2a94a6a13ae873bc55a4209f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "绯祸",
+        "所属武将": "神貂蝉",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每轮开始时，你令所有其他角色获得“{{技能/引用|迷朦}}”。若有角色“{{技能/引用|迷朦}}”可用次数不小于1，其所有非锁定技失效。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=绯祸\n|所属武将=神貂蝉\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每轮开始时，你令所有其他角色获得“{{技能/引用|迷朦}}”。若有角色“{{技能/引用|迷朦}}”可用次数不小于1，其所有非锁定技失效。\n|经典技能类型=锁定技\n|经典技能定位=控制\n}}",
+      "name": "绯祸",
+      "generals": [
+        "神貂蝉"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每轮开始时，你令所有其他角色获得“{{技能/引用|迷朦}}”。若有角色“{{技能/引用|迷朦}}”可用次数不小于1，其所有非锁定技失效。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

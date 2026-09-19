@@ -1,0 +1,46 @@
+{
+  "pageid": 13977,
+  "namespace": 0,
+  "title": "向宠",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%91%E5%AE%A0",
+  "revid": 77576,
+  "parentid": 74972,
+  "timestamp": "2026-05-09T01:40:30Z",
+  "sourceSha256": "e9130ebf84b16b22155aa3c53531dff4cf41a8816418ed00a8fdc4517a22ece1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13977,
+      "namespace": 0,
+      "title": "向宠",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%91%E5%AE%A0",
+      "revid": 77576,
+      "parentid": 74972,
+      "timestamp": "2026-05-09T01:40:30Z",
+      "sourceSha256": "e9130ebf84b16b22155aa3c53531dff4cf41a8816418ed00a8fdc4517a22ece1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "向宠",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "镇军之岳",
+        "别称": "能",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "4",
+        "经典定位": "辅助,控制"
+      },
+      "source": "{{武将\n|武将名=向宠\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=镇军之岳\n|别称=能\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=4\n|经典定位=辅助,控制\n}}",
+      "name": "向宠",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

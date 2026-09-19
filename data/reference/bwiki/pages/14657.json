@@ -1,0 +1,44 @@
+{
+  "pageid": 14657,
+  "namespace": 0,
+  "title": "涛神",
+  "url": "https://wiki.biligame.com/sgs/%E6%B6%9B%E7%A5%9E",
+  "revid": 75441,
+  "parentid": 75004,
+  "timestamp": "2026-02-12T02:12:08Z",
+  "sourceSha256": "4ed73a27d5bc65f8d40988e98e49c939453cef1cae029941965ad8a08777c5a1",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14657,
+      "namespace": 0,
+      "title": "涛神",
+      "url": "https://wiki.biligame.com/sgs/%E6%B6%9B%E7%A5%9E",
+      "revid": 75441,
+      "parentid": 75004,
+      "timestamp": "2026-02-12T02:12:08Z",
+      "sourceSha256": "4ed73a27d5bc65f8d40988e98e49c939453cef1cae029941965ad8a08777c5a1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "涛神",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=涛神\n|势力=神\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=攻击\n}}",
+      "name": "涛神",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

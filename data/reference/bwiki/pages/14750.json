@@ -1,0 +1,44 @@
+{
+  "pageid": 14750,
+  "namespace": 0,
+  "title": "经典曹操",
+  "url": "https://wiki.biligame.com/sgs/%E7%BB%8F%E5%85%B8%E6%9B%B9%E6%93%8D",
+  "revid": 75921,
+  "parentid": 75811,
+  "timestamp": "2026-02-26T00:48:09Z",
+  "sourceSha256": "9f8be0eacdd86b74e020b1cd98fdcb0314649132e1c318168d2548a337da02a4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14750,
+      "namespace": 0,
+      "title": "经典曹操",
+      "url": "https://wiki.biligame.com/sgs/%E7%BB%8F%E5%85%B8%E6%9B%B9%E6%93%8D",
+      "revid": 75921,
+      "parentid": 75811,
+      "timestamp": "2026-02-26T00:48:09Z",
+      "sourceSha256": "9f8be0eacdd86b74e020b1cd98fdcb0314649132e1c318168d2548a337da02a4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "经典曹操",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "魏武帝",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "4",
+        "经典定位": "卖血"
+      },
+      "source": "{{武将\n|武将名=经典曹操\n|势力=魏\n|性别=男\n|出现模式=斗地主\n|称号=魏武帝\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=4\n|经典定位=卖血\n}}",
+      "name": "经典曹操",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

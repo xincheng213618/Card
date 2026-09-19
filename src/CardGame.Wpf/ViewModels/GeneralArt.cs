@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 
 namespace CardGame.Wpf.ViewModels;
 
-/// <summary>Original local artwork. No hidden game state is used to pick a portrait.</summary>
+/// <summary>Local artwork and attributed BWIKI assets. Only the public general ID selects the image.</summary>
 public static class GeneralArt
 {
     private static readonly string[] PortraitIds =
@@ -68,7 +68,10 @@ public static class GeneralArt
             ["xiahou-yuan"] = "general-xiahou-yuan.png",
             ["hua-xiong"] = "general-hua-xiong.png",
             ["gongsun-zan"] = "general-gongsun-zan.png",
-            ["zhang-jiao"] = "general-zhang-jiao.png",
+            // External source pages, image URLs and hashes: docs/content/bwiki-portraits.json.
+            ["zhang-jiao"] = "wiki-zhang-jiao-classic.png",
+            ["shen-guan-yu"] = "wiki-shen-guan-yu-classic.png",
+            ["sp-zhao-yun"] = "wiki-sp-zhao-yun-classic.png",
             ["sun-jian"] = "general-sun-jian.png",
             ["meng-huo"] = "general-meng-huo.png",
             ["zhu-rong"] = "general-zhu-rong.png",

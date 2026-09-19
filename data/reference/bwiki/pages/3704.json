@@ -1,0 +1,46 @@
+{
+  "pageid": 3704,
+  "namespace": 0,
+  "title": "余威",
+  "url": "https://wiki.biligame.com/sgs/%E4%BD%99%E5%A8%81",
+  "revid": 36347,
+  "parentid": 31992,
+  "timestamp": "2022-04-15T00:38:02Z",
+  "sourceSha256": "a415e1e9ec1a2481ef3e8645dedfd278cc5bbecf399257bf3d7db2491ad09158",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3704,
+      "namespace": 0,
+      "title": "余威",
+      "url": "https://wiki.biligame.com/sgs/%E4%BD%99%E5%A8%81",
+      "revid": 36347,
+      "parentid": 31992,
+      "timestamp": "2022-04-15T00:38:02Z",
+      "sourceSha256": "a415e1e9ec1a2481ef3e8645dedfd278cc5bbecf399257bf3d7db2491ad09158",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "余威",
+        "所属武将": "刘辩",
+        "技能版本": "经典",
+        "经典技能描述": "其他群势力角色的回合内，“{{技能/引用|诗怨}}”改为“'''每回合每项限两次'''”。",
+        "经典技能类型": "主公技,锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=余威\n|所属武将=刘辩\n|技能版本=经典\n|经典技能描述=其他群势力角色的回合内，“{{技能/引用|诗怨}}”改为“'''每回合每项限两次'''”。\n|经典技能类型=主公技,锁定技\n|经典技能定位=中性\n}}",
+      "name": "余威",
+      "generals": [
+        "刘辩"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "其他群势力角色的回合内，“{{技能/引用|诗怨}}”改为“'''每回合每项限两次'''”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

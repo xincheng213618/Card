@@ -1,0 +1,45 @@
+{
+  "pageid": 6383,
+  "namespace": 0,
+  "title": "陈琳",
+  "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%90%B3",
+  "revid": 71265,
+  "parentid": 71015,
+  "timestamp": "2025-05-20T07:53:57Z",
+  "sourceSha256": "2b0ba15f95b25deb7647104a758bb1bb2d7de6bc03dc0f9c2f031a63119bb9de",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6383,
+      "namespace": 0,
+      "title": "陈琳",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E7%90%B3",
+      "revid": 71265,
+      "parentid": 71015,
+      "timestamp": "2025-05-20T07:53:57Z",
+      "sourceSha256": "2b0ba15f95b25deb7647104a758bb1bb2d7de6bc03dc0f9c2f031a63119bb9de",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "陈琳",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "喷子",
+        "规则集问答": "<!-- 使用faq模板 -->",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=陈琳\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=喷子\n|规则集问答=<!-- 使用faq模板 -->\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "陈琳",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

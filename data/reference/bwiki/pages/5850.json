@@ -1,0 +1,48 @@
+{
+  "pageid": 5850,
+  "namespace": 0,
+  "title": "张嶷",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%B6%B7",
+  "revid": 77681,
+  "parentid": 69643,
+  "timestamp": "2026-05-09T01:46:13Z",
+  "sourceSha256": "a2139b917e4b78983cd78a99349d666c62ae4547387fbbaee04837971c0de81f",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 5850,
+      "namespace": 0,
+      "title": "张嶷",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%B6%B7",
+      "revid": 77681,
+      "parentid": 69643,
+      "timestamp": "2026-05-09T01:46:13Z",
+      "sourceSha256": "a2139b917e4b78983cd78a99349d666c62ae4547387fbbaee04837971c0de81f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张嶷",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "通壮逾古",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "一将成名-2015",
+        "经典体力": "4",
+        "经典定位": "攻击,控制\n<!-- 界限 -->",
+        "界限体力": "5",
+        "界限定位": "攻击,控制,生存"
+      },
+      "source": "{{武将\n|武将名=张嶷\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=通壮逾古\n|别称=\n|规则集问答=\n|武将包=一将成名-2015\n|经典体力=4\n|经典定位=攻击,控制\n<!-- 界限 -->\n|界限体力=5\n|界限定位=攻击,控制,生存\n}}",
+      "name": "张嶷",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

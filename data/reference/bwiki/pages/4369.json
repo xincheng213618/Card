@@ -1,0 +1,46 @@
+{
+  "pageid": 4369,
+  "namespace": 0,
+  "title": "庞统",
+  "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E7%BB%9F",
+  "revid": 59826,
+  "parentid": 33371,
+  "timestamp": "2023-12-14T07:38:17Z",
+  "sourceSha256": "ae96f5450e78407b0d1c2310df802590a20d2023458d3e480eb260f984365b2d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 4369,
+      "namespace": 0,
+      "title": "庞统",
+      "url": "https://wiki.biligame.com/sgs/%E5%BA%9E%E7%BB%9F",
+      "revid": 59826,
+      "parentid": 33371,
+      "timestamp": "2023-12-14T07:38:17Z",
+      "sourceSha256": "ae96f5450e78407b0d1c2310df802590a20d2023458d3e480eb260f984365b2d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "庞统",
+        "势力": "蜀",
+        "性别": "男",
+        "别称": "小鸡",
+        "称号": "凤雏",
+        "出现模式": "身份,国战,欢乐",
+        "规则集问答": "",
+        "武将包": "神话再临-火包",
+        "经典体力": "3",
+        "经典定位": "生存,辅助"
+      },
+      "source": "{{武将\n|武将名=庞统\n|势力=蜀\n|性别=男\n|别称=小鸡\n|称号=凤雏\n|出现模式=身份,国战,欢乐\n|规则集问答=\n|武将包=神话再临-火包\n|经典体力=3\n|经典定位=生存,辅助\n}}",
+      "name": "庞统",
+      "modes": [
+        "身份",
+        "国战",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

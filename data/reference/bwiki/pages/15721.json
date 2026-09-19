@@ -1,0 +1,46 @@
+{
+  "pageid": 15721,
+  "namespace": 0,
+  "title": "荀勖",
+  "url": "https://wiki.biligame.com/sgs/%E8%8D%80%E5%8B%96",
+  "revid": 79590,
+  "parentid": 78810,
+  "timestamp": "2026-08-15T02:56:11Z",
+  "sourceSha256": "cfa291e85962fcc7d4393bc5cd244786f226c7a9007f29764aa747ddc4e3c00d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15721,
+      "namespace": 0,
+      "title": "荀勖",
+      "url": "https://wiki.biligame.com/sgs/%E8%8D%80%E5%8B%96",
+      "revid": 79590,
+      "parentid": 78810,
+      "timestamp": "2026-08-15T02:56:11Z",
+      "sourceSha256": "cfa291e85962fcc7d4393bc5cd244786f226c7a9007f29764aa747ddc4e3c00d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "荀勖",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "博律明识",
+        "别称": "狗冒、笛客（{{黑幕|Dick}}）、荀冒",
+        "规则集问答": "",
+        "武将包": "一将成名-2025",
+        "经典体力": "3",
+        "经典定位": "全能"
+      },
+      "source": "{{武将\n|武将名=荀勖\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=博律明识\n|别称=狗冒、笛客（{{黑幕|Dick}}）、荀冒\n|规则集问答=\n|武将包=一将成名-2025\n|经典体力=3\n|经典定位=全能\n}}",
+      "name": "荀勖",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

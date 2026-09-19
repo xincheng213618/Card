@@ -1,0 +1,47 @@
+{
+  "pageid": 1995,
+  "namespace": 0,
+  "title": "箜声",
+  "url": "https://wiki.biligame.com/sgs/%E7%AE%9C%E5%A3%B0",
+  "revid": 45876,
+  "parentid": 41319,
+  "timestamp": "2023-01-04T07:56:31Z",
+  "sourceSha256": "190a17a5848aef06bbe5269f6a04d355447a51f8ffda669b011db7ec2a02f647",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 1995,
+      "namespace": 0,
+      "title": "箜声",
+      "url": "https://wiki.biligame.com/sgs/%E7%AE%9C%E5%A3%B0",
+      "revid": 45876,
+      "parentid": 41319,
+      "timestamp": "2023-01-04T07:56:31Z",
+      "sourceSha256": "190a17a5848aef06bbe5269f6a04d355447a51f8ffda669b011db7ec2a02f647",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "箜声",
+        "所属武将": "周妃",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "准备阶段，你可以将任意张牌置于你的武将牌上，然后你于本回合的结束阶段使用这些牌中的装备牌并获得其余的牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "中性,屯牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=箜声\n|所属武将=周妃\n|是衍生技=\n|技能版本=经典\n|经典技能描述=准备阶段，你可以将任意张牌置于你的武将牌上，然后你于本回合的结束阶段使用这些牌中的装备牌并获得其余的牌。\n|经典技能类型=一般技\n|经典技能定位=中性,屯牌\n}}",
+      "name": "箜声",
+      "generals": [
+        "周妃"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "准备阶段，你可以将任意张牌置于你的武将牌上，然后你于本回合的结束阶段使用这些牌中的装备牌并获得其余的牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

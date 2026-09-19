@@ -1,0 +1,46 @@
+{
+  "pageid": 8476,
+  "namespace": 0,
+  "title": "卢弈",
+  "url": "https://wiki.biligame.com/sgs/%E5%8D%A2%E5%BC%88",
+  "revid": 77566,
+  "parentid": 75295,
+  "timestamp": "2026-05-09T01:39:09Z",
+  "sourceSha256": "f03fb70c7af4cf6e51adcf2f18033ca5a1eb63cb187dac95e0e6eb05a04523c3",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8476,
+      "namespace": 0,
+      "title": "卢弈",
+      "url": "https://wiki.biligame.com/sgs/%E5%8D%A2%E5%BC%88",
+      "revid": 77566,
+      "parentid": 75295,
+      "timestamp": "2026-05-09T01:39:09Z",
+      "sourceSha256": "f03fb70c7af4cf6e51adcf2f18033ca5a1eb63cb187dac95e0e6eb05a04523c3",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "卢弈",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "战鹰、卢奕、围棋少女",
+        "规则集问答": "",
+        "武将包": "限定-隐山之玉",
+        "经典体力": "3",
+        "经典定位": "续航,控制"
+      },
+      "source": "{{武将\n|武将名=卢弈\n|势力=群\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=战鹰、卢奕、围棋少女\n|规则集问答=\n|武将包=限定-隐山之玉\n|经典体力=3\n|经典定位=续航,控制\n}}",
+      "name": "卢弈",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

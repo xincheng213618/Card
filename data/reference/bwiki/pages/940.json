@@ -1,0 +1,44 @@
+{
+  "pageid": 940,
+  "namespace": 0,
+  "title": "文鸯",
+  "url": "https://wiki.biligame.com/sgs/%E6%96%87%E9%B8%AF",
+  "revid": 70077,
+  "parentid": 69826,
+  "timestamp": "2025-05-20T03:34:25Z",
+  "sourceSha256": "d3b410c074ca6fee6ad2753d755adecdfcda71ff38627c1ff8b225f8ebb2dcee",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 940,
+      "namespace": 0,
+      "title": "文鸯",
+      "url": "https://wiki.biligame.com/sgs/%E6%96%87%E9%B8%AF",
+      "revid": 70077,
+      "parentid": 69826,
+      "timestamp": "2025-05-20T03:34:25Z",
+      "sourceSha256": "d3b410c074ca6fee6ad2753d755adecdfcda71ff38627c1ff8b225f8ebb2dcee",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "文鸯",
+        "势力": "魏",
+        "性别": "男",
+        "别称": "文小鸟、文鸟",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-百战虎贲",
+        "经典体力": "5",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=文鸯\n|势力=魏\n|性别=男\n|别称=文小鸟、文鸟\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-百战虎贲\n|经典体力=5\n|经典定位=攻击,爆发\n}}",
+      "name": "文鸯",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

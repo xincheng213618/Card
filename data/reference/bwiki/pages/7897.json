@@ -1,0 +1,46 @@
+{
+  "pageid": 7897,
+  "namespace": 0,
+  "title": "张奋",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%A5%8B",
+  "revid": 77676,
+  "parentid": 75303,
+  "timestamp": "2026-05-09T01:46:04Z",
+  "sourceSha256": "436e4177fc22cfd0a28fb987d3c1b0ec7b935537a91a9e669aa88207dd27cd2e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7897,
+      "namespace": 0,
+      "title": "张奋",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E5%A5%8B",
+      "revid": 77676,
+      "parentid": 75303,
+      "timestamp": "2026-05-09T01:46:04Z",
+      "sourceSha256": "436e4177fc22cfd0a28fb987d3c1b0ec7b935537a91a9e669aa88207dd27cd2e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张奋",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "4",
+        "经典定位": "发育,控制"
+      },
+      "source": "{{武将\n|武将名=张奋\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=4\n|经典定位=发育,控制\n}}",
+      "name": "张奋",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

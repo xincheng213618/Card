@@ -1,0 +1,47 @@
+{
+  "pageid": 4992,
+  "namespace": 0,
+  "title": "看破/卧龙诸葛",
+  "url": "https://wiki.biligame.com/sgs/%E7%9C%8B%E7%A0%B4/%E5%8D%A7%E9%BE%99%E8%AF%B8%E8%91%9B",
+  "revid": 68205,
+  "parentid": 68199,
+  "timestamp": "2025-02-07T04:12:47Z",
+  "sourceSha256": "327d85d6e706517dab7b3ee49702b38fcfb33091f4787e72e90c5b87d3a4980a",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 4992,
+      "namespace": 0,
+      "title": "看破/卧龙诸葛",
+      "url": "https://wiki.biligame.com/sgs/%E7%9C%8B%E7%A0%B4/%E5%8D%A7%E9%BE%99%E8%AF%B8%E8%91%9B",
+      "revid": 68205,
+      "parentid": 68199,
+      "timestamp": "2025-02-07T04:12:47Z",
+      "sourceSha256": "327d85d6e706517dab7b3ee49702b38fcfb33091f4787e72e90c5b87d3a4980a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "看破",
+        "所属武将": "卧龙诸葛",
+        "是衍生技": "",
+        "技能版本": "经典,国",
+        "经典技能描述": "你可以将一张黑色手牌当【无懈可击】使用。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "保护,控制"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=看破\n|所属武将=卧龙诸葛\n|是衍生技=\n|技能版本=经典,国\n|经典技能描述=你可以将一张黑色手牌当【无懈可击】使用。\n|经典技能类型=一般技\n|经典技能定位=保护,控制\n}}",
+      "name": "看破",
+      "generals": [
+        "卧龙诸葛"
+      ],
+      "mode": "经典,国",
+      "version": "经典,国",
+      "descriptions": {
+        "经典技能描述": "你可以将一张黑色手牌当【无懈可击】使用。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

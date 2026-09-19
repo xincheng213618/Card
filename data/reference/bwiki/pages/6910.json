@@ -1,0 +1,46 @@
+{
+  "pageid": 6910,
+  "namespace": 0,
+  "title": "孙翊",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%BF%8A",
+  "revid": 77646,
+  "parentid": 75300,
+  "timestamp": "2026-05-09T01:44:37Z",
+  "sourceSha256": "fd2fdcf36a2d095559cef934171592c7f856e9b8c79599d7c5e5f176004730e5",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6910,
+      "namespace": 0,
+      "title": "孙翊",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E7%BF%8A",
+      "revid": 77646,
+      "parentid": 75300,
+      "timestamp": "2026-05-09T01:44:37Z",
+      "sourceSha256": "fd2fdcf36a2d095559cef934171592c7f856e9b8c79599d7c5e5f176004730e5",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙翊",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "那男弟、翻江龙、打蛟哥",
+        "规则集问答": "{{faq|当孙翊的“激峭”牌均被获得后，孙翊是失去体力还是回复体力？|回复体力。}}",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "5",
+        "经典定位": "爆发,生存"
+      },
+      "source": "{{武将\n|武将名=孙翊\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=那男弟、翻江龙、打蛟哥\n|规则集问答={{faq|当孙翊的“激峭”牌均被获得后，孙翊是失去体力还是回复体力？|回复体力。}}\n|武将包=荟萃-锦瑟良缘\n|经典体力=5\n|经典定位=爆发,生存\n}}",
+      "name": "孙翊",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

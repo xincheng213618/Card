@@ -1,0 +1,46 @@
+{
+  "pageid": 6212,
+  "namespace": 0,
+  "title": "吕岱",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%95%E5%B2%B1",
+  "revid": 77579,
+  "parentid": 60278,
+  "timestamp": "2026-05-09T01:40:35Z",
+  "sourceSha256": "2b70fd00d7a65a73081c621c4af5dd0b0d55079aa27d987dd5e5831d51430933",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 6212,
+      "namespace": 0,
+      "title": "吕岱",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%95%E5%B2%B1",
+      "revid": 77579,
+      "parentid": 60278,
+      "timestamp": "2026-05-09T01:40:35Z",
+      "sourceSha256": "2b70fd00d7a65a73081c621c4af5dd0b0d55079aa27d987dd5e5831d51430933",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吕岱",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "清身奉公",
+        "别称": "履带",
+        "规则集问答": "",
+        "武将包": "星火燎原-天相",
+        "经典体力": "4",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=吕岱\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=清身奉公\n|别称=履带\n|规则集问答=\n|武将包=星火燎原-天相\n|经典体力=4\n|经典定位=攻击\n}}",
+      "name": "吕岱",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

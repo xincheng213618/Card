@@ -1,0 +1,46 @@
+{
+  "pageid": 15981,
+  "namespace": 0,
+  "title": "谋程普",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%A8%8B%E6%99%AE",
+  "revid": 79201,
+  "parentid": 78819,
+  "timestamp": "2026-07-30T06:53:33Z",
+  "sourceSha256": "c299984a246a11ea852c1625e8be981377b132f2390b59b382f753cae84577e4",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15981,
+      "namespace": 0,
+      "title": "谋程普",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E7%A8%8B%E6%99%AE",
+      "revid": 79201,
+      "parentid": 78819,
+      "timestamp": "2026-07-30T06:53:33Z",
+      "sourceSha256": "c299984a246a11ea852c1625e8be981377b132f2390b59b382f753cae84577e4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋程普",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-周郎将计",
+        "经典体力": "5",
+        "经典定位": "攻击"
+      },
+      "source": "{{武将\n|武将名=谋程普\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-周郎将计\n|经典体力=5\n|经典定位=攻击\n}}",
+      "name": "谋程普",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

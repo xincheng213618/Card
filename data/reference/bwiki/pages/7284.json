@@ -1,0 +1,45 @@
+{
+  "pageid": 7284,
+  "namespace": 0,
+  "title": "来莺儿",
+  "url": "https://wiki.biligame.com/sgs/%E6%9D%A5%E8%8E%BA%E5%84%BF",
+  "revid": 70182,
+  "parentid": 69930,
+  "timestamp": "2025-05-20T03:43:17Z",
+  "sourceSha256": "d3c850ba3bd31e39d6408c90ee4cd5e93fb3abcb1d8765cb8a8d20d8147b775a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7284,
+      "namespace": 0,
+      "title": "来莺儿",
+      "url": "https://wiki.biligame.com/sgs/%E6%9D%A5%E8%8E%BA%E5%84%BF",
+      "revid": 70182,
+      "parentid": 69930,
+      "timestamp": "2025-05-20T03:43:17Z",
+      "sourceSha256": "d3c850ba3bd31e39d6408c90ee4cd5e93fb3abcb1d8765cb8a8d20d8147b775a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "来莺儿",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "来鸟、食尸鬼",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "发育,辅助"
+      },
+      "source": "{{武将\n|武将名=来莺儿\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|称号=\n|别称=来鸟、食尸鬼\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=发育,辅助\n}}",
+      "name": "来莺儿",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

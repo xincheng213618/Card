@@ -1,0 +1,45 @@
+{
+  "pageid": 12341,
+  "namespace": 0,
+  "title": "神华佗",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%8D%8E%E4%BD%97",
+  "revid": 79391,
+  "parentid": 78207,
+  "timestamp": "2026-08-06T02:37:42Z",
+  "sourceSha256": "00f3f531c1343aa6e0c3a03e5e5d6a2a76ce1328053452a9c85684b793108114",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12341,
+      "namespace": 0,
+      "title": "神华佗",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%8D%8E%E4%BD%97",
+      "revid": 79391,
+      "parentid": 78207,
+      "timestamp": "2026-08-06T02:37:42Z",
+      "sourceSha256": "00f3f531c1343aa6e0c3a03e5e5d6a2a76ce1328053452a9c85684b793108114",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神华佗",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "灵魂的医者",
+        "别称": "火力改造王",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "3",
+        "经典定位": "辅助,续航"
+      },
+      "source": "{{武将\n|武将名=神华佗\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=灵魂的医者\n|别称=火力改造王\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=3\n|经典定位=辅助,续航\n}}",
+      "name": "神华佗",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

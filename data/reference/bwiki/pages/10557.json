@@ -1,0 +1,46 @@
+{
+  "pageid": 10557,
+  "namespace": 0,
+  "title": "乐蔡文姬",
+  "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E8%94%A1%E6%96%87%E5%A7%AC",
+  "revid": 79780,
+  "parentid": 79767,
+  "timestamp": "2026-08-24T01:46:20Z",
+  "sourceSha256": "747521138fb1b2ccf9f5a4ac6174c508ce5735406d602694783dd100a8888128",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10557,
+      "namespace": 0,
+      "title": "乐蔡文姬",
+      "url": "https://wiki.biligame.com/sgs/%E4%B9%90%E8%94%A1%E6%96%87%E5%A7%AC",
+      "revid": 79780,
+      "parentid": 79767,
+      "timestamp": "2026-08-24T01:46:20Z",
+      "sourceSha256": "747521138fb1b2ccf9f5a4ac6174c508ce5735406d602694783dd100a8888128",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "乐蔡文姬",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "胡笳十八杀，武张飞，粤(乐)菜",
+        "规则集问答": "",
+        "武将包": "荟萃-正音雅乐",
+        "经典体力": "3",
+        "经典定位": "防御,爆发"
+      },
+      "source": "{{武将\n|武将名=乐蔡文姬\n|势力=群\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=胡笳十八杀，武张飞，粤(乐)菜\n|规则集问答=\n|武将包=荟萃-正音雅乐\n|经典体力=3\n|经典定位=防御,爆发\n}}",
+      "name": "乐蔡文姬",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

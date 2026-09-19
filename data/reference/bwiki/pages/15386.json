@@ -1,0 +1,47 @@
+{
+  "pageid": 15386,
+  "namespace": 0,
+  "title": "亢悔",
+  "url": "https://wiki.biligame.com/sgs/%E4%BA%A2%E6%82%94",
+  "revid": 75176,
+  "parentid": 0,
+  "timestamp": "2026-02-07T06:36:51Z",
+  "sourceSha256": "7172c8d25e2739e7771de31a47ac301d731ef8a4ac25c3fd9c8ffee5bd38f86e",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 15386,
+      "namespace": 0,
+      "title": "亢悔",
+      "url": "https://wiki.biligame.com/sgs/%E4%BA%A2%E6%82%94",
+      "revid": 75176,
+      "parentid": 0,
+      "timestamp": "2026-02-07T06:36:51Z",
+      "sourceSha256": "7172c8d25e2739e7771de31a47ac301d731ef8a4ac25c3fd9c8ffee5bd38f86e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "3",
+        "技能名": "亢悔",
+        "所属武将": "爻袁术",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你的“'''爻'''”均正置于武将牌上时，你的手牌上限+2。均背置于武将牌上时，其他角色对你造成的伤害+1。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=3\n|技能名=亢悔\n|所属武将=爻袁术\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你的“'''爻'''”均正置于武将牌上时，你的手牌上限+2。均背置于武将牌上时，其他角色对你造成的伤害+1。\n|经典技能类型=锁定技\n|经典技能定位=中性,负面\n}}",
+      "name": "亢悔",
+      "generals": [
+        "爻袁术"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你的“'''爻'''”均正置于武将牌上时，你的手牌上限+2。均背置于武将牌上时，其他角色对你造成的伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

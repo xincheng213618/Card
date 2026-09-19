@@ -1,0 +1,45 @@
+{
+  "pageid": 12071,
+  "namespace": 0,
+  "title": "神许褚",
+  "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E8%AE%B8%E8%A4%9A",
+  "revid": 79640,
+  "parentid": 72810,
+  "timestamp": "2026-08-19T10:43:45Z",
+  "sourceSha256": "55bad524b75041d9f1643edb0189b8d91a1422c41dcf19734febf2706c6e4fd0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12071,
+      "namespace": 0,
+      "title": "神许褚",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E8%AE%B8%E8%A4%9A",
+      "revid": 79640,
+      "parentid": 72810,
+      "timestamp": "2026-08-19T10:43:45Z",
+      "sourceSha256": "55bad524b75041d9f1643edb0189b8d91a1422c41dcf19734febf2706c6e4fd0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "神许褚",
+        "势力": "神",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "野猪王",
+        "规则集问答": "",
+        "武将包": "限定-神·武",
+        "经典体力": "5",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=神许褚\n|势力=神\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=野猪王\n|规则集问答=\n|武将包=限定-神·武\n|经典体力=5\n|经典定位=攻击,爆发\n}}",
+      "name": "神许褚",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,46 @@
+{
+  "pageid": 8217,
+  "namespace": 0,
+  "title": "刘晔",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E6%99%94",
+  "revid": 77545,
+  "parentid": 74748,
+  "timestamp": "2026-05-09T01:36:30Z",
+  "sourceSha256": "140aa50213436c8058e4b2a1d97577b9e42f195b617042b366e114619189ae8d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 8217,
+      "namespace": 0,
+      "title": "刘晔",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E6%99%94",
+      "revid": 77545,
+      "parentid": 74748,
+      "timestamp": "2026-05-09T01:36:30Z",
+      "sourceSha256": "140aa50213436c8058e4b2a1d97577b9e42f195b617042b366e114619189ae8d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘晔",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-计将安出",
+        "经典体力": "3",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=刘晔\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-计将安出\n|经典体力=3\n|经典定位=控制,攻击\n}}",
+      "name": "刘晔",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,47 @@
+{
+  "pageid": 6965,
+  "namespace": 0,
+  "title": "匿伏",
+  "url": "https://wiki.biligame.com/sgs/%E5%8C%BF%E4%BC%8F",
+  "revid": 37978,
+  "parentid": 37596,
+  "timestamp": "2022-06-28T10:24:51Z",
+  "sourceSha256": "d8f572f92ef44d2980cc6811a3f9cd5045a826f214379632efd8d8cf456866f4",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6965,
+      "namespace": 0,
+      "title": "匿伏",
+      "url": "https://wiki.biligame.com/sgs/%E5%8C%BF%E4%BC%8F",
+      "revid": 37978,
+      "parentid": 37596,
+      "timestamp": "2022-06-28T10:24:51Z",
+      "sourceSha256": "d8f572f92ef44d2980cc6811a3f9cd5045a826f214379632efd8d8cf456866f4",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "匿伏",
+        "所属武将": "严夫人",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "一名角色的结束阶段，你将手牌摸至或弃置至三张。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,负面"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=匿伏\n|所属武将=严夫人\n|是衍生技=\n|技能版本=经典\n|经典技能描述=一名角色的结束阶段，你将手牌摸至或弃置至三张。\n|经典技能类型=锁定技\n|经典技能定位=过牌,负面\n}}",
+      "name": "匿伏",
+      "generals": [
+        "严夫人"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "一名角色的结束阶段，你将手牌摸至或弃置至三张。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

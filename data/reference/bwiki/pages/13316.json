@@ -1,0 +1,45 @@
+{
+  "pageid": 13316,
+  "namespace": 0,
+  "title": "谋黄盖",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%BB%84%E7%9B%96",
+  "revid": 75989,
+  "parentid": 73689,
+  "timestamp": "2026-03-01T13:53:15Z",
+  "sourceSha256": "eddb8d0f50194c91cf1a1a66cf1f84389e61dfe162348da7ce689233da9a308d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13316,
+      "namespace": 0,
+      "title": "谋黄盖",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%BB%84%E7%9B%96",
+      "revid": 75989,
+      "parentid": 73689,
+      "timestamp": "2026-03-01T13:53:15Z",
+      "sourceSha256": "eddb8d0f50194c91cf1a1a66cf1f84389e61dfe162348da7ce689233da9a308d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋黄盖",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-周郎将计",
+        "经典体力": "4",
+        "经典定位": "攻击,爆发"
+      },
+      "source": "{{武将\n|武将名=谋黄盖\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-周郎将计\n|经典体力=4\n|经典定位=攻击,爆发\n}}",
+      "name": "谋黄盖",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

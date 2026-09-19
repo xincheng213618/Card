@@ -1,0 +1,46 @@
+{
+  "pageid": 13560,
+  "namespace": 0,
+  "title": "孙霸",
+  "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E9%9C%B8",
+  "revid": 77650,
+  "parentid": 73712,
+  "timestamp": "2026-05-09T01:44:56Z",
+  "sourceSha256": "8ec3ca7c5242966205b642fd105a5cd5d80114c13ee69a68e9458a32c308b28a",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 13560,
+      "namespace": 0,
+      "title": "孙霸",
+      "url": "https://wiki.biligame.com/sgs/%E5%AD%99%E9%9C%B8",
+      "revid": 77650,
+      "parentid": 73712,
+      "timestamp": "2026-05-09T01:44:56Z",
+      "sourceSha256": "8ec3ca7c5242966205b642fd105a5cd5d80114c13ee69a68e9458a32c308b28a",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "孙霸",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-皇家贵胄",
+        "经典体力": "4",
+        "经典定位": "续航"
+      },
+      "source": "{{武将\n|武将名=孙霸\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-皇家贵胄\n|经典体力=4\n|经典定位=续航\n}}",
+      "name": "孙霸",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

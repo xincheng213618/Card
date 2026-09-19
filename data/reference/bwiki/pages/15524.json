@@ -1,0 +1,44 @@
+{
+  "pageid": 15524,
+  "namespace": 0,
+  "title": "宫百万",
+  "url": "https://wiki.biligame.com/sgs/%E5%AE%AB%E7%99%BE%E4%B8%87",
+  "revid": 76089,
+  "parentid": 75872,
+  "timestamp": "2026-03-07T04:29:40Z",
+  "sourceSha256": "b33061ff5b57ba261f930e25da12cc2733efc508d14374bc7d62b5e463d3f87e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15524,
+      "namespace": 0,
+      "title": "宫百万",
+      "url": "https://wiki.biligame.com/sgs/%E5%AE%AB%E7%99%BE%E4%B8%87",
+      "revid": 76089,
+      "parentid": 75872,
+      "timestamp": "2026-03-07T04:29:40Z",
+      "sourceSha256": "b33061ff5b57ba261f930e25da12cc2733efc508d14374bc7d62b5e463d3f87e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "宫百万",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "喵喵杀",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "喵喵杀",
+        "经典体力": "4",
+        "经典定位": "发育,爆发"
+      },
+      "source": "{{武将\n|武将名=宫百万\n|势力=群\n|性别=女\n|出现模式=喵喵杀\n|称号=\n|别称=\n|规则集问答=\n|武将包=喵喵杀\n|经典体力=4\n|经典定位=发育,爆发\n}}",
+      "name": "宫百万",
+      "modes": [
+        "喵喵杀"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

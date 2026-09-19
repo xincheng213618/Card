@@ -1,0 +1,44 @@
+{
+  "pageid": 972,
+  "namespace": 0,
+  "title": "淳于琼",
+  "url": "https://wiki.biligame.com/sgs/%E6%B7%B3%E4%BA%8E%E7%90%BC",
+  "revid": 70268,
+  "parentid": 70016,
+  "timestamp": "2025-05-20T03:54:29Z",
+  "sourceSha256": "c10360d955480d5e076df5659479860b02a0405ef70f10294e1d42015c8e4f88",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 972,
+      "namespace": 0,
+      "title": "淳于琼",
+      "url": "https://wiki.biligame.com/sgs/%E6%B7%B3%E4%BA%8E%E7%90%BC",
+      "revid": 70268,
+      "parentid": 70016,
+      "timestamp": "2025-05-20T03:54:29Z",
+      "sourceSha256": "c10360d955480d5e076df5659479860b02a0405ef70f10294e1d42015c8e4f88",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "淳于琼",
+        "势力": "群",
+        "性别": "男",
+        "别称": "酒仙",
+        "出现模式": "身份,欢乐",
+        "规则集问答": "",
+        "武将包": "荟萃-无双上将",
+        "经典体力": "4",
+        "经典定位": "续航,辅助"
+      },
+      "source": "{{武将\n|武将名=淳于琼\n|势力=群\n|性别=男\n|别称=酒仙\n|出现模式=身份,欢乐\n|规则集问答=\n|武将包=荟萃-无双上将\n|经典体力=4\n|经典定位=续航,辅助\n}}",
+      "name": "淳于琼",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

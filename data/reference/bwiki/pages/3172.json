@@ -1,0 +1,47 @@
+{
+  "pageid": 3172,
+  "namespace": 0,
+  "title": "怀柔",
+  "url": "https://wiki.biligame.com/sgs/%E6%80%80%E6%9F%94",
+  "revid": 58214,
+  "parentid": 52005,
+  "timestamp": "2023-10-19T08:09:26Z",
+  "sourceSha256": "1739304ad95bf43a44a3cc2f2edfd730b3f7c9a1c8090158cf8b749c94a03622",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3172,
+      "namespace": 0,
+      "title": "怀柔",
+      "url": "https://wiki.biligame.com/sgs/%E6%80%80%E6%9F%94",
+      "revid": 58214,
+      "parentid": 52005,
+      "timestamp": "2023-10-19T08:09:26Z",
+      "sourceSha256": "1739304ad95bf43a44a3cc2f2edfd730b3f7c9a1c8090158cf8b749c94a03622",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "4",
+        "技能名": "怀柔",
+        "所属武将": "陆抗",
+        "是衍生技": "是",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段，你可以重铸装备牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "换牌"
+      },
+      "source": "{{技能/武将\n|技能序号=4\n|技能名=怀柔\n|所属武将=陆抗\n|是衍生技=是\n|技能版本=经典\n|经典技能描述=出牌阶段，你可以重铸装备牌。\n|经典技能类型=一般技\n|经典技能定位=换牌\n}}",
+      "name": "怀柔",
+      "generals": [
+        "陆抗"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段，你可以重铸装备牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

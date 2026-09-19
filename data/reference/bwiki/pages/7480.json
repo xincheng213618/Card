@@ -1,0 +1,47 @@
+{
+  "pageid": 7480,
+  "namespace": 0,
+  "title": "横骛",
+  "url": "https://wiki.biligame.com/sgs/%E6%A8%AA%E9%AA%9B",
+  "revid": 38823,
+  "parentid": 38677,
+  "timestamp": "2022-07-26T02:01:54Z",
+  "sourceSha256": "6bb5dbea1ebc0d7f21d1dd19bd71fbf627007f6a7a703db5c7e33b084ead825f",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 7480,
+      "namespace": 0,
+      "title": "横骛",
+      "url": "https://wiki.biligame.com/sgs/%E6%A8%AA%E9%AA%9B",
+      "revid": 38823,
+      "parentid": 38677,
+      "timestamp": "2022-07-26T02:01:54Z",
+      "sourceSha256": "6bb5dbea1ebc0d7f21d1dd19bd71fbf627007f6a7a703db5c7e33b084ead825f",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "横骛",
+        "所属武将": "神马超",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用或打出牌时，若你没有与此牌花色相同的手牌，你可以摸X张牌（X为场上与此牌花色相同的装备数）。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=横骛\n|所属武将=神马超\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用或打出牌时，若你没有与此牌花色相同的手牌，你可以摸X张牌（X为场上与此牌花色相同的装备数）。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "横骛",
+      "generals": [
+        "神马超"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用或打出牌时，若你没有与此牌花色相同的手牌，你可以摸X张牌（X为场上与此牌花色相同的装备数）。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

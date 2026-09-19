@@ -1,0 +1,46 @@
+{
+  "pageid": 11355,
+  "namespace": 0,
+  "title": "SP贾诩",
+  "url": "https://wiki.biligame.com/sgs/SP%E8%B4%BE%E8%AF%A9",
+  "revid": 77478,
+  "parentid": 74746,
+  "timestamp": "2026-05-09T01:33:08Z",
+  "sourceSha256": "11f9b69d47ed27ec1a889668c9a9aaa484775e6f36024bb837222da925849dde",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11355,
+      "namespace": 0,
+      "title": "SP贾诩",
+      "url": "https://wiki.biligame.com/sgs/SP%E8%B4%BE%E8%AF%A9",
+      "revid": 77478,
+      "parentid": 74746,
+      "timestamp": "2026-05-09T01:33:08Z",
+      "sourceSha256": "11f9b69d47ed27ec1a889668c9a9aaa484775e6f36024bb837222da925849dde",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP贾诩",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-天下归心",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=SP贾诩\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-天下归心\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "SP贾诩",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

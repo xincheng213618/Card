@@ -1,0 +1,47 @@
+{
+  "pageid": 3179,
+  "namespace": 0,
+  "title": "征荣",
+  "url": "https://wiki.biligame.com/sgs/%E5%BE%81%E8%8D%A3",
+  "revid": 40165,
+  "parentid": 32025,
+  "timestamp": "2022-09-21T11:00:39Z",
+  "sourceSha256": "4f4e97c15dd4ae1954447ad54a888a78e4bd78ac2b8115e0f5c047b6a31bb03b",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3179,
+      "namespace": 0,
+      "title": "征荣",
+      "url": "https://wiki.biligame.com/sgs/%E5%BE%81%E8%8D%A3",
+      "revid": 40165,
+      "parentid": 32025,
+      "timestamp": "2022-09-21T11:00:39Z",
+      "sourceSha256": "4f4e97c15dd4ae1954447ad54a888a78e4bd78ac2b8115e0f5c047b6a31bb03b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "征荣",
+        "所属武将": "毌丘俭",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你对一名手牌数大于你的其他角色造成伤害后，你可以将其一张牌置于你的武将牌上，称为“'''荣'''”。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=征荣\n|所属武将=毌丘俭\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你对一名手牌数大于你的其他角色造成伤害后，你可以将其一张牌置于你的武将牌上，称为“'''荣'''”。\n|经典技能类型=一般技\n|经典技能定位=控制\n}}",
+      "name": "征荣",
+      "generals": [
+        "毌丘俭"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你对一名手牌数大于你的其他角色造成伤害后，你可以将其一张牌置于你的武将牌上，称为“'''荣'''”。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

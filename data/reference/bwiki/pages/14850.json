@@ -1,0 +1,46 @@
+{
+  "pageid": 14850,
+  "namespace": 0,
+  "title": "威孙尚香",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%AD%99%E5%B0%9A%E9%A6%99",
+  "revid": 78963,
+  "parentid": 78525,
+  "timestamp": "2026-07-13T01:13:27Z",
+  "sourceSha256": "f4e0b2b78cfe01a9fd94994cf65c3835e083d764ea800f83c622e6227463947e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14850,
+      "namespace": 0,
+      "title": "威孙尚香",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E5%AD%99%E5%B0%9A%E9%A6%99",
+      "revid": 78963,
+      "parentid": 78525,
+      "timestamp": "2026-07-13T01:13:27Z",
+      "sourceSha256": "f4e0b2b78cfe01a9fd94994cf65c3835e083d764ea800f83c622e6227463947e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威孙尚香",
+        "势力": "吴",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "巽荷绽情",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-片羽威凤",
+        "经典体力": "3",
+        "经典定位": "辅助,爆发"
+      },
+      "source": "{{武将\n|武将名=威孙尚香\n|势力=吴\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=巽荷绽情\n|别称=\n|规则集问答=\n|武将包=威震-片羽威凤\n|经典体力=3\n|经典定位=辅助,爆发\n}}",
+      "name": "威孙尚香",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

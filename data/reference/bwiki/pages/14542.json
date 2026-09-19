@@ -1,0 +1,46 @@
+{
+  "pageid": 14542,
+  "namespace": 0,
+  "title": "伍孚",
+  "url": "https://wiki.biligame.com/sgs/%E4%BC%8D%E5%AD%9A",
+  "revid": 77509,
+  "parentid": 73265,
+  "timestamp": "2026-05-09T01:34:30Z",
+  "sourceSha256": "3a9a5711b4774350cae426cdf7db14d0ceb84bf1294f3af306c7968e53b02a2e",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14542,
+      "namespace": 0,
+      "title": "伍孚",
+      "url": "https://wiki.biligame.com/sgs/%E4%BC%8D%E5%AD%9A",
+      "revid": 77509,
+      "parentid": 73265,
+      "timestamp": "2026-05-09T01:34:30Z",
+      "sourceSha256": "3a9a5711b4774350cae426cdf7db14d0ceb84bf1294f3af306c7968e53b02a2e",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "伍孚",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "忠虹贯日",
+        "别称": "藤甲驾驶员",
+        "规则集问答": "",
+        "武将包": "一将成名-2025",
+        "经典体力": "3",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=伍孚\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=忠虹贯日\n|别称=藤甲驾驶员\n|规则集问答=\n|武将包=一将成名-2025\n|经典体力=3\n|经典定位=爆发,控制\n}}",
+      "name": "伍孚",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

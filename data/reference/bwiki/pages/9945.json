@@ -1,0 +1,46 @@
+{
+  "pageid": 9945,
+  "namespace": 0,
+  "title": "张楚",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%A5%9A",
+  "revid": 77690,
+  "parentid": 69650,
+  "timestamp": "2026-05-09T01:46:50Z",
+  "sourceSha256": "aa44c476f16da9d351533d4ba8f1d5eb950c2d386cd46c0d0cdd9a61bc40ac4c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 9945,
+      "namespace": 0,
+      "title": "张楚",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%A5%9A",
+      "revid": 77690,
+      "parentid": 69650,
+      "timestamp": "2026-05-09T01:46:50Z",
+      "sourceSha256": "aa44c476f16da9d351533d4ba8f1d5eb950c2d386cd46c0d0cdd9a61bc40ac4c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "张楚",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "大贤后裔",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-太平甲子",
+        "经典体力": "3",
+        "经典定位": "辅助,控制,攻击"
+      },
+      "source": "{{武将\n|武将名=张楚\n|势力=群\n|性别=女\n|出现模式=身份,欢乐,斗地主\n|称号=大贤后裔\n|别称=\n|规则集问答=\n|武将包=荟萃-太平甲子\n|经典体力=3\n|经典定位=辅助,控制,攻击\n}}",
+      "name": "张楚",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

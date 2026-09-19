@@ -1,0 +1,47 @@
+{
+  "pageid": 13351,
+  "namespace": 0,
+  "title": "谙计",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%99%E8%AE%A1",
+  "revid": 65751,
+  "parentid": 65750,
+  "timestamp": "2024-11-01T15:44:43Z",
+  "sourceSha256": "dfd0412fa09303d6740b41e54f7c5e47aef889b094e2c31dd8cd74e5d18ac481",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 13351,
+      "namespace": 0,
+      "title": "谙计",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%99%E8%AE%A1",
+      "revid": 65751,
+      "parentid": 65750,
+      "timestamp": "2024-11-01T15:44:43Z",
+      "sourceSha256": "dfd0412fa09303d6740b41e54f7c5e47aef889b094e2c31dd8cd74e5d18ac481",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "谙计",
+        "所属武将": "星法正",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当一名角色使用牌后，若与之相同花色的牌本轮被使用的次数最少，你摸一张牌。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=谙计\n|所属武将=星法正\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当一名角色使用牌后，若与之相同花色的牌本轮被使用的次数最少，你摸一张牌。\n|经典技能类型=锁定技\n|经典技能定位=过牌\n}}",
+      "name": "谙计",
+      "generals": [
+        "星法正"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一名角色使用牌后，若与之相同花色的牌本轮被使用的次数最少，你摸一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

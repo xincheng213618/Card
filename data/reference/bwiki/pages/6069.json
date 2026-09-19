@@ -1,0 +1,47 @@
+{
+  "pageid": 6069,
+  "namespace": 0,
+  "title": "断念",
+  "url": "https://wiki.biligame.com/sgs/%E6%96%AD%E5%BF%B5",
+  "revid": 61325,
+  "parentid": 37965,
+  "timestamp": "2023-12-30T09:02:26Z",
+  "sourceSha256": "0de22cc211604c6ee5cfa56198f3ca9d011dbfb7a8d1c3734e7626948456c537",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 6069,
+      "namespace": 0,
+      "title": "断念",
+      "url": "https://wiki.biligame.com/sgs/%E6%96%AD%E5%BF%B5",
+      "revid": 61325,
+      "parentid": 37965,
+      "timestamp": "2023-12-30T09:02:26Z",
+      "sourceSha256": "0de22cc211604c6ee5cfa56198f3ca9d011dbfb7a8d1c3734e7626948456c537",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "断念",
+        "所属武将": "周夷",
+        "是衍生技": "",
+        "技能版本": "国",
+        "国战技能描述": "出牌阶段结束时，你可以弃置所有手牌，然后将手牌摸至体力上限。",
+        "国战技能类型": "一般技",
+        "国战技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=断念\n|所属武将=周夷\n|是衍生技=\n|技能版本=国\n|国战技能描述=出牌阶段结束时，你可以弃置所有手牌，然后将手牌摸至体力上限。\n|国战技能类型=一般技\n|国战技能定位=过牌\n}}",
+      "name": "断念",
+      "generals": [
+        "周夷"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "出牌阶段结束时，你可以弃置所有手牌，然后将手牌摸至体力上限。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

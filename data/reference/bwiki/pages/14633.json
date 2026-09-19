@@ -1,0 +1,44 @@
+{
+  "pageid": 14633,
+  "namespace": 0,
+  "title": "吴懿（限时地主）",
+  "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E6%87%BF%EF%BC%88%E9%99%90%E6%97%B6%E5%9C%B0%E4%B8%BB%EF%BC%89",
+  "revid": 75821,
+  "parentid": 75424,
+  "timestamp": "2026-02-20T02:32:45Z",
+  "sourceSha256": "7975262125a39aa13feaa0dba54059389523d7fda7a007f72a2b98e41244d900",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14633,
+      "namespace": 0,
+      "title": "吴懿（限时地主）",
+      "url": "https://wiki.biligame.com/sgs/%E5%90%B4%E6%87%BF%EF%BC%88%E9%99%90%E6%97%B6%E5%9C%B0%E4%B8%BB%EF%BC%89",
+      "revid": 75821,
+      "parentid": 75424,
+      "timestamp": "2026-02-20T02:32:45Z",
+      "sourceSha256": "7975262125a39aa13feaa0dba54059389523d7fda7a007f72a2b98e41244d900",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "吴懿（限时地主）",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "五一名将",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "4",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=吴懿（限时地主）\n|势力=蜀\n|性别=男\n|出现模式=斗地主\n|称号=五一名将\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=4\n|经典定位=爆发\n}}",
+      "name": "吴懿（限时地主）",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 12336,
+  "namespace": 0,
+  "title": "武关羽",
+  "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E5%85%B3%E7%BE%BD",
+  "revid": 73210,
+  "parentid": 73209,
+  "timestamp": "2025-10-26T06:27:10Z",
+  "sourceSha256": "4124d0e27caea4a70f68458cc9c41a60ad04cc8c53c41702b4b90a5fd533d340",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 12336,
+      "namespace": 0,
+      "title": "武关羽",
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A6%E5%85%B3%E7%BE%BD",
+      "revid": 73210,
+      "parentid": 73209,
+      "timestamp": "2025-10-26T06:27:10Z",
+      "sourceSha256": "4124d0e27caea4a70f68458cc9c41a60ad04cc8c53c41702b4b90a5fd533d340",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "武关羽",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限定-武庙",
+        "经典体力": "5",
+        "经典定位": "攻击,控制,爆发"
+      },
+      "source": "{{武将\n|武将名=武关羽\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=限定-武庙\n|经典体力=5\n|经典定位=攻击,控制,爆发\n}}",
+      "name": "武关羽",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

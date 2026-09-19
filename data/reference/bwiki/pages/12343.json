@@ -1,0 +1,47 @@
+{
+  "pageid": 12343,
+  "namespace": 0,
+  "title": "己诫",
+  "url": "https://wiki.biligame.com/sgs/%E5%B7%B1%E8%AF%AB",
+  "revid": 62829,
+  "parentid": 62746,
+  "timestamp": "2024-04-19T13:21:09Z",
+  "sourceSha256": "ef1e26c24d751f8eb263086a9f95df8870b5d067b0eaf11c824e5751368e66d1",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 12343,
+      "namespace": 0,
+      "title": "己诫",
+      "url": "https://wiki.biligame.com/sgs/%E5%B7%B1%E8%AF%AB",
+      "revid": 62829,
+      "parentid": 62746,
+      "timestamp": "2024-04-19T13:21:09Z",
+      "sourceSha256": "ef1e26c24d751f8eb263086a9f95df8870b5d067b0eaf11c824e5751368e66d1",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "己诫",
+        "所属武将": "SP甄姬",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "每回合各限一次，当其他角色于其回合外获得牌/回复体力后，你摸等量张牌/回复等量的体力。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "过牌,回血"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=己诫\n|所属武将=SP甄姬\n|是衍生技=\n|技能版本=经典\n|经典技能描述=每回合各限一次，当其他角色于其回合外获得牌/回复体力后，你摸等量张牌/回复等量的体力。\n|经典技能类型=锁定技\n|经典技能定位=过牌,回血\n}}",
+      "name": "己诫",
+      "generals": [
+        "SP甄姬"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "每回合各限一次，当其他角色于其回合外获得牌/回复体力后，你摸等量张牌/回复等量的体力。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

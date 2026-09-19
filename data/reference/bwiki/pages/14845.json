@@ -1,0 +1,45 @@
+{
+  "pageid": 14845,
+  "namespace": 0,
+  "title": "桓阶",
+  "url": "https://wiki.biligame.com/sgs/%E6%A1%93%E9%98%B6",
+  "revid": 79693,
+  "parentid": 76785,
+  "timestamp": "2026-08-20T13:33:03Z",
+  "sourceSha256": "d5d754e07d9698ed33a831e7e87629d981464834bef087281f1afd4da94c9314",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14845,
+      "namespace": 0,
+      "title": "桓阶",
+      "url": "https://wiki.biligame.com/sgs/%E6%A1%93%E9%98%B6",
+      "revid": 79693,
+      "parentid": 76785,
+      "timestamp": "2026-08-20T13:33:03Z",
+      "sourceSha256": "d5d754e07d9698ed33a831e7e87629d981464834bef087281f1afd4da94c9314",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "桓阶",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "冰鉴丹忱",
+        "别称": "小武皇，才{{注音|蘸凉粥|战凉州}}罢",
+        "规则集问答": "",
+        "武将包": "荟萃-笔舌如椽",
+        "经典体力": "3",
+        "经典定位": "辅助,生存,爆发"
+      },
+      "source": "{{武将\n|武将名=桓阶\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=冰鉴丹忱\n|别称=小武皇，才{{注音|蘸凉粥|战凉州}}罢\n|规则集问答=\n|武将包=荟萃-笔舌如椽\n|经典体力=3\n|经典定位=辅助,生存,爆发\n}}",
+      "name": "桓阶",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 14856,
+  "namespace": 0,
+  "title": "苏越",
+  "url": "https://wiki.biligame.com/sgs/%E8%8B%8F%E8%B6%8A",
+  "revid": 76258,
+  "parentid": 75593,
+  "timestamp": "2026-03-14T00:11:59Z",
+  "sourceSha256": "ffd56f4f2353bf7c20131d62fe983e00ca55a517b705d51f5bb4c11d89c66789",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14856,
+      "namespace": 0,
+      "title": "苏越",
+      "url": "https://wiki.biligame.com/sgs/%E8%8B%8F%E8%B6%8A",
+      "revid": 76258,
+      "parentid": 75593,
+      "timestamp": "2026-03-14T00:11:59Z",
+      "sourceSha256": "ffd56f4f2353bf7c20131d62fe983e00ca55a517b705d51f5bb4c11d89c66789",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "苏越",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "SP刘巴，小数学家",
+        "规则集问答": "",
+        "武将包": "荟萃-奇人异士",
+        "经典体力": "3",
+        "经典定位": "续航,控制,辅助"
+      },
+      "source": "{{武将\n|武将名=苏越\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=SP刘巴，小数学家\n|规则集问答=\n|武将包=荟萃-奇人异士\n|经典体力=3\n|经典定位=续航,控制,辅助\n}}",
+      "name": "苏越",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

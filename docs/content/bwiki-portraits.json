@@ -1,0 +1,71 @@
+[
+  {
+    "portraitKey": "zhang-jiao",
+    "characterName": "张角",
+    "sourcePage": "https://wiki.biligame.com/sgs/张角",
+    "filePage": "https://wiki.biligame.com/sgs/文件:张角-头像.png",
+    "imageUrl": "https://patchwiki.biligame.com/images/sgs/e/e6/heaauiq9l6l0juv6ooygrn33awpjczd.png",
+    "retrievedAt": "2026-09-19T19:21:48.3425876Z",
+    "sha256": "6a8120411b314aa32f604cb461801650867f439ce2a92422e8e164a997ad1519",
+    "pixelWidth": 100,
+    "pixelHeight": 100,
+    "originalFilename": "张角-头像.png",
+    "artwork": {
+      "localFilename": "wiki-zhang-jiao-classic.png",
+      "sourcePage": "https://wiki.biligame.com/sgs/张角",
+      "filePage": "https://wiki.biligame.com/sgs/文件:张角-经典形象.png",
+      "imageUrl": "https://patchwiki.biligame.com/images/sgs/a/ad/i1zdweyepx90ltfusq9d0761gf5by0v.png",
+      "retrievedAt": "2026-09-19T19:27:06.9907406Z",
+      "sha256": "95d25640124316472e5c4e69e901b4a2e224aa4132517a78b771c74b84ef3bd3",
+      "pixelWidth": 574,
+      "pixelHeight": 761,
+      "originalFilename": "张角-经典形象.png"
+    }
+  },
+  {
+    "portraitKey": "shen-guan-yu",
+    "characterName": "神关羽",
+    "sourcePage": "https://wiki.biligame.com/sgs/神关羽",
+    "filePage": "https://wiki.biligame.com/sgs/文件:神关羽-头像.png",
+    "imageUrl": "https://patchwiki.biligame.com/images/sgs/9/96/7ddm0ouvrq171bh4rbi95tuvu1darmn.png",
+    "retrievedAt": "2026-09-19T19:21:48.3425876Z",
+    "sha256": "54e796f49e34c64f46e078b360fac994a86e00f28f9ba0244965f57ed2b0a7d8",
+    "pixelWidth": 100,
+    "pixelHeight": 100,
+    "originalFilename": "神关羽-头像.png",
+    "artwork": {
+      "localFilename": "wiki-shen-guan-yu-classic.png",
+      "sourcePage": "https://wiki.biligame.com/sgs/神关羽",
+      "filePage": "https://wiki.biligame.com/sgs/文件:神关羽-经典形象.png",
+      "imageUrl": "https://patchwiki.biligame.com/images/sgs/0/0f/quwjl88mkp8kbnlh3b49v197exwkv4u.png",
+      "retrievedAt": "2026-09-19T19:27:06.9907406Z",
+      "sha256": "5e7578c3415aa95d48ddfb25fb9b6e7ee1d92c789a62d5be1cf8e28b34b05dcc",
+      "pixelWidth": 574,
+      "pixelHeight": 761,
+      "originalFilename": "神关羽-经典形象.png"
+    }
+  },
+  {
+    "portraitKey": "sp-zhao-yun",
+    "characterName": "SP赵云",
+    "sourcePage": "https://wiki.biligame.com/sgs/SP赵云",
+    "filePage": "https://wiki.biligame.com/sgs/文件:SP赵云-头像.png",
+    "imageUrl": "https://patchwiki.biligame.com/images/sgs/8/85/8zabb9strj3onyv36q3hb8gvh8yuv4v.png",
+    "retrievedAt": "2026-09-19T19:21:48.3425876Z",
+    "sha256": "1d41c64c0960e424ea64b4826b05c05329e155cb73cd9fc19c24663852f50426",
+    "pixelWidth": 100,
+    "pixelHeight": 100,
+    "originalFilename": "SP赵云-头像.png",
+    "artwork": {
+      "localFilename": "wiki-sp-zhao-yun-classic.png",
+      "sourcePage": "https://wiki.biligame.com/sgs/SP赵云",
+      "filePage": "https://wiki.biligame.com/sgs/文件:SP赵云-经典形象.png",
+      "imageUrl": "https://patchwiki.biligame.com/images/sgs/1/1c/7u7cg0u41bl4fcw3gmr6bssrvjq8jmm.png",
+      "retrievedAt": "2026-09-19T19:27:06.9907406Z",
+      "sha256": "b83fc845a2ffcfd15188d151a0bc7fd210f3e2df781190bb903d18d0ce242a6d",
+      "pixelWidth": 574,
+      "pixelHeight": 761,
+      "originalFilename": "SP赵云-经典形象.png"
+    }
+  }
+]

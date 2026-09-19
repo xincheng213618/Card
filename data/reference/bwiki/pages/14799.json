@@ -1,0 +1,46 @@
+{
+  "pageid": 14799,
+  "namespace": 0,
+  "title": "谋陆逊",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%99%86%E9%80%8A",
+  "revid": 78509,
+  "parentid": 75267,
+  "timestamp": "2026-06-19T11:21:57Z",
+  "sourceSha256": "339873547b789a1da7820e20cce5d72f40078384394b3dd56cb827bcbd3e3c73",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14799,
+      "namespace": 0,
+      "title": "谋陆逊",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E9%99%86%E9%80%8A",
+      "revid": 78509,
+      "parentid": 75267,
+      "timestamp": "2026-06-19T11:21:57Z",
+      "sourceSha256": "339873547b789a1da7820e20cce5d72f40078384394b3dd56cb827bcbd3e3c73",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋陆逊",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "渊谋谦略",
+        "别称": "绿豆小子",
+        "规则集问答": "",
+        "武将包": "谋定-谋定天下",
+        "经典体力": "3",
+        "经典定位": "爆发,续航"
+      },
+      "source": "{{武将\n|武将名=谋陆逊\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=渊谋谦略\n|别称=绿豆小子\n|规则集问答=\n|武将包=谋定-谋定天下\n|经典体力=3\n|经典定位=爆发,续航\n}}",
+      "name": "谋陆逊",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

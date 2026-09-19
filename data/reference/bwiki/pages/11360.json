@@ -1,0 +1,46 @@
+{
+  "pageid": 11360,
+  "namespace": 0,
+  "title": "SP庞统",
+  "url": "https://wiki.biligame.com/sgs/SP%E5%BA%9E%E7%BB%9F",
+  "revid": 77473,
+  "parentid": 60264,
+  "timestamp": "2026-05-09T01:32:46Z",
+  "sourceSha256": "b4d5150359f64a291be1dbc243b58c6b4fa6c26857b0a5082ebf9700a34462e2",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 11360,
+      "namespace": 0,
+      "title": "SP庞统",
+      "url": "https://wiki.biligame.com/sgs/SP%E5%BA%9E%E7%BB%9F",
+      "revid": 77473,
+      "parentid": 60264,
+      "timestamp": "2026-05-09T01:32:46Z",
+      "sourceSha256": "b4d5150359f64a291be1dbc243b58c6b4fa6c26857b0a5082ebf9700a34462e2",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "SP庞统",
+        "势力": "吴",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "南州士冠",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "星火燎原-天同",
+        "经典体力": "3",
+        "经典定位": "控制,辅助"
+      },
+      "source": "{{武将\n|武将名=SP庞统\n|势力=吴\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=南州士冠\n|别称=\n|规则集问答=\n|武将包=星火燎原-天同\n|经典体力=3\n|经典定位=控制,辅助\n}}",
+      "name": "SP庞统",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

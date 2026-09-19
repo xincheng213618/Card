@@ -1,0 +1,45 @@
+{
+  "pageid": 721,
+  "namespace": 0,
+  "title": "王朗",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%9C%97",
+  "revid": 70595,
+  "parentid": 70345,
+  "timestamp": "2025-05-20T05:01:36Z",
+  "sourceSha256": "2ba9fe8265031718a876a5eb093d96a303cb5c42f8a9b820beaf365053872cc7",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 721,
+      "namespace": 0,
+      "title": "王朗",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E6%9C%97",
+      "revid": 70595,
+      "parentid": 70345,
+      "timestamp": "2025-05-20T05:01:36Z",
+      "sourceSha256": "2ba9fe8265031718a876a5eb093d96a303cb5c42f8a9b820beaf365053872cc7",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "王朗",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "别称": "王八万、全场空城的王八万",
+        "称号": "凤鹛",
+        "规则集问答": "",
+        "武将包": "限定-高山仰止",
+        "经典体力": "3",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=王朗\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|别称=王八万、全场空城的王八万\n|称号=凤鹛\n|规则集问答=\n|武将包=限定-高山仰止\n|经典体力=3\n|经典定位=控制,爆发\n}}",
+      "name": "王朗",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

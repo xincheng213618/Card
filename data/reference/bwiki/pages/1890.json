@@ -1,0 +1,47 @@
+{
+  "pageid": 1890,
+  "namespace": 0,
+  "title": "异色",
+  "url": "https://wiki.biligame.com/sgs/%E5%BC%82%E8%89%B2",
+  "revid": 76966,
+  "parentid": 76965,
+  "timestamp": "2026-04-25T07:50:45Z",
+  "sourceSha256": "83c1e9ab6c029f5cf79bb3afaf2ccdd694810f07cdeb18781d201be753d0d478",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 1890,
+      "namespace": 0,
+      "title": "异色",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%82%E8%89%B2",
+      "revid": 76966,
+      "parentid": 76965,
+      "timestamp": "2026-04-25T07:50:45Z",
+      "sourceSha256": "83c1e9ab6c029f5cf79bb3afaf2ccdd694810f07cdeb18781d201be753d0d478",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "异色",
+        "所属武将": "杜夫人",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当其他角色获得你的牌后，若此牌为：红色，你可以令其回复1点体力；黑色，其下一次成为【杀】的目标并受到伤害时，伤害+1。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "辅助,攻击"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=异色\n|所属武将=杜夫人\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当其他角色获得你的牌后，若此牌为：红色，你可以令其回复1点体力；黑色，其下一次成为【杀】的目标并受到伤害时，伤害+1。\n|经典技能类型=一般技\n|经典技能定位=辅助,攻击\n}}",
+      "name": "异色",
+      "generals": [
+        "杜夫人"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当其他角色获得你的牌后，若此牌为：红色，你可以令其回复1点体力；黑色，其下一次成为【杀】的目标并受到伤害时，伤害+1。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

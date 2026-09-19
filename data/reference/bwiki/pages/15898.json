@@ -1,0 +1,46 @@
+{
+  "pageid": 15898,
+  "namespace": 0,
+  "title": "木鹿大王",
+  "url": "https://wiki.biligame.com/sgs/%E6%9C%A8%E9%B9%BF%E5%A4%A7%E7%8E%8B",
+  "revid": 79724,
+  "parentid": 79633,
+  "timestamp": "2026-08-21T23:44:25Z",
+  "sourceSha256": "2df393d0dd44ab922f71a727ac616924d844e952696245608b9ed7b73bb70f08",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15898,
+      "namespace": 0,
+      "title": "木鹿大王",
+      "url": "https://wiki.biligame.com/sgs/%E6%9C%A8%E9%B9%BF%E5%A4%A7%E7%8E%8B",
+      "revid": 79724,
+      "parentid": 79633,
+      "timestamp": "2026-08-21T23:44:25Z",
+      "sourceSha256": "2df393d0dd44ab922f71a727ac616924d844e952696245608b9ed7b73bb70f08",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "木鹿大王",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "八纳洞主",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-异军突起",
+        "经典体力": "5",
+        "经典定位": "爆发"
+      },
+      "source": "{{武将\n|武将名=木鹿大王\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=八纳洞主\n|别称=\n|规则集问答=\n|武将包=荟萃-异军突起\n|经典体力=5\n|经典定位=爆发\n}}",
+      "name": "木鹿大王",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

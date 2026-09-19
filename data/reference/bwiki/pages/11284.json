@@ -1,0 +1,47 @@
+{
+  "pageid": 11284,
+  "namespace": 0,
+  "title": "肃军",
+  "url": "https://wiki.biligame.com/sgs/%E8%82%83%E5%86%9B",
+  "revid": 58782,
+  "parentid": 58457,
+  "timestamp": "2023-11-01T06:45:41Z",
+  "sourceSha256": "0d06d24178feb8afa367acfe5569cecda6858523e9e9849e465360466c974ed8",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11284,
+      "namespace": 0,
+      "title": "肃军",
+      "url": "https://wiki.biligame.com/sgs/%E8%82%83%E5%86%9B",
+      "revid": 58782,
+      "parentid": 58457,
+      "timestamp": "2023-11-01T06:45:41Z",
+      "sourceSha256": "0d06d24178feb8afa367acfe5569cecda6858523e9e9849e465360466c974ed8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "肃军",
+        "所属武将": "星曹仁",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当你使用牌时，若你手牌中基本牌与非基本牌的数量相等，你可以摸两张牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "过牌"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=肃军\n|所属武将=星曹仁\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当你使用牌时，若你手牌中基本牌与非基本牌的数量相等，你可以摸两张牌。\n|经典技能类型=一般技\n|经典技能定位=过牌\n}}",
+      "name": "肃军",
+      "generals": [
+        "星曹仁"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当你使用牌时，若你手牌中基本牌与非基本牌的数量相等，你可以摸两张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

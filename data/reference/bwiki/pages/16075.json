@@ -1,0 +1,46 @@
+{
+  "pageid": 16075,
+  "namespace": 0,
+  "title": "费祎",
+  "url": "https://wiki.biligame.com/sgs/%E8%B4%B9%E7%A5%8E",
+  "revid": 79264,
+  "parentid": 79263,
+  "timestamp": "2026-08-02T13:13:01Z",
+  "sourceSha256": "8ae9113702a115221b19db507f76a112d7f635a442f6c132aaf4361165e664d0",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 16075,
+      "namespace": 0,
+      "title": "费祎",
+      "url": "https://wiki.biligame.com/sgs/%E8%B4%B9%E7%A5%8E",
+      "revid": 79264,
+      "parentid": 79263,
+      "timestamp": "2026-08-02T13:13:01Z",
+      "sourceSha256": "8ae9113702a115221b19db507f76a112d7f635a442f6c132aaf4361165e664d0",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "费祎",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-匡鼎炎汉",
+        "经典体力": "3",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=费祎\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-匡鼎炎汉\n|经典体力=3\n|经典定位=爆发,控制\n}}",
+      "name": "费祎",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

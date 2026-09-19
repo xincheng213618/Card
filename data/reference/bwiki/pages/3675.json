@@ -1,0 +1,48 @@
+{
+  "pageid": 3675,
+  "namespace": 0,
+  "title": "谋断",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%96%AD",
+  "revid": 34973,
+  "parentid": 23358,
+  "timestamp": "2022-03-20T05:01:19Z",
+  "sourceSha256": "db91932d751743416191869ad7b165fd3503ab8b546c063edbbedf5c631aea8b",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3675,
+      "namespace": 0,
+      "title": "谋断",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%96%AD",
+      "revid": 34973,
+      "parentid": 23358,
+      "timestamp": "2022-03-20T05:01:19Z",
+      "sourceSha256": "db91932d751743416191869ad7b165fd3503ab8b546c063edbbedf5c631aea8b",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "谋断",
+        "所属武将": "吕蒙",
+        "技能版本": "国",
+        "是衍生技": "",
+        "是否新增": "是",
+        "国战技能描述": "结束阶段，若你于本回合的出牌阶段内使用过四种花色或三种类别的牌，你可以移动场上的一张牌。",
+        "国战技能类型": "一般技",
+        "国战技能定位": "控制,保护"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=谋断\n|所属武将=吕蒙\n|技能版本=国\n|是衍生技=\n|是否新增=是\n|国战技能描述=结束阶段，若你于本回合的出牌阶段内使用过四种花色或三种类别的牌，你可以移动场上的一张牌。\n|国战技能类型=一般技\n|国战技能定位=控制,保护\n}}",
+      "name": "谋断",
+      "generals": [
+        "吕蒙"
+      ],
+      "mode": "国",
+      "version": "国",
+      "descriptions": {
+        "国战技能描述": "结束阶段，若你于本回合的出牌阶段内使用过四种花色或三种类别的牌，你可以移动场上的一张牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

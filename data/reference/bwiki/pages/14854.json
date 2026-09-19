@@ -1,0 +1,45 @@
+{
+  "pageid": 14854,
+  "namespace": 0,
+  "title": "郭缇萦",
+  "url": "https://wiki.biligame.com/sgs/%E9%83%AD%E7%BC%87%E8%90%A6",
+  "revid": 75317,
+  "parentid": 75290,
+  "timestamp": "2026-02-10T03:49:48Z",
+  "sourceSha256": "158580dc0a9dccf9bc626df0ffec3875c287e6de154a2fa968e97a749a41301d",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14854,
+      "namespace": 0,
+      "title": "郭缇萦",
+      "url": "https://wiki.biligame.com/sgs/%E9%83%AD%E7%BC%87%E8%90%A6",
+      "revid": 75317,
+      "parentid": 75290,
+      "timestamp": "2026-02-10T03:49:48Z",
+      "sourceSha256": "158580dc0a9dccf9bc626df0ffec3875c287e6de154a2fa968e97a749a41301d",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "郭缇萦",
+        "势力": "魏",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "逆运定势",
+        "别称": "雷电法王",
+        "规则集问答": "",
+        "武将包": "限定-隐山之玉",
+        "经典体力": "3",
+        "经典定位": "改判,卖血,续航"
+      },
+      "source": "{{武将\n|武将名=郭缇萦\n|势力=魏\n|性别=女\n|出现模式=身份,欢乐\n|称号=逆运定势\n|别称=雷电法王\n|规则集问答=\n|武将包=限定-隐山之玉\n|经典体力=3\n|经典定位=改判,卖血,续航\n}}",
+      "name": "郭缇萦",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

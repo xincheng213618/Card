@@ -1,0 +1,45 @@
+{
+  "pageid": 10191,
+  "namespace": 0,
+  "title": "郤正",
+  "url": "https://wiki.biligame.com/sgs/%E9%83%A4%E6%AD%A3",
+  "revid": 71185,
+  "parentid": 70935,
+  "timestamp": "2025-05-20T07:50:10Z",
+  "sourceSha256": "3aac2a2e0d4e974f8744dedaa3335819845c3744df24bb9aa7e8f390c2d2fa37",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10191,
+      "namespace": 0,
+      "title": "郤正",
+      "url": "https://wiki.biligame.com/sgs/%E9%83%A4%E6%AD%A3",
+      "revid": 71185,
+      "parentid": 70935,
+      "timestamp": "2025-05-20T07:50:10Z",
+      "sourceSha256": "3aac2a2e0d4e974f8744dedaa3335819845c3744df24bb9aa7e8f390c2d2fa37",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "郤正",
+        "势力": "蜀",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-计将安出",
+        "经典体力": "3",
+        "经典定位": "攻击,爆发,控制"
+      },
+      "source": "{{武将\n|武将名=郤正\n|势力=蜀\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-计将安出\n|经典体力=3\n|经典定位=攻击,爆发,控制\n}}",
+      "name": "郤正",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

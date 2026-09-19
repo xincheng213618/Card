@@ -1,0 +1,45 @@
+{
+  "pageid": 7463,
+  "namespace": 0,
+  "title": "秦宜禄",
+  "url": "https://wiki.biligame.com/sgs/%E7%A7%A6%E5%AE%9C%E7%A6%84",
+  "revid": 74683,
+  "parentid": 70675,
+  "timestamp": "2026-01-22T17:10:24Z",
+  "sourceSha256": "0d80372ccc330b6aa5d29c480c838470cb1968d92cf9232b60f92743557addd9",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7463,
+      "namespace": 0,
+      "title": "秦宜禄",
+      "url": "https://wiki.biligame.com/sgs/%E7%A7%A6%E5%AE%9C%E7%A6%84",
+      "revid": 74683,
+      "parentid": 70675,
+      "timestamp": "2026-01-22T17:10:24Z",
+      "sourceSha256": "0d80372ccc330b6aa5d29c480c838470cb1968d92cf9232b60f92743557addd9",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "秦宜禄",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "绿帽哥",
+        "规则集问答": "",
+        "武将包": "荟萃-千里单骑",
+        "经典体力": "3",
+        "经典定位": "续航,辅助"
+      },
+      "source": "{{武将\n|武将名=秦宜禄\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=绿帽哥\n|规则集问答=\n|武将包=荟萃-千里单骑\n|经典体力=3\n|经典定位=续航,辅助\n}}",
+      "name": "秦宜禄",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

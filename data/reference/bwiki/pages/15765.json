@@ -1,0 +1,46 @@
+{
+  "pageid": 15765,
+  "namespace": 0,
+  "title": "威马腾",
+  "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E9%A9%AC%E8%85%BE",
+  "revid": 79424,
+  "parentid": 79414,
+  "timestamp": "2026-08-07T23:26:50Z",
+  "sourceSha256": "3705f3afc15b9360f7cb49d048c288e3e2517bfdadb418efc7c247f8c457f421",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15765,
+      "namespace": 0,
+      "title": "威马腾",
+      "url": "https://wiki.biligame.com/sgs/%E5%A8%81%E9%A9%AC%E8%85%BE",
+      "revid": 79424,
+      "parentid": 79414,
+      "timestamp": "2026-08-07T23:26:50Z",
+      "sourceSha256": "3705f3afc15b9360f7cb49d048c288e3e2517bfdadb418efc7c247f8c457f421",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "威马腾",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "千骑卷黄沙",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "威震-威震天下",
+        "经典体力": "4",
+        "经典定位": "爆发,攻击"
+      },
+      "source": "{{武将\n|武将名=威马腾\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=千骑卷黄沙\n|别称=\n|规则集问答=\n|武将包=威震-威震天下\n|经典体力=4\n|经典定位=爆发,攻击\n}}",
+      "name": "威马腾",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

@@ -1,0 +1,45 @@
+{
+  "pageid": 14457,
+  "namespace": 0,
+  "title": "董絮",
+  "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%B5%AE",
+  "revid": 78359,
+  "parentid": 72365,
+  "timestamp": "2026-06-14T10:14:05Z",
+  "sourceSha256": "78de963d79a1514290b4b6d52940343673693d78fe9861c3afa9a9e3b9f154d8",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 14457,
+      "namespace": 0,
+      "title": "董絮",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E7%B5%AE",
+      "revid": 78359,
+      "parentid": 72365,
+      "timestamp": "2026-06-14T10:14:05Z",
+      "sourceSha256": "78de963d79a1514290b4b6d52940343673693d78fe9861c3afa9a9e3b9f154d8",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "董絮",
+        "势力": "群",
+        "性别": "女",
+        "出现模式": "身份,欢乐",
+        "称号": "琼芳坠枝",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-锦瑟良缘",
+        "经典体力": "3",
+        "经典定位": "控制,爆发"
+      },
+      "source": "{{武将\n|武将名=董絮\n|势力=群\n|性别=女\n|出现模式=身份,欢乐\n|称号=琼芳坠枝\n|别称=\n|规则集问答=\n|武将包=荟萃-锦瑟良缘\n|经典体力=3\n|经典定位=控制,爆发\n}}",
+      "name": "董絮",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

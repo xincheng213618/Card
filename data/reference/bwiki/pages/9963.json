@@ -1,0 +1,47 @@
+{
+  "pageid": 9963,
+  "namespace": 0,
+  "title": "寄篱",
+  "url": "https://wiki.biligame.com/sgs/%E5%AF%84%E7%AF%B1",
+  "revid": 61052,
+  "parentid": 53299,
+  "timestamp": "2023-12-27T15:10:19Z",
+  "sourceSha256": "0c0dd91c99458c05a2f1a5e7d98c863180c68ce5020bcc0ab45d62a19376f7dd",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 9963,
+      "namespace": 0,
+      "title": "寄篱",
+      "url": "https://wiki.biligame.com/sgs/%E5%AF%84%E7%AF%B1",
+      "revid": 61052,
+      "parentid": 53299,
+      "timestamp": "2023-12-27T15:10:19Z",
+      "sourceSha256": "0c0dd91c99458c05a2f1a5e7d98c863180c68ce5020bcc0ab45d62a19376f7dd",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "2",
+        "技能名": "寄篱",
+        "所属武将": "严白虎",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "当一名与你距离为1的角色成为其他角色使用红色基本牌或红色普通锦囊牌的目标时，若你不为此牌的目标，你成为此牌的目标。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=2\n|技能名=寄篱\n|所属武将=严白虎\n|是衍生技=\n|技能版本=经典\n|经典技能描述=当一名与你距离为1的角色成为其他角色使用红色基本牌或红色普通锦囊牌的目标时，若你不为此牌的目标，你成为此牌的目标。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "寄篱",
+      "generals": [
+        "严白虎"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "当一名与你距离为1的角色成为其他角色使用红色基本牌或红色普通锦囊牌的目标时，若你不为此牌的目标，你成为此牌的目标。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

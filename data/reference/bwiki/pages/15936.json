@@ -1,0 +1,46 @@
+{
+  "pageid": 15936,
+  "namespace": 0,
+  "title": "谋杨奉",
+  "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9D%A8%E5%A5%89",
+  "revid": 78311,
+  "parentid": 78310,
+  "timestamp": "2026-06-14T00:09:28Z",
+  "sourceSha256": "80fa793e394f06185bf81a1216447534a79563e3e0d08e804b9e34836e3728be",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15936,
+      "namespace": 0,
+      "title": "谋杨奉",
+      "url": "https://wiki.biligame.com/sgs/%E8%B0%8B%E6%9D%A8%E5%A5%89",
+      "revid": 78311,
+      "parentid": 78310,
+      "timestamp": "2026-06-14T00:09:28Z",
+      "sourceSha256": "80fa793e394f06185bf81a1216447534a79563e3e0d08e804b9e34836e3728be",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "谋杨奉",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐,斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "谋定-王佐倡义",
+        "经典体力": "3",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=谋杨奉\n|势力=群\n|性别=男\n|出现模式=身份,欢乐,斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=谋定-王佐倡义\n|经典体力=3\n|经典定位=辅助,攻击\n}}",
+      "name": "谋杨奉",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

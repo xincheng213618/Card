@@ -1,0 +1,44 @@
+{
+  "pageid": 15778,
+  "namespace": 0,
+  "title": "玉米猫",
+  "url": "https://wiki.biligame.com/sgs/%E7%8E%89%E7%B1%B3%E7%8C%AB",
+  "revid": 78565,
+  "parentid": 77355,
+  "timestamp": "2026-06-28T00:25:46Z",
+  "sourceSha256": "073aec3f897cb6134ec8d3b9c13b20cc43d903c1347e8dcac3ef505d31da7488",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 15778,
+      "namespace": 0,
+      "title": "玉米猫",
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%89%E7%B1%B3%E7%8C%AB",
+      "revid": 78565,
+      "parentid": 77355,
+      "timestamp": "2026-06-28T00:25:46Z",
+      "sourceSha256": "073aec3f897cb6134ec8d3b9c13b20cc43d903c1347e8dcac3ef505d31da7488",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "玉米猫",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "斗地主",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "限时地主",
+        "经典体力": "3",
+        "经典定位": "辅助,攻击"
+      },
+      "source": "{{武将\n|武将名=玉米猫\n|势力=群\n|性别=男\n|出现模式=斗地主\n|称号=\n|别称=\n|规则集问答=\n|武将包=限时地主\n|经典体力=3\n|经典定位=辅助,攻击\n}}",
+      "name": "玉米猫",
+      "modes": [
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

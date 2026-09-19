@@ -1,0 +1,47 @@
+{
+  "pageid": 3536,
+  "namespace": 0,
+  "title": "飞军",
+  "url": "https://wiki.biligame.com/sgs/%E9%A3%9E%E5%86%9B",
+  "revid": 65877,
+  "parentid": 24202,
+  "timestamp": "2024-11-09T15:11:15Z",
+  "sourceSha256": "b40c0a9f46cea118bed4e5af0933f9e67a385005085eda6b12b80771ba1eb25c",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 3536,
+      "namespace": 0,
+      "title": "飞军",
+      "url": "https://wiki.biligame.com/sgs/%E9%A3%9E%E5%86%9B",
+      "revid": 65877,
+      "parentid": 24202,
+      "timestamp": "2024-11-09T15:11:15Z",
+      "sourceSha256": "b40c0a9f46cea118bed4e5af0933f9e67a385005085eda6b12b80771ba1eb25c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "飞军",
+        "所属武将": "王平",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "出牌阶段限一次，你可以弃置一张牌，选择一名手牌数/装备区里的牌数大于你的其他角色，令其交给你一张牌/弃置一张装备牌。",
+        "经典技能类型": "一般技",
+        "经典技能定位": "控制"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=飞军\n|所属武将=王平\n|是衍生技=\n|技能版本=经典\n|经典技能描述=出牌阶段限一次，你可以弃置一张牌，选择一名手牌数/装备区里的牌数大于你的其他角色，令其交给你一张牌/弃置一张装备牌。\n|经典技能类型=一般技\n|经典技能定位=控制\n}}",
+      "name": "飞军",
+      "generals": [
+        "王平"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "出牌阶段限一次，你可以弃置一张牌，选择一名手牌数/装备区里的牌数大于你的其他角色，令其交给你一张牌/弃置一张装备牌。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

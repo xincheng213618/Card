@@ -1,0 +1,45 @@
+{
+  "pageid": 7823,
+  "namespace": 0,
+  "title": "牛辅",
+  "url": "https://wiki.biligame.com/sgs/%E7%89%9B%E8%BE%85",
+  "revid": 74744,
+  "parentid": 70572,
+  "timestamp": "2026-01-22T17:38:34Z",
+  "sourceSha256": "46071110611298726ee7008c5a0442ec4cc06772221fa7e50a7fb213f81d8cab",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 7823,
+      "namespace": 0,
+      "title": "牛辅",
+      "url": "https://wiki.biligame.com/sgs/%E7%89%9B%E8%BE%85",
+      "revid": 74744,
+      "parentid": 70572,
+      "timestamp": "2026-01-22T17:38:34Z",
+      "sourceSha256": "46071110611298726ee7008c5a0442ec4cc06772221fa7e50a7fb213f81d8cab",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "牛辅",
+        "势力": "群",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "牛牛",
+        "规则集问答": "",
+        "武将包": "荟萃-文和乱武",
+        "经典体力": "4/7",
+        "经典定位": "控制,攻击"
+      },
+      "source": "{{武将\n|武将名=牛辅\n|势力=群\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=牛牛\n|规则集问答=\n|武将包=荟萃-文和乱武\n|经典体力=4/7\n|经典定位=控制,攻击\n}}",
+      "name": "牛辅",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

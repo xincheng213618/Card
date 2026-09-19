@@ -1,0 +1,45 @@
+{
+  "pageid": 10186,
+  "namespace": 0,
+  "title": "桓范",
+  "url": "https://wiki.biligame.com/sgs/%E6%A1%93%E8%8C%83",
+  "revid": 76301,
+  "parentid": 74519,
+  "timestamp": "2026-03-15T03:09:07Z",
+  "sourceSha256": "c8214a7dfaeb0d7407a354e546d68837ed1929e2ff3330892c9c4ab10471b0ee",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 10186,
+      "namespace": 0,
+      "title": "桓范",
+      "url": "https://wiki.biligame.com/sgs/%E6%A1%93%E8%8C%83",
+      "revid": 76301,
+      "parentid": 74519,
+      "timestamp": "2026-03-15T03:09:07Z",
+      "sourceSha256": "c8214a7dfaeb0d7407a354e546d68837ed1929e2ff3330892c9c4ab10471b0ee",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "桓范",
+        "势力": "魏",
+        "性别": "男",
+        "出现模式": "身份,欢乐",
+        "称号": "",
+        "别称": "",
+        "规则集问答": "",
+        "武将包": "荟萃-计将安出",
+        "经典体力": "3",
+        "经典定位": "控制,卖血,辅助"
+      },
+      "source": "{{武将\n|武将名=桓范\n|势力=魏\n|性别=男\n|出现模式=身份,欢乐\n|称号=\n|别称=\n|规则集问答=\n|武将包=荟萃-计将安出\n|经典体力=3\n|经典定位=控制,卖血,辅助\n}}",
+      "name": "桓范",
+      "modes": [
+        "身份",
+        "欢乐"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}

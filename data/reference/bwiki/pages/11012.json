@@ -1,0 +1,47 @@
+{
+  "pageid": 11012,
+  "namespace": 0,
+  "title": "捐甲",
+  "url": "https://wiki.biligame.com/sgs/%E6%8D%90%E7%94%B2",
+  "revid": 72971,
+  "parentid": 56971,
+  "timestamp": "2025-10-19T01:48:35Z",
+  "sourceSha256": "5cb2205f3b5afad304824478472917a2a7e66edf86f55d60e7ea1175227014ae",
+  "image": {},
+  "kind": "skill",
+  "records": [
+    {
+      "pageid": 11012,
+      "namespace": 0,
+      "title": "捐甲",
+      "url": "https://wiki.biligame.com/sgs/%E6%8D%90%E7%94%B2",
+      "revid": 72971,
+      "parentid": 56971,
+      "timestamp": "2025-10-19T01:48:35Z",
+      "sourceSha256": "5cb2205f3b5afad304824478472917a2a7e66edf86f55d60e7ea1175227014ae",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "技能序号": "1",
+        "技能名": "捐甲",
+        "所属武将": "神典韦",
+        "是衍生技": "",
+        "技能版本": "经典",
+        "经典技能描述": "游戏开始时，你废除防具栏，获得一个额外的武器栏。",
+        "经典技能类型": "锁定技",
+        "经典技能定位": "中性"
+      },
+      "source": "{{技能/武将\n|技能序号=1\n|技能名=捐甲\n|所属武将=神典韦\n|是衍生技=\n|技能版本=经典\n|经典技能描述=游戏开始时，你废除防具栏，获得一个额外的武器栏。\n|经典技能类型=锁定技\n|经典技能定位=中性\n}}",
+      "name": "捐甲",
+      "generals": [
+        "神典韦"
+      ],
+      "mode": "经典",
+      "version": "经典",
+      "descriptions": {
+        "经典技能描述": "游戏开始时，你废除防具栏，获得一个额外的武器栏。"
+      }
+    }
+  ],
+  "unparsedTemplateNames": []
+}

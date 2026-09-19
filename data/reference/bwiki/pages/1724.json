@@ -1,0 +1,45 @@
+{
+  "pageid": 1724,
+  "namespace": 0,
+  "title": "刘琦",
+  "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%90%A6",
+  "revid": 77549,
+  "parentid": 69145,
+  "timestamp": "2026-05-09T01:37:25Z",
+  "sourceSha256": "c42abbcfe0f242faac60bc0b64ca1c72ca2fa04ea2a8df1395d521a2f654ed0c",
+  "image": {},
+  "kind": "general",
+  "records": [
+    {
+      "pageid": 1724,
+      "namespace": 0,
+      "title": "刘琦",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%90%A6",
+      "revid": 77549,
+      "parentid": 69145,
+      "timestamp": "2026-05-09T01:37:25Z",
+      "sourceSha256": "c42abbcfe0f242faac60bc0b64ca1c72ca2fa04ea2a8df1395d521a2f654ed0c",
+      "image": {},
+      "templateOrdinal": 1,
+      "fields": {
+        "武将名": "刘琦",
+        "势力": "群",
+        "性别": "男",
+        "别称": "要饭王、丐帮帮主、刘公子",
+        "出现模式": "身份,欢乐,斗地主",
+        "规则集问答": "",
+        "武将包": "荟萃-计将安出",
+        "经典体力": "3",
+        "经典定位": "爆发,控制"
+      },
+      "source": "{{武将\n|武将名=刘琦\n|势力=群\n|性别=男\n|别称=要饭王、丐帮帮主、刘公子\n|出现模式=身份,欢乐,斗地主\n|规则集问答=\n|武将包=荟萃-计将安出\n|经典体力=3\n|经典定位=爆发,控制\n}}",
+      "name": "刘琦",
+      "modes": [
+        "身份",
+        "欢乐",
+        "斗地主"
+      ]
+    }
+  ],
+  "unparsedTemplateNames": []
+}
