@@ -51,7 +51,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.34.0"]),
+                "standard-classic-generals@1.35.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -277,12 +277,12 @@ internal static class ClassicGeneralChecks
                 classic.Cards["classic:zhuque-fan"].LegacyKind == CardKind.ZhuqueFan &&
                 classic.Cards["classic:tengjia"].LegacyKind == CardKind.Tengjia &&
                 classic.Cards["classic:silver-lion"].LegacyKind == CardKind.SilverLion &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 104 &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.34 classic registry must opt both classic modes into the 104-card deck with Silver Lion and typed gender.");
+            "The 1.35 classic registry must opt both classic modes into the 105-card deck with Wooden Ox and typed gender.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 

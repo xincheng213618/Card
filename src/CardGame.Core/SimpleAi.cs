@@ -329,6 +329,7 @@ public sealed partial class SimpleAiBrain
 
         var selectable = action.SelectableCardIds.ToHashSet();
         return self.Hand
+            .Concat(self.WoodenOxGrain ?? [])
             .Concat(self.Equipment)
             .Where(card => selectable.Contains(card.Id))
             .ToArray();
@@ -2522,12 +2523,25 @@ public sealed partial class SimpleAiBrain
                 : (-100d, "合法目标中没有值得支付两张手牌攻击的敌对角色。");
         }
 
+        if (action.Kind == LegalActionKind.UseEquipmentEffect &&
+            action.EquipmentKind == CardKind.WoodenOx)
+        {
+            var stored = GetActiveSkillSelectableCards(self, action)
+                .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                .ThenBy(card => card.Id)
+                .FirstOrDefault();
+            return stored is null
+                ? (-100d, "没有可置于木牛流马下的手牌。")
+                : (12d, $"将低保留价值的【{stored.DisplayName}】置于木牛流马下，保留为可使用的私有“粮”。");
+        }
+
         if (action.Kind == LegalActionKind.EndPlay)
         {
             return (0d, "结束出牌是所有局面的保底动作。");
         }
 
         var card = self.Hand
+            .Concat(self.WoodenOxGrain ?? [])
             .Concat(self.Equipment)
             .Single(candidate => candidate.Id == action.CardId);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;

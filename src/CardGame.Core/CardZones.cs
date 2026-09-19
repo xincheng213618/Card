@@ -12,6 +12,7 @@ public enum CardZoneKind
     DiscardPile,
     Equipment,
     Judgment,
+    WoodenOxGrain,
     OutsideGame
 }
 
@@ -19,7 +20,7 @@ public readonly record struct CardLocation
 {
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -51,6 +52,8 @@ public readonly record struct CardLocation
     public static CardLocation Equipment(int seat) => new(CardZoneKind.Equipment, seat);
 
     public static CardLocation Judgment(int seat) => new(CardZoneKind.Judgment, seat);
+
+    public static CardLocation WoodenOxGrain(int seat) => new(CardZoneKind.WoodenOxGrain, seat);
 
     public override string ToString() => OwnerSeat is { } seat ? $"{Zone}[{seat}]" : Zone.ToString();
 }
@@ -126,6 +129,9 @@ public static class CardMoveReasons
     public static CardMoveReason EquipmentUse { get; } = new("equipment.use");
     public static CardMoveReason EquipmentEnter { get; } = new("equipment.enter");
     public static CardMoveReason EquipmentReplace { get; } = new("equipment.replace");
+    public static CardMoveReason WoodenOxStore { get; } = new("equipment.wooden-ox.store");
+    public static CardMoveReason WoodenOxTransfer { get; } = new("equipment.wooden-ox.transfer");
+    public static CardMoveReason WoodenOxGrainDiscard { get; } = new("equipment.wooden-ox.grain-discard");
     public static CardMoveReason DeathEquipmentDiscard { get; } = new("rule.death-equipment-discard");
     public static CardMoveReason JianxiongClaim { get; } = new("skill.jianxiong.claim-damage-card");
     public static CardMoveReason FeedbackClaim { get; } = new("skill.feedback.claim-damage-card");
@@ -191,6 +197,7 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.Hand(seat));
             AddZone(CardLocation.Equipment(seat));
             AddZone(CardLocation.Judgment(seat));
+            AddZone(CardLocation.WoodenOxGrain(seat));
         }
     }
 
@@ -322,6 +329,25 @@ internal sealed class CardZoneStore
     {
         ArgumentNullException.ThrowIfNull(random);
         random.Shuffle(GetZone(location));
+    }
+
+    public void ShuffleKeepingSingleKindAtBottom(
+        CardLocation location,
+        DeterministicRandom random,
+        CardKind deferredKind)
+    {
+        ArgumentNullException.ThrowIfNull(random);
+        var zone = GetZone(location);
+        var deferred = zone.Where(card => card.Kind == deferredKind).ToArray();
+        if (deferred.Length != 1)
+        {
+            random.Shuffle(zone);
+            return;
+        }
+
+        zone.Remove(deferred[0]);
+        random.Shuffle(zone);
+        zone.Insert(0, deferred[0]);
     }
 
     /// <summary>

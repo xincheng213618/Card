@@ -91,6 +91,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainJijiangAndLegacyBoundary),
     ("classic Tengjia makes ordinary Slash ineffective before response", TengjiaChecks.OrdinarySlashImmunityAndLegacyBoundary),
     ("classic Silver Lion caps damage and recovers after leaving equipment", SilverLionChecks.DamageCapRemovalRecoveryAndLegacyBoundary),
+    ("classic Wooden Ox stores private playable grain and replays", WoodenOxChecks.StoresPrivatePlayableGrainAndReplays),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
@@ -587,7 +588,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(39, CardCatalog.ImplementedCards.Count);
+    Equal(40, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -4088,7 +4089,7 @@ static void PublicTargetCardFlow()
 
 static void EquipmentFlow()
 {
-    Equal(18, EquipmentCatalog.Implemented.Count);
+    Equal(19, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
     Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);
@@ -4119,6 +4120,7 @@ static void EquipmentFlow()
     Equal(EquipmentSlot.OffensiveHorse, EquipmentCatalog.Get(CardKind.OffensiveHorse).Slot);
     Equal(EquipmentSlot.DefensiveHorse, EquipmentCatalog.Get(CardKind.DefensiveHorse).Slot);
     Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.JadeSeal).Slot);
+    Equal(EquipmentSlot.Treasure, EquipmentCatalog.Get(CardKind.WoodenOx).Slot);
 
     GameEngine? selectedGame = null;
     int? selectedSeed = null;

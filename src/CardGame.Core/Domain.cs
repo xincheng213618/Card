@@ -78,7 +78,8 @@ public enum CardKind
     GudingBlade,
     ZhuqueFan,
     Tengjia,
-    SilverLion
+    SilverLion,
+    WoodenOx
 }
 
 public enum Suit
@@ -461,6 +462,12 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int WoodenOxGrainCount { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? WoodenOxGrain { get; init; }
+
     /// <summary>
     /// Ordered skills visible with the primary general. The singular Skill,
     /// SkillName and SkillDescription fields remain the v1-v9 compatibility

@@ -719,7 +719,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 HandText = BuildHandText(player),
                 EquipmentText = player.Equipment.Count == 0
                     ? "装备 —"
-                    : $"装备 {string.Join(" · ", player.Equipment.Select(card => card.DisplayName))}",
+                    : $"装备 {string.Join(" · ", player.Equipment.Select(card =>
+                        card.Kind == CardKind.WoodenOx && player.WoodenOxGrainCount > 0
+                            ? $"{card.DisplayName}（粮 {player.WoodenOxGrainCount}）"
+                            : card.DisplayName))}",
                 JudgmentText = player.Judgment.Count == 0
                     ? "判定区 —"
                     : $"判定区 {string.Join(" · ", player.Judgment.Select(card => card.DisplayName))}",
@@ -746,11 +749,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             RebuildActiveSkillEquipmentChoices(human, activeSkillCardIds);
             RebuildEquipmentPlayChoices(human, legalActions);
-            var ids = human.Hand.Select(card => card.Id).ToHashSet();
+            var visibleCards = human.Hand.Concat(human.WoodenOxGrain ?? []).ToArray();
+            var grainIds = (human.WoodenOxGrain ?? []).Select(card => card.Id).ToHashSet();
+            var ids = visibleCards.Select(card => card.Id).ToHashSet();
             for (var i = Hand.Count - 1; i >= 0; i--)
                 if (!ids.Contains(Hand[i].Id)) Hand.RemoveAt(i);
             var existing = Hand.ToDictionary(card => card.Id);
-            foreach (var card in human.Hand)
+            foreach (var card in visibleCards)
             {
                 var activeSkillSelectable = activeSkillCardIds.Contains(card.Id);
                 var responseChoice = HandResponseChoice(card.Id);
@@ -777,7 +782,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 {
                     Id = card.Id,
                     Name = card.DisplayName,
-                    KindLabel = CardCatalog.Get(card.Kind).CategoryName,
+                    KindLabel = grainIds.Contains(card.Id)
+                        ? $"粮 · {CardCatalog.Get(card.Kind).CategoryName}"
+                        : CardCatalog.Get(card.Kind).CategoryName,
                     SuitGlyph = GetSuitGlyph(card.Suit),
                     Rank = card.RankText,
                     Description = GetCardDescription(card.Kind),
@@ -792,6 +799,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             }
 
             HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · {human.Hp}/{human.MaxHp} 体力" +
+                (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }
         else
@@ -1459,7 +1467,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var human = _snapshot.Players.FirstOrDefault(player => player.IsHuman);
-        var physicalCard = human?.Hand.Concat(human.Equipment).FirstOrDefault(card => card.Id == _selectedCardId);
+        var physicalCard = human?.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).FirstOrDefault(card => card.Id == _selectedCardId);
         CanPlaySelected = selectedActions.Any(action => action.TargetSeats.SequenceEqual(selectedTargets)
             && action.TargetCardId is null && (action.PlayedCardKind is null || action.PlayedCardKind == physicalCard?.Kind));
         CanPlaySelectedAsSlash = selectedActions.Any(action =>
@@ -1476,7 +1484,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_selectedCardId is not { } cardId || _snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt) return;
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var physicalKind = human.Hand.Concat(human.Equipment).Single(card => card.Id == cardId).Kind;
+        var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Single(card => card.Id == cardId).Kind;
         var targets = SelectedPlayTargets();
         var action = _game.GetHumanLegalActions().SingleOrDefault(action => action.CardId == cardId &&
             action.Kind != LegalActionKind.Recast && action.TargetCardId is null && action.TargetSeats.SequenceEqual(targets) &&

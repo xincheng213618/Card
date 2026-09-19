@@ -42,6 +42,7 @@ public sealed partial class GameEngine
     private int _slashCountThisTurn;
     private bool _usedOrPlayedSlashDuringPlayPhase;
     private bool _luoyiActiveThisTurn;
+    private bool _woodenOxUsedThisTurn;
     private int _logSequence;
     private int _thoughtSequence;
     private int _movementSequence;
@@ -290,6 +291,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalSilverLion =>
         _rulesVersion >= 53 && IsClassicIdentityMode;
+
+    private bool UsesFormalWoodenOx =>
+        _rulesVersion >= 54 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -799,24 +803,26 @@ public sealed partial class GameEngine
         var action = BuildLegalActions(actor).SingleOrDefault(candidate =>
             candidate.Kind == LegalActionKind.UseEquipmentEffect &&
             candidate.EquipmentKind == command.EquipmentKind);
-        if (action is null || command.EquipmentKind != CardKind.ZhangbaSerpentSpear)
+        if (action is null)
         {
             return Reject(CommandErrorCode.IllegalAction,
                 "The requested equipment effect is not legal in the current play phase.");
         }
 
-        if (cardIds.Length != 2 || command.CardIds?.Count != 2 ||
+        if (cardIds.Length < action.MinCardCount || cardIds.Length > action.MaxCardCount ||
+            command.CardIds?.Count != cardIds.Length ||
             cardIds.Any(cardId => !action.SelectableCardIds.Contains(cardId)))
         {
             return Reject(CommandErrorCode.InvalidCard,
-                "Zhangba Serpent Spear requires exactly two distinct hand cards.");
+                "The equipment effect card selection is invalid.");
         }
 
-        if (targets.Length != 1 || command.TargetSeats?.Count != 1 ||
-            !action.SelectableTargetSeats.Contains(targets[0]))
+        if (targets.Length < action.MinTargetCount || targets.Length > action.MaxTargetCount ||
+            command.TargetSeats?.Count != targets.Length ||
+            targets.Any(target => !action.SelectableTargetSeats.Contains(target)))
         {
             return Reject(CommandErrorCode.InvalidTarget,
-                "Zhangba Serpent Spear requires one published legal Slash target.");
+                "The equipment effect target selection is invalid.");
         }
 
         return Accept(() => HumanUseEquipmentEffectCore(
@@ -2712,18 +2718,27 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The requested equipment effect is not a legal action.");
         var selectedIds = cardIds.Distinct().ToArray();
         var selectedTargets = targetSeats.Distinct().ToArray();
-        if (selectedIds.Length != 2 || cardIds.Count != 2 ||
+        if (selectedIds.Length < action.MinCardCount || selectedIds.Length > action.MaxCardCount ||
+            cardIds.Count != selectedIds.Length ||
             selectedIds.Any(cardId => !action.SelectableCardIds.Contains(cardId)) ||
-            selectedTargets.Length != 1 || targetSeats.Count != 1 ||
-            !action.SelectableTargetSeats.Contains(selectedTargets[0]))
+            selectedTargets.Length < action.MinTargetCount || selectedTargets.Length > action.MaxTargetCount ||
+            targetSeats.Count != selectedTargets.Length ||
+            selectedTargets.Any(target => !action.SelectableTargetSeats.Contains(target)))
         {
             throw new InvalidOperationException("The equipment-effect cards or target are no longer legal.");
         }
 
-        var cards = selectedIds.Select(cardId =>
-            GetHand(actor).Single(card => card.Id == cardId)).ToArray();
         ClearPendingDecision();
-        ResolveZhangbaSlash(actor, _players[selectedTargets[0]], cards);
+        if (equipmentKind == CardKind.WoodenOx)
+        {
+            ResolveWoodenOx(actor, selectedIds[0], selectedTargets.SingleOrDefault(-1));
+        }
+        else
+        {
+            var cards = selectedIds.Select(cardId =>
+                GetPlayableCards(actor).Single(card => card.Id == cardId)).ToArray();
+            ResolveZhangbaSlash(actor, _players[selectedTargets[0]], cards);
+        }
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -3984,6 +3999,7 @@ public sealed partial class GameEngine
             var judgment = GetJudgment(player)
                 .Select(ToJudgmentSnapshot)
                 .ToArray();
+            var woodenOxGrain = GetWoodenOxGrain(player);
             var canSeeGeneral = player.GeneralSelected &&
                                 (revealAll || player.GeneralRevealed || player.Seat == viewerSeat);
             var general = canSeeGeneral ? player.General : CreateHiddenGeneral();
@@ -4027,6 +4043,12 @@ public sealed partial class GameEngine
                 TeamId = IsTeamMode && player.TeamRevealed ? player.TeamId : null,
                 IsTeamRevealed = IsTeamMode && player.TeamRevealed,
                 Equipment = Array.AsReadOnly(equipment),
+                WoodenOxGrainCount = woodenOxGrain.Count,
+                WoodenOxGrain = GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx) || woodenOxGrain.Count > 0
+                    ? canSeeHand
+                        ? Array.AsReadOnly(woodenOxGrain.Select(ToSnapshot).ToArray())
+                        : Array.Empty<CardSnapshot>()
+                    : null,
                 IsChained = player.IsChained,
                 Judgment = Array.AsReadOnly(judgment),
                 FactionId = canSeeFaction ? player.NationalFactionId : null,
@@ -4755,7 +4777,14 @@ public sealed partial class GameEngine
         _initialCardCount = _cardZones.TotalCards;
         if (!_options.UseInteractiveSetup)
         {
-            _cardZones.Shuffle(CardLocation.DrawPile, _random);
+            if (UsesFormalWoodenOx && cards.Count(card => card.Kind == CardKind.WoodenOx) == 1)
+            {
+                _cardZones.ShuffleKeepingSingleKindAtBottom(CardLocation.DrawPile, _random, CardKind.WoodenOx);
+            }
+            else
+            {
+                _cardZones.Shuffle(CardLocation.DrawPile, _random);
+            }
         }
         AssertCoreInvariants();
     }
@@ -4799,6 +4828,7 @@ public sealed partial class GameEngine
         _slashCountThisTurn = 0;
         _usedOrPlayedSlashDuringPlayPhase = false;
         _luoyiActiveThisTurn = false;
+        _woodenOxUsedThisTurn = false;
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
@@ -6323,17 +6353,24 @@ public sealed partial class GameEngine
         {
             var cardIds = activeSkillCardIds?.Distinct().ToArray() ?? [];
             var targets = activeSkillTargetSeats?.Distinct().ToArray() ?? [];
-            if (action.EquipmentKind != CardKind.ZhangbaSerpentSpear ||
-                cardIds.Length != 2 || targets.Length != 1 ||
+            if (cardIds.Length < action.MinCardCount || cardIds.Length > action.MaxCardCount ||
+                targets.Length < action.MinTargetCount || targets.Length > action.MaxTargetCount ||
                 cardIds.Any(cardId => !action.SelectableCardIds.Contains(cardId)) ||
-                !action.SelectableTargetSeats.Contains(targets[0]))
+                targets.Any(target => !action.SelectableTargetSeats.Contains(target)))
             {
-                throw new InvalidOperationException("The Zhangba equipment-effect selection is invalid.");
+                throw new InvalidOperationException("The equipment-effect selection is invalid.");
             }
 
-            var cards = cardIds.Select(cardId =>
-                GetHand(actor).Single(card => card.Id == cardId)).ToArray();
-            ResolveZhangbaSlash(actor, _players[targets[0]], cards);
+            if (action.EquipmentKind == CardKind.WoodenOx)
+            {
+                ResolveWoodenOx(actor, cardIds[0], targets.SingleOrDefault(-1));
+            }
+            else
+            {
+                var cards = cardIds.Select(cardId =>
+                    GetPlayableCards(actor).Single(card => card.Id == cardId)).ToArray();
+                ResolveZhangbaSlash(actor, _players[targets[0]], cards);
+            }
             return;
         }
 
@@ -6568,7 +6605,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(equipment, source.Seat, []);
         MoveCard(
             equipment,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, equipment),
             CardLocation.Processing,
             CardMoveReasons.EquipmentUse);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
@@ -6798,7 +6835,7 @@ public sealed partial class GameEngine
         while (pending.CandidateIndex < pending.CandidateSeats.Count)
         {
             var responder = _players[pending.CandidateSeats[pending.CandidateIndex]];
-            var cards = GetHand(responder)
+            var cards = GetPlayableCards(responder)
                 .Where(card => card.Kind == CardKind.Nullification)
                 .ToArray();
             if (cards.Length == 0)
@@ -6904,7 +6941,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        var card = GetHand(responder).SingleOrDefault(candidate =>
+        var card = GetPlayableCards(responder).SingleOrDefault(candidate =>
             candidate.Id == selectedCard.Id && candidate.Kind == CardKind.Nullification);
         if (card is null)
         {
@@ -6913,7 +6950,7 @@ public sealed partial class GameEngine
 
         MoveCard(
             card,
-            CardLocation.Hand(responder.Seat),
+            FindOwnedCardLocation(responder, card),
             CardLocation.Processing,
             CardMoveReasons.Nullification);
         MoveCard(
@@ -7531,7 +7568,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(drawTwo, source.Seat, []);
         MoveCard(
             drawTwo,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, drawTwo),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginJizhiOrNullificationWindow(
@@ -7556,7 +7593,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(alcohol, source.Seat, []);
         MoveCard(
             alcohol,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, alcohol),
             CardLocation.Processing,
             CardMoveReasons.Use);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
@@ -7596,7 +7633,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(groupCard, source.Seat, targets);
         MoveCard(
             groupCard,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, groupCard),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginJizhiOrNullificationWindow(
@@ -7627,7 +7664,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(peachGarden, source.Seat, targets);
         MoveCard(
             peachGarden,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, peachGarden),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginJizhiOrNullificationWindow(
@@ -7660,7 +7697,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(fiveGrains, source.Seat, targets);
         MoveCard(
             fiveGrains,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, fiveGrains),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginJizhiOrNullificationWindow(
@@ -7689,7 +7726,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(ironChain, source.Seat, targets);
         MoveCard(
             ironChain,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, ironChain),
             CardLocation.Processing,
             CardMoveReasons.IronChainUse);
         BeginJizhiOrNullificationWindow(
@@ -7899,7 +7936,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(fireAttack, source.Seat, [target.Seat]);
         MoveCard(
             fireAttack,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, fireAttack),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginJizhiOrNullificationWindow(
@@ -7929,7 +7966,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(borrowedSword, source.Seat, targets);
         MoveCard(
             borrowedSword,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, borrowedSword),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginJizhiOrNullificationWindow(
@@ -9005,7 +9042,7 @@ public sealed partial class GameEngine
         if (!CanUseZhangbaSerpentSpear(source) ||
             physicalCards.Count != 2 ||
             physicalCards.Select(card => card.Id).Distinct().Count() != 2 ||
-            physicalCards.Any(card => _cardZones.GetLocation(card.Id) != CardLocation.Hand(source.Seat)) ||
+            physicalCards.Any(card => !IsOwnedPlayableLocation(source, _cardZones.GetLocation(card.Id))) ||
             !CanUseVirtualSlashTarget(source, target))
         {
             throw new InvalidOperationException("Zhangba Serpent Spear became illegal before resolution.");
@@ -9721,7 +9758,7 @@ public sealed partial class GameEngine
         var resolutionId = BeginCardUse(duel, source.Seat, [target.Seat]);
         MoveCard(
             duel,
-            CardLocation.Hand(source.Seat),
+            FindOwnedCardLocation(source, duel),
             CardLocation.Processing,
             CardMoveReasons.Use);
         BeginJizhiOrNullificationWindow(
@@ -10048,7 +10085,7 @@ public sealed partial class GameEngine
         {
             MoveCard(
                 card,
-                CardLocation.Hand(responder.Seat),
+                FindOwnedCardLocation(responder, card),
                 CardLocation.Processing,
                 CardMoveReasons.Respond);
             QueueGameEvent(new CardRespondedEvent(
@@ -10300,7 +10337,7 @@ public sealed partial class GameEngine
             responseCardKind = GetEffectiveResponseKind(provider, selectedDodge, CardKind.Dodge);
             MoveCard(
                 selectedDodge,
-                CardLocation.Hand(provider.Seat),
+                FindOwnedCardLocation(provider, selectedDodge),
                 CardLocation.Processing,
                 CardMoveReasons.Respond);
             MoveCard(
@@ -15514,7 +15551,7 @@ public sealed partial class GameEngine
     {
         var context = CreateSkillContext(responder);
         var passiveSkills = EnabledPassiveSkills(responder).ToArray();
-        var handCandidates = GetHand(responder)
+        var handCandidates = GetPlayableCards(responder)
             .Where(card => card.Kind == CardKind.Peach || passiveSkills.Any(skill =>
                 skill.Kind == SkillKind.Jijiu && (_rulesVersion < 10 || !IsClassicIdentityMode)
                     ? card.Kind != CardKind.Peach && card.Suit is Suit.Heart or Suit.Diamond
@@ -16595,7 +16632,7 @@ public sealed partial class GameEngine
     private bool CanUseZhangbaSerpentSpear(PlayerRuntime actor) =>
         UsesFormalZhangbaSerpentSpear &&
         GetEquipment(actor).Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
-        GetHand(actor).Count >= 2;
+        GetPlayableCards(actor).Count >= 2;
 
     private bool HasZhuqueFan(PlayerRuntime actor) =>
         UsesFormalZhuqueFan &&
@@ -16668,12 +16705,13 @@ public sealed partial class GameEngine
             actions.AddRange(BuildNationalRevealActions(actor));
         }
 
+        var playableCards = GetPlayableCards(actor);
         var skill = PassiveRules(actor);
         var skillContext = CreateSkillContext(actor);
         var slashLimit = GetSlashLimit(actor, skill, skillContext);
         if (_slashCountThisTurn < slashLimit)
         {
-            foreach (var slash in GetHand(actor).Where(card => IsSlashCard(card.Kind)))
+            foreach (var slash in playableCards.Where(card => IsSlashCard(card.Kind)))
             {
                 var targets = GetFangtianOrderedSlashTargets(actor, slash);
                 foreach (var effectiveKind in GetSlashUseKinds(actor, slash.Kind))
@@ -16704,7 +16742,7 @@ public sealed partial class GameEngine
                 }
             }
 
-            foreach (var converted in GetHand(actor).Where(card =>
+            foreach (var converted in playableCards.Where(card =>
                          skill.CanUseAsSlash(skillContext, card)))
             {
                 var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
@@ -16767,7 +16805,7 @@ public sealed partial class GameEngine
                         MaxTargetCount: 1,
                         EquipmentKind: CardKind.ZhangbaSerpentSpear)
                     {
-                        SelectableCardIds = GetHand(actor).Select(card => card.Id).Order().ToArray(),
+                        SelectableCardIds = playableCards.Select(card => card.Id).Order().ToArray(),
                         SelectableTargetSeats = targets
                     });
                 }
@@ -16776,7 +16814,7 @@ public sealed partial class GameEngine
 
         if (actor.Hp < actor.MaxHp)
         {
-            foreach (var peach in GetHand(actor).Where(card => card.Kind == CardKind.Peach))
+            foreach (var peach in playableCards.Where(card => card.Kind == CardKind.Peach))
             {
                 actions.Add(new LegalAction(
                     LegalActionKind.Peach,
@@ -16786,7 +16824,7 @@ public sealed partial class GameEngine
             }
         }
 
-        foreach (var duel in GetHand(actor).Where(card => card.Kind == CardKind.Duel))
+        foreach (var duel in playableCards.Where(card => card.Kind == CardKind.Duel))
         {
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
@@ -16802,7 +16840,7 @@ public sealed partial class GameEngine
             }
         }
 
-        foreach (var drawTwo in GetHand(actor).Where(card => card.Kind == CardKind.DrawTwo))
+        foreach (var drawTwo in playableCards.Where(card => card.Kind == CardKind.DrawTwo))
         {
             actions.Add(new LegalAction(
                 LegalActionKind.DrawTwo,
@@ -16811,7 +16849,7 @@ public sealed partial class GameEngine
                 "使用【无中生有】摸两张牌"));
         }
 
-        foreach (var assault in GetHand(actor).Where(card => card.Kind == CardKind.BarbarianAssault))
+        foreach (var assault in playableCards.Where(card => card.Kind == CardKind.BarbarianAssault))
         {
             actions.Add(new LegalAction(
                 LegalActionKind.BarbarianAssault,
@@ -16820,7 +16858,7 @@ public sealed partial class GameEngine
                 "使用【南蛮入侵】"));
         }
 
-        foreach (var arrowBarrage in GetHand(actor).Where(card => card.Kind == CardKind.ArrowBarrage))
+        foreach (var arrowBarrage in playableCards.Where(card => card.Kind == CardKind.ArrowBarrage))
         {
             actions.Add(new LegalAction(
                 LegalActionKind.ArrowBarrage,
@@ -16829,7 +16867,7 @@ public sealed partial class GameEngine
                 "使用【万箭齐发】"));
         }
 
-        foreach (var peachGarden in GetHand(actor).Where(card => card.Kind == CardKind.PeachGarden))
+        foreach (var peachGarden in playableCards.Where(card => card.Kind == CardKind.PeachGarden))
         {
             actions.Add(new LegalAction(
                 LegalActionKind.PeachGarden,
@@ -16838,7 +16876,7 @@ public sealed partial class GameEngine
                 "使用【桃园结义】"));
         }
 
-        foreach (var fiveGrains in GetHand(actor).Where(card => card.Kind == CardKind.FiveGrains))
+        foreach (var fiveGrains in playableCards.Where(card => card.Kind == CardKind.FiveGrains))
         {
             actions.Add(new LegalAction(
                 LegalActionKind.FiveGrains,
@@ -16847,7 +16885,7 @@ public sealed partial class GameEngine
                 "使用【五谷丰登】"));
         }
 
-        foreach (var indulgence in GetHand(actor).Where(card => card.Kind == CardKind.Indulgence))
+        foreach (var indulgence in playableCards.Where(card => card.Kind == CardKind.Indulgence))
         {
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
@@ -16862,7 +16900,7 @@ public sealed partial class GameEngine
             }
         }
 
-        foreach (var supplyShortage in GetHand(actor).Where(card => card.Kind == CardKind.SupplyShortage))
+        foreach (var supplyShortage in playableCards.Where(card => card.Kind == CardKind.SupplyShortage))
         {
             var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.SupplyShortage);
             var distanceLimit = UsesFormalDuanliang
@@ -16909,7 +16947,7 @@ public sealed partial class GameEngine
             }
         }
 
-        foreach (var lightning in GetHand(actor).Where(card => card.Kind == CardKind.Lightning))
+        foreach (var lightning in playableCards.Where(card => card.Kind == CardKind.Lightning))
         {
             if (!HasJudgmentEffectiveCard(actor, CardKind.Lightning))
             {
@@ -16925,7 +16963,7 @@ public sealed partial class GameEngine
             .Where(player => player.IsAlive && (_rulesVersion >= 6 || player.Seat != actor.Seat))
             .OrderBy(player => player.Seat)
             .ToArray();
-        foreach (var ironChain in GetHand(actor).Where(card => card.Kind == CardKind.IronChain))
+        foreach (var ironChain in playableCards.Where(card => card.Kind == CardKind.IronChain))
         {
             if (_rulesVersion >= 6)
                 actions.Add(new LegalAction(LegalActionKind.Recast, ironChain.Id, null, "重铸【铁索连环】，摸一张牌"));
@@ -16957,7 +16995,7 @@ public sealed partial class GameEngine
         if (!actor.HasAlcoholEffect &&
             (!UsesFormalPlayPhaseAlcoholLimit || !actor.UsedPlayPhaseAlcoholThisTurn))
         {
-            foreach (var alcohol in GetHand(actor).Where(card => card.Kind == CardKind.Alcohol))
+            foreach (var alcohol in playableCards.Where(card => card.Kind == CardKind.Alcohol))
             {
                 actions.Add(new LegalAction(
                     LegalActionKind.Alcohol,
@@ -16967,7 +17005,7 @@ public sealed partial class GameEngine
             }
         }
 
-        foreach (var equipment in GetHand(actor).Where(card => EquipmentCatalog.IsEquipment(card.Kind)))
+        foreach (var equipment in playableCards.Where(card => EquipmentCatalog.IsEquipment(card.Kind)))
         {
             var definition = EquipmentCatalog.Get(equipment.Kind);
             actions.Add(new LegalAction(
@@ -16977,7 +17015,7 @@ public sealed partial class GameEngine
                 $"装备【{definition.DisplayName}】至{EquipmentCatalog.GetSlotName(definition.Slot)}槽"));
         }
 
-        foreach (var dismantlement in GetHand(actor).Where(card => card.Kind == CardKind.Dismantlement))
+        foreach (var dismantlement in playableCards.Where(card => card.Kind == CardKind.Dismantlement))
         {
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
@@ -17016,7 +17054,7 @@ public sealed partial class GameEngine
             }
         }
 
-        foreach (var snatch in GetHand(actor).Where(card => card.Kind == CardKind.Snatch))
+        foreach (var snatch in playableCards.Where(card => card.Kind == CardKind.Snatch))
         {
             var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.Snatch);
             foreach (var target in _players.Where(player =>
@@ -17036,7 +17074,7 @@ public sealed partial class GameEngine
 
         if (UsesFormalBorrowedSword)
         {
-            foreach (var borrowedSword in GetHand(actor).Where(card => card.Kind == CardKind.BorrowedSword))
+            foreach (var borrowedSword in playableCards.Where(card => card.Kind == CardKind.BorrowedSword))
             {
                 foreach (var weaponOwner in _players.Where(player =>
                              player.IsAlive &&
@@ -17057,7 +17095,7 @@ public sealed partial class GameEngine
             }
         }
 
-        foreach (var fireAttack in GetHand(actor).Where(card => card.Kind == CardKind.FireAttack))
+        foreach (var fireAttack in playableCards.Where(card => card.Kind == CardKind.FireAttack))
         {
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
@@ -17117,6 +17155,34 @@ public sealed partial class GameEngine
                         : []
                 });
             }
+        }
+
+        if (UsesFormalWoodenOx &&
+            !_woodenOxUsedThisTurn &&
+            GetHand(actor).Count > 0 &&
+            GetEquipment(actor).Any(card => card.Kind == CardKind.WoodenOx))
+        {
+            actions.Add(new LegalAction(
+                LegalActionKind.UseEquipmentEffect,
+                null,
+                null,
+                "发动【木牛流马】，将一张手牌扣置为“粮”，并可移动此装备",
+                MinCardCount: 1,
+                MaxCardCount: 1,
+                MinTargetCount: 0,
+                MaxTargetCount: 1,
+                EquipmentKind: CardKind.WoodenOx)
+            {
+                SelectableCardIds = GetHand(actor).Select(card => card.Id).Order().ToArray(),
+                SelectableTargetSeats = _players
+                    .Where(player => player.IsAlive &&
+                                     player.Seat != actor.Seat &&
+                                     GetEquipment(player).All(card =>
+                                         EquipmentCatalog.Get(card.Kind).Slot != EquipmentSlot.Treasure))
+                    .Select(player => player.Seat)
+                    .Order()
+                    .ToArray()
+            });
         }
 
         actions.Add(new LegalAction(LegalActionKind.EndPlay, null, null, "结束出牌"));
@@ -17249,8 +17315,13 @@ public sealed partial class GameEngine
         }
 
         return GetHand(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
+               GetWoodenOxGrain(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
                GetEquipment(actor).SingleOrDefault(card => card.Id == requestedCardId);
     }
+
+    private static bool IsOwnedPlayableLocation(PlayerRuntime actor, CardLocation location) =>
+        location.OwnerSeat == actor.Seat &&
+        location.Zone is CardZoneKind.Hand or CardZoneKind.WoodenOxGrain;
 
     private CardLocation FindOwnedCardLocation(PlayerRuntime actor, Card card)
     {
@@ -17262,6 +17333,11 @@ public sealed partial class GameEngine
         if (GetEquipment(actor).Any(candidate => candidate.Id == card.Id))
         {
             return CardLocation.Equipment(actor.Seat);
+        }
+
+        if (GetWoodenOxGrain(actor).Any(candidate => candidate.Id == card.Id))
+        {
+            return CardLocation.WoodenOxGrain(actor.Seat);
         }
 
         throw new InvalidOperationException("The chosen card is no longer in the actor's playable zones.");
@@ -17344,7 +17420,7 @@ public sealed partial class GameEngine
         PlayerRuntime responder,
         CardKind requiredCardKind)
     {
-        var cards = GetHand(responder)
+        var cards = GetPlayableCards(responder)
             .Where(card =>
                 MatchesRequiredCard(card.Kind, requiredCardKind) ||
                 CanConvertResponse(responder, card, requiredCardKind));
@@ -17364,7 +17440,7 @@ public sealed partial class GameEngine
             return [];
         }
 
-        var hand = GetHand(responder).OrderBy(card => card.Id).ToArray();
+        var hand = GetPlayableCards(responder).OrderBy(card => card.Id).ToArray();
         var pairs = new List<IReadOnlyList<Card>>();
         for (var first = 0; first < hand.Length - 1; first++)
         {
@@ -18461,6 +18537,14 @@ public sealed partial class GameEngine
     private IReadOnlyList<Card> GetHand(PlayerRuntime player) =>
         _cardZones.CardsAt(CardLocation.Hand(player.Seat));
 
+    private IReadOnlyList<Card> GetWoodenOxGrain(PlayerRuntime player) =>
+        _cardZones.CardsAt(CardLocation.WoodenOxGrain(player.Seat));
+
+    private IReadOnlyList<Card> GetPlayableCards(PlayerRuntime player) =>
+        UsesFormalWoodenOx && GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx)
+            ? GetHand(player).Concat(GetWoodenOxGrain(player)).ToArray()
+            : GetHand(player);
+
     private IReadOnlyList<Card> GetEquipment(PlayerRuntime player) =>
         GetEquipment(player.Seat);
 
@@ -18691,6 +18775,7 @@ public sealed partial class GameEngine
         RecordMovement(card, from, to, reason);
         ClearJudgmentEffectiveKindAfterMove(card, from, to);
         ResolveSilverLionRemoval(card, from, reason);
+        ResolveWoodenOxMove(card, from, to);
     }
 
     private void MoveCards(
@@ -18705,6 +18790,7 @@ public sealed partial class GameEngine
             RecordMovement(card, from, to, reason);
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
             ResolveSilverLionRemoval(card, from, reason);
+            ResolveWoodenOxMove(card, from, to);
         }
     }
 
@@ -18719,6 +18805,48 @@ public sealed partial class GameEngine
             RecordMovement(card, from, to, reason);
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
             ResolveSilverLionRemoval(card, from, reason);
+            ResolveWoodenOxMove(card, from, to);
+        }
+    }
+
+    private void ResolveWoodenOx(PlayerRuntime actor, int storedCardId, int targetSeat)
+    {
+        var storedCard = GetHand(actor).Single(card => card.Id == storedCardId);
+        MoveCard(storedCard, CardLocation.Hand(actor.Seat), CardLocation.WoodenOxGrain(actor.Seat), CardMoveReasons.WoodenOxStore);
+        _woodenOxUsedThisTurn = true;
+        AddLog("EquipmentEffect", $"{actor.Name} 将一张手牌扣置于【木牛流马】下。", actor.Seat);
+
+        if (targetSeat < 0)
+        {
+            return;
+        }
+
+        var woodenOx = GetEquipment(actor).Single(card => card.Kind == CardKind.WoodenOx);
+        MoveCard(woodenOx, CardLocation.Equipment(actor.Seat), CardLocation.Equipment(targetSeat), CardMoveReasons.WoodenOxTransfer);
+        AddLog("EquipmentEffect", $"{actor.Name} 将【木牛流马】移动给 {_players[targetSeat].Name}。", actor.Seat);
+    }
+
+    private void ResolveWoodenOxMove(Card card, CardLocation from, CardLocation to)
+    {
+        if (!UsesFormalWoodenOx || card.Kind != CardKind.WoodenOx ||
+            from is not { Zone: CardZoneKind.Equipment, OwnerSeat: { } ownerSeat })
+        {
+            return;
+        }
+
+        var grainFrom = CardLocation.WoodenOxGrain(ownerSeat);
+        if (_cardZones.Count(grainFrom) == 0)
+        {
+            return;
+        }
+
+        if (to is { Zone: CardZoneKind.Equipment, OwnerSeat: { } targetSeat })
+        {
+            MoveAllCards(grainFrom, CardLocation.WoodenOxGrain(targetSeat), CardMoveReasons.WoodenOxTransfer);
+        }
+        else
+        {
+            MoveAllCards(grainFrom, CardLocation.DiscardPile, CardMoveReasons.WoodenOxGrainDiscard);
         }
     }
 
@@ -18987,7 +19115,7 @@ public sealed partial class GameEngine
             if (!jizhiOwnsNullification)
             {
                 var currentNullificationCards = nullification.CandidateIndex < nullification.CandidateSeats.Count
-                    ? GetHand(_players[nullification.CandidateSeats[nullification.CandidateIndex]])
+                    ? GetPlayableCards(_players[nullification.CandidateSeats[nullification.CandidateIndex]])
                         .Where(card => card.Kind == CardKind.Nullification)
                         .Select(card => card.Id)
                         .ToArray()

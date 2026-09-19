@@ -144,7 +144,12 @@ public static class EquipmentCatalog
                 "玉玺",
                 EquipmentSlot.Treasure,
                 "装备至宝物槽；摸牌阶段额外摸一张牌。",
-                DrawCountBonus: 1)
+                DrawCountBonus: 1),
+            [CardKind.WoodenOx] = new(
+                CardKind.WoodenOx,
+                "木牛流马",
+                EquipmentSlot.Treasure,
+                "出牌阶段限一次，你可以将一张手牌扣置于此牌下；若如此做，你可以将此装备移动至一名其他角色的装备区。你可使用或打出此牌下的牌。")
         };
 
     public static IReadOnlyList<EquipmentDefinition> Implemented { get; } =

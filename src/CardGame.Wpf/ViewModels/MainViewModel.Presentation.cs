@@ -253,7 +253,7 @@ public sealed partial class MainViewModel
         }
 
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var physicalKind = human.Hand.Concat(human.Equipment)
+        var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment)
             .SingleOrDefault(card => card.Id == cardId)?.Kind;
         if (physicalKind is null)
         {

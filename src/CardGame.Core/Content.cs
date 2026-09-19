@@ -291,6 +291,14 @@ public static class CardCatalog
                 AiPlayValue: 39,
                 AiResponseValue: 0,
                 HandKeepValue: 42),
+            [CardKind.WoodenOx] = new(
+                CardKind.WoodenOx,
+                "木牛流马",
+                "装备牌",
+                "出牌阶段限一次，将一张手牌置于木牛流马下，并可将木牛流马移动给其他角色；其持有者可使用或打出其中的牌。",
+                AiPlayValue: 37,
+                AiResponseValue: 0,
+                HandKeepValue: 41),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

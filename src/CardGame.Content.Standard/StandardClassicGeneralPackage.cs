@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 34, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 35, 0))
     {
     }
 
@@ -53,12 +53,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 31, 0) &&
             version != new Version(1, 32, 0) &&
             version != new Version(1, 33, 0) &&
-            version != new Version(1, 34, 0))
+            version != new Version(1, 34, 0) &&
+            version != new Version(1, 35, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.34.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.35.0.");
         }
 
         _version = version;
@@ -250,6 +251,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["on-loss"] = "recover-one"
                     }));
             }
+            if (_version >= new Version(1, 35, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:wooden-ox",
+                    DisplayName: "木牛流马",
+                    CategoryName: "装备牌",
+                    Description: "出牌阶段限一次，将一张手牌扣置于此牌下，然后可将此牌移动至其他角色的装备区；持有者可使用或打出其中的牌。",
+                    LegacyKind: CardKind.WoodenOx,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "treasure",
+                        ["storage"] = "private-playable-cards",
+                        ["transfer"] = "equipment-to-equipment"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -326,10 +342,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:silver-lion", 1));
             }
+            if (_version >= new Version(1, 35, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:wooden-ox", 1));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 34, 0)
+                Name: _version >= new Version(1, 35, 0)
+                    ? "经典标准牌堆（含木牛流马等扩展装备）"
+                    : _version >= new Version(1, 34, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇·藤甲·白银狮子）"
                     : _version >= new Version(1, 33, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇·藤甲）"
