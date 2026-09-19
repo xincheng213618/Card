@@ -1123,7 +1123,11 @@ internal static class ClassicGeneralUiChecks
                        yuanShao.SkillName == "乱击 / 血裔" &&
                        yuanShao.SkillDescription.Contains("花色相同", StringComparison.Ordinal) &&
                        yuanShao.SkillDescription.Contains("其他群势力角色数的两倍", StringComparison.Ordinal) &&
-                       GeneralArt.HasPortrait(yuanShao.GeneralId) && yuanShao.HealthText == "体力上限 5",
+                       GeneralArt.HasPortrait(yuanShao.GeneralId) &&
+                       yuanShao.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && yuanShao.HealthText == "体力上限 5",
             "The current classic Yuan Shao card must render Qun, Luanji, Xueyi and the Lord health bonus.");
         var yuanShaoWindow = new MainWindow(yuanShaoViewModel);
         yuanShaoWindow.ApplyTemplate();
