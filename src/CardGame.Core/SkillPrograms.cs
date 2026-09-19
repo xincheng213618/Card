@@ -1,0 +1,493 @@
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+
+namespace CardGame.Core;
+
+public enum SkillRuleQuery { DrawCount, HandLimit, SlashLimit, OutgoingDistance, IncomingDistance }
+public enum SkillRuleOperation { Add, Set, Unlimited }
+public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, All, Any, Not }
+public enum SkillProgramTargetKind { OtherLiving, AnyLiving, OtherWounded, AnyWounded }
+public enum SkillProgramEffectOp { Draw, Recover, LoseHp, GiveSelected, DiscardSelected }
+public enum SkillProgramEffectTarget { Owner, SelectedTarget }
+
+public sealed class SkillProgramCondition
+{
+    internal SkillProgramCondition(SkillProgramConditionKind kind, int value, IReadOnlyList<SkillProgramCondition> children)
+    {
+        Kind = kind;
+        Value = value;
+        Children = children;
+    }
+
+    public SkillProgramConditionKind Kind { get; }
+    public int Value { get; }
+    public IReadOnlyList<SkillProgramCondition> Children { get; }
+
+    public bool Evaluate(PlayerSkillContext context) => Kind switch
+    {
+        SkillProgramConditionKind.Always => true,
+        SkillProgramConditionKind.OwnTurn => context.IsOwnTurn,
+        SkillProgramConditionKind.NotOwnTurn => !context.IsOwnTurn,
+        SkillProgramConditionKind.Wounded => context.Hp < context.MaxHp,
+        SkillProgramConditionKind.HpAtLeast => context.Hp >= Value,
+        SkillProgramConditionKind.HandCountAtLeast => context.HandCount >= Value,
+        SkillProgramConditionKind.All => Children.All(child => child.Evaluate(context)),
+        SkillProgramConditionKind.Any => Children.Any(child => child.Evaluate(context)),
+        SkillProgramConditionKind.Not => !Children[0].Evaluate(context),
+        _ => throw new InvalidOperationException($"Unsupported condition kind '{Kind}'.")
+    };
+}
+
+public sealed class SkillProgramModifier
+{
+    internal SkillProgramModifier(SkillRuleQuery query, SkillRuleOperation operation, int value, SkillProgramCondition condition) =>
+        (Query, Operation, Value, Condition) = (query, operation, value, condition);
+    public SkillRuleQuery Query { get; }
+    public SkillRuleOperation Operation { get; }
+    public int Value { get; }
+    public SkillProgramCondition Condition { get; }
+}
+
+public sealed class SkillProgramViewAs
+{
+    internal SkillProgramViewAs(string id, IReadOnlyList<CardKind> inputKinds, IReadOnlyList<Suit> inputSuits,
+        CardKind outputKind, bool forPlay, bool forResponse, SkillProgramCondition condition) =>
+        (Id, InputKinds, InputSuits, OutputKind, ForPlay, ForResponse, Condition) =
+        (id, inputKinds, inputSuits, outputKind, forPlay, forResponse, condition);
+    public string Id { get; }
+    public IReadOnlyList<CardKind> InputKinds { get; }
+    public IReadOnlyList<Suit> InputSuits { get; }
+    public CardKind OutputKind { get; }
+    public bool ForPlay { get; }
+    public bool ForResponse { get; }
+    public SkillProgramCondition Condition { get; }
+}
+
+public sealed class SkillProgramEffect
+{
+    internal SkillProgramEffect(SkillProgramEffectOp op, SkillProgramEffectTarget target, int amount, SkillProgramCondition condition) =>
+        (Op, Target, Amount, Condition) = (op, target, amount, condition);
+    public SkillProgramEffectOp Op { get; }
+    public SkillProgramEffectTarget Target { get; }
+    public int Amount { get; }
+    public SkillProgramCondition Condition { get; }
+}
+
+public sealed class SkillProgramActivation
+{
+    internal SkillProgramActivation(string id, int minCards, int maxCards, int minTargets, int maxTargets,
+        SkillProgramTargetKind targetKind, int? usesPerTurn, SkillProgramCondition condition,
+        IReadOnlyList<SkillProgramEffect> effects) =>
+        (Id, MinCards, MaxCards, MinTargets, MaxTargets, TargetKind, UsesPerTurn, Condition, Effects) =
+        (id, minCards, maxCards, minTargets, maxTargets, targetKind, usesPerTurn, condition, effects);
+    public string Id { get; }
+    public int MinCards { get; }
+    public int MaxCards { get; }
+    public int MinTargets { get; }
+    public int MaxTargets { get; }
+    public SkillProgramTargetKind TargetKind { get; }
+    public int? UsesPerTurn { get; }
+    public SkillProgramCondition Condition { get; }
+    public IReadOnlyList<SkillProgramEffect> Effects { get; }
+}
+
+public sealed class SkillProgram
+{
+    internal SkillProgram(string id, int revision, string gameplayHash, IReadOnlyList<SkillProgramModifier> modifiers,
+        IReadOnlyList<SkillProgramViewAs> viewAs, IReadOnlyList<SkillProgramActivation> activations) =>
+        (Id, Revision, GameplayHash, Modifiers, ViewAs, Activations) =
+        (id, revision, gameplayHash, modifiers, viewAs, activations);
+    public string Id { get; }
+    public int Revision { get; }
+    public string GameplayHash { get; }
+    public IReadOnlyList<SkillProgramModifier> Modifiers { get; }
+    public IReadOnlyList<SkillProgramViewAs> ViewAs { get; }
+    public IReadOnlyList<SkillProgramActivation> Activations { get; }
+}
+
+public sealed class SkillPresentation
+{
+    internal SkillPresentation(string name, string description) => (Name, Description) = (name, description);
+    public string Name { get; }
+    public string Description { get; }
+}
+
+public sealed class SkillProgramCatalog
+{
+    public const string RuntimeVersion = "skill-program-v1";
+    private const int MaximumDepth = 16;
+    private const int MaximumItems = 256;
+    private static readonly SkillProgramCondition Always = new(
+        SkillProgramConditionKind.Always, 0, Array.Empty<SkillProgramCondition>());
+
+    private SkillProgramCatalog(IReadOnlyDictionary<string, SkillProgram> programs,
+        IReadOnlyDictionary<string, SkillPresentation> presentations) =>
+        (Programs, Presentations) = (programs, presentations);
+
+    public IReadOnlyDictionary<string, SkillProgram> Programs { get; }
+    public IReadOnlyDictionary<string, SkillPresentation> Presentations { get; }
+
+    public static SkillProgramCatalog Load(string rulesJson, string presentationJson)
+    {
+        ArgumentNullException.ThrowIfNull(rulesJson);
+        ArgumentNullException.ThrowIfNull(presentationJson);
+        try
+        {
+            using var rules = Parse(rulesJson, "rules");
+            using var presentation = Parse(presentationJson, "presentation");
+            var programs = LoadPrograms(rules.RootElement);
+            var presentations = LoadPresentations(presentation.RootElement, programs);
+            return new SkillProgramCatalog(ReadOnly(programs), ReadOnly(presentations));
+        }
+        catch (InvalidOperationException) { throw; }
+        catch (Exception exception) when (exception is JsonException or FormatException or OverflowException)
+        {
+            throw new InvalidOperationException($"Invalid skill program JSON: {exception.Message}", exception);
+        }
+    }
+
+    private static JsonDocument Parse(string json, string path)
+    {
+        try
+        {
+            var document = JsonDocument.Parse(json, new JsonDocumentOptions
+            {
+                AllowTrailingCommas = false,
+                CommentHandling = JsonCommentHandling.Disallow,
+                MaxDepth = MaximumDepth
+            });
+            RejectDuplicateProperties(document.RootElement, path);
+            return document;
+        }
+        catch (JsonException exception)
+        {
+            throw new InvalidOperationException($"Invalid JSON at {path}: {exception.Message}", exception);
+        }
+    }
+
+    private static Dictionary<string, SkillProgram> LoadPrograms(JsonElement root)
+    {
+        RequireObject(root, "rules");
+        CheckProperties(root, "rules", "schemaVersion", "skills");
+        RequireVersion(root, "rules");
+        var skills = Required(root, "skills", JsonValueKind.Array, "rules");
+        CheckCount(skills.GetArrayLength(), "rules.skills");
+        var result = new Dictionary<string, SkillProgram>(StringComparer.Ordinal);
+        var index = 0;
+        foreach (var skill in skills.EnumerateArray())
+        {
+            var path = $"rules.skills[{index++}]";
+            RequireObject(skill, path);
+            CheckProperties(skill, path, "id", "revision", "modifiers", "viewAs", "activations");
+            var id = Identifier(skill, "id", path);
+            var skillPath = $"skill '{id}' ({path})";
+            if (result.ContainsKey(id)) Fail(skillPath, $"duplicate skill id '{id}'");
+            var revision = PositiveInt(skill, "revision", skillPath);
+            var modifiers = ReadArray(skill, "modifiers", skillPath, ParseModifier);
+            var viewAs = ReadArray(skill, "viewAs", skillPath, ParseViewAs);
+            var activations = ReadArray(skill, "activations", skillPath, ParseActivation);
+            if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0)
+                Fail(skillPath, "must define at least one modifier, viewAs rule, or activation");
+            EnsureUniqueIds(viewAs.Select(item => item.Id), skillPath + ".viewAs");
+            EnsureUniqueIds(activations.Select(item => item.Id), skillPath + ".activations");
+            var hashInput = RuntimeVersion + "\n" + Canonicalize(skill);
+            var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput))).ToLowerInvariant();
+            result.Add(id, new SkillProgram(id, revision, hash, modifiers, viewAs, activations));
+        }
+        return result;
+    }
+
+    private static Dictionary<string, SkillPresentation> LoadPresentations(JsonElement root,
+        IReadOnlyDictionary<string, SkillProgram> programs)
+    {
+        RequireObject(root, "presentation");
+        CheckProperties(root, "presentation", "schemaVersion", "skills");
+        RequireVersion(root, "presentation");
+        var skills = Required(root, "skills", JsonValueKind.Object, "presentation");
+        CheckCount(skills.EnumerateObject().Count(), "presentation.skills");
+        var result = new Dictionary<string, SkillPresentation>(StringComparer.Ordinal);
+        foreach (var property in skills.EnumerateObject())
+        {
+            var id = property.Name;
+            var path = $"presentation.skills.{id}";
+            if (string.IsNullOrWhiteSpace(id) || id.Length > 128) Fail(path, "skill id must contain 1 to 128 characters");
+            if (!programs.ContainsKey(id)) Fail(path, $"presentation references unknown skill '{id}'");
+            RequireObject(property.Value, path);
+            CheckProperties(property.Value, path, "name", "description");
+            result.Add(id, new SkillPresentation(NonEmptyString(property.Value, "name", path),
+                NonEmptyString(property.Value, "description", path)));
+        }
+        foreach (var id in programs.Keys)
+            if (!result.ContainsKey(id)) Fail("presentation.skills", $"missing presentation for skill '{id}'");
+        return result;
+    }
+
+    private static SkillProgramModifier ParseModifier(JsonElement node, string path)
+    {
+        RequireObject(node, path);
+        CheckProperties(node, path, "query", "operation", "value", "condition");
+        var query = EnumValue<SkillRuleQuery>(node, "query", path);
+        var operation = EnumValue<SkillRuleOperation>(node, "operation", path);
+        var value = RequiredInt(node, "value", path);
+        if (value is < -1024 or > 1024)
+            Fail(path + ".value", "modifier value must be between -1024 and 1024");
+        if (operation == SkillRuleOperation.Add && value == 0)
+            Fail(path + ".value", "add requires a non-zero value");
+        if (operation == SkillRuleOperation.Unlimited)
+        {
+            if (query != SkillRuleQuery.SlashLimit) Fail(path, "unlimited is supported only for slashLimit");
+            if (value != 0) Fail(path + ".value", "unlimited requires value 0");
+        }
+        return new SkillProgramModifier(query, operation, value, OptionalCondition(node, path));
+    }
+
+    private static SkillProgramViewAs ParseViewAs(JsonElement node, string path)
+    {
+        RequireObject(node, path);
+        CheckProperties(node, path, "id", "inputKinds", "inputSuits", "outputKind", "forPlay", "forResponse", "condition");
+        var id = Identifier(node, "id", path);
+        var inputs = EnumArray<CardKind>(node, "inputKinds", path);
+        var suits = EnumArray<Suit>(node, "inputSuits", path);
+        var output = EnumValue<CardKind>(node, "outputKind", path);
+        if (output is not (CardKind.Slash or CardKind.Dodge)) Fail(path + ".outputKind", "only slash or dodge is supported");
+        var forPlay = RequiredBool(node, "forPlay", path);
+        var forResponse = RequiredBool(node, "forResponse", path);
+        if (!forPlay && !forResponse) Fail(path, "at least one of forPlay or forResponse must be true");
+        if (output == CardKind.Dodge && forPlay)
+            Fail(path + ".forPlay", "dodge is response-only and cannot be played proactively");
+        if (inputs.Count > 0 && inputs.All(kind => kind == output))
+            Fail(path + ".inputKinds", "viewAs must change at least one accepted input kind");
+        return new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse, OptionalCondition(node, path));
+    }
+
+    private static SkillProgramActivation ParseActivation(JsonElement node, string path)
+    {
+        RequireObject(node, path);
+        CheckProperties(node, path, "id", "minCards", "maxCards", "minTargets", "maxTargets", "targetKind", "usesPerTurn", "condition", "effects");
+        var id = Identifier(node, "id", path);
+        var minCards = NonNegativeInt(node, "minCards", path);
+        var maxCards = NonNegativeInt(node, "maxCards", path);
+        var minTargets = NonNegativeInt(node, "minTargets", path);
+        var maxTargets = NonNegativeInt(node, "maxTargets", path);
+        if (minCards > maxCards) Fail(path, "minCards cannot exceed maxCards");
+        if (maxCards > 64) Fail(path + ".maxCards", "must not exceed 64");
+        if (minTargets > maxTargets) Fail(path, "minTargets cannot exceed maxTargets");
+        if (maxTargets > 1) Fail(path + ".maxTargets", "must not exceed 1");
+        var targetKind = EnumValue<SkillProgramTargetKind>(node, "targetKind", path);
+        int? uses = null;
+        if (node.TryGetProperty("usesPerTurn", out var usesNode))
+        {
+            if (usesNode.ValueKind == JsonValueKind.Null) uses = null;
+            else { uses = GetInt(usesNode, path + ".usesPerTurn"); if (uses <= 0) Fail(path + ".usesPerTurn", "must be positive or null"); }
+        }
+        else Fail(path, "missing required property 'usesPerTurn'");
+        var effects = ReadArray(node, "effects", path, ParseEffect);
+        if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
+        ValidateActivation(path, minCards, maxCards, minTargets, maxTargets, effects);
+        return new SkillProgramActivation(id, minCards, maxCards, minTargets, maxTargets, targetKind, uses,
+            OptionalCondition(node, path), effects);
+    }
+
+    private static SkillProgramEffect ParseEffect(JsonElement node, string path)
+    {
+        RequireObject(node, path);
+        CheckProperties(node, path, "op", "target", "amount", "condition");
+        var op = EnumValue<SkillProgramEffectOp>(node, "op", path);
+        var target = EnumValue<SkillProgramEffectTarget>(node, "target", path);
+        var amount = PositiveInt(node, "amount", path);
+        if (amount > 1024) Fail(path + ".amount", "must not exceed 1024");
+        if (op == SkillProgramEffectOp.GiveSelected && target != SkillProgramEffectTarget.SelectedTarget)
+            Fail(path + ".target", "giveSelected requires selectedTarget");
+        if (op == SkillProgramEffectOp.DiscardSelected && target != SkillProgramEffectTarget.Owner)
+            Fail(path + ".target", "discardSelected requires owner");
+        var condition = OptionalCondition(node, path);
+        if ((op is SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected) &&
+            condition.Kind != SkillProgramConditionKind.Always)
+            Fail(path + ".condition", "selected-card consumption must be unconditional after activation validation");
+        return new SkillProgramEffect(op, target, amount, condition);
+    }
+
+    private static void ValidateActivation(string path, int minCards, int maxCards, int minTargets, int maxTargets,
+        IReadOnlyList<SkillProgramEffect> effects)
+    {
+        if (effects.Any(effect => effect.Target == SkillProgramEffectTarget.SelectedTarget) && minTargets != 1)
+            Fail(path, "selectedTarget effects require exactly one required target");
+        if (maxTargets == 0 && effects.Any(effect => effect.Target == SkillProgramEffectTarget.SelectedTarget))
+            Fail(path, "an effect uses selectedTarget but the activation selects no target");
+        var consumers = effects.Where(effect => effect.Op is SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected).ToArray();
+        if (consumers.Length > 1) Fail(path + ".effects", "selected cards may be consumed only once");
+        if (maxCards == 0 && consumers.Length != 0) Fail(path, "selected-card effect requires selected cards");
+        if (maxCards > 0 && consumers.Length != 1) Fail(path, "selected cards require exactly one giveSelected or discardSelected effect");
+        if (consumers.Length == 1 && (minCards != maxCards || consumers[0].Amount != minCards))
+            Fail(path, "selected-card consumption amount must equal the exact selected card count");
+    }
+
+    private static SkillProgramCondition OptionalCondition(JsonElement owner, string path) =>
+        owner.TryGetProperty("condition", out var condition) ? ParseCondition(condition, path + ".condition", 0) : Always;
+
+    private static SkillProgramCondition ParseCondition(JsonElement node, string path, int depth)
+    {
+        if (depth >= MaximumDepth) Fail(path, $"condition nesting exceeds {MaximumDepth}");
+        RequireObject(node, path);
+        CheckProperties(node, path, "kind", "value", "children");
+        var kind = EnumValue<SkillProgramConditionKind>(node, "kind", path);
+        var hasValue = node.TryGetProperty("value", out var valueNode);
+        var hasChildren = node.TryGetProperty("children", out var childrenNode);
+        var value = hasValue ? GetInt(valueNode, path + ".value") : 0;
+        var children = new List<SkillProgramCondition>();
+        if (hasChildren)
+        {
+            if (childrenNode.ValueKind != JsonValueKind.Array) Fail(path + ".children", "must be an array");
+            CheckCount(childrenNode.GetArrayLength(), path + ".children");
+            var index = 0;
+            foreach (var child in childrenNode.EnumerateArray()) children.Add(ParseCondition(child, $"{path}.children[{index++}]", depth + 1));
+        }
+        var needsValue = kind is SkillProgramConditionKind.HpAtLeast or SkillProgramConditionKind.HandCountAtLeast;
+        if (needsValue != hasValue) Fail(path, needsValue ? "this condition requires value" : "this condition does not accept value");
+        if (needsValue && value < 0) Fail(path + ".value", "must be non-negative");
+        var composite = kind is SkillProgramConditionKind.All or SkillProgramConditionKind.Any or SkillProgramConditionKind.Not;
+        if (composite != hasChildren) Fail(path, composite ? "this condition requires children" : "this condition does not accept children");
+        if (kind == SkillProgramConditionKind.Not && children.Count != 1) Fail(path + ".children", "not requires exactly one child");
+        if (kind is SkillProgramConditionKind.All or SkillProgramConditionKind.Any && children.Count == 0)
+            Fail(path + ".children", "all and any require at least one child");
+        return new SkillProgramCondition(kind, value, new ReadOnlyCollection<SkillProgramCondition>(children));
+    }
+
+    private static IReadOnlyList<T> ReadArray<T>(JsonElement owner, string name, string path, Func<JsonElement, string, T> parser)
+    {
+        var array = Required(owner, name, JsonValueKind.Array, path);
+        CheckCount(array.GetArrayLength(), path + "." + name);
+        var result = new List<T>();
+        var index = 0;
+        foreach (var node in array.EnumerateArray()) result.Add(parser(node, $"{path}.{name}[{index++}]"));
+        return new ReadOnlyCollection<T>(result);
+    }
+
+    private static IReadOnlyList<T> EnumArray<T>(JsonElement owner, string name, string path) where T : struct, Enum
+    {
+        var values = ReadArray(owner, name, path, (node, itemPath) => ParseEnum<T>(node, itemPath));
+        if (values.Distinct().Count() != values.Count) Fail(path + "." + name, "contains duplicate values");
+        return values;
+    }
+
+    private static T EnumValue<T>(JsonElement owner, string name, string path) where T : struct, Enum =>
+        ParseEnum<T>(Required(owner, name, JsonValueKind.String, path), path + "." + name);
+
+    private static T ParseEnum<T>(JsonElement node, string path) where T : struct, Enum
+    {
+        if (node.ValueKind != JsonValueKind.String) Fail(path, "must be a camelCase string");
+        var text = node.GetString()!;
+        foreach (var value in Enum.GetValues<T>())
+        {
+            var name = Enum.GetName(value)!;
+            var camel = char.ToLowerInvariant(name[0]) + name[1..];
+            if (text == camel) return value;
+        }
+        Fail(path, $"unsupported {typeof(T).Name} value '{text}'");
+        return default;
+    }
+
+    private static string Canonicalize(JsonElement element)
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream)) WriteCanonical(writer, element);
+        return Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    private static void WriteCanonical(Utf8JsonWriter writer, JsonElement element)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                writer.WriteStartObject();
+                foreach (var property in element.EnumerateObject().OrderBy(property => property.Name, StringComparer.Ordinal))
+                { writer.WritePropertyName(property.Name); WriteCanonical(writer, property.Value); }
+                writer.WriteEndObject(); break;
+            case JsonValueKind.Array:
+                writer.WriteStartArray(); foreach (var item in element.EnumerateArray()) WriteCanonical(writer, item); writer.WriteEndArray(); break;
+            case JsonValueKind.String: writer.WriteStringValue(element.GetString()); break;
+            case JsonValueKind.Number: writer.WriteRawValue(element.GetRawText(), skipInputValidation: false); break;
+            case JsonValueKind.True: writer.WriteBooleanValue(true); break;
+            case JsonValueKind.False: writer.WriteBooleanValue(false); break;
+            case JsonValueKind.Null: writer.WriteNullValue(); break;
+            default: throw new InvalidOperationException("Unsupported JSON token in canonical skill program.");
+        }
+    }
+
+    private static void RejectDuplicateProperties(JsonElement node, string path)
+    {
+        if (node.ValueKind == JsonValueKind.Object)
+        {
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var property in node.EnumerateObject())
+            {
+                if (!names.Add(property.Name)) Fail(path, $"duplicate property '{property.Name}'");
+                RejectDuplicateProperties(property.Value, path + "." + property.Name);
+            }
+        }
+        else if (node.ValueKind == JsonValueKind.Array)
+        {
+            var index = 0;
+            foreach (var item in node.EnumerateArray()) RejectDuplicateProperties(item, $"{path}[{index++}]");
+        }
+    }
+
+    private static void CheckProperties(JsonElement node, string path, params string[] allowed)
+    {
+        var set = allowed.ToHashSet(StringComparer.Ordinal);
+        foreach (var property in node.EnumerateObject())
+            if (!set.Contains(property.Name)) Fail(path + "." + property.Name, "unsupported property");
+    }
+
+    private static void RequireVersion(JsonElement root, string path)
+    {
+        var version = RequiredInt(root, "schemaVersion", path);
+        if (version != 1) Fail(path + ".schemaVersion", $"unsupported schema version {version}; expected 1");
+    }
+
+    private static JsonElement Required(JsonElement owner, string name, JsonValueKind kind, string path)
+    {
+        if (!owner.TryGetProperty(name, out var value)) { Fail(path, $"missing required property '{name}'"); return default; }
+        if (value.ValueKind != kind) Fail(path + "." + name, $"must be {kind}");
+        return value;
+    }
+
+    private static string Identifier(JsonElement owner, string name, string path)
+    {
+        var value = NonEmptyString(owner, name, path);
+        if (value.Length > 128) Fail(path + "." + name, "must not exceed 128 characters");
+        return value;
+    }
+
+    private static string NonEmptyString(JsonElement owner, string name, string path)
+    {
+        var value = Required(owner, name, JsonValueKind.String, path).GetString()!;
+        if (string.IsNullOrWhiteSpace(value)) Fail(path + "." + name, "must not be empty");
+        return value;
+    }
+
+    private static int RequiredInt(JsonElement owner, string name, string path) => GetInt(Required(owner, name, JsonValueKind.Number, path), path + "." + name);
+    private static int PositiveInt(JsonElement owner, string name, string path) { var value = RequiredInt(owner, name, path); if (value <= 0) Fail(path + "." + name, "must be positive"); return value; }
+    private static int NonNegativeInt(JsonElement owner, string name, string path) { var value = RequiredInt(owner, name, path); if (value < 0) Fail(path + "." + name, "must be non-negative"); return value; }
+    private static int GetInt(JsonElement value, string path)
+    {
+        if (value.ValueKind != JsonValueKind.Number) Fail(path, "must be a 32-bit integer");
+        if (!value.TryGetInt32(out var result)) Fail(path, "must be a 32-bit integer");
+        return result;
+    }
+    private static bool RequiredBool(JsonElement owner, string name, string path)
+    {
+        if (!owner.TryGetProperty(name, out var value)) { Fail(path, $"missing required property '{name}'"); return false; }
+        if (value.ValueKind is not (JsonValueKind.True or JsonValueKind.False)) Fail(path + "." + name, "must be a boolean");
+        return value.GetBoolean();
+    }
+    private static void RequireObject(JsonElement node, string path) { if (node.ValueKind != JsonValueKind.Object) Fail(path, "must be an object"); }
+    private static void CheckCount(int count, string path) { if (count > MaximumItems) Fail(path, $"contains more than {MaximumItems} items"); }
+    private static void EnsureUniqueIds(IEnumerable<string> ids, string path) { var seen = new HashSet<string>(StringComparer.Ordinal); foreach (var id in ids) if (!seen.Add(id)) Fail(path, $"duplicate id '{id}'"); }
+    private static IReadOnlyDictionary<string, T> ReadOnly<T>(Dictionary<string, T> source) => new ReadOnlyDictionary<string, T>(source);
+    [DoesNotReturn]
+    private static void Fail(string path, string message) => throw new InvalidOperationException($"Invalid skill program at {path}: {message}.");
+}

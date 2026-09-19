@@ -31,6 +31,10 @@ public sealed partial class MainViewModel
                 .Where(action => action.Skill is not null)
                 .Select(action => action.Skill!.Value)
                 .ToHashSet();
+            var availablePrograms = HumanActiveSkillActions
+                .Where(action => action.ProgramSkillId is not null)
+                .Select(action => action.ProgramSkillId!)
+                .ToHashSet(StringComparer.Ordinal);
             if (IsNationalSnapshot)
             {
                 return new[] { GeneralSlotViewModel.FromPlayer(human, false, _game.RulesVersion), GeneralSlotViewModel.FromPlayer(human, true, _game.RulesVersion) }
@@ -47,6 +51,27 @@ public sealed partial class MainViewModel
                             $"{slot.SlotLabel}将 · {(slot.IsRevealed ? "明置" : "暗置")}",
                             slot.IsSkillEnabled && available.Contains(kind),
                             !slot.IsSkillEnabled);
+                    })
+                    .ToArray();
+            }
+
+            if (_contentRegistry.Generals.TryGetValue(human.GeneralId, out var general))
+            {
+                return general.SkillIds.Select(_contentRegistry.GetSkill)
+                    .Select(skill =>
+                    {
+                        var active = skill.Program?.Activations.Count > 0 ||
+                                     skill.LegacyKind is { } kind && SkillRegistry.GetActive(kind) is not null;
+                        var isAvailable = availablePrograms.Contains(skill.Id) ||
+                                          skill.LegacyKind is { } legacyKind && available.Contains(legacyKind);
+                        return new HumanSkillViewModel(
+                            skill.Name,
+                            GetVisibleSkillDescription(skill),
+                            active ? "主动技" : "触发 / 锁定",
+                            isAvailable ? "当前可发动" : active ? "当前不可发动" : "规则自动生效",
+                            human.GeneralName,
+                            isAvailable,
+                            false);
                     })
                     .ToArray();
             }
@@ -79,12 +104,14 @@ public sealed partial class MainViewModel
     public IReadOnlyList<LegalAction> HumanActiveSkillActions => _snapshot is not null &&
         _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard
             ? _game.GetHumanLegalActions().Where(action =>
-                action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect).ToArray()
+                action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill).ToArray()
             : [];
     public IReadOnlyList<LegalAction> AdditionalActiveSkillActions => HumanActiveSkillActions.Skip(1).ToArray();
     private LegalAction? HumanActiveSkillAction => HumanActiveSkillActions.FirstOrDefault(action =>
         action.Skill == _selectedActiveSkillKind &&
-        action.EquipmentKind == _selectedEquipmentEffectKind) ?? HumanActiveSkillActions.FirstOrDefault();
+        action.EquipmentKind == _selectedEquipmentEffectKind &&
+        action.ProgramSkillId == _selectedProgramSkillId &&
+        action.ProgramActivationId == _selectedProgramActivationId) ?? HumanActiveSkillActions.FirstOrDefault();
     private bool IsActiveSkillCardSelectionPending =>
         _isSelectingActiveSkillCards &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
@@ -97,11 +124,16 @@ public sealed partial class MainViewModel
         IsActiveSkillCardSelectionPending || IsActiveSkillTargetSelectionPending;
     public bool ShowActiveSkillEntry => CanUseActiveSkill && !IsActiveSkillSelectionPending;
     public string ActiveSkillEntryText => HumanActiveSkillAction?.Description ?? "发动技能";
-    private string HumanActiveSkillName => HumanActiveSkillAction?.Skill is { } skill
-        ? SkillRegistry.Get(skill).Name
-        : HumanActiveSkillAction?.EquipmentKind is { } equipment
-            ? EquipmentCatalog.Get(equipment).DisplayName
-        : "技能";
+    private string HumanActiveSkillName => HumanActiveSkillAction is { } action ? ActiveSkillName(action) : "技能";
+
+    private string ActiveSkillName(LegalAction action) => action.ProgramSkillId is { } programSkillId &&
+                                                          _contentRegistry.Skills.TryGetValue(programSkillId, out var programSkill)
+        ? programSkill.Name
+        : action.Skill is { } skill
+            ? SkillRegistry.Get(skill).Name
+            : action.EquipmentKind is { } equipment
+                ? EquipmentCatalog.Get(equipment).DisplayName
+                : "技能";
     public bool CanConfirmActiveSkill => IsActiveSkillSelectionPending && HumanActiveSkillAction is { } action &&
         _selectedActiveSkillCardIds.Count >= action.MinCardCount && _selectedActiveSkillCardIds.Count <= action.MaxCardCount &&
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
@@ -331,6 +363,8 @@ public sealed partial class MainViewModel
         _selectedActiveSkillTargetSeats.Clear();
         _selectedActiveSkillKind = null;
         _selectedEquipmentEffectKind = null;
+        _selectedProgramSkillId = null;
+        _selectedProgramActivationId = null;
         _isSelectingActiveSkillCards = false;
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = "未选择手牌";
@@ -382,9 +416,9 @@ public sealed partial class MainViewModel
 
     private string GetActiveSkillSelectionHint()
     {
-        var skillName = _snapshot.Players.Single(player => player.IsHuman).SkillName;
         var action = HumanActiveSkillAction;
         if (action is null) return "正在选择主动技能参数。";
+        var skillName = ActiveSkillName(action);
 
         var parts = new List<string>();
         if (action.MaxCardCount > 0)

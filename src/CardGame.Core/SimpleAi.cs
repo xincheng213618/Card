@@ -13,6 +13,8 @@ public sealed partial class SimpleAiBrain
     private readonly int _policyVersion;
     private readonly HashSet<int> _recastCardsThisTurn = [];
     private int _recastTurn = -1;
+    private readonly Dictionary<(string SkillId, string ActivationId), int> _programUsesThisTurn = [];
+    private int _programUseTurn = -1;
 
     public SimpleAiBrain(int seat, int seed, int policyVersion = 1)
     {
@@ -258,6 +260,15 @@ public sealed partial class SimpleAiBrain
             .ThenBy(candidate => candidate.Action.TargetCardId ?? int.MaxValue)
             .First();
 
+        if (selected.Action.Kind == LegalActionKind.UseProgramSkill &&
+            selected.Action.ProgramSkillId is { } skillId &&
+            selected.Action.ProgramActivationId is { } activationId)
+        {
+            ResetProgramUseCounts(view.TurnNumber);
+            var key = (skillId, activationId);
+            _programUsesThisTurn[key] = _programUsesThisTurn.GetValueOrDefault(key) + 1;
+        }
+
         var thought = new AiThoughtRecord(
             thoughtSequence,
             view.TurnNumber,
@@ -278,7 +289,7 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         LegalAction action)
     {
-        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect))
+        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill))
         {
             return [];
         }
@@ -412,7 +423,7 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         LegalAction action)
     {
-        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect) ||
+        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill) ||
             action.MinTargetCount == 0)
         {
             return [];
@@ -429,7 +440,9 @@ public sealed partial class SimpleAiBrain
         var candidates = view.Players
             .Where(player => player.IsAlive &&
                              (selectableTargets is null || selectableTargets.Contains(player.Seat)) &&
-                             (action.Skill is SkillKind.Qingnang or SkillKind.Huichun
+                             (action.Kind == LegalActionKind.UseProgramSkill
+                                 ? true
+                                 : action.Skill is SkillKind.Qingnang or SkillKind.Huichun
                                  ? player.Hp < player.MaxHp
                                  : player.Seat != Seat))
             .ToArray();
@@ -440,6 +453,19 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
+        if (action.Kind == LegalActionKind.UseProgramSkill)
+        {
+            var hint = action.ProgramAiHint ?? throw new InvalidOperationException(
+                "A configured skill action must publish its public AI hint.");
+            return candidates
+                .OrderByDescending(target => ScoreProgramTarget(view, selfRole, target, hint))
+                .ThenBy(target => target.Hp)
+                .ThenBy(target => target.Seat)
+                .Take(action.MinTargetCount)
+                .Select(target => target.Seat)
+                .ToArray();
+        }
+
         var orderedCandidates = action.Kind == LegalActionKind.UseEquipmentEffect ||
                                 action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi
             ? candidates
@@ -2501,12 +2527,98 @@ public sealed partial class SimpleAiBrain
         };
     }
 
+    private (double Score, string Reason) ScoreProgramAction(
+        GameSnapshot view,
+        PlayerSnapshot self,
+        Role selfRole,
+        LegalAction action)
+    {
+        if (action.ProgramAiHint is not { } hint ||
+            action.ProgramSkillId is not { } skillId ||
+            action.ProgramActivationId is not { } activationId)
+        {
+            return (-1000d, "配置技能缺少可检查的公开 AI 效果摘要。");
+        }
+
+        ResetProgramUseCounts(view.TurnNumber);
+        if (_programUsesThisTurn.GetValueOrDefault((skillId, activationId)) >= 16)
+            return (-1000d, "本回合已连续发动该配置技能 16 次，停止 AI 正循环。");
+
+        if (hint.OwnerHpLoss >= self.Hp && hint.OwnerHpLoss > 0)
+            return (-1000d, $"该配置技能将失去 {hint.OwnerHpLoss} 点体力，当前仅有 {self.Hp} 点，避免主动进入濒死。");
+
+        var missingHp = Math.Max(0, self.MaxHp - self.Hp);
+        var ownerRecovery = Math.Min(missingHp, Math.Max(0, hint.OwnerRecovery));
+        var ownerValue = Math.Max(0, hint.OwnerDraw) * 8d + ownerRecovery * 18d - Math.Max(0, hint.OwnerHpLoss) * 22d;
+        if (hint.OwnerHpLoss > 0 && self.Hp - hint.OwnerHpLoss <= 1)
+            ownerValue -= 24d;
+
+        var selectedCards = GetActiveSkillSelectableCards(self, action)
+            .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+            .ThenBy(card => card.Id)
+            .Take(action.MinCardCount)
+            .ToArray();
+        if (selectedCards.Length < action.MinCardCount)
+            return (-1000d, "配置技能没有足够的合法自有牌支付公开选牌要求。");
+        var cardCost = selectedCards.Sum(card => CardCatalog.Get(card.Kind).HandKeepValue) * .35d;
+
+        var targetValue = 0d;
+        var targetReason = string.Empty;
+        if (action.MinTargetCount > 0)
+        {
+            var targets = view.Players
+                .Where(player => player.IsAlive &&
+                                 (action.SelectableTargetSeats.Count == 0 || action.SelectableTargetSeats.Contains(player.Seat)))
+                .Select(player => new { Player = player, Score = ScoreProgramTarget(view, selfRole, player, hint) })
+                .OrderByDescending(candidate => candidate.Score)
+                .ThenBy(candidate => candidate.Player.Hp)
+                .ThenBy(candidate => candidate.Player.Seat)
+                .Take(action.MinTargetCount)
+                .ToArray();
+            if (targets.Length < action.MinTargetCount)
+                return (-1000d, "配置技能没有足够的公开合法目标。");
+            targetValue = targets.Sum(candidate => candidate.Score);
+            targetReason = $"；目标公开关系收益 {targetValue:0.#}";
+        }
+
+        var score = 12d + ownerValue + targetValue - cardCost;
+        return (score,
+            $"配置技能公开效果：自身摸牌 {hint.OwnerDraw}、回复 {hint.OwnerRecovery}、失去体力 {hint.OwnerHpLoss}，选牌代价 {cardCost:0.#}{targetReason}。");
+    }
+
+    private double ScoreProgramTarget(
+        GameSnapshot view,
+        Role selfRole,
+        PlayerSnapshot target,
+        SkillProgramAiHint hint)
+    {
+        var hostility = target.Seat == Seat ? -100d : GetHostility(view, selfRole, target);
+        var support = -hostility;
+        var recovery = Math.Min(Math.Max(0, target.MaxHp - target.Hp), Math.Max(0, hint.TargetRecovery));
+        var benefit = Math.Max(0, hint.TargetDraw) * 7d + recovery * 17d;
+        var harm = Math.Max(0, hint.TargetHpLoss) * 24d +
+                   (hint.TargetHpLoss > 0 && target.Hp <= hint.TargetHpLoss ? 32d : 0d);
+        var give = hint.GivesSelected ? 6d : 0d;
+        return support * (benefit + give) / 25d + hostility * harm / 25d;
+    }
+
+    private void ResetProgramUseCounts(int turnNumber)
+    {
+        if (_programUseTurn == turnNumber)
+            return;
+        _programUseTurn = turnNumber;
+        _programUsesThisTurn.Clear();
+    }
+
     private (double Score, string Reason) ScoreAction(
         GameSnapshot view,
         PlayerSnapshot self,
         Role selfRole,
         LegalAction action)
     {
+        if (action.Kind == LegalActionKind.UseProgramSkill)
+            return ScoreProgramAction(view, self, selfRole, action);
+
         if (action.Kind == LegalActionKind.Recast)
             return _recastTurn == view.TurnNumber && action.CardId is { } recastId && _recastCardsThisTurn.Contains(recastId)
                 ? (-1000d, "本回合已重铸过这张实体牌，避免反复换回同一张牌而停滞。")

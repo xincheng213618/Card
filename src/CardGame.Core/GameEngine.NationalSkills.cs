@@ -48,7 +48,11 @@ public sealed partial class GameEngine
 
     private IPassiveSkill PassiveRules(PlayerRuntime player)
     {
-        var skills = EnabledPassiveSkills(player).ToArray();
+        var programs = EnabledSkillPrograms(player);
+        var skills = programs.Count == 0
+            ? EnabledPassiveSkills(player).ToArray()
+            : EnabledPassiveSkills(player).Append(new SkillProgramRules(programs,
+                GetHand(player).Select(card => card.Id).ToHashSet())).ToArray();
         return skills.Length == 1 ? skills[0] : new CompositePassiveRules(skills);
     }
 

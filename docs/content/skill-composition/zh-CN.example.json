@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "status": "design-only",
+  "locale": "zh-CN",
+  "presentationRevision": 1,
+  "notes": [
+    "Descriptions are display data and never interpreted as executable rules.",
+    "These are review descriptions for the proposed examples, not a production translation package."
+  ],
+  "skills": {
+    "example:draw-plus-one": {
+      "name": "增摸示例",
+      "description": "摸牌阶段计算摸牌数时，你可以令此次摸牌数增加一。",
+      "prompts": { "invoke": "是否令此次摸牌数增加一？" }
+    },
+    "example:hand-limit-plus-two": {
+      "name": "手牌上限示例",
+      "description": "你的手牌上限增加二。",
+      "prompts": {}
+    },
+    "example:unlimited-slash": {
+      "name": "无限杀示例",
+      "description": "你使用杀无次数上限；仍遵守距离、目标和响应规则。",
+      "prompts": {}
+    },
+    "example:lose-hp-draw": {
+      "name": "失血摸牌示例",
+      "description": "出牌阶段，你可以失去一点体力。相关结算结束后，若你存活，摸两张牌。",
+      "prompts": {}
+    },
+    "example:longdan": {
+      "name": "龙胆",
+      "description": "你可以将一张杀作为闪，或将一张闪作为杀，按当前窗口允许的方式使用或打出。",
+      "prompts": {}
+    },
+    "example:chongzhen": {
+      "name": "冲阵",
+      "description": "当你通过龙胆使用或打出牌时，可以在该牌效果继续前获得当前对方的一张手牌。",
+      "prompts": { "invoke": "是否发动冲阵，获得对方的一张手牌？" }
+    },
+    "example:leiji-ol-current": {
+      "name": "界雷击示例",
+      "description": "你使用或打出闪，或使用闪电时，可以自行判定。你的判定结果为黑桃时，可以选择一名角色对其造成两点雷电伤害；为梅花时，先回复自己一点体力，再可以选择一名角色对其造成一点雷电伤害。",
+      "prompts": { "judge": "是否进行判定？", "target": "选择承受雷电伤害的角色，也可以放弃。" }
+    },
+    "example:guidao-exchange-draw": {
+      "name": "改判交换示例",
+      "description": "自定义组合：判定牌生效前，你可以用自己的一张黑色手牌或装备牌替换它，并获得换下的牌。替换提交时，所用牌的有效花色为黑桃且点数在二至九之间时，再摸一张牌。此说明不代表某个正式版本的鬼道。",
+      "prompts": { "invoke": "是否选择黑色牌进行交换改判？" }
+    },
+    "example:wuhun": {
+      "name": "武魂组合示例",
+      "description": "以本示例的规则政策为准：你每实际受到一点有其他角色来源的伤害，来源获得一枚梦魇。你的死亡技能窗口可执行时，从梦魇数量最高且不为零的其他存活角色中选择一人判定；结果不是桃或桃园结义则令其直接死亡。该链正常完成后，清除场上梦魇。",
+      "prompts": { "victim": "从梦魇最多的其他角色中选择判定者。" }
+    },
+    "example:give-and-recover": {
+      "name": "给牌回血示例",
+      "description": "出牌阶段限一次，你可以交给一名其他角色两张手牌，然后回复自己一点体力。这是独立组合示例，不是经典仁德定义。",
+      "prompts": {}
+    },
+    "example:give-and-virtual-slash": {
+      "name": "给牌出杀示例",
+      "description": "出牌阶段限一次，你可以交给一名其他角色一张手牌，然后可以视为使用一张杀。此杀遵守普通距离、目标和次数规则；无法或不愿使用时，已给出的牌不返还。",
+      "prompts": { "target": "选择虚拟杀的合法目标，也可以放弃。" }
+    }
+  }
+}

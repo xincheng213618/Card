@@ -28,7 +28,8 @@ public enum ResolutionFrameKind
     Death,
     NullificationWindow,
     ActiveSkill,
-    TargetCardSelection
+    TargetCardSelection,
+    ProgramSkill
 }
 
 public enum ResolutionFrameStep
@@ -70,10 +71,24 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(NullificationWindowFrame), "nullification-window")]
 [JsonDerivedType(typeof(ActiveSkillFrame), "active-skill")]
 [JsonDerivedType(typeof(TargetCardSelectionFrame), "target-card-selection")]
+[JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
     ResolutionFrameStep Step);
+
+/// <summary>A resumable program cursor; child resolutions cannot repeat paid effects.</summary>
+public sealed record ProgramSkillFrame(
+    long Id,
+    int OwnerSeat,
+    string SkillId,
+    string ActivationId,
+    string GameplayHash,
+    int InstructionIndex,
+    IReadOnlyList<int> SelectedCardIds,
+    IReadOnlyList<int> SelectedTargetSeats,
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step);
 
 public sealed record CardUseFrame(
     long Id,

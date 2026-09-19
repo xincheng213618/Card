@@ -52,6 +52,7 @@ internal static class Program
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("skill conversion is explicit and shares the confirmation flow", CheckConversions);
             Check("expanded content exposes the active-skill command in WPF", ActiveSkillChecks.Controls);
+            Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
             Check("classic setup selects and persists standard or military physical decks", () => ClassicGeneralUiChecks.SelectableDeckExpansion(output));
             Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
             Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
@@ -113,7 +114,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 77 : 76)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 78 : 77)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -378,12 +379,12 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 7 && vm.SelectedModeCategory.Id == "all" &&
-               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 4,
+        Assert(vm.VisibleTableModes.Count == 8 && vm.SelectedModeCategory.Id == "all" &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 5,
             "The expanded mode lobby did not expose all registered entry families.");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 7 &&
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 8 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
             "Mode cards or category controls are inaccessible.");
 
@@ -396,8 +397,8 @@ internal static class Program
         Assert(vm.VisibleTableModes.Count == 1 && vm.SelectedTableMode.ModeId == "team:standard-2v2" && vm.IsTeamModeSelection,
             "Team category did not select its real registered entry.");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "identity");
-        Assert(vm.VisibleTableModes.Count == 4 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("identity:")) && vm.IsIdentityModeSelection,
-            "Identity category did not expose its four actual modes.");
+        Assert(vm.VisibleTableModes.Count == 5 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("identity:")) && vm.IsIdentityModeSelection,
+            "Identity category did not expose its five actual modes.");
         Assert(Engine(vm).Revision == revision && vm.IsNewGameSetupOpen,
             "Browsing the mode lobby changed or replaced the suspended match.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));

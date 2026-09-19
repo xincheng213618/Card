@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "status": "design-only-not-loadable-by-current-engine",
+  "rulesetId": "example:composition-v1",
+  "capabilitySet": "proposal:core-primitives@1",
+  "notes": [
+    "These are proposed authoring contracts, not implemented runtime programs.",
+    "The example namespace is excluded from production general pools.",
+    "Skill descriptions and prompts are stored separately in zh-CN.example.json.",
+    "Skill, trigger and node ids are stable identifiers; numeric skill enums are not required.",
+    "Official variants and custom composition examples must remain separate content definitions."
+  ],
+  "skills": [
+    {
+      "id": "example:draw-plus-one",
+      "revision": 1,
+      "variant": "custom",
+      "triggers": [
+        {
+          "id": "draw-phase-bonus",
+          "window": "DrawCountCalculating",
+          "when": { "op": "eq", "args": [{ "ref": "event.actor" }, { "ref": "owner" }] },
+          "optional": true,
+          "promptKey": "invoke",
+          "effects": [
+            { "id": "increase", "op": "modifyPendingQuery", "query": "DrawCount", "mode": "add", "value": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example:hand-limit-plus-two",
+      "revision": 1,
+      "variant": "custom",
+      "modifiers": [
+        { "id": "hand-limit", "query": "HandLimit", "subject": { "ref": "owner" }, "mode": "add", "value": 2 }
+      ]
+    },
+    {
+      "id": "example:unlimited-slash",
+      "revision": 1,
+      "variant": "custom",
+      "modifiers": [
+        { "id": "slash-limit", "query": "SlashUseLimit", "subject": { "ref": "owner" }, "mode": "override", "value": { "constant": "Unlimited" } }
+      ]
+    },
+    {
+      "id": "example:lose-hp-draw",
+      "revision": 1,
+      "variant": "custom",
+      "activations": [
+        {
+          "id": "activate",
+          "phase": "Play",
+          "when": { "op": "gt", "args": [{ "ref": "owner.hp" }, 0] },
+          "usage": { "scope": "unlimited" },
+          "costs": [{ "id": "pay-hp", "op": "loseHp", "target": { "ref": "owner" }, "amount": 1 }],
+          "continuationPolicy": "await-cost-children-then-require-owner-alive",
+          "effects": [{ "id": "draw", "op": "draw", "target": { "ref": "owner" }, "count": 2 }]
+        }
+      ]
+    },
+    {
+      "id": "example:longdan",
+      "revision": 1,
+      "variant": "sp-zhaoyun-reference",
+      "sourceRefs": ["https://www.sanguosha.com/hero/108"],
+      "viewAs": [
+        {
+          "id": "slash-to-dodge",
+          "selection": { "owner": { "ref": "owner" }, "zones": ["Hand"], "count": 1, "pattern": { "kindFamily": "Slash" } },
+          "contexts": ["Use", "Respond"],
+          "result": { "kind": "Dodge", "suit": "inherit-single-material", "rank": "inherit-single-material" },
+          "provenance": "append-current-skill-instance",
+          "legality": "normal-card-and-current-window"
+        },
+        {
+          "id": "dodge-to-slash",
+          "selection": { "owner": { "ref": "owner" }, "zones": ["Hand"], "count": 1, "pattern": { "kind": "Dodge" } },
+          "contexts": ["Use", "Respond"],
+          "result": { "kind": "Slash", "suit": "inherit-single-material", "rank": "inherit-single-material" },
+          "provenance": "append-current-skill-instance",
+          "legality": "normal-card-and-current-window"
+        }
+      ]
+    },
+    {
+      "id": "example:chongzhen",
+      "revision": 1,
+      "variant": "sp-zhaoyun-reference",
+      "sourceRefs": ["https://www.sanguosha.com/news/20161215_4752_4616"],
+      "triggers": [
+        {
+          "id": "after-longdan",
+          "window": ["CardUseTargetsFinalized", "CardResponseAccepted"],
+          "useTargetPolicy": "each-final-target",
+          "deduplicateBy": "card-action-binding-target-occurrence",
+          "when": {
+            "op": "and",
+            "args": [
+              { "op": "eq", "args": [{ "ref": "event.card.actor" }, { "ref": "owner" }] },
+              { "op": "hasConversion", "card": { "ref": "event.card" }, "skillId": "example:longdan", "owner": { "ref": "owner" } },
+              { "op": "exists", "args": [{ "ref": "event.opponent" }] },
+              { "op": "gt", "args": [{ "ref": "event.opponent.handCount" }, 0] }
+            ]
+          },
+          "optional": true,
+          "promptKey": "invoke",
+          "recheck": "before-invoke-and-before-card-move",
+          "effects": [
+            {
+              "id": "take-hand-card",
+              "op": "obtain",
+              "from": { "ref": "event.opponent" },
+              "to": { "ref": "owner" },
+              "zones": ["Hand"],
+              "count": 1,
+              "selection": "owner-chooses-opaque-card-token",
+              "onEmpty": "skip"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example:leiji-ol-current",
+      "revision": 1,
+      "variant": "ol-hero-448-snapshot-2026-09-20",
+      "sourceRefs": ["https://www.sanguosha.com/hero/448"],
+      "triggers": [
+        {
+          "id": "request-judgment",
+          "window": ["CardUseDeclared", "CardResponseAccepted"],
+          "deduplicateBy": "card-action-binding",
+          "when": {
+            "op": "and",
+            "args": [
+              { "op": "eq", "args": [{ "ref": "event.card.actor" }, { "ref": "owner" }] },
+              {
+                "op": "or",
+                "args": [
+                  { "op": "eq", "args": [{ "ref": "event.card.effectiveKind" }, "Dodge"] },
+                  { "op": "and", "args": [
+                    { "op": "eq", "args": [{ "ref": "event.window" }, "CardUseDeclared"] },
+                    { "op": "eq", "args": [{ "ref": "event.card.effectiveKind" }, "Lightning"] }
+                  ] }
+                ]
+              }
+            ]
+          },
+          "optional": true,
+          "promptKey": "judge",
+          "effects": [
+            { "id": "judge-self", "op": "judge", "subject": { "ref": "owner" }, "reason": "example:leiji", "replacementPolicy": "ruleset-default" }
+          ]
+        },
+        {
+          "id": "after-own-judgment",
+          "window": "JudgmentFinalized",
+          "when": { "op": "eq", "args": [{ "ref": "event.judgment.subject" }, { "ref": "owner" }] },
+          "optional": false,
+          "effects": [
+            {
+              "id": "by-suit",
+              "op": "switch",
+              "value": { "ref": "event.judgment.effectiveSuit" },
+              "cases": {
+                "Spade": [
+                  { "id": "spade-target", "op": "choosePlayer", "chooser": { "ref": "owner" }, "candidates": { "query": "livingPlayers" }, "optional": true, "promptKey": "target", "bind": "spadeTarget" },
+                  { "id": "spade-hit", "op": "damage", "source": { "ref": "owner" }, "target": { "ref": "vars.spadeTarget" }, "amount": 2, "nature": "Thunder", "onInvalidTarget": "skip" }
+                ],
+                "Club": [
+                  { "id": "club-heal", "op": "recover", "source": { "ref": "owner" }, "target": { "ref": "owner" }, "amount": 1 },
+                  { "id": "club-target", "op": "choosePlayer", "chooser": { "ref": "owner" }, "candidates": { "query": "livingPlayers" }, "optional": true, "promptKey": "target", "bind": "clubTarget" },
+                  { "id": "club-hit", "op": "damage", "source": { "ref": "owner" }, "target": { "ref": "vars.clubTarget" }, "amount": 1, "nature": "Thunder", "onInvalidTarget": "skip" }
+                ]
+              },
+              "default": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example:guidao-exchange-draw",
+      "revision": 1,
+      "variant": "custom-exchange-example-not-an-official-version-claim",
+      "triggers": [
+        {
+          "id": "replace",
+          "window": "JudgmentReplacing",
+          "optional": true,
+          "promptKey": "invoke",
+          "effects": [
+            {
+              "id": "select-black",
+              "op": "chooseOwnCards",
+              "chooser": { "ref": "owner" },
+              "zones": ["Hand", "Equipment"],
+              "pattern": { "color": "Black", "propertyView": "effective-for-owner" },
+              "count": 1,
+              "onEmpty": "stopBinding",
+              "bind": "replacement"
+            },
+            {
+              "id": "exchange",
+              "op": "replaceJudgment",
+              "judgment": { "ref": "event.judgment.id" },
+              "card": { "ref": "vars.replacement.single" },
+              "oldCardDestination": { "zone": "Hand", "owner": { "ref": "owner" } },
+              "bind": "exchangeResult"
+            },
+            {
+              "id": "draw-condition",
+              "op": "if",
+              "condition": { "op": "and", "args": [
+                { "op": "eq", "args": [{ "ref": "vars.exchangeResult.replacementEffectiveSuitAtCommit" }, "Spade"] },
+                { "op": "betweenInclusive", "args": [{ "ref": "vars.exchangeResult.replacementEffectiveRankAtCommit" }, 2, 9] }
+              ] },
+              "then": [{ "id": "extra-draw", "op": "draw", "target": { "ref": "owner" }, "count": 1 }],
+              "else": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example:wuhun",
+      "revision": 1,
+      "variant": "ol-wuhun-shape-with-explicit-qsanguosha-edge-policies",
+      "sourceRefs": ["https://www.sanguosha.com/hero/201", "https://github.com/Mogara/QSanguosha-v2/blob/master/src/package/god.cpp"],
+      "stateDefinitions": [
+        { "id": "example:nightmare", "type": "integer", "scope": "table-shared-per-holder", "visibility": "public", "minimum": 0, "cleanup": "explicit" }
+      ],
+      "triggers": [
+        {
+          "id": "accumulate",
+          "window": "DamageCommittedBeforeDying",
+          "when": { "op": "and", "args": [
+            { "op": "eq", "args": [{ "ref": "event.damage.target" }, { "ref": "owner" }] },
+            { "op": "exists", "args": [{ "ref": "event.damage.source" }] },
+            { "op": "ne", "args": [{ "ref": "event.damage.source" }, { "ref": "owner" }] }
+          ] },
+          "granularity": "eachActualDamagePoint",
+          "optional": false,
+          "effects": [
+            { "id": "add-nightmare", "op": "addMark", "target": { "ref": "event.damage.source" }, "mark": "example:nightmare", "amount": 1 }
+          ]
+        },
+        {
+          "id": "revenge",
+          "window": "DeathCommitted",
+          "ownerEligibility": "deceased-owner-of-this-death",
+          "when": { "op": "eq", "args": [{ "ref": "event.death.victim" }, { "ref": "owner" }] },
+          "optional": false,
+          "continuationPolicy": "allow-deceased-owner-respect-mode-victory-checkpoints",
+          "effects": [
+            {
+              "id": "choose-marked",
+              "op": "choosePlayer",
+              "chooser": { "ref": "owner" },
+              "chooserEligibility": "retain-death-window-controller",
+              "candidates": {
+                "query": "maxMarkHolders",
+                "players": { "query": "otherLivingPlayers", "relativeTo": { "ref": "owner" } },
+                "mark": "example:nightmare",
+                "requirePositive": true
+              },
+              "optional": false,
+              "onEmpty": "stopBinding",
+              "promptKey": "victim",
+              "bind": "victim"
+            },
+            { "id": "revenge-judgment", "op": "judge", "subject": { "ref": "vars.victim" }, "reason": "example:wuhun", "replacementPolicy": "ruleset-default", "bind": "judgmentResult" },
+            {
+              "id": "judge-death",
+              "op": "if",
+              "condition": { "op": "not", "args": [{ "op": "in", "args": [{ "ref": "vars.judgmentResult.effectiveKind" }, ["Peach", "PeachGarden"]] }] },
+              "then": [
+                { "id": "cause-death", "op": "causeDeath", "target": { "ref": "vars.victim" }, "causeOwner": { "ref": "owner" }, "reason": "example:wuhun", "damageSource": null, "onInvalidTarget": "skip" }
+              ],
+              "else": []
+            },
+            { "id": "clear-nightmare", "op": "clearMark", "targets": { "query": "allPlayersIncludingDead" }, "mark": "example:nightmare" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example:give-and-recover",
+      "revision": 1,
+      "variant": "custom-not-classic-rende",
+      "activations": [
+        {
+          "id": "activate",
+          "phase": "Play",
+          "usage": { "scope": "ownPlayPhase", "limit": 1, "commitOn": "give-cards" },
+          "selections": [
+            { "id": "cards", "op": "chooseOwnCards", "chooser": { "ref": "owner" }, "zones": ["Hand"], "count": 2, "onEmpty": "disableAction", "bind": "gift" },
+            { "id": "recipient", "op": "choosePlayer", "chooser": { "ref": "owner" }, "candidates": { "query": "otherLivingPlayers", "relativeTo": { "ref": "owner" } }, "optional": false, "onEmpty": "disableAction", "bind": "recipient" }
+          ],
+          "effects": [
+            { "id": "give-cards", "op": "give", "cards": { "ref": "vars.gift" }, "from": { "ref": "owner" }, "to": { "ref": "vars.recipient" }, "onInvalidTarget": "stopBinding" },
+            { "id": "heal-self", "op": "recover", "source": { "ref": "owner" }, "target": { "ref": "owner" }, "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example:give-and-virtual-slash",
+      "revision": 1,
+      "variant": "custom",
+      "activations": [
+        {
+          "id": "activate",
+          "phase": "Play",
+          "usage": { "scope": "ownPlayPhase", "limit": 1, "commitOn": "give-card" },
+          "selections": [
+            { "id": "card", "op": "chooseOwnCards", "chooser": { "ref": "owner" }, "zones": ["Hand"], "count": 1, "onEmpty": "disableAction", "bind": "gift" },
+            { "id": "recipient", "op": "choosePlayer", "chooser": { "ref": "owner" }, "candidates": { "query": "otherLivingPlayers", "relativeTo": { "ref": "owner" } }, "optional": false, "onEmpty": "disableAction", "bind": "recipient" }
+          ],
+          "effects": [
+            { "id": "give-card", "op": "give", "cards": { "ref": "vars.gift" }, "from": { "ref": "owner" }, "to": { "ref": "vars.recipient" }, "onInvalidTarget": "stopBinding" },
+            { "id": "slash-target", "op": "choosePlayer", "chooser": { "ref": "owner" }, "candidates": { "query": "legalCardTargets", "actor": { "ref": "owner" }, "cardKind": "Slash", "usePolicy": "normal-use" }, "optional": true, "onEmpty": "stopBinding", "promptKey": "target", "bind": "slashTarget" },
+            { "id": "virtual-slash", "op": "useVirtualCard", "actor": { "ref": "owner" }, "kind": "Slash", "targets": [{ "ref": "vars.slashTarget" }], "physicalCardIds": [], "usePolicy": "normal-use", "onInvalidTarget": "skip" }
+          ]
+        }
+      ]
+    }
+  ],
+  "generalBindings": [
+    { "id": "example:ordinary-zhaoyun", "skills": ["example:longdan"] },
+    { "id": "example:sp-zhaoyun", "skills": ["example:longdan", "example:chongzhen"] },
+    { "id": "example:custom-zhangjiao", "skills": ["example:leiji-ol-current", "example:guidao-exchange-draw"] },
+    { "id": "example:wuhun-test-owner", "skills": ["example:wuhun"] }
+  ]
+}

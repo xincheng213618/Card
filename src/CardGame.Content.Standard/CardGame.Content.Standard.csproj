@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CardGame.Core\CardGame.Core.csproj" />
+    <EmbeddedResource Include="SkillPrograms\*.json" />
   </ItemGroup>
 
 </Project>

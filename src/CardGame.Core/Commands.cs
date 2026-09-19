@@ -94,6 +94,7 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonDerivedType(typeof(RespondCommand), "respond")]
 [JsonDerivedType(typeof(UseSkillCommand), "use-skill")]
 [JsonDerivedType(typeof(UseEquipmentEffectCommand), "use-equipment-effect")]
+[JsonDerivedType(typeof(UseProgramSkillCommand), "use-program-skill")]
 public abstract record GameCommand(int ActorSeat, long ExpectedRevision);
 
 /// <summary>Starts an unstarted match. ActorSeat is the trusted host (-1).</summary>
@@ -132,6 +133,16 @@ public sealed record RecastCardCommand(int ActorSeat, int CardId, long ExpectedR
 public sealed record UseSkillCommand(
     int ActorSeat,
     SkillKind Skill,
+    IReadOnlyList<int> CardIds,
+    IReadOnlyList<int> TargetSeats,
+    long ExpectedRevision,
+    PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
+
+/// <summary>Invokes one published activation from a compiled skill program.</summary>
+public sealed record UseProgramSkillCommand(
+    int ActorSeat,
+    string SkillId,
+    string ActivationId,
     IReadOnlyList<int> CardIds,
     IReadOnlyList<int> TargetSeats,
     long ExpectedRevision,

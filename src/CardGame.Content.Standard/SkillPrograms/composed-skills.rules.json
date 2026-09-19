@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "skills": [
+    {
+      "id": "composed:draw-plus-one",
+      "revision": 1,
+      "modifiers": [{ "query": "drawCount", "operation": "add", "value": 1 }],
+      "viewAs": [],
+      "activations": []
+    },
+    {
+      "id": "composed:hand-limit-plus-two",
+      "revision": 1,
+      "modifiers": [{ "query": "handLimit", "operation": "add", "value": 2 }],
+      "viewAs": [],
+      "activations": []
+    },
+    {
+      "id": "composed:unlimited-slash",
+      "revision": 1,
+      "modifiers": [{ "query": "slashLimit", "operation": "unlimited", "value": 0, "condition": { "kind": "ownTurn" } }],
+      "viewAs": [],
+      "activations": []
+    },
+    {
+      "id": "composed:hand-to-slash",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [{ "id": "convert", "inputKinds": [], "inputSuits": [], "outputKind": "slash", "forPlay": true, "forResponse": true }],
+      "activations": []
+    },
+    {
+      "id": "composed:hand-to-dodge",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [{ "id": "convert", "inputKinds": [], "inputSuits": [], "outputKind": "dodge", "forPlay": false, "forResponse": true }],
+      "activations": []
+    },
+    {
+      "id": "composed:vital-sequence",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "exchange-vitality",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": 1,
+          "condition": { "kind": "hpAtLeast", "value": 2 },
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 },
+            { "op": "draw", "target": "owner", "amount": 2 },
+            { "op": "recover", "target": "owner", "amount": 1, "condition": { "kind": "wounded" } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "composed:give-and-draw",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "gift",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": 1,
+          "effects": [
+            { "op": "giveSelected", "target": "selectedTarget", "amount": 1 },
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "composed:discard-and-recover",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "renew",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": 1,
+          "condition": { "kind": "wounded" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "recover", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "composed:red-to-slash",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [{ "id": "red-slash", "inputKinds": [], "inputSuits": ["heart", "diamond"], "outputKind": "slash", "forPlay": true, "forResponse": true }],
+      "activations": []
+    },
+    {
+      "id": "composed:longdan",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [
+        { "id": "dodge-to-slash", "inputKinds": ["dodge"], "inputSuits": [], "outputKind": "slash", "forPlay": true, "forResponse": true },
+        { "id": "slash-to-dodge", "inputKinds": ["slash"], "inputSuits": [], "outputKind": "dodge", "forPlay": false, "forResponse": true }
+      ],
+      "activations": []
+    },
+    {
+      "id": "composed:give-and-recover",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "benevolence",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": 1,
+          "effects": [
+            { "op": "giveSelected", "target": "selectedTarget", "amount": 1 },
+            { "op": "recover", "target": "owner", "amount": 1, "condition": { "kind": "wounded" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

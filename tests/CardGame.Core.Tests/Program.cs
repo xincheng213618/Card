@@ -19,6 +19,7 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("composed AI matches complete and replay with configured actions and responses", SkillProgramMatchChecks.ComposedMatchesCompleteAndReplay),
     ("Wusheng responds to Duel and Barbarian Assault with exact physical costs and replay", WushengResponseChecks.CommandsAndReplay),
     ("Wusheng response conversion respects national reveal slots and requested card kinds", WushengResponseChecks.NationalAndScope),
     ("national Wusheng can reveal during a Slash response and refresh privately", WushengResponseChecks.NationalRevealDuringResponse),
@@ -53,6 +54,15 @@ var tests = new (string Name, Action Body)[]
     ("implemented card content is registered and described", CardCatalogDefinitions),
     ("standard deck content is deterministic and balanced", StandardDeckContent),
     ("standard package builds an immutable isolated registry", StandardContentRegistryBuilds),
+    ("skill program loader separates canonical gameplay from presentation", SkillProgramChecks.LoaderCanonicalizationAndPresentationIsolation),
+    ("skill program loader rejects malformed and unsupported definitions", SkillProgramChecks.LoaderRejectsMalformedUnsupportedDefinitions),
+    ("loaded skill programs are defensively immutable", SkillProgramChecks.LoadedProgramsAreDefensivelyImmutable),
+    ("configured active sequences reject forged input and replay exact moves", SkillProgramChecks.ConfiguredActiveSequenceIsAtomicAndReplayable),
+    ("configured modifiers and view-as rules reach real legal actions", SkillProgramChecks.ConfiguredModifiersAndViewAsReachRealLegalActions),
+    ("program gameplay hashes control checkpoint compatibility independently of presentation", SkillProgramChecks.ProgramHashControlsCheckpointCompatibility),
+    ("program LoseHp resumes exactly once after rescue", SkillProgramChecks.ProgramLoseHpResumesOnceAfterRescue),
+    ("program dying checkpoints cancel a selected card spent on rescue", SkillProgramChecks.ProgramPausedDyingAndConsumedSelection),
+    ("program GiveSelected anyLiving excludes and rejects its owner", SkillProgramChecks.ProgramAnyLivingGiftExcludesOwner),
     ("physical deck recipes preserve exact suit, rank and content hashing", PhysicalDeckRecipeChecks.ExactSuitRankValidationAndHashing),
     ("classic standard and military decks match their official physical tables", PhysicalDeckRecipeChecks.ClassicPhysicalDecksMatchOfficialTables),
     ("classic identity roster is opt-in, formal and replay-versioned", ClassicGeneralChecks.ContentContract),

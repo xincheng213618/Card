@@ -18,6 +18,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private readonly HashSet<int> _selectedActiveSkillTargetSeats = [];
     private SkillKind? _selectedActiveSkillKind;
     private CardKind? _selectedEquipmentEffectKind;
+    private string? _selectedProgramSkillId;
+    private string? _selectedProgramActivationId;
     private PromptId? _activeSkillPromptId;
     private bool _isSelectingActiveSkillCards;
     private int? _selectedTargetSeat;
@@ -92,7 +94,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _seedOverride = seed;
         _contentRegistry = contentRegistry ??
             (useExpandedContent
-                ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious()
+                ? ComposedSkillContentRegistry.CreateShowcase()
                 : StandardContentRegistry.CreateWithTeamModes());
         TableModes = useExpandedContent
             ? [
@@ -100,6 +102,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 new TableModeOption(5, "五人经典身份", "1 主公 · 1 忠臣\n2 反贼 · 1 内奸", "identity:classic-5"),
                 new TableModeOption(8, "八人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-8"),
                 new TableModeOption(5, "五人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-5"),
+                new TableModeOption(5, "技能组合体验", "配置文件组合技能 · 修正、转化与主动效果", "identity:composed-skills-5"),
                 new TableModeOption(4, "2v2阵营", "青队 2 · 赤队 2\n公开阵营，协作对抗", "team:standard-2v2"),
                 new TableModeOption(6, "国战 M3", "魏 3 · 蜀 2 · 野心家 1\n六人独立势力试验", "national:ambitious-6"),
                 new TableModeOption(4, "国战 Lite", "魏蜀双将 · 暗置明置\n四人简化国战", "national:lite-4")
@@ -401,6 +404,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedActiveSkillTargetSeats.Clear();
         _selectedActiveSkillKind = null;
         _selectedEquipmentEffectKind = null;
+        _selectedProgramSkillId = null;
+        _selectedProgramActivationId = null;
         _activeSkillPromptId = null;
         _isSelectingActiveSkillCards = false;
         _selectedTargetSeat = null;
@@ -475,6 +480,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
+            _selectedProgramSkillId = null;
+            _selectedProgramActivationId = null;
             _isSelectingActiveSkillCards = false;
         }
 
@@ -488,6 +495,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
+            _selectedProgramSkillId = null;
+            _selectedProgramActivationId = null;
             _isSelectingActiveSkillCards = false;
             return;
         }
@@ -988,7 +997,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _snapshot.Players.Single(player => player.IsHuman),
             action.SelectableCardIds.ToHashSet());
 
-        var skillName = action.Skill is { } skill ? SkillRegistry.Get(skill).Name : "技能";
+        var skillName = ActiveSkillName(action);
         SelectedCardText = _selectedActiveSkillCardIds.Count == 0
             ? $"未选择用于【{skillName}】的牌"
             : $"已选择 {_selectedActiveSkillCardIds.Count} 张牌用于【{skillName}】";
@@ -1570,6 +1579,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         _selectedActiveSkillKind = action.Skill;
         _selectedEquipmentEffectKind = action.EquipmentKind;
+        _selectedProgramSkillId = action.ProgramSkillId;
+        _selectedProgramActivationId = action.ProgramActivationId;
 
         var requiresCardSelection = action.MinCardCount > 0 || action.MaxCardCount > 0;
         var requiresTargetSelection = action.MinTargetCount > 0 || action.MaxTargetCount > 0;
@@ -1626,6 +1637,17 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     selectedTargets,
                     _snapshot.Revision,
                     prompt.PromptId))
+                : action.Kind == LegalActionKind.UseProgramSkill &&
+                  action.ProgramSkillId is { } programSkillId &&
+                  action.ProgramActivationId is { } programActivationId
+                    ? SubmitCommand(new UseProgramSkillCommand(
+                        _snapshot.HumanSeat,
+                        programSkillId,
+                        programActivationId,
+                        selectedCards,
+                        selectedTargets,
+                        _snapshot.Revision,
+                        prompt.PromptId))
                 : action.Skill is { } skill
                     ? SubmitCommand(new UseSkillCommand(
                         _snapshot.HumanSeat,
@@ -1647,6 +1669,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
+            _selectedProgramSkillId = null;
+            _selectedProgramActivationId = null;
             _selectedCardId = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
@@ -1657,14 +1681,17 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void UseActiveSkill(LegalAction action)
     {
-        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect) ||
-            action.Skill is null && action.EquipmentKind is null)
+        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill) ||
+            action.Skill is null && action.EquipmentKind is null &&
+            (action.ProgramSkillId is null || action.ProgramActivationId is null))
         {
             return;
         }
 
         _selectedActiveSkillKind = action.Skill;
         _selectedEquipmentEffectKind = action.EquipmentKind;
+        _selectedProgramSkillId = action.ProgramSkillId;
+        _selectedProgramActivationId = action.ProgramActivationId;
         UseActiveSkill();
     }
 
@@ -1679,6 +1706,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
+            _selectedProgramSkillId = null;
+            _selectedProgramActivationId = null;
             _isSelectingActiveSkillCards = false;
             SelectedCardText = "未选择手牌";
             var result = SubmitCommand(new EndPlayPhaseCommand(_snapshot.HumanSeat, _snapshot.Revision, _snapshot.PendingDecision?.PromptId));

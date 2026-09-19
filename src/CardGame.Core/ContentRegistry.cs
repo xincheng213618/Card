@@ -68,7 +68,10 @@ public sealed record ContentSkillDefinition(
     string Id,
     string Name,
     string Description,
-    SkillKind? LegacyKind = null);
+    SkillKind? LegacyKind = null)
+{
+    public SkillProgram? Program { get; init; }
+}
 
 public sealed record ContentGeneralDefinition(
     string Id,
@@ -331,8 +334,8 @@ public sealed class ContentRegistry
                 .Select(entry => new
                 {
                     entry.Value.Id,
-                    entry.Value.Name,
-                    entry.Value.Description,
+                    Name = entry.Value.Program is null ? entry.Value.Name : string.Empty,
+                    Description = entry.Value.Program is null ? entry.Value.Description : string.Empty,
                     LegacyKind = entry.Value.LegacyKind?.ToString()
                 })
                 .ToArray(),
@@ -507,6 +510,19 @@ public sealed class ContentRegistry
                 HashSchema = 7,
                 Base = JsonSerializer.Deserialize<JsonElement>(canonical),
                 PhysicalDeckExtensions = physicalDeckExtensions
+            });
+        var programs = skills.Values
+            .Where(skill => skill.Program is not null)
+            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
+            .Select(skill => new { skill.Program!.Id, skill.Program.GameplayHash })
+            .ToArray();
+        if (programs.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 8,
+                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                RuntimeVersion = SkillProgramCatalog.RuntimeVersion,
+                Programs = programs
             });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
@@ -847,6 +863,15 @@ public sealed class ContentRegistry
         private static ContentSkillDefinition NormalizeSkill(ContentSkillDefinition definition)
         {
             ArgumentNullException.ThrowIfNull(definition);
+            if (definition.Program is null)
+                return definition;
+
+            if (!string.Equals(definition.Program.Id, definition.Id, StringComparison.Ordinal))
+                throw new InvalidOperationException(
+                    $"Skill '{definition.Id}' is bound to program '{definition.Program.Id}'. Program ids must match their content skill ids.");
+            if (definition.LegacyKind is not null and not SkillKind.None)
+                throw new InvalidOperationException(
+                    $"Skill '{definition.Id}' cannot have both configured and legacy implementations.");
             return definition;
         }
 

@@ -201,6 +201,18 @@ public sealed partial class MainViewModel
         }
 
         var hasTeamModes = packages.Contains("standard-team-modes@1.0.0", StringComparer.Ordinal);
+        var composedPackages = packages
+            .Where(package => package.StartsWith("standard-composed-skills@", StringComparison.Ordinal))
+            .ToArray();
+        if (composedPackages.Length > 1 ||
+            composedPackages.Length == 1 && composedPackages[0] != "standard-composed-skills@1.0.0")
+        {
+            throw new InvalidDataException("存档使用了当前版本不支持的技能组合内容包版本。");
+        }
+        if (composedPackages.Length == 1)
+        {
+            return ComposedSkillContentRegistry.CreateShowcase();
+        }
         var hasRescueSkills = packages.Contains("standard-rescue-skills@1.0.0", StringComparer.Ordinal);
         var hasActiveSkills = packages.Contains("standard-active-skills@1.0.0", StringComparer.Ordinal);
         var classicPackageVersion = packages

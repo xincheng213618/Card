@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "composed:draw-plus-one": {
+      "name": "博闻",
+      "description": "锁定技，摸牌阶段额外摸一张牌。"
+    },
+    "composed:hand-limit-plus-two": {
+      "name": "整备",
+      "description": "锁定技，你的手牌上限 +2。"
+    },
+    "composed:unlimited-slash": {
+      "name": "连斩",
+      "description": "锁定技，你在自己的出牌阶段使用【杀】无次数限制。"
+    },
+    "composed:hand-to-slash": {
+      "name": "化杀",
+      "description": "你可以将一张手牌当【杀】使用或打出。"
+    },
+    "composed:hand-to-dodge": {
+      "name": "化闪",
+      "description": "你可以将一张手牌当【闪】打出。"
+    },
+    "composed:vital-sequence": {
+      "name": "换息",
+      "description": "出牌阶段限一次，你可以失去 1 点体力，摸两张牌；若已受伤，再回复 1 点体力。"
+    },
+    "composed:give-and-draw": {
+      "name": "馈赠",
+      "description": "出牌阶段限一次，你可以交给一名其他角色一张手牌，然后摸一张牌。"
+    },
+    "composed:discard-and-recover": {
+      "name": "涤尘",
+      "description": "出牌阶段限一次，若你已受伤，可以弃置一张手牌并回复 1 点体力。"
+    },
+    "composed:red-to-slash": {
+      "name": "赤锋",
+      "description": "你可以将一张红色手牌当【杀】使用或打出。"
+    },
+    "composed:longdan": {
+      "name": "龙胆组合",
+      "description": "你可以将【闪】当【杀】使用或打出，也可以将【杀】当【闪】打出。"
+    },
+    "composed:give-and-recover": {
+      "name": "惠赠",
+      "description": "出牌阶段限一次，你可以交给一名其他角色一张手牌；若你已受伤，回复 1 点体力。"
+    }
+  }
+}

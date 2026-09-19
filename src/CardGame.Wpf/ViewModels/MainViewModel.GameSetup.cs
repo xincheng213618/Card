@@ -216,6 +216,7 @@ public sealed record TableModeOption(int PlayerCount, string Name, string Descri
     public string PlayerCountText => $"{PlayerCount} 人";
     public string ModeBadge => ModeId.StartsWith("national:", StringComparison.Ordinal) ? "双将试验"
         : ModeId.StartsWith("team:", StringComparison.Ordinal) ? "公开阵营"
+        : ModeId.Contains("composed-skills", StringComparison.Ordinal) ? "配置组合"
         : ModeId.Contains("active-skills", StringComparison.Ordinal) ? "机制演示"
         : "经典身份";
 }

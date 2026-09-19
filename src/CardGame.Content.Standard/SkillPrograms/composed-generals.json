@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "generals": [
+    { "id": "composed:draw-scholar", "name": "博闻者", "portraitKey": "zhuge_liang", "skillIds": ["composed:draw-plus-one"], "factionId": "shu" },
+    { "id": "composed:hand-steward", "name": "整备者", "portraitKey": "xun_yu", "skillIds": ["composed:hand-limit-plus-two"], "factionId": "wei" },
+    { "id": "composed:slash-master", "name": "连斩者", "portraitKey": "zhang_fei", "skillIds": ["composed:unlimited-slash"], "factionId": "shu" },
+    { "id": "composed:slash-alchemist", "name": "化杀者", "portraitKey": "guan_yu", "skillIds": ["composed:hand-to-slash"], "factionId": "shu" },
+    { "id": "composed:dodge-alchemist", "name": "化闪者", "portraitKey": "zhao_yun", "skillIds": ["composed:hand-to-dodge"], "factionId": "shu" },
+    { "id": "composed:vital-weaver", "name": "生息者", "portraitKey": "hua_tuo", "skillIds": ["composed:vital-sequence"], "factionId": "qun" },
+    { "id": "composed:giver", "name": "授予者", "portraitKey": "liu_bei", "skillIds": ["composed:give-and-draw"], "factionId": "shu" },
+    { "id": "composed:purifier", "name": "涤牌者", "portraitKey": "sun_quan", "skillIds": ["composed:discard-and-recover"], "factionId": "wu" },
+    { "id": "composed:red-blade", "name": "赤锋者", "portraitKey": "guan_yu", "skillIds": ["composed:red-to-slash"], "factionId": "shu" },
+    { "id": "composed:longdan-user", "name": "易势者", "portraitKey": "zhao_yun", "skillIds": ["composed:longdan"], "factionId": "shu" },
+    { "id": "composed:benevolent-giver", "name": "惠赠者", "portraitKey": "liu_bei", "skillIds": ["composed:give-and-recover"], "factionId": "shu" },
+    { "id": "composed:rule-composer", "name": "合律者", "portraitKey": "zhou_yu", "skillIds": ["composed:draw-plus-one", "composed:hand-limit-plus-two", "composed:unlimited-slash"], "factionId": "wu" }
+  ]
+}

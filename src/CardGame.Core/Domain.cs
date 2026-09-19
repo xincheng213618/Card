@@ -359,7 +359,8 @@ public enum LegalActionKind
     RevealGeneral,
     Recast,
     BorrowedSword,
-    UseEquipmentEffect
+    UseEquipmentEffect,
+    UseProgramSkill
 }
 
 public sealed record GameOptions
@@ -725,6 +726,12 @@ public sealed record LegalAction
     /// <summary>Identifies the equipment whose active conversion creates this action.</summary>
     public CardKind? EquipmentKind { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ProgramSkillId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ProgramActivationId { get; init; }
+
     /// <summary>
     /// Selection bounds for a cardless active-skill action. The prompt carries
     /// the corresponding private candidate ids; legal action data carries the
@@ -760,6 +767,9 @@ public sealed record LegalAction
     /// <summary>Identifies the general slot for a national-war reveal action.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GeneralSelectionSlot? GeneralSlot { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillProgramAiHint? ProgramAiHint { get; init; }
 }
 
 public sealed record GameSnapshot(

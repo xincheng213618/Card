@@ -115,6 +115,8 @@ public sealed partial class GameEngine
         _options = options;
         _contentRegistry = contentRegistry;
         _rulesVersion = rulesVersion;
+        if (rulesVersion < 79 && contentRegistry?.Skills.Values.Any(skill => skill.Program is not null) == true)
+            throw new InvalidOperationException("Compiled skill programs require rules version 79 or newer.");
         _modeDefinition = ResolveModeDefinition(contentRegistry, options);
         ValidateModeOptions(options, _modeDefinition);
         _generalPool = CreateRuntimeGeneralPool(contentRegistry, _modeDefinition);
@@ -616,6 +618,14 @@ public sealed partial class GameEngine
                 TargetSeats = equipmentInput.TargetSeats?.ToArray() ?? []
             };
         }
+        else if (command is UseProgramSkillCommand programInput)
+        {
+            command = programInput with
+            {
+                CardIds = programInput.CardIds?.ToArray() ?? [],
+                TargetSeats = programInput.TargetSeats?.ToArray() ?? []
+            };
+        }
 
         var result = command switch
         {
@@ -627,6 +637,7 @@ public sealed partial class GameEngine
             PlayCardCommand play => SubmitPlayCard(play),
             RecastCardCommand recast => SubmitRecast(recast),
             UseSkillCommand skill => SubmitUseSkill(skill),
+            UseProgramSkillCommand program => SubmitUseProgramSkill(program),
             UseEquipmentEffectCommand equipment => SubmitUseEquipmentEffect(equipment),
             EndPlayPhaseCommand end => SubmitEndPlay(end),
             DiscardCardsCommand discard => SubmitDiscardCards(discard),
@@ -5414,6 +5425,8 @@ public sealed partial class GameEngine
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
+        foreach (var key in _programUses.Keys.Where(key => key.Seat == current.Seat).ToArray())
+            _programUses.Remove(key);
         current.TianyiWonThisTurn = false;
         current.TianyiLostThisTurn = false;
         _phase = TurnPhase.Draw;
@@ -6675,6 +6688,13 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame programFrame)
+        {
+            ContinueProgramSkill(programFrame.Id);
+            PublishState();
+            return;
+        }
+
         if (_phase is TurnPhase.NotStarted or TurnPhase.Finished)
         {
             BeginTurn();
@@ -6732,10 +6752,10 @@ public sealed partial class GameEngine
             return;
         }
 
-        var activeSkillCards = action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect
+        var activeSkillCards = action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill
             ? _aiBrains[player.Seat].ChooseActiveSkillCards(view, action)
             : [];
-        var activeSkillTargets = action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect
+        var activeSkillTargets = action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill
             ? _aiBrains[player.Seat].ChooseActiveSkillTargets(view, action)
             : [];
         ExecuteAction(player, action, activeSkillCards, activeSkillTargets);
@@ -7295,6 +7315,11 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? activeSkillCardIds = null,
         IReadOnlyList<int>? activeSkillTargetSeats = null)
     {
+        if (action.Kind == LegalActionKind.UseProgramSkill)
+        {
+            ExecuteProgramSkill(actor, action, activeSkillCardIds ?? [], activeSkillTargetSeats ?? []);
+            return;
+        }
         if (action.Kind == LegalActionKind.RevealGeneral)
         {
             RevealNationalGeneral(
@@ -17738,6 +17763,11 @@ public sealed partial class GameEngine
         QueueGameEvent(new DyingResolvedEvent(dying.FrameId, dying.VictimSeat, survived));
         PopResolutionFrame(dying.FrameId, ResolutionFrameKind.Dying);
         _pendingDying = null;
+        if (dying.ResumesProgramSkill)
+        {
+            CompleteProgramSkillAfterDying(dying);
+            return;
+        }
         if (dying.ResumesActiveSkill)
         {
             CompleteActiveSkillAfterDying(dying, survived);
@@ -18691,7 +18721,7 @@ public sealed partial class GameEngine
                 return int.MaxValue;
             }
 
-            limit = Math.Min(int.MaxValue, limit + bonus);
+            limit = (int)Math.Clamp((long)limit + bonus, 0, int.MaxValue);
         }
 
         return limit;
@@ -19396,6 +19426,7 @@ public sealed partial class GameEngine
             });
         }
 
+        actions.AddRange(BuildProgramActions(actor));
         actions.Add(new LegalAction(LegalActionKind.EndPlay, null, null, "结束出牌"));
         return actions;
     }
@@ -19804,7 +19835,8 @@ public sealed partial class GameEngine
     private bool CanConvertResponse(PlayerRuntime responder, Card card, CardKind requiredCardKind)
     {
         var context = CreateSkillContext(responder);
-        return EnabledPassiveSkills(responder).Any(skill =>
+        return new SkillProgramRules(EnabledSkillPrograms(responder), GetHand(responder).Select(item => item.Id).ToHashSet())
+            .CanUseAsResponse(context, card, requiredCardKind) || EnabledPassiveSkills(responder).Any(skill =>
             (_rulesVersion >= 9 || skill.Kind != SkillKind.Wusheng) &&
             (UsesFormalLuoshenAndQingguo || skill.Kind != SkillKind.Qingguo) &&
             skill.CanUseAsResponse(context, card, requiredCardKind));
@@ -20058,6 +20090,11 @@ public sealed partial class GameEngine
         var choices = new List<PromptChoice>(legalActions.Count);
         foreach (var action in legalActions)
         {
+            if (action.Kind == LegalActionKind.UseProgramSkill)
+            {
+                choices.Add(CreateProgramPlayChoice(action));
+                continue;
+            }
             if (action.Kind == LegalActionKind.RevealGeneral)
             {
                 var slot = action.GeneralSlot ?? throw new InvalidOperationException("A reveal action must identify a general slot.");
@@ -20973,7 +21010,8 @@ public sealed partial class GameEngine
                 other.IsAlive && other.Seat != player.Seat &&
                 string.Equals(other.General.FactionId, "qun", StringComparison.Ordinal)) * 2;
         }
-        return baseLimit;
+        return Math.Max(0, SkillProgramRules.Modify(SkillRuleQuery.HandLimit,
+            CreateSkillContext(player), baseLimit, EnabledSkillPrograms(player)));
     }
 
     private IReadOnlyList<Card> GetPlayableCards(PlayerRuntime player) =>
@@ -21559,7 +21597,7 @@ public sealed partial class GameEngine
             _pendingLiegong is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
-            _resolutionStack.Any(frame => frame is ActiveSkillFrame);
+            _resolutionStack.Any(frame => frame is ActiveSkillFrame or ProgramSkillFrame);
         if (!hasActiveCardResolution && processing.Count != 0)
         {
             throw new InvalidOperationException("Processing contains cards without an active resolution.");
@@ -22861,9 +22899,10 @@ public sealed partial class GameEngine
             }
         }
 
+        AssertProgramSkillState();
         if (_pendingDying is not null &&
             _pendingAttack is null &&
-            !_pendingDying.ResumesActiveSkill)
+            !_pendingDying.ResumesActiveSkill && !_pendingDying.ResumesProgramSkill)
         {
             throw new InvalidOperationException("A dying continuation must retain its active card resolution.");
         }
@@ -23479,6 +23518,7 @@ public sealed partial class GameEngine
             _pendingJijiang?.IsBorrowedSwordUse != true &&
             _pendingBorrowedSword is null &&
             _pendingDying?.ResumesActiveSkill != true &&
+            _pendingDying?.ResumesProgramSkill != true &&
             (awaitingHumanResponse || awaitingHumanDying || awaitingAiResponse || awaitingAiDamageSkill || awaitingAiJudgment))
         {
             throw new InvalidOperationException("A response continuation exists without an active Slash.");
@@ -24904,6 +24944,11 @@ public sealed partial class GameEngine
                 CardIds = Array.AsReadOnly(equipment.CardIds.ToArray()),
                 TargetSeats = Array.AsReadOnly(equipment.TargetSeats.ToArray())
             },
+            UseProgramSkillCommand program => program with
+            {
+                CardIds = Array.AsReadOnly(program.CardIds.ToArray()),
+                TargetSeats = Array.AsReadOnly(program.TargetSeats.ToArray())
+            },
             _ => command
         };
 
@@ -25618,7 +25663,8 @@ public sealed partial class GameEngine
     {
         Damage,
         DamageSkill,
-        ActiveSkill
+        ActiveSkill,
+        ProgramSkill
     }
 
     private sealed class DyingResolution(
@@ -25640,6 +25686,7 @@ public sealed partial class GameEngine
         public IReadOnlyList<int> ResponderSeats { get; } = responderSeats;
         public bool ResumesDamageSkill => continuation == DyingContinuation.DamageSkill;
         public bool ResumesActiveSkill => continuation == DyingContinuation.ActiveSkill;
+        public bool ResumesProgramSkill => continuation == DyingContinuation.ProgramSkill;
         public int ResponderIndex { get; set; }
         public int ResponderSeat => ResponderSeats[ResponderIndex];
     }
