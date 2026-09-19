@@ -1104,7 +1104,11 @@ internal static class ClassicGeneralUiChecks
                        zhouTai.SkillName == "不屈" &&
                        zhouTai.SkillDescription.Contains("濒死", StringComparison.Ordinal) &&
                        zhouTai.SkillDescription.Contains("手牌上限", StringComparison.Ordinal) &&
-                       GeneralArt.HasPortrait(zhouTai.GeneralId) && zhouTai.HealthText == "体力上限 5",
+                       GeneralArt.HasPortrait(zhouTai.GeneralId) &&
+                       zhouTai.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && zhouTai.HealthText == "体力上限 5",
             "The current classic Zhou Tai card must render Wu, Buqu and the Lord health bonus.");
         var zhouTaiWindow = new MainWindow(zhouTaiViewModel);
         zhouTaiWindow.ApplyTemplate();
