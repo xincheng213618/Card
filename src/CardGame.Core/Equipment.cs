@@ -122,6 +122,11 @@ public static class EquipmentCatalog
                 "藤甲",
                 EquipmentSlot.Armor,
                 "锁定技，南蛮入侵、万箭齐发和普通杀对你无效；你受到的火焰伤害 +1。"),
+            [CardKind.SilverLion] = new(
+                CardKind.SilverLion,
+                "白银狮子",
+                EquipmentSlot.Armor,
+                "锁定技，你受到大于1点的伤害时将伤害值改为1；失去装备区里的白银狮子后回复1点体力。"),
             [CardKind.OffensiveHorse] = new(
                 CardKind.OffensiveHorse,
                 "赤兔",

@@ -90,6 +90,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Guding Blade increases direct Slash damage against empty hands", GudingBladeChecks.EmptyHandDamageAndLegacyBoundary),
     ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainJijiangAndLegacyBoundary),
     ("classic Tengjia makes ordinary Slash ineffective before response", TengjiaChecks.OrdinarySlashImmunityAndLegacyBoundary),
+    ("classic Silver Lion caps damage and recovers after leaving equipment", SilverLionChecks.DamageCapRemovalRecoveryAndLegacyBoundary),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
@@ -586,7 +587,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(38, CardCatalog.ImplementedCards.Count);
+    Equal(39, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -4087,7 +4088,7 @@ static void PublicTargetCardFlow()
 
 static void EquipmentFlow()
 {
-    Equal(17, EquipmentCatalog.Implemented.Count);
+    Equal(18, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
     Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);

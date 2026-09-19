@@ -77,7 +77,8 @@ public enum CardKind
     FangtianHalberd,
     GudingBlade,
     ZhuqueFan,
-    Tengjia
+    Tengjia,
+    SilverLion
 }
 
 public enum Suit

@@ -42,6 +42,7 @@ internal static class ClassicGeneralChecks
         var fangtianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 30, 0));
         var gudingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 31, 0));
         var zhuqueClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 32, 0));
+        var tengjiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 33, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -50,7 +51,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.33.0"]),
+                "standard-classic-generals@1.34.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -260,6 +261,10 @@ internal static class ClassicGeneralChecks
                 !zhuqueClassic.Cards.ContainsKey("classic:tengjia") &&
                 zhuqueClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 102,
             "The 1.32 classic registry must retain its 102-card Zhuque deck without Tengjia.");
+        Require(tengjiaClassic.Cards["classic:tengjia"].LegacyKind == CardKind.Tengjia &&
+                !tengjiaClassic.Cards.ContainsKey("classic:silver-lion") &&
+                tengjiaClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 103,
+            "The 1.33 classic registry must retain its 103-card Tengjia deck without Silver Lion.");
         Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
                 classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
                 classic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
@@ -271,12 +276,13 @@ internal static class ClassicGeneralChecks
                 classic.Cards["classic:guding-blade"].LegacyKind == CardKind.GudingBlade &&
                 classic.Cards["classic:zhuque-fan"].LegacyKind == CardKind.ZhuqueFan &&
                 classic.Cards["classic:tengjia"].LegacyKind == CardKind.Tengjia &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 103 &&
+                classic.Cards["classic:silver-lion"].LegacyKind == CardKind.SilverLion &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 104 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.33 classic registry must opt both classic modes into the 103-card deck with Tengjia and typed gender.");
+            "The 1.34 classic registry must opt both classic modes into the 104-card deck with Silver Lion and typed gender.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 

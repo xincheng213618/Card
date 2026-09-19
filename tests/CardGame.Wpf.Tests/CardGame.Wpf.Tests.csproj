@@ -20,6 +20,7 @@
     <Compile Include="..\Shared\GudingBladeScenario.cs" Link="GudingBladeScenario.cs" />
     <Compile Include="..\Shared\ZhuqueFanScenario.cs" Link="ZhuqueFanScenario.cs" />
     <Compile Include="..\Shared\TengjiaScenario.cs" Link="TengjiaScenario.cs" />
+    <Compile Include="..\Shared\SilverLionScenario.cs" Link="SilverLionScenario.cs" />
     <EmbeddedResource Include="Fixtures\national-v7.json" />
     <ProjectReference Include="..\..\src\CardGame.Wpf\CardGame.Wpf.csproj" />
   </ItemGroup>

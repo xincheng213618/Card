@@ -2791,9 +2791,17 @@ public sealed partial class SimpleAiBrain
         var zhuqueFan = zhuqueFanBonus != 0d
             ? $"；朱雀羽扇把普通杀改为火杀，按公开连环关系调整 {zhuqueFanBonus:0.#} 分"
             : string.Empty;
+        var silverLionPenalty = target.Equipment.Any(equipment => equipment.Kind == CardKind.SilverLion) &&
+                                self.Equipment.All(equipment => equipment.Kind != CardKind.QinggangSword) &&
+                                (self.HasAlcoholEffect || gudingBladeBonus > 0d)
+            ? 36d
+            : 0d;
+        var silverLion = silverLionPenalty > 0d
+            ? $"；白银狮子会把公开可见的多点杀伤害改为 1，扣除 {silverLionPenalty:0.#} 分"
+            : string.Empty;
         return (
-            cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus + gudingBladeBonus + zhuqueFanBonus,
-            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}{zhuqueFan}。身份判断只使用公开信息。");
+            cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus + gudingBladeBonus + zhuqueFanBonus - silverLionPenalty,
+            $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}{zhuqueFan}{silverLion}。身份判断只使用公开信息。");
     }
 
     private static bool HasGudingBladeDamageBonus(

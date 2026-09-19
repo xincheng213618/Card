@@ -283,6 +283,14 @@ public static class CardCatalog
                 AiPlayValue: 36,
                 AiResponseValue: 0,
                 HandKeepValue: 40),
+            [CardKind.SilverLion] = new(
+                CardKind.SilverLion,
+                "白银狮子",
+                "装备牌",
+                "锁定技，你受到大于1点的伤害时将伤害值改为1；失去装备区里的白银狮子后回复1点体力。",
+                AiPlayValue: 39,
+                AiResponseValue: 0,
+                HandKeepValue: 42),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

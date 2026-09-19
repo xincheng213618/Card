@@ -804,6 +804,21 @@ public sealed record TengjiaFireDamageIncreasedEvent(
     int BaseAmount,
     int ModifiedAmount) : IGameEvent;
 
+public sealed record SilverLionDamageCappedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    CardKind? SourceCardKind,
+    int BaseAmount,
+    int ModifiedAmount) : IGameEvent;
+
+public sealed record SilverLionRemovedRecoveryEvent(
+    long ResolutionId,
+    int PlayerSeat,
+    CardMoveReason Reason,
+    int RecoveredAmount,
+    int RemainingHp) : IGameEvent;
+
 /// <summary>
 /// Public audit record for changing an ordinary or view-as ordinary Slash into
 /// a Fire Slash when it is used through Zhuque Fan. The physical cards remain

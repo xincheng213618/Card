@@ -34,6 +34,10 @@ public static class BattleCueProjector
                     Seats([guding.TargetSeat]), "古锭刀 · 伤害+1", Name(guding.SourceSeat)),
                 TengjiaFireDamageIncreasedEvent tengjia => new(envelope.Sequence, BattleCueKind.Response, tengjia.TargetSeat,
                     Seats([tengjia.SourceSeat]), "藤甲 · 火焰伤害+1", Name(tengjia.TargetSeat), DamageNature.Fire),
+                SilverLionDamageCappedEvent silverLion => new(envelope.Sequence, BattleCueKind.Response, silverLion.TargetSeat,
+                    Seats([silverLion.SourceSeat]), "白银狮子 · 伤害改为1", Name(silverLion.TargetSeat)),
+                SilverLionRemovedRecoveryEvent silverLion => new(envelope.Sequence, BattleCueKind.Recovery, silverLion.PlayerSeat,
+                    Seats([silverLion.PlayerSeat]), "白银狮子 · +1", Name(silverLion.PlayerSeat)),
                 ZhuqueFanConvertedEvent zhuque => new(envelope.Sequence, BattleCueKind.Response, zhuque.SourceSeat,
                     Seats(zhuque.TargetSeats), "朱雀羽扇 · 火杀", Name(zhuque.SourceSeat)),
                 JudgmentResolvedEvent judgment when judgment.Reason == JudgmentReasons.BaguaDefense => new(

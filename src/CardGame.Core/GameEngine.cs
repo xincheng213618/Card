@@ -288,6 +288,9 @@ public sealed partial class GameEngine
     private bool UsesFormalTengjia =>
         _rulesVersion >= 52 && IsClassicIdentityMode;
 
+    private bool UsesFormalSilverLion =>
+        _rulesVersion >= 53 && IsClassicIdentityMode;
+
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
 
@@ -16030,7 +16033,7 @@ public sealed partial class GameEngine
         if (_winner == Winner.None &&
             attack.TryAdvanceChainedTarget(
                 seat => _players[seat].IsAlive,
-                UsesFormalTengjia,
+                UsesFormalTengjia || UsesFormalSilverLion,
                 out var fromSeat))
         {
             QueueGameEvent(new ChainedDamagePropagatedEvent(
@@ -17494,10 +17497,16 @@ public sealed partial class GameEngine
             GetDamageNature(attack) == DamageNature.Fire &&
             HasTengjia(_players[attack.TargetSeat]) &&
             (attack.IsChainPropagation || !attack.IgnoresArmor);
+        var silverLionCapsDamage = UsesFormalSilverLion &&
+            baseAmount + (receivesLuoyiBonus ? 1 : 0) +
+            (receivesGudingBladeBonus ? 1 : 0) +
+            (receivesTengjiaBonus ? 1 : 0) > 1 &&
+            HasSilverLion(_players[attack.TargetSeat]) &&
+            (attack.IsChainPropagation || !attack.IgnoresArmor);
         var damageBonus = (receivesLuoyiBonus ? 1 : 0) +
                           (receivesGudingBladeBonus ? 1 : 0) +
                           (receivesTengjiaBonus ? 1 : 0);
-        attack.FinalizeDamageAmount(damageBonus);
+        attack.FinalizeDamageAmount(damageBonus, silverLionCapsDamage ? 1 : null);
         var runningAmount = baseAmount;
         if (receivesLuoyiBonus)
         {
@@ -17545,6 +17554,18 @@ public sealed partial class GameEngine
                 runningAmount,
                 modifiedAmount));
             AddLog("EquipmentEffect", $"{_players[attack.TargetSeat].Name} 的【藤甲】令本次火焰伤害 +1。", attack.TargetSeat, attack.SourceSeat);
+            runningAmount = modifiedAmount;
+        }
+        if (silverLionCapsDamage)
+        {
+            QueueGameEvent(new SilverLionDamageCappedEvent(
+                attack.ResolutionId,
+                attack.SourceSeat,
+                attack.TargetSeat,
+                attack.EffectiveCardKind,
+                runningAmount,
+                1));
+            AddLog("EquipmentEffect", $"{_players[attack.TargetSeat].Name} 的【白银狮子】将本次伤害改为 1 点。", attack.TargetSeat, attack.SourceSeat);
         }
 
         return attack.DamageAmount;
@@ -18479,6 +18500,9 @@ public sealed partial class GameEngine
     private bool HasTengjia(PlayerRuntime player) =>
         GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia);
 
+    private bool HasSilverLion(PlayerRuntime player) =>
+        GetEquipment(player).Any(card => card.Kind == CardKind.SilverLion);
+
     private bool CanRequestHujia(PlayerRuntime owner, AttackResolution attack) =>
         UsesFormalHujia &&
         !attack.HujiaAttempted &&
@@ -18666,6 +18690,7 @@ public sealed partial class GameEngine
         _cardZones.Move(card.Id, from, to);
         RecordMovement(card, from, to, reason);
         ClearJudgmentEffectiveKindAfterMove(card, from, to);
+        ResolveSilverLionRemoval(card, from, reason);
     }
 
     private void MoveCards(
@@ -18679,6 +18704,7 @@ public sealed partial class GameEngine
         {
             RecordMovement(card, from, to, reason);
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
+            ResolveSilverLionRemoval(card, from, reason);
         }
     }
 
@@ -18692,6 +18718,38 @@ public sealed partial class GameEngine
         {
             RecordMovement(card, from, to, reason);
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
+            ResolveSilverLionRemoval(card, from, reason);
+        }
+    }
+
+    private void ResolveSilverLionRemoval(Card card, CardLocation from, CardMoveReason reason)
+    {
+        if (!UsesFormalSilverLion ||
+            card.Kind != CardKind.SilverLion ||
+            from is not { Zone: CardZoneKind.Equipment, OwnerSeat: { } ownerSeat })
+        {
+            return;
+        }
+
+        var owner = _players[ownerSeat];
+        if (!owner.IsAlive || owner.Hp >= owner.MaxHp)
+        {
+            return;
+        }
+
+        var parentFrameId = _resolutionStack.LastOrDefault()?.Id ?? 0;
+        var recoveryFrameId = BeginRecovery(parentFrameId, ownerSeat, ownerSeat, 1);
+        try
+        {
+            owner.Hp++;
+            QueueGameEvent(new RecoveryAppliedEvent(ownerSeat, ownerSeat, 1, owner.Hp));
+            QueueGameEvent(new SilverLionRemovedRecoveryEvent(
+                recoveryFrameId, ownerSeat, reason, 1, owner.Hp));
+            AddLog("EquipmentEffect", $"{owner.Name} 失去【白银狮子】，回复 1 点体力。", ownerSeat);
+        }
+        finally
+        {
+            PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
         }
     }
 
@@ -21601,7 +21659,7 @@ public sealed partial class GameEngine
             TargetSeat = targetSeat;
         }
 
-        public void FinalizeDamageAmount(int bonus)
+        public void FinalizeDamageAmount(int bonus, int? maximum = null)
         {
             if (DamageAmountFinalized)
             {
@@ -21609,6 +21667,10 @@ public sealed partial class GameEngine
             }
 
             DamageAmount = checked(DamageAmount + bonus);
+            if (maximum is { } cap)
+            {
+                DamageAmount = Math.Min(DamageAmount, cap);
+            }
             DamageAmountFinalized = true;
         }
 
