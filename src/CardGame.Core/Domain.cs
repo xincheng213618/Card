@@ -214,7 +214,8 @@ public enum SkillKind
     Huoshou,
     Zaiqi,
     Juxiang,
-    Lieren
+    Lieren,
+    Yizhong
 }
 
 public enum DecisionKind

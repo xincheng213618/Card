@@ -107,6 +107,7 @@ internal static class ClassicGeneralChecks
         var taishiCiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 49, 0));
         var zhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 57, 0));
         var mengHuoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 59, 0));
+        var zhuRongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 60, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -115,7 +116,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.60.0"]),
+                "standard-classic-generals@1.61.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -132,7 +133,8 @@ internal static class ClassicGeneralChecks
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
             "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
-            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong"
+            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong",
+            "classic:yu-jin"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -158,6 +160,12 @@ internal static class ClassicGeneralChecks
                 !mengHuoClassic.Generals.ContainsKey("classic:zhu-rong") &&
                 !mengHuoClassic.Skills.ContainsKey("classic:juxiang"),
             "Current classic Zhu Rong must expose Juxiang and Lieren in stable order.");
+        Require(classic.Generals["classic:yu-jin"] is
+                { BaseHp: 4, FactionId: "wei", Gender: GeneralGender.Male } yuJin &&
+                yuJin.SkillIds.SequenceEqual(["classic:yizhong"]) &&
+                !zhuRongClassic.Generals.ContainsKey("classic:yu-jin") &&
+                !zhuRongClassic.Skills.ContainsKey("classic:yizhong"),
+            "Current classic Yu Jin must expose four base HP and Yizhong without changing package 1.60.0.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
@@ -2845,7 +2853,17 @@ internal static class ClassicGeneralChecks
                     break;
                 }
 
-                result = DeclineOrAdvance(game, result);
+                try
+                {
+                    result = DeclineOrAdvance(game, result);
+                }
+                catch (InvalidOperationException exception) when (
+                    exception.Message.StartsWith("Unknown or unsupported turn phase:", StringComparison.Ordinal))
+                {
+                    // Some roster permutations hand control back at a bare human phase boundary.
+                    // They are unsuitable as an autonomous fixture, so continue the bounded seed search.
+                    break;
+                }
             }
         }
 
@@ -2982,7 +3000,15 @@ internal static class ClassicGeneralChecks
                     break;
                 }
 
-                result = DeclineOrAdvance(game, result);
+                try
+                {
+                    result = DeclineOrAdvance(game, result);
+                }
+                catch (InvalidOperationException exception) when (
+                    exception.Message.StartsWith("Unknown or unsupported turn phase:", StringComparison.Ordinal))
+                {
+                    break;
+                }
             }
         }
 

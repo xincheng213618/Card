@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 60, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 61, 0))
     {
     }
 
@@ -79,12 +79,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 57, 0) &&
             version != new Version(1, 58, 0) &&
             version != new Version(1, 59, 0) &&
-            version != new Version(1, 60, 0))
+            version != new Version(1, 60, 0) &&
+            version != new Version(1, 61, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.60.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.61.0.");
         }
 
         _version = version;
@@ -792,6 +793,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:lieren", "烈刃",
                 "当你使用杀对目标角色造成伤害后，你可以与其拼点；若你赢，你获得其一张牌。", SkillKind.Lieren));
         }
+        if (_version >= new Version(1, 61, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:yizhong", "毅重",
+                "锁定技，若你的装备区里没有防具牌，黑色的杀对你无效。", SkillKind.Yizhong));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1215,10 +1221,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:juxiang", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:lieren"], Gender: GeneralGender.Female));
         }
+        if (_version >= new Version(1, 61, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:yu-jin", "于禁", "yu_jin",
+                "classic:yizhong", "wei", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 60 } => ZhuRongClassicGeneralIds,
+            { Major: 1, Minor: >= 61 } => YuJinClassicGeneralIds,
+            { Major: 1, Minor: 60 } => ZhuRongClassicGeneralIds,
             { Major: 1, Minor: 59 } => MengHuoClassicGeneralIds,
             { Major: 1, Minor: 58 } => SunJianClassicGeneralIds,
             { Major: 1, Minor: 57 } => ZhangJiaoClassicGeneralIds,
@@ -1573,6 +1586,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. MengHuoClassicGeneralIds,
         "classic:zhu-rong"
+    ];
+
+    internal static IReadOnlyList<string> YuJinClassicGeneralIds { get; } =
+    [
+        .. ZhuRongClassicGeneralIds,
+        "classic:yu-jin"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

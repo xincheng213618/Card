@@ -343,6 +343,13 @@ public sealed record ArmorEffectAppliedEvent(
     int TargetSeat,
     CardKind IncomingCard) : IGameEvent;
 
+/// <summary>Public result for Yu Jin's locked Yizhong skill nullifying a black Slash.</summary>
+public sealed record YizhongNullifiedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    CardKind IncomingCard) : IGameEvent;
+
 public sealed record ResponseRequestedEvent(
     int SourceSeat,
     int TargetSeat,

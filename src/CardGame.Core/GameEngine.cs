@@ -329,6 +329,9 @@ public sealed partial class GameEngine
     private bool UsesFormalZhuRong =>
         _rulesVersion >= 75 && IsClassicIdentityMode;
 
+    private bool UsesFormalYuJin =>
+        _rulesVersion >= 76 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -10593,6 +10596,25 @@ public sealed partial class GameEngine
             QueueGameEvent(new ArmorEffectAppliedEvent(
                 resolutionId,
                 CardKind.RenwangShield,
+                source.Seat,
+                target.Seat,
+                playedCardKind));
+            SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+            CompleteAttack(attack);
+            return;
+        }
+
+        if (UsesFormalYuJin &&
+            target.General.HasSkill(SkillKind.Yizhong) &&
+            CanYizhongNullify(attack.PhysicalCards, HasArmor(target)))
+        {
+            AddLog(
+                "SkillTriggered",
+                $"{target.Name} 的【毅重】令这次黑色【{slashName}】无效。",
+                target.Seat,
+                source.Seat);
+            QueueGameEvent(new YizhongNullifiedEvent(
+                resolutionId,
                 source.Seat,
                 target.Seat,
                 playedCardKind));
@@ -21067,6 +21089,16 @@ public sealed partial class GameEngine
 
     private bool HasBlackSlashBarrier(PlayerRuntime player) =>
         GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).BlocksBlackSlash);
+
+    private bool HasArmor(PlayerRuntime player) =>
+        GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor);
+
+    internal static bool IsBlackCardUse(IReadOnlyList<Card> physicalCards) =>
+        physicalCards.Count > 0 &&
+        physicalCards.All(card => card.Suit is Suit.Spade or Suit.Club);
+
+    internal static bool CanYizhongNullify(IReadOnlyList<Card> physicalCards, bool hasArmor) =>
+        !hasArmor && IsBlackCardUse(physicalCards);
 
     private bool HasArmorBypass(PlayerRuntime player) =>
         GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).IgnoresArmor);

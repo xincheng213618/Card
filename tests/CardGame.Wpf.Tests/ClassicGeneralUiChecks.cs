@@ -1262,6 +1262,21 @@ internal static class ClassicGeneralUiChecks
         zhuRongWindow.Content = null;
         zhuRongWindow.Close();
 
+        using var yuJinViewModel = FindGeneralChoice("classic:yu-jin");
+        var yuJin = yuJinViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:yu-jin");
+        Program.Assert(yuJin.Name == "于禁" && yuJin.Kingdom == "魏" &&
+                       yuJin.SkillName == "毅重" &&
+                       yuJin.SkillDescription.Contains("没有防具牌", StringComparison.Ordinal) &&
+                       yuJin.SkillDescription.Contains("黑色的杀对你无效", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(yuJin.GeneralId) && yuJin.HealthText == "体力上限 5",
+            "The current classic Yu Jin card must render Wei, Yizhong and the Lord health bonus.");
+        var yuJinWindow = new MainWindow(yuJinViewModel);
+        yuJinWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)yuJinWindow.Content, 1120, 740,
+            Path.Combine(output, "157-classic-yu-jin-card.png"));
+        yuJinWindow.Content = null;
+        yuJinWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
