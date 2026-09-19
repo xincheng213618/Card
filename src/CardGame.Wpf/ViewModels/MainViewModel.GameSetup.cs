@@ -147,6 +147,7 @@ public sealed partial class MainViewModel
         : "四人国战 Lite · 魏蜀双将";
     public string TableArenaTitle => IsNationalSnapshot ? "国 战 · 暗 将" : IsTeamSnapshot ? "公 开 阵 营" : "身 份 场";
     public ICommand StartNewGameCommand { get; private set; } = null!;
+    public ICommand StartNewGameFromLobbyCommand { get; private set; } = null!;
     public ICommand CancelNewGameSetupCommand { get; private set; } = null!;
     public ICommand ContinueFromIdentityRevealCommand { get; private set; } = null!;
 
@@ -160,16 +161,20 @@ public sealed partial class MainViewModel
         SelectedDeck = DeckOptions.FirstOrDefault();
         RecommendDiscardCommand = new RelayCommand(RecommendDiscard);
         ContinueFromIdentityRevealCommand = new RelayCommand(() => IsIdentityRevealOpen = false);
-        StartNewGameCommand = new RelayCommand(() =>
-        {
-            if (IsTutorialActive) return;
-            IsNewGameSetupOpen = false;
-            IsLogOpen = false;
-            IsHelpOpen = false;
-            NewGame();
-            IsIdentityRevealOpen = true;
-        }, () => !IsTutorialActive);
+        StartNewGameCommand = new RelayCommand(() => StartConfiguredGame(showOpeningDeal: false), () => !IsTutorialActive);
+        StartNewGameFromLobbyCommand = new RelayCommand(() => StartConfiguredGame(showOpeningDeal: true), () => !IsTutorialActive);
         CancelNewGameSetupCommand = new RelayCommand(() => IsNewGameSetupOpen = false);
+    }
+
+    private void StartConfiguredGame(bool showOpeningDeal)
+    {
+        if (IsTutorialActive) return;
+        if (showOpeningDeal) ArmOpeningDeal();
+        IsNewGameSetupOpen = false;
+        IsLogOpen = false;
+        IsHelpOpen = false;
+        NewGame();
+        IsIdentityRevealOpen = true;
     }
 
     private void RefreshVisibleTableModes()

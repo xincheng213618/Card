@@ -567,6 +567,33 @@
                     </DockPanel>
                 </Border>
                 <controls:BattleFeedbackLayer x:Name="BattleFeedback" Grid.RowSpan="3" Cues="{Binding BattleCues}" AnchorRoot="{Binding ElementName=GameArea}" CenterAnchor="{Binding ElementName=FeedbackCenter}" ActionBar="{Binding ElementName=ActionBar}" MotionEnabled="{Binding IsMotionEnabled}" IsPromptVisible="{Binding HasCenterChoices}" />
+                <Border x:Name="OpeningDealOverlay" Grid.RowSpan="4" Background="#EE091318" Visibility="{Binding IsOpeningDealVisible, Converter={StaticResource BoolToVisibility}}">
+                    <Border Width="720" Padding="34,28" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#19282D" BorderBrush="#A98A50" BorderThickness="1" CornerRadius="5">
+                        <StackPanel>
+                            <TextBlock Text="{Binding OpeningDealTitle}" FontFamily="KaiTi" FontSize="31" Foreground="#F0D08F" HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding OpeningDealSummary}" Foreground="#8FA79A" FontSize="11" HorizontalAlignment="Center" Margin="0,7,0,20" />
+                            <ItemsControl x:Name="OpeningHandCards" ItemsSource="{Binding OpeningHandCards}" HorizontalAlignment="Center">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="112" Height="154" Margin="6,0" Padding="7" Background="#D8C9A5" BorderBrush="#8B754A" BorderThickness="2" CornerRadius="5">
+                                            <Grid>
+                                                <StackPanel HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding Rank}" Foreground="#252822" FontWeight="Bold" FontSize="16" />
+                                                    <TextBlock Text="{Binding SuitGlyph}" Foreground="{Binding SuitBrush}" FontSize="18" Margin="0,-3,0,0" />
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontFamily="KaiTi" Foreground="#334E55" FontSize="26" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="78" />
+                                                <TextBlock Text="{Binding KindLabel}" Foreground="#675E4B" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="发牌完成 · 这些牌已进入你的私有手牌区" Foreground="#718A7E" FontSize="10" HorizontalAlignment="Center" Margin="0,18,0,0" />
+                            <Button x:Name="DismissOpeningDealButton" Content="进 入 牌 局" Command="{Binding DismissOpeningDealCommand}" Style="{StaticResource PrimaryButton}" MinWidth="160" Padding="18,9" HorizontalAlignment="Center" Margin="0,18,0,0" />
+                        </StackPanel>
+                    </Border>
+                </Border>
                 <Border Grid.RowSpan="4" Background="#E80C151A" Visibility="{Binding IsGeneralSelectionPending, Converter={StaticResource BoolToVisibility}}">
                     <Border Width="762" Background="#18252B" BorderBrush="#86734D" BorderThickness="1" Padding="30,22" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <StackPanel>
@@ -866,7 +893,7 @@
                         </DockPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
                             <Button Content="返回牌桌" Command="{Binding CancelNewGameSetupCommand}" Style="{StaticResource ToolbarButton}" MinWidth="130" />
-                            <Button x:Name="StartNewGameButton" Content="开 始 对 局" Command="{Binding StartNewGameCommand}" Style="{StaticResource PrimaryButton}" MinWidth="170" />
+                            <Button x:Name="StartNewGameButton" Content="开 始 对 局" Command="{Binding StartNewGameFromLobbyCommand}" Style="{StaticResource PrimaryButton}" MinWidth="170" />
                         </StackPanel>
                         <TextBlock Text="开始新对局会替换当前对局；返回牌桌可以继续。" Foreground="#778E80" FontSize="10" HorizontalAlignment="Center" Margin="0,13,0,0" />
                     </StackPanel>

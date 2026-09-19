@@ -120,6 +120,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ];
         InitializePlayerGuide();
         InitializePresentation(autoAdvance);
+        InitializeOpeningDeal();
         InitializeGeneralSelectionPresentation();
         InitializeGameSetup();
         InitializePersistence(saveStore);
@@ -389,6 +390,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void ReplaceEngine(GameEngine game)
     {
+        DismissOpeningDeal();
         DetachEngine();
         _game = game;
         ResetPresentation();
@@ -872,6 +874,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         RebuildEventStack();
         RefreshTargetHighlights();
         RefreshPresentation();
+        RefreshOpeningDeal();
         RaisePropertyChanged(nameof(TableDecisionTitle));
     }
 

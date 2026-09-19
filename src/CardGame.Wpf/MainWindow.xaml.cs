@@ -85,6 +85,15 @@ public partial class MainWindow : Window
     private bool HandleShortcut(Key key, ModifierKeys modifiers)
     {
         if (DataContext is not MainViewModel viewModel) return false;
+        if (viewModel.IsOpeningDealVisible)
+        {
+            if (key is Key.Enter or Key.Space or Key.Escape)
+            {
+                viewModel.DismissOpeningDealCommand.Execute(null);
+                return true;
+            }
+            return true;
+        }
         if (viewModel.IsIdentityRevealOpen)
         {
             if (key is Key.Enter or Key.Space)

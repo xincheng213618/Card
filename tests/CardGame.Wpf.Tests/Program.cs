@@ -42,6 +42,7 @@ internal static class Program
             Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));
             Check("the human skill rail distinguishes available active and automatic skills", () => CheckHumanSkillRail(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
+            Check("lobby games reveal the dealt private opening hand without changing the match", () => CheckOpeningDealTransition(output));
             Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
             Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
@@ -107,7 +108,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 71 : 70)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 72 : 71)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -324,6 +325,49 @@ internal static class Program
             "Identity category did not expose its four actual modes.");
         Assert(Engine(vm).Revision == revision && vm.IsNewGameSetupOpen,
             "Browsing the mode lobby changed or replaced the suspended match.");
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
+        window.Content = null;
+        window.Close();
+    }
+
+    private static void CheckOpeningDealTransition(string output)
+    {
+        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        {
+            IsMotionEnabled = true
+        };
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        root.Measure(new Size(1120, 740));
+        root.Arrange(new Rect(0, 0, 1120, 740));
+        root.UpdateLayout();
+        var start = Find<Button>(root).Single(button => Equals(button.Content, "开 始 对 局"));
+        Assert(start.Command == vm.StartNewGameFromLobbyCommand, "The mode lobby bypasses the opening-deal presentation command.");
+        start.Command.Execute(start.CommandParameter);
+        Assert(vm.IsIdentityRevealOpen && !vm.IsOpeningDealVisible, "The opening hand appeared before the private identity reveal.");
+        vm.ContinueFromIdentityRevealCommand.Execute(null);
+        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
+        AdvanceToDecision(vm);
+
+        Assert(vm.IsOpeningDealVisible && vm.OpeningHandCards.Count == vm.Hand.Count && vm.Hand.Count >= 4,
+            "The opening transition did not expose the complete dealt human hand.");
+        var dealtIds = vm.Hand.Select(card => card.Id).ToArray();
+        Assert(vm.OpeningHandCards.Select(card => card.Id).SequenceEqual(dealtIds),
+            "The opening transition did not preserve the private hand order.");
+        var revision = Engine(vm).Revision;
+        var state = SnapshotJson.Serialize(Engine(vm).State);
+        Render(root, 1120, 740, Path.Combine(output, "135-opening-deal.png"));
+        Assert(((FrameworkElement)window.FindName("OpeningDealOverlay")).ActualHeight > 0 &&
+               ((Button)window.FindName("DismissOpeningDealButton")).IsEnabled,
+            "The opening transition or its skip control is inaccessible.");
+
+        vm.DismissOpeningDealCommand.Execute(null);
+        Assert(!vm.IsOpeningDealVisible && vm.OpeningHandCards.Count == 0,
+            "Dismissing the opening transition left private cards in its presentation buffer.");
+        Assert(Engine(vm).Revision == revision && SnapshotJson.Serialize(Engine(vm).State) == state &&
+               vm.Hand.Select(card => card.Id).SequenceEqual(dealtIds),
+            "Dismissing the presentation changed the match or rerolled the opening hand.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();
