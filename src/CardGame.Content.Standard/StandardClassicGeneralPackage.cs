@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 58, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 59, 0))
     {
     }
 
@@ -77,12 +77,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 55, 0) &&
             version != new Version(1, 56, 0) &&
             version != new Version(1, 57, 0) &&
-            version != new Version(1, 58, 0))
+            version != new Version(1, 58, 0) &&
+            version != new Version(1, 59, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.58.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.59.0.");
         }
 
         _version = version;
@@ -776,6 +777,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:yinghun", "英魂",
                 "准备阶段开始时，若你已受伤，你可以令一名其他角色摸X张牌并弃置一张牌，或摸一张牌并弃置X张牌（X为你已损失的体力值）。", SkillKind.Yinghun));
         }
+        if (_version >= new Version(1, 59, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:huoshou", "祸首",
+                "锁定技，南蛮入侵对你无效；其他角色使用南蛮入侵造成的伤害来源改为你。", SkillKind.Huoshou));
+            builder.AddSkill(new ContentSkillDefinition("classic:zaiqi", "再起",
+                "摸牌阶段开始时，若你已受伤，你可以放弃摸牌并展示牌堆顶X张牌（X为你已损失的体力值）：每有一张红桃牌，你回复1点体力，然后弃置这些红桃牌并获得其余牌。", SkillKind.Zaiqi));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1185,10 +1193,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:sun-jian", "孙坚", "sun_jian",
                 "classic:yinghun", "wu", BaseHp: 4));
         }
+        if (_version >= new Version(1, 59, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:meng-huo", "孟获", "meng_huo",
+                "classic:huoshou", "shu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:zaiqi"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 58 } => SunJianClassicGeneralIds,
+            { Major: 1, Minor: >= 59 } => MengHuoClassicGeneralIds,
+            { Major: 1, Minor: 58 } => SunJianClassicGeneralIds,
             { Major: 1, Minor: 57 } => ZhangJiaoClassicGeneralIds,
             { Major: 1, Minor: 56 } => GongsunZanClassicGeneralIds,
             { Major: 1, Minor: 55 } => HuaXiongClassicGeneralIds,
@@ -1529,6 +1545,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. ZhangJiaoClassicGeneralIds,
         "classic:sun-jian"
+    ];
+
+    internal static IReadOnlyList<string> MengHuoClassicGeneralIds { get; } =
+    [
+        .. SunJianClassicGeneralIds,
+        "classic:meng-huo"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

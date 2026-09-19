@@ -90,6 +90,7 @@ public sealed partial class GameEngine
     private TuxiDrawResolution? _pendingTuxiDraw;
     private LuoyiDrawResolution? _pendingLuoyiDraw;
     private ShuangxiongDrawResolution? _pendingShuangxiongDraw;
+    private ZaiqiResolution? _pendingZaiqi;
     private LuoshenResolution? _pendingLuoshen;
     private JizhiResolution? _pendingJizhi;
     private TieqiResolution? _pendingTieqi;
@@ -320,6 +321,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalSunJian =>
         _rulesVersion >= 73 && IsClassicIdentityMode;
+
+    private bool UsesFormalMengHuo =>
+        _rulesVersion >= 74 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -986,6 +990,7 @@ public sealed partial class GameEngine
                 DecisionKind.Liuli or
                 DecisionKind.Tianxiang or
                 DecisionKind.Yinghun or
+                DecisionKind.Zaiqi or
                 DecisionKind.Biyue or
                 DecisionKind.Jushou or
                 DecisionKind.Shensu or
@@ -1120,6 +1125,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Yinghun)
         {
             return SubmitYinghunPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Zaiqi)
+        {
+            return SubmitZaiqiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Xiaoji)
@@ -5794,6 +5804,11 @@ public sealed partial class GameEngine
         {
             AddLog("DelayedCardEffect", $"{current.Name} 因【兵粮寸断】跳过摸牌阶段。", current.Seat);
         }
+        else if (UsesFormalMengHuo && current.General.HasSkill(SkillKind.Zaiqi) && current.Hp < current.MaxHp)
+        {
+            BeginZaiqiChoice(current, delayedEffects);
+            return;
+        }
         else if (UsesFormalShuangxiong && current.General.HasSkill(SkillKind.Shuangxiong))
         {
             BeginShuangxiongDrawChoice(current, delayedEffects);
@@ -6443,6 +6458,12 @@ public sealed partial class GameEngine
         if (IsAiYinghunPending())
         {
             ResolvePendingAiYinghun();
+            return;
+        }
+
+        if (IsAiZaiqiPending())
+        {
+            ResolvePendingAiZaiqi();
             return;
         }
 
@@ -8027,6 +8048,16 @@ public sealed partial class GameEngine
             GroupCardEffect.ResponseAttack,
             requiredCardKind,
             physicalCards);
+        if (UsesFormalMengHuo && effectiveCard.Kind == CardKind.BarbarianAssault)
+        {
+            var mengHuo = _players.FirstOrDefault(player =>
+                player.IsAlive && player.General.HasSkill(SkillKind.Huoshou));
+            if (mengHuo is not null)
+            {
+                group.DamageSourceSeat = mengHuo.Seat;
+                QueueGameEvent(new HuoshouAttributedEvent(group.ResolutionId, source.Seat, mengHuo.Seat));
+            }
+        }
         _pendingGroupCard = group;
         AddLog(
             "CardUsed",
@@ -8547,7 +8578,8 @@ public sealed partial class GameEngine
 
         var targets = Enumerable.Range(1, _playerCount - 1)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
-            .Where(player => player.IsAlive)
+            .Where(player => player.IsAlive &&
+                !(UsesFormalMengHuo && groupCard.Kind == CardKind.BarbarianAssault && player.General.HasSkill(SkillKind.Huoshou)))
             .Select(player => player.Seat)
             .ToArray();
         var resolutionId = BeginCardUse(groupCard, source.Seat, targets);
@@ -9441,7 +9473,7 @@ public sealed partial class GameEngine
 
         var attack = new AttackResolution(
             group.ResolutionId,
-            group.SourceSeat,
+            group.DamageSourceSeat,
             target.Seat,
             group.Card,
             playedCardKind: group.Card.Kind,
@@ -25385,6 +25417,7 @@ public sealed partial class GameEngine
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; } = sourceSeat;
+        public int DamageSourceSeat { get; set; } = sourceSeat;
         public Card Card { get; } = card;
         public IReadOnlyList<int> TargetSeats { get; } = targetSeats;
         public GroupCardEffect Effect { get; } = effect;

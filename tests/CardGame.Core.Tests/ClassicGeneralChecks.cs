@@ -114,7 +114,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.58.0"]),
+                "standard-classic-generals@1.59.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -131,7 +131,7 @@ internal static class ClassicGeneralChecks
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
             "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
-            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian"
+            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -147,6 +147,10 @@ internal static class ClassicGeneralChecks
                 !zhangJiaoClassic.Generals.ContainsKey("classic:sun-jian") &&
                 !zhangJiaoClassic.Skills.ContainsKey("classic:yinghun"),
             "Current classic Sun Jian must expose four base HP and Yinghun.");
+        Require(classic.Generals["classic:meng-huo"] is
+                { BaseHp: 4, FactionId: "shu" } mengHuo &&
+                mengHuo.SkillIds.SequenceEqual(["classic:huoshou", "classic:zaiqi"]),
+            "Current classic Meng Huo must expose Huoshou and Zaiqi in stable order.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&

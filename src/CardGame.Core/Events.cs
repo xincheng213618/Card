@@ -953,6 +953,15 @@ public sealed record YinghunResolvedEvent(
     int DrawCount,
     IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
 
+public sealed record HuoshouAttributedEvent(long ResolutionId, int CardUserSeat, int DamageSourceSeat) : IGameEvent;
+
+public sealed record ZaiqiResolvedEvent(
+    int OwnerSeat,
+    IReadOnlyList<int> RevealedCardIds,
+    IReadOnlyList<int> HeartCardIds,
+    IReadOnlyList<int> GainedCardIds,
+    int RecoveredAmount) : IGameEvent;
+
 public sealed record JijiangRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

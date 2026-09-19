@@ -1232,6 +1232,21 @@ internal static class ClassicGeneralUiChecks
         sunJianWindow.Content = null;
         sunJianWindow.Close();
 
+        using var mengHuoViewModel = FindGeneralChoice("classic:meng-huo");
+        var mengHuo = mengHuoViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:meng-huo");
+        Program.Assert(mengHuo.Name == "孟获" && mengHuo.Kingdom == "蜀" &&
+                       mengHuo.SkillName == "祸首 / 再起" &&
+                       mengHuo.SkillDescription.Contains("南蛮入侵对你无效", StringComparison.Ordinal) &&
+                       mengHuo.SkillDescription.Contains("展示牌堆顶X张牌", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(mengHuo.GeneralId) && mengHuo.HealthText == "体力上限 5",
+            "The current classic Meng Huo card must render Shu, Huoshou, Zaiqi and the Lord health bonus.");
+        var mengHuoWindow = new MainWindow(mengHuoViewModel);
+        mengHuoWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)mengHuoWindow.Content, 1120, 740,
+            Path.Combine(output, "155-classic-meng-huo-card.png"));
+        mengHuoWindow.Content = null;
+        mengHuoWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
