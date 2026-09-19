@@ -741,6 +741,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 MaxHp = player.MaxHp,
                 HandCount = player.HandCount,
                 IsChained = player.IsChained,
+                IsFaceDown = player.IsFaceDown,
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 SkillName = IsNationalSnapshot
                     ? $"{player.SkillName} / {player.SecondarySkillName ?? "未知"}"

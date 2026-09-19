@@ -674,6 +674,12 @@ public sealed class BiyueSkill : IPassiveSkill
     public string Name => "闭月";
 }
 
+public sealed class JushouSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Jushou;
+    public string Name => "据守";
+}
+
 public sealed class JieyinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Jieyin;
@@ -1040,6 +1046,7 @@ public static class SkillRegistry
             [SkillKind.Mengjin] = new MengjinSkill(),
             [SkillKind.Quhu] = new QuhuSkill(),
             [SkillKind.Tianyi] = new TianyiSkill(),
+            [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Shuangxiong] = new ShuangxiongSkill(),
             [SkillKind.Bazhen] = new BazhenSkill(),
             [SkillKind.Huoji] = new HuojiSkill(),

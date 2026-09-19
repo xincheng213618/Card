@@ -22,6 +22,7 @@ public sealed class SeatViewModel : ObservableObject
     public int MaxHp { get; init; }
     public int HandCount { get; init; }
     public bool IsChained { get; init; }
+    public bool IsFaceDown { get; init; }
     public bool HasAlcoholEffect { get; init; }
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
     public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);

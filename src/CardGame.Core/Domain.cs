@@ -197,7 +197,8 @@ public enum SkillKind
     Kanpo,
     Lianhuan,
     Niepan,
-    Tianyi
+    Tianyi,
+    Jushou
 }
 
 public enum DecisionKind
@@ -245,7 +246,8 @@ public enum DecisionKind
     Mengjin,
     QuhuPindian,
     QuhuDamageTarget,
-    TianyiPindian
+    TianyiPindian,
+    Jushou
 }
 
 public enum GangliePunishmentKind
@@ -493,6 +495,9 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsFaceDown { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int WoodenOxGrainCount { get; init; }
 

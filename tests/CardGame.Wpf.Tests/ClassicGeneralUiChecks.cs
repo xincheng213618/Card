@@ -394,7 +394,8 @@ internal static class ClassicGeneralUiChecks
         };
         var qiangxiTargetSeat = qiangxiBefore.Players
             .Where(player => qiangxiAction.SelectableTargetSeats.Contains(player.Seat))
-            .First(player => player.Skills?.All(skill => !damageTriggerSkills.Contains(skill.Kind)) != false)
+            .OrderByDescending(player => player.Skills?.All(skill => !damageTriggerSkills.Contains(skill.Kind)) != false)
+            .First()
             .Seat;
         var qiangxiSourceHp = qiangxiBefore.Players.Single(player => player.Seat == 0).Hp;
         var qiangxiTargetHp = qiangxiBefore.Players.Single(player => player.Seat == qiangxiTargetSeat).Hp;
@@ -1066,6 +1067,21 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "145-classic-taishi-ci-card.png"));
         taishiCiWindow.Content = null;
         taishiCiWindow.Close();
+
+        using var caoRenViewModel = FindGeneralChoice("classic:cao-ren");
+        var caoRen = caoRenViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:cao-ren");
+        Program.Assert(caoRen.Name == "曹仁" && caoRen.Kingdom == "魏" &&
+                       caoRen.SkillName == "据守" &&
+                       caoRen.SkillDescription.Contains("摸三张牌", StringComparison.Ordinal) &&
+                       caoRen.SkillDescription.Contains("翻面", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(caoRen.GeneralId) && caoRen.HealthText == "体力上限 5",
+            "The current classic Cao Ren card must render Wei, Jushou and the Lord health bonus.");
+        var caoRenWindow = new MainWindow(caoRenViewModel);
+        caoRenWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)caoRenWindow.Content, 1120, 740,
+            Path.Combine(output, "146-classic-cao-ren-card.png"));
+        caoRenWindow.Content = null;
+        caoRenWindow.Close();
 
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>

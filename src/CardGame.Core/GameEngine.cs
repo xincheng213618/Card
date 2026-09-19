@@ -45,6 +45,7 @@ public sealed partial class GameEngine
     private bool? _shuangxiongJudgmentWasRed;
     private bool _woodenOxUsedThisTurn;
     private bool _biyueResolvedThisTurn;
+    private bool _jushouResolvedThisTurn;
     private int _logSequence;
     private int _thoughtSequence;
     private int _movementSequence;
@@ -287,6 +288,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalTaishiCi =>
         _rulesVersion >= 64 && IsClassicIdentityMode;
+
+    private bool UsesFormalCaoRen =>
+        _rulesVersion >= 65 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -933,6 +937,7 @@ public sealed partial class GameEngine
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Liuli or
                 DecisionKind.Biyue or
+                DecisionKind.Jushou or
                 DecisionKind.Xiaoji or
                 DecisionKind.Lianying or
                 DecisionKind.QinglongCrescentBlade or
@@ -1033,6 +1038,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Biyue)
         {
             return SubmitBiyuePromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Jushou)
+        {
+            return SubmitJushouPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Xiaoji)
@@ -1918,6 +1928,17 @@ public sealed partial class GameEngine
         return Accept(() => HumanBiyueCore(
             action == "biyue-use",
             advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+    }
+
+    private CommandResult SubmitJushouPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Jushou })
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的据守结束阶段窗口。");
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (selected.Cards.Count != 0 || selected.Targets.Count != 0 ||
+            action is not ("jushou-use" or "jushou-skip"))
+            return Reject(CommandErrorCode.InvalidChoice, "据守选择不符合当前结束阶段窗口。");
+        return Accept(() => HumanJushouCore(action == "jushou-use", _options.AdvanceAfterHumanCommands));
     }
 
     private CommandResult SubmitXiaojiPromptAnswer(PromptChoice selected)
@@ -3600,6 +3621,14 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
+    private EngineRunResult HumanJushouCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Jushou);
+        ResolveJushouChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
     private EngineRunResult HumanXiaojiCore(bool useSkill, bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.Xiaoji);
@@ -4363,6 +4392,7 @@ public sealed partial class GameEngine
                 player.GeneralSelected && player.GeneralRevealed,
                 player.HasAlcoholEffect)
             {
+                IsFaceDown = player.IsFaceDown,
                 TeamId = IsTeamMode && player.TeamRevealed ? player.TeamId : null,
                 IsTeamRevealed = IsTeamMode && player.TeamRevealed,
                 Equipment = Array.AsReadOnly(equipment),
@@ -5182,6 +5212,19 @@ public sealed partial class GameEngine
             $"第 {_turnNumber} 回合：{current.Name}（{GetPublicGeneralName(current)}）行动。",
             current.Seat);
         QueueGameEvent(new TurnStartedEvent(_turnNumber, current.Seat));
+
+        if (current.IsFaceDown)
+        {
+            current.IsFaceDown = false;
+            AddLog("SkillTriggered", $"{current.Name} 将武将牌翻回正面并跳过本回合。", current.Seat);
+            _phase = TurnPhase.Finished;
+            AddLog("TurnEnded", $"{current.Name} 的翻面回合结束。", current.Seat);
+            QueueGameEvent(new TurnEndedEvent(_turnNumber, current.Seat));
+            _currentSeat = FindNextAliveSeat(_currentSeat);
+            _phase = TurnPhase.NotStarted;
+            PublishState();
+            return;
+        }
 
         _pendingTurnDelayedEffects = DelayedTurnEffects.None;
         if (UsesFormalLuoshenAndQingguo && current.General.HasSkill(SkillKind.Luoshen))
@@ -6160,6 +6203,12 @@ public sealed partial class GameEngine
         if (IsAiBiyuePending())
         {
             ResolvePendingAiBiyue();
+            return;
+        }
+
+        if (IsAiJushouPending())
+        {
+            ResolvePendingAiJushou();
             return;
         }
 
@@ -19320,6 +19369,25 @@ public sealed partial class GameEngine
     private void EndTurn()
     {
         var previous = _players[_currentSeat];
+        if (UsesFormalCaoRen && !_jushouResolvedThisTurn && previous.IsAlive &&
+            previous.General.HasSkill(SkillKind.Jushou))
+        {
+            _pendingDecision = new PendingDecision(
+                DecisionKind.Jushou, previous.Seat,
+                $"{previous.Name} 的结束阶段：是否发动【据守】摸三张牌并翻面？", [], [])
+            {
+                PromptId = CreatePromptId(),
+                Choices =
+                [
+                    new PromptChoice(new ChoiceId("jushou.use"), "发动【据守】，摸三张牌并翻面。", [], [],
+                        new Dictionary<string, string> { ["action"] = "jushou-use" }),
+                    new PromptChoice(new ChoiceId("jushou.skip"), "不发动【据守】。", [], [],
+                        new Dictionary<string, string> { ["action"] = "jushou-skip" })
+                ]
+            };
+            _status = previous.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+            return;
+        }
         if (UsesFormalDiaoChan &&
             !_biyueResolvedThisTurn &&
             previous.IsAlive &&
@@ -19365,6 +19433,7 @@ public sealed partial class GameEngine
         QueueGameEvent(new TurnEndedEvent(_turnNumber, previous.Seat));
         _luoyiActiveThisTurn = false;
         _biyueResolvedThisTurn = false;
+        _jushouResolvedThisTurn = false;
         _currentSeat = FindNextAliveSeat(_currentSeat);
         _phase = TurnPhase.NotStarted;
         PublishState();
@@ -19388,6 +19457,25 @@ public sealed partial class GameEngine
         AddLog(
             useSkill ? "SkillTriggered" : "SkillSkipped",
             useSkill ? $"{player.Name} 发动【闭月】，摸一张牌。" : $"{player.Name} 未发动【闭月】。",
+            player.Seat);
+        EndTurn();
+    }
+
+    private void ResolveJushouChoice(bool useSkill)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Jushou, PlayerSeat: var playerSeat } ||
+            playerSeat != _currentSeat)
+            throw new InvalidOperationException("There is no Jushou end-phase choice to resolve.");
+        var player = _players[playerSeat];
+        ClearPendingDecision();
+        _jushouResolvedThisTurn = true;
+        if (useSkill)
+        {
+            DrawCards(player, 3, log: true, reason: CardMoveReasons.JushouDraw);
+            player.IsFaceDown = true;
+        }
+        AddLog(useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill ? $"{player.Name} 发动【据守】，摸三张牌并将武将牌翻面。" : $"{player.Name} 未发动【据守】。",
             player.Seat);
         EndTurn();
     }
@@ -22593,6 +22681,17 @@ public sealed partial class GameEngine
         PublishState();
     }
 
+    private bool IsAiJushouPending() =>
+        _pendingDecision is { Kind: DecisionKind.Jushou, PlayerSeat: var playerSeat } &&
+        playerSeat == _currentSeat && !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiJushou()
+    {
+        if (!IsAiJushouPending()) throw new InvalidOperationException("There is no AI Jushou choice to resolve.");
+        ResolveJushouChoice(useSkill: true);
+        PublishState();
+    }
+
     private bool IsAiXiaojiPending() =>
         _pendingDecision is { Kind: DecisionKind.Xiaoji, PlayerSeat: var playerSeat } &&
         !_players[playerSeat].IsHuman;
@@ -23585,6 +23684,7 @@ public sealed partial class GameEngine
         public HashSet<SkillKind> UsedLimitedSkillKinds { get; } = [];
         public bool TianyiWonThisTurn { get; set; }
         public bool TianyiLostThisTurn { get; set; }
+        public bool IsFaceDown { get; set; }
     }
 
     private sealed class NullificationResolution(
