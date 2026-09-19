@@ -164,6 +164,11 @@ internal static class Program
         Assert(Engine(vm).Revision == revisionBeforeFilters, "Browsing gallery filters changed the match.");
         vm.GeneralGallerySearchText = string.Empty;
         Render(root, 1120, 740, Path.Combine(output, "130-general-gallery.png"));
+        Assert(Find<Button>(root).Count(button =>
+                   button.Command == vm.SelectGeneralGallerySeriesCommand && Equals(button.Tag, true)) == 1 &&
+               Find<Button>(root).Count(button =>
+                   button.Command == vm.SelectGeneralGalleryFactionCommand && Equals(button.Tag, true)) == 1,
+            "Gallery does not visibly distinguish its selected series and faction filters.");
 
         vm.CloseGeneralGalleryCommand.Execute(null);
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
@@ -426,6 +431,11 @@ internal static class Program
         Assert(((ListBox)window.FindName("FilteredBattleLogList")).Items.Count == vm.FilteredBattleLog.Count &&
                Find<Button>(root).Count(button => button.Command == vm.SelectBattleLogCategoryCommand && button.ActualHeight > 0) == 6,
             "Battle-report filter controls or filtered rows are inaccessible.");
+        Assert(Find<Button>(root).Count(button =>
+                   button.Command == vm.SelectBattleLogCategoryCommand && Equals(button.Tag, true)) == 1 &&
+               Find<Button>(root).Count(button =>
+                   button.Command == vm.SelectBattleLogSeatCommand && Equals(button.Tag, true)) == 1,
+            "Battle report does not visibly distinguish its selected category and seat filters.");
         Assert(Engine(vm).Revision == revision && SnapshotJson.Serialize(Engine(vm).State) == state,
             "Browsing battle-report filters changed the match.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));

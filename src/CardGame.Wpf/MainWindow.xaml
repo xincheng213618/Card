@@ -725,12 +725,12 @@
                                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                                     <ItemsControl ItemsSource="{Binding BattleLogCategories}" Margin="5,7,5,0">
                                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.SelectBattleLogCategoryCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QuietButton}" Padding="7,4" FontSize="10" /></DataTemplate></ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.SelectBattleLogCategoryCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource SelectedFilterButton}" Padding="7,4" FontSize="10"><Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedBattleLogCategory" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag></Button></DataTemplate></ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="5,5,5,0">
                                         <ItemsControl ItemsSource="{Binding BattleLogSeats}">
                                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.SelectBattleLogSeatCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QuietButton}" Padding="7,4" FontSize="10" /></DataTemplate></ItemsControl.ItemTemplate>
+                                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.SelectBattleLogSeatCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource SelectedFilterButton}" Padding="7,4" FontSize="10"><Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedBattleLogSeat" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag></Button></DataTemplate></ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </ScrollViewer>
                                     <TextBlock Grid.Row="2" Text="{Binding BattleLogFilterSummary}" Foreground="#789083" FontSize="10" Margin="9,6,5,4" />
@@ -952,7 +952,7 @@
                                 <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGallerySeriesCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" ToolTip="{Binding Description}" Style="{StaticResource QuietButton}" MinWidth="72" Padding="10,6" />
+                                        <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGallerySeriesCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" ToolTip="{Binding Description}" Style="{StaticResource SelectedFilterButton}" MinWidth="72" Padding="10,6"><Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedGeneralGallerySeries" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag></Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -962,7 +962,7 @@
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGalleryFactionCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource QuietButton}" MinWidth="55" Padding="11,7" />
+                                    <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGalleryFactionCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource SelectedFilterButton}" MinWidth="55" Padding="11,7"><Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedGeneralGalleryFaction" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag></Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
