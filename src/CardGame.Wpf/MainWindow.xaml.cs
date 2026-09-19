@@ -114,6 +114,20 @@ public partial class MainWindow : Window
             else viewModel.ClearSelectionCommand.Execute(null);
             return true;
         }
+        if (viewModel.IsGeneralSelectionPending && key == Key.Enter && modifiers == ModifierKeys.None && viewModel.CanConfirmGeneralChoice)
+        {
+            viewModel.ConfirmGeneralChoiceCommand.Execute(null);
+            return true;
+        }
+        if (viewModel.IsGeneralSelectionPending && key is >= Key.D1 and <= Key.D9 && modifiers == ModifierKeys.None)
+        {
+            var generalIndex = key - Key.D1;
+            if (generalIndex < viewModel.GeneralChoices.Count)
+            {
+                viewModel.PreviewGeneralChoiceCommand.Execute(viewModel.GeneralChoices[generalIndex]);
+                return true;
+            }
+        }
         if (key == Key.F5 && modifiers == ModifierKeys.None && !viewModel.IsNewGameSetupOpen)
         {
             if (viewModel.SaveGameCommand.CanExecute(null))

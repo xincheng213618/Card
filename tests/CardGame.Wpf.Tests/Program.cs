@@ -38,6 +38,7 @@ internal static class Program
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general gallery filters classic generals and pauses the live table", () => CheckGeneralGallery(output));
+            Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
             Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
@@ -103,7 +104,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 67 : 66)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 68 : 67)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -164,6 +165,41 @@ internal static class Program
         Pump(TimeSpan.FromMilliseconds(750));
         Assert(Engine(vm).Revision > revision || vm.HasGameOver, "AI did not resume after closing the general gallery.");
         vm.IsAutoAdvance = false;
+        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
+        window.Content = null;
+        window.Close();
+    }
+
+    private static void CheckGeneralSelectionPreview(string output)
+    {
+        using var vm = new MainViewModel(false, 721019, showSetup: false, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        var window = new MainWindow(vm);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Assert(vm.IsGeneralSelectionPending && vm.SelectedGeneralChoice == vm.GeneralChoices[0] && vm.CanConfirmGeneralChoice,
+            "The first candidate was not prepared as a reversible preview.");
+        var revision = Engine(vm).Revision;
+        var secondId = vm.GeneralChoices[1].GeneralId;
+        vm.PreviewGeneralChoiceCommand.Execute(vm.GeneralChoices[1]);
+        Assert(Engine(vm).Revision == revision && vm.SelectedGeneralChoice?.GeneralId == secondId &&
+               vm.GeneralChoices.Count(choice => choice.IsPreviewSelected) == 1,
+            "Previewing a second candidate committed a command or left ambiguous highlights.");
+        vm.IsDeveloperView = true;
+        vm.IsDeveloperView = false;
+        Assert(vm.SelectedGeneralChoice?.GeneralId == secondId && Engine(vm).Revision == revision,
+            "A presentation refresh lost or committed the candidate preview.");
+        Render(root, 1120, 740, Path.Combine(output, "131-general-selection-confirm.png"));
+        var confirm = (Button)window.FindName("ConfirmGeneralChoiceButton");
+        Assert(confirm.IsEnabled && confirm.ActualHeight > 0 &&
+               Find<Button>(root).Count(button => button.Command == vm.PreviewGeneralChoiceCommand) == vm.GeneralChoices.Count,
+            "Candidate preview or confirmation controls are inaccessible.");
+        vm.ConfirmGeneralChoiceCommand.Execute(null);
+        Assert(Engine(vm).Revision > revision && !vm.IsGeneralSelectionPending && vm.SelectedGeneralChoice is null,
+            "Explicit confirmation did not submit exactly one general choice.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();

@@ -535,7 +535,14 @@
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
-                            <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#718B80" FontSize="10" HorizontalAlignment="Center" Margin="0,19,0,0" />
+                            <Grid Margin="10,18,10,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SelectedGeneralChoiceText}" Foreground="#D3BE8A" FontSize="12" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#718B80" FontSize="10" Margin="0,5,0,0" />
+                                </StackPanel>
+                                <Button x:Name="ConfirmGeneralChoiceButton" Grid.Column="1" Content="确 认 出 征" Command="{Binding ConfirmGeneralChoiceCommand}" Style="{StaticResource PrimaryButton}" MinWidth="130" Padding="17,9" Margin="18,0,0,0" />
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </Border>

@@ -33,9 +33,14 @@ internal static class NationalHealthChecks
         var cao = vm.GeneralChoices.Single(general => general.GeneralId == "national:wei-cao-cao");
         var choiceButton = Program.Find<Button>(root).Single(button => ReferenceEquals(button.CommandParameter, cao));
         choiceButton.Command.Execute(cao);
+        var primaryRevision = Program.Engine(vm).Revision;
+        Require(vm.SelectedGeneralChoice == cao,
+            "Primary candidate click should preview without submitting.");
+        vm.ConfirmGeneralChoiceCommand.Execute(null);
+        Require(Program.Engine(vm).Revision > primaryRevision, "Primary candidate confirmation did not submit.");
         Program.AdvanceToDecision(vm);
         Require(vm.IsGeneralSelectionPending && vm.GeneralChoices.Any(general => general.HealthText == "组合体力 3") && vm.GeneralChoices.Any(general => general.HealthText == "组合体力 4"),
-            "Secondary candidates did not distinguish 3+4 and 4+4 combinations.");
+            $"Secondary candidates did not distinguish 3+4 and 4+4 combinations: {string.Join(", ", vm.GeneralChoices.Select(general => $"{general.Name}={general.HealthText}"))}.");
         Require(vm.GeneralSelectionSubtitle.Contains("曹操") && vm.GeneralSelectionFooter.Contains("暗置登场"), "Dual-general context or hidden-entry instructions are missing.");
         var selecting = Checkpoint(vm);
         Program.Render(root, 1120, 740, Path.Combine(output, "65-national-secondary-hp.png"));
@@ -52,6 +57,7 @@ internal static class NationalHealthChecks
         Require(guo.HealthDescription.Contains("4+3") && guo.HealthDescription.Contains("向下取整"), "Pair preview does not explain rounding.");
         choiceButton = Program.Find<Button>(root).Single(button => ReferenceEquals(button.CommandParameter, guo));
         choiceButton.Command.Execute(guo);
+        vm.ConfirmGeneralChoiceCommand.Execute(null);
         Program.AdvanceToDecision(vm);
         Require(vm.HumanPlayer is { Hp: 3, MaxHp: 3, HealthValue: "3/3" }, "Confirmed pair did not enter the table at 3/3.");
         Program.Render(root, 1120, 740, Path.Combine(output, "66-national-three-hp.png"));

@@ -120,6 +120,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ];
         InitializePlayerGuide();
         InitializePresentation(autoAdvance);
+        InitializeGeneralSelectionPresentation();
         InitializeGameSetup();
         InitializePersistence(saveStore);
         InitializeHistory(historyStore);
@@ -282,7 +283,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public bool IsGeneralSelectionPending
     {
         get => _isGeneralSelectionPending;
-        private set => SetProperty(ref _isGeneralSelectionPending, value);
+        private set
+        {
+            if (!SetProperty(ref _isGeneralSelectionPending, value)) return;
+            RaisePropertyChanged(nameof(CanConfirmGeneralChoice));
+            if (ConfirmGeneralChoiceCommand is RelayCommand command) command.NotifyCanExecuteChanged();
+        }
     }
 
     public bool IsDyingSelectionPending
@@ -560,6 +566,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             }
         }
         IsGeneralSelectionPending = _snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral;
+        SyncGeneralChoicePreview(_snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral
+            ? _snapshot.PendingDecision.PromptId
+            : null);
         if (_snapshot.PendingDecision is { Kind: DecisionKind.RescueDying } dyingPrompt)
         {
             foreach (var choice in dyingPrompt.Choices)

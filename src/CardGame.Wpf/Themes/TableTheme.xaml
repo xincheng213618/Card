@@ -343,7 +343,7 @@
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="GeneralChoiceTemplate">
-        <Button Style="{StaticResource BareButton}" Width="206" Margin="10,0" Command="{Binding DataContext.SelectGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Text}">
+        <Button Style="{StaticResource BareButton}" Width="206" Margin="10,0" Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Text}">
             <Border x:Name="GeneralFrame" BorderBrush="#89734F" BorderThickness="1" Padding="4" Background="#182328">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -371,8 +371,8 @@
                             <RowDefinition Height="27" />
                         </Grid.RowDefinitions>
                         <TextBlock Text="{Binding SkillDescription}" Foreground="#B8BBAE" FontSize="11" LineHeight="18" TextWrapping="Wrap" />
-                        <Border Grid.Row="1" Background="#806443" BorderBrush="#AD8C57" BorderThickness="1">
-                            <TextBlock Text="选 择 此 将" Foreground="#FBE5B8" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border x:Name="ChoiceStatus" Grid.Row="1" Background="#4B5E4F" BorderBrush="#73806B" BorderThickness="1">
+                            <TextBlock x:Name="ChoiceStatusText" Text="查 看 此 将" Foreground="#D8DDCB" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
                 </Grid>
@@ -383,6 +383,14 @@
                 <Setter TargetName="GeneralFrame" Property="BorderBrush" Value="#FFE0A2" />
                 <Setter TargetName="GeneralFrame" Property="Background" Value="#283738" />
             </Trigger>
+            <DataTrigger Binding="{Binding IsPreviewSelected}" Value="True">
+                <Setter TargetName="GeneralFrame" Property="BorderBrush" Value="#FFD28A" />
+                <Setter TargetName="GeneralFrame" Property="BorderThickness" Value="3" />
+                <Setter TargetName="ChoiceStatus" Property="Background" Value="#967343" />
+                <Setter TargetName="ChoiceStatus" Property="BorderBrush" Value="#D9B76F" />
+                <Setter TargetName="ChoiceStatusText" Property="Text" Value="已 选 中" />
+                <Setter TargetName="ChoiceStatusText" Property="Foreground" Value="#FFF0CA" />
+            </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
     <ItemsPanelTemplate x:Key="ChoicePanel">

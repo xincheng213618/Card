@@ -3,8 +3,9 @@ using System.Windows.Media;
 
 namespace CardGame.Wpf.ViewModels;
 
-public sealed class GeneralChoiceViewModel
+public sealed class GeneralChoiceViewModel : ObservableObject
 {
+    private bool _isPreviewSelected;
     public required string GeneralId { get; init; }
 
     public required ChoiceId ChoiceId { get; init; }
@@ -18,6 +19,7 @@ public sealed class GeneralChoiceViewModel
     public string HealthDescription { get; init; } = string.Empty;
     public bool HasHealthPreview => HealthText.Length > 0;
     public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);
+    public bool IsPreviewSelected { get => _isPreviewSelected; set => SetProperty(ref _isPreviewSelected, value); }
 }
 
 public sealed class GeneralGalleryEntryViewModel
