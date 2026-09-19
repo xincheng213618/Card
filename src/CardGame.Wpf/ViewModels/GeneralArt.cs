@@ -52,6 +52,13 @@ public static class GeneralArt
             ["ambitious-diao-chan"] = "liu-bei"
         };
 
+    private static readonly IReadOnlyDictionary<string, string> StandalonePortraits =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["da-qiao"] = "general-da-qiao.png",
+            ["diao-chan"] = "general-diao-chan.png"
+        };
+
     private static readonly Lazy<BitmapImage> Atlas = new(() =>
     {
         var image = new BitmapImage(new Uri("pack://application:,,,/CardGame.Wpf;component/Assets/generals-atlas.png"));
@@ -60,14 +67,33 @@ public static class GeneralArt
     });
     private static readonly Dictionary<string, Brush> Cache = new();
 
-    public static bool HasPortrait(string id) => Array.IndexOf(PortraitIds, NormalizeKey(id)) >= 0;
+    public static bool HasPortrait(string id)
+    {
+        var key = NormalizeKey(id);
+        return StandalonePortraits.ContainsKey(key) || Array.IndexOf(PortraitIds, key) >= 0;
+    }
 
     public static Brush GetPortrait(string id)
     {
         var key = NormalizeKey(id);
+        if (Cache.TryGetValue(key, out var cached)) return cached;
+        if (StandalonePortraits.TryGetValue(key, out var fileName))
+        {
+            var image = new BitmapImage(new Uri(
+                $"pack://application:,,,/CardGame.Wpf;component/Assets/{fileName}"));
+            image.Freeze();
+            var standalone = new ImageBrush(image)
+            {
+                Stretch = Stretch.UniformToFill,
+                AlignmentY = AlignmentY.Top
+            };
+            standalone.Freeze();
+            Cache[key] = standalone;
+            return standalone;
+        }
+
         var index = Array.IndexOf(PortraitIds, key);
         if (index < 0) return Brushes.Transparent;
-        if (Cache.TryGetValue(key, out var cached)) return cached;
         var brush = new ImageBrush(Atlas.Value)
         {
             Viewbox = new Rect(index % 4 / 4.0, index / 4 / 4.0, .25, .25),

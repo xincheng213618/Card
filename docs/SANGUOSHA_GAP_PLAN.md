@@ -128,6 +128,8 @@
 
 第五十五个施工块完成后的增量验证：Release 0 warning / 0 error，Core 198/198，WPF 65/65；`standard-classic-generals@1.41.0` 新增群势力 3 体力女性武将貂蝉及闭月/离间。rules v56 将离间建模为弃置一张手牌或装备、按选择顺序令两名男性角色进入无实体决斗牌且不可无懈的既有决斗响应链，复用无双、激将、濒死、伤害来源和回放语义；闭月在实际结束回合前发布可选摸牌窗口。旧包 1.40.0 与 rules v55 保持原池和行为，完整/暂停流程、移动账本、AI 与 WPF 双技能卡均有回归。`127-classic-diao-chan-card.png` 已在 1120×740 离屏生成。
 
+第五十六个施工块完成后的增量验证：Release 0 warning / 0 error，WPF 65/65；为大乔与貂蝉生成并内置两张原创 2:3 历史人物肖像，`GeneralArt` 以独立资源映射接入，不改变既有 4×4 图集坐标及旧武将别名。两张选将卡均新增非透明肖像断言，并重新生成 `126-classic-da-qiao-card.png`、`127-classic-diao-chan-card.png` 做 1120×740 视觉检查；生成源采用内置图像生成工具，成品不含文字、标志、水印或现有游戏角色素材。
+
 ## 已有能力
 
 | 维度 | 当前证据 |
@@ -378,4 +380,5 @@
 | 已完成 | P1-B18：标准/军争开局选择与存档 | `standard-classic-generals@1.39.0` 同时注册标准 108 与军争 160；WPF 经典身份设置可选择并写入 `GameOptions.DeckId`，指南、离屏渲染、Checkpoint 与 1.38.0 内容边界有回归；Release 0 warning / 0 error，Core 196/196，WPF 65/65 |
 | 已完成 | P1-A27：大乔国色/流离归位 | `standard-classic-generals@1.40.0` 的 `classic:da-qiao` 吴势力女性 3 体力+国色/流离；rules v55 方块牌转乐不思蜀、精确弃牌/攻击范围目标转移同一杀、AI/牌区/事件/回放及 v54/包 1.39.0 兼容；Release 0 warning / 0 error，Core 197/197，WPF 65/65 |
 | 已完成 | P1-A28：貂蝉闭月/离间归位 | `standard-classic-generals@1.41.0` 的 `classic:diao-chan` 群势力女性 3 体力+闭月/离间；rules v56 有序双男性目标、手牌/装备代价、不可无懈的虚拟决斗、结束阶段可选摸牌、AI/牌区/回放及 v55/包 1.40.0 兼容；Release 0 warning / 0 error，Core 198/198，WPF 65/65 |
+| 已完成 | P1-C1：大乔/貂蝉原创肖像接入 | 两张原创 2:3 PNG 作为独立 WPF Resource；`GeneralArt` 保留旧图集和别名映射并优先解析独立肖像；选将卡非透明肖像断言及 1120×740 离屏视觉复核；Release 0 warning / 0 error，WPF 65/65 |
 | 进行中 | P1-A：正式多技能武将与代表武将归位 | 首批五人、黄月英、马超、黄忠、魏延、赵云、张飞、关羽、吕布、黄盖、甘宁、吕蒙、张辽、许褚、典韦、徐晃、甄姬及曹操、刘备、孙权三个主公技已完成；其他主公技、完整标准武将池、图鉴与更多技能频次仍待后续块 |

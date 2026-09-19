@@ -940,7 +940,8 @@ internal static class ClassicGeneralUiChecks
                        daQiao.SkillName == "国色 / 流离" &&
                        daQiao.SkillDescription.Contains("方块牌", StringComparison.Ordinal) &&
                        daQiao.SkillDescription.Contains("转移", StringComparison.Ordinal) &&
-                       daQiao.HealthText == "体力上限 4",
+                       daQiao.HealthText == "体力上限 4" &&
+                       GeneralArt.HasPortrait(daQiao.GeneralId),
             "The current classic Da Qiao card must render Wu, Guose, Liuli and the Lord health bonus.");
         var daQiaoWindow = new MainWindow(daQiaoViewModel);
         daQiaoWindow.ApplyTemplate();
@@ -960,7 +961,8 @@ internal static class ClassicGeneralUiChecks
                        diaoChan.SkillName == "闭月 / 离间" &&
                        diaoChan.SkillDescription.Contains("结束阶段", StringComparison.Ordinal) &&
                        diaoChan.SkillDescription.Contains("两名男性角色", StringComparison.Ordinal) &&
-                       diaoChan.HealthText == "体力上限 4",
+                       diaoChan.HealthText == "体力上限 4" &&
+                       GeneralArt.HasPortrait(diaoChan.GeneralId),
             "The current classic Diao Chan card must render Qun, Biyue, Lijian and the Lord health bonus.");
         var diaoChanWindow = new MainWindow(diaoChanViewModel);
         diaoChanWindow.ApplyTemplate();
