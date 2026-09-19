@@ -44,8 +44,11 @@ internal static class ZhangbaChecks
                            game.PendingDecision?.Kind != DecisionKind.PlayCard &&
                            game.State.Status != EngineStatus.Completed; step++)
         {
-            Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                "Zhangba Slash could not finish its response and damage chain.");
+            var result = game.PendingDecision is { PlayerSeat: 0 } decision &&
+                         decision.Kind != DecisionKind.PlayCard && decision.Choices.Count > 0
+                ? game.Submit(new AnswerPromptCommand(0, decision.PromptId, decision.Choices[0].Id, game.Revision))
+                : game.Submit(new AdvanceOneStepCommand(game.Revision));
+            Require(result.Accepted, "Zhangba Slash could not finish its response and damage chain.");
         }
 
         var converted = game.Events.Select(item => item.Payload)

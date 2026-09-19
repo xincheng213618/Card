@@ -161,6 +161,8 @@ public static class CardMoveReasons
     public static CardMoveReason ZaiqiReveal { get; } = new("skill.zaiqi.reveal");
     public static CardMoveReason ZaiqiGain { get; } = new("skill.zaiqi.gain");
     public static CardMoveReason ZaiqiDiscard { get; } = new("skill.zaiqi.discard");
+    public static CardMoveReason JuxiangGain { get; } = new("skill.juxiang.gain");
+    public static CardMoveReason LierenGain { get; } = new("skill.lieren.gain");
     public static CardMoveReason TianduClaim { get; } = new("skill.tiandu.claim-judgment");
     public static CardMoveReason ShuangxiongClaim { get; } = new("skill.shuangxiong.claim-judgment");
     public static CardMoveReason LuoshenClaim { get; } = new("skill.luoshen.claim-judgment");

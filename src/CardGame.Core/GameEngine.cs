@@ -91,6 +91,7 @@ public sealed partial class GameEngine
     private LuoyiDrawResolution? _pendingLuoyiDraw;
     private ShuangxiongDrawResolution? _pendingShuangxiongDraw;
     private ZaiqiResolution? _pendingZaiqi;
+    private LierenResolution? _pendingLieren;
     private LuoshenResolution? _pendingLuoshen;
     private JizhiResolution? _pendingJizhi;
     private TieqiResolution? _pendingTieqi;
@@ -324,6 +325,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalMengHuo =>
         _rulesVersion >= 74 && IsClassicIdentityMode;
+
+    private bool UsesFormalZhuRong =>
+        _rulesVersion >= 75 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -991,6 +995,7 @@ public sealed partial class GameEngine
                 DecisionKind.Tianxiang or
                 DecisionKind.Yinghun or
                 DecisionKind.Zaiqi or
+                DecisionKind.Lieren or
                 DecisionKind.Biyue or
                 DecisionKind.Jushou or
                 DecisionKind.Shensu or
@@ -1130,6 +1135,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Zaiqi)
         {
             return SubmitZaiqiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Lieren)
+        {
+            return SubmitLierenPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Xiaoji)
@@ -6467,6 +6477,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiLierenPending())
+        {
+            ResolvePendingAiLieren();
+            return;
+        }
+
         if (IsAiLuoshenPending())
         {
             ResolvePendingAiLuoshen();
@@ -8579,7 +8595,9 @@ public sealed partial class GameEngine
         var targets = Enumerable.Range(1, _playerCount - 1)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
             .Where(player => player.IsAlive &&
-                !(UsesFormalMengHuo && groupCard.Kind == CardKind.BarbarianAssault && player.General.HasSkill(SkillKind.Huoshou)))
+                !(groupCard.Kind == CardKind.BarbarianAssault &&
+                  ((UsesFormalMengHuo && player.General.HasSkill(SkillKind.Huoshou)) ||
+                   (UsesFormalZhuRong && player.General.HasSkill(SkillKind.Juxiang)))))
             .Select(player => player.Seat)
             .ToArray();
         var resolutionId = BeginCardUse(groupCard, source.Seat, targets);
@@ -15685,6 +15703,7 @@ public sealed partial class GameEngine
                 attack.EffectiveCardKind,
                 nature));
             target.Hp = Math.Max(0, target.Hp - amount);
+            attack.MarkDamageApplied();
             var natureLabel = GetDamageNatureLabel(nature);
             AddLog("Damage", $"{target.Name} 受到 {source.Name} 造成的 {amount} 点{natureLabel}伤害，剩余 {Math.Max(0, target.Hp)} 点体力。", source.Seat, target.Seat);
             QueueGameEvent(new DamageAppliedEvent(
@@ -17983,6 +18002,12 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A card cannot finish while its dying resolution is pending.");
         }
 
+
+        if (TryBeginLierenChoice(attack))
+        {
+            return;
+        }
+
         if (attack.TryConsumeTianxiangDraw(out var tianxiangOwnerSeat, out var tianxiangTargetSeat))
         {
             var target = _players[tianxiangTargetSeat];
@@ -18133,6 +18158,22 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException(
                     $"A resolved {group.Card.Kind} left Processing through an unsupported destination: {cardLocation}.");
+            }
+        }
+
+        if (UsesFormalZhuRong && group.Card.Kind == CardKind.BarbarianAssault &&
+            _players.FirstOrDefault(player => player.IsAlive && player.General.HasSkill(SkillKind.Juxiang)) is { } zhuRong &&
+            group.SourceSeat != zhuRong.Seat)
+        {
+            var claimable = group.PhysicalCards.Where(card =>
+                _cardZones.GetLocation(card.Id) == CardLocation.DiscardPile).ToArray();
+            foreach (var card in claimable)
+                MoveCard(card, CardLocation.DiscardPile, CardLocation.Hand(zhuRong.Seat), CardMoveReasons.JuxiangGain);
+            if (claimable.Length > 0)
+            {
+                QueueGameEvent(new JuxiangCardClaimedEvent(group.ResolutionId, zhuRong.Seat,
+                    claimable.Select(card => card.Id).ToArray()));
+                AddLog("SkillTriggered", $"{zhuRong.Name} 的【巨象】获得了结算完毕的【南蛮入侵】。", zhuRong.Seat);
             }
         }
 
@@ -21412,7 +21453,10 @@ public sealed partial class GameEngine
         if (_pendingAttack is { } attack &&
             !IsActiveAttackCardConsistent(attack, processing))
         {
-            throw new InvalidOperationException("The active card resolution and Processing zone are inconsistent.");
+            throw new InvalidOperationException(
+                $"The active card resolution and Processing zone are inconsistent " +
+                $"(attack={attack.ResolutionId}/{attack.EffectiveCardKind}, physical=[{string.Join(',', attack.PhysicalCards.Select(card => card.Id))}], " +
+                $"processing=[{string.Join(',', processing.Select(card => card.Id))}], lieren={_pendingLieren?.Stage}).");
         }
 
         if (_pendingBorrowedSword is { } borrowedSword)
@@ -22609,6 +22653,17 @@ public sealed partial class GameEngine
                         "An active judgment continuation must retain its Judgment frame as the stack top.");
                 }
             }
+            else if (_pendingLieren is { } lieren)
+            {
+                if (!ReferenceEquals(lieren.Attack, pendingAttack) ||
+                    _pendingDecision is not { Kind: DecisionKind.Lieren } ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame lierenCardUse ||
+                    lierenCardUse.Id != pendingAttack.ResolutionId)
+                {
+                    throw new InvalidOperationException(
+                        "An active Lieren choice must retain its Slash frame as the stack top.");
+                }
+            }
             else if (_pendingDying is null &&
                 _pendingDamageTrigger is null &&
                 _pendingDamageSkill is null)
@@ -23278,6 +23333,7 @@ public sealed partial class GameEngine
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
                 DecisionKind.Mengjin or
+                DecisionKind.Lieren or
                 DecisionKind.ZhuqueFan) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
@@ -23289,7 +23345,8 @@ public sealed partial class GameEngine
         var awaitingHumanDying =
             _pendingDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
-        var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending() || IsAiTianxiangPending();
+        var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending() ||
+                                 IsAiTianxiangPending() || IsAiLierenPending();
         var awaitingAiNullification = IsAiNullificationPending();
         var awaitingAiJizhi = IsAiJizhiPending();
         var awaitingAiDamageSkill = IsAiDamageSkillPending();
@@ -23476,7 +23533,7 @@ public sealed partial class GameEngine
             return true;
         }
 
-        if (_pendingDamageTrigger is not null)
+        if (_pendingDamageTrigger is not null || _pendingLieren is not null)
         {
             return processing.All(card => attackCardIds.Contains(card.Id)) &&
                    attack.PhysicalCards.All(card =>
@@ -24916,6 +24973,8 @@ public sealed partial class GameEngine
         public bool CixiongDoubleSwordsResolved { get; private set; }
         public bool IceSwordAttempted { get; private set; }
         public bool QilinBowAttempted { get; private set; }
+        public bool DamageWasApplied { get; private set; }
+        public bool LierenAttempted { get; private set; }
         public bool LiuliResolved { get; private set; }
         public bool TianxiangResolved { get; private set; }
         private int? TianxiangOwnerSeat { get; set; }
@@ -24938,6 +24997,10 @@ public sealed partial class GameEngine
         public void MarkLiuliResolved() => LiuliResolved = true;
 
         public void MarkTianxiangResolved() => TianxiangResolved = true;
+
+        public void MarkDamageApplied() => DamageWasApplied = true;
+
+        public void MarkLierenAttempted() => LierenAttempted = true;
 
         public void RedirectFinalizedDamageTarget(int targetSeat) => TargetSeat = targetSeat;
 

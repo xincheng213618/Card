@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 59, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 60, 0))
     {
     }
 
@@ -78,12 +78,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 56, 0) &&
             version != new Version(1, 57, 0) &&
             version != new Version(1, 58, 0) &&
-            version != new Version(1, 59, 0))
+            version != new Version(1, 59, 0) &&
+            version != new Version(1, 60, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.59.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.60.0.");
         }
 
         _version = version;
@@ -784,6 +785,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:zaiqi", "再起",
                 "摸牌阶段开始时，若你已受伤，你可以放弃摸牌并展示牌堆顶X张牌（X为你已损失的体力值）：每有一张红桃牌，你回复1点体力，然后弃置这些红桃牌并获得其余牌。", SkillKind.Zaiqi));
         }
+        if (_version >= new Version(1, 60, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:juxiang", "巨象",
+                "锁定技，南蛮入侵对你无效；其他角色使用的南蛮入侵结算完毕置入弃牌堆后，你获得之。", SkillKind.Juxiang));
+            builder.AddSkill(new ContentSkillDefinition("classic:lieren", "烈刃",
+                "当你使用杀对目标角色造成伤害后，你可以与其拼点；若你赢，你获得其一张牌。", SkillKind.Lieren));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1200,10 +1208,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:huoshou", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:zaiqi"]));
         }
+        if (_version >= new Version(1, 60, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhu-rong", "祝融", "zhu_rong",
+                "classic:juxiang", "shu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:lieren"], Gender: GeneralGender.Female));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 59 } => MengHuoClassicGeneralIds,
+            { Major: 1, Minor: >= 60 } => ZhuRongClassicGeneralIds,
+            { Major: 1, Minor: 59 } => MengHuoClassicGeneralIds,
             { Major: 1, Minor: 58 } => SunJianClassicGeneralIds,
             { Major: 1, Minor: 57 } => ZhangJiaoClassicGeneralIds,
             { Major: 1, Minor: 56 } => GongsunZanClassicGeneralIds,
@@ -1551,6 +1567,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. SunJianClassicGeneralIds,
         "classic:meng-huo"
+    ];
+
+    internal static IReadOnlyList<string> ZhuRongClassicGeneralIds { get; } =
+    [
+        .. MengHuoClassicGeneralIds,
+        "classic:zhu-rong"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

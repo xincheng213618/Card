@@ -106,6 +106,7 @@ internal static class ClassicGeneralChecks
         var pangTongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 48, 0));
         var taishiCiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 49, 0));
         var zhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 57, 0));
+        var mengHuoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 59, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -114,7 +115,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.59.0"]),
+                "standard-classic-generals@1.60.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -131,7 +132,7 @@ internal static class ClassicGeneralChecks
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
             "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
-            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo"
+            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -151,6 +152,12 @@ internal static class ClassicGeneralChecks
                 { BaseHp: 4, FactionId: "shu" } mengHuo &&
                 mengHuo.SkillIds.SequenceEqual(["classic:huoshou", "classic:zaiqi"]),
             "Current classic Meng Huo must expose Huoshou and Zaiqi in stable order.");
+        Require(classic.Generals["classic:zhu-rong"] is
+                { BaseHp: 4, FactionId: "shu", Gender: GeneralGender.Female } zhuRong &&
+                zhuRong.SkillIds.SequenceEqual(["classic:juxiang", "classic:lieren"]) &&
+                !mengHuoClassic.Generals.ContainsKey("classic:zhu-rong") &&
+                !mengHuoClassic.Skills.ContainsKey("classic:juxiang"),
+            "Current classic Zhu Rong must expose Juxiang and Lieren in stable order.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&

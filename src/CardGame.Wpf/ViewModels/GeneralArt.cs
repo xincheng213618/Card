@@ -49,7 +49,8 @@ public static class GeneralArt
             ["xiahou-dun"] = "zhang-fei",
             ["sima-yi"] = "guo-jia",
             ["ambitious-lu-bu"] = "zhang-fei",
-            ["ambitious-diao-chan"] = "liu-bei"
+            ["ambitious-diao-chan"] = "liu-bei",
+            ["zhu-rong"] = "diao-chan"
         };
 
     private static readonly IReadOnlyDictionary<string, string> StandalonePortraits =

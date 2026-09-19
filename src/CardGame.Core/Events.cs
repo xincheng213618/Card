@@ -962,6 +962,18 @@ public sealed record ZaiqiResolvedEvent(
     IReadOnlyList<int> GainedCardIds,
     int RecoveredAmount) : IGameEvent;
 
+public sealed record JuxiangCardClaimedEvent(long ResolutionId, int OwnerSeat, IReadOnlyList<int> CardIds) : IGameEvent;
+
+public sealed record LierenResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int TargetSeat,
+    int? OwnerCardId,
+    int? TargetCardId,
+    bool Used,
+    bool Won,
+    int? GainedCardId) : IGameEvent;
+
 public sealed record JijiangRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

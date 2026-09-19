@@ -1247,6 +1247,21 @@ internal static class ClassicGeneralUiChecks
         mengHuoWindow.Content = null;
         mengHuoWindow.Close();
 
+        using var zhuRongViewModel = FindGeneralChoice("classic:zhu-rong");
+        var zhuRong = zhuRongViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:zhu-rong");
+        Program.Assert(zhuRong.Name == "祝融" && zhuRong.Kingdom == "蜀" &&
+                       zhuRong.SkillName == "巨象 / 烈刃" &&
+                       zhuRong.SkillDescription.Contains("南蛮入侵结算完毕", StringComparison.Ordinal) &&
+                       zhuRong.SkillDescription.Contains("你可以与其拼点", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(zhuRong.GeneralId) && zhuRong.HealthText == "体力上限 5",
+            "The current classic Zhu Rong card must render Shu, Juxiang, Lieren and the Lord health bonus.");
+        var zhuRongWindow = new MainWindow(zhuRongViewModel);
+        zhuRongWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)zhuRongWindow.Content, 1120, 740,
+            Path.Combine(output, "156-classic-zhu-rong-card.png"));
+        zhuRongWindow.Content = null;
+        zhuRongWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");
