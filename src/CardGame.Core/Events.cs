@@ -718,6 +718,17 @@ public sealed record StoneAxeResolvedEvent(
     bool Used,
     IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
 
+/// <summary>
+/// Public declaration that two physical hand cards were converted into one
+/// virtual Slash by Zhangba Serpent Spear.
+/// </summary>
+public sealed record ZhangbaSerpentSpearConvertedEvent(
+    long ResolutionId,
+    int UserSeat,
+    IReadOnlyList<int> PhysicalCardIds,
+    bool IsUse,
+    int? TargetSeat = null) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

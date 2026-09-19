@@ -93,6 +93,7 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonDerivedType(typeof(AnswerPromptCommand), "answer-prompt")]
 [JsonDerivedType(typeof(RespondCommand), "respond")]
 [JsonDerivedType(typeof(UseSkillCommand), "use-skill")]
+[JsonDerivedType(typeof(UseEquipmentEffectCommand), "use-equipment-effect")]
 public abstract record GameCommand(int ActorSeat, long ExpectedRevision);
 
 /// <summary>Starts an unstarted match. ActorSeat is the trusted host (-1).</summary>
@@ -131,6 +132,19 @@ public sealed record RecastCardCommand(int ActorSeat, int CardId, long ExpectedR
 public sealed record UseSkillCommand(
     int ActorSeat,
     SkillKind Skill,
+    IReadOnlyList<int> CardIds,
+    IReadOnlyList<int> TargetSeats,
+    long ExpectedRevision,
+    PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
+
+/// <summary>
+/// Uses an equipped card's active conversion with an exact private card and
+/// target selection. The equipment itself remains in its public slot unless
+/// the published effect explicitly consumes it.
+/// </summary>
+public sealed record UseEquipmentEffectCommand(
+    int ActorSeat,
+    CardKind EquipmentKind,
     IReadOnlyList<int> CardIds,
     IReadOnlyList<int> TargetSeats,
     long ExpectedRevision,

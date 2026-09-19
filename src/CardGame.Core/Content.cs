@@ -211,6 +211,14 @@ public static class CardCatalog
                 AiPlayValue: 36,
                 AiResponseValue: 0,
                 HandKeepValue: 40),
+            [CardKind.ZhangbaSerpentSpear] = new(
+                CardKind.ZhangbaSerpentSpear,
+                "丈八蛇矛",
+                "装备牌",
+                "装备至武器槽；攻击范围 3，你可以将两张手牌当一张杀使用或打出。",
+                AiPlayValue: 38,
+                AiResponseValue: 0,
+                HandKeepValue: 42),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

@@ -62,7 +62,8 @@ public enum CardKind
     SupplyShortage,
     Lightning,
     BorrowedSword,
-    StoneAxe
+    StoneAxe,
+    ZhangbaSerpentSpear
 }
 
 public enum Suit
@@ -275,7 +276,8 @@ public enum LegalActionKind
     UseSkill,
     RevealGeneral,
     Recast,
-    BorrowedSword
+    BorrowedSword,
+    UseEquipmentEffect
 }
 
 public sealed record GameOptions
@@ -592,7 +594,8 @@ public sealed record LegalAction
         int MinCardCount = 0,
         int MaxCardCount = 0,
         int MinTargetCount = 0,
-        int MaxTargetCount = 0)
+        int MaxTargetCount = 0,
+        CardKind? EquipmentKind = null)
     {
         this.Kind = Kind;
         this.CardId = CardId;
@@ -605,6 +608,7 @@ public sealed record LegalAction
         this.MaxCardCount = MaxCardCount;
         this.MinTargetCount = MinTargetCount;
         this.MaxTargetCount = MaxTargetCount;
+        this.EquipmentKind = EquipmentKind;
         this.TargetSeats = TargetSeats is { } explicitTargets
             ? Array.AsReadOnly(explicitTargets.ToArray())
             : TargetSeat is { } singleTarget
@@ -621,6 +625,9 @@ public sealed record LegalAction
 
     /// <summary>Identifies the active skill for a cardless skill action.</summary>
     public SkillKind? Skill { get; init; }
+
+    /// <summary>Identifies the equipment whose active conversion creates this action.</summary>
+    public CardKind? EquipmentKind { get; init; }
 
     /// <summary>
     /// Selection bounds for a cardless active-skill action. The prompt carries

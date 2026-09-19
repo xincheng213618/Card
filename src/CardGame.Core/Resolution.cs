@@ -80,7 +80,8 @@ public sealed record CardUseFrame(
     IReadOnlyList<int> TargetSeats,
     ResolutionFrameStep Step = ResolutionFrameStep.Declared,
     int TargetIndex = 0,
-    bool IgnoresArmor = false)
+    bool IgnoresArmor = false,
+    IReadOnlyList<int>? PhysicalCardIds = null)
     : ResolutionFrame(Id, ResolutionFrameKind.CardUse, Step);
 
 public sealed record ResponseWindowFrame(

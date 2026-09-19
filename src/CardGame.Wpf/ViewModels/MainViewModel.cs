@@ -17,6 +17,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private readonly HashSet<int> _selectedActiveSkillCardIds = [];
     private readonly HashSet<int> _selectedActiveSkillTargetSeats = [];
     private SkillKind? _selectedActiveSkillKind;
+    private CardKind? _selectedEquipmentEffectKind;
     private PromptId? _activeSkillPromptId;
     private bool _isSelectingActiveSkillCards;
     private int? _selectedTargetSeat;
@@ -376,6 +377,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedCardId = null;
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
+        _selectedActiveSkillKind = null;
+        _selectedEquipmentEffectKind = null;
         _activeSkillPromptId = null;
         _isSelectingActiveSkillCards = false;
         _selectedTargetSeat = null;
@@ -447,6 +450,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
+            _selectedEquipmentEffectKind = null;
             _isSelectingActiveSkillCards = false;
         }
 
@@ -459,6 +463,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
+            _selectedEquipmentEffectKind = null;
             _isSelectingActiveSkillCards = false;
             return;
         }
@@ -1489,12 +1494,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var action = HumanActiveSkillAction;
-        if (action?.Skill is not { } skill)
+        if (action is null)
         {
             return;
         }
 
-        _selectedActiveSkillKind = skill;
+        _selectedActiveSkillKind = action.Skill;
+        _selectedEquipmentEffectKind = action.EquipmentKind;
 
         var requiresCardSelection = action.MinCardCount > 0 || action.MaxCardCount > 0;
         var requiresTargetSelection = action.MinTargetCount > 0 || action.MaxTargetCount > 0;
@@ -1540,13 +1546,26 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         ExecuteSafely(() =>
         {
-            var result = SubmitCommand(new UseSkillCommand(
-                _snapshot.HumanSeat,
-                skill,
-                _selectedActiveSkillCardIds.Order().ToArray(),
-                _selectedActiveSkillTargetSeats.Order().ToArray(),
-                _snapshot.Revision,
-                prompt.PromptId));
+            var selectedCards = _selectedActiveSkillCardIds.Order().ToArray();
+            var selectedTargets = _selectedActiveSkillTargetSeats.Order().ToArray();
+            var result = action.Kind == LegalActionKind.UseEquipmentEffect &&
+                         action.EquipmentKind is { } equipment
+                ? SubmitCommand(new UseEquipmentEffectCommand(
+                    _snapshot.HumanSeat,
+                    equipment,
+                    selectedCards,
+                    selectedTargets,
+                    _snapshot.Revision,
+                    prompt.PromptId))
+                : action.Skill is { } skill
+                    ? SubmitCommand(new UseSkillCommand(
+                        _snapshot.HumanSeat,
+                        skill,
+                        selectedCards,
+                        selectedTargets,
+                        _snapshot.Revision,
+                        prompt.PromptId))
+                    : throw new InvalidOperationException("The selected special action has no command identity.");
             if (!result.Accepted)
             {
                 PromptText = $"主动技能未执行：{result.Error?.Message}";
@@ -1558,6 +1577,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
+            _selectedEquipmentEffectKind = null;
             _selectedCardId = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
@@ -1568,12 +1588,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void UseActiveSkill(LegalAction action)
     {
-        if (action.Kind != LegalActionKind.UseSkill || action.Skill is null)
+        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect) ||
+            action.Skill is null && action.EquipmentKind is null)
         {
             return;
         }
 
         _selectedActiveSkillKind = action.Skill;
+        _selectedEquipmentEffectKind = action.EquipmentKind;
         UseActiveSkill();
     }
 
@@ -1587,6 +1609,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
             _selectedActiveSkillKind = null;
+            _selectedEquipmentEffectKind = null;
             _isSelectingActiveSkillCards = false;
             SelectedCardText = "未选择手牌";
             var result = SubmitCommand(new EndPlayPhaseCommand(_snapshot.HumanSeat, _snapshot.Revision, _snapshot.PendingDecision?.PromptId));

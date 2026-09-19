@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 24, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 25, 0))
     {
     }
 
@@ -43,12 +43,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 21, 0) &&
             version != new Version(1, 22, 0) &&
             version != new Version(1, 23, 0) &&
-            version != new Version(1, 24, 0))
+            version != new Version(1, 24, 0) &&
+            version != new Version(1, 25, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.24.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.25.0.");
         }
 
         _version = version;
@@ -92,6 +93,20 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["cost"] = "discard-two"
                     }));
             }
+            if (_version >= new Version(1, 25, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:zhangba-serpent-spear",
+                    DisplayName: "丈八蛇矛",
+                    CategoryName: "装备牌",
+                    Description: "装备至武器槽；攻击范围 3，你可以将两张手牌当一张杀使用或打出。",
+                    LegacyKind: CardKind.ZhangbaSerpentSpear,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "weapon",
+                        ["conversion"] = "two-hand-cards-as-slash"
+                    }));
+            }
 
             var classicDeckCards = new List<ContentDeckCardCount>
             {
@@ -128,10 +143,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:stone-axe", 1));
             }
+            if (_version >= new Version(1, 25, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:zhangba-serpent-spear", 1));
+            }
 
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 24, 0)
+                Name: _version >= new Version(1, 25, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛）"
+                    : _version >= new Version(1, 24, 0)
                     ? "经典标准牌堆（借刀杀人·贯石斧）"
                     : "经典标准牌堆（借刀杀人）",
                 InitialHandSize: 4,

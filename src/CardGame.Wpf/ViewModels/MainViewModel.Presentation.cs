@@ -30,11 +30,13 @@ public sealed partial class MainViewModel
         : Hand.FirstOrDefault(card => card.IsSelected) is { } card ? $"使用 {card.Name}" : "出 牌";
     public IReadOnlyList<LegalAction> HumanActiveSkillActions => _snapshot is not null &&
         _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard
-            ? _game.GetHumanLegalActions().Where(action => action.Kind == LegalActionKind.UseSkill).ToArray()
+            ? _game.GetHumanLegalActions().Where(action =>
+                action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect).ToArray()
             : [];
     public IReadOnlyList<LegalAction> AdditionalActiveSkillActions => HumanActiveSkillActions.Skip(1).ToArray();
     private LegalAction? HumanActiveSkillAction => HumanActiveSkillActions.FirstOrDefault(action =>
-        action.Skill == _selectedActiveSkillKind) ?? HumanActiveSkillActions.FirstOrDefault();
+        action.Skill == _selectedActiveSkillKind &&
+        action.EquipmentKind == _selectedEquipmentEffectKind) ?? HumanActiveSkillActions.FirstOrDefault();
     private bool IsActiveSkillCardSelectionPending =>
         _isSelectingActiveSkillCards &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
@@ -49,6 +51,8 @@ public sealed partial class MainViewModel
     public string ActiveSkillEntryText => HumanActiveSkillAction?.Description ?? "发动技能";
     private string HumanActiveSkillName => HumanActiveSkillAction?.Skill is { } skill
         ? SkillRegistry.Get(skill).Name
+        : HumanActiveSkillAction?.EquipmentKind is { } equipment
+            ? EquipmentCatalog.Get(equipment).DisplayName
         : "技能";
     public bool CanConfirmActiveSkill => IsActiveSkillSelectionPending && HumanActiveSkillAction is { } action &&
         _selectedActiveSkillCardIds.Count >= action.MinCardCount && _selectedActiveSkillCardIds.Count <= action.MaxCardCount &&
@@ -274,6 +278,7 @@ public sealed partial class MainViewModel
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
         _selectedActiveSkillKind = null;
+        _selectedEquipmentEffectKind = null;
         _isSelectingActiveSkillCards = false;
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = "未选择手牌";

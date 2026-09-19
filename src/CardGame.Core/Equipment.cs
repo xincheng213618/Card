@@ -58,6 +58,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 3，当你的杀被闪抵消后，你可以弃置两张牌，令此杀仍造成伤害。",
                 WeaponAttackRange: 3),
+            [CardKind.ZhangbaSerpentSpear] = new(
+                CardKind.ZhangbaSerpentSpear,
+                "丈八蛇矛",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 3，你可以将两张手牌当一张杀使用或打出。",
+                WeaponAttackRange: 3),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

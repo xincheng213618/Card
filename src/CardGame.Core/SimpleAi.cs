@@ -278,7 +278,7 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         LegalAction action)
     {
-        if (action.Kind != LegalActionKind.UseSkill)
+        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect))
         {
             return [];
         }
@@ -345,7 +345,8 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         LegalAction action)
     {
-        if (action.Kind != LegalActionKind.UseSkill || action.MinTargetCount == 0)
+        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect) ||
+            action.MinTargetCount == 0)
         {
             return [];
         }
@@ -372,7 +373,8 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
-        var orderedCandidates = action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi
+        var orderedCandidates = action.Kind == LegalActionKind.UseEquipmentEffect ||
+                                action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi
             ? candidates
                 .OrderByDescending(player => GetHostility(view, selfRole, player))
                 .ThenBy(player => player.Hp)
@@ -2191,6 +2193,32 @@ public sealed partial class SimpleAiBrain
             return (
                 24d + missingHp * 5d - handPressure,
                 $"发动{action.Description}，以 1 点公开体力换取两张牌；当前体力 {self.Hp}/{self.MaxHp}，不读取暗牌。 ");
+        }
+
+        if (action.Kind == LegalActionKind.UseEquipmentEffect &&
+            action.EquipmentKind == CardKind.ZhangbaSerpentSpear)
+        {
+            var equipmentTarget = view.Players
+                .Where(player => player.IsAlive && action.SelectableTargetSeats.Contains(player.Seat))
+                .OrderByDescending(player => GetHostility(view, selfRole, player))
+                .ThenBy(player => player.Hp)
+                .ThenBy(player => player.Seat)
+                .FirstOrDefault();
+            if (equipmentTarget is null)
+            {
+                return (-100d, "没有丈八蛇矛可攻击的合法目标。");
+            }
+
+            var equipmentHostility = GetHostility(view, selfRole, equipmentTarget);
+            var cost = GetActiveSkillSelectableCards(self, action)
+                .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                .ThenBy(card => card.Id)
+                .Take(2)
+                .Sum(card => CardCatalog.Get(card.Kind).HandKeepValue) * .18d;
+            return equipmentHostility > 0
+                ? (18d + equipmentHostility * .45d + (equipmentTarget.Hp <= 1 ? 35d : 0d) - cost,
+                    $"发动【丈八蛇矛】对座位 {equipmentTarget.Seat + 1} 使用虚拟【杀】，支付两张最低保留价值手牌。")
+                : (-100d, "合法目标中没有值得支付两张手牌攻击的敌对角色。");
         }
 
         if (action.Kind == LegalActionKind.EndPlay)
