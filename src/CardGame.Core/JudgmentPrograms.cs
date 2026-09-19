@@ -21,7 +21,8 @@ public sealed record ProgramJudgmentTriggerWindowFrame(
     IReadOnlyList<ProgramJudgmentTriggerCandidate> Candidates,
     int CandidateIndex = 0,
     int InstructionIndex = 0,
-    bool Activated = false)
+    bool Activated = false,
+    int? SelectedTargetSeat = null)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramJudgmentTriggerWindow, ResolutionFrameStep.ResolvingEffect);
 
 public sealed record ProgramJudgmentTriggerResolvedEvent(
@@ -44,3 +45,21 @@ public sealed record ProgramJudgmentReplacementResolvedEvent(
     SkillProgramOldJudgmentCardDestination OldCardDestination,
     int DrawnCards,
     int RecoveredHp) : IGameEvent;
+
+public sealed record ProgramJudgmentTargetSelectedEvent(
+    long FrameId,
+    long JudgmentFrameId,
+    string SkillId,
+    string TriggerId,
+    int OwnerSeat,
+    int TargetSeat) : IGameEvent;
+
+public sealed record ProgramJudgmentDamageRequestedEvent(
+    long FrameId,
+    long JudgmentFrameId,
+    string SkillId,
+    string TriggerId,
+    int SourceSeat,
+    int TargetSeat,
+    int Amount,
+    DamageNature Nature) : IGameEvent;

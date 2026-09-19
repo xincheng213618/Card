@@ -983,6 +983,10 @@ public sealed partial class GameEngine
         {
             return SubmitProgramJudgmentReplacementAnswer(actorSeat, prompt, choice);
         }
+        if (_pendingDecision?.Kind == DecisionKind.ProgramJudgmentTarget)
+        {
+            return SubmitProgramJudgmentTargetAnswer(actorSeat, prompt, choice);
+        }
 
         if (!_started)
         {
@@ -6495,10 +6499,12 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (_pendingDecision is { Kind: DecisionKind.ProgramJudgmentTrigger } judgmentProgramDecision)
+        if (_pendingDecision is
+            {
+                Kind: DecisionKind.ProgramJudgmentTrigger or DecisionKind.ProgramJudgmentTarget
+            })
         {
-            if (!_players[judgmentProgramDecision.PlayerSeat].IsHuman)
-                ResolveProgramJudgmentChoice(judgmentProgramDecision.Choices[0]);
+            if (IsAiProgramJudgmentPending()) ResolvePendingAiProgramJudgment();
             return;
         }
 
@@ -18165,6 +18171,16 @@ public sealed partial class GameEngine
 
     private void FinishAttack(AttackResolution attack)
     {
+        if (attack.IsProgramJudgmentDamage)
+        {
+            if (attack.Card is not null || attack.ProgramJudgmentFrameId is null)
+            {
+                throw new InvalidOperationException(
+                    "Configured judgment damage must retain its program frame and no physical card.");
+            }
+            return;
+        }
+
         if (attack.IsLeijiDamage)
         {
             if (attack.Card is not null)
@@ -18366,7 +18382,7 @@ public sealed partial class GameEngine
                 attack.ResolutionId, tianxiangOwnerSeat, tianxiangTargetSeat, drawCount));
         }
 
-        if (!attack.IsLeijiDamage &&
+        if (!attack.IsLeijiDamage && !attack.IsProgramJudgmentDamage &&
             _pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group)
         {
             if (!ReferenceEquals(group.CurrentAttack, attack))
@@ -18441,6 +18457,7 @@ public sealed partial class GameEngine
             : null;
         var resumesDelayedTurn = attack.IsDelayedJudgmentDamage;
         var resumesLeiji = attack.IsLeijiDamage;
+        var resumesProgramJudgment = attack.IsProgramJudgmentDamage;
         FinishAttack(attack);
         _pendingAttack = null;
         _pendingDuel = null;
@@ -18450,7 +18467,11 @@ public sealed partial class GameEngine
             CompleteBorrowedSwordAfterSlash(borrowedSword);
             return;
         }
-        if (resumesDelayedTurn && _winner == Winner.None && _status != EngineStatus.Completed)
+        if (resumesProgramJudgment && _status != EngineStatus.Completed)
+        {
+            ResumeAfterProgramJudgmentDamage(attack);
+        }
+        else if (resumesDelayedTurn && _winner == Winner.None && _status != EngineStatus.Completed)
         {
             ResumeAfterLightningDamage(attack);
         }
@@ -18473,6 +18494,20 @@ public sealed partial class GameEngine
         _pendingLeiji = null;
         _pendingAttack = originalAttack;
         FinishSuccessfulDodgeResponse(originalAttack);
+    }
+
+    private void ResumeAfterProgramJudgmentDamage(AttackResolution attack)
+    {
+        if (attack.ProgramJudgmentFrameId is not { } frameId ||
+            _resolutionStack.LastOrDefault() is not ProgramJudgmentTriggerWindowFrame frame ||
+            frame.Id != frameId ||
+            _pendingJudgment is null)
+        {
+            throw new InvalidOperationException(
+                "Configured judgment damage did not return to its trigger window.");
+        }
+        _pendingAttack = _pendingJudgment.Attack;
+        ContinueProgramJudgmentWindow();
     }
 
     private void FinishGroupAttack(GroupCardResolution group)
@@ -23030,6 +23065,7 @@ public sealed partial class GameEngine
         {
             if (!pendingAttack.IsDelayedJudgmentDamage &&
                 !pendingAttack.IsActiveSkillDamage &&
+                !pendingAttack.IsProgramJudgmentDamage &&
                 !_resolutionStack.Any(frame =>
                     frame is CardUseFrame cardUse && cardUse.Id == pendingAttack.ResolutionId))
             {
@@ -23151,6 +23187,18 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active Leiji choice must retain its Slash frame as the stack top.");
+                }
+            }
+            else if (pendingAttack.IsProgramJudgmentDamage)
+            {
+                if (pendingAttack.ProgramJudgmentFrameId is not { } programFrameId ||
+                    _pendingJudgment is null ||
+                    !_resolutionStack.OfType<ProgramJudgmentTriggerWindowFrame>()
+                        .Any(frame => frame.Id == programFrameId &&
+                                      frame.ParentFrameId == _pendingJudgment.FrameId))
+                {
+                    throw new InvalidOperationException(
+                        "Configured judgment damage must retain its judgment trigger parent.");
                 }
             }
             else if (_pendingJudgment is { } judgmentContinuation)
@@ -23369,10 +23417,20 @@ public sealed partial class GameEngine
 
         if (_pendingJudgment is { } pendingJudgment)
         {
-            var programJudgmentFrame = _resolutionStack.LastOrDefault() as ProgramJudgmentTriggerWindowFrame;
+            var programJudgmentFrame = _resolutionStack
+                .OfType<ProgramJudgmentTriggerWindowFrame>()
+                .LastOrDefault();
             var belongsToActiveAttack = _pendingAttack is { } activeAttack &&
-                                        pendingJudgment.Attack is { } judgmentAttack &&
-                                        ReferenceEquals(judgmentAttack, activeAttack);
+                                         pendingJudgment.Attack is { } judgmentAttack &&
+                                         ReferenceEquals(judgmentAttack, activeAttack);
+            var belongsToProgramJudgmentDamage = _pendingAttack is
+            {
+                IsProgramJudgmentDamage: true,
+                ProgramJudgmentFrameId: var programJudgmentFrameId
+            } &&
+                programJudgmentFrame is not null &&
+                programJudgmentFrameId == programJudgmentFrame.Id &&
+                programJudgmentFrame.ParentFrameId == pendingJudgment.FrameId;
             var belongsToDelayedCard = IsDelayedJudgmentContinuation(pendingJudgment.Continuation) &&
                                        pendingJudgment.Attack is null &&
                                        pendingJudgment.DelayedCard is { } delayedCard &&
@@ -23392,7 +23450,8 @@ public sealed partial class GameEngine
                                        pendingJudgment.Attack is null &&
                                        pendingJudgment.DelayedCard is null &&
                                        pendingJudgment.DamageSkill is null;
-            if ((!belongsToActiveAttack && !belongsToDelayedCard && !belongsToLuoshen && !belongsToShuangxiong) ||
+            if ((!belongsToActiveAttack && !belongsToProgramJudgmentDamage &&
+                 !belongsToDelayedCard && !belongsToLuoshen && !belongsToShuangxiong) ||
                 pendingJudgment.CandidateIndex < 0 ||
                 pendingJudgment.CandidateIndex > pendingJudgment.CandidateSeats.Count ||
                 _resolutionStack.OfType<JudgmentFrame>().LastOrDefault() is not { } judgmentFrame ||
@@ -23409,7 +23468,9 @@ public sealed partial class GameEngine
                     "A judgment continuation must retain its public card and ordered cursor.");
             }
 
-            var isProgramJudgmentChoice = programJudgmentFrame is not null;
+            var isProgramJudgmentChoice = programJudgmentFrame is not null &&
+                                          ReferenceEquals(_resolutionStack.LastOrDefault(), programJudgmentFrame) &&
+                                          !belongsToProgramJudgmentDamage;
             var programReplacementCandidate = !isProgramJudgmentChoice &&
                                               pendingJudgment.ResultSucceeded is null &&
                                               pendingJudgment.CurrentCandidate is { IsProgram: true } candidate
@@ -23426,12 +23487,11 @@ public sealed partial class GameEngine
                 : isProgramReplacementChoice
                     ? programReplacementCandidate!.OwnerSeat
                     : isTianduChoice ? pendingJudgment.TargetSeat : pendingJudgment.CurrentCandidateSeat;
-            var promptMatches = isProgramJudgmentChoice
+            var promptMatches = belongsToProgramJudgmentDamage
+                ? true
+                : isProgramJudgmentChoice
                 ? _pendingDecision is null ||
-                  _pendingDecision is { Kind: DecisionKind.ProgramJudgmentTrigger } judgmentProgramPrompt &&
-                  judgmentProgramPrompt.PlayerSeat == expectedJudgmentOwner &&
-                  judgmentProgramPrompt.Choices.Count == 2 &&
-                  judgmentProgramPrompt.ValidCardIds.Count == 0
+                  IsProgramJudgmentPromptValid(programJudgmentFrame!)
                 : isProgramReplacementChoice
                     ? _pendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement } replacementDecision &&
                       replacementDecision.PlayerSeat == expectedJudgmentOwner &&
@@ -23466,15 +23526,21 @@ public sealed partial class GameEngine
                 : _players[expectedJudgmentOwner].IsHuman
                     ? EngineStatus.AwaitingHumanResponse
                     : EngineStatus.Running;
-            if (_status != expectedJudgmentStatus)
+            if (!belongsToProgramJudgmentDamage && _status != expectedJudgmentStatus)
             {
                 throw new InvalidOperationException(
                     "A judgment prompt status does not match its current owner.");
             }
         }
 
+        var nestedProgramJudgmentDamage =
+            _pendingAttack is { IsProgramJudgmentDamage: true } programJudgmentDamage &&
+            _pendingDying?.Attack == programJudgmentDamage &&
+            _pendingDamageSkill is { } outerDamageSkill &&
+            _pendingJudgment?.DamageSkill == outerDamageSkill;
         if (_pendingDying is not null &&
             _pendingDamageSkill is not null &&
+            !nestedProgramJudgmentDamage &&
             (!_pendingDying.ResumesDamageSkill ||
              _pendingDamageSkill.Effect != DamageSkillEffectKind.GanglieJudgment))
         {
@@ -23484,6 +23550,7 @@ public sealed partial class GameEngine
 
         if (_pendingDying is not null &&
             _pendingDamageTrigger is not null &&
+            !nestedProgramJudgmentDamage &&
             !_pendingDying.ResumesDamageSkill)
         {
             throw new InvalidOperationException(
@@ -23511,7 +23578,11 @@ public sealed partial class GameEngine
                         program.ParentFrameId == activeJudgmentFrame.Id,
                     _ => false
                 };
-            var expectedTop = _pendingDying is { ResumesDamageSkill: true } &&
+            var expectedTop = nestedProgramJudgmentDamage
+                ? _resolutionStack.LastOrDefault() is DyingFrame nestedDyingFrame &&
+                  nestedDyingFrame.Id == _pendingDying!.FrameId &&
+                  nestedDyingFrame.ParentFrameId == _pendingDying.ParentFrameId
+                : _pendingDying is { ResumesDamageSkill: true } &&
                               _pendingDamageSkill is not null
                 ? _resolutionStack.LastOrDefault() is DyingFrame dyingFrame &&
                   dyingFrame.Id == _pendingDying.FrameId &&
@@ -23520,7 +23591,7 @@ public sealed partial class GameEngine
                 ? _resolutionStack.LastOrDefault() is DamageTriggerWindowFrame triggerFrame &&
                   triggerFrame.Id == pendingDamageTrigger.FrameId &&
                   triggerFrame.CandidateIndex == pendingDamageTrigger.CandidateIndex
-                : _pendingJudgment is not null
+                : _pendingJudgment is not null && _pendingAttack?.IsProgramJudgmentDamage != true
                 ? activeJudgmentFrame is not null &&
                   activeJudgmentFrame.ParentFrameId == _pendingDamageSkill.FrameId &&
                   judgmentWindowIsActive
@@ -23548,14 +23619,27 @@ public sealed partial class GameEngine
                     "A damage-skill continuation must retain its parent trigger window.");
             }
 
-            var activeProgramJudgmentFrame =
-                _resolutionStack.LastOrDefault() as ProgramJudgmentTriggerWindowFrame;
-            var damageSkillPromptMatches = _pendingJudgment is { Continuation: JudgmentContinuationKind.Ganglie } judgmentContinuation
+            var activeProgramJudgmentFrame = _resolutionStack
+                .OfType<ProgramJudgmentTriggerWindowFrame>()
+                .LastOrDefault();
+            var damageSkillPromptMatches = nestedProgramJudgmentDamage
+                ? true
+                : _pendingAttack?.IsProgramJudgmentDamage == true
+                ? _pendingDecision is { } programDamageDecision &&
+                  (programDamageDecision.Kind is DecisionKind.Feedback or
+                      DecisionKind.Yiji or
+                      DecisionKind.Jieming or
+                      DecisionKind.Yuanhu or
+                      DecisionKind.Yaowu or
+                      DecisionKind.Ganglie or
+                      DecisionKind.GangliePunish) &&
+                  programDamageDecision.PlayerSeat ==
+                  (programDamageDecision.Kind is DecisionKind.GangliePunish or DecisionKind.Yaowu
+                      ? pendingDamageSkill.SourceSeat
+                      : pendingDamageSkill.OwnerSeat)
+                : _pendingJudgment is { Continuation: JudgmentContinuationKind.Ganglie } judgmentContinuation
                 ? activeProgramJudgmentFrame is not null
-                    ? _pendingDecision is null ||
-                      _pendingDecision is { Kind: DecisionKind.ProgramJudgmentTrigger } programJudgmentDecision &&
-                      programJudgmentDecision.PlayerSeat ==
-                          activeProgramJudgmentFrame.Candidates[activeProgramJudgmentFrame.CandidateIndex].OwnerSeat
+                    ? _pendingDecision is null || IsProgramJudgmentPromptValid(activeProgramJudgmentFrame)
                     : judgmentContinuation.ResultSucceeded is not null
                         ? _pendingDecision is { Kind: DecisionKind.Tiandu } tianduDecision &&
                           tianduDecision.PlayerSeat == judgmentContinuation.TargetSeat
@@ -23596,7 +23680,7 @@ public sealed partial class GameEngine
             var expectedStatus = _pendingDecision is null
                 ? EngineStatus.Running
                 : _players[expectedResponderSeat].IsHuman
-                    ? _pendingDying is { ResumesDamageSkill: true }
+                    ? _pendingDying is not null
                         ? EngineStatus.AwaitingHumanDying
                         : EngineStatus.AwaitingHumanResponse
                     : EngineStatus.Running;
@@ -23926,7 +24010,8 @@ public sealed partial class GameEngine
                 DecisionKind.Lieren or
                 DecisionKind.ZhuqueFan or DecisionKind.ProgramCardTrigger or
                 DecisionKind.ProgramJudgmentTrigger or
-                DecisionKind.ProgramJudgmentReplacement) &&
+                DecisionKind.ProgramJudgmentReplacement or
+                DecisionKind.ProgramJudgmentTarget) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -24044,6 +24129,20 @@ public sealed partial class GameEngine
                            .Where(card => _cardZones.GetLocation(card.Id) == CardLocation.Processing)
                            .Select(card => card.Id)
                            .Order());
+        }
+
+        if (attack.IsProgramJudgmentDamage)
+        {
+            var retainedParentCardIds = _pendingJudgment?.Attack?.PhysicalCards
+                .Where(card => _cardZones.GetLocation(card.Id) == CardLocation.Processing)
+                .Select(card => card.Id)
+                .Order()
+                .ToArray() ?? [];
+            return attack.Card is null &&
+                   processing.Select(card => card.Id).Order().SequenceEqual(retainedParentCardIds) &&
+                   attack.ProgramJudgmentFrameId is { } frameId &&
+                   _resolutionStack.OfType<ProgramJudgmentTriggerWindowFrame>()
+                       .Any(frame => frame.Id == frameId);
         }
 
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
@@ -25550,7 +25649,8 @@ public sealed partial class GameEngine
         SkillKind? sourceSkill = null,
         DamageNature? damageNatureOverride = null,
         IReadOnlyList<Card>? physicalCards = null,
-        bool isLeijiDamage = false)
+        bool isLeijiDamage = false,
+        long? programJudgmentFrameId = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; private set; } = sourceSeat;
@@ -25567,6 +25667,8 @@ public sealed partial class GameEngine
         public bool IgnoresArmor { get; } = ignoresArmor;
         public bool IsDelayedJudgmentDamage { get; } = isDelayedJudgmentDamage;
         public bool IsLeijiDamage { get; } = isLeijiDamage;
+        public long? ProgramJudgmentFrameId { get; } = programJudgmentFrameId;
+        public bool IsProgramJudgmentDamage => ProgramJudgmentFrameId is not null;
         public int? DelayedJudgmentSeat { get; } = delayedJudgmentSeat;
         public SkillKind? SourceSkill { get; } = sourceSkill;
         public bool IsActiveSkillDamage => SourceSkill is not null;

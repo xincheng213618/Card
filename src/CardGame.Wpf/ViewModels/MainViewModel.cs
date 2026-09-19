@@ -679,6 +679,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.ProgramCardTrigger or
                     DecisionKind.ProgramJudgmentTrigger or
                     DecisionKind.ProgramJudgmentReplacement or
+                    DecisionKind.ProgramJudgmentTarget or
                     DecisionKind.ZhuqueFan
             } skillPrompt)
         {
@@ -723,6 +724,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.ProgramCardTrigger or
             DecisionKind.ProgramJudgmentTrigger or
             DecisionKind.ProgramJudgmentReplacement or
+            DecisionKind.ProgramJudgmentTarget or
             DecisionKind.ZhuqueFan;
 
         var legalActions = _game.GetHumanLegalActions();

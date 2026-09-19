@@ -26,6 +26,8 @@ var tests = new (string Name, Action Body)[]
     ("skill program final judgment triggers resume recovery, drawing and replay", SkillProgramJudgmentTriggerChecks.WindowAndReplay),
     ("skill program v4 judgment replacement definitions validate and freeze", SkillProgramJudgmentReplacementChecks.Definitions),
     ("skill program judgment replacement commits both old-card destinations and replays", SkillProgramJudgmentReplacementChecks.WindowDestinationsAndReplay),
+    ("skill program v5 judgment target and damage definitions validate and freeze", SkillProgramJudgmentDamageChecks.Definitions),
+    ("skill program judgment damage resumes through dying, death and replay", SkillProgramJudgmentDamageChecks.TargetDamageDyingAndReplay),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("composed AI matches complete and replay with configured actions and responses", SkillProgramMatchChecks.ComposedMatchesCompleteAndReplay),
