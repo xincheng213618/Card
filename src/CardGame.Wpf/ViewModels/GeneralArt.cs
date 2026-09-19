@@ -35,7 +35,6 @@ public static class GeneralArt
             ["xu-chu"] = "zhang-fei",
             ["dian-wei"] = "zhang-fei",
             ["xu-huang"] = "demo-ganglie",
-            ["yu-jin"] = "demo-ganglie",
             ["zhen-ji"] = "zhou-yu",
             ["huang-yueying"] = "zhou-yu",
             ["ma-chao"] = "zhao-yun",
@@ -72,7 +71,8 @@ public static class GeneralArt
             ["zhang-jiao"] = "general-zhang-jiao.png",
             ["sun-jian"] = "general-sun-jian.png",
             ["meng-huo"] = "general-meng-huo.png",
-            ["zhu-rong"] = "general-zhu-rong.png"
+            ["zhu-rong"] = "general-zhu-rong.png",
+            ["yu-jin"] = "general-yu-jin.png"
         };
 
     private static readonly Lazy<BitmapImage> Atlas = new(() =>

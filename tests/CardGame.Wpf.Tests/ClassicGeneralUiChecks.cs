@@ -1268,7 +1268,11 @@ internal static class ClassicGeneralUiChecks
                        yuJin.SkillName == "毅重" &&
                        yuJin.SkillDescription.Contains("没有防具牌", StringComparison.Ordinal) &&
                        yuJin.SkillDescription.Contains("黑色的杀对你无效", StringComparison.Ordinal) &&
-                       GeneralArt.HasPortrait(yuJin.GeneralId) && yuJin.HealthText == "体力上限 5",
+                       GeneralArt.HasPortrait(yuJin.GeneralId) &&
+                       yuJin.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && yuJin.HealthText == "体力上限 5",
             "The current classic Yu Jin card must render Wei, Yizhong and the Lord health bonus.");
         var yuJinWindow = new MainWindow(yuJinViewModel);
         yuJinWindow.ApplyTemplate();
