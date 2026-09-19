@@ -590,6 +590,12 @@ public sealed class GuidaoSkill : IPassiveSkill
     public bool OffersJudgmentCardChoice(JudgmentSkillContext context) => true;
 }
 
+public sealed class LeijiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Leiji;
+    public string Name => "雷击";
+}
+
 public sealed class TianduSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Tiandu;
@@ -1097,6 +1103,7 @@ public static class SkillRegistry
             [SkillKind.Ganglie] = new GanglieSkill(),
             [SkillKind.Guicai] = new GuicaiSkill(),
             [SkillKind.Guidao] = new GuidaoSkill(),
+            [SkillKind.Leiji] = new LeijiSkill(),
             [SkillKind.Tiandu] = new TianduSkill(),
             [SkillKind.Fanjian] = new FanjianSkill(),
             [SkillKind.Guanxing] = new GuanxingSkill(),

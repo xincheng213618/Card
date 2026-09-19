@@ -106,6 +106,7 @@ public static class BattleCueProjector
     {
         JudgmentReasons.BaguaDefense => "八卦阵",
         JudgmentReasons.Ganglie => "刚烈",
+        JudgmentReasons.Leiji => "雷击",
         JudgmentReasons.Luoshen => "洛神",
         JudgmentReasons.Tieqi => "铁骑",
         JudgmentReasons.Indulgence => "乐不思蜀",
@@ -135,6 +136,12 @@ public static class BattleCueProjector
             JudgmentReasons.Lightning => judgment.Succeeded ? "黑桃 2–9 · 命中" : "未命中 · 移至下家",
             JudgmentReasons.Luoshen => judgment.Succeeded ? "黑色 · 继续判定" : "红色 · 结束",
             JudgmentReasons.Tieqi => judgment.Succeeded ? "红色 · 目标不能使用闪" : "黑色 · 可正常响应",
+            JudgmentReasons.Leiji => judgment.Suit switch
+            {
+                Suit.Spade => "黑桃 · 受到2点雷电伤害",
+                Suit.Club => "梅花 · 张角回复1点并造成1点雷电伤害",
+                _ => "非黑桃/梅花 · 无事发生"
+            },
             _ => judgment.Succeeded ? "判定成功" : "判定失败"
         };
     }

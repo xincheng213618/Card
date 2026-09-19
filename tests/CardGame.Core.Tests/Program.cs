@@ -205,6 +205,7 @@ var tests = new (string Name, Action Body)[]
     ("Ganglie opens a public judgment and a private source punishment", GanglieFlow),
     ("Guicai privately replaces a public judgment with a hand card", GuicaiFlow),
     ("Guidao privately replaces judgments with exact black hand or equipment cards", GuidaoChecks.BlackHandAndEquipmentReplacement),
+    ("Leiji follows each effective Dodge with a replayable suit-specific judgment", LeijiChecks.DodgeJudgmentDamageAndReplay),
     ("Indulgence delays a target play phase through public judgment", IndulgenceFlow),
     ("SupplyShortage delays a target draw phase through public judgment", SupplyShortageFlow),
     ("formal SupplyShortage uses distance and preserves legacy empty-hand behavior", SupplyShortageChecks.TargetingAndResolution),

@@ -847,9 +847,9 @@ public sealed partial class SimpleAiBrain
         var usesTacticalJudgmentScoring = rulesVersion >= 11;
         var target = view.Players.Single(player => player.Seat == targetSeat);
         var tacticalSupport = GetTacticalSupport(view, self.Role ?? Role.Renegade, target);
-        var wantsSuccessfulJudgment = !isLightning
-            ? tacticalSupport > 0
-            : tacticalSupport < 0;
+        var wantsSuccessfulJudgment = reason is JudgmentReasons.Lightning or JudgmentReasons.Leiji
+            ? tacticalSupport < 0
+            : tacticalSupport > 0;
         var currentMatches = IsSuccessfulJudgment(
             reason,
             currentSuit,
@@ -944,10 +944,45 @@ public sealed partial class SimpleAiBrain
             JudgmentReasons.SupplyShortage when usesSuitSpecificDelayedJudgments => suit == Suit.Club,
             JudgmentReasons.Luoshen => suit is Suit.Spade or Suit.Club,
             JudgmentReasons.Tieqi => suit is Suit.Heart or Suit.Diamond,
+            JudgmentReasons.Leiji => suit is Suit.Spade or Suit.Club,
             JudgmentReasons.Ganglie when usesSuitSpecificDelayedJudgments && usesClassicGanglieJudgment =>
                 suit != Suit.Heart,
             _ => suit is Suit.Heart or Suit.Diamond
         };
+
+    public (int? TargetSeat, AiThoughtRecord Thought) ChooseLeijiTarget(
+        GameSnapshot view,
+        IReadOnlyList<int> targetSeats,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var candidates = targetSeats
+            .Select(targetSeat => view.Players.Single(player => player.Seat == targetSeat))
+            .Where(target => target.IsAlive && target.Seat != Seat)
+            .Select(target => new AiCandidateScore(
+                new LegalAction(LegalActionKind.UseSkill, null, target.Seat,
+                    $"对座位 {target.Seat + 1} 发动雷击"),
+                Math.Round(-GetTacticalSupport(view, selfRole, target) *
+                    (target.Hp <= 2 ? 44d : 30d) + _random.NextDouble() * 0.001d, 3),
+                "按公开阵营关系与体力选择雷击目标；不读取隐藏牌。"))
+            .ToList();
+        candidates.Add(new AiCandidateScore(
+            new LegalAction(LegalActionKind.UseSkill, null, null, "不发动雷击"),
+            2d,
+            "没有合适目标时保留可选技能。"));
+        var selected = candidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Action.TargetSeat ?? int.MaxValue)
+            .First();
+        return (selected.Action.TargetSeat, new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Action.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"雷击：从 {targetSeats.Count} 个公开合法目标中选择 {selected.Action.Description}。"));
+    }
 
     /// <summary>
     /// Chooses the bounded Yiji gift from the owner's private hand and the

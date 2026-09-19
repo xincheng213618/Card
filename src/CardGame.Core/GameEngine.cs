@@ -85,6 +85,7 @@ public sealed partial class GameEngine
     private DamageTriggerResolution? _pendingDamageTrigger;
     private DamageSkillResolution? _pendingDamageSkill;
     private JudgmentResolution? _pendingJudgment;
+    private LeijiResolution? _pendingLeiji;
     private YingziDrawResolution? _pendingYingziDraw;
     private TuxiDrawResolution? _pendingTuxiDraw;
     private LuoyiDrawResolution? _pendingLuoyiDraw;
@@ -945,6 +946,7 @@ public sealed partial class GameEngine
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
                 DecisionKind.Guidao or
+                DecisionKind.Leiji or
                 DecisionKind.Yingzi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
@@ -1035,6 +1037,11 @@ public sealed partial class GameEngine
         if (pending.Kind is DecisionKind.Guicai or DecisionKind.Guidao)
         {
             return SubmitGuicaiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Leiji)
+        {
+            return SubmitLeijiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yingzi)
@@ -1519,6 +1526,38 @@ public sealed partial class GameEngine
                     advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "鬼才选择不符合当前判定窗口。")
         };
+    }
+
+    private CommandResult SubmitLeijiPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingLeiji is not { } pending ||
+            _pendingDecision is not { Kind: DecisionKind.Leiji })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "There is no Leiji trigger awaiting a response.");
+        }
+
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (action == "leiji-skip" && selected.Targets.Count == 0)
+        {
+            return Accept(() => HumanLeijiCore(pending, targetSeat: null, _options.AdvanceAfterHumanCommands));
+        }
+
+        if (action == "leiji-target" && selected.Targets.Count == 1)
+        {
+            return Accept(() => HumanLeijiCore(pending, selected.Targets[0], _options.AdvanceAfterHumanCommands));
+        }
+
+        return Reject(CommandErrorCode.InvalidChoice, "The choice is malformed for the Leiji trigger.");
+    }
+
+    private EngineRunResult HumanLeijiCore(
+        LeijiResolution pending,
+        int? targetSeat,
+        bool advanceToHumanBoundary)
+    {
+        ResolveLeijiChoice(pending, targetSeat);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
     private CommandResult SubmitYingziPromptAnswer(PromptChoice selected)
@@ -3363,6 +3402,15 @@ public sealed partial class GameEngine
                 useGuicai: false,
                 requestedCardId: null,
                 advanceToHumanBoundary: advanceToHumanBoundary);
+        }
+
+        if (_pendingDecision?.Kind == DecisionKind.Leiji)
+        {
+            var pending = _pendingLeiji ??
+                throw new InvalidOperationException("There is no Leiji trigger awaiting a response.");
+            ResolveLeijiChoice(pending, targetSeat: null);
+            PublishState();
+            return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
         }
 
         if (_pendingDecision?.Kind == DecisionKind.Yiji)
@@ -11403,6 +11451,16 @@ public sealed partial class GameEngine
 
     private void CompleteSuccessfulDodgeResponse(AttackResolution attack)
     {
+        if (TryBeginLeijiChoice(attack))
+        {
+            return;
+        }
+
+        FinishSuccessfulDodgeResponse(attack);
+    }
+
+    private void FinishSuccessfulDodgeResponse(AttackResolution attack)
+    {
         var completed = attack.RegisterDodgeResponse();
         if (attack.RequiredDodgeResponses > 1)
         {
@@ -11439,6 +11497,94 @@ public sealed partial class GameEngine
 
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
         ContinueSlashAfterTieqi(attack);
+    }
+
+    private bool TryBeginLeijiChoice(AttackResolution attack)
+    {
+        var owner = _players[attack.TargetSeat];
+        var targetSeats = _players
+            .Where(player => player.IsAlive && player.Seat != owner.Seat)
+            .Select(player => player.Seat)
+            .ToArray();
+        if (!owner.IsAlive || !owner.General.HasSkill(SkillKind.Leiji) || targetSeats.Length == 0)
+        {
+            return false;
+        }
+
+        if (_pendingLeiji is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Leiji choices at once.");
+        }
+
+        var pending = new LeijiResolution(attack, owner.Seat);
+        _pendingLeiji = pending;
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
+        var choices = targetSeats.Select(targetSeat => new PromptChoice(
+                new ChoiceId($"leiji.target-{targetSeat}"),
+                $"发动【雷击】，令 {_players[targetSeat].Name} 进行判定。",
+                [],
+                [targetSeat],
+                new Dictionary<string, string> { ["action"] = "leiji-target" }))
+            .Append(new PromptChoice(
+                new ChoiceId("leiji.skip"),
+                "不发动【雷击】。",
+                [],
+                [],
+                new Dictionary<string, string> { ["action"] = "leiji-skip" }))
+            .ToArray();
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Leiji,
+            owner.Seat,
+            $"{owner.Name} 使用或打出【闪】，是否发动【雷击】？",
+            [],
+            targetSeats,
+            SourceSeat: owner.Seat,
+            IncomingCard: CardKind.Dodge)
+        {
+            PromptId = CreatePromptId(),
+            Choices = choices,
+            TargetSeat = owner.Seat,
+            IsPrivate = true
+        };
+        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private void ResolveLeijiChoice(LeijiResolution pending, int? targetSeat)
+    {
+        if (!ReferenceEquals(_pendingLeiji, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.OriginalAttack))
+        {
+            throw new InvalidOperationException("The Leiji choice has no current Dodge continuation.");
+        }
+
+        ClearPendingDecision();
+        if (targetSeat is null)
+        {
+            AddLog("SkillSkipped", $"{_players[pending.OwnerSeat].Name} 未发动【雷击】。", pending.OwnerSeat);
+            _pendingLeiji = null;
+            FinishSuccessfulDodgeResponse(pending.OriginalAttack);
+            return;
+        }
+
+        if (targetSeat == pending.OwnerSeat || !_players[targetSeat.Value].IsAlive)
+        {
+            throw new InvalidOperationException("Leiji requires another living target.");
+        }
+
+        pending.TargetSeat = targetSeat.Value;
+        AddLog("SkillTriggered",
+            $"{_players[pending.OwnerSeat].Name} 发动【雷击】，令 {_players[targetSeat.Value].Name} 进行判定。",
+            pending.OwnerSeat, targetSeat.Value);
+        BeginJudgment(
+            attack: pending.OriginalAttack,
+            targetSeat.Value,
+            JudgmentReasons.Leiji,
+            pending.OriginalAttack.ResolutionId,
+            CardKind.Dodge,
+            JudgmentContinuationKind.Leiji,
+            damageSkill: null,
+            sourceSeat: pending.OwnerSeat);
     }
 
     private int GetMengjinTargetCardCount(PlayerRuntime target) =>
@@ -13036,6 +13182,12 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiResponse()
     {
+        if (_pendingDecision?.Kind == DecisionKind.Leiji)
+        {
+            ResolvePendingAiLeiji();
+            return;
+        }
+
         if (_pendingDecision?.Kind == DecisionKind.Liuli)
         {
             ResolvePendingAiLiuli();
@@ -13116,6 +13268,27 @@ public sealed partial class GameEngine
         }
 
         ResolvePendingAiDodge();
+    }
+
+    private void ResolvePendingAiLeiji()
+    {
+        var pending = _pendingLeiji ??
+            throw new InvalidOperationException("AI Leiji response has no active resolution.");
+        var decision = _pendingDecision;
+        if (decision is not { Kind: DecisionKind.Leiji } ||
+            decision.PlayerSeat != pending.OwnerSeat ||
+            _players[pending.OwnerSeat].IsHuman)
+        {
+            throw new InvalidOperationException("The pending AI Leiji prompt is inconsistent.");
+        }
+
+        var (targetSeat, thought) = _aiBrains[pending.OwnerSeat].ChooseLeijiTarget(
+            CreateSnapshot(pending.OwnerSeat),
+            decision.ValidTargetSeats,
+            ++_thoughtSequence);
+        AddThought(thought);
+        ResolveLeijiChoice(pending, targetSeat);
+        PublishState();
     }
 
     private void ResolvePendingAiQinglongCrescentBlade()
@@ -14010,7 +14183,8 @@ public sealed partial class GameEngine
                 sourceSeat ?? attack?.SourceSeat);
             PopResolutionFrame(frameId, ResolutionFrameKind.Judgment);
             if (IsDelayedJudgmentContinuation(continuation) ||
-                continuation is JudgmentContinuationKind.Luoshen or JudgmentContinuationKind.Shuangxiong)
+                continuation is JudgmentContinuationKind.Luoshen or JudgmentContinuationKind.Shuangxiong or
+                    JudgmentContinuationKind.Leiji)
             {
                 var exhaustedJudgment = new JudgmentResolution(
                     frameId,
@@ -14078,7 +14252,8 @@ public sealed partial class GameEngine
             var succeeded = FinalizeJudgment(pending);
             if (succeeded is { } completed &&
                 (IsDelayedJudgmentContinuation(continuation) ||
-                 continuation is JudgmentContinuationKind.Luoshen or JudgmentContinuationKind.Shuangxiong))
+                 continuation is JudgmentContinuationKind.Luoshen or JudgmentContinuationKind.Shuangxiong or
+                     JudgmentContinuationKind.Leiji))
             {
                 ResumeCompletedJudgment(pending, completed);
             }
@@ -14367,6 +14542,7 @@ public sealed partial class GameEngine
                 judgmentSuit == Suit.Club,
             JudgmentContinuationKind.Luoshen => !IsRedSuit(judgmentSuit),
             JudgmentContinuationKind.Shuangxiong => IsRedSuit(judgmentSuit),
+            JudgmentContinuationKind.Leiji => judgmentSuit is Suit.Spade or Suit.Club,
             _ => IsRedSuit(judgmentSuit)
         };
         ReplaceJudgmentFrame(frame with
@@ -14399,6 +14575,7 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.Luoshen => "洛神",
             JudgmentContinuationKind.Tieqi => "铁骑",
             JudgmentContinuationKind.Shuangxiong => "双雄",
+            JudgmentContinuationKind.Leiji => "雷击",
             _ => pending.Reason
         };
         var judgmentResult = pending.Continuation == JudgmentContinuationKind.Lightning
@@ -14719,6 +14896,12 @@ public sealed partial class GameEngine
 
     private void ResumeCompletedJudgment(JudgmentResolution pending, bool succeeded)
     {
+        if (pending.Continuation == JudgmentContinuationKind.Leiji)
+        {
+            CompleteLeijiJudgment(pending);
+            return;
+        }
+
         if (pending.Continuation == JudgmentContinuationKind.Shuangxiong)
         {
             var draw = _pendingShuangxiongDraw ?? throw new InvalidOperationException("A Shuangxiong judgment has no draw continuation.");
@@ -14795,6 +14978,77 @@ public sealed partial class GameEngine
         }
 
         CompleteGanglieSkill(damageSkill, used: true);
+    }
+
+    private void CompleteLeijiJudgment(JudgmentResolution judgment)
+    {
+        var pending = _pendingLeiji ??
+            throw new InvalidOperationException("A Leiji judgment has no Dodge continuation.");
+        if (!ReferenceEquals(pending.OriginalAttack, judgment.Attack) ||
+            pending.TargetSeat != judgment.TargetSeat)
+        {
+            throw new InvalidOperationException("The resolved Leiji judgment does not belong to the current trigger.");
+        }
+
+        var owner = _players[pending.OwnerSeat];
+        var target = _players[pending.TargetSeat];
+        var suit = judgment.CurrentCard is { } card ? EffectiveSuit(target, card) : (Suit?)null;
+        var recovered = 0;
+        var damage = suit switch
+        {
+            Suit.Spade => 2,
+            Suit.Club => 1,
+            _ => 0
+        };
+        if (suit == Suit.Club && owner.IsAlive && owner.Hp < owner.MaxHp)
+        {
+            var recoveryFrameId = BeginRecovery(pending.OriginalAttack.ResolutionId,
+                pending.OwnerSeat, pending.OwnerSeat, 1);
+            owner.Hp++;
+            recovered = 1;
+            QueueGameEvent(new RecoveryAppliedEvent(pending.OwnerSeat, pending.OwnerSeat, 1, owner.Hp));
+            PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
+        }
+
+        QueueGameEvent(new LeijiResolvedEvent(
+            judgment.FrameId,
+            pending.OwnerSeat,
+            pending.TargetSeat,
+            judgment.CurrentCard?.Id,
+            suit,
+            recovered,
+            damage,
+            owner.Hp,
+            Math.Max(0, target.Hp)));
+        AddLog("SkillTriggered", damage switch
+        {
+            2 => $"{target.Name} 的【雷击】判定为黑桃，将受到 2 点雷电伤害。",
+            1 => $"{target.Name} 的【雷击】判定为梅花，{owner.Name} 回复 {recovered} 点体力，{target.Name} 将受到 1 点雷电伤害。",
+            _ => $"{target.Name} 的【雷击】判定未产生效果。"
+        }, pending.OwnerSeat, pending.TargetSeat);
+
+        if (damage == 0 || !target.IsAlive || !owner.IsAlive)
+        {
+            _pendingLeiji = null;
+            FinishSuccessfulDodgeResponse(pending.OriginalAttack);
+            return;
+        }
+
+        var leijiAttack = new AttackResolution(
+            pending.OriginalAttack.ResolutionId,
+            pending.OwnerSeat,
+            pending.TargetSeat,
+            card: null,
+            damageAmount: damage,
+            playedCardKind: null,
+            isLeijiDamage: true,
+            damageNatureOverride: DamageNature.Thunder);
+        pending.DamageAttack = leijiAttack;
+        _pendingAttack = leijiAttack;
+        if (!ApplyAttackDamage(leijiAttack))
+        {
+            CompleteAttack(leijiAttack);
+        }
     }
 
     private JudgmentFrame GetJudgmentFrame(long frameId)
@@ -17449,6 +17703,19 @@ public sealed partial class GameEngine
 
     private void FinishAttack(AttackResolution attack)
     {
+        if (attack.IsLeijiDamage)
+        {
+            if (attack.Card is not null)
+            {
+                throw new InvalidOperationException("Leiji damage cannot carry a physical card.");
+            }
+            if (_winner != Winner.None && _status != EngineStatus.Completed)
+            {
+                CompleteGame();
+            }
+            return;
+        }
+
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
         {
             var stage = _pendingShensuStage;
@@ -17631,7 +17898,8 @@ public sealed partial class GameEngine
                 attack.ResolutionId, tianxiangOwnerSeat, tianxiangTargetSeat, drawCount));
         }
 
-        if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group)
+        if (!attack.IsLeijiDamage &&
+            _pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group)
         {
             if (!ReferenceEquals(group.CurrentAttack, attack))
             {
@@ -17704,6 +17972,7 @@ public sealed partial class GameEngine
             ? pendingBorrowedSword
             : null;
         var resumesDelayedTurn = attack.IsDelayedJudgmentDamage;
+        var resumesLeiji = attack.IsLeijiDamage;
         FinishAttack(attack);
         _pendingAttack = null;
         _pendingDuel = null;
@@ -17717,6 +17986,25 @@ public sealed partial class GameEngine
         {
             ResumeAfterLightningDamage(attack);
         }
+        else if (resumesLeiji && _winner == Winner.None && _status != EngineStatus.Completed)
+        {
+            ResumeAfterLeijiDamage(attack);
+        }
+    }
+
+    private void ResumeAfterLeijiDamage(AttackResolution attack)
+    {
+        var pending = _pendingLeiji ??
+            throw new InvalidOperationException("Leiji damage has no Dodge continuation.");
+        if (!ReferenceEquals(pending.DamageAttack, attack))
+        {
+            throw new InvalidOperationException("The completed damage does not belong to the current Leiji trigger.");
+        }
+
+        var originalAttack = pending.OriginalAttack;
+        _pendingLeiji = null;
+        _pendingAttack = originalAttack;
+        FinishSuccessfulDodgeResponse(originalAttack);
     }
 
     private void FinishGroupAttack(GroupCardResolution group)
@@ -22089,6 +22377,19 @@ public sealed partial class GameEngine
                         "An active Cixiong Double Swords choice must retain its declared Slash frame as the stack top.");
                 }
             }
+            else if (_pendingLeiji is { DamageAttack: null } leijiContinuation &&
+                     _pendingJudgment is null)
+            {
+                if (!ReferenceEquals(leijiContinuation.OriginalAttack, pendingAttack) ||
+                    _pendingDecision is not { Kind: DecisionKind.Leiji } ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame leijiCardUse ||
+                    leijiCardUse.Id != pendingAttack.ResolutionId ||
+                    leijiCardUse.Step != ResolutionFrameStep.AwaitingResponse)
+                {
+                    throw new InvalidOperationException(
+                        "An active Leiji choice must retain its Slash frame as the stack top.");
+                }
+            }
             else if (_pendingJudgment is { } judgmentContinuation)
             {
                 if (!ReferenceEquals(judgmentContinuation.Attack, pendingAttack) ||
@@ -22753,6 +23054,7 @@ public sealed partial class GameEngine
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
                 DecisionKind.Guidao or
+                DecisionKind.Leiji or
                 DecisionKind.Tieqi or
                 DecisionKind.Liegong or
                 DecisionKind.StoneAxe or
@@ -22828,6 +23130,7 @@ public sealed partial class GameEngine
              _pendingDamageTrigger is not null ||
              _pendingDamageSkill is not null ||
              _pendingJudgment is not null ||
+             _pendingLeiji is not null ||
              _pendingLuoshen is not null ||
              _pendingJizhi is not null ||
              _pendingTieqi is not null ||
@@ -22854,6 +23157,11 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
+        if (attack.IsLeijiDamage)
+        {
+            return attack.Card is null && processing.Count == 0;
+        }
+
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
         {
             return processing.Count == 0 && _resolutionStack.OfType<CardUseFrame>().Any(frame =>
@@ -22989,6 +23297,7 @@ public sealed partial class GameEngine
     private bool IsAiResponsePending() =>
         (_pendingDecision?.Kind is DecisionKind.RespondDodge or
             DecisionKind.RespondSlash or
+            DecisionKind.Leiji or
             DecisionKind.Liuli or
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
@@ -24351,7 +24660,8 @@ public sealed partial class GameEngine
         int? delayedJudgmentSeat = null,
         SkillKind? sourceSkill = null,
         DamageNature? damageNatureOverride = null,
-        IReadOnlyList<Card>? physicalCards = null)
+        IReadOnlyList<Card>? physicalCards = null,
+        bool isLeijiDamage = false)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; private set; } = sourceSeat;
@@ -24367,6 +24677,7 @@ public sealed partial class GameEngine
         public CardKind? EffectiveCardKind { get; } = playedCardKind ?? card?.Kind;
         public bool IgnoresArmor { get; } = ignoresArmor;
         public bool IsDelayedJudgmentDamage { get; } = isDelayedJudgmentDamage;
+        public bool IsLeijiDamage { get; } = isLeijiDamage;
         public int? DelayedJudgmentSeat { get; } = delayedJudgmentSeat;
         public SkillKind? SourceSkill { get; } = sourceSkill;
         public bool IsActiveSkillDamage => SourceSkill is not null;
@@ -24749,9 +25060,18 @@ public sealed partial class GameEngine
         Luoshen,
         Shuangxiong,
         Tieqi,
+        Leiji,
         Indulgence,
         SupplyShortage,
         Lightning
+    }
+
+    private sealed class LeijiResolution(AttackResolution originalAttack, int ownerSeat)
+    {
+        public AttackResolution OriginalAttack { get; } = originalAttack;
+        public int OwnerSeat { get; } = ownerSeat;
+        public int TargetSeat { get; set; } = -1;
+        public AttackResolution? DamageAttack { get; set; }
     }
 
     private enum JijiangPurpose

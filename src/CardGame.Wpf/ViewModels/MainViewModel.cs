@@ -638,6 +638,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.GangliePunish or
                     DecisionKind.Guicai or
                     DecisionKind.Guidao or
+                    DecisionKind.Leiji or
                     DecisionKind.Yingzi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
@@ -677,6 +678,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.GangliePunish or
             DecisionKind.Guicai or
             DecisionKind.Guidao or
+            DecisionKind.Leiji or
             DecisionKind.Yingzi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
@@ -1877,6 +1879,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
                 DecisionKind.Guidao or
+                DecisionKind.Leiji or
                 DecisionKind.Yingzi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or

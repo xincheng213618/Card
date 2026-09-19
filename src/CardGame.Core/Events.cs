@@ -929,6 +929,17 @@ public sealed record HujiaResolvedEvent(
     int? ResponseCardId,
     bool UsedBagua = false) : IGameEvent;
 
+public sealed record LeijiResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int TargetSeat,
+    int? JudgmentCardId,
+    Suit? JudgmentSuit,
+    int RecoveredAmount,
+    int DamageAmount,
+    int OwnerHp,
+    int TargetHp) : IGameEvent;
+
 public sealed record JijiangRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

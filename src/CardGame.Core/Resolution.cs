@@ -6,6 +6,7 @@ public static class JudgmentReasons
 {
     public const string BaguaDefense = "equipment.bagua-defense";
     public const string Ganglie = "skill.ganglie";
+    public const string Leiji = "skill.leiji";
     public const string Luoshen = "skill.luoshen";
     public const string Tieqi = "skill.tieqi";
     public const string Shuangxiong = "skill.shuangxiong";
