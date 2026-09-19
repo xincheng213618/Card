@@ -1155,6 +1155,25 @@ internal static class ClassicGeneralUiChecks
         xiahouYuanWindow.Content = null;
         xiahouYuanWindow.Close();
 
+        using var huaXiongViewModel = FindGeneralChoice("classic:hua-xiong");
+        var huaXiong = huaXiongViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:hua-xiong");
+        Program.Assert(huaXiong.Name == "华雄" && huaXiong.Kingdom == "群" &&
+                       huaXiong.SkillName == "耀武" &&
+                       huaXiong.SkillDescription.Contains("红色【杀】", StringComparison.Ordinal) &&
+                       huaXiong.SkillDescription.Contains("回复1点体力或摸一张牌", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(huaXiong.GeneralId) &&
+                       huaXiong.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && huaXiong.HealthText == "体力上限 7",
+            "The current classic Hua Xiong card must render Qun, Yaowu, six base HP and the Lord bonus.");
+        var huaXiongWindow = new MainWindow(huaXiongViewModel);
+        huaXiongWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)huaXiongWindow.Content, 1120, 740,
+            Path.Combine(output, "151-classic-hua-xiong-card.png"));
+        huaXiongWindow.Content = null;
+        huaXiongWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

@@ -307,6 +307,9 @@ public sealed partial class GameEngine
     private bool UsesFormalXiahouYuan =>
         _rulesVersion >= 69 && IsClassicIdentityMode;
 
+    private bool UsesFormalHuaXiong =>
+        _rulesVersion >= 70 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -955,6 +958,7 @@ public sealed partial class GameEngine
                 DecisionKind.Biyue or
                 DecisionKind.Jushou or
                 DecisionKind.Shensu or
+                DecisionKind.Yaowu or
                 DecisionKind.Xiaoji or
                 DecisionKind.Lianying or
                 DecisionKind.QinglongCrescentBlade or
@@ -1065,6 +1069,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Shensu)
         {
             return SubmitShensuPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Yaowu)
+        {
+            return SubmitYaowuPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Tianxiang)
@@ -1978,6 +1987,21 @@ public sealed partial class GameEngine
         if (action == "shensu-use" && selected.Targets.Count == 1 && selected.Cards.Count <= 1)
             return Accept(() => HumanShensuCore(selected.Cards.Count == 0 ? null : selected.Cards[0], selected.Targets[0], _options.AdvanceAfterHumanCommands));
         return Reject(CommandErrorCode.InvalidChoice, "神速选择不符合当前阶段窗口。");
+    }
+
+    private CommandResult SubmitYaowuPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Yaowu })
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的耀武选择。");
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (selected.Cards.Count != 0 || selected.Targets.Count != 0 || action is not ("yaowu-draw" or "yaowu-recover"))
+            return Reject(CommandErrorCode.InvalidChoice, "耀武选择不符合当前伤害来源收益窗口。");
+        return Accept(() =>
+        {
+            ResolveYaowuChoice(action == "yaowu-recover");
+            PublishState();
+            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+        });
     }
 
     private CommandResult SubmitTianxiangPromptAnswer(PromptChoice selected)
@@ -6385,6 +6409,12 @@ public sealed partial class GameEngine
         if (IsAiShensuPending())
         {
             ResolvePendingAiShensu();
+            return;
+        }
+
+        if (IsAiYaowuPending())
+        {
+            ResolvePendingAiYaowu();
             return;
         }
 
@@ -13426,6 +13456,7 @@ public sealed partial class GameEngine
                 DecisionKind.Yiji or
                 DecisionKind.Jieming or
                 DecisionKind.Yuanhu or
+                DecisionKind.Yaowu or
                 DecisionKind.Ganglie) ||
             decision.PlayerSeat != pending.OwnerSeat)
         {
@@ -15304,6 +15335,7 @@ public sealed partial class GameEngine
                     Nature: nature,
                     Amount: amount,
                     SourceCardId: attack.Card?.Id,
+                    SourceCardSuit: attack.Card?.Suit,
                     TargetSeat: target.Seat,
                     TargetHp: target.Hp,
                     TargetMaxHp: target.MaxHp,
@@ -15663,11 +15695,67 @@ public sealed partial class GameEngine
                 owner,
                 skill,
                 attack),
+            DamageSkillEffectKind.BenefitDamageSource => CreateYaowuDecision(owner, skill, attack),
             _ => throw new InvalidOperationException($"Unsupported damage skill effect {effect}.")
         };
-        _status = owner.IsHuman
+        _status = effect == DamageSkillEffectKind.BenefitDamageSource
+            ? (_players[attack.SourceSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running)
+            : owner.IsHuman
             ? EngineStatus.AwaitingHumanResponse
             : EngineStatus.Running;
+    }
+
+    private PendingDecision CreateYaowuDecision(PlayerRuntime owner, IPassiveSkill skill, AttackResolution attack)
+    {
+        var source = _players[attack.SourceSeat];
+        var choices = new List<PromptChoice>();
+        if (source.Hp < source.MaxHp)
+            choices.Add(new PromptChoice(new ChoiceId("yaowu.recover"),
+                $"因 {owner.Name} 的【{skill.Name}】回复1点体力。", [], [],
+                new Dictionary<string, string> { ["action"] = "yaowu-recover" }));
+        choices.Add(new PromptChoice(new ChoiceId("yaowu.draw"),
+            $"因 {owner.Name} 的【{skill.Name}】摸一张牌。", [], [],
+            new Dictionary<string, string> { ["action"] = "yaowu-draw" }));
+        return new PendingDecision(DecisionKind.Yaowu, source.Seat,
+            $"你使用红色【杀】对 {owner.Name} 造成伤害，选择【耀武】收益。", [], [])
+        { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = owner.Seat, Choices = choices.AsReadOnly() };
+    }
+
+    private void ResolveYaowuChoice(bool recover)
+    {
+        var pending = _pendingDamageSkill ?? throw new InvalidOperationException("There is no Yaowu damage skill pending.");
+        if (pending.Skill != SkillKind.Yaowu || pending.Effect != DamageSkillEffectKind.BenefitDamageSource ||
+            _pendingDecision is not { Kind: DecisionKind.Yaowu })
+            throw new InvalidOperationException("There is no Yaowu benefit choice to resolve.");
+        var window = _pendingDamageTrigger ?? throw new InvalidOperationException("Yaowu has no damage trigger window.");
+        var owner = _players[pending.OwnerSeat];
+        var source = _players[pending.SourceSeat];
+        if (recover && source.Hp >= source.MaxHp)
+            throw new InvalidOperationException("A full-health Yaowu source cannot choose recovery.");
+        ClearPendingDecision();
+        if (recover)
+        {
+            var recoveryFrameId = BeginRecovery(pending.DamageFrameId, owner.Seat, source.Seat, 1);
+            source.Hp = Math.Min(source.MaxHp, source.Hp + 1);
+            QueueGameEvent(new RecoveryAppliedEvent(owner.Seat, source.Seat, 1, source.Hp));
+            PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
+        }
+        else
+        {
+            DrawCards(source, 1, log: true, reason: CardMoveReasons.YaowuDraw);
+        }
+        QueueGameEvent(new YaowuResolvedEvent(pending.DamageFrameId, owner.Seat, source.Seat, recover, source.Hp));
+        QueueGameEvent(new DamageSkillResolvedEvent(pending.DamageFrameId, owner.Seat, source.Seat,
+            pending.Card?.Id, pending.EffectiveCardKind, SkillKind.Yaowu, true,
+            pending.CandidateId, pending.Priority, source.Seat));
+        AddLog("SkillTriggered", recover
+            ? $"{owner.Name} 的【耀武】令 {source.Name} 回复1点体力。"
+            : $"{owner.Name} 的【耀武】令 {source.Name} 摸一张牌。", owner.Seat, source.Seat);
+        SetDamageSkillFrameStep(pending.FrameId, ResolutionFrameStep.ResolvingEffect);
+        PopResolutionFrame(pending.FrameId, ResolutionFrameKind.DamageSkill);
+        _pendingDamageSkill = null;
+        SetDamageTriggerWindowStep(window.FrameId, ResolutionFrameStep.ResolvingEffect);
+        AdvanceDamageTriggerCandidate(window);
     }
 
     private PendingDecision CreateFeedbackDecision(
@@ -16566,6 +16654,7 @@ public sealed partial class GameEngine
                 }
 
                 var offersChoice = skill.OffersDamageCardChoice(ownerContext) ||
+                                   skill.Kind == SkillKind.Yaowu && UsesFormalHuaXiong ||
                                    skill.Kind == SkillKind.Feedback ||
                                    skill.Kind == SkillKind.Jianxiong && UsesFormalJianxiongDamageCard;
 
@@ -16636,6 +16725,7 @@ public sealed partial class GameEngine
             Nature: GetDamageNature(attack),
             Amount: attack.DamageAmount,
             SourceCardId: attack.Card?.Id,
+            SourceCardSuit: attack.Card?.Suit,
             TargetSeat: attack.TargetSeat,
             TargetHp: target.Hp,
             TargetMaxHp: target.MaxHp,
@@ -22310,10 +22400,13 @@ public sealed partial class GameEngine
                       DecisionKind.Yiji or
                       DecisionKind.Jieming or
                       DecisionKind.Yuanhu or
+                      DecisionKind.Yaowu or
                       DecisionKind.Ganglie or
                       DecisionKind.GangliePunish) &&
                   damageSkillDecision.PlayerSeat ==
                   (damageSkillDecision.Kind == DecisionKind.GangliePunish
+                      ? pendingDamageSkill.SourceSeat
+                      : damageSkillDecision.Kind == DecisionKind.Yaowu
                       ? pendingDamageSkill.SourceSeat
                       : pendingDamageSkill.OwnerSeat);
             if (!damageSkillPromptMatches)
@@ -22612,6 +22705,7 @@ public sealed partial class GameEngine
             DecisionKind.Yiji or
             DecisionKind.Jieming or
             DecisionKind.Yuanhu or
+            DecisionKind.Yaowu or
             DecisionKind.Ganglie or
             DecisionKind.GangliePunish &&
             _pendingDamageSkill is null)
@@ -22629,6 +22723,7 @@ public sealed partial class GameEngine
                 DecisionKind.Yiji or
                 DecisionKind.Jieming or
                 DecisionKind.Yuanhu or
+                DecisionKind.Yaowu or
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
@@ -22893,10 +22988,13 @@ public sealed partial class GameEngine
             DecisionKind.Yiji or
             DecisionKind.Jieming or
             DecisionKind.Yuanhu or
+            DecisionKind.Yaowu or
             DecisionKind.Ganglie or
             DecisionKind.GangliePunish) &&
         damageSkillDecision.PlayerSeat ==
             (damageSkillDecision.Kind == DecisionKind.GangliePunish
+                ? damageSkill.SourceSeat
+                : damageSkillDecision.Kind == DecisionKind.Yaowu
                 ? damageSkill.SourceSeat
                 : damageSkill.OwnerSeat) &&
         !_players[damageSkillDecision.PlayerSeat].IsHuman;
@@ -23158,6 +23256,18 @@ public sealed partial class GameEngine
         ResolveShensuChoice(
             use?.Cards.Count > 0 ? use.Cards[0] : null,
             use?.Targets.Count > 0 ? use.Targets[0] : null);
+        PublishState();
+    }
+
+    private bool IsAiYaowuPending() =>
+        _pendingDecision is { Kind: DecisionKind.Yaowu, PlayerSeat: var playerSeat } &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiYaowu()
+    {
+        if (!IsAiYaowuPending()) throw new InvalidOperationException("There is no AI Yaowu choice to resolve.");
+        var source = _players[_pendingDecision!.PlayerSeat];
+        ResolveYaowuChoice(recover: source.Hp < source.MaxHp);
         PublishState();
     }
 

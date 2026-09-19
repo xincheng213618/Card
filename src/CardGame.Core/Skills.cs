@@ -52,6 +52,7 @@ public sealed record DamageSkillContext(
     DamageNature Nature = DamageNature.Normal,
     int Amount = 1,
     int? SourceCardId = null,
+    Suit? SourceCardSuit = null,
     int? TargetSeat = null,
     int? TargetHp = null,
     int? TargetMaxHp = null,
@@ -248,6 +249,21 @@ public sealed class ShensuSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Shensu;
     public string Name => "神速";
+}
+
+public sealed class YaowuSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Yaowu;
+    public string Name => "耀武";
+
+    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
+        context.Amount > 0 && context.SourceSeat is not null &&
+        context.SourceCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+        context.SourceCardSuit is Suit.Heart or Suit.Diamond &&
+        context.TargetSeat == context.Owner.Seat;
+
+    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context) ? DamageSkillEffectKind.BenefitDamageSource : DamageSkillEffectKind.None;
 }
 
 public sealed class JianxiongSkill : IPassiveSkill
@@ -1096,6 +1112,7 @@ public static class SkillRegistry
             [SkillKind.Luanji] = new LuanjiSkill(),
             [SkillKind.Xueyi] = new XueyiSkill(),
             [SkillKind.Shensu] = new ShensuSkill(),
+            [SkillKind.Yaowu] = new YaowuSkill(),
             [SkillKind.Shuangxiong] = new ShuangxiongSkill(),
             [SkillKind.Bazhen] = new BazhenSkill(),
             [SkillKind.Huoji] = new HuojiSkill(),

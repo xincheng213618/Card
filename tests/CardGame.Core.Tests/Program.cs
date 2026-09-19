@@ -103,6 +103,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Zhou Tai survives with public unique-rank Buqu wounds", ZhouTaiChecks.BuquWoundsHandLimitAndReplay),
     ("classic Yuan Shao converts same-suit Luanji and expands Xueyi hand limit", YuanShaoChecks.LuanjiAndXueyiReplay),
     ("classic Xiahou Yuan skips phases for virtual no-distance Shensu Slash", XiahouYuanChecks.ShensuPhaseSkipsAndReplay),
+    ("classic Hua Xiong rewards red Slash sources through locked Yaowu", HuaXiongChecks.RedSlashBenefitAndReplay),
     ("classic Fangtian Halberd resolves exact last-hand Slash targets and replays", FangtianHalberdChecks.LastHandTargetsResolveSequentiallyAndReplay),
     ("classic Guding Blade increases direct Slash damage against empty hands", GudingBladeChecks.EmptyHandDamageAndLegacyBoundary),
     ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainJijiangAndLegacyBoundary),

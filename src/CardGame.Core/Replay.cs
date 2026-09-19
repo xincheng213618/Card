@@ -18,7 +18,7 @@ public sealed record GameCheckpoint(
     string ContentHash)
 {
     public const int CurrentSchemaVersion = 3;
-    public const int CurrentRulesVersion = 69;
+    public const int CurrentRulesVersion = 70;
 
     // Checkpoint schema 3 predates the explicit rules marker. Keeping the
     // initializer at v1 lets old JSON retain its original event semantics.

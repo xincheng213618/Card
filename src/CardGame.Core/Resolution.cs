@@ -47,7 +47,8 @@ public enum DamageSkillEffectKind
     RecoverDamageTarget,
     GanglieJudgment,
     TakeSourceCard,
-    RecoverDamageSource
+    RecoverDamageSource,
+    BenefitDamageSource
 }
 
 /// <summary>

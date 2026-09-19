@@ -822,6 +822,13 @@ public sealed record ShensuUsedEvent(
     int Stage,
     int? DiscardedEquipmentCardId) : IGameEvent;
 
+public sealed record YaowuResolvedEvent(
+    long DamageFrameId,
+    int OwnerSeat,
+    int SourceSeat,
+    bool Recovered,
+    int SourceHp) : IGameEvent;
+
 /// <summary>Public terminal result for Qilin Bow at the Slash damage timing.</summary>
 public sealed record QilinBowResolvedEvent(
     long ResolutionId,

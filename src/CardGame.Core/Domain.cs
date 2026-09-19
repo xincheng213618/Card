@@ -204,7 +204,8 @@ public enum SkillKind
     Buqu,
     Luanji,
     Xueyi,
-    Shensu
+    Shensu,
+    Yaowu
 }
 
 public enum DecisionKind
@@ -255,6 +256,7 @@ public enum DecisionKind
     TianyiPindian,
     Jushou,
     Shensu,
+    Yaowu,
     Tianxiang
 }
 
