@@ -10,6 +10,7 @@ public sealed partial class MainViewModel
     private bool _isGeneralGalleryOpen;
     private string _generalGallerySearchText = string.Empty;
     private string _selectedGeneralGalleryFaction = "all";
+    private string _selectedGeneralGallerySeries = "all";
 
     public ObservableCollection<GeneralGalleryEntryViewModel> GeneralGalleryEntries { get; } = [];
 
@@ -20,6 +21,14 @@ public sealed partial class MainViewModel
         new("shu", "蜀"),
         new("wu", "吴"),
         new("qun", "群")
+    ];
+
+    public IReadOnlyList<GeneralGallerySeriesOption> GeneralGallerySeries { get; } =
+    [
+        new("all", "全部系列", "全部已注册武将"),
+        new("classic", "经典标准", "经典身份局正式武将"),
+        new("standard", "机制演示", "基础规则与技能演示武将"),
+        new("national", "国战试验", "当前简化国战与野心家试验武将")
     ];
 
     public bool IsGeneralGalleryOpen
@@ -55,12 +64,25 @@ public sealed partial class MainViewModel
         }
     }
 
+    public string SelectedGeneralGallerySeries
+    {
+        get => _selectedGeneralGallerySeries;
+        private set
+        {
+            if (SetProperty(ref _selectedGeneralGallerySeries, value)) RefreshGeneralGallery();
+        }
+    }
+
+    public string GeneralGallerySeriesDescription =>
+        GeneralGallerySeries.First(option => option.Id == SelectedGeneralGallerySeries).Description;
+
     public string GeneralGalleryCountText =>
         $"当前 {GeneralGalleryEntries.Count} / {_allGeneralGalleryEntries.Count} 名武将";
 
     public ICommand OpenGeneralGalleryCommand { get; private set; } = null!;
     public ICommand CloseGeneralGalleryCommand { get; private set; } = null!;
     public ICommand SelectGeneralGalleryFactionCommand { get; private set; } = null!;
+    public ICommand SelectGeneralGallerySeriesCommand { get; private set; } = null!;
 
     private void InitializeGeneralGallery()
     {
@@ -76,17 +98,24 @@ public sealed partial class MainViewModel
             if (GeneralGalleryFactions.Any(option => option.Id == faction))
                 SelectedGeneralGalleryFaction = faction!;
         });
-
-        var mode = _contentRegistry.Modes.GetValueOrDefault("identity:classic-8") ??
-            _contentRegistry.Modes.GetValueOrDefault("identity:standard-8");
-        var ids = mode?.GeneralPoolIds ?? _contentRegistry.Generals.Keys.ToArray();
-        foreach (var id in ids.Distinct(StringComparer.Ordinal))
+        SelectGeneralGallerySeriesCommand = new RelayCommand<string>(series =>
         {
-            if (!_contentRegistry.Generals.TryGetValue(id, out var general)) continue;
+            if (GeneralGallerySeries.Any(option => option.Id == series))
+            {
+                SelectedGeneralGallerySeries = series!;
+                RaisePropertyChanged(nameof(GeneralGallerySeriesDescription));
+            }
+        });
+
+        foreach (var general in _contentRegistry.Generals.Values)
+        {
             var skills = general.SkillIds.Select(_contentRegistry.GetSkill).ToArray();
+            var seriesId = GeneralSeriesId(general.Id);
             _allGeneralGalleryEntries.Add(new GeneralGalleryEntryViewModel
             {
                 GeneralId = general.Id,
+                SeriesId = seriesId,
+                SeriesName = GeneralGallerySeries.First(option => option.Id == seriesId).Name,
                 Name = general.Name,
                 FactionId = general.FactionId ?? string.Empty,
                 Kingdom = FactionName(general.FactionId),
@@ -102,6 +131,7 @@ public sealed partial class MainViewModel
     {
         var query = GeneralGallerySearchText.Trim();
         var entries = _allGeneralGalleryEntries
+            .Where(entry => SelectedGeneralGallerySeries == "all" || entry.SeriesId == SelectedGeneralGallerySeries)
             .Where(entry => SelectedGeneralGalleryFaction == "all" || entry.FactionId == SelectedGeneralGalleryFaction)
             .Where(entry => query.Length == 0 ||
                 entry.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
@@ -113,4 +143,11 @@ public sealed partial class MainViewModel
         foreach (var entry in entries) GeneralGalleryEntries.Add(entry);
         RaisePropertyChanged(nameof(GeneralGalleryCountText));
     }
+
+    private static string GeneralSeriesId(string generalId) => generalId.Split(':', 2)[0] switch
+    {
+        "classic" => "classic",
+        "national" => "national",
+        _ => "standard"
+    };
 }

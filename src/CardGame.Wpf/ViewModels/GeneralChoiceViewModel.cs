@@ -25,6 +25,8 @@ public sealed class GeneralChoiceViewModel : ObservableObject
 public sealed class GeneralGalleryEntryViewModel
 {
     public required string GeneralId { get; init; }
+    public required string SeriesId { get; init; }
+    public required string SeriesName { get; init; }
     public required string Name { get; init; }
     public required string FactionId { get; init; }
     public required string Kingdom { get; init; }
@@ -35,3 +37,5 @@ public sealed class GeneralGalleryEntryViewModel
 }
 
 public sealed record GeneralGalleryFactionOption(string Id, string Name);
+
+public sealed record GeneralGallerySeriesOption(string Id, string Name, string Description);

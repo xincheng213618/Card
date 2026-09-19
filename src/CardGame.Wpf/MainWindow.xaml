@@ -916,13 +916,26 @@
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="武 将 图 鉴" FontFamily="KaiTi" FontSize="31" Foreground="#F1D298" />
-                            <TextBlock Text="经典身份武将 · 体力、势力与完整技能说明" Foreground="#91A99B" FontSize="11" Margin="1,5,0,0" />
+                            <TextBlock Text="已注册武将 · 按系列、势力与技能检索" Foreground="#91A99B" FontSize="11" Margin="1,5,0,0" />
                         </StackPanel>
                         <Button x:Name="CloseGeneralGalleryButton" Grid.Column="1" Content="返回牌桌" Command="{Binding CloseGeneralGalleryCommand}" Style="{StaticResource ToolbarButton}" Padding="15,8" VerticalAlignment="Center" />
                     </Grid>
-                    <Grid Grid.Row="1" Margin="0,18,0,15">
+                    <Grid Grid.Row="1" Margin="0,16,0,15">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="240" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <ItemsControl ItemsSource="{Binding GeneralGalleryFactions}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="系列" Foreground="#718A7E" FontSize="10" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ItemsControl ItemsSource="{Binding GeneralGallerySeries}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGallerySeriesCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" ToolTip="{Binding Description}" Style="{StaticResource QuietButton}" MinWidth="72" Padding="10,6" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="{Binding GeneralGallerySeriesDescription}" Foreground="#7F9588" FontSize="10" VerticalAlignment="Center" Margin="10,0,0,0" />
+                        </StackPanel>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding GeneralGalleryFactions}" Margin="0,9,0,0">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -930,8 +943,8 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBox x:Name="GeneralGallerySearchBox" Grid.Column="1" Text="{Binding GeneralGallerySearchText, UpdateSourceTrigger=PropertyChanged}" Background="#101D22" Foreground="#E9D9B5" BorderBrush="#596B60" Padding="10,7" VerticalContentAlignment="Center" AutomationProperties.Name="搜索武将或技能" ToolTip="输入武将名、技能名或技能说明" />
-                        <TextBlock Grid.Column="2" Text="{Binding GeneralGalleryCountText}" Foreground="#879C8D" FontSize="11" VerticalAlignment="Center" Margin="15,0,0,0" />
+                        <TextBox x:Name="GeneralGallerySearchBox" Grid.Row="1" Grid.Column="1" Margin="0,9,0,0" Text="{Binding GeneralGallerySearchText, UpdateSourceTrigger=PropertyChanged}" Background="#101D22" Foreground="#E9D9B5" BorderBrush="#596B60" Padding="10,7" VerticalContentAlignment="Center" AutomationProperties.Name="搜索武将或技能" ToolTip="输入武将名、技能名或技能说明" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding GeneralGalleryCountText}" Foreground="#879C8D" FontSize="11" VerticalAlignment="Center" Margin="15,9,0,0" />
                     </Grid>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="GeneralGalleryCards" ItemsSource="{Binding GeneralGalleryEntries}">
@@ -947,7 +960,11 @@
                                                     <TextBlock DockPanel.Dock="Right" Text="{Binding HealthText}" Foreground="#C99880" FontSize="11" VerticalAlignment="Center" />
                                                     <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="24" Foreground="#E8C98E" />
                                                 </DockPanel>
-                                                <TextBlock Text="{Binding Kingdom, StringFormat={}{0}势力}" Foreground="#8EAA9A" FontSize="11" Margin="0,2,0,8" />
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                                                    <TextBlock Text="{Binding Kingdom, StringFormat={}{0}势力}" Foreground="#8EAA9A" FontSize="11" />
+                                                    <TextBlock Text=" · " Foreground="#586C61" FontSize="11" />
+                                                    <TextBlock Text="{Binding SeriesName}" Foreground="#7F9588" FontSize="11" />
+                                                </StackPanel>
                                                 <TextBlock Text="{Binding SkillName}" Foreground="#D5B875" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap" />
                                                 <TextBlock Text="{Binding SkillDescription}" Foreground="#AEB9AF" FontSize="10" LineHeight="16" TextWrapping="Wrap" Margin="0,7,0,0" />
                                             </StackPanel>

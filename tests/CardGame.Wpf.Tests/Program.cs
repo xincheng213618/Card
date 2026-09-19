@@ -37,7 +37,7 @@ internal static class Program
             Directory.CreateDirectory(output);
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
-            Check("general gallery filters classic generals and pauses the live table", () => CheckGeneralGallery(output));
+            Check("general gallery combines registered series, faction and text filters without changing the match", () => CheckGeneralGallery(output));
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));
             Check("the human skill rail distinguishes available active and automatic skills", () => CheckHumanSkillRail(output));
@@ -139,13 +139,28 @@ internal static class Program
         var root = (FrameworkElement)window.Content;
         vm.OpenGeneralGalleryCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
-        Assert(vm.IsGeneralGalleryOpen && vm.GeneralGalleryEntries.Count >= 20, "Gallery did not expose the classic identity roster.");
+        Assert(vm.IsGeneralGalleryOpen && vm.GeneralGalleryEntries.Count == Engine(vm).ContentRegistry!.Generals.Count,
+            "Gallery did not expose every registered general exactly once.");
+        Assert(vm.GeneralGallerySeries.Select(option => option.Id).SequenceEqual(new[] { "all", "classic", "standard", "national" }),
+            "Gallery series do not match the registered content families.");
         Assert(!((FrameworkElement)window.FindName("TableSurface")).IsEnabled, "Gallery must block table input.");
+        var revisionBeforeFilters = Engine(vm).Revision;
+        vm.SelectGeneralGallerySeriesCommand.Execute("national");
+        Assert(vm.GeneralGalleryEntries.Count == 12 && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "national"),
+            "National series leaked another content family or omitted a registered trial general.");
         vm.SelectGeneralGalleryFactionCommand.Execute("wu");
-        Assert(vm.GeneralGalleryEntries.Count > 0 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wu"), "Wu filter leaked another faction.");
+        Assert(vm.GeneralGalleryEntries.Count == 0, "Combined national/Wu filters should reflect the current Wei/Shu/ambitious trial pool.");
+        vm.SelectGeneralGalleryFactionCommand.Execute("wei");
+        Assert(vm.GeneralGalleryEntries.Count == 6 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "national"),
+            "Series and faction filters did not compose.");
+        vm.SelectGeneralGallerySeriesCommand.Execute("classic");
+        Assert(vm.GeneralGalleryEntries.Count > 0 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "classic"),
+            "Classic series retained national entries.");
+        vm.SelectGeneralGallerySeriesCommand.Execute("all");
         vm.SelectGeneralGalleryFactionCommand.Execute("all");
         vm.GeneralGallerySearchText = "连营";
         Assert(vm.GeneralGalleryEntries.Count == 1 && vm.GeneralGalleryEntries[0].Name == "陆逊", "Skill search did not find Lu Xun.");
+        Assert(Engine(vm).Revision == revisionBeforeFilters, "Browsing gallery filters changed the match.");
         vm.GeneralGallerySearchText = string.Empty;
         Render(root, 1120, 740, Path.Combine(output, "130-general-gallery.png"));
 
