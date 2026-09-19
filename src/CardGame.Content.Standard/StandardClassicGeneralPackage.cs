@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 43, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 44, 0))
     {
     }
 
@@ -62,12 +62,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 40, 0) &&
             version != new Version(1, 41, 0) &&
             version != new Version(1, 42, 0) &&
-            version != new Version(1, 43, 0))
+            version != new Version(1, 43, 0) &&
+            version != new Version(1, 44, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.43.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.44.0.");
         }
 
         _version = version;
@@ -664,6 +665,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你失去最后的手牌时，你可以摸一张牌。",
                 SkillKind.Lianying));
         }
+        if (_version >= new Version(1, 44, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:mengjin",
+                "猛进",
+                "当你使用的【杀】被目标角色使用的【闪】抵消后，你可以弃置其一张手牌或装备牌。",
+                SkillKind.Mengjin));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -968,10 +977,22 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds: ["classic:lianying"]));
         }
+        if (_version >= new Version(1, 44, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:pang-de",
+                "庞德",
+                "pang_de",
+                "standard:mashu",
+                "qun",
+                BaseHp: 4,
+                AdditionalSkillIds: ["classic:mengjin"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 43 } => LuXunClassicGeneralIds,
+            { Major: 1, Minor: >= 44 } => PangDeClassicGeneralIds,
+            { Major: 1, Minor: 43 } => LuXunClassicGeneralIds,
             { Major: 1, Minor: 42 } => SunShangxiangClassicGeneralIds,
             { Major: 1, Minor: 41 } => DiaoChanClassicGeneralIds,
             { Major: 1, Minor: 40 } => DaQiaoClassicGeneralIds,
@@ -1207,6 +1228,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. SunShangxiangClassicGeneralIds,
         "classic:lu-xun"
+    ];
+
+    internal static IReadOnlyList<string> PangDeClassicGeneralIds { get; } =
+    [
+        .. LuXunClassicGeneralIds,
+        "classic:pang-de"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

@@ -69,6 +69,7 @@ public sealed partial class GameEngine
     private QinglongCrescentBladeResolution? _pendingQinglongCrescentBlade;
     private IceSwordResolution? _pendingIceSword;
     private QilinBowResolution? _pendingQilinBow;
+    private MengjinResolution? _pendingMengjin;
     private FangtianHalberdResolution? _pendingFangtianHalberd;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
@@ -264,6 +265,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalLuXun =>
         _rulesVersion >= 58 && IsClassicIdentityMode;
+
+    private bool UsesFormalPangDe =>
+        _rulesVersion >= 59 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -914,6 +918,7 @@ public sealed partial class GameEngine
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
+                DecisionKind.Mengjin or
                 DecisionKind.ZhuqueFan or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
@@ -1070,6 +1075,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.QilinBow)
         {
             return SubmitQilinBowPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Mengjin)
+        {
+            return SubmitMengjinPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Liuli)
@@ -1772,6 +1782,28 @@ public sealed partial class GameEngine
                 selected,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
             : Reject(CommandErrorCode.InvalidChoice, "麒麟弓必须选择目标当前的一张公开坐骑，或选择不发动。");
+    }
+
+    private CommandResult SubmitMengjinPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingMengjin is null ||
+            _pendingDecision is not { Kind: DecisionKind.Mengjin })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的猛进触发窗口。");
+        }
+
+        var action = selected.Parameters.GetValueOrDefault("action");
+        var valid = action switch
+        {
+            "mengjin-discard" => selected.Targets.Count == 1 && selected.Cards.Count is 0 or 1,
+            "mengjin-skip" => selected.Targets.Count == 0 && selected.Cards.Count == 0,
+            _ => false
+        };
+        return valid
+            ? Accept(() => HumanMengjinCore(
+                selected,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands))
+            : Reject(CommandErrorCode.InvalidChoice, "猛进必须选择目标当前的一张暗手牌/公开装备，或选择不发动。");
     }
 
     private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
@@ -3341,6 +3373,16 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.QilinBow);
         ResolveQilinBowChoice(selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanMengjinCore(
+        PromptChoice selected,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Mengjin);
+        ResolveMengjinChoice(selected);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -10820,6 +10862,11 @@ public sealed partial class GameEngine
 
         if (completed)
         {
+            if (TryBeginMengjinChoice(attack))
+            {
+                return;
+            }
+
             if (TryBeginQinglongCrescentBladeChoice(attack))
             {
                 return;
@@ -10836,6 +10883,189 @@ public sealed partial class GameEngine
 
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
         ContinueSlashAfterTieqi(attack);
+    }
+
+    private int GetMengjinTargetCardCount(PlayerRuntime target) =>
+        GetHand(target).Count + GetEquipment(target).Count;
+
+    private bool TryBeginMengjinChoice(AttackResolution attack)
+    {
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        if (!UsesFormalPangDe ||
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            !source.IsAlive ||
+            !target.IsAlive ||
+            !source.General.HasSkill(SkillKind.Mengjin) ||
+            GetMengjinTargetCardCount(target) == 0)
+        {
+            return false;
+        }
+
+        if (_pendingMengjin is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Mengjin choices at once.");
+        }
+
+        _pendingMengjin = new MengjinResolution(attack);
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
+        PublishMengjinChoice(_pendingMengjin);
+        return true;
+    }
+
+    private void PublishMengjinChoice(MengjinResolution pending)
+    {
+        if (!ReferenceEquals(_pendingMengjin, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.Attack))
+        {
+            throw new InvalidOperationException("The Mengjin choice has no current Slash continuation.");
+        }
+
+        var attack = pending.Attack;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var hand = GetHand(target);
+        var equipment = GetEquipment(target);
+        if (hand.Count + equipment.Count == 0)
+        {
+            FinishMengjin(pending, discarded: null);
+            return;
+        }
+
+        var choices = new List<PromptChoice>();
+        for (var slot = 0; slot < hand.Count; slot++)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"mengjin.hand-slot-{slot}.resolution-{attack.ResolutionId}"),
+                $"发动【猛进】，弃置 {target.Name} 的第 {slot + 1} 个暗手牌位。",
+                [],
+                [target.Seat],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "mengjin-discard",
+                    ["target-zone"] = "hand",
+                    ["slot-index"] = slot.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                }));
+        }
+        foreach (var card in equipment)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"mengjin.equipment-{card.Id}.resolution-{attack.ResolutionId}"),
+                $"发动【猛进】，弃置 {target.Name} 装备区的【{card.DisplayName}】。",
+                [card.Id],
+                [target.Seat],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "mengjin-discard",
+                    ["target-zone"] = "equipment"
+                }));
+        }
+        choices.Add(new PromptChoice(
+            new ChoiceId($"mengjin.skip.resolution-{attack.ResolutionId}"),
+            "不发动【猛进】，结束此【杀】的结算。",
+            [],
+            [],
+            new Dictionary<string, string> { ["action"] = "mengjin-skip" }));
+
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Mengjin,
+            source.Seat,
+            $"你的【{CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName}】已被 {target.Name} 的【闪】抵消，是否发动【猛进】弃置其一张手牌或装备？",
+            equipment.Select(card => card.Id).ToArray(),
+            [target.Seat],
+            SourceSeat: source.Seat,
+            IncomingCard: attack.EffectiveCardKind)
+        {
+            PromptId = source.IsHuman ? CreatePromptId() : default,
+            IsPrivate = true,
+            TargetSeat = target.Seat,
+            Choices = choices
+        };
+        _status = source.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+    }
+
+    private void ResolveMengjinChoice(PromptChoice selected)
+    {
+        var pending = _pendingMengjin ??
+            throw new InvalidOperationException("There is no Mengjin choice to resolve.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.Mengjin } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The Mengjin choice is not the current Slash continuation.");
+        }
+
+        var target = _players[attack.TargetSeat];
+        var action = selected.Parameters.GetValueOrDefault("action");
+        Card? discarded = null;
+        if (action == "mengjin-discard" && selected.Targets.SequenceEqual([target.Seat]))
+        {
+            var targetZone = selected.Parameters.GetValueOrDefault("target-zone");
+            if (targetZone == "hand" &&
+                selected.Cards.Count == 0 &&
+                selected.Parameters.TryGetValue("slot-index", out var slotText) &&
+                int.TryParse(slotText, System.Globalization.NumberStyles.None,
+                    System.Globalization.CultureInfo.InvariantCulture, out var slot) &&
+                slot >= 0 && slot < GetHand(target).Count)
+            {
+                discarded = GetHand(target)[slot];
+            }
+            else if (targetZone == "equipment" &&
+                     selected.Cards.Count == 1 &&
+                     GetEquipment(target).SingleOrDefault(card => card.Id == selected.Cards[0]) is { } equipment)
+            {
+                discarded = equipment;
+            }
+            else
+            {
+                throw new InvalidOperationException("The selected Mengjin target card is no longer available.");
+            }
+        }
+        else if (action != "mengjin-skip" || selected.Cards.Count != 0 || selected.Targets.Count != 0)
+        {
+            throw new InvalidOperationException("The Mengjin choice is malformed.");
+        }
+
+        FinishMengjin(pending, discarded);
+    }
+
+    private void FinishMengjin(MengjinResolution pending, Card? discarded)
+    {
+        if (!ReferenceEquals(_pendingMengjin, pending) ||
+            !ReferenceEquals(_pendingAttack, pending.Attack))
+        {
+            throw new InvalidOperationException("The completed Mengjin continuation is invalid.");
+        }
+
+        var attack = pending.Attack;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        _pendingMengjin = null;
+        ClearPendingDecision();
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        if (discarded is not null)
+        {
+            MoveCard(discarded, FindOwnedCardLocation(target, discarded), CardLocation.DiscardPile,
+                CardMoveReasons.MengjinDiscard);
+        }
+        QueueGameEvent(new MengjinResolvedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            Used: discarded is not null,
+            DiscardedCardId: discarded?.Id));
+        AddLog(
+            discarded is null ? "SkillSkipped" : "SkillTriggered",
+            discarded is null
+                ? $"{source.Name} 未发动【猛进】，结束对 {target.Name} 的【杀】结算。"
+                : $"{source.Name} 发动【猛进】，弃置 {target.Name} 的【{discarded.DisplayName}】。",
+            source.Seat,
+            target.Seat);
+
+        if (TryBeginQinglongCrescentBladeChoice(attack)) return;
+        if (TryBeginStoneAxeChoice(attack)) return;
+        CompleteAttack(attack);
     }
 
     private bool CanUseQinglongCrescentBladeTarget(PlayerRuntime source, PlayerRuntime target) =>
@@ -12262,6 +12492,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (_pendingMengjin is not null)
+        {
+            ResolvePendingAiMengjin();
+            return;
+        }
+
         if (_pendingIceSword is not null)
         {
             ResolvePendingAiIceSword();
@@ -12390,6 +12626,27 @@ public sealed partial class GameEngine
         AddThought(thought);
         var selected = decision.Choices.Single(choice => choice.Id == choiceId);
         ResolveQilinBowChoice(selected);
+        PublishState();
+    }
+
+    private void ResolvePendingAiMengjin()
+    {
+        var pending = _pendingMengjin ??
+            throw new InvalidOperationException("AI Mengjin response has no active resolution.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.Mengjin } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The pending AI Mengjin prompt is inconsistent.");
+        }
+
+        var (choiceId, thought) = _aiBrains[attack.SourceSeat].ChooseMengjinChoice(
+            CreateSnapshot(attack.SourceSeat),
+            attack.TargetSeat,
+            ++_thoughtSequence);
+        AddThought(thought);
+        ResolveMengjinChoice(decision.Choices.Single(choice => choice.Id == choiceId));
         PublishState();
     }
 
@@ -20250,6 +20507,61 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingMengjin is { } mengjin)
+        {
+            var mengjinAttack = mengjin.Attack;
+            var source = _players[mengjinAttack.SourceSeat];
+            var target = _players[mengjinAttack.TargetSeat];
+            var handCount = GetHand(target).Count;
+            var equipmentIds = GetEquipment(target).Select(card => card.Id).ToArray();
+            var decision = _pendingDecision;
+            var discardChoices = decision?.Choices.Where(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "mengjin-discard").ToArray() ?? [];
+            var handSlots = discardChoices
+                .Where(choice => choice.Parameters.GetValueOrDefault("target-zone") == "hand")
+                .Select(choice => choice.Parameters.GetValueOrDefault("slot-index"))
+                .ToArray();
+            if (!UsesFormalPangDe ||
+                !ReferenceEquals(_pendingAttack, mengjinAttack) ||
+                !source.IsAlive ||
+                !target.IsAlive ||
+                !source.General.HasSkill(SkillKind.Mengjin) ||
+                mengjinAttack.SuccessfulDodgeResponses != mengjinAttack.RequiredDodgeResponses ||
+                handCount + equipmentIds.Length == 0 ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != mengjinAttack.ResolutionId ||
+                cardUse.Step != ResolutionFrameStep.AwaitingResponse ||
+                decision is not { Kind: DecisionKind.Mengjin, IsPrivate: true } ||
+                decision.PlayerSeat != mengjinAttack.SourceSeat ||
+                decision.SourceSeat != mengjinAttack.SourceSeat ||
+                decision.TargetSeat != mengjinAttack.TargetSeat ||
+                decision.IncomingCard != mengjinAttack.EffectiveCardKind ||
+                !decision.ValidCardIds.SequenceEqual(equipmentIds) ||
+                !decision.ValidTargetSeats.SequenceEqual([target.Seat]) ||
+                discardChoices.Length != handCount + equipmentIds.Length ||
+                handSlots.Length != handCount ||
+                !handSlots.SequenceEqual(Enumerable.Range(0, handCount)
+                    .Select(slot => slot.ToString(System.Globalization.CultureInfo.InvariantCulture))) ||
+                discardChoices.Any(choice => !choice.Targets.SequenceEqual([target.Seat])) ||
+                decision.Choices.Count != discardChoices.Length + 1 ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "mengjin-skip" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0) != 1)
+            {
+                throw new InvalidOperationException(
+                    "A Mengjin choice must retain its private hidden-hand/public-equipment prompt after the completed Dodge response.");
+            }
+
+            var expectedMengjinStatus = source.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedMengjinStatus)
+            {
+                throw new InvalidOperationException("A Mengjin prompt status does not match its owner.");
+            }
+        }
+
         if (_pendingCixiongDoubleSwords is { } cixiong)
         {
             var cixiongAttack = cixiong.Attack;
@@ -20678,6 +20990,17 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active Qilin Bow choice must retain its Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingMengjin is { } mengjinContinuation)
+            {
+                if (!ReferenceEquals(mengjinContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame mengjinCardUse ||
+                    mengjinCardUse.Id != pendingAttack.ResolutionId ||
+                    mengjinCardUse.Step != ResolutionFrameStep.AwaitingResponse)
+                {
+                    throw new InvalidOperationException(
+                        "An active Mengjin choice must retain its Slash frame as the stack top.");
                 }
             }
             else if (_pendingCixiongDoubleSwords is { } cixiongContinuation)
@@ -21276,6 +21599,13 @@ public sealed partial class GameEngine
                 "A Qilin Bow prompt cannot exist without its Slash continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.Mengjin &&
+            _pendingMengjin is null)
+        {
+            throw new InvalidOperationException(
+                "A Mengjin prompt cannot exist without its Slash continuation.");
+        }
+
         if (_pendingDecision?.Kind == DecisionKind.ZhuqueFan &&
             _pendingJijiang is not { AwaitingZhuqueFanChoice: true })
         {
@@ -21313,6 +21643,7 @@ public sealed partial class GameEngine
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
+                DecisionKind.Mengjin or
                 DecisionKind.ZhuqueFan) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
@@ -21392,6 +21723,7 @@ public sealed partial class GameEngine
              _pendingQinglongCrescentBlade is not null ||
              _pendingIceSword is not null ||
              _pendingQilinBow is not null ||
+             _pendingMengjin is not null ||
              _pendingFangtianHalberd is not null ||
              processing.Count != 0))
         {
@@ -21533,6 +21865,7 @@ public sealed partial class GameEngine
             DecisionKind.QinglongCrescentBlade or
             DecisionKind.IceSword or
             DecisionKind.QilinBow or
+            DecisionKind.Mengjin or
             DecisionKind.ZhuqueFan) &&
         _pendingDecision.PlayerSeat != _options.HumanSeat;
 
@@ -22839,6 +23172,8 @@ public sealed partial class GameEngine
     {
         public AttackResolution Attack { get; } = attack;
     }
+
+    private sealed record MengjinResolution(AttackResolution Attack);
 
     private sealed class FangtianHalberdResolution(
         long resolutionId,

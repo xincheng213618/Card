@@ -1644,6 +1644,61 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses a Mengjin discard from the source's filtered view. Hidden hand
+    /// choices remain opaque slots; only public equipment receives card-value
+    /// scoring.
+    /// </summary>
+    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseMengjinChoice(
+        GameSnapshot view,
+        int targetSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var prompt = view.PendingDecision is { Kind: DecisionKind.Mengjin } decision
+            ? decision
+            : throw new InvalidOperationException("AI has no Mengjin prompt.");
+        var hostility = GetHostility(view, selfRole, target);
+        var publicEquipment = target.Equipment.ToDictionary(card => card.Id);
+        var candidates = prompt.Choices.Select(choice =>
+        {
+            var use = choice.Parameters.GetValueOrDefault("action") == "mengjin-discard";
+            var publicCardValue = use && choice.Cards.Count == 1 &&
+                                  publicEquipment.TryGetValue(choice.Cards[0], out var equipment)
+                ? CardCatalog.Get(equipment.Kind).HandKeepValue
+                : use ? 1.5d : 0d;
+            var score = use ? hostility * 1.4d + publicCardValue * .2d : 0d;
+            return new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.Equip,
+                    choice.Cards.Count == 1 ? choice.Cards[0] : null,
+                    use ? targetSeat : null,
+                    choice.Description),
+                score,
+                use
+                    ? choice.Cards.Count == 1
+                        ? "根据公开阵营关系与目标装备牌面价值评估猛进弃置。"
+                        : "仅把目标暗手牌视为不透明牌位，不读取其牌面。"
+                    : "保留目标现有牌，结束本次杀的结算。");
+        }).ToArray();
+        var selectedIndex = candidates
+            .Select((candidate, index) => new { Candidate = candidate, Index = index })
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Index)
+            .First().Index;
+        var selected = prompt.Choices[selectedIndex];
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Description,
+            candidates,
+            $"猛进：目标敌对度 {hostility:0.##}，选择{selected.Description}");
+        return (selected.Id, thought);
+    }
+
+    /// <summary>
     /// Chooses whether to spend one of this seat's private Nullification cards
     /// on the published trick-effect context. The method receives no engine
     /// zone, draw-pile, or other-player hand access; all strategic inputs come

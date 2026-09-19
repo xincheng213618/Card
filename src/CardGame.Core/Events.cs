@@ -787,6 +787,14 @@ public sealed record QilinBowResolvedEvent(
     bool Used,
     int? DiscardedMountCardId) : IGameEvent;
 
+/// <summary>Public terminal result for Pang De's Mengjin after a Slash is fully dodged.</summary>
+public sealed record MengjinResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool Used,
+    int? DiscardedCardId) : IGameEvent;
+
 /// <summary>
 /// Public declaration that one last-hand Slash used Fangtian Halberd's target
 /// expansion. The ordered target list is exact and contains two or three seats.

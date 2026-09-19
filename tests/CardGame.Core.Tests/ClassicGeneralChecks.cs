@@ -47,6 +47,7 @@ internal static class ClassicGeneralChecks
         var daQiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 40, 0));
         var diaoChanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 41, 0));
         var sunShangxiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 42, 0));
+        var luXunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 43, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -55,7 +56,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.43.0"]),
+                "standard-classic-generals@1.44.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -68,12 +69,13 @@ internal static class ClassicGeneralChecks
             "classic:lu-xun", "classic:sun-shangxiang", "classic:hua-tuo", "classic:lu-bu",
             "classic:diao-chan",
             // Current expansion representatives already shipped by this package.
-            "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan"
+            "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
+            "classic:pang-de"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
                 .SequenceEqual(expectedCurrentRoster.Order(StringComparer.Ordinal)),
-            "Classic 1.43 must contain the complete original standard roster plus its four explicit expansion representatives.");
+            "Classic 1.44 must contain the complete original standard roster plus its five explicit expansion representatives.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
@@ -95,8 +97,13 @@ internal static class ClassicGeneralChecks
                 luXun.SkillIds.SequenceEqual(["classic:qianxun", "classic:lianying"]) &&
                 classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:lu-xun") &&
                 !sunShangxiangClassic.Generals.ContainsKey("classic:lu-xun") &&
-                !sunShangxiangClassic.Skills.ContainsKey("classic:qianxun"),
-            "Classic 1.40-1.43 must add Da Qiao, Diao Chan, Sun Shangxiang and Lu Xun without changing historical rosters.");
+                !sunShangxiangClassic.Skills.ContainsKey("classic:qianxun") &&
+                classic.Generals["classic:pang-de"] is { BaseHp: 4, FactionId: "qun" } pangDe &&
+                pangDe.SkillIds.SequenceEqual(["standard:mashu", "classic:mengjin"]) &&
+                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:pang-de") &&
+                !luXunClassic.Generals.ContainsKey("classic:pang-de") &&
+                !luXunClassic.Skills.ContainsKey("classic:mengjin"),
+            "Classic 1.40-1.44 must add Da Qiao, Diao Chan, Sun Shangxiang, Lu Xun and Pang De without changing historical rosters.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
                     "standard:guo-jia",

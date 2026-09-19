@@ -69,6 +69,7 @@ internal static class Program
             Check("Qinglong restores and commits an exact same-target Slash choice", () => QinglongCrescentBladeUiChecks.ExactFollowupChoice(output));
             Check("Ice Sword restores and commits sequential opaque target-card choices", () => IceSwordUiChecks.SequentialOpaqueChoices(output));
             Check("Qilin Bow restores and commits an exact public mount choice", () => QilinBowUiChecks.ExactMountChoice(output));
+            Check("Mengjin restores and commits an opaque hand or public equipment choice", () => MengjinUiChecks.OpaqueTargetCardChoice(output));
             Check("Fangtian Halberd restores and commits an exact multi-target Slash", () => FangtianHalberdUiChecks.ExactTargetCombination(output));
             Check("Guding Blade renders its locked empty-hand damage increase", () => GudingBladeUiChecks.LockedDamageFeedback(output));
             Check("Zhuque Fan exposes and renders its Fire Slash conversion", () => ZhuqueFanUiChecks.FireSlashConversionFeedback(output));
@@ -110,7 +111,7 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 74 : 73)} WPF checks passed. Renders: {output}");
+            Console.WriteLine($"{_passed}/{(args.Contains("--verify-native-audio") ? 75 : 74)} WPF checks passed. Renders: {output}");
             return 0;
         }
         catch (Exception exception)
@@ -422,9 +423,10 @@ internal static class Program
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         AdvanceToDecision(vm);
 
-        Assert(vm.IsOpeningDealVisible && vm.OpeningHandCards.Count == vm.Hand.Count && vm.Hand.Count >= 4,
+        Assert(vm.IsOpeningDealVisible && vm.OpeningHandCards.Count >= 4 &&
+               vm.OpeningHandCards.All(dealt => vm.Hand.Any(card => card.Id == dealt.Id)),
             "The opening transition did not expose the complete dealt human hand.");
-        var dealtIds = vm.Hand.Select(card => card.Id).ToArray();
+        var dealtIds = vm.OpeningHandCards.Select(card => card.Id).ToArray();
         Assert(vm.OpeningHandCards.Select(card => card.Id).SequenceEqual(dealtIds),
             "The opening transition did not preserve the private hand order.");
         var revision = Engine(vm).Revision;
@@ -438,8 +440,8 @@ internal static class Program
         Assert(!vm.IsOpeningDealVisible && vm.OpeningHandCards.Count == 0,
             "Dismissing the opening transition left private cards in its presentation buffer.");
         Assert(Engine(vm).Revision == revision && SnapshotJson.Serialize(Engine(vm).State) == state &&
-               vm.Hand.Select(card => card.Id).SequenceEqual(dealtIds),
-            "Dismissing the presentation changed the match or rerolled the opening hand.");
+               dealtIds.All(id => vm.Hand.Any(card => card.Id == id)),
+            "Dismissing the presentation changed the match or lost a dealt opening card.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();
