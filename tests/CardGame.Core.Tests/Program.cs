@@ -86,6 +86,7 @@ var tests = new (string Name, Action Body)[]
     ("Ice Sword AI uses private opaque target-card choices and replays", IceSwordChecks.AiUsesPrivateOpaqueChoices),
     ("classic Qilin Bow discards an exact public mount before Slash damage", QilinBowChecks.ExactMountChoiceAndReplay),
     ("Qilin Bow AI uses public mount choices and replays", QilinBowChecks.AiUsesPublicMountChoices),
+    ("classic Fangtian Halberd resolves exact last-hand Slash targets and replays", FangtianHalberdChecks.LastHandTargetsResolveSequentiallyAndReplay),
     ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
     ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
@@ -582,7 +583,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(34, CardCatalog.ImplementedCards.Count);
+    Equal(35, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -619,6 +620,7 @@ static void CardCatalogDefinitions()
     Equal("青龙偃月刀", CardCatalog.Get(CardKind.QinglongCrescentBlade).DisplayName);
     Equal("寒冰剑", CardCatalog.Get(CardKind.IceSword).DisplayName);
     Equal("麒麟弓", CardCatalog.Get(CardKind.QilinBow).DisplayName);
+    Equal("方天画戟", CardCatalog.Get(CardKind.FangtianHalberd).DisplayName);
     True(CardCatalog.ImplementedCards.All(definition =>
         !string.IsNullOrWhiteSpace(definition.Description)));
     Equal(38, CardCatalog.Get(CardKind.Peach).AiPlayValue);
@@ -4080,7 +4082,7 @@ static void PublicTargetCardFlow()
 
 static void EquipmentFlow()
 {
-    Equal(13, EquipmentCatalog.Implemented.Count);
+    Equal(14, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
     Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);
@@ -4099,6 +4101,8 @@ static void EquipmentFlow()
     Equal(2, EquipmentCatalog.Get(CardKind.IceSword).WeaponAttackRange);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.QilinBow).Slot);
     Equal(5, EquipmentCatalog.Get(CardKind.QilinBow).WeaponAttackRange);
+    Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.FangtianHalberd).Slot);
+    Equal(4, EquipmentCatalog.Get(CardKind.FangtianHalberd).WeaponAttackRange);
     Equal(EquipmentSlot.Armor, EquipmentCatalog.Get(CardKind.BaguaFormation).Slot);
     True(EquipmentCatalog.Get(CardKind.RenwangShield).BlocksBlackSlash);
     Equal(EquipmentSlot.Armor, EquipmentCatalog.Get(CardKind.RenwangShield).Slot);

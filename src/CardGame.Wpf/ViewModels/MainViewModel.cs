@@ -61,7 +61,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IGameSaveStore? saveStore = null,
         bool useExpandedContent = false,
         IMatchHistoryStore? historyStore = null,
-        IPlayerPreferencesStore? preferencesStore = null)
+        IPlayerPreferencesStore? preferencesStore = null,
+        ContentRegistry? contentRegistry = null)
     {
         NewGameCommand = new RelayCommand(() => { if (!IsTutorialActive) OpenGameSetup(); }, () => !IsTutorialActive);
         StepAiCommand = new RelayCommand(StepAi, () => CanStepAi);
@@ -89,9 +90,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         DeclineResponseCommand = new RelayCommand(() => RespondToSlash(false), () => CanDeclineResponse);
 
         _seedOverride = seed;
-        _contentRegistry = useExpandedContent
-            ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious()
-            : StandardContentRegistry.CreateWithTeamModes();
+        _contentRegistry = contentRegistry ??
+            (useExpandedContent
+                ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious()
+                : StandardContentRegistry.CreateWithTeamModes());
         TableModes = useExpandedContent
             ? [
                 new TableModeOption(8, "八人经典身份", "1 主公 · 2 忠臣\n4 反贼 · 1 内奸", "identity:classic-8"),

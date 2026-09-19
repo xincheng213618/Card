@@ -191,6 +191,15 @@ public sealed partial class MainViewModel
     private ContentRegistry RegistryForCheckpoint(GameCheckpoint checkpoint)
     {
         var packages = checkpoint.ContentPackages ?? [];
+        var configuredPackages = _contentRegistry.Packages
+            .Select(package => $"{package.Id}@{package.Version}")
+            .ToArray();
+        if (packages.SequenceEqual(configuredPackages, StringComparer.Ordinal) &&
+            string.Equals(checkpoint.ContentHash, _contentRegistry.ContentHash, StringComparison.Ordinal))
+        {
+            return _contentRegistry;
+        }
+
         var hasTeamModes = packages.Contains("standard-team-modes@1.0.0", StringComparer.Ordinal);
         var hasRescueSkills = packages.Contains("standard-rescue-skills@1.0.0", StringComparer.Ordinal);
         var hasActiveSkills = packages.Contains("standard-active-skills@1.0.0", StringComparer.Ordinal);

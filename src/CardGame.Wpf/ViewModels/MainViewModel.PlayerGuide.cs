@@ -114,6 +114,12 @@ public sealed partial class MainViewModel
         }
         var human = _snapshot.Players.SingleOrDefault(player => player.IsHuman);
         var prompt = _snapshot.PendingDecision;
+        var isFangtianTargetSelection = HasTargetCombinationChoices &&
+            _selectedCardId is { } fangtianSlashId &&
+            _game.GetHumanLegalActions().Any(action =>
+                action.CardId == fangtianSlashId &&
+                action.Kind == LegalActionKind.Slash &&
+                action.TargetSeats.Count > 1);
         RaisePropertyChanged(nameof(IsTeamGuide));
         RaisePropertyChanged(nameof(IsNationalGuide));
         RaisePropertyChanged(nameof(NationalHealthRuleText));
@@ -190,9 +196,17 @@ public sealed partial class MainViewModel
             }
             else if (HasPublicTargetChoices || HasTargetCombinationChoices)
             {
-                CurrentGuideTitle = HasPublicTargetChoices ? "选择具体的目标牌" : "选择目标组合";
-                CurrentGuideBody = ActionHint;
-                steps = ["中央列出的每个候选都代表一个完整的合法选择。", "点击中央候选会直接执行这次出牌；如需重选，先按 Esc 或点取消。"];
+                CurrentGuideTitle = HasPublicTargetChoices
+                    ? "选择具体的目标牌"
+                    : isFangtianTargetSelection
+                        ? "为方天画戟选择目标组合"
+                        : "选择目标组合";
+                CurrentGuideBody = isFangtianTargetSelection
+                    ? "这是你最后一张手牌杀；可仍选单一目标，也可发动方天画戟，精确选择两至三名当前合法目标。"
+                    : ActionHint;
+                steps = isFangtianTargetSelection
+                    ? ["中央每个按钮是一组完整目标，顺序按当前行动座次固定。", "点击组合后只使用这一张杀、只计一次出杀；各目标会依次完成技能、闪、伤害和濒死结算。", "若只想攻击一人，可直接点击牌桌上亮起的单个目标，再确认出牌。"]
+                    : ["中央列出的每个候选都代表一个完整的合法选择。", "点击中央候选会直接执行这次出牌；如需重选，先按 Esc 或点取消。"];
             }
             else if (HasSelection)
             {

@@ -771,6 +771,17 @@ public sealed record QilinBowResolvedEvent(
     bool Used,
     int? DiscardedMountCardId) : IGameEvent;
 
+/// <summary>
+/// Public declaration that one last-hand Slash used Fangtian Halberd's target
+/// expansion. The ordered target list is exact and contains two or three seats.
+/// </summary>
+public sealed record FangtianHalberdUsedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int SlashCardId,
+    CardKind EffectiveSlashKind,
+    IReadOnlyList<int> TargetSeats) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

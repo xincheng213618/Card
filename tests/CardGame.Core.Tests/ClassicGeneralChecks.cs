@@ -38,6 +38,7 @@ internal static class ClassicGeneralChecks
         var cixiongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 26, 0));
         var qinglongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 27, 0));
         var iceSwordClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 28, 0));
+        var qilinBowClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 29, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -46,7 +47,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.29.0"]),
+                "standard-classic-generals@1.30.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -240,6 +241,10 @@ internal static class ClassicGeneralChecks
                 !iceSwordClassic.Cards.ContainsKey("classic:qilin-bow") &&
                 iceSwordClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 98,
             "The 1.28 classic registry must retain its 98-card Ice Sword deck without Qilin Bow.");
+        Require(qilinBowClassic.Cards["classic:qilin-bow"].LegacyKind == CardKind.QilinBow &&
+                !qilinBowClassic.Cards.ContainsKey("classic:fangtian-halberd") &&
+                qilinBowClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 99,
+            "The 1.29 classic registry must retain its 99-card Qilin Bow deck without Fangtian Halberd.");
         Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
                 classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
                 classic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
@@ -247,12 +252,13 @@ internal static class ClassicGeneralChecks
                 classic.Cards["classic:qinglong-crescent-blade"].LegacyKind == CardKind.QinglongCrescentBlade &&
                 classic.Cards["classic:ice-sword"].LegacyKind == CardKind.IceSword &&
                 classic.Cards["classic:qilin-bow"].LegacyKind == CardKind.QilinBow &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 99 &&
+                classic.Cards["classic:fangtian-halberd"].LegacyKind == CardKind.FangtianHalberd &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 100 &&
                 classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
                 classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.29 classic registry must opt both classic modes into the 99-card deck with Qilin Bow and typed gender.");
+            "The 1.30 classic registry must opt both classic modes into the 100-card deck with Fangtian Halberd and typed gender.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 

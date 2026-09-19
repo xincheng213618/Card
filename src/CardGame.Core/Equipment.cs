@@ -88,6 +88,12 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 5，当你使用杀对目标角色造成伤害时，可弃置其装备区的一张坐骑牌。",
                 WeaponAttackRange: 5),
+            [CardKind.FangtianHalberd] = new(
+                CardKind.FangtianHalberd,
+                "方天画戟",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 4，当你使用最后的手牌杀时，可额外指定至多两个合法目标。",
+                WeaponAttackRange: 4),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

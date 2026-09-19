@@ -67,6 +67,7 @@ public sealed partial class GameEngine
     private QinglongCrescentBladeResolution? _pendingQinglongCrescentBlade;
     private IceSwordResolution? _pendingIceSword;
     private QilinBowResolution? _pendingQilinBow;
+    private FangtianHalberdResolution? _pendingFangtianHalberd;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
@@ -274,6 +275,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalQilinBow =>
         _rulesVersion >= 48 && IsClassicIdentityMode;
+
+    private bool UsesFormalFangtianHalberd =>
+        _rulesVersion >= 49 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -6284,11 +6288,22 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("Slash requires a target.");
                 }
 
-                ResolveSlash(
-                    actor,
-                    _players[action.TargetSeat.Value],
-                    card,
-                    action.PlayedCardKind ?? card.Kind);
+                if (action.TargetSeats.Count > 1)
+                {
+                    ResolveFangtianHalberdSlash(
+                        actor,
+                        action.TargetSeats.Select(seat => _players[seat]).ToArray(),
+                        card,
+                        action.PlayedCardKind ?? card.Kind);
+                }
+                else
+                {
+                    ResolveSlash(
+                        actor,
+                        _players[action.TargetSeat.Value],
+                        card,
+                        action.PlayedCardKind ?? card.Kind);
+                }
                 break;
             case LegalActionKind.Peach:
                 ResolvePeach(actor, card);
@@ -8769,6 +8784,122 @@ public sealed partial class GameEngine
         ResolveSlashCore(source, target, slash, playedCardKind, source.Seat);
     }
 
+    private void ResolveFangtianHalberdSlash(
+        PlayerRuntime source,
+        IReadOnlyList<PlayerRuntime> targets,
+        Card slash,
+        CardKind playedCardKind)
+    {
+        var targetSeats = targets.Select(target => target.Seat).ToArray();
+        var stillLegal = targetSeats.Length is 2 or 3 &&
+            BuildLegalActions(source).Any(action =>
+                action.Kind == LegalActionKind.Slash &&
+                action.CardId == slash.Id &&
+                action.TargetSeats.SequenceEqual(targetSeats) &&
+                (action.PlayedCardKind ?? slash.Kind) == playedCardKind);
+        if (!stillLegal ||
+            !UsesFormalFangtianHalberd ||
+            GetHand(source).Count != 1 ||
+            GetHand(source)[0].Id != slash.Id ||
+            GetEquipment(source).All(card => card.Kind != CardKind.FangtianHalberd))
+        {
+            throw new InvalidOperationException("Fangtian Halberd Slash became illegal before resolution.");
+        }
+
+        var ignoresArmor = HasArmorBypass(source);
+        var resolutionId = BeginCardUse(
+            slash,
+            source.Seat,
+            targetSeats,
+            playedCardKind,
+            ignoresArmor);
+        MoveCard(
+            slash,
+            CardLocation.Hand(source.Seat),
+            CardLocation.Processing,
+            CardMoveReasons.Use);
+        if (_phase == TurnPhase.Play && source.Seat == _currentSeat)
+        {
+            _slashCountThisTurn++;
+        }
+        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(source.Seat, playedCardKind);
+        var damageAmount = source.HasAlcoholEffect ? 2 : 1;
+        source.HasAlcoholEffect = false;
+
+        var pending = new FangtianHalberdResolution(
+            resolutionId,
+            source.Seat,
+            slash,
+            playedCardKind,
+            ignoresArmor,
+            damageAmount,
+            targetSeats);
+        _pendingFangtianHalberd = pending;
+        QueueGameEvent(new FangtianHalberdUsedEvent(
+            resolutionId,
+            source.Seat,
+            slash.Id,
+            playedCardKind,
+            Array.AsReadOnly(targetSeats)));
+        QueueGameEvent(new CardUsedEvent(
+            slash.Id,
+            playedCardKind,
+            source.Seat,
+            targetSeats[0],
+            IgnoresArmor: ignoresArmor));
+        var slashName = CardCatalog.Get(playedCardKind).DisplayName;
+        AddLog(
+            "EquipmentEffect",
+            $"{source.Name} 发动【方天画戟】，以最后的手牌【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}。",
+            source.Seat,
+            targetSeats[0]);
+        foreach (var target in targets)
+        {
+            NotifyAiOfSlash(source, target);
+        }
+
+        BeginNextFangtianHalberdTarget(pending);
+    }
+
+    private void BeginNextFangtianHalberdTarget(FangtianHalberdResolution pending)
+    {
+        if (!ReferenceEquals(_pendingFangtianHalberd, pending))
+        {
+            throw new InvalidOperationException("The Fangtian Halberd continuation is no longer current.");
+        }
+
+        while (pending.TargetIndex < pending.TargetSeats.Count &&
+               !_players[pending.TargetSeats[pending.TargetIndex]].IsAlive)
+        {
+            pending.TargetIndex++;
+        }
+
+        if (pending.TargetIndex >= pending.TargetSeats.Count)
+        {
+            throw new InvalidOperationException("A Fangtian Halberd use must finish through its final target attack.");
+        }
+
+        SetCardUseTargetIndex(pending.ResolutionId, pending.TargetIndex);
+        SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.Declared);
+        var targetSeat = pending.TargetSeats[pending.TargetIndex];
+        var attack = new AttackResolution(
+            pending.ResolutionId,
+            pending.SourceSeat,
+            targetSeat,
+            pending.Card,
+            pending.DamageAmount,
+            pending.EffectiveCardKind,
+            pending.IgnoresArmor);
+        pending.CurrentAttack = attack;
+        _pendingAttack = attack;
+        AddLog(
+            "CardEffect",
+            $"【方天画戟】的【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】开始结算 {_players[targetSeat].Name}。",
+            pending.SourceSeat,
+            targetSeat);
+        BeginSlashTargetResolution(attack);
+    }
+
     private void ResolveZhangbaSlash(
         PlayerRuntime source,
         PlayerRuntime target,
@@ -9060,6 +9191,11 @@ public sealed partial class GameEngine
         }
         NotifyAiOfSlash(source, target);
 
+        BeginSlashTargetResolution(attack);
+    }
+
+    private void BeginSlashTargetResolution(AttackResolution attack)
+    {
         if (TryBeginLiegongChoice(attack))
         {
             PublishState();
@@ -15642,6 +15778,30 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (_pendingFangtianHalberd is { } fangtian &&
+            ReferenceEquals(fangtian.CurrentAttack, attack))
+        {
+            fangtian.CurrentAttack = null;
+            fangtian.TargetIndex++;
+            while (fangtian.TargetIndex < fangtian.TargetSeats.Count &&
+                   !_players[fangtian.TargetSeats[fangtian.TargetIndex]].IsAlive)
+            {
+                fangtian.TargetIndex++;
+            }
+
+            if (_winner == Winner.None && fangtian.TargetIndex < fangtian.TargetSeats.Count)
+            {
+                _pendingAttack = null;
+                _pendingDuel = null;
+                _pendingDecision = null;
+                BeginNextFangtianHalberdTarget(fangtian);
+                return;
+            }
+
+            SetCardUseTargetIndex(fangtian.ResolutionId, fangtian.TargetSeats.Count);
+            _pendingFangtianHalberd = null;
+        }
+
         var borrowedSword = _pendingBorrowedSword is { ActiveAttack: { } borrowedAttack } pendingBorrowedSword &&
                             ReferenceEquals(borrowedAttack, attack)
             ? pendingBorrowedSword
@@ -16219,8 +16379,8 @@ public sealed partial class GameEngine
             foreach (var slash in GetHand(actor).Where(card => IsSlashCard(card.Kind)))
             {
                 var slashName = CardCatalog.Get(slash.Kind).DisplayName;
-                foreach (var target in _players.Where(player =>
-                             CanUseSlashTarget(actor, player, slash)))
+                var targets = GetFangtianOrderedSlashTargets(actor, slash);
+                foreach (var target in targets)
                 {
                     actions.Add(new LegalAction(
                         LegalActionKind.Slash,
@@ -16228,14 +16388,22 @@ public sealed partial class GameEngine
                         target.Seat,
                         $"对 {target.Name} 使用【{slashName}】"));
                 }
+
+                AddFangtianHalberdSlashActions(
+                    actions,
+                    actor,
+                    slash,
+                    targets,
+                    slashName,
+                    playedCardKind: null);
             }
 
             foreach (var converted in GetHand(actor).Where(card =>
                          skill.CanUseAsSlash(skillContext, card)))
             {
                 var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
-                foreach (var target in _players.Where(player =>
-                             CanUseSlashTarget(actor, player, converted)))
+                var targets = GetFangtianOrderedSlashTargets(actor, converted);
+                foreach (var target in targets)
                 {
                     actions.Add(new LegalAction(
                         LegalActionKind.Slash,
@@ -16244,6 +16412,14 @@ public sealed partial class GameEngine
                         $"将【{physicalName}】当作【杀】对 {target.Name} 使用",
                         PlayedCardKind: CardKind.Slash));
                 }
+
+                AddFangtianHalberdSlashActions(
+                    actions,
+                    actor,
+                    converted,
+                    targets,
+                    "杀",
+                    CardKind.Slash);
             }
 
             if (UsesFormalWushengEquipment)
@@ -16639,6 +16815,80 @@ public sealed partial class GameEngine
 
         actions.Add(new LegalAction(LegalActionKind.EndPlay, null, null, "结束出牌"));
         return actions;
+    }
+
+    private IReadOnlyList<PlayerRuntime> GetFangtianOrderedSlashTargets(
+        PlayerRuntime actor,
+        Card slash) =>
+        _players
+            .Where(player => CanUseSlashTarget(actor, player, slash))
+            .ToArray();
+
+    private void AddFangtianHalberdSlashActions(
+        ICollection<LegalAction> actions,
+        PlayerRuntime actor,
+        Card physicalCard,
+        IReadOnlyList<PlayerRuntime> legalTargets,
+        string slashName,
+        CardKind? playedCardKind)
+    {
+        if (!UsesFormalFangtianHalberd ||
+            GetHand(actor).Count != 1 ||
+            GetHand(actor)[0].Id != physicalCard.Id ||
+            GetEquipment(actor).All(card => card.Kind != CardKind.FangtianHalberd) ||
+            legalTargets.Count < 2)
+        {
+            return;
+        }
+
+        var orderedTargets = legalTargets
+            .OrderBy(player => (player.Seat - actor.Seat + _playerCount) % _playerCount)
+            .ToArray();
+        var maximumTargets = Math.Min(3, orderedTargets.Length);
+        for (var first = 0; first < orderedTargets.Length - 1; first++)
+        {
+            for (var second = first + 1; second < orderedTargets.Length; second++)
+            {
+                AddFangtianHalberdSlashAction(
+                    actions,
+                    physicalCard,
+                    slashName,
+                    playedCardKind,
+                    [orderedTargets[first], orderedTargets[second]]);
+
+                if (maximumTargets < 3)
+                {
+                    continue;
+                }
+
+                for (var third = second + 1; third < orderedTargets.Length; third++)
+                {
+                    AddFangtianHalberdSlashAction(
+                        actions,
+                        physicalCard,
+                        slashName,
+                        playedCardKind,
+                        [orderedTargets[first], orderedTargets[second], orderedTargets[third]]);
+                }
+            }
+        }
+    }
+
+    private static void AddFangtianHalberdSlashAction(
+        ICollection<LegalAction> actions,
+        Card physicalCard,
+        string slashName,
+        CardKind? playedCardKind,
+        IReadOnlyList<PlayerRuntime> targets)
+    {
+        var targetSeats = Array.AsReadOnly(targets.Select(target => target.Seat).ToArray());
+        actions.Add(new LegalAction(
+            LegalActionKind.Slash,
+            physicalCard.Id,
+            targetSeats[0],
+            $"发动【方天画戟】，对 {string.Join("、", targets.Select(target => target.Name))} 使用【{slashName}】",
+            PlayedCardKind: playedCardKind,
+            TargetSeats: targetSeats));
     }
 
     private void AddTargetCardActions(
@@ -19934,6 +20184,7 @@ public sealed partial class GameEngine
              _pendingQinglongCrescentBlade is not null ||
              _pendingIceSword is not null ||
              _pendingQilinBow is not null ||
+             _pendingFangtianHalberd is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -19995,6 +20246,20 @@ public sealed partial class GameEngine
                    attack.PhysicalCards.All(card =>
                        _cardZones.GetLocation(card.Id).Zone is CardZoneKind.Processing or
                            CardZoneKind.DrawPile or CardZoneKind.Hand or CardZoneKind.DiscardPile);
+        }
+
+        if (_pendingFangtianHalberd is { CurrentAttack: { } fangtianAttack } fangtian &&
+            ReferenceEquals(fangtianAttack, attack))
+        {
+            var fangtianCardLocation = _cardZones.GetLocation(fangtian.Card.Id);
+            return attack.ResolutionId == fangtian.ResolutionId &&
+                   attack.SourceSeat == fangtian.SourceSeat &&
+                   attack.EffectiveCardKind == fangtian.EffectiveCardKind &&
+                   attack.PhysicalCards.Count == 1 &&
+                   attack.PhysicalCards[0].Id == fangtian.Card.Id &&
+                   fangtianCardLocation.Zone is CardZoneKind.Processing or CardZoneKind.Hand or
+                       CardZoneKind.DrawPile or CardZoneKind.DiscardPile &&
+                   processing.All(card => card.Id == fangtian.Card.Id);
         }
 
         var attackCardIds = attack.PhysicalCards.Select(card => card.Id).ToHashSet();
@@ -21135,6 +21400,26 @@ public sealed partial class GameEngine
     private sealed class QilinBowResolution(AttackResolution attack)
     {
         public AttackResolution Attack { get; } = attack;
+    }
+
+    private sealed class FangtianHalberdResolution(
+        long resolutionId,
+        int sourceSeat,
+        Card card,
+        CardKind effectiveCardKind,
+        bool ignoresArmor,
+        int damageAmount,
+        IReadOnlyList<int> targetSeats)
+    {
+        public long ResolutionId { get; } = resolutionId;
+        public int SourceSeat { get; } = sourceSeat;
+        public Card Card { get; } = card;
+        public CardKind EffectiveCardKind { get; } = effectiveCardKind;
+        public bool IgnoresArmor { get; } = ignoresArmor;
+        public int DamageAmount { get; } = damageAmount;
+        public IReadOnlyList<int> TargetSeats { get; } = Array.AsReadOnly(targetSeats.ToArray());
+        public int TargetIndex { get; set; }
+        public AttackResolution? CurrentAttack { get; set; }
     }
 
     private sealed class BorrowedSwordResolution(

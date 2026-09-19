@@ -205,6 +205,11 @@ public sealed partial class SimpleAiBrain
             return (followUp.Score + 8, "已有合法攻击目标，先饮酒再使用另一张杀；按公开局面评估。");
         }
 
+        if (action.Kind == LegalActionKind.Slash && action.TargetSeats.Count > 1)
+        {
+            return ScoreFangtianHalberdSlash(view, self, role, action);
+        }
+
         var (score, reason) = ScoreAction(view, self, role, action);
         var targetPlayer = action.TargetSeat is { } targetSeat ? view.Players.Single(player => player.Seat == targetSeat) : null;
         if (targetPlayer is not null && action.Kind is LegalActionKind.Dismantlement or LegalActionKind.Snatch &&

@@ -251,6 +251,14 @@ public static class CardCatalog
                 AiPlayValue: 40,
                 AiResponseValue: 0,
                 HandKeepValue: 44),
+            [CardKind.FangtianHalberd] = new(
+                CardKind.FangtianHalberd,
+                "方天画戟",
+                "装备牌",
+                "装备至武器槽；攻击范围 4，当你使用最后的手牌杀时，可额外指定至多两个合法目标。",
+                AiPlayValue: 42,
+                AiResponseValue: 0,
+                HandKeepValue: 45),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

@@ -2490,6 +2490,11 @@ public sealed partial class SimpleAiBrain
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);
 
+        if (action.Kind == LegalActionKind.Slash && action.TargetSeats.Count > 1)
+        {
+            return ScoreFangtianHalberdSlash(view, self, selfRole, action);
+        }
+
         if (action.Kind == LegalActionKind.Equip)
         {
             var equipment = EquipmentCatalog.Get(card.Kind);
@@ -2732,6 +2737,35 @@ public sealed partial class SimpleAiBrain
         return (
             cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus,
             $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}。身份判断只使用公开信息。");
+    }
+
+    private (double Score, string Reason) ScoreFangtianHalberdSlash(
+        GameSnapshot view,
+        PlayerSnapshot self,
+        Role selfRole,
+        LegalAction action)
+    {
+        var card = self.Hand.Concat(self.Equipment).Single(candidate => candidate.Id == action.CardId);
+        var effectiveKind = action.PlayedCardKind ?? card.Kind;
+        var profile = CardCatalog.Get(effectiveKind);
+        var targets = action.TargetSeats
+            .Select(seat => view.Players.Single(player => player.Seat == seat))
+            .ToArray();
+        var targetValue = targets.Sum(target =>
+        {
+            var hostility = GetHostility(view, selfRole, target);
+            var finishingBonus = target.Hp <= 1 ? 28d : 0d;
+            var pressureBonus = Math.Max(0, target.MaxHp - target.Hp) * 3d;
+            return hostility + finishingBonus + pressureBonus;
+        });
+        var conversionCost = action.PlayedCardKind is { } && !IsSlashCard(card.Kind)
+            ? Math.Max(0d, CardCatalog.Get(card.Kind).HandKeepValue - profile.HandKeepValue) * .6d
+            : 0d;
+        var alcoholBonus = self.HasAlcoholEffect ? 45d + (targets.Length - 1) * 20d : 0d;
+        var score = profile.AiPlayValue + targetValue + targets.Length * 5d + alcoholBonus - conversionCost;
+        return (
+            score,
+            $"发动方天画戟以最后的手牌杀依次攻击 {string.Join("、", targets.Select(target => $"座位 {target.Seat + 1}"))}；综合公开敌对、体力与濒死收益 {targetValue:0.#}，不读取目标暗牌。");
     }
 
     private static bool IsSlashCard(CardKind kind) =>
