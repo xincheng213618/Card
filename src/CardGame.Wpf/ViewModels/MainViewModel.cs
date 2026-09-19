@@ -615,7 +615,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Luoshen or
                     DecisionKind.Jizhi or
                     DecisionKind.Tieqi or
-                    DecisionKind.Liegong
+                    DecisionKind.Liegong or
+                    DecisionKind.StoneAxe
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
@@ -641,7 +642,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Luoshen or
             DecisionKind.Jizhi or
             DecisionKind.Tieqi or
-            DecisionKind.Liegong;
+            DecisionKind.Liegong or
+            DecisionKind.StoneAxe;
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions

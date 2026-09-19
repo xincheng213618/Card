@@ -70,12 +70,26 @@ internal static class JijiuEquipmentScenario
 
             for (var step = 0; step < 4_000 && game.State.Status != EngineStatus.Completed; step++)
             {
+                if (game.Events.Any(item => item.Payload is StoneAxeResolvedEvent))
+                {
+                    break;
+                }
+
                 if (game.PendingDecision is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 } response &&
                     response.Choices.Any(choice =>
                         choice.Cards.SequenceEqual([redEquipment.Id]) &&
                         choice.Parameters.GetValueOrDefault("response") == "peach"))
                 {
-                    return game;
+                    try
+                    {
+                        _ = GameReplay.Restore(game.CreateCheckpoint(), registry);
+                        _ = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 40 }, registry);
+                        return game;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        break;
+                    }
                 }
 
                 var owner = game.CreateSnapshot(0, revealAll: true).Players[0];

@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 23, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 24, 0))
     {
     }
 
@@ -42,12 +42,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 20, 0) &&
             version != new Version(1, 21, 0) &&
             version != new Version(1, 22, 0) &&
-            version != new Version(1, 23, 0))
+            version != new Version(1, 23, 0) &&
+            version != new Version(1, 24, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.23.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.24.0.");
         }
 
         _version = version;
@@ -76,42 +77,66 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     ["action"] = "force-slash-or-take-weapon",
                     ["targets"] = "ordered-two"
                 }));
+            if (_version >= new Version(1, 24, 0))
+            {
+                builder.AddCard(new ContentCardDefinition(
+                    Id: "classic:stone-axe",
+                    DisplayName: "贯石斧",
+                    CategoryName: "装备牌",
+                    Description: "装备至武器槽；攻击范围 3，当你的杀被闪抵消后，你可以弃置两张牌，令此杀仍造成伤害。",
+                    LegacyKind: CardKind.StoneAxe,
+                    AiTags: new Dictionary<string, string>
+                    {
+                        ["slot"] = "weapon",
+                        ["trigger"] = "slash-canceled-by-dodge",
+                        ["cost"] = "discard-two"
+                    }));
+            }
+
+            var classicDeckCards = new List<ContentDeckCardCount>
+            {
+                new("standard:slash", 18),
+                new("standard:dodge", 18),
+                new("standard:peach", 10),
+                new("standard:duel", 4),
+                new("standard:draw_two", 2),
+                new("standard:barbarian_assault", 2),
+                new("standard:arrow_barrage", 2),
+                new("standard:peach_garden", 2),
+                new("standard:five_grains", 2),
+                new("standard:dismantlement", 2),
+                new("standard:snatch", 2),
+                new("standard:fire_slash", 2),
+                new("standard:thunder_slash", 2),
+                new("standard:alcohol", 2),
+                new("standard:fire_attack", 2),
+                new("standard:crossbow", 2),
+                new("standard:bagua", 1),
+                new("standard:offensive_horse", 1),
+                new("standard:defensive_horse", 1),
+                new("standard:jade_seal", 1),
+                new("standard:qinggang_sword", 1),
+                new("standard:nullification", 2),
+                new("standard:iron_chain", 2),
+                new("standard:indulgence", 2),
+                new("standard:supply_shortage", 2),
+                new("standard:lightning", 2),
+                new("standard:renwang_shield", 1),
+                new("classic:borrowed-sword", 2)
+            };
+            if (_version >= new Version(1, 24, 0))
+            {
+                classicDeckCards.Add(new ContentDeckCardCount("classic:stone-axe", 1));
+            }
+
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: "经典标准牌堆（借刀杀人）",
+                Name: _version >= new Version(1, 24, 0)
+                    ? "经典标准牌堆（借刀杀人·贯石斧）"
+                    : "经典标准牌堆（借刀杀人）",
                 InitialHandSize: 4,
                 DrawPerTurn: 2,
-                Cards:
-                [
-                    new ContentDeckCardCount("standard:slash", 18),
-                    new ContentDeckCardCount("standard:dodge", 18),
-                    new ContentDeckCardCount("standard:peach", 10),
-                    new ContentDeckCardCount("standard:duel", 4),
-                    new ContentDeckCardCount("standard:draw_two", 2),
-                    new ContentDeckCardCount("standard:barbarian_assault", 2),
-                    new ContentDeckCardCount("standard:arrow_barrage", 2),
-                    new ContentDeckCardCount("standard:peach_garden", 2),
-                    new ContentDeckCardCount("standard:five_grains", 2),
-                    new ContentDeckCardCount("standard:dismantlement", 2),
-                    new ContentDeckCardCount("standard:snatch", 2),
-                    new ContentDeckCardCount("standard:fire_slash", 2),
-                    new ContentDeckCardCount("standard:thunder_slash", 2),
-                    new ContentDeckCardCount("standard:alcohol", 2),
-                    new ContentDeckCardCount("standard:fire_attack", 2),
-                    new ContentDeckCardCount("standard:crossbow", 2),
-                    new ContentDeckCardCount("standard:bagua", 1),
-                    new ContentDeckCardCount("standard:offensive_horse", 1),
-                    new ContentDeckCardCount("standard:defensive_horse", 1),
-                    new ContentDeckCardCount("standard:jade_seal", 1),
-                    new ContentDeckCardCount("standard:qinggang_sword", 1),
-                    new ContentDeckCardCount("standard:nullification", 2),
-                    new ContentDeckCardCount("standard:iron_chain", 2),
-                    new ContentDeckCardCount("standard:indulgence", 2),
-                    new ContentDeckCardCount("standard:supply_shortage", 2),
-                    new ContentDeckCardCount("standard:lightning", 2),
-                    new ContentDeckCardCount("standard:renwang_shield", 1),
-                    new ContentDeckCardCount("classic:borrowed-sword", 2)
-                ]));
+                Cards: classicDeckCards));
         }
 
         builder.AddSkill(new ContentSkillDefinition(

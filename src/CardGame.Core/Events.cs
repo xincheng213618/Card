@@ -707,6 +707,17 @@ public sealed record BorrowedSwordResolvedEvent(
     int? TransferredWeaponCardId = null,
     CardKind? TransferredWeaponKind = null) : IGameEvent;
 
+/// <summary>
+/// Public terminal result for Stone Axe. The paid cards have already moved to
+/// the public discard pile when this event is emitted.
+/// </summary>
+public sealed record StoneAxeResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool Used,
+    IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,

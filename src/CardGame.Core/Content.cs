@@ -203,6 +203,14 @@ public static class CardCatalog
                 AiPlayValue: 32,
                 AiResponseValue: 0,
                 HandKeepValue: 38),
+            [CardKind.StoneAxe] = new(
+                CardKind.StoneAxe,
+                "贯石斧",
+                "装备牌",
+                "装备至武器槽；攻击范围 3，当你的杀被闪抵消后，你可以弃置两张牌，令此杀仍造成伤害。",
+                AiPlayValue: 36,
+                AiResponseValue: 0,
+                HandKeepValue: 40),
             [CardKind.Nullification] = new(
                 CardKind.Nullification,
                 "无懈可击",

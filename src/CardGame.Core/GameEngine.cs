@@ -62,6 +62,7 @@ public sealed partial class GameEngine
     private DuelResolution? _pendingDuel;
     private GroupCardResolution? _pendingGroupCard;
     private BorrowedSwordResolution? _pendingBorrowedSword;
+    private StoneAxeResolution? _pendingStoneAxe;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
@@ -251,6 +252,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalBorrowedSword =>
         _rulesVersion >= 42 && IsClassicIdentityMode;
+
+    private bool UsesFormalStoneAxe =>
+        _rulesVersion >= 43 && IsClassicIdentityMode;
 
     private bool UsesCorrectDuelDamageAttribution =>
         _rulesVersion >= 31;
@@ -791,6 +795,7 @@ public sealed partial class GameEngine
                 DecisionKind.Jizhi or
                 DecisionKind.Tieqi or
                 DecisionKind.Liegong or
+                DecisionKind.StoneAxe or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
         {
@@ -906,6 +911,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Liegong)
         {
             return SubmitLiegongPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.StoneAxe)
+        {
+            return SubmitStoneAxePromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yiji)
@@ -1437,6 +1447,32 @@ public sealed partial class GameEngine
                 useSkill: false,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             _ => Reject(CommandErrorCode.InvalidChoice, "烈弓提示没有可识别的选择效果。")
+        };
+    }
+
+    private CommandResult SubmitStoneAxePromptAnswer(PromptChoice selected)
+    {
+        if (_pendingStoneAxe is null ||
+            _pendingDecision is not { Kind: DecisionKind.StoneAxe })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的贯石斧触发窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            selected.Targets.Count != 0)
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "贯石斧选择不符合当前攻击窗口。");
+        }
+
+        return action switch
+        {
+            "stone-axe-use" when selected.Cards.Count == 2 => Accept(() => HumanStoneAxeCore(
+                selected.Cards,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "stone-axe-skip" when selected.Cards.Count == 0 => Accept(() => HumanStoneAxeCore(
+                [],
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "贯石斧必须精确弃置两张牌，或选择不发动。")
         };
     }
 
@@ -2793,6 +2829,16 @@ public sealed partial class GameEngine
 
         ClearPendingDecision();
         ResolveNullificationChoice(pending, _players[decision.PlayerSeat], selected);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanStoneAxeCore(
+        IReadOnlyList<int> discardedCardIds,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.StoneAxe);
+        ResolveStoneAxeChoice(discardedCardIds);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -9297,12 +9343,172 @@ public sealed partial class GameEngine
 
         if (completed)
         {
+            if (TryBeginStoneAxeChoice(attack))
+            {
+                return;
+            }
+
             CompleteAttack(attack);
             return;
         }
 
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
         ContinueSlashAfterTieqi(attack);
+    }
+
+    private bool TryBeginStoneAxeChoice(AttackResolution attack)
+    {
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var effectiveKind = RequireAttackCardKind(attack);
+        var discardableCards = GetStoneAxeDiscardCards(source);
+        if (!UsesFormalStoneAxe ||
+            effectiveKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            !source.IsAlive ||
+            !target.IsAlive ||
+            GetEquipment(source).All(card => card.Kind != CardKind.StoneAxe) ||
+            discardableCards.Count < 2)
+        {
+            return false;
+        }
+
+        if (_pendingStoneAxe is not null)
+        {
+            throw new InvalidOperationException("The engine cannot open two Stone Axe choices at once.");
+        }
+
+        var choices = new List<PromptChoice>();
+        for (var first = 0; first < discardableCards.Count - 1; first++)
+        {
+            for (var second = first + 1; second < discardableCards.Count; second++)
+            {
+                var firstCard = discardableCards[first];
+                var secondCard = discardableCards[second];
+                choices.Add(new PromptChoice(
+                    new ChoiceId($"stone-axe.use.resolution-{attack.ResolutionId}.cards-{firstCard.Id}-{secondCard.Id}"),
+                    $"弃置{DescribeStoneAxeCost(source, firstCard)}与{DescribeStoneAxeCost(source, secondCard)}，令此【{CardCatalog.Get(effectiveKind).DisplayName}】仍造成伤害。",
+                    [firstCard.Id, secondCard.Id],
+                    [],
+                    new Dictionary<string, string> { ["action"] = "stone-axe-use" }));
+            }
+        }
+
+        choices.Add(new PromptChoice(
+            new ChoiceId($"stone-axe.skip.resolution-{attack.ResolutionId}"),
+            "不发动【贯石斧】，此【杀】被【闪】抵消。",
+            [],
+            [],
+            new Dictionary<string, string> { ["action"] = "stone-axe-skip" }));
+
+        _pendingStoneAxe = new StoneAxeResolution(
+            attack,
+            discardableCards.Select(card => card.Id).ToArray());
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.AwaitingResponse);
+        _pendingDecision = new PendingDecision(
+            DecisionKind.StoneAxe,
+            source.Seat,
+            $"{target.Name} 已用【闪】抵消你的【{CardCatalog.Get(effectiveKind).DisplayName}】，是否弃置两张牌发动【贯石斧】？",
+            discardableCards.Select(card => card.Id).ToArray(),
+            [],
+            SourceSeat: source.Seat,
+            IncomingCard: effectiveKind)
+        {
+            PromptId = source.IsHuman ? CreatePromptId() : default,
+            IsPrivate = true,
+            TargetSeat = target.Seat,
+            Choices = choices
+        };
+        _status = source.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private IReadOnlyList<Card> GetStoneAxeDiscardCards(PlayerRuntime source) =>
+        GetHand(source).Concat(GetEquipment(source)).ToArray();
+
+    private string DescribeStoneAxeCost(PlayerRuntime source, Card card)
+    {
+        var zone = _cardZones.GetLocation(card.Id) == CardLocation.Equipment(source.Seat)
+            ? "装备区"
+            : "手牌";
+        return $"【{card.DisplayName}】（{zone}）";
+    }
+
+    private void ResolveStoneAxeChoice(IReadOnlyList<int> discardedCardIds)
+    {
+        var pending = _pendingStoneAxe ??
+            throw new InvalidOperationException("There is no Stone Axe choice to resolve.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.StoneAxe } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The Stone Axe choice is not the current Slash continuation.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var distinctIds = discardedCardIds.Distinct().ToArray();
+        var useStoneAxe = distinctIds.Length > 0;
+        if (useStoneAxe &&
+            (distinctIds.Length != 2 ||
+             distinctIds.Any(id => !pending.CandidateCardIds.Contains(id))))
+        {
+            throw new InvalidOperationException("Stone Axe requires two distinct cards from the published candidate set.");
+        }
+
+        var currentCards = GetStoneAxeDiscardCards(source);
+        var selectedCards = distinctIds
+            .Select(id => currentCards.SingleOrDefault(card => card.Id == id) ??
+                throw new InvalidOperationException("A selected Stone Axe cost card is no longer owned by its source."))
+            .ToArray();
+        _pendingStoneAxe = null;
+        ClearPendingDecision();
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+
+        if (useStoneAxe)
+        {
+            foreach (var card in selectedCards)
+            {
+                MoveCard(
+                    card,
+                    _cardZones.GetLocation(card.Id),
+                    CardLocation.Processing,
+                    CardMoveReasons.StoneAxeDiscard);
+            }
+            foreach (var card in selectedCards)
+            {
+                MoveCard(
+                    card,
+                    CardLocation.Processing,
+                    CardLocation.DiscardPile,
+                    CardMoveReasons.StoneAxeDiscard);
+            }
+        }
+
+        QueueGameEvent(new StoneAxeResolvedEvent(
+            attack.ResolutionId,
+            source.Seat,
+            target.Seat,
+            useStoneAxe,
+            Array.AsReadOnly(distinctIds)));
+        AddLog(
+            useStoneAxe ? "EquipmentEffect" : "EquipmentSkipped",
+            useStoneAxe
+                ? $"{source.Name} 弃置两张牌发动【贯石斧】，令对 {target.Name} 的【杀】仍造成伤害。"
+                : $"{source.Name} 未发动【贯石斧】，对 {target.Name} 的【杀】被【闪】抵消。",
+            source.Seat,
+            target.Seat);
+
+        if (useStoneAxe)
+        {
+            if (!ApplyAttackDamage(attack))
+            {
+                CompleteAttack(attack);
+            }
+            return;
+        }
+
+        CompleteAttack(attack);
     }
 
     private void CompleteHujiaBaguaResponse(AttackResolution attack, bool succeeded)
@@ -9906,6 +10112,12 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiResponse()
     {
+        if (_pendingStoneAxe is not null)
+        {
+            ResolvePendingAiStoneAxe();
+            return;
+        }
+
         if (_pendingJijiang is { AwaitingProviders: true })
         {
             ResolvePendingAiJijiang();
@@ -9937,6 +10149,28 @@ public sealed partial class GameEngine
         }
 
         ResolvePendingAiDodge();
+    }
+
+    private void ResolvePendingAiStoneAxe()
+    {
+        var pending = _pendingStoneAxe ??
+            throw new InvalidOperationException("AI Stone Axe response has no active resolution.");
+        var attack = pending.Attack;
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.StoneAxe } decision ||
+            decision.PlayerSeat != attack.SourceSeat)
+        {
+            throw new InvalidOperationException("The pending AI Stone Axe prompt is inconsistent.");
+        }
+
+        var source = _players[attack.SourceSeat];
+        var (discardedCardIds, thought) = _aiBrains[source.Seat].ChooseStoneAxeResponse(
+            CreateSnapshot(source.Seat),
+            attack.TargetSeat,
+            ++_thoughtSequence);
+        AddThought(thought);
+        ResolveStoneAxeChoice(discardedCardIds);
+        PublishState();
     }
 
     private void ResolvePendingAiBorrowedSword()
@@ -16402,6 +16636,57 @@ public sealed partial class GameEngine
             }
         }
 
+        if (_pendingStoneAxe is { } stoneAxe)
+        {
+            var stoneAxeAttack = stoneAxe.Attack;
+            var decision = _pendingDecision;
+            var source = _players[stoneAxeAttack.SourceSeat];
+            var target = _players[stoneAxeAttack.TargetSeat];
+            var currentCandidates = GetStoneAxeDiscardCards(source).Select(card => card.Id).ToArray();
+            var expectedChoiceCount = currentCandidates.Length * (currentCandidates.Length - 1) / 2 + 1;
+            if (!UsesFormalStoneAxe ||
+                !ReferenceEquals(_pendingAttack, stoneAxeAttack) ||
+                !source.IsAlive ||
+                !target.IsAlive ||
+                GetEquipment(source).All(card => card.Kind != CardKind.StoneAxe) ||
+                stoneAxeAttack.SuccessfulDodgeResponses != stoneAxeAttack.RequiredDodgeResponses ||
+                !stoneAxe.CandidateCardIds.SequenceEqual(currentCandidates) ||
+                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                cardUse.Id != stoneAxeAttack.ResolutionId ||
+                cardUse.SourceSeat != stoneAxeAttack.SourceSeat ||
+                cardUse.CardKind != stoneAxeAttack.EffectiveCardKind ||
+                cardUse.Step != ResolutionFrameStep.AwaitingResponse ||
+                decision is not { Kind: DecisionKind.StoneAxe, IsPrivate: true } ||
+                decision.PlayerSeat != stoneAxeAttack.SourceSeat ||
+                decision.SourceSeat != stoneAxeAttack.SourceSeat ||
+                decision.TargetSeat != stoneAxeAttack.TargetSeat ||
+                decision.IncomingCard != stoneAxeAttack.EffectiveCardKind ||
+                !decision.ValidCardIds.SequenceEqual(currentCandidates) ||
+                decision.Choices.Count != expectedChoiceCount ||
+                decision.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "stone-axe-skip" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Targets.Count == 0) != 1 ||
+                decision.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "stone-axe-use" &&
+                    (choice.Cards.Count != 2 ||
+                     choice.Cards.Distinct().Count() != 2 ||
+                     choice.Cards.Any(id => !currentCandidates.Contains(id)) ||
+                     choice.Targets.Count != 0)))
+            {
+                throw new InvalidOperationException(
+                    "A Stone Axe choice must retain its private two-card cost prompt and completed Dodge continuation.");
+            }
+
+            var expectedStoneAxeStatus = source.IsHuman
+                ? EngineStatus.AwaitingHumanResponse
+                : EngineStatus.Running;
+            if (_status != expectedStoneAxeStatus)
+            {
+                throw new InvalidOperationException("A Stone Axe prompt status does not match its owner.");
+            }
+        }
+
         if (_pendingGuanxing is { } guanxing)
         {
             var selectedIds = guanxing.TopCardIds.Concat(guanxing.BottomCardIds).ToArray();
@@ -16714,6 +16999,17 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active Tieqi choice must retain its declared Slash frame as the stack top.");
+                }
+            }
+            else if (_pendingStoneAxe is { } stoneAxeContinuation)
+            {
+                if (!ReferenceEquals(stoneAxeContinuation.Attack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame stoneAxeCardUse ||
+                    stoneAxeCardUse.Id != pendingAttack.ResolutionId ||
+                    stoneAxeCardUse.Step != ResolutionFrameStep.AwaitingResponse)
+                {
+                    throw new InvalidOperationException(
+                        "An active Stone Axe choice must retain its Slash frame as the stack top.");
                 }
             }
             else if (_pendingJudgment is { } judgmentContinuation)
@@ -17216,6 +17512,13 @@ public sealed partial class GameEngine
                 "A Guicai prompt cannot exist without a judgment continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.StoneAxe &&
+            _pendingStoneAxe is null)
+        {
+            throw new InvalidOperationException(
+                "A Stone Axe prompt cannot exist without its Slash continuation.");
+        }
+
         if (_pendingDecision?.Kind is DecisionKind.Feedback or
             DecisionKind.Yiji or
             DecisionKind.Jieming or
@@ -17239,7 +17542,8 @@ public sealed partial class GameEngine
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
                 DecisionKind.Tieqi or
-                DecisionKind.Liegong) &&
+                DecisionKind.Liegong or
+                DecisionKind.StoneAxe) &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
             _pendingDecision?.Kind == DecisionKind.Nullification &&
@@ -17313,6 +17617,7 @@ public sealed partial class GameEngine
              _pendingHujia is not null ||
              _pendingJijiang is not null ||
              _pendingBorrowedSword is not null ||
+             _pendingStoneAxe is not null ||
              processing.Count != 0))
         {
             throw new InvalidOperationException("A completed game cannot retain pending resolution state.");
@@ -17416,7 +17721,7 @@ public sealed partial class GameEngine
         _pendingDecision is { } decision && decision.PlayerSeat == _options.HumanSeat;
 
     private bool IsAiResponsePending() =>
-        (_pendingDecision?.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash) &&
+        (_pendingDecision?.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.StoneAxe) &&
         _pendingDecision.PlayerSeat != _options.HumanSeat;
 
     private bool IsAiNullificationPending() =>
@@ -18424,6 +18729,15 @@ public sealed partial class GameEngine
     private sealed record TieqiResolution(AttackResolution Attack);
 
     private sealed record LiegongResolution(AttackResolution Attack);
+
+    private sealed class StoneAxeResolution(
+        AttackResolution attack,
+        IReadOnlyList<int> candidateCardIds)
+    {
+        public AttackResolution Attack { get; } = attack;
+        public IReadOnlyList<int> CandidateCardIds { get; } =
+            Array.AsReadOnly(candidateCardIds.ToArray());
+    }
 
     private sealed class BorrowedSwordResolution(
         long resolutionId,

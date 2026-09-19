@@ -61,7 +61,8 @@ public enum CardKind
     Indulgence,
     SupplyShortage,
     Lightning,
-    BorrowedSword
+    BorrowedSword,
+    StoneAxe
 }
 
 public enum Suit
@@ -190,7 +191,8 @@ public enum DecisionKind
     Luoshen,
     Jizhi,
     Tieqi,
-    Liegong
+    Liegong,
+    StoneAxe
 }
 
 public enum GangliePunishmentKind

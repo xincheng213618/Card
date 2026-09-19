@@ -32,6 +32,7 @@ internal static class ClassicGeneralChecks
         var paoxiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 20, 0));
         var longdanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 21, 0));
         var wushengClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 22, 0));
+        var borrowedSwordClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 23, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -40,7 +41,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.23.0"]),
+                "standard-classic-generals@1.24.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -206,11 +207,16 @@ internal static class ClassicGeneralChecks
                 !wushengClassic.Decks.ContainsKey("classic:standard-deck") &&
                 wushengClassic.Modes["identity:classic-5"].DeckId == "standard:basic-demo",
             "The Wusheng-era classic registry must retain the 1.22 deck without Borrowed Sword.");
+        Require(borrowedSwordClassic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
+                !borrowedSwordClassic.Cards.ContainsKey("classic:stone-axe") &&
+                borrowedSwordClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 92,
+            "The 1.23 classic registry must retain its 92-card Borrowed Sword deck without Stone Axe.");
         Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
-                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 92 &&
+                classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
+                classic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 93 &&
                 classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
                 classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The 1.23 classic registry must opt both classic modes into the 92-card Borrowed Sword deck.");
+            "The 1.24 classic registry must opt both classic modes into the 93-card Borrowed Sword and Stone Axe deck.");
         Require(classic.ContentHash != legacy.ContentHash,
             "The opt-in classic roster must have its own content fingerprint.");
 
@@ -4959,6 +4965,11 @@ internal static class ClassicGeneralChecks
             {
                 if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } prompt)
                 {
+                    if (game.Events.Any(item => item.Payload is StoneAxeResolvedEvent))
+                    {
+                        break;
+                    }
+
                     var full = game.CreateSnapshot(0, revealAll: true);
                     var source = full.Players.Single(player => player.Seat == 0);
                     if (source.Hp > 0 && source.Hp < source.MaxHp)

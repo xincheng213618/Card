@@ -18,7 +18,7 @@ public sealed record GameCheckpoint(
     string ContentHash)
 {
     public const int CurrentSchemaVersion = 3;
-    public const int CurrentRulesVersion = 42;
+    public const int CurrentRulesVersion = 43;
 
     // Checkpoint schema 3 predates the explicit rules marker. Keeping the
     // initializer at v1 lets old JSON retain its original event semantics.
@@ -83,8 +83,18 @@ public static class GameReplay
             if (!result.Accepted)
             {
                 var error = result.Error;
-                var promptContext = command is AnswerPromptCommand answer
-                    ? $" Expected prompt {answer.PromptId.Value}; current prompt " +
+                var expectedPrompt = command switch
+                {
+                    AnswerPromptCommand answer => answer.PromptId,
+                    PlayCardCommand play => play.PromptId,
+                    EndPlayPhaseCommand endPlay => endPlay.PromptId,
+                    DiscardCardsCommand discard => discard.PromptId,
+                    SelectGeneralCommand selectGeneral => selectGeneral.PromptId,
+                    UseSkillCommand useSkill => useSkill.PromptId,
+                    _ => (PromptId?)null
+                };
+                var promptContext = expectedPrompt is { } expected
+                    ? $" Expected prompt {expected.Value}; current prompt " +
                       $"{engine.PendingDecision?.PromptId.Value.ToString() ?? "none"} " +
                       $"({engine.PendingDecision?.Kind.ToString() ?? "none"}) at revision {engine.Revision}."
                     : string.Empty;

@@ -1269,6 +1269,77 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
+    /// Chooses one exact published two-card Stone Axe cost without reading any
+    /// hidden engine zone. The cheapest available pair is compared with the
+    /// public tactical value of forcing the Slash damage through.
+    /// </summary>
+    public (IReadOnlyList<int> CardIds, AiThoughtRecord Thought) ChooseStoneAxeResponse(
+        GameSnapshot view,
+        int targetSeat,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var prompt = view.PendingDecision is { Kind: DecisionKind.StoneAxe } decision
+            ? decision
+            : null;
+        var ownedCards = self.Hand.Concat(self.Equipment).ToDictionary(card => card.Id);
+        var useChoices = (prompt?.Choices ?? [])
+            .Where(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "stone-axe-use" &&
+                choice.Cards.Count == 2 &&
+                choice.Cards.All(ownedCards.ContainsKey))
+            .Select(choice => (
+                Choice: choice,
+                Cost: choice.Cards.Sum(id => CardCatalog.Get(ownedCards[id].Kind).HandKeepValue)))
+            .OrderBy(candidate => candidate.Cost)
+            .ThenBy(candidate => candidate.Choice.Cards[0])
+            .ThenBy(candidate => candidate.Choice.Cards[1])
+            .ToArray();
+        var cheapest = useChoices.FirstOrDefault();
+        var hasUseChoice = useChoices.Length > 0;
+        var targetSupport = GetTacticalSupport(view, selfRole, target);
+        var useScore = !hasUseChoice
+            ? double.NegativeInfinity
+            : -targetSupport * 80d +
+              (target.Hp <= 1 ? 60d : target.Hp == 2 ? 20d : 0d) -
+              cheapest.Cost * 0.6d;
+        const double skipScore = 5d;
+        var selectedIds = hasUseChoice && useScore >= skipScore
+            ? cheapest.Choice.Cards.ToArray()
+            : [];
+        var decisionText = selectedIds.Length == 2
+            ? $"弃置两张牌发动贯石斧，对 {target.Name} 造成伤害"
+            : "不发动贯石斧";
+        var pseudoAction = new LegalAction(
+            LegalActionKind.Equip,
+            null,
+            targetSeat,
+            decisionText);
+        var candidates = new List<AiCandidateScore>();
+        if (hasUseChoice)
+        {
+            candidates.Add(new AiCandidateScore(
+                pseudoAction with { Description = $"弃置两张牌对 {target.Name} 强制造成伤害" },
+                useScore,
+                $"仅从当前私有提示的合法组合中选择保留价值最低的两张牌（代价 {cheapest.Cost}）。"));
+        }
+        candidates.Add(new AiCandidateScore(
+            pseudoAction with { Description = "不发动贯石斧" },
+            skipScore,
+            "保留两张牌，接受此杀被闪抵消。"));
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            decisionText,
+            candidates,
+            $"贯石斧响应：目标关系 {targetSupport:0.##}，目标体力 {target.Hp}/{target.MaxHp}，决定{decisionText}。");
+        return (selectedIds, thought);
+    }
+
+    /// <summary>
     /// Chooses whether to spend one of this seat's private Nullification cards
     /// on the published trick-effect context. The method receives no engine
     /// zone, draw-pile, or other-player hand access; all strategic inputs come
