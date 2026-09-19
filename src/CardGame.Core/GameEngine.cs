@@ -43,6 +43,7 @@ public sealed partial class GameEngine
     private bool _usedOrPlayedSlashDuringPlayPhase;
     private bool _luoyiActiveThisTurn;
     private bool _woodenOxUsedThisTurn;
+    private bool _biyueResolvedThisTurn;
     private int _logSequence;
     private int _thoughtSequence;
     private int _movementSequence;
@@ -252,6 +253,9 @@ public sealed partial class GameEngine
 
     private bool UsesFormalDaQiao =>
         _rulesVersion >= 55 && IsClassicIdentityMode;
+
+    private bool UsesFormalDiaoChan =>
+        _rulesVersion >= 56 && IsClassicIdentityMode;
 
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
@@ -896,6 +900,7 @@ public sealed partial class GameEngine
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Liuli or
+                DecisionKind.Biyue or
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
@@ -985,6 +990,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Keji)
         {
             return SubmitKejiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Biyue)
+        {
+            return SubmitBiyuePromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Tuxi)
@@ -1770,6 +1780,25 @@ public sealed partial class GameEngine
         };
     }
 
+    private CommandResult SubmitBiyuePromptAnswer(PromptChoice selected)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Biyue })
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的闭月结束阶段窗口。");
+        }
+
+        var action = selected.Parameters.GetValueOrDefault("action");
+        if (selected.Cards.Count != 0 || selected.Targets.Count != 0 ||
+            action is not ("biyue-use" or "biyue-skip"))
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "闭月选择不符合当前结束阶段窗口。");
+        }
+
+        return Accept(() => HumanBiyueCore(
+            action == "biyue-use",
+            advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
+    }
+
     private CommandResult SubmitLiuliPromptAnswer(PromptChoice selected)
     {
         if (_pendingAttack is not { } attack ||
@@ -2134,7 +2163,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndRecoverTargets or
                 ActiveSkillEffectKind.RevealGiftAndDamage or
                 ActiveSkillEffectKind.RequestSlash or
-                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage) ||
+                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
+                ActiveSkillEffectKind.DiscardAndStartDuel) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -2160,6 +2190,10 @@ public sealed partial class GameEngine
              effect.MinCardCount != 0 || effect.MaxCardCount != 1 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1 ||
              effect.HpCost != (cardIds.Count == 0 ? 1 : 0)) ||
+            effect.Kind == ActiveSkillEffectKind.DiscardAndStartDuel &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
+             effect.MinTargetCount != 2 || effect.MaxTargetCount != 2) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
             effect.MinTargetCount < 0 ||
@@ -3332,6 +3366,14 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Yingzi);
         ResolveYingziDrawChoice(useSkill);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private EngineRunResult HumanBiyueCore(bool useSkill, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.Biyue);
+        ResolveBiyueChoice(useSkill);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5813,6 +5855,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiBiyuePending())
+        {
+            ResolvePendingAiBiyue();
+            return;
+        }
+
         if (IsAiTuxiPending())
         {
             ResolvePendingAiTuxi();
@@ -6001,7 +6049,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.DiscardAndRecoverTargets or
                 ActiveSkillEffectKind.RevealGiftAndDamage or
                 ActiveSkillEffectKind.RequestSlash or
-                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage))
+                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
+                ActiveSkillEffectKind.DiscardAndStartDuel))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -6036,6 +6085,45 @@ public sealed partial class GameEngine
             recordedCardIds,
             recordedTargetSeats));
         SetActiveSkillFrameStep(frameId, ResolutionFrameStep.ResolvingEffect);
+
+        if (effect.Kind == ActiveSkillEffectKind.DiscardAndStartDuel)
+        {
+            actor.UsedActiveSkillKinds.Add(skillKind);
+            var discarded = GetHand(actor).SingleOrDefault(card => card.Id == cardIds[0]);
+            var from = CardLocation.Hand(actor.Seat);
+            if (discarded is null)
+            {
+                discarded = GetEquipment(actor).Single(card => card.Id == cardIds[0]);
+                from = CardLocation.Equipment(actor.Seat);
+            }
+
+            MoveCard(discarded, from, CardLocation.Processing, CardMoveReasons.LijianDiscard);
+            QueueGameEvent(new SkillCardsDiscardedEvent(
+                frameId,
+                actor.Seat,
+                skillKind,
+                Array.AsReadOnly(cardIds)));
+            MoveCard(discarded, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.LijianDiscard);
+
+            var duelSource = _players[targetSeats[0]];
+            var duelTarget = _players[targetSeats[1]];
+            var attack = new AttackResolution(
+                frameId,
+                duelSource.Seat,
+                duelTarget.Seat,
+                card: null,
+                playedCardKind: CardKind.Duel,
+                sourceSkill: SkillKind.Lijian);
+            _pendingAttack = attack;
+            _pendingDuel = new DuelResolution(attack);
+            AddLog(
+                "ActiveSkill",
+                $"{actor.Name} 发动【离间】，弃置一张牌并视为 {duelSource.Name} 对 {duelTarget.Name} 使用【决斗】。",
+                actor.Seat,
+                duelTarget.Seat);
+            BeginDuelResponse(_pendingDuel);
+            return;
+        }
 
         if (effect.Kind == ActiveSkillEffectKind.RequestSlash)
         {
@@ -16134,6 +16222,29 @@ public sealed partial class GameEngine
     {
         if (attack.IsActiveSkillDamage)
         {
+            if (attack.SourceSkill == SkillKind.Lijian)
+            {
+                if (attack.Card is not null || attack.EffectiveCardKind != CardKind.Duel)
+                {
+                    throw new InvalidOperationException("Lijian Duel cannot carry a physical Duel card.");
+                }
+
+                SetActiveSkillFrameStep(attack.ResolutionId, ResolutionFrameStep.Completed);
+                var frame = _resolutionStack.OfType<ActiveSkillFrame>()
+                    .Single(candidate => candidate.Id == attack.ResolutionId);
+                QueueGameEvent(new ActiveSkillResolvedEvent(
+                    frame.Id,
+                    frame.SourceSeat,
+                    frame.Skill,
+                    frame.Effect));
+                PopResolutionFrame(frame.Id, ResolutionFrameKind.ActiveSkill);
+                if (_winner != Winner.None && _status != EngineStatus.Completed)
+                {
+                    CompleteGame();
+                }
+                return;
+            }
+
             if (attack.SourceSkill == SkillKind.Qiangxi)
             {
                 if (attack.Card is not null)
@@ -16685,6 +16796,16 @@ public sealed partial class GameEngine
     private void SetCardUseStep(long frameId, ResolutionFrameStep step)
     {
         var index = _resolutionStack.FindLastIndex(frame => frame.Id == frameId);
+        if (index >= 0 && _resolutionStack[index] is ActiveSkillFrame
+            {
+                Skill: SkillKind.Lijian,
+                Effect: ActiveSkillEffectKind.DiscardAndStartDuel
+            } activeSkill)
+        {
+            _resolutionStack[index] = activeSkill with { Step = step };
+            return;
+        }
+
         if (index < 0 || _resolutionStack[index] is not CardUseFrame cardUse)
         {
             throw new InvalidOperationException($"Resolution frame {frameId} is not a CardUse frame.");
@@ -18368,6 +18489,39 @@ public sealed partial class GameEngine
     private void EndTurn()
     {
         var previous = _players[_currentSeat];
+        if (UsesFormalDiaoChan &&
+            !_biyueResolvedThisTurn &&
+            previous.IsAlive &&
+            previous.General.HasSkill(SkillKind.Biyue))
+        {
+            _pendingDecision = new PendingDecision(
+                DecisionKind.Biyue,
+                previous.Seat,
+                $"{previous.Name} 的结束阶段：是否发动【闭月】摸一张牌？",
+                [],
+                [])
+            {
+                PromptId = CreatePromptId(),
+                Choices =
+                [
+                    new PromptChoice(
+                        new ChoiceId("biyue.use"),
+                        "发动【闭月】，摸一张牌。",
+                        [],
+                        [],
+                        new Dictionary<string, string> { ["action"] = "biyue-use" }),
+                    new PromptChoice(
+                        new ChoiceId("biyue.skip"),
+                        "不发动【闭月】。",
+                        [],
+                        [],
+                        new Dictionary<string, string> { ["action"] = "biyue-skip" })
+                ]
+            };
+            _status = previous.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+            return;
+        }
+
         if (previous.HasAlcoholEffect)
         {
             previous.HasAlcoholEffect = false;
@@ -18379,9 +18533,32 @@ public sealed partial class GameEngine
         AddLog("TurnEnded", $"{previous.Name} 的回合结束。", previous.Seat);
         QueueGameEvent(new TurnEndedEvent(_turnNumber, previous.Seat));
         _luoyiActiveThisTurn = false;
+        _biyueResolvedThisTurn = false;
         _currentSeat = FindNextAliveSeat(_currentSeat);
         _phase = TurnPhase.NotStarted;
         PublishState();
+    }
+
+    private void ResolveBiyueChoice(bool useSkill)
+    {
+        if (_pendingDecision is not { Kind: DecisionKind.Biyue, PlayerSeat: var playerSeat } ||
+            playerSeat != _currentSeat)
+        {
+            throw new InvalidOperationException("There is no Biyue end-phase choice to resolve.");
+        }
+
+        var player = _players[playerSeat];
+        ClearPendingDecision();
+        _biyueResolvedThisTurn = true;
+        if (useSkill)
+        {
+            DrawCards(player, 1, log: true, reason: CardMoveReasons.BiyueDraw);
+        }
+        AddLog(
+            useSkill ? "SkillTriggered" : "SkillSkipped",
+            useSkill ? $"{player.Name} 发动【闭月】，摸一张牌。" : $"{player.Name} 未发动【闭月】。",
+            player.Seat);
+        EndTurn();
     }
 
     private int FindNextAliveSeat(int fromSeat)
@@ -18920,6 +19097,7 @@ public sealed partial class GameEngine
             selectedCardCount,
             selectedTargetCount,
             AdditionalSelectableCardCount: skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment
+                || skill == SkillKind.Lijian && UsesFormalDiaoChan
                 ? GetEquipment(actor).Count
                 : 0,
             EnforceOncePerTurn:
@@ -18942,7 +19120,8 @@ public sealed partial class GameEngine
         }
 
         var cardIds = GetHand(actor).Select(card => card.Id).ToHashSet();
-        if (skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment)
+        if (skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment ||
+            skill == SkillKind.Lijian && UsesFormalDiaoChan)
         {
             cardIds.UnionWith(GetEquipment(actor).Select(card => card.Id));
         }
@@ -18979,6 +19158,10 @@ public sealed partial class GameEngine
                     player.IsAlive &&
                     player.Seat != actor.Seat &&
                     GetCombatDistance(actor.Seat, player.Seat) <= GetAttackRange(actor.Seat))
+                .Select(player => player.Seat)
+                .ToHashSet(),
+            SkillKind.Lijian when UsesFormalDiaoChan => _players
+                .Where(player => player.IsAlive && player.General.Gender == GeneralGender.Male)
                 .Select(player => player.Seat)
                 .ToHashSet(),
             _ => []
@@ -20416,6 +20599,13 @@ public sealed partial class GameEngine
                 activeSkillFrame.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage &&
                 _pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Qiangxi } qiangxiAttack &&
                 qiangxiAttack.ResolutionId == activeSkillFrame.Id;
+            var isLijianDuel =
+                activeSkillFrame.Skill == SkillKind.Lijian &&
+                activeSkillFrame.Effect == ActiveSkillEffectKind.DiscardAndStartDuel &&
+                _pendingAttack is { SourceSkill: SkillKind.Lijian, EffectiveCardKind: CardKind.Duel } lijianAttack &&
+                lijianAttack.ResolutionId == activeSkillFrame.Id &&
+                _pendingDuel is { } lijianDuel &&
+                ReferenceEquals(lijianDuel.Attack, lijianAttack);
             var isJijiangContinuation =
                 activeSkillFrame.Skill == SkillKind.Jijiang &&
                 activeSkillFrame.Effect == ActiveSkillEffectKind.RequestSlash &&
@@ -20425,6 +20615,7 @@ public sealed partial class GameEngine
                 !isFanjianPrompt &&
                 !isFanjianDamage &&
                 !isQiangxiDamage &&
+                !isLijianDuel &&
                 !isJijiangContinuation)
             {
                 throw new InvalidOperationException(
@@ -20994,6 +21185,13 @@ public sealed partial class GameEngine
             return attack.Card is null && processing.Count == 0;
         }
 
+        if (attack.IsActiveSkillDamage && attack.SourceSkill == SkillKind.Lijian)
+        {
+            return attack.Card is null &&
+                   attack.EffectiveCardKind == CardKind.Duel &&
+                   processing.Count == 0;
+        }
+
         var attackCard = attack.Card;
         if (attackCard is null)
         {
@@ -21341,6 +21539,22 @@ public sealed partial class GameEngine
         }
 
         ResolveKejiChoice(useSkill: true);
+        PublishState();
+    }
+
+    private bool IsAiBiyuePending() =>
+        _pendingDecision is { Kind: DecisionKind.Biyue, PlayerSeat: var playerSeat } &&
+        playerSeat == _currentSeat &&
+        !_players[playerSeat].IsHuman;
+
+    private void ResolvePendingAiBiyue()
+    {
+        if (!IsAiBiyuePending())
+        {
+            throw new InvalidOperationException("There is no AI Biyue choice to resolve.");
+        }
+
+        ResolveBiyueChoice(useSkill: true);
         PublishState();
     }
 

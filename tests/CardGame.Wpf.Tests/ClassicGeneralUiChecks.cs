@@ -952,6 +952,26 @@ internal static class ClassicGeneralUiChecks
         daQiaoWindow.Content = null;
         daQiaoWindow.Close();
 
+        using var diaoChanViewModel = FindGeneralChoice("classic:diao-chan");
+        var diaoChan = diaoChanViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:diao-chan");
+        Program.Assert(diaoChan.Name == "貂蝉" &&
+                       diaoChan.Kingdom == "群" &&
+                       diaoChan.SkillName == "闭月 / 离间" &&
+                       diaoChan.SkillDescription.Contains("结束阶段", StringComparison.Ordinal) &&
+                       diaoChan.SkillDescription.Contains("两名男性角色", StringComparison.Ordinal) &&
+                       diaoChan.HealthText == "体力上限 4",
+            "The current classic Diao Chan card must render Qun, Biyue, Lijian and the Lord health bonus.");
+        var diaoChanWindow = new MainWindow(diaoChanViewModel);
+        diaoChanWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)diaoChanWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "127-classic-diao-chan-card.png"));
+        diaoChanWindow.Content = null;
+        diaoChanWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

@@ -182,7 +182,9 @@ public enum SkillKind
     Kuanggu,
     Wushuang,
     Guose,
-    Liuli
+    Liuli,
+    Lijian,
+    Biyue
 }
 
 public enum DecisionKind
@@ -211,6 +213,7 @@ public enum DecisionKind
     SelectTargetCard,
     Keji,
     Liuli,
+    Biyue,
     Tuxi,
     Luoyi,
     Luoshen,

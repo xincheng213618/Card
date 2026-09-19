@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 40, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 41, 0))
     {
     }
 
@@ -59,12 +59,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 37, 0) &&
             version != new Version(1, 38, 0) &&
             version != new Version(1, 39, 0) &&
-            version != new Version(1, 40, 0))
+            version != new Version(1, 40, 0) &&
+            version != new Version(1, 41, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.40.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.41.0.");
         }
 
         _version = version;
@@ -622,6 +623,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你成为【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内且不是此【杀】使用者的一名其他角色。",
                 SkillKind.Liuli));
         }
+        if (_version >= new Version(1, 41, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:lijian",
+                "离间",
+                "出牌阶段限一次，你可以弃置一张牌并选择两名男性角色，视为其中一名角色对另一名角色使用一张不能被无懈可击响应的【决斗】。",
+                SkillKind.Lijian));
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:biyue",
+                "闭月",
+                "结束阶段，你可以摸一张牌。",
+                SkillKind.Biyue));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -891,10 +905,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:liuli"],
                 Gender: GeneralGender.Female));
         }
+        if (_version >= new Version(1, 41, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:diao-chan",
+                "貂蝉",
+                "diao_chan",
+                "classic:biyue",
+                "qun",
+                BaseHp: 3,
+                AdditionalSkillIds: ["classic:lijian"],
+                Gender: GeneralGender.Female));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 40 } => DaQiaoClassicGeneralIds,
+            { Major: 1, Minor: >= 41 } => DiaoChanClassicGeneralIds,
+            { Major: 1, Minor: 40 } => DaQiaoClassicGeneralIds,
             { Major: 1, Minor: 0 } => LegacyClassicGeneralIds,
             { Major: 1, Minor: 1 } => TianduClassicGeneralIds,
             { Major: 1, Minor: 2 } => FanjianClassicGeneralIds,
@@ -1109,6 +1136,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. ClassicGeneralIds,
         "classic:da-qiao"
+    ];
+
+    internal static IReadOnlyList<string> DiaoChanClassicGeneralIds { get; } =
+    [
+        .. DaQiaoClassicGeneralIds,
+        "classic:diao-chan"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

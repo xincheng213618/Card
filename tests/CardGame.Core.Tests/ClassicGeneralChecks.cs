@@ -44,6 +44,7 @@ internal static class ClassicGeneralChecks
         var zhuqueClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 32, 0));
         var tengjiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 33, 0));
         var woodenOxClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
+        var daQiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 40, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -52,14 +53,20 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.40.0"]),
+                "standard-classic-generals@1.41.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         Require(classic.Generals["classic:da-qiao"] is
                 { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
                 classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:da-qiao") &&
                 !woodenOxClassic.Generals.ContainsKey("classic:da-qiao") &&
-                !woodenOxClassic.Skills.ContainsKey("classic:guose"),
+                !woodenOxClassic.Skills.ContainsKey("classic:guose") &&
+                classic.Generals["classic:diao-chan"] is
+                    { BaseHp: 3, Gender: GeneralGender.Female } diaoChan &&
+                diaoChan.SkillIds.SequenceEqual(["classic:biyue", "classic:lijian"]) &&
+                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:diao-chan") &&
+                !daQiaoClassic.Generals.ContainsKey("classic:diao-chan") &&
+                !daQiaoClassic.Skills.ContainsKey("classic:lijian"),
             "Classic 1.40 must add female 3-HP Da Qiao with Guose and Liuli without changing historical rosters.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
@@ -2144,7 +2151,9 @@ internal static class ClassicGeneralChecks
                 usedEvents.OfType<DamageAppliedEvent>().Any(damage =>
                     damage.TargetSeat == eligible.TargetSeat),
             used.Error?.Message ??
-            "Using eligible Liegong must prohibit the target's Dodge and continue to Slash damage.");
+            $"Using eligible Liegong must prohibit the target's Dodge and continue to Slash damage " +
+            $"(target={eligible.Game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == eligible.TargetSeat).GeneralId}, " +
+            $"pending={eligible.Game.PendingDecision?.Kind}, events={string.Join(',', usedEvents.Select(item => item.GetType().Name))}).");
         var completedReplay = GameReplay.Restore(eligible.Game.CreateCheckpoint(), registry);
         Require(SnapshotJson.Serialize(completedReplay.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(eligible.Game.CreateSnapshot(0, revealAll: true)) &&
@@ -4470,6 +4479,106 @@ internal static class ClassicGeneralChecks
             "The resolved Liuli branch must replay exactly.");
     }
 
+    public static void FormalLijianAndBiyueFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        GameEngine? game = null;
+        LegalAction? action = null;
+        for (var seed = 1; seed <= 4_096 && action is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:diao-chan",
+                GameCheckpoint.CurrentRulesVersion);
+            action = candidate?.GetHumanLegalActions().SingleOrDefault(item =>
+                item.Kind == LegalActionKind.UseSkill && item.Skill == SkillKind.Lijian);
+            if (candidate is not null && action is not null &&
+                !action.SelectableTargetSeats.Any(seat =>
+                    candidate.CreateSnapshot(0, revealAll: true).Players
+                        .Single(player => player.Seat == seat).Hand.Any(card => card.Kind == CardKind.Slash)))
+            {
+                action = null;
+            }
+            if (action is not null) game = candidate;
+        }
+
+        Require(game is not null && action is not null,
+            "Could not find a deterministic Diao Chan Lijian fixture.");
+        var active = game!;
+        var lijian = action!;
+        var cost = lijian.SelectableCardIds.First();
+        var full = active.CreateSnapshot(0, revealAll: true);
+        var responder = lijian.SelectableTargetSeats.First(seat =>
+            full.Players.Single(player => player.Seat == seat).Hand.Any(card => card.Kind == CardKind.Slash));
+        var source = lijian.SelectableTargetSeats.First(seat => seat != responder);
+        var targets = new[] { source, responder };
+        Require(targets.Length == 2 && targets.All(seat =>
+                registry.Generals[active.CreateSnapshot(0, revealAll: true).Players
+                    .Single(player => player.Seat == seat).GeneralId!].Gender == GeneralGender.Male),
+            "Lijian must publish exactly male target candidates.");
+        var used = active.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Lijian,
+            [cost],
+            targets,
+            active.Revision,
+            active.PendingDecision!.PromptId));
+        Require(used.Accepted &&
+                active.CardMovements.Any(move =>
+                    move.CardId == cost && move.Reason == CardMoveReasons.LijianDiscard &&
+                    move.To == CardLocation.DiscardPile) &&
+                active.ResolutionStack.OfType<ActiveSkillFrame>().Any(frame =>
+                    frame.Skill == SkillKind.Lijian &&
+                    frame.Effect == ActiveSkillEffectKind.DiscardAndStartDuel) &&
+                active.ResolutionStack.LastOrDefault() is ResponseWindowFrame
+                {
+                    IncomingCard: CardKind.Duel,
+                    RequiredCardKind: CardKind.Slash
+                },
+            used.Error?.Message ?? $"Lijian must discard its exact cost and open a virtual Duel without Nullification " +
+            $"(pending={active.PendingDecision?.Kind}, incoming={active.PendingDecision?.IncomingCard}, " +
+            $"frames={string.Join(',', active.ResolutionStack.Select(frame => $"{frame.Kind}/{frame.Step}"))}, " +
+            $"moves={string.Join(',', active.CardMovements.Where(move => move.CardId == cost).Select(move => move.Reason.Value))}).");
+        for (var step = 0; step < 32 && active.ResolutionStack.Count > 0; step++)
+        {
+            var continued = active.Submit(new AdvanceOneStepCommand(active.Revision));
+            Require(continued.Accepted, continued.Error?.Message ?? "The Lijian Duel could not continue.");
+        }
+        Require(active.ResolutionStack.Count == 0,
+            "The Lijian Duel must close its active-skill and response frames.");
+        var restored = GameReplay.Restore(active.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(active.CreateSnapshot(0, revealAll: true)),
+            "A completed Lijian Duel must replay exactly.");
+
+        var biyue = StartClassicGeneralAtPlay(
+            registry,
+            1,
+            "classic:diao-chan",
+            GameCheckpoint.CurrentRulesVersion) ?? SelectGeneral(registry, "classic:diao-chan", GameCheckpoint.CurrentRulesVersion);
+        if (biyue.PendingDecision?.Kind != DecisionKind.PlayCard)
+        {
+            var reached = biyue.Submit(new AdvanceCommand(biyue.Revision));
+            Require(reached.Accepted, reached.Error?.Message ?? "Diao Chan did not reach play.");
+        }
+        var ended = biyue.Submit(new EndPlayPhaseCommand(0, biyue.Revision, biyue.PendingDecision!.PromptId));
+        Require(ended.Accepted, ended.Error?.Message ?? "Diao Chan could not end play.");
+        var advanced = biyue.Submit(new AdvanceCommand(biyue.Revision));
+        Require(advanced.Accepted && biyue.PendingDecision is { Kind: DecisionKind.Biyue, PlayerSeat: 0 },
+            advanced.Error?.Message ?? "Diao Chan must receive the optional Biyue end-phase prompt.");
+        var prompt = biyue.PendingDecision!;
+        var handBefore = biyue.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
+        var drew = biyue.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "biyue-use").Id,
+            biyue.Revision));
+        Require(drew.Accepted && biyue.CardMovements.Any(move => move.Reason == CardMoveReasons.BiyueDraw) &&
+                biyue.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == handBefore + 1,
+            drew.Error?.Message ?? "Biyue must draw exactly one card before ending the turn.");
+    }
+
     private static GameEngine FindDaQiaoLiuliFixture(ContentRegistry registry)
     {
         for (var seed = 1; seed <= 8_192; seed++)
@@ -5660,6 +5769,10 @@ internal static class ClassicGeneralChecks
                             };
                         })
                         .Where(item => item.Target.Hand.Any(card => card.Kind == CardKind.Dodge))
+                        .Where(item => item.Target.GeneralId != "classic:da-qiao")
+                        .Where(item => item.Target.Equipment.All(card =>
+                            !EquipmentCatalog.IsEquipment(card.Kind) ||
+                            EquipmentCatalog.Get(card.Kind).Slot != EquipmentSlot.Armor))
                         .Where(item => kind switch
                         {
                             LiegongFixtureKind.EligibleByHp =>
