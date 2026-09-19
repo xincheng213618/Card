@@ -1003,8 +1003,9 @@ internal static class ClassicGeneralUiChecks
                        luXun.SkillName == "谦逊 / 连营" &&
                        luXun.SkillDescription.Contains("顺手牵羊", StringComparison.Ordinal) &&
                        luXun.SkillDescription.Contains("最后的手牌", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(luXun.GeneralId) &&
                        luXun.HealthText == "体力上限 4",
-            "The current classic Lu Xun card must render Wu, Qianxun, Lianying and the Lord health bonus.");
+            "The current classic Lu Xun card must render its portrait, Wu, Qianxun, Lianying and the Lord health bonus.");
         var luXunWindow = new MainWindow(luXunViewModel);
         luXunWindow.ApplyTemplate();
         Program.Render(
