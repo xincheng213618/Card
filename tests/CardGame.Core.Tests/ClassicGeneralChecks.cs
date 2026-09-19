@@ -52,8 +52,15 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.39.0"]),
+                "standard-classic-generals@1.40.0"]),
             "The classic package signature must be explicit and dependency ordered.");
+        Require(classic.Generals["classic:da-qiao"] is
+                { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
+                daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
+                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:da-qiao") &&
+                !woodenOxClassic.Generals.ContainsKey("classic:da-qiao") &&
+                !woodenOxClassic.Skills.ContainsKey("classic:guose"),
+            "Classic 1.40 must add female 3-HP Da Qiao with Guose and Liuli without changing historical rosters.");
         Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
                 legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
                     "standard:guo-jia",
@@ -4382,6 +4389,123 @@ internal static class ClassicGeneralChecks
         Require(advanced.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard,
             advanced.Error?.Message ?? "The Jijiang fixture did not reach Liu Bei's play phase.");
         return game;
+    }
+
+    public static void FormalGuoseAndLiuliFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        GameEngine? guoseGame = null;
+        LegalAction? guoseAction = null;
+        for (var seed = 1; seed <= 8_192 && guoseAction is null; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:da-qiao",
+                GameCheckpoint.CurrentRulesVersion);
+            guoseAction = candidate?.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Indulgence &&
+                action.PlayedCardKind == CardKind.Indulgence &&
+                action.CardId is { } cardId &&
+                candidate.CreateSnapshot(0, revealAll: true).Players[0].Hand
+                    .Concat(candidate.CreateSnapshot(0, revealAll: true).Players[0].Equipment)
+                    .Any(card => card.Id == cardId && card.Suit == Suit.Diamond && card.Kind != CardKind.Indulgence));
+            if (guoseAction is not null)
+            {
+                guoseGame = candidate;
+            }
+        }
+
+        Require(guoseGame is not null && guoseAction is not null,
+            "Could not find a deterministic Da Qiao Guose fixture.");
+        var activeGuoseGame = guoseGame ?? throw new InvalidOperationException("Guose game missing.");
+        var activeGuoseAction = guoseAction ?? throw new InvalidOperationException("Guose action missing.");
+        var beforeGuose = activeGuoseGame.CreateCheckpoint();
+        var physicalCard = activeGuoseGame.CreateSnapshot(0, revealAll: true).Players[0].Hand
+            .Concat(activeGuoseGame.CreateSnapshot(0, revealAll: true).Players[0].Equipment)
+            .Single(card => card.Id == activeGuoseAction.CardId);
+        var used = activeGuoseGame.Submit(new PlayCardCommand(
+            0,
+            activeGuoseAction.CardId!.Value,
+            activeGuoseAction.TargetSeats,
+            activeGuoseGame.Revision,
+            activeGuoseGame.PendingDecision!.PromptId,
+            activeGuoseAction.PlayedCardKind));
+        Require(used.Accepted &&
+                physicalCard.Suit == Suit.Diamond &&
+                activeGuoseGame.Events.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Any(item =>
+                    item.CardId == physicalCard.Id && item.CardKind == CardKind.Indulgence) &&
+                activeGuoseGame.CardMovements.Any(item =>
+                    item.CardId == physicalCard.Id && item.To == CardLocation.Processing),
+            used.Error?.Message ?? "Guose must retain the diamond physical card while declaring Indulgence.");
+        var legacy = GameReplay.Restore(beforeGuose with { RulesVersion = 54 }, registry);
+        Require(legacy.GetHumanLegalActions().All(action =>
+                action.PlayedCardKind != CardKind.Indulgence || action.CardId != physicalCard.Id),
+            "Rules v54 must not expose Guose conversions from the same checkpoint.");
+
+        var liuliGame = FindDaQiaoLiuliFixture(registry);
+        var prompt = liuliGame.PendingDecision!;
+        var redirect = prompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "liuli-use");
+        var oldTarget = prompt.PlayerSeat;
+        var answered = liuliGame.Submit(new AnswerPromptCommand(
+            oldTarget,
+            prompt.PromptId,
+            redirect.Id,
+            liuliGame.Revision));
+        Require(answered.Accepted &&
+                liuliGame.Events.Select(item => item.Payload).OfType<LiuliRedirectedEvent>().Any(item =>
+                    item.OriginalTargetSeat == oldTarget &&
+                    item.NewTargetSeat == redirect.Targets.Single() &&
+                    item.DiscardedCardId == redirect.Cards.Single()) &&
+                liuliGame.CardMovements.Any(item =>
+                    item.CardId == redirect.Cards.Single() &&
+                    item.Reason == CardMoveReasons.LiuliDiscard &&
+                    item.To == CardLocation.DiscardPile),
+            answered.Error?.Message ?? "Liuli must discard the exact published card and redirect the same Slash.");
+        var restored = GameReplay.Restore(liuliGame.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(liuliGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(restored).SequenceEqual(EventSignatures(liuliGame)),
+            "The resolved Liuli branch must replay exactly.");
+    }
+
+    private static GameEngine FindDaQiaoLiuliFixture(ContentRegistry registry)
+    {
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var game = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:da-qiao",
+                GameCheckpoint.CurrentRulesVersion);
+            if (game is null)
+            {
+                continue;
+            }
+
+            for (var boundary = 0; boundary < 80 && game.State.Status != EngineStatus.Completed; boundary++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.Liuli, PlayerSeat: 0 } liuli &&
+                    liuli.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "liuli-use"))
+                {
+                    return game;
+                }
+
+                CommandResult result;
+                if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } play)
+                {
+                    result = game.Submit(new EndPlayPhaseCommand(0, game.Revision, play.PromptId));
+                }
+                else
+                {
+                    result = game.Submit(new AdvanceCommand(game.Revision));
+                }
+                Require(result.Accepted, result.Error?.Message ?? "Could not advance the Da Qiao Liuli fixture.");
+            }
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic Da Qiao Liuli fixture.");
     }
 
     private static GameEngine ReachZhouYuPlayPhase(ContentRegistry registry, int rulesVersion)

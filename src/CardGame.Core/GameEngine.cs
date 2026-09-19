@@ -250,6 +250,9 @@ public sealed partial class GameEngine
     private bool UsesFormalWushuang =>
         _rulesVersion >= 39 && IsClassicIdentityMode;
 
+    private bool UsesFormalDaQiao =>
+        _rulesVersion >= 55 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -892,6 +895,7 @@ public sealed partial class GameEngine
                 DecisionKind.Liegong or
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
+                DecisionKind.Liuli or
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
@@ -1036,6 +1040,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.QilinBow)
         {
             return SubmitQilinBowPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Liuli)
+        {
+            return SubmitLiuliPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.ZhuqueFan)
@@ -1761,6 +1770,31 @@ public sealed partial class GameEngine
         };
     }
 
+    private CommandResult SubmitLiuliPromptAnswer(PromptChoice selected)
+    {
+        if (_pendingAttack is not { } attack ||
+            _pendingDecision is not { Kind: DecisionKind.Liuli } decision)
+        {
+            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的流离窗口。");
+        }
+
+        if (!selected.Parameters.TryGetValue("action", out var action) ||
+            !decision.Choices.Any(choice => choice.Id == selected.Id))
+        {
+            return Reject(CommandErrorCode.InvalidChoice, "流离选择不是当前发布的合法组合。");
+        }
+
+        return action switch
+        {
+            "liuli-use" when selected.Cards.Count == 1 && selected.Targets.Count == 1 =>
+                Accept(() => ResolveLiuliChoice(attack, selected.Cards[0], selected.Targets[0],
+                    _options.AdvanceAfterHumanCommands)),
+            "liuli-skip" when selected.Cards.Count == 0 && selected.Targets.Count == 0 =>
+                Accept(() => ResolveLiuliChoice(attack, null, null, _options.AdvanceAfterHumanCommands)),
+            _ => Reject(CommandErrorCode.InvalidChoice, "流离必须弃置一张牌并选择一个合法目标，或跳过。")
+        };
+    }
+
     private CommandResult SubmitTianduPromptAnswer(PromptChoice selected)
     {
         if (_pendingJudgment is not { ResultSucceeded: not null } ||
@@ -2463,6 +2497,7 @@ public sealed partial class GameEngine
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
+                    IsAiLiuliPending() ||
                     IsAiGuanxingPending())
                 {
                     RunOneEngineStep();
@@ -5718,6 +5753,12 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (IsAiLiuliPending())
+        {
+            ResolvePendingAiLiuli();
+            return;
+        }
+
         if (IsAiGuanxingPending())
         {
             ResolvePendingAiGuanxing();
@@ -9367,6 +9408,12 @@ public sealed partial class GameEngine
 
     private void BeginSlashTargetResolution(AttackResolution attack)
     {
+        if (TryBeginLiuliChoice(attack))
+        {
+            PublishState();
+            return;
+        }
+
         if (TryBeginLiegongChoice(attack))
         {
             PublishState();
@@ -9374,6 +9421,132 @@ public sealed partial class GameEngine
         }
 
         ContinueSlashAfterLiegong(attack);
+    }
+
+    private bool TryBeginLiuliChoice(AttackResolution attack)
+    {
+        if (!UsesFormalDaQiao || attack.LiuliResolved)
+        {
+            return false;
+        }
+
+        var target = _players[attack.TargetSeat];
+        attack.MarkLiuliResolved();
+        if (!target.General.HasSkill(SkillKind.Liuli))
+        {
+            return false;
+        }
+
+        var cards = GetHand(target).Concat(GetEquipment(target)).OrderBy(card => card.Id).ToArray();
+        var targets = _players.Where(candidate =>
+                candidate.IsAlive &&
+                candidate.Seat != target.Seat &&
+                candidate.Seat != attack.SourceSeat &&
+                (_pendingFangtianHalberd is null ||
+                 !_pendingFangtianHalberd.TargetSeats.Contains(candidate.Seat)) &&
+                GetCombatDistance(target.Seat, candidate.Seat) <= GetAttackRange(target.Seat) &&
+                !IsSlashProhibited(candidate))
+            .OrderBy(candidate => candidate.Seat)
+            .ToArray();
+        if (cards.Length == 0 || targets.Length == 0)
+        {
+            return false;
+        }
+
+        var choices = cards.SelectMany(card => targets.Select(newTarget => new PromptChoice(
+                new ChoiceId($"liuli-{card.Id}-{newTarget.Seat}"),
+                $"弃置【{CardCatalog.Get(card.Kind).DisplayName}】，将此杀转移给 {newTarget.Name}",
+                [card.Id],
+                [newTarget.Seat],
+                new Dictionary<string, string> { ["action"] = "liuli-use" })))
+            .Append(new PromptChoice(
+                new ChoiceId("liuli-skip"),
+                "不发动【流离】",
+                [],
+                [],
+                new Dictionary<string, string> { ["action"] = "liuli-skip" }))
+            .ToArray();
+        _pendingDecision = new PendingDecision(
+            DecisionKind.Liuli,
+            target.Seat,
+            $"{_players[attack.SourceSeat].Name} 对你使用了【杀】，是否发动【流离】？",
+            cards.Select(card => card.Id).ToArray(),
+            targets.Select(candidate => candidate.Seat).ToArray(),
+            attack.SourceSeat,
+            attack.EffectiveCardKind)
+        {
+            PromptId = CreatePromptId(),
+            Choices = choices
+        };
+        PushResponseWindow(
+            attack.ResolutionId,
+            attack.SourceSeat,
+            target.Seat,
+            attack.EffectiveCardKind ?? CardKind.Slash,
+            CardKind.Dodge);
+        _status = target.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
+        return true;
+    }
+
+    private EngineRunResult ResolveLiuliChoice(
+        AttackResolution attack,
+        int? discardedCardId,
+        int? newTargetSeat,
+        bool advanceToHumanBoundary)
+    {
+        if (!ReferenceEquals(_pendingAttack, attack) ||
+            _pendingDecision is not { Kind: DecisionKind.Liuli } decision)
+        {
+            throw new InvalidOperationException("流离窗口已失效。");
+        }
+
+        var owner = _players[decision.PlayerSeat];
+        PopResponseWindow(attack.ResolutionId);
+        ClearPendingDecision();
+        if (discardedCardId is { } cardId && newTargetSeat is { } redirectedSeat)
+        {
+            var card = GetHand(owner).SingleOrDefault(candidate => candidate.Id == cardId);
+            var from = CardLocation.Hand(owner.Seat);
+            if (card is null)
+            {
+                card = GetEquipment(owner).Single(candidate => candidate.Id == cardId);
+                from = CardLocation.Equipment(owner.Seat);
+            }
+            MoveCard(card, from, CardLocation.Processing, CardMoveReasons.LiuliDiscard);
+            MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.LiuliDiscard);
+            var originalTargetSeat = attack.TargetSeat;
+            attack.SetDamageParticipants(attack.SourceSeat, redirectedSeat);
+            QueueGameEvent(new LiuliRedirectedEvent(
+                attack.ResolutionId,
+                attack.SourceSeat,
+                originalTargetSeat,
+                redirectedSeat,
+                card.Id));
+            AddLog("SkillTriggered",
+                $"{owner.Name} 发动【流离】，弃置【{CardCatalog.Get(card.Kind).DisplayName}】，将【杀】转移给 {_players[redirectedSeat].Name}。",
+                owner.Seat,
+                redirectedSeat);
+        }
+
+        BeginSlashTargetResolution(attack);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
+    private bool IsAiLiuliPending() =>
+        _pendingDecision is { Kind: DecisionKind.Liuli } decision &&
+        decision.PlayerSeat != _options.HumanSeat;
+
+    private void ResolvePendingAiLiuli()
+    {
+        var decision = _pendingDecision ?? throw new InvalidOperationException("AI 流离窗口不存在。");
+        var use = decision.Choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "liuli-use");
+        ResolveLiuliChoice(
+            _pendingAttack ?? throw new InvalidOperationException("AI 流离缺少杀结算。"),
+            use?.Cards.SingleOrDefault(),
+            use?.Targets.SingleOrDefault(),
+            advanceToHumanBoundary: false);
     }
 
     private void ContinueSlashAfterLiegong(AttackResolution attack)
@@ -11851,6 +12024,12 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiResponse()
     {
+        if (_pendingDecision?.Kind == DecisionKind.Liuli)
+        {
+            ResolvePendingAiLiuli();
+            return;
+        }
+
         if (_pendingQilinBow is not null)
         {
             ResolvePendingAiQilinBow();
@@ -16918,6 +17097,28 @@ public sealed partial class GameEngine
             }
         }
 
+        if (UsesFormalDaQiao)
+        {
+            foreach (var converted in GetHand(actor)
+                         .Concat(GetEquipment(actor))
+                         .Where(card => skill.CanUseAsIndulgence(skillContext, card)))
+            {
+                var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
+                foreach (var target in _players.Where(player =>
+                             player.IsAlive &&
+                             player.Seat != actor.Seat &&
+                             !HasJudgmentEffectiveCard(player, CardKind.Indulgence)))
+                {
+                    actions.Add(new LegalAction(
+                        LegalActionKind.Indulgence,
+                        converted.Id,
+                        target.Seat,
+                        $"发动【国色】，将【{physicalName}】当作【乐不思蜀】对 {target.Name} 使用",
+                        PlayedCardKind: CardKind.Indulgence));
+                }
+            }
+        }
+
         foreach (var supplyShortage in playableCards.Where(card => card.Kind == CardKind.SupplyShortage))
         {
             var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.SupplyShortage);
@@ -20683,6 +20884,7 @@ public sealed partial class GameEngine
         var awaitingHumanResponse =
             (_pendingDecision?.Kind is DecisionKind.RespondDodge or
                 DecisionKind.RespondSlash or
+                DecisionKind.Liuli or
                 DecisionKind.Feedback or
                 DecisionKind.Yiji or
                 DecisionKind.Jieming or
@@ -20904,6 +21106,7 @@ public sealed partial class GameEngine
     private bool IsAiResponsePending() =>
         (_pendingDecision?.Kind is DecisionKind.RespondDodge or
             DecisionKind.RespondSlash or
+            DecisionKind.Liuli or
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
             DecisionKind.QinglongCrescentBlade or
@@ -21790,6 +21993,7 @@ public sealed partial class GameEngine
         public bool CixiongDoubleSwordsResolved { get; private set; }
         public bool IceSwordAttempted { get; private set; }
         public bool QilinBowAttempted { get; private set; }
+        public bool LiuliResolved { get; private set; }
         public bool ProhibitsDodge { get; private set; }
         public int RequiredDodgeResponses { get; private set; } = 1;
         public int SuccessfulDodgeResponses { get; private set; }
@@ -21804,6 +22008,8 @@ public sealed partial class GameEngine
             SourceSeat = sourceSeat;
             TargetSeat = targetSeat;
         }
+
+        public void MarkLiuliResolved() => LiuliResolved = true;
 
         public void FinalizeDamageAmount(int bonus, int? maximum = null)
         {

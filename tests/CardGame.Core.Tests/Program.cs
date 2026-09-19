@@ -73,6 +73,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Zhang Fei uses multiple Slashes through formal Paoxiao", ClassicGeneralChecks.FormalPaoxiaoFlow),
     ("classic Zhao Yun converts Slash and Dodge through formal Longdan", ClassicGeneralChecks.FormalLongdanFlow),
     ("classic Guan Yu converts red equipment through formal Wusheng", ClassicGeneralChecks.FormalWushengEquipmentFlow),
+    ("classic Da Qiao converts diamonds through Guose and redirects Slash through Liuli", ClassicGeneralChecks.FormalGuoseAndLiuliFlow),
     ("classic Borrowed Sword transfers weapons or nests a real Slash and replays", BorrowedSwordChecks.TransferSlashAndReplay),
     ("classic Borrowed Sword lets Jijiang provide its nested Slash", BorrowedSwordChecks.JijiangProvidesForcedSlash),
     ("classic Stone Axe pays an exact two-card cost and resumes Slash damage", StoneAxeChecks.ExactCostDamageAndReplay),

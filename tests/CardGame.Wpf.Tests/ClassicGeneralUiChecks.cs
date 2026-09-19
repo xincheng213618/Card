@@ -932,6 +932,26 @@ internal static class ClassicGeneralUiChecks
         wushengDescriptionWindow.Content = null;
         wushengDescriptionWindow.Close();
 
+        using var daQiaoViewModel = FindGeneralChoice("classic:da-qiao");
+        var daQiao = daQiaoViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:da-qiao");
+        Program.Assert(daQiao.Name == "大乔" &&
+                       daQiao.Kingdom == "吴" &&
+                       daQiao.SkillName == "国色 / 流离" &&
+                       daQiao.SkillDescription.Contains("方块牌", StringComparison.Ordinal) &&
+                       daQiao.SkillDescription.Contains("转移", StringComparison.Ordinal) &&
+                       daQiao.HealthText == "体力上限 4",
+            "The current classic Da Qiao card must render Wu, Guose, Liuli and the Lord health bonus.");
+        var daQiaoWindow = new MainWindow(daQiaoViewModel);
+        daQiaoWindow.ApplyTemplate();
+        Program.Render(
+            (FrameworkElement)daQiaoWindow.Content,
+            1120,
+            740,
+            Path.Combine(output, "126-classic-da-qiao-card.png"));
+        daQiaoWindow.Content = null;
+        daQiaoWindow.Close();
+
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:guo-jia");

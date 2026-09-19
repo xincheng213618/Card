@@ -635,6 +635,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Liegong or
                     DecisionKind.StoneAxe or
                     DecisionKind.CixiongDoubleSwords or
+                    DecisionKind.Liuli or
                     DecisionKind.QinglongCrescentBlade or
                     DecisionKind.IceSword or
                     DecisionKind.QilinBow or
@@ -667,6 +668,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Liegong or
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
+            DecisionKind.Liuli or
             DecisionKind.QinglongCrescentBlade or
             DecisionKind.IceSword or
             DecisionKind.QilinBow or
@@ -1787,6 +1789,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      UseCard(Slash)");
                 EventStack.Add("        AskForEquipment(CixiongDoubleSwords)");
+            }
+            else if (pending.Kind == DecisionKind.Liuli)
+            {
+                EventStack.Add("      UseCard(Slash)");
+                EventStack.Add("        AskForSkill(Liuli)");
             }
             else if (pending.Kind == DecisionKind.QinglongCrescentBlade)
             {

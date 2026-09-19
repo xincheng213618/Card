@@ -114,6 +114,8 @@ public interface IPassiveSkill
     /// </summary>
     bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) => false;
 
+    bool CanUseAsIndulgence(PlayerSkillContext owner, Card card) => false;
+
     int ModifySupplyShortageDistanceLimit(PlayerSkillContext owner, int currentLimit) =>
         currentLimit;
 
@@ -589,6 +591,23 @@ public sealed class LongdanSkill : IPassiveSkill
         };
 }
 
+public sealed class GuoseSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Guose;
+
+    public string Name => "国色";
+
+    public bool CanUseAsIndulgence(PlayerSkillContext owner, Card card) =>
+        owner.Phase == TurnPhase.Play && card.Suit == Suit.Diamond;
+}
+
+public sealed class LiuliSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Liuli;
+
+    public string Name => "流离";
+}
+
 public sealed class PaoxiaoSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Paoxiao;
@@ -856,6 +875,8 @@ public static class SkillRegistry
             [SkillKind.Duanliang] = new DuanliangSkill(),
             [SkillKind.Luoshen] = new LuoshenSkill(),
             [SkillKind.Qingguo] = new QingguoSkill(),
+            [SkillKind.Guose] = new GuoseSkill(),
+            [SkillKind.Liuli] = new LiuliSkill(),
             [SkillKind.Jizhi] = new JizhiSkill(),
             [SkillKind.Tieqi] = new TieqiSkill(),
             [SkillKind.Liegong] = new LiegongSkill(),

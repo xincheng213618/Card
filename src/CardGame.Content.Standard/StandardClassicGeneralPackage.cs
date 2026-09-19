@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 39, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 40, 0))
     {
     }
 
@@ -58,12 +58,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 36, 0) &&
             version != new Version(1, 37, 0) &&
             version != new Version(1, 38, 0) &&
-            version != new Version(1, 39, 0))
+            version != new Version(1, 39, 0) &&
+            version != new Version(1, 40, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.39.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.40.0.");
         }
 
         _version = version;
@@ -285,7 +286,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     "classic:zhaohuangfeidian", "爪黄飞电", "装备牌",
                     "装备至防御坐骑槽；其他角色到你的战斗距离 +1。", CardKind.Zhaohuangfeidian));
             }
-            if (_version >= new Version(1, 39, 0))
+            if (_version >= new Version(1, 38, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     "classic:hualiu", "骅骝", "装备牌",
@@ -377,7 +378,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 : _version >= new Version(1, 36, 0)
                 ? CreateStandardPhysicalDeck(_version >= new Version(1, 37, 0))
                 : null;
-            if (_version >= new Version(1, 38, 0))
+            if (_version >= new Version(1, 39, 0))
             {
                 builder.AddDeck(new ContentDeckRecipe(
                     Id: "classic:standard-108",
@@ -607,6 +608,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "武圣",
                 "你可以将一张红色牌当【杀】使用或打出。",
                 SkillKind.Wusheng));
+        }
+        if (_version >= new Version(1, 40, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:guose",
+                "国色",
+                "你可以将一张方块牌当【乐不思蜀】使用。",
+                SkillKind.Guose));
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:liuli",
+                "流离",
+                "当你成为【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内且不是此【杀】使用者的一名其他角色。",
+                SkillKind.Liuli));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -865,9 +879,22 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
+        if (_version >= new Version(1, 40, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:da-qiao",
+                "大乔",
+                "da_qiao",
+                "classic:guose",
+                "wu",
+                BaseHp: 3,
+                AdditionalSkillIds: ["classic:liuli"],
+                Gender: GeneralGender.Female));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 40 } => DaQiaoClassicGeneralIds,
             { Major: 1, Minor: 0 } => LegacyClassicGeneralIds,
             { Major: 1, Minor: 1 } => TianduClassicGeneralIds,
             { Major: 1, Minor: 2 } => FanjianClassicGeneralIds,
@@ -1076,6 +1103,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:guan-yu",
         "classic:zhao-yun",
         "classic:guo-jia"
+    ];
+
+    internal static IReadOnlyList<string> DaQiaoClassicGeneralIds { get; } =
+    [
+        .. ClassicGeneralIds,
+        "classic:da-qiao"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

@@ -180,7 +180,9 @@ public enum SkillKind
     Tieqi,
     Liegong,
     Kuanggu,
-    Wushuang
+    Wushuang,
+    Guose,
+    Liuli
 }
 
 public enum DecisionKind
@@ -208,6 +210,7 @@ public enum DecisionKind
     DiscardCards,
     SelectTargetCard,
     Keji,
+    Liuli,
     Tuxi,
     Luoyi,
     Luoshen,
