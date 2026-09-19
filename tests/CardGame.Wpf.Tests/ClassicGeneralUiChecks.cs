@@ -982,8 +982,9 @@ internal static class ClassicGeneralUiChecks
                        sunShangxiang.SkillName == "结姻 / 枭姬" &&
                        sunShangxiang.SkillDescription.Contains("两张手牌", StringComparison.Ordinal) &&
                        sunShangxiang.SkillDescription.Contains("失去装备区", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(sunShangxiang.GeneralId) &&
                        sunShangxiang.HealthText == "体力上限 4",
-            "The current classic Sun Shangxiang card must render Wu, Jieyin, Xiaoji and the Lord health bonus.");
+            "The current classic Sun Shangxiang card must render its portrait, Wu, Jieyin, Xiaoji and the Lord health bonus.");
         var sunShangxiangWindow = new MainWindow(sunShangxiangViewModel);
         sunShangxiangWindow.ApplyTemplate();
         Program.Render(

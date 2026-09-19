@@ -56,7 +56,8 @@ public static class GeneralArt
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["da-qiao"] = "general-da-qiao.png",
-            ["diao-chan"] = "general-diao-chan.png"
+            ["diao-chan"] = "general-diao-chan.png",
+            ["sun-shangxiang"] = "general-sun-shangxiang.png"
         };
 
     private static readonly Lazy<BitmapImage> Atlas = new(() =>
