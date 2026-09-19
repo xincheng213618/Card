@@ -554,7 +554,7 @@ internal static class ClassicGeneralUiChecks
         luoshenWindow.Content = null;
         luoshenWindow.Close();
 
-        var qingguoEngine = WushengResponseScenario.FindQingguoDodge();
+        var qingguoEngine = WushengResponseScenario.FindQingguoDodge(packageVersion: new Version(1, 51, 0));
         var qingguoPrompt = qingguoEngine.PendingDecision!;
         var qingguoHand = qingguoEngine.CreateSnapshot(0).Players[0].Hand;
         var qingguoChoice = qingguoPrompt.Choices.First(choice =>
@@ -1097,6 +1097,21 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "147-classic-xiao-qiao-card.png"));
         xiaoQiaoWindow.Content = null;
         xiaoQiaoWindow.Close();
+
+        using var zhouTaiViewModel = FindGeneralChoice("classic:zhou-tai");
+        var zhouTai = zhouTaiViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:zhou-tai");
+        Program.Assert(zhouTai.Name == "周泰" && zhouTai.Kingdom == "吴" &&
+                       zhouTai.SkillName == "不屈" &&
+                       zhouTai.SkillDescription.Contains("濒死", StringComparison.Ordinal) &&
+                       zhouTai.SkillDescription.Contains("手牌上限", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(zhouTai.GeneralId) && zhouTai.HealthText == "体力上限 5",
+            "The current classic Zhou Tai card must render Wu, Buqu and the Lord health bonus.");
+        var zhouTaiWindow = new MainWindow(zhouTaiViewModel);
+        zhouTaiWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)zhouTaiWindow.Content, 1120, 740,
+            Path.Combine(output, "148-classic-zhou-tai-card.png"));
+        zhouTaiWindow.Content = null;
+        zhouTaiWindow.Close();
 
         using var tianduDescriptionViewModel = FindGeneralChoice("classic:guo-jia");
         var guoJia = tianduDescriptionViewModel.GeneralChoices.Single(choice =>
@@ -1823,7 +1838,7 @@ internal static class ClassicGeneralUiChecks
 
     private static GameEngine FindLiegongFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
         for (var seed = 1; seed <= 2_048; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -1924,7 +1939,7 @@ internal static class ClassicGeneralUiChecks
 
     private static (GameEngine Game, int JudgmentCardId) FindTianduFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
         for (var seed = 1; seed <= 8_192; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -2007,7 +2022,7 @@ internal static class ClassicGeneralUiChecks
 
     private static GameEngine FindFanjianTargetFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
         for (var seed = 1; seed <= 2_048; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -2064,7 +2079,7 @@ internal static class ClassicGeneralUiChecks
 
     private static GameEngine FindGuanxingFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -2103,7 +2118,7 @@ internal static class ClassicGeneralUiChecks
 
     private static GameEngine FindHujiaFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
         for (var seed = 1; seed <= 8_192; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

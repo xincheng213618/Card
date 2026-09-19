@@ -742,6 +742,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 HandCount = player.HandCount,
                 IsChained = player.IsChained,
                 IsFaceDown = player.IsFaceDown,
+                BuquWoundText = player.BuquWounds is { Count: > 0 }
+                    ? $"创 {string.Join('/', player.BuquWounds.Select(card => card.Rank))}"
+                    : string.Empty,
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 SkillName = IsNationalSnapshot
                     ? $"{player.SkillName} / {player.SecondarySkillName ?? "未知"}"

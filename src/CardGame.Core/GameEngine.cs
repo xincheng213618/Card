@@ -296,6 +296,9 @@ public sealed partial class GameEngine
     private bool UsesFormalXiaoQiao =>
         _rulesVersion >= 66 && IsClassicIdentityMode;
 
+    private bool UsesFormalZhouTai =>
+        _rulesVersion >= 67 && IsClassicIdentityMode;
+
     private bool UsesFormalWushengEquipment =>
         _rulesVersion >= 40 && IsClassicIdentityMode;
 
@@ -4374,6 +4377,7 @@ public sealed partial class GameEngine
                 .Select(ToJudgmentSnapshot)
                 .ToArray();
             var woodenOxGrain = GetWoodenOxGrain(player);
+            var buquWounds = GetBuquWounds(player);
             var canSeeGeneral = player.GeneralSelected &&
                                 (revealAll || player.GeneralRevealed || player.Seat == viewerSeat);
             var general = canSeeGeneral ? player.General : CreateHiddenGeneral();
@@ -4426,6 +4430,9 @@ public sealed partial class GameEngine
                     : null,
                 IsChained = player.IsChained,
                 Judgment = Array.AsReadOnly(judgment),
+                BuquWounds = UsesFormalZhouTai || buquWounds.Count > 0
+                    ? Array.AsReadOnly(buquWounds.Select(ToSnapshot).ToArray())
+                    : null,
                 FactionId = canSeeFaction ? player.NationalFactionId : null,
                 IsFactionRevealed = IsNationalWarMode && player.FactionRevealed,
                 SecondaryGeneralId = secondaryGeneral?.Id,
@@ -6365,7 +6372,7 @@ public sealed partial class GameEngine
         {
             var current = _players[_currentSeat];
             if (_options.UseInteractiveDiscard && current.IsHuman && current.IsAlive &&
-                GetHand(current).Count > Math.Max(0, current.Hp))
+                GetHand(current).Count > GetHandLimit(current))
             {
                 RequestHumanDiscard(current);
                 return;
@@ -15110,7 +15117,9 @@ public sealed partial class GameEngine
             if (target.Hp <= 0 && !awaitingDamageTrigger)
             {
                 BeginDying(attack, damageFrameId, target, source);
-                awaitingDying = _pendingDying is not null;
+                // Buqu can finish the dying continuation synchronously. In
+                // either case BeginDying now owns completion of this damage.
+                awaitingDying = true;
             }
 
             if (!awaitingDying && !awaitingDamageTrigger)
@@ -16554,6 +16563,10 @@ public sealed partial class GameEngine
                 : DyingContinuation.Damage);
         QueueGameEvent(new PlayerDyingEvent(frameId, victim.Seat, killer.Seat));
         _status = EngineStatus.Running;
+        if (TryResolveBuqu(_pendingDying))
+        {
+            return;
+        }
         ExposeHumanDyingPrompt();
     }
 
@@ -16592,6 +16605,10 @@ public sealed partial class GameEngine
             DyingContinuation.ActiveSkill);
         QueueGameEvent(new PlayerDyingEvent(frameId, victim.Seat, null));
         _status = EngineStatus.Running;
+        if (TryResolveBuqu(_pendingDying))
+        {
+            return;
+        }
         ExposeHumanDyingPrompt();
     }
 
@@ -16623,6 +16640,36 @@ public sealed partial class GameEngine
         }
 
         return seats;
+    }
+
+    private bool TryResolveBuqu(DyingResolution? dying)
+    {
+        if (!UsesFormalZhouTai || dying is null)
+            return false;
+        var victim = _players[dying.VictimSeat];
+        if (!victim.IsAlive || !victim.General.HasSkill(SkillKind.Buqu) || !EnsureDrawPile())
+            return false;
+        var card = _cardZones.CardsAt(CardLocation.DrawPile)[^1];
+        var unique = GetBuquWounds(victim).All(wound => wound.Rank != card.Rank);
+        if (unique)
+        {
+            MoveCard(card, CardLocation.DrawPile, CardLocation.BuquWound(victim.Seat), CardMoveReasons.BuquReveal);
+            victim.Hp = 1;
+        }
+        else
+        {
+            MoveCard(card, CardLocation.DrawPile, CardLocation.DiscardPile, CardMoveReasons.BuquDuplicate);
+        }
+        var wounds = GetBuquWounds(victim).Select(wound => wound.Id).ToArray();
+        QueueGameEvent(new BuquResolvedEvent(
+            dying.FrameId, victim.Seat, card.Id, card.Rank, unique, Array.AsReadOnly(wounds)));
+        AddLog("SkillTriggered", unique
+            ? $"{victim.Name} 的【不屈】亮出点数 {card.Rank}，与已有“创”不同，回复至 1 点体力。"
+            : $"{victim.Name} 的【不屈】亮出重复点数 {card.Rank}，该牌置入弃牌堆并继续濒死结算。",
+            victim.Seat);
+        if (unique)
+            CompleteDying(dying, survived: true);
+        return unique;
     }
 
     private Card[] GetDyingPeaches(PlayerRuntime responder)
@@ -19459,7 +19506,7 @@ public sealed partial class GameEngine
     private void AutoDiscard(PlayerRuntime player)
     {
         var hand = GetHand(player);
-        var handLimit = Math.Max(0, player.Hp);
+        var handLimit = GetHandLimit(player);
         var count = Math.Max(0, hand.Count - handLimit);
         if (count == 0)
         {
@@ -19672,6 +19719,11 @@ public sealed partial class GameEngine
                 CardLocation.Judgment(victim.Seat),
                 CardLocation.DiscardPile,
                 CardMoveReasons.DeathDiscard);
+            MoveCards(
+                GetBuquWounds(victim).ToArray(),
+                CardLocation.BuquWound(victim.Seat),
+                CardLocation.DiscardPile,
+                CardMoveReasons.BuquDeathDiscard);
 
             AddLog(
                 "PlayerDied",
@@ -19981,6 +20033,17 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetWoodenOxGrain(PlayerRuntime player) =>
         _cardZones.CardsAt(CardLocation.WoodenOxGrain(player.Seat));
+
+    private IReadOnlyList<Card> GetBuquWounds(PlayerRuntime player) =>
+        _cardZones.CardsAt(CardLocation.BuquWound(player.Seat));
+
+    private int GetHandLimit(PlayerRuntime player)
+    {
+        var woundCount = UsesFormalZhouTai && player.General.HasSkill(SkillKind.Buqu)
+            ? GetBuquWounds(player).Count
+            : 0;
+        return woundCount > 0 ? woundCount : Math.Max(0, player.Hp);
+    }
 
     private IReadOnlyList<Card> GetPlayableCards(PlayerRuntime player) =>
         UsesFormalWoodenOx && GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx)

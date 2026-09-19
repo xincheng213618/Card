@@ -238,6 +238,9 @@
                         <Border Visibility="{Binding IsFaceDown, Converter={StaticResource BoolToVisibility}}" Background="#D585592D" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,55,0,0" Padding="4,2">
                             <TextBlock Text="翻面" FontSize="10" Foreground="#FFE0A5" />
                         </Border>
+                        <Border Visibility="{Binding HasBuquWounds, Converter={StaticResource BoolToVisibility}}" Background="#D58A342A" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,78,0,0" Padding="4,2" ToolTip="不屈创牌点数；手牌上限等于创牌数">
+                            <TextBlock Text="{Binding BuquWoundText}" FontSize="9" Foreground="#FFE7C2" MaxWidth="80" TextTrimming="CharacterEllipsis" />
+                        </Border>
                         <Border Visibility="{Binding HasJudgment, Converter={StaticResource BoolToVisibility}}" Background="#D6593B41" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,55,0,0" Padding="4,2" ToolTip="{Binding JudgmentText}">
                             <TextBlock Text="{Binding ShortJudgment}" FontSize="9" Foreground="#F4DADA" MaxWidth="125" TextTrimming="CharacterEllipsis" />
                         </Border>

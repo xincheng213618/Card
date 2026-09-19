@@ -113,7 +113,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.51.0"]),
+                "standard-classic-generals@1.52.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -128,7 +128,8 @@ internal static class ClassicGeneralChecks
             // Current expansion representatives already shipped by this package.
             "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
             "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
-            "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao"
+            "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
+            "classic:zhou-tai"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -2584,7 +2585,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalLongdanFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
         var fixture = FindZhaoYunLongdanFixture(registry);
         var game = fixture.Game;
         var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);

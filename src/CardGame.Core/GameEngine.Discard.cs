@@ -5,11 +5,12 @@ public sealed partial class GameEngine
     private void RequestHumanDiscard(PlayerRuntime player)
     {
         var hand = GetHand(player);
-        var count = hand.Count - Math.Max(0, player.Hp);
+        var handLimit = GetHandLimit(player);
+        var count = hand.Count - handLimit;
         _pendingDecision = new PendingDecision(
             DecisionKind.DiscardCards,
             player.Seat,
-            $"手牌上限为 {Math.Max(0, player.Hp)}，请选择 {count} 张手牌弃置。",
+            $"手牌上限为 {handLimit}，请选择 {count} 张手牌弃置。",
             hand.Select(card => card.Id).ToArray(),
             [])
         {
@@ -40,7 +41,7 @@ public sealed partial class GameEngine
         if (ids.Any(id => !prompt.ValidCardIds.Contains(id) || !handIds.Contains(id)))
             return Reject(CommandErrorCode.InvalidCard, "Every selected card must be in the published hand.");
 
-        if (hand.Count - Math.Max(0, actor.Hp) != prompt.RequiredCardCount)
+        if (hand.Count - GetHandLimit(actor) != prompt.RequiredCardCount)
             return Reject(CommandErrorCode.IllegalAction, "The hand limit changed; refresh the discard prompt.");
 
         var selected = ids.ToHashSet();
@@ -66,7 +67,7 @@ public sealed partial class GameEngine
             var hand = GetHand(owner);
             if (!owner.IsHuman || !owner.IsAlive || _phase != TurnPhase.Discard ||
                 _currentSeat != owner.Seat || _status != EngineStatus.AwaitingHumanDiscard ||
-                prompt.RequiredCardCount <= 0 || prompt.RequiredCardCount != hand.Count - Math.Max(0, owner.Hp) ||
+                prompt.RequiredCardCount <= 0 || prompt.RequiredCardCount != hand.Count - GetHandLimit(owner) ||
                 !prompt.ValidCardIds.Order().SequenceEqual(hand.Select(card => card.Id).Order()) ||
                 prompt.Choices.Count != 0 || prompt.ValidTargetSeats.Count != 0 || !prompt.IsPrivate)
                 throw new InvalidOperationException("The private discard prompt must match its current owner's hand limit.");

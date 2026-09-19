@@ -801,6 +801,14 @@ public sealed record TianxiangCardsDrawnEvent(
     int TargetSeat,
     int DrawCount) : IGameEvent;
 
+public sealed record BuquResolvedEvent(
+    long DyingFrameId,
+    int OwnerSeat,
+    int CardId,
+    int Rank,
+    bool RankWasUnique,
+    IReadOnlyList<int> WoundCardIds) : IGameEvent;
+
 /// <summary>Public terminal result for Qilin Bow at the Slash damage timing.</summary>
 public sealed record QilinBowResolvedEvent(
     long ResolutionId,

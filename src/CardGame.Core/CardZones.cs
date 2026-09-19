@@ -13,6 +13,7 @@ public enum CardZoneKind
     Equipment,
     Judgment,
     WoodenOxGrain,
+    BuquWound,
     OutsideGame
 }
 
@@ -20,7 +21,7 @@ public readonly record struct CardLocation
 {
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -54,6 +55,8 @@ public readonly record struct CardLocation
     public static CardLocation Judgment(int seat) => new(CardZoneKind.Judgment, seat);
 
     public static CardLocation WoodenOxGrain(int seat) => new(CardZoneKind.WoodenOxGrain, seat);
+
+    public static CardLocation BuquWound(int seat) => new(CardZoneKind.BuquWound, seat);
 
     public override string ToString() => OwnerSeat is { } seat ? $"{Zone}[{seat}]" : Zone.ToString();
 }
@@ -125,6 +128,9 @@ public static class CardMoveReasons
     public static CardMoveReason IceSwordDiscard { get; } = new("equipment.ice-sword.discard");
     public static CardMoveReason TianxiangDiscard { get; } = new("skill.tianxiang.discard");
     public static CardMoveReason TianxiangDraw { get; } = new("skill.tianxiang.draw");
+    public static CardMoveReason BuquReveal { get; } = new("skill.buqu.reveal");
+    public static CardMoveReason BuquDuplicate { get; } = new("skill.buqu.duplicate");
+    public static CardMoveReason BuquDeathDiscard { get; } = new("skill.buqu.death-discard");
     public static CardMoveReason QilinBowDiscard { get; } = new("equipment.qilin-bow.discard-mount");
     public static CardMoveReason MengjinDiscard { get; } = new("skill.mengjin.discard");
     public static CardMoveReason PindianReveal { get; } = new("skill.pindian.reveal");
@@ -213,6 +219,7 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.Equipment(seat));
             AddZone(CardLocation.Judgment(seat));
             AddZone(CardLocation.WoodenOxGrain(seat));
+            AddZone(CardLocation.BuquWound(seat));
         }
     }
 

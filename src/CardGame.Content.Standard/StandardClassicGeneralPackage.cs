@@ -12,7 +12,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 51, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 52, 0))
     {
     }
 
@@ -70,12 +70,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 48, 0) &&
             version != new Version(1, 49, 0) &&
             version != new Version(1, 50, 0) &&
-            version != new Version(1, 51, 0))
+            version != new Version(1, 51, 0) &&
+            version != new Version(1, 52, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.51.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.52.0.");
         }
 
         _version = version;
@@ -728,6 +729,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition("classic:tianxiang", "天香",
                 "当你受到伤害时，你可以弃置一张红桃手牌并选择一名其他角色，防止此伤害并令其受到等量伤害，然后其摸等同于其已损失体力值的牌。", SkillKind.Tianxiang));
         }
+        if (_version >= new Version(1, 52, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition("classic:buqu", "不屈",
+                "锁定技，当你处于濒死状态时，将牌堆顶一张牌置于武将牌上，称为“创”；若其点数与已有“创”均不同，你回复至1点体力，否则弃置之。若你有“创”，手牌上限等于“创”的数量。", SkillKind.Buqu));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1093,10 +1099,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:hongyan", "wu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:tianxiang"], Gender: GeneralGender.Female));
         }
+        if (_version >= new Version(1, 52, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhou-tai", "周泰", "zhou_tai",
+                "classic:buqu", "wu", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 51 } => XiaoQiaoClassicGeneralIds,
+            { Major: 1, Minor: >= 52 } => ZhouTaiClassicGeneralIds,
+            { Major: 1, Minor: 51 } => XiaoQiaoClassicGeneralIds,
             { Major: 1, Minor: 50 } => CaoRenClassicGeneralIds,
             { Major: 1, Minor: 49 } => TaishiCiClassicGeneralIds,
             { Major: 1, Minor: 48 } => PangTongClassicGeneralIds,
@@ -1388,6 +1401,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. CaoRenClassicGeneralIds,
         "classic:xiao-qiao"
+    ];
+
+    internal static IReadOnlyList<string> ZhouTaiClassicGeneralIds { get; } =
+    [
+        .. XiaoQiaoClassicGeneralIds,
+        "classic:zhou-tai"
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

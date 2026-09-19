@@ -200,7 +200,8 @@ public enum SkillKind
     Tianyi,
     Jushou,
     Hongyan,
-    Tianxiang
+    Tianxiang,
+    Buqu
 }
 
 public enum DecisionKind
@@ -540,6 +541,10 @@ public sealed partial record PlayerSnapshot
     /// with older hosts that construct snapshots directly.
     /// </summary>
     public IReadOnlyList<CardSnapshot> Judgment { get; init; } = Array.Empty<CardSnapshot>();
+
+    /// <summary>Public wound cards kept on Zhou Tai by classic Buqu.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? BuquWounds { get; init; }
 
     /// <summary>
     /// Private/public national-war faction metadata. A viewer may receive its
