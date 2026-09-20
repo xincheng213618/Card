@@ -2,17 +2,68 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    /// <summary>
+    /// Evaluates ownership of skills printed on a general card. Skills acquired
+    /// after game start use their own future grant source and deliberately do
+    /// not pass through this printed-skill restriction.
+    /// </summary>
+    private bool CanOwnPrintedSkill(PlayerRuntime player, SkillTag tags) =>
+        !SupportsStructuredSkillOwnership ||
+        !tags.HasFlag(SkillTag.Lord) ||
+        player.Role == Role.Lord;
+
+    private IEnumerable<GeneralSkillDefinition> OwnedPrintedSkills(
+        PlayerRuntime player,
+        GeneralDefinition general) =>
+        general.Skills.Where(skill => CanOwnPrintedSkill(player, skill.Tags));
+
+    private IEnumerable<GeneralSkillDefinition> RuntimePassiveSkillDefinitions(
+        PlayerRuntime player,
+        GeneralDefinition general)
+    {
+        var definitions = SupportsMultiSkillGenerals
+            ? general.Skills
+            :
+            [
+                new GeneralSkillDefinition(
+                    general.Skill,
+                    general.SkillName,
+                    general.SkillDescription)
+                {
+                    ContentId = general.SkillContentId,
+                    Tags = general.SkillTags,
+                    ExecutionForms = general.SkillExecutionForms
+                }
+            ];
+        return definitions.Where(skill => CanOwnPrintedSkill(player, skill.Tags));
+    }
+
+    private IReadOnlyList<string> EnabledPrintedContentSkillIds(PlayerRuntime player)
+    {
+        if (_contentRegistry is null) return [];
+
+        var ids = new List<string>();
+        void AddGeneral(GeneralDefinition general)
+        {
+            if (!_contentRegistry.Generals.TryGetValue(general.Id, out var definition)) return;
+            ids.AddRange(definition.SkillIds.Where(id =>
+                CanOwnPrintedSkill(player, _contentRegistry.GetSkill(id).Tags)));
+        }
+
+        if (!IsNationalWarMode || player.GeneralSelected && player.GeneralRevealed)
+            AddGeneral(player.General);
+        if (IsNationalWarMode && player.SecondaryGeneralSelected && player.SecondaryGeneralRevealed &&
+            player.SecondaryGeneral is { } secondary)
+            AddGeneral(secondary);
+        return ids.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+    }
+
     private IEnumerable<IPassiveSkill> EnabledPassiveSkills(PlayerRuntime player)
     {
         // Older checkpoints retain their original primary-only behavior.
         if (!IsNationalWarMode)
         {
-            foreach (var skill in SupportsMultiSkillGenerals
-                         ? player.General.Skills
-                         : [new GeneralSkillDefinition(
-                             player.General.Skill,
-                             player.General.SkillName,
-                             player.General.SkillDescription)])
+            foreach (var skill in RuntimePassiveSkillDefinitions(player, player.General))
             {
                 if (skill.Kind != SkillKind.Yicong || UsesFormalGongsunZan)
                     yield return SkillRegistry.Get(skill.Kind);
@@ -28,18 +79,16 @@ public sealed partial class GameEngine
         var emitted = new HashSet<SkillKind>();
         if (player.GeneralSelected && player.GeneralRevealed)
         {
-            foreach (var skill in SupportsMultiSkillGenerals
-                         ? player.General.SkillKinds
-                         : [player.General.Skill])
+            foreach (var skill in RuntimePassiveSkillDefinitions(player, player.General)
+                         .Select(definition => definition.Kind))
             {
                 if (emitted.Add(skill)) yield return SkillRegistry.Get(skill);
             }
         }
         if (player.SecondaryGeneralSelected && player.SecondaryGeneralRevealed && player.SecondaryGeneral is { } secondary)
         {
-            foreach (var skill in SupportsMultiSkillGenerals
-                         ? secondary.SkillKinds
-                         : [secondary.Skill])
+            foreach (var skill in RuntimePassiveSkillDefinitions(player, secondary)
+                         .Select(definition => definition.Kind))
             {
                 if (emitted.Add(skill)) yield return SkillRegistry.Get(skill);
             }

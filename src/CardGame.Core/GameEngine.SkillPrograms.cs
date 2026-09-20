@@ -11,18 +11,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<SkillProgram> EnabledSkillPrograms(PlayerRuntime player)
     {
         if (_rulesVersion < 79 || _contentRegistry is null) return [];
-        var ids = new List<string>();
-        void AddGeneral(GeneralDefinition general)
-        {
-            if (_contentRegistry.Generals.TryGetValue(general.Id, out var definition))
-                ids.AddRange(definition.SkillIds);
-        }
-        if (!IsNationalWarMode || player.GeneralSelected && player.GeneralRevealed)
-            AddGeneral(player.General);
-        if (IsNationalWarMode && player.SecondaryGeneralSelected && player.SecondaryGeneralRevealed &&
-            player.SecondaryGeneral is { } secondary)
-            AddGeneral(secondary);
-        return ids.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)
+        return EnabledPrintedContentSkillIds(player)
             .Select(id => _contentRegistry.Skills[id].Program)
             .OfType<SkillProgram>().ToArray();
     }

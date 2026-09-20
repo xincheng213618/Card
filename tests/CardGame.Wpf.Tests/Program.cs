@@ -362,6 +362,39 @@ internal static class Program
         Assert(skills.Count == 2 && skills.Any(skill => skill.Name == "制衡" && skill.TypeText == "主动技" && skill.IsAvailable && skill.StateText == "当前可发动") &&
                skills.Any(skill => skill.Name == "救援" && skill.TypeText == "状态技 · 主公技 · 锁定技" && !skill.IsAvailable && skill.StateText == "规则自动生效"),
             "The human skill rail did not distinguish an active entry from explicit execution forms and tags.");
+
+        MainViewModel? rebelFound = null;
+        for (var seed = 1; seed <= 256; seed++)
+        {
+            var candidate = new MainViewModel(false, seed, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            candidate.SelectedTableMode = candidate.TableModes.Single(mode => mode.ModeId == "identity:classic-5");
+            candidate.SelectedStartingRole = candidate.StartingRoles.Single(role => role.Role == Role.Rebel);
+            candidate.StartNewGameCommand.Execute(null);
+            candidate.ContinueFromIdentityRevealCommand.Execute(null);
+            AdvanceToDecision(candidate);
+            var sunQuan = candidate.GeneralChoices.FirstOrDefault(choice => choice.GeneralId == "classic:sun-quan");
+            if (sunQuan is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(sunQuan);
+                AdvanceToDecision(candidate);
+                if (candidate.CanEndTurn)
+                {
+                    rebelFound = candidate;
+                    break;
+                }
+            }
+            candidate.Dispose();
+        }
+
+        using var rebelVm = rebelFound ??
+            throw new InvalidOperationException("No bounded Rebel Sun Quan skill-rail fixture reached play.");
+        Assert(rebelVm.HumanSkillCards is [{ Name: "制衡" }] &&
+               rebelVm.HumanSkillCards.All(skill => !skill.TypeText.Contains("主公技", StringComparison.Ordinal)),
+            "A non-Lord skill rail still displayed a printed Lord skill as owned.");
+
         var revision = Engine(vm).Revision;
         var window = new MainWindow(vm);
         window.ApplyTemplate();
@@ -376,6 +409,17 @@ internal static class Program
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();
+
+        var rebelWindow = new MainWindow(rebelVm);
+        rebelWindow.ApplyTemplate();
+        var rebelRoot = (FrameworkElement)rebelWindow.Content;
+        Render(rebelRoot, 1120, 740, Path.Combine(output, "165-rebel-lord-skill-qualification.png"));
+        var rebelCards = (ItemsControl)rebelWindow.FindName("HumanSkillCards");
+        Assert(rebelCards.Items.Count == 1 &&
+               Find<TextBlock>(rebelCards).All(text => text.Text != "救援" && !text.Text.Contains("主公技", StringComparison.Ordinal)),
+            "The rendered non-Lord skill rail exposed Jiuyuan or a Lord-skill label.");
+        rebelWindow.Content = null;
+        rebelWindow.Close();
     }
 
     private static void CheckModeLobby(string output)

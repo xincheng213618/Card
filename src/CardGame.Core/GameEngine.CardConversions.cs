@@ -127,18 +127,8 @@ public sealed partial class GameEngine
         bool forResponse)
     {
         if (_rulesVersion < 80 || _contentRegistry is null || card.Kind == outputKind) return [];
-        var skillIds = new List<string>();
-        void AddGeneral(GeneralDefinition general)
-        {
-            if (_contentRegistry.Generals.TryGetValue(general.Id, out var definition))
-                skillIds.AddRange(definition.SkillIds);
-        }
-        if (!IsNationalWarMode || owner.GeneralSelected && owner.GeneralRevealed) AddGeneral(owner.General);
-        if (IsNationalWarMode && owner.SecondaryGeneralSelected && owner.SecondaryGeneralRevealed &&
-            owner.SecondaryGeneral is { } secondary) AddGeneral(secondary);
-
         var context = CreateSkillContext(owner);
-        return skillIds.Distinct(StringComparer.Ordinal)
+        return EnabledPrintedContentSkillIds(owner)
             .Select(id => _contentRegistry.Skills[id])
             .Where(skill => skill.LegacyKind is { } kind && kind != SkillKind.None)
             .Where(skill =>

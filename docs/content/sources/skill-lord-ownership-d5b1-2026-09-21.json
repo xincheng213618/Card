@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-ownership:d5b1",
+  "retrievedAt": "2026-09-21T00:52:20+08:00",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "主公技是技能标签；武将牌上带此标签的技能只有角色身份为主公时才能拥有。若角色在游戏开始时没有该技能，则不受此限制。"
+    }
+  ],
+  "implementation": {
+    "rulesVersion": 97,
+    "contentPackageChanged": false,
+    "printedSkillConsumers": [
+      "legacy passive skill discovery",
+      "configured skill-program discovery",
+      "legacy view-as conversion discovery",
+      "player snapshots",
+      "WPF in-match skill rail"
+    ],
+    "unfilteredCatalogSurfaces": [
+      "content registry",
+      "general selection cards",
+      "general gallery"
+    ]
+  },
+  "acceptance": [
+    "当前rules v97反贼孙权只拥有制衡",
+    "当前rules v97主公孙权仍拥有制衡和救援",
+    "同一命令前缀在rules v96仍投影制衡和救援",
+    "带Lord标签的旧式主动技、配置程序和旧式杀闪转化在非主公rules v97均不产生动作而rules v96保留全部入口",
+    "WPF反贼孙权技能栏只显示制衡且不显示主公技标签",
+    "Registry中的孙权定义仍保留制衡和救援"
+  ],
+  "deferred": [
+    "动态获得技能的正式授予系统和对应主公技例外消费者",
+    "正式觉醒技和转换技消费者",
+    "剩余正式技能标签迁移",
+    "每目标和每事件复合限次",
+    "真实Windows桌面鼠标键盘及多DPI验收"
+  ]
+}

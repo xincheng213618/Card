@@ -200,6 +200,8 @@ public sealed partial class GameEngine
 
     private bool SupportsStructuredSkillState => _rulesVersion >= 96;
 
+    private bool SupportsStructuredSkillOwnership => _rulesVersion >= 97;
+
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
         _rulesVersion >= 89 && IsNationalWarMode;
@@ -4760,7 +4762,7 @@ public sealed partial class GameEngine
                 SecondarySkillDescription = visibleSecondaryDescription,
                 IsSecondaryGeneralPublic = IsNationalWarMode && player.SecondaryGeneralRevealed,
                 Skills = SupportsMultiSkillGenerals && canSeeGeneral
-                    ? Array.AsReadOnly(general.Skills
+                    ? Array.AsReadOnly(OwnedPrintedSkills(player, general)
                         .Select(skill => skill with
                         {
                             Description = GetVisibleSkillDescription(skill.Kind, skill.Description)
@@ -4768,7 +4770,7 @@ public sealed partial class GameEngine
                         .ToArray())
                     : null,
                 SecondarySkills = SupportsMultiSkillGenerals && secondaryGeneral is not null
-                    ? Array.AsReadOnly(secondaryGeneral.Skills
+                    ? Array.AsReadOnly(OwnedPrintedSkills(player, secondaryGeneral)
                         .Select(skill => skill with
                         {
                             Description = GetVisibleSkillDescription(skill.Kind, skill.Description)

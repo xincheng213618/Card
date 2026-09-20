@@ -39,18 +39,18 @@ public sealed partial class MainViewModel
             {
                 var slots = new[]
                 {
-                    (Label: "主", Id: human.GeneralId, Revealed: human.IsGeneralPublic),
-                    (Label: "副", Id: human.SecondaryGeneralId ?? string.Empty, Revealed: human.IsSecondaryGeneralPublic)
+                    (Label: "主", Id: human.GeneralId, Revealed: human.IsGeneralPublic, Skills: human.Skills),
+                    (Label: "副", Id: human.SecondaryGeneralId ?? string.Empty, Revealed: human.IsSecondaryGeneralPublic, Skills: human.SecondarySkills)
                 };
                 return slots
                     .Where(slot => slot.Id.Length > 0 && _contentRegistry.Generals.ContainsKey(slot.Id))
                     .SelectMany(slot =>
                     {
                         var definition = _contentRegistry.Generals[slot.Id];
-                        var skillIds = _game.RulesVersion >= 89
+                        var printedSkillIds = _game.RulesVersion >= 89
                             ? definition.SkillIds
                             : definition.SkillIds.Take(1);
-                        return skillIds
+                        return FilterOwnedSkillIds(printedSkillIds, slot.Skills)
                             .Select(_contentRegistry.GetSkill)
                             .Where(skill => skill.LegacyKind != SkillKind.None || skill.Name != "无")
                             .Select(skill =>
@@ -77,7 +77,8 @@ public sealed partial class MainViewModel
 
             if (_contentRegistry.Generals.TryGetValue(human.GeneralId, out var general))
             {
-                return general.SkillIds.Select(_contentRegistry.GetSkill)
+                return FilterOwnedSkillIds(general.SkillIds, human.Skills)
+                    .Select(_contentRegistry.GetSkill)
                     .Select(skill =>
                     {
                         var active = skill.Program?.Activations.Count > 0 ||
@@ -116,6 +117,20 @@ public sealed partial class MainViewModel
                 })
                  .ToArray();
         }
+    }
+
+    private static IReadOnlyList<string> FilterOwnedSkillIds(
+        IEnumerable<string> printedSkillIds,
+        IReadOnlyList<GeneralSkillDefinition>? ownedSkills)
+    {
+        var printed = printedSkillIds.ToArray();
+        if (ownedSkills is null) return printed;
+
+        var ownedIds = ownedSkills
+            .Select(skill => skill.ContentId)
+            .OfType<string>()
+            .ToHashSet(StringComparer.Ordinal);
+        return printed.Where(ownedIds.Contains).ToArray();
     }
 
     private static string GetSkillTypeText(
