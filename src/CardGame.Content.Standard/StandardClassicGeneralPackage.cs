@@ -13,14 +13,22 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.sp-zhao-yun.rules.json";
     private const string SpZhaoYunPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.sp-zhao-yun.presentation.json";
+    private const string ClassicZhangJiaoRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-jiao.rules.json";
+    private const string ClassicZhangJiaoPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-jiao.presentation.json";
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
             ReadEmbeddedText(SpZhaoYunPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicZhangJiaoCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicZhangJiaoRulesResource),
+            ReadEmbeddedText(ClassicZhangJiaoPresentationResource)));
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 64, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 65, 0))
     {
     }
 
@@ -91,12 +99,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 61, 0) &&
             version != new Version(1, 62, 0) &&
             version != new Version(1, 63, 0) &&
-            version != new Version(1, 64, 0))
+            version != new Version(1, 64, 0) &&
+            version != new Version(1, 65, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.64.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.65.0.");
         }
 
         _version = version;
@@ -778,12 +787,30 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 57, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:guidao", "鬼道",
-                "一名角色的判定牌生效前，你可以打出一张黑色牌替换之。", SkillKind.Guidao));
-            builder.AddSkill(new ContentSkillDefinition("classic:leiji", "雷击",
-                "当你使用或打出闪时，你可以令一名其他角色判定：黑桃则你对其造成2点雷电伤害；梅花则你回复1点体力，然后对其造成1点雷电伤害。", SkillKind.Leiji));
-            builder.AddSkill(new ContentSkillDefinition("classic:huangtian", "黄天",
-                "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian));
+            if (_version >= new Version(1, 65, 0))
+            {
+                foreach (var (id, program) in ClassicZhangJiaoCatalog.Value.Programs
+                             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                {
+                    var presentation = ClassicZhangJiaoCatalog.Value.Presentations[id];
+                    builder.AddSkill(new ContentSkillDefinition(
+                        id,
+                        presentation.Name,
+                        presentation.Description)
+                    {
+                        Program = program
+                    });
+                }
+            }
+            else
+            {
+                builder.AddSkill(new ContentSkillDefinition("classic:guidao", "鬼道",
+                    "一名角色的判定牌生效前，你可以打出一张黑色牌替换之。", SkillKind.Guidao));
+                builder.AddSkill(new ContentSkillDefinition("classic:leiji", "雷击",
+                    "当你使用或打出闪时，你可以令一名其他角色判定：黑桃则你对其造成2点雷电伤害；梅花则你回复1点体力，然后对其造成1点雷电伤害。", SkillKind.Leiji));
+                builder.AddSkill(new ContentSkillDefinition("classic:huangtian", "黄天",
+                    "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian));
+            }
         }
         if (_version >= new Version(1, 58, 0))
         {

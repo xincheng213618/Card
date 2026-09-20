@@ -111,6 +111,7 @@ internal static class ClassicGeneralChecks
         var yuJinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 61, 0));
         var wuyanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 62, 0));
         var xuShuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var spZhaoYunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 64, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -119,7 +120,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.64.0"]),
+                "standard-classic-generals@1.65.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -145,8 +146,23 @@ internal static class ClassicGeneralChecks
             "The current classic package must contain the complete original standard roster plus its explicit expansion representatives.");
         Require(classic.Generals["classic:zhang-jiao"] is
                 { BaseHp: 3, FactionId: "qun" } zhangJiao &&
-                zhangJiao.SkillIds.SequenceEqual(["classic:guidao", "classic:leiji", "classic:huangtian"]),
-            "Current classic Zhang Jiao must expose Guidao, Leiji and Huangtian in stable order.");
+                zhangJiao.SkillIds.SequenceEqual(["classic:guidao", "classic:leiji", "classic:huangtian"]) &&
+                classic.Skills["classic:guidao"] is { LegacyKind: null, Program: { } guidao } &&
+                guidao.RuntimeVersion == "skill-program-v8" && guidao.MinimumRulesVersion == 88 &&
+                guidao.Triggers.Single().Effects.Single().OldCardDestination ==
+                    SkillProgramOldJudgmentCardDestination.OwnerHand &&
+                classic.Skills["classic:leiji"] is { LegacyKind: null, Program: { } leiji } &&
+                leiji.RuntimeVersion == "skill-program-v8" && leiji.MinimumRulesVersion == 88 &&
+                leiji.Triggers.Count == 3 &&
+                classic.Skills["classic:huangtian"] is { LegacyKind: null, Program: { } huangtian } &&
+                huangtian.RuntimeVersion == "skill-program-v8" && huangtian.MinimumRulesVersion == 88 &&
+                huangtian.Contributions.Single().CardKinds.SequenceEqual(
+                    [CardKind.Dodge, CardKind.Lightning]) &&
+                spZhaoYunClassic.Skills["classic:guidao"].LegacyKind == SkillKind.Guidao &&
+                spZhaoYunClassic.Skills["classic:leiji"].LegacyKind == SkillKind.Leiji &&
+                spZhaoYunClassic.Skills["classic:huangtian"].LegacyKind == SkillKind.Huangtian &&
+                spZhaoYunClassic.Skills["classic:guidao"].Program is null,
+            "Package 1.65.0 must migrate all three classic Zhang Jiao skills while package 1.64.0 retains typed behavior.");
         Require(classic.Generals["classic:sun-jian"] is
                 { BaseHp: 4, FactionId: "wu" } sunJian &&
                 sunJian.SkillIds.SequenceEqual(["classic:yinghun"]) &&

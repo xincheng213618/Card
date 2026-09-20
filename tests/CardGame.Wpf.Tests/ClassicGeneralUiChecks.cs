@@ -1198,7 +1198,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(zhangJiao.Name == "张角" && zhangJiao.Kingdom == "群" &&
                        zhangJiao.SkillName == "鬼道 / 雷击 / 黄天" &&
                        zhangJiao.SkillDescription.Contains("黑色牌替换", StringComparison.Ordinal) &&
-                       zhangJiao.SkillDescription.Contains("使用或打出闪", StringComparison.Ordinal) &&
+                       zhangJiao.SkillDescription.Contains("使用或打出【闪】", StringComparison.Ordinal) &&
                        zhangJiao.SkillDescription.Contains("其他群势力角色", StringComparison.Ordinal) &&
                        GeneralArt.HasPortrait(zhangJiao.GeneralId) &&
                        zhangJiao.PortraitBrush is System.Windows.Media.ImageBrush

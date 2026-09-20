@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:guidao": {
+      "name": "鬼道",
+      "description": "一名角色的判定牌生效前，你可以打出一张黑色牌替换之。"
+    },
+    "classic:leiji": {
+      "name": "雷击",
+      "description": "当你使用或打出【闪】时，你可以令一名其他角色判定：若结果为黑桃，你对其造成2点雷电伤害；若结果为梅花，你回复1点体力，然后对其造成1点雷电伤害。"
+    },
+    "classic:huangtian": {
+      "name": "黄天",
+      "description": "主公技，其他群势力角色的出牌阶段限一次，其可以将一张【闪】或【闪电】交给你。"
+    }
+  }
+}

@@ -34,7 +34,7 @@ v6 的直接有效牌型过滤、转换来源互斥契约、`startJudgment` 及�
 
 v7 的跨拥有者出牌阶段贡献、提供者／技能拥有者双座位、实体手牌牌名／花色并集以及每提供者每阶段绑定账本见 [可执行配置 v7](content/skill-composition/RUNTIME_V7.md)。D3e 已验证经典“闪或闪电”和界“闪或黑桃”复用同一能力；这仍不是结构化主公技标签，也没有提前注册正式张角内容。
 
-v8 的卡牌动作选定判定主体、最终判定发起者／原因白名单和 `judgmentSubject` 直接伤害见 [可执行配置 v8](content/skill-composition/RUNTIME_V8.md)。D3f 已验证经典雷击的“选另一角色判定”时序、跨主体订阅、雷电伤害和父闪响应续接；rules v87 的 D3g 又把多人改判候选起点修正为当前回合角色，同时保留 rules v86 的历史顺序。正式经典张角仍留给 A51 内容版本块。
+v8 的卡牌动作选定判定主体、最终判定发起者／原因白名单、`judgmentSubject` 直接伤害及可选的单技能规则门槛见 [可执行配置 v8](content/skill-composition/RUNTIME_V8.md)。D3f 已验证经典雷击的“选另一角色判定”时序、跨主体订阅、雷电伤害和父闪响应续接；rules v87 的 D3g 又把多人改判候选起点修正为当前回合角色，同时保留 rules v86 的历史顺序。A51 已由 `standard-classic-generals@1.65.0` 把经典雷击／鬼道／黄天整体迁入配置，并以 `minimumRulesVersion: 88` 绑定排序修正和八卦来源装备保护；1.64.0 及更早仍用原类型化内容。
 
 v1 使用严格校验、版本化且可计算玩法哈希的 JSON，展示文案与规则文件分离。可运行样例现有 11 项技能程序，覆盖 DrawCount、HandLimit、SlashLimit、基础距离查询修正、红色手牌化杀、龙胆式杀闪互换，以及主动步骤 draw、recover、loseHp、giveSelected、discardSelected；另有一名样例武将同时绑定增摸、手牌上限与无限杀三个程序，验证多程序叠加。WPF 通过统一合法动作读取选牌／目标边界，并用 SkillId + ActivationId 保留每个动作身份。
 

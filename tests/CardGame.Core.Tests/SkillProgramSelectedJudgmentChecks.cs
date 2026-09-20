@@ -39,9 +39,22 @@ internal static class SkillProgramSelectedJudgmentChecks
                     DamageNature: DamageNature.Thunder
                 },
             "Schema 8 must freeze selected judgment subjects, initiator filters and direct subject damage.");
+        var raisedMinimum = SkillProgramCatalog.Load(
+            Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":88",
+                StringComparison.Ordinal),
+            Presentation);
+        Require(raisedMinimum.Programs.Values.All(item => item.MinimumRulesVersion == 88) &&
+                raisedMinimum.Programs[ProgramId].GameplayHash != program.GameplayHash,
+            "Schema 8 content may raise its concrete rules floor and must hash that requirement.");
 
         AssertReject(Rules.Replace("\"schemaVersion\":8", "\"schemaVersion\":7", StringComparison.Ordinal),
             "schema version 8");
+        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":85",
+                StringComparison.Ordinal),
+            "schema minimum 86");
+        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":89",
+                StringComparison.Ordinal),
+            "current rules 88");
         AssertReject(Rules.Replace(
                 "{\"op\":\"selectTarget\",\"target\":\"selectedTarget\",\"targetKind\":\"otherLiving\"},",
                 string.Empty,

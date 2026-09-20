@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 8,
+  "skills": [
+    {
+      "id": "classic:guidao",
+      "revision": 1,
+      "minimumRulesVersion": 88,
+      "triggers": [
+        {
+          "id": "replace-judgment",
+          "window": "judgmentReplacing",
+          "subject": "any",
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "replaceJudgment",
+              "target": "owner",
+              "zones": ["hand", "equipment"],
+              "suits": ["spade", "club"],
+              "oldCardDestination": "ownerHand"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:leiji",
+      "revision": 1,
+      "minimumRulesVersion": 88,
+      "triggers": [
+        {
+          "id": "after-dodge",
+          "window": "cardResponseAccepted",
+          "cardKinds": ["dodge"],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "selectedTarget",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "skill.classic.leiji"
+            }
+          ]
+        },
+        {
+          "id": "spade-damage",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentSource": "owner",
+          "judgmentReasons": ["skill.classic.leiji"],
+          "suits": ["spade"],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": [],
+          "optional": false,
+          "effects": [
+            {
+              "op": "damage",
+              "target": "judgmentSubject",
+              "amount": 2,
+              "nature": "thunder"
+            }
+          ]
+        },
+        {
+          "id": "club-recover-damage",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentSource": "owner",
+          "judgmentReasons": ["skill.classic.leiji"],
+          "suits": ["club"],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": [],
+          "optional": false,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "damage",
+              "target": "judgmentSubject",
+              "amount": 1,
+              "nature": "thunder"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:huangtian",
+      "revision": 1,
+      "minimumRulesVersion": 88,
+      "contributions": [
+        {
+          "id": "contribute",
+          "providerFactions": ["qun"],
+          "ownerRole": "lord",
+          "cardKinds": ["dodge", "lightning"],
+          "cardSuits": [],
+          "usesPerPlayPhase": 1
+        }
+      ]
+    }
+  ]
+}

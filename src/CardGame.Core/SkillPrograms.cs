@@ -292,12 +292,22 @@ public sealed class SkillProgramCatalog
             {
                 1 => ["id", "revision", "modifiers", "viewAs", "activations"],
                 < 7 => ["id", "revision", "modifiers", "viewAs", "activations", "triggers"],
+                8 => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions"],
                 _ => ["id", "revision", "modifiers", "viewAs", "activations", "triggers", "contributions"]
             });
             var id = Identifier(skill, "id", path);
             var skillPath = $"skill '{id}' ({path})";
             if (result.ContainsKey(id)) Fail(skillPath, $"duplicate skill id '{id}'");
             var revision = PositiveInt(skill, "revision", skillPath);
+            var skillMinimumRulesVersion = minimumRulesVersion;
+            if (schemaVersion >= 8 && skill.TryGetProperty("minimumRulesVersion", out _))
+            {
+                skillMinimumRulesVersion = RequiredInt(skill, "minimumRulesVersion", skillPath);
+                if (skillMinimumRulesVersion < minimumRulesVersion ||
+                    skillMinimumRulesVersion > GameCheckpoint.CurrentRulesVersion)
+                    Fail(skillPath + ".minimumRulesVersion",
+                        $"must be from schema minimum {minimumRulesVersion} through current rules {GameCheckpoint.CurrentRulesVersion}");
+            }
             var modifiers = ReadArray(skill, "modifiers", skillPath, ParseModifier, schemaVersion >= 2);
             var viewAs = ReadArray(skill, "viewAs", skillPath, ParseViewAs, schemaVersion >= 2);
             var activations = ReadArray(skill, "activations", skillPath, ParseActivation, schemaVersion >= 2);
@@ -319,7 +329,7 @@ public sealed class SkillProgramCatalog
                 skillPath + ".playBindings");
             var hashInput = runtimeVersion + "\n" + Canonicalize(skill);
             var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput))).ToLowerInvariant();
-            result.Add(id, new SkillProgram(id, revision, hash, runtimeVersion, minimumRulesVersion,
+            result.Add(id, new SkillProgram(id, revision, hash, runtimeVersion, skillMinimumRulesVersion,
                 modifiers, viewAs, activations, triggers, contributions));
         }
         if (schemaVersion >= 2) ValidateTriggerSources(result);
