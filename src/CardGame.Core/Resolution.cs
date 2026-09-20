@@ -10,6 +10,7 @@ public static class JudgmentReasons
     public const string Luoshen = "skill.luoshen";
     public const string Tieqi = "skill.tieqi";
     public const string Shuangxiong = "skill.shuangxiong";
+    public const string Wuhun = "skill.wuhun.death";
     public const string Indulgence = "trick.indulgence";
     public const string SupplyShortage = "trick.supply-shortage";
     public const string Lightning = "trick.lightning";
@@ -31,7 +32,8 @@ public enum ResolutionFrameKind
     TargetCardSelection,
     ProgramSkill,
     ProgramCardTriggerWindow,
-    ProgramJudgmentTriggerWindow
+    ProgramJudgmentTriggerWindow,
+    DeathSkill
 }
 
 public enum ResolutionFrameStep
@@ -76,6 +78,7 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
 [JsonDerivedType(typeof(ProgramCardTriggerWindowFrame), "program-card-trigger-window")]
 [JsonDerivedType(typeof(ProgramJudgmentTriggerWindowFrame), "program-judgment-trigger-window")]
+[JsonDerivedType(typeof(DeathSkillFrame), "death-skill")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
@@ -208,6 +211,20 @@ public sealed record DeathFrame(
     int? KillerSeat,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.Death, Step);
+
+/// <summary>
+/// A serializable death-time skill cursor. Candidate seats are public rule
+/// state; the selected target remains null until the dead owner answers.
+/// </summary>
+public sealed record DeathSkillFrame(
+    long Id,
+    long ParentFrameId,
+    int OwnerSeat,
+    SkillKind Skill,
+    IReadOnlyList<int> CandidateSeats,
+    int? TargetSeat = null,
+    ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
+    : ResolutionFrame(Id, ResolutionFrameKind.DeathSkill, Step);
 
 /// <summary>
 /// A public trick-effect response cursor. It records only public card/use

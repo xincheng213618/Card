@@ -697,6 +697,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.ProgramJudgmentTrigger or
                     DecisionKind.ProgramJudgmentReplacement or
                     DecisionKind.ProgramJudgmentTarget or
+                    DecisionKind.WuhunTarget or
                     DecisionKind.ZhuqueFan
             } skillPrompt)
         {
@@ -742,6 +743,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.ProgramJudgmentTrigger or
             DecisionKind.ProgramJudgmentReplacement or
             DecisionKind.ProgramJudgmentTarget or
+            DecisionKind.WuhunTarget or
             DecisionKind.ZhuqueFan;
 
         var legalActions = _game.GetHumanLegalActions();
@@ -2050,6 +2052,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Jijiang(Slash)");
                 EventStack.Add("        AskForEquipment(ZhuqueFan)");
+            }
+            else if (pending.Kind == DecisionKind.WuhunTarget)
+            {
+                EventStack.Add("      DeathSkill(Wuhun)");
+                EventStack.Add("        SelectMaximumNightmareTarget()");
             }
             else if (pending.Kind is
                 DecisionKind.Feedback or

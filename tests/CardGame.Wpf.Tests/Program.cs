@@ -73,6 +73,7 @@ internal static class Program
             Check("Qilin Bow restores and commits an exact public mount choice", () => QilinBowUiChecks.ExactMountChoice(output));
             Check("Mengjin restores and commits an opaque hand or public equipment choice", () => MengjinUiChecks.OpaqueTargetCardChoice(output));
             Check("Quhu restores and commits its winning attributed damage target", () => QuhuUiChecks.WinningDamageTarget(output));
+            Check("dead Wuhun owners choose maximum Nightmare targets through WPF", () => WuhunUiChecks.DeathTargetChoice(output));
             Check("Shuangxiong restores its private draw replacement choice", () => ShuangxiongUiChecks.DrawChoice(output));
             Check("Fangtian Halberd restores and commits an exact multi-target Slash", () => FangtianHalberdUiChecks.ExactTargetCombination(output));
             Check("Guding Blade renders its locked empty-hand damage increase", () => GudingBladeUiChecks.LockedDamageFeedback(output));

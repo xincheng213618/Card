@@ -708,6 +708,35 @@ public sealed record RecoveryAppliedEvent(
 
 public sealed record PlayerDiedEvent(int VictimSeat, int? KillerSeat) : IGameEvent;
 
+/// <summary>
+/// A death-time skill has passed its winner/eligibility checks and frozen its
+/// public target candidates. The dead owner remains the prompt responder.
+/// </summary>
+public sealed record DeathSkillStartedEvent(
+    long ResolutionId,
+    long DeathFrameId,
+    int OwnerSeat,
+    SkillKind Skill,
+    IReadOnlyList<int> CandidateSeats) : IGameEvent;
+
+public sealed record DeathSkillTargetSelectedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    SkillKind Skill,
+    int TargetSeat) : IGameEvent;
+
+public sealed record DeathSkillResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    SkillKind Skill,
+    int? TargetSeat) : IGameEvent;
+
+public sealed record DirectDeathDeclaredEvent(
+    long ResolutionId,
+    int SourceSeat,
+    SkillKind Skill,
+    int TargetSeat) : IGameEvent;
+
 public sealed record PlayerDyingEvent(
     long ResolutionId,
     int VictimSeat,

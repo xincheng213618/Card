@@ -83,6 +83,8 @@ public sealed partial class GameEngine
     private NullificationResolution? _pendingNullification;
     private TargetCardSelectionResolution? _pendingTargetCardSelection;
     private DyingResolution? _pendingDying;
+    private DeathResolution? _pendingDeath;
+    private DeathSkillResolution? _pendingDeathSkill;
     private DamageTriggerResolution? _pendingDamageTrigger;
     private DamageSkillResolution? _pendingDamageSkill;
     private JudgmentResolution? _pendingJudgment;
@@ -184,6 +186,9 @@ public sealed partial class GameEngine
 
     private bool SupportsAttributedPublicMarkers =>
         _rulesVersion >= 91;
+
+    private bool SupportsWuhunDeathTargetSelection =>
+        _rulesVersion >= 92;
 
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
@@ -1062,7 +1067,8 @@ public sealed partial class GameEngine
                 DecisionKind.TianyiPindian or
                 DecisionKind.ZhuqueFan or
                 DecisionKind.Nullification or
-                DecisionKind.SelectTargetCard))
+                DecisionKind.SelectTargetCard or
+                DecisionKind.WuhunTarget))
         {
             return Reject(CommandErrorCode.InvalidPrompt, "There is no answerable prompt awaiting a response.");
         }
@@ -1128,6 +1134,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Leiji)
         {
             return SubmitLeijiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.WuhunTarget)
+        {
+            return SubmitWuhunTargetAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yingzi)
@@ -1654,6 +1665,35 @@ public sealed partial class GameEngine
         }
 
         return Reject(CommandErrorCode.InvalidChoice, "The choice is malformed for the Leiji trigger.");
+    }
+
+    private CommandResult SubmitWuhunTargetAnswer(PromptChoice selected)
+    {
+        var pending = _pendingDeathSkill;
+        if (pending is null ||
+            _pendingDecision is not { Kind: DecisionKind.WuhunTarget } ||
+            selected.Parameters.GetValueOrDefault("action") != "wuhun-target" ||
+            selected.Cards.Count != 0 ||
+            selected.Targets.Count != 1)
+        {
+            return Reject(CommandErrorCode.InvalidChoice,
+                "The choice is malformed for the Wuhun death target window.");
+        }
+
+        return Accept(() => HumanWuhunTargetCore(
+            pending,
+            selected.Targets[0],
+            _options.AdvanceAfterHumanCommands));
+    }
+
+    private EngineRunResult HumanWuhunTargetCore(
+        DeathSkillResolution pending,
+        int targetSeat,
+        bool advanceToHumanBoundary)
+    {
+        ResolveWuhunTargetSelection(pending, targetSeat);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
     private EngineRunResult HumanLeijiCore(
@@ -6704,6 +6744,12 @@ public sealed partial class GameEngine
         if (IsAiLuoyiPending())
         {
             ResolvePendingAiLuoyi();
+            return;
+        }
+
+        if (IsAiWuhunTargetPending())
+        {
+            ResolvePendingAiWuhunTarget();
             return;
         }
 
@@ -15010,6 +15056,7 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.Luoshen => !IsRedSuit(judgmentSuit),
             JudgmentContinuationKind.Shuangxiong => IsRedSuit(judgmentSuit),
             JudgmentContinuationKind.Leiji => judgmentSuit is Suit.Spade or Suit.Club,
+            JudgmentContinuationKind.Wuhun => GameRules.WuhunJudgmentCausesDeath(judgmentCard.Kind),
             _ => IsRedSuit(judgmentSuit)
         };
         ReplaceJudgmentFrame(frame with
@@ -15043,6 +15090,7 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.Tieqi => "铁骑",
             JudgmentContinuationKind.Shuangxiong => "双雄",
             JudgmentContinuationKind.Leiji => "雷击",
+            JudgmentContinuationKind.Wuhun => "武魂",
             _ => pending.Reason
         };
         var judgmentResult = pending.Continuation == JudgmentContinuationKind.Lightning
@@ -15385,6 +15433,12 @@ public sealed partial class GameEngine
         if (pending.Continuation == JudgmentContinuationKind.Leiji)
         {
             CompleteLeijiJudgment(pending);
+            return;
+        }
+
+        if (pending.Continuation == JudgmentContinuationKind.Wuhun)
+        {
+            CompleteWuhunJudgment(pending, succeeded);
             return;
         }
 
@@ -18166,8 +18220,18 @@ public sealed partial class GameEngine
         if (!survived)
         {
             FinalizePlayerDeath(dying);
+            return;
         }
 
+        CompleteDyingAfterDeath(dying, survived);
+    }
+
+    private void CompleteDyingAfterDeath(DyingResolution dying, bool survived)
+    {
+        if (!ReferenceEquals(_pendingDying, dying))
+        {
+            throw new InvalidOperationException("The completed dying continuation is not current.");
+        }
         QueueGameEvent(new DyingResolvedEvent(dying.FrameId, dying.VictimSeat, survived));
         PopResolutionFrame(dying.FrameId, ResolutionFrameKind.Dying);
         _pendingDying = null;
@@ -21143,12 +21207,42 @@ public sealed partial class GameEngine
         var killer = dying.KillerSeat is { } killerSeat
             ? _players[killerSeat]
             : null;
+        BeginPlayerDeath(
+            dying.FrameId,
+            victim,
+            killer,
+            dying.Attack,
+            dying,
+            causingDeathSkill: null);
+    }
+
+    private void BeginPlayerDeath(
+        long parentFrameId,
+        PlayerRuntime victim,
+        PlayerRuntime? killer,
+        AttackResolution? attack,
+        DyingResolution? dying,
+        DeathSkillResolution? causingDeathSkill)
+    {
         if (!victim.IsAlive)
         {
+            if (causingDeathSkill is not null)
+            {
+                CompleteWuhunDeathSkill(causingDeathSkill);
+            }
             return;
         }
 
-        var deathFrameId = BeginDeath(dying.FrameId, victim.Seat, killer?.Seat);
+        var deathFrameId = BeginDeath(parentFrameId, victim.Seat, killer?.Seat);
+        var death = new DeathResolution(
+            deathFrameId,
+            parentFrameId,
+            victim.Seat,
+            killer?.Seat,
+            dying,
+            causingDeathSkill,
+            _pendingDeath);
+        _pendingDeath = death;
         try
         {
             victim.Hp = 0;
@@ -21156,8 +21250,8 @@ public sealed partial class GameEngine
             if (victim.IsChained)
             {
                 victim.IsChained = false;
-                var chainResolutionId = dying.Attack?.ResolutionId ?? dying.ParentFrameId;
-                var chainSourceSeat = dying.Attack?.SourceSeat ?? victim.Seat;
+                var chainResolutionId = attack?.ResolutionId ?? parentFrameId;
+                var chainSourceSeat = attack?.SourceSeat ?? victim.Seat;
                 QueueGameEvent(new IronChainStateChangedEvent(
                     chainResolutionId,
                     chainSourceSeat,
@@ -21263,10 +21357,20 @@ public sealed partial class GameEngine
                     IsTeamMode ? _winnerTeamId : null,
                     IsNationalWarMode ? _winnerFactionId : null));
             }
+
+            if (!TryBeginWuhunDeathTargetSelection(death, victim))
+            {
+                CompleteDeathResolution(death);
+            }
         }
-        finally
+        catch
         {
-            PopResolutionFrame(deathFrameId, ResolutionFrameKind.Death);
+            if (ReferenceEquals(_pendingDeath, death))
+            {
+                PopResolutionFrame(deathFrameId, ResolutionFrameKind.Death);
+                _pendingDeath = death.Parent;
+            }
+            throw;
         }
     }
 
@@ -22065,10 +22169,13 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
-        AssertProgramCardWindowState();
-        AssertProgramJudgmentWindowState();
-        AssertDiscardPromptInvariant();
-        AssertYinghunInvariant();
+        if (_pendingDeathSkill is null)
+        {
+            AssertProgramCardWindowState();
+            AssertProgramJudgmentWindowState();
+            AssertDiscardPromptInvariant();
+            AssertYinghunInvariant();
+        }
         _cardZones.AssertInvariants(_initialCardCount);
 
         foreach (var player in _players)
@@ -22098,6 +22205,12 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException(
                     $"Judgment effective card {cardId}/{effectiveKind} is outside a delayed judgment zone.");
             }
+        }
+
+        if (_pendingDeathSkill is not null)
+        {
+            AssertWuhunDeathSkillInvariant();
+            return;
         }
 
         var processing = _cardZones.CardsAt(CardLocation.Processing);
@@ -26206,7 +26319,8 @@ public sealed partial class GameEngine
         ProgramCard,
         Indulgence,
         SupplyShortage,
-        Lightning
+        Lightning,
+        Wuhun
     }
 
     private sealed class LeijiResolution(AttackResolution originalAttack, int ownerSeat)

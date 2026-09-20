@@ -1241,6 +1241,9 @@ public static class SkillRegistry
 
 public static class GameRules
 {
+    public static bool WuhunJudgmentCausesDeath(CardKind? cardKind) =>
+        cardKind is not null and not (CardKind.Peach or CardKind.PeachGarden);
+
     /// <summary>
     /// Returns every living player tied at the greatest positive marker count.
     /// Zero-only tables deliberately produce no candidate.

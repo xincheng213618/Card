@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "contentId": "god:guan-yu:classic-i",
+  "retrievedAt": "2026-09-20T16:53:25+08:00",
+  "selectedVersion": "BWIKI经典正式服I版",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/神关羽",
+      "observedRevision": 78769,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "正式服I版武魂死亡判定；FAQ确认全零不发动、并列由神关羽选择、致死伤害计标记、鬼才鬼道可改判及游戏结束后不发动。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/武魂",
+      "observedRevision": 78768,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "交叉核对死亡判定及非桃或桃园结义时令目标死亡的正式服I版文本。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "技能标签与实际触发时机、候选、询问、效果和优先级分开建模。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161026_6077_0415",
+      "publishedAt": "2016-10-26T14:57:19+08:00",
+      "use": "历史官网攻略交叉确认梦魇、死亡判定及体力流失不触发前半段。"
+    }
+  ],
+  "d4b2Scope": {
+    "rulesVersion": 92,
+    "implemented": [
+      "已死技能拥有者保留私有目标选择资格",
+      "冻结单一来源的全部正数最大并列候选",
+      "普通判定与鬼才鬼道改判游标复用",
+      "桃和桃园结义使目标存活",
+      "其他判定结果直接死亡且不进入濒死救援",
+      "直接死亡不产生Damage或击杀奖惩",
+      "胜负已经确定时不启动武魂",
+      "每个技能拥有者只清理自己的梦魇来源",
+      "嵌套武魂以内层先完成并恢复外层",
+      "Checkpoint和Replay重建暂停目标与完成死亡链",
+      "rules v91保持只记录来源标记的历史行为"
+    ],
+    "deferred": [
+      "正式武神持续牌名与距离修正",
+      "正式神关羽内容注册与经典模式入池",
+      "正式肖像绑定和真实桌面视觉验收"
+    ]
+  }
+}

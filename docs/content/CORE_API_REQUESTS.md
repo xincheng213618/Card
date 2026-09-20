@@ -168,6 +168,7 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - 反馈、遗计和节命共享 `DamageTriggerWindowFrame`/`DamageSkillFrame`；其中反馈取得处理区伤害牌，遗计私有摸两张并交一张，节命在受伤者的私有 `Jieming` Prompt 中按公开手牌数选择目标并从牌堆补至体力上限，AI 不读取目标隐藏牌面，`DamageSkillCardsDrawnEvent.TargetSeat` 与 `skill.jieming.draw` 记录可信宿主结果；
 - rules v90 提供 `PlayerMarkerKind`、`PlayerMarkerChangedEvent` 与公开正数 `PlayerSnapshot.Markers`；D4a 的合成武魂消费者在 `DamageAppliedEvent` 后、`PlayerDyingEvent` 前按每点实际伤害增加梦魇，Checkpoint 由命令前缀重建，rules v89 保留无标记历史路径。死亡拥有者候选、并列选择、死亡判定与直接死亡仍属于 D4b；
 - rules v91 在可信引擎状态中以 `(PlayerMarkerKind, SkillOwnerSeat)` 归属同名标记，普通快照仍只公开合计；`GameRules.GetMaximumMarkerCandidates` 对单一来源排除死亡/零计数并返回全部正数最大并列者。可暂停的死亡拥有者选择、判定、直接死亡和来源标记清理仍属于 D4b2；
+- rules v92 新增可序列化 `DeathSkillFrame`、已死 responder 的 `DecisionKind.WuhunTarget`、死亡技能开始／选定／完成事件和 `DirectDeathDeclaredEvent`。武魂复用普通判定与既有改判候选游标；直接死亡走嵌套 `DeathFrame`，不进入 `DyingFrame`，完成后只清理该技能拥有者来源的梦魇。胜负已确定时短路；rules v91 不启动此链；
  - 当前边界仍是单次伤害的基础求桃；多伤害嵌套、通用触发器和复杂技能仍待后续 K5；可信命令前缀 Checkpoint 已开放，可恢复命令驱动的私有 Prompt 暂停点，规范化内容指纹也已用于拒绝同版本定义漂移；完整内部状态存档、可执行规则实现签名和兼容迁移仍等待后续 K8。
 
 ## Core API Level: K6 基础切片已开放（2026-09-07）

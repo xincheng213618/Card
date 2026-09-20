@@ -298,7 +298,8 @@ public enum DecisionKind
     ProgramCardTrigger,
     ProgramJudgmentTrigger,
     ProgramJudgmentReplacement,
-    ProgramJudgmentTarget
+    ProgramJudgmentTarget,
+    WuhunTarget
 }
 
 public enum GangliePunishmentKind
