@@ -17,6 +17,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-jiao.rules.json";
     private const string ClassicZhangJiaoPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-jiao.presentation.json";
+    private const string BoundaryZhangJiaoRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.boundary-zhang-jiao.rules.json";
+    private const string BoundaryZhangJiaoPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.boundary-zhang-jiao.presentation.json";
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
@@ -25,10 +29,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicZhangJiaoRulesResource),
             ReadEmbeddedText(ClassicZhangJiaoPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> BoundaryZhangJiaoCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(BoundaryZhangJiaoRulesResource),
+            ReadEmbeddedText(BoundaryZhangJiaoPresentationResource)));
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 65, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 66, 0))
     {
     }
 
@@ -100,12 +108,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 62, 0) &&
             version != new Version(1, 63, 0) &&
             version != new Version(1, 64, 0) &&
-            version != new Version(1, 65, 0))
+            version != new Version(1, 65, 0) &&
+            version != new Version(1, 66, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.65.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.66.0.");
         }
 
         _version = version;
@@ -812,6 +821,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian));
             }
         }
+        if (_version >= new Version(1, 66, 0))
+        {
+            foreach (var (id, program) in BoundaryZhangJiaoCatalog.Value.Programs
+                         .OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                var presentation = BoundaryZhangJiaoCatalog.Value.Presentations[id];
+                builder.AddSkill(new ContentSkillDefinition(
+                    id,
+                    presentation.Name,
+                    presentation.Description)
+                {
+                    Program = program
+                });
+            }
+        }
         if (_version >= new Version(1, 58, 0))
         {
             builder.AddSkill(new ContentSkillDefinition("classic:yinghun", "英魂",
@@ -1304,6 +1328,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "sp:longdan", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["sp:chongzhen"]));
         }
+        if (_version >= new Version(1, 66, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:zhang-jiao", "界张角", "boundary_zhang_jiao",
+                "boundary:leiji", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["boundary:guidao", "boundary:huangtian"]));
+        }
 
         var generalPoolIds = _version switch
         {
@@ -1390,6 +1421,39 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 : "standard:basic-demo",
             GeneralCandidateCount: 3,
             GeneralPoolIds: generalPoolIds));
+        if (_version >= new Version(1, 66, 0))
+        {
+            builder.AddMode(new ContentModeDefinition(
+                Id: "identity:classic-boundary-8",
+                Name: "八人界限突破身份（界张角试验）",
+                MinPlayers: 8,
+                MaxPlayers: 8,
+                RoleCounts: new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 2,
+                    [nameof(Role.Rebel)] = 4,
+                    [nameof(Role.Renegade)] = 1
+                },
+                DeckId: "classic:standard-deck",
+                GeneralCandidateCount: 3,
+                GeneralPoolIds: BoundaryGeneralIds));
+            builder.AddMode(new ContentModeDefinition(
+                Id: "identity:classic-boundary-5",
+                Name: "五人界限突破身份（界张角试验）",
+                MinPlayers: 5,
+                MaxPlayers: 5,
+                RoleCounts: new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2,
+                    [nameof(Role.Renegade)] = 1
+                },
+                DeckId: "classic:standard-deck",
+                GeneralCandidateCount: 3,
+                GeneralPoolIds: BoundaryGeneralIds));
+        }
     }
 
     private static IReadOnlyList<ContentDeckPhysicalCard> CreateStandardPhysicalDeck(bool distinctHorseNames)
@@ -1691,6 +1755,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. XuShuClassicGeneralIds,
         "sp:zhao-yun"
+    ];
+
+    internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =
+    [
+        .. SpZhaoYunClassicGeneralIds.Select(id =>
+            id == "classic:zhang-jiao" ? "boundary:zhang-jiao" : id)
     ];
 
     internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =

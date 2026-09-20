@@ -40,6 +40,8 @@ var tests = new (string Name, Action Body)[]
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
     ("formal classic Huangtian transfers one provider card per play phase", ClassicZhangJiaoProgramChecks.HuangtianContributionAndReplay),
+    ("formal boundary Zhang Jiao resolves current Leiji and Guidao with replay", BoundaryZhangJiaoProgramChecks.DodgeLeijiGuidaoAndReplay),
+    ("formal boundary Huangtian transfers Dodge or Spade cards once per provider phase", BoundaryZhangJiaoProgramChecks.HuangtianContributionAndReplay),
     ("composed AI matches complete and replay with configured actions and responses", SkillProgramMatchChecks.ComposedMatchesCompleteAndReplay),
     ("Wusheng responds to Duel and Barbarian Assault with exact physical costs and replay", WushengResponseChecks.CommandsAndReplay),
     ("Wusheng response conversion respects national reveal slots and requested card kinds", WushengResponseChecks.NationalAndScope),

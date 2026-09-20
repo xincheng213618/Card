@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 8,
+  "skills": [
+    {
+      "id": "boundary:guidao",
+      "revision": 1,
+      "minimumRulesVersion": 88,
+      "triggers": [
+        {
+          "id": "replace-judgment",
+          "window": "judgmentReplacing",
+          "subject": "any",
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "replaceJudgment",
+              "target": "owner",
+              "zones": ["hand", "equipment"],
+              "suits": ["spade", "club"],
+              "oldCardDestination": "discardPile"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "replacementSuits": ["spade"],
+              "minimumReplacementRank": 2,
+              "maximumReplacementRank": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:leiji",
+      "revision": 1,
+      "minimumRulesVersion": 88,
+      "triggers": [
+        {
+          "id": "after-dodge-response",
+          "window": "cardResponseAccepted",
+          "cardKinds": ["dodge"],
+          "optional": true,
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.boundary.leiji"
+            }
+          ]
+        },
+        {
+          "id": "after-lightning-use",
+          "window": "cardUseTargetsFinalized",
+          "cardKinds": ["lightning"],
+          "optional": true,
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.boundary.leiji"
+            }
+          ]
+        },
+        {
+          "id": "spade-damage",
+          "window": "judgmentFinalized",
+          "subject": "owner",
+          "suits": ["spade"],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "selectedTarget",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 2,
+              "nature": "thunder"
+            }
+          ]
+        },
+        {
+          "id": "club-recover",
+          "window": "judgmentFinalized",
+          "subject": "owner",
+          "suits": ["club"],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": [],
+          "optional": false,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "club-damage",
+          "window": "judgmentFinalized",
+          "subject": "owner",
+          "suits": ["club"],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "selectedTarget",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "thunder"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:huangtian",
+      "revision": 1,
+      "minimumRulesVersion": 88,
+      "contributions": [
+        {
+          "id": "contribute",
+          "providerFactions": ["qun"],
+          "ownerRole": "lord",
+          "cardKinds": ["dodge"],
+          "cardSuits": ["spade"],
+          "usesPerPlayPhase": 1
+        }
+      ]
+    }
+  ]
+}

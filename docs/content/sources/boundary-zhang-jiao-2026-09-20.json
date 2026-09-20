@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "contentId": "boundary:zhang-jiao",
+  "productLine": "三国杀 OL",
+  "retrievedAt": "2026-09-20T12:30:04.5423979+08:00",
+  "rulesSource": {
+    "url": "https://www.sanguosha.com/hero/448",
+    "pageTitle": "三国杀界张角 - 三国杀OL-三国杀官网-武将技能介绍",
+    "observedGeneralName": "界张角",
+    "observedSkillNames": ["雷击", "鬼道", "黄天"],
+    "capturedSkillTextSha256": "4425f617bb1326e2c58b6ddee3c212ee35163fa775abd30b2721531cea6b124f",
+    "capturedSkillTextLength": 163,
+    "semanticSummary": {
+      "leiji": "使用或打出闪、或使用闪电后可令自己判定；自己的判定完成后，黑桃可选一名角色造成2点雷电伤害，梅花先回复1点体力再可选一名角色造成1点雷电伤害。",
+      "guidao": "判定牌生效前可用一张黑色牌替换；替换牌为黑桃2至9时摸一张牌；当前页面未写获得旧判定牌。",
+      "huangtian": "主公技；其他群势力角色每个出牌阶段限一次，可交给拥有者一张闪或一张黑桃手牌。"
+    }
+  },
+  "conceptSource": {
+    "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+    "observedRevision": 78953,
+    "observedUpdatedDate": "2026-07-11",
+    "use": "主公技等名称作为标签；状态技与触发技按执行形态建模；判定替换和判定后为不同窗口。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.66.0",
+    "minimumRulesVersion": 88,
+    "skillRuntime": "skill-program-v8",
+    "modeIds": ["identity:classic-boundary-8", "identity:classic-boundary-5"]
+  },
+  "artwork": {
+    "localFilename": "src/CardGame.Wpf/Assets/general-zhang-jiao.png",
+    "origin": "project-original-imagegen",
+    "originCommit": "08d595a",
+    "sha256": "f392fe5de43a68576df4e04fe598cd160fe4cd68725041267fb2e78f65ca11b2",
+    "pixelWidth": 1024,
+    "pixelHeight": 1536,
+    "notes": "Project-original 2:3 portrait without logos or watermarks; bound only to boundary:zhang-jiao after the classic version moved to its separately sourced classic artwork."
+  }
+}

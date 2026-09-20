@@ -1213,6 +1213,28 @@ internal static class ClassicGeneralUiChecks
         zhangJiaoWindow.Content = null;
         zhangJiaoWindow.Close();
 
+        using var boundaryZhangJiaoViewModel = FindGeneralChoiceInMode(
+            "boundary:zhang-jiao", "identity:classic-boundary-8");
+        var boundaryZhangJiao = boundaryZhangJiaoViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "boundary:zhang-jiao");
+        Program.Assert(boundaryZhangJiao.Name == "界张角" && boundaryZhangJiao.Kingdom == "群" &&
+                       boundaryZhangJiao.SkillName == "雷击 / 鬼道 / 黄天" &&
+                       boundaryZhangJiao.SkillDescription.Contains("黑桃2～9", StringComparison.Ordinal) &&
+                       boundaryZhangJiao.SkillDescription.Contains("使用【闪电】", StringComparison.Ordinal) &&
+                       boundaryZhangJiao.SkillDescription.Contains("黑桃手牌", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(boundaryZhangJiao.GeneralId) &&
+                       boundaryZhangJiao.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && boundaryZhangJiao.HealthText == "体力上限 4",
+            "The boundary Zhang Jiao card must render its distinct current Guidao, Leiji and Huangtian rules with Lord health.");
+        var boundaryZhangJiaoWindow = new MainWindow(boundaryZhangJiaoViewModel);
+        boundaryZhangJiaoWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)boundaryZhangJiaoWindow.Content, 1120, 740,
+            Path.Combine(output, "160-boundary-zhang-jiao-card.png"));
+        boundaryZhangJiaoWindow.Content = null;
+        boundaryZhangJiaoWindow.Close();
+
         using var sunJianViewModel = FindGeneralChoice("classic:sun-jian");
         var sunJian = sunJianViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:sun-jian");
         Program.Assert(sunJian.Name == "孙坚" && sunJian.Kingdom == "吴" &&
@@ -1823,6 +1845,32 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException($"Could not find a deterministic {generalId} WPF fixture.");
+    }
+
+    private static MainViewModel FindGeneralChoiceInMode(string generalId, string modeId)
+    {
+        for (var seed = 1; seed <= 1_024; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: true,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            candidate.SelectedTableMode = candidate.TableModes.Single(mode => mode.ModeId == modeId);
+            candidate.StartNewGameCommand.Execute(null);
+            if (candidate.IsIdentityRevealOpen)
+                candidate.ContinueFromIdentityRevealCommand.Execute(null);
+            if (candidate.GeneralChoices.Any(choice => choice.GeneralId == generalId))
+                return candidate;
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException($"Could not find a deterministic {generalId} WPF fixture in {modeId}.");
     }
 
     private static MainViewModel FindJijiangViewModel()

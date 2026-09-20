@@ -70,6 +70,8 @@ public static class GeneralArt
             ["gongsun-zan"] = "general-gongsun-zan.png",
             // External source pages, image URLs and hashes: docs/content/bwiki-portraits.json.
             ["zhang-jiao"] = "wiki-zhang-jiao-classic.png",
+            // Project-original asset history: docs/content/sources/boundary-zhang-jiao-2026-09-20.json.
+            ["boundary-zhang-jiao"] = "general-zhang-jiao.png",
             ["shen-guan-yu"] = "wiki-shen-guan-yu-classic.png",
             ["sp-zhao-yun"] = "wiki-sp-zhao-yun-classic.png",
             ["sun-jian"] = "general-sun-jian.png",
@@ -130,6 +132,7 @@ public static class GeneralArt
     {
         var key = id.Replace("standard:", string.Empty, StringComparison.Ordinal)
             .Replace("classic:", string.Empty, StringComparison.Ordinal)
+            .Replace("boundary:", "boundary-", StringComparison.Ordinal)
             .Replace("sp:", "sp-", StringComparison.Ordinal)
             .Replace("national:wei-", string.Empty, StringComparison.Ordinal)
             .Replace("national:shu-", string.Empty, StringComparison.Ordinal)

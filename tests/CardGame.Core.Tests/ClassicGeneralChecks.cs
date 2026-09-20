@@ -112,6 +112,7 @@ internal static class ClassicGeneralChecks
         var wuyanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 62, 0));
         var xuShuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
         var spZhaoYunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 64, 0));
+        var configuredZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 65, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -120,7 +121,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.65.0"]),
+                "standard-classic-generals@1.66.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -163,6 +164,38 @@ internal static class ClassicGeneralChecks
                 spZhaoYunClassic.Skills["classic:huangtian"].LegacyKind == SkillKind.Huangtian &&
                 spZhaoYunClassic.Skills["classic:guidao"].Program is null,
             "Package 1.65.0 must migrate all three classic Zhang Jiao skills while package 1.64.0 retains typed behavior.");
+        Require(classic.Generals["boundary:zhang-jiao"] is
+                { Name: "界张角", BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } boundaryZhangJiao &&
+                boundaryZhangJiao.SkillIds.SequenceEqual(
+                    ["boundary:leiji", "boundary:guidao", "boundary:huangtian"]) &&
+                classic.Skills["boundary:guidao"] is { LegacyKind: null, Program: { } boundaryGuidao } &&
+                boundaryGuidao.RuntimeVersion == "skill-program-v8" &&
+                boundaryGuidao.MinimumRulesVersion == 88 &&
+                boundaryGuidao.Triggers.Single().Effects[0].OldCardDestination ==
+                    SkillProgramOldJudgmentCardDestination.DiscardPile &&
+                boundaryGuidao.Triggers.Single().Effects[1] is
+                {
+                    Op: SkillProgramTriggerEffectOp.Draw,
+                    MinimumReplacementRank: 2,
+                    MaximumReplacementRank: 9
+                } &&
+                classic.Skills["boundary:leiji"] is { LegacyKind: null, Program: { } boundaryLeiji } &&
+                boundaryLeiji.MinimumRulesVersion == 88 && boundaryLeiji.Triggers.Count == 5 &&
+                classic.Skills["boundary:huangtian"] is { LegacyKind: null, Program: { } boundaryHuangtian } &&
+                boundaryHuangtian.Contributions.Single().CardKinds.SequenceEqual([CardKind.Dodge]) &&
+                boundaryHuangtian.Contributions.Single().CardSuits.SequenceEqual([Suit.Spade]) &&
+                classic.Modes["identity:classic-boundary-5"].GeneralPoolIds!
+                    .Contains("boundary:zhang-jiao") &&
+                !classic.Modes["identity:classic-boundary-5"].GeneralPoolIds!
+                    .Contains("classic:zhang-jiao") &&
+                classic.Modes["identity:classic-5"].GeneralPoolIds!
+                    .Contains("classic:zhang-jiao") &&
+                !classic.Modes["identity:classic-5"].GeneralPoolIds!
+                    .Contains("boundary:zhang-jiao") &&
+                !configuredZhangJiaoClassic.Generals.ContainsKey("boundary:zhang-jiao") &&
+                !configuredZhangJiaoClassic.Skills.ContainsKey("boundary:leiji") &&
+                !configuredZhangJiaoClassic.Modes.ContainsKey("identity:classic-boundary-5"),
+            "Package 1.66.0 must register complete boundary Zhang Jiao only in an explicit boundary roster while 1.65.0 stays unchanged.");
         Require(classic.Generals["classic:sun-jian"] is
                 { BaseHp: 4, FactionId: "wu" } sunJian &&
                 sunJian.SkillIds.SequenceEqual(["classic:yinghun"]) &&

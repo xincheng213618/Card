@@ -102,6 +102,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ? [
                 new TableModeOption(8, "八人经典身份", "1 主公 · 2 忠臣\n4 反贼 · 1 内奸", "identity:classic-8"),
                 new TableModeOption(5, "五人经典身份", "1 主公 · 1 忠臣\n2 反贼 · 1 内奸", "identity:classic-5"),
+                .. (_contentRegistry.Modes.ContainsKey("identity:classic-boundary-8")
+                    ? new[]
+                    {
+                        new TableModeOption(8, "八人界限突破身份", "经典池替换界张角 · 1 主公\n2 忠臣 · 4 反贼 · 1 内奸", "identity:classic-boundary-8"),
+                        new TableModeOption(5, "五人界限突破身份", "经典池替换界张角 · 1 主公\n1 忠臣 · 2 反贼 · 1 内奸", "identity:classic-boundary-5")
+                    }
+                    : Array.Empty<TableModeOption>()),
                 new TableModeOption(8, "八人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-8"),
                 new TableModeOption(5, "五人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-5"),
                 new TableModeOption(5, "技能组合体验", "配置文件组合技能 · 修正、转化与主动效果", "identity:composed-skills-5"),

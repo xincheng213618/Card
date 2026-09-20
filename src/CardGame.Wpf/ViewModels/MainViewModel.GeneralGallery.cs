@@ -27,6 +27,7 @@ public sealed partial class MainViewModel
     [
         new("all", "全部系列", "全部已注册武将"),
         new("classic", "经典标准", "经典身份局正式武将"),
+        new("boundary", "界限突破", "当前独立注册的界限突破武将"),
         new("standard", "机制演示", "基础规则与技能演示武将"),
         new("national", "国战试验", "当前简化国战与野心家试验武将")
     ];
@@ -147,6 +148,7 @@ public sealed partial class MainViewModel
     private static string GeneralSeriesId(string generalId) => generalId.Split(':', 2)[0] switch
     {
         "classic" => "classic",
+        "boundary" => "boundary",
         "national" => "national",
         _ => "standard"
     };

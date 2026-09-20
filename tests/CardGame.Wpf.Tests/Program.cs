@@ -198,10 +198,13 @@ internal static class Program
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
         Assert(vm.IsGeneralGalleryOpen && vm.GeneralGalleryEntries.Count == Engine(vm).ContentRegistry!.Generals.Count,
             "Gallery did not expose every registered general exactly once.");
-        Assert(vm.GeneralGallerySeries.Select(option => option.Id).SequenceEqual(new[] { "all", "classic", "standard", "national" }),
+        Assert(vm.GeneralGallerySeries.Select(option => option.Id).SequenceEqual(new[] { "all", "classic", "boundary", "standard", "national" }),
             "Gallery series do not match the registered content families.");
         Assert(!((FrameworkElement)window.FindName("TableSurface")).IsEnabled, "Gallery must block table input.");
         var revisionBeforeFilters = Engine(vm).Revision;
+        vm.SelectGeneralGallerySeriesCommand.Execute("boundary");
+        Assert(vm.GeneralGalleryEntries is [{ GeneralId: "boundary:zhang-jiao", Name: "界张角" }],
+            "Boundary series must expose only the independently registered boundary Zhang Jiao.");
         vm.SelectGeneralGallerySeriesCommand.Execute("national");
         Assert(vm.GeneralGalleryEntries.Count == 12 && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "national"),
             "National series leaked another content family or omitted a registered trial general.");
@@ -380,12 +383,12 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 8 && vm.SelectedModeCategory.Id == "all" &&
+        Assert(vm.VisibleTableModes.Count == 10 && vm.SelectedModeCategory.Id == "all" &&
                vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 5,
             "The expanded mode lobby did not expose all registered entry families.");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 8 &&
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 10 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
             "Mode cards or category controls are inaccessible.");
 
@@ -398,8 +401,9 @@ internal static class Program
         Assert(vm.VisibleTableModes.Count == 1 && vm.SelectedTableMode.ModeId == "team:standard-2v2" && vm.IsTeamModeSelection,
             "Team category did not select its real registered entry.");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "identity");
-        Assert(vm.VisibleTableModes.Count == 5 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("identity:")) && vm.IsIdentityModeSelection,
-            "Identity category did not expose its five actual modes.");
+        Assert(vm.VisibleTableModes.Count == 7 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("identity:")) && vm.IsIdentityModeSelection &&
+               vm.VisibleTableModes.Count(mode => mode.ModeId.Contains("classic-boundary", StringComparison.Ordinal)) == 2,
+            "Identity category did not expose its seven actual modes including both boundary rosters.");
         Assert(Engine(vm).Revision == revision && vm.IsNewGameSetupOpen,
             "Browsing the mode lobby changed or replaced the suspended match.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
