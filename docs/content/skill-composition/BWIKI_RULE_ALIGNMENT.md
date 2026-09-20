@@ -1,6 +1,6 @@
 # BWIKI 资料与技能执行模型对齐
 
-2026-09-20。本文约束后续机制设计和内容迁移；不是可执行 JSON schema，也不代表下面的所有触发能力已经实现。当前执行边界分别见 [RUNTIME_V1.md](RUNTIME_V1.md) 至 [RUNTIME_V8.md](RUNTIME_V8.md)。
+2026-09-20。本文约束后续机制设计和内容迁移；不是可执行 JSON schema，也不代表下面的所有触发能力已经实现。当前执行边界分别见 [RUNTIME_V1.md](RUNTIME_V1.md) 至 [RUNTIME_V9.md](RUNTIME_V9.md)。
 
 ## 资料进入游戏的路径
 

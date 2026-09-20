@@ -13,7 +13,7 @@ public enum SkillProgramTargetKind { OtherLiving, AnyLiving, OtherWounded, AnyWo
 public enum SkillProgramEffectOp { Draw, Recover, LoseHp, GiveSelected, DiscardSelected }
 public enum SkillProgramEffectTarget { Owner, SelectedTarget }
 public enum SkillProgramTriggerWindow { CardUseTargetsFinalized, CardResponseAccepted, JudgmentReplacing, JudgmentFinalized }
-public enum SkillProgramTriggerEffectOp { Draw, Recover, ObtainOpponentHandCard, ReplaceJudgment, SelectTarget, Damage, StartJudgment }
+public enum SkillProgramTriggerEffectOp { Draw, Recover, ObtainOpponentHandCard, ReplaceJudgment, SelectTarget, Damage, StartJudgment, CauseDeath }
 public enum SkillProgramTriggerEffectTarget { Owner, Opponent, SelectedTarget, JudgmentSubject }
 public enum SkillProgramTriggerSubject { Owner, Any }
 public enum SkillProgramOldJudgmentCardDestination { DiscardPile, OwnerHand }
@@ -257,7 +257,7 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(root, "rules");
         CheckProperties(root, "rules", "schemaVersion", "skills");
-        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7, 8);
+        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7, 8, 9);
         var runtimeVersion = schemaVersion switch
         {
             1 => RuntimeVersion,
@@ -267,7 +267,8 @@ public sealed class SkillProgramCatalog
             5 => "skill-program-v5",
             6 => "skill-program-v6",
             7 => "skill-program-v7",
-            _ => "skill-program-v8"
+            8 => "skill-program-v8",
+            _ => "skill-program-v9"
         };
         var minimumRulesVersion = schemaVersion switch
         {
@@ -278,7 +279,8 @@ public sealed class SkillProgramCatalog
             5 => 83,
             6 => 84,
             7 => 85,
-            _ => 86
+            8 => 86,
+            _ => 93
         };
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
@@ -722,6 +724,22 @@ public sealed class SkillProgramCatalog
             if (amount > 20) Fail(path + ".amount", "judgment damage amount must be between 1 and 20");
             damageNature = EnumValue<DamageNature>(node, "nature", path);
         }
+        else if (op == SkillProgramTriggerEffectOp.CauseDeath)
+        {
+            if (schemaVersion < 9 || window != SkillProgramTriggerWindow.JudgmentFinalized)
+                Fail(path + ".op", "causeDeath requires schema version 9 and judgmentFinalized");
+            if (target is not (SkillProgramTriggerEffectTarget.SelectedTarget or
+                SkillProgramTriggerEffectTarget.JudgmentSubject))
+                Fail(path + ".target", "judgment causeDeath requires selectedTarget or judgmentSubject");
+            if (node.TryGetProperty("amount", out _) || node.TryGetProperty("targetKind", out _) ||
+                node.TryGetProperty("nature", out _) || node.TryGetProperty("zones", out _) ||
+                node.TryGetProperty("suits", out _) || node.TryGetProperty("oldCardDestination", out _) ||
+                node.TryGetProperty("replacementSuits", out _) ||
+                node.TryGetProperty("minimumReplacementRank", out _) ||
+                node.TryGetProperty("maximumReplacementRank", out _) ||
+                node.TryGetProperty("judgmentReason", out _))
+                Fail(path, "causeDeath accepts only target and condition");
+        }
         else if (op == SkillProgramTriggerEffectOp.StartJudgment)
         {
             if (schemaVersion < 6 || window is not
@@ -771,8 +789,9 @@ public sealed class SkillProgramCatalog
         if (op != SkillProgramTriggerEffectOp.StartJudgment && node.TryGetProperty("judgmentReason", out _))
             Fail(path, "judgmentReason is supported only by startJudgment");
         if (target == SkillProgramTriggerEffectTarget.JudgmentSubject &&
-            (op != SkillProgramTriggerEffectOp.Damage || window != SkillProgramTriggerWindow.JudgmentFinalized))
-            Fail(path + ".target", "judgmentSubject is supported only by judgmentFinalized damage");
+            (op is not (SkillProgramTriggerEffectOp.Damage or SkillProgramTriggerEffectOp.CauseDeath) ||
+             window != SkillProgramTriggerWindow.JudgmentFinalized))
+            Fail(path + ".target", "judgmentSubject is supported only by judgmentFinalized damage or causeDeath");
         if (schemaVersion >= 8 &&
             window is SkillProgramTriggerWindow.CardUseTargetsFinalized or
                 SkillProgramTriggerWindow.CardResponseAccepted &&
@@ -781,9 +800,10 @@ public sealed class SkillProgramCatalog
             Fail(path + ".target", "card-action selectedTarget is supported only by selectTarget and startJudgment");
         if (window == SkillProgramTriggerWindow.JudgmentFinalized &&
             op is not (SkillProgramTriggerEffectOp.Draw or SkillProgramTriggerEffectOp.Recover or
-                SkillProgramTriggerEffectOp.SelectTarget or SkillProgramTriggerEffectOp.Damage))
+                SkillProgramTriggerEffectOp.SelectTarget or SkillProgramTriggerEffectOp.Damage or
+                SkillProgramTriggerEffectOp.CauseDeath))
             Fail(path,
-                "judgmentFinalized currently supports only owner draw or recover effects, or a selected-target damage sequence");
+                "judgmentFinalized currently supports only owner draw or recover effects, or a selected-target damage sequence; schema 9 also permits causeDeath");
         if (window == SkillProgramTriggerWindow.JudgmentFinalized &&
             (op is SkillProgramTriggerEffectOp.Draw or SkillProgramTriggerEffectOp.Recover) &&
             target != SkillProgramTriggerEffectTarget.Owner)
@@ -816,28 +836,44 @@ public sealed class SkillProgramCatalog
                 { Op: SkillProgramTriggerEffectOp.Damage, Target: SkillProgramTriggerEffectTarget.SelectedTarget })
             .Select(item => item.index)
             .ToArray();
+        var selectedDeathIndexes = effects
+            .Select((effect, index) => (effect, index))
+            .Where(item => item.effect is
+                { Op: SkillProgramTriggerEffectOp.CauseDeath, Target: SkillProgramTriggerEffectTarget.SelectedTarget })
+            .Select(item => item.index)
+            .ToArray();
         var subjectDamageIndexes = effects
             .Select((effect, index) => (effect, index))
             .Where(item => item.effect is
                 { Op: SkillProgramTriggerEffectOp.Damage, Target: SkillProgramTriggerEffectTarget.JudgmentSubject })
             .Select(item => item.index)
             .ToArray();
-        if (selectionIndexes.Length == 0 && selectedDamageIndexes.Length == 0 && subjectDamageIndexes.Length == 0)
+        var subjectDeathIndexes = effects
+            .Select((effect, index) => (effect, index))
+            .Where(item => item.effect is
+                { Op: SkillProgramTriggerEffectOp.CauseDeath, Target: SkillProgramTriggerEffectTarget.JudgmentSubject })
+            .Select(item => item.index)
+            .ToArray();
+        if (selectionIndexes.Length == 0 && selectedDamageIndexes.Length == 0 && selectedDeathIndexes.Length == 0 &&
+            subjectDamageIndexes.Length == 0 && subjectDeathIndexes.Length == 0)
             return;
         if (schemaVersion < 5)
             Fail(path + ".effects", "selected-target judgment damage requires schema version 5");
         if (subjectDamageIndexes.Length > 0 && schemaVersion < 8)
             Fail(path + ".effects", "judgment-subject damage requires schema version 8");
+        if ((selectedDeathIndexes.Length > 0 || subjectDeathIndexes.Length > 0) && schemaVersion < 9)
+            Fail(path + ".effects", "judgment causeDeath requires schema version 9");
         if (selectionIndexes.Length == 0)
         {
-            if (selectedDamageIndexes.Length > 0)
-                Fail(path + ".effects", "selected-target judgment damage requires selectTarget first");
+            if (selectedDamageIndexes.Length > 0 || selectedDeathIndexes.Length > 0)
+                Fail(path + ".effects", "selected-target judgment effects require selectTarget first");
             return;
         }
-        if (selectionIndexes.Length != 1 || selectionIndexes[0] != 0 || selectedDamageIndexes.Length == 0 ||
-            selectedDamageIndexes.Any(index => index <= selectionIndexes[0]))
+        var selectedEffectIndexes = selectedDamageIndexes.Concat(selectedDeathIndexes).ToArray();
+        if (selectionIndexes.Length != 1 || selectionIndexes[0] != 0 || selectedEffectIndexes.Length == 0 ||
+            selectedEffectIndexes.Any(index => index <= selectionIndexes[0]))
             Fail(path + ".effects",
-                "judgment damage requires exactly one selectTarget first and at least one later damage effect");
+                "selected-target judgment effects require exactly one selectTarget first and at least one later effect");
     }
 
     private static void ValidateCardActionEffects(

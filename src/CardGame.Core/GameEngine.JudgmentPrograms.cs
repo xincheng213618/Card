@@ -113,6 +113,11 @@ public sealed partial class GameEngine
         {
             var pending = _pendingJudgment ??
                 throw new InvalidOperationException("Missing judgment trigger continuation.");
+            if (_winner != Winner.None)
+            {
+                ShortCircuitProgramJudgmentWindow(frame, pending);
+                return;
+            }
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
                 var succeeded = pending.ResultSucceeded ??
@@ -188,7 +193,47 @@ public sealed partial class GameEngine
                     effect);
                 return;
             }
+            else if (effect.Op == SkillProgramTriggerEffectOp.CauseDeath)
+            {
+                BeginProgramJudgmentCauseDeath(
+                    (ProgramJudgmentTriggerWindowFrame)_resolutionStack[^1],
+                    candidate,
+                    effect);
+                return;
+            }
             else throw new InvalidOperationException("Unsupported final judgment trigger effect.");
+        }
+    }
+
+    private void ShortCircuitProgramJudgmentWindow(
+        ProgramJudgmentTriggerWindowFrame frame,
+        JudgmentResolution pending)
+    {
+        if (frame.CandidateIndex < frame.Candidates.Count && frame.Activated)
+        {
+            var candidate = frame.Candidates[frame.CandidateIndex];
+            QueueGameEvent(new ProgramJudgmentTriggerResolvedEvent(
+                frame.Id,
+                frame.Judgment.JudgmentFrameId,
+                candidate.SkillId,
+                candidate.TriggerId,
+                candidate.OwnerSeat,
+                Activated: true));
+        }
+
+        var succeeded = pending.ResultSucceeded ??
+            throw new InvalidOperationException("A terminal judgment trigger lost its result.");
+        var judgmentCard = pending.CurrentCard ??
+            throw new InvalidOperationException("A terminal judgment trigger lost its card.");
+        PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramJudgmentTriggerWindow);
+        var completed = CompleteFinalizedJudgment(
+            pending,
+            judgmentCard,
+            succeeded,
+            allowPostJudgmentSkills: false);
+        if (completed is { } result)
+        {
+            ResumeCompletedJudgment(pending, result);
         }
     }
 
@@ -321,6 +366,86 @@ public sealed partial class GameEngine
             programJudgmentFrameId: frame.Id);
         _pendingAttack = attack;
         if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
+    }
+
+    private void BeginProgramJudgmentCauseDeath(
+        ProgramJudgmentTriggerWindowFrame frame,
+        ProgramJudgmentTriggerCandidate candidate,
+        SkillProgramTriggerEffect effect)
+    {
+        if (_rulesVersion < 93)
+            throw new InvalidOperationException("Configured causeDeath requires rules version 93.");
+        var targetSeat = effect.Target == SkillProgramTriggerEffectTarget.JudgmentSubject
+            ? frame.Judgment.SubjectSeat
+            : frame.SelectedTargetSeat;
+        if (targetSeat is not { } resolvedTargetSeat || !_players[resolvedTargetSeat].IsAlive)
+        {
+            ContinueProgramJudgmentWindow();
+            return;
+        }
+        var suspendedJudgment = _pendingJudgment ??
+            throw new InvalidOperationException("Configured causeDeath lost its finalized judgment.");
+        if (suspendedJudgment.FrameId != frame.ParentFrameId ||
+            suspendedJudgment.FrameId != frame.Judgment.JudgmentFrameId)
+            throw new InvalidOperationException("Configured causeDeath belongs to another judgment window.");
+
+        var causeId = ++_resolutionSequence;
+        var continuation = new ProgramCauseDeathResolution(
+            causeId,
+            frame.Id,
+            suspendedJudgment,
+            candidate.SkillId,
+            candidate.TriggerId,
+            candidate.OwnerSeat,
+            resolvedTargetSeat);
+        QueueGameEvent(new ProgramCauseDeathDeclaredEvent(
+            causeId,
+            frame.Id,
+            frame.Judgment.JudgmentFrameId,
+            candidate.SkillId,
+            candidate.TriggerId,
+            candidate.OwnerSeat,
+            resolvedTargetSeat));
+        AddLog(
+            "CauseDeath",
+            $"{_players[candidate.OwnerSeat].Name} 的【{_contentRegistry!.Skills[candidate.SkillId].Name}】令 {_players[resolvedTargetSeat].Name} 直接死亡。",
+            candidate.OwnerSeat,
+            resolvedTargetSeat);
+
+        _pendingJudgment = null;
+        try
+        {
+            BeginPlayerDeath(
+                frame.Id,
+                _players[resolvedTargetSeat],
+                killer: null,
+                attack: null,
+                dying: null,
+                causingDeathSkill: null,
+                causingProgramCauseDeath: continuation);
+        }
+        catch
+        {
+            if (_pendingJudgment is null)
+            {
+                _pendingJudgment = suspendedJudgment;
+            }
+            throw;
+        }
+    }
+
+    private void CompleteProgramCauseDeath(ProgramCauseDeathResolution pending)
+    {
+        if (_pendingJudgment is not null ||
+            _resolutionStack.LastOrDefault() is not ProgramJudgmentTriggerWindowFrame frame ||
+            frame.Id != pending.ParentFrameId ||
+            frame.ParentFrameId != pending.Judgment.FrameId)
+        {
+            throw new InvalidOperationException(
+                "Configured causeDeath did not return to its judgment trigger window.");
+        }
+        _pendingJudgment = pending.Judgment;
+        ContinueProgramJudgmentWindow();
     }
 
     private CommandResult SubmitProgramJudgmentTriggerAnswer(
@@ -496,5 +621,23 @@ public sealed partial class GameEngine
             frame.CandidateIndex < 0 || frame.CandidateIndex >= frame.Candidates.Count ||
             (!resolvingDamage && prompt is not null && !IsProgramJudgmentPromptValid(frame)))
             throw new InvalidOperationException("A final judgment trigger window has an invalid cursor or prompt.");
+    }
+
+    private sealed class ProgramCauseDeathResolution(
+        long causeId,
+        long parentFrameId,
+        JudgmentResolution judgment,
+        string skillId,
+        string triggerId,
+        int sourceSeat,
+        int targetSeat)
+    {
+        public long CauseId { get; } = causeId;
+        public long ParentFrameId { get; } = parentFrameId;
+        public JudgmentResolution Judgment { get; } = judgment;
+        public string SkillId { get; } = skillId;
+        public string TriggerId { get; } = triggerId;
+        public int SourceSeat { get; } = sourceSeat;
+        public int TargetSeat { get; } = targetSeat;
     }
 }

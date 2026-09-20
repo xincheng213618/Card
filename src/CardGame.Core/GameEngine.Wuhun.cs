@@ -229,6 +229,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (death.CausingProgramCauseDeath is not null)
+        {
+            CompleteProgramCauseDeath(death.CausingProgramCauseDeath);
+            return;
+        }
+
         throw new InvalidOperationException("A death resolution has no continuation.");
     }
 
@@ -398,6 +404,7 @@ public sealed partial class GameEngine
         int? killerSeat,
         DyingResolution? dying,
         DeathSkillResolution? causingDeathSkill,
+        ProgramCauseDeathResolution? causingProgramCauseDeath,
         DeathResolution? parent)
     {
         public long FrameId { get; } = frameId;
@@ -406,6 +413,7 @@ public sealed partial class GameEngine
         public int? KillerSeat { get; } = killerSeat;
         public DyingResolution? Dying { get; } = dying;
         public DeathSkillResolution? CausingDeathSkill { get; } = causingDeathSkill;
+        public ProgramCauseDeathResolution? CausingProgramCauseDeath { get; } = causingProgramCauseDeath;
         public DeathResolution? Parent { get; } = parent;
     }
 

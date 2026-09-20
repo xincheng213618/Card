@@ -64,3 +64,16 @@ public sealed record ProgramJudgmentDamageRequestedEvent(
     int TargetSeat,
     int Amount,
     DamageNature Nature) : IGameEvent;
+
+/// <summary>
+/// A configured effect requested direct death. CauseId is an audit identity,
+/// not a damage or dying frame; the shared death lifecycle owns the mutation.
+/// </summary>
+public sealed record ProgramCauseDeathDeclaredEvent(
+    long CauseId,
+    long ParentFrameId,
+    long JudgmentFrameId,
+    string SkillId,
+    string TriggerId,
+    int SourceSeat,
+    int TargetSeat) : IGameEvent;

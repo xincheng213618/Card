@@ -15113,9 +15113,11 @@ public sealed partial class GameEngine
     private bool? CompleteFinalizedJudgment(
         JudgmentResolution pending,
         Card judgmentCard,
-        bool succeeded)
+        bool succeeded,
+        bool allowPostJudgmentSkills = true)
     {
-        if (pending.Continuation != JudgmentContinuationKind.Luoshen &&
+        if (allowPostJudgmentSkills &&
+            pending.Continuation != JudgmentContinuationKind.Luoshen &&
             TryBeginTianduChoice(pending))
         {
             return null;
@@ -15506,6 +15508,11 @@ public sealed partial class GameEngine
         var damageSkill = pending.DamageSkill ??
             throw new InvalidOperationException("A Ganglie judgment has no damage-skill continuation.");
         damageSkill.GanglieJudgmentSucceeded = succeeded;
+        if (_winner != Winner.None)
+        {
+            CompleteGanglieSkill(damageSkill, used: true);
+            return;
+        }
         var source = _players[damageSkill.SourceSeat];
         if (succeeded && source.IsAlive)
         {
@@ -21222,13 +21229,18 @@ public sealed partial class GameEngine
         PlayerRuntime? killer,
         AttackResolution? attack,
         DyingResolution? dying,
-        DeathSkillResolution? causingDeathSkill)
+        DeathSkillResolution? causingDeathSkill,
+        ProgramCauseDeathResolution? causingProgramCauseDeath = null)
     {
         if (!victim.IsAlive)
         {
             if (causingDeathSkill is not null)
             {
                 CompleteWuhunDeathSkill(causingDeathSkill);
+            }
+            else if (causingProgramCauseDeath is not null)
+            {
+                CompleteProgramCauseDeath(causingProgramCauseDeath);
             }
             return;
         }
@@ -21241,6 +21253,7 @@ public sealed partial class GameEngine
             killer?.Seat,
             dying,
             causingDeathSkill,
+            causingProgramCauseDeath,
             _pendingDeath);
         _pendingDeath = death;
         try

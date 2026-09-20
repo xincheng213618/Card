@@ -124,6 +124,8 @@ rules v91 的标记来源账本同样不写入 Checkpoint：每次逐点标记�
 
 rules v92 继续只保存已接受命令前缀，不新增死亡技能专用存档字段。恢复时会重建 `DeathFrame → DeathSkillFrame → JudgmentFrame` 的父子栈、已死拥有者的私有 `WuhunTarget` Prompt、冻结候选、改判游标、直接死亡和每个技能来源的标记清理；嵌套武魂按内层先完成的同一命令顺序重放。rules v91 恢复同一前缀时只保留来源标记，不启动或清理死亡技能。
 
+rules v93 同样不新增 Checkpoint 字段。skill-program schema 9 的 `causeDeath` 从命令前缀重建 `ProgramJudgmentTriggerWindowFrame → DeathFrame → DeathSkillFrame` 嵌套、独立 cause 审计事件、外层候选游标及终局短路；暂停在被直接死亡角色的死亡技能 Choice 时，恢复后不得重复宣告直接死亡或丢失外层最终判定。包含 schema 9 程序的 Registry 不能由 rules v92 Checkpoint 启动。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "contentId": "god:guan-yu:classic-i",
+  "retrievedAt": "2026-09-20T19:08:21+08:00",
+  "selectedVersion": "BWIKI经典正式服I版",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/神关羽",
+      "observedRevision": 78769,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "正式服I版武魂文本及FAQ：非桃或桃园结义时目标死亡，可改判，已满足游戏结束条件时不再发动。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/武魂",
+      "observedRevision": 78768,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "交叉核对死亡判定结果与目标死亡效果。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "技能标签仅作属性描述；触发时机、条件、询问、执行和优先级由规则绑定显式定义。"
+    }
+  ],
+  "d4cScope": {
+    "rulesVersion": 93,
+    "skillProgramSchema": 9,
+    "implemented": [
+      "judgmentFinalized窗口的通用causeDeath效果",
+      "judgmentSubject与首步selectedTarget两种目标绑定",
+      "独立causeId及技能绑定审计事件",
+      "无Damage无濒死无求桃无killer与击杀奖惩",
+      "目标自己的死亡技能可嵌套并返回外层触发游标",
+      "终局后跳过后续候选和新的玩家可见动作",
+      "暂停与完成Checkpoint和Replay确定性重建",
+      "rules v92拒绝schema 9内容"
+    ],
+    "deferred": [
+      "正式武神持续牌名与距离修正",
+      "正式武魂配置与神关羽内容注册",
+      "正式肖像绑定和真实桌面视觉验收"
+    ]
+  }
+}
