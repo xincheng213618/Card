@@ -182,6 +182,9 @@ public sealed partial class GameEngine
     private bool SupportsPublicDamageMarkers =>
         _rulesVersion >= 90;
 
+    private bool SupportsAttributedPublicMarkers =>
+        _rulesVersion >= 91;
+
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
         _rulesVersion >= 89 && IsNationalWarMode;
@@ -16267,6 +16270,12 @@ public sealed partial class GameEngine
 
         for (var point = 0; point < amount; point++)
         {
+            if (SupportsAttributedPublicMarkers)
+            {
+                var sourceKey = (PlayerMarkerKind.Nightmare, target.Seat);
+                source.MarkerSourceCounts[sourceKey] =
+                    source.MarkerSourceCounts.GetValueOrDefault(sourceKey) + 1;
+            }
             var count = source.Markers.GetValueOrDefault(PlayerMarkerKind.Nightmare) + 1;
             source.Markers[PlayerMarkerKind.Nightmare] = count;
             QueueGameEvent(new PlayerMarkerChangedEvent(
@@ -25717,6 +25726,7 @@ public sealed partial class GameEngine
         public bool AiJijiangFailedThisTurn { get; set; }
         public bool IsChained { get; set; }
         public Dictionary<PlayerMarkerKind, int> Markers { get; } = [];
+        public Dictionary<(PlayerMarkerKind Marker, int SkillOwnerSeat), int> MarkerSourceCounts { get; } = [];
         public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
         public HashSet<SkillKind> UsedLimitedSkillKinds { get; } = [];
         public bool TianyiWonThisTurn { get; set; }

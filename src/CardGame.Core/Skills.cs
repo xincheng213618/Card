@@ -1242,6 +1242,30 @@ public static class SkillRegistry
 public static class GameRules
 {
     /// <summary>
+    /// Returns every living player tied at the greatest positive marker count.
+    /// Zero-only tables deliberately produce no candidate.
+    /// </summary>
+    public static IReadOnlyList<int> GetMaximumMarkerCandidates(
+        IEnumerable<PlayerMarkerCandidateState> players)
+    {
+        ArgumentNullException.ThrowIfNull(players);
+        var eligible = players
+            .Where(player => player.IsAlive && player.Count > 0)
+            .OrderBy(player => player.Seat)
+            .ToArray();
+        if (eligible.Length == 0)
+        {
+            return [];
+        }
+
+        var maximum = eligible.Max(player => player.Count);
+        return Array.AsReadOnly(eligible
+            .Where(player => player.Count == maximum)
+            .Select(player => player.Seat)
+            .ToArray());
+    }
+
+    /// <summary>
     /// Evaluates a public-team mode independently of identity roles. A team
     /// wins as soon as it is the only team with a living member; returning
     /// null keeps the in-progress and empty-table cases explicit.

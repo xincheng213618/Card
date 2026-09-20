@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "contentId": "god:guan-yu:classic-i",
+  "retrievedAt": "2026-09-20T18:12:00+08:00",
+  "selectedVersion": "BWIKI经典正式服I版",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/神关羽",
+      "observedRevision": 78769,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "正式服I版武魂死亡时选择梦魇最多的一名角色；FAQ确认全零不发动、最大值并列时由神关羽挑选。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "技能标签与实际候选、状态和执行时机分开建模。"
+    }
+  ],
+  "d4b1Scope": {
+    "rulesVersion": 91,
+    "implemented": [
+      "同名公开标记按技能拥有者座位保存可信来源计数",
+      "普通玩家快照仍只显示公开合计",
+      "最大候选排除死亡角色和零计数",
+      "返回全部正数最大并列者并按座位稳定排序",
+      "Checkpoint和Replay继续由命令前缀重建来源账本"
+    ],
+    "deferred": [
+      "死亡拥有者继续执行的可暂停技能帧",
+      "并列候选的玩家选择Prompt",
+      "可由鬼才鬼道替换的死亡判定",
+      "不经濒死救援的直接死亡",
+      "来源标记清理",
+      "游戏已结束时不启动武魂",
+      "正式神关羽内容注册"
+    ]
+  }
+}

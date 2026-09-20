@@ -929,6 +929,13 @@ public sealed record TeamLifeState(string TeamId, bool IsAlive);
 
 public sealed record FactionLifeState(string FactionId, bool IsAlive);
 
+/// <summary>
+/// Public inputs for selecting the living players tied at the greatest
+/// positive count of one marker source. The source attribution itself stays
+/// trusted engine state so hidden skill ownership cannot leak through views.
+/// </summary>
+public sealed record PlayerMarkerCandidateState(int Seat, bool IsAlive, int Count);
+
 public static class SnapshotJson
 {
     private static readonly JsonSerializerOptions Options = new()

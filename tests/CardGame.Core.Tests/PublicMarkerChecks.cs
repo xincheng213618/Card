@@ -12,9 +12,8 @@ internal static class PublicMarkerChecks
 
     public static void WuhunDamageOrderAndReplay()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 90,
-            "Public per-damage-point markers require rules version 90 or newer.");
-
+        Require(GameCheckpoint.CurrentRulesVersion >= 91,
+            "Source-attributed public markers require rules version 91 or newer.");
         var registry = CreateRegistry(ownerHp: 3, packageId: "wuhun-marker-nonlethal");
         var current = FindFixture(registry, requireAlcohol: true);
         var boundary = RoundTrip(current.CreateCheckpoint());
@@ -62,6 +61,24 @@ internal static class PublicMarkerChecks
                 lethal.CreateSnapshot(0, revealAll: true).Players[0].Markers?.Single().Count == 1,
             "Lethal damage must add Nightmare after damage is applied and before dying begins.");
         AssertReplay(lethal, lethalRegistry, expectedCount: 1);
+    }
+
+    public static void WuhunCandidateRules()
+    {
+        var tiedCandidates = GameRules.GetMaximumMarkerCandidates(
+        [
+            new PlayerMarkerCandidateState(3, IsAlive: true, Count: 2),
+            new PlayerMarkerCandidateState(1, IsAlive: true, Count: 2),
+            new PlayerMarkerCandidateState(2, IsAlive: false, Count: 5),
+            new PlayerMarkerCandidateState(0, IsAlive: true, Count: 0)
+        ]);
+        Require(tiedCandidates.SequenceEqual([1, 3]) &&
+                GameRules.GetMaximumMarkerCandidates(
+                [
+                    new PlayerMarkerCandidateState(0, IsAlive: true, Count: 0),
+                    new PlayerMarkerCandidateState(1, IsAlive: false, Count: 4)
+                ]).Count == 0,
+            "Maximum marker candidates must keep every living positive tie and reject zero/dead entries.");
     }
 
     private static GameEngine FindFixture(ContentRegistry registry, bool requireAlcohol)
