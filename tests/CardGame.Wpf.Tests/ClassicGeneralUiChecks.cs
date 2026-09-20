@@ -1601,6 +1601,11 @@ internal static class ClassicGeneralUiChecks
         qixiWindow.ApplyTemplate();
         var qixiRoot = (FrameworkElement)qixiWindow.Content;
         var qixiEngine = Program.Engine(qixiViewModel);
+        Program.Assert(qixiViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "奇袭" &&
+                           skill.TypeText == "状态技" &&
+                           skill.StateText == "规则自动生效"),
+            "The current classic Qixi rail did not consume its continuous state metadata.");
         var blackEquipmentAction = qixiEngine.GetHumanLegalActions().First(action =>
             action.Kind == LegalActionKind.Equip &&
             action.CardId is { } cardId &&

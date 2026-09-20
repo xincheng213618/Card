@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:classic-continuous-conversion-state-d5b2b2d",
+  "retrievedAt": "2026-09-21T02:51:27+08:00",
+  "selectedVersion": "当前经典包中持续提供牌身份或牌转化合法动作的既有技能",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "状态技是不需要玩家在触发时点确认发动且持续生效的技能部分；触发技要求玩家在特定时机主动确认发动。"
+    }
+  ],
+  "skills": [
+    "classic:qixi",
+    "classic:duanliang",
+    "classic:qingguo",
+    "classic:longdan",
+    "classic:wusheng",
+    "classic:guose",
+    "classic:huoji",
+    "classic:kanpo",
+    "classic:lianhuan",
+    "classic:luanji",
+    "sp:longdan"
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.74.0",
+    "rulesVersion": 99,
+    "tags": [],
+    "executionForms": ["State"],
+    "gameplayBehaviorChanged": false
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.73.0",
+    "previousMetadata": "None + None",
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "classificationPolicy": [
+    "技能持续向普通出牌或响应窗口提供额外合法牌动作，不另行发布技能发动或跳过询问",
+    "玩家选择某个转化动作不等于在触发时点发动触发技",
+    "转换技标签只描述阳阴状态技能，本批牌转化不会误加Conversion标签",
+    "主动技能入口和同时包含触发或主动部分的复合技能留待独立迁移"
+  ],
+  "acceptance": [
+    "11项当前定义均显式投影None + State",
+    "同一11项在经典包1.73.0保持None + None",
+    "双雄和天义仍保持未迁移元数据",
+    "内容指纹区分1.74.0和1.73.0",
+    "奇袭、断粮、倾国、龙胆、武圣、国色、火计、看破、连环、乱击及SP龙胆原有玩法回归继续通过",
+    "WPF奇袭显示状态技和规则自动生效，装备区转化入口仍可提交",
+    "1120×740离屏图无技能栏、手牌、操作区或目标选择裁切",
+    "Release 0 warning / 0 error，Core 288/288，WPF 83/83"
+  ],
+  "deferred": [
+    "普通主动技能的显式元数据与复合显示",
+    "双雄和天义等触发或主动后继续提供状态效果的复合技能",
+    "稳定standard包共享技能的独立身份或版本策略",
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

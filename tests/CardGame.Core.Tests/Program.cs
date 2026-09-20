@@ -23,6 +23,7 @@ var tests = new (string Name, Action Body)[]
     ("classic locked-state metadata is versioned without changing package 1.70", SkillMetadataChecks.ClassicLockedStateMetadataIsVersioned),
     ("classic shared locked skills receive distinct versioned identities", SkillMetadataChecks.ClassicSharedLockedSkillsReceiveDistinctIdentities),
     ("classic optional trigger metadata is versioned without flattening compound skills", SkillMetadataChecks.ClassicOptionalTriggerMetadataIsVersioned),
+    ("classic continuous card conversions receive versioned state metadata", SkillMetadataChecks.ClassicContinuousCardConversionMetadataIsVersioned),
     ("skill runtime usage and conversion states reset by declared scope", SkillMetadataChecks.RuntimeUsageAndReset),
     ("structured Niepan usage restores while rules 95 retains its legacy record", SkillMetadataChecks.StructuredNiepanUsageReplays),
     ("printed Lord skills follow identity and rules 96 replay ownership boundaries", SkillOwnershipChecks.PrintedLordSkillsFollowIdentityAndReplayBoundary),

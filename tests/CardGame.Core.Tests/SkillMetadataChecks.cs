@@ -195,7 +195,7 @@ internal static class SkillMetadataChecks
 
     public static void ClassicOptionalTriggerMetadataIsVersioned()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 73, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 72, 0));
         string[] triggerSkillIds =
         [
@@ -230,7 +230,7 @@ internal static class SkillMetadataChecks
 
         foreach (var skillId in triggerSkillIds)
         {
-            Require(current.Skills[skillId] is
+            Require(migrated.Skills[skillId] is
                 {
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.Trigger
@@ -252,19 +252,71 @@ internal static class SkillMetadataChecks
         ];
         foreach (var skillId in deferredSkillIds)
         {
-            Require(current.Skills[skillId] is
+            Require(migrated.Skills[skillId] is
                 {
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.None
                 }, $"The optional-trigger migration incorrectly flattened deferred skill {skillId}.");
         }
 
-        Require(current.Packages.Any(package =>
+        Require(migrated.Packages.Any(package =>
                     package.Id == "standard-classic-generals" && package.Version == new Version(1, 73, 0)) &&
                 previous.Packages.Any(package =>
                     package.Id == "standard-classic-generals" && package.Version == new Version(1, 72, 0)) &&
-                current.ContentHash != previous.ContentHash,
+                migrated.ContentHash != previous.ContentHash,
             "The optional-trigger migration must be isolated to package 1.73.0 and fingerprinted.");
+    }
+
+    public static void ClassicContinuousCardConversionMetadataIsVersioned()
+    {
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 74, 0));
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 73, 0));
+        string[] stateSkillIds =
+        [
+            "classic:qixi",
+            "classic:duanliang",
+            "classic:qingguo",
+            "classic:longdan",
+            "classic:wusheng",
+            "classic:guose",
+            "classic:huoji",
+            "classic:kanpo",
+            "classic:lianhuan",
+            "classic:luanji",
+            "sp:longdan"
+        ];
+
+        foreach (var skillId in stateSkillIds)
+        {
+            Require(migrated.Skills[skillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.State
+                }, $"Current classic content did not classify {skillId} as a continuous state skill.");
+            Require(previous.Skills[skillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None
+                }, $"Package 1.73.0 unexpectedly gained the state metadata for {skillId}.");
+        }
+
+        Require(migrated.Skills["classic:shuangxiong"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None
+                } &&
+                migrated.Skills["classic:tianyi"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None
+                },
+            "The continuous-conversion migration must not flatten Shuangxiong or Tianyi's compound execution forms.");
+        Require(migrated.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 74, 0)) &&
+                previous.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 73, 0)) &&
+                migrated.ContentHash != previous.ContentHash,
+            "The continuous-conversion migration must be isolated to package 1.74.0 and fingerprinted.");
     }
 
     public static void StructuredNiepanUsageReplays()
