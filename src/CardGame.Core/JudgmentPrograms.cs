@@ -9,7 +9,8 @@ public sealed record JudgmentFinalizedContext(
     CardKind CardKind,
     Suit Suit,
     int Rank,
-    bool Succeeded);
+    bool Succeeded,
+    int? SourceSeat = null);
 
 public sealed record ProgramJudgmentTriggerCandidate(
     int OwnerSeat, string SkillId, string TriggerId, string GameplayHash);

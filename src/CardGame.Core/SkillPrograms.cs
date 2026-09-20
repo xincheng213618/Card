@@ -14,7 +14,7 @@ public enum SkillProgramEffectOp { Draw, Recover, LoseHp, GiveSelected, DiscardS
 public enum SkillProgramEffectTarget { Owner, SelectedTarget }
 public enum SkillProgramTriggerWindow { CardUseTargetsFinalized, CardResponseAccepted, JudgmentReplacing, JudgmentFinalized }
 public enum SkillProgramTriggerEffectOp { Draw, Recover, ObtainOpponentHandCard, ReplaceJudgment, SelectTarget, Damage, StartJudgment }
-public enum SkillProgramTriggerEffectTarget { Owner, Opponent, SelectedTarget }
+public enum SkillProgramTriggerEffectTarget { Owner, Opponent, SelectedTarget, JudgmentSubject }
 public enum SkillProgramTriggerSubject { Owner, Any }
 public enum SkillProgramOldJudgmentCardDestination { DiscardPile, OwnerHand }
 
@@ -148,12 +148,13 @@ public sealed class SkillProgramTrigger
 {
     internal SkillProgramTrigger(string id, SkillProgramTriggerWindow window, string? sourceSkillId,
         string? sourceViewAsId, SkillProgramTriggerSubject? subject, IReadOnlyList<Suit> suits,
-        int minimumRank, int maximumRank, IReadOnlyList<string> excludedReasons, IReadOnlyList<CardKind> cardKinds,
-        bool optional, IReadOnlyList<SkillProgramTriggerEffect> effects) =>
+        int minimumRank, int maximumRank, IReadOnlyList<string> excludedReasons,
+        IReadOnlyList<string> judgmentReasons, SkillProgramTriggerSubject? judgmentSource,
+        IReadOnlyList<CardKind> cardKinds, bool optional, IReadOnlyList<SkillProgramTriggerEffect> effects) =>
         (Id, Window, SourceSkillId, SourceViewAsId, Subject, Suits, MinimumRank, MaximumRank,
-            ExcludedReasons, CardKinds, Optional, Effects) =
+            ExcludedReasons, JudgmentReasons, JudgmentSource, CardKinds, Optional, Effects) =
         (id, window, sourceSkillId, sourceViewAsId, subject, suits, minimumRank, maximumRank,
-            excludedReasons, cardKinds, optional, effects);
+            excludedReasons, judgmentReasons, judgmentSource, cardKinds, optional, effects);
     public string Id { get; }
     public SkillProgramTriggerWindow Window { get; }
     public string? SourceSkillId { get; }
@@ -163,6 +164,8 @@ public sealed class SkillProgramTrigger
     public int MinimumRank { get; }
     public int MaximumRank { get; }
     public IReadOnlyList<string> ExcludedReasons { get; }
+    public IReadOnlyList<string> JudgmentReasons { get; }
+    public SkillProgramTriggerSubject? JudgmentSource { get; }
     public IReadOnlyList<CardKind> CardKinds { get; }
     public bool Optional { get; }
     public IReadOnlyList<SkillProgramTriggerEffect> Effects { get; }
@@ -254,7 +257,7 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(root, "rules");
         CheckProperties(root, "rules", "schemaVersion", "skills");
-        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7);
+        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7, 8);
         var runtimeVersion = schemaVersion switch
         {
             1 => RuntimeVersion,
@@ -263,7 +266,8 @@ public sealed class SkillProgramCatalog
             4 => "skill-program-v4",
             5 => "skill-program-v5",
             6 => "skill-program-v6",
-            _ => "skill-program-v7"
+            7 => "skill-program-v7",
+            _ => "skill-program-v8"
         };
         var minimumRulesVersion = schemaVersion switch
         {
@@ -273,7 +277,8 @@ public sealed class SkillProgramCatalog
             4 => 82,
             5 => 83,
             6 => 84,
-            _ => 85
+            7 => 85,
+            _ => 86
         };
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
@@ -469,7 +474,7 @@ public sealed class SkillProgramCatalog
                 "excludedReasons",
                 "optional",
                 "effects"],
-            _ => ["id",
+            < 8 => ["id",
                 "window",
                 "sourceSkillId",
                 "sourceViewAsId",
@@ -480,6 +485,20 @@ public sealed class SkillProgramCatalog
                 "maximumRank",
                 "excludedReasons",
                 "optional",
+                "effects"],
+            _ => ["id",
+                "window",
+                "sourceSkillId",
+                "sourceViewAsId",
+                "cardKinds",
+                "subject",
+                "suits",
+                "minimumRank",
+                "maximumRank",
+                "excludedReasons",
+                "judgmentReasons",
+                "judgmentSource",
+                "optional",
                 "effects"]
         });
         var id = Identifier(node, "id", path);
@@ -489,6 +508,8 @@ public sealed class SkillProgramCatalog
         SkillProgramTriggerSubject? subject = null;
         IReadOnlyList<Suit> suits = Array.Empty<Suit>();
         IReadOnlyList<string> excludedReasons = Array.Empty<string>();
+        IReadOnlyList<string> judgmentReasons = Array.Empty<string>();
+        SkillProgramTriggerSubject? judgmentSource = null;
         IReadOnlyList<CardKind> cardKinds = Array.Empty<CardKind>();
         var minimumRank = 1;
         var maximumRank = 13;
@@ -499,7 +520,7 @@ public sealed class SkillProgramCatalog
                 node.TryGetProperty("cardKinds", out _))
                 Fail(path, "judgmentFinalized does not accept card-conversion source fields");
             subject = EnumValue<SkillProgramTriggerSubject>(node, "subject", path);
-            if (subject != SkillProgramTriggerSubject.Owner)
+            if (schemaVersion < 8 && subject != SkillProgramTriggerSubject.Owner)
                 Fail(path + ".subject", "judgmentFinalized currently supports only owner judgments");
             suits = EnumArray<Suit>(node, "suits", path);
             if (suits.Count == 0) Fail(path + ".suits", "must contain at least one final suit");
@@ -508,6 +529,17 @@ public sealed class SkillProgramCatalog
             if (minimumRank is < 1 or > 13 || maximumRank is < 1 or > 13 || minimumRank > maximumRank)
                 Fail(path, "judgment rank bounds must satisfy 1 <= minimumRank <= maximumRank <= 13");
             excludedReasons = StringArray(node, "excludedReasons", path);
+            if (schemaVersion >= 8)
+            {
+                judgmentReasons = node.TryGetProperty("judgmentReasons", out _)
+                    ? StringArray(node, "judgmentReasons", path)
+                    : Array.Empty<string>();
+                judgmentSource = node.TryGetProperty("judgmentSource", out _)
+                    ? EnumValue<SkillProgramTriggerSubject>(node, "judgmentSource", path)
+                    : null;
+                if (judgmentReasons.Intersect(excludedReasons, StringComparer.Ordinal).Any())
+                    Fail(path, "judgmentReasons and excludedReasons must not overlap");
+            }
         }
         else if (window == SkillProgramTriggerWindow.JudgmentReplacing)
         {
@@ -515,7 +547,8 @@ public sealed class SkillProgramCatalog
             if (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _) ||
                 node.TryGetProperty("cardKinds", out _) ||
                 node.TryGetProperty("suits", out _) || node.TryGetProperty("minimumRank", out _) ||
-                node.TryGetProperty("maximumRank", out _))
+                node.TryGetProperty("maximumRank", out _) || node.TryGetProperty("judgmentReasons", out _) ||
+                node.TryGetProperty("judgmentSource", out _))
                 Fail(path, "judgmentReplacing accepts subject and excludedReasons, not card-action or final-result fields");
             subject = EnumValue<SkillProgramTriggerSubject>(node, "subject", path);
             excludedReasons = StringArray(node, "excludedReasons", path);
@@ -524,7 +557,8 @@ public sealed class SkillProgramCatalog
         {
             if (node.TryGetProperty("subject", out _) || node.TryGetProperty("suits", out _) ||
                 node.TryGetProperty("minimumRank", out _) || node.TryGetProperty("maximumRank", out _) ||
-                node.TryGetProperty("excludedReasons", out _))
+                node.TryGetProperty("excludedReasons", out _) || node.TryGetProperty("judgmentReasons", out _) ||
+                node.TryGetProperty("judgmentSource", out _))
                 Fail(path, "card-action trigger windows do not accept judgment fields");
             if (schemaVersion >= 6 && node.TryGetProperty("cardKinds", out _))
             {
@@ -568,8 +602,12 @@ public sealed class SkillProgramCatalog
                 "judgmentReplacing requires replaceJudgment first, followed only by draw or recover effects");
         if (window == SkillProgramTriggerWindow.JudgmentFinalized)
             ValidateFinalJudgmentEffects(path, schemaVersion, effects);
+        else if (window is SkillProgramTriggerWindow.CardUseTargetsFinalized or
+                 SkillProgramTriggerWindow.CardResponseAccepted)
+            ValidateCardActionEffects(path, schemaVersion, effects);
         return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
-            minimumRank, maximumRank, excludedReasons, cardKinds, optional, effects);
+            minimumRank, maximumRank, excludedReasons, judgmentReasons, judgmentSource,
+            cardKinds, optional, effects);
     }
 
     private static SkillProgramTriggerEffect ParseTriggerEffect(
@@ -647,8 +685,12 @@ public sealed class SkillProgramCatalog
         }
         else if (op == SkillProgramTriggerEffectOp.SelectTarget)
         {
-            if (schemaVersion < 5 || window != SkillProgramTriggerWindow.JudgmentFinalized)
-                Fail(path + ".op", "selectTarget requires schema version 5 and judgmentFinalized");
+            var supportedWindow = window == SkillProgramTriggerWindow.JudgmentFinalized ||
+                schemaVersion >= 8 && window is
+                    (SkillProgramTriggerWindow.CardUseTargetsFinalized or
+                     SkillProgramTriggerWindow.CardResponseAccepted);
+            if (schemaVersion < 5 || !supportedWindow)
+                Fail(path + ".op", "selectTarget requires judgmentFinalized, or a schema version 8 card-action window");
             if (target != SkillProgramTriggerEffectTarget.SelectedTarget)
                 Fail(path + ".target", "selectTarget requires selectedTarget");
             if (node.TryGetProperty("amount", out _) || node.TryGetProperty("nature", out _))
@@ -661,8 +703,9 @@ public sealed class SkillProgramCatalog
         {
             if (schemaVersion < 5 || window != SkillProgramTriggerWindow.JudgmentFinalized)
                 Fail(path + ".op", "damage requires schema version 5 and judgmentFinalized");
-            if (target != SkillProgramTriggerEffectTarget.SelectedTarget)
-                Fail(path + ".target", "judgment damage requires selectedTarget");
+            if (target != SkillProgramTriggerEffectTarget.SelectedTarget &&
+                (schemaVersion < 8 || target != SkillProgramTriggerEffectTarget.JudgmentSubject))
+                Fail(path + ".target", "judgment damage requires selectedTarget, or schema version 8 judgmentSubject");
             if (node.TryGetProperty("targetKind", out _))
                 Fail(path, "damage uses the previously selected target and does not accept targetKind");
             amount = PositiveInt(node, "amount", path);
@@ -674,8 +717,9 @@ public sealed class SkillProgramCatalog
             if (schemaVersion < 6 || window is not
                 (SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted))
                 Fail(path + ".op", "startJudgment requires schema version 6 and a card-action window");
-            if (target != SkillProgramTriggerEffectTarget.Owner)
-                Fail(path + ".target", "startJudgment requires owner");
+            if (target != SkillProgramTriggerEffectTarget.Owner &&
+                (schemaVersion < 8 || target != SkillProgramTriggerEffectTarget.SelectedTarget))
+                Fail(path + ".target", "startJudgment requires owner, or schema version 8 selectedTarget");
             if (node.TryGetProperty("amount", out _) || node.TryGetProperty("targetKind", out _) ||
                 node.TryGetProperty("nature", out _) || node.TryGetProperty("zones", out _) ||
                 node.TryGetProperty("suits", out _) || node.TryGetProperty("oldCardDestination", out _) ||
@@ -716,6 +760,15 @@ public sealed class SkillProgramCatalog
         }
         if (op != SkillProgramTriggerEffectOp.StartJudgment && node.TryGetProperty("judgmentReason", out _))
             Fail(path, "judgmentReason is supported only by startJudgment");
+        if (target == SkillProgramTriggerEffectTarget.JudgmentSubject &&
+            (op != SkillProgramTriggerEffectOp.Damage || window != SkillProgramTriggerWindow.JudgmentFinalized))
+            Fail(path + ".target", "judgmentSubject is supported only by judgmentFinalized damage");
+        if (schemaVersion >= 8 &&
+            window is SkillProgramTriggerWindow.CardUseTargetsFinalized or
+                SkillProgramTriggerWindow.CardResponseAccepted &&
+            target == SkillProgramTriggerEffectTarget.SelectedTarget &&
+            op is not (SkillProgramTriggerEffectOp.SelectTarget or SkillProgramTriggerEffectOp.StartJudgment))
+            Fail(path + ".target", "card-action selectedTarget is supported only by selectTarget and startJudgment");
         if (window == SkillProgramTriggerWindow.JudgmentFinalized &&
             op is not (SkillProgramTriggerEffectOp.Draw or SkillProgramTriggerEffectOp.Recover or
                 SkillProgramTriggerEffectOp.SelectTarget or SkillProgramTriggerEffectOp.Damage))
@@ -747,18 +800,59 @@ public sealed class SkillProgramCatalog
             .Where(item => item.effect.Op == SkillProgramTriggerEffectOp.SelectTarget)
             .Select(item => item.index)
             .ToArray();
-        var damageIndexes = effects
+        var selectedDamageIndexes = effects
             .Select((effect, index) => (effect, index))
-            .Where(item => item.effect.Op == SkillProgramTriggerEffectOp.Damage)
+            .Where(item => item.effect is
+                { Op: SkillProgramTriggerEffectOp.Damage, Target: SkillProgramTriggerEffectTarget.SelectedTarget })
             .Select(item => item.index)
             .ToArray();
-        if (selectionIndexes.Length == 0 && damageIndexes.Length == 0) return;
+        var subjectDamageIndexes = effects
+            .Select((effect, index) => (effect, index))
+            .Where(item => item.effect is
+                { Op: SkillProgramTriggerEffectOp.Damage, Target: SkillProgramTriggerEffectTarget.JudgmentSubject })
+            .Select(item => item.index)
+            .ToArray();
+        if (selectionIndexes.Length == 0 && selectedDamageIndexes.Length == 0 && subjectDamageIndexes.Length == 0)
+            return;
         if (schemaVersion < 5)
             Fail(path + ".effects", "selected-target judgment damage requires schema version 5");
-        if (selectionIndexes.Length != 1 || selectionIndexes[0] != 0 || damageIndexes.Length == 0 ||
-            damageIndexes.Any(index => index <= selectionIndexes[0]))
+        if (subjectDamageIndexes.Length > 0 && schemaVersion < 8)
+            Fail(path + ".effects", "judgment-subject damage requires schema version 8");
+        if (selectionIndexes.Length == 0)
+        {
+            if (selectedDamageIndexes.Length > 0)
+                Fail(path + ".effects", "selected-target judgment damage requires selectTarget first");
+            return;
+        }
+        if (selectionIndexes.Length != 1 || selectionIndexes[0] != 0 || selectedDamageIndexes.Length == 0 ||
+            selectedDamageIndexes.Any(index => index <= selectionIndexes[0]))
             Fail(path + ".effects",
                 "judgment damage requires exactly one selectTarget first and at least one later damage effect");
+    }
+
+    private static void ValidateCardActionEffects(
+        string path,
+        int schemaVersion,
+        IReadOnlyList<SkillProgramTriggerEffect> effects)
+    {
+        var selectionIndexes = effects
+            .Select((effect, index) => (effect, index))
+            .Where(item => item.effect.Op == SkillProgramTriggerEffectOp.SelectTarget)
+            .Select(item => item.index)
+            .ToArray();
+        var selectedJudgmentIndexes = effects
+            .Select((effect, index) => (effect, index))
+            .Where(item => item.effect is
+                { Op: SkillProgramTriggerEffectOp.StartJudgment, Target: SkillProgramTriggerEffectTarget.SelectedTarget })
+            .Select(item => item.index)
+            .ToArray();
+        if (selectionIndexes.Length == 0 && selectedJudgmentIndexes.Length == 0) return;
+        if (schemaVersion < 8)
+            Fail(path + ".effects", "selected-subject card judgments require schema version 8");
+        if (selectionIndexes.Length != 1 || selectionIndexes[0] != 0 || selectedJudgmentIndexes.Length == 0 ||
+            selectedJudgmentIndexes.Any(index => index <= selectionIndexes[0]))
+            Fail(path + ".effects",
+                "selected-subject card judgments require exactly one selectTarget first and a later startJudgment");
     }
 
     private static void ValidateTriggerSources(IReadOnlyDictionary<string, SkillProgram> programs)

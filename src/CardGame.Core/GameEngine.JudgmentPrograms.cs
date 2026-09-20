@@ -9,15 +9,15 @@ public sealed partial class GameEngine
         bool succeeded)
     {
         if (_rulesVersion < 81 || _contentRegistry is null) return false;
-        var owner = _players[pending.TargetSeat];
-        if (!owner.IsAlive) return false;
-        var candidates = EnabledSkillPrograms(owner)
-            .OrderBy(program => program.Id, StringComparer.Ordinal)
-            .SelectMany(program => program.Triggers
-                .Where(trigger => MatchesFinalJudgment(trigger, owner, pending, judgmentCard, effectiveSuit))
-                .OrderBy(trigger => trigger.Id, StringComparer.Ordinal)
-                .Select(trigger => new ProgramJudgmentTriggerCandidate(
-                    owner.Seat, program.Id, trigger.Id, program.GameplayHash)))
+        if (!_players[pending.TargetSeat].IsAlive) return false;
+        var candidates = _players.Where(player => player.IsAlive).OrderBy(player => player.Seat)
+            .SelectMany(owner => EnabledSkillPrograms(owner)
+                .OrderBy(program => program.Id, StringComparer.Ordinal)
+                .SelectMany(program => program.Triggers
+                    .Where(trigger => MatchesFinalJudgment(trigger, owner, pending, judgmentCard, effectiveSuit))
+                    .OrderBy(trigger => trigger.Id, StringComparer.Ordinal)
+                    .Select(trigger => new ProgramJudgmentTriggerCandidate(
+                        owner.Seat, program.Id, trigger.Id, program.GameplayHash))))
             .ToArray();
         if (candidates.Length == 0) return false;
 
@@ -30,7 +30,8 @@ public sealed partial class GameEngine
             judgmentCard.Kind,
             effectiveSuit,
             judgmentCard.Rank,
-            succeeded);
+            succeeded,
+            pending.SourceSeat);
         _resolutionStack.Add(new ProgramJudgmentTriggerWindowFrame(
             ++_resolutionSequence,
             pending.FrameId,
@@ -46,8 +47,11 @@ public sealed partial class GameEngine
         Card judgmentCard,
         Suit effectiveSuit) =>
         trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
-        trigger.Subject == SkillProgramTriggerSubject.Owner &&
-        pending.TargetSeat == owner.Seat &&
+        (trigger.Subject == SkillProgramTriggerSubject.Any || pending.TargetSeat == owner.Seat) &&
+        (trigger.JudgmentSource is null || trigger.JudgmentSource == SkillProgramTriggerSubject.Any ||
+         pending.SourceSeat == owner.Seat) &&
+        (trigger.JudgmentReasons.Count == 0 ||
+         trigger.JudgmentReasons.Contains(pending.Reason, StringComparer.Ordinal)) &&
         trigger.Suits.Contains(effectiveSuit) &&
         judgmentCard.Rank >= trigger.MinimumRank &&
         judgmentCard.Rank <= trigger.MaximumRank &&
@@ -61,9 +65,12 @@ public sealed partial class GameEngine
     {
         var owner = _players[candidate.OwnerSeat];
         return owner.IsAlive &&
-               judgment.SubjectSeat == owner.Seat &&
                trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
-               trigger.Subject == SkillProgramTriggerSubject.Owner &&
+               (trigger.Subject == SkillProgramTriggerSubject.Any || judgment.SubjectSeat == owner.Seat) &&
+               (trigger.JudgmentSource is null || trigger.JudgmentSource == SkillProgramTriggerSubject.Any ||
+                judgment.SourceSeat == owner.Seat) &&
+               (trigger.JudgmentReasons.Count == 0 ||
+                trigger.JudgmentReasons.Contains(judgment.Reason, StringComparer.Ordinal)) &&
                trigger.Suits.Contains(judgment.Suit) &&
                judgment.Rank >= trigger.MinimumRank && judgment.Rank <= trigger.MaximumRank &&
                !trigger.ExcludedReasons.Contains(judgment.Reason, StringComparer.Ordinal) &&
@@ -280,8 +287,11 @@ public sealed partial class GameEngine
         ProgramJudgmentTriggerCandidate candidate,
         SkillProgramTriggerEffect effect)
     {
-        if (frame.SelectedTargetSeat is not { } targetSeat ||
-            !_players[targetSeat].IsAlive ||
+        var targetSeat = effect.Target == SkillProgramTriggerEffectTarget.JudgmentSubject
+            ? frame.Judgment.SubjectSeat
+            : frame.SelectedTargetSeat;
+        if (targetSeat is not { } resolvedTargetSeat ||
+            !_players[resolvedTargetSeat].IsAlive ||
             effect.DamageNature is not { } nature)
         {
             ContinueProgramJudgmentWindow();
@@ -293,17 +303,17 @@ public sealed partial class GameEngine
             candidate.SkillId,
             candidate.TriggerId,
             candidate.OwnerSeat,
-            targetSeat,
+            resolvedTargetSeat,
             effect.Amount,
             nature));
         AddLog("SkillTriggered",
-            $"{_players[candidate.OwnerSeat].Name} 的【{_contentRegistry!.Skills[candidate.SkillId].Name}】将对 {_players[targetSeat].Name} 造成 {effect.Amount} 点{GetDamageNatureLabel(nature)}伤害。",
+            $"{_players[candidate.OwnerSeat].Name} 的【{_contentRegistry!.Skills[candidate.SkillId].Name}】将对 {_players[resolvedTargetSeat].Name} 造成 {effect.Amount} 点{GetDamageNatureLabel(nature)}伤害。",
             candidate.OwnerSeat,
-            targetSeat);
+            resolvedTargetSeat);
         var attack = new AttackResolution(
             frame.Id,
             candidate.OwnerSeat,
-            targetSeat,
+            resolvedTargetSeat,
             card: null,
             damageAmount: effect.Amount,
             playedCardKind: null,

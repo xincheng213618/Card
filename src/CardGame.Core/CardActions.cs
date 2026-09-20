@@ -65,8 +65,13 @@ public sealed record ProgramCardTriggerCandidate(
 public sealed record ProgramCardTriggerWindowFrame(
     long Id, long ParentFrameId, CardActionContext Action,
     ProgramCardContinuation Continuation, IReadOnlyList<ProgramCardTriggerCandidate> Candidates,
-    int CandidateIndex = 0, int InstructionIndex = 0, bool Activated = false)
+    int CandidateIndex = 0, int InstructionIndex = 0, bool Activated = false,
+    int? SelectedTargetSeat = null)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramCardTriggerWindow, ResolutionFrameStep.ResolvingEffect);
 
 public sealed record ProgramCardTriggerResolvedEvent(
     long FrameId, string SkillId, string TriggerId, int OwnerSeat, int OpponentSeat, bool Activated) : IGameEvent;
+
+public sealed record ProgramCardTargetSelectedEvent(
+    long FrameId, long ActionId, string SkillId, string TriggerId,
+    int OwnerSeat, int TargetSeat) : IGameEvent;

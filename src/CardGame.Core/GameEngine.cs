@@ -6518,7 +6518,7 @@ public sealed partial class GameEngine
         if (_pendingDecision is { Kind: DecisionKind.ProgramCardTrigger } programDecision)
         {
             if (!_players[programDecision.PlayerSeat].IsHuman)
-                ResolveProgramCardChoice(programDecision.Choices[0]);
+                ResolvePendingAiProgramCardChoice();
             return;
         }
 
