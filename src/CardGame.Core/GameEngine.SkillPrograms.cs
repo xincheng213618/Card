@@ -11,7 +11,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<SkillProgram> EnabledSkillPrograms(PlayerRuntime player)
     {
         if (_rulesVersion < 79 || _contentRegistry is null) return [];
-        return EnabledPrintedContentSkillIds(player)
+        return EnabledContentSkillIds(player)
             .Select(id => _contentRegistry.Skills[id].Program)
             .OfType<SkillProgram>().ToArray();
     }

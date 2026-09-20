@@ -1,6 +1,6 @@
 # Standard 内容清单（C0 草案 / M3 试验）
 
-更新时间：2026-09-20
+更新时间：2026-09-21
 
 这是内容流水线的设计清单和正式包的对照表。稳定内容 ID 使用 `package:name` 形式；`implemented-registry` 表示已经进入 `CardGame.Content.Standard`，`implemented-legacy` 表示仍由 Core 的 `CardKind`/`SkillKind` 兼容投影运行，`planned` 表示内容定义已规划但等待后续核心 API。K1 的牌区生命周期、K2 的 Prompt/Choice、reason、可见性和强制场景见 [`CARD_MOVEMENT_CONTRACT.md`](./CARD_MOVEMENT_CONTRACT.md)；`definitionId`/`instanceId` 的 Registry 关系已在 K3 冻结。所有文案、AI 标签和规则描述均为本项目自有文字，不包含卡面、插画、音频或其他素材。
 
@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.28.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；在 1.27.0 的青龙偃月刀与 97 张历史牌堆上注册 `classic:ice-sword`，当前 `classic:standard-deck` 为 98 张，rules v47 接入杀伤害前的顺序目标牌弃置与完整伤害防止；rules v46 保留青龙偃月刀同目标新杀，rules v45 保留雌雄双股剑两阶段资源选择及甄姬、黄月英女性性别投影；关羽/武圣、赵云/龙胆、张飞/咆哮、吕布/无双及其余经典武将定义继续沿用；1.0.0–1.27.0 历史定义及牌堆按存档签名保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.69.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.69.0 注册 `sp:guan-yu`、武圣、单骑及觉醒后动态获得的马术/怒斩，rules v98 冻结觉醒状态、动态技能和精确转化来源；1.68.0 冻结技能分类/频度/转换状态元数据，1.67.0 注册神关羽；1.0.0–1.68.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |

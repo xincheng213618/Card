@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 68, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 69, 0))
     {
     }
 
@@ -119,12 +119,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 65, 0) &&
             version != new Version(1, 66, 0) &&
             version != new Version(1, 67, 0) &&
-            version != new Version(1, 68, 0))
+            version != new Version(1, 68, 0) &&
+            version != new Version(1, 69, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.68.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.69.0.");
         }
 
         _version = version;
@@ -880,6 +881,31 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "锁定技，当你受到1点伤害后，你令伤害来源获得1枚“梦魇”标记；当你死亡时，你令“梦魇”标记最多的一名角色进行判定，若结果不为【桃】或【桃园结义】，该角色死亡。",
                 SkillKind.Wuhun), SkillTag.Locked, SkillExecutionForm.State));
         }
+        if (_version >= new Version(1, 69, 0))
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "sp:guan-yu-wusheng",
+                "武圣",
+                "你可以将一张红色牌当【杀】使用或打出；你使用或打出的方块【杀】无距离限制。",
+                SkillKind.Wusheng), SkillTag.None, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "sp:danji",
+                "单骑",
+                "觉醒技，准备阶段，若你的手牌数大于体力值且本局主公不为刘备，你减1点体力上限，然后获得【马术】和【怒斩】。"),
+                SkillTag.Awakening,
+                SkillExecutionForm.Trigger));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "sp:guan-yu-mashu",
+                "马术",
+                "锁定技，你计算与其他角色的距离-1。",
+                SkillKind.Mashu), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "sp:nuzhan",
+                "怒斩",
+                "锁定技，你使用由锦囊牌转化的【杀】不计入出牌阶段使用次数；你使用由装备牌转化的【杀】伤害+1。"),
+                SkillTag.Locked,
+                SkillExecutionForm.State));
+        }
         if (_version >= new Version(1, 58, 0))
         {
             builder.AddSkill(new ContentSkillDefinition("classic:yinghun", "英魂",
@@ -1386,9 +1412,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:wushen", "god", BaseHp: 5,
                 AdditionalSkillIds: ["classic:wuhun"]));
         }
+        if (_version >= new Version(1, 69, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "sp:guan-yu", "SP关羽", "guan_yu",
+                "sp:guan-yu-wusheng", "wei", BaseHp: 4,
+                AdditionalSkillIds: ["sp:danji"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 69 } => SpGuanYuClassicGeneralIds,
             { Major: 1, Minor: >= 67 } => ShenGuanYuClassicGeneralIds,
             { Major: 1, Minor: >= 64 } => SpZhaoYunClassicGeneralIds,
             { Major: 1, Minor: >= 63 } => XuShuClassicGeneralIds,
@@ -1821,6 +1855,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. SpZhaoYunClassicGeneralIds,
         "classic:shen-guan-yu"
+    ];
+
+    internal static IReadOnlyList<string> SpGuanYuClassicGeneralIds { get; } =
+    [
+        .. ShenGuanYuClassicGeneralIds,
+        "sp:guan-yu"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

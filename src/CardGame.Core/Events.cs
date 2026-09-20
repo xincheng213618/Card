@@ -49,6 +49,30 @@ public sealed record TurnEndedEvent(int TurnNumber, int ActorSeat) : IGameEvent;
 
 public sealed record PhaseChangedEvent(TurnPhase Phase, int ActorSeat) : IGameEvent;
 
+public sealed record MaximumHpChangedEvent(
+    int PlayerSeat,
+    int Delta,
+    int MaximumHp,
+    string SkillId) : IGameEvent;
+
+public sealed record SkillsAcquiredEvent(
+    int PlayerSeat,
+    string SourceSkillId,
+    IReadOnlyList<string> SkillIds) : IGameEvent;
+
+public sealed record SkillAwakenedEvent(
+    int PlayerSeat,
+    string SkillId,
+    int MaximumHp,
+    IReadOnlyList<string> AcquiredSkillIds) : IGameEvent;
+
+public sealed record NuzhanAppliedEvent(
+    long FrameId,
+    int SourceSeat,
+    int PhysicalCardId,
+    bool IgnoredSlashLimit,
+    int DamageBonus) : IGameEvent;
+
 /// <summary>Trusted-host record of an accepted hand-limit selection.</summary>
 public sealed record HandLimitDiscardedEvent(int ActorSeat, IReadOnlyList<int> CardIds) : IGameEvent;
 

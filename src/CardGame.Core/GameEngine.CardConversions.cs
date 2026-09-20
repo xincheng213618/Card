@@ -128,7 +128,7 @@ public sealed partial class GameEngine
     {
         if (_rulesVersion < 80 || _contentRegistry is null || card.Kind == outputKind) return [];
         var context = CreateSkillContext(owner);
-        return EnabledPrintedContentSkillIds(owner)
+        return EnabledContentSkillIds(owner)
             .Select(id => _contentRegistry.Skills[id])
             .Where(skill => skill.LegacyKind is { } kind && kind != SkillKind.None)
             .Where(skill =>

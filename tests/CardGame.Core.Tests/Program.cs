@@ -51,6 +51,8 @@ var tests = new (string Name, Action Body)[]
     ("formal Wushen treats a real heart Peach as a distance-free counted Slash", ClassicShenGuanYuChecks.WushenRealDeckIdentityAndReplay),
     ("formal Wushen excludes a retained real heart Peach from dying rescue", ClassicShenGuanYuChecks.WushenHeartPeachCannotRescue),
     ("formal Wuhun completes a real-deck direct-death chain and replays", ClassicShenGuanYuChecks.WuhunRealDeckDeathChainAndReplay),
+    ("formal SP Guan Yu awakens into acquired skills with a rules 97 boundary", SpGuanYuChecks.ContentAndDanjiReplayBoundary),
+    ("formal Nuzhan uses the exact SP Wusheng conversion source", SpGuanYuChecks.NuzhanUsesExactConversionSource),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),

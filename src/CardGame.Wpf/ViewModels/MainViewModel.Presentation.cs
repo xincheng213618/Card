@@ -77,10 +77,19 @@ public sealed partial class MainViewModel
 
             if (_contentRegistry.Generals.TryGetValue(human.GeneralId, out var general))
             {
-                return FilterOwnedSkillIds(general.SkillIds, human.Skills)
+                var ownedSkillIds = human.Skills is null
+                    ? general.SkillIds
+                    : human.Skills
+                        .Select(skill => skill.ContentId)
+                        .OfType<string>()
+                        .Distinct(StringComparer.Ordinal)
+                        .ToArray();
+                return ownedSkillIds
                     .Select(_contentRegistry.GetSkill)
                     .Select(skill =>
                     {
+                        var runtimeState = human.SkillRuntimeStates?
+                            .SingleOrDefault(state => state.SkillId == skill.Id);
                         var active = skill.Program?.Activations.Count > 0 ||
                                      skill.LegacyKind is { } kind && SkillRegistry.GetActive(kind) is not null;
                         var isAvailable = availablePrograms.Contains(skill.Id) ||
@@ -89,8 +98,16 @@ public sealed partial class MainViewModel
                             skill.Name,
                             GetVisibleSkillDescription(skill),
                             GetSkillTypeText(active, skill.Tags, skill.ExecutionForms),
-                            GetSkillStateText(active, isAvailable, skill.ExecutionForms, "规则自动生效"),
-                            human.GeneralName,
+                            GetSkillStateText(
+                                active,
+                                isAvailable,
+                                skill.ExecutionForms,
+                                "规则自动生效",
+                                skill.Tags,
+                                runtimeState),
+                            runtimeState?.IsAcquired == true
+                                ? $"{human.GeneralName} · 觉醒获得"
+                                : human.GeneralName,
                             isAvailable,
                             false);
                     })
@@ -157,10 +174,23 @@ public sealed partial class MainViewModel
         bool hasActiveEntry,
         bool isAvailable,
         SkillExecutionForm executionForms,
-        string automaticText)
+        string automaticText,
+        SkillTag tags = SkillTag.None,
+        SkillRuntimeStateSnapshot? runtimeState = null)
     {
         if (isAvailable) return "当前可发动";
         if (hasActiveEntry) return "当前不可发动";
+        if (tags.HasFlag(SkillTag.Awakening))
+        {
+            return runtimeState?.Usages.Any(usage =>
+                usage.UsageId == "awakening" &&
+                usage.Scope == SkillUsageScope.Game &&
+                usage.Count > 0) == true
+                ? "已觉醒"
+                : "等待觉醒条件";
+        }
+        if (runtimeState?.Polarity is { } polarity)
+            return polarity == SkillPolarity.Yang ? "当前：阳" : "当前：阴";
         return executionForms.HasFlag(SkillExecutionForm.Trigger)
             ? "等待触发时机"
             : automaticText;

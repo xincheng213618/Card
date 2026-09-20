@@ -1512,7 +1512,9 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(beforeZhiheng.Equipment.Any(card => card.Id == equipmentCard.Id),
             "The WPF Zhiheng fixture did not equip its selectable public card.");
 
-        zhihengViewModel.UseActiveSkillCommand.Execute(null);
+        var zhihengAction = zhihengViewModel.HumanActiveSkillActions.Single(action =>
+            action.Skill == SkillKind.Zhiheng);
+        zhihengViewModel.SelectActiveSkillCommand.Execute(zhihengAction);
         var equipmentChoice = zhihengViewModel.ActiveSkillEquipmentChoices.Single(choice =>
             choice.Cards.SequenceEqual([equipmentCard.Id]));
         Program.Assert(equipmentChoice.Description.Contains("装备", StringComparison.Ordinal),

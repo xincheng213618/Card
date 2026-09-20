@@ -34,7 +34,7 @@ internal static class SkillMetadataChecks
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.None
                 },
-            "Only package 1.68.0 may project the first structured skill metadata set.");
+            "Package 1.68.0 and newer must project the first structured skill metadata set.");
 
         var plain = ContentRegistry.Build(new MetadataFixture(SkillTag.None, SkillExecutionForm.None));
         var tagged = ContentRegistry.Build(new MetadataFixture(SkillTag.Limited, SkillExecutionForm.Trigger));

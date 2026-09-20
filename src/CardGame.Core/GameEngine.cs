@@ -202,6 +202,8 @@ public sealed partial class GameEngine
 
     private bool SupportsStructuredSkillOwnership => _rulesVersion >= 97;
 
+    private bool SupportsRuntimeSkillAcquisition => _rulesVersion >= 98;
+
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
         _rulesVersion >= 89 && IsNationalWarMode;
@@ -4762,7 +4764,7 @@ public sealed partial class GameEngine
                 SecondarySkillDescription = visibleSecondaryDescription,
                 IsSecondaryGeneralPublic = IsNationalWarMode && player.SecondaryGeneralRevealed,
                 Skills = SupportsMultiSkillGenerals && canSeeGeneral
-                    ? Array.AsReadOnly(OwnedPrintedSkills(player, general)
+                    ? Array.AsReadOnly(OwnedRuntimeSkills(player, general, includeAcquired: true)
                         .Select(skill => skill with
                         {
                             Description = GetVisibleSkillDescription(skill.Kind, skill.Description)
@@ -4770,11 +4772,22 @@ public sealed partial class GameEngine
                         .ToArray())
                     : null,
                 SecondarySkills = SupportsMultiSkillGenerals && secondaryGeneral is not null
-                    ? Array.AsReadOnly(OwnedPrintedSkills(player, secondaryGeneral)
+                    ? Array.AsReadOnly(OwnedRuntimeSkills(player, secondaryGeneral, includeAcquired: false)
                         .Select(skill => skill with
                         {
                             Description = GetVisibleSkillDescription(skill.Kind, skill.Description)
                         })
+                        .ToArray())
+                    : null,
+                SkillRuntimeStates = SupportsRuntimeSkillAcquisition && canSeeGeneral
+                    ? Array.AsReadOnly(OwnedRuntimeSkills(player, general, includeAcquired: true)
+                        .Select(skill => skill.ContentId)
+                        .OfType<string>()
+                        .Distinct(StringComparer.Ordinal)
+                        .Select(skillId => _skillRuntimeState.CreateSnapshot(
+                            player.Seat,
+                            skillId,
+                            player.AcquiredSkillIds.Contains(skillId)))
                         .ToArray())
                     : null
             };
@@ -5620,6 +5633,7 @@ public sealed partial class GameEngine
         }
 
         _pendingTurnDelayedEffects = DelayedTurnEffects.None;
+        ResolveDanjiAwakening(current);
         if (UsesFormalSunJian && current.General.HasSkill(SkillKind.Yinghun) && current.Hp < current.MaxHp)
         {
             BeginYinghunChoice(current);
@@ -10330,17 +10344,18 @@ public sealed partial class GameEngine
             targetSeats,
             playedCardKind,
             ignoresArmor);
+        var nuzhan = GetNuzhanModifiers(resolutionId, source);
         MoveCard(
             slash,
             FindOwnedCardLocation(source, slash),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        if (_phase == TurnPhase.Play && source.Seat == _currentSeat)
+        if (!nuzhan.IgnoresSlashLimit && _phase == TurnPhase.Play && source.Seat == _currentSeat)
         {
             _slashCountThisTurn++;
         }
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(source.Seat, playedCardKind);
-        var damageAmount = source.HasAlcoholEffect ? 2 : 1;
+        var damageAmount = (source.HasAlcoholEffect ? 2 : 1) + nuzhan.DamageBonus;
         source.HasAlcoholEffect = false;
 
         var pending = new FangtianHalberdResolution(
@@ -10664,6 +10679,7 @@ public sealed partial class GameEngine
             playedCardKind,
             ignoresArmor,
             slashCards.Select(card => card.Id).ToArray());
+        var nuzhan = GetNuzhanModifiers(resolutionId, source);
         if (usesZhuqueFan)
         {
             QueueGameEvent(new ZhuqueFanConvertedEvent(
@@ -10685,12 +10701,13 @@ public sealed partial class GameEngine
                 CardLocation.Processing,
                 CardMoveReasons.Use);
         }
-        if (countsTowardSlashLimit && _phase == TurnPhase.Play && source.Seat == _currentSeat)
+        if (countsTowardSlashLimit && !nuzhan.IgnoresSlashLimit &&
+            _phase == TurnPhase.Play && source.Seat == _currentSeat)
         {
             _slashCountThisTurn++;
         }
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(source.Seat, playedCardKind);
-        var damageAmount = source.HasAlcoholEffect ? 2 : 1;
+        var damageAmount = (source.HasAlcoholEffect ? 2 : 1) + nuzhan.DamageBonus;
         source.HasAlcoholEffect = false;
         var attack = new AttackResolution(
             resolutionId,
@@ -19434,6 +19451,7 @@ public sealed partial class GameEngine
         target.IsAlive &&
         target.Seat != source.Seat &&
         (IgnoresProgramSlashDistance(source, conversionSource) ||
+         IgnoresSpGuanYuWushengDistance(source, slashCard) ||
          GetCombatDistance(source.Seat, target.Seat) <= GetAttackRange(source.Seat)) &&
         !IsSlashProhibited(source, target, slashCard);
 
@@ -19646,17 +19664,36 @@ public sealed partial class GameEngine
                              CanUseAsFormalWushengSlash(actor, card)))
                 {
                     var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
-                    var targets = GetFangtianOrderedSlashTargets(actor, converted);
-                    foreach (var target in targets)
+                    var sources = GetLegacyViewAsConversions(
+                        actor,
+                        converted,
+                        CardKind.Slash,
+                        forResponse: false);
+                    foreach (var conversionSource in sources)
                     {
-                        actions.Add(new LegalAction(
-                            LegalActionKind.Slash,
-                            converted.Id,
-                            target.Seat,
-                            $"将装备区【{physicalName}】当作【杀】对 {target.Name} 使用",
-                            PlayedCardKind: CardKind.Slash));
+                        var targets = GetFangtianOrderedSlashTargets(actor, converted, conversionSource);
+                        foreach (var target in targets)
+                        {
+                            actions.Add(new LegalAction(
+                                LegalActionKind.Slash,
+                                converted.Id,
+                                target.Seat,
+                                DescribeConversion(conversionSource,
+                                    $"将装备区【{physicalName}】当作【杀】对 {target.Name} 使用"),
+                                PlayedCardKind: CardKind.Slash)
+                            {
+                                ConversionSource = conversionSource
+                            });
+                        }
+                        AddTianyiSlashActions(
+                            actions,
+                            actor,
+                            converted,
+                            targets,
+                            "杀",
+                            CardKind.Slash,
+                            conversionSource);
                     }
-                    AddTianyiSlashActions(actions, actor, converted, targets, "杀", CardKind.Slash);
                 }
             }
 
@@ -19685,6 +19722,10 @@ public sealed partial class GameEngine
                     });
                 }
             }
+        }
+        else if (!actor.TianyiLostThisTurn)
+        {
+            AddNuzhanUnlimitedTrickSlashActions(actions, actor, playableCards);
         }
 
         if (actor.Hp < actor.MaxHp)
@@ -26126,6 +26167,7 @@ public sealed partial class GameEngine
         public Dictionary<(PlayerMarkerKind Marker, int SkillOwnerSeat), int> MarkerSourceCounts { get; } = [];
         public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
         public HashSet<SkillKind> UsedLimitedSkillKinds { get; } = [];
+        public List<string> AcquiredSkillIds { get; } = [];
         public bool TianyiWonThisTurn { get; set; }
         public bool TianyiLostThisTurn { get; set; }
         public bool IsFaceDown { get; set; }

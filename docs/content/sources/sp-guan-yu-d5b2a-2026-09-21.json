@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "contentId": "sp:guan-yu",
+  "retrievedAt": "2026-09-21T01:27:37+08:00",
+  "selectedVersion": "三国杀OL当前SP关羽",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/106",
+      "use": "魏势力4体力SP关羽；武圣红牌转杀及方块杀无距离限制；单骑在准备阶段按手牌数大于体力值且主公不为刘备觉醒，减1点体力上限并获得马术、怒斩。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20170805_7517_1009",
+      "use": "OL版怒斩两条锁定效果：锦囊牌转化的杀不计使用次数，装备牌转化的杀伤害+1。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "觉醒技满足条件时强制执行且同时具有锁定、限定标签；标签、执行形态和运行记录分轴。"
+    }
+  ],
+  "versionBoundary": {
+    "excludedVariant": "一将成名2026版SP关羽",
+    "excludedUrl": "https://x.sanguosha.com/hero/532.html",
+    "reason": "该版本单骑处理区域、回复摸牌并获得马术怒嗔，不能与OL版单骑怒斩混用。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.69.0",
+    "rulesVersion": 98,
+    "printedSkillIds": ["sp:guan-yu-wusheng", "sp:danji"],
+    "acquiredSkillIds": ["sp:guan-yu-mashu", "sp:nuzhan"],
+    "awakeningUsage": {
+      "skillId": "sp:danji",
+      "usageId": "awakening",
+      "scope": "game",
+      "limit": 1
+    }
+  },
+  "acceptance": [
+    "单骑在准备阶段满足条件时自动且仅觉醒一次，减1点体力上限并获得马术、怒斩",
+    "获得技能进入旧式被动、配置程序、转化来源、玩家快照和WPF技能栏共同发现路径",
+    "怒斩只读取conversionChain中精确的sp:guan-yu-wusheng来源",
+    "装备牌转化杀伤害+1，锦囊牌转化杀不计通常次数且在次数耗尽后仍有合法动作",
+    "方块杀无距离限制但仍计入通常出杀次数",
+    "Checkpoint继续只保存命令前缀，rules v98重放重建觉醒与获得状态，rules v97保留旧行为",
+    "Release 0 warning / 0 error，Core 282/282，WPF 82/82"
+  ],
+  "deferred": [
+    "一项正式阳阴转换技消费者与技能重置验收",
+    "每目标和每事件复合限次账本",
+    "剩余正式技能的完整结构化标签迁移",
+    "SP关羽独立肖像替换；当前暂复用既有关羽肖像键",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

@@ -476,6 +476,22 @@ public sealed partial record GeneralSkillDefinition(
     public SkillExecutionForm ExecutionForms { get; init; }
 }
 
+public sealed record SkillUsageStateSnapshot(
+    string UsageId,
+    SkillUsageScope Scope,
+    int Count);
+
+/// <summary>
+/// Public runtime state for one currently owned skill. The content definition
+/// remains immutable; acquisitions, use records and conversion polarity belong
+/// to one player in one match.
+/// </summary>
+public sealed record SkillRuntimeStateSnapshot(
+    string SkillId,
+    bool IsAcquired,
+    IReadOnlyList<SkillUsageStateSnapshot> Usages,
+    SkillPolarity? Polarity = null);
+
 public sealed partial record GeneralDefinition(
     string Id,
     string Name,
@@ -608,6 +624,9 @@ public sealed partial record PlayerSnapshot
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<GeneralSkillDefinition>? Skills { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<SkillRuntimeStateSnapshot>? SkillRuntimeStates { get; init; }
 
     /// <summary>
     /// Public team membership for team modes. Identity modes keep this null, and

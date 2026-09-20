@@ -17,6 +17,33 @@ public sealed partial class GameEngine
         GeneralDefinition general) =>
         general.Skills.Where(skill => CanOwnPrintedSkill(player, skill.Tags));
 
+    private GeneralSkillDefinition ToRuntimeSkillDefinition(string skillId)
+    {
+        var skill = _contentRegistry?.GetSkill(skillId) ??
+            throw new InvalidOperationException(
+                $"Runtime skill '{skillId}' is unavailable in the active content registry.");
+        return new GeneralSkillDefinition(
+            skill.LegacyKind ?? SkillKind.None,
+            skill.Name,
+            skill.Description)
+        {
+            ContentId = skill.Id,
+            Tags = skill.Tags,
+            ExecutionForms = skill.ExecutionForms
+        };
+    }
+
+    private IEnumerable<GeneralSkillDefinition> OwnedRuntimeSkills(
+        PlayerRuntime player,
+        GeneralDefinition general,
+        bool includeAcquired)
+    {
+        foreach (var skill in OwnedPrintedSkills(player, general)) yield return skill;
+        if (!includeAcquired || !SupportsRuntimeSkillAcquisition) yield break;
+        foreach (var skillId in player.AcquiredSkillIds)
+            yield return ToRuntimeSkillDefinition(skillId);
+    }
+
     private IEnumerable<GeneralSkillDefinition> RuntimePassiveSkillDefinitions(
         PlayerRuntime player,
         GeneralDefinition general)
@@ -35,7 +62,11 @@ public sealed partial class GameEngine
                     ExecutionForms = general.SkillExecutionForms
                 }
             ];
-        return definitions.Where(skill => CanOwnPrintedSkill(player, skill.Tags));
+        foreach (var skill in definitions.Where(skill => CanOwnPrintedSkill(player, skill.Tags)))
+            yield return skill;
+        if (!SupportsRuntimeSkillAcquisition) yield break;
+        foreach (var skillId in player.AcquiredSkillIds)
+            yield return ToRuntimeSkillDefinition(skillId);
     }
 
     private IReadOnlyList<string> EnabledPrintedContentSkillIds(PlayerRuntime player)
@@ -58,14 +89,31 @@ public sealed partial class GameEngine
         return ids.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
     }
 
+    private IReadOnlyList<string> EnabledContentSkillIds(PlayerRuntime player)
+    {
+        var ids = EnabledPrintedContentSkillIds(player).ToList();
+        if (SupportsRuntimeSkillAcquisition) ids.AddRange(player.AcquiredSkillIds);
+        return ids.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+    }
+
+    private bool HasRuntimeSkill(PlayerRuntime player, string skillId) =>
+        EnabledContentSkillIds(player).Contains(skillId, StringComparer.Ordinal);
+
+    private bool HasRuntimeSkill(PlayerRuntime player, SkillKind skill) =>
+        EnabledContentSkillIds(player).Any(id =>
+            _contentRegistry?.GetSkill(id).LegacyKind == skill);
+
     private IEnumerable<IPassiveSkill> EnabledPassiveSkills(PlayerRuntime player)
     {
         // Older checkpoints retain their original primary-only behavior.
         if (!IsNationalWarMode)
         {
+            var emittedKinds = new HashSet<SkillKind>();
             foreach (var skill in RuntimePassiveSkillDefinitions(player, player.General))
             {
-                if (skill.Kind != SkillKind.Yicong || UsesFormalGongsunZan)
+                if (skill.Kind != SkillKind.None &&
+                    emittedKinds.Add(skill.Kind) &&
+                    (skill.Kind != SkillKind.Yicong || UsesFormalGongsunZan))
                     yield return SkillRegistry.Get(skill.Kind);
             }
             yield break;

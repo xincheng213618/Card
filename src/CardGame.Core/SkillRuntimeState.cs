@@ -118,6 +118,33 @@ public sealed class SkillRuntimeStateStore
         return next;
     }
 
+    public SkillRuntimeStateSnapshot CreateSnapshot(
+        int ownerSeat,
+        string skillId,
+        bool isAcquired)
+    {
+        ValidateOwnerAndSkill(ownerSeat, skillId);
+        var usages = _usage
+            .Where(entry => entry.Key.OwnerSeat == ownerSeat &&
+                            string.Equals(entry.Key.SkillId, skillId, StringComparison.Ordinal))
+            .OrderBy(entry => entry.Key.Scope)
+            .ThenBy(entry => entry.Key.UsageId, StringComparer.Ordinal)
+            .Select(entry => new SkillUsageStateSnapshot(
+                entry.Key.UsageId,
+                entry.Key.Scope,
+                entry.Value))
+            .ToArray();
+        var stateKey = new SkillStateKey(ownerSeat, skillId);
+        var polarity = _polarities.TryGetValue(stateKey, out var current)
+            ? current
+            : (SkillPolarity?)null;
+        return new SkillRuntimeStateSnapshot(
+            skillId,
+            isAcquired,
+            Array.AsReadOnly(usages),
+            polarity);
+    }
+
     /// <summary>
     /// Restores one skill to its game-start state: all of its usage records are
     /// removed and a registered conversion skill returns to its initial side.
