@@ -14,7 +14,9 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetProgramJudgmentReplacementCards(
         PlayerRuntime owner,
-        SkillProgramTrigger trigger)
+        SkillProgramTrigger trigger,
+        int judgmentSubjectSeat,
+        string judgmentReason)
     {
         if (trigger.Window != SkillProgramTriggerWindow.JudgmentReplacing ||
             trigger.Effects.Count == 0 ||
@@ -25,6 +27,8 @@ public sealed partial class GameEngine
         if (replacement.Zones.Contains(CardZoneKind.Hand)) cards.AddRange(GetHand(owner));
         if (replacement.Zones.Contains(CardZoneKind.Equipment)) cards.AddRange(GetEquipment(owner));
         return cards
+            .Where(card => !IsProtectedJudgmentSourceEquipment(
+                owner, card, judgmentSubjectSeat, judgmentReason))
             .Where(card => replacement.Suits.Contains(EffectiveSuit(owner, card)))
             .OrderBy(card => card.Id)
             .ToArray();
@@ -61,7 +65,8 @@ public sealed partial class GameEngine
                 item.Id == program.Id && item.GameplayHash == program.GameplayHash) &&
             MatchesProgramJudgmentReplacement(owner, trigger, pending.TargetSeat, pending.Reason);
         var replacementCards = enabled
-            ? GetProgramJudgmentReplacementCards(owner, trigger)
+            ? GetProgramJudgmentReplacementCards(
+                owner, trigger, pending.TargetSeat, pending.Reason)
             : [];
         if (replacementCards.Count == 0)
         {
@@ -170,7 +175,8 @@ public sealed partial class GameEngine
             return;
         }
 
-        var replacement = GetProgramJudgmentReplacementCards(owner, trigger)
+        var replacement = GetProgramJudgmentReplacementCards(
+            owner, trigger, pending.TargetSeat, pending.Reason)
             .SingleOrDefault(card => card.Id == cardId) ??
             throw new InvalidOperationException("The selected configured replacement card is no longer legal.");
         var committedSuit = EffectiveSuit(_players[pending.TargetSeat], replacement);

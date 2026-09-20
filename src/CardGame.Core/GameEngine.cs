@@ -14692,7 +14692,7 @@ public sealed partial class GameEngine
                              .OrderBy(item => item.Id, StringComparer.Ordinal))
                 {
                     if (!MatchesProgramJudgmentReplacement(owner, trigger, targetSeat, reason) ||
-                        GetProgramJudgmentReplacementCards(owner, trigger).Count == 0)
+                        GetProgramJudgmentReplacementCards(owner, trigger, targetSeat, reason).Count == 0)
                     {
                         continue;
                     }
@@ -14752,7 +14752,8 @@ public sealed partial class GameEngine
         if (!owner.IsAlive ||
             !skill.CanTriggerBeforeJudgment(context) ||
             !skill.OffersJudgmentCardChoice(context) ||
-            GetJudgmentReplacementCards(owner, skill.Kind).Count == 0)
+            GetJudgmentReplacementCards(
+                owner, skill.Kind, pending.TargetSeat, pending.Reason).Count == 0)
         {
             AdvanceJudgmentCandidate(pending);
             return;
@@ -14782,7 +14783,8 @@ public sealed partial class GameEngine
         var judgmentCard = pending.CurrentCard ??
             throw new InvalidOperationException("A Guicai prompt requires a public judgment card.");
         var target = _players[pending.TargetSeat];
-        var replacementCards = GetJudgmentReplacementCards(owner, skill.Kind);
+        var replacementCards = GetJudgmentReplacementCards(
+            owner, skill.Kind, pending.TargetSeat, pending.Reason);
         var choices = replacementCards
             .Select(card => new PromptChoice(
                 new ChoiceId($"guicai.replace.frame-{pending.FrameId}.card-{card.Id}"),
@@ -14822,13 +14824,30 @@ public sealed partial class GameEngine
         };
     }
 
-    private IReadOnlyList<Card> GetJudgmentReplacementCards(PlayerRuntime owner, SkillKind skill) =>
+    private IReadOnlyList<Card> GetJudgmentReplacementCards(
+        PlayerRuntime owner,
+        SkillKind skill,
+        int judgmentSubjectSeat,
+        string judgmentReason) =>
         skill == SkillKind.Guidao
             ? GetHand(owner).Concat(GetEquipment(owner))
+                .Where(card => !IsProtectedJudgmentSourceEquipment(
+                    owner, card, judgmentSubjectSeat, judgmentReason))
                 .Where(card => card.Suit is Suit.Spade or Suit.Club)
                 .OrderBy(card => card.Id)
                 .ToArray()
             : GetHand(owner).ToArray();
+
+    private bool IsProtectedJudgmentSourceEquipment(
+        PlayerRuntime owner,
+        Card card,
+        int judgmentSubjectSeat,
+        string judgmentReason) =>
+        _rulesVersion >= 88 &&
+        owner.Seat == judgmentSubjectSeat &&
+        string.Equals(judgmentReason, JudgmentReasons.BaguaDefense, StringComparison.Ordinal) &&
+        card.Kind == CardKind.BaguaFormation &&
+        _cardZones.GetLocation(card.Id) == CardLocation.Equipment(owner.Seat);
 
     private void ResolveGuicaiChoice(
         JudgmentResolution pending,
@@ -14848,7 +14867,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The judgment replacement candidate cursor is invalid.");
             var skill = EnabledPassiveSkills(owner)
                 .Single(item => item.Kind == candidate.Skill);
-            var replacement = GetJudgmentReplacementCards(owner, skill.Kind)
+            var replacement = GetJudgmentReplacementCards(
+                owner, skill.Kind, pending.TargetSeat, pending.Reason)
                 .SingleOrDefault(card => card.Id == cardId) ??
                 throw new InvalidOperationException("The selected judgment replacement card is no longer owned by the skill user.");
             if (_cardZones.GetLocation(oldJudgmentCard.Id) != CardLocation.Judgment(pending.TargetSeat))
@@ -23544,7 +23564,8 @@ public sealed partial class GameEngine
                       replacementDecision.PlayerSeat == expectedJudgmentOwner &&
                       replacementDecision.ValidCardIds.SequenceEqual(
                           GetProgramJudgmentReplacementCards(
-                              _players[expectedJudgmentOwner], programReplacementTrigger!)
+                              _players[expectedJudgmentOwner], programReplacementTrigger!,
+                              pendingJudgment.TargetSeat, pendingJudgment.Reason)
                           .Select(card => card.Id)) &&
                       replacementDecision.Choices.Count == replacementDecision.ValidCardIds.Count +
                           (programReplacementTrigger!.Optional ? 1 : 0)
@@ -23560,7 +23581,9 @@ public sealed partial class GameEngine
                       guicaiDecision.ValidCardIds.SequenceEqual(
                           GetJudgmentReplacementCards(
                               _players[pendingJudgment.CurrentCandidateSeat],
-                              guicaiDecision.Kind == DecisionKind.Guidao ? SkillKind.Guidao : SkillKind.Guicai)
+                              guicaiDecision.Kind == DecisionKind.Guidao ? SkillKind.Guidao : SkillKind.Guicai,
+                              pendingJudgment.TargetSeat,
+                              pendingJudgment.Reason)
                           .Select(card => card.Id));
             if (!promptMatches)
             {

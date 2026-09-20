@@ -173,6 +173,138 @@ internal static class SkillProgramJudgmentReplacementChecks
         AssertAiReplacementAndReplay(registry);
     }
 
+    internal static void BaguaSourceEquipmentIsExcluded()
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new BaguaFixturePackage());
+        var (beforeBagua, baguaId) = FindBaguaBoundary(registry);
+        var current = GameReplay.Restore(RoundTrip(beforeBagua), registry);
+        var legacy = GameReplay.Restore(RoundTrip(beforeBagua) with { RulesVersion = 87 }, registry);
+        SubmitBagua(current);
+        SubmitBagua(legacy);
+
+        var currentPrompt = current.PendingDecision ??
+            throw new InvalidOperationException("The current Bagua replacement prompt was lost.");
+        var legacyPrompt = legacy.PendingDecision ??
+            throw new InvalidOperationException("The legacy Bagua replacement prompt was lost.");
+        var currentOwner = current.CreateSnapshot(0, revealAll: true).Players[0];
+        var legalBlackHand = currentOwner.Hand
+            .Where(card => card.Suit is Suit.Spade or Suit.Club)
+            .Select(card => card.Id)
+            .Order()
+            .ToArray();
+        Require(currentPrompt is
+                {
+                    Kind: DecisionKind.ProgramJudgmentReplacement,
+                    PlayerSeat: 0,
+                    IsPrivate: true
+                } &&
+                legalBlackHand.Length > 0 &&
+                currentPrompt.ValidCardIds.SequenceEqual(legalBlackHand) &&
+                !currentPrompt.ValidCardIds.Contains(baguaId) &&
+                currentOwner.Equipment.Any(card => card.Id == baguaId) &&
+                legacyPrompt.ValidCardIds.Contains(baguaId),
+            "Rules 88 must exclude the equipped Bagua that started this judgment while rules 87 retains the historical candidate.");
+
+        var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
+        Require(replay.PendingDecision?.PromptId == currentPrompt.PromptId &&
+                replay.PendingDecision.ValidCardIds.SequenceEqual(currentPrompt.ValidCardIds) &&
+                SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)),
+            "A paused Bagua-source exclusion prompt must replay exactly.");
+    }
+
+    private static (GameCheckpoint Checkpoint, int BaguaId) FindBaguaBoundary(ContentRegistry registry)
+    {
+        var baguaHands = 0;
+        var equippedGames = 0;
+        var baguaResponses = 0;
+        for (var seed = 1; seed <= 8_192; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                ModeId = BaguaFixturePackage.ModeId,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                AiPolicyVersion = 2,
+                MaxTurns = 80
+            }, registry);
+            if (!game.Submit(new StartGameCommand()).Accepted ||
+                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral } setup ||
+                !game.Submit(new SelectGeneralCommand(
+                    0, BaguaFixturePackage.OwnerGeneralId, game.Revision, setup.PromptId)).Accepted ||
+                !game.Submit(new AdvanceCommand(game.Revision)).Accepted ||
+                game.PendingDecision is not { Kind: DecisionKind.PlayCard })
+                continue;
+
+            var hand = game.CreateSnapshot(0, revealAll: true).Players[0].Hand;
+            var bagua = hand.FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
+            if (bagua is not null) baguaHands++;
+            if (bagua is null ||
+                !hand.Any(card => card.Id != bagua.Id &&
+                    (card.Suit is Suit.Spade or Suit.Club)))
+                continue;
+            var equipped = game.Submit(new PlayCardCommand(
+                0, bagua.Id, [], game.Revision, game.PendingDecision!.PromptId));
+            if (!equipped.Accepted)
+                continue;
+            for (var resume = 0; resume < 8 &&
+                 game.PendingDecision is not { Kind: DecisionKind.PlayCard }; resume++)
+            {
+                if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
+            }
+            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } resumedPlay ||
+                !game.Submit(new EndPlayPhaseCommand(
+                    0, game.Revision, resumedPlay.PromptId)).Accepted)
+                continue;
+            equippedGames++;
+
+            for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 } response &&
+                    response.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "bagua") &&
+                    game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Any(card =>
+                        card.Suit is Suit.Spade or Suit.Club))
+                {
+                    baguaResponses++;
+                    return (game.CreateCheckpoint(), bagua.Id);
+                }
+
+                GameCommand command = game.PendingDecision is { PlayerSeat: 0 } pending
+                    ? pending.Kind switch
+                    {
+                        DecisionKind.PlayCard => new EndPlayPhaseCommand(0, game.Revision, pending.PromptId),
+                        DecisionKind.RescueDying => new AnswerPromptCommand(
+                            0, pending.PromptId,
+                            pending.Choices.First(choice =>
+                                choice.Parameters.GetValueOrDefault("response") == "let-die").Id,
+                            game.Revision),
+                        _ => new AnswerPromptCommand(
+                            0, pending.PromptId, pending.Choices.Last().Id, game.Revision)
+                    }
+                    : new AdvanceOneStepCommand(game.Revision);
+                if (!game.Submit(command).Accepted) break;
+            }
+        }
+        throw new InvalidOperationException(
+            $"No bounded equipped Bagua response retained another black hand card " +
+            $"(baguaHands={baguaHands}, equippedGames={equippedGames}, baguaResponses={baguaResponses}).");
+    }
+
+    private static void SubmitBagua(GameEngine game)
+    {
+        var prompt = game.PendingDecision ?? throw new InvalidOperationException("The Bagua response prompt was lost.");
+        var choice = prompt.Choices.Single(item =>
+            item.Parameters.GetValueOrDefault("response") == "bagua");
+        var result = game.Submit(new AnswerPromptCommand(
+            0, prompt.PromptId, choice.Id, game.Revision));
+        Require(result.Accepted, result.Error?.Message ?? "The Bagua response was rejected.");
+    }
+
     private static (GameEngine Game, int EquipmentId) FindBoundary(ContentRegistry registry)
     {
         for (var seed = 1; seed <= 512; seed++)
@@ -389,6 +521,56 @@ internal static class SkillProgramJudgmentReplacementChecks
         }
     }
 
+    private sealed class BaguaFixturePackage : IGameContentPackage
+    {
+        internal const string ModeId = "identity:program-guidao-bagua-5";
+        internal const string OwnerGeneralId = "program-guidao-bagua:owner";
+        private const string SkillId = "program-guidao-bagua:guidao";
+        private static readonly string[] OtherGeneralIds =
+            Enumerable.Range(1, 4).Select(index => $"program-guidao-bagua:other-{index}").ToArray();
+
+        public PackageManifest Manifest { get; } = new(
+            "program-guidao-bagua-fixture", new Version(1, 0, 0),
+            [new PackageDependency("standard", new Version(1, 11, 0))]);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var catalog = SkillProgramCatalog.Load(BaguaRules, BaguaPresentation);
+            builder.AddSkill(new ContentSkillDefinition(SkillId, "鬼道来源装备测试", "以黑色牌替换判定牌。")
+            {
+                Program = catalog.Programs[SkillId]
+            });
+            builder.AddGeneral(new ContentGeneralDefinition(
+                OwnerGeneralId, "鬼道八卦测试", "zhang_jiao", SkillId, "qun", BaseHp: 4));
+            foreach (var id in OtherGeneralIds)
+                builder.AddGeneral(new ContentGeneralDefinition(
+                    id, "八卦陪测", "cao_cao", "standard:none", "wei", BaseHp: 4));
+            var physicalCards = Enumerable.Range(0, 40).SelectMany(_ => new[]
+            {
+                new ContentDeckPhysicalCard("standard:bagua", Suit.Spade, 2),
+                new ContentDeckPhysicalCard("standard:slash", Suit.Club, 7),
+                new ContentDeckPhysicalCard("standard:slash", Suit.Spade, 9)
+            }).ToArray();
+            builder.AddDeck(new ContentDeckRecipe(
+                "program-guidao-bagua:deck", "鬼道八卦来源装备夹具", 4, 2, [])
+            {
+                PhysicalCards = physicalCards
+            });
+            builder.AddMode(new ContentModeDefinition(
+                ModeId, "鬼道八卦来源装备测试", 5, 5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2,
+                    [nameof(Role.Renegade)] = 1
+                },
+                DeckId: "program-guidao-bagua:deck",
+                GeneralCandidateCount: 5,
+                GeneralPoolIds: [OwnerGeneralId, .. OtherGeneralIds]));
+        }
+    }
+
     private static void AssertReject(string rules, string expected)
     {
         try { _ = SkillProgramCatalog.Load(rules, Presentation); }
@@ -397,6 +579,9 @@ internal static class SkillProgramJudgmentReplacementChecks
         { return; }
         throw new InvalidOperationException($"Expected rejection containing '{expected}'.");
     }
+
+    private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
+        GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
 
     private static void RequireThrows<TException>(Action action) where TException : Exception
     {
@@ -458,6 +643,26 @@ internal static class SkillProgramJudgmentReplacementChecks
         {"schemaVersion":1,"skills":{
           "judgment-replace-test:both":{
             "name":"改判交换测试","description":"测试旧判定牌去向与提交牌条件效果。"
+          }
+        }}
+        """;
+
+    private const string BaguaRules = """
+        {"schemaVersion":4,"skills":[
+          {"id":"program-guidao-bagua:guidao","revision":1,"triggers":[
+            {"id":"replace","window":"judgmentReplacing","subject":"any","excludedReasons":[],
+             "optional":true,"effects":[
+              {"op":"replaceJudgment","target":"owner","zones":["hand","equipment"],
+               "suits":["spade","club"],"oldCardDestination":"ownerHand"}
+             ]}
+          ]}
+        ]}
+        """;
+
+    private const string BaguaPresentation = """
+        {"schemaVersion":1,"skills":{
+          "program-guidao-bagua:guidao":{
+            "name":"鬼道来源装备测试","description":"以黑色牌替换判定牌。"
           }
         }}
         """;
