@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:classic-optional-trigger-d5b2b2c",
+  "retrievedAt": "2026-09-21T02:42:29+08:00",
+  "selectedVersion": "当前经典包中已有发动或跳过交互的纯可选触发技",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "触发技是需要玩家主动确定发动的技能部分；状态技是不需玩家确认且持续或自动生效的技能部分。"
+    }
+  ],
+  "skills": [
+    "classic:feedback",
+    "classic:tiandu",
+    "classic:guanxing",
+    "classic:keji",
+    "classic:tuxi",
+    "classic:luoyi",
+    "classic:luoshen",
+    "classic:jizhi",
+    "classic:tieqi",
+    "classic:liegong",
+    "classic:liuli",
+    "classic:biyue",
+    "classic:xiaoji",
+    "classic:lianying",
+    "classic:mengjin",
+    "classic:jushou",
+    "classic:tianxiang",
+    "classic:shensu",
+    "classic:guidao",
+    "classic:leiji",
+    "boundary:guidao",
+    "boundary:leiji",
+    "classic:yinghun",
+    "classic:zaiqi",
+    "classic:lieren",
+    "classic:jujian",
+    "sp:chongzhen"
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.73.0",
+    "rulesVersion": 99,
+    "tags": [],
+    "executionForms": ["Trigger"],
+    "gameplayBehaviorChanged": false
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.72.0",
+    "previousMetadata": "None + None",
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "classificationPolicy": [
+    "每项已有规则路径都向技能拥有者发布发动或跳过选择",
+    "目标或效果内部的后续选择不单独改变技能执行形态",
+    "不以描述中是否出现可以作为运行时推断依据",
+    "主动技能、持续转化技能以及触发后产生回合状态的复合技能留待独立迁移"
+  ],
+  "acceptance": [
+    "27项当前定义均显式投影None + Trigger",
+    "同一27项在经典包1.72.0保持None + None",
+    "双雄、天义、龙胆、SP龙胆和反间仍保持未迁移元数据",
+    "内容指纹区分1.73.0和1.72.0",
+    "WPF集智与铁骑显示触发技和等待触发时机",
+    "1120×740离屏图同时保留奇才的状态技 · 锁定技显示且无裁切",
+    "Release 0 warning / 0 error，Core 287/287，WPF 83/83"
+  ],
+  "deferred": [
+    "主动技能和持续牌转化技能的执行形态",
+    "双雄、天义等同时包含发动与持续状态的复合技能",
+    "稳定standard包共享技能的独立身份或版本策略",
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

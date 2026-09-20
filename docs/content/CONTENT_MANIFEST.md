@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.72.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.72.0 为此前跨包复用的空城／马术／奇才建立三个带 `Locked + State` 的独立 `classic:` ID；1.71.0 为另外 13 项已验收锁定技补齐结构化元数据；1.70.0 注册 `classic:yan-yan`／`classic:juzhan`，rules v99 冻结阳阴转换与每目标回合账本；1.0.0–1.71.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.73.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.73.0 将 27 项已有发动／跳过交互的纯可选技能显式标为 `None + Trigger`，主动／持续转化／复合技能仍待独立迁移；1.72.0 为此前跨包复用的空城／马术／奇才建立三个带 `Locked + State` 的独立 `classic:` ID；1.71.0 为另外 13 项已验收锁定技补齐结构化元数据；1.70.0 注册 `classic:yan-yan`／`classic:juzhan`，rules v99 冻结阳阴转换与每目标回合账本；1.0.0–1.72.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |

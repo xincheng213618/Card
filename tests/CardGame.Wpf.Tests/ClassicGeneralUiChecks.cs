@@ -741,10 +741,14 @@ internal static class ClassicGeneralUiChecks
         using var jizhiViewModel = FindClassicJizhiViewModel();
         var jizhiEngine = Program.Engine(jizhiViewModel);
         Program.Assert(jizhiViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "集智" &&
+                           skill.TypeText == "触发技" &&
+                           skill.StateText == "等待触发时机") &&
+                       jizhiViewModel.HumanSkillCards.Any(skill =>
                            skill.Name == "奇才" &&
                            skill.TypeText == "状态技 · 锁定技" &&
                            skill.StateText == "规则自动生效"),
-            "The current classic Qicai rail did not consume its distinct locked-state metadata.");
+            "The current classic Jizhi and Qicai rail did not consume their structured metadata.");
         var drawTwo = jizhiEngine.GetHumanLegalActions().First(action =>
             action.Kind == LegalActionKind.DrawTwo && action.CardId is not null);
         var jizhiCard = jizhiViewModel.Hand.Single(card => card.Id == drawTwo.CardId);
@@ -817,10 +821,14 @@ internal static class ClassicGeneralUiChecks
         using var tieqiViewModel = FindClassicTieqiViewModel();
         var tieqiEngine = Program.Engine(tieqiViewModel);
         Program.Assert(tieqiViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "铁骑" &&
+                           skill.TypeText == "触发技" &&
+                           skill.StateText == "等待触发时机") &&
+                       tieqiViewModel.HumanSkillCards.Any(skill =>
                            skill.Name == "马术" &&
                            skill.TypeText == "状态技 · 锁定技" &&
                            skill.StateText == "规则自动生效"),
-            "The current classic Mashu rail did not consume its distinct locked-state metadata.");
+            "The current classic Tieqi and Mashu rail did not consume their structured metadata.");
         var slashAction = tieqiEngine.GetHumanLegalActions()
             .Where(action => action.Kind == LegalActionKind.Slash &&
                              action.CardId is not null &&

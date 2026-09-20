@@ -138,6 +138,8 @@ rules v99 的拒战同样不新增 Checkpoint 字段。阳／阴私有 Choice、
 
 `standard-classic-generals@1.72.0` 为经典空城、马术、奇才建立独立 `classic:` 技能 ID，并只改当前经典武将对它们的引用；规则实现仍由原 `SkillKind` 消费。1.71.0 Checkpoint 恢复时继续使用 `standard:kongcheng`／`standard:mashu`／`standard:qicai`，1.72.0 使用对应 `classic:` ID，两者不能混用内容签名或哈希；稳定基础包与主动技能扩展包的旧存档完全不受此次迁移影响。
 
+`standard-classic-generals@1.73.0` 只为 27 项已有明确发动／跳过交互的纯可选技能增加 `Trigger` 执行形态，不改变原 Prompt、命令、事件或 rules v99。1.72.0 Checkpoint 必须继续配套 1.72.0 Registry 并显示旧兼容类型文案；1.73.0 的内容签名和玩法指纹会阻止两版静默互换。Checkpoint schema、玩家资料和稳定基础包均未改变，双雄、天义、主动技能及持续转化技能也未被本次迁移重新分类。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

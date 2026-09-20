@@ -193,6 +193,80 @@ internal static class SkillMetadataChecks
             "The classic migration must not mutate the stable standard or active-skill packages.");
     }
 
+    public static void ClassicOptionalTriggerMetadataIsVersioned()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 72, 0));
+        string[] triggerSkillIds =
+        [
+            "classic:feedback",
+            "classic:tiandu",
+            "classic:guanxing",
+            "classic:keji",
+            "classic:tuxi",
+            "classic:luoyi",
+            "classic:luoshen",
+            "classic:jizhi",
+            "classic:tieqi",
+            "classic:liegong",
+            "classic:liuli",
+            "classic:biyue",
+            "classic:xiaoji",
+            "classic:lianying",
+            "classic:mengjin",
+            "classic:jushou",
+            "classic:tianxiang",
+            "classic:shensu",
+            "classic:guidao",
+            "classic:leiji",
+            "boundary:guidao",
+            "boundary:leiji",
+            "classic:yinghun",
+            "classic:zaiqi",
+            "classic:lieren",
+            "classic:jujian",
+            "sp:chongzhen"
+        ];
+
+        foreach (var skillId in triggerSkillIds)
+        {
+            Require(current.Skills[skillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.Trigger
+                }, $"Current classic content did not classify {skillId} as an optional trigger skill.");
+            Require(previous.Skills[skillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None
+                }, $"Package 1.72.0 unexpectedly gained the trigger metadata for {skillId}.");
+        }
+
+        string[] deferredSkillIds =
+        [
+            "classic:shuangxiong",
+            "classic:tianyi",
+            "classic:longdan",
+            "sp:longdan",
+            "classic:fanjian"
+        ];
+        foreach (var skillId in deferredSkillIds)
+        {
+            Require(current.Skills[skillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None
+                }, $"The optional-trigger migration incorrectly flattened deferred skill {skillId}.");
+        }
+
+        Require(current.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 73, 0)) &&
+                previous.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 72, 0)) &&
+                current.ContentHash != previous.ContentHash,
+            "The optional-trigger migration must be isolated to package 1.73.0 and fingerprinted.");
+    }
+
     public static void StructuredNiepanUsageReplays()
     {
         var registry = ContentRegistry.Build(
