@@ -12,9 +12,15 @@ internal static class ClassicGeneralChecks
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
-                Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
-                ModeId = "identity:classic-5", UseInteractiveSetup = true,
-                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 80
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                PlayerCount = 5,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 80
             }, registry);
             Require(game.Submit(new StartGameCommand()).Accepted, "Shuangxiong fixture failed to start.");
             var select = game.PendingDecision;
@@ -123,7 +129,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.69.0"]),
+                "standard-classic-generals@1.70.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -141,14 +147,15 @@ internal static class ClassicGeneralChecks
             "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
             "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
             "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong",
-            "classic:yu-jin", "classic:xu-shu", "sp:zhao-yun", "classic:shen-guan-yu", "sp:guan-yu"
+            "classic:yu-jin", "classic:xu-shu", "sp:zhao-yun", "classic:shen-guan-yu", "sp:guan-yu",
+            "classic:yan-yan"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
                 .SequenceEqual(expectedCurrentRoster.Order(StringComparer.Ordinal)),
             "The current classic package must contain the complete original standard roster plus its explicit expansion representatives.");
         Require(classic.Generals["classic:zhang-jiao"] is
-                { BaseHp: 3, FactionId: "qun" } zhangJiao &&
+        { BaseHp: 3, FactionId: "qun" } zhangJiao &&
                 zhangJiao.SkillIds.SequenceEqual(["classic:guidao", "classic:leiji", "classic:huangtian"]) &&
                 classic.Skills["classic:guidao"] is { LegacyKind: null, Program: { } guidao } &&
                 guidao.RuntimeVersion == "skill-program-v8" && guidao.MinimumRulesVersion == 88 &&
@@ -167,7 +174,7 @@ internal static class ClassicGeneralChecks
                 spZhaoYunClassic.Skills["classic:guidao"].Program is null,
             "Package 1.65.0 must migrate all three classic Zhang Jiao skills while package 1.64.0 retains typed behavior.");
         Require(classic.Generals["boundary:zhang-jiao"] is
-                { Name: "界张角", BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } boundaryZhangJiao &&
+        { Name: "界张角", BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } boundaryZhangJiao &&
                 boundaryZhangJiao.SkillIds.SequenceEqual(
                     ["boundary:leiji", "boundary:guidao", "boundary:huangtian"]) &&
                 classic.Skills["boundary:guidao"] is { LegacyKind: null, Program: { } boundaryGuidao } &&
@@ -199,7 +206,7 @@ internal static class ClassicGeneralChecks
                 !configuredZhangJiaoClassic.Modes.ContainsKey("identity:classic-boundary-5"),
             "Package 1.66.0 must register complete boundary Zhang Jiao only in an explicit boundary roster while 1.65.0 stays unchanged.");
         Require(shenGuanYuClassic.Generals["classic:shen-guan-yu"] is
-                { Name: "神关羽", BaseHp: 5, FactionId: "god", Gender: GeneralGender.Male } shenGuanYu &&
+        { Name: "神关羽", BaseHp: 5, FactionId: "god", Gender: GeneralGender.Male } shenGuanYu &&
                 shenGuanYu.SkillIds.SequenceEqual(["classic:wushen", "classic:wuhun"]) &&
                 shenGuanYuClassic.Skills["classic:wushen"] is { LegacyKind: null, Program: { } wushen } &&
                 wushen.RuntimeVersion == "skill-program-v10" && wushen.MinimumRulesVersion == 95 &&
@@ -226,29 +233,29 @@ internal static class ClassicGeneralChecks
                 !boundaryZhangJiaoClassic.Skills.ContainsKey("classic:wuhun"),
             "Package 1.67.0 must add formal Shen Guan Yu only to current classic identity rosters while 1.66.0 stays unchanged.");
         Require(classic.Generals["classic:sun-jian"] is
-                { BaseHp: 4, FactionId: "wu" } sunJian &&
+        { BaseHp: 4, FactionId: "wu" } sunJian &&
                 sunJian.SkillIds.SequenceEqual(["classic:yinghun"]) &&
                 !zhangJiaoClassic.Generals.ContainsKey("classic:sun-jian") &&
                 !zhangJiaoClassic.Skills.ContainsKey("classic:yinghun"),
             "Current classic Sun Jian must expose four base HP and Yinghun.");
         Require(classic.Generals["classic:meng-huo"] is
-                { BaseHp: 4, FactionId: "shu" } mengHuo &&
+        { BaseHp: 4, FactionId: "shu" } mengHuo &&
                 mengHuo.SkillIds.SequenceEqual(["classic:huoshou", "classic:zaiqi"]),
             "Current classic Meng Huo must expose Huoshou and Zaiqi in stable order.");
         Require(classic.Generals["classic:zhu-rong"] is
-                { BaseHp: 4, FactionId: "shu", Gender: GeneralGender.Female } zhuRong &&
+        { BaseHp: 4, FactionId: "shu", Gender: GeneralGender.Female } zhuRong &&
                 zhuRong.SkillIds.SequenceEqual(["classic:juxiang", "classic:lieren"]) &&
                 !mengHuoClassic.Generals.ContainsKey("classic:zhu-rong") &&
                 !mengHuoClassic.Skills.ContainsKey("classic:juxiang"),
             "Current classic Zhu Rong must expose Juxiang and Lieren in stable order.");
         Require(classic.Generals["classic:yu-jin"] is
-                { BaseHp: 4, FactionId: "wei", Gender: GeneralGender.Male } yuJin &&
+        { BaseHp: 4, FactionId: "wei", Gender: GeneralGender.Male } yuJin &&
                 yuJin.SkillIds.SequenceEqual(["classic:yizhong"]) &&
                 !zhuRongClassic.Generals.ContainsKey("classic:yu-jin") &&
                 !zhuRongClassic.Skills.ContainsKey("classic:yizhong"),
             "Current classic Yu Jin must expose four base HP and Yizhong without changing package 1.60.0.");
         Require(classic.Generals["classic:xu-shu"] is
-                { BaseHp: 3, FactionId: "shu", Gender: GeneralGender.Male } xuShu &&
+        { BaseHp: 3, FactionId: "shu", Gender: GeneralGender.Male } xuShu &&
                 xuShu.SkillIds.SequenceEqual(["classic:wuyan", "classic:jujian"]) &&
                 classic.Skills["classic:wuyan"].LegacyKind == SkillKind.Wuyan &&
                 classic.Skills["classic:jujian"].LegacyKind == SkillKind.Jujian &&
@@ -258,7 +265,7 @@ internal static class ClassicGeneralChecks
                 !yuJinClassic.Skills.ContainsKey("classic:wuyan"),
             "Package 1.63.0 must expose complete Xu Shu while 1.62.0 retains only the Wuyan foundation.");
         Require(classic.Generals["sp:zhao-yun"] is
-                { BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } spZhaoYun &&
+        { BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } spZhaoYun &&
                 spZhaoYun.SkillIds.SequenceEqual(["sp:longdan", "sp:chongzhen"]) &&
                 classic.Skills["sp:longdan"] is { LegacyKind: null, Program: { } spLongdan } &&
                 spLongdan.RuntimeVersion == "skill-program-v2" && spLongdan.MinimumRulesVersion == 80 &&
@@ -275,19 +282,19 @@ internal static class ClassicGeneralChecks
                 xuShuClassic.Generals.ContainsKey("classic:xu-shu"),
             "Package 1.64.0 must add complete configured SP Zhao Yun without changing package 1.63.0.");
         Require(classic.Generals["classic:da-qiao"] is
-                { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
+        { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
                 daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
                 classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:da-qiao") &&
                 !woodenOxClassic.Generals.ContainsKey("classic:da-qiao") &&
                 !woodenOxClassic.Skills.ContainsKey("classic:guose") &&
                 classic.Generals["classic:diao-chan"] is
-                    { BaseHp: 3, Gender: GeneralGender.Female } diaoChan &&
+                { BaseHp: 3, Gender: GeneralGender.Female } diaoChan &&
                 diaoChan.SkillIds.SequenceEqual(["classic:biyue", "classic:lijian"]) &&
                 classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:diao-chan") &&
                 !daQiaoClassic.Generals.ContainsKey("classic:diao-chan") &&
                 !daQiaoClassic.Skills.ContainsKey("classic:lijian") &&
                 classic.Generals["classic:sun-shangxiang"] is
-                    { BaseHp: 3, Gender: GeneralGender.Female } sunShangxiang &&
+                { BaseHp: 3, Gender: GeneralGender.Female } sunShangxiang &&
                 sunShangxiang.SkillIds.SequenceEqual(["classic:jieyin", "classic:xiaoji"]) &&
                 !diaoChanClassic.Generals.ContainsKey("classic:sun-shangxiang") &&
                 !diaoChanClassic.Skills.ContainsKey("classic:jieyin") &&

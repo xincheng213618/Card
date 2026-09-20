@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 69, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 70, 0))
     {
     }
 
@@ -120,12 +120,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 66, 0) &&
             version != new Version(1, 67, 0) &&
             version != new Version(1, 68, 0) &&
-            version != new Version(1, 69, 0))
+            version != new Version(1, 69, 0) &&
+            version != new Version(1, 70, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.69.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.70.0.");
         }
 
         _version = version;
@@ -906,6 +907,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillTag.Locked,
                 SkillExecutionForm.State));
         }
+        if (_version >= new Version(1, 70, 0))
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "classic:juzhan",
+                "拒战",
+                "转换技，阳：当你成为其他角色使用【杀】的目标后，你可以与其各摸一张牌，然后其本回合不能再对你使用牌；阴：当你使用【杀】指定目标后，你可以获得其中一名目标角色的一张牌，然后你本回合不能再对其使用牌。"),
+                SkillTag.Conversion,
+                SkillExecutionForm.Trigger));
+        }
         if (_version >= new Version(1, 58, 0))
         {
             builder.AddSkill(new ContentSkillDefinition("classic:yinghun", "英魂",
@@ -1419,9 +1429,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "sp:guan-yu-wusheng", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["sp:danji"]));
         }
+        if (_version >= new Version(1, 70, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:yan-yan", "严颜", "yan_yan",
+                "classic:juzhan", "shu", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 70 } => YanYanClassicGeneralIds,
             { Major: 1, Minor: >= 69 } => SpGuanYuClassicGeneralIds,
             { Major: 1, Minor: >= 67 } => ShenGuanYuClassicGeneralIds,
             { Major: 1, Minor: >= 64 } => SpZhaoYunClassicGeneralIds,
@@ -1861,6 +1878,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. ShenGuanYuClassicGeneralIds,
         "sp:guan-yu"
+    ];
+
+    internal static IReadOnlyList<string> YanYanClassicGeneralIds { get; } =
+    [
+        .. SpGuanYuClassicGeneralIds,
+        "classic:yan-yan"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

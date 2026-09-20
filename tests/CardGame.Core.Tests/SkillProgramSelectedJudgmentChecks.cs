@@ -18,12 +18,16 @@ internal static class SkillProgramSelectedJudgmentChecks
         Require(program is { RuntimeVersion: "skill-program-v8", MinimumRulesVersion: 86 } &&
                 start.Effects is
                 [
-                    { Op: SkillProgramTriggerEffectOp.SelectTarget,
-                      Target: SkillProgramTriggerEffectTarget.SelectedTarget,
-                      TargetKind: SkillProgramTargetKind.OtherLiving },
-                    { Op: SkillProgramTriggerEffectOp.StartJudgment,
-                      Target: SkillProgramTriggerEffectTarget.SelectedTarget,
-                      JudgmentReason: JudgmentReason }
+                {
+                    Op: SkillProgramTriggerEffectOp.SelectTarget,
+                    Target: SkillProgramTriggerEffectTarget.SelectedTarget,
+                    TargetKind: SkillProgramTargetKind.OtherLiving
+                },
+                {
+                    Op: SkillProgramTriggerEffectOp.StartJudgment,
+                    Target: SkillProgramTriggerEffectTarget.SelectedTarget,
+                    JudgmentReason: JudgmentReason
+                }
                 ] &&
                 spade is
                 {
@@ -52,9 +56,9 @@ internal static class SkillProgramSelectedJudgmentChecks
         AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":85",
                 StringComparison.Ordinal),
             "schema minimum 86");
-        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":99",
+        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":100",
                 StringComparison.Ordinal),
-            "current rules 98");
+            "current rules 99");
         AssertReject(Rules.Replace(
                 "{\"op\":\"selectTarget\",\"target\":\"selectedTarget\",\"targetKind\":\"otherLiving\"},",
                 string.Empty,

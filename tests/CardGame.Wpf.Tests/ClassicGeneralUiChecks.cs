@@ -127,6 +127,46 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void YanYanConversionCard(string output)
+    {
+        using var viewModel = FindGeneralChoice("classic:yan-yan");
+        var yanYan = viewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:yan-yan");
+        Program.Assert(yanYan.Name == "严颜" &&
+                       yanYan.Kingdom == "蜀" &&
+                       yanYan.SkillName == "拒战" &&
+                       yanYan.SkillDescription.Contains("转换技", StringComparison.Ordinal) &&
+                       yanYan.SkillDescription.Contains("阳：", StringComparison.Ordinal) &&
+                       yanYan.SkillDescription.Contains("阴：", StringComparison.Ordinal) &&
+                       yanYan.SkillDescription.Contains("本回合不能再对", StringComparison.Ordinal) &&
+                       yanYan.HealthText == "体力上限 5",
+            "The formal Yan Yan card must render Shu, Juzhan's two conversion faces and the Lord health bonus.");
+
+        viewModel.PreviewGeneralChoiceCommand.Execute(yanYan);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "166-classic-yan-yan-card.png"));
+        Program.Assert(Program.Find<System.Windows.Controls.TextBlock>(root)
+                .Any(text => ReferenceEquals(text.DataContext, yanYan) &&
+                             text.Text == yanYan.SkillDescription &&
+                             text.ActualHeight > 0),
+            "The Yan Yan selection card did not show the complete Juzhan conversion text.");
+
+        viewModel.SelectGeneralChoiceCommand.Execute(yanYan);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        var juzhan = viewModel.HumanSkillCards.Single(skill => skill.Name == "拒战");
+        Program.Assert(juzhan.TypeText.Contains("转换技", StringComparison.Ordinal) &&
+                       juzhan.StateText == "当前：阳" &&
+                       juzhan.SourceText == "严颜",
+            $"The human skill rail must expose Juzhan's conversion tag and initial Yang face " +
+            $"(type={juzhan.TypeText}, state={juzhan.StateText}, source={juzhan.SourceText}).");
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;

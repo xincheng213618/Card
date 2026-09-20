@@ -301,6 +301,32 @@ public sealed record LiegongChoiceResolvedEvent(
     int TargetSeat,
     bool Used) : IGameEvent;
 
+/// <summary>Public transition of a tagged conversion skill after it actually resolves.</summary>
+public sealed record SkillConversionStateChangedEvent(
+    int PlayerSeat,
+    string SkillId,
+    SkillPolarity PreviousState,
+    SkillPolarity CurrentState) : IGameEvent;
+
+/// <summary>Public turn-scoped rule that prevents one card user from targeting one player.</summary>
+public sealed record CardTargetProhibitionAddedEvent(
+    int SkillOwnerSeat,
+    string SkillId,
+    int SourceSeat,
+    int TargetSeat,
+    SkillUsageScope Scope) : IGameEvent;
+
+/// <summary>Public result of one optional Juzhan side; hidden hand identities remain omitted.</summary>
+public sealed record JuzhanResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int SourceSeat,
+    int? TargetSeat,
+    SkillPolarity State,
+    bool Used,
+    CardZoneKind? ObtainedFromZone,
+    int? PublicObtainedCardId) : IGameEvent;
+
 public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing }
 
 /// <summary>The declared target lost its required cards during the response window.</summary>

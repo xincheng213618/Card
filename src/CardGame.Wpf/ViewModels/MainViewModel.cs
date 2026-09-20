@@ -680,9 +680,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Shuangxiong or
                     DecisionKind.Luoyi or
                     DecisionKind.Luoshen or
+                    DecisionKind.Shensu or
                     DecisionKind.Jizhi or
                     DecisionKind.Tieqi or
                     DecisionKind.Liegong or
+                    DecisionKind.Juzhan or
                     DecisionKind.StoneAxe or
                     DecisionKind.CixiongDoubleSwords or
                     DecisionKind.Liuli or
@@ -729,9 +731,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Shuangxiong or
             DecisionKind.Luoyi or
             DecisionKind.Luoshen or
+            DecisionKind.Shensu or
             DecisionKind.Jizhi or
             DecisionKind.Tieqi or
             DecisionKind.Liegong or
+            DecisionKind.Juzhan or
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
             DecisionKind.Liuli or
@@ -1495,7 +1499,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 _snapshot.Revision,
                 pending.PromptId,
                 action.PlayedCardKind,
-                targetCardId) { ConversionSource = action.ConversionSource });
+                targetCardId)
+            { ConversionSource = action.ConversionSource });
             if (!result.Accepted)
             {
                 PromptText = $"公开目标牌未执行：{result.Error?.Message}";
@@ -1543,7 +1548,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 _snapshot.Revision,
                 pending.PromptId,
                 action.PlayedCardKind,
-                action.TargetCardId) { ConversionSource = action.ConversionSource });
+                action.TargetCardId)
+            { ConversionSource = action.ConversionSource });
             if (!result.Accepted)
             {
                 PromptText = $"目标组合未执行：{result.Error?.Message}";
@@ -2016,6 +2022,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      UseCard(Slash)");
                 EventStack.Add("        AskForSkill(Liegong)");
+            }
+            else if (pending.Kind == DecisionKind.Juzhan)
+            {
+                EventStack.Add("      UseCard(Slash)");
+                EventStack.Add("        AskForSkill(Juzhan)");
             }
             else if (pending.Kind == DecisionKind.CixiongDoubleSwords)
             {

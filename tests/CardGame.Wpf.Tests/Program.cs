@@ -56,6 +56,7 @@ internal static class Program
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
             Check("classic setup selects and persists standard or military physical decks", () => ClassicGeneralUiChecks.SelectableDeckExpansion(output));
             Check("formal Shen Guan Yu renders attributed classic art and complete skills", () => ClassicGeneralUiChecks.ShenGuanYuPortraitAndCard(output));
+            Check("formal Yan Yan renders Juzhan conversion metadata and initial Yang state", () => ClassicGeneralUiChecks.YanYanConversionCard(output));
             Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
             Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
             Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));
@@ -235,13 +236,17 @@ internal static class Program
             "Gallery does not visibly distinguish its selected series and faction filters.");
 
         vm.CloseGeneralGalleryCommand.Execute(null);
+        var selectedGeneralId = vm.GeneralChoices[0].GeneralId;
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         for (var i = 0; i < 20 && !vm.CanEndTurn; i++)
         {
             AdvanceToDecision(vm);
             if (vm.SkillChoices.Count > 0) vm.SelectSkillChoiceCommand.Execute(vm.SkillChoices.Last());
         }
-        Assert(vm.CanEndTurn, "Gallery lifecycle setup did not reach the human play phase.");
+        Assert(vm.CanEndTurn,
+            $"Gallery lifecycle setup did not reach the human play phase (status={Engine(vm).State.Status}, " +
+            $"phase={Engine(vm).State.Phase}, prompt={Engine(vm).PendingDecision?.Kind}, seat={Engine(vm).PendingDecision?.PlayerSeat}, " +
+            $"selectedGeneral={selectedGeneralId}).");
         vm.EndTurnCommand.Execute(null);
         if (vm.IsDiscardSelectionPending) ResolveDiscard(vm);
         Assert(vm.CanStepAi, $"Expected an AI boundary for modal pause verification: status={Engine(vm).State.Status}, phase={Engine(vm).State.Phase}, prompt={vm.PromptText}.");

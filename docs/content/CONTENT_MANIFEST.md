@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.69.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.69.0 注册 `sp:guan-yu`、武圣、单骑及觉醒后动态获得的马术/怒斩，rules v98 冻结觉醒状态、动态技能和精确转化来源；1.68.0 冻结技能分类/频度/转换状态元数据，1.67.0 注册神关羽；1.0.0–1.68.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.70.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.70.0 注册 `classic:yan-yan`／`classic:juzhan`，rules v99 冻结阳阴转换、每目标回合禁用账本及目标牌隐私；1.69.0 注册 SP 关羽觉醒链，1.68.0 冻结结构化技能元数据；1.0.0–1.69.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -166,6 +166,7 @@
 | `classic:zhang-fei` | 张飞 | `zhang_fei` | `classic:paoxiao` | implemented-registry + classic 1.20 | locked-slash-limit, same-phase-multiple-slash, shared-ai-policy |
 | `classic:zhao-yun` | 赵云 | `zhao_yun` | `classic:longdan` | implemented-registry + classic 1.21 | dodge-to-slash, slash-to-dodge, physical-effective-kind-separation, private-response |
 | `classic:guan-yu` | 关羽 | `guan_yu` | `classic:wusheng` | implemented-registry + classic 1.22 | hand-or-equipment red-card, active-or-response conversion, source-zone-preservation |
+| `classic:yan-yan` | 严颜 | `yan_yan` | `classic:juzhan` | implemented-registry + classic 1.70 | conversion-state, slash-target-trigger, opaque-target-card, per-target-turn-prohibition |
 | `standard:guan-yu` | 关羽 | `guan_yu` | `standard:wusheng` | implemented-registry + classic 1.21 compatibility | hand red-card, conversion, attack |
 | `standard:zhao-yun` | 赵云 | `zhao-yun` | `standard:longdan` | implemented-registry | slash-dodge, conversion, response |
 | `standard:sun-quan` | 孙权 | `sun-quan` | `standard:none` | implemented-registry | placeholder |
@@ -221,6 +222,7 @@
 | `classic:jizhi` | 集智 | 规则 v35 经典身份中，使用普通锦囊牌后可摸一张牌 | implemented-registry + classic extension | K1/K2/K5/K7：声明后私有发动/跳过 Choice、`DrawPile → Hand`、普通锦囊/无懈触发、延时锦囊排除、父 `CardUseFrame`/`NullificationWindowFrame` 游标续接及 v34 兼容 |
 | `classic:tieqi` | 铁骑 | 规则 v36 经典身份中，使用杀指定目标后可判定；红色结果禁止该目标使用闪响应此杀 | implemented-registry + classic extension | K1/K2/K5/K7：目标声明后私有发动/跳过 Choice、共享 `JudgmentFrame`/鬼才替换、当前 `AttackResolution` 闪响应禁止、实体闪/倾国/八卦阵/护驾统一拦截及 v35 兼容 |
 | `classic:liegong` | 烈弓 | 规则 v37 经典身份中，出牌阶段用杀指定满足手牌数条件的目标后可令其不能使用闪 | implemented-registry + classic extension | K1/K2/K5/K6/K7：公开手牌数与当前体力/攻击范围双条件、私有发动/跳过 Choice、当前 `AttackResolution` 闪响应禁止、实体闪/倾国/八卦阵/护驾统一拦截及 v36 兼容 |
+| `classic:juzhan` | 拒战 | rules v99 中，阳面成为其他角色杀的目标后双方各摸一张并禁止其本回合再以牌指定自己；阴面使用杀指定目标后获得其中一名目标的一张牌并禁止自己本回合再以牌指定该目标，实际发动后切换 | implemented-registry + classic 1.70 | K1/K2/K5/K7：结构化转换面、目标最终确定窗口、暗手牌位／公开装备判定牌、`source-target` 回合作用域账本、合法动作过滤、Checkpoint/Replay 与 v98 边界 |
 | `classic:kuanggu` | 狂骨 | 规则 v38 经典身份中，实际伤害来源魏延对距离 1 以内角色造成伤害后按伤害点数回复体力 | implemented-registry + classic extension | K1/K5/K6/K7：`DamageTriggerScope.DamageSource`、公开结算距离、锁定高优先级候选、统一恢复帧、伤害/恢复事件顺序、满体力无空恢复及 v37 兼容 |
 | `classic:wushuang` | 无双 | 规则 v39 经典身份中，吕布使用杀时目标需依次使用两张闪；与吕布决斗的另一方每轮需依次打出两张杀 | implemented-registry + classic extension | K1/K2/K5/K7：`ModifyRequiredResponseCount`、独立 `ResponseWindowFrame`、实体/转换响应、八卦阵/护驾/激将续接、公开进度事件、完成回放及 v38 兼容 |
 | `standard:kujin` | 苦肉 | 出牌阶段失去 1 点体力并摸两张牌；若降至 0，救援结算后再摸牌 | implemented-registry + extension | K5：`IActiveSkill`、`UseSkillCommand`、`ActiveSkillFrame`、类型化体力/摸牌事件；体力大于 0，濒死时保留主动技能帧并复用私有 `RescueDying` |

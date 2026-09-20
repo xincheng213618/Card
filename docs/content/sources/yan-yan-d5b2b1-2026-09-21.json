@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:yan-yan",
+  "retrievedAt": "2026-09-21T02:04:50+08:00",
+  "selectedVersion": "2018上线且当前OL武将页沿用的严颜",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/400",
+      "use": "蜀势力4体力严颜；拒战阳面在成为其他角色杀的目标后双方各摸一张并产生本回合定向禁用，阴面在自己的杀指定目标后获得其中一名目标的一张牌并产生反向定向禁用。"
+    },
+    {
+      "url": "https://www.sanguosha.com/Home/newsInfo/a_id/20180912_6909_3018",
+      "use": "2018上线版本明确初始状态为阳，技能实际使用后切换到另一状态。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/拒战",
+      "use": "核对拒战技能条目、转换技分类和版本发现。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/转换技",
+      "use": "核对阳阴状态及执行当前形态后切换的转换技概念。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "use": "标签与执行形态分轴；转换技默认阳面，技能重置恢复开局状态并清除记录。"
+    },
+    {
+      "url": "https://moegirl.uk/三国杀:严颜",
+      "use": "辅助核对多目标杀只在首次指定目标时发动阴面，并从全部目标中选择一名。"
+    }
+  ],
+  "versionBoundary": {
+    "excludedVariant": "当前界严颜及其计数/乘势版本",
+    "reason": "本块只实现2018经典拒战的阳阴两面，不拼接界严颜的计数、重置或乘势效果。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.70.0",
+    "rulesVersion": 99,
+    "skillId": "classic:juzhan",
+    "initialPolarity": "yang",
+    "usageScope": "turn",
+    "usageIdShape": "card-target-prohibition.source-{sourceSeat}.target-{targetSeat}"
+  },
+  "acceptance": [
+    "阳面实际发动后双方各摸一张、切换到阴面并生成精确来源到目标的回合禁用；跳过不切换",
+    "阴面在多目标杀的目标完成时只询问一次，可从任一目标获得暗手牌位或公开装备/判定牌，发动后切换到阳面",
+    "禁用同时过滤普通牌、转换牌、虚拟杀、全体牌及多目标组合，不限制技能本身",
+    "新回合清除全部拥有者的回合禁用但保留当前转换面",
+    "阳面和阴面私有Choice可暂停恢复，完成Replay重建相同事件、快照和合法动作",
+    "rules v98不注册拒战运行状态，经典包1.69.0不含严颜",
+    "WPF显示转换标签与当前阳面，神速私有Choice也可通过通用技能选择面提交",
+    "Release 0 warning / 0 error，Core 284/284，WPF 83/83"
+  ],
+  "deferred": [
+    "真实技能重置消费者",
+    "每事件等其他复合限次账本",
+    "剩余正式技能的完整结构化标签迁移",
+    "严颜独立肖像归档与来源哈希；当前使用安全占位视觉",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

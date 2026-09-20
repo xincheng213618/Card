@@ -74,6 +74,8 @@ public sealed partial class GameEngine
         if (acquired.Count == 0) return [];
 
         player.AcquiredSkillIds.AddRange(acquired);
+        foreach (var skillId in acquired)
+            RegisterTaggedConversionSkill(player, skillId);
         QueueGameEvent(new SkillsAcquiredEvent(
             player.Seat,
             sourceSkillId,
