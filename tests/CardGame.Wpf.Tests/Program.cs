@@ -101,6 +101,7 @@ internal static class Program
             Check("six-player national controls preserve solo faction labels and saved reveals", () => NationalExperienceChecks.AmbitiousControlsAndRestore(output));
             Check("dual-general health previews survive selection, tutorials and shipped saves", () => NationalHealthChecks.ControlsAndOldPackage(output));
             Check("dual portraits protect hidden slots and retain legacy skill semantics", NationalSeatChecks.PrivacyAndLegacy);
+            Check("dual portraits project ordered multi-skill lists without leaking hidden slots", NationalSeatChecks.MultiSkillProjection);
             Check("dual-seat controls preserve targeting, half-reveal saves and public relationships", () => NationalSeatChecks.ControlsAndRelations(output));
             Check("auto advance pauses at a human decision and can be paused", CheckAutoAdvance);
             Check("saved UI boundaries restore and continue through actual files", () => PersistenceChecks.RoundTrips(output));

@@ -145,6 +145,187 @@ internal static class NationalWarChecks
         Require(Candidates().ToHashSet().SetEquals(new[] { SkillKind.Jianxiong, SkillKind.Yiji }), "Two revealed damage skills lost their separate trigger identities.");
     }
 
+    public static void MultiSkillRevealAndLegacy()
+    {
+        const string modeId = "national:multi-skill-fixture-2";
+        const string multiId = "national:test-multi";
+        const string partnerId = "national:test-partner";
+        const string programId = "national:test-program";
+        var registry = ContentRegistry.Build(
+            new StandardContentPackage(),
+            new SyntheticPackage(
+                "national-multi-skill-fixture",
+                builder =>
+                {
+                    var catalog = SkillProgramCatalog.Load(
+                        """
+                        {"schemaVersion":1,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":79,"modifiers":[{"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
+                        """,
+                        """
+                        {"schemaVersion":1,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}
+                        """);
+                    var program = catalog.Programs[programId];
+                    var presentation = catalog.Presentations[programId];
+                    builder.AddSkill(new ContentSkillDefinition(
+                        programId, presentation.Name, presentation.Description)
+                    { Program = program });
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        multiId, "多技能将", "guan_yu", "standard:paoxiao", "wei",
+                        AdditionalSkillIds: ["standard:wusheng", programId]));
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        partnerId, "同势力搭档", "cao_cao", "standard:none", "wei"));
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        "national:test-shu-a", "蜀将甲", "zhang_fei", "standard:paoxiao", "shu"));
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        "national:test-shu-b", "蜀将乙", "zhao_yun", "standard:longdan", "shu"));
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        "national:test-wu-a", "吴将甲", "sun_quan", "standard:none", "wu"));
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        "national:test-wu-b", "吴将乙", "zhou_yu", "standard:yingzi", "wu"));
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        "national:test-qun-a", "群将甲", "hua_tuo", "standard:feedback", "qun"));
+                    builder.AddGeneral(new ContentGeneralDefinition(
+                        "national:test-qun-b", "群将乙", "xun_yu", "standard:yiji", "qun"));
+                    builder.AddMode(new ContentModeDefinition(
+                        modeId, "国战多技能夹具", 4, 4,
+                        new Dictionary<string, int>(),
+                        "standard:basic-demo",
+                        2,
+                        [
+                            multiId,
+                            partnerId,
+                            "national:test-shu-a",
+                            "national:test-shu-b",
+                            "national:test-wu-a",
+                            "national:test-wu-b",
+                            "national:test-qun-a",
+                            "national:test-qun-b"
+                        ],
+                        ContentModeKind.NationalWarLite,
+                        FactionCounts: new Dictionary<string, int>
+                        {
+                            ["wei"] = 1,
+                            ["shu"] = 1,
+                            ["wu"] = 1,
+                            ["qun"] = 1
+                        }));
+                },
+                new PackageDependency("standard", new Version(1, 11, 0))));
+
+        foreach (var slot in new[] { GeneralSelectionSlot.Primary, GeneralSelectionSlot.Secondary })
+        {
+            var game = FindFixture(slot);
+            var beforeReveal = game.CreateCheckpoint();
+            var own = game.CreateSnapshot(0).Players[0];
+            var observer = game.CreateSnapshot(1).Players[0];
+            var projected = slot == GeneralSelectionSlot.Primary ? own.Skills : own.SecondarySkills;
+            Require(projected is { Count: 3 } && projected.Select(skill => skill.Kind)
+                    .SequenceEqual([SkillKind.Paoxiao, SkillKind.Wusheng, SkillKind.None]) &&
+                    projected[2].Name == "试验程序技",
+                "Rules 89 did not privately project every ordered legacy and program skill for the selected national slot.");
+            Require((slot == GeneralSelectionSlot.Primary ? observer.Skills : observer.SecondarySkills) is null,
+                "An observer saw a multi-skill list before its national slot was revealed.");
+
+            var otherSlot = slot == GeneralSelectionSlot.Primary
+                ? GeneralSelectionSlot.Secondary
+                : GeneralSelectionSlot.Primary;
+            Reveal(game, otherSlot);
+            Require(EnabledKinds(game).Length == 0 && EnabledPrograms(game).Length == 0,
+                "Revealing the other national slot enabled the hidden multi-skill general.");
+            Reveal(game, slot);
+            Require(EnabledKinds(game).SequenceEqual([SkillKind.Paoxiao, SkillKind.Wusheng]) &&
+                    EnabledPrograms(game).SequenceEqual([programId]),
+                "Rules 89 did not enable every legacy and program skill on the revealed national general.");
+            var publicView = game.CreateSnapshot(1).Players[0];
+            Require((slot == GeneralSelectionSlot.Primary ? publicView.Skills : publicView.SecondarySkills) is { Count: 3 },
+                "The revealed national multi-skill list stayed hidden from another viewer.");
+            var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            Require(SnapshotJson.Serialize(replay.CreateSnapshot(1, revealAll: true)) ==
+                    SnapshotJson.Serialize(game.CreateSnapshot(1, revealAll: true)),
+                "Rules 89 national multi-skill reveal did not replay exactly.");
+
+            var legacy = GameReplay.Restore(beforeReveal with { RulesVersion = 88 }, registry);
+            Reveal(legacy, slot);
+            Require(EnabledKinds(legacy).SequenceEqual([SkillKind.Paoxiao]) &&
+                    EnabledPrograms(legacy).SequenceEqual([programId]) &&
+                    legacy.CreateSnapshot(0).Players[0].Skills is null &&
+                    legacy.CreateSnapshot(0).Players[0].SecondarySkills is null,
+                "Rules 88 did not preserve its first-legacy-skill projection and existing program-skill behavior.");
+        }
+
+        GameEngine FindFixture(GeneralSelectionSlot desiredSlot)
+        {
+            for (var seed = 1; seed <= 128; seed++)
+            {
+                var game = GameEngine.CreateStandard(new GameOptions
+                {
+                    Seed = seed,
+                    HumanSeat = 0,
+                    HumanRole = null,
+                    PlayerCount = 4,
+                    ModeId = modeId,
+                    UseInteractiveSetup = true,
+                    UseInteractiveDiscard = false,
+                    AdvanceAfterHumanCommands = false,
+                    AiPolicyVersion = 2,
+                    MaxTurns = 40
+                }, registry);
+                if (!game.Submit(new StartGameCommand()).Accepted) continue;
+                var selection = 0;
+                var usable = true;
+                for (var step = 0; step < 80 && game.State.Status != EngineStatus.AwaitingHumanPlay; step++)
+                {
+                    if (game.PendingDecision is { Kind: DecisionKind.SelectGeneral } prompt)
+                    {
+                        var id = (selection++ == 0) == (desiredSlot == GeneralSelectionSlot.Primary)
+                            ? multiId
+                            : partnerId;
+                        if (!prompt.ValidContentIds.Contains(id))
+                        {
+                            usable = false;
+                            break;
+                        }
+                        if (!game.Submit(new SelectGeneralCommand(0, id, game.Revision, prompt.PromptId)).Accepted)
+                        {
+                            usable = false;
+                            break;
+                        }
+                    }
+                    else if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted)
+                    {
+                        usable = false;
+                        break;
+                    }
+                }
+                if (usable && game.State.Status == EngineStatus.AwaitingHumanPlay) return game;
+            }
+            throw new InvalidOperationException("No bounded seed assigned the national multi-skill fixture to the human seat.");
+        }
+
+        static SkillKind[] EnabledKinds(GameEngine game)
+        {
+            var players = ((System.Collections.IEnumerable)typeof(GameEngine)
+                .GetField("_players", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .GetValue(game)!).Cast<object>().ToArray();
+            var enabled = (System.Collections.IEnumerable)typeof(GameEngine)
+                .GetMethod("EnabledPassiveSkills", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .Invoke(game, [players[0]])!;
+            return enabled.Cast<IPassiveSkill>().Select(skill => skill.Kind)
+                .Where(kind => kind != SkillKind.None).ToArray();
+        }
+
+        static string[] EnabledPrograms(GameEngine game)
+        {
+            var players = ((System.Collections.IEnumerable)typeof(GameEngine)
+                .GetField("_players", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .GetValue(game)!).Cast<object>().ToArray();
+            var enabled = (System.Collections.IEnumerable)typeof(GameEngine)
+                .GetMethod("EnabledSkillPrograms", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .Invoke(game, [players[0]])!;
+            return enabled.Cast<SkillProgram>().Select(program => program.Id).ToArray();
+        }
+    }
+
     public static void AiRevealPolicy()
     {
         var game = SkillFixture(

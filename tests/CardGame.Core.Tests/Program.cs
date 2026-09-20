@@ -51,6 +51,7 @@ var tests = new (string Name, Action Body)[]
     ("general health validates content and preserves shipped fingerprints", NationalHealthChecks.ContentIntegrity),
     ("national dual-general setup stays private and each reveal replays", NationalWarChecks.PrivateSetupAndReveal),
     ("national revealed slots independently enable skills while rules 6 replay unchanged", NationalWarChecks.SkillGatingAndLegacy),
+    ("national rules 89 reveal every skill on one general while rules 88 keeps its first-skill projection", NationalWarChecks.MultiSkillRevealAndLegacy),
     ("national AI chooses general reveals from private opportunities", NationalWarChecks.AiRevealPolicy),
     ("six-player national mode preserves solo faction privacy, victory and replay", NationalWarChecks.AmbitiousFactionMode),
     ("national public-evidence checkpoints replay AI knowledge at a paused prompt", NationalWarChecks.PublicEvidenceCheckpointReplay),

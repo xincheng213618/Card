@@ -37,20 +37,38 @@ public sealed partial class MainViewModel
                 .ToHashSet(StringComparer.Ordinal);
             if (IsNationalSnapshot)
             {
-                return new[] { GeneralSlotViewModel.FromPlayer(human, false, _game.RulesVersion), GeneralSlotViewModel.FromPlayer(human, true, _game.RulesVersion) }
-                    .Where(slot => slot.IsKnown && slot.SkillName != "无")
-                    .Select(slot =>
+                var slots = new[]
+                {
+                    (Label: "主", Id: human.GeneralId, Revealed: human.IsGeneralPublic),
+                    (Label: "副", Id: human.SecondaryGeneralId ?? string.Empty, Revealed: human.IsSecondaryGeneralPublic)
+                };
+                return slots
+                    .Where(slot => slot.Id.Length > 0 && _contentRegistry.Generals.ContainsKey(slot.Id))
+                    .SelectMany(slot =>
                     {
-                        var kind = slot.SlotLabel == "主" ? human.Skill : human.SecondarySkill ?? SkillKind.None;
-                        var active = SkillRegistry.GetActive(kind) is not null;
-                        return new HumanSkillViewModel(
-                            slot.SkillName,
-                            slot.SkillDescription,
-                            active ? "主动技" : "触发 / 锁定",
-                            !slot.IsSkillEnabled ? "暗置中 · 尚未启用" : available.Contains(kind) ? "当前可发动" : active ? "当前不可发动" : "已启用",
-                            $"{slot.SlotLabel}将 · {(slot.IsRevealed ? "明置" : "暗置")}",
-                            slot.IsSkillEnabled && available.Contains(kind),
-                            !slot.IsSkillEnabled);
+                        var definition = _contentRegistry.Generals[slot.Id];
+                        var skillIds = _game.RulesVersion >= 89
+                            ? definition.SkillIds
+                            : definition.SkillIds.Take(1);
+                        return skillIds
+                            .Select(_contentRegistry.GetSkill)
+                            .Where(skill => skill.LegacyKind != SkillKind.None || skill.Name != "无")
+                            .Select(skill =>
+                            {
+                                var enabled = _game.RulesVersion >= 7 ? slot.Revealed : slot.Label == "主";
+                                var active = skill.Program?.Activations.Count > 0 ||
+                                             skill.LegacyKind is { } kind && SkillRegistry.GetActive(kind) is not null;
+                                var isAvailable = availablePrograms.Contains(skill.Id) ||
+                                                  skill.LegacyKind is { } legacyKind && available.Contains(legacyKind);
+                                return new HumanSkillViewModel(
+                                    skill.Name,
+                                    GetVisibleSkillDescription(skill),
+                                    active ? "主动技" : "触发 / 锁定",
+                                    !enabled ? "暗置中 · 尚未启用" : isAvailable ? "当前可发动" : active ? "当前不可发动" : "已启用",
+                                    $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
+                                    enabled && isAvailable,
+                                    !enabled);
+                            });
                     })
                     .ToArray();
             }

@@ -180,7 +180,8 @@ public sealed partial class GameEngine
         _rulesVersion >= 5;
 
     private bool SupportsMultiSkillGenerals =>
-        _rulesVersion >= 10 && IsClassicIdentityMode;
+        _rulesVersion >= 10 && IsClassicIdentityMode ||
+        _rulesVersion >= 89 && IsNationalWarMode;
 
     private bool IsClassicIdentityMode =>
         _modeDefinition.Id.StartsWith("identity:classic-", StringComparison.Ordinal);
@@ -4663,8 +4664,16 @@ public sealed partial class GameEngine
                 SecondarySkillName = secondaryGeneral?.SkillName,
                 SecondarySkillDescription = visibleSecondaryDescription,
                 IsSecondaryGeneralPublic = IsNationalWarMode && player.SecondaryGeneralRevealed,
-                Skills = SupportsMultiSkillGenerals
+                Skills = SupportsMultiSkillGenerals && canSeeGeneral
                     ? Array.AsReadOnly(general.Skills
+                        .Select(skill => skill with
+                        {
+                            Description = GetVisibleSkillDescription(skill.Kind, skill.Description)
+                        })
+                        .ToArray())
+                    : null,
+                SecondarySkills = SupportsMultiSkillGenerals && secondaryGeneral is not null
+                    ? Array.AsReadOnly(secondaryGeneral.Skills
                         .Select(skill => skill with
                         {
                             Description = GetVisibleSkillDescription(skill.Kind, skill.Description)

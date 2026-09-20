@@ -48,6 +48,46 @@ internal static class NationalSeatChecks
         Require(State(vm) == before, "Portrait projection or developer toggling changed the game.");
     }
 
+    public static void MultiSkillProjection()
+    {
+        using var vm = Ready();
+        var own = Program.Engine(vm).CreateSnapshot(0, true).Players[0] with
+        {
+            Skills =
+            [
+                new GeneralSkillDefinition(SkillKind.Paoxiao, "咆哮", "出牌阶段使用杀没有次数限制。"),
+                new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌可当作杀使用。")
+            ],
+            SecondarySkills =
+            [
+                new GeneralSkillDefinition(SkillKind.Qingnang, "青囊", "弃置手牌令受伤角色回复。"),
+                new GeneralSkillDefinition(SkillKind.Jijiu, "急救", "回合外红色牌可当桃。")
+            ],
+            IsSecondaryGeneralPublic = true
+        };
+        var primary = GeneralSlotViewModel.FromPlayer(own, false, 89);
+        var secondary = GeneralSlotViewModel.FromPlayer(own, true, 89);
+        Require(primary.SkillName == "咆哮 / 武圣" &&
+                primary.DetailText.Contains("咆哮：", StringComparison.Ordinal) &&
+                primary.DetailText.Contains("武圣：", StringComparison.Ordinal) &&
+                !primary.IsSkillEnabled,
+            "The hidden primary slot did not retain its ordered private multi-skill presentation.");
+        Require(secondary.SkillName == "青囊 / 急救" &&
+                secondary.DetailText.Contains("青囊：", StringComparison.Ordinal) &&
+                secondary.DetailText.Contains("急救：", StringComparison.Ordinal) &&
+                secondary.IsSkillEnabled,
+            "The revealed secondary slot did not present and enable both skills.");
+
+        var hidden = GeneralSlotViewModel.FromPlayer(own with
+        {
+            IsHuman = false,
+            IsSecondaryGeneralPublic = false
+        }, true, 89);
+        Require(!hidden.IsKnown && !hidden.DetailText.Contains("青囊", StringComparison.Ordinal) &&
+                !hidden.DetailText.Contains("急救", StringComparison.Ordinal),
+            "A trusted snapshot leaked an unrevealed secondary multi-skill list through WPF.");
+    }
+
     public static void ControlsAndRelations(string output)
     {
         using var vm = Ready();

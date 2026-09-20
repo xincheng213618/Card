@@ -605,6 +605,13 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SecondarySkillDescription { get; init; }
 
+    /// <summary>
+    /// Ordered skills visible with the secondary general. Rules v89 adds the
+    /// national-war multi-skill projection; older checkpoints keep this null.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<GeneralSkillDefinition>? SecondarySkills { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsSecondaryGeneralPublic { get; init; }
 }
