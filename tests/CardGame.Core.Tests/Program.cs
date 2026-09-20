@@ -39,6 +39,8 @@ var tests = new (string Name, Action Body)[]
     ("skill program v9 causeDeath definitions validate and freeze", SkillProgramCauseDeathChecks.Definitions),
     ("skill program causeDeath resumes nested death skills and replay", SkillProgramCauseDeathChecks.NestedDeathSkillAndReplay),
     ("skill program causeDeath short-circuits after terminal death", SkillProgramCauseDeathChecks.TerminalShortCircuit),
+    ("skill program v10 card identities and action modifiers validate and freeze", SkillProgramCardIdentityChecks.Definitions),
+    ("mandatory card identity suppresses native use, ignores Slash distance and replays", SkillProgramCardIdentityChecks.MandatoryIdentityDistanceAndReplay),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),

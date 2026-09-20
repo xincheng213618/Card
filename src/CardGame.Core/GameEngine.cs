@@ -8039,10 +8039,11 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetNullificationCards(PlayerRuntime responder) =>
         GetPlayableCards(responder).Where(card =>
-            card.Kind == CardKind.Nullification ||
+            !HasProgramCardIdentity(responder, card) &&
+            (card.Kind == CardKind.Nullification ||
             UsesFormalWolong && responder.General.HasSkill(SkillKind.Kanpo) &&
             GetHand(responder).Any(handCard => handCard.Id == card.Id) &&
-            !IsRedSuit(card.Suit)).ToArray();
+            !IsRedSuit(card.Suit))).ToArray();
 
     private void ResolveNullificationChoice(
         NullificationResolution pending,
@@ -10135,7 +10136,10 @@ public sealed partial class GameEngine
             slash,
             playedCardKind,
             source.Seat,
-            usesZhuqueFan: playedCardKind == CardKind.FireSlash && slash.Kind == CardKind.Slash);
+            usesZhuqueFan: playedCardKind == CardKind.FireSlash &&
+                           (slash.Kind == CardKind.Slash ||
+                            GetProgramCardIdentityMatches(source, slash).Any(match =>
+                                match.Identity.OutputKind == CardKind.Slash)));
     }
 
     private void ResolveFangtianHalberdSlash(
@@ -17909,6 +17913,7 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(responder);
         var passiveSkills = EnabledPassiveSkills(responder).ToArray();
         var handCandidates = GetPlayableCards(responder)
+            .Where(card => !HasProgramCardIdentity(responder, card))
             .Where(card => card.Kind == CardKind.Peach || passiveSkills.Any(skill =>
                 skill.Kind == SkillKind.Jijiu && (_rulesVersion < 10 || !IsClassicIdentityMode)
                     ? card.Kind != CardKind.Peach && card.Suit is Suit.Heart or Suit.Diamond
@@ -17929,7 +17934,8 @@ public sealed partial class GameEngine
     private Card[] GetDyingAlcohols(PlayerRuntime responder, int victimSeat) =>
         responder.Seat == victimSeat || UsesHistoricalCrossSeatAlcoholRescue
             ? GetHand(responder)
-                .Where(card => card.Kind == CardKind.Alcohol)
+                .Where(card => card.Kind == CardKind.Alcohol &&
+                               !HasProgramCardIdentity(responder, card))
                 .ToArray()
             : [];
 
@@ -19239,10 +19245,15 @@ public sealed partial class GameEngine
         return limit;
     }
 
-    private bool CanUseSlashTarget(PlayerRuntime source, PlayerRuntime target, Card slashCard) =>
+    private bool CanUseSlashTarget(
+        PlayerRuntime source,
+        PlayerRuntime target,
+        Card slashCard,
+        CardConversionSource? conversionSource = null) =>
         target.IsAlive &&
         target.Seat != source.Seat &&
-        GetCombatDistance(source.Seat, target.Seat) <= GetAttackRange(source.Seat) &&
+        (IgnoresProgramSlashDistance(source, conversionSource) ||
+         GetCombatDistance(source.Seat, target.Seat) <= GetAttackRange(source.Seat)) &&
         !IsSlashProhibited(source, target, slashCard);
 
     private bool CanUseVirtualSlashTarget(PlayerRuntime source, PlayerRuntime target) =>
@@ -19327,7 +19338,10 @@ public sealed partial class GameEngine
             actions.AddRange(BuildNationalRevealActions(actor));
         }
 
-        var playableCards = GetPlayableCards(actor);
+        var physicalPlayableCards = GetPlayableCards(actor);
+        var playableCards = physicalPlayableCards
+            .Where(card => !HasProgramCardIdentity(actor, card))
+            .ToArray();
         var skill = PassiveRules(actor);
         var skillContext = CreateSkillContext(actor);
         var baseSlashLimit = GetSlashLimit(actor, skill, skillContext);
@@ -19336,6 +19350,41 @@ public sealed partial class GameEngine
             : baseSlashLimit;
         if (!actor.TianyiLostThisTurn && _slashCountThisTurn < slashLimit)
         {
+            foreach (var transformed in physicalPlayableCards
+                         .SelectMany(card => GetProgramCardIdentityMatches(actor, card)
+                             .Where(match => match.Identity.OutputKind == CardKind.Slash)
+                             .Select(match => (Card: card, Match: match))))
+            {
+                var card = transformed.Card;
+                var conversionSource = transformed.Match.Source;
+                var targets = GetFangtianOrderedSlashTargets(actor, card, conversionSource);
+                foreach (var effectiveKind in GetSlashUseKinds(actor, CardKind.Slash))
+                {
+                    var physicalName = CardCatalog.Get(card.Kind).DisplayName;
+                    var effectiveName = CardCatalog.Get(effectiveKind).DisplayName;
+                    foreach (var target in targets)
+                    {
+                        actions.Add(new LegalAction(
+                            LegalActionKind.Slash,
+                            card.Id,
+                            target.Seat,
+                            DescribeConversion(conversionSource,
+                                effectiveKind == CardKind.FireSlash
+                                    ? $"将【{physicalName}】视为【杀】，再以【朱雀羽扇】改为【火杀】对 {target.Name} 使用"
+                                    : $"将【{physicalName}】视为【{effectiveName}】对 {target.Name} 使用"),
+                            PlayedCardKind: effectiveKind)
+                        {
+                            ConversionSource = conversionSource
+                        });
+                    }
+
+                    AddFangtianHalberdSlashActions(
+                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource);
+                    AddTianyiSlashActions(
+                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource);
+                }
+            }
+
             foreach (var slash in playableCards.Where(card => IsSlashCard(card.Kind)))
             {
                 var targets = GetFangtianOrderedSlashTargets(actor, slash);
@@ -19450,7 +19499,7 @@ public sealed partial class GameEngine
                         MaxTargetCount: 1,
                         EquipmentKind: CardKind.ZhangbaSerpentSpear)
                     {
-                        SelectableCardIds = playableCards.Select(card => card.Id).Order().ToArray(),
+                        SelectableCardIds = physicalPlayableCards.Select(card => card.Id).Order().ToArray(),
                         SelectableTargetSeats = targets
                     });
                 }
@@ -19564,6 +19613,7 @@ public sealed partial class GameEngine
         {
             foreach (var converted in GetHand(actor)
                          .Concat(GetEquipment(actor))
+                         .Where(card => !HasProgramCardIdentity(actor, card))
                          .Where(card => skill.CanUseAsIndulgence(skillContext, card)))
             {
                 var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
@@ -19609,6 +19659,7 @@ public sealed partial class GameEngine
             var distanceLimit = skill.ModifySupplyShortageDistanceLimit(skillContext, 1);
             var convertedCards = GetHand(actor)
                 .Concat(GetEquipment(actor))
+                .Where(card => !HasProgramCardIdentity(actor, card))
                 .Where(card => skill.CanUseAsSupplyShortage(skillContext, card));
             foreach (var converted in convertedCards)
             {
@@ -19677,6 +19728,7 @@ public sealed partial class GameEngine
         if (UsesFormalPangTong && actor.General.HasSkill(SkillKind.Lianhuan))
         {
             foreach (var converted in GetHand(actor).Where(card =>
+                         !HasProgramCardIdentity(actor, card) &&
                          card.Kind != CardKind.IronChain && card.Suit == Suit.Club))
             {
                 actions.Add(new LegalAction(LegalActionKind.Recast, converted.Id, null,
@@ -19746,6 +19798,7 @@ public sealed partial class GameEngine
         {
             var qixiCards = GetHand(actor)
                 .Concat(GetEquipment(actor))
+                .Where(card => !HasProgramCardIdentity(actor, card))
                 .Where(card => skill.CanUseAsDismantlement(skillContext, card));
             foreach (var converted in qixiCards)
             {
@@ -19824,6 +19877,7 @@ public sealed partial class GameEngine
         if (UsesFormalWolong && actor.General.HasSkill(SkillKind.Huoji))
         {
             foreach (var converted in GetHand(actor).Where(card =>
+                         !HasProgramCardIdentity(actor, card) &&
                          card.Kind != CardKind.FireAttack && IsRedSuit(card.Suit)))
             {
                 foreach (var target in _players.Where(player => player.IsAlive &&
@@ -20031,11 +20085,12 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<PlayerRuntime> GetFangtianOrderedSlashTargets(
         PlayerRuntime actor,
-        Card slash) =>
+        Card slash,
+        CardConversionSource? conversionSource = null) =>
         _players
             .Where(player => actor.TianyiWonThisTurn
                 ? player.IsAlive && player.Seat != actor.Seat && !IsSlashProhibited(actor, player, slash)
-                : CanUseSlashTarget(actor, player, slash))
+                : CanUseSlashTarget(actor, player, slash, conversionSource))
             .ToArray();
 
     private void AddTianyiSlashActions(
@@ -20316,9 +20371,7 @@ public sealed partial class GameEngine
         CardKind requiredCardKind)
     {
         var cards = GetPlayableCards(responder)
-            .Where(card =>
-                MatchesRequiredCard(card.Kind, requiredCardKind) ||
-                CanConvertResponse(responder, card, requiredCardKind));
+            .Where(card => CanUseCardAsResponse(responder, card, requiredCardKind));
         if (UsesFormalWushengEquipment && requiredCardKind == CardKind.Slash)
         {
             cards = cards.Concat(GetEquipment(responder).Where(card =>
@@ -20390,6 +20443,10 @@ public sealed partial class GameEngine
 
     private bool CanConvertResponse(PlayerRuntime responder, Card card, CardKind requiredCardKind)
     {
+        var identities = GetProgramCardIdentityMatches(responder, card);
+        if (identities.Count != 0)
+            return identities.Any(match =>
+                MatchesRequiredCard(match.Identity.OutputKind, requiredCardKind));
         var context = CreateSkillContext(responder);
         return new SkillProgramRules(EnabledSkillPrograms(responder), GetHand(responder).Select(item => item.Id).ToHashSet())
             .CanUseAsResponse(context, card, requiredCardKind) || EnabledPassiveSkills(responder).Any(skill =>
@@ -20403,6 +20460,16 @@ public sealed partial class GameEngine
         Card responseCard,
         CardKind requiredCardKind)
     {
+        var identities = GetProgramCardIdentityMatches(responder, responseCard);
+        if (identities.Count != 0)
+        {
+            return identities.Any(match =>
+                    MatchesRequiredCard(match.Identity.OutputKind, requiredCardKind))
+                ? requiredCardKind
+                : throw new InvalidOperationException(
+                    $"The mandatory identity of response card {responseCard.Id} cannot satisfy {requiredCardKind}.");
+        }
+
         if (MatchesRequiredCard(responseCard.Kind, requiredCardKind))
         {
             return requiredCardKind;
@@ -20416,6 +20483,18 @@ public sealed partial class GameEngine
 
     private static bool IsNativeResponseCard(Card responseCard, CardKind requiredCardKind) =>
         MatchesRequiredCard(responseCard.Kind, requiredCardKind);
+
+    private bool CanUseCardAsResponse(
+        PlayerRuntime responder,
+        Card card,
+        CardKind requiredCardKind)
+    {
+        var identities = GetProgramCardIdentityMatches(responder, card);
+        return identities.Count != 0
+            ? identities.Any(match => MatchesRequiredCard(match.Identity.OutputKind, requiredCardKind))
+            : MatchesRequiredCard(card.Kind, requiredCardKind) ||
+              CanConvertResponse(responder, card, requiredCardKind);
+    }
 
     private static CardKind? ReadResponseCardKind(PromptChoice choice) =>
         choice.Parameters.TryGetValue("response-card-kind", out var value) &&
@@ -20835,13 +20914,23 @@ public sealed partial class GameEngine
                 var legacySources = responder is null
                     ? []
                     : GetLegacyViewAsConversions(responder, card, effectiveCardKind, forResponse: true);
-                var includeUnspecified = IsNativeResponseCard(card, requiredCardKind) ||
-                    responder is null ||
-                    programSources.Count == 0 && legacySources.Count == 0;
+                var hasIdentity = responder is not null && HasProgramCardIdentity(responder, card);
+                var identitySources = responder is null
+                    ? []
+                    : GetProgramCardIdentitySources(
+                        responder, card, effectiveCardKind, forResponse: true);
+                var includeUnspecified = !hasIdentity &&
+                    (IsNativeResponseCard(card, requiredCardKind) ||
+                     responder is null ||
+                     programSources.Count == 0 && legacySources.Count == 0);
                 var sources = new List<CardConversionSource?>();
                 if (includeUnspecified) sources.Add(null);
-                sources.AddRange(legacySources);
-                sources.AddRange(programSources);
+                if (hasIdentity) sources.AddRange(identitySources);
+                else
+                {
+                    sources.AddRange(legacySources);
+                    sources.AddRange(programSources);
+                }
                 return sources.Select((source, index) =>
                 {
                     var parameters = new Dictionary<string, string>

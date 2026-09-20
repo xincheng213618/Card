@@ -36,6 +36,7 @@ public sealed partial class GameEngine
                 return Hint(HandGuidanceReason.WaitingForTurn, "现在不是你的出牌阶段；需要响应时，中央会显示可选操作。");
 
             var cardActions = actions[card.Id].ToArray();
+            var identity = GetProgramCardIdentityMatches(actor, card).FirstOrDefault();
             if (cardActions.Length > 0)
             {
                 if (cardActions.Any(action => action.Kind == LegalActionKind.Recast))
@@ -48,11 +49,12 @@ public sealed partial class GameEngine
                         : "当前可以使用；选中后，合法目标或目标组合会亮起。", true);
             }
 
-            if (card.Kind == CardKind.Peach && actor.Hp >= actor.MaxHp)
+            if (identity is null && card.Kind == CardKind.Peach && actor.Hp >= actor.MaxHp)
                 return Hint(HandGuidanceReason.HealthFull, "你的体力已满，当前不能用桃回复；保留后可在濒死时救援。");
-            if (IsSlashCard(card.Kind) && _slashCountThisTurn >= GetSlashLimit(actor, skill, context))
+            if ((IsSlashCard(card.Kind) || identity?.Identity.OutputKind == CardKind.Slash) &&
+                _slashCountThisTurn >= GetSlashLimit(actor, skill, context))
                 return Hint(HandGuidanceReason.SlashLimitReached, "本回合可使用杀的次数已用完；可以保留它用于响应或下个回合。");
-            if (card.Kind == CardKind.Alcohol && actor.HasAlcoholEffect)
+            if (identity is null && card.Kind == CardKind.Alcohol && actor.HasAlcoholEffect)
                 return Hint(HandGuidanceReason.AlcoholAlreadyActive, "你已有酒的效果，等待下一张杀消耗加伤；当前不能叠加饮酒。");
             if (card.Kind is CardKind.Dodge or CardKind.Nullification)
                 return Hint(HandGuidanceReason.ResponseOnly, card.Kind == CardKind.Dodge

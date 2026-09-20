@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "contentId": "god:guan-yu:classic-i",
+  "retrievedAt": "2026-09-20T20:46:55+08:00",
+  "selectedVersion": "BWIKI经典正式服I版",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/神关羽",
+      "observedRevision": 78769,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "正式服I版武神文本：红桃手牌均视为杀，使用红桃杀无距离限制；与当前后续版本能力分开。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/武神",
+      "observedRevision": 79648,
+      "use": "交叉核对正式服I版只有红桃手牌牌名修正和红桃杀距离修正，不加入无次数、不可抵消或伤害后摸牌。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "锁定技是技能标签；持续状态、动作修正、触发时机和询问分别由规则绑定表达；神势力在游戏开始前选择魏蜀吴群之一作为本局势力。"
+    }
+  ],
+  "a53aScope": {
+    "rulesVersion": 94,
+    "skillProgramSchema": 10,
+    "implemented": [
+      "拥有者手牌区的强制持续牌身份",
+      "物理牌原名普通使用入口抑制",
+      "动作接受时冻结实体身份有效身份和绑定来源",
+      "按牌身份来源限定的杀距离无限修正",
+      "通常出杀次数响应防具和伤害属性保持独立",
+      "Checkpoint和Replay确定性重建",
+      "rules v93拒绝schema 10内容"
+    ],
+    "deferred": [
+      "正式classic:wushen和classic:wuhun配置",
+      "通用神势力开局选择及存档边界实现",
+      "神关羽整将入池",
+      "正式肖像绑定与真实桌面视觉验收"
+    ]
+  }
+}

@@ -47,6 +47,6 @@ v9 在 `judgmentFinalized` 窗口新增 `causeDeath`。它用于“最终判定�
 
 ## 兼容边界
 
-- `GameCheckpoint.CurrentRulesVersion` 为 93；包含 schema 9 程序的内容注册表要求 rules v93 或更新，rules v92 恢复会在创建引擎前明确拒绝。
+- schema 9 的最低规则版本为 93；包含 schema 9 程序的内容注册表要求 rules v93 或更新，rules v92 恢复会在创建引擎前明确拒绝。当前规则版本已由后续 schema 10 提升为 94，但不改变本 schema 的最低版本与玩法哈希。
 - schema 8 仍映射 `skill-program-v8`／最低 rules 86，已发布配置的规范化玩法哈希不变。
 - 本块只提供通用 `causeDeath` 能力并用合成场景验证；正式 `classic:wushen`、`classic:wuhun` 和神关羽入池仍由 A53 独立完成。

@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace CardGame.Core;
 
-public enum SkillRuleQuery { DrawCount, HandLimit, SlashLimit, OutgoingDistance, IncomingDistance }
+public enum SkillRuleQuery { DrawCount, HandLimit, SlashLimit, OutgoingDistance, IncomingDistance, SlashDistanceLimit }
 public enum SkillRuleOperation { Add, Set, Unlimited }
 public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, All, Any, Not }
 public enum SkillProgramTargetKind { OtherLiving, AnyLiving, OtherWounded, AnyWounded }
@@ -48,11 +48,34 @@ public sealed class SkillProgramCondition
 
 public sealed class SkillProgramModifier
 {
-    internal SkillProgramModifier(SkillRuleQuery query, SkillRuleOperation operation, int value, SkillProgramCondition condition) =>
-        (Query, Operation, Value, Condition) = (query, operation, value, condition);
+    internal SkillProgramModifier(SkillRuleQuery query, SkillRuleOperation operation, int value,
+        string? sourceCardIdentityId, SkillProgramCondition condition) =>
+        (Query, Operation, Value, SourceCardIdentityId, Condition) =
+        (query, operation, value, sourceCardIdentityId, condition);
     public SkillRuleQuery Query { get; }
     public SkillRuleOperation Operation { get; }
     public int Value { get; }
+    public string? SourceCardIdentityId { get; }
+    public SkillProgramCondition Condition { get; }
+}
+
+/// <summary>
+/// A mandatory identity projected onto one physical card while it remains in
+/// one of the configured owner zones. Unlike viewAs, this is not an optional
+/// player action: native uses and responses of the physical card are replaced.
+/// </summary>
+public sealed class SkillProgramCardIdentity
+{
+    internal SkillProgramCardIdentity(string id, IReadOnlyList<CardZoneKind> zones,
+        IReadOnlyList<CardKind> inputKinds, IReadOnlyList<Suit> inputSuits,
+        CardKind outputKind, SkillProgramCondition condition) =>
+        (Id, Zones, InputKinds, InputSuits, OutputKind, Condition) =
+        (id, zones, inputKinds, inputSuits, outputKind, condition);
+    public string Id { get; }
+    public IReadOnlyList<CardZoneKind> Zones { get; }
+    public IReadOnlyList<CardKind> InputKinds { get; }
+    public IReadOnlyList<Suit> InputSuits { get; }
+    public CardKind OutputKind { get; }
     public SkillProgramCondition Condition { get; }
 }
 
@@ -176,11 +199,12 @@ public sealed class SkillProgram
     internal SkillProgram(string id, int revision, string gameplayHash, string runtimeVersion, int minimumRulesVersion,
         IReadOnlyList<SkillProgramModifier> modifiers, IReadOnlyList<SkillProgramViewAs> viewAs,
         IReadOnlyList<SkillProgramActivation> activations, IReadOnlyList<SkillProgramTrigger> triggers,
-        IReadOnlyList<SkillProgramContribution> contributions) =>
+        IReadOnlyList<SkillProgramContribution> contributions,
+        IReadOnlyList<SkillProgramCardIdentity> cardIdentities) =>
         (Id, Revision, GameplayHash, RuntimeVersion, MinimumRulesVersion, Modifiers, ViewAs, Activations, Triggers,
-            Contributions) =
+            Contributions, CardIdentities) =
         (id, revision, gameplayHash, runtimeVersion, minimumRulesVersion, modifiers, viewAs, activations, triggers,
-            contributions);
+            contributions, cardIdentities);
     public string Id { get; }
     public int Revision { get; }
     public string GameplayHash { get; }
@@ -191,6 +215,7 @@ public sealed class SkillProgram
     public IReadOnlyList<SkillProgramActivation> Activations { get; }
     public IReadOnlyList<SkillProgramTrigger> Triggers { get; }
     public IReadOnlyList<SkillProgramContribution> Contributions { get; }
+    public IReadOnlyList<SkillProgramCardIdentity> CardIdentities { get; }
 }
 
 public sealed class SkillPresentation
@@ -257,7 +282,7 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(root, "rules");
         CheckProperties(root, "rules", "schemaVersion", "skills");
-        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         var runtimeVersion = schemaVersion switch
         {
             1 => RuntimeVersion,
@@ -268,7 +293,8 @@ public sealed class SkillProgramCatalog
             6 => "skill-program-v6",
             7 => "skill-program-v7",
             8 => "skill-program-v8",
-            _ => "skill-program-v9"
+            9 => "skill-program-v9",
+            _ => "skill-program-v10"
         };
         var minimumRulesVersion = schemaVersion switch
         {
@@ -280,7 +306,8 @@ public sealed class SkillProgramCatalog
             6 => 84,
             7 => 85,
             8 => 86,
-            _ => 93
+            9 => 93,
+            _ => 94
         };
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
@@ -295,7 +322,8 @@ public sealed class SkillProgramCatalog
                 1 => ["id", "revision", "modifiers", "viewAs", "activations"],
                 < 7 => ["id", "revision", "modifiers", "viewAs", "activations", "triggers"],
                 8 => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions"],
-                _ => ["id", "revision", "modifiers", "viewAs", "activations", "triggers", "contributions"]
+                9 => ["id", "revision", "modifiers", "viewAs", "activations", "triggers", "contributions"],
+                _ => ["id", "revision", "modifiers", "viewAs", "activations", "triggers", "contributions", "cardIdentities"]
             });
             var id = Identifier(skill, "id", path);
             var skillPath = $"skill '{id}' ({path})";
@@ -310,7 +338,8 @@ public sealed class SkillProgramCatalog
                     Fail(skillPath + ".minimumRulesVersion",
                         $"must be from schema minimum {minimumRulesVersion} through current rules {GameCheckpoint.CurrentRulesVersion}");
             }
-            var modifiers = ReadArray(skill, "modifiers", skillPath, ParseModifier, schemaVersion >= 2);
+            var modifiers = ReadArray(skill, "modifiers", skillPath,
+                (node, modifierPath) => ParseModifier(node, modifierPath, schemaVersion), schemaVersion >= 2);
             var viewAs = ReadArray(skill, "viewAs", skillPath, ParseViewAs, schemaVersion >= 2);
             var activations = ReadArray(skill, "activations", skillPath, ParseActivation, schemaVersion >= 2);
             var triggers = schemaVersion >= 2
@@ -320,19 +349,24 @@ public sealed class SkillProgramCatalog
             var contributions = schemaVersion >= 7
                 ? ReadArray(skill, "contributions", skillPath, ParseContribution, optional: true)
                 : Array.Empty<SkillProgramContribution>();
+            var cardIdentities = schemaVersion >= 10
+                ? ReadArray(skill, "cardIdentities", skillPath, ParseCardIdentity, optional: true)
+                : Array.Empty<SkillProgramCardIdentity>();
             if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0 && triggers.Count == 0 &&
-                contributions.Count == 0)
-                Fail(skillPath, "must define at least one modifier, viewAs rule, activation, trigger, or contribution");
+                contributions.Count == 0 && cardIdentities.Count == 0)
+                Fail(skillPath, "must define at least one modifier, viewAs rule, activation, trigger, contribution, or card identity");
             EnsureUniqueIds(viewAs.Select(item => item.Id), skillPath + ".viewAs");
             EnsureUniqueIds(activations.Select(item => item.Id), skillPath + ".activations");
             EnsureUniqueIds(triggers.Select(item => item.Id), skillPath + ".triggers");
             EnsureUniqueIds(contributions.Select(item => item.Id), skillPath + ".contributions");
+            EnsureUniqueIds(cardIdentities.Select(item => item.Id), skillPath + ".cardIdentities");
             EnsureUniqueIds(activations.Select(item => item.Id).Concat(contributions.Select(item => item.Id)),
                 skillPath + ".playBindings");
+            ValidateCardIdentityModifiers(skillPath, modifiers, cardIdentities);
             var hashInput = runtimeVersion + "\n" + Canonicalize(skill);
             var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput))).ToLowerInvariant();
             result.Add(id, new SkillProgram(id, revision, hash, runtimeVersion, skillMinimumRulesVersion,
-                modifiers, viewAs, activations, triggers, contributions));
+                modifiers, viewAs, activations, triggers, contributions, cardIdentities));
         }
         if (schemaVersion >= 2) ValidateTriggerSources(result);
         return result;
@@ -363,23 +397,75 @@ public sealed class SkillProgramCatalog
         return result;
     }
 
-    private static SkillProgramModifier ParseModifier(JsonElement node, string path)
+    private static SkillProgramModifier ParseModifier(JsonElement node, string path, int schemaVersion)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "query", "operation", "value", "condition");
+        CheckProperties(node, path, schemaVersion >= 10
+            ? ["query", "operation", "value", "sourceCardIdentityId", "condition"]
+            : ["query", "operation", "value", "condition"]);
         var query = EnumValue<SkillRuleQuery>(node, "query", path);
+        if (schemaVersion < 10 && query == SkillRuleQuery.SlashDistanceLimit)
+            Fail(path + ".query", "slashDistanceLimit requires schema version 10");
         var operation = EnumValue<SkillRuleOperation>(node, "operation", path);
         var value = RequiredInt(node, "value", path);
+        var sourceCardIdentityId = node.TryGetProperty("sourceCardIdentityId", out _)
+            ? Identifier(node, "sourceCardIdentityId", path)
+            : null;
         if (value is < -1024 or > 1024)
             Fail(path + ".value", "modifier value must be between -1024 and 1024");
         if (operation == SkillRuleOperation.Add && value == 0)
             Fail(path + ".value", "add requires a non-zero value");
         if (operation == SkillRuleOperation.Unlimited)
         {
-            if (query != SkillRuleQuery.SlashLimit) Fail(path, "unlimited is supported only for slashLimit");
+            if (query is not (SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit))
+                Fail(path, "unlimited is supported only for slashLimit or slashDistanceLimit");
             if (value != 0) Fail(path + ".value", "unlimited requires value 0");
         }
-        return new SkillProgramModifier(query, operation, value, OptionalCondition(node, path));
+        if (query == SkillRuleQuery.SlashDistanceLimit)
+        {
+            if (operation != SkillRuleOperation.Unlimited)
+                Fail(path + ".operation", "slashDistanceLimit currently requires unlimited");
+            if (sourceCardIdentityId is null)
+                Fail(path, "slashDistanceLimit requires sourceCardIdentityId");
+        }
+        else if (sourceCardIdentityId is not null)
+            Fail(path + ".sourceCardIdentityId", "is supported only for slashDistanceLimit");
+        return new SkillProgramModifier(query, operation, value, sourceCardIdentityId,
+            OptionalCondition(node, path));
+    }
+
+    private static SkillProgramCardIdentity ParseCardIdentity(JsonElement node, string path)
+    {
+        RequireObject(node, path);
+        CheckProperties(node, path, "id", "zones", "inputKinds", "inputSuits", "outputKind", "condition");
+        var id = Identifier(node, "id", path);
+        var zones = EnumArray<CardZoneKind>(node, "zones", path);
+        if (zones.Count != 1 || zones[0] != CardZoneKind.Hand)
+            Fail(path + ".zones", "schema 10 supports exactly the owner hand zone");
+        var inputs = EnumArray<CardKind>(node, "inputKinds", path);
+        var suits = EnumArray<Suit>(node, "inputSuits", path);
+        if (inputs.Count == 0 && suits.Count == 0)
+            Fail(path, "must filter at least one physical card kind or suit");
+        var output = EnumValue<CardKind>(node, "outputKind", path);
+        if (output is not (CardKind.Slash or CardKind.Dodge))
+            Fail(path + ".outputKind", "schema 10 supports only slash or dodge identities");
+        return new SkillProgramCardIdentity(id, zones, inputs, suits, output,
+            OptionalCondition(node, path));
+    }
+
+    private static void ValidateCardIdentityModifiers(
+        string path,
+        IReadOnlyList<SkillProgramModifier> modifiers,
+        IReadOnlyList<SkillProgramCardIdentity> identities)
+    {
+        foreach (var modifier in modifiers.Where(item => item.Query == SkillRuleQuery.SlashDistanceLimit))
+        {
+            var identity = identities.SingleOrDefault(item => item.Id == modifier.SourceCardIdentityId);
+            if (identity is null)
+                Fail(path + ".modifiers", $"references unknown card identity '{modifier.SourceCardIdentityId}'");
+            if (identity.OutputKind != CardKind.Slash)
+                Fail(path + ".modifiers", "slashDistanceLimit requires a card identity that outputs slash");
+        }
     }
 
     private static SkillProgramViewAs ParseViewAs(JsonElement node, string path)

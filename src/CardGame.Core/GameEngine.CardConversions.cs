@@ -2,11 +2,78 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private sealed record ProgramCardIdentityMatch(
+        SkillProgram Program,
+        SkillProgramCardIdentity Identity,
+        CardConversionSource Source);
+
     private CardConversionSource? _selectedResponseConversion;
     private CardConversionSource? _selectedUseConversion;
 
     private string DescribeConversion(CardConversionSource? source, string description) =>
         source is null ? description : $"【{_contentRegistry!.Skills[source.SkillId].Name}】{description}";
+
+    private IReadOnlyList<ProgramCardIdentityMatch> GetProgramCardIdentityMatches(
+        PlayerRuntime owner,
+        Card card)
+    {
+        if (_rulesVersion < 94 || _cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat))
+            return [];
+
+        var context = CreateSkillContext(owner);
+        return EnabledSkillPrograms(owner)
+            .SelectMany(program => program.CardIdentities
+                .Where(identity => identity.Zones.Contains(CardZoneKind.Hand) &&
+                                   identity.Condition.Evaluate(context) &&
+                                   (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(card.Kind)) &&
+                                   (identity.InputSuits.Count == 0 || identity.InputSuits.Contains(card.Suit)))
+                .Select(identity => new ProgramCardIdentityMatch(
+                    program,
+                    identity,
+                    new CardConversionSource(
+                        program.Id,
+                        identity.Id,
+                        owner.Seat,
+                        $"seat-{owner.Seat}:{program.Id}"))))
+            .OrderBy(match => match.Source.SkillId, StringComparer.Ordinal)
+            .ThenBy(match => match.Source.BindingId, StringComparer.Ordinal)
+            .ThenBy(match => match.Source.SkillInstanceId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private IReadOnlyList<CardConversionSource> GetProgramCardIdentitySources(
+        PlayerRuntime owner,
+        Card card,
+        CardKind effectiveKind,
+        bool forResponse)
+    {
+        var matches = GetProgramCardIdentityMatches(owner, card);
+        if (matches.Count == 0) return [];
+        return matches
+            .Where(match => match.Identity.OutputKind == effectiveKind ||
+                            !forResponse && match.Identity.OutputKind == CardKind.Slash &&
+                            IsSlashCard(effectiveKind))
+            .Select(match => match.Source)
+            .ToArray();
+    }
+
+    private bool HasProgramCardIdentity(PlayerRuntime owner, Card card) =>
+        GetProgramCardIdentityMatches(owner, card).Count != 0;
+
+    private bool IgnoresProgramSlashDistance(
+        PlayerRuntime owner,
+        CardConversionSource? source)
+    {
+        if (source is null || source.OwnerSeat != owner.Seat) return false;
+        var context = CreateSkillContext(owner);
+        return EnabledSkillPrograms(owner).Any(program =>
+            program.Id == source.SkillId &&
+            program.Modifiers.Any(modifier =>
+                modifier.Query == SkillRuleQuery.SlashDistanceLimit &&
+                modifier.Operation == SkillRuleOperation.Unlimited &&
+                modifier.SourceCardIdentityId == source.BindingId &&
+                modifier.Condition.Evaluate(context)));
+    }
 
     private IReadOnlyList<CardConversionSource> GetProgramViewAsConversions(
         PlayerRuntime owner,
@@ -15,6 +82,7 @@ public sealed partial class GameEngine
         bool forResponse)
     {
         if (_rulesVersion < 80 || card.Kind == outputKind ||
+            HasProgramCardIdentity(owner, card) ||
             _cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat))
         {
             return [];
@@ -94,9 +162,14 @@ public sealed partial class GameEngine
     {
         if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
-            IsSlashCard(card.Kind) ||
-            GetLegacyViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0 ||
-            GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0);
+        {
+            var identities = GetProgramCardIdentityMatches(owner, card);
+            return identities.Count != 0
+                ? identities.Any(match => match.Identity.OutputKind == CardKind.Slash)
+                : IsSlashCard(card.Kind) ||
+                  GetLegacyViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0 ||
+                  GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0;
+        });
         if (UsesFormalWushengEquipment)
             cards = cards.Concat(GetEquipment(owner).Where(card => CanUseAsFormalWushengSlash(owner, card)));
         return cards.DistinctBy(card => card.Id).ToArray();
@@ -111,10 +184,14 @@ public sealed partial class GameEngine
     private CardKind GetJijiangEffectiveSlashKind(
         JijiangResolution pending,
         PlayerRuntime provider,
-        Card card) =>
-        IsJijiangUse(pending)
+        Card card)
+    {
+        var identity = GetProgramCardIdentityMatches(provider, card).FirstOrDefault();
+        if (identity is not null) return identity.Identity.OutputKind;
+        return IsJijiangUse(pending)
             ? IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash
             : GetEffectiveResponseKind(provider, card, CardKind.Slash);
+    }
 
     private static void AddConversionParameters(
         IDictionary<string, string> parameters,
@@ -138,14 +215,20 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targets,
         IReadOnlyDictionary<string, string> baseParameters)
     {
+        var hasIdentity = HasProgramCardIdentity(owner, card);
+        var identitySources = GetProgramCardIdentitySources(owner, card, effectiveKind, forResponse);
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse);
         var legacySources = GetLegacyViewAsConversions(owner, card, effectiveKind, forResponse);
-        var includeUnspecified = card.Kind == effectiveKind ||
-            programSources.Count == 0 && legacySources.Count == 0;
+        var includeUnspecified = !hasIdentity &&
+            (card.Kind == effectiveKind || programSources.Count == 0 && legacySources.Count == 0);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
-        sources.AddRange(legacySources);
-        sources.AddRange(programSources);
+        if (hasIdentity) sources.AddRange(identitySources);
+        else
+        {
+            sources.AddRange(legacySources);
+            sources.AddRange(programSources);
+        }
         for (var index = 0; index < sources.Count; index++)
         {
             var source = sources[index];
@@ -196,9 +279,14 @@ public sealed partial class GameEngine
         Card responseCard,
         CardKind effectiveKind)
     {
-        var candidates = GetLegacyViewAsConversions(provider, responseCard, effectiveKind, forResponse: true)
-            .Concat(GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true))
-            .ToArray();
+        var hasIdentity = HasProgramCardIdentity(provider, responseCard);
+        var identitySources = GetProgramCardIdentitySources(
+            provider, responseCard, effectiveKind, forResponse: true);
+        var candidates = hasIdentity
+            ? identitySources.ToArray()
+            : GetLegacyViewAsConversions(provider, responseCard, effectiveKind, forResponse: true)
+                .Concat(GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true))
+                .ToArray();
         if (_selectedResponseConversion is { } selected)
         {
             _selectedResponseConversion = null;
@@ -220,10 +308,15 @@ public sealed partial class GameEngine
         Card card,
         CardKind effectiveKind)
     {
-        var candidates = GetLegacyViewAsConversions(provider, card, effectiveKind, forResponse: false)
-            .Concat(GetProgramViewAsConversions(provider, card, effectiveKind, forResponse: false))
-            .Distinct()
-            .ToArray();
+        var hasIdentity = HasProgramCardIdentity(provider, card);
+        var identitySources = GetProgramCardIdentitySources(
+            provider, card, effectiveKind, forResponse: false);
+        var candidates = hasIdentity
+            ? identitySources.ToArray()
+            : GetLegacyViewAsConversions(provider, card, effectiveKind, forResponse: false)
+                .Concat(GetProgramViewAsConversions(provider, card, effectiveKind, forResponse: false))
+                .Distinct()
+                .ToArray();
         var selected = _selectedUseConversion ?? _selectedResponseConversion;
         _selectedUseConversion = null;
         _selectedResponseConversion = null;
