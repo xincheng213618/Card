@@ -21,6 +21,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private CardKind? _selectedEquipmentEffectKind;
     private string? _selectedProgramSkillId;
     private string? _selectedProgramActivationId;
+    private int? _selectedProgramSkillOwnerSeat;
     private PromptId? _activeSkillPromptId;
     private bool _isSelectingActiveSkillCards;
     private int? _selectedTargetSeat;
@@ -408,6 +409,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedEquipmentEffectKind = null;
         _selectedProgramSkillId = null;
         _selectedProgramActivationId = null;
+        _selectedProgramSkillOwnerSeat = null;
         _activeSkillPromptId = null;
         _isSelectingActiveSkillCards = false;
         _selectedTargetSeat = null;
@@ -484,6 +486,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
+            _selectedProgramSkillOwnerSeat = null;
             _isSelectingActiveSkillCards = false;
         }
 
@@ -499,6 +502,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
+            _selectedProgramSkillOwnerSeat = null;
             _isSelectingActiveSkillCards = false;
             return;
         }
@@ -1707,6 +1711,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedEquipmentEffectKind = action.EquipmentKind;
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
+        _selectedProgramSkillOwnerSeat = action.ProgramSkillOwnerSeat;
 
         var requiresCardSelection = action.MinCardCount > 0 || action.MaxCardCount > 0;
         var requiresTargetSelection = action.MinTargetCount > 0 || action.MaxTargetCount > 0;
@@ -1773,7 +1778,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                         selectedCards,
                         selectedTargets,
                         _snapshot.Revision,
-                        prompt.PromptId))
+                        prompt.PromptId)
+                    {
+                        SkillOwnerSeat = action.ProgramSkillOwnerSeat
+                    })
                 : action.Skill is { } skill
                     ? SubmitCommand(new UseSkillCommand(
                         _snapshot.HumanSeat,
@@ -1797,6 +1805,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
+            _selectedProgramSkillOwnerSeat = null;
             _selectedCardId = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
@@ -1818,6 +1827,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedEquipmentEffectKind = action.EquipmentKind;
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
+        _selectedProgramSkillOwnerSeat = action.ProgramSkillOwnerSeat;
         UseActiveSkill();
     }
 
@@ -1834,6 +1844,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
+            _selectedProgramSkillOwnerSeat = null;
             _isSelectingActiveSkillCards = false;
             SelectedCardText = "未选择手牌";
             var result = SubmitCommand(new EndPlayPhaseCommand(_snapshot.HumanSeat, _snapshot.Revision, _snapshot.PendingDecision?.PromptId));

@@ -99,6 +99,25 @@ public sealed class SkillProgramActivation
     public IReadOnlyList<SkillProgramEffect> Effects { get; }
 }
 
+/// <summary>
+/// A play-phase entry granted by this skill to another character. The provider
+/// contributes one matching physical hand card to the living skill owner; kind
+/// and suit filters form a union so definitions can express "Dodge or Spade".
+/// </summary>
+public sealed class SkillProgramContribution
+{
+    internal SkillProgramContribution(string id, IReadOnlyList<string> providerFactions, Role ownerRole,
+        IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> cardSuits, int usesPerPlayPhase) =>
+        (Id, ProviderFactions, OwnerRole, CardKinds, CardSuits, UsesPerPlayPhase) =
+        (id, providerFactions, ownerRole, cardKinds, cardSuits, usesPerPlayPhase);
+    public string Id { get; }
+    public IReadOnlyList<string> ProviderFactions { get; }
+    public Role OwnerRole { get; }
+    public IReadOnlyList<CardKind> CardKinds { get; }
+    public IReadOnlyList<Suit> CardSuits { get; }
+    public int UsesPerPlayPhase { get; }
+}
+
 public sealed class SkillProgramTriggerEffect
 {
     internal SkillProgramTriggerEffect(SkillProgramTriggerEffectOp op, SkillProgramTriggerEffectTarget target,
@@ -153,9 +172,12 @@ public sealed class SkillProgram
 {
     internal SkillProgram(string id, int revision, string gameplayHash, string runtimeVersion, int minimumRulesVersion,
         IReadOnlyList<SkillProgramModifier> modifiers, IReadOnlyList<SkillProgramViewAs> viewAs,
-        IReadOnlyList<SkillProgramActivation> activations, IReadOnlyList<SkillProgramTrigger> triggers) =>
-        (Id, Revision, GameplayHash, RuntimeVersion, MinimumRulesVersion, Modifiers, ViewAs, Activations, Triggers) =
-        (id, revision, gameplayHash, runtimeVersion, minimumRulesVersion, modifiers, viewAs, activations, triggers);
+        IReadOnlyList<SkillProgramActivation> activations, IReadOnlyList<SkillProgramTrigger> triggers,
+        IReadOnlyList<SkillProgramContribution> contributions) =>
+        (Id, Revision, GameplayHash, RuntimeVersion, MinimumRulesVersion, Modifiers, ViewAs, Activations, Triggers,
+            Contributions) =
+        (id, revision, gameplayHash, runtimeVersion, minimumRulesVersion, modifiers, viewAs, activations, triggers,
+            contributions);
     public string Id { get; }
     public int Revision { get; }
     public string GameplayHash { get; }
@@ -165,6 +187,7 @@ public sealed class SkillProgram
     public IReadOnlyList<SkillProgramViewAs> ViewAs { get; }
     public IReadOnlyList<SkillProgramActivation> Activations { get; }
     public IReadOnlyList<SkillProgramTrigger> Triggers { get; }
+    public IReadOnlyList<SkillProgramContribution> Contributions { get; }
 }
 
 public sealed class SkillPresentation
@@ -231,7 +254,7 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(root, "rules");
         CheckProperties(root, "rules", "schemaVersion", "skills");
-        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6);
+        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7);
         var runtimeVersion = schemaVersion switch
         {
             1 => RuntimeVersion,
@@ -239,9 +262,19 @@ public sealed class SkillProgramCatalog
             3 => "skill-program-v3",
             4 => "skill-program-v4",
             5 => "skill-program-v5",
-            _ => "skill-program-v6"
+            6 => "skill-program-v6",
+            _ => "skill-program-v7"
         };
-        var minimumRulesVersion = schemaVersion switch { 1 => 79, 2 => 80, 3 => 81, 4 => 82, 5 => 83, _ => 84 };
+        var minimumRulesVersion = schemaVersion switch
+        {
+            1 => 79,
+            2 => 80,
+            3 => 81,
+            4 => 82,
+            5 => 83,
+            6 => 84,
+            _ => 85
+        };
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
         var result = new Dictionary<string, SkillProgram>(StringComparer.Ordinal);
@@ -250,9 +283,12 @@ public sealed class SkillProgramCatalog
         {
             var path = $"rules.skills[{index++}]";
             RequireObject(skill, path);
-            CheckProperties(skill, path, schemaVersion == 1
-                ? ["id", "revision", "modifiers", "viewAs", "activations"]
-                : ["id", "revision", "modifiers", "viewAs", "activations", "triggers"]);
+            CheckProperties(skill, path, schemaVersion switch
+            {
+                1 => ["id", "revision", "modifiers", "viewAs", "activations"],
+                < 7 => ["id", "revision", "modifiers", "viewAs", "activations", "triggers"],
+                _ => ["id", "revision", "modifiers", "viewAs", "activations", "triggers", "contributions"]
+            });
             var id = Identifier(skill, "id", path);
             var skillPath = $"skill '{id}' ({path})";
             if (result.ContainsKey(id)) Fail(skillPath, $"duplicate skill id '{id}'");
@@ -264,15 +300,22 @@ public sealed class SkillProgramCatalog
                 ? ReadArray(skill, "triggers", skillPath,
                     (node, triggerPath) => ParseTrigger(node, triggerPath, schemaVersion), optional: true)
                 : Array.Empty<SkillProgramTrigger>();
-            if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0 && triggers.Count == 0)
-                Fail(skillPath, "must define at least one modifier, viewAs rule, activation, or trigger");
+            var contributions = schemaVersion >= 7
+                ? ReadArray(skill, "contributions", skillPath, ParseContribution, optional: true)
+                : Array.Empty<SkillProgramContribution>();
+            if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0 && triggers.Count == 0 &&
+                contributions.Count == 0)
+                Fail(skillPath, "must define at least one modifier, viewAs rule, activation, trigger, or contribution");
             EnsureUniqueIds(viewAs.Select(item => item.Id), skillPath + ".viewAs");
             EnsureUniqueIds(activations.Select(item => item.Id), skillPath + ".activations");
             EnsureUniqueIds(triggers.Select(item => item.Id), skillPath + ".triggers");
+            EnsureUniqueIds(contributions.Select(item => item.Id), skillPath + ".contributions");
+            EnsureUniqueIds(activations.Select(item => item.Id).Concat(contributions.Select(item => item.Id)),
+                skillPath + ".playBindings");
             var hashInput = runtimeVersion + "\n" + Canonicalize(skill);
             var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput))).ToLowerInvariant();
             result.Add(id, new SkillProgram(id, revision, hash, runtimeVersion, minimumRulesVersion,
-                modifiers, viewAs, activations, triggers));
+                modifiers, viewAs, activations, triggers, contributions));
         }
         if (schemaVersion >= 2) ValidateTriggerSources(result);
         return result;
@@ -367,6 +410,27 @@ public sealed class SkillProgramCatalog
         ValidateActivation(path, minCards, maxCards, minTargets, maxTargets, effects);
         return new SkillProgramActivation(id, minCards, maxCards, minTargets, maxTargets, targetKind, uses,
             OptionalCondition(node, path), effects);
+    }
+
+    private static SkillProgramContribution ParseContribution(JsonElement node, string path)
+    {
+        RequireObject(node, path);
+        CheckProperties(node, path, "id", "providerFactions", "ownerRole", "cardKinds", "cardSuits",
+            "usesPerPlayPhase");
+        var id = Identifier(node, "id", path);
+        var providerFactions = StringArray(node, "providerFactions", path);
+        if (providerFactions.Count == 0)
+            Fail(path + ".providerFactions", "must contain at least one faction id");
+        var ownerRole = EnumValue<Role>(node, "ownerRole", path);
+        var cardKinds = EnumArray<CardKind>(node, "cardKinds", path);
+        var cardSuits = EnumArray<Suit>(node, "cardSuits", path);
+        if (cardKinds.Count == 0 && cardSuits.Count == 0)
+            Fail(path, "must accept at least one physical card kind or suit");
+        var usesPerPlayPhase = PositiveInt(node, "usesPerPlayPhase", path);
+        if (usesPerPlayPhase > 64)
+            Fail(path + ".usesPerPlayPhase", "must not exceed 64");
+        return new SkillProgramContribution(id, providerFactions, ownerRole, cardKinds, cardSuits,
+            usesPerPlayPhase);
     }
 
     private static SkillProgramEffect ParseEffect(JsonElement node, string path)

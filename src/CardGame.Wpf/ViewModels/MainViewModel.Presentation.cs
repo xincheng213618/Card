@@ -111,7 +111,8 @@ public sealed partial class MainViewModel
         action.Skill == _selectedActiveSkillKind &&
         action.EquipmentKind == _selectedEquipmentEffectKind &&
         action.ProgramSkillId == _selectedProgramSkillId &&
-        action.ProgramActivationId == _selectedProgramActivationId) ?? HumanActiveSkillActions.FirstOrDefault();
+        action.ProgramActivationId == _selectedProgramActivationId &&
+        action.ProgramSkillOwnerSeat == _selectedProgramSkillOwnerSeat) ?? HumanActiveSkillActions.FirstOrDefault();
     private bool IsActiveSkillCardSelectionPending =>
         _isSelectingActiveSkillCards &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
@@ -367,6 +368,7 @@ public sealed partial class MainViewModel
         _selectedEquipmentEffectKind = null;
         _selectedProgramSkillId = null;
         _selectedProgramActivationId = null;
+        _selectedProgramSkillOwnerSeat = null;
         _isSelectingActiveSkillCards = false;
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = "未选择手牌";

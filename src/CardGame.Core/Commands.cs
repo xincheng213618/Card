@@ -150,7 +150,12 @@ public sealed record UseProgramSkillCommand(
     IReadOnlyList<int> CardIds,
     IReadOnlyList<int> TargetSeats,
     long ExpectedRevision,
-    PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
+    PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision)
+{
+    /// <summary>Identifies a different character who owns the invoked skill.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? SkillOwnerSeat { get; init; }
+}
 
 /// <summary>
 /// Uses an equipped card's active conversion with an exact private card and

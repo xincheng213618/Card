@@ -6183,6 +6183,7 @@ public sealed partial class GameEngine
 
     private void EnterPlayPhase(PlayerRuntime current)
     {
+        ResetProgramContributionUsesForPlayPhase(current.Seat);
         _phase = TurnPhase.Play;
         AddLog("PhaseChanged", $"{current.Name} 进入出牌阶段。", current.Seat);
         QueueGameEvent(new PhaseChangedEvent(_phase, current.Seat));

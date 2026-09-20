@@ -5,6 +5,8 @@ public sealed partial class GameEngine
     // The journal rebuilds these counters through accepted commands. They are
     // keyed by content identities, never by translated presentation text.
     private readonly Dictionary<(int Seat, string Skill, string Activation), int> _programUses = new();
+    private readonly Dictionary<(int ProviderSeat, int SkillOwnerSeat, string Skill, string Contribution), int>
+        _programContributionUses = new();
 
     private IReadOnlyList<SkillProgram> EnabledSkillPrograms(PlayerRuntime player)
     {
@@ -58,6 +60,35 @@ public sealed partial class GameEngine
                 SelectableTargetSeats = Array.AsReadOnly(targets)
             };
         }
+
+        if (_rulesVersion < 85) yield break;
+        foreach (var skillOwner in _players.Where(player => player.IsAlive && player.Seat != owner.Seat).OrderBy(player => player.Seat))
+        foreach (var program in EnabledSkillPrograms(skillOwner))
+        foreach (var contribution in program.Contributions)
+        {
+            var providerFaction = IsNationalWarMode ? owner.NationalFactionId : owner.General.FactionId;
+            var key = (owner.Seat, skillOwner.Seat, program.Id, contribution.Id);
+            if (providerFaction is null ||
+                !contribution.ProviderFactions.Contains(providerFaction, StringComparer.Ordinal) ||
+                skillOwner.Role != contribution.OwnerRole ||
+                _programContributionUses.GetValueOrDefault(key) >= contribution.UsesPerPlayPhase)
+                continue;
+            var cards = GetHand(owner)
+                .Where(card => contribution.CardKinds.Contains(card.Kind) || contribution.CardSuits.Contains(card.Suit))
+                .Select(card => card.Id).Order().ToArray();
+            if (cards.Length == 0) continue;
+            yield return new LegalAction(LegalActionKind.UseProgramSkill, null, skillOwner.Seat,
+                $"响应【{_contentRegistry!.Skills[program.Id].Name}】，将一张牌交给 {skillOwner.Name}",
+                MinCardCount: 1, MaxCardCount: 1, MinTargetCount: 1, MaxTargetCount: 1)
+            {
+                ProgramSkillId = program.Id,
+                ProgramActivationId = contribution.Id,
+                ProgramSkillOwnerSeat = skillOwner.Seat,
+                ProgramAiHint = new SkillProgramAiHint(0, 0, 0, 0, 0, 0, true, false),
+                SelectableCardIds = Array.AsReadOnly(cards),
+                SelectableTargetSeats = Array.AsReadOnly(new[] { skillOwner.Seat })
+            };
+        }
     }
 
     private static SkillProgramAiHint CreateProgramAiHint(SkillProgramActivation activation, PlayerSkillContext context)
@@ -94,8 +125,15 @@ public sealed partial class GameEngine
             CommandErrorCode.IllegalAction);
         if (error is not null) return Reject(error.Code, error.Message);
         var owner = _players[command.ActorSeat];
-        var action = BuildProgramActions(owner).SingleOrDefault(candidate =>
-            candidate.ProgramSkillId == command.SkillId && candidate.ProgramActivationId == command.ActivationId);
+        var candidates = BuildProgramActions(owner).Where(candidate =>
+            candidate.ProgramSkillId == command.SkillId &&
+            candidate.ProgramActivationId == command.ActivationId).ToArray();
+        var action = command.SkillOwnerSeat is { } skillOwnerSeat
+            ? candidates.SingleOrDefault(candidate => candidate.ProgramSkillOwnerSeat == skillOwnerSeat)
+            : candidates.Length == 1
+                ? candidates[0]
+                : candidates.SingleOrDefault(candidate => candidate.ProgramSkillOwnerSeat is { } candidateOwner &&
+                    command.TargetSeats.Count == 1 && command.TargetSeats[0] == candidateOwner);
         if (action is null)
             return Reject(CommandErrorCode.IllegalAction, "The skill activation is not currently available.");
         error = ValidateProgramSelection(action, command.CardIds, command.TargetSeats);
@@ -113,10 +151,17 @@ public sealed partial class GameEngine
         IReadOnlyList<int> cards, IReadOnlyList<int> targets)
     {
         var current = BuildProgramActions(owner).SingleOrDefault(candidate =>
-            candidate.ProgramSkillId == action.ProgramSkillId && candidate.ProgramActivationId == action.ProgramActivationId)
+            candidate.ProgramSkillId == action.ProgramSkillId &&
+            candidate.ProgramActivationId == action.ProgramActivationId &&
+            candidate.ProgramSkillOwnerSeat == action.ProgramSkillOwnerSeat)
             ?? throw new InvalidOperationException("The skill activation is no longer available.");
         if (ValidateProgramSelection(current, cards, targets) is { } error)
             throw new InvalidOperationException(error.Message);
+        if (current.ProgramSkillOwnerSeat is { } skillOwnerSeat)
+        {
+            ExecuteProgramContribution(owner, _players[skillOwnerSeat], current, cards[0]);
+            return;
+        }
         var program = EnabledSkillPrograms(owner).Single(item => item.Id == action.ProgramSkillId);
         var activation = program.Activations.Single(item => item.Id == action.ProgramActivationId);
         var key = (owner.Seat, program.Id, activation.Id);
@@ -127,6 +172,37 @@ public sealed partial class GameEngine
         QueueGameEvent(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
         AddLog("ActiveSkill", $"{owner.Name} 发动【{_contentRegistry!.Skills[program.Id].Name}】。", owner.Seat);
         ContinueProgramSkill(frame.Id);
+    }
+
+    private void ExecuteProgramContribution(PlayerRuntime provider, PlayerRuntime skillOwner,
+        LegalAction action, int cardId)
+    {
+        var program = EnabledSkillPrograms(skillOwner).Single(item => item.Id == action.ProgramSkillId);
+        var contribution = program.Contributions.Single(item => item.Id == action.ProgramActivationId);
+        var key = (provider.Seat, skillOwner.Seat, program.Id, contribution.Id);
+        if (_programContributionUses.GetValueOrDefault(key) >= contribution.UsesPerPlayPhase)
+            throw new InvalidOperationException("The contribution was already used in this play phase.");
+        var card = GetHand(provider).Single(candidate => candidate.Id == cardId);
+        if (!contribution.CardKinds.Contains(card.Kind) && !contribution.CardSuits.Contains(card.Suit))
+            throw new InvalidOperationException("The contributed physical hand card no longer matches the binding.");
+
+        _programContributionUses[key] = _programContributionUses.GetValueOrDefault(key) + 1;
+        var actionId = ++_resolutionSequence;
+        var reason = new CardMoveReason($"skill-program.{program.Id}.{contribution.Id}.contribute");
+        MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing, reason);
+        MoveCard(card, CardLocation.Processing, CardLocation.Hand(skillOwner.Seat), reason);
+        QueueGameEvent(new ProgramSkillContributionResolvedEvent(actionId, provider.Seat, skillOwner.Seat,
+            program.Id, contribution.Id, card.Id, card.Kind, card.Suit));
+        AddLog("ActiveSkill",
+            $"{provider.Name} 响应【{_contentRegistry!.Skills[program.Id].Name}】，将【{card.DisplayName}】交给 {skillOwner.Name}。",
+            provider.Seat, skillOwner.Seat);
+    }
+
+    private void ResetProgramContributionUsesForPlayPhase(int providerSeat)
+    {
+        foreach (var key in _programContributionUses.Keys
+                     .Where(key => key.ProviderSeat == providerSeat).ToArray())
+            _programContributionUses.Remove(key);
     }
 
     private void ContinueProgramSkill(long frameId)
@@ -252,20 +328,29 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A program dying continuation is missing its program frame.");
     }
 
-    private static PromptChoice CreateProgramPlayChoice(LegalAction action) => new(
-        new ChoiceId($"play.program.{action.ProgramSkillId!.Length}:{action.ProgramSkillId}.{action.ProgramActivationId}"),
-        action.Description, [], [], new Dictionary<string, string>
+    private static PromptChoice CreateProgramPlayChoice(LegalAction action)
+    {
+        var parameters = new Dictionary<string, string>
         {
             ["action"] = "use-program-skill",
-            ["skill-id"] = action.ProgramSkillId,
+            ["skill-id"] = action.ProgramSkillId!,
             ["activation-id"] = action.ProgramActivationId!,
             ["min-card-count"] = action.MinCardCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["max-card-count"] = action.MaxCardCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["min-target-count"] = action.MinTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["max-target-count"] = action.MaxTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
-        });
+        };
+        if (action.ProgramSkillOwnerSeat is { } ownerSeat)
+            parameters["skill-owner-seat"] = ownerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return new PromptChoice(
+            new ChoiceId($"play.program.{action.ProgramSkillId!.Length}:{action.ProgramSkillId}.{action.ProgramActivationId}" +
+                (action.ProgramSkillOwnerSeat is { } seat ? $".owner-{seat}" : string.Empty)),
+            action.Description, [], [], parameters);
+    }
 }
 
 public sealed record ProgramSkillStartedEvent(long FrameId, int OwnerSeat, string SkillId, string ActivationId) : IGameEvent;
 public sealed record ProgramSkillResolvedEvent(long FrameId, int OwnerSeat, string SkillId, string ActivationId, bool Completed) : IGameEvent;
 public sealed record ProgramSkillHpLostEvent(long FrameId, string SkillId, int TargetSeat, int Amount, int RemainingHp) : IGameEvent;
+public sealed record ProgramSkillContributionResolvedEvent(long ActionId, int ProviderSeat, int SkillOwnerSeat,
+    string SkillId, string ContributionId, int CardId, CardKind CardKind, Suit CardSuit) : IGameEvent;

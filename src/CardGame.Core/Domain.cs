@@ -736,6 +736,13 @@ public sealed record LegalAction
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ProgramActivationId { get; init; }
 
+    /// <summary>
+    /// The character who owns a configured skill when its play-phase entry is
+    /// granted to another actor. Null retains the ordinary self-owned action.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProgramSkillOwnerSeat { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
 
