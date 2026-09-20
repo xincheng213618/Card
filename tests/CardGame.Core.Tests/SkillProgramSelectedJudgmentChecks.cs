@@ -52,9 +52,9 @@ internal static class SkillProgramSelectedJudgmentChecks
         AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":85",
                 StringComparison.Ordinal),
             "schema minimum 86");
-        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":95",
+        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":96",
                 StringComparison.Ordinal),
-            "current rules 94");
+            "current rules 95");
         AssertReject(Rules.Replace(
                 "{\"op\":\"selectTarget\",\"target\":\"selectedTarget\",\"targetKind\":\"otherLiving\"},",
                 string.Empty,

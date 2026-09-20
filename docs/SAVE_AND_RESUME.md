@@ -128,6 +128,8 @@ rules v93 同样不新增 Checkpoint 字段。skill-program schema 9 的 `causeD
 
 rules v94 不新增 Checkpoint 字段。skill-program schema 10 的持续牌身份在每次合法动作发布时从可信手牌区和已启用技能重算，选定后把确切 `CardConversionSource` 写入已接受命令／`CardActionContext`；实体牌移入 Processing 后不再重新解释为原牌名。包含 schema 10 程序的 Registry 不能由 rules v93 Checkpoint 启动，schema 9 及更早内容的最低规则版本和玩法哈希保持不变。
 
+rules v95 的神势力选择也不新增 Checkpoint 字段。身份模式中印刷势力为 `god` 的武将在所有人私有选将完成、统一亮将之前发布 `SelectFaction`；真人的精确 Choice 由既有 `AnswerPromptCommand` 进入命令日志，无人值守座位按 seed 与座位稳定选择。恢复时重建 `ChosenFactionId`、私有／公开投影和 `GodFactionSelectedEvent`，内容注册表中的武将 `FactionId` 始终保持 `god`。rules v94 恢复同一旧命令前缀时不会生成该 Prompt 或本局势力投影。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

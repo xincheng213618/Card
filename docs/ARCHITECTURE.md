@@ -311,6 +311,7 @@ public interface IActiveSkill
 - 武魂死亡链：rules v92 在普通死亡提交、身份公开、区域清理、奖惩和模式胜负判定后，只对仍未终局的武魂拥有者压入 `DeathSkillFrame`。该帧保存已死拥有者、来源归属的最大正数候选、可空目标与父 `DeathFrame`；目标选择后复用 `JudgmentFrame` 和既有鬼才／鬼道游标。非桃／桃园结义结果压入无 `DyingFrame`、无 killer 的嵌套 `DeathFrame`，内层死亡技能完成后再返回外层；每层最终只清理该拥有者归属的梦魇。rules v91 仍只重建来源账本。
 - 通用直接死亡：rules v93／skill-program schema 9 允许 `judgmentFinalized` 绑定对判定主体或同序列先选定的目标执行 `causeDeath`。执行器记录独立 cause 审计事件，临时挂起父判定 continuation 并压入统一 `DeathFrame`；该路径没有 Damage、`DyingFrame`、killer 或身份击杀奖惩，但目标自己的合法 `DeathSkillFrame` 仍可内层执行。内层完成后恢复父判定触发游标；若死亡已使模式终局，只做判定牌与父帧必要收尾，不再开放天妒、刚烈惩罚或后续配置候选。rules v92 明确拒绝 schema 9 内容。
 - 持续牌身份：rules v94／skill-program schema 10 以 `cardIdentities` 把拥有者手牌的强制有效牌名与可选 `viewAs` 分开；匹配牌不再发布物理牌名的普通使用／响应入口，动作接受时以 `CardConversionSource` 冻结实体牌、有效牌名和绑定来源。`slashDistanceLimit` 只对引用该身份绑定的杀动作放宽距离，出杀次数、目标数、响应、防具与属性仍走各自规则。rules v93 明确拒绝 schema 10 内容。
+- 本局有效势力：rules v95 将内容层不可变的印刷 `FactionId` 与玩家运行时的 `ChosenFactionId` 分离。身份模式的神将在私有选将结束、统一亮将之前通过通用 `SelectFaction`／`AnswerPromptCommand` 选择魏蜀吴群；快照按亮将边界投影，主公技和配置化势力条件只调用 `GetEffectiveFactionId`，不回写 Registry，也不新增 Checkpoint 字段。
 
 下一步若要加入更复杂技能，建议在现有 `AfterDamage`、`PlayerDying` 和 `DyingResponse` 类型化事件及 `DamageTriggerWindowFrame` 游标上扩展完整状态 Checkpoint；当前 `DamageTriggerScope` 已把受伤者、其他存活角色和任意存活角色的座位关系变成可复用契约，`DamageTriggerOrdering` 仍固定优先级、相对行动者座次、技能序号和候选 ID 的排序键，而不是把顺序交给任意字符串或可变字典。遗计已经完成一条真实的跨座位牌效果，援护已复用通用的其他存活角色范围，刚烈已经完成一条受伤者触发后定向伤害来源询问的效果，苦肉也已完成单体主动技能濒死续接；多目标主动技能、多伤害嵌套和复杂技能濒死响应尚未宣称完成。
 

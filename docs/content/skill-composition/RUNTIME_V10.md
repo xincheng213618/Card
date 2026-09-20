@@ -57,7 +57,7 @@ v10 将状态技的“牌持续视为另一牌名”与该有效动作上的规�
 
 ## 兼容与验证边界
 
-- `GameCheckpoint.CurrentRulesVersion` 为 94；schema 10 默认要求 rules v94，rules v93 恢复会在创建引擎前明确拒绝。
+- `GameCheckpoint.CurrentRulesVersion` 现为 95；schema 10 的最低版本仍为 rules v94，rules v93 恢复会在创建引擎前明确拒绝。
 - schema 9 仍映射 `skill-program-v9`／最低 rules 93；旧配置的规范化 JSON、运行时版本串和玩法哈希不变。
 - 受控全红桃装备牌场景验证：物理赤兔只生成有效【杀】、不能装备、可攻击距离 2 目标、动作审计保留两种身份、通常一次出杀限制不变、暂停前后 Checkpoint/Replay 一致。
-- 本块只完成 A53a 的通用武神运行时，不注册正式 `classic:wushen`、`classic:wuhun` 或神关羽，也不改变默认经典身份池；BWIKI 技能概念页已明确神势力开局选择魏／蜀／吴／群之一，A53b 还需先完成这项通用开局与存档边界，再以真实牌堆验收正式内容和红桃桃濒死边界；视觉绑定留给 C21。
+- 本块只完成 A53a 的通用武神运行时，不注册正式 `classic:wushen`、`classic:wuhun` 或神关羽，也不改变默认经典身份池；BWIKI 技能概念页明确的神势力开局选择已由 rules v95 的 A53b1 独立实现，A53b2 仍需以真实牌堆验收正式内容和红桃桃濒死边界；视觉绑定留给 C21。

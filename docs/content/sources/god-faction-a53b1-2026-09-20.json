@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "contentId": "setup:god-faction",
+  "retrievedAt": "2026-09-20T21:38:00+08:00",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "神势力角色在游戏开始前、展示武将牌前选择魏蜀吴群之一作为本局势力；技能标签本身不替代状态和执行规则。"
+    }
+  ],
+  "a53b1Scope": {
+    "rulesVersion": 95,
+    "implemented": [
+      "身份模式全部私有选将后且统一亮将前的私有势力选择",
+      "魏蜀吴群四项稳定选择与无人值守确定性选择",
+      "印刷god势力与本局有效势力分离",
+      "本人和其他观察者在亮将前的不同投影",
+      "亮将后公开有效势力和可信事件审计",
+      "护驾激将救援黄天血裔及配置化贡献共用有效势力查询",
+      "Checkpoint和Replay从命令前缀重建",
+      "rules v94保持旧开局路径"
+    ],
+    "deferred": [
+      "正式classic:wushen和classic:wuhun配置",
+      "神关羽整将和经典模式注册",
+      "真实经典牌堆的红桃桃救援与武魂整链验收",
+      "正式经典肖像绑定和桌面视觉验收"
+    ]
+  }
+}

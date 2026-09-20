@@ -41,6 +41,8 @@ var tests = new (string Name, Action Body)[]
     ("skill program causeDeath short-circuits after terminal death", SkillProgramCauseDeathChecks.TerminalShortCircuit),
     ("skill program v10 card identities and action modifiers validate and freeze", SkillProgramCardIdentityChecks.Definitions),
     ("mandatory card identity suppresses native use, ignores Slash distance and replays", SkillProgramCardIdentityChecks.MandatoryIdentityDistanceAndReplay),
+    ("god generals choose a private effective faction before reveal and replay", GodFactionSelectionChecks.PromptPrivacyEffectiveFactionAndReplay),
+    ("chosen god factions feed existing configured lord-skill checks", GodFactionSelectionChecks.EffectiveFactionFeedsConfiguredLordSkill),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),

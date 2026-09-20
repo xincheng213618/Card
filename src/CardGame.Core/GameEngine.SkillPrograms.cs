@@ -66,7 +66,7 @@ public sealed partial class GameEngine
         foreach (var program in EnabledSkillPrograms(skillOwner))
         foreach (var contribution in program.Contributions)
         {
-            var providerFaction = IsNationalWarMode ? owner.NationalFactionId : owner.General.FactionId;
+            var providerFaction = GetEffectiveFactionId(owner);
             var key = (owner.Seat, skillOwner.Seat, program.Id, contribution.Id);
             if (providerFaction is null ||
                 !contribution.ProviderFactions.Contains(providerFaction, StringComparer.Ordinal) ||

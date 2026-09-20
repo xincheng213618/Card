@@ -661,7 +661,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.RespondDodge or DecisionKind.RespondSlash;
         if (_snapshot.PendingDecision is
             {
-                Kind: DecisionKind.Feedback or
+                Kind: DecisionKind.SelectFaction or
+                    DecisionKind.Feedback or
                     DecisionKind.Yiji or
                     DecisionKind.Jieming or
                     DecisionKind.Yuanhu or
@@ -707,6 +708,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             }
         }
         IsSkillSelectionPending = _snapshot.PendingDecision?.Kind is
+            DecisionKind.SelectFaction or
             DecisionKind.Feedback or
             DecisionKind.Yiji or
             DecisionKind.Jieming or
@@ -799,7 +801,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     : string.Join(" / ", (player.Skills ?? [new(player.Skill, player.SkillName, player.SkillDescription)])
                         .Select(skill => skill.Name)),
                 Name = $"{player.GeneralName} · {(player.IsHuman ? "你" : $"AI {player.Seat + 1}")}",
-                Kingdom = IsNationalSnapshot ? FactionName(player.FactionId) : GetKingdom(player.GeneralId),
+                Kingdom = IsNationalSnapshot
+                    ? FactionName(player.FactionId)
+                    : player.FactionId is not null
+                        ? $"神→{FactionName(player.FactionId)}"
+                        : GetKingdom(player.GeneralId),
                 RoleLabel = IsNationalSnapshot ? FactionName(player.FactionId) : player.Role is { } role ? GetRoleName(role) : "?",
                 TeamId = player.TeamId,
                 IsTeammate = IsNationalSnapshot ? NationalRelationship(player) == "同伴" : !player.IsHuman && player.TeamId is not null &&
@@ -888,6 +894,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             }
 
             HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · {human.Hp}/{human.MaxHp} 体力" +
+                (!IsNationalSnapshot && human.FactionId is not null ? $" · 本局{FactionName(human.FactionId)}势力" : string.Empty) +
                 (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }

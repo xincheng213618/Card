@@ -299,7 +299,8 @@ public enum DecisionKind
     ProgramJudgmentTrigger,
     ProgramJudgmentReplacement,
     ProgramJudgmentTarget,
-    WuhunTarget
+    WuhunTarget,
+    SelectFaction
 }
 
 public enum GangliePunishmentKind
@@ -318,7 +319,8 @@ public enum EngineStatus
     AwaitingHumanDying,
     AwaitingHumanCardSelection,
     Completed,
-    AwaitingHumanDiscard
+    AwaitingHumanDiscard,
+    AwaitingHumanFactionSelection
 }
 
 public enum Winner
@@ -608,9 +610,10 @@ public sealed partial record PlayerSnapshot
     public IReadOnlyList<CardSnapshot>? BuquWounds { get; init; }
 
     /// <summary>
-    /// Private/public national-war faction metadata. A viewer may receive its
-    /// own hidden faction id before it is publicly revealed; other viewers get
-    /// null until the reveal event is committed.
+    /// Private/public effective faction metadata. In national war, a viewer may
+    /// receive its own hidden faction before it is revealed. In identity mode,
+    /// a god general receives the selected Wei/Shu/Wu/Qun faction while its
+    /// immutable content definition keeps the printed "god" faction.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? FactionId { get; init; }

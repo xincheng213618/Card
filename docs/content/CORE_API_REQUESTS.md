@@ -171,6 +171,7 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - rules v92 新增可序列化 `DeathSkillFrame`、已死 responder 的 `DecisionKind.WuhunTarget`、死亡技能开始／选定／完成事件和 `DirectDeathDeclaredEvent`。武魂复用普通判定与既有改判候选游标；直接死亡走嵌套 `DeathFrame`，不进入 `DyingFrame`，完成后只清理该技能拥有者来源的梦魇。胜负已确定时短路；rules v91 不启动此链；
 - rules v93／skill-program schema 9 新增判定后通用 `causeDeath`：`ProgramCauseDeathDeclaredEvent` 保存 cause、父窗口、判定、技能绑定、来源和目标，统一死亡生命周期不生成 Damage、濒死、killer 或击杀奖惩；目标自己的死亡技能可嵌套，返回后继续外层候选，终局则完成必要判定收尾并跳过新动作；rules v92 明确拒绝 schema 9 内容；
 - rules v94／skill-program schema 10 新增强制 `cardIdentities` 与来源限定的 `slashDistanceLimit`：只在拥有者手牌区替换普通使用／响应身份，接受动作时冻结物理牌、有效牌名和绑定来源，距离修正不外溢到次数、目标、响应、防具或属性；rules v93 明确拒绝 schema 10 内容；
+- rules v95 新增通用身份模式神势力设置：`DecisionKind.SelectFaction` 复用 `AnswerPromptCommand`，`PlayerSnapshot.FactionId` 仅在本人私有可见或随神将公开后投影本局有效势力，`GodFactionSelectedEvent` 供可信宿主审计；内容武将的印刷 `FactionId: god` 不变，rules v94 不生成此设置；
  - 当前边界仍是单次伤害的基础求桃；多伤害嵌套、通用触发器和复杂技能仍待后续 K5；可信命令前缀 Checkpoint 已开放，可恢复命令驱动的私有 Prompt 暂停点，规范化内容指纹也已用于拒绝同版本定义漂移；完整内部状态存档、可执行规则实现签名和兼容迁移仍等待后续 K8。
 
 ## Core API Level: K6 基础切片已开放（2026-09-07）

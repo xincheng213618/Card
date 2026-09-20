@@ -22,6 +22,11 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
         var targetLabel = "受影响";
         switch (prompt.Kind)
         {
+            case DecisionKind.SelectFaction:
+                title = "选择本局势力";
+                target = prompt.PlayerSeat;
+                targetLabel = "正在选择";
+                break;
             case DecisionKind.RespondDodge:
             case DecisionKind.RespondSlash:
                 target ??= prompt.PlayerSeat;

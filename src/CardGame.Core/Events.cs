@@ -22,6 +22,12 @@ public sealed record GeneralSelectionRequestedEvent(
 
 public sealed record GeneralSelectedEvent(int ActorSeat, string GeneralId) : IGameEvent;
 
+public sealed record GodFactionSelectionRequestedEvent(
+    int ActorSeat,
+    IReadOnlyList<string> FactionIds) : IGameEvent;
+
+public sealed record GodFactionSelectedEvent(int ActorSeat, string FactionId) : IGameEvent;
+
 /// <summary>Trusted-host setup event for the second general in national war.</summary>
 public sealed record SecondaryGeneralSelectedEvent(int ActorSeat, string GeneralId) : IGameEvent;
 

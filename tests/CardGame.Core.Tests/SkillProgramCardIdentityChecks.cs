@@ -193,7 +193,7 @@ internal static class SkillProgramCardIdentityChecks
                 Program = program
             });
             builder.AddGeneral(new ContentGeneralDefinition(
-                OwnerGeneralId, "牌身份测试", "guan_yu", ProgramId, "god", BaseHp: 8));
+                OwnerGeneralId, "牌身份测试", "guan_yu", ProgramId, "shu", BaseHp: 8));
             var others = Enumerable.Range(1, 3).Select(index => $"card-identity-test:other-{index}").ToArray();
             foreach (var id in others)
                 builder.AddGeneral(new ContentGeneralDefinition(

@@ -7,6 +7,9 @@ namespace CardGame.Core;
 /// </summary>
 public sealed partial class GameEngine
 {
+    private static readonly IReadOnlyList<string> GodFactionChoices =
+        Array.AsReadOnly(new[] { "wei", "shu", "wu", "qun" });
+
     private readonly GameOptions _options;
     private readonly ContentRegistry? _contentRegistry;
     private readonly int _rulesVersion;
@@ -141,6 +144,7 @@ public sealed partial class GameEngine
         _currentSeat = GetStartingSeat();
         if (!options.UseInteractiveSetup)
         {
+            AssignAutomaticGodFactions();
             InitializeNationalHealth();
             DealInitialHands();
             _setupComplete = true;
@@ -189,6 +193,9 @@ public sealed partial class GameEngine
 
     private bool SupportsWuhunDeathTargetSelection =>
         _rulesVersion >= 92;
+
+    private bool SupportsGodFactionSelection =>
+        _rulesVersion >= 95 && _modeDefinition.ModeKind == ContentModeKind.Identity;
 
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
@@ -1017,7 +1024,8 @@ public sealed partial class GameEngine
 
         var pending = _pendingDecision;
         if (pending is null ||
-            pending.Kind is not (DecisionKind.RespondDodge or
+            pending.Kind is not (DecisionKind.SelectFaction or
+                DecisionKind.RespondDodge or
                 DecisionKind.RespondSlash or
                 DecisionKind.RescueDying or
                 DecisionKind.SelectHarvestCard or
@@ -1087,6 +1095,18 @@ public sealed partial class GameEngine
         if (selected is null)
         {
             return Reject(CommandErrorCode.InvalidChoice, "The choice was not published in the current prompt.");
+        }
+
+        if (pending.Kind == DecisionKind.SelectFaction)
+        {
+            if (!selected.Parameters.TryGetValue("faction-id", out var factionId) ||
+                !GodFactionChoices.Contains(factionId, StringComparer.Ordinal))
+            {
+                return Reject(CommandErrorCode.InvalidChoice, "The god-faction choice is malformed.");
+            }
+            return Accept(() => HumanSelectGodFactionCore(
+                factionId,
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
         }
 
         CaptureSelectedResponseConversion(selected);
@@ -2800,6 +2820,15 @@ public sealed partial class GameEngine
         if (_setupComplete)
         {
             QueueGameEvent(new GameStartedEvent(_playerCount, _modeDefinition.Id));
+            foreach (var player in _players.Where(player => player.ChosenFactionId is not null)
+                         .OrderBy(player => player.Seat))
+            {
+                AddLog(
+                    "GodFactionSelected",
+                    $"{player.Name} 为神势力武将 {player.General.Name} 选择了{GetFactionName(player.ChosenFactionId!)}势力。",
+                    player.Seat);
+                QueueGameEvent(new GodFactionSelectedEvent(player.Seat, player.ChosenFactionId!));
+            }
         }
         else
         {
@@ -4654,9 +4683,15 @@ public sealed partial class GameEngine
                                           player.SecondaryGeneralRevealed ||
                                           player.Seat == viewerSeat);
             var secondaryGeneral = canSeeSecondaryGeneral ? player.SecondaryGeneral : null;
-            var canSeeFaction = IsNationalWarMode &&
-                                player.NationalFactionId is not null &&
-                                (revealAll || player.FactionRevealed || player.Seat == viewerSeat);
+            var effectiveFactionId = GetEffectiveFactionId(player);
+            var hasIdentityGodFaction = SupportsGodFactionSelection &&
+                                        string.Equals(player.General.FactionId, "god", StringComparison.Ordinal) &&
+                                        player.ChosenFactionId is not null;
+            var canSeeFaction = effectiveFactionId is not null &&
+                                (IsNationalWarMode
+                                    ? revealAll || player.FactionRevealed || player.Seat == viewerSeat
+                                    : hasIdentityGodFaction &&
+                                      (revealAll || player.GeneralRevealed || player.Seat == viewerSeat));
             var visiblePrimaryDescription = GetVisibleSkillDescription(
                 general.Skill,
                 general.SkillDescription);
@@ -4710,8 +4745,10 @@ public sealed partial class GameEngine
                             marker.Value))
                         .ToArray())
                     : null,
-                FactionId = canSeeFaction ? player.NationalFactionId : null,
-                IsFactionRevealed = IsNationalWarMode && player.FactionRevealed,
+                FactionId = canSeeFaction ? effectiveFactionId : null,
+                IsFactionRevealed = IsNationalWarMode
+                    ? player.FactionRevealed
+                    : hasIdentityGodFaction && player.GeneralRevealed,
                 SecondaryGeneralId = secondaryGeneral?.Id,
                 SecondaryGeneralName = secondaryGeneral?.Name,
                 SecondaryPortraitKey = secondaryGeneral?.PortraitKey,
@@ -5030,6 +5067,28 @@ public sealed partial class GameEngine
         "qun" => "群",
         _ => factionId
     };
+
+    private string? GetEffectiveFactionId(PlayerRuntime player) =>
+        IsNationalWarMode
+            ? player.NationalFactionId
+            : player.ChosenFactionId ?? player.General.FactionId;
+
+    private bool RequiresGodFactionSelection(PlayerRuntime player) =>
+        SupportsGodFactionSelection &&
+        player.GeneralSelected &&
+        string.Equals(player.General.FactionId, "god", StringComparison.Ordinal) &&
+        player.ChosenFactionId is null;
+
+    private string ChooseAutomaticGodFaction(PlayerRuntime player) =>
+        GodFactionChoices[(int)(((uint)_options.Seed + (uint)player.Seat) % (uint)GodFactionChoices.Count)];
+
+    private void AssignAutomaticGodFactions()
+    {
+        foreach (var player in _players.Where(RequiresGodFactionSelection).OrderBy(player => player.Seat))
+        {
+            player.ChosenFactionId = ChooseAutomaticGodFaction(player);
+        }
+    }
 
     private Role GetTeamRole(string teamId)
     {
@@ -6369,6 +6428,27 @@ public sealed partial class GameEngine
     {
         if (_selectionIndex >= _selectionOrder.Count)
         {
+            var factionPlayer = _players
+                .Where(RequiresGodFactionSelection)
+                .OrderBy(player => player.Seat)
+                .FirstOrDefault();
+            if (factionPlayer is not null)
+            {
+                QueueGameEvent(new GodFactionSelectionRequestedEvent(
+                    factionPlayer.Seat,
+                    GodFactionChoices));
+                if (factionPlayer.IsHuman)
+                {
+                    RequestHumanGodFactionSelection(factionPlayer);
+                }
+                else
+                {
+                    ApplyGodFactionSelection(factionPlayer, ChooseAutomaticGodFaction(factionPlayer));
+                    PublishState();
+                }
+                return;
+            }
+
             CompleteSetup();
             return;
         }
@@ -6401,6 +6481,67 @@ public sealed partial class GameEngine
         AddGeneralThought(thought);
         ApplyGeneralSelection(player, general);
         PublishState();
+    }
+
+    private void RequestHumanGodFactionSelection(PlayerRuntime player)
+    {
+        var choices = GodFactionChoices
+            .Select(factionId => new PromptChoice(
+                new ChoiceId($"setup.god-faction.{factionId}"),
+                $"选择{GetFactionName(factionId)}势力",
+                [],
+                [],
+                new Dictionary<string, string>
+                {
+                    ["action"] = "select-god-faction",
+                    ["faction-id"] = factionId
+                }))
+            .ToArray();
+        _pendingDecision = new PendingDecision(
+            DecisionKind.SelectFaction,
+            player.Seat,
+            $"{player.General.Name}为神势力武将。请选择本局归属的魏、蜀、吴、群势力；该选择会影响主公技等势力判定，但不会改写武将的印刷势力。",
+            [],
+            [])
+        {
+            PromptId = CreatePromptId(),
+            Choices = choices,
+            IsPrivate = true
+        };
+        _status = EngineStatus.AwaitingHumanFactionSelection;
+        PublishState();
+    }
+
+    private void ApplyGodFactionSelection(PlayerRuntime player, string factionId)
+    {
+        if (!RequiresGodFactionSelection(player))
+        {
+            throw new InvalidOperationException(
+                $"Seat {player.Seat} does not currently require a god-faction choice.");
+        }
+        if (!GodFactionChoices.Contains(factionId, StringComparer.Ordinal))
+        {
+            throw new InvalidOperationException($"Faction '{factionId}' is not a legal god-faction choice.");
+        }
+
+        player.ChosenFactionId = factionId;
+        ClearPendingDecision();
+        _status = EngineStatus.Running;
+        AddLog(
+            "GodFactionSelected",
+            $"{player.Name} 为神势力武将 {player.General.Name} 选择了{GetFactionName(factionId)}势力。",
+            player.Seat);
+        QueueGameEvent(new GodFactionSelectedEvent(player.Seat, factionId));
+    }
+
+    private EngineRunResult HumanSelectGodFactionCore(string factionId, bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.SelectFaction);
+        var pending = _pendingDecision ??
+            throw new InvalidOperationException("There is no god-faction selection prompt.");
+        ApplyGodFactionSelection(_players[pending.PlayerSeat], factionId);
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
     private IReadOnlyList<GeneralDefinition> GetAvailableGeneralCandidates(PlayerRuntime player) =>
@@ -6529,7 +6670,8 @@ public sealed partial class GameEngine
 
         if (_selectionIndex != _selectionOrder.Count ||
             _players.Any(player => !player.GeneralSelected ||
-                                  IsNationalWarMode && !player.SecondaryGeneralSelected))
+                                  IsNationalWarMode && !player.SecondaryGeneralSelected ||
+                                  RequiresGodFactionSelection(player)))
         {
             throw new InvalidOperationException("Setup cannot complete before every seat selects a general.");
         }
@@ -11577,7 +11719,7 @@ public sealed partial class GameEngine
         {
             var provider = _players[pending.CurrentCandidateSeat];
             var responseCards = provider.IsAlive &&
-                                string.Equals(provider.General.FactionId, "wei", StringComparison.Ordinal)
+                                string.Equals(GetEffectiveFactionId(provider), "wei", StringComparison.Ordinal)
                 ? GetResponseCards(provider, CardKind.Dodge)
                 : [];
             var hasBagua = provider.IsAlive &&
@@ -12806,11 +12948,11 @@ public sealed partial class GameEngine
         {
             var provider = _players[pending.CurrentCandidateSeat];
             var slashes = provider.IsAlive &&
-                          string.Equals(provider.General.FactionId, "shu", StringComparison.Ordinal)
+                          string.Equals(GetEffectiveFactionId(provider), "shu", StringComparison.Ordinal)
                 ? GetJijiangSlashCards(pending, provider)
                 : [];
             var zhangbaPairs = provider.IsAlive &&
-                               string.Equals(provider.General.FactionId, "shu", StringComparison.Ordinal)
+                               string.Equals(GetEffectiveFactionId(provider), "shu", StringComparison.Ordinal)
                 ? GetZhangbaSlashPairs(provider)
                 : [];
             if (slashes.Count == 0 && zhangbaPairs.Count == 0)
@@ -18841,7 +18983,7 @@ public sealed partial class GameEngine
                           target.Role == Role.Lord &&
                           target.General.HasSkill(SkillKind.Jiuyuan) &&
                           source.Seat != target.Seat &&
-                          string.Equals(source.General.FactionId, "wu", StringComparison.Ordinal);
+                          string.Equals(GetEffectiveFactionId(source), "wu", StringComparison.Ordinal);
         ResolveRecoveryCard(
             source,
             target,
@@ -20023,7 +20165,7 @@ public sealed partial class GameEngine
             player.General.HasSkill(SkillKind.Huangtian))!;
         return UsesFormalZhangJiao &&
                lord is not null &&
-               string.Equals(provider.General.FactionId, "qun", StringComparison.Ordinal);
+               string.Equals(GetEffectiveFactionId(provider), "qun", StringComparison.Ordinal);
     }
 
     private CommandError? ValidateHuangtianSelection(
@@ -21726,7 +21868,7 @@ public sealed partial class GameEngine
         {
             baseLimit += _players.Count(other =>
                 other.IsAlive && other.Seat != player.Seat &&
-                string.Equals(other.General.FactionId, "qun", StringComparison.Ordinal)) * 2;
+                string.Equals(GetEffectiveFactionId(other), "qun", StringComparison.Ordinal)) * 2;
         }
         return Math.Max(0, SkillProgramRules.Modify(SkillRuleQuery.HandLimit,
             CreateSkillContext(player), baseLimit, EnabledSkillPrograms(player)));
@@ -21816,7 +21958,7 @@ public sealed partial class GameEngine
             .Select(offset => (_currentSeat + offset) % _playerCount)
             .Where(seat => seat != ownerSeat &&
                            _players[seat].IsAlive &&
-                           string.Equals(_players[seat].General.FactionId, "wei", StringComparison.Ordinal))
+                           string.Equals(GetEffectiveFactionId(_players[seat]), "wei", StringComparison.Ordinal))
             .ToArray();
 
     private bool CanRequestJijiangResponse(PlayerRuntime owner, AttackResolution attack)
@@ -21866,7 +22008,7 @@ public sealed partial class GameEngine
             .Select(offset => (_currentSeat + offset) % _playerCount)
             .Where(seat => seat != ownerSeat &&
                            _players[seat].IsAlive &&
-                           string.Equals(_players[seat].General.FactionId, "shu", StringComparison.Ordinal))
+                           string.Equals(GetEffectiveFactionId(_players[seat]), "shu", StringComparison.Ordinal))
             .ToArray();
 
     private bool HasBlackSlashBarrier(PlayerRuntime player) =>
@@ -25925,6 +26067,7 @@ public sealed partial class GameEngine
         public string? TeamId { get; init; }
         public bool TeamRevealed { get; set; }
         public string? NationalFactionId { get; init; }
+        public string? ChosenFactionId { get; set; }
         public bool FactionRevealed { get; set; }
         public required bool RoleRevealed { get; set; }
         public required GeneralDefinition General { get; set; }
