@@ -21,6 +21,7 @@ var tests = new (string Name, Action Body)[]
 {
     ("structured skill metadata normalizes explicitly and fingerprints content", SkillMetadataChecks.TagsNormalizeAndFingerprint),
     ("classic locked-state metadata is versioned without changing package 1.70", SkillMetadataChecks.ClassicLockedStateMetadataIsVersioned),
+    ("classic shared locked skills receive distinct versioned identities", SkillMetadataChecks.ClassicSharedLockedSkillsReceiveDistinctIdentities),
     ("skill runtime usage and conversion states reset by declared scope", SkillMetadataChecks.RuntimeUsageAndReset),
     ("structured Niepan usage restores while rules 95 retains its legacy record", SkillMetadataChecks.StructuredNiepanUsageReplays),
     ("printed Lord skills follow identity and rules 96 replay ownership boundaries", SkillOwnershipChecks.PrintedLordSkillsFollowIdentityAndReplayBoundary),

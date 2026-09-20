@@ -136,6 +136,8 @@ rules v99 的拒战同样不新增 Checkpoint 字段。阳／阴私有 Choice、
 
 `standard-classic-generals@1.71.0` 只为 13 项既有锁定技增加显式 `Locked + State` 内容元数据，不新增 Checkpoint 字段，也不提高 rules v99。内容包签名和玩法指纹仍会区分此次展示语义：1.70.0 存档必须继续用 1.70.0 Registry 恢复并保留旧兼容类型文案，不能静默套用 1.71.0；玩家资料和外层存档格式均未改变。
 
+`standard-classic-generals@1.72.0` 为经典空城、马术、奇才建立独立 `classic:` 技能 ID，并只改当前经典武将对它们的引用；规则实现仍由原 `SkillKind` 消费。1.71.0 Checkpoint 恢复时继续使用 `standard:kongcheng`／`standard:mashu`／`standard:qicai`，1.72.0 使用对应 `classic:` ID，两者不能混用内容签名或哈希；稳定基础包与主动技能扩展包的旧存档完全不受此次迁移影响。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

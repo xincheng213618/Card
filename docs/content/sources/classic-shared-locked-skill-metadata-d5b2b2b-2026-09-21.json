@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:classic-shared-locked-d5b2b2b",
+  "retrievedAt": "2026-09-21T02:31:38+08:00",
+  "selectedVersion": "经典诸葛亮空城、经典黄月英奇才、经典马超与庞德马术",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "锁定技标签与状态技执行形态分轴，不从中文说明在运行时推断。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/4",
+      "use": "经典空城为锁定技；没有手牌时不能成为杀或决斗的目标。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/7.html",
+      "use": "经典奇才为锁定技；使用锦囊牌无距离限制。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/6.html",
+      "use": "经典马术为锁定技；与其他角色的距离-1。"
+    }
+  ],
+  "skills": [
+    {
+      "id": "classic:kongcheng",
+      "legacyKind": "Kongcheng",
+      "owners": ["classic:zhuge-liang"]
+    },
+    {
+      "id": "classic:mashu",
+      "legacyKind": "Mashu",
+      "owners": ["classic:ma-chao", "classic:pang-de"]
+    },
+    {
+      "id": "classic:qicai",
+      "legacyKind": "Qicai",
+      "owners": ["classic:huang-yueying"]
+    }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.72.0",
+    "rulesVersion": 99,
+    "tags": ["Locked"],
+    "executionForms": ["State"],
+    "gameplayBehaviorChanged": false
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.71.0",
+    "previousSkillIds": ["standard:kongcheng", "standard:mashu", "standard:qicai"],
+    "stableStandardPackagesChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "acceptance": [
+    "三个classic技能定义具有独立稳定ID和Locked + State元数据",
+    "诸葛亮、黄月英、马超、庞德全部切换到相应classic技能ID",
+    "经典包1.71.0继续引用原standard技能且不包含新ID",
+    "基础standard与standard-active-skills定义不被修改",
+    "空城、马术、奇才的原有完整玩法回归继续通过",
+    "WPF奇才与马术显示状态技 · 锁定技和规则自动生效",
+    "Release 0 warning / 0 error，Core 286/286，WPF 83/83"
+  ],
+  "deferred": [
+    "其余可选触发、主动技能和复合执行形态",
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

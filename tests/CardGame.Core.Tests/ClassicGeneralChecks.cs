@@ -129,7 +129,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.71.0"]),
+                "standard-classic-generals@1.72.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -304,7 +304,7 @@ internal static class ClassicGeneralChecks
                 !sunShangxiangClassic.Generals.ContainsKey("classic:lu-xun") &&
                 !sunShangxiangClassic.Skills.ContainsKey("classic:qianxun") &&
                 classic.Generals["classic:pang-de"] is { BaseHp: 4, FactionId: "qun" } pangDe &&
-                pangDe.SkillIds.SequenceEqual(["standard:mashu", "classic:mengjin"]) &&
+                pangDe.SkillIds.SequenceEqual(["classic:mashu", "classic:mengjin"]) &&
                 classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:pang-de") &&
                 !luXunClassic.Generals.ContainsKey("classic:pang-de") &&
                 !luXunClassic.Skills.ContainsKey("classic:mengjin") &&
@@ -591,7 +591,7 @@ internal static class ClassicGeneralChecks
             "The current classic Zhou Yu must expose Yingzi and Fanjian in a stable order.");
         var zhugeLiang = classic.Generals["classic:zhuge-liang"];
         Require(zhugeLiang.BaseHp == 3 &&
-                zhugeLiang.SkillIds.SequenceEqual(["classic:guanxing", "standard:kongcheng"]),
+                zhugeLiang.SkillIds.SequenceEqual(["classic:guanxing", "classic:kongcheng"]),
             "The current classic Zhuge Liang must expose Guanxing and Kongcheng in a stable order.");
         var caoCao = classic.Generals["classic:cao-cao"];
         Require(caoCao.BaseHp == 4 &&
@@ -649,13 +649,13 @@ internal static class ClassicGeneralChecks
         Require(huangYueying.Name == "黄月英" &&
                 huangYueying.FactionId == "shu" &&
                 huangYueying.BaseHp == 3 &&
-                huangYueying.SkillIds.SequenceEqual(["classic:jizhi", "standard:qicai"]),
+                huangYueying.SkillIds.SequenceEqual(["classic:jizhi", "classic:qicai"]),
             "The current classic Huang Yueying must expose formal Shu, 3-HP Jizhi and Qicai in a stable order.");
         var maChao = classic.Generals["classic:ma-chao"];
         Require(maChao.Name == "马超" &&
                 maChao.FactionId == "shu" &&
                 maChao.BaseHp == 4 &&
-                maChao.SkillIds.SequenceEqual(["classic:tieqi", "standard:mashu"]),
+                maChao.SkillIds.SequenceEqual(["classic:tieqi", "classic:mashu"]),
             "The current classic Ma Chao must expose formal Shu, 4-HP Tieqi and Mashu in a stable order.");
         var huangZhong = classic.Generals["classic:huang-zhong"];
         Require(huangZhong.Name == "黄忠" &&

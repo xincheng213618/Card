@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 71, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 72, 0))
     {
     }
 
@@ -122,12 +122,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 68, 0) &&
             version != new Version(1, 69, 0) &&
             version != new Version(1, 70, 0) &&
-            version != new Version(1, 71, 0))
+            version != new Version(1, 71, 0) &&
+            version != new Version(1, 72, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.71.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.72.0.");
         }
 
         _version = version;
@@ -922,6 +923,24 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillTag.Conversion,
                 SkillExecutionForm.Trigger));
         }
+        if (_version >= new Version(1, 72, 0))
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "classic:kongcheng",
+                "空城",
+                "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
+                SkillKind.Kongcheng), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "classic:mashu",
+                "马术",
+                "锁定技，你计算与其他角色的距离始终 -1。",
+                SkillKind.Mashu), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "classic:qicai",
+                "奇才",
+                "锁定技，你使用锦囊牌无距离限制。",
+                SkillKind.Qicai), SkillTag.Locked, SkillExecutionForm.State));
+        }
         if (_version >= new Version(1, 58, 0))
         {
             builder.AddSkill(new ContentSkillDefinition("classic:yinghun", "英魂",
@@ -1050,7 +1069,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:guanxing",
                 "shu",
                 BaseHp: 3,
-                AdditionalSkillIds: ["standard:kongcheng"]));
+                AdditionalSkillIds:
+                [
+                    _version >= new Version(1, 72, 0)
+                        ? "classic:kongcheng"
+                        : "standard:kongcheng"
+                ]));
         }
         if (_version >= new Version(1, 4, 0))
         {
@@ -1156,7 +1180,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:jizhi",
                 "shu",
                 BaseHp: 3,
-                AdditionalSkillIds: ["standard:qicai"],
+                AdditionalSkillIds:
+                [
+                    _version >= new Version(1, 72, 0)
+                        ? "classic:qicai"
+                        : "standard:qicai"
+                ],
                 Gender: _version >= new Version(1, 26, 0)
                     ? GeneralGender.Female
                     : GeneralGender.Male));
@@ -1170,7 +1199,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:tieqi",
                 "shu",
                 BaseHp: 4,
-                AdditionalSkillIds: ["standard:mashu"]));
+                AdditionalSkillIds:
+                [
+                    _version >= new Version(1, 72, 0)
+                        ? "classic:mashu"
+                        : "standard:mashu"
+                ]));
         }
         if (_version >= new Version(1, 17, 0))
         {
@@ -1285,7 +1319,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:pang-de",
                 "庞德",
                 "pang_de",
-                "standard:mashu",
+                _version >= new Version(1, 72, 0)
+                    ? "classic:mashu"
+                    : "standard:mashu",
                 "qun",
                 BaseHp: 4,
                 AdditionalSkillIds: ["classic:mengjin"]));

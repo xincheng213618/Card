@@ -105,7 +105,7 @@ internal static class SkillMetadataChecks
 
     public static void ClassicLockedStateMetadataIsVersioned()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 71, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 70, 0));
         string[] skillIds =
         [
@@ -126,7 +126,7 @@ internal static class SkillMetadataChecks
 
         foreach (var skillId in skillIds)
         {
-            Require(current.Skills[skillId] is
+            Require(migrated.Skills[skillId] is
                 {
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State
@@ -138,12 +138,59 @@ internal static class SkillMetadataChecks
                 }, $"Package 1.70.0 unexpectedly gained the metadata for {skillId}.");
         }
 
-        Require(current.Packages.Any(package =>
+        Require(migrated.Packages.Any(package =>
                     package.Id == "standard-classic-generals" && package.Version == new Version(1, 71, 0)) &&
                 previous.Packages.Any(package =>
                     package.Id == "standard-classic-generals" && package.Version == new Version(1, 70, 0)) &&
-                current.ContentHash != previous.ContentHash,
+                migrated.ContentHash != previous.ContentHash,
             "The locked-state migration must be isolated to package 1.71.0 and participate in content drift detection.");
+    }
+
+    public static void ClassicSharedLockedSkillsReceiveDistinctIdentities()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 71, 0));
+        var expected = new Dictionary<string, SkillKind>
+        {
+            ["classic:kongcheng"] = SkillKind.Kongcheng,
+            ["classic:mashu"] = SkillKind.Mashu,
+            ["classic:qicai"] = SkillKind.Qicai
+        };
+
+        foreach (var (skillId, kind) in expected)
+        {
+            Require(current.Skills[skillId] is
+                {
+                    Tags: SkillTag.Locked,
+                    ExecutionForms: SkillExecutionForm.State
+                } definition && definition.LegacyKind == kind,
+                $"Current classic content did not give {skillId} its locked-state identity.");
+            Require(!previous.Skills.ContainsKey(skillId),
+                $"Package 1.71.0 unexpectedly contains {skillId}.");
+        }
+
+        Require(current.Generals["classic:zhuge-liang"].SkillIds
+                    .SequenceEqual(["classic:guanxing", "classic:kongcheng"]) &&
+                current.Generals["classic:huang-yueying"].SkillIds
+                    .SequenceEqual(["classic:jizhi", "classic:qicai"]) &&
+                current.Generals["classic:ma-chao"].SkillIds
+                    .SequenceEqual(["classic:tieqi", "classic:mashu"]) &&
+                current.Generals["classic:pang-de"].SkillIds
+                    .SequenceEqual(["classic:mashu", "classic:mengjin"]),
+            "Current classic generals did not switch every shared skill reference to the distinct classic ids.");
+        Require(previous.Generals["classic:zhuge-liang"].SkillIds
+                    .SequenceEqual(["classic:guanxing", "standard:kongcheng"]) &&
+                previous.Generals["classic:huang-yueying"].SkillIds
+                    .SequenceEqual(["classic:jizhi", "standard:qicai"]) &&
+                previous.Generals["classic:ma-chao"].SkillIds
+                    .SequenceEqual(["classic:tieqi", "standard:mashu"]) &&
+                previous.Generals["classic:pang-de"].SkillIds
+                    .SequenceEqual(["standard:mashu", "classic:mengjin"]),
+            "Package 1.71.0 no longer preserves its shared standard skill references.");
+        Require(current.Skills["standard:kongcheng"].Tags == SkillTag.None &&
+                current.Skills["standard:mashu"].Tags == SkillTag.None &&
+                current.Skills["standard:qicai"].Tags == SkillTag.None,
+            "The classic migration must not mutate the stable standard or active-skill packages.");
     }
 
     public static void StructuredNiepanUsageReplays()

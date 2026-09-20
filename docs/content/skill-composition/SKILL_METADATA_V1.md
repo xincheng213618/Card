@@ -80,11 +80,17 @@ rules v99／`standard-classic-generals@1.70.0` 以 2018 版 `classic:yan-yan` �
 
 迁移只在包 1.71.0 生效并进入内容指纹；显式加载 1.70.0 时这 13 项仍保持 `None + None`，玩法和旧技能栏兼容文案不变。当前 WPF 技能栏读取新元数据，例如张飞【咆哮】显示“状态技 · 锁定技／规则自动生效”；`167-locked-state-skill-metadata.png` 已在 1120×740 验证单技能卡和六张手牌均无裁切。来源与逐项映射见 `docs/content/sources/locked-state-skill-metadata-d5b2b2a-2026-09-21.json`。
 
+## 经典共享锁定技的独立身份
+
+`standard-classic-generals@1.72.0` 为此前借用基础／演示包定义的空城、马术、奇才建立 `classic:kongcheng`、`classic:mashu`、`classic:qicai` 三个稳定内容 ID，并将当前经典诸葛亮、黄月英、马超、庞德切换到这些定义。三项均显式声明 `Locked + State`，继续复用原 `SkillKind` 规则实现，因此目标禁止、距离修正与锦囊距离豁免的玩法路径不变。
+
+基础 `standard:kongcheng` 以及主动扩展包的 `standard:mashu`／`standard:qicai` 没有被修改，演示模式的包签名和内容指纹保持原样。经典包 1.71.0 仍引用旧 `standard:` ID，1.72.0 才增加并引用新 `classic:` ID；Checkpoint 不新增字段，内容包签名和哈希负责阻止两个版本静默互换。WPF 实战技能栏已验证黄月英【奇才】与马超【马术】均显示“状态技 · 锁定技／规则自动生效”，`168-classic-shared-locked-skill-metadata.png` 在 1120×740 同时覆盖集智 Choice、两张技能卡和五张手牌。来源与边界见 `docs/content/sources/classic-shared-locked-skill-metadata-d5b2b2b-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：
 
-- 为剩余正式技能逐项核对并迁移标签和执行形态，尤其是基础／主动扩展包中被经典武将复用的空城、马术、奇才等跨包定义，以及尚未标注的可选触发和主动技能；
+- 为剩余正式技能逐项核对并迁移标签和执行形态，尤其是尚未标注的可选触发、主动技能及可能同时包含状态／触发部分的复合技能；
 - 为正式转换技补充技能重置消费者；阳／阴当前形态和 Checkpoint／Replay 已由严颜验证，正式觉醒消费者已由 SP 关羽完成；
 - 在已落地的每目标回合账本之外增加每事件等复合限次维度，并由真实消费者冻结其生命周期；
 - 在全部正式技能迁移后移除 WPF 的旧兼容类型文案。
