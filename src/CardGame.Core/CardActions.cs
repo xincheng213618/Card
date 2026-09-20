@@ -11,7 +11,7 @@ public enum CardActionType { Use, Response }
 
 public enum ProgramCardContinuation
 {
-    Slash, Dodge, DuelSlash, GroupResponse, HujiaDodge, JijiangDuelSlash, JijiangGroupResponse
+    Slash, Dodge, DuelSlash, GroupResponse, HujiaDodge, JijiangDuelSlash, JijiangGroupResponse, DelayedCard
 }
 
 /// <summary>A paid physical card and its original location, retained by the trusted rules host.</summary>

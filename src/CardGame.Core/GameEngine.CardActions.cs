@@ -85,19 +85,22 @@ public sealed partial class GameEngine
         return false;
     }
 
-    private bool TryBeginProgramCardWindow(AttackResolution attack, CardActionContext action,
+    private bool TryBeginProgramCardWindow(AttackResolution? attack, CardActionContext action,
         SkillProgramTriggerWindow window, IReadOnlyList<int> opponents, ProgramCardContinuation continuation)
     {
         var candidates = new List<ProgramCardTriggerCandidate>();
-        foreach (var ownerSeat in action.ConversionChain.Select(source => source.OwnerSeat).Distinct().Order())
+        foreach (var ownerSeat in action.ConversionChain.Select(source => source.OwnerSeat)
+                     .Append(action.ActorSeat).Distinct().Order())
         {
             var owner = _players[ownerSeat];
             if (!owner.IsAlive) continue;
             foreach (var program in EnabledSkillPrograms(owner))
             foreach (var trigger in program.Triggers.Where(item => item.Window == window &&
-                         action.ConversionChain.Any(source => source.OwnerSeat == ownerSeat &&
-                             source.SkillId == item.SourceSkillId &&
-                             (item.SourceViewAsId is null || source.BindingId == item.SourceViewAsId))))
+                         (item.CardKinds.Count > 0
+                             ? ownerSeat == action.ActorSeat && item.CardKinds.Contains(action.EffectiveKind)
+                             : action.ConversionChain.Any(source => source.OwnerSeat == ownerSeat &&
+                                 source.SkillId == item.SourceSkillId &&
+                                 (item.SourceViewAsId is null || source.BindingId == item.SourceViewAsId)))))
             foreach (var opponentSeat in opponents.Distinct())
             {
                 var candidate = new ProgramCardTriggerCandidate(ownerSeat, opponentSeat, program.Id,
@@ -106,7 +109,7 @@ public sealed partial class GameEngine
             }
         }
         if (candidates.Count == 0) return false;
-        if (_programCardAttack is not null)
+        if (_resolutionStack.Any(frame => frame is ProgramCardTriggerWindowFrame))
             throw new InvalidOperationException("Card trigger windows cannot overlap.");
         _programCardAttack = attack;
         var frame = new ProgramCardTriggerWindowFrame(++_resolutionSequence,
@@ -132,12 +135,17 @@ public sealed partial class GameEngine
         {
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
-                var attack = _programCardAttack ?? throw new InvalidOperationException("Missing card trigger continuation.");
+                var attack = _programCardAttack;
                 _programCardAttack = null;
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
                 if (frame.Continuation == ProgramCardContinuation.Slash)
-                    ContinueSlashAfterFinalizedTargets(attack);
-                else ContinueAcceptedCardResponse(attack, frame.Action, frame.Continuation);
+                    ContinueSlashAfterFinalizedTargets(attack ??
+                        throw new InvalidOperationException("A Slash card trigger lost its attack continuation."));
+                else if (frame.Continuation == ProgramCardContinuation.DelayedCard)
+                    ContinueAcceptedDelayedCardUse(frame);
+                else ContinueAcceptedCardResponse(attack ??
+                    throw new InvalidOperationException("A response card trigger lost its attack continuation."),
+                    frame.Action, frame.Continuation);
                 return;
             }
             var candidate = frame.Candidates[frame.CandidateIndex];
@@ -187,6 +195,21 @@ public sealed partial class GameEngine
             }
             // Advance before executing an effect; a replay/resume never pays it twice.
             _resolutionStack[^1] = frame with { InstructionIndex = frame.InstructionIndex + 1 };
+            if (effect.Op == SkillProgramTriggerEffectOp.StartJudgment)
+            {
+                var judgmentResult = BeginJudgment(
+                    _programCardAttack,
+                    owner.Seat,
+                    effect.JudgmentReason ??
+                        throw new InvalidOperationException("A configured judgment has no stable reason."),
+                    frame.Id,
+                    frame.Action.EffectiveKind,
+                    JudgmentContinuationKind.ProgramCard,
+                    damageSkill: null,
+                    sourceSeat: owner.Seat);
+                if (judgmentResult is not null) ContinueProgramCardWindow();
+                return;
+            }
             if (!target.IsAlive) continue;
             if (effect.Op == SkillProgramTriggerEffectOp.Draw)
                 DrawCards(target, effect.Amount, log: true, reason: new CardMoveReason($"skill-program.{candidate.SkillId}.draw"));
@@ -200,6 +223,40 @@ public sealed partial class GameEngine
                 PopResolutionFrame(recovery, ResolutionFrameKind.Recovery);
             }
         }
+    }
+
+    private bool TryBeginDelayedCardUsePrograms(long resolutionId)
+    {
+        if (_rulesVersion < 84 || !_acceptedProgramUses.Add(resolutionId)) return false;
+        var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == resolutionId);
+        var action = frame.Action ??
+            throw new InvalidOperationException("A direct delayed-card trigger requires a captured card action.");
+        QueueGameEvent(new CardActionAcceptedEvent(action));
+        return TryBeginProgramCardWindow(
+            attack: null,
+            action,
+            SkillProgramTriggerWindow.CardUseTargetsFinalized,
+            action.TargetSeats,
+            ProgramCardContinuation.DelayedCard);
+    }
+
+    private void ContinueAcceptedDelayedCardUse(ProgramCardTriggerWindowFrame frame)
+    {
+        var action = frame.Action;
+        if (action.EffectiveKind != CardKind.Lightning || action.PhysicalCards.Count != 1 ||
+            action.TargetSeats is not [var targetSeat] || targetSeat != action.ActorSeat)
+        {
+            throw new InvalidOperationException("The delayed-card trigger continuation is not a self-targeted Lightning.");
+        }
+        var card = _cardZones.CardsAt(CardLocation.Processing)
+            .Single(item => item.Id == action.PhysicalCards[0].CardId);
+        BeginJizhiOrNullificationWindow(
+            frame.ParentFrameId,
+            card,
+            action.ActorSeat,
+            action.TargetSeats,
+            LegalActionKind.Lightning,
+            playedCardKind: action.EffectiveKind);
     }
 
     private void AdvanceProgramCardCandidate(ProgramCardTriggerWindowFrame frame)
@@ -284,13 +341,32 @@ public sealed partial class GameEngine
             return;
         }
         var frame = frames.Single();
-        if (_rulesVersion < 80 || !ReferenceEquals(_programCardAttack, _pendingAttack) ||
-            !ReferenceEquals(_resolutionStack.Last(), frame) || _resolutionStack.Count < 2 ||
-            _resolutionStack[^2].Id != frame.ParentFrameId ||
-            frame.CandidateIndex < 0 || frame.CandidateIndex >= frame.Candidates.Count ||
-            _pendingDecision is not { Kind: DecisionKind.ProgramCardTrigger } prompt ||
-            prompt.PlayerSeat != frame.Candidates[frame.CandidateIndex].OwnerSeat ||
-            prompt.Choices.Count == 0 || prompt.Choices.Any(choice => choice.Cards.Count > 0) ||
+        var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
+        var resolvingProgramJudgmentDamage =
+            _pendingAttack is { IsProgramJudgmentDamage: true } &&
+            _pendingJudgment?.Continuation == JudgmentContinuationKind.ProgramCard;
+        var attackMatches = resolvingProgramJudgmentDamage ||
+            (frame.Continuation == ProgramCardContinuation.DelayedCard
+                ? _programCardAttack is null && _pendingAttack is null
+                : _programCardAttack is not null && ReferenceEquals(_programCardAttack, _pendingAttack));
+        var judgmentIsActive =
+            _pendingJudgment is { Continuation: JudgmentContinuationKind.ProgramCard } judgment &&
+            judgment.ParentFrameId == frame.Id &&
+            ReferenceEquals(judgment.Attack, _programCardAttack);
+        var candidateCursorValid = frame.CandidateIndex >= 0 &&
+                                   frame.CandidateIndex < frame.Candidates.Count;
+        var directPromptMatches = !judgmentIsActive &&
+            candidateCursorValid &&
+            ReferenceEquals(_resolutionStack.Last(), frame) &&
+            _pendingDecision is { Kind: DecisionKind.ProgramCardTrigger } prompt &&
+            prompt.PlayerSeat == frame.Candidates[frame.CandidateIndex].OwnerSeat &&
+            prompt.Choices.Count > 0 &&
+            prompt.Choices.All(choice => choice.Cards.Count == 0);
+        if (_rulesVersion < 80 || !attackMatches ||
+            frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
+            (frame.Continuation == ProgramCardContinuation.DelayedCard && _rulesVersion < 84) ||
+            !candidateCursorValid ||
+            (!judgmentIsActive && !directPromptMatches) ||
             frame.Action.PhysicalCards.Any(cost => _cardZones.GetLocation(cost.CardId) != CardLocation.Processing))
             throw new InvalidOperationException("A card trigger window has an invalid cursor, prompt or paid card.");
     }

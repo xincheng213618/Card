@@ -8898,6 +8898,10 @@ public sealed partial class GameEngine
             FindOwnedCardLocation(source, delayedCard),
             CardLocation.Processing,
             CardMoveReasons.Use);
+        if (effectiveCardKind == CardKind.Lightning && TryBeginDelayedCardUsePrograms(resolutionId))
+        {
+            return;
+        }
         BeginJizhiOrNullificationWindow(
             resolutionId,
             delayedCard,
@@ -11754,6 +11758,18 @@ public sealed partial class GameEngine
                 CardLocation.DiscardPile,
                 CardMoveReasons.ResponseFinished);
         }
+        else if (usedBagua && _rulesVersion >= 84 && TryBeginCardResponsePrograms(
+                     attack,
+                     owner,
+                     provider,
+                     requesterSeat: owner.Seat,
+                     attack.SourceSeat,
+                     CardKind.Dodge,
+                     [],
+                     ProgramCardContinuation.HujiaDodge))
+        {
+            return;
+        }
 
         CompleteSuccessfulDodgeResponse(attack);
     }
@@ -14464,6 +14480,22 @@ public sealed partial class GameEngine
 
         if (succeeded)
         {
+            var continuation = _pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } responseGroup &&
+                               ReferenceEquals(responseGroup.CurrentAttack, attack)
+                ? ProgramCardContinuation.GroupResponse
+                : ProgramCardContinuation.Dodge;
+            if (_rulesVersion >= 84 && TryBeginCardResponsePrograms(
+                    attack,
+                    _players[attack.TargetSeat],
+                    _players[attack.TargetSeat],
+                    requesterSeat: null,
+                    attack.SourceSeat,
+                    CardKind.Dodge,
+                    [],
+                    continuation))
+            {
+                return;
+            }
             CompleteSuccessfulDodgeResponse(attack);
         }
         else if (!ApplyAttackDamage(attack))
@@ -15298,6 +15330,12 @@ public sealed partial class GameEngine
 
     private void ResumeCompletedJudgment(JudgmentResolution pending, bool succeeded)
     {
+        if (pending.Continuation == JudgmentContinuationKind.ProgramCard)
+        {
+            ContinueProgramCardWindow();
+            return;
+        }
+
         if (pending.Continuation == JudgmentContinuationKind.Leiji)
         {
             CompleteLeijiJudgment(pending);
@@ -21985,7 +22023,7 @@ public sealed partial class GameEngine
             _pendingLiegong is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
-            _resolutionStack.Any(frame => frame is ActiveSkillFrame or ProgramSkillFrame);
+            _resolutionStack.Any(frame => frame is ActiveSkillFrame or ProgramSkillFrame or ProgramCardTriggerWindowFrame);
         if (!hasActiveCardResolution && processing.Count != 0)
         {
             throw new InvalidOperationException("Processing contains cards without an active resolution.");
@@ -23431,6 +23469,13 @@ public sealed partial class GameEngine
                 programJudgmentFrame is not null &&
                 programJudgmentFrameId == programJudgmentFrame.Id &&
                 programJudgmentFrame.ParentFrameId == pendingJudgment.FrameId;
+            var programCardFrame = _resolutionStack
+                .OfType<ProgramCardTriggerWindowFrame>()
+                .LastOrDefault();
+            var belongsToProgramCard = pendingJudgment.Continuation == JudgmentContinuationKind.ProgramCard &&
+                                       programCardFrame is not null &&
+                                       pendingJudgment.ParentFrameId == programCardFrame.Id &&
+                                       ReferenceEquals(pendingJudgment.Attack, _programCardAttack);
             var belongsToDelayedCard = IsDelayedJudgmentContinuation(pendingJudgment.Continuation) &&
                                        pendingJudgment.Attack is null &&
                                        pendingJudgment.DelayedCard is { } delayedCard &&
@@ -23450,7 +23495,7 @@ public sealed partial class GameEngine
                                        pendingJudgment.Attack is null &&
                                        pendingJudgment.DelayedCard is null &&
                                        pendingJudgment.DamageSkill is null;
-            if ((!belongsToActiveAttack && !belongsToProgramJudgmentDamage &&
+            if ((!belongsToActiveAttack && !belongsToProgramJudgmentDamage && !belongsToProgramCard &&
                  !belongsToDelayedCard && !belongsToLuoshen && !belongsToShuangxiong) ||
                 pendingJudgment.CandidateIndex < 0 ||
                 pendingJudgment.CandidateIndex > pendingJudgment.CandidateSeats.Count ||
@@ -23692,14 +23737,19 @@ public sealed partial class GameEngine
         }
 
         if (_pendingDuel is not null &&
-            (_pendingAttack is null || !ReferenceEquals(_pendingDuel.Attack, _pendingAttack)))
+            (_pendingAttack is null ||
+             (!ReferenceEquals(_pendingDuel.Attack, _pendingAttack) &&
+              !(_pendingAttack.IsProgramJudgmentDamage &&
+                ReferenceEquals(_pendingJudgment?.Attack, _pendingDuel.Attack)))))
         {
             throw new InvalidOperationException("A Duel continuation must retain its active card resolution.");
         }
 
         if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group &&
             (_pendingAttack is null ||
-             !ReferenceEquals(group.CurrentAttack, _pendingAttack)))
+             (!ReferenceEquals(group.CurrentAttack, _pendingAttack) &&
+              !(_pendingAttack.IsProgramJudgmentDamage &&
+                ReferenceEquals(_pendingJudgment?.Attack, group.CurrentAttack)))))
         {
             throw new InvalidOperationException(
                 "A group continuation must retain its current target attack.");
@@ -24035,6 +24085,8 @@ public sealed partial class GameEngine
         if (_pendingAttack is null &&
             _pendingNullification is null &&
             _pendingJudgment is null &&
+            _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
+                .All(frame => frame.Continuation != ProgramCardContinuation.DelayedCard) &&
             _pendingJijiang?.IsActiveUse != true &&
             _pendingJijiang?.IsBorrowedSwordUse != true &&
             _pendingBorrowedSword is null &&
@@ -24112,8 +24164,8 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
-        if (_programCardAttack is not null &&
-            _resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame { Action.Type: CardActionType.Response } programFrame)
+        if (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is { } programFrame &&
+            programFrame.Continuation != ProgramCardContinuation.Slash)
         {
             var responseIds = programFrame.Action.PhysicalCards.Select(cost => cost.CardId).ToHashSet();
             if (responseIds.Any(id => processing.All(card => card.Id != id))) return false;
@@ -26058,6 +26110,7 @@ public sealed partial class GameEngine
         Shuangxiong,
         Tieqi,
         Leiji,
+        ProgramCard,
         Indulgence,
         SupplyShortage,
         Lightning
