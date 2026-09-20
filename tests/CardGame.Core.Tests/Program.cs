@@ -44,6 +44,7 @@ var tests = new (string Name, Action Body)[]
     ("formal boundary Huangtian transfers Dodge or Spade cards once per provider phase", BoundaryZhangJiaoProgramChecks.HuangtianContributionAndReplay),
     ("formal national Zhang Jiao package preserves exact skills, mode and reveal boundaries", NationalZhangJiaoProgramChecks.ContentContractAndRevealBoundary),
     ("formal national Zhang Jiao resolves Spade-only Leiji and owner-hand Guidao", NationalZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
+    ("public Nightmare markers count each Wuhun damage point before dying and replay", PublicMarkerChecks.WuhunDamageOrderAndReplay),
     ("composed AI matches complete and replay with configured actions and responses", SkillProgramMatchChecks.ComposedMatchesCompleteAndReplay),
     ("Wusheng responds to Duel and Barbarian Assault with exact physical costs and replay", WushengResponseChecks.CommandsAndReplay),
     ("Wusheng response conversion respects national reveal slots and requested card kinds", WushengResponseChecks.NationalAndScope),

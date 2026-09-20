@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "contentId": "god:guan-yu:classic-i",
+  "retrievedAt": "2026-09-20T15:42:13.6036283+08:00",
+  "selectedVersion": "BWIKI经典正式服I版",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/神关羽",
+      "observedRevision": 78769,
+      "use": "锁定经典正式服I版与当前版本差分；确认每受到1点伤害给来源1枚梦魇、死亡判定、FAQ边界。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/武魂",
+      "observedRevision": 78768,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "交叉核对经典I版武魂文本及锁定技标签。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161026_6077_0415",
+      "publishedAt": "2016-10-26T14:57:19+08:00",
+      "use": "历史官网攻略确认每受到1点伤害后由来源取得梦魇、死亡时判定，以及体力流失不触发。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "锁定技只作为技能标签；D4a按实际伤害后的规则时机执行，不由标签推导强制性或优先级。"
+    }
+  ],
+  "d4aScope": {
+    "rulesVersion": 90,
+    "implemented": [
+      "公开类型化PlayerMarkerKind.Nightmare与PlayerMarkerChangedEvent",
+      "每个实际伤害点分别增加1枚标记",
+      "致死伤害在PlayerDyingEvent之前完成标记",
+      "普通玩家快照公开正数标记",
+      "Checkpoint和Replay由命令前缀确定性重建",
+      "rules v89保持无标记历史行为"
+    ],
+    "deferred": [
+      "死亡技能候选和死亡拥有者资格",
+      "梦魇最大值与并列目标选择",
+      "死亡判定及鬼才鬼道改判",
+      "桃或桃园结义结果分支",
+      "绕过濒死救援的直接死亡",
+      "胜负已确定时跳过武魂",
+      "正式神关羽内容注册与WPF标记展示"
+    ]
+  }
+}

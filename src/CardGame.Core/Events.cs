@@ -551,6 +551,19 @@ public sealed record DamageAppliedEvent(
     int RemainingHp,
     DamageNature Nature = DamageNature.Normal) : IGameEvent;
 
+/// <summary>
+/// Public, typed marker mutation. SkillOwnerSeat identifies the character
+/// whose rule caused the change; PlayerSeat identifies the marker holder.
+/// </summary>
+public sealed record PlayerMarkerChangedEvent(
+    long ResolutionId,
+    int PlayerSeat,
+    PlayerMarkerKind Marker,
+    int Delta,
+    int Count,
+    int? SkillOwnerSeat,
+    string Reason) : IGameEvent;
+
 public sealed record DamageRequestedEvent(
     long ResolutionId,
     int SourceSeat,

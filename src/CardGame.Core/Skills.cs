@@ -247,6 +247,16 @@ public sealed class NoSkill : IPassiveSkill
     public string Name => "无";
 }
 
+/// <summary>
+/// The rule object identifies Wuhun ownership only. Public Nightmare mutation
+/// is committed by GameEngine after actual damage, before dying begins.
+/// </summary>
+public sealed class WuhunSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Wuhun;
+    public string Name => "武魂";
+}
+
 public sealed class ShensuSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Shensu;
@@ -1219,7 +1229,8 @@ public static class SkillRegistry
             [SkillKind.Tieqi] = new TieqiSkill(),
             [SkillKind.Liegong] = new LiegongSkill(),
             [SkillKind.Kuanggu] = new KuangguSkill(),
-            [SkillKind.Wushuang] = new WushuangSkill()
+            [SkillKind.Wushuang] = new WushuangSkill(),
+            [SkillKind.Wuhun] = new WuhunSkill()
         };
 
     public static IPassiveSkill Get(SkillKind kind) => Skills[kind];

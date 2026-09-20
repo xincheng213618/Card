@@ -166,6 +166,7 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - 非法 `ChoiceId`、过期 Revision 和非当前 responder 的回答保持拒绝且零状态变化；AI 濒死决策只使用脱敏快照与自己的桃，不读取其他玩家手牌；
 - `standard:barbarian_assault`、`standard:arrow_barrage` 与 `standard:peach_garden` 已验证无目标群体牌的完整目标列表、`CardUseFrame.TargetIndex`、逐目标响应/恢复、由 `GroupCardUsedEvent` 声明目标列表且由 `GroupResponseEvent` 携带 `RequiredCardKind`、处理区驻留和每个目标的伤害/濒死/恢复续接；`standard:dismantlement` 另验证单目标选择、目标隐藏手牌的不透明牌位选择、公开装备/判定区牌的 `TargetCardId` 精确选择、`TargetCardDiscardedEvent` 按来源区域脱敏与双牌处理区移动账本；`standard:snatch` 验证战斗距离一合法性、目标隐藏手牌不透明牌位选择、公开装备/判定区牌的 `TargetCardId` 精确选择、`TargetCardTakenEvent` 按来源区域投影、取得牌进入使用者私有快照以及跨玩家处理区移动账本；AI 响应、恢复、不透明牌位选择和公开目标牌评分只使用当前目标/全局公开体力/手牌数量/公开装备/判定区的脱敏快照；
 - 反馈、遗计和节命共享 `DamageTriggerWindowFrame`/`DamageSkillFrame`；其中反馈取得处理区伤害牌，遗计私有摸两张并交一张，节命在受伤者的私有 `Jieming` Prompt 中按公开手牌数选择目标并从牌堆补至体力上限，AI 不读取目标隐藏牌面，`DamageSkillCardsDrawnEvent.TargetSeat` 与 `skill.jieming.draw` 记录可信宿主结果；
+- rules v90 提供 `PlayerMarkerKind`、`PlayerMarkerChangedEvent` 与公开正数 `PlayerSnapshot.Markers`；D4a 的合成武魂消费者在 `DamageAppliedEvent` 后、`PlayerDyingEvent` 前按每点实际伤害增加梦魇，Checkpoint 由命令前缀重建，rules v89 保留无标记历史路径。死亡拥有者候选、并列选择、死亡判定与直接死亡仍属于 D4b；
  - 当前边界仍是单次伤害的基础求桃；多伤害嵌套、通用触发器和复杂技能仍待后续 K5；可信命令前缀 Checkpoint 已开放，可恢复命令驱动的私有 Prompt 暂停点，规范化内容指纹也已用于拒绝同版本定义漂移；完整内部状态存档、可执行规则实现签名和兼容迁移仍等待后续 K8。
 
 ## Core API Level: K6 基础切片已开放（2026-09-07）

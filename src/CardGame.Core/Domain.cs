@@ -102,6 +102,24 @@ public enum DamageNature
     Thunder
 }
 
+/// <summary>
+/// Stable public counters attached to one player. The enum identifies rules
+/// state; translated names remain presentation data in <see cref="PlayerMarkerCatalog"/>.
+/// </summary>
+public enum PlayerMarkerKind
+{
+    Nightmare
+}
+
+public static class PlayerMarkerCatalog
+{
+    public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
+    {
+        PlayerMarkerKind.Nightmare => "梦魇",
+        _ => throw new InvalidOperationException($"Unknown public player marker '{marker}'.")
+    };
+}
+
 public enum PublicAttackKind
 {
     Slash,
@@ -217,7 +235,8 @@ public enum SkillKind
     Lieren,
     Yizhong,
     Wuyan,
-    Jujian
+    Jujian,
+    Wuhun
 }
 
 public enum DecisionKind
@@ -506,6 +525,11 @@ public sealed record CardSnapshot(
     string DisplayName,
     string RankText);
 
+public sealed record PlayerMarkerSnapshot(
+    PlayerMarkerKind Kind,
+    string Name,
+    int Count);
+
 public sealed partial record PlayerSnapshot(
     int Seat,
     string Name,
@@ -528,6 +552,13 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    /// <summary>
+    /// Public typed counters. Null preserves the serialized shape of old rules
+    /// and of players that currently have no marks.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<PlayerMarkerSnapshot>? Markers { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsFaceDown { get; init; }
 

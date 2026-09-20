@@ -179,6 +179,9 @@ public sealed partial class GameEngine
     private bool SupportsLethalAfterDamageTriggers =>
         _rulesVersion >= 5;
 
+    private bool SupportsPublicDamageMarkers =>
+        _rulesVersion >= 90;
+
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
         _rulesVersion >= 89 && IsNationalWarMode;
@@ -4654,6 +4657,15 @@ public sealed partial class GameEngine
                 Judgment = Array.AsReadOnly(judgment),
                 BuquWounds = UsesFormalZhouTai || buquWounds.Count > 0
                     ? Array.AsReadOnly(buquWounds.Select(ToSnapshot).ToArray())
+                    : null,
+                Markers = SupportsPublicDamageMarkers && player.Markers.Count > 0
+                    ? Array.AsReadOnly(player.Markers
+                        .OrderBy(marker => marker.Key)
+                        .Select(marker => new PlayerMarkerSnapshot(
+                            marker.Key,
+                            PlayerMarkerCatalog.GetDisplayName(marker.Key),
+                            marker.Value))
+                        .ToArray())
                     : null,
                 FactionId = canSeeFaction ? player.NationalFactionId : null,
                 IsFactionRevealed = IsNationalWarMode && player.FactionRevealed,
@@ -16130,6 +16142,7 @@ public sealed partial class GameEngine
                 amount,
                 Math.Max(0, target.Hp),
                 nature));
+            ApplyWuhunNightmareMarks(damageFrameId, source, target, amount);
 
             if (target.Hp > 0 || SupportsLethalAfterDamageTriggers)
             {
@@ -16236,6 +16249,41 @@ public sealed partial class GameEngine
             attack.EffectiveCardKind ?? CardKind.Slash);
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         return true;
+    }
+
+    private void ApplyWuhunNightmareMarks(
+        long damageFrameId,
+        PlayerRuntime source,
+        PlayerRuntime target,
+        int amount)
+    {
+        if (!SupportsPublicDamageMarkers ||
+            amount <= 0 ||
+            source.Seat == target.Seat ||
+            !EnabledPassiveSkills(target).Any(skill => skill.Kind == SkillKind.Wuhun))
+        {
+            return;
+        }
+
+        for (var point = 0; point < amount; point++)
+        {
+            var count = source.Markers.GetValueOrDefault(PlayerMarkerKind.Nightmare) + 1;
+            source.Markers[PlayerMarkerKind.Nightmare] = count;
+            QueueGameEvent(new PlayerMarkerChangedEvent(
+                damageFrameId,
+                source.Seat,
+                PlayerMarkerKind.Nightmare,
+                Delta: 1,
+                Count: count,
+                SkillOwnerSeat: target.Seat,
+                Reason: "skill.wuhun.damage"));
+        }
+
+        AddLog(
+            "MarkerChanged",
+            $"{source.Name} 因 {target.Name} 的【武魂】获得 {amount} 枚“梦魇”标记（共 {source.Markers[PlayerMarkerKind.Nightmare]} 枚）。",
+            target.Seat,
+            source.Seat);
     }
 
     private Suit EffectiveSuit(PlayerRuntime owner, Card card) =>
@@ -25668,6 +25716,7 @@ public sealed partial class GameEngine
         public bool UsedPlayPhaseAlcoholThisTurn { get; set; }
         public bool AiJijiangFailedThisTurn { get; set; }
         public bool IsChained { get; set; }
+        public Dictionary<PlayerMarkerKind, int> Markers { get; } = [];
         public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
         public HashSet<SkillKind> UsedLimitedSkillKinds { get; } = [];
         public bool TianyiWonThisTurn { get; set; }
