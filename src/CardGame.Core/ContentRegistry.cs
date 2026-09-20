@@ -73,6 +73,7 @@ public sealed record ContentSkillDefinition(
     public SkillProgram? Program { get; init; }
     public SkillTag Tags { get; init; }
     public SkillExecutionForm ExecutionForms { get; init; }
+    public SkillActionForm ActionForms { get; init; }
 }
 
 public sealed record ContentGeneralDefinition(
@@ -548,6 +549,22 @@ public sealed class ContentRegistry
                 Base = JsonSerializer.Deserialize<JsonElement>(canonical),
                 SkillMetadata = skillMetadata
             });
+        var skillActionForms = skills.Values
+            .Where(skill => skill.ActionForms != SkillActionForm.None)
+            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
+            .Select(skill => new
+            {
+                skill.Id,
+                ActionForms = skill.ActionForms.ToString()
+            })
+            .ToArray();
+        if (skillActionForms.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 10,
+                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                SkillActionForms = skillActionForms
+            });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
 
@@ -890,10 +907,13 @@ public sealed class ContentRegistry
             const SkillTag allTags = SkillTag.Lord | SkillTag.Locked | SkillTag.Limited |
                                      SkillTag.Awakening | SkillTag.Conversion;
             const SkillExecutionForm allForms = SkillExecutionForm.State | SkillExecutionForm.Trigger;
+            const SkillActionForm allActionForms = SkillActionForm.Active;
             if ((definition.Tags & ~allTags) != 0)
                 throw new InvalidOperationException($"Skill '{definition.Id}' has unsupported structured tags.");
             if ((definition.ExecutionForms & ~allForms) != 0)
                 throw new InvalidOperationException($"Skill '{definition.Id}' has unsupported execution forms.");
+            if ((definition.ActionForms & ~allActionForms) != 0)
+                throw new InvalidOperationException($"Skill '{definition.Id}' has unsupported action forms.");
 
             var normalized = definition.Tags.HasFlag(SkillTag.Awakening)
                 ? definition with { Tags = definition.Tags | SkillTag.Locked | SkillTag.Limited }

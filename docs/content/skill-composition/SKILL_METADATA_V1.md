@@ -13,14 +13,15 @@ D5a 在 `standard-classic-generals@1.68.0`／rules v96 建立首个可执行边�
 
 ## 内容契约
 
-`ContentSkillDefinition` 新增两组显式字段：
+`ContentSkillDefinition` 现有三组彼此独立的显式字段：
 
 - `Tags`：`Lord`、`Locked`、`Limited`、`Awakening`、`Conversion`，允许组合；
 - `ExecutionForms`：`State`、`Trigger`，一个复杂技能可同时具有两种部分。
+- `ActionForms`：当前只有 `Active`，表示本应用需要提供玩家主动选择的技能动作入口；它是客户端／命令交互维度，不是 BWIKI 所列的第三种次要技能类型。
 
-加载器只读取结构化字段，不扫描技能名或中文描述。未知位会被拒绝；`Awakening` 会规范化补齐 `Locked | Limited`。标签不参与触发候选排序，也不会自动生成状态效果、询问或优先级。
+加载器只读取结构化字段，不扫描技能名或中文描述。未知位会被拒绝；`Awakening` 会规范化补齐 `Locked | Limited`。标签不参与触发候选排序，也不会自动生成状态效果、询问或优先级；`Active` 只陈述已有主动实现的入口形态，不会凭空注册实现或改变发动时机。
 
-只要 Registry 中存在一项结构化元数据，内容玩法哈希就在既有规范化内容外包一层 `HashSchema: 9` 与按技能 ID 排序的 `SkillMetadata`。完全没有结构化元数据的旧 Registry 继续使用原字节和原哈希。经典包 1.67.0 因而保持旧定义，1.68.0 才启用本契约。
+只要 Registry 中存在一项标签或执行形态元数据，内容玩法哈希就在既有规范化内容外包一层 `HashSchema: 9` 与按技能 ID 排序的 `SkillMetadata`。动作元数据非空时再追加 `HashSchema: 10` 与排序后的 `SkillActionForms`；完全没有对应元数据的旧 Registry 不追加该层，继续使用原字节和原哈希。经典包 1.67.0 因而保持旧定义，1.68.0 才启用前两轴，1.75.0 首次启用动作入口轴。
 
 首批正式映射为：
 
@@ -102,11 +103,19 @@ rules v99／`standard-classic-generals@1.70.0` 以 2018 版 `classic:yan-yan` �
 
 迁移不改变现有转换来源、实体牌支付、合法动作、AI、Prompt 或 Replay，也不增加 rules 版本。1.73.0 的同一 11 项仍保持 `None + None`；双雄和天义因为分别含触发／主动入口与后续回合状态，继续保留未迁移元数据。WPF 实战技能栏已验证【奇袭】显示“状态技／规则自动生效”，同时装备区黑牌转【过河拆桥】的选择与提交保持可用；`170-classic-continuous-conversion-state.png` 在 1120×740 覆盖技能卡、转化选择、目标、操作区和五张手牌。来源与边界见 `docs/content/sources/classic-continuous-conversion-state-d5b2b2d-2026-09-21.json`。
 
+## 经典纯主动操作入口迁移
+
+`standard-classic-generals@1.75.0` 为已有独立主动实现的 5 项纯主动技能增加 `ActionForms.Active`：反间、强袭、离间、结姻、驱虎。它们在出牌阶段由玩家选择动作入口，但不包含等待特定时机确认发动的触发部分，也不靠持续规则修正生效，因此 `Tags` 与 `ExecutionForms` 均保持 `None`。
+
+`ActionForms` 是项目的交互元数据轴，不把“主动技”伪装成 BWIKI 的状态技或触发技。内容哈希只在至少一项技能具有动作元数据时追加 schema 10 层，因此此前没有 `ActionForms` 的历史包保持原指纹；回归检查同时验证这 5 项对应的 `SkillKind` 确实注册了主动实现。1.74.0 的同一 5 项继续为 `ActionForms.None`，Checkpoint schema、rules v99、命令、技能效果和玩家资料均未改变。
+
+WPF 已在周瑜【反间】真实选目标边界验证“主动技／当前可发动”，`171-classic-active-action-metadata.png` 在 1120×740 覆盖技能栏、六名目标、操作区和手牌且无裁切。激将、乱击、天义、双雄等同时涉及主动／触发／后续状态的技能保留给复合迁移，避免用单轴标签压平语义。来源与逐项边界见 `docs/content/sources/classic-active-action-metadata-d5b2b2e-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：
 
-- 为剩余正式技能逐项核对并迁移标签和执行形态，尤其是普通主动技能及可能同时包含状态／触发／主动部分的复合技能；
+- 为剩余正式技能逐项核对并迁移标签、执行形态和动作入口，尤其是激将、乱击、天义、双雄等复合技能及稳定共享主动技能；
 - 为正式转换技补充技能重置消费者；阳／阴当前形态和 Checkpoint／Replay 已由严颜验证，正式觉醒消费者已由 SP 关羽完成；
 - 在已落地的每目标回合账本之外增加每事件等复合限次维度，并由真实消费者冻结其生命周期；
 - 在全部正式技能迁移后移除 WPF 的旧兼容类型文案。

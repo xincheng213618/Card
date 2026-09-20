@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 74, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 75, 0))
     {
     }
 
@@ -125,12 +125,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 71, 0) &&
             version != new Version(1, 72, 0) &&
             version != new Version(1, 73, 0) &&
-            version != new Version(1, 74, 0))
+            version != new Version(1, 74, 0) &&
+            version != new Version(1, 75, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.74.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.75.0.");
         }
 
         _version = version;
@@ -512,11 +513,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 2, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:fanjian",
                 "反间",
                 "出牌阶段限一次，你可以令一名其他角色选择一种花色，令其获得并展示你的一张随机手牌；若花色不同，你对其造成1点伤害。",
-                SkillKind.Fanjian));
+                SkillKind.Fanjian)));
         }
         if (_version >= new Version(1, 3, 0))
         {
@@ -584,11 +585,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 12, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:qiangxi",
                 "强袭",
                 "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，并选择你攻击范围内的一名其他角色，对其造成1点伤害。",
-                SkillKind.Qiangxi));
+                SkillKind.Qiangxi)));
         }
         if (_version >= new Version(1, 13, 0))
         {
@@ -690,11 +691,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 41, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:lijian",
                 "离间",
                 "出牌阶段限一次，你可以弃置一张牌并选择两名男性角色，视为其中一名角色对另一名角色使用一张不能被无懈可击响应的【决斗】。",
-                SkillKind.Lijian));
+                SkillKind.Lijian)));
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:biyue",
                 "闭月",
@@ -703,11 +704,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 42, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:jieyin",
                 "结姻",
                 "出牌阶段限一次，你可以弃置两张手牌并选择一名已受伤的男性角色，令你与其各回复1点体力。",
-                SkillKind.Jieyin));
+                SkillKind.Jieyin)));
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:xiaoji",
                 "枭姬",
@@ -737,11 +738,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 45, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:quhu",
                 "驱虎",
                 "出牌阶段限一次，你可以与一名体力值大于你的角色拼点：若你赢，其对其攻击范围内由你选择的另一名角色造成1点伤害；若你没赢，其对你造成1点伤害。",
-                SkillKind.Quhu));
+                SkillKind.Quhu)));
         }
         if (_version >= new Version(1, 46, 0))
         {
@@ -1761,6 +1762,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             SkillTag.None,
             SkillExecutionForm.State,
             new Version(1, 74, 0));
+
+    private ContentSkillDefinition WithActiveActionMetadata(ContentSkillDefinition definition) =>
+        _version >= new Version(1, 75, 0)
+            ? definition with { ActionForms = SkillActionForm.Active }
+            : definition;
 
     private static string ReadEmbeddedText(string resourceName)
     {

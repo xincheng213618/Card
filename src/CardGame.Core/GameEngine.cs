@@ -5216,14 +5216,16 @@ public sealed partial class GameEngine
                         {
                             ContentId = additional.Id,
                             Tags = additional.Tags,
-                            ExecutionForms = additional.ExecutionForms
+                            ExecutionForms = additional.ExecutionForms,
+                            ActionForms = additional.ActionForms
                         })
                         .ToArray(),
                     definition.Gender)
                 {
                     SkillContentId = skill.Id,
                     SkillTags = skill.Tags,
-                    SkillExecutionForms = skill.ExecutionForms
+                    SkillExecutionForms = skill.ExecutionForms,
+                    SkillActionForms = skill.ActionForms
                 };
             })
             .ToArray();

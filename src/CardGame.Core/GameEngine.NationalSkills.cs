@@ -29,7 +29,8 @@ public sealed partial class GameEngine
         {
             ContentId = skill.Id,
             Tags = skill.Tags,
-            ExecutionForms = skill.ExecutionForms
+            ExecutionForms = skill.ExecutionForms,
+            ActionForms = skill.ActionForms
         };
     }
 
@@ -59,7 +60,8 @@ public sealed partial class GameEngine
                 {
                     ContentId = general.SkillContentId,
                     Tags = general.SkillTags,
-                    ExecutionForms = general.SkillExecutionForms
+                    ExecutionForms = general.SkillExecutionForms,
+                    ActionForms = general.SkillActionForms
                 }
             ];
         foreach (var skill in definitions.Where(skill => CanOwnPrintedSkill(player, skill.Tags)))

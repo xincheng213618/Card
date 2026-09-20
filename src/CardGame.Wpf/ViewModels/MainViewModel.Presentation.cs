@@ -63,7 +63,7 @@ public sealed partial class MainViewModel
                                 return new HumanSkillViewModel(
                                     skill.Name,
                                     GetVisibleSkillDescription(skill),
-                                    GetSkillTypeText(active, skill.Tags, skill.ExecutionForms),
+                                    GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
                                     !enabled
                                         ? "暗置中 · 尚未启用"
                                         : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用"),
@@ -97,7 +97,7 @@ public sealed partial class MainViewModel
                         return new HumanSkillViewModel(
                             skill.Name,
                             GetVisibleSkillDescription(skill),
-                            GetSkillTypeText(active, skill.Tags, skill.ExecutionForms),
+                            GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
                             GetSkillStateText(
                                 active,
                                 isAvailable,
@@ -122,7 +122,7 @@ public sealed partial class MainViewModel
                     return new HumanSkillViewModel(
                         skill.Name,
                         skill.Description,
-                        GetSkillTypeText(active, skill.Tags, skill.ExecutionForms),
+                        GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
                         GetSkillStateText(
                             active,
                             available.Contains(skill.Kind),
@@ -153,15 +153,22 @@ public sealed partial class MainViewModel
     private static string GetSkillTypeText(
         bool hasActiveEntry,
         SkillTag tags,
-        SkillExecutionForm executionForms)
+        SkillExecutionForm executionForms,
+        SkillActionForm actionForms)
     {
-        if (tags == SkillTag.None && executionForms == SkillExecutionForm.None)
+        if (tags == SkillTag.None &&
+            executionForms == SkillExecutionForm.None &&
+            actionForms == SkillActionForm.None)
             return hasActiveEntry ? "主动技" : "触发 / 锁定";
 
         var parts = new List<string>();
+        if (actionForms.HasFlag(SkillActionForm.Active) ||
+            actionForms == SkillActionForm.None &&
+            executionForms == SkillExecutionForm.None &&
+            hasActiveEntry)
+            parts.Add("主动技");
         if (executionForms.HasFlag(SkillExecutionForm.State)) parts.Add("状态技");
         if (executionForms.HasFlag(SkillExecutionForm.Trigger)) parts.Add("触发技");
-        if (executionForms == SkillExecutionForm.None && hasActiveEntry) parts.Add("主动技");
         if (tags.HasFlag(SkillTag.Lord)) parts.Add("主公技");
         if (tags.HasFlag(SkillTag.Locked)) parts.Add("锁定技");
         if (tags.HasFlag(SkillTag.Limited)) parts.Add("限定技");

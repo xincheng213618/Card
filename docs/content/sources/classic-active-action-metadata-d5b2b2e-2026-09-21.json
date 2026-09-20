@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:classic-active-action-d5b2b2e",
+  "retrievedAt": "2026-09-21T03:04:18+08:00",
+  "selectedVersion": "当前经典包中已有独立主动实现且没有复合状态或触发部分的技能",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "状态技与触发技是官方次要技能类型；主动操作入口不是该二分中的第三种类型，因此由应用独立建模。"
+    }
+  ],
+  "skills": [
+    "classic:fanjian",
+    "classic:qiangxi",
+    "classic:lijian",
+    "classic:jieyin",
+    "classic:quhu"
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.75.0",
+    "rulesVersion": 99,
+    "tags": [],
+    "executionForms": [],
+    "actionForms": ["Active"],
+    "gameplayBehaviorChanged": false
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.74.0",
+    "previousActionForms": [],
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "classificationPolicy": [
+    "Active是应用主动命令和技能按钮的交互入口，不新增官方技能类型",
+    "只有已注册IActiveSkill实现且不含复合状态或触发部分的技能进入本批",
+    "标签与状态或触发执行形态继续保持独立",
+    "非空动作元数据使用独立哈希层，历史包的原规范化文本和指纹不变"
+  ],
+  "acceptance": [
+    "5项当前定义均显式投影Tags None、ExecutionForms None、ActionForms Active",
+    "同一5项在经典包1.74.0保持ActionForms None",
+    "每一项LegacyKind均存在真实主动实现",
+    "激将、乱击、天义保持复合迁移边界",
+    "内容指纹区分1.75.0和1.74.0",
+    "WPF反间显示主动技和当前可发动，真实目标选择继续可用",
+    "1120×740离屏图无技能栏、目标、操作区或手牌裁切",
+    "Release 0 warning / 0 error，Core 289/289，WPF 83/83"
+  ],
+  "deferred": [
+    "激将、乱击、天义、双雄等主动、触发和状态复合技能",
+    "稳定standard包共享主动技能的独立身份或版本策略",
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

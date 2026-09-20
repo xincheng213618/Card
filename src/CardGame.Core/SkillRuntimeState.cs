@@ -19,6 +19,13 @@ public enum SkillExecutionForm
     Trigger = 1 << 1
 }
 
+[Flags]
+public enum SkillActionForm
+{
+    None = 0,
+    Active = 1 << 0
+}
+
 public enum SkillUsageScope
 {
     Game,

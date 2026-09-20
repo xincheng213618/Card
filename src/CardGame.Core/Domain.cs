@@ -475,6 +475,9 @@ public sealed partial record GeneralSkillDefinition(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public SkillExecutionForm ExecutionForms { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillActionForm ActionForms { get; init; }
 }
 
 public sealed record SkillUsageStateSnapshot(
@@ -509,6 +512,9 @@ public sealed partial record GeneralDefinition(
     public SkillTag SkillTags { get; init; }
     public SkillExecutionForm SkillExecutionForms { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillActionForm SkillActionForms { get; init; }
+
     public IReadOnlyList<GeneralSkillDefinition> Skills => AdditionalSkills is { Count: > 0 }
         ? new[]
             {
@@ -516,7 +522,8 @@ public sealed partial record GeneralDefinition(
                 {
                     ContentId = SkillContentId,
                     Tags = SkillTags,
-                    ExecutionForms = SkillExecutionForms
+                    ExecutionForms = SkillExecutionForms,
+                    ActionForms = SkillActionForms
                 }
             }
             .Concat(AdditionalSkills)
@@ -527,7 +534,8 @@ public sealed partial record GeneralDefinition(
             {
                 ContentId = SkillContentId,
                 Tags = SkillTags,
-                ExecutionForms = SkillExecutionForms
+                ExecutionForms = SkillExecutionForms,
+                ActionForms = SkillActionForms
             }
         ];
 

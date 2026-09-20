@@ -40,6 +40,13 @@ internal static class SkillMetadataChecks
         var tagged = ContentRegistry.Build(new MetadataFixture(SkillTag.Limited, SkillExecutionForm.Trigger));
         Require(plain.ContentHash != tagged.ContentHash,
             "Structured tags and execution forms must participate in content drift detection.");
+        var active = ContentRegistry.Build(new MetadataFixture(
+            SkillTag.None,
+            SkillExecutionForm.None,
+            SkillActionForm.Active));
+        Require(active.Skills[MetadataFixture.SkillId].ActionForms == SkillActionForm.Active &&
+                plain.ContentHash != active.ContentHash,
+            "Structured active action forms must participate in content drift detection independently.");
 
         var awakening = ContentRegistry.Build(new MetadataFixture(
             SkillTag.Awakening,
@@ -56,6 +63,11 @@ internal static class SkillMetadataChecks
             ContentRegistry.Build(new MetadataFixture((SkillTag)(1 << 12), SkillExecutionForm.State)));
         RequireThrows<InvalidOperationException>(() =>
             ContentRegistry.Build(new MetadataFixture(SkillTag.Locked, (SkillExecutionForm)(1 << 12))));
+        RequireThrows<InvalidOperationException>(() =>
+            ContentRegistry.Build(new MetadataFixture(
+                SkillTag.None,
+                SkillExecutionForm.None,
+                (SkillActionForm)(1 << 12))));
     }
 
     public static void RuntimeUsageAndReset()
@@ -319,6 +331,61 @@ internal static class SkillMetadataChecks
             "The continuous-conversion migration must be isolated to package 1.74.0 and fingerprinted.");
     }
 
+    public static void ClassicPureActiveActionMetadataIsVersioned()
+    {
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 75, 0));
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 74, 0));
+        string[] activeSkillIds =
+        [
+            "classic:fanjian",
+            "classic:qiangxi",
+            "classic:lijian",
+            "classic:jieyin",
+            "classic:quhu"
+        ];
+
+        foreach (var skillId in activeSkillIds)
+        {
+            Require(migrated.Skills[skillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None,
+                    ActionForms: SkillActionForm.Active
+                } definition &&
+                    definition.LegacyKind is { } kind &&
+                    SkillRegistry.GetActive(kind) is not null,
+                $"Current classic content did not classify {skillId} as a backed active action.");
+            Require(previous.Skills[skillId].ActionForms == SkillActionForm.None,
+                $"Package 1.74.0 unexpectedly gained the action metadata for {skillId}.");
+        }
+
+        Require(migrated.Skills["classic:jijiang"] is
+                {
+                    Tags: SkillTag.Lord,
+                    ExecutionForms: SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None
+                } &&
+                migrated.Skills["classic:luanji"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.State,
+                    ActionForms: SkillActionForm.None
+                } &&
+                migrated.Skills["classic:tianyi"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None,
+                    ActionForms: SkillActionForm.None
+                },
+            "The pure-active migration must leave Jijiang, Luanji and Tianyi for compound classification.");
+        Require(migrated.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 75, 0)) &&
+                previous.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 74, 0)) &&
+                migrated.ContentHash != previous.ContentHash,
+            "The pure-active migration must be isolated to package 1.75.0 and fingerprinted.");
+    }
+
     public static void StructuredNiepanUsageReplays()
     {
         var registry = ContentRegistry.Build(
@@ -413,7 +480,10 @@ internal static class SkillMetadataChecks
         return used.Contains(SkillKind.Niepan);
     }
 
-    private sealed class MetadataFixture(SkillTag tags, SkillExecutionForm executionForms) : IGameContentPackage
+    private sealed class MetadataFixture(
+        SkillTag tags,
+        SkillExecutionForm executionForms,
+        SkillActionForm actionForms = SkillActionForm.None) : IGameContentPackage
     {
         public const string SkillId = "fixture:skill";
         public PackageManifest Manifest { get; } = new("fixture-metadata", new Version(1, 0, 0));
@@ -425,7 +495,8 @@ internal static class SkillMetadataChecks
                 "Presentation is not executable metadata.")
             {
                 Tags = tags,
-                ExecutionForms = executionForms
+                ExecutionForms = executionForms,
+                ActionForms = actionForms
             });
     }
 

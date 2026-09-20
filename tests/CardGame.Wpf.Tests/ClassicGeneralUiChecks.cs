@@ -1539,8 +1539,12 @@ internal static class ClassicGeneralUiChecks
             "The WPF Yingzi skip choice must continue with the normal draw count.");
         Program.AdvanceToDecision(yingziViewModel);
         Program.Assert(yingziViewModel.CanUseActiveSkill &&
+                       yingziViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "反间" &&
+                           skill.TypeText == "主动技" &&
+                           skill.StateText == "当前可发动") &&
                        yingziViewModel.ActiveSkillEntryText.Contains("反间", StringComparison.Ordinal),
-            "Classic Zhou Yu must expose Fanjian at the WPF play boundary.");
+            "Classic Zhou Yu must expose explicitly classified Fanjian at the WPF play boundary.");
         yingziViewModel.UseActiveSkillCommand.Execute(null);
         var fanjianTarget = yingziViewModel.Seats.First(seat => seat.IsLegalTarget);
         yingziViewModel.SelectTargetCommand.Execute(fanjianTarget);
