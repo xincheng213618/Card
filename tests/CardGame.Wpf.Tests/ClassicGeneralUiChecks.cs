@@ -49,6 +49,84 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void ShenGuanYuPortraitAndCard(string output)
+    {
+        using var viewModel = FindGeneralChoice("classic:shen-guan-yu");
+        var shenGuanYu = viewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:shen-guan-yu");
+        var portrait = shenGuanYu.PortraitBrush as System.Windows.Media.ImageBrush;
+        var portraitSize = portrait?.ImageSource is System.Windows.Media.Imaging.BitmapSource bitmap
+            ? $"{bitmap.PixelWidth}x{bitmap.PixelHeight}"
+            : "missing";
+        Program.Assert(shenGuanYu.Name == "神关羽" && shenGuanYu.Kingdom == "未明势力" &&
+                       shenGuanYu.SkillName == "武神 / 武魂" &&
+                       shenGuanYu.SkillDescription.Contains("红桃手牌均视为【杀】", StringComparison.Ordinal) &&
+                       shenGuanYu.SkillDescription.Contains("梦魇", StringComparison.Ordinal) &&
+                       shenGuanYu.SkillDescription.Contains("【桃园结义】", StringComparison.Ordinal) &&
+                       shenGuanYu.HealthText == "体力上限 6" &&
+                       shenGuanYu.HealthDescription.Contains("基础 5 + 1", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(shenGuanYu.GeneralId) &&
+                       portrait is
+                       {
+                           Stretch: System.Windows.Media.Stretch.UniformToFill,
+                           AlignmentY: System.Windows.Media.AlignmentY.Top,
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource
+                           {
+                               PixelWidth: 574,
+                               PixelHeight: 761
+                           }
+                       },
+            $"The formal Shen Guan Yu card must keep its pre-reveal faction hidden while rendering Wushen, Wuhun, Lord health and the attributed classic portrait " +
+            $"(name={shenGuanYu.Name}, kingdom={shenGuanYu.Kingdom}, skills={shenGuanYu.SkillName}, " +
+            $"health={shenGuanYu.HealthText}, healthDescription={shenGuanYu.HealthDescription}, " +
+            $"portrait={portraitSize}, " +
+            $"stretch={portrait?.Stretch}, alignmentY={portrait?.AlignmentY}).");
+
+        viewModel.PreviewGeneralChoiceCommand.Execute(shenGuanYu);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "164-classic-shen-guan-yu-card.png"));
+        var visibleCardText = Program.Find<System.Windows.Controls.TextBlock>(root)
+            .Where(text => ReferenceEquals(text.DataContext, shenGuanYu))
+            .ToArray();
+        var skillDescription = visibleCardText.Single(text => text.Text == shenGuanYu.SkillDescription);
+        var unconstrainedDescription = new System.Windows.Controls.TextBlock
+        {
+            Text = skillDescription.Text,
+            TextWrapping = skillDescription.TextWrapping,
+            TextTrimming = skillDescription.TextTrimming,
+            FontFamily = skillDescription.FontFamily,
+            FontStyle = skillDescription.FontStyle,
+            FontWeight = skillDescription.FontWeight,
+            FontStretch = skillDescription.FontStretch,
+            FontSize = skillDescription.FontSize,
+            LineHeight = skillDescription.LineHeight,
+            LineStackingStrategy = skillDescription.LineStackingStrategy,
+            FlowDirection = skillDescription.FlowDirection,
+            Language = skillDescription.Language
+        };
+        unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+        var selectedCard = Program.Find<System.Windows.Controls.Button>(root)
+            .Single(button => ReferenceEquals(button.DataContext, shenGuanYu));
+        var selectedCardTop = selectedCard.TransformToAncestor(root).Transform(new Point(0, 0)).Y;
+        var confirmButton = (System.Windows.Controls.Button)window.FindName("ConfirmGeneralChoiceButton");
+        var confirmButtonTop = confirmButton.TransformToAncestor(root).Transform(new Point(0, 0)).Y;
+        Program.Assert(shenGuanYu.IsPreviewSelected &&
+                       visibleCardText.Any(text => text.Text == "神关羽" && text.ActualHeight > 0) &&
+                       visibleCardText.Any(text => text.Text == "武神 / 武魂" && text.ActualHeight > 0) &&
+                       skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height &&
+                       selectedCardTop >= 0 && selectedCardTop + selectedCard.ActualHeight <= 740 &&
+                       confirmButtonTop >= 0 && confirmButtonTop + confirmButton.ActualHeight <= 740,
+            $"The 1120x740 selection surface must keep Shen Guan Yu's name and complete two-skill text visible " +
+            $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}, " +
+            $"card={selectedCardTop:F1}..{selectedCardTop + selectedCard.ActualHeight:F1}, " +
+            $"confirm={confirmButtonTop:F1}..{confirmButtonTop + confirmButton.ActualHeight:F1}).");
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;

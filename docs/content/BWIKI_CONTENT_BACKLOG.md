@@ -34,7 +34,7 @@
 | 普通 | `classic:zhao-yun` | 经典赵云，龙胆 | `implemented-legacy`：正式经典池、主动杀和响应闪场景已存在 | `expressible-v1` 仅限龙胆式杀闪转换；正式迁移仍需保留明确转化来源 | 既有原创肖像已接入 | 作为 SP 赵云转换来源的差分基线 |
 | 界 | `boundary:zhang-jiao` | 三国杀 OL 当前界张角 | `implemented-program`：经典包 1.66.0 以独立三技能、五人／八人界模式注册；1.65.0 无此定义 | schema 8／rules v88 已满足；界鬼道旧牌入弃牌堆 | `portrait-wired`：项目原创 1024×1536，资源键 `boundary-zhang-jiao`，来源快照含哈希 | 已完成；后续页面变化新增版本，不覆盖 1.66.0 |
 | SP | `sp:zhao-yun` | 三国杀 OL／BWIKI 经典 SP 赵云，群 3 体力，龙胆／冲阵 | `implemented-program`：经典包 1.64.0 已以 schema 2 注册并进入当前池 | schema 2／rules v80 已满足，主动／响应龙胆只按稳定转换来源触发冲阵 | `portrait-wired`：经典形象资源键 `sp-zhao-yun` | 已完成；普通赵云继续作为独立经典定义 |
-| 神 | `classic:shen-guan-yu` | BWIKI 经典正式服 I 版，神／男性／5 体力，武神／武魂 | `implemented-program+typed-consumer`：经典包 1.67.0 已以完整整将进入当前经典五人／八人池；1.66.0 与界模式无此定义 | schema 10 武神显式要求 rules v95；武魂复用 D4a～D4c 的公开梦魇、来源归属、死亡目标、普通改判、直接死亡、胜负短路及嵌套死亡 | `portrait-downloaded`：经典形象资源键 `shen-guan-yu`，正式 WPF 绑定待 C21 | C21 完成来源清单复核、WPF 解码、选将裁切和离屏视觉验收 |
+| 神 | `classic:shen-guan-yu` | BWIKI 经典正式服 I 版，神／男性／5 体力，武神／武魂 | `implemented-program+typed-consumer`：经典包 1.67.0 已以完整整将进入当前经典五人／八人池；1.66.0 与界模式无此定义 | schema 10 武神显式要求 rules v95；武魂复用 D4a～D4c 的公开梦魇、来源归属、死亡目标、普通改判、直接死亡、胜负短路及嵌套死亡 | `portrait-wired`：BWIKI 经典形象 574×761，资源键 `shen-guan-yu`，SHA-256 与 WPF 解码已锁定 | 已完成；`164-classic-shen-guan-yu-card.png` 已复核完整双技能文本及可视边界 |
 | 神 | `god:guan-yu:ol-current` | 三国杀 OL 当前页 | 未注册 | `needs-capability`：除上述外还需红桃杀无次数、不可抵消；不能复用经典 I 版文案 | 同上，是否共用头像需展示层决定 | 官方当前版单独场景，禁止静默升级经典定义 |
 | 模式 | `national:zhang-jiao` | 官网／BWIKI 国战张角 | `implemented-program`：`standard-national-zhang-jiao@1.0.0` 以独立双技能和四人魏蜀群模式注册 | schema 8／rules v89；雷击仅黑桃 2 雷伤，鬼道旧牌入手，无黄天 | `portrait-wired`：复用已归档 BWIKI 经典形象，独立 `national:` 资源归一化 | 已完成；旧 Lite/M3 包和旧组合存档保持原签名／哈希 |
 

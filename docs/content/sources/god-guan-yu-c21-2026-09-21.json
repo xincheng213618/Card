@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:shen-guan-yu",
+  "acceptedAt": "2026-09-21T00:02:53+08:00",
+  "scope": "C21 classic portrait binding and WPF card acceptance",
+  "portrait": {
+    "resourceKey": "shen-guan-yu",
+    "localPath": "src/CardGame.Wpf/Assets/wiki-shen-guan-yu-classic.png",
+    "sourcePage": "https://wiki.biligame.com/sgs/神关羽",
+    "filePage": "https://wiki.biligame.com/sgs/文件:神关羽-经典形象.png",
+    "imageUrl": "https://patchwiki.biligame.com/images/sgs/0/0f/quwjl88mkp8kbnlh3b49v197exwkv4u.png",
+    "retrievedAt": "2026-09-19T19:27:06.9907406Z",
+    "sha256": "5e7578c3415aa95d48ddfb25fb9b6e7ee1d92c789a62d5be1cf8e28b34b05dcc",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "BWIKI archived classic artwork; reused under the user's explicit authorization, not claimed as original project artwork"
+  },
+  "acceptance": {
+    "buildCommand": "dotnet build tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false",
+    "buildDurationSeconds": 8.05,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "wpfChecksPassed": 82,
+    "wpfChecksTotal": 82,
+    "wpfDurationSeconds": 66.069,
+    "render": "artifacts/wpf-compile-diagnosis/164-classic-shen-guan-yu-card.png",
+    "renderSize": "1120x740",
+    "assertions": [
+      "pre-reveal faction remains hidden as 未明势力",
+      "lord health is displayed as 6 with base 5 plus 1",
+      "portrait decodes to the archived 574x761 bitmap",
+      "Wushen and Wuhun descriptions fit their measured TextBlock without trimming",
+      "selected card and confirm button remain inside the 1120x740 viewport",
+      "manual inspection confirms the Wuhun ending 该角色死亡 is visible"
+    ]
+  },
+  "compatibility": [
+    "no content package or rules version change",
+    "no save or player profile schema change",
+    "existing atlas coordinates and other portrait keys remain unchanged"
+  ],
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}
