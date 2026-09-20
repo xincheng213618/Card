@@ -122,11 +122,64 @@ internal static class SkillProgramSelectedJudgmentChecks
             RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 85 }, registry));
     }
 
-    private static GameEngine FindActivationBoundary(ContentRegistry registry)
+    internal static void ReplacementOrderUsesTurnActor()
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new OrderingFixturePackage());
+        var game = FindActivationBoundary(
+            registry,
+            OrderingFixturePackage.ModeId,
+            OrderingFixturePackage.OwnerGeneralId);
+        var activationPrompt = game.PendingDecision ??
+            throw new InvalidOperationException("The ordering activation prompt was lost.");
+        var activate = activationPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+        var activated = game.Submit(new AnswerPromptCommand(
+            0, activationPrompt.PromptId, activate.Id, game.Revision));
+        Require(activated.Accepted,
+            activated.Error?.Message ?? "The ordering fixture rejected its trigger activation.");
+        var targetPrompt = game.PendingDecision ??
+            throw new InvalidOperationException("The ordering fixture lost its target choice.");
+        Require(targetPrompt.Kind == DecisionKind.ProgramCardTrigger,
+            "The ordering fixture did not publish its target choice.");
+
+        var turnActorSeat = game.State.CurrentSeat;
+        var targetSeat = targetPrompt.ValidTargetSeats.First(seat => seat != turnActorSeat);
+        var beforeTarget = RoundTrip(game.CreateCheckpoint());
+        var current = GameReplay.Restore(beforeTarget, registry);
+        var legacy = GameReplay.Restore(beforeTarget with { RulesVersion = 86 }, registry);
+        SubmitTarget(current, targetSeat);
+        SubmitTarget(legacy, targetSeat);
+
+        var currentCandidates = current.ResolutionStack.OfType<JudgmentFrame>().Single()
+            .ReplacementCandidateSeats ?? [];
+        var legacyCandidates = legacy.ResolutionStack.OfType<JudgmentFrame>().Single()
+            .ReplacementCandidateSeats ?? [];
+        var expectedCurrent = Enumerable.Range(0, 5)
+            .Select(offset => (turnActorSeat + offset) % 5)
+            .ToArray();
+        var expectedLegacy = Enumerable.Range(0, 5)
+            .Select(offset => (targetSeat + offset) % 5)
+            .ToArray();
+        Require(targetSeat != turnActorSeat &&
+                currentCandidates.SequenceEqual(expectedCurrent) &&
+                legacyCandidates.SequenceEqual(expectedLegacy),
+            "Rules 87 must order frozen replacement candidates from the current turn actor while rules 86 retains the judgment-subject origin.");
+
+        var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
+        Require(replay.ResolutionStack.OfType<JudgmentFrame>().Single()
+                    .ReplacementCandidateSeats?.SequenceEqual(expectedCurrent) == true &&
+                replay.PendingDecision?.PromptId == current.PendingDecision?.PromptId,
+            "A paused turn-actor-ordered replacement cursor must replay exactly.");
+    }
+
+    private static GameEngine FindActivationBoundary(
+        ContentRegistry registry,
+        string modeId = FixturePackage.ModeId,
+        string ownerGeneralId = FixturePackage.OwnerGeneralId)
     {
         for (var seed = 1; seed <= 256; seed++)
         {
-            var game = StartOwner(registry, seed);
+            var game = StartOwner(registry, seed, modeId, ownerGeneralId);
             for (var step = 0; step < 1_200 && game.State.Status != EngineStatus.Completed; step++)
             {
                 if (game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0 } &&
@@ -160,13 +213,17 @@ internal static class SkillProgramSelectedJudgmentChecks
         throw new InvalidOperationException("No bounded native Dodge reached the selected-judgment trigger.");
     }
 
-    private static GameEngine StartOwner(ContentRegistry registry, int seed)
+    private static GameEngine StartOwner(
+        ContentRegistry registry,
+        int seed,
+        string modeId,
+        string ownerGeneralId)
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = seed,
             PlayerCount = 5,
-            ModeId = FixturePackage.ModeId,
+            ModeId = modeId,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             UseInteractiveSetup = true,
@@ -178,7 +235,7 @@ internal static class SkillProgramSelectedJudgmentChecks
         Require(game.Submit(new StartGameCommand()).Accepted &&
                 game.PendingDecision is { Kind: DecisionKind.SelectGeneral } setup &&
                 game.Submit(new SelectGeneralCommand(
-                    0, FixturePackage.OwnerGeneralId, game.Revision, setup.PromptId)).Accepted,
+                    0, ownerGeneralId, game.Revision, setup.PromptId)).Accepted,
             "The selected-judgment fixture could not select its owner general.");
         for (var step = 0; step < 64; step++)
         {
@@ -187,6 +244,16 @@ internal static class SkillProgramSelectedJudgmentChecks
             Require(advanced.Accepted, advanced.Error?.Message ?? "The fixture could not reach human play.");
         }
         throw new InvalidOperationException("The selected-judgment fixture did not reach human play.");
+    }
+
+    private static void SubmitTarget(GameEngine game, int targetSeat)
+    {
+        var prompt = game.PendingDecision ??
+            throw new InvalidOperationException("The selected-judgment target prompt was lost.");
+        var choice = prompt.Choices.Single(item => item.Targets.SequenceEqual([targetSeat]));
+        var result = game.Submit(new AnswerPromptCommand(
+            0, prompt.PromptId, choice.Id, game.Revision));
+        Require(result.Accepted, result.Error?.Message ?? "The selected judgment target was rejected.");
     }
 
     private static void FinishResolution(GameEngine game)
@@ -253,6 +320,56 @@ internal static class SkillProgramSelectedJudgmentChecks
         }
     }
 
+    private sealed class OrderingFixturePackage : IGameContentPackage
+    {
+        internal const string ModeId = "identity:judgment-ordering-5";
+        internal const string OwnerGeneralId = "judgment-ordering-test:owner";
+        private const string ReplacementProgramId = "judgment-ordering-test:replace";
+        private static readonly string[] OtherGeneralIds =
+            Enumerable.Range(1, 4).Select(index => $"judgment-ordering-test:other-{index}").ToArray();
+
+        public PackageManifest Manifest { get; } = new(
+            "judgment-replacement-ordering-fixture", new Version(1, 0, 0),
+            [new PackageDependency("standard", new Version(1, 11, 0))]);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var catalog = SkillProgramCatalog.Load(OrderingRules, OrderingPresentation);
+            foreach (var program in catalog.Programs.Values.OrderBy(item => item.Id, StringComparer.Ordinal))
+                builder.AddSkill(new ContentSkillDefinition(program.Id,
+                    catalog.Presentations[program.Id].Name,
+                    catalog.Presentations[program.Id].Description)
+                { Program = program });
+            builder.AddGeneral(new ContentGeneralDefinition(
+                OwnerGeneralId, "改判顺序测试", "zhang_jiao", ProgramId, "qun", BaseHp: 4,
+                AdditionalSkillIds: [ReplacementProgramId]));
+            foreach (var id in OtherGeneralIds)
+                builder.AddGeneral(new ContentGeneralDefinition(
+                    id, "改判顺序陪测", "cao_cao", ReplacementProgramId, "wei", BaseHp: 4));
+            var physicalCards = Enumerable.Range(0, 60).SelectMany(_ => new[]
+            {
+                new ContentDeckPhysicalCard("standard:slash", Suit.Spade, 7),
+                new ContentDeckPhysicalCard("standard:dodge", Suit.Spade, 2)
+            }).ToArray();
+            builder.AddDeck(new ContentDeckRecipe("judgment-ordering-test:deck", "改判顺序夹具", 4, 2, [])
+            {
+                PhysicalCards = physicalCards
+            });
+            builder.AddMode(new ContentModeDefinition(
+                ModeId, "改判顺序测试", 5, 5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2,
+                    [nameof(Role.Renegade)] = 1
+                },
+                DeckId: "judgment-ordering-test:deck",
+                GeneralCandidateCount: 5,
+                GeneralPoolIds: [OwnerGeneralId, .. OtherGeneralIds]));
+        }
+    }
+
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
 
@@ -314,6 +431,36 @@ internal static class SkillProgramSelectedJudgmentChecks
           },
           "selected-judgment-test:observer":{
             "name":"发起者过滤陪测","description":"只有自己发起的指定原因判定才会订阅。"
+          }
+        }}
+        """;
+
+    private const string OrderingRules = """
+        {"schemaVersion":8,"skills":[
+          {"id":"selected-judgment-test:leiji","revision":1,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+            {"id":"after-dodge","window":"cardResponseAccepted","cardKinds":["dodge"],
+             "optional":true,"effects":[
+              {"op":"selectTarget","target":"selectedTarget","targetKind":"otherLiving"},
+              {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.judgment-ordering-test"}
+             ]}
+          ]},
+          {"id":"judgment-ordering-test:replace","revision":1,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+            {"id":"replace","window":"judgmentReplacing","subject":"any","excludedReasons":[],
+             "optional":true,"effects":[
+              {"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade","club"],
+               "oldCardDestination":"discardPile"}
+             ]}
+          ]}
+        ]}
+        """;
+
+    private const string OrderingPresentation = """
+        {"schemaVersion":1,"skills":{
+          "selected-judgment-test:leiji":{
+            "name":"改判顺序判定发起","description":"打出闪后选择另一名角色判定。"
+          },
+          "judgment-ordering-test:replace":{
+            "name":"改判顺序候选","description":"用黑色手牌替换任意角色的判定牌。"
           }
         }}
         """;

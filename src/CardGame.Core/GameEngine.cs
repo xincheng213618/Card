@@ -14709,7 +14709,8 @@ public sealed partial class GameEngine
             }
         }
 
-        return JudgmentTriggerOrdering.Order(candidates, targetSeat, _playerCount);
+        var orderingSeat = _rulesVersion >= 87 ? _currentSeat : targetSeat;
+        return JudgmentTriggerOrdering.Order(candidates, orderingSeat, _playerCount);
     }
 
     private void BeginGuicaiChoice(JudgmentResolution pending)

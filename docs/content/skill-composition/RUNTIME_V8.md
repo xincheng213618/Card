@@ -76,6 +76,7 @@ v8 补齐“一个已接受的牌动作触发技能，技能拥有者先选另�
 - `judgmentFinalized.subject: any` 允许技能拥有者订阅其他角色的最终判定；`judgmentSource: owner` 再要求这次判定由该技能拥有者发起，防止另一名拥有同配置技能的角色误订阅。
 - `judgmentReasons` 是稳定原因白名单；空数组或省略表示不增加白名单。它与 `excludedReasons` 不得重叠。
 - `damage.target: judgmentSubject` 不再发布第二次选目标询问，直接使用这次判定冻结的主体；伤害来源仍是技能拥有者，并进入统一雷电伤害、连环、濒死、死亡和父流程续接。
+- schema 8 文件本身仍以 rules 86 为最低版本；rules 87 只修正所有改判候选的通用排序起点。新规则从当前回合角色开始冻结候选，rules 86 及更早恢复仍从判定主体开始，避免历史回放漂移。
 - AI 在 `selectTarget` 使用既有雷击关系评估；旧 card trigger 仍保持原选择策略。
 
 ## 本块没有声称完成的能力
