@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 8,
+  "skills": [
+    {
+      "id": "national:guidao",
+      "revision": 1,
+      "minimumRulesVersion": 89,
+      "triggers": [
+        {
+          "id": "replace-judgment",
+          "window": "judgmentReplacing",
+          "subject": "any",
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "replaceJudgment",
+              "target": "owner",
+              "zones": ["hand", "equipment"],
+              "suits": ["spade", "club"],
+              "oldCardDestination": "ownerHand"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "national:leiji",
+      "revision": 1,
+      "minimumRulesVersion": 89,
+      "triggers": [
+        {
+          "id": "after-dodge",
+          "window": "cardResponseAccepted",
+          "cardKinds": ["dodge"],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "selectedTarget",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "skill.national.leiji"
+            }
+          ]
+        },
+        {
+          "id": "spade-damage",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentSource": "owner",
+          "judgmentReasons": ["skill.national.leiji"],
+          "suits": ["spade"],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": [],
+          "optional": false,
+          "effects": [
+            {
+              "op": "damage",
+              "target": "judgmentSubject",
+              "amount": 2,
+              "nature": "thunder"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

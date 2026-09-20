@@ -114,6 +114,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 new TableModeOption(5, "技能组合体验", "配置文件组合技能 · 修正、转化与主动效果", "identity:composed-skills-5"),
                 new TableModeOption(4, "2v2阵营", "青队 2 · 赤队 2\n公开阵营，协作对抗", "team:standard-2v2"),
                 new TableModeOption(6, "国战 M3", "魏 3 · 蜀 2 · 野心家 1\n六人独立势力试验", "national:ambitious-6"),
+                .. (_contentRegistry.Modes.ContainsKey("national:zhang-jiao-4")
+                    ? new[]
+                    {
+                        new TableModeOption(4, "国战张角", "魏 1 · 蜀 2 · 群 1\n标准国战张角试验", "national:zhang-jiao-4")
+                    }
+                    : Array.Empty<TableModeOption>()),
                 new TableModeOption(4, "国战 Lite", "魏蜀双将 · 暗置明置\n四人简化国战", "national:lite-4")
             ]
             : [

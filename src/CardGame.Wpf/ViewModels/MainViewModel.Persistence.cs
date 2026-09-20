@@ -209,10 +209,22 @@ public sealed partial class MainViewModel
         {
             throw new InvalidDataException("存档使用了当前版本不支持的技能组合内容包版本。");
         }
+        var nationalZhangJiaoPackages = packages
+            .Where(package => package.StartsWith("standard-national-zhang-jiao@", StringComparison.Ordinal))
+            .ToArray();
+        if (nationalZhangJiaoPackages.Length > 1 ||
+            nationalZhangJiaoPackages.Length == 1 &&
+            nationalZhangJiaoPackages[0] != "standard-national-zhang-jiao@1.0.0")
+        {
+            throw new InvalidDataException("存档使用了当前版本不支持的国战张角内容包版本。");
+        }
         if (composedPackages.Length == 1)
         {
-            return ComposedSkillContentRegistry.CreateShowcase();
+            return ComposedSkillContentRegistry.CreateShowcase(
+                includeNationalZhangJiao: nationalZhangJiaoPackages.Length == 1);
         }
+        if (nationalZhangJiaoPackages.Length == 1)
+            throw new InvalidDataException("存档中的国战张角内容包组合不是当前桌面版支持的组合。");
         var hasRescueSkills = packages.Contains("standard-rescue-skills@1.0.0", StringComparer.Ordinal);
         var hasActiveSkills = packages.Contains("standard-active-skills@1.0.0", StringComparer.Ordinal);
         var classicPackageVersion = packages

@@ -1235,6 +1235,30 @@ internal static class ClassicGeneralUiChecks
         boundaryZhangJiaoWindow.Content = null;
         boundaryZhangJiaoWindow.Close();
 
+        using var nationalZhangJiaoViewModel = FindGeneralChoiceInMode(
+            "national:zhang-jiao", "national:zhang-jiao-4");
+        var nationalZhangJiao = nationalZhangJiaoViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "national:zhang-jiao");
+        Program.Assert(nationalZhangJiao.Name == "张角" && nationalZhangJiao.Kingdom == "群" &&
+                       nationalZhangJiao.SkillName == "雷击 / 鬼道" &&
+                       nationalZhangJiao.SkillDescription.Contains("其他角色判定", StringComparison.Ordinal) &&
+                       nationalZhangJiao.SkillDescription.Contains("结果为黑桃", StringComparison.Ordinal) &&
+                       nationalZhangJiao.SkillDescription.Contains("获得原判定牌", StringComparison.Ordinal) &&
+                       !nationalZhangJiao.SkillDescription.Contains("梅花", StringComparison.Ordinal) &&
+                       !nationalZhangJiao.SkillDescription.Contains("黄天", StringComparison.Ordinal) &&
+                       GeneralArt.HasPortrait(nationalZhangJiao.GeneralId) &&
+                       nationalZhangJiao.PortraitBrush is System.Windows.Media.ImageBrush
+                       {
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0 }
+                       } && nationalZhangJiao.HealthText == "基础体力 3",
+            "The national Zhang Jiao card must render only formal Spade Leiji and owner-hand Guidao at 1.5 fish.");
+        var nationalZhangJiaoWindow = new MainWindow(nationalZhangJiaoViewModel);
+        nationalZhangJiaoWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)nationalZhangJiaoWindow.Content, 1120, 740,
+            Path.Combine(output, "161-national-zhang-jiao-card.png"));
+        nationalZhangJiaoWindow.Content = null;
+        nationalZhangJiaoWindow.Close();
+
         using var sunJianViewModel = FindGeneralChoice("classic:sun-jian");
         var sunJian = sunJianViewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:sun-jian");
         Program.Assert(sunJian.Name == "孙坚" && sunJian.Kingdom == "吴" &&

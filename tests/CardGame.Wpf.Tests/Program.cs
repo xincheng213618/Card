@@ -99,6 +99,7 @@ internal static class Program
             Check("national dual-general controls preserve privacy, reveal and saved outcomes", () => NationalExperienceChecks.ControlsAndRestore(output));
             Check("national WPF matches reach faction results through player commands", NationalExperienceChecks.CompleteMatches);
             Check("six-player national controls preserve solo faction labels and saved reveals", () => NationalExperienceChecks.AmbitiousControlsAndRestore(output));
+            Check("national Zhang Jiao mode preserves formal skills, hidden slots and package-aware saves", () => NationalExperienceChecks.ZhangJiaoControlsAndRestore(output));
             Check("dual-general health previews survive selection, tutorials and shipped saves", () => NationalHealthChecks.ControlsAndOldPackage(output));
             Check("dual portraits protect hidden slots and retain legacy skill semantics", NationalSeatChecks.PrivacyAndLegacy);
             Check("dual portraits project ordered multi-skill lists without leaking hidden slots", NationalSeatChecks.MultiSkillProjection);
@@ -207,7 +208,8 @@ internal static class Program
         Assert(vm.GeneralGalleryEntries is [{ GeneralId: "boundary:zhang-jiao", Name: "界张角" }],
             "Boundary series must expose only the independently registered boundary Zhang Jiao.");
         vm.SelectGeneralGallerySeriesCommand.Execute("national");
-        Assert(vm.GeneralGalleryEntries.Count == 12 && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "national"),
+        Assert(vm.GeneralGalleryEntries.Count == 14 && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "national") &&
+               vm.GeneralGalleryEntries.Count(entry => entry.FactionId == "qun") == 2,
             "National series leaked another content family or omitted a registered trial general.");
         vm.SelectGeneralGalleryFactionCommand.Execute("wu");
         Assert(vm.GeneralGalleryEntries.Count == 0, "Combined national/Wu filters should reflect the current Wei/Shu/ambitious trial pool.");
@@ -384,18 +386,18 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 10 && vm.SelectedModeCategory.Id == "all" &&
+        Assert(vm.VisibleTableModes.Count == 11 && vm.SelectedModeCategory.Id == "all" &&
                vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 5,
             "The expanded mode lobby did not expose all registered entry families.");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 10 &&
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 11 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
             "Mode cards or category controls are inaccessible.");
 
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "national");
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
-        Assert(vm.VisibleTableModes.Count == 2 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("national:")) &&
+        Assert(vm.VisibleTableModes.Count == 3 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("national:")) &&
                vm.SelectedTableMode.ModeId.StartsWith("national:") && vm.IsNationalModeSelection,
             "National category leaked another mode or retained an invalid selection.");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "team");

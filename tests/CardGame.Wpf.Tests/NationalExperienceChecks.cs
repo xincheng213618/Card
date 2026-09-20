@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
 using CardGame.Wpf.Audio;
@@ -161,6 +162,136 @@ internal static class NationalExperienceChecks
             "M3 national result did not retain all three public camp labels.");
         window.Content = null;
         window.Close();
+    }
+
+    public static void ZhangJiaoControlsAndRestore(string output)
+    {
+        var seed = FindZhangJiaoSeed();
+        var saves = new MemorySaveStore();
+        using var vm = new MainViewModel(false, seed, true, saves, useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        var window = new MainWindow(vm);
+        var root = (FrameworkElement)window.Content;
+        vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "national:zhang-jiao-4");
+        Require(vm.NationalSetupText.StartsWith("魏 1 人、蜀 2 人、群 1 人", StringComparison.Ordinal) &&
+                vm.NationalScopeText.Contains("群势力候选为国战张角与历史标准国战华佗", StringComparison.Ordinal) &&
+                vm.NationalScopeText.Contains("不包含黄天", StringComparison.Ordinal),
+            "The formal national Zhang Jiao lobby did not expose its exact faction and rules scope.");
+        vm.StartNewGameCommand.Execute(null);
+        Require(vm.IsGeneralSelectionPending &&
+                vm.GeneralChoices.Select(choice => choice.GeneralId).ToHashSet(StringComparer.Ordinal)
+                    .SetEquals(["national:zhang-jiao", "national:hua-tuo"]),
+            "The Qun seat did not receive the exact formal national pair.");
+        var zhangJiao = vm.GeneralChoices.Single(choice => choice.GeneralId == "national:zhang-jiao");
+        Require(zhangJiao.SkillName == "雷击 / 鬼道" && zhangJiao.HealthText == "基础体力 3",
+            "The formal national Zhang Jiao selection card lost its ordered skills or 1.5-fish vitals.");
+        vm.SelectGeneralChoiceCommand.Execute(zhangJiao);
+        for (var step = 0; step < 96 &&
+             (!vm.IsGeneralSelectionPending || vm.GeneralChoices.All(choice => choice.GeneralId != "national:hua-tuo"));
+             step++)
+            PersistenceChecks.Step(vm);
+        Require(vm.IsGeneralSelectionPending && vm.GeneralChoices is [{ GeneralId: "national:hua-tuo" }],
+            "The second national selection did not preserve historical standard Hua Tuo and the rounded pair preview.");
+        var huaTuo = vm.GeneralChoices.Single();
+        Require(huaTuo.SkillName == "急救 / 青囊" && huaTuo.HealthText == "组合体力 3",
+            "The historical standard Hua Tuo card lost its ordered skills or rounded pair preview.");
+        vm.SelectGeneralChoiceCommand.Execute(huaTuo);
+        for (var step = 0; step < 160 && !vm.CanEndTurn; step++) PersistenceChecks.Step(vm);
+        Require(vm.CanEndTurn && vm.IsNationalSnapshot && vm.NationalRevealChoices.Count == 2,
+            "The formal national Zhang Jiao setup did not reach a hidden dual-general play phase.");
+        Require(vm.HumanSkillCards.Select(skill => skill.Name)
+                    .SequenceEqual(["雷击", "鬼道", "急救", "青囊"]) &&
+                vm.HumanSkillCards.All(skill => skill.IsDisabled &&
+                    skill.StateText.Contains("尚未启用", StringComparison.Ordinal)),
+            "Hidden Zhang Jiao and Hua Tuo did not expose four disabled, ordered skill cards.");
+        var observerHidden = Program.Engine(vm).CreateSnapshot(1).Players[0];
+        Require(observerHidden.Skills is null && observerHidden.SecondarySkills is null,
+            "The formal national pair leaked skills to another player before reveal.");
+        Program.Render(root, 1120, 740, Path.Combine(output, "66-national-zhang-jiao-hidden.png"));
+
+        var primary = vm.NationalRevealChoices.Single(choice => choice.Slot == GeneralSelectionSlot.Primary);
+        vm.RevealNationalGeneralCommand.Execute(primary);
+        Program.AdvanceToDecision(vm);
+        Require(vm.HumanSkillCards.Where(skill => !skill.IsDisabled).Select(skill => skill.Name)
+                    .SequenceEqual(["雷击", "鬼道"]) &&
+                vm.HumanSkillCards.Where(skill => skill.IsDisabled).Select(skill => skill.Name)
+                    .SequenceEqual(["急救", "青囊"]),
+            "Revealing national Zhang Jiao did not enable both programs while keeping Hua Tuo hidden.");
+        var observerRevealed = Program.Engine(vm).CreateSnapshot(1).Players[0];
+        Require(observerRevealed.Skills?.Select(skill => skill.Name)
+                    .SequenceEqual(["雷击", "鬼道"]) == true &&
+                observerRevealed.SecondarySkills is null,
+            "The public national projection did not preserve the independent primary-slot boundary.");
+        Program.Render(root, 1120, 740, Path.Combine(output, "67-national-zhang-jiao-revealed.png"));
+
+        var half = State(vm);
+        vm.SaveGameCommand.Execute(null);
+        Require(!vm.HasSaveError, vm.SaveStatus);
+        using var resumed = new MainViewModel(false, 12, true, saves, useExpandedContent: true)
+        {
+            IsMotionEnabled = false
+        };
+        resumed.LoadManualGameCommand.Execute(null);
+        var resumedCheckpoint = Program.Engine(resumed).CreateCheckpoint();
+        Require(!resumed.HasSaveError && State(resumed) == half &&
+                resumed.SelectedTableMode.ModeId == "national:zhang-jiao-4" &&
+                resumedCheckpoint.ContentPackages.Contains(
+                    "standard-national-zhang-jiao@1.0.0", StringComparer.Ordinal) &&
+                resumed.HumanSkillCards.Count(skill => !skill.IsDisabled) == 2,
+            "The half-revealed formal national package save did not restore exactly.");
+
+        var legacyRegistry = ComposedSkillContentRegistry.CreateShowcase(includeNationalZhangJiao: false);
+        var legacyEngine = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 721019,
+            HumanSeat = 0,
+            HumanRole = null,
+            PlayerCount = 4,
+            ModeId = "national:lite-4",
+            UseInteractiveSetup = true,
+            AdvanceAfterHumanCommands = false,
+            AiPolicyVersion = 3
+        }, legacyRegistry);
+        Require(legacyEngine.Submit(new StartGameCommand()).Accepted,
+            "The pre-package composed national save fixture failed to start.");
+        var legacyStore = new MemorySaveStore();
+        legacyStore.Write(GameSaveSlot.Manual, new GameSaveFile(
+            GameSaveFile.CurrentFormatVersion,
+            DateTimeOffset.UtcNow,
+            false,
+            legacyEngine.CreateCheckpoint()));
+        using var legacyResumed = new MainViewModel(false, 13, true, legacyStore, useExpandedContent: true);
+        legacyResumed.LoadManualGameCommand.Execute(null);
+        var legacyCheckpoint = Program.Engine(legacyResumed).CreateCheckpoint();
+        Require(!legacyResumed.HasSaveError &&
+                !legacyCheckpoint.ContentPackages.Any(package =>
+                    package.StartsWith("standard-national-zhang-jiao@", StringComparison.Ordinal)) &&
+                legacyCheckpoint.ContentHash == legacyRegistry.ContentHash,
+            "A pre-package composed save silently gained formal national Zhang Jiao content.");
+
+        window.Content = null;
+        window.Close();
+    }
+
+    private static int FindZhangJiaoSeed()
+    {
+        for (var seed = 1; seed <= 1_024; seed++)
+        {
+            using var candidate = new MainViewModel(
+                false,
+                seed,
+                true,
+                new MemorySaveStore(),
+                useExpandedContent: true);
+            candidate.SelectedTableMode = candidate.TableModes.Single(mode =>
+                mode.ModeId == "national:zhang-jiao-4");
+            candidate.StartNewGameCommand.Execute(null);
+            if (candidate.GeneralChoices.Any(choice => choice.GeneralId == "national:zhang-jiao"))
+                return seed;
+        }
+        throw new InvalidOperationException("No bounded WPF seed assigned the formal Qun pair to the human seat.");
     }
 
     internal static void Complete(MainViewModel vm)

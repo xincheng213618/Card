@@ -136,7 +136,8 @@ public static class GeneralArt
             .Replace("sp:", "sp-", StringComparison.Ordinal)
             .Replace("national:wei-", string.Empty, StringComparison.Ordinal)
             .Replace("national:shu-", string.Empty, StringComparison.Ordinal)
-            .Replace("national:ambitious-", string.Empty, StringComparison.Ordinal);
+            .Replace("national:ambitious-", string.Empty, StringComparison.Ordinal)
+            .Replace("national:", string.Empty, StringComparison.Ordinal);
         if (key == "ganglie") key = "demo-ganglie";
         return PortraitAliases.GetValueOrDefault(key, key);
     }

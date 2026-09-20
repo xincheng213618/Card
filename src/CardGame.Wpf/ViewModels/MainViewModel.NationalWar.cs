@@ -11,11 +11,15 @@ public sealed partial class MainViewModel
         mode.ModeKind == ContentModeKind.NationalWarLite;
     private bool IsAmbitiousNationalMode => SelectedTableMode?.ModeId == "national:ambitious-6" ||
         _game.ModeId == "national:ambitious-6";
+    private bool IsZhangJiaoNationalMode => SelectedTableMode?.ModeId == "national:zhang-jiao-4" ||
+        _game.ModeId == "national:zhang-jiao-4";
     public bool IsNationalSnapshot => _snapshot?.ModeKind == ContentModeKind.NationalWarLite;
     public string NationalSetupText => $"{NationalFactionDistributionText()}，势力由系统分配。依次选择两名同势力武将，暗置入场；出牌时可分别明置，明置后对应技能生效。消灭其他势力即可获胜。" + NationalHealthRuleText;
     public string NationalScopeText => IsAmbitiousNationalMode
         ? "六人魏蜀野心家独立势力试验；当前只验证三方人数、双将暗置/明置和势力胜负，不包含完整野心家规则、阵法、围攻、变更副将或国战专属牌堆。"
-        : "四人魏蜀对抗，每势力两人，双将同势力；没有野心家、阵法、鏖战、明置奖励或完整国战专用牌堆。明置机会在自己的出牌阶段，沿用当前游戏的牌与技能规则。";
+        : IsZhangJiaoNationalMode
+            ? "四人魏1、蜀2、群1标准国战张角试验；群势力候选为国战张角与历史标准国战华佗。仅验证双将明置后的雷击、鬼道、急救与青囊，不包含黄天、阵法、珠联璧合、鏖战、明置奖励或完整国战专用牌堆。"
+            : "四人魏蜀对抗，每势力两人，双将同势力；没有野心家、阵法、鏖战、明置奖励或完整国战专用牌堆。明置机会在自己的出牌阶段，沿用当前游戏的牌与技能规则。";
     public string NationalHealthRuleText => !IsNewGameSetupOpen && IsNationalSnapshot && _game.RulesVersion < 8
         ? "此存档沿用旧规则：体力上限固定为 4。"
         : "双将基础体力取平均、向下取整；选副将时可预览组合上限。开局满体力，明置不改变体力；当前国战切片没有半体力奖励。";

@@ -1,6 +1,6 @@
 # Standard 内容清单（C0 草案 / M3 试验）
 
-更新时间：2026-09-19
+更新时间：2026-09-20
 
 这是内容流水线的设计清单和正式包的对照表。稳定内容 ID 使用 `package:name` 形式；`implemented-registry` 表示已经进入 `CardGame.Content.Standard`，`implemented-legacy` 表示仍由 Core 的 `CardKind`/`SkillKind` 兼容投影运行，`planned` 表示内容定义已规划但等待后续核心 API。K1 的牌区生命周期、K2 的 Prompt/Choice、reason、可见性和强制场景见 [`CARD_MOVEMENT_CONTRACT.md`](./CARD_MOVEMENT_CONTRACT.md)；`definitionId`/`instanceId` 的 Registry 关系已在 K3 冻结。所有文案、AI 标签和规则描述均为本项目自有文字，不包含卡面、插画、音频或其他素材。
 
@@ -15,6 +15,7 @@
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
+| `standard-national-zhang-jiao@1.0.0` | `standard-national-war-lite@1.1.0`、`standard-active-skills@1.0.0`、`standard-rescue-skills@1.0.0` | `national:zhang-jiao`、`national:hua-tuo` 与 `national:zhang-jiao-4`；魏 1、蜀 2、群 1 的四人正式技能试验 | implemented-registry；rules v89 可选扩展 |
 
 扩展包不修改基础 Standard 包的注册结果或内容指纹；WPF 默认窗口显式选择包含急救层的扩展 Registry，普通测试/旧存档仍可使用基础 Registry 或不含急救的主动技能 Registry。
 
@@ -124,6 +125,14 @@
 | `national:ambitious-6` | 6；魏 3、蜀 2、野心家 1，势力初始隐藏 | `standard:basic-demo` | 3 | 12 名带 `FactionId` 的国战专属武将 | implemented-registry + M3 |
 
 该模式由 `standard-national-war-ambitious@1.0.0` 追加 4 名武将：`national:wei-xiahou-dun`、`national:wei-sima-yi`、`national:ambitious-lu-bu`、`national:ambitious-diao-chan`；其余 8 名国战 Lite 武将通过依赖包复用。`FactionCounts` 固化座位分配，`SoloFactionIds = [ambitious]` 固化唯一一席的独立势力，并参与内容哈希。它只验证三方人数、双将隐私/明置、AI 视角和最后存活势力胜负，不宣称完整野心家、珠联璧合、阵法、围攻、变更副将或国战专属牌堆。
+
+## 3.4 四人国战张角试验
+
+| 模式 ID | 人数/势力 | 牌堆 | 候选数 | 武将池 | 状态 |
+| --- | --- | --- | --- | --- | --- |
+| `national:zhang-jiao-4` | 4；魏 1、蜀 2、群 1，势力初始隐藏 | `standard:basic-demo` | 2 | 魏 2、蜀 4、群 2，共 8 名 | implemented-registry + N20 |
+
+群势力两名候选固定为 1.5 阴阳鱼的 `national:zhang-jiao`（雷击／鬼道）与 `national:hua-tuo`（急救／青囊）。张角的 schema 8 程序最低 rules v89，只表达有效闪后的另一角色判定、黑桃 2 雷伤和黑色手／装备牌改判后取得原判定牌；不含身份黄天、身份梅花分支或界张角差异。规则来源、语义指纹、历史华佗来源和素材复用边界保存在 [`national-zhang-jiao-2026-09-20.json`](sources/national-zhang-jiao-2026-09-20.json)。该模式仍复用 Lite 状态机和演示牌堆，不宣称完整国战规则。
 
 ## 4. 标准武将与技能
 

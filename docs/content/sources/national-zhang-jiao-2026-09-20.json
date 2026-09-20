@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "contentId": "national:zhang-jiao",
+  "productLine": "三国杀国战",
+  "retrievedAt": "2026-09-20T14:55:00.6545078+08:00",
+  "rulesSource": {
+    "url": "https://www.sanguosha.com/hero/2052",
+    "pageTitle": "三国杀国战张角 - 三国杀OL-三国杀官网-武将技能介绍",
+    "observedGeneralName": "国战张角",
+    "observedSkillNames": ["雷击", "鬼道"],
+    "capturedSkillTextSha256": "bfae69bcca8f620ce6c56f21931b639f4a91b73b626dc83815b76fa80242e4f5",
+    "capturedSkillTextUtf16Length": 68,
+    "capturedSkillTextUtf8Bytes": 200,
+    "semanticSummary": {
+      "leiji": "使用或打出闪后可令一名其他角色判定；只有黑桃结果造成2点雷电伤害，没有梅花分支。",
+      "guidao": "判定牌生效前可用一张黑色牌替换；按本项目锁定的国战标准规则取得原判定牌。",
+      "excluded": "不注册身份版黄天，也不引入界张角的闪电、自身判定、改判摸牌或梅花分支。"
+    }
+  },
+  "crossCheckSource": {
+    "url": "https://wiki.biligame.com/sgs/张角",
+    "observedRevision": 59808,
+    "observedUpdatedDate": "2023-12-14",
+    "use": "国战版1.5阴阳鱼、雷击仅黑桃分支、鬼道和无黄天的交叉核对。"
+  },
+  "conceptSource": {
+    "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+    "observedRevision": 78953,
+    "observedUpdatedDate": "2026-07-11",
+    "use": "技能标签不直接决定强制性或优先级；状态技与触发技按执行形态建模；暗置国战武将牌没有技能，合法发动时才明置取得技能资格。"
+  },
+  "companionSource": {
+    "url": "https://guozhan.sanguosha.com/a/kapaiyilan/wujiangpai/qun/2013/0127/78.html",
+    "pageTitle": "华佗_三国杀国战",
+    "historicalOfficialPage": true,
+    "observedGeneralId": "G.QUN001",
+    "observedVitals": "1.5阴阳鱼",
+    "observedSkillNames": ["急救", "青囊"],
+    "semanticSummary": "回合外红色牌当桃；出牌阶段弃一张手牌令一名受伤角色回复1点体力，每阶段限一次。此候选明确采用历史标准国战页，不声称等同于当前其他产品线的华佗。"
+  },
+  "implementation": {
+    "packageId": "standard-national-zhang-jiao",
+    "packageVersion": "1.0.0",
+    "minimumRulesVersion": 89,
+    "skillRuntime": "skill-program-v8",
+    "modeIds": ["national:zhang-jiao-4"]
+  },
+  "artwork": {
+    "zhangJiaoLocalFilename": "src/CardGame.Wpf/Assets/wiki-zhang-jiao-classic.png",
+    "zhangJiaoAttribution": "docs/content/bwiki-portraits.json",
+    "huaTuoSource": "existing generals atlas",
+    "notes": "没有下载或覆盖素材；国战张角复用已归档的BWIKI经典形象，华佗复用既有本地图集。"
+  }
+}

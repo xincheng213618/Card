@@ -129,13 +129,21 @@ public sealed class ComposedSkillContentPackage : IGameContentPackage
 public static class ComposedSkillContentRegistry
 {
     /// <summary>Builds the current full local showcase plus the composed-skill mode.</summary>
-    public static ContentRegistry CreateShowcase() => ContentRegistry.Build(
-        new StandardContentPackage(),
-        new StandardActiveSkillExpansionPackage(includeJijiu: true),
-        new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
-        new StandardTeamModePackage(),
-        new StandardNationalWarLitePackage(),
-        new StandardNationalWarAmbitiousPackage(),
-        new ComposedSkillContentPackage());
+    public static ContentRegistry CreateShowcase(bool includeNationalZhangJiao = true)
+    {
+        var packages = new List<IGameContentPackage>
+        {
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(),
+            new StandardTeamModePackage(),
+            new StandardNationalWarLitePackage(),
+            new StandardNationalWarAmbitiousPackage()
+        };
+        if (includeNationalZhangJiao)
+            packages.Add(new StandardNationalZhangJiaoPackage());
+        packages.Add(new ComposedSkillContentPackage());
+        return ContentRegistry.Build(packages.ToArray());
+    }
 }

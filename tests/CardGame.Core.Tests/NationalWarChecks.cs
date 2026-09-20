@@ -159,7 +159,7 @@ internal static class NationalWarChecks
                 {
                     var catalog = SkillProgramCatalog.Load(
                         """
-                        {"schemaVersion":1,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":79,"modifiers":[{"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
+                        {"schemaVersion":8,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":86,"modifiers":[{"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
                         """,
                         """
                         {"schemaVersion":1,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}

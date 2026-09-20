@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "national:guidao": {
+      "name": "鬼道",
+      "description": "一名角色的判定牌生效前，你可以打出一张黑色牌替换之，并获得原判定牌。"
+    },
+    "national:leiji": {
+      "name": "雷击",
+      "description": "当你使用或打出【闪】时，你可以令一名其他角色判定：若结果为黑桃，你对其造成2点雷电伤害。"
+    }
+  }
+}
