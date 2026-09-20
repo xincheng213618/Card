@@ -172,6 +172,7 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - rules v93／skill-program schema 9 新增判定后通用 `causeDeath`：`ProgramCauseDeathDeclaredEvent` 保存 cause、父窗口、判定、技能绑定、来源和目标，统一死亡生命周期不生成 Damage、濒死、killer 或击杀奖惩；目标自己的死亡技能可嵌套，返回后继续外层候选，终局则完成必要判定收尾并跳过新动作；rules v92 明确拒绝 schema 9 内容；
 - rules v94／skill-program schema 10 新增强制 `cardIdentities` 与来源限定的 `slashDistanceLimit`：只在拥有者手牌区替换普通使用／响应身份，接受动作时冻结物理牌、有效牌名和绑定来源，距离修正不外溢到次数、目标、响应、防具或属性；rules v93 明确拒绝 schema 10 内容；
 - rules v95 新增通用身份模式神势力设置：`DecisionKind.SelectFaction` 复用 `AnswerPromptCommand`，`PlayerSnapshot.FactionId` 仅在本人私有可见或随神将公开后投影本局有效势力，`GodFactionSelectedEvent` 供可信宿主审计；内容武将的印刷 `FactionId: god` 不变，rules v94 不生成此设置；
+- rules v96 新增结构化 `SkillTag`／`SkillExecutionForm` 和 `SkillRuntimeStateStore`：内容标签进入 hash schema 9 扩展但不从中文推断、不改变优先级；阶段／回合／轮／整局限次及阳／阴状态可按稳定技能 ID 记录和重置，正式涅槃先迁移整局账本，rules v95 保留旧限定技能集合；
  - 当前边界仍是单次伤害的基础求桃；多伤害嵌套、通用触发器和复杂技能仍待后续 K5；可信命令前缀 Checkpoint 已开放，可恢复命令驱动的私有 Prompt 暂停点，规范化内容指纹也已用于拒绝同版本定义漂移；完整内部状态存档、可执行规则实现签名和兼容迁移仍等待后续 K8。
 
 ## Core API Level: K6 基础切片已开放（2026-09-07）

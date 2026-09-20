@@ -63,8 +63,10 @@ public sealed partial class MainViewModel
                                 return new HumanSkillViewModel(
                                     skill.Name,
                                     GetVisibleSkillDescription(skill),
-                                    active ? "主动技" : "触发 / 锁定",
-                                    !enabled ? "暗置中 · 尚未启用" : isAvailable ? "当前可发动" : active ? "当前不可发动" : "已启用",
+                                    GetSkillTypeText(active, skill.Tags, skill.ExecutionForms),
+                                    !enabled
+                                        ? "暗置中 · 尚未启用"
+                                        : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用"),
                                     $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
                                     enabled && isAvailable,
                                     !enabled);
@@ -85,8 +87,8 @@ public sealed partial class MainViewModel
                         return new HumanSkillViewModel(
                             skill.Name,
                             GetVisibleSkillDescription(skill),
-                            active ? "主动技" : "触发 / 锁定",
-                            isAvailable ? "当前可发动" : active ? "当前不可发动" : "规则自动生效",
+                            GetSkillTypeText(active, skill.Tags, skill.ExecutionForms),
+                            GetSkillStateText(active, isAvailable, skill.ExecutionForms, "规则自动生效"),
                             human.GeneralName,
                             isAvailable,
                             false);
@@ -102,14 +104,51 @@ public sealed partial class MainViewModel
                     return new HumanSkillViewModel(
                         skill.Name,
                         skill.Description,
-                        active ? "主动技" : "触发 / 锁定",
-                        available.Contains(skill.Kind) ? "当前可发动" : active ? "当前不可发动" : "规则自动生效",
+                        GetSkillTypeText(active, skill.Tags, skill.ExecutionForms),
+                        GetSkillStateText(
+                            active,
+                            available.Contains(skill.Kind),
+                            skill.ExecutionForms,
+                            "规则自动生效"),
                         human.GeneralName,
                         available.Contains(skill.Kind),
                         false);
                 })
-                .ToArray();
+                 .ToArray();
         }
+    }
+
+    private static string GetSkillTypeText(
+        bool hasActiveEntry,
+        SkillTag tags,
+        SkillExecutionForm executionForms)
+    {
+        if (tags == SkillTag.None && executionForms == SkillExecutionForm.None)
+            return hasActiveEntry ? "主动技" : "触发 / 锁定";
+
+        var parts = new List<string>();
+        if (executionForms.HasFlag(SkillExecutionForm.State)) parts.Add("状态技");
+        if (executionForms.HasFlag(SkillExecutionForm.Trigger)) parts.Add("触发技");
+        if (executionForms == SkillExecutionForm.None && hasActiveEntry) parts.Add("主动技");
+        if (tags.HasFlag(SkillTag.Lord)) parts.Add("主公技");
+        if (tags.HasFlag(SkillTag.Locked)) parts.Add("锁定技");
+        if (tags.HasFlag(SkillTag.Limited)) parts.Add("限定技");
+        if (tags.HasFlag(SkillTag.Awakening)) parts.Add("觉醒技");
+        if (tags.HasFlag(SkillTag.Conversion)) parts.Add("转换技");
+        return string.Join(" · ", parts);
+    }
+
+    private static string GetSkillStateText(
+        bool hasActiveEntry,
+        bool isAvailable,
+        SkillExecutionForm executionForms,
+        string automaticText)
+    {
+        if (isAvailable) return "当前可发动";
+        if (hasActiveEntry) return "当前不可发动";
+        return executionForms.HasFlag(SkillExecutionForm.Trigger)
+            ? "等待触发时机"
+            : automaticText;
     }
     public string AliveText => IsTeamSnapshot
         ? $"青队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:blue")} · 赤队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:red")} 存活"

@@ -1,0 +1,294 @@
+using System.Reflection;
+using CardGame.Content.Standard;
+using CardGame.Core;
+
+internal static class SkillMetadataChecks
+{
+    public static void TagsNormalizeAndFingerprint()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 67, 0));
+
+        Require(current.Skills["classic:niepan"] is
+        {
+            Tags: SkillTag.Limited,
+            ExecutionForms: SkillExecutionForm.Trigger
+        } &&
+                current.Skills["classic:xueyi"] is
+                {
+                    Tags: SkillTag.Lord | SkillTag.Locked,
+                    ExecutionForms: SkillExecutionForm.State
+                } &&
+                current.Skills["classic:huangtian"] is
+                {
+                    Tags: SkillTag.Lord,
+                    ExecutionForms: SkillExecutionForm.Trigger
+                } &&
+                current.Skills["classic:wushen"] is
+                {
+                    Tags: SkillTag.Locked,
+                    ExecutionForms: SkillExecutionForm.State
+                } &&
+                previous.Skills["classic:niepan"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None
+                },
+            "Only package 1.68.0 may project the first structured skill metadata set.");
+
+        var plain = ContentRegistry.Build(new MetadataFixture(SkillTag.None, SkillExecutionForm.None));
+        var tagged = ContentRegistry.Build(new MetadataFixture(SkillTag.Limited, SkillExecutionForm.Trigger));
+        Require(plain.ContentHash != tagged.ContentHash,
+            "Structured tags and execution forms must participate in content drift detection.");
+
+        var awakening = ContentRegistry.Build(new MetadataFixture(
+            SkillTag.Awakening,
+            SkillExecutionForm.Trigger));
+        Require(awakening.Skills[MetadataFixture.SkillId].Tags ==
+                (SkillTag.Awakening | SkillTag.Locked | SkillTag.Limited),
+            "Awakening metadata must normalize its documented Locked and Limited tags.");
+
+        var localizedOnly = ContentRegistry.Build(new LocalizedTextFixture());
+        Require(localizedOnly.Skills[LocalizedTextFixture.SkillId].Tags == SkillTag.None,
+            "A localized description containing tag words must not create structured metadata.");
+
+        RequireThrows<InvalidOperationException>(() =>
+            ContentRegistry.Build(new MetadataFixture((SkillTag)(1 << 12), SkillExecutionForm.State)));
+        RequireThrows<InvalidOperationException>(() =>
+            ContentRegistry.Build(new MetadataFixture(SkillTag.Locked, (SkillExecutionForm)(1 << 12))));
+    }
+
+    public static void RuntimeUsageAndReset()
+    {
+        var state = new SkillRuntimeStateStore();
+        Require(state.TryConsumeUsage(2, "fixture:skill", "game", SkillUsageScope.Game, 1) &&
+                !state.TryConsumeUsage(2, "fixture:skill", "game", SkillUsageScope.Game, 1),
+            "Game-scoped usage must enforce its explicit limit.");
+        Require(state.TryConsumeUsage(2, "fixture:skill", "turn", SkillUsageScope.Turn, 2) &&
+                state.TryConsumeUsage(2, "fixture:skill", "round", SkillUsageScope.Round, 1) &&
+                state.TryConsumeUsage(2, "fixture:skill", "phase", SkillUsageScope.Phase, 1) &&
+                state.TryConsumeUsage(3, "fixture:off-turn", "phase", SkillUsageScope.Phase, 1),
+            "Round, turn and phase scopes must record independently for every owner.");
+
+        state.ResetPhase();
+        Require(state.GetUsage(2, "fixture:skill", "phase", SkillUsageScope.Phase) == 0 &&
+                state.GetUsage(3, "fixture:off-turn", "phase", SkillUsageScope.Phase) == 0 &&
+                state.GetUsage(2, "fixture:skill", "turn", SkillUsageScope.Turn) == 1 &&
+                state.GetUsage(2, "fixture:skill", "round", SkillUsageScope.Round) == 1 &&
+                state.GetUsage(2, "fixture:skill", "game", SkillUsageScope.Game) == 1,
+            "A phase boundary must expire every owner's phase record and preserve longer scopes.");
+
+        state.TryConsumeUsage(2, "fixture:skill", "phase", SkillUsageScope.Phase, 1);
+        state.TryConsumeUsage(3, "fixture:off-turn", "turn", SkillUsageScope.Turn, 1);
+        state.ResetTurn();
+        Require(state.GetUsage(2, "fixture:skill", "phase", SkillUsageScope.Phase) == 0 &&
+                state.GetUsage(2, "fixture:skill", "turn", SkillUsageScope.Turn) == 0 &&
+                state.GetUsage(3, "fixture:off-turn", "turn", SkillUsageScope.Turn) == 0 &&
+                state.GetUsage(2, "fixture:skill", "round", SkillUsageScope.Round) == 1 &&
+                state.GetUsage(2, "fixture:skill", "game", SkillUsageScope.Game) == 1,
+            "A turn boundary must refresh off-turn owners and preserve round and game records.");
+
+        state.ResetRound();
+        Require(state.GetUsage(2, "fixture:skill", "round", SkillUsageScope.Round) == 0 &&
+                state.GetUsage(2, "fixture:skill", "game", SkillUsageScope.Game) == 1,
+            "A round boundary must preserve a game-scoped limited-skill record.");
+
+        state.RegisterConversionSkill(2, "fixture:skill", SkillPolarity.Yin);
+        Require(state.GetConversionState(2, "fixture:skill") == SkillPolarity.Yin &&
+                state.ToggleConversionState(2, "fixture:skill") == SkillPolarity.Yang,
+            "A conversion skill must execute from and then switch away from its registered side.");
+        state.ResetSkill(2, "fixture:skill");
+        Require(state.GetConversionState(2, "fixture:skill") == SkillPolarity.Yin &&
+                state.GetUsage(2, "fixture:skill", "game", SkillUsageScope.Game) == 0,
+            "Skill reset must restore the registered initial side and clear every usage scope.");
+    }
+
+    public static void StructuredNiepanUsageReplays()
+    {
+        var registry = ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(),
+            new NiepanLedgerFixture());
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 1,
+            PlayerCount = 5,
+            ModeId = NiepanLedgerFixture.ModeId,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            UseInteractiveSetup = false,
+            UseInteractiveDiscard = false,
+            AdvanceAfterHumanCommands = false,
+            AiPolicyVersion = 2
+        }, registry);
+        Require(game.Submit(new StartGameCommand()).Accepted, "Niepan ledger fixture failed to start.");
+        for (var step = 0; step < 30 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+            Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                "Niepan ledger fixture failed to reach play.");
+
+        var action = game.GetHumanLegalActions().Single(item =>
+            item.Kind == LegalActionKind.UseProgramSkill &&
+            item.ProgramSkillId == NiepanLedgerFixture.DyingSkillId);
+        Require(game.Submit(new UseProgramSkillCommand(
+                0,
+                action.ProgramSkillId!,
+                action.ProgramActivationId!,
+                [],
+                [],
+                game.Revision,
+                game.PendingDecision!.PromptId)).Accepted,
+            "The fixture could not enter dying through a replayable command.");
+        var dying = game.PendingDecision ?? throw new InvalidOperationException("The fixture did not publish dying rescue.");
+        var niepan = dying.Choices.Single(choice => choice.Parameters.GetValueOrDefault("response") == "niepan");
+        Require(game.Submit(new AnswerPromptCommand(0, dying.PromptId, niepan.Id, game.Revision)).Accepted,
+            "Structured Niepan was rejected.");
+        Require(GetStructuredNiepanUsage(game) == 1 && !HasLegacyNiepanUsage(game),
+            "Rules v96 must consume the structured game-scoped record rather than the legacy set.");
+
+        var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restored = GameReplay.Restore(checkpoint, registry);
+        Require(GetStructuredNiepanUsage(restored) == 1 &&
+                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
+            "A completed rules v96 Niepan use must restore from its accepted command prefix.");
+
+        var legacy = GameReplay.Restore(checkpoint with { RulesVersion = 95 }, registry);
+        Require(GetStructuredNiepanUsage(legacy) == 0 && HasLegacyNiepanUsage(legacy),
+            "Rules v95 must replay the same accepted command through its historical limited-skill set.");
+    }
+
+    private static void Require(bool value, string message)
+    {
+        if (!value) throw new InvalidOperationException(message);
+    }
+
+    private static void RequireThrows<T>(Action action) where T : Exception
+    {
+        try
+        {
+            action();
+        }
+        catch (T)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException($"Expected {typeof(T).Name}.");
+    }
+
+    private static int GetStructuredNiepanUsage(GameEngine game)
+    {
+        var field = typeof(GameEngine).GetField(
+            "_skillRuntimeState",
+            BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var state = (SkillRuntimeStateStore)field.GetValue(game)!;
+        return state.GetUsage(0, "classic:niepan", "activation", SkillUsageScope.Game);
+    }
+
+    private static bool HasLegacyNiepanUsage(GameEngine game)
+    {
+        var field = typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var players = (System.Collections.IList)field.GetValue(game)!;
+        var used = (HashSet<SkillKind>)players[0]!.GetType()
+            .GetProperty("UsedLimitedSkillKinds")!
+            .GetValue(players[0])!;
+        return used.Contains(SkillKind.Niepan);
+    }
+
+    private sealed class MetadataFixture(SkillTag tags, SkillExecutionForm executionForms) : IGameContentPackage
+    {
+        public const string SkillId = "fixture:skill";
+        public PackageManifest Manifest { get; } = new("fixture-metadata", new Version(1, 0, 0));
+
+        public void Register(IContentRegistryBuilder builder) =>
+            builder.AddSkill(new ContentSkillDefinition(
+                SkillId,
+                "Fixture",
+                "Presentation is not executable metadata.")
+            {
+                Tags = tags,
+                ExecutionForms = executionForms
+            });
+    }
+
+    private sealed class LocalizedTextFixture : IGameContentPackage
+    {
+        public const string SkillId = "fixture:localized-only";
+        public PackageManifest Manifest { get; } = new("fixture-localized", new Version(1, 0, 0));
+
+        public void Register(IContentRegistryBuilder builder) =>
+            builder.AddSkill(new ContentSkillDefinition(
+                SkillId,
+                "Only text",
+                "主公技，锁定技，限定技，觉醒技，转换技。"));
+    }
+
+    private sealed class NiepanLedgerFixture : IGameContentPackage
+    {
+        public const string ModeId = "identity:classic-niepan-ledger-5";
+        public const string DyingSkillId = "fixture:lose-hp";
+        private const string DeckId = "fixture:niepan-ledger-deck";
+        private static readonly string[] GeneralIds = Enumerable.Range(0, 5)
+            .Select(index => $"fixture:niepan-ledger-{index}")
+            .ToArray();
+
+        public PackageManifest Manifest { get; } = new(
+            "fixture-niepan-ledger",
+            new Version(1, 0, 0),
+            [new PackageDependency("standard-classic-generals", new Version(1, 68, 0))]);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var catalog = SkillProgramCatalog.Load(DyingRules, DyingPresentation);
+            builder.AddSkill(new ContentSkillDefinition(DyingSkillId, "失去体力", "令自己失去五点体力。")
+            {
+                Program = catalog.Programs[DyingSkillId],
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
+            foreach (var id in GeneralIds)
+                builder.AddGeneral(new ContentGeneralDefinition(
+                    id,
+                    "涅槃账本测试",
+                    "pang_tong",
+                    "classic:niepan",
+                    "shu",
+                    BaseHp: 1,
+                    AdditionalSkillIds: [DyingSkillId]));
+            builder.AddDeck(new ContentDeckRecipe(
+                DeckId,
+                "涅槃账本牌堆",
+                InitialHandSize: 0,
+                DrawPerTurn: 0,
+                [new ContentDeckCardCount("standard:slash", 30)]));
+            builder.AddMode(new ContentModeDefinition(
+                ModeId,
+                "涅槃账本",
+                5,
+                5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2,
+                    [nameof(Role.Renegade)] = 1
+                },
+                DeckId,
+                GeneralCandidateCount: 1,
+                GeneralPoolIds: GeneralIds));
+        }
+
+        private const string DyingRules = """
+            {"schemaVersion":1,"skills":[{"id":"fixture:lose-hp","revision":1,
+            "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
+            "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
+            "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}
+            """;
+
+        private const string DyingPresentation = """
+            {"schemaVersion":1,"skills":{"fixture:lose-hp":{"name":"失去体力",
+            "description":"令自己失去五点体力。"}}}
+            """;
+    }
+}

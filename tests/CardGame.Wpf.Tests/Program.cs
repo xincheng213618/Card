@@ -360,8 +360,8 @@ internal static class Program
         using var vm = found ?? throw new InvalidOperationException("No bounded classic Sun Quan skill-rail fixture reached play.");
         var skills = vm.HumanSkillCards;
         Assert(skills.Count == 2 && skills.Any(skill => skill.Name == "制衡" && skill.TypeText == "主动技" && skill.IsAvailable && skill.StateText == "当前可发动") &&
-               skills.Any(skill => skill.Name == "救援" && skill.TypeText == "触发 / 锁定" && !skill.IsAvailable && skill.StateText == "规则自动生效"),
-            "The human skill rail did not distinguish Sun Quan's active and automatic skills.");
+               skills.Any(skill => skill.Name == "救援" && skill.TypeText == "状态技 · 主公技 · 锁定技" && !skill.IsAvailable && skill.StateText == "规则自动生效"),
+            "The human skill rail did not distinguish an active entry from explicit execution forms and tags.");
         var revision = Engine(vm).Revision;
         var window = new MainWindow(vm);
         window.ApplyTemplate();

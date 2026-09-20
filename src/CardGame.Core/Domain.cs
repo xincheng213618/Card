@@ -461,12 +461,22 @@ public sealed record Card(int Id, CardKind Kind, Suit Suit, int Rank)
     };
 }
 
-public sealed record GeneralSkillDefinition(
+public sealed partial record GeneralSkillDefinition(
     SkillKind Kind,
     string Name,
-    string Description);
+    string Description)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ContentId { get; init; }
 
-public sealed record GeneralDefinition(
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillTag Tags { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillExecutionForm ExecutionForms { get; init; }
+}
+
+public sealed partial record GeneralDefinition(
     string Id,
     string Name,
     string PortraitKey,
@@ -478,11 +488,31 @@ public sealed record GeneralDefinition(
     IReadOnlyList<GeneralSkillDefinition>? AdditionalSkills = null,
     GeneralGender Gender = GeneralGender.Male)
 {
+    public string? SkillContentId { get; init; }
+    public SkillTag SkillTags { get; init; }
+    public SkillExecutionForm SkillExecutionForms { get; init; }
+
     public IReadOnlyList<GeneralSkillDefinition> Skills => AdditionalSkills is { Count: > 0 }
-        ? new[] { new GeneralSkillDefinition(Skill, SkillName, SkillDescription) }
+        ? new[]
+            {
+                new GeneralSkillDefinition(Skill, SkillName, SkillDescription)
+                {
+                    ContentId = SkillContentId,
+                    Tags = SkillTags,
+                    ExecutionForms = SkillExecutionForms
+                }
+            }
             .Concat(AdditionalSkills)
             .ToArray()
-        : [new GeneralSkillDefinition(Skill, SkillName, SkillDescription)];
+        :
+        [
+            new GeneralSkillDefinition(Skill, SkillName, SkillDescription)
+            {
+                ContentId = SkillContentId,
+                Tags = SkillTags,
+                ExecutionForms = SkillExecutionForms
+            }
+        ];
 
     public IReadOnlyList<SkillKind> SkillKinds => Skills.Select(skill => skill.Kind).ToArray();
 

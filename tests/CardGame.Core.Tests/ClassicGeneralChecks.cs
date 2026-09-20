@@ -114,6 +114,7 @@ internal static class ClassicGeneralChecks
         var spZhaoYunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 64, 0));
         var configuredZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 65, 0));
         var boundaryZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 66, 0));
+        var shenGuanYuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 67, 0));
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -122,7 +123,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.67.0"]),
+                "standard-classic-generals@1.68.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -197,10 +198,10 @@ internal static class ClassicGeneralChecks
                 !configuredZhangJiaoClassic.Skills.ContainsKey("boundary:leiji") &&
                 !configuredZhangJiaoClassic.Modes.ContainsKey("identity:classic-boundary-5"),
             "Package 1.66.0 must register complete boundary Zhang Jiao only in an explicit boundary roster while 1.65.0 stays unchanged.");
-        Require(classic.Generals["classic:shen-guan-yu"] is
+        Require(shenGuanYuClassic.Generals["classic:shen-guan-yu"] is
                 { Name: "神关羽", BaseHp: 5, FactionId: "god", Gender: GeneralGender.Male } shenGuanYu &&
                 shenGuanYu.SkillIds.SequenceEqual(["classic:wushen", "classic:wuhun"]) &&
-                classic.Skills["classic:wushen"] is { LegacyKind: null, Program: { } wushen } &&
+                shenGuanYuClassic.Skills["classic:wushen"] is { LegacyKind: null, Program: { } wushen } &&
                 wushen.RuntimeVersion == "skill-program-v10" && wushen.MinimumRulesVersion == 95 &&
                 wushen.CardIdentities.Single() is
                 {
@@ -215,11 +216,11 @@ internal static class ClassicGeneralChecks
                     Operation: SkillRuleOperation.Unlimited,
                     SourceCardIdentityId: "heart-hand-as-slash"
                 } &&
-                classic.Skills["classic:wuhun"] is
+                shenGuanYuClassic.Skills["classic:wuhun"] is
                 { LegacyKind: SkillKind.Wuhun, Program: null } &&
-                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
-                classic.Modes["identity:classic-8"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
-                !classic.Modes["identity:classic-boundary-5"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
+                shenGuanYuClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
+                shenGuanYuClassic.Modes["identity:classic-8"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
+                !shenGuanYuClassic.Modes["identity:classic-boundary-5"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
                 !boundaryZhangJiaoClassic.Generals.ContainsKey("classic:shen-guan-yu") &&
                 !boundaryZhangJiaoClassic.Skills.ContainsKey("classic:wushen") &&
                 !boundaryZhangJiaoClassic.Skills.ContainsKey("classic:wuhun"),

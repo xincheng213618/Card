@@ -312,6 +312,7 @@ public interface IActiveSkill
 - 通用直接死亡：rules v93／skill-program schema 9 允许 `judgmentFinalized` 绑定对判定主体或同序列先选定的目标执行 `causeDeath`。执行器记录独立 cause 审计事件，临时挂起父判定 continuation 并压入统一 `DeathFrame`；该路径没有 Damage、`DyingFrame`、killer 或身份击杀奖惩，但目标自己的合法 `DeathSkillFrame` 仍可内层执行。内层完成后恢复父判定触发游标；若死亡已使模式终局，只做判定牌与父帧必要收尾，不再开放天妒、刚烈惩罚或后续配置候选。rules v92 明确拒绝 schema 9 内容。
 - 持续牌身份：rules v94／skill-program schema 10 以 `cardIdentities` 把拥有者手牌的强制有效牌名与可选 `viewAs` 分开；匹配牌不再发布物理牌名的普通使用／响应入口，动作接受时以 `CardConversionSource` 冻结实体牌、有效牌名和绑定来源。`slashDistanceLimit` 只对引用该身份绑定的杀动作放宽距离，出杀次数、目标数、响应、防具与属性仍走各自规则。rules v93 明确拒绝 schema 10 内容。
 - 本局有效势力：rules v95 将内容层不可变的印刷 `FactionId` 与玩家运行时的 `ChosenFactionId` 分离。身份模式的神将在私有选将结束、统一亮将之前通过通用 `SelectFaction`／`AnswerPromptCommand` 选择魏蜀吴群；快照按亮将边界投影，主公技和配置化势力条件只调用 `GetEffectiveFactionId`，不回写 Registry，也不新增 Checkpoint 字段。
+- 结构化技能状态：rules v96 将 `SkillTag` 与 `SkillExecutionForm` 分成内容层两条独立轴并写入 hash schema 9 扩展；运行时 `SkillRuntimeStateStore` 按拥有者、稳定技能 ID、用途 ID 和作用域记录限次，阶段／回合边界统一刷新所有拥有者，整局记录只由技能重置清除。标签不从展示文本推断，也不生成优先级或执行效果；正式涅槃先迁移为整局消费者，rules v95 继续历史集合路径。
 
 下一步若要加入更复杂技能，建议在现有 `AfterDamage`、`PlayerDying` 和 `DyingResponse` 类型化事件及 `DamageTriggerWindowFrame` 游标上扩展完整状态 Checkpoint；当前 `DamageTriggerScope` 已把受伤者、其他存活角色和任意存活角色的座位关系变成可复用契约，`DamageTriggerOrdering` 仍固定优先级、相对行动者座次、技能序号和候选 ID 的排序键，而不是把顺序交给任意字符串或可变字典。遗计已经完成一条真实的跨座位牌效果，援护已复用通用的其他存活角色范围，刚烈已经完成一条受伤者触发后定向伤害来源询问的效果，苦肉也已完成单体主动技能濒死续接；多目标主动技能、多伤害嵌套和复杂技能濒死响应尚未宣称完成。
 

@@ -19,6 +19,9 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("structured skill metadata normalizes explicitly and fingerprints content", SkillMetadataChecks.TagsNormalizeAndFingerprint),
+    ("skill runtime usage and conversion states reset by declared scope", SkillMetadataChecks.RuntimeUsageAndReset),
+    ("structured Niepan usage restores while rules 95 retains its legacy record", SkillMetadataChecks.StructuredNiepanUsageReplays),
     ("skill program v2 trigger definitions validate and freeze", SkillProgramTriggerDefinitionChecks.Run),
     ("skill program card triggers require exact conversion sources and replay", SkillProgramCardTriggerChecks.Run),
     ("skill program multi-target triggers wait for every Liuli redirection", SkillProgramTargetOrderChecks.Run),

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:d5a",
+  "retrievedAt": "2026-09-21T00:26:27+08:00",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "主公、锁定、限定、觉醒、转换标签与状态技、触发技分轴；锁定标签没有强制性或优先级特权；觉醒附带锁定和限定；转换默认阳面并在当前形态执行后切换；技能重置恢复开局状态并清除记录。"
+    }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.68.0",
+    "rulesVersion": 96,
+    "contentHashSchema": 9,
+    "metadataFields": ["tags", "executionForms"],
+    "usageScopes": ["phase", "turn", "round", "game"],
+    "firstRuntimeConsumer": "classic:niepan"
+  },
+  "acceptance": [
+    "中文说明中的标签词不会生成结构化标签",
+    "觉醒标签规范化补齐锁定与限定",
+    "结构化元数据改变当前内容指纹但1.67.0定义保持无元数据",
+    "阶段和回合边界刷新全部拥有者且不清除整局限定记录",
+    "涅槃在rules v96消费稳定内容ID账本并可由Checkpoint命令前缀恢复",
+    "同一命令前缀在rules v95继续使用历史限定技能集合",
+    "WPF技能栏分别显示执行形态与主公、锁定、限定标签，1120x740离屏图无裁切或遮挡"
+  ],
+  "deferred": [
+    "剩余正式技能的完整标签与执行形态迁移",
+    "通用主公技拥有资格",
+    "正式觉醒技与转换技消费者及当前形态UI",
+    "每目标与每事件复合限次",
+    "真实Windows桌面鼠标键盘及多DPI验收"
+  ]
+}

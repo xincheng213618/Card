@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 67, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 68, 0))
     {
     }
 
@@ -118,12 +118,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 64, 0) &&
             version != new Version(1, 65, 0) &&
             version != new Version(1, 66, 0) &&
-            version != new Version(1, 67, 0))
+            version != new Version(1, 67, 0) &&
+            version != new Version(1, 68, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.67.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.68.0.");
         }
 
         _version = version;
@@ -521,27 +522,27 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 4, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:hujia",
                 "护驾",
                 "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
-                SkillKind.Hujia));
+                SkillKind.Hujia), SkillTag.Lord, SkillExecutionForm.Trigger));
         }
         if (_version >= new Version(1, 5, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:jijiang",
                 "激将",
                 "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
-                SkillKind.Jijiang));
+                SkillKind.Jijiang), SkillTag.Lord, SkillExecutionForm.Trigger));
         }
         if (_version >= new Version(1, 6, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:jiuyuan",
                 "救援",
                 "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",
-                SkillKind.Jiuyuan));
+                SkillKind.Jiuyuan), SkillTag.Lord | SkillTag.Locked, SkillExecutionForm.State));
         }
         if (_version >= new Version(1, 8, 0))
         {
@@ -756,8 +757,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(new ContentSkillDefinition("classic:lianhuan", "连环",
                 "出牌阶段，你可以将一张梅花手牌当【铁索连环】使用或重铸。", SkillKind.Lianhuan));
-            builder.AddSkill(new ContentSkillDefinition("classic:niepan", "涅槃",
-                "限定技，当你处于濒死状态时，你可以弃置区域内所有牌，解除连环状态，摸三张牌并将体力回复至3点。", SkillKind.Niepan));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                new ContentSkillDefinition("classic:niepan", "涅槃",
+                    "限定技，当你处于濒死状态时，你可以弃置区域内所有牌，解除连环状态，摸三张牌并将体力回复至3点。", SkillKind.Niepan),
+                SkillTag.Limited,
+                SkillExecutionForm.Trigger));
         }
         if (_version >= new Version(1, 49, 0))
         {
@@ -785,8 +789,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(new ContentSkillDefinition("classic:luanji", "乱击",
                 "你可以将两张花色相同的手牌当【万箭齐发】使用。", SkillKind.Luanji));
-            builder.AddSkill(new ContentSkillDefinition("classic:xueyi", "血裔",
-                "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                new ContentSkillDefinition("classic:xueyi", "血裔",
+                    "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi),
+                SkillTag.Lord | SkillTag.Locked,
+                SkillExecutionForm.State));
         }
         if (_version >= new Version(1, 54, 0))
         {
@@ -811,13 +818,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                              .OrderBy(entry => entry.Key, StringComparer.Ordinal))
                 {
                     var presentation = ClassicZhangJiaoCatalog.Value.Presentations[id];
-                    builder.AddSkill(new ContentSkillDefinition(
+                    var definition = new ContentSkillDefinition(
                         id,
                         presentation.Name,
                         presentation.Description)
                     {
                         Program = program
-                    });
+                    };
+                    builder.AddSkill(id == "classic:huangtian"
+                        ? WithStructuredSkillMetadata(
+                            definition, SkillTag.Lord, SkillExecutionForm.Trigger)
+                        : definition);
                 }
             }
             else
@@ -826,8 +837,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     "一名角色的判定牌生效前，你可以打出一张黑色牌替换之。", SkillKind.Guidao));
                 builder.AddSkill(new ContentSkillDefinition("classic:leiji", "雷击",
                     "当你使用或打出闪时，你可以令一名其他角色判定：黑桃则你对其造成2点雷电伤害；梅花则你回复1点体力，然后对其造成1点雷电伤害。", SkillKind.Leiji));
-                builder.AddSkill(new ContentSkillDefinition("classic:huangtian", "黄天",
-                    "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian));
+                builder.AddSkill(WithStructuredSkillMetadata(
+                    new ContentSkillDefinition("classic:huangtian", "黄天",
+                        "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian),
+                    SkillTag.Lord,
+                    SkillExecutionForm.Trigger));
             }
         }
         if (_version >= new Version(1, 66, 0))
@@ -836,31 +850,35 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                          .OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 var presentation = BoundaryZhangJiaoCatalog.Value.Presentations[id];
-                builder.AddSkill(new ContentSkillDefinition(
+                var definition = new ContentSkillDefinition(
                     id,
                     presentation.Name,
                     presentation.Description)
                 {
                     Program = program
-                });
+                };
+                builder.AddSkill(id == "boundary:huangtian"
+                    ? WithStructuredSkillMetadata(
+                        definition, SkillTag.Lord, SkillExecutionForm.Trigger)
+                    : definition);
             }
         }
         if (_version >= new Version(1, 67, 0))
         {
             var wushenProgram = ClassicShenGuanYuCatalog.Value.Programs["classic:wushen"];
             var wushenPresentation = ClassicShenGuanYuCatalog.Value.Presentations["classic:wushen"];
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:wushen",
                 wushenPresentation.Name,
                 wushenPresentation.Description)
             {
                 Program = wushenProgram
-            });
-            builder.AddSkill(new ContentSkillDefinition(
+            }, SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:wuhun",
                 "武魂",
                 "锁定技，当你受到1点伤害后，你令伤害来源获得1枚“梦魇”标记；当你死亡时，你令“梦魇”标记最多的一名角色进行判定，若结果不为【桃】或【桃园结义】，该角色死亡。",
-                SkillKind.Wuhun));
+                SkillKind.Wuhun), SkillTag.Locked, SkillExecutionForm.State));
         }
         if (_version >= new Version(1, 58, 0))
         {
@@ -1609,6 +1627,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             cards.AddRange(entries.Select(entry => new ContentDeckPhysicalCard(entry.Id, suit, entry.Rank)));
         }
     }
+
+    private ContentSkillDefinition WithStructuredSkillMetadata(
+        ContentSkillDefinition definition,
+        SkillTag tags,
+        SkillExecutionForm executionForms) =>
+        _version >= new Version(1, 68, 0)
+            ? definition with { Tags = tags, ExecutionForms = executionForms }
+            : definition;
 
     private static string ReadEmbeddedText(string resourceName)
     {

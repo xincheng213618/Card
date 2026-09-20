@@ -33,6 +33,7 @@ public sealed partial class GameEngine
     private readonly Queue<EngineNotification> _pendingNotifications = [];
     private readonly Dictionary<int, SimpleAiBrain> _aiBrains = [];
     private readonly Dictionary<int, CardKind> _judgmentEffectiveCardKinds = [];
+    private readonly SkillRuntimeStateStore _skillRuntimeState = new();
     private GameSnapshot? _pendingStateSnapshot;
 
     private EngineStatus _status = EngineStatus.NotStarted;
@@ -196,6 +197,8 @@ public sealed partial class GameEngine
 
     private bool SupportsGodFactionSelection =>
         _rulesVersion >= 95 && _modeDefinition.ModeKind == ContentModeKind.Identity;
+
+    private bool SupportsStructuredSkillState => _rulesVersion >= 96;
 
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
@@ -5166,9 +5169,19 @@ public sealed partial class GameEngine
                         .Select(additional => new GeneralSkillDefinition(
                             additional.LegacyKind ?? SkillKind.None,
                             additional.Name,
-                            additional.Description))
+                            additional.Description)
+                        {
+                            ContentId = additional.Id,
+                            Tags = additional.Tags,
+                            ExecutionForms = additional.ExecutionForms
+                        })
                         .ToArray(),
-                    definition.Gender);
+                    definition.Gender)
+                {
+                    SkillContentId = skill.Id,
+                    SkillTags = skill.Tags,
+                    SkillExecutionForms = skill.ExecutionForms
+                };
             })
             .ToArray();
     }
@@ -5579,6 +5592,7 @@ public sealed partial class GameEngine
         current.UsedPlayPhaseAlcoholThisTurn = false;
         current.AiJijiangFailedThisTurn = false;
         current.UsedActiveSkillKinds.Clear();
+        _skillRuntimeState.ResetTurn();
         foreach (var key in _programUses.Keys.Where(key => key.Seat == current.Seat).ToArray())
             _programUses.Remove(key);
         current.TianyiWonThisTurn = false;
@@ -6307,6 +6321,7 @@ public sealed partial class GameEngine
     private void EnterPlayPhase(PlayerRuntime current)
     {
         ResetProgramContributionUsesForPlayPhase(current.Seat);
+        _skillRuntimeState.ResetPhase();
         _phase = TurnPhase.Play;
         AddLog("PhaseChanged", $"{current.Name} 进入出牌阶段。", current.Seat);
         QueueGameEvent(new PhaseChangedEvent(_phase, current.Seat));
@@ -18081,10 +18096,20 @@ public sealed partial class GameEngine
                 .ToArray()
             : [];
 
-    private bool CanUseNiepan(PlayerRuntime responder, DyingResolution dying) =>
-        UsesFormalPangTong && responder.Seat == dying.VictimSeat && responder.IsAlive &&
-        responder.General.HasSkill(SkillKind.Niepan) &&
-        !responder.UsedLimitedSkillKinds.Contains(SkillKind.Niepan);
+    private bool CanUseNiepan(PlayerRuntime responder, DyingResolution dying)
+    {
+        if (!UsesFormalPangTong || responder.Seat != dying.VictimSeat || !responder.IsAlive ||
+            !responder.General.HasSkill(SkillKind.Niepan))
+            return false;
+
+        var metadata = responder.General.Skills.Single(skill => skill.Kind == SkillKind.Niepan);
+        return SupportsStructuredSkillState &&
+               metadata is { ContentId: { } skillId, Tags: var tags } &&
+               tags.HasFlag(SkillTag.Limited)
+            ? _skillRuntimeState.GetUsage(
+                responder.Seat, skillId, "activation", SkillUsageScope.Game) == 0
+            : !responder.UsedLimitedSkillKinds.Contains(SkillKind.Niepan);
+    }
 
     private void RunOneDyingStep()
     {
@@ -18257,7 +18282,19 @@ public sealed partial class GameEngine
         }
 
         ClearPendingDecision();
-        victim.UsedLimitedSkillKinds.Add(SkillKind.Niepan);
+        var metadata = victim.General.Skills.Single(skill => skill.Kind == SkillKind.Niepan);
+        if (SupportsStructuredSkillState &&
+            metadata is { ContentId: { } skillId, Tags: var tags } &&
+            tags.HasFlag(SkillTag.Limited))
+        {
+            if (!_skillRuntimeState.TryConsumeUsage(
+                    victim.Seat, skillId, "activation", SkillUsageScope.Game, limit: 1))
+                throw new InvalidOperationException("Niepan has already been used in this game.");
+        }
+        else
+        {
+            victim.UsedLimitedSkillKinds.Add(SkillKind.Niepan);
+        }
         var discarded = 0;
         foreach (var card in GetHand(victim).ToArray())
         {

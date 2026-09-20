@@ -71,6 +71,8 @@ public sealed record ContentSkillDefinition(
     SkillKind? LegacyKind = null)
 {
     public SkillProgram? Program { get; init; }
+    public SkillTag Tags { get; init; }
+    public SkillExecutionForm ExecutionForms { get; init; }
 }
 
 public sealed record ContentGeneralDefinition(
@@ -529,6 +531,23 @@ public sealed class ContentRegistry
                     .DefaultIfEmpty(SkillProgramCatalog.RuntimeVersion)),
                 Programs = programs
             });
+        var skillMetadata = skills.Values
+            .Where(skill => skill.Tags != SkillTag.None || skill.ExecutionForms != SkillExecutionForm.None)
+            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
+            .Select(skill => new
+            {
+                skill.Id,
+                Tags = skill.Tags.ToString(),
+                ExecutionForms = skill.ExecutionForms.ToString()
+            })
+            .ToArray();
+        if (skillMetadata.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 9,
+                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                SkillMetadata = skillMetadata
+            });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
 
@@ -868,16 +887,27 @@ public sealed class ContentRegistry
         private static ContentSkillDefinition NormalizeSkill(ContentSkillDefinition definition)
         {
             ArgumentNullException.ThrowIfNull(definition);
-            if (definition.Program is null)
-                return definition;
+            const SkillTag allTags = SkillTag.Lord | SkillTag.Locked | SkillTag.Limited |
+                                     SkillTag.Awakening | SkillTag.Conversion;
+            const SkillExecutionForm allForms = SkillExecutionForm.State | SkillExecutionForm.Trigger;
+            if ((definition.Tags & ~allTags) != 0)
+                throw new InvalidOperationException($"Skill '{definition.Id}' has unsupported structured tags.");
+            if ((definition.ExecutionForms & ~allForms) != 0)
+                throw new InvalidOperationException($"Skill '{definition.Id}' has unsupported execution forms.");
 
-            if (!string.Equals(definition.Program.Id, definition.Id, StringComparison.Ordinal))
+            var normalized = definition.Tags.HasFlag(SkillTag.Awakening)
+                ? definition with { Tags = definition.Tags | SkillTag.Locked | SkillTag.Limited }
+                : definition;
+            if (normalized.Program is null)
+                return normalized;
+
+            if (!string.Equals(normalized.Program.Id, normalized.Id, StringComparison.Ordinal))
                 throw new InvalidOperationException(
-                    $"Skill '{definition.Id}' is bound to program '{definition.Program.Id}'. Program ids must match their content skill ids.");
-            if (definition.LegacyKind is not null and not SkillKind.None)
+                    $"Skill '{normalized.Id}' is bound to program '{normalized.Program.Id}'. Program ids must match their content skill ids.");
+            if (normalized.LegacyKind is not null and not SkillKind.None)
                 throw new InvalidOperationException(
-                    $"Skill '{definition.Id}' cannot have both configured and legacy implementations.");
-            return definition;
+                    $"Skill '{normalized.Id}' cannot have both configured and legacy implementations.");
+            return normalized;
         }
 
         private static ContentGeneralDefinition NormalizeGeneral(ContentGeneralDefinition definition)

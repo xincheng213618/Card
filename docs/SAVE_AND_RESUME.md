@@ -130,6 +130,8 @@ rules v94 不新增 Checkpoint 字段。skill-program schema 10 的持续牌身�
 
 rules v95 的神势力选择也不新增 Checkpoint 字段。身份模式中印刷势力为 `god` 的武将在所有人私有选将完成、统一亮将之前发布 `SelectFaction`；真人的精确 Choice 由既有 `AnswerPromptCommand` 进入命令日志，无人值守座位按 seed 与座位稳定选择。恢复时重建 `ChosenFactionId`、私有／公开投影和 `GodFactionSelectedEvent`，内容注册表中的武将 `FactionId` 始终保持 `god`。rules v94 恢复同一旧命令前缀时不会生成该 Prompt 或本局势力投影。
 
+rules v96 的结构化技能状态同样不新增 Checkpoint 字段。技能限次与转换面只能在接受命令后的确定性规则路径中改变；Restore 重放命令前缀时重建 `SkillRuntimeStateStore`。正式涅槃成功选择后以 `classic:niepan` 消耗整局一次额度，rules v95 重放同一前缀时仍重建历史 `UsedLimitedSkillKinds`。经典包 1.68.0 的结构化元数据进入内容指纹，1.67.0 存档必须继续配套原包恢复，不能把展示相似误当为内容兼容。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。
