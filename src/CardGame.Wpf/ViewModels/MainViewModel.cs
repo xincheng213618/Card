@@ -707,7 +707,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 SkillChoices.Add(choice);
             }
         }
-        IsSkillSelectionPending = _snapshot.PendingDecision?.Kind is
+        // Keep conditional access separate: Roslyn 4.11 revisits long "or" patterns exponentially.
+        var pendingDecisionKind = _snapshot.PendingDecision?.Kind;
+        IsSkillSelectionPending = pendingDecisionKind is
             DecisionKind.SelectFaction or
             DecisionKind.Feedback or
             DecisionKind.Yiji or
