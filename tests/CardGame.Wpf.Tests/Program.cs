@@ -400,6 +400,33 @@ internal static class Program
                rebelVm.HumanSkillCards.All(skill => !skill.TypeText.Contains("主公技", StringComparison.Ordinal)),
             "A non-Lord skill rail still displayed a printed Lord skill as owned.");
 
+        MainViewModel? lockedFound = null;
+        for (var seed = 1; seed <= 256; seed++)
+        {
+            var candidate = new MainViewModel(false, seed, showSetup: false, saveStore: new MemorySaveStore(), useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var zhangFei = candidate.GeneralChoices.FirstOrDefault(choice => choice.GeneralId == "classic:zhang-fei");
+            if (zhangFei is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(zhangFei);
+                AdvanceToDecision(candidate);
+                if (candidate.CanEndTurn)
+                {
+                    lockedFound = candidate;
+                    break;
+                }
+            }
+            candidate.Dispose();
+        }
+
+        using var lockedVm = lockedFound ??
+            throw new InvalidOperationException("No bounded classic Zhang Fei skill-rail fixture reached play.");
+        Assert(lockedVm.HumanSkillCards is
+            [{ Name: "咆哮", TypeText: "状态技 · 锁定技", StateText: "规则自动生效", IsAvailable: false }],
+            "The current Paoxiao rail still used the legacy ambiguous skill type text.");
+
         var revision = Engine(vm).Revision;
         var window = new MainWindow(vm);
         window.ApplyTemplate();
@@ -425,6 +452,17 @@ internal static class Program
             "The rendered non-Lord skill rail exposed Jiuyuan or a Lord-skill label.");
         rebelWindow.Content = null;
         rebelWindow.Close();
+
+        var lockedWindow = new MainWindow(lockedVm);
+        lockedWindow.ApplyTemplate();
+        var lockedRoot = (FrameworkElement)lockedWindow.Content;
+        Render(lockedRoot, 1120, 740, Path.Combine(output, "167-locked-state-skill-metadata.png"));
+        var lockedCards = (ItemsControl)lockedWindow.FindName("HumanSkillCards");
+        Assert(lockedCards.Items.Count == 1 &&
+               Find<TextBlock>(lockedCards).Any(text => text.Text == "状态技 · 锁定技" && text.ActualHeight > 0),
+            "The rendered locked-state label is inaccessible in the minimum window.");
+        lockedWindow.Content = null;
+        lockedWindow.Close();
     }
 
     private static void CheckModeLobby(string output)

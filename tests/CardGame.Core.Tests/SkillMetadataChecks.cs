@@ -103,6 +103,49 @@ internal static class SkillMetadataChecks
             "Skill reset must restore the registered initial side and clear every usage scope.");
     }
 
+    public static void ClassicLockedStateMetadataIsVersioned()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 70, 0));
+        string[] skillIds =
+        [
+            "classic:kuanggu",
+            "classic:wushuang",
+            "classic:paoxiao",
+            "classic:qianxun",
+            "classic:bazhen",
+            "classic:hongyan",
+            "classic:buqu",
+            "classic:yaowu",
+            "classic:yicong",
+            "classic:huoshou",
+            "classic:juxiang",
+            "classic:yizhong",
+            "classic:wuyan"
+        ];
+
+        foreach (var skillId in skillIds)
+        {
+            Require(current.Skills[skillId] is
+                {
+                    Tags: SkillTag.Locked,
+                    ExecutionForms: SkillExecutionForm.State
+                }, $"Current classic content did not classify {skillId} as an explicit locked state skill.");
+            Require(previous.Skills[skillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None
+                }, $"Package 1.70.0 unexpectedly gained the metadata for {skillId}.");
+        }
+
+        Require(current.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 71, 0)) &&
+                previous.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 70, 0)) &&
+                current.ContentHash != previous.ContentHash,
+            "The locked-state migration must be isolated to package 1.71.0 and participate in content drift detection.");
+    }
+
     public static void StructuredNiepanUsageReplays()
     {
         var registry = ContentRegistry.Build(

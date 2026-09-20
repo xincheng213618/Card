@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 70, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 71, 0))
     {
     }
 
@@ -121,12 +121,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 67, 0) &&
             version != new Version(1, 68, 0) &&
             version != new Version(1, 69, 0) &&
-            version != new Version(1, 70, 0))
+            version != new Version(1, 70, 0) &&
+            version != new Version(1, 71, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.70.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.71.0.");
         }
 
         _version = version;
@@ -633,27 +634,27 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 18, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:kuanggu",
                 "狂骨",
                 "锁定技，当你对距离1以内的一名角色造成1点伤害后，你回复1点体力。",
-                SkillKind.Kuanggu));
+                SkillKind.Kuanggu), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 19, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:wushuang",
                 "无双",
                 "锁定技，你使用的【杀】需两张【闪】才能抵消；与你【决斗】的角色每次需打出两张【杀】。",
-                SkillKind.Wushuang));
+                SkillKind.Wushuang), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 20, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:paoxiao",
                 "咆哮",
                 "锁定技，你使用【杀】无次数限制。",
-                SkillKind.Paoxiao));
+                SkillKind.Paoxiao), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 21, 0))
         {
@@ -712,11 +713,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 43, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:qianxun",
                 "谦逊",
                 "锁定技，你不能被选择为【顺手牵羊】和【乐不思蜀】的目标。",
-                SkillKind.Qianxun));
+                SkillKind.Qianxun), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
             builder.AddSkill(new ContentSkillDefinition(
                 "classic:lianying",
                 "连营",
@@ -748,8 +749,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 47, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:bazhen", "八阵",
-                "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。", SkillKind.Bazhen));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:bazhen", "八阵",
+                "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。", SkillKind.Bazhen),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
             builder.AddSkill(new ContentSkillDefinition("classic:huoji", "火计",
                 "你可以将一张红色手牌当【火攻】使用。", SkillKind.Huoji));
             builder.AddSkill(new ContentSkillDefinition("classic:kanpo", "看破",
@@ -777,15 +779,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 51, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:hongyan", "红颜",
-                "锁定技，你的黑桃牌均视为红桃牌。", SkillKind.Hongyan));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:hongyan", "红颜",
+                "锁定技，你的黑桃牌均视为红桃牌。", SkillKind.Hongyan),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
             builder.AddSkill(new ContentSkillDefinition("classic:tianxiang", "天香",
                 "当你受到伤害时，你可以弃置一张红桃手牌并选择一名其他角色，防止此伤害并令其受到等量伤害，然后其摸等同于其已损失体力值的牌。", SkillKind.Tianxiang));
         }
         if (_version >= new Version(1, 52, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:buqu", "不屈",
-                "锁定技，当你处于濒死状态时，将牌堆顶一张牌置于武将牌上，称为“创”；若其点数与已有“创”均不同，你回复至1点体力，否则弃置之。若你有“创”，手牌上限等于“创”的数量。", SkillKind.Buqu));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:buqu", "不屈",
+                "锁定技，当你处于濒死状态时，将牌堆顶一张牌置于武将牌上，称为“创”；若其点数与已有“创”均不同，你回复至1点体力，否则弃置之。若你有“创”，手牌上限等于“创”的数量。", SkillKind.Buqu),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 53, 0))
         {
@@ -804,13 +808,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 55, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:yaowu", "耀武",
-                "锁定技，当一名角色使用红色【杀】对你造成伤害后，其选择回复1点体力或摸一张牌。", SkillKind.Yaowu));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yaowu", "耀武",
+                "锁定技，当一名角色使用红色【杀】对你造成伤害后，其选择回复1点体力或摸一张牌。", SkillKind.Yaowu),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 56, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:yicong", "义从",
-                "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。", SkillKind.Yicong));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yicong", "义从",
+                "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。", SkillKind.Yicong),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 57, 0))
         {
@@ -923,27 +929,31 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 59, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:huoshou", "祸首",
-                "锁定技，南蛮入侵对你无效；其他角色使用南蛮入侵造成的伤害来源改为你。", SkillKind.Huoshou));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:huoshou", "祸首",
+                "锁定技，南蛮入侵对你无效；其他角色使用南蛮入侵造成的伤害来源改为你。", SkillKind.Huoshou),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
             builder.AddSkill(new ContentSkillDefinition("classic:zaiqi", "再起",
                 "摸牌阶段开始时，若你已受伤，你可以放弃摸牌并展示牌堆顶X张牌（X为你已损失的体力值）：每有一张红桃牌，你回复1点体力，然后弃置这些红桃牌并获得其余牌。", SkillKind.Zaiqi));
         }
         if (_version >= new Version(1, 60, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:juxiang", "巨象",
-                "锁定技，南蛮入侵对你无效；其他角色使用的南蛮入侵结算完毕置入弃牌堆后，你获得之。", SkillKind.Juxiang));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:juxiang", "巨象",
+                "锁定技，南蛮入侵对你无效；其他角色使用的南蛮入侵结算完毕置入弃牌堆后，你获得之。", SkillKind.Juxiang),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
             builder.AddSkill(new ContentSkillDefinition("classic:lieren", "烈刃",
                 "当你使用杀对目标角色造成伤害后，你可以与其拼点；若你赢，你获得其一张牌。", SkillKind.Lieren));
         }
         if (_version >= new Version(1, 61, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:yizhong", "毅重",
-                "锁定技，若你的装备区里没有防具牌，黑色的杀对你无效。", SkillKind.Yizhong));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yizhong", "毅重",
+                "锁定技，若你的装备区里没有防具牌，黑色的杀对你无效。", SkillKind.Yizhong),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 62, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:wuyan", "无言",
-                "锁定技，当锦囊牌造成伤害时，若你为伤害来源或受伤角色，防止此伤害。", SkillKind.Wuyan));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:wuyan", "无言",
+                "锁定技，当锦囊牌造成伤害时，若你为伤害来源或受伤角色，防止此伤害。", SkillKind.Wuyan),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 63, 0))
         {
@@ -1682,8 +1692,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private ContentSkillDefinition WithStructuredSkillMetadata(
         ContentSkillDefinition definition,
         SkillTag tags,
-        SkillExecutionForm executionForms) =>
-        _version >= new Version(1, 68, 0)
+        SkillExecutionForm executionForms,
+        Version? minimumVersion = null) =>
+        _version >= (minimumVersion ?? new Version(1, 68, 0))
             ? definition with { Tags = tags, ExecutionForms = executionForms }
             : definition;
 

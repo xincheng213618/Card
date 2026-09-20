@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:locked-state-d5b2b2a",
+  "retrievedAt": "2026-09-21T02:23:29+08:00",
+  "selectedVersion": "当前经典包中已完成规则验收的既有锁定状态技",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "锁定技是标签且不代表强制发动或优先级；状态技是不需玩家确认且持续或自动生效的技能部分。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161026_9772_0011",
+      "use": "旧版狂骨的锁定技版本边界。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/23",
+      "use": "经典吕布无双的锁定技定义。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/3",
+      "use": "经典张飞咆哮的锁定技定义。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/14.html",
+      "use": "经典陆逊谦逊的锁定技定义。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/37",
+      "use": "卧龙诸葛亮八阵的锁定技定义。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161026_5527_0411",
+      "use": "经典小乔红颜版本。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/210",
+      "use": "经典周泰不屈版本。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/214",
+      "use": "经典华雄耀武版本。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/447.html",
+      "use": "经典公孙瓒义从两段距离状态。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/48.html",
+      "use": "经典孟获祸首版本。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/47.html",
+      "use": "经典祝融巨象版本。"
+    },
+    {
+      "url": "https://www.sanguosha.com/act/guard/",
+      "use": "旧版于禁毅重完整技能句。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161122_1587_2316",
+      "use": "经典徐庶无言版本。"
+    }
+  ],
+  "skills": [
+    "classic:kuanggu",
+    "classic:wushuang",
+    "classic:paoxiao",
+    "classic:qianxun",
+    "classic:bazhen",
+    "classic:hongyan",
+    "classic:buqu",
+    "classic:yaowu",
+    "classic:yicong",
+    "classic:huoshou",
+    "classic:juxiang",
+    "classic:yizhong",
+    "classic:wuyan"
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.71.0",
+    "rulesVersion": 99,
+    "tags": ["Locked"],
+    "executionForms": ["State"],
+    "gameplayBehaviorChanged": false
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.70.0",
+    "previousMetadata": "None + None",
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "acceptance": [
+    "13项当前定义均显式投影Locked + State",
+    "同一13项在经典包1.70.0保持None + None",
+    "内容指纹区分1.71.0和1.70.0",
+    "WPF张飞咆哮显示状态技 · 锁定技和规则自动生效",
+    "1120×740离屏图无技能栏、手牌或操作区裁切",
+    "Release 0 warning / 0 error，Core 285/285，WPF 83/83"
+  ],
+  "deferred": [
+    "基础与主动扩展包中被经典武将复用的空城、马术、奇才等结构化元数据",
+    "其余可选触发、主动技能和复合执行形态",
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}
