@@ -129,7 +129,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.76.0"]),
+                "standard-classic-generals@1.77.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -575,10 +575,10 @@ internal static class ClassicGeneralChecks
             "Sima Yi must expose Feedback and Guicai in a stable order.");
         var huaTuo = classic.Generals["classic:hua-tuo"];
         Require(huaTuo.Name == "华佗" && huaTuo.BaseHp == 3 &&
-                huaTuo.SkillIds.SequenceEqual(["standard:qingnang", "standard:jijiu"]),
+                huaTuo.SkillIds.SequenceEqual(["classic:qingnang", "standard:jijiu"]),
             "Hua Tuo must expose Qingnang and Jijiu in a stable order.");
-        Require(classic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["standard:rende", "classic:jijiang"]) &&
-                classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng", "classic:jiuyuan"]) &&
+        Require(classic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["classic:rende", "classic:jijiang"]) &&
+                classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) &&
                 classic.Generals["classic:xiahou-dun"].SkillIds.SequenceEqual(["standard:ganglie"]),
             "The current classic roster must point at the implemented formal skills.");
         var guoJia = classic.Generals["classic:guo-jia"];
@@ -601,7 +601,7 @@ internal static class ClassicGeneralChecks
         Require(huangGai.Name == "黄盖" &&
                 huangGai.FactionId == "wu" &&
                 huangGai.BaseHp == 4 &&
-                huangGai.SkillIds.SequenceEqual(["standard:kujin"]),
+                huangGai.SkillIds.SequenceEqual(["classic:kujin"]),
             "The current classic Huang Gai must expose the formal Wu, 4-HP Kujin definition.");
         var ganNing = classic.Generals["classic:gan-ning"];
         Require(ganNing.Name == "甘宁" &&

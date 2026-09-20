@@ -146,6 +146,8 @@ rules v99 的拒战同样不新增 Checkpoint 字段。阳／阴私有 Choice、
 
 `standard-classic-generals@1.76.0` 为激将组合 `Lord + Trigger + Active`，为乱击／天义组合 `State + Active`，为双雄组合 `State + Trigger`；只补全现有部分的元数据，不改变激将响应游标、乱击双实体牌、天义回合修正、双雄判定／转化状态或 rules v99。1.75.0 Checkpoint 必须继续使用 1.75.0 Registry 并保留旧元数据组合，1.76.0 的内容签名和玩法指纹阻止静默互换。Checkpoint schema、命令前缀、玩家资料及历史包指纹均未改变。
 
+`standard-classic-generals@1.77.0` 新增 `classic:rende`、`classic:zhiheng`、`classic:qingnang`、`classic:kujin` 并只切换当前经典刘备、孙权、华佗、黄盖；主动演示包、国战试验和 1.76.0 经典包继续引用原 `standard:` ID。新旧定义投影到相同 `SkillKind`，本块不改 rules v99、命令或执行效果；内容签名与玩法指纹会阻止两版 Registry 静默互换。Checkpoint schema 与玩家资料不变，旧存档必须继续装载其原内容包版本。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 76, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 77, 0))
     {
     }
 
@@ -127,12 +127,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 73, 0) &&
             version != new Version(1, 74, 0) &&
             version != new Version(1, 75, 0) &&
-            version != new Version(1, 76, 0))
+            version != new Version(1, 76, 0) &&
+            version != new Version(1, 77, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.76.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.77.0.");
         }
 
         _version = version;
@@ -497,6 +498,30 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 PhysicalCards = physicalCards
             });
+        }
+
+        if (_version >= new Version(1, 77, 0))
+        {
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:rende",
+                "仁德",
+                "出牌阶段将一至若干张手牌交给一名其他角色；一次交给至少两张时回复 1 点体力。",
+                SkillKind.Rende)));
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:zhiheng",
+                "制衡",
+                "出牌阶段限一次，你可以弃置任意张手牌或装备区里的牌，然后摸等量张牌。",
+                SkillKind.Zhiheng)));
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:qingnang",
+                "青囊",
+                "出牌阶段限一次，你可以弃置一张手牌并选择一名已受伤的角色，令其回复 1 点体力。",
+                SkillKind.Qingnang)));
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:kujin",
+                "苦肉",
+                "出牌阶段，你可以失去 1 点体力，然后摸两张牌。",
+                SkillKind.Kujin)));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1027,7 +1052,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             "classic:liu-bei",
             "刘备",
             "liu_bei",
-            "standard:rende",
+            _version >= new Version(1, 77, 0)
+                ? "classic:rende"
+                : "standard:rende",
             "shu",
             BaseHp: 4,
             AdditionalSkillIds: _version >= new Version(1, 5, 0)
@@ -1037,7 +1064,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             "classic:sun-quan",
             "孙权",
             "sun_quan",
-            "standard:zhiheng",
+            _version >= new Version(1, 77, 0)
+                ? "classic:zhiheng"
+                : "standard:zhiheng",
             "wu",
             BaseHp: 4,
             AdditionalSkillIds: _version >= new Version(1, 6, 0)
@@ -1062,7 +1091,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             "classic:hua-tuo",
             "华佗",
             "hua_tuo",
-            "standard:qingnang",
+            _version >= new Version(1, 77, 0)
+                ? "classic:qingnang"
+                : "standard:qingnang",
             "qun",
             BaseHp: 3,
             AdditionalSkillIds: ["standard:jijiu"]));
@@ -1121,7 +1152,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:huang-gai",
                 "黄盖",
                 "huang_gai",
-                "standard:kujin",
+                _version >= new Version(1, 77, 0)
+                    ? "classic:kujin"
+                    : "standard:kujin",
                 "wu",
                 BaseHp: 4));
         }

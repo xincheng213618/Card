@@ -9,26 +9,26 @@ internal static class SkillOwnershipChecks
             "Structured printed-skill ownership requires rules v97 or newer.");
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Generals["classic:sun-quan"].SkillIds
-                .SequenceEqual(["standard:zhiheng", "classic:jiuyuan"]),
+                .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]),
             "The immutable Sun Quan content definition must retain both printed skills.");
 
         var rebel = SelectClassicGeneral(registry, "classic:sun-quan", Role.Rebel);
         var rebelSnapshot = Human(rebel);
         Require(rebelSnapshot.Role == Role.Rebel &&
                 rebelSnapshot.Skills?.Select(skill => skill.ContentId)
-                    .SequenceEqual(["standard:zhiheng"]) == true,
+                    .SequenceEqual(["classic:zhiheng"]) == true,
             "A current non-Lord must own Zhiheng but not the printed Lord skill Jiuyuan.");
 
         var legacy = GameReplay.Restore(
             rebel.CreateCheckpoint() with { RulesVersion = 96 },
             registry);
         Require(Human(legacy).Skills?.Select(skill => skill.ContentId)
-                    .SequenceEqual(["standard:zhiheng", "classic:jiuyuan"]) == true,
+                    .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) == true,
             "Rules v96 replay must retain the historical all-printed-skills projection.");
 
         var lord = SelectClassicGeneral(registry, "classic:sun-quan", Role.Lord);
         Require(Human(lord).Skills?.Select(skill => skill.ContentId)
-                    .SequenceEqual(["standard:zhiheng", "classic:jiuyuan"]) == true,
+                    .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) == true,
             "A current Lord must retain every printed Sun Quan skill in stable order.");
     }
 

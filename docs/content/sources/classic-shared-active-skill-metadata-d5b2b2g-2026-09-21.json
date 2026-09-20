@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:classic-shared-active-skills-d5b2b2g",
+  "retrievedAt": "2026-09-21T03:23:35+08:00",
+  "selectedVersion": "当前经典刘备、孙权、华佗、黄盖的正式主动技能身份",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "应用主动入口独立于官方状态技或触发技轴。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/1",
+      "use": "刘备印刷仁德；官方当前文本为同阶段可多次给牌并在给出第二张牌时回复。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/8",
+      "use": "孙权印刷出牌阶段限一次的制衡。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/23.html",
+      "use": "华佗印刷出牌阶段限一次的青囊。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/11",
+      "use": "黄盖印刷可在出牌阶段主动失去体力并摸牌的苦肉。"
+    }
+  ],
+  "skills": [
+    { "id": "classic:rende", "legacyKind": "Rende", "actionForms": ["Active"] },
+    { "id": "classic:zhiheng", "legacyKind": "Zhiheng", "actionForms": ["Active"] },
+    { "id": "classic:qingnang", "legacyKind": "Qingnang", "actionForms": ["Active"] },
+    { "id": "classic:kujin", "legacyKind": "Kujin", "actionForms": ["Active"] }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.77.0",
+    "rulesVersion": 99,
+    "tags": [],
+    "executionForms": [],
+    "gameplayBehaviorChanged": false
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.76.0",
+    "previousReferences": [
+      "standard:rende",
+      "standard:zhiheng",
+      "standard:qingnang",
+      "standard:kujin"
+    ],
+    "stableActivePackageChanged": false,
+    "nationalZhangJiaoPackageChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "knownRuleGap": {
+    "skillId": "classic:rende",
+    "official": "同一出牌阶段可向其他角色多次给牌，并在累计给出第二张牌时回复一次",
+    "current": "每回合一次，单次向一名角色给牌，单次至少两张时回复",
+    "disposition": "独立rules版本修正，不在内容身份迁移中静默改变"
+  },
+  "acceptance": [
+    "四项当前定义均使用独立classic ID并投影ActionForms Active",
+    "四项均保留真实IActiveSkill实现",
+    "经典包1.76.0继续引用原standard ID",
+    "标准主动技能演示包及国战试验定义保持不变",
+    "内容指纹区分1.77.0和1.76.0",
+    "WPF刘备仁德显示主动技，黄盖卡显示正式苦肉文本",
+    "两张1120×740离屏图无技能栏、候选卡、操作区或手牌裁切",
+    "Release 0 warning / 0 error，Core 291/291，WPF 83/83"
+  ],
+  "deferred": [
+    "仁德完整累计给牌规则及其rules版本边界",
+    "鬼才、刚烈、急救、遗计、英姿、奸雄、节命等共享技能的独立身份",
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

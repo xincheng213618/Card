@@ -462,6 +462,65 @@ internal static class SkillMetadataChecks
             "The compound migration must preserve pure actions and be isolated to package 1.76.0.");
     }
 
+    public static void ClassicSharedActiveSkillsReceiveDistinctIdentities()
+    {
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 77, 0));
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 76, 0));
+        var stable = StandardContentRegistry.CreateWithActiveSkills();
+        (string ClassicId, string StandardId, SkillKind Kind)[] skills =
+        [
+            ("classic:rende", "standard:rende", SkillKind.Rende),
+            ("classic:zhiheng", "standard:zhiheng", SkillKind.Zhiheng),
+            ("classic:qingnang", "standard:qingnang", SkillKind.Qingnang),
+            ("classic:kujin", "standard:kujin", SkillKind.Kujin)
+        ];
+
+        foreach (var (classicId, standardId, kind) in skills)
+        {
+            Require(migrated.Skills[classicId] is
+                    {
+                        Tags: SkillTag.None,
+                        ExecutionForms: SkillExecutionForm.None,
+                        ActionForms: SkillActionForm.Active,
+                        LegacyKind: var projectedKind
+                    } &&
+                    projectedKind == kind &&
+                    SkillRegistry.GetActive(kind) is not null,
+                $"Current classic content did not register {classicId} as a backed active action.");
+            Require(!previous.Skills.ContainsKey(classicId) &&
+                    previous.Skills[standardId].ActionForms == SkillActionForm.None,
+                $"Package 1.76.0 unexpectedly gained the distinct identity {classicId}.");
+            Require(stable.Skills[standardId].ActionForms == SkillActionForm.None &&
+                    !stable.Skills.ContainsKey(classicId),
+                $"The stable active-skill package was mutated while migrating {classicId}.");
+        }
+
+        Require(migrated.Generals["classic:liu-bei"].SkillIds
+                    .SequenceEqual(["classic:rende", "classic:jijiang"]) &&
+                migrated.Generals["classic:sun-quan"].SkillIds
+                    .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) &&
+                migrated.Generals["classic:hua-tuo"].SkillIds
+                    .SequenceEqual(["classic:qingnang", "standard:jijiu"]) &&
+                migrated.Generals["classic:huang-gai"].SkillIds
+                    .SequenceEqual(["classic:kujin"]),
+            "Current classic generals did not switch to all four distinct active-skill identities.");
+        Require(previous.Generals["classic:liu-bei"].SkillIds
+                    .SequenceEqual(["standard:rende", "classic:jijiang"]) &&
+                previous.Generals["classic:sun-quan"].SkillIds
+                    .SequenceEqual(["standard:zhiheng", "classic:jiuyuan"]) &&
+                previous.Generals["classic:hua-tuo"].SkillIds
+                    .SequenceEqual(["standard:qingnang", "standard:jijiu"]) &&
+                previous.Generals["classic:huang-gai"].SkillIds
+                    .SequenceEqual(["standard:kujin"]),
+            "Package 1.76.0 did not preserve the historical shared active-skill references.");
+        Require(migrated.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 77, 0)) &&
+                previous.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 76, 0)) &&
+                migrated.ContentHash != previous.ContentHash,
+            "The shared active-skill identity migration must be isolated to package 1.77.0.");
+    }
+
     public static void StructuredNiepanUsageReplays()
     {
         var registry = ContentRegistry.Build(

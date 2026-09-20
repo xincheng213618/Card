@@ -119,11 +119,20 @@ WPF 已在周瑜【反间】真实选目标边界验证“主动技／当前可�
 
 WPF 已分别验证激将显示“主动技 · 触发技 · 主公技”和双雄显示“状态技 · 触发技”；`172-classic-jijiang-compound-metadata.png` 与 `173-classic-shuangxiong-compound-metadata.png` 在 1120×740 覆盖真实主动入口／摸牌阶段 Choice、技能栏、操作区和手牌且无裁切。来源与逐项边界见 `docs/content/sources/classic-compound-skill-metadata-d5b2b2f-2026-09-21.json`。
 
+## 经典共享主动技能独立身份
+
+`standard-classic-generals@1.77.0` 新增 `classic:rende`、`classic:zhiheng`、`classic:qingnang`、`classic:kujin`，四项均为 `ActionForms.Active`，并让当前经典刘备、孙权、华佗、黄盖改为引用这些正式身份。规则继续复用同一 `SkillKind`／`IActiveSkill` 实现，没有复制主动结算分支；`standard-active-skills@1.0.0` 的演示武将和技能定义保持原样，国战试验华佗也继续使用 `standard:qingnang`。
+
+1.76.0 及更早经典包仍引用 `standard:` ID，因而旧内容签名、玩法指纹和 Checkpoint 恢复路径不变。新 `classic:` 定义让技能栏和后续规则迁移不再依赖演示扩展包元数据，同时完整保留既有主动命令、实体牌移动、濒死续接、AI、Prompt 与 Replay。
+
+本块不是玩法纠错：官网当前仁德允许在一个出牌阶段内多次分牌，并在累计给出第二张牌时回复；现有 `IActiveSkill` 仍是一次交给同一目标、每回合一次的早期切片。该差距已写入来源快照，后续必须单独提升 rules 版本并验证累计账本、多个目标、AI、Checkpoint 与 Replay，不能借内容 ID 迁移静默修改。WPF 的刘备技能栏和黄盖选将卡分别由 `174-classic-shared-active-metadata.png`、`175-classic-kujin-card.png` 在 1120×740 复核。来源与边界见 `docs/content/sources/classic-shared-active-skill-metadata-d5b2b2g-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：
 
-- 为剩余正式技能逐项核对并迁移标签、执行形态和动作入口，尤其是稳定 `standard:` 包中被经典武将复用的主动技能及其版本策略；
+- 为剩余正式技能逐项核对并迁移标签、执行形态和动作入口，尤其是鬼才、刚烈、急救、遗计、英姿、奸雄、节命等仍复用 `standard:` ID 的经典技能；
+- 以独立规则版本把仁德从一次交牌切片升级为同阶段可多次分配、累计第二张牌回复一次的完整规则；
 - 为正式转换技补充技能重置消费者；阳／阴当前形态和 Checkpoint／Replay 已由严颜验证，正式觉醒消费者已由 SP 关羽完成；
 - 在已落地的每目标回合账本之外增加每事件等复合限次维度，并由真实消费者冻结其生命周期；
 - 在全部正式技能迁移后移除 WPF 的旧兼容类型文案。

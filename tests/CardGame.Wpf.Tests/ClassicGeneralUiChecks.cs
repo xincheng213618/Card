@@ -257,7 +257,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(huangGai.Name == "黄盖" &&
                        huangGai.Kingdom == "吴" &&
                        huangGai.SkillName == "苦肉" &&
-                       huangGai.SkillDescription.Contains("体力大于 0", StringComparison.Ordinal) &&
+                       huangGai.SkillDescription.Contains("失去 1 点体力", StringComparison.Ordinal) &&
                        huangGai.SkillDescription.Contains("摸两张牌", StringComparison.Ordinal) &&
                        huangGai.HealthText == "体力上限 5" &&
                        GeneralArt.HasPortrait(huangGai.GeneralId),
@@ -1937,6 +1937,9 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(actions.Select(action => action.Skill)
                            .SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]) &&
                        viewModel.AdditionalActiveSkillActions is [{ Skill: SkillKind.Jijiang }] &&
+                       viewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "仁德" &&
+                           skill.TypeText == "主动技") &&
                        viewModel.HumanSkillCards.Any(skill =>
                            skill.Name == "激将" &&
                            skill.TypeText == "主动技 · 触发技 · 主公技"),
