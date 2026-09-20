@@ -386,6 +386,82 @@ internal static class SkillMetadataChecks
             "The pure-active migration must be isolated to package 1.75.0 and fingerprinted.");
     }
 
+    public static void ClassicCompoundSkillMetadataIsVersioned()
+    {
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 76, 0));
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 75, 0));
+
+        Require(migrated.Skills["classic:jijiang"] is
+                {
+                    Tags: SkillTag.Lord,
+                    ExecutionForms: SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.Active,
+                    LegacyKind: SkillKind.Jijiang
+                } &&
+                SkillRegistry.GetActive(SkillKind.Jijiang) is not null,
+            "Current Jijiang metadata did not preserve its Lord trigger and active action parts.");
+        Require(migrated.Skills["classic:luanji"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.State,
+                    ActionForms: SkillActionForm.Active,
+                    LegacyKind: SkillKind.Luanji
+                } &&
+                SkillRegistry.GetActive(SkillKind.Luanji) is not null,
+            "Current Luanji metadata did not combine its continuous conversion and active action parts.");
+        Require(migrated.Skills["classic:tianyi"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.State,
+                    ActionForms: SkillActionForm.Active,
+                    LegacyKind: SkillKind.Tianyi
+                } &&
+                SkillRegistry.GetActive(SkillKind.Tianyi) is not null,
+            "Current Tianyi metadata did not combine its active Pindian and turn-state parts.");
+        Require(migrated.Skills["classic:shuangxiong"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None,
+                    LegacyKind: SkillKind.Shuangxiong
+                } &&
+                SkillRegistry.GetActive(SkillKind.Shuangxiong) is null,
+            "Current Shuangxiong metadata did not combine its draw trigger and turn-state parts.");
+
+        Require(previous.Skills["classic:jijiang"] is
+                {
+                    Tags: SkillTag.Lord,
+                    ExecutionForms: SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None
+                } &&
+                previous.Skills["classic:luanji"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.State,
+                    ActionForms: SkillActionForm.None
+                } &&
+                previous.Skills["classic:tianyi"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None,
+                    ActionForms: SkillActionForm.None
+                } &&
+                previous.Skills["classic:shuangxiong"] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.None,
+                    ActionForms: SkillActionForm.None
+                },
+            "Package 1.75.0 unexpectedly gained compound skill metadata.");
+        Require(migrated.Skills["classic:fanjian"].ActionForms == SkillActionForm.Active &&
+                migrated.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 76, 0)) &&
+                previous.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 75, 0)) &&
+                migrated.ContentHash != previous.ContentHash,
+            "The compound migration must preserve pure actions and be isolated to package 1.76.0.");
+    }
+
     public static void StructuredNiepanUsageReplays()
     {
         var registry = ContentRegistry.Build(

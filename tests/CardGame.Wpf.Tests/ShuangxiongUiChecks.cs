@@ -23,8 +23,11 @@ internal static class ShuangxiongUiChecks
         var prompt = Program.Engine(viewModel).PendingDecision;
         Program.Assert(!viewModel.HasSaveError && viewModel.IsSkillSelectionPending &&
                        prompt is { Kind: DecisionKind.Shuangxiong, IsPrivate: true } &&
-                       viewModel.SkillChoices.Count == 2,
-            "WPF must restore the private Shuangxiong draw replacement choice.");
+                       viewModel.SkillChoices.Count == 2 &&
+                       viewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "双雄" &&
+                           skill.TypeText == "状态技 · 触发技"),
+            "WPF must restore the private Shuangxiong choice with both execution parts visible.");
         Program.Render(root, 1120, 740, Path.Combine(output, "142-shuangxiong-draw-choice.png"));
         var text = Program.Find<TextBlock>(root).Select(item => item.Text).ToArray();
         Program.Assert(text.Any(item => item.Contains("双雄", StringComparison.Ordinal)) &&

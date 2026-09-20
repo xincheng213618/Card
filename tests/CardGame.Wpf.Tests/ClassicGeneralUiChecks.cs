@@ -1936,8 +1936,11 @@ internal static class ClassicGeneralUiChecks
         var actions = viewModel.HumanActiveSkillActions;
         Program.Assert(actions.Select(action => action.Skill)
                            .SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]) &&
-                       viewModel.AdditionalActiveSkillActions is [{ Skill: SkillKind.Jijiang }],
-            "Classic Liu Bei must publish separate Rende and Jijiang toolbar actions in stable order.");
+                       viewModel.AdditionalActiveSkillActions is [{ Skill: SkillKind.Jijiang }] &&
+                       viewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "激将" &&
+                           skill.TypeText == "主动技 · 触发技 · 主公技"),
+            "Classic Liu Bei must publish separate Rende and compound Jijiang metadata in stable order.");
         var jijiang = actions.Single(action => action.Skill == SkillKind.Jijiang);
         Program.Assert(jijiang.SelectableCardIds.Count == 0 &&
                        jijiang.SelectableTargetSeats.Count > 0 &&

@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 75, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 76, 0))
     {
     }
 
@@ -126,12 +126,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 72, 0) &&
             version != new Version(1, 73, 0) &&
             version != new Version(1, 74, 0) &&
-            version != new Version(1, 75, 0))
+            version != new Version(1, 75, 0) &&
+            version != new Version(1, 76, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.75.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.76.0.");
         }
 
         _version = version;
@@ -537,11 +538,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 5, 0))
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:jijiang",
-                "激将",
-                "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
-                SkillKind.Jijiang), SkillTag.Lord, SkillExecutionForm.Trigger));
+            builder.AddSkill(WithActiveActionMetadata(
+                WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:jijiang",
+                    "激将",
+                    "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
+                    SkillKind.Jijiang), SkillTag.Lord, SkillExecutionForm.Trigger),
+                new Version(1, 76, 0)));
         }
         if (_version >= new Version(1, 6, 0))
         {
@@ -746,10 +749,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 46, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
-                "classic:shuangxiong", "双雄",
-                "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
-                SkillKind.Shuangxiong));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:shuangxiong", "双雄",
+                    "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
+                    SkillKind.Shuangxiong),
+                SkillTag.None,
+                SkillExecutionForm.State | SkillExecutionForm.Trigger,
+                new Version(1, 76, 0)));
         }
         if (_version >= new Version(1, 47, 0))
         {
@@ -773,8 +779,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 49, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition("classic:tianyi", "天义",
-                "出牌阶段限一次，你可以与一名其他角色拼点。若你赢，本回合可额外使用一张【杀】、使用【杀】无距离限制且目标上限+1；若你没赢，本回合不能使用【杀】。", SkillKind.Tianyi));
+            builder.AddSkill(WithActiveActionMetadata(
+                WithStructuredSkillMetadata(new ContentSkillDefinition("classic:tianyi", "天义",
+                        "出牌阶段限一次，你可以与一名其他角色拼点。若你赢，本回合可额外使用一张【杀】、使用【杀】无距离限制且目标上限+1；若你没赢，本回合不能使用【杀】。", SkillKind.Tianyi),
+                    SkillTag.None,
+                    SkillExecutionForm.State,
+                    new Version(1, 76, 0)),
+                new Version(1, 76, 0)));
         }
         if (_version >= new Version(1, 50, 0))
         {
@@ -797,8 +808,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 53, 0))
         {
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:luanji", "乱击",
-                "你可以将两张花色相同的手牌当【万箭齐发】使用。", SkillKind.Luanji)));
+            builder.AddSkill(WithActiveActionMetadata(
+                WithContinuousStateMetadata(new ContentSkillDefinition("classic:luanji", "乱击",
+                    "你可以将两张花色相同的手牌当【万箭齐发】使用。", SkillKind.Luanji)),
+                new Version(1, 76, 0)));
             builder.AddSkill(WithStructuredSkillMetadata(
                 new ContentSkillDefinition("classic:xueyi", "血裔",
                     "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi),
@@ -1763,8 +1776,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             SkillExecutionForm.State,
             new Version(1, 74, 0));
 
-    private ContentSkillDefinition WithActiveActionMetadata(ContentSkillDefinition definition) =>
-        _version >= new Version(1, 75, 0)
+    private ContentSkillDefinition WithActiveActionMetadata(
+        ContentSkillDefinition definition,
+        Version? minimumVersion = null) =>
+        _version >= (minimumVersion ?? new Version(1, 75, 0))
             ? definition with { ActionForms = SkillActionForm.Active }
             : definition;
 

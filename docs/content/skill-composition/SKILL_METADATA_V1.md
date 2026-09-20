@@ -111,11 +111,19 @@ rules v99／`standard-classic-generals@1.70.0` 以 2018 版 `classic:yan-yan` �
 
 WPF 已在周瑜【反间】真实选目标边界验证“主动技／当前可发动”，`171-classic-active-action-metadata.png` 在 1120×740 覆盖技能栏、六名目标、操作区和手牌且无裁切。激将、乱击、天义、双雄等同时涉及主动／触发／后续状态的技能保留给复合迁移，避免用单轴标签压平语义。来源与逐项边界见 `docs/content/sources/classic-active-action-metadata-d5b2b2e-2026-09-21.json`。
 
+## 经典复合技能元数据迁移
+
+`standard-classic-generals@1.76.0` 首次用三条独立轴表达同一个技能中的不同部分：激将为 `Lord + Trigger + Active`，乱击为 `State + Active`，天义为 `State + Active`，双雄为 `State + Trigger`。其中激将既可在出牌阶段通过应用的技能按钮发起，也会在需要打出【杀】的响应时机确认；乱击持续提供同花色双牌转【万箭齐发】的合法性，同时由已有主动草稿收集两张实体牌；天义由主动拼点进入本回合杀次数、距离、目标数或禁杀状态；双雄在摸牌阶段确认是否改判定，并在成功后持续提供本回合异色牌转【决斗】。
+
+本批只补充既有执行结构的描述，不增加 rules 版本，也不改变主动技能实现、转换来源、拼点、判定、回合状态、AI、Prompt 或 Replay。1.75.0 仍保留激将 `Lord + Trigger`、乱击 `State`，且天义和双雄没有复合元数据；内容签名与玩法指纹阻止两版静默互换。
+
+WPF 已分别验证激将显示“主动技 · 触发技 · 主公技”和双雄显示“状态技 · 触发技”；`172-classic-jijiang-compound-metadata.png` 与 `173-classic-shuangxiong-compound-metadata.png` 在 1120×740 覆盖真实主动入口／摸牌阶段 Choice、技能栏、操作区和手牌且无裁切。来源与逐项边界见 `docs/content/sources/classic-compound-skill-metadata-d5b2b2f-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：
 
-- 为剩余正式技能逐项核对并迁移标签、执行形态和动作入口，尤其是激将、乱击、天义、双雄等复合技能及稳定共享主动技能；
+- 为剩余正式技能逐项核对并迁移标签、执行形态和动作入口，尤其是稳定 `standard:` 包中被经典武将复用的主动技能及其版本策略；
 - 为正式转换技补充技能重置消费者；阳／阴当前形态和 Checkpoint／Replay 已由严颜验证，正式觉醒消费者已由 SP 关羽完成；
 - 在已落地的每目标回合账本之外增加每事件等复合限次维度，并由真实消费者冻结其生命周期；
 - 在全部正式技能迁移后移除 WPF 的旧兼容类型文案。
