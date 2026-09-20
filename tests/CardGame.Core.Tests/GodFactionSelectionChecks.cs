@@ -63,7 +63,11 @@ internal static class GodFactionSelectionChecks
                     .SequenceEqual(restoredAtPrompt.Events.Select(item => item.Payload.GetType().Name)),
             "The selected faction, effective Huangtian relation and event stream did not replay exactly.");
 
-        var legacy = GameReplay.Restore(promptCheckpoint with { RulesVersion = 94 }, registry);
+        var legacyRegistry = CreateRegistry(new Version(1, 66, 0));
+        var (legacySetup, _) = FindFixture(legacyRegistry);
+        var legacy = GameReplay.Restore(
+            RoundTrip(legacySetup.CreateCheckpoint()) with { RulesVersion = 94 },
+            legacyRegistry);
         Require(legacy.PendingDecision?.Kind != DecisionKind.SelectFaction &&
                 legacy.CreateSnapshot(0, revealAll: true).Players[0].FactionId is null,
             "Rules v94 must retain the pre-god-faction setup and snapshot behavior.");
@@ -240,11 +244,13 @@ internal static class GodFactionSelectionChecks
         return false;
     }
 
-    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry(Version? classicPackageVersion = null) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        classicPackageVersion is null
+            ? new StandardClassicGeneralPackage()
+            : new StandardClassicGeneralPackage(classicPackageVersion),
         new FixturePackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 10,
+  "skills": [
+    {
+      "id": "classic:wushen",
+      "revision": 1,
+      "minimumRulesVersion": 95,
+      "modifiers": [
+        {
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "sourceCardIdentityId": "heart-hand-as-slash",
+          "condition": { "kind": "always" }
+        }
+      ],
+      "cardIdentities": [
+        {
+          "id": "heart-hand-as-slash",
+          "zones": ["hand"],
+          "inputKinds": [],
+          "inputSuits": ["heart"],
+          "outputKind": "slash",
+          "condition": { "kind": "always" }
+        }
+      ]
+    }
+  ]
+}

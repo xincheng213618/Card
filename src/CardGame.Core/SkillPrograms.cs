@@ -322,8 +322,8 @@ public sealed class SkillProgramCatalog
                 1 => ["id", "revision", "modifiers", "viewAs", "activations"],
                 < 7 => ["id", "revision", "modifiers", "viewAs", "activations", "triggers"],
                 8 => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions"],
-                9 => ["id", "revision", "modifiers", "viewAs", "activations", "triggers", "contributions"],
-                _ => ["id", "revision", "modifiers", "viewAs", "activations", "triggers", "contributions", "cardIdentities"]
+                9 => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions"],
+                _ => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions", "cardIdentities"]
             });
             var id = Identifier(skill, "id", path);
             var skillPath = $"skill '{id}' ({path})";

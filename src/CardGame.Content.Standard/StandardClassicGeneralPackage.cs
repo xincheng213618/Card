@@ -21,6 +21,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.boundary-zhang-jiao.rules.json";
     private const string BoundaryZhangJiaoPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.boundary-zhang-jiao.presentation.json";
+    private const string ClassicShenGuanYuRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
+    private const string ClassicShenGuanYuPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.presentation.json";
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
@@ -33,10 +37,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(BoundaryZhangJiaoRulesResource),
             ReadEmbeddedText(BoundaryZhangJiaoPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicShenGuanYuCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicShenGuanYuRulesResource),
+            ReadEmbeddedText(ClassicShenGuanYuPresentationResource)));
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 66, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 67, 0))
     {
     }
 
@@ -109,12 +117,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 63, 0) &&
             version != new Version(1, 64, 0) &&
             version != new Version(1, 65, 0) &&
-            version != new Version(1, 66, 0))
+            version != new Version(1, 66, 0) &&
+            version != new Version(1, 67, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.66.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.67.0.");
         }
 
         _version = version;
@@ -836,6 +845,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 });
             }
         }
+        if (_version >= new Version(1, 67, 0))
+        {
+            var wushenProgram = ClassicShenGuanYuCatalog.Value.Programs["classic:wushen"];
+            var wushenPresentation = ClassicShenGuanYuCatalog.Value.Presentations["classic:wushen"];
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:wushen",
+                wushenPresentation.Name,
+                wushenPresentation.Description)
+            {
+                Program = wushenProgram
+            });
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:wuhun",
+                "武魂",
+                "锁定技，当你受到1点伤害后，你令伤害来源获得1枚“梦魇”标记；当你死亡时，你令“梦魇”标记最多的一名角色进行判定，若结果不为【桃】或【桃园结义】，该角色死亡。",
+                SkillKind.Wuhun));
+        }
         if (_version >= new Version(1, 58, 0))
         {
             builder.AddSkill(new ContentSkillDefinition("classic:yinghun", "英魂",
@@ -1335,9 +1361,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "boundary:leiji", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["boundary:guidao", "boundary:huangtian"]));
         }
+        if (_version >= new Version(1, 67, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:shen-guan-yu", "神关羽", "shen_guan_yu",
+                "classic:wushen", "god", BaseHp: 5,
+                AdditionalSkillIds: ["classic:wuhun"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 67 } => ShenGuanYuClassicGeneralIds,
             { Major: 1, Minor: >= 64 } => SpZhaoYunClassicGeneralIds,
             { Major: 1, Minor: >= 63 } => XuShuClassicGeneralIds,
             { Major: 1, Minor: >= 61 } => YuJinClassicGeneralIds,
@@ -1755,6 +1789,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. XuShuClassicGeneralIds,
         "sp:zhao-yun"
+    ];
+
+    internal static IReadOnlyList<string> ShenGuanYuClassicGeneralIds { get; } =
+    [
+        .. SpZhaoYunClassicGeneralIds,
+        "classic:shen-guan-yu"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

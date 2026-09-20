@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:shen-guan-yu",
+  "retrievedAt": "2026-09-20T21:45:00+08:00",
+  "selectedVersion": "BWIKI正式服I版",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/神关羽",
+      "observedRevision": 78769,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "锁定神势力男性5体力、风包、武神与武魂顺序，以及正式服I版问答边界。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/武神",
+      "observedRevision": 79648,
+      "use": "正式服I版只包含红桃手牌视为普通杀及红桃杀无距离限制；不混入后续版无次数、不可抵消或伤害后摸牌。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/武魂",
+      "observedRevision": 78768,
+      "observedUpdatedDate": "2026-07-02",
+      "use": "正式服I版只在神关羽受到伤害后给来源梦魇，死亡时令最大持有者判定，桃或桃园结义之外直接死亡。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/技能概念介绍",
+      "observedRevision": 78953,
+      "observedUpdatedDate": "2026-07-11",
+      "use": "锁定技作为标签与状态、触发、强制性和时机分开建模；神势力在亮将前选择魏蜀吴群之一作为本局势力。"
+    }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.67.0",
+    "rulesVersion": 95,
+    "wushenRuntime": "skill-program-v10",
+    "wushenMinimumRulesVersion": 95,
+    "wushenRulesSha256": "d7e609dcaaa101ed63fa777765079a9ddc6e17afbb8c0ea9b5a37ec6ec2c344b",
+    "wushenPresentationSha256": "3933b024125082e35f890ffff421f499b582e9925e3bef7f651d1a65f4ca640e",
+    "wuhunBinding": "typed generic death-skill consumer",
+    "generalIds": ["classic:shen-guan-yu"],
+    "modeIds": ["identity:classic-5", "identity:classic-8"]
+  },
+  "acceptance": [
+    "真实classic:standard-deck红桃桃冻结为普通杀并跨距离使用",
+    "同一出牌阶段第二张杀仍被通常次数限制",
+    "真实红桃桃保留在手牌时不产生濒死桃救援入口",
+    "正式武魂在真实经典牌堆全AI对局完成梦魇死亡判定直接死亡清理及Replay",
+    "1.66.0不注册神关羽或两项技能",
+    "界限突破试验模式不自动混入经典神关羽"
+  ],
+  "deferred": [
+    "经典肖像正式绑定及来源清单复核",
+    "1120x740选将卡与图鉴离屏视觉验收",
+    "真实Windows桌面鼠标键盘及多DPI验收"
+  ]
+}

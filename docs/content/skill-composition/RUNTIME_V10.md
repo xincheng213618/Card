@@ -1,6 +1,6 @@
 # 可执行技能配置 v10：持续牌身份与动作距离修正
 
-规则文件使用 `schemaVersion: 10`，展示文件仍为 `schemaVersion: 1`。执行器标识为 `skill-program-v10`，schema 默认最低引擎规则版本为 94。schema 1～9 的字段、玩法哈希和 rules 79～93 路径保持不变；包含 schema 10 程序的内容注册表不会装入 rules v93 或更早存档。
+规则文件使用 `schemaVersion: 10`，展示文件仍为 `schemaVersion: 1`。执行器标识为 `skill-program-v10`，schema 默认最低引擎规则版本为 94；schema 8～10 可用 `minimumRulesVersion` 显式要求更晚但不超过当前引擎的规则版本。schema 1～9 的字段、玩法哈希和 rules 79～93 路径保持不变；包含 schema 10 程序的内容注册表不会装入 rules v93 或更早存档，正式 `classic:wushen` 因依赖神势力开局选择而显式要求 rules v95。
 
 v10 将状态技的“牌持续视为另一牌名”与该有效动作上的规则修正分成两类显式绑定：
 
@@ -17,6 +17,7 @@ v10 将状态技的“牌持续视为另一牌名”与该有效动作上的规�
     {
       "id": "classic:wushen",
       "revision": 1,
+      "minimumRulesVersion": 95,
       "modifiers": [
         {
           "query": "slashDistanceLimit",
@@ -57,7 +58,7 @@ v10 将状态技的“牌持续视为另一牌名”与该有效动作上的规�
 
 ## 兼容与验证边界
 
-- `GameCheckpoint.CurrentRulesVersion` 现为 95；schema 10 的最低版本仍为 rules v94，rules v93 恢复会在创建引擎前明确拒绝。
+- `GameCheckpoint.CurrentRulesVersion` 现为 95；schema 10 默认最低版本仍为 rules v94，正式武神显式提高到 v95，因此 1.67.0 注册表会拒绝 rules v94，而 1.66.0 及更早包仍可沿原规则恢复。
 - schema 9 仍映射 `skill-program-v9`／最低 rules 93；旧配置的规范化 JSON、运行时版本串和玩法哈希不变。
 - 受控全红桃装备牌场景验证：物理赤兔只生成有效【杀】、不能装备、可攻击距离 2 目标、动作审计保留两种身份、通常一次出杀限制不变、暂停前后 Checkpoint/Replay 一致。
-- 本块只完成 A53a 的通用武神运行时，不注册正式 `classic:wushen`、`classic:wuhun` 或神关羽，也不改变默认经典身份池；BWIKI 技能概念页明确的神势力开局选择已由 rules v95 的 A53b1 独立实现，A53b2 仍需以真实牌堆验收正式内容和红桃桃濒死边界；视觉绑定留给 C21。
+- A53a 先完成通用运行时；A53b1 以 rules v95 完成神势力开局选择；A53b2 已由 `standard-classic-generals@1.67.0` 注册正式 `classic:wushen`、类型化通用 `classic:wuhun` 和完整神关羽。真实牌堆已经验收红桃桃按杀、濒死无桃入口、通常次数、武魂整链和 Replay；视觉绑定仍留给 C21。
