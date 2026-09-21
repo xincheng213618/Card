@@ -236,7 +236,8 @@ public enum SkillKind
     Yizhong,
     Wuyan,
     Jujian,
-    Wuhun
+    Wuhun,
+    Xianzhen
 }
 
 public enum DecisionKind
@@ -304,7 +305,8 @@ public enum DecisionKind
     WuhunTarget,
     SelectFaction,
     Jiangchi,
-    Qianxi
+    Qianxi,
+    XianzhenPindian
 }
 
 public enum JiangchiMode

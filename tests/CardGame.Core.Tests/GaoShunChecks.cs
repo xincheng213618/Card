@@ -1,0 +1,422 @@
+using System.Reflection;
+using CardGame.Content.Standard;
+using CardGame.Core;
+
+internal static class GaoShunChecks
+{
+    private const string GeneralId = "classic:gao-shun";
+    private const string XianzhenSkillId = "classic:xianzhen";
+    private const string JinjiuSkillId = "classic:jinjiu";
+
+    public static void ContentIdentityAndRulesBoundary()
+    {
+        Require(GameCheckpoint.CurrentRulesVersion >= 105,
+            "Formal Gao Shun must have an explicit rules-version boundary.");
+        var current = CreateRegistry();
+        var previous = ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(new Version(1, 82, 0)));
+        var general = current.Generals[GeneralId];
+        var xianzhen = current.GetSkill(XianzhenSkillId);
+        var jinjiu = current.GetSkill(JinjiuSkillId);
+        var identity = jinjiu.Program?.CardIdentities.Single();
+
+        Require(general.Name == "高顺" &&
+                general.FactionId == "qun" &&
+                general.BaseHp == 4 &&
+                general.SkillIds.SequenceEqual([XianzhenSkillId, JinjiuSkillId]) &&
+                xianzhen.LegacyKind == SkillKind.Xianzhen &&
+                xianzhen.ExecutionForms == SkillExecutionForm.State &&
+                xianzhen.ActionForms == SkillActionForm.Active &&
+                jinjiu.Tags == SkillTag.Locked &&
+                jinjiu.ExecutionForms == SkillExecutionForm.State &&
+                identity is
+                {
+                    Id: "alcohol-hand-as-slash",
+                    OutputKind: CardKind.Slash
+                } &&
+                jinjiu.Program!.MinimumRulesVersion == 94 &&
+                identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
+                identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
+                current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId) &&
+                !previous.Generals.ContainsKey(GeneralId) &&
+                !previous.Skills.ContainsKey(XianzhenSkillId) &&
+                !previous.Skills.ContainsKey(JinjiuSkillId),
+            "Classic package 1.83.0 must add exact Gao Shun content while 1.82.0 remains unchanged.");
+
+        var fixture = Find(sourceWins: true, requireAlcohol: true);
+        var snapshot = fixture.Game.CreateSnapshot(0, revealAll: true);
+        var alcoholIds = snapshot.Players[0].Hand
+            .Where(card => card.Kind == CardKind.Alcohol)
+            .Select(card => card.Id)
+            .ToHashSet();
+        var actions = fixture.Game.GetHumanLegalActions();
+        Require(alcoholIds.Count > 0 &&
+                actions.All(action => action.Kind != LegalActionKind.Alcohol ||
+                    action.CardId is not { } cardId || !alcoholIds.Contains(cardId)) &&
+                actions.Any(action =>
+                    action.Kind == LegalActionKind.Slash &&
+                    action.CardId is { } cardId &&
+                    alcoholIds.Contains(cardId) &&
+                    action.ConversionSource is
+                    {
+                        SkillId: JinjiuSkillId,
+                        BindingId: "alcohol-hand-as-slash"
+                    }),
+            "Jinjiu must replace native Alcohol use with one mandatory Slash identity.");
+
+        GameEngine? legacy = null;
+        IReadOnlyList<int> legacyAlcoholIds = [];
+        for (var seed = 1; seed <= 256 && legacy is null; seed++)
+        {
+            var initial = CreateGame(current, seed);
+            var checkpoint = RoundTrip(initial.CreateCheckpoint()) with { RulesVersion = 104 };
+            var candidate = GameReplay.Restore(checkpoint, current);
+            if (!StartAndSelect(candidate) || Reach(candidate, DecisionKind.PlayCard, 256) is null)
+                continue;
+            var candidateAlcoholIds = candidate.CreateSnapshot(0, revealAll: true).Players[0].Hand
+                .Where(card => card.Kind == CardKind.Alcohol)
+                .Select(card => card.Id)
+                .ToArray();
+            if (candidateAlcoholIds.Length == 0) continue;
+            legacy = candidate;
+            legacyAlcoholIds = candidateAlcoholIds;
+        }
+        Require(legacy is not null,
+            "No bounded rules v104 Gao Shun fixture exposed a native Alcohol boundary.");
+        var legacyActions = legacy!.GetHumanLegalActions();
+        Require(legacyActions.All(action => action.Skill != SkillKind.Xianzhen) &&
+                legacyActions.Any(action => action.Kind == LegalActionKind.Alcohol &&
+                    action.CardId is { } cardId && legacyAlcoholIds.Contains(cardId)) &&
+                legacyActions.All(action => action.Kind != LegalActionKind.Slash ||
+                    action.CardId is not { } cardId || !legacyAlcoholIds.Contains(cardId)),
+            "Rules v104 must keep Xianzhen disabled and preserve native Alcohol even with package 1.83.0 loaded.");
+    }
+
+    public static void XianzhenWinTargetsDistanceCountArmorAndReplays()
+    {
+        var fixture = Find(sourceWins: true, requireAlcohol: true);
+        var game = fixture.Game;
+        var targetSeat = fixture.TargetSeat;
+        var targetDistance = game.GetCombatDistance(0, targetSeat);
+        var attackRange = game.GetAttackRange(0);
+        Require(targetDistance > attackRange,
+            "The Xianzhen win fixture must keep its target outside normal attack range.");
+
+        var play = RequirePrompt(game, DecisionKind.PlayCard);
+        var used = game.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Xianzhen,
+            [fixture.SourceCardId],
+            [targetSeat],
+            game.Revision,
+            play.PromptId));
+        Require(used.Accepted, used.Error?.Message ?? "Xianzhen could not start its Pindian.");
+
+        var privatePrompt = GetHostPendingDecision(game);
+        Require(privatePrompt is
+                {
+                    Kind: DecisionKind.XianzhenPindian,
+                    PlayerSeat: var responderSeat,
+                    IsPrivate: true
+                } &&
+                responderSeat == targetSeat &&
+                privatePrompt.Choices.All(choice =>
+                    choice.Cards.Count == 1 && choice.Targets.Count == 0),
+            "Xianzhen must publish one private exact-card Pindian prompt to its target.");
+        var beforeForgeryRevision = game.Revision;
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            privatePrompt!.PromptId,
+            privatePrompt.Choices[0].Id,
+            game.Revision));
+        Require(!forged.Accepted && game.Revision == beforeForgeryRevision,
+            "A non-owner must not answer the private Xianzhen Pindian prompt.");
+
+        var paused = game.CreateCheckpoint();
+        var replay = GameReplay.Restore(RoundTrip(paused), fixture.Registry);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                GetHostPendingDecision(replay)?.Kind == DecisionKind.XianzhenPindian,
+            "A paused Xianzhen opponent-card prompt must replay exactly.");
+
+        ReachHumanPlay(game);
+        ReachHumanPlay(replay);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
+            "The completed winning Xianzhen Pindian must replay exactly.");
+
+        var result = game.Events.Select(item => item.Payload)
+            .OfType<XianzhenResolvedEvent>()
+            .Last();
+        var usage = game.CreateSnapshot(0, revealAll: true).Players[0]
+            .SkillRuntimeStates!
+            .Single(state => state.SkillId == XianzhenSkillId)
+            .Usages
+            .Single(item => item.Scope == SkillUsageScope.Turn && item.Count == 1);
+        var actions = game.GetHumanLegalActions();
+        Require(result is { SourceSeat: 0, SourceWon: true } &&
+                result.TargetSeat == targetSeat &&
+                usage.UsageId == $"win.target-{targetSeat}" &&
+                actions.Any(action => action.Kind == LegalActionKind.Slash &&
+                    action.TargetSeat == targetSeat) &&
+                actions.Any(action => action.Kind == LegalActionKind.Snatch &&
+                    action.TargetSeat == targetSeat) &&
+                actions.Any(action => action.Kind == LegalActionKind.SupplyShortage &&
+                    action.TargetSeat == targetSeat),
+            "Winning Xianzhen must record its exact target and remove card-use distance only against that target.");
+
+        SetSlashCount(game, 1);
+        var exhausted = game.GetHumanLegalActions();
+        var slashActions = exhausted.Where(action => action.Kind == LegalActionKind.Slash).ToArray();
+        Require(slashActions.Length > 0 &&
+                slashActions.All(action => action.TargetSeats.SequenceEqual([targetSeat])),
+            "After the normal Slash limit is exhausted, Xianzhen must allow further Slashes only against its Pindian target.");
+
+        var slash = slashActions[0];
+        var played = game.Submit(new PlayCardCommand(
+            0,
+            slash.CardId!.Value,
+            slash.TargetSeats,
+            game.Revision,
+            RequirePrompt(game, DecisionKind.PlayCard).PromptId,
+            slash.PlayedCardKind));
+        Require(played.Accepted &&
+                game.Events.Select(item => item.Payload).OfType<CardUsedEvent>().Last() is
+                { SourceSeat: 0, IgnoresArmor: true },
+            played.Error?.Message ?? "A winning Xianzhen Slash must ignore the selected target's armor.");
+
+    }
+
+    public static void XianzhenLossBlocksSlashOnly()
+    {
+        var fixture = Find(sourceWins: false, requireAlcohol: true);
+        var game = fixture.Game;
+        var play = RequirePrompt(game, DecisionKind.PlayCard);
+        var used = game.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Xianzhen,
+            [fixture.SourceCardId],
+            [fixture.TargetSeat],
+            game.Revision,
+            play.PromptId));
+        Require(used.Accepted, used.Error?.Message ?? "The losing Xianzhen fixture could not start.");
+        ReachHumanPlay(game);
+
+        var actions = game.GetHumanLegalActions();
+        var runtime = game.CreateSnapshot(0, revealAll: true).Players[0]
+            .SkillRuntimeStates!
+            .Single(state => state.SkillId == XianzhenSkillId);
+        Require(game.Events.Select(item => item.Payload).OfType<XianzhenResolvedEvent>()
+                    .Last() is { SourceSeat: 0, SourceWon: false } &&
+                runtime.Usages.Single(item => item.Scope == SkillUsageScope.Turn).UsageId == "loss" &&
+                actions.All(action => action.Kind != LegalActionKind.Slash) &&
+                actions.Any(action => action.Kind == LegalActionKind.Snatch) &&
+                actions.All(action => action.Skill != SkillKind.Xianzhen),
+            "Losing or tying Xianzhen must prohibit only Slash use and keep the once-per-phase active entry consumed.");
+    }
+
+    private static Fixture Find(bool sourceWins, bool requireAlcohol)
+    {
+        var registry = CreateRegistry();
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = CreateGame(registry, seed);
+            if (!StartAndSelect(game)) continue;
+            var play = Reach(game, DecisionKind.PlayCard, 256);
+            if (play is null) continue;
+
+            var snapshot = game.CreateSnapshot(0, revealAll: true);
+            var sourceHand = snapshot.Players[0].Hand;
+            var target = snapshot.Players[2];
+            if ((requireAlcohol && sourceHand.All(card => card.Kind != CardKind.Alcohol)) ||
+                sourceHand.All(card => card.Kind != CardKind.Snatch) ||
+                sourceHand.All(card => card.Kind != CardKind.SupplyShortage) ||
+                target.Hand.Count == 0)
+            {
+                continue;
+            }
+
+            var opponentMax = target.Hand.Max(card => card.Rank);
+            var sourceCard = sourceWins
+                ? sourceHand.Where(card => card.Rank > opponentMax)
+                    .OrderByDescending(card => card.Rank)
+                    .FirstOrDefault()
+                : sourceHand.Where(card => card.Rank <= opponentMax)
+                    .OrderBy(card => card.Rank)
+                    .FirstOrDefault();
+            if (sourceCard is null) continue;
+            return new Fixture(game, registry, sourceCard.Id, target.Seat);
+        }
+
+        throw new InvalidOperationException(
+            $"No bounded Gao Shun fixture exposed a {(sourceWins ? "winning" : "losing")} Xianzhen branch.");
+    }
+
+    private static GameEngine CreateGame(ContentRegistry registry, int seed) =>
+        GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = seed,
+            PlayerCount = 4,
+            ModeId = ScenarioPackage.ModeId,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            UseInteractiveSetup = true,
+            UseInteractiveDiscard = false,
+            AdvanceAfterHumanCommands = false,
+            AiPolicyVersion = 2,
+            MaxTurns = 40
+        }, registry);
+
+    private static bool StartAndSelect(GameEngine game)
+    {
+        if (!game.Submit(new StartGameCommand()).Accepted) return false;
+        var prompt = game.PendingDecision;
+        return prompt is { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } &&
+               prompt.ValidContentIds.Contains(GeneralId, StringComparer.Ordinal) &&
+               game.Submit(new SelectGeneralCommand(
+                   0,
+                   GeneralId,
+                   game.Revision,
+                   prompt.PromptId)).Accepted;
+    }
+
+    private static PendingDecision? Reach(GameEngine game, DecisionKind kind, int limit)
+    {
+        for (var step = 0; step < limit; step++)
+        {
+            if (game.PendingDecision is { PlayerSeat: 0 } pending && pending.Kind == kind)
+                return pending;
+            if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted)
+                return null;
+        }
+        return null;
+    }
+
+    private static void ReachHumanPlay(GameEngine game)
+    {
+        for (var step = 0; step < 256; step++)
+        {
+            if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }) return;
+            var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
+            Require(result.Accepted, result.Error?.Message ?? "The Gao Shun fixture could not advance.");
+        }
+        throw new InvalidOperationException("The Gao Shun fixture did not return to play in bounded steps.");
+    }
+
+    private static PendingDecision RequirePrompt(GameEngine game, DecisionKind kind) =>
+        game.PendingDecision is { PlayerSeat: 0 } prompt && prompt.Kind == kind
+            ? prompt
+            : throw new InvalidOperationException(
+                $"Expected human {kind}, found {game.PendingDecision?.Kind.ToString() ?? "no prompt"}.");
+
+    private static PendingDecision? GetHostPendingDecision(GameEngine game)
+    {
+        var field = typeof(GameEngine).GetField(
+            "_pendingDecision",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine pending-decision store was not found.");
+        return (PendingDecision?)field.GetValue(game);
+    }
+
+    private static void SetSlashCount(GameEngine game, int value) =>
+        typeof(GameEngine).GetField(
+                "_slashCountThisTurn",
+                BindingFlags.NonPublic | BindingFlags.Instance)!
+            .SetValue(game, value);
+
+    private static ContentRegistry CreateRegistry(Version? version = null) =>
+        ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(version ?? new Version(1, 83, 0)),
+            new ScenarioPackage());
+
+    private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
+        GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
+
+    private static void Require(bool condition, string message)
+    {
+        if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private sealed record Fixture(
+        GameEngine Game,
+        ContentRegistry Registry,
+        int SourceCardId,
+        int TargetSeat);
+
+    private sealed class ScenarioPackage : IGameContentPackage
+    {
+        public const string ModeId = "identity:classic-gao-shun-test-4";
+        private const string DeckId = "fixture:gao-shun-deck";
+        private static readonly string[] BlankGeneralIds =
+            ["fixture:gao-shun-blank-1", "fixture:gao-shun-blank-2", "fixture:gao-shun-blank-3"];
+
+        public PackageManifest Manifest { get; } = new(
+            "gao-shun-test",
+            new Version(1, 0, 0),
+            [new PackageDependency("standard-classic-generals", new Version(1, 83, 0))]);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            foreach (var (id, index) in BlankGeneralIds.Select((id, index) => (id, index)))
+            {
+                builder.AddGeneral(new ContentGeneralDefinition(
+                    id,
+                    $"陷阵目标{index + 1}",
+                    "supporter",
+                    "standard:none",
+                    "qun",
+                    BaseHp: 8));
+            }
+
+            var cards = new List<ContentDeckPhysicalCard>();
+            Add("standard:slash", 96);
+            Add("standard:alcohol", 96);
+            Add("standard:snatch", 64);
+            Add("standard:supply_shortage", 64);
+            Add("standard:dodge", 64);
+            Add("standard:peach", 32);
+            builder.AddDeck(new ContentDeckRecipe(
+                DeckId,
+                "高顺陷阵测试牌堆",
+                InitialHandSize: 12,
+                DrawPerTurn: 2,
+                Cards: [])
+            {
+                PhysicalCards = cards.ToArray()
+            });
+            builder.AddMode(new ContentModeDefinition(
+                ModeId,
+                "高顺陷阵测试",
+                4,
+                4,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 1,
+                    [nameof(Role.Renegade)] = 1
+                },
+                DeckId,
+                GeneralCandidateCount: 4,
+                GeneralPoolIds: [GeneralId, .. BlankGeneralIds]));
+            return;
+
+            void Add(string cardId, int count)
+            {
+                for (var index = 0; index < count; index++)
+                {
+                    cards.Add(new ContentDeckPhysicalCard(
+                        cardId,
+                        (Suit)(index % 4),
+                        index % 13 + 1));
+                }
+            }
+        }
+    }
+}

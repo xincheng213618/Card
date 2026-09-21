@@ -1055,6 +1055,13 @@ public sealed record PindianResolvedEvent(
     int OpponentRank,
     bool InitiatorWon) : IGameEvent;
 
+/// <summary>Public turn-state result of Gao Shun's Xianzhen Pindian.</summary>
+public sealed record XianzhenResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    bool SourceWon) : IGameEvent;
+
 /// <summary>
 /// Public declaration that one last-hand Slash used Fangtian Halberd's target
 /// expansion. The ordered target list is exact and contains two or three seats.

@@ -698,6 +698,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.QuhuPindian or
                     DecisionKind.QuhuDamageTarget or
                     DecisionKind.TianyiPindian or
+                    DecisionKind.XianzhenPindian or
                     DecisionKind.Jujian or
                     DecisionKind.ProgramCardTrigger or
                     DecisionKind.ProgramJudgmentTrigger or
@@ -752,6 +753,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.QuhuPindian or
             DecisionKind.QuhuDamageTarget or
             DecisionKind.TianyiPindian or
+            DecisionKind.XianzhenPindian or
             DecisionKind.Jujian or
             DecisionKind.ProgramCardTrigger or
             DecisionKind.ProgramJudgmentTrigger or
@@ -2088,6 +2090,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      ActiveSkill(Tianyi)");
                 EventStack.Add("        AskForSkill(TianyiPindian)");
+            }
+            else if (pending.Kind == DecisionKind.XianzhenPindian)
+            {
+                EventStack.Add("      ActiveSkill(Xianzhen)");
+                EventStack.Add("        AskForSkill(XianzhenPindian)");
             }
             else if (pending.Kind == DecisionKind.ZhuqueFan)
             {

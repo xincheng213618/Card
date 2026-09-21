@@ -557,6 +557,124 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void GaoShunXianzhenCard(string output)
+    {
+        using (var cardViewModel = FindGeneralChoice("classic:gao-shun"))
+        {
+            var gaoShun = cardViewModel.GeneralChoices.Single(choice =>
+                choice.GeneralId == "classic:gao-shun");
+            var portrait = gaoShun.PortraitBrush as System.Windows.Media.ImageBrush;
+            Program.Assert(gaoShun.Name == "高顺" &&
+                           gaoShun.Kingdom == "群" &&
+                           gaoShun.SkillName == "陷阵 / 禁酒" &&
+                           gaoShun.SkillDescription.Contains("对该角色使用牌无距离限制", StringComparison.Ordinal) &&
+                           gaoShun.SkillDescription.Contains("无视其防具", StringComparison.Ordinal) &&
+                           gaoShun.SkillDescription.Contains("【酒】视为【杀】", StringComparison.Ordinal) &&
+                           gaoShun.HealthText == "体力上限 5" &&
+                           GeneralArt.HasPortrait(gaoShun.GeneralId) &&
+                           portrait is
+                           {
+                               Stretch: System.Windows.Media.Stretch.UniformToFill,
+                               AlignmentY: System.Windows.Media.AlignmentY.Top,
+                               ImageSource: System.Windows.Media.Imaging.BitmapSource
+                               {
+                                   PixelWidth: 574,
+                                   PixelHeight: 761
+                               }
+                           },
+                $"The formal Gao Shun card must render Qun, Xianzhen/Jinjiu, Lord health and its official portrait " +
+                $"(name={gaoShun.Name}, kingdom={gaoShun.Kingdom}, skills={gaoShun.SkillName}, " +
+                $"health={gaoShun.HealthText}, portrait={portrait?.ImageSource.Width}x{portrait?.ImageSource.Height}).");
+
+            cardViewModel.PreviewGeneralChoiceCommand.Execute(gaoShun);
+            var cardWindow = new MainWindow(cardViewModel);
+            cardWindow.ApplyTemplate();
+            var cardRoot = (FrameworkElement)cardWindow.Content;
+            Program.Render(cardRoot, 1120, 740,
+                Path.Combine(output, "187-classic-gao-shun-card.png"));
+            var skillDescription = Program.Find<System.Windows.Controls.TextBlock>(cardRoot)
+                .Single(text => ReferenceEquals(text.DataContext, gaoShun) &&
+                                text.Text == gaoShun.SkillDescription);
+            var unconstrainedDescription = new System.Windows.Controls.TextBlock
+            {
+                Text = skillDescription.Text,
+                TextWrapping = skillDescription.TextWrapping,
+                FontFamily = skillDescription.FontFamily,
+                FontStyle = skillDescription.FontStyle,
+                FontWeight = skillDescription.FontWeight,
+                FontStretch = skillDescription.FontStretch,
+                FontSize = skillDescription.FontSize,
+                LineHeight = skillDescription.LineHeight,
+                LineStackingStrategy = skillDescription.LineStackingStrategy,
+                FlowDirection = skillDescription.FlowDirection,
+                Language = skillDescription.Language
+            };
+            unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+            Program.Assert(skillDescription.ActualHeight > 0 &&
+                           skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height,
+                $"The 1120x740 Gao Shun card must keep both complete skill descriptions visible " +
+                $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}).");
+            cardWindow.Content = null;
+            cardWindow.Close();
+        }
+
+        using var viewModel = FindWinningGaoShunViewModel();
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        var engine = Program.Engine(viewModel);
+        var action = viewModel.HumanActiveSkillActions.Single(candidate =>
+            candidate.Skill == SkillKind.Xianzhen);
+        var snapshot = engine.CreateSnapshot(0, revealAll: true);
+        var sourceCard = snapshot.Players[0].Hand
+            .Where(card => action.SelectableCardIds.Contains(card.Id))
+            .OrderByDescending(card => card.Rank)
+            .First();
+        var target = snapshot.Players
+            .Where(player => action.SelectableTargetSeats.Contains(player.Seat) &&
+                             player.Hand.Max(card => card.Rank) < sourceCard.Rank)
+            .OrderBy(player => player.Seat)
+            .First();
+        var xianzhen = viewModel.HumanSkillCards.Single(skill => skill.Name == "陷阵");
+        var jinjiu = viewModel.HumanSkillCards.Single(skill => skill.Name == "禁酒");
+        Program.Assert(xianzhen.TypeText == "主动技 · 状态技" &&
+                       xianzhen.StateText == "当前可发动" &&
+                       jinjiu.TypeText == "状态技 · 锁定技" &&
+                       jinjiu.StateText == "规则自动生效",
+            $"The Gao Shun skill rail must expose Xianzhen's active/state composition and locked Jinjiu " +
+            $"(Xianzhen={xianzhen.TypeText}/{xianzhen.StateText}, Jinjiu={jinjiu.TypeText}/{jinjiu.StateText}).");
+
+        viewModel.SelectActiveSkillCommand.Execute(action);
+        viewModel.SelectCardCommand.Execute(viewModel.Hand.Single(card => card.Id == sourceCard.Id));
+        viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == target.Seat));
+        Program.Assert(viewModel.IsActiveSkillSelectionPending &&
+                       viewModel.CanConfirmActiveSkill &&
+                       viewModel.CurrentGuideTitle == "确认发动【陷阵】" &&
+                       viewModel.CurrentGuideBody.Contains("牌 1/1", StringComparison.Ordinal) &&
+                       viewModel.CurrentGuideBody.Contains("目标 1/1", StringComparison.Ordinal),
+            $"The WPF Xianzhen draft must retain one private card and one target " +
+            $"(guide={viewModel.CurrentGuideTitle}, body={viewModel.CurrentGuideBody}).");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "188-classic-gao-shun-xianzhen-draft.png"));
+
+        viewModel.ConfirmSelectedCommand.Execute(null);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        xianzhen = viewModel.HumanSkillCards.Single(skill => skill.Name == "陷阵");
+        Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                       xianzhen.StateText ==
+                       $"本回合：对 {target.Seat + 1:D2}号位无距 · 杀不限次 · 无视防具" &&
+                       engine.Events.Select(item => item.Payload).OfType<XianzhenResolvedEvent>()
+                           .Any(item => item is { SourceSeat: 0, SourceWon: true } &&
+                                        item.TargetSeat == target.Seat),
+            $"Winning Xianzhen must return to play and publish its exact live target state " +
+            $"(pending={engine.PendingDecision?.Kind}, state={xianzhen.StateText}).");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "189-classic-gao-shun-xianzhen-win.png"));
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;
@@ -2486,6 +2604,50 @@ internal static class ClassicGeneralUiChecks
         }
 
         throw new InvalidOperationException($"Could not find a deterministic {generalId} WPF fixture.");
+    }
+
+    private static MainViewModel FindWinningGaoShunViewModel()
+    {
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: false,
+                saveStore: new MemorySaveStore(),
+                useExpandedContent: true)
+            {
+                IsMotionEnabled = false
+            };
+            var gaoShun = candidate.GeneralChoices.SingleOrDefault(choice =>
+                choice.GeneralId == "classic:gao-shun");
+            if (gaoShun is not null)
+            {
+                candidate.SelectGeneralChoiceCommand.Execute(gaoShun);
+                Program.AdvanceToDecision(candidate);
+                var engine = Program.Engine(candidate);
+                var action = candidate.HumanActiveSkillActions.SingleOrDefault(item =>
+                    item.Skill == SkillKind.Xianzhen);
+                var snapshot = engine.CreateSnapshot(0, revealAll: true);
+                var sourceMax = action is null
+                    ? 0
+                    : snapshot.Players[0].Hand
+                        .Where(card => action.SelectableCardIds.Contains(card.Id))
+                        .Select(card => card.Rank)
+                        .DefaultIfEmpty(0)
+                        .Max();
+                if (action is not null && action.SelectableTargetSeats.Any(seat =>
+                        snapshot.Players[seat].Hand.Count > 0 &&
+                        snapshot.Players[seat].Hand.Max(card => card.Rank) < sourceMax))
+                {
+                    return candidate;
+                }
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException("Could not find a bounded winning Gao Shun WPF fixture.");
     }
 
     private static MainViewModel FindGeneralChoiceInMode(string generalId, string modeId)

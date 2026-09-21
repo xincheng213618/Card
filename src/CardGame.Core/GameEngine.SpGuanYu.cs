@@ -154,7 +154,11 @@ public sealed partial class GameEngine
                     string.Equals(candidate.SkillId, SpGuanYuWushengSkillId, StringComparison.Ordinal));
             if (source is null) continue;
 
-            var targets = GetFangtianOrderedSlashTargets(actor, converted, source);
+            var targets = GetFangtianOrderedSlashTargets(
+                actor,
+                converted,
+                source,
+                ignoresSlashLimit: true);
             foreach (var target in targets)
             {
                 actions.Add(new LegalAction(

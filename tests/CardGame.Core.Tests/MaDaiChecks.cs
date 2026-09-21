@@ -11,7 +11,7 @@ internal static class MaDaiChecks
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 104,
             "Formal Qianxi must have an explicit rules-version boundary.");
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 82, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&

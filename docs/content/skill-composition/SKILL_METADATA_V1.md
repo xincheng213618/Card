@@ -176,6 +176,14 @@ rules v104／`standard-classic-generals@1.82.0` 注册当前官网经典 `classi
 
 三段私有 Choice、红／黑两种过滤、异色保留、回合过期、暂停响应和完成状态均由已接受命令前缀确定性重建。rules v103 不启用消费者，经典包 1.81.0 不注册马岱；Checkpoint schema 与玩家资料不新增字段。当前摸弃版、判定历史版、减体力上限旧版以及界／国战增量的边界见 `docs/content/sources/ma-dai-a55-2026-09-21.json`。
 
+## 主动拼点、精确目标状态与强制牌身份消费者
+
+rules v105／`standard-classic-generals@1.83.0` 注册经典 `classic:gao-shun`。陷阵需要高顺在出牌阶段选择一张私有手牌和一名有手牌的其他角色发动，因此包含 `ActionForms.Active`；拼点结果又持续修改本回合的出牌规则，因此包含 `State`。禁酒没有独立发动或确认时点，以 `Locked + State` 表示手牌【酒】持续且强制视为【杀】。
+
+陷阵复用主动技能帧和拼点弃牌生命周期，以 `classic:xianzhen`／`win.target-{seat}` 或 `loss` 的 `Turn` 用途记录结果。胜利分支只对该精确座位移除用牌距离，杀次数耗尽后只保留对该目标的杀，并在单目标、方天画戟及流离改目标后分别重算是否无视防具；未赢分支统一排除实体、转化和强制身份产生的杀，但不阻止其他牌。禁酒以 schema 10 `alcohol-hand-as-slash` 强制身份替换原生酒动作与濒死自救候选，保留同一实体牌和转换来源审计。
+
+对手拼点牌 Choice、胜负账本、目标修正和完成状态均由已接受命令前缀确定性重建。rules v104 即使加载 1.83.0 Registry 也不开放陷阵且保留原生酒；经典包 1.82.0 不注册高顺。Checkpoint schema 与玩家资料不新增字段。规则、素材、异版排除和验收见 `docs/content/sources/gao-shun-a56-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：

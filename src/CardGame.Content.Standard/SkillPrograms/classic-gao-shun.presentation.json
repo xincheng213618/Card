@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:jinjiu": {
+      "name": "禁酒",
+      "description": "锁定技，你的【酒】视为【杀】。"
+    }
+  }
+}

@@ -22,6 +22,7 @@ public sealed partial class GameEngine
 
         var context = CreateSkillContext(owner);
         return EnabledSkillPrograms(owner)
+            .Where(program => program.Id != "classic:jinjiu" || UsesFormalGaoShun)
             .SelectMany(program => program.CardIdentities
                 .Where(identity => identity.Zones.Contains(CardZoneKind.Hand) &&
                                    identity.Condition.Evaluate(context) &&
@@ -150,7 +151,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetSlashUseCards(PlayerRuntime owner)
     {
-        if (IsJiangchiSlashForbidden(owner)) return [];
+        if (IsJiangchiSlashForbidden(owner) || HasXianzhenLost(owner)) return [];
         if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
         {

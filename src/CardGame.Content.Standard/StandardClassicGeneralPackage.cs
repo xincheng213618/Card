@@ -25,6 +25,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
     private const string ClassicShenGuanYuPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.presentation.json";
+    private const string ClassicGaoShunRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.rules.json";
+    private const string ClassicGaoShunPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.presentation.json";
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
@@ -41,10 +45,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicShenGuanYuRulesResource),
             ReadEmbeddedText(ClassicShenGuanYuPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicGaoShunRulesResource),
+            ReadEmbeddedText(ClassicGaoShunPresentationResource)));
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 82, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 83, 0))
     {
     }
 
@@ -133,12 +141,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 79, 0) &&
             version != new Version(1, 80, 0) &&
             version != new Version(1, 81, 0) &&
-            version != new Version(1, 82, 0))
+            version != new Version(1, 82, 0) &&
+            version != new Version(1, 83, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.82.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.83.0.");
         }
 
         _version = version;
@@ -609,6 +618,28 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
             });
+        }
+
+        if (_version >= new Version(1, 83, 0))
+        {
+            builder.AddSkill(WithActiveActionMetadata(
+                WithStructuredSkillMetadata(new ContentSkillDefinition(
+                        "classic:xianzhen",
+                        "陷阵",
+                        "出牌阶段限一次，你可以与一名角色拼点。若你赢，直到回合结束，你对该角色使用牌无距离限制且对其使用【杀】无次数限制，并无视其防具；若你没赢，直到回合结束，你不能使用【杀】。",
+                        SkillKind.Xianzhen),
+                    SkillTag.None,
+                    SkillExecutionForm.State)));
+
+            var jinjiuProgram = ClassicGaoShunCatalog.Value.Programs["classic:jinjiu"];
+            var jinjiuPresentation = ClassicGaoShunCatalog.Value.Presentations["classic:jinjiu"];
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                "classic:jinjiu",
+                jinjiuPresentation.Name,
+                jinjiuPresentation.Description)
+            {
+                Program = jinjiuProgram
+            }, SkillTag.Locked, SkillExecutionForm.State));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1675,9 +1706,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:mashu", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:qianxi"]));
         }
+        if (_version >= new Version(1, 83, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:gao-shun", "高顺", "gao_shun",
+                "classic:xianzhen", "qun", BaseHp: 4,
+                AdditionalSkillIds: ["classic:jinjiu"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 83 } => GaoShunClassicGeneralIds,
             { Major: 1, Minor: >= 82 } => MaDaiClassicGeneralIds,
             { Major: 1, Minor: >= 81 } => CaoZhangClassicGeneralIds,
             { Major: 1, Minor: >= 80 } => MouLuMengClassicGeneralIds,
@@ -2167,6 +2206,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. CaoZhangClassicGeneralIds,
         "classic:ma-dai"
+    ];
+
+    internal static IReadOnlyList<string> GaoShunClassicGeneralIds { get; } =
+    [
+        .. MaDaiClassicGeneralIds,
+        "classic:gao-shun"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

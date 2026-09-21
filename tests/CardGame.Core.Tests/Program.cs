@@ -72,6 +72,9 @@ var tests = new (string Name, Action Body)[]
     ("formal Ma Dai versions current Qianxi with staged private choices", MaDaiChecks.ContentPromptAndRulesBoundary),
     ("Qianxi red restriction filters same-color hand responses", MaDaiChecks.RedRestrictionFiltersHandResponsesAndReplays),
     ("Qianxi black restriction filters responses and expires", MaDaiChecks.BlackRestrictionFiltersHandResponsesAndExpires),
+    ("formal Gao Shun versions Xianzhen and mandatory Jinjiu identity", GaoShunChecks.ContentIdentityAndRulesBoundary),
+    ("winning Xianzhen scopes distance count and armor to one target", GaoShunChecks.XianzhenWinTargetsDistanceCountArmorAndReplays),
+    ("losing Xianzhen blocks Slash use only", GaoShunChecks.XianzhenLossBlocksSlashOnly),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -331,6 +334,13 @@ if (args.FirstOrDefault() == "--only-cao-zhang")
 if (args.FirstOrDefault() == "--only-ma-dai")
 {
     tests = tests.Where(test => test.Name.Contains("Qianxi", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-gao-shun")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Gao Shun", StringComparison.Ordinal) ||
+        test.Name.Contains("Xianzhen", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;

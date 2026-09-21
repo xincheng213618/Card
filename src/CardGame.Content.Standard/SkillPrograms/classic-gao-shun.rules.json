@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 10,
+  "skills": [
+    {
+      "id": "classic:jinjiu",
+      "revision": 1,
+      "minimumRulesVersion": 94,
+      "modifiers": [],
+      "cardIdentities": [
+        {
+          "id": "alcohol-hand-as-slash",
+          "zones": ["hand"],
+          "inputKinds": ["alcohol"],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "condition": { "kind": "always" }
+        }
+      ]
+    }
+  ]
+}

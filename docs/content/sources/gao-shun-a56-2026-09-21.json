@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:gao-shun",
+  "acceptedAt": "2026-09-21T12:32:20+08:00",
+  "scope": "P1-A56 classic Gao Shun, Xianzhen/Jinjiu rules and official portrait",
+  "selectedVersion": "一将成名经典高顺（群4体力，陷阵／禁酒）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/298.html",
+      "use": "当前官方武将页：群势力4体力；陷阵胜利后本回合仅对拼点目标用牌无距离限制、杀不计次数并无视防具，未赢则不能使用杀；锁定技禁酒令酒视为杀；同时提供574x761经典形象大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E9%AB%98%E9%A1%BA",
+      "use": "区分经典高顺与界限突破等异版，并交叉核对经典陷阵／禁酒文本。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分锁定标签、状态技与主动入口；陷阵为State + Active，禁酒为Locked + State。"
+    }
+  ],
+  "ruleText": {
+    "xianzhen": "出牌阶段限一次，你可以与一名角色拼点。若你赢，直到回合结束，你对该角色使用牌无距离限制且对其使用【杀】无次数限制，并无视其防具；若你没赢，直到回合结束，你不能使用【杀】。",
+    "jinjiu": "锁定技，你的【酒】视为【杀】。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.83.0",
+    "rulesVersion": 105,
+    "generalId": "classic:gao-shun",
+    "skillIds": [
+      "classic:xianzhen",
+      "classic:jinjiu"
+    ],
+    "xianzhenMetadata": "State + Active",
+    "jinjiuMetadata": "Locked + State",
+    "jinjiuProgram": "schema 10 mandatory hand-card identity alcohol-hand-as-slash; runtime capability minimum 94, formal content gate rules 105",
+    "runtimeUsage": "win.target-{seat} or loss / Turn",
+    "auditEvents": [
+      "SkillUsageConsumedEvent",
+      "PindianResolvedEvent",
+      "XianzhenResolvedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.82.0",
+    "previousRulesVersion": 104,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the private opponent Pindian prompt, exact target, win/loss usage and completed state reconstruct from the accepted command prefix",
+    "legacyPolicy": "rules v104 keeps Xianzhen disabled and Alcohol native even when package 1.83.0 is loaded; package 1.82.0 does not register Gao Shun"
+  },
+  "portrait": {
+    "resourceKey": "gao-shun",
+    "localPath": "src/CardGame.Wpf/Assets/official-gao-shun.png",
+    "sourcePage": "https://x.sanguosha.com/hero/298.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129801.png",
+    "sha256": "D80A066F1B6A5269C23913B4BE632BD1D262C3106685D4CD354DEE0FDA5507AB",
+    "bytes": 267697,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Indexed8",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Gao Shun artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore -- --only-gao-shun",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "targetedCoreDurationSeconds": 2.79,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore",
+    "fullCorePassed": 305,
+    "fullCoreTotal": 305,
+    "fullCoreDurationSeconds": 33.11,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore -- artifacts/wpf-check --only-gao-shun",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 6.8,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 0.82,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/wpf-check/187-classic-gao-shun-card.png",
+      "artifacts/wpf-check/188-classic-gao-shun-xianzhen-draft.png",
+      "artifacts/wpf-check/189-classic-gao-shun-xianzhen-win.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "Xianzhen exposes one exact private source card and one legal target, then one private opponent-card prompt",
+      "winning Xianzhen removes card-use distance only against that target, gives target-only unlimited Slashes and ignores only that target's armor",
+      "losing or tying Xianzhen blocks Slash use without blocking unrelated cards",
+      "Jinjiu suppresses native Alcohol actions and exposes the same physical cards only as mandatory Slash identities",
+      "rules v104 and package 1.82.0 preserve both pre-Gao-Shun boundaries",
+      "paused opponent Pindian and completed win replay deterministically",
+      "official portrait, both skill texts, active draft and live target state are visible without clipping"
+    ]
+  },
+  "excludedVariants": [
+    "boundary Gao Shun versions with different Xianzhen effects",
+    "any later balance adjustment not present on the selected official classic page"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

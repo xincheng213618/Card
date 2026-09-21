@@ -1007,6 +1007,26 @@ public sealed class TianyiSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
+public sealed class XianzhenSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Xianzhen;
+    public string Name => "陷阵";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.IsOwnTurn &&
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount > 0 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.PindianForSlashBonus,
+            MinCardCount: 1,
+            MaxCardCount: 1,
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -1210,6 +1230,7 @@ public static class SkillRegistry
             [SkillKind.Mengjin] = new MengjinSkill(),
             [SkillKind.Quhu] = new QuhuSkill(),
             [SkillKind.Tianyi] = new TianyiSkill(),
+            [SkillKind.Xianzhen] = new XianzhenSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),

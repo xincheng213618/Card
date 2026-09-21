@@ -186,7 +186,6 @@ public sealed partial class MainViewModel
         SkillRuntimeStateSnapshot? runtimeState = null)
     {
         if (isAvailable) return "当前可发动";
-        if (hasActiveEntry) return "当前不可发动";
         if (tags.HasFlag(SkillTag.Awakening))
         {
             return runtimeState?.Usages.Any(usage =>
@@ -241,6 +240,27 @@ public sealed partial class MainViewModel
                 }
             }
         }
+        if (runtimeState?.SkillId == "classic:xianzhen")
+        {
+            if (runtimeState.Usages.Any(usage =>
+                    usage.UsageId == "loss" &&
+                    usage.Scope == SkillUsageScope.Turn &&
+                    usage.Count > 0))
+            {
+                return "本回合：不能使用杀";
+            }
+
+            var target = runtimeState.Usages.FirstOrDefault(usage =>
+                usage.Scope == SkillUsageScope.Turn &&
+                usage.Count > 0 &&
+                usage.UsageId.StartsWith("win.target-", StringComparison.Ordinal));
+            if (target is not null &&
+                int.TryParse(target.UsageId["win.target-".Length..], out var targetSeat))
+            {
+                return $"本回合：对 {targetSeat + 1:D2}号位无距 · 杀不限次 · 无视防具";
+            }
+        }
+        if (hasActiveEntry) return "当前不可发动";
         return executionForms.HasFlag(SkillExecutionForm.Trigger)
             ? "等待触发时机"
             : automaticText;
