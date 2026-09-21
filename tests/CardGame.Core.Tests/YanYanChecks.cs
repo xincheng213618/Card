@@ -84,21 +84,33 @@ internal static class YanYanChecks
             Require(yangState.Polarity == SkillPolarity.Yin &&
                     yangOwner.HandCount == beforeYang.Players[0].HandCount + 1 &&
                     afterYang.Players[attackerSeat].HandCount == beforeYang.Players[attackerSeat].HandCount + 1 &&
-                    yangState.Usages.Single() is
+                    yangState.Usages.Single(usage => usage.Scope == SkillUsageScope.Turn) is
                     {
                         Scope: SkillUsageScope.Turn,
                         Count: 1
                     } yangUsage &&
                     yangUsage.UsageId == $"card-target-prohibition.source-{attackerSeat}.target-0",
-                "Juzhan Yang must draw for both players, toggle to Yin and record the exact turn target prohibition.");
+                "Juzhan Yang must draw for both players, toggle to Yin and record its exact turn target prohibition.");
             Require(game.Events.Select(item => item.Payload).OfType<SkillConversionStateChangedEvent>().Last() is
             { PlayerSeat: 0, SkillId: SkillId, PreviousState: SkillPolarity.Yang, CurrentState: SkillPolarity.Yin } &&
                     game.Events.Select(item => item.Payload).OfType<CardTargetProhibitionAddedEvent>().Last() is
                     { SkillOwnerSeat: 0, SourceSeat: var sourceSeat, TargetSeat: 0, Scope: SkillUsageScope.Turn } &&
-                    sourceSeat == attackerSeat,
-                "Juzhan Yang must publish typed conversion and per-target ledger events.");
+                    sourceSeat == attackerSeat &&
+                    game.Events.Select(item => item.Payload).OfType<SkillUsageConsumedEvent>().Last() is
+                    {
+                        SkillOwnerSeat: 0,
+                        SkillId: SkillId,
+                        UsageId: var eventUsageId,
+                        Scope: SkillUsageScope.Event,
+                        Count: 1
+                    } && eventUsageId.StartsWith("card-use.resolution-", StringComparison.Ordinal),
+                "Juzhan Yang must publish typed conversion, per-target and per-card-use ledger events.");
 
             if (!TryReachHumanPlay(game)) continue;
+            var afterCardUseState = game.CreateSnapshot(0, revealAll: true).Players[0]
+                .SkillRuntimeStates!.Single(state => state.SkillId == SkillId);
+            Require(afterCardUseState.Usages.All(usage => usage.Scope != SkillUsageScope.Event),
+                "Finishing the Slash must close its exact event ledger before the next human play boundary.");
             var legal = game.GetHumanLegalActions();
             var revealed = game.CreateSnapshot(0, revealAll: true);
             var duelActions = legal.Where(action => action.Kind == LegalActionKind.Duel).ToArray();

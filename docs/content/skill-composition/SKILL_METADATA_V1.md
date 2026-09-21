@@ -36,8 +36,9 @@ D5a 在 `standard-classic-generals@1.68.0`／rules v96 建立首个可执行边�
 
 ## 运行状态
 
-`SkillRuntimeStateStore` 以拥有者座位、稳定技能内容 ID、用途 ID 和作用域记录次数。v1 支持阶段、回合、轮和整局作用域：
+`SkillRuntimeStateStore` 以拥有者座位、稳定技能内容 ID、用途 ID 和作用域记录次数。当前支持事件、阶段、回合、轮和整局作用域：
 
+- 事件记录由对应结算以稳定用途 ID 精确关闭；阶段、回合或轮边界也会兜底清除未正常关闭的事件记录；
 - 新阶段清除所有拥有者的阶段记录；
 - 新回合清除所有拥有者的回合及阶段记录，使回合外触发也得到新的限次窗口；
 - 新一轮清除轮、回合及阶段记录；当前没有正式按轮消费者，具体轮边界接入留给其首个真实技能；
@@ -143,12 +144,20 @@ Checkpoint 继续只保存内容包签名、rules 版本和已接受命令前缀
 
 WPF 技能栏已验证郭嘉的遗计显示“触发技／等待触发时机”，华佗的急救显示“状态技／规则自动生效”且青囊仍显示“主动技”；`177-classic-shared-trigger-skills.png` 和 `178-classic-shared-jijiu-state.png` 在 1120×740 经人工复核无裁切。来源、逐项分类和版本边界见 `docs/content/sources/classic-shared-skill-metadata-d5b2b2i-2026-09-21.json`。
 
+## 每事件复合账本
+
+rules v101 在不改内容包版本的前提下，为通用运行状态仓增加 `Event` 作用域和精确 `ClearUsage` 关闭接口。事件记录仍由拥有者座位、稳定技能 ID、用途 ID 和作用域组成；不同事件不靠全局清空相互影响，阶段／回合／轮边界只承担异常续接的兜底清理。
+
+正式消费者沿用 `classic:juzhan`：一张【杀】完成全部目标指定后，拒战窗口以 `card-use.resolution-{cardUseFrameId}` 消费每名候选拥有者的一次事件额度。多目标【杀】、目标依次响应以及拒战自身的阳／阴切换都不会令同一拥有者在同一用牌事件中再次进入拒战窗口；结算完成时只关闭该用牌事件记录，既有 `card-target-prohibition.source-{sourceSeat}.target-{targetSeat}` 回合禁用不受影响。
+
+`SkillUsageConsumedEvent` 为事件消费提供公开审计记录；运行时快照只在事件仍打开时保留该用途，卡牌结算完成后不留下悬挂状态。Checkpoint 仍只保存命令前缀，Replay 通过相同用牌与选择重建相同消费事件；rules v100 继续使用原 `_resolvedJuzhanCardUses` 兼容路径，不产生 `Event` 记录。来源和版本边界见 `docs/content/sources/skill-event-ledger-d5b2b2j-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：
 
 - 为正式转换技补充技能重置消费者；阳／阴当前形态和 Checkpoint／Replay 已由严颜验证，正式觉醒消费者已由 SP 关羽完成；
-- 在已落地的每目标回合账本之外增加每事件等复合限次维度，并由真实消费者冻结其生命周期；
+- 为尚无正式消费者的轮作用域接入可验证的真实技能及轮边界；
 - 在全部正式技能迁移后移除 WPF 的旧兼容类型文案。
 
 这些后续项不会通过改中文说明、按技能名写特例或把锁定标签当成强制触发来完成。

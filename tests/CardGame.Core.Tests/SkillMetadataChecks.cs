@@ -79,11 +79,20 @@ internal static class SkillMetadataChecks
         Require(state.TryConsumeUsage(2, "fixture:skill", "turn", SkillUsageScope.Turn, 2) &&
                 state.TryConsumeUsage(2, "fixture:skill", "round", SkillUsageScope.Round, 1) &&
                 state.TryConsumeUsage(2, "fixture:skill", "phase", SkillUsageScope.Phase, 1) &&
+                state.TryConsumeUsage(2, "fixture:skill", "event-41", SkillUsageScope.Event, 1) &&
+                !state.TryConsumeUsage(2, "fixture:skill", "event-41", SkillUsageScope.Event, 1) &&
                 state.TryConsumeUsage(3, "fixture:off-turn", "phase", SkillUsageScope.Phase, 1),
-            "Round, turn and phase scopes must record independently for every owner.");
+            "Event, phase, turn and round scopes must record independently for every owner.");
+
+        Require(state.ClearUsage(2, "fixture:skill", "event-41", SkillUsageScope.Event) &&
+                state.GetUsage(2, "fixture:skill", "event-41", SkillUsageScope.Event) == 0 &&
+                !state.ClearUsage(2, "fixture:skill", "event-41", SkillUsageScope.Event),
+            "Closing one event must remove only its exact composite usage window.");
+        state.TryConsumeUsage(2, "fixture:skill", "event-42", SkillUsageScope.Event, 1);
 
         state.ResetPhase();
         Require(state.GetUsage(2, "fixture:skill", "phase", SkillUsageScope.Phase) == 0 &&
+                state.GetUsage(2, "fixture:skill", "event-42", SkillUsageScope.Event) == 0 &&
                 state.GetUsage(3, "fixture:off-turn", "phase", SkillUsageScope.Phase) == 0 &&
                 state.GetUsage(2, "fixture:skill", "turn", SkillUsageScope.Turn) == 1 &&
                 state.GetUsage(2, "fixture:skill", "round", SkillUsageScope.Round) == 1 &&

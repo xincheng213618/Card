@@ -62,7 +62,7 @@ var tests = new (string Name, Action Body)[]
     ("formal SP Guan Yu awakens into acquired skills with a rules 97 boundary", SpGuanYuChecks.ContentAndDanjiReplayBoundary),
     ("formal Nuzhan uses the exact SP Wusheng conversion source", SpGuanYuChecks.NuzhanUsesExactConversionSource),
     ("formal Yan Yan registers tagged Juzhan with a rules 98 boundary", YanYanChecks.ContentPolarityAndRulesBoundary),
-    ("formal Juzhan alternates Yang and Yin with per-target turn ledgers", YanYanChecks.YangYinLedgerAndReplay),
+    ("formal Juzhan uses per-target turn and per-card-use event ledgers", YanYanChecks.YangYinLedgerAndReplay),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -1970,7 +1970,7 @@ static void CheckpointRestore()
         decoded with { ContentHash = "00BAD-CONTENT-HASH" },
         StandardContentRegistry.Create()));
     Throws<InvalidOperationException>(() => GameReplay.Restore(
-        decoded with { RulesVersion = 101 },
+        decoded with { RulesVersion = 102 },
         StandardContentRegistry.Create()));
 
     var selectedGeneralId = pending.ValidContentIds.First();

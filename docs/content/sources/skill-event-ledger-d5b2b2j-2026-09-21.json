@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-runtime:event-ledger-d5b2b2j",
+  "retrievedAt": "2026-09-21T10:20:12+08:00",
+  "selectedVersion": "严颜拒战既有2018规则下的每用牌事件运行状态迁移",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "技能状态与记录必须按明确作用域建模；技能重置或复原会恢复开局状态并清除对应记录。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/400",
+      "use": "严颜拒战阴面在自己使用杀完成目标指定后处理该次杀的目标集合，属于一次用牌事件而非逐目标重复发动。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/拒战",
+      "use": "交叉核对拒战转换技的阳阴状态、目标时机和同一用牌事件边界。"
+    }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.79.0",
+    "rulesVersion": 101,
+    "skillId": "classic:juzhan",
+    "usageScope": "event",
+    "usageIdShape": "card-use.resolution-{cardUseFrameId}",
+    "auditEvent": "SkillUsageConsumedEvent"
+  },
+  "versionBoundary": {
+    "previousRulesVersion": 100,
+    "previousStorage": "GameEngine._resolvedJuzhanCardUses",
+    "contentPackageChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "acceptance": [
+    "同一用牌事件对每名拒战候选拥有者只消费一次Event额度",
+    "拒战结算后再次进入杀续接不会重复打开同一拥有者的窗口",
+    "卡牌使用完成精确清除card-use事件记录且保留独立Turn禁用",
+    "阶段、回合和轮边界兜底清除未正常关闭的Event记录",
+    "消费发布SkillUsageConsumedEvent并由命令前缀确定性Replay",
+    "rules v100继续使用旧集合兼容路径",
+    "Release 0 warning / 0 error，Core 293/293"
+  ],
+  "deferred": [
+    "正式技能重置消费者",
+    "轮作用域真实技能消费者",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

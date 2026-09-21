@@ -31,7 +31,8 @@ public enum SkillUsageScope
     Game,
     Round,
     Turn,
-    Phase
+    Phase,
+    Event
 }
 
 public enum SkillPolarity
@@ -79,21 +80,36 @@ public sealed class SkillRuntimeStateStore
     /// records for every skill owner must expire together.
     /// </summary>
     public void ResetPhase() =>
-        RemoveUsage(scope => scope == SkillUsageScope.Phase);
+        RemoveUsage(scope => scope is SkillUsageScope.Phase or SkillUsageScope.Event);
 
     /// <summary>
     /// Starts a new turn. Off-turn triggers also receive a fresh per-turn
     /// allowance, so this clears every owner's turn and phase records.
     /// </summary>
     public void ResetTurn() =>
-        RemoveUsage(scope => scope is SkillUsageScope.Turn or SkillUsageScope.Phase);
+        RemoveUsage(scope => scope is SkillUsageScope.Turn or SkillUsageScope.Phase or SkillUsageScope.Event);
 
     /// <summary>
     /// Starts a new round and expires all shorter-lived usage records.
     /// Game-scoped limited-skill records remain consumed.
     /// </summary>
     public void ResetRound() =>
-        RemoveUsage(scope => scope is SkillUsageScope.Round or SkillUsageScope.Turn or SkillUsageScope.Phase);
+        RemoveUsage(scope => scope is SkillUsageScope.Round or SkillUsageScope.Turn or SkillUsageScope.Phase or SkillUsageScope.Event);
+
+    /// <summary>
+    /// Closes one exact usage window. Event-scoped consumers call this when
+    /// their owning resolution finishes so nested or unrelated events remain
+    /// intact.
+    /// </summary>
+    public bool ClearUsage(
+        int ownerSeat,
+        string skillId,
+        string usageId,
+        SkillUsageScope scope)
+    {
+        var key = CreateUsageKey(ownerSeat, skillId, usageId, scope);
+        return _usage.Remove(key);
+    }
 
     public void RegisterConversionSkill(
         int ownerSeat,

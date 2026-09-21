@@ -19531,7 +19531,7 @@ public sealed partial class GameEngine
         PopResolutionFrame(frameId, ResolutionFrameKind.CardUse);
         _acceptedProgramUses.Remove(frameId);
         _preparedProgramTargets.Remove(frameId);
-        _resolvedJuzhanCardUses.Remove(frameId);
+        ClearJuzhanCardUseLedger(frameId);
     }
 
     private void PopResolutionFrame(long frameId, ResolutionFrameKind expectedKind)

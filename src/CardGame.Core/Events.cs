@@ -316,6 +316,14 @@ public sealed record CardTargetProhibitionAddedEvent(
     int TargetSeat,
     SkillUsageScope Scope) : IGameEvent;
 
+/// <summary>Public audit record for one named skill usage window being consumed.</summary>
+public sealed record SkillUsageConsumedEvent(
+    int SkillOwnerSeat,
+    string SkillId,
+    string UsageId,
+    SkillUsageScope Scope,
+    int Count) : IGameEvent;
+
 /// <summary>Public result of one optional Juzhan side; hidden hand identities remain omitted.</summary>
 public sealed record JuzhanResolvedEvent(
     long ResolutionId,

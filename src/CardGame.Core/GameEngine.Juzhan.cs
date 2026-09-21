@@ -4,10 +4,13 @@ public sealed partial class GameEngine
 {
     private const string JuzhanSkillId = "classic:juzhan";
     private const string JuzhanProhibitionUsagePrefix = "card-target-prohibition";
+    private const string JuzhanCardUseUsagePrefix = "card-use";
     private readonly HashSet<long> _resolvedJuzhanCardUses = [];
     private JuzhanResolution? _pendingJuzhan;
 
     private bool SupportsFormalJuzhan => _rulesVersion >= 99;
+
+    private bool SupportsJuzhanEventLedger => _rulesVersion >= 101;
 
     private void InitializeStructuredConversionSkills()
     {
@@ -29,6 +32,67 @@ public sealed partial class GameEngine
 
     private static string GetJuzhanProhibitionUsageId(int sourceSeat, int targetSeat) =>
         $"{JuzhanProhibitionUsagePrefix}.source-{sourceSeat}.target-{targetSeat}";
+
+    private static string GetJuzhanCardUseUsageId(long cardUseFrameId) =>
+        $"{JuzhanCardUseUsagePrefix}.resolution-{cardUseFrameId}";
+
+    private bool IsJuzhanCardUseResolved(long cardUseFrameId) =>
+        SupportsJuzhanEventLedger
+            ? _players.Any(owner => HasRuntimeSkill(owner, JuzhanSkillId) &&
+                _skillRuntimeState.GetUsage(
+                    owner.Seat,
+                    JuzhanSkillId,
+                    GetJuzhanCardUseUsageId(cardUseFrameId),
+                    SkillUsageScope.Event) > 0)
+            : _resolvedJuzhanCardUses.Contains(cardUseFrameId);
+
+    private void MarkJuzhanCardUseResolved(long cardUseFrameId, IEnumerable<int> ownerSeats)
+    {
+        if (!SupportsJuzhanEventLedger)
+        {
+            _resolvedJuzhanCardUses.Add(cardUseFrameId);
+            return;
+        }
+
+        foreach (var ownerSeat in ownerSeats.Distinct())
+        {
+            if (!_skillRuntimeState.TryConsumeUsage(
+                    ownerSeat,
+                    JuzhanSkillId,
+                    GetJuzhanCardUseUsageId(cardUseFrameId),
+                    SkillUsageScope.Event,
+                    limit: 1))
+            {
+                throw new InvalidOperationException(
+                    "Juzhan tried to process the same card-use event twice for one owner.");
+            }
+
+            QueueGameEvent(new SkillUsageConsumedEvent(
+                ownerSeat,
+                JuzhanSkillId,
+                GetJuzhanCardUseUsageId(cardUseFrameId),
+                SkillUsageScope.Event,
+                Count: 1));
+        }
+    }
+
+    private void ClearJuzhanCardUseLedger(long cardUseFrameId)
+    {
+        if (!SupportsJuzhanEventLedger)
+        {
+            _resolvedJuzhanCardUses.Remove(cardUseFrameId);
+            return;
+        }
+
+        foreach (var owner in _players.Where(player => HasRuntimeSkill(player, JuzhanSkillId)))
+        {
+            _skillRuntimeState.ClearUsage(
+                owner.Seat,
+                JuzhanSkillId,
+                GetJuzhanCardUseUsageId(cardUseFrameId),
+                SkillUsageScope.Event);
+        }
+    }
 
     private bool IsJuzhanCardTargetProhibited(int sourceSeat, int targetSeat) =>
         SupportsFormalJuzhan &&
@@ -75,7 +139,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginJuzhanWindow(AttackResolution attack)
     {
-        if (!SupportsFormalJuzhan || _resolvedJuzhanCardUses.Contains(attack.ResolutionId))
+        if (!SupportsFormalJuzhan || IsJuzhanCardUseResolved(attack.ResolutionId))
             return false;
         if (_pendingJuzhan is not null)
             throw new InvalidOperationException("The engine cannot open two Juzhan windows at once.");
@@ -117,7 +181,8 @@ public sealed partial class GameEngine
 
         if (candidates.Count == 0)
         {
-            _resolvedJuzhanCardUses.Add(attack.ResolutionId);
+            if (!SupportsJuzhanEventLedger)
+                _resolvedJuzhanCardUses.Add(attack.ResolutionId);
             return false;
         }
 
@@ -404,7 +469,9 @@ public sealed partial class GameEngine
 
         _pendingJuzhan = null;
         ClearPendingDecision();
-        _resolvedJuzhanCardUses.Add(pending.Attack.ResolutionId);
+        MarkJuzhanCardUseResolved(
+            pending.Attack.ResolutionId,
+            pending.Candidates.Select(candidate => candidate.OwnerSeat));
         _status = EngineStatus.Running;
         ContinueSlashAfterJuzhan(pending.Attack);
     }
