@@ -489,7 +489,8 @@ public sealed partial class SimpleAiBrain
         }
 
         var orderedCandidates = action.Kind == LegalActionKind.UseEquipmentEffect ||
-                                action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi or SkillKind.Fuhun
+                                action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi or
+                                    SkillKind.Fuhun or SkillKind.Junxing
             ? candidates
                 .OrderByDescending(player => GetHostility(view, selfRole, player))
                 .ThenBy(player => player.Hp)
@@ -2552,6 +2553,277 @@ public sealed partial class SimpleAiBrain
             selected.Action.Kind == LegalActionKind.Alcohol ? selected.Action.CardId : null,
             thought);
     }
+
+    /// <summary>
+    /// Chooses whether to spend one public Chunlao pile card. The pile contains
+    /// no hidden information and has no hand utility, so an otherwise desirable
+    /// rescue is preferred to Peach or native Alcohol.
+    /// </summary>
+    public (bool UseChunlao, int? ChunlaoCardId, AiThoughtRecord Thought)
+        ChooseChunlaoDyingResponse(
+            GameSnapshot view,
+            int victimSeat,
+            IReadOnlyList<Card> chunlaoCards,
+            int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var victim = view.Players.Single(player => player.Seat == victimSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var useScore = _policyVersion >= 2
+            ? ScoreTacticalDyingResponse(view, selfRole, victim)
+            : ScoreDyingResponse(selfRole, self.Seat, victim);
+        var candidates = chunlaoCards
+            .Select(chun => new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.UseSkill,
+                    chun.Id,
+                    victimSeat,
+                    $"发动醇醪救援 {victim.Name}"),
+                Math.Round(useScore + 10d + _random.NextDouble() * 0.001d, 3),
+                "移去一张公开的“醇”，令濒死角色视为对自己使用酒。"))
+            .ToList();
+        candidates.Add(new AiCandidateScore(
+            new LegalAction(
+                LegalActionKind.EndPlay,
+                null,
+                victimSeat,
+                $"不发动醇醪救援 {victim.Name}"),
+            0d,
+            "保留公开的“醇”；同一次濒死每名醇醪拥有者限发动一次。"));
+
+        var selected = candidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Action.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"醇醪濒死响应：{selected.Action.Description}（{selected.Score:0.###} 分）。");
+        return (
+            selected.Action.Kind == LegalActionKind.UseSkill,
+            selected.Action.Kind == LegalActionKind.UseSkill ? selected.Action.CardId : null,
+            thought);
+    }
+
+    /// <summary>
+    /// Keeps one low-value Slash as a public Chun reserve instead of emptying
+    /// the whole hand. The optional skip remains visible in the explanation,
+    /// while a legal first reserve is preferred at the end of the turn.
+    /// </summary>
+    public (IReadOnlyList<int> CardIds, AiThoughtRecord Thought) ChooseChunlaoStorage(
+        GameSnapshot view,
+        IReadOnlyList<Card> slashCards,
+        int thoughtSequence)
+    {
+        if (slashCards.Count == 0)
+        {
+            throw new ArgumentException("Chunlao storage requires at least one Slash candidate.", nameof(slashCards));
+        }
+
+        var candidates = slashCards.Select(card =>
+        {
+            var profile = CardCatalog.Get(card.Kind);
+            return new AiCandidateScore(
+                new LegalAction(
+                    LegalActionKind.UseSkill,
+                    card.Id,
+                    null,
+                    $"发动醇醪，将【{card.DisplayName}】置为“醇”"),
+                Math.Round(20d - profile.HandKeepValue * 0.25d + _random.NextDouble() * 0.001d, 3),
+                $"只建立一张公开救援储备；保留其余杀。手牌保留价值 {profile.HandKeepValue:0.###}。 ");
+        }).ToList();
+        candidates.Add(new AiCandidateScore(
+            new LegalAction(LegalActionKind.EndPlay, null, null, "不发动醇醪"),
+            0d,
+            "保留全部杀，但本轮没有公开的醇可用于濒死救援。"));
+
+        var selected = candidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
+            .First();
+        IReadOnlyList<int> cardIds = selected.Action.CardId is { } cardId
+            ? Array.AsReadOnly(new[] { cardId })
+            : Array.Empty<int>();
+        return (cardIds, new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Action.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"醇醪结束阶段：{selected.Action.Description}（{selected.Score:0.###} 分）。"));
+    }
+
+    /// <summary>
+    /// Chooses only from the owner's published Gongqi prompt. Hidden hand
+    /// identities are represented by opaque slots; public equipment may be
+    /// valued by its printed kind.
+    /// </summary>
+    public (PromptChoice Choice, AiThoughtRecord Thought) ChooseGongqiDiscard(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var scored = choices.Select(choice =>
+        {
+            var action = choice.Parameters.GetValueOrDefault("action");
+            var target = choice.Targets.Count == 1
+                ? view.Players.Single(player => player.Seat == choice.Targets[0])
+                : null;
+            var hostility = target is null ? 0d : GetHostility(view, selfRole, target);
+            var publicEquipmentValue = choice.Cards.Count == 1 && target is not null
+                ? target.Equipment
+                    .Where(card => card.Id == choice.Cards[0])
+                    .Select(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                    .DefaultIfEmpty(0)
+                    .Single()
+                : 0d;
+            var score = action == "gongqi-skip"
+                ? 0d
+                : hostility + 8d + publicEquipmentValue * .2d;
+            var description = action == "gongqi-skip"
+                ? "弓骑不弃置其他角色的牌"
+                : $"弓骑弃置 {target!.Name} 的一张{(choice.Cards.Count == 1 ? "公开装备" : "暗置手牌")}";
+            return new
+            {
+                Choice = choice,
+                Candidate = new AiCandidateScore(
+                    new LegalAction(LegalActionKind.UseSkill, choice.Cards.FirstOrDefault(), target?.Seat, description,
+                        Skill: SkillKind.Gongqi),
+                    Math.Round(score + _random.NextDouble() * .001d, 3),
+                    action == "gongqi-skip"
+                        ? "保留可选后续；不读取任何暗手牌身份。"
+                        : "只使用公开阵营关系、目标与装备信息；手牌保持为不透明牌位。")
+            };
+        }).ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Candidate.Action.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"弓骑后续：{selected.Candidate.Action.Description}（{selected.Candidate.Score:0.###} 分）。");
+        return (selected.Choice, thought);
+    }
+
+    /// <summary>
+    /// Chooses from Guan Ping's private exact-card Longyin prompt. The decision
+    /// uses only the public relation to the Slash source and this seat's own
+    /// visible hand/equipment values.
+    /// </summary>
+    public (PromptChoice Choice, AiThoughtRecord Thought) ChooseLongyinChoice(
+        GameSnapshot view,
+        int slashSourceSeat,
+        bool slashWasRed,
+        bool slashCountAlreadyRemoved,
+        IReadOnlyList<PromptChoice> choices,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var source = view.Players.Single(player => player.Seat == slashSourceSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var support = GetTacticalSupport(view, selfRole, source);
+        var ownCards = self.Hand.Concat(self.Equipment).ToDictionary(card => card.Id);
+        var scored = choices.Select(choice =>
+        {
+            var use = choice.Parameters.GetValueOrDefault("action") == "longyin-use";
+            var cost = use && choice.Cards.Count == 1 && ownCards.TryGetValue(choice.Cards[0], out var card)
+                ? CardCatalog.Get(card.Kind).HandKeepValue
+                : 0d;
+            var countValue = slashCountAlreadyRemoved ? 0d : support * 30d;
+            var redCycleValue = slashWasRed ? 12d : 0d;
+            var score = use ? countValue + redCycleValue - cost * .5d : 0d;
+            var description = use
+                ? $"龙吟弃置【{(choice.Cards.Count == 1 && ownCards.TryGetValue(choice.Cards[0], out var exact) ? exact.DisplayName : "牌")}】"
+                : "不发动龙吟";
+            return new
+            {
+                Choice = choice,
+                Candidate = new AiCandidateScore(
+                    new LegalAction(
+                        LegalActionKind.UseSkill,
+                        choice.Cards.FirstOrDefault(),
+                        slashSourceSeat,
+                        description,
+                        Skill: SkillKind.Longyin),
+                    Math.Round(score + _random.NextDouble() * .001d, 3),
+                    use
+                        ? "依据公开阵营关系、杀的公开颜色和自己的精确牌值评估次数支援。"
+                        : "避免为低支援关系的杀提供额外次数，或在次数已移除后为黑杀继续付费。")
+            };
+        }).ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Candidate.Action.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"龙吟：来源支援值 {support:0.##}，红杀 {slashWasRed}，次数已移除 {slashCountAlreadyRemoved}；选择{selected.Candidate.Action.Description}。");
+        return (selected.Choice, thought);
+    }
+
+    /// <summary>Chooses the mandatory Jiefan branch from public target and weapon state.</summary>
+    public (PromptChoice Choice, AiThoughtRecord Thought) ChooseJiefanResponse(
+        GameSnapshot view,
+        int targetSeat,
+        IReadOnlyList<PromptChoice> choices,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var hostility = target.Seat == Seat ? -100d : GetHostility(view, selfRole, target);
+        var scored = choices.Select(choice =>
+        {
+            var discardsWeapon = choice.Parameters.GetValueOrDefault("action") == "jiefan-discard-weapon";
+            var score = discardsWeapon
+                ? hostility - (choice.Cards.Count == 1
+                    ? self.Equipment.Where(card => card.Id == choice.Cards[0])
+                        .Select(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                        .DefaultIfEmpty(10).Single() * .25d
+                    : 10d)
+                : -hostility + 12d;
+            var description = discardsWeapon
+                ? "响应解烦并弃置一张公开武器"
+                : $"响应解烦并令 {target.Name} 摸一张牌";
+            return new
+            {
+                Choice = choice,
+                Candidate = new AiCandidateScore(
+                    new LegalAction(LegalActionKind.UseSkill, choice.Cards.FirstOrDefault(), targetSeat, description,
+                        Skill: SkillKind.Jiefan),
+                    Math.Round(score + _random.NextDouble() * .001d, 3),
+                    discardsWeapon
+                        ? "目标越敌对，越倾向支付公开武器，避免其摸牌。"
+                        : "目标越友好，越倾向令其摸牌；没有武器时此项也是唯一合法选择。")
+            };
+        }).ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Candidate.Action.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"解烦响应：{selected.Candidate.Action.Description}（{selected.Candidate.Score:0.###} 分）。");
+        return (selected.Choice, thought);
+    }
+
     private (double Score, string Reason) ScoreGeneral(
         Role role,
         GeneralDefinition candidate)

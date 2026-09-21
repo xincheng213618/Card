@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:guan-ping",
+  "acceptedAt": "2026-09-21T21:59:06+08:00",
+  "scope": "P1-A69 complete classic Guan Ping, Longyin runtime, AI, WPF presentation and official portrait",
+  "selectedVersion": "一将成名官网当前经典关平（蜀4体力，龙吟）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/313.html",
+      "use": "一将成名官方武将页冻结当前经典关平与龙吟文本，并提供经典静态大图入口。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161110_3477_3816",
+      "use": "官方历史攻略用于交叉核对蜀势力、4体力，以及弃一张牌、杀不计次数和红色杀摸牌的完整结算。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/177",
+      "use": "三国杀OL官方当前武将页用于交叉核对龙吟的现行规则文本。"
+    }
+  ],
+  "ruleText": {
+    "longyin": "每当一名角色于其出牌阶段内使用〖杀〗时，你可以弃置一张牌，令此〖杀〗不计入限制的使用次数，然后若此〖杀〗为红色，你摸一张牌。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.97.0",
+    "rulesVersion": 101,
+    "generalId": "classic:guan-ping",
+    "skillIds": [
+      "classic:longyin"
+    ],
+    "skillMetadata": {
+      "longyin": "Trigger"
+    },
+    "triggerWindow": "after a current-turn actor declares an ordinary, fire or thunder Slash during Play and before the first target response; a multi-target Slash opens this window once",
+    "costCandidates": "one exact card from the Longyin owner's hand or equipment zone, plus an explicit skip choice; private candidates are never projected to unrelated seats",
+    "slashCountPolicy": "the first successful Longyin removes the count only when that Slash originally consumed the ordinary Play-phase limit; additional owners may still use Longyin but cannot remove it twice",
+    "redPolicy": "a Slash is red only when it has at least one physical card and every physical card is Heart or Diamond; black, mixed-color and cardless virtual Slashes do not draw",
+    "aiPolicy": "uses only the owner's private exact costs plus public relationship to the Slash source, prefers cheap costs for self or allies, values a red replacement draw and avoids hostile or redundant payments",
+    "auditEvents": [
+      "LongyinResolvedEvent",
+      "CardMovedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.96.0",
+    "rulesVersionChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "accepted commands reconstruct the declared Slash frame, stable owner order, exact private cost, one-time count rollback, optional red draw and first target continuation under rules v101",
+    "legacyPolicy": "package 1.96.0 retains the complete Man Chong roster without Guan Ping or Longyin; package signature and content hash provide the new-content boundary"
+  },
+  "portrait": {
+    "resourceKey": "guan_ping",
+    "localPath": "src/CardGame.Wpf/Assets/official-guan-ping.png",
+    "sourcePage": "https://x.sanguosha.com/hero/313.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/131301.png",
+    "remoteHeadStatus": 200,
+    "remoteContentType": "image/png",
+    "remoteContentLength": 802626,
+    "remoteLastModified": "Wed, 17 Jul 2019 04:39:29 GMT",
+    "sha256": "1BE51997D7281933B69C9A53745016FA110CCD5BE942CD1F1B4264D2FF3485BB",
+    "bytes": 802626,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Guan Ping artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "isolatedBuildCommand": "dotnet build CardGame.sln -c Release --artifacts-path <isolated-temp> -p:UseSharedCompilation=false",
+    "isolatedBuildWarnings": 0,
+    "isolatedBuildErrors": 0,
+    "targetedCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll --only-guan-ping",
+    "targetedCorePassed": 4,
+    "targetedCoreTotal": 4,
+    "fullCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll",
+    "fullCorePassed": 347,
+    "fullCoreTotal": 347,
+    "targetedWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll --only-guan-ping <render-dir>",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "fullWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll <render-dir>",
+    "fullWpfPassed": 102,
+    "fullWpfTotal": 102,
+    "visualReview": "227 and 228 at 1120x740 inspected: official Guan Ping card art and the exact-card Longyin prompt are readable without clipping, overlap or horizontal overflow",
+    "assertions": [
+      "package 1.97.0 publishes complete Guan Ping while package 1.96.0 retains its prior Man Chong boundary",
+      "Longyin opens before the first Slash target response and exposes only the owner's exact hand and equipment costs",
+      "Longyin owners receive the same private window when another current actor uses Slash during Play",
+      "a successful first Longyin removes one counted Slash use while a skipped later window preserves the ordinary limit",
+      "red Slash use draws exactly one card after paying the cost while black Slash use draws none",
+      "the paused private Longyin choice replays with identical player state and public events",
+      "WPF exposes Trigger metadata, official art, exact private choices, player guidance, event stack and battle cue",
+      "incompatible old-rules WPF saves are rejected without replacing the active game or rewriting the original file"
+    ]
+  },
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI acceptance",
+    "physical multiplayer host and remote-client acceptance"
+  ]
+}

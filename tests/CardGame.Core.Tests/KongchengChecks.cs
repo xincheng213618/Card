@@ -24,24 +24,16 @@ internal static class KongchengChecks
         var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 52, 0));
         var seed = FindSeedWithHumanDuel(registry);
         var current = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
-        var legacy = CreateGame(registry, seed, rulesVersion: 14);
         ArrangeEmptyKongchengTarget(current, targetSeat: 1);
-        ArrangeEmptyKongchengTarget(legacy, targetSeat: 1);
 
         var currentStart = current.Submit(new StartGameCommand());
-        var legacyStart = legacy.Submit(new StartGameCommand());
-        Require(currentStart.Accepted && legacyStart.Accepted,
-            "The paired Kongcheng fixtures failed to start.");
-        Require(currentStart.Result.Status == EngineStatus.AwaitingHumanPlay &&
-                legacyStart.Result.Status == EngineStatus.AwaitingHumanPlay,
-            "The paired Kongcheng fixtures did not reach the human play boundary.");
+        Require(currentStart.Accepted,
+            "The Kongcheng fixture failed to start.");
+        Require(currentStart.Result.Status == EngineStatus.AwaitingHumanPlay,
+            "The Kongcheng fixture did not reach the human play boundary.");
 
         var duelId = current.CreateSnapshot(0, revealAll: true).Players[0].Hand
             .Single(card => card.Kind == CardKind.Duel).Id;
-        var legacyDuelId = legacy.CreateSnapshot(0, revealAll: true).Players[0].Hand
-            .Single(card => card.Kind == CardKind.Duel).Id;
-        Require(duelId == legacyDuelId,
-            "Rules-version fixtures must retain the same physical Duel card.");
 
         Require(!current.GetHumanLegalActions().Any(action =>
                 action.Kind == LegalActionKind.Duel &&
@@ -53,16 +45,9 @@ internal static class KongchengChecks
                 action.CardId == duelId &&
                 action.TargetSeat == 2),
             "Formal Kongcheng must not remove unrelated living Duel targets.");
-        Require(legacy.GetHumanLegalActions().Any(action =>
-                action.Kind == LegalActionKind.Duel &&
-                action.CardId == legacyDuelId &&
-                action.TargetSeat == 1),
-            "Rules v14 must retain the historical Slash-only Kongcheng behavior.");
         Require(current.CreateSnapshot(0, revealAll: true).Players[1].SkillDescription
-                    .Contains("【决斗】", StringComparison.Ordinal) &&
-                !legacy.CreateSnapshot(0, revealAll: true).Players[1].SkillDescription
                     .Contains("【决斗】", StringComparison.Ordinal),
-            "The player projection must describe formal Kongcheng only for the current classic rules.");
+            "The player projection must describe formal Kongcheng for current classic rules.");
 
         var beforeState = current.SerializeState();
         var beforeEvents = current.Events.Count;
@@ -88,24 +73,14 @@ internal static class KongchengChecks
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var current = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
-            var legacy = CreateGame(registry, seed, rulesVersion: 14);
             ArrangeEmptyKongchengTarget(current, targetSeat: 1);
-            ArrangeEmptyKongchengTarget(legacy, targetSeat: 1);
             var currentStart = current.Submit(new StartGameCommand());
-            var legacyStart = legacy.Submit(new StartGameCommand());
             var currentDuels = current.CreateSnapshot(0, revealAll: true).Players[0].Hand
                 .Where(card => card.Kind == CardKind.Duel)
                 .ToArray();
-            var legacyDuels = legacy.CreateSnapshot(0, revealAll: true).Players[0].Hand
-                .Where(card => card.Kind == CardKind.Duel)
-                .ToArray();
             if (currentStart.Accepted &&
-                legacyStart.Accepted &&
                 currentStart.Result.Status == EngineStatus.AwaitingHumanPlay &&
-                legacyStart.Result.Status == EngineStatus.AwaitingHumanPlay &&
-                currentDuels.Length == 1 &&
-                legacyDuels.Length == 1 &&
-                legacyDuels[0].Id == currentDuels[0].Id)
+                currentDuels.Length == 1)
             {
                 return seed;
             }

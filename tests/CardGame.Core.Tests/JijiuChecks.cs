@@ -192,8 +192,6 @@ internal static class JijiuChecks
 
     public static void EquipmentFlow()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 41,
-            "Formal Jijiu equipment conversion must have an explicit rules-version boundary.");
         var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
         var game = JijiuEquipmentScenario.Find(new Version(1, 56, 0));
         var prompt = game.PendingDecision ??
@@ -221,14 +219,6 @@ internal static class JijiuChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 paused.Events.Select(EventSignature).SequenceEqual(game.Events.Select(EventSignature)),
             "An in-flight equipped Jijiu rescue must replay exactly.");
-
-        var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 40 }, registry);
-        Require(legacy.PendingDecision?.Choices.Any(candidate =>
-                    candidate.Cards.Contains(equipment.Id) &&
-                    candidate.Parameters.GetValueOrDefault("response") == "peach") != true &&
-                legacy.CreateSnapshot(0, revealAll: true).Players[0].Equipment.Any(card =>
-                    card.Id == equipment.Id),
-            "Rules v40 must not publish or spend an equipped card through Jijiu.");
 
         var dyingFrame = game.ResolutionStack.OfType<DyingFrame>().Single();
         var accepted = game.Submit(new AnswerPromptCommand(

@@ -136,24 +136,6 @@ internal static class CixiongDoubleSwordsChecks
         Require(State(replayed) == State(activated) && Events(replayed).SequenceEqual(Events(activated)),
             "A resolved Cixiong Double Swords branch must replay exactly.");
 
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 44 },
-            registry);
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("Rules v44 Cixiong fixture lost its play prompt.");
-        var legacySlash = legacy.Submit(new PlayCardCommand(
-            0,
-            boundary.SlashAction.CardId!.Value,
-            boundary.SlashAction.TargetSeats,
-            legacy.Revision,
-            legacyPrompt.PromptId,
-            boundary.SlashAction.PlayedCardKind));
-        Require(legacySlash.Accepted &&
-                legacy.PendingDecision?.Kind != DecisionKind.CixiongDoubleSwords &&
-                legacy.Events.Select(item => item.Payload)
-                    .All(item => item is not CixiongDoubleSwordsResolvedEvent),
-            legacySlash.Error?.Message ??
-            "Rules v44 must preserve the historical Slash flow without Cixiong Double Swords.");
     }
 
     public static void AiRelationBranches()

@@ -63,7 +63,6 @@ internal static class GudingBladeChecks
             "A completed Guding Blade damage increase must replay exactly.");
 
         VerifyNonEmptyTarget();
-        VerifyRules49Boundary(boundary, targetBefore.Hp);
     }
 
     private static void VerifyNonEmptyTarget()
@@ -84,29 +83,6 @@ internal static class GudingBladeChecks
                     .Players[boundary.TargetSeat].Hp == targetBefore.Hp - 1 &&
                 game.Events.Select(item => item.Payload).All(item => item is not GudingBladeDamageIncreasedEvent),
             "Guding Blade must not increase Slash damage while the target still has a hand card.");
-    }
-
-    private static void VerifyRules49Boundary(GudingBladeBoundary boundary, int targetHpBefore)
-    {
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 49 },
-            boundary.Registry);
-        var legacyActions = legacy.GetHumanLegalActions().Where(action =>
-            action.Kind == LegalActionKind.Slash &&
-            action.CardId == boundary.SlashAction.CardId &&
-            action.TargetSeat == boundary.TargetSeat).ToArray();
-        Require(legacyActions.Length == 1,
-            $"Rules v49 expected one matching Slash action, found {legacyActions.Length}.");
-        var legacyAction = legacyActions[0];
-        var played = PlaySlash(legacy, legacyAction);
-        Require(played.Accepted, played.Error?.Message ?? "Rules v49 Guding control Slash was rejected.");
-        var applied = legacy.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Last(item =>
-            item.SourceSeat == boundary.SourceSeat && item.TargetSeat == boundary.TargetSeat);
-        Require(applied.Amount == 1 &&
-                legacy.CreateSnapshot(boundary.SourceSeat, revealAll: true)
-                    .Players[boundary.TargetSeat].Hp == targetHpBefore - 1 &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not GudingBladeDamageIncreasedEvent),
-            "Rules v49 must retain ordinary one-point Slash damage even when the current registry contains Guding Blade.");
     }
 
     private static CommandResult PlaySlash(GameEngine game, LegalAction action) =>

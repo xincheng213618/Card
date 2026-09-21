@@ -8,14 +8,6 @@ internal static class CaoRenChecks
         var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 50, 0));
         var game = CreateSelectedCaoRen(registry);
         ReachHumanPlay(game);
-        var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 64 }, registry);
-        Require(legacy.Submit(new EndPlayPhaseCommand(0, legacy.Revision, legacy.PendingDecision!.PromptId)).Accepted,
-            "Rules v64 must retain the pre-Jushou turn ending behavior.");
-        for (var step = 0; step < 3 && legacy.PendingDecision is null; step++)
-            Require(legacy.Submit(new AdvanceOneStepCommand(legacy.Revision)).Accepted, "Legacy turn could not finish.");
-        Require(legacy.PendingDecision?.Kind != DecisionKind.Jushou,
-            "Rules v64 must not publish a Jushou end-phase choice.");
-
         Require(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)).Accepted,
             "Cao Ren must receive a private optional Jushou window at the end phase.");
         for (var step = 0; step < 4 && game.PendingDecision?.Kind != DecisionKind.Jushou; step++)

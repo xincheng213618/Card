@@ -44,10 +44,6 @@ internal static class YuJinChecks
                         SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
                     "A Yizhong boundary must replay deterministically from its preceding checkpoint.");
 
-                var legacy = GameReplay.Restore(before with { RulesVersion = 75 }, registry);
-                Require(legacy.Submit(new AdvanceOneStepCommand(legacy.Revision)).Accepted &&
-                        legacy.Events.Select(e => e.Payload).All(e => e is not YizhongNullifiedEvent),
-                    "Rules v75 must preserve the pre-Yizhong Slash response path.");
                 return;
             }
         }

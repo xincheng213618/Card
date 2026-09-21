@@ -26,14 +26,13 @@ internal static class WushengResponseChecks
             // delayed judgment cannot be relabelled as v8 after rules 11.
             if (incoming == CardKind.Duel)
             {
+                var activeState = SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, revealAll: true));
                 store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, checkpoint with { RulesVersion = 8 }));
                 vm.LoadManualGameCommand.Execute(null);
-                Program.Assert(!vm.HasSaveError && Program.Engine(vm).RulesVersion == 8 && !vm.Hand.Single(card => card.Id == id).IsPlayable,
-                    "Old-rule UI enabled the new conversion or could not restore the old prompt.");
-                var oldState = GameCheckpointJson.Serialize(Program.Engine(vm).CreateCheckpoint());
-                vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == id));
-                vm.ConfirmSelectedCommand.Execute(null);
-                Program.Assert(!vm.HasSelection && GameCheckpointJson.Serialize(Program.Engine(vm).CreateCheckpoint()) == oldState, "Disabled legacy response changed the game.");
+                Program.Assert(vm.HasSaveError &&
+                               Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
+                               SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, revealAll: true)) == activeState,
+                    "The exact-rules loader accepted a relabelled rules v8 response or changed the active game after rejecting it.");
             }
             store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, checkpoint));
             vm.LoadManualGameCommand.Execute(null);

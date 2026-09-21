@@ -19,13 +19,6 @@ internal static class SkillOwnershipChecks
                     .SequenceEqual(["classic:zhiheng"]) == true,
             "A current non-Lord must own Zhiheng but not the printed Lord skill Jiuyuan.");
 
-        var legacy = GameReplay.Restore(
-            rebel.CreateCheckpoint() with { RulesVersion = 96 },
-            registry);
-        Require(Human(legacy).Skills?.Select(skill => skill.ContentId)
-                    .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) == true,
-            "Rules v96 replay must retain the historical all-printed-skills projection.");
-
         var lord = SelectClassicGeneral(registry, "classic:sun-quan", Role.Lord);
         Require(Human(lord).Skills?.Select(skill => skill.ContentId)
                     .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) == true,
@@ -38,26 +31,13 @@ internal static class SkillOwnershipChecks
             new StandardContentPackage(),
             new LordTaggedActiveFixture());
         var current = CreateTeamGame(registry);
-        var legacy = GameReplay.Restore(
-            current.CreateCheckpoint() with { RulesVersion = 96 },
-            registry);
-
         ReachHumanPlay(current);
         var currentActions = current.GetHumanLegalActions();
         Require(Human(current).Role != Role.Lord &&
                 currentActions.All(action => action.Skill != SkillKind.Zhiheng) &&
                 currentActions.All(action => action.ProgramSkillId != LordTaggedActiveFixture.ProgramSkillId) &&
                 currentActions.All(action => action.ConversionSource?.SkillId != LordTaggedActiveFixture.LongdanSkillId),
-            "Rules v97 must remove Lord-tagged printed skills before passive, program and conversion discovery.");
-
-        ReachHumanPlay(legacy);
-        var legacyActions = legacy.GetHumanLegalActions();
-        Require(legacyActions.Any(action => action.Skill == SkillKind.Zhiheng) &&
-                legacyActions.Any(action => action.ProgramSkillId == LordTaggedActiveFixture.ProgramSkillId) &&
-                legacyActions.Any(action =>
-                    action.ConversionSource?.SkillId == LordTaggedActiveFixture.LongdanSkillId &&
-                    action.PlayedCardKind == CardKind.Slash),
-            "Rules v96 must retain the fixture's historical passive, program and conversion discovery.");
+            "Current rules must remove Lord-tagged printed skills before passive, program and conversion discovery.");
     }
 
     private static PlayerSnapshot Human(GameEngine game) =>

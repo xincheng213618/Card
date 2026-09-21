@@ -18,11 +18,12 @@ public sealed record GameCheckpoint(
     string ContentHash)
 {
     public const int CurrentSchemaVersion = 3;
-    public const int CurrentRulesVersion = 113;
+    // Development save compatibility epoch. This project is not released yet,
+    // so checkpoints from any other rules version are rejected instead of
+    // migrated. Adding content is versioned by its package and content hash.
+    public const int CurrentRulesVersion = 101;
 
-    // Checkpoint schema 3 predates the explicit rules marker. Keeping the
-    // initializer at v1 lets old JSON retain its original event semantics.
-    public int RulesVersion { get; init; } = 1;
+    public int RulesVersion { get; init; }
 }
 
 /// <summary>JSON boundary for trusted-host checkpoint files.</summary>
@@ -127,11 +128,11 @@ public static class GameReplay
                 $"expected {GameCheckpoint.CurrentSchemaVersion}.");
         }
 
-        if (checkpoint.RulesVersion is < 1 or > GameCheckpoint.CurrentRulesVersion)
+        if (checkpoint.RulesVersion != GameCheckpoint.CurrentRulesVersion)
         {
             throw new InvalidOperationException(
                 $"Checkpoint rules version {checkpoint.RulesVersion} is not supported; " +
-                $"expected a value from 1 through {GameCheckpoint.CurrentRulesVersion}.");
+                $"this development build requires exactly {GameCheckpoint.CurrentRulesVersion}.");
         }
 
         if (checkpoint.Options is null ||

@@ -27,6 +27,9 @@ public sealed class SeatViewModel : ObservableObject
     public bool HasBuquWounds => BuquWoundText.Length > 0;
     public string AuthorityText { get; init; } = string.Empty;
     public bool HasAuthority => AuthorityText.Length > 0;
+    public string ChunlaoText { get; init; } = string.Empty;
+    public string ChunlaoTooltip { get; init; } = string.Empty;
+    public bool HasChunlao => ChunlaoText.Length > 0;
     public bool HasAlcoholEffect { get; init; }
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
     public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);

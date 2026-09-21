@@ -56,36 +56,13 @@ internal static class RecastUiChecks
             Require(!vm.HasSaveError && Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion && SnapshotJson.Serialize(Program.Engine(vm).State) == savedState,
                 "JSON save did not restore the recast command and its replacement card.");
 
+            var preservedState = SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, revealAll: true));
             store.Write(GameSaveSlot.Manual, new GameSaveFile(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, oldCheckpoint));
             vm.LoadManualGameCommand.Execute(null);
-            Require(!vm.HasSaveError && Program.Engine(vm).RulesVersion == 5, "Rules 5 save no longer loads.");
-            vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == cardId));
-            vm.SelectTargetCommand.Execute(vm.HumanPlayer!);
-            Require(!vm.HumanPlayer!.IsSelectedTarget && !vm.ShowRecastAction && !vm.CanRecastSelected,
-                "Old save shows new rule actions.");
-            vm.SelectedGuideCategory = "全部";
-            vm.GuideSearchText = "铁索连环";
-            Require(vm.FilteredGuideCards.Single().Description.Contains("其他存活角色") && !vm.FilteredGuideCards.Single().Description.Contains("重铸"),
-                "Old save displays current-rules card text.");
-            vm.GuideSearchText = "乐不思蜀";
-            Require(vm.FilteredGuideCards.Single().Description.Contains("红色") && !vm.FilteredGuideCards.Single().Description.Contains("红桃"),
-                "Old save displays rules 11 delayed-card text.");
-            vm.GuideSearchText = "酒";
-            Require(vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("濒死时救援") &&
-                !vm.FilteredGuideCards.Single(card => card.Kind == CardKind.Alcohol).Timing.Contains("仅可自救"),
-                "Old save did not retain the legacy Alcohol timing text.");
-            vm.GuideSearchText = "诸葛连弩";
-            Require(vm.FilteredGuideCards.Single().Description.Contains("攻击范围 +1"),
-                "Old save did not retain the legacy Crossbow range text.");
-            vm.GuideSearchText = "青釭剑";
-            Require(!vm.FilteredGuideCards.Single().Description.Contains("攻击范围 2"),
-                "Old save displayed the current Qinggang range text.");
-            vm.GuideSearchText = "八卦阵";
-            Require(vm.FilteredGuideCards.Single().Description.Contains("直接目标"),
-                "Old save did not retain the direct-Slash-only Bagua text.");
-            vm.GuideSearchText = "仁王盾";
-            Require(vm.FilteredGuideCards.Single().Description.Contains("不能对你使用"),
-                "Old save did not retain the target-selection Renwang text.");
+            Require(vm.HasSaveError &&
+                    Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
+                    SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, revealAll: true)) == preservedState,
+                "The exact-rules loader accepted rules v5 or changed the active game after rejecting it.");
             vm.StartNewGameCommand.Execute(null);
             Require(Program.Engine(vm).RulesVersion == GameCheckpoint.CurrentRulesVersion,
                 "New match did not use the current rules version.");

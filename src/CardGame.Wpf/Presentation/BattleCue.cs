@@ -17,9 +17,17 @@ public static class BattleCueProjector
         var events = source.ToArray();
         var targets = events.Select(item => item.Payload).OfType<TargetsConfirmedEvent>()
             .GroupBy(item => item.ResolutionId).ToDictionary(group => group.Key, group => group.Last().TargetSeats);
+        var legacyJingceOwners = events.Select(item => item.Payload).OfType<JingceResolvedEvent>()
+            .Where(item => item.Used).Select(item => item.OwnerSeat).ToHashSet();
         var cues = new List<BattleCue>();
         var responseCards = new HashSet<int>();
         string Name(int seat) => playerView.Players.FirstOrDefault(player => player.Seat == seat)?.GeneralName ?? "武将";
+        string SkillName(SkillModuleResolvedEvent resolved)
+        {
+            var player = playerView.Players.FirstOrDefault(candidate => candidate.Seat == resolved.OwnerSeat);
+            var skills = (player?.Skills ?? []).Concat(player?.SecondarySkills ?? []);
+            return skills.FirstOrDefault(skill => skill.ContentId == resolved.SkillId)?.Name ?? resolved.SkillId;
+        }
         IReadOnlyList<int> Seats(IEnumerable<int> seats) => Array.AsReadOnly(seats.Where(seat => seat >= 0 && seat < playerView.Players.Count).Distinct().ToArray());
 
         foreach (var envelope in events)
@@ -88,6 +96,51 @@ public static class BattleCueProjector
                     zhuiyi.RecoveredHp > 0 ? BattleCueKind.Recovery : BattleCueKind.Response,
                     zhuiyi.OwnerSeat, Seats([zhuiyi.TargetSeat]), "追忆 · 摸三张", Name(zhuiyi.OwnerSeat),
                     Detail: zhuiyi.RecoveredHp > 0 ? "并回复1点体力" : "目标体力已满"),
+                ChunlaoStoredEvent chunlao => new(envelope.Sequence, BattleCueKind.Response,
+                    chunlao.OwnerSeat, Seats([chunlao.OwnerSeat]), $"醇醪 · 醇 {chunlao.CardIds.Count}",
+                    Name(chunlao.OwnerSeat), Detail: "公开置于武将牌上"),
+                ChunlaoRescueEvent chunlao => new(envelope.Sequence, BattleCueKind.Recovery,
+                    chunlao.OwnerSeat, Seats([chunlao.VictimSeat]), "醇醪 · 酒救援",
+                    Name(chunlao.OwnerSeat), Detail: $"回复{chunlao.RecoveredHp}点体力"),
+                GongqiResolvedEvent gongqi => new(envelope.Sequence, BattleCueKind.Response,
+                    gongqi.OwnerSeat, Seats(gongqi.TargetSeat is { } target ? [target] : [gongqi.OwnerSeat]),
+                    "弓骑 · 攻击范围无限", Name(gongqi.OwnerSeat),
+                    Detail: gongqi.DiscardedCardId is null ? "未弃置其他角色的牌" : "弃置其他角色一张牌"),
+                JiefanChoiceResolvedEvent jiefan => new(envelope.Sequence,
+                    jiefan.DiscardedWeaponCardId is null ? BattleCueKind.Recovery : BattleCueKind.Response,
+                    jiefan.ResponderSeat, Seats([jiefan.TargetSeat]), "解烦 · 响应",
+                    Name(jiefan.ResponderSeat),
+                    Detail: jiefan.DiscardedWeaponCardId is null ? "令目标摸一张牌" : "弃置一张武器"),
+                ChengxiangResolvedEvent { Used: true } chengxiang => new(envelope.Sequence,
+                    BattleCueKind.Response, chengxiang.OwnerSeat, Seats([chengxiang.OwnerSeat]),
+                    $"称象 · 获得{chengxiang.ObtainedCardIds.Count}张", Name(chengxiang.OwnerSeat),
+                    Detail: $"点数和 {chengxiang.ObtainedRankSum} · 其余{chengxiang.DiscardedCardIds.Count}张弃置"),
+                RenxinResolvedEvent { Used: true } renxin => new(envelope.Sequence,
+                    BattleCueKind.Response, renxin.OwnerSeat, Seats([renxin.TargetSeat]),
+                    $"仁心 · 防止{renxin.PreventedAmount}点伤害", Name(renxin.OwnerSeat),
+                    Detail: renxin.IsFaceDown ? "弃置装备 · 翻至背面" : "弃置装备 · 翻至正面"),
+                JingceResolvedEvent { Used: true } jingce => new(envelope.Sequence,
+                    BattleCueKind.Response, jingce.OwnerSeat, Seats([jingce.OwnerSeat]),
+                    $"精策 · 摸{jingce.DrawnCardIds.Count}张", Name(jingce.OwnerSeat),
+                    Detail: $"本回合用牌 {jingce.UsedCardCount} · 当前体力 {jingce.CurrentHp}"),
+                SkillModuleResolvedEvent { Used: true } skillModule
+                    when skillModule.SkillId != "classic:jingce" || !legacyJingceOwners.Contains(skillModule.OwnerSeat) => new(envelope.Sequence,
+                        BattleCueKind.Response, skillModule.OwnerSeat, Seats([skillModule.OwnerSeat]),
+                        $"{SkillName(skillModule)} · 已发动", Name(skillModule.OwnerSeat)),
+                JunxingResolvedEvent junxing => new(envelope.Sequence,
+                    BattleCueKind.Response, junxing.OwnerSeat, Seats([junxing.TargetSeat]),
+                    junxing.DiscardedCardId is not null ? "峻刑 · 弃置异类手牌" : $"峻刑 · 翻面摸{junxing.DrawnCardIds.Count}张",
+                    Name(junxing.OwnerSeat),
+                    Detail: $"弃置代价 {junxing.CostCardIds.Count} 张 · {string.Join("/", junxing.CostCategories)}"),
+                YuceResolvedEvent { Used: true } yuce => new(envelope.Sequence,
+                    BattleCueKind.Response, yuce.OwnerSeat, Seats([yuce.SourceSeat]),
+                    yuce.DiscardedCardId is not null ? "御策 · 来源弃置异类手牌" : $"御策 · 回复{yuce.RecoveredHp}点",
+                    Name(yuce.OwnerSeat),
+                    Detail: yuce.RevealedCategory is null ? null : $"展示{yuce.RevealedCategory}"),
+                LongyinResolvedEvent { Used: true } longyin => new(envelope.Sequence,
+                    BattleCueKind.Response, longyin.OwnerSeat, Seats([longyin.SlashSourceSeat]),
+                    "龙吟 · 杀不计次数", Name(longyin.OwnerSeat),
+                    Detail: longyin.SlashWasRed ? "弃置一张牌 · 红色杀摸一张" : "弃置一张牌 · 黑色杀不摸牌"),
                 DangxianExtraPlayPhaseEvent { Started: true } dangxian => new(envelope.Sequence,
                     BattleCueKind.Turn, dangxian.OwnerSeat, Seats([dangxian.OwnerSeat]),
                     "当先 · 额外出牌阶段", Name(dangxian.OwnerSeat), Detail: "正常准备与摸牌前"),

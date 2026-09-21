@@ -10,7 +10,7 @@ internal static class XuShuChecks
         Require(GameCheckpoint.CurrentRulesVersion >= 78,
             "Jujian requires the rules v78 compatibility boundary.");
         var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
-        var (preEndCheckpoint, ownerCheckpoint) = FindOwnerPrompt(registry);
+        var (_, ownerCheckpoint) = FindOwnerPrompt(registry);
         var owner = GameReplay.Restore(ownerCheckpoint, registry);
         var prompt = owner.PendingDecision ??
             throw new InvalidOperationException("Xu Shu did not retain the Jujian owner prompt.");
@@ -25,19 +25,6 @@ internal static class XuShuChecks
                     CardCatalog.Get(card.Kind).CategoryName != "基本牌") &&
                 prompt.ValidCardIds.Count > 0,
             "Jujian must publish only non-basic cards from Xu Shu's hand or equipment.");
-
-        var legacy = GameReplay.Restore(preEndCheckpoint with { RulesVersion = 77 }, registry);
-        Require(legacy.PendingDecision is { Kind: DecisionKind.PlayCard } legacyPlay &&
-                legacy.Submit(new EndPlayPhaseCommand(0, legacy.Revision, legacyPlay.PromptId)).Accepted,
-            "Rules v77 could not leave Xu Shu's play phase.");
-        for (var step = 0; step < 6 && legacy.PendingDecision is null; step++)
-        {
-            Require(legacy.Submit(new AdvanceOneStepCommand(legacy.Revision)).Accepted,
-                "Rules v77 could not advance past the pre-Jujian end phase.");
-        }
-        Require(legacy.PendingDecision?.Kind != DecisionKind.Jujian &&
-                legacy.Events.All(envelope => envelope.Payload is not JujianResolvedEvent),
-            "Rules v77 must retain the pre-Jujian end-phase behavior.");
 
         var targetSeat = prompt.ValidTargetSeats[0];
         var draw = RunBranch(ownerCheckpoint, registry, targetSeat, "jujian-draw", _ => { });

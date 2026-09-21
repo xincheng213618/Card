@@ -5,31 +5,22 @@ internal static class AlcoholLimitChecks
 {
     private const string DeckId = "alcohol-limit:deck";
 
-    public static void OncePerTurnAndLegacy()
+    public static void OncePerTurnAndReplay()
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 20,
             "The formal play-phase Alcohol limit requires rules version 20 or newer.");
         var registry = CreateRegistry();
         var fixture = FindFixture(registry);
         var formal = fixture.Formal;
-        var legacy = fixture.Legacy;
         var secondAlcoholId = fixture.SecondAlcoholId;
 
         Require(formal.Log.Any(entry =>
                 entry.Type == "Rules" &&
                 entry.Message.Contains("出牌阶段每回合限使用一次酒", StringComparison.Ordinal)),
             "The current rules log omitted the formal Alcohol limit.");
-        Require(legacy.Log.Any(entry =>
-                entry.Type == "Rules" &&
-                entry.Message.Contains("同回合再次饮酒", StringComparison.Ordinal)),
-            "The legacy rules log omitted the historical repeat-use behavior.");
-
         Require(!formal.GetHumanLegalActions().Any(action =>
                 action.Kind == LegalActionKind.Alcohol && action.CardId == secondAlcoholId),
-            "Rules v20 exposed a second play-phase Alcohol in the same turn.");
-        Require(legacy.GetHumanLegalActions().Any(action =>
-                action.Kind == LegalActionKind.Alcohol && action.CardId == secondAlcoholId),
-            "Rules v19 did not preserve the historical second Alcohol action.");
+            "Current rules exposed a second play-phase Alcohol in the same turn.");
 
         var before = GameCheckpointJson.Serialize(formal.CreateCheckpoint());
         var forged = formal.Submit(new PlayCardCommand(
@@ -48,24 +39,16 @@ internal static class AlcoholLimitChecks
                 action.Kind == LegalActionKind.Alcohol && action.CardId == secondAlcoholId),
             "The formal once-per-turn Alcohol marker was lost during checkpoint replay.");
 
-        var legacySecond = legacy.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.Alcohol && action.CardId == secondAlcoholId);
-        Require(Play(legacy, legacySecond).Accepted &&
-                legacy.State.Players.Single(player => player.Seat == 0).HasAlcoholEffect,
-            "Rules v19 did not accept and arm the historical second Alcohol.");
-
         AdvanceToNextHumanTurn(formal, fixture.OpeningTurn);
         Require(formal.GetHumanLegalActions().Any(action =>
                 action.Kind == LegalActionKind.Alcohol && action.CardId == secondAlcoholId),
             "The formal Alcohol limit did not reset at the owner's next turn.");
-        Require(formal.CreateCardZoneDiagnostics().Count == 40 &&
-                legacy.CreateCardZoneDiagnostics().Count == 40,
+        Require(formal.CreateCardZoneDiagnostics().Count == 40,
             "The Alcohol limit scenario lost a physical card.");
         AssertReplay(formal, registry);
-        AssertReplay(legacy, registry);
     }
 
-    private static (GameEngine Formal, GameEngine Legacy, int SecondAlcoholId, int OpeningTurn) FindFixture(
+    private static (GameEngine Formal, int SecondAlcoholId, int OpeningTurn) FindFixture(
         ContentRegistry registry)
     {
         for (var seed = 1; seed <= 8_192; seed++)
@@ -87,15 +70,13 @@ internal static class AlcoholLimitChecks
             if (firstAlcohol is null || slash is null)
                 continue;
 
-            var legacy = CreateStartedGame(seed, registry, rulesVersion: 19);
             var openingTurn = formal.State.TurnNumber;
-            if (!ResolveAlcoholThenSlash(formal, firstAlcohol.CardId!.Value, slash.CardId!.Value, slash.TargetSeat!.Value) ||
-                !ResolveAlcoholThenSlash(legacy, firstAlcohol.CardId.Value, slash.CardId.Value, slash.TargetSeat.Value))
+            if (!ResolveAlcoholThenSlash(formal, firstAlcohol.CardId!.Value, slash.CardId!.Value, slash.TargetSeat!.Value))
             {
                 continue;
             }
 
-            return (formal, legacy, alcoholIds[1], openingTurn);
+            return (formal, alcoholIds[1], openingTurn);
         }
 
         throw new InvalidOperationException("Could not find a deterministic two-Alcohol opening fixture.");

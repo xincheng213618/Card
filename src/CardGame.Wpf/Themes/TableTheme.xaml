@@ -244,6 +244,9 @@
                         <Border Visibility="{Binding HasAuthority, Converter={StaticResource BoolToVisibility}}" Background="#D53C6176" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,78,0,0" Padding="4,2" ToolTip="公开的“权”牌；手牌上限增加其数量">
                             <TextBlock Text="{Binding AuthorityText}" FontSize="9" Foreground="#E6F3F1" />
                         </Border>
+                        <Border Visibility="{Binding HasChunlao, Converter={StaticResource BoolToVisibility}}" Background="#D5724A2E" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,78,0,0" Padding="5,2" ToolTip="{Binding ChunlaoTooltip}">
+                            <TextBlock Text="{Binding ChunlaoText}" FontSize="9" Foreground="#FFF0C9" />
+                        </Border>
                         <Border Visibility="{Binding HasJudgment, Converter={StaticResource BoolToVisibility}}" Background="#D6593B41" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,55,0,0" Padding="4,2" ToolTip="{Binding JudgmentText}">
                             <TextBlock Text="{Binding ShortJudgment}" FontSize="9" Foreground="#F4DADA" MaxWidth="125" TextTrimming="CharacterEllipsis" />
                         </Border>

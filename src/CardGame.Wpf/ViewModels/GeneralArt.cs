@@ -100,6 +100,18 @@ public static class GeneralArt
             ["guan-xing-zhang-bao"] = "official-guan-xing-zhang-bao.png",
             // Official artwork URL and hash: docs/content/sources/bu-lian-shi-a63-2026-09-21.json.
             ["bu-lian-shi"] = "official-bu-lian-shi.png",
+            // Official artwork URL and hash: docs/content/sources/cheng-pu-a64b-2026-09-21.json.
+            ["cheng-pu"] = "official-cheng-pu.png",
+            // Official artwork URL and hash: docs/content/sources/han-dang-a65-2026-09-21.json.
+            ["han-dang"] = "official-han-dang.png",
+            // Official artwork URL and hash: docs/content/sources/cao-chong-a66-2026-09-21.json.
+            ["cao-chong"] = "official-cao-chong.png",
+            // Official artwork URL and hash: docs/content/sources/guo-huai-a67-2026-09-21.json.
+            ["guo-huai"] = "official-guo-huai.png",
+            // Official artwork URL and hash: docs/content/sources/man-chong-a68-2026-09-21.json.
+            ["man-chong"] = "official-man-chong.png",
+            // Official artwork URL and hash: docs/content/sources/guan-ping-a69-2026-09-21.json.
+            ["guan-ping"] = "official-guan-ping.png",
             ["sun-jian"] = "general-sun-jian.png",
             ["meng-huo"] = "general-meng-huo.png",
             ["zhu-rong"] = "general-zhu-rong.png",

@@ -5,7 +5,7 @@ internal static class RecastChecks
 {
     private static readonly ContentRegistry Registry = StandardContentRegistry.Create();
 
-    private static GameEngine Opening(int rules)
+    private static GameEngine Opening()
     {
         for (var seed = 1; seed <= 200; seed++)
         {
@@ -17,8 +17,6 @@ internal static class RecastChecks
                 AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false
             }, Registry);
-            if (rules != GameCheckpoint.CurrentRulesVersion)
-                game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rules }, Registry);
             Require(game.Submit(new StartGameCommand()).Accepted, "Opening failed.");
             for (var step = 0; step < 30 && game.PendingDecision is null; step++)
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Opening step failed.");
@@ -30,7 +28,7 @@ internal static class RecastChecks
 
     public static void CommandAndReplay()
     {
-        var game = Opening(6);
+        var game = Opening();
         var cardId = game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Recast).CardId!.Value;
         var prompt = game.PendingDecision!;
         var before = State(game);
@@ -71,18 +69,9 @@ internal static class RecastChecks
             "Recast did not return to the same player's play phase.");
     }
 
-    public static void RulesAndAi()
+    public static void CurrentRulesAndAi()
     {
-        var old = Opening(5);
-        var oldActions = old.GetHumanLegalActions();
-        var oldId = oldActions.First(action => action.Kind == LegalActionKind.IronChain).CardId!.Value;
-        var oldBefore = State(old);
-        Require(!oldActions.Any(action => action.Kind == LegalActionKind.Recast) &&
-            oldActions.Where(action => action.Kind == LegalActionKind.IronChain).All(action => !action.TargetSeats.Contains(0)), "Old rules acquired new actions.");
-        Require(!old.Submit(new RecastCardCommand(0, oldId, old.Revision, old.PendingDecision!.PromptId)).Accepted && State(old) == oldBefore,
-            "Old save accepted recast.");
-        Require(State(GameReplay.Restore(old.CreateCheckpoint(), Registry)) == oldBefore, "Rules 5 opening replay drifted.");
-        var game = Opening(6);
+        var game = Opening();
         var actions = game.GetHumanLegalActions();
         Require(actions.Any(action => action.Kind == LegalActionKind.IronChain && action.TargetSeats.SequenceEqual([0])) &&
             actions.Any(action => action.Kind == LegalActionKind.IronChain && action.TargetSeats.Count == 2 && action.TargetSeats.Contains(0)),

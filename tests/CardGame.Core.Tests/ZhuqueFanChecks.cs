@@ -8,7 +8,7 @@ internal static class ZhuqueFanChecks
     {
         var boundary = ZhuqueFanScenario.FindHumanChainedSlash();
         VerifyPhysicalSlashConversion(boundary);
-        VerifyNormalAndLegacyBranches(boundary);
+        VerifyNormalBranch(boundary);
         VerifyJijiangOwnerChoice();
     }
 
@@ -88,7 +88,7 @@ internal static class ZhuqueFanChecks
             "A completed Zhuque Fan Fire Slash must replay exactly.");
     }
 
-    private static void VerifyNormalAndLegacyBranches(ZhuqueFanBoundary boundary)
+    private static void VerifyNormalBranch(ZhuqueFanBoundary boundary)
     {
         var normal = GameReplay.Restore(RoundTrip(boundary.BeforeSlash), boundary.Registry);
         var before = normal.CreateSnapshot(boundary.SourceSeat, revealAll: true);
@@ -117,20 +117,6 @@ internal static class ZhuqueFanChecks
                     item is not ZhuqueFanConvertedEvent and not ChainedDamagePropagatedEvent),
             "Keeping the physical Slash normal must not deal elemental or propagated damage.");
 
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 50 },
-            boundary.Registry);
-        var legacyActions = legacy.GetHumanLegalActions().Where(action =>
-            action.Kind == LegalActionKind.Slash &&
-            action.CardId == boundary.NormalSlashAction.CardId &&
-            action.TargetSeat == boundary.PrimaryTargetSeat).ToArray();
-        Require(legacyActions.Length == 1 && legacyActions[0].PlayedCardKind is null,
-            "Rules v50 must keep only the pre-Zhuque ordinary Slash action.");
-        Require(PlaySlash(legacy, legacyActions[0]).Accepted,
-            "Rules v50 ordinary Slash control was rejected.");
-        SettleCard(legacy, legacyActions[0].CardId!.Value);
-        Require(legacy.Events.Select(item => item.Payload).All(item => item is not ZhuqueFanConvertedEvent),
-            "Rules v50 must never publish a Zhuque Fan conversion event.");
     }
 
     private static void VerifyJijiangOwnerChoice()

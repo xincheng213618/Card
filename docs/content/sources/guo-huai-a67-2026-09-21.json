@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:guo-huai",
+  "acceptedAt": "2026-09-21T20:43:11+08:00",
+  "scope": "P1-A67 complete classic Guo Huai and Jingce runtime, AI, WPF presentation and official portrait",
+  "selectedVersion": "一将成名官网当前经典郭淮（魏4体力，精策）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/311.html",
+      "use": "一将成名官方武将页冻结当前经典郭淮与精策文本，并提供经典静态大图入口。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161102_6337_2211",
+      "use": "官方历史攻略用于交叉核对精策的出牌阶段结束触发点和结束时当前体力比较。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/175",
+      "use": "三国杀 OL 官方当前郭淮页展示花色与类型计数异版，用于明确排除该产品线的改版技能。"
+    }
+  ],
+  "ruleText": {
+    "jingce": "出牌阶段结束时，若你于此回合内使用过的牌的数量大于等于你当前的体力值，你可以摸两张牌。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.95.0",
+    "rulesVersion": 101,
+    "generalId": "classic:guo-huai",
+    "skillIds": [
+      "classic:jingce"
+    ],
+    "skillMetadata": {
+      "jingce": "Trigger"
+    },
+    "interaction": "each Play-phase end counts CardUseDeclared events by the current player since the current TurnStarted event; if that turn-wide count is at least the owner's current HP, one private use-or-skip prompt is published and use draws two exact physical cards before entering Discard",
+    "extraPlayPolicy": "the card-use count is turn-wide while the trigger is Play-phase scoped, so an extra Play phase resets only the per-phase resolved flag and retains earlier uses from the same turn",
+    "aiPolicy": "Jingce has no cost or target and deterministic AI always accepts its legal two-card draw",
+    "auditEvents": [
+      "CardUseDeclaredEvent",
+      "JingceResolvedEvent",
+      "CardMovedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.94.0",
+    "rulesVersionChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "accepted commands reconstruct the turn-wide use count, paused private Jingce choice, exact drawn physical cards, movements and completed event history under rules v101",
+    "legacyPolicy": "package 1.94.0 retains the complete Cao Chong roster without Guo Huai; package signature and content hash provide the new-content boundary"
+  },
+  "portrait": {
+    "resourceKey": "guo_huai",
+    "localPath": "src/CardGame.Wpf/Assets/official-guo-huai.png",
+    "sourcePage": "https://x.sanguosha.com/hero/311.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/131101.png",
+    "remoteHeadStatus": 200,
+    "remoteContentType": "image/png",
+    "remoteContentLength": 673627,
+    "sha256": "5F9A185A54E5BA7FC0F49344310AE236C46BA9BF416F27644B42DB6DEAEB30BC",
+    "bytes": 673627,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Guo Huai artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "isolatedBuildCommand": "dotnet build CardGame.sln -c Release --artifacts-path <isolated-temp> --no-restore",
+    "isolatedBuildWarnings": 0,
+    "isolatedBuildErrors": 0,
+    "targetedCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll --only-guo-huai",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "fullCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll",
+    "fullCorePassed": 341,
+    "fullCoreTotal": 341,
+    "targetedWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll --only-guo-huai <render-dir>",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "fullWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll <render-dir>",
+    "fullWpfPassed": 100,
+    "fullWpfTotal": 100,
+    "visualReview": "222 and 223 at 1120x740 inspected: official card art, Lord 5 HP, exact Jingce text and the private 5-use versus 5-current-HP prompt are readable without clipping or overlap",
+    "assertions": [
+      "package 1.95.0 publishes complete Guo Huai while package 1.94.0 retains its prior Cao Chong boundary",
+      "Jingce counts uses across the whole current turn and evaluates the owner's current HP at Play-phase end",
+      "four uses do not trigger at current HP five while five uses publish exactly one optional prompt",
+      "use draws two exact physical cards with a dedicated movement reason and skip draws none",
+      "a paused Jingce choice replays with identical state and events",
+      "WPF exposes Trigger metadata, the exact comparison values, player guidance, event stack and battle cue"
+    ]
+  },
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI acceptance",
+    "physical multiplayer host and remote-client acceptance"
+  ]
+}

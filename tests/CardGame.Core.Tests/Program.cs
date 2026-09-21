@@ -54,6 +54,9 @@ var tests = new (string Name, Action Body)[]
     ("skill program causeDeath short-circuits after terminal death", SkillProgramCauseDeathChecks.TerminalShortCircuit),
     ("skill program v10 card identities and action modifiers validate and freeze", SkillProgramCardIdentityChecks.Definitions),
     ("mandatory card identity suppresses native use, ignores Slash distance and replays", SkillProgramCardIdentityChecks.MandatoryIdentityDistanceAndReplay),
+    ("phase modules share private prompts replay and continuation", PhaseSkillModuleChecks.IndependentModulesSharePromptReplayAndContinuation),
+    ("phase modules use the same AI choices", PhaseSkillModuleChecks.AiUsesTheSameModuleDecisions),
+    ("phase modules version native bindings in the fingerprint", PhaseSkillModuleChecks.ModuleBindingParticipatesInFingerprint),
     ("god generals choose a private effective faction before reveal and replay", GodFactionSelectionChecks.PromptPrivacyEffectiveFactionAndReplay),
     ("chosen god factions feed existing configured lord-skill checks", GodFactionSelectionChecks.EffectiveFactionFeedsConfiguredLordSkill),
     ("formal Wushen treats a real heart Peach as a distance-free counted Slash", ClassicShenGuanYuChecks.WushenRealDeckIdentityAndReplay),
@@ -63,7 +66,7 @@ var tests = new (string Name, Action Body)[]
     ("formal Nuzhan uses the exact SP Wusheng conversion source", SpGuanYuChecks.NuzhanUsesExactConversionSource),
     ("formal Yan Yan registers tagged Juzhan with a rules 98 boundary", YanYanChecks.ContentPolarityAndRulesBoundary),
     ("formal Juzhan uses per-target turn and per-card-use event ledgers", YanYanChecks.YangYinLedgerAndReplay),
-    ("formal Mou Lu Meng versions Hengye and Yingbo behind rules 102", MouLuMengChecks.ContentAndRulesBoundary),
+    ("formal Mou Lu Meng versions Hengye and Yingbo by content package", MouLuMengChecks.ContentAndRulesBoundary),
     ("formal Hengye grows on damage and resets after a kill", MouLuMengChecks.HengyeGrowthAndKillReset),
     ("formal Yingbo uses first and repeated same-name round branches", MouLuMengChecks.YingboRoundLedgerAndReplay),
     ("formal Cao Zhang versions original Jiangchi with a three-branch prompt", CaoZhangChecks.ContentPromptAndRulesBoundary),
@@ -98,6 +101,26 @@ var tests = new (string Name, Action Body)[]
     ("Lihuo converts Slash adds one target and loses HP once after the use", ChengPuLihuoChecks.ConvertedFireSlashAddsTargetAndLosesHpOnce),
     ("native and Zhuque Fire Slash use Lihuo target extension without conversion penalty", ChengPuLihuoChecks.NativeAndZhuqueFireSlashDoNotPayConversionPenalty),
     ("a fully dodged Lihuo conversion does not lose HP", ChengPuLihuoChecks.FullyDodgedConversionDoesNotLoseHp),
+    ("formal Cheng Pu publishes Chunlao behind its package boundary", ChengPuLihuoChecks.ChunlaoContentAndRulesBoundary),
+    ("Chunlao stores exact Slash cards publicly and replays a paused selection", ChengPuLihuoChecks.ChunlaoStoresExactSlashesAndReplays),
+    ("Chunlao spends one public Chun as virtual Alcohol in a dying response", ChengPuLihuoChecks.ChunlaoRescuesWithVirtualAlcoholAndReplays),
+    ("Chunlao AI stores one explained reserve instead of its whole Slash hand", ChengPuLihuoChecks.ChunlaoAiStoresOneExplainedReserve),
+    ("formal Han Dang publishes Gongqi and limited Jiefan behind package 1.93", HanDangChecks.ContentAndPackageBoundary),
+    ("Gongqi equipment cost grants unlimited range and uses opaque optional discard", HanDangChecks.GongqiEquipmentCostAndOpaqueDiscardReplay),
+    ("Jiefan freezes attackers consumes its limited use and replays", HanDangChecks.JiefanFreezesRespondersConsumesLimitedUseAndReplays),
+    ("formal Cao Chong publishes Chengxiang and Renxin behind package 1.94", CaoChongChecks.ContentAndPackageBoundary),
+    ("Chengxiang reveals four cards selects a legal subset and replays", CaoChongChecks.ChengxiangRevealsLegalSubsetAndReplays),
+    ("Renxin discards equipment turns over prevents damage and replays", CaoChongChecks.RenxinDiscardsEquipmentTurnsOverPreventsAndReplays),
+    ("formal Guo Huai publishes optional Jingce behind package 1.95", GuoHuaiChecks.ContentAndPackageBoundary),
+    ("Jingce counts turn card uses draws two cards and replays", GuoHuaiChecks.JingceCountsTurnUsesDrawsAndReplays),
+    ("Jingce requires card uses at least current HP", GuoHuaiChecks.JingceRequiresUseCountAtLeastCurrentHp),
+    ("formal Man Chong publishes active Junxing and optional Yuce behind package 1.96", ManChongChecks.ContentAndPackageBoundary),
+    ("Junxing enforces exact card categories and replays both target branches", ManChongChecks.JunxingUsesExactCategoriesAndReplaysBothBranches),
+    ("Yuce reveals one card challenges the source recovers and replays", ManChongChecks.YuceRevealsChallengesRecoversAndReplays),
+    ("formal Guan Ping publishes optional Longyin behind package 1.97", GuanPingChecks.ContentAndPackageBoundary),
+    ("Longyin discards exactly one card uncounts a red Slash draws and replays", GuanPingChecks.RedSlashDrawsAndReplays),
+    ("Longyin uncounts a black Slash without drawing and a later skip preserves the limit", GuanPingChecks.BlackSlashUncountsWithoutDrawingAndSkipPreservesLimit),
+    ("Longyin privately answers another character's Play-phase Slash and replays", GuanPingChecks.OtherCharactersSlashOffersPrivateChoiceAndReplays),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -128,7 +151,7 @@ var tests = new (string Name, Action Body)[]
     ("national public-evidence checkpoints replay AI knowledge at a paused prompt", NationalWarChecks.PublicEvidenceCheckpointReplay),
     ("national AI matches finish with public faction outcomes and exact replay", NationalWarChecks.CompleteAiMatches),
     ("recast is an independent validated card movement and replays exactly", RecastChecks.CommandAndReplay),
-    ("Iron Chain rules and AI preserve legacy saves and avoid repeated recasts", RecastChecks.RulesAndAi),
+    ("Iron Chain current rules and AI avoid repeated recasts", RecastChecks.CurrentRulesAndAi),
     ("claimed group cards continue after the claimant dies and replay exactly", GroupClaimChecks.ClaimantDeathContinues),
     ("standard setup has the 1/2/4/1 identity distribution", IdentityDistribution),
     ("viewer snapshot hides private roles and hands", SnapshotHidesSecrets),
@@ -252,7 +275,6 @@ var tests = new (string Name, Action Body)[]
     ("five-player AI matches terminate for fixed seeds", FivePlayerAiSmoke),
     ("standard generals reference registered skills", GeneralContent),
     ("AI uses the card content policy values", AiCardContentPolicy),
-    ("legacy AI checkpoints preserve exact pre-upgrade snapshots and events", TacticalAiChecks.LegacyCompatibility),
     ("tactical AI weighs friendly fire, recovery, alcohol and conversions", TacticalAiChecks.PlayDecisions),
     ("tactical AI protects the Lord and orders rescue choices", TacticalAiChecks.RescueDecisions),
     ("tactical AI changes camp inference only after public evidence", TacticalAiChecks.PublicEvidence),
@@ -303,10 +325,10 @@ var tests = new (string Name, Action Body)[]
     ("Renwang Shield nullifies black Slash after target confirmation", RenwangShieldFlow),
     ("FireAttack reveals privately then resolves typed fire damage", FireAttackFlow),
     ("FireAttack can skip the same-suit discard without damage", FireAttackSkipFlow),
-    ("formal FireAttack can target self and keeps the revealed card in hand", FireAttackFormalChecks.SelfTargetAndLegacy),
+    ("formal FireAttack can target self, keep the revealed card in hand and replay", FireAttackFormalChecks.SelfTargetAndReplay),
     ("FireSlash and ThunderSlash preserve typed damage nature", AttributeSlashFlow),
     ("Alcohol arms a one-shot Slash damage boost", AlcoholFlow),
-    ("formal play-phase Alcohol is limited once per turn", AlcoholLimitChecks.OncePerTurnAndLegacy),
+    ("formal play-phase Alcohol is limited once per turn and replays", AlcoholLimitChecks.OncePerTurnAndReplay),
     ("Feedback claims a surviving damage card through a typed event", FeedbackFlow),
     ("Feedback exposes a private human trigger choice", FeedbackHumanChoiceFlow),
     ("Feedback can be skipped without claiming the damage card", FeedbackSkipChoiceFlow),
@@ -329,7 +351,6 @@ var tests = new (string Name, Action Body)[]
     ("Longdan converts Slash into Dodge in a response window", LongdanResponseFlow),
     ("dying response can use Alcohol for self rescue", DyingAlcoholRescueFlow),
     ("current Alcohol legality and AI allow only holder self rescue", DyingAlcoholOnlySelfRule),
-    ("rules 3 through 11 retain cross-seat Alcohol rescue", DyingAlcoholRescueOtherFlow),
     ("dying response can pause and recover with a private Peach", DyingResponseFlow),
     ("Jijiu is an opt-in content package with a typed rescue contract", JijiuChecks.ContentContract),
     ("Jijiu converts a red card through the private dying window", JijiuChecks.DyingFlow),
@@ -348,6 +369,19 @@ var tests = new (string Name, Action Body)[]
     ("long AI runs finish without leaving an active resolution", StepGuardFinishesResponse),
     ("snapshot is JSON serializable", SnapshotSerialization)
 };
+
+var nameFilter = args.FirstOrDefault(argument =>
+    argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase));
+if (nameFilter is not null)
+{
+    var value = nameFilter["--filter=".Length..].Trim();
+    tests = tests.Where(test => test.Name.Contains(value, StringComparison.OrdinalIgnoreCase)).ToArray();
+    if (tests.Length == 0)
+    {
+        Console.Error.WriteLine($"No Core checks matched filter '{value}'.");
+        return 2;
+    }
+}
 
 if (args.FirstOrDefault() == "--only-cao-zhang")
 {
@@ -427,12 +461,67 @@ if (args.FirstOrDefault() == "--only-cheng-pu-lihuo")
     tests = tests.Where(test => test.Name.Contains("Lihuo", StringComparison.Ordinal)).ToArray();
 }
 
+if (args.FirstOrDefault() == "--only-cheng-pu")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Cheng Pu", StringComparison.Ordinal) ||
+        test.Name.Contains("Lihuo", StringComparison.Ordinal) ||
+        test.Name.Contains("Chunlao", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-han-dang")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Han Dang", StringComparison.Ordinal) ||
+        test.Name.Contains("Gongqi", StringComparison.Ordinal) ||
+        test.Name.Contains("Jiefan", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-cao-chong")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Cao Chong", StringComparison.Ordinal) ||
+        test.Name.Contains("Chengxiang", StringComparison.Ordinal) ||
+        test.Name.Contains("Renxin", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-guo-huai")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Guo Huai", StringComparison.Ordinal) ||
+        test.Name.Contains("Jingce", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-man-chong")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Man Chong", StringComparison.Ordinal) ||
+        test.Name.Contains("Junxing", StringComparison.Ordinal) ||
+        test.Name.Contains("Yuce", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-guan-ping")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Guan Ping", StringComparison.Ordinal) ||
+        test.Name.Contains("Longyin", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-checkpoint-restore")
+{
+    tests = tests.Where(test =>
+        test.Name == "command checkpoints restore a paused private prompt deterministically").ToArray();
+}
+
+var passed = 0;
 var failed = 0;
+const int skipped = 0;
 foreach (var (name, body) in tests)
 {
     try
     {
         body();
+        passed++;
         Console.WriteLine($"[PASS] {name}");
     }
     catch (Exception exception)
@@ -444,7 +533,7 @@ foreach (var (name, body) in tests)
 }
 
 Console.WriteLine();
-Console.WriteLine($"{tests.Length - failed}/{tests.Length} checks passed.");
+Console.WriteLine($"{passed} passed, {failed} failed, {skipped} skipped ({tests.Length} total).");
 return failed == 0 ? 0 : 1;
 
 static void IdentityDistribution()
@@ -2079,12 +2168,15 @@ static void CheckpointRestore()
         original.AcceptedCommands.SequenceEqual(restored.AcceptedCommands),
         "checkpoint restore preserves the command prefix");
 
-    Throws<InvalidOperationException>(() => GameReplay.Restore(
+    ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(
         decoded with { ContentHash = "00BAD-CONTENT-HASH" },
-        StandardContentRegistry.Create()));
-    Throws<InvalidOperationException>(() => GameReplay.Restore(
+        StandardContentRegistry.Create()), "a mismatched content hash");
+    ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(
         decoded with { RulesVersion = GameCheckpoint.CurrentRulesVersion + 1 },
-        StandardContentRegistry.Create()));
+        StandardContentRegistry.Create()), "a future rules version");
+    ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(
+        decoded with { RulesVersion = GameCheckpoint.CurrentRulesVersion - 1 },
+        StandardContentRegistry.Create()), "an earlier rules version");
 
     var selectedGeneralId = pending.ValidContentIds.First();
     var originalSelection = original.Submit(new SelectGeneralCommand(
@@ -2106,11 +2198,11 @@ static void CheckpointRestore()
         original.Events.Select(EventSignature).SequenceEqual(restored.Events.Select(EventSignature)),
         "continued checkpoint state remains deterministic");
 
-    Throws<InvalidOperationException>(() => GameReplay.Restore(decoded));
+    ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(decoded), "a missing content registry");
 
     var legacy = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 913 });
     _ = legacy.Start();
-    Throws<InvalidOperationException>(() => legacy.CreateCheckpoint());
+    ThrowsFor<InvalidOperationException>(() => legacy.CreateCheckpoint(), "a legacy-driven state");
 }
 
 static void CheckpointRejectsSameVersionContentDrift()
@@ -4408,26 +4500,6 @@ static void EquipmentFlow()
         action.Kind == LegalActionKind.Slash &&
         action.CardId == slash.Id &&
         action.TargetSeat == 2));
-    var legacyCrossbow = GameEngine.CreateStandard(new GameOptions
-    {
-        UseInteractiveDiscard = false,
-        Seed = selectedSeed.Value,
-        HumanSeat = 0,
-        HumanRole = Role.Lord,
-        MaxTurns = 180
-    });
-    legacyCrossbow = GameReplay.Restore(
-        legacyCrossbow.CreateCheckpoint() with { RulesVersion = 12 });
-    Equal(EngineStatus.AwaitingHumanPlay, legacyCrossbow.Start().Status);
-    var legacyHand = legacyCrossbow.State.Players.Single(player => player.Seat == 0).Hand;
-    var legacyCrossbowCard = legacyHand.First(card => card.Kind == CardKind.Crossbow);
-    var legacySlash = legacyHand.First(card => card.Kind == CardKind.Slash);
-    legacyCrossbow.HumanPlay(legacyCrossbowCard.Id, targetSeat: null, advanceToHumanBoundary: true);
-    Equal(2, legacyCrossbow.GetAttackRange(0));
-    True(legacyCrossbow.GetHumanLegalActions().Any(action =>
-        action.Kind == LegalActionKind.Slash &&
-        action.CardId == legacySlash.Id &&
-        action.TargetSeat == 2));
     var slashCountField = typeof(GameEngine).GetField(
         "_slashCountThisTurn",
         BindingFlags.NonPublic | BindingFlags.Instance) ??
@@ -4806,14 +4878,6 @@ static void BaguaDefendsArrowBarrage()
             "No deterministic ArrowBarrage Bagua response boundary was found.");
     }
 
-    var legacy = ReachBoundary(selectedSeed, rulesVersion: 13) ??
-        throw new InvalidOperationException(
-            "The matching rules v13 ArrowBarrage response boundary was not reproduced.");
-    TrueWithMessage(
-        legacy.Prompt.Choices.All(choice =>
-            choice.Parameters.GetValueOrDefault("response") != "bagua"),
-        "rules v13 retains the historical physical-Dodge-only group prompt");
-
     var game = formal.Value.Game;
     var prompt = formal.Value.Prompt;
     var baguaChoice = prompt.Choices.Single(choice =>
@@ -4855,7 +4919,6 @@ static void BaguaDefendsArrowBarrage()
             responded.ResponderSeat == 0),
         "Bagua does not invent a physical Dodge movement event");
     AssertCardInventory(game);
-    AssertCardInventory(legacy.Game);
 }
 
 static void QinggangBypassesBagua()
@@ -4972,27 +5035,6 @@ static void QinggangBypassesBagua()
             .Equipment.Any(card => card.Kind == CardKind.QinggangSword),
         "Qinggang enters the public weapon slot");
     Equal(2, game.GetAttackRange(0));
-    var legacyQinggang = GameEngine.CreateStandard(
-        new GameOptions
-        {
-            UseInteractiveDiscard = false,
-            Seed = selectedSeed.Value,
-            HumanSeat = 0,
-            HumanRole = Role.Lord,
-            DeckId = "test-controlled:deck",
-            MaxTurns = 60
-        },
-        registry);
-    legacyQinggang = GameReplay.Restore(
-        legacyQinggang.CreateCheckpoint() with { RulesVersion = 12 },
-        registry);
-    Equal(EngineStatus.AwaitingHumanPlay, legacyQinggang.Start().Status);
-    var legacyQinggangCard = legacyQinggang.CreateSnapshot(0, revealAll: true).Players
-        .Single(player => player.Seat == 0).Hand
-        .First(card => card.Kind == CardKind.QinggangSword);
-    legacyQinggang.HumanPlay(legacyQinggangCard.Id, targetSeat: null, advanceToHumanBoundary: false);
-    Equal(1, legacyQinggang.GetAttackRange(0));
-
     var eventCount = game.Events.Count;
     var slashResult = game.HumanPlay(
         slashAction.CardId!.Value,
@@ -5176,8 +5218,6 @@ static void RenwangShieldFlow()
         GameCheckpoint.CurrentRulesVersion,
         expectBlackLegal: true) ??
         throw new InvalidOperationException("No deterministic formal Renwang Shield boundary was found.");
-    var legacy = FindBoundary(registry, rulesVersion: 13, expectBlackLegal: false) ??
-        throw new InvalidOperationException("No deterministic legacy Renwang Shield boundary was found.");
     var game = formal.Game;
     var blackSlash = formal.BlackSlash;
     var redSlash = formal.RedSlash;
@@ -5199,23 +5239,6 @@ static void RenwangShieldFlow()
             action.CardId == redSlash.Id &&
             action.TargetSeat == shieldSeat),
         "red Slash remains a legal target against Renwang Shield");
-
-    TrueWithMessage(
-        !legacy.Game.GetHumanLegalActions().Any(action =>
-            action.Kind == LegalActionKind.Slash &&
-            action.CardId == legacy.BlackSlash.Id &&
-            action.TargetSeat == legacy.ShieldSeat),
-        "rules v13 keeps the historical target-selection prohibition");
-    var beforeInvalid = legacy.Game.SerializeState();
-    var invalid = legacy.Game.Submit(new PlayCardCommand(
-        ActorSeat: 0,
-        CardId: legacy.BlackSlash.Id,
-        TargetSeats: [legacy.ShieldSeat],
-        ExpectedRevision: legacy.Game.Revision,
-        PromptId: legacy.Game.PendingDecision!.PromptId));
-    False(invalid.Accepted);
-    Equal(CommandErrorCode.InvalidTarget, invalid.Error!.Code);
-    Equal(beforeInvalid, legacy.Game.SerializeState());
 
     var targetHp = targetView.Hp;
     var eventCount = game.Events.Count;
@@ -5248,7 +5271,6 @@ static void RenwangShieldFlow()
         game.CreateCardZoneDiagnostics().Single(card => card.CardId == blackSlash.Id).Location);
 
     AssertCardInventory(game);
-    AssertCardInventory(legacy.Game);
 }
 
 static void FireAttackFlow()
@@ -7249,19 +7271,15 @@ static void IndulgenceFlow()
 {
     var skipped = FindIndulgenceScenario(skipPlayPhase: true);
     var normal = FindIndulgenceScenario(skipPlayPhase: false);
-    var legacySkipped = FindIndulgenceScenario(skipPlayPhase: true, rulesVersion: 10);
 
     NotNull(skipped);
     NotNull(normal);
-    NotNull(legacySkipped);
     AssertIndulgenceScenario(skipped!.Value);
     AssertIndulgenceScenario(normal!.Value);
-    AssertIndulgenceScenario(legacySkipped!.Value);
     True(skipped.Value.Resolved.SkippedPlayPhase);
     False(normal.Value.Resolved.SkippedPlayPhase);
     False(skipped.Value.Resolved.JudgmentSucceeded);
     True(normal.Value.Resolved.JudgmentSucceeded);
-    True(legacySkipped.Value.Resolved.JudgmentSucceeded);
 }
 
 static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Resolved)?
@@ -7470,17 +7488,13 @@ static void SupplyShortageFlow()
 {
     var skipDraw = FindSupplyShortageScenario(skipDrawPhase: true);
     var normalDraw = FindSupplyShortageScenario(skipDrawPhase: false);
-    var legacySkipDraw = FindSupplyShortageScenario(skipDrawPhase: true, rulesVersion: 10);
 
     NotNull(skipDraw);
     NotNull(normalDraw);
-    NotNull(legacySkipDraw);
     AssertSupplyShortageScenario(skipDraw!.Value);
     AssertSupplyShortageScenario(normalDraw!.Value);
-    AssertSupplyShortageScenario(legacySkipDraw!.Value);
     True(skipDraw.Value.Resolved.JudgmentSucceeded == false);
     False(normalDraw.Value.Resolved.JudgmentSucceeded == false);
-    True(legacySkipDraw.Value.Resolved.JudgmentSucceeded == false);
     True(skipDraw.Value.Resolved.SkippedDrawPhase);
     False(normalDraw.Value.Resolved.SkippedDrawPhase);
     Equal(0, skipDraw.Value.TargetDrawCount);
@@ -8505,136 +8519,6 @@ static void DyingAlcoholRescueFlow()
     AssertCardInventory(gameWithDying);
 }
 
-static void DyingAlcoholRescueOtherFlow()
-{
-    GameEngine? selectedGame = null;
-    PendingDecision? dyingPrompt = null;
-    EngineRunResult result = null!;
-    for (var seed = 1; seed <= 4_096 && selectedGame is null; seed++)
-    {
-        var game = GameEngine.CreateStandard(new GameOptions
-        {
-            UseInteractiveDiscard = false,
-            Seed = seed,
-            HumanSeat = 0,
-            HumanRole = Role.Lord,
-            MaxTurns = 180
-        });
-        game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 11 });
-        result = game.Start();
-        var steps = 0;
-        while (result.Status != EngineStatus.Completed && steps++ < 3_000)
-        {
-            if (result.Status == EngineStatus.AwaitingHumanDying)
-            {
-                var prompt = game.PendingDecision;
-                if (prompt is { PlayerSeat: 0, TargetSeat: not 0 } &&
-                    prompt.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "alcohol"))
-                {
-                    selectedGame = game;
-                    dyingPrompt = prompt;
-                    break;
-                }
-            }
-
-            result = result.Status switch
-            {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanResponse => game.PendingDecision?.Kind == DecisionKind.RespondSlash
-                    ? game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
-                    : game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
-                    usePeach: false,
-                    advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
-            };
-        }
-    }
-
-    if (selectedGame is null || dyingPrompt is null)
-    {
-        throw new InvalidOperationException("No deterministic human dying prompt with an Alcohol rescue for another seat was found.");
-    }
-
-    var gameWithDying = selectedGame!;
-    var promptAtBoundary = dyingPrompt!;
-    var dyingFrame = gameWithDying.ResolutionStack.OfType<DyingFrame>().Single();
-    var alcoholChoice = promptAtBoundary.Choices
-        .First(choice => choice.Parameters.GetValueOrDefault("response") == "alcohol");
-    var alcoholCardId = alcoholChoice.Cards.Single();
-    var victimSeat = promptAtBoundary.TargetSeat ??
-        throw new InvalidOperationException("An Alcohol dying prompt must identify its target.");
-    Equal(EngineStatus.AwaitingHumanDying, gameWithDying.State.Status);
-    Equal(0, promptAtBoundary.PlayerSeat);
-    TrueWithMessage(victimSeat != 0, "Alcohol other-seat rescue target");
-    TrueWithMessage(alcoholChoice.Description.Contains("救援", StringComparison.Ordinal), "Alcohol ally-rescue choice");
-    TrueWithMessage(!alcoholChoice.Description.Contains("自救", StringComparison.Ordinal), "Alcohol ally-rescue does not claim self rescue");
-    Equal(victimSeat.ToString(), alcoholChoice.Parameters["target-seat"]);
-
-    var otherViewer = gameWithDying.CreateSnapshot(1);
-    Equal<PendingDecision?>(null, otherViewer.PendingDecision);
-    TrueWithMessage(
-        otherViewer.Players.All(player => player.Hand.All(card => card.Id != alcoholCardId)),
-        "other viewer hides ally-rescue Alcohol");
-
-    var beforeInvalid = gameWithDying.SerializeState();
-    var invalid = gameWithDying.Submit(new AnswerPromptCommand(
-        0,
-        promptAtBoundary.PromptId,
-        new ChoiceId("dying.fake-alcohol-other"),
-        gameWithDying.Revision));
-    TrueWithMessage(!invalid.Accepted, "invalid ally Alcohol dying choice rejected");
-    Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
-    Equal(beforeInvalid, gameWithDying.SerializeState());
-
-    var accepted = gameWithDying.HumanRespondDying(
-        usePeach: false,
-        requestedPeachCardId: null,
-        advanceToHumanBoundary: false,
-        useAlcohol: true,
-        requestedAlcoholCardId: alcoholCardId);
-    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "ally Alcohol dying choice accepted");
-    var response = gameWithDying.Events
-        .Select(eventItem => eventItem.Payload)
-        .OfType<DyingResponseEvent>()
-        .Single(eventItem =>
-            eventItem.ResolutionId == dyingFrame.Id &&
-            eventItem.ResponderSeat == 0);
-    TrueWithMessage(
-        response.UsedAlcohol &&
-        response.ResponderSeat == 0 &&
-        response.AlcoholCardId == alcoholCardId &&
-        !response.UsedPeach &&
-        response.PeachCardId is null,
-        "typed ally Alcohol dying response");
-    TrueWithMessage(gameWithDying.Events.Any(eventItem =>
-        eventItem.Payload is RecoveryAppliedEvent recovery &&
-        recovery.SourceSeat == 0 &&
-        recovery.TargetSeat == victimSeat &&
-        recovery.Amount == 1 &&
-        recovery.RemainingHp == 1), "ally Alcohol recovery event");
-    TrueWithMessage(gameWithDying.CardMovements.Any(movement =>
-        movement.CardId == alcoholCardId &&
-        movement.From == CardLocation.Hand(0) &&
-        movement.To == CardLocation.Processing &&
-        movement.Reason == CardMoveReasons.Use), "ally Alcohol rescue entered Processing");
-    TrueWithMessage(gameWithDying.CardMovements.Any(movement =>
-        movement.CardId == alcoholCardId &&
-        movement.From == CardLocation.Processing &&
-        movement.To == CardLocation.DiscardPile &&
-        movement.Reason == CardMoveReasons.UseFinished), "ally Alcohol rescue discarded");
-    Equal(1, accepted.State.Players.Single(player => player.Seat == victimSeat).Hp);
-    Equal(
-        CardLocation.DiscardPile,
-        gameWithDying.CreateCardZoneDiagnostics().Single(card => card.CardId == alcoholCardId).Location);
-    TrueWithMessage(
-        gameWithDying.ResolutionStack.All(frame => frame.Id != dyingFrame.Id),
-        "ally Alcohol dying frame completed");
-    AssertCardInventory(gameWithDying);
-}
-
 static void DyingAlcoholOnlySelfRule()
 {
     TrueWithMessage(GameCheckpoint.CurrentRulesVersion >= 12, "formal Alcohol rules version");
@@ -8661,6 +8545,8 @@ static void DyingAlcoholOnlySelfRule()
 
     NotNull(current);
     NotNull(alcohol);
+    var currentGame = current!;
+    var alcoholCard = alcohol!;
     var playersField = typeof(GameEngine).GetField(
         "_players",
         BindingFlags.NonPublic | BindingFlags.Instance) ??
@@ -8674,26 +8560,19 @@ static void DyingAlcoholOnlySelfRule()
     static Card[] DyingAlcohols(MethodInfo method, GameEngine game, object responder, int victimSeat) =>
         (Card[])method.Invoke(game, [responder, victimSeat])!;
 
-    var runtimePlayers = RuntimePlayers(playersField, current!);
-    var selfAlcohols = DyingAlcohols(alcoholMethod, current!, runtimePlayers[0], victimSeat: 0);
-    var otherAlcohols = DyingAlcohols(alcoholMethod, current!, runtimePlayers[0], victimSeat: 1);
-    TrueWithMessage(selfAlcohols.Any(card => card.Id == alcohol!.Id), "current self-rescue Alcohol legality");
+    var runtimePlayers = RuntimePlayers(playersField, currentGame);
+    var selfAlcohols = DyingAlcohols(alcoholMethod, currentGame, runtimePlayers[0], victimSeat: 0);
+    var otherAlcohols = DyingAlcohols(alcoholMethod, currentGame, runtimePlayers[0], victimSeat: 1);
+    TrueWithMessage(selfAlcohols.Any(card => card.Id == alcoholCard.Id), "current self-rescue Alcohol legality");
     Equal(0, otherAlcohols.Length);
 
-    var legacy = GameReplay.Restore(current!.CreateCheckpoint() with { RulesVersion = 11 });
-    var legacyPlayers = RuntimePlayers(playersField, legacy);
-    TrueWithMessage(
-        DyingAlcohols(alcoholMethod, legacy, legacyPlayers[0], victimSeat: 1)
-            .Any(card => card.Id == alcohol!.Id),
-        "rules 11 cross-seat Alcohol legality");
-
-    var view = current.CreateSnapshot(0) with
+    var view = currentGame.CreateSnapshot(0) with
     {
-        Players = current.CreateSnapshot(0).Players
+        Players = currentGame.CreateSnapshot(0).Players
             .Select(player => player.Seat == 1 ? player with { Hp = 0 } : player)
             .ToArray()
     };
-    var physicalAlcohol = new Card(alcohol!.Id, alcohol.Kind, alcohol.Suit, alcohol.Rank);
+    var physicalAlcohol = new Card(alcoholCard.Id, alcoholCard.Kind, alcoholCard.Suit, alcoholCard.Rank);
     var formalOther = new SimpleAiBrain(0, 791, 2).ChooseDyingResponseWithAlcohol(
         view,
         victimSeat: 1,
@@ -8718,7 +8597,7 @@ static void DyingAlcoholOnlySelfRule()
         thoughtSequence: 2,
         allowCrossSeatAlcoholRescue: false);
     True(formalSelf.UseAlcohol);
-    Equal(alcohol.Id, formalSelf.AlcoholCardId);
+    Equal(alcoholCard.Id, formalSelf.AlcoholCardId);
 }
 
 static void DyingResponseFlow()
@@ -9539,6 +9418,22 @@ static void Throws<TException>(Action action)
     }
 
     throw new InvalidOperationException($"Expected {typeof(TException).Name} to be thrown.");
+}
+
+static void ThrowsFor<TException>(Action action, string expectation)
+    where TException : Exception
+{
+    try
+    {
+        action();
+    }
+    catch (TException)
+    {
+        return;
+    }
+
+    throw new InvalidOperationException(
+        $"Expected {typeof(TException).Name} to be thrown for {expectation}.");
 }
 
 sealed class SyntheticPackage : IGameContentPackage

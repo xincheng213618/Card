@@ -6,16 +6,10 @@ internal static class BorrowedSwordChecks
 {
     public static void TransferSlashAndReplay()
     {
-        var sourceRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 23, 0));
         var sourceBoundary = BorrowedSwordScenario.FindHumanSourcePlay(new Version(1, 23, 0));
-        var legacyRules = GameReplay.Restore(
-            RoundTrip(sourceBoundary.CreateCheckpoint()) with { RulesVersion = 41 },
-            sourceRegistry);
         Require(sourceBoundary.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.BorrowedSword) &&
-                legacyRules.GetHumanLegalActions().All(action =>
-                    action.Kind != LegalActionKind.BorrowedSword),
-            "Rules v42 must enable Borrowed Sword while rules v41 preserves the same checkpoint without that action.");
+                action.Kind == LegalActionKind.BorrowedSword),
+            "Current rules must expose Borrowed Sword from the prepared source boundary.");
 
         var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 37, 0));
         var boundary = BorrowedSwordScenario.FindHumanOwnerResponse(packageVersion: new Version(1, 37, 0));

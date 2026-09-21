@@ -71,6 +71,7 @@ public sealed record ContentSkillDefinition(
     SkillKind? LegacyKind = null)
 {
     public SkillProgram? Program { get; init; }
+    public IPhaseSkillModule? PhaseSkill { get; init; }
     public SkillTag Tags { get; init; }
     public SkillExecutionForm ExecutionForms { get; init; }
     public SkillActionForm ActionForms { get; init; }
@@ -565,6 +566,19 @@ public sealed class ContentRegistry
                 Base = JsonSerializer.Deserialize<JsonElement>(canonical),
                 SkillActionForms = skillActionForms
             });
+        var phaseSkills = skills.Values
+            .Where(skill => skill.PhaseSkill is not null)
+            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
+            .Select(skill => new { skill.Id, skill.PhaseSkill!.Revision, Window = skill.PhaseSkill.Window.ToString() })
+            .ToArray();
+        if (phaseSkills.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 11,
+                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                PhaseSkillRuntime = "phase-skills-v1",
+                PhaseSkills = phaseSkills
+            });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
 
@@ -918,6 +932,10 @@ public sealed class ContentRegistry
             var normalized = definition.Tags.HasFlag(SkillTag.Awakening)
                 ? definition with { Tags = definition.Tags | SkillTag.Locked | SkillTag.Limited }
                 : definition;
+            if (normalized.PhaseSkill is { } phaseSkill &&
+                (phaseSkill.SkillId != normalized.Id || phaseSkill.Revision < 1 ||
+                 !Enum.IsDefined(phaseSkill.Window) || normalized.Program is not null))
+                throw new InvalidOperationException($"Invalid phase skill binding for '{normalized.Id}'.");
             if (normalized.Program is null)
                 return normalized;
 

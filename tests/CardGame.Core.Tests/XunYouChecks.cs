@@ -10,8 +10,6 @@ internal static class XunYouChecks
 
     public static void ContentAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 109,
-            "Formal Xun You must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 87, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 86, 0));
         Require(current.Packages.Any(package =>
@@ -44,12 +42,6 @@ internal static class XunYouChecks
                 current.ContentHash != previous.ContentHash,
             "Package 1.87.0 must add Xun You without mutating the 1.86.0 registry boundary.");
 
-        var registry = CreateRegistry();
-        var legacy = CreateGame(registry, 1, rulesVersion: 108);
-        StartAndSelect(legacy);
-        ReachHumanPlay(legacy, skipZhiyu: true);
-        Require(legacy.GetHumanLegalActions().All(action => action.Skill != SkillKind.Qice),
-            "Rules v108 must not expose Qice even when package 1.87.0 is loaded.");
     }
 
     public static void QiceUsesAllHandCardsAndReplays()

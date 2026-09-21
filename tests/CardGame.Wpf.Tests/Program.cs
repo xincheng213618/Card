@@ -19,6 +19,7 @@ using CardGame.Wpf.Presentation;
 internal static class Program
 {
     private static int _passed;
+    private static string? _nameFilter;
     private static readonly BindingListener BindingErrors = new();
 
     [STAThread]
@@ -33,6 +34,9 @@ internal static class Program
         PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning;
         try
         {
+            _nameFilter = args.FirstOrDefault(argument =>
+                    argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase))?
+                ["--filter=".Length..].Trim();
             var output = args.FirstOrDefault(argument =>
                 !argument.StartsWith("--", StringComparison.Ordinal)) ??
                 Path.Combine(Path.GetTempPath(), "card-ui-check");
@@ -49,6 +53,14 @@ internal static class Program
             {
                 Check("classic shared skills render their distinct trigger and state identities",
                     () => ClassicGeneralUiChecks.SharedSkillIdentityMetadata(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
+            if (args.Contains("--only-classic-multi-skill", StringComparer.Ordinal))
+            {
+                Check("classic identity renders and restores multiple skills with base HP",
+                    () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
                 Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
                 Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
                 return 0;
@@ -157,6 +169,54 @@ internal static class Program
                 Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
                 return 0;
             }
+            if (args.Contains("--only-cheng-pu", StringComparer.Ordinal))
+            {
+                Check("formal Cheng Pu renders official art, Chunlao storage and dying rescue",
+                    () => ChengPuUiChecks.CardStorageAndRescue(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
+            if (args.Contains("--only-han-dang", StringComparer.Ordinal))
+            {
+                Check("formal Han Dang renders official art, Gongqi and Jiefan prompts",
+                    () => HanDangUiChecks.CardGongqiAndJiefan(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
+            if (args.Contains("--only-cao-chong", StringComparer.Ordinal))
+            {
+                Check("formal Cao Chong renders official art, Chengxiang and Renxin prompts",
+                    () => CaoChongUiChecks.CardAndDamagePrompts(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
+            if (args.Contains("--only-guo-huai", StringComparer.Ordinal))
+            {
+                Check("formal Guo Huai renders official art and Jingce prompt",
+                    () => GuoHuaiUiChecks.CardAndJingcePrompt(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
+            if (args.Contains("--only-man-chong", StringComparer.Ordinal))
+            {
+                Check("formal Man Chong renders official art, Junxing selection and Yuce prompt",
+                    () => ManChongUiChecks.CardActiveSelectionAndYucePrompt(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
+            if (args.Contains("--only-guan-ping", StringComparer.Ordinal))
+            {
+                Check("formal Guan Ping renders official art and the private Longyin prompt",
+                    () => GuanPingUiChecks.CardAndLongyinPrompt(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general gallery combines registered series, faction and text filters without changing the match", () => CheckGeneralGallery(output));
@@ -191,6 +251,13 @@ internal static class Program
             Check("formal Liao Hua renders official art, Dangxian and the private Fuli choice", () => LiaoHuaUiChecks.CardExtraPhaseAndFuli(output));
             Check("formal Guan Xing and Zhang Bao render Fuhun draft and turn grant", () => GuanXingZhangBaoUiChecks.CardDraftAndTurnGrant(output));
             Check("formal Bu Lian Shi renders official art, Anxu draft and Zhuiyi prompt", () => BuLianShiUiChecks.CardAnxuAndZhuiyi(output));
+            Check("formal Cheng Pu renders official art, Chunlao storage and dying rescue", () => ChengPuUiChecks.CardStorageAndRescue(output));
+            Check("formal Han Dang renders official art, Gongqi and Jiefan prompts", () => HanDangUiChecks.CardGongqiAndJiefan(output));
+            Check("formal Cao Chong renders official art, Chengxiang and Renxin prompts", () => CaoChongUiChecks.CardAndDamagePrompts(output));
+            Check("formal Guo Huai renders official art and Jingce prompt", () => GuoHuaiUiChecks.CardAndJingcePrompt(output));
+            Check("formal Diao Chan renders and resolves the metadata-driven Biyue prompt", () => DiaoChanUiChecks.BiyuePromptAndContinuation(output));
+            Check("formal Man Chong renders official art, Junxing selection and Yuce prompt", () => ManChongUiChecks.CardActiveSelectionAndYucePrompt(output));
+            Check("formal Guan Ping renders official art and the private Longyin prompt", () => GuanPingUiChecks.CardAndLongyinPrompt(output));
             Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
             Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
             Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));
@@ -219,7 +286,7 @@ internal static class Program
             Check("Silver Lion renders its locked damage cap", () => SilverLionUiChecks.DamageCapFeedback(output));
             Check("national Wusheng reveal during response refreshes the WPF controls", () => WushengResponseChecks.NationalRevealDuringResponse(output));
             Check("Iron Chain selects seats directly and preserves multi-target drafts through guides and tutorials", () => CardTargetChecks.DirectSelection(output));
-            Check("recast uses a distinct action, public feedback and version-aware saved rules", () => RecastUiChecks.ControlsAndOldSaves(output));
+            Check("recast uses a distinct action and rejects incompatible saved rules safely", () => RecastUiChecks.ControlsAndOldSaves(output));
             Check("response context distinguishes recipients, opponents and private prompts", DecisionContextChecks.Semantics);
             Check("match reports aggregate public outcomes without double counting", MatchSummaryChecks.Aggregation);
             Check("completed history survives relaunch, deduplicates endings and isolates damaged files", () => HistoryChecks.PersistenceAndFailures(output));
@@ -238,7 +305,7 @@ internal static class Program
             Check("national WPF matches reach faction results through player commands", NationalExperienceChecks.CompleteMatches);
             Check("six-player national controls preserve solo faction labels and saved reveals", () => NationalExperienceChecks.AmbitiousControlsAndRestore(output));
             Check("national Zhang Jiao mode preserves formal skills, hidden slots and package-aware saves", () => NationalExperienceChecks.ZhangJiaoControlsAndRestore(output));
-            Check("dual-general health previews survive selection, tutorials and shipped saves", () => NationalHealthChecks.ControlsAndOldPackage(output));
+            Check("dual-general health previews survive selection and reject incompatible shipped saves safely", () => NationalHealthChecks.ControlsAndOldPackage(output));
             Check("dual portraits protect hidden slots and retain legacy skill semantics", NationalSeatChecks.PrivacyAndLegacy);
             Check("dual portraits project ordered multi-skill lists without leaking hidden slots", NationalSeatChecks.MultiSkillProjection);
             Check("dual-seat controls preserve targeting, half-reveal saves and public relationships", () => NationalSeatChecks.ControlsAndRelations(output));
@@ -254,6 +321,8 @@ internal static class Program
             Check("sound controls, shipped assets and compatible JSON preferences are valid", () => AudioChecks.SettingsAndAssets(output));
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
+            if (_nameFilter is not null && _passed == 0)
+                throw new InvalidOperationException($"No WPF checks matched filter '{_nameFilter}'.");
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
             Console.WriteLine($"{_passed} WPF checks passed. Renders: {output}");
             return 0;
@@ -268,6 +337,10 @@ internal static class Program
 
     private static void Check(string name, Action action)
     {
+        if (_nameFilter is not null &&
+            !name.Contains(_nameFilter, StringComparison.OrdinalIgnoreCase))
+            return;
+
         action();
         _passed++;
         Console.WriteLine($"[PASS] {name}");
@@ -503,34 +576,7 @@ internal static class Program
                skills.Any(skill => skill.Name == "救援" && skill.TypeText == "状态技 · 主公技 · 锁定技" && !skill.IsAvailable && skill.StateText == "规则自动生效"),
             "The human skill rail did not distinguish an active entry from explicit execution forms and tags.");
 
-        MainViewModel? rebelFound = null;
-        for (var seed = 1; seed <= 256; seed++)
-        {
-            var candidate = new MainViewModel(false, seed, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
-            candidate.SelectedTableMode = candidate.TableModes.Single(mode => mode.ModeId == "identity:classic-5");
-            candidate.SelectedStartingRole = candidate.StartingRoles.Single(role => role.Role == Role.Rebel);
-            candidate.StartNewGameCommand.Execute(null);
-            candidate.ContinueFromIdentityRevealCommand.Execute(null);
-            AdvanceToDecision(candidate);
-            var sunQuan = candidate.GeneralChoices.FirstOrDefault(choice => choice.GeneralId == "classic:sun-quan");
-            if (sunQuan is not null)
-            {
-                candidate.SelectGeneralChoiceCommand.Execute(sunQuan);
-                AdvanceToDecision(candidate);
-                if (candidate.CanEndTurn)
-                {
-                    rebelFound = candidate;
-                    break;
-                }
-            }
-            candidate.Dispose();
-        }
-
-        using var rebelVm = rebelFound ??
-            throw new InvalidOperationException("No bounded Rebel Sun Quan skill-rail fixture reached play.");
+        using var rebelVm = FindAssignedGeneralSkillRailFixture("classic:sun-quan", Role.Rebel);
         Assert(rebelVm.HumanSkillCards is [{ Name: "制衡" }] &&
                rebelVm.HumanSkillCards.All(skill => !skill.TypeText.Contains("主公技", StringComparison.Ordinal)),
             "A non-Lord skill rail still displayed a printed Lord skill as owned.");
@@ -598,6 +644,60 @@ internal static class Program
             "The rendered locked-state label is inaccessible in the minimum window.");
         lockedWindow.Content = null;
         lockedWindow.Close();
+    }
+
+    private static MainViewModel FindAssignedGeneralSkillRailFixture(string generalId, Role role)
+    {
+        var registry = ComposedSkillContentRegistry.CreateShowcase();
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = 0,
+                HumanRole = role,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = false,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 220
+            }, registry);
+            if (game.CreateSnapshot(0, revealAll: true).Players[0].GeneralId != generalId)
+            {
+                continue;
+            }
+
+            var started = game.Submit(new StartGameCommand());
+            Assert(started.Accepted, started.Error?.Message ?? "The assigned-general skill-rail fixture could not start.");
+            var store = new MemorySaveStore();
+            store.Write(GameSaveSlot.Manual, new(
+                1,
+                DateTimeOffset.UtcNow,
+                false,
+                game.CreateCheckpoint()));
+            var candidate = new MainViewModel(
+                autoAdvance: false,
+                seed: seed,
+                showSetup: true,
+                saveStore: store,
+                useExpandedContent: true,
+                contentRegistry: registry)
+            {
+                IsMotionEnabled = false
+            };
+            candidate.LoadManualGameCommand.Execute(null);
+            AdvanceToDecision(candidate);
+            if (!candidate.HasSaveError && candidate.CanEndTurn)
+            {
+                return candidate;
+            }
+
+            candidate.Dispose();
+        }
+
+        throw new InvalidOperationException(
+            $"No bounded {role} {generalId} assigned-general skill-rail fixture reached play.");
     }
 
     private static void CheckModeLobby(string output)

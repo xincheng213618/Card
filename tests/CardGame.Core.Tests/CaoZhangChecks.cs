@@ -9,8 +9,6 @@ internal static class CaoZhangChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 103,
-            "Formal Jiangchi must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 80, 0));
         Require(current.Packages.Any(package =>
@@ -79,13 +77,6 @@ internal static class CaoZhangChecks
                 JiangchiUsages(skipped).Count == 0,
             "Skipping Jiangchi must draw normally and create no turn-scoped mode record.");
 
-        var legacy = CreateGame(fixture.Registry, fixture.Seed, rulesVersion: 102);
-        StartAndSelect(legacy);
-        ReachHumanPlay(legacy);
-        Require(legacy.CreateSnapshot(0, revealAll: true).Players[0].HandCount == 10 &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not JiangchiResolvedEvent) &&
-                legacy.PendingDecision?.Kind != DecisionKind.Jiangchi,
-            "Rules v102 must keep normal drawing even when package 1.81.0 content is available.");
     }
 
     public static void DrawMoreBlocksSlashUseAndResponse()

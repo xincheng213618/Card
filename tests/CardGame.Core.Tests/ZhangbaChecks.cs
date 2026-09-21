@@ -78,13 +78,6 @@ internal static class ZhangbaChecks
         Require(State(replayed) == State(game) && Events(replayed).SequenceEqual(Events(game)),
             "A completed Zhangba active use must replay exactly.");
 
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeUse) with { RulesVersion = 43 },
-            registry);
-        Require(legacy.GetHumanLegalActions().All(action =>
-                    action.Kind != LegalActionKind.UseEquipmentEffect),
-            "Rules v43 must not publish the Zhangba conversion action.");
-
         var previousPackage = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 24, 0));
         Require(!previousPackage.Cards.ContainsKey("classic:zhangba-serpent-spear") &&
                 previousPackage.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 93,

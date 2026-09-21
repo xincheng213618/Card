@@ -109,8 +109,6 @@ internal static class NationalWarChecks
             var game = SkillFixture("national:shu-guan-yu", "national:shu-zhang-fei", slot, requireRed: true);
             bool Converts(GameEngine engine) => engine.GetHumanLegalActions().Any(action => action.PlayedCardKind == CardKind.Slash);
             Require(!Converts(game), "An unrevealed Wusheng slot enabled conversion.");
-            var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 6 }, StandardContentRegistry.CreateWithNationalWarLite());
-            Require(Converts(legacy) == (slot == GeneralSelectionSlot.Primary), "Rules 6 lost the historical primary-only conversion behavior.");
             var otherSlot = slot == GeneralSelectionSlot.Primary ? GeneralSelectionSlot.Secondary : GeneralSelectionSlot.Primary;
             Reveal(game, otherSlot);
             Require(!Converts(game), "Revealing the other general enabled hidden Wusheng.");
@@ -215,7 +213,6 @@ internal static class NationalWarChecks
         foreach (var slot in new[] { GeneralSelectionSlot.Primary, GeneralSelectionSlot.Secondary })
         {
             var game = FindFixture(slot);
-            var beforeReveal = game.CreateCheckpoint();
             var own = game.CreateSnapshot(0).Players[0];
             var observer = game.CreateSnapshot(1).Players[0];
             var projected = slot == GeneralSelectionSlot.Primary ? own.Skills : own.SecondarySkills;
@@ -244,13 +241,6 @@ internal static class NationalWarChecks
                     SnapshotJson.Serialize(game.CreateSnapshot(1, revealAll: true)),
                 "Rules 89 national multi-skill reveal did not replay exactly.");
 
-            var legacy = GameReplay.Restore(beforeReveal with { RulesVersion = 88 }, registry);
-            Reveal(legacy, slot);
-            Require(EnabledKinds(legacy).SequenceEqual([SkillKind.Paoxiao]) &&
-                    EnabledPrograms(legacy).SequenceEqual([programId]) &&
-                    legacy.CreateSnapshot(0).Players[0].Skills is null &&
-                    legacy.CreateSnapshot(0).Players[0].SecondarySkills is null,
-                "Rules 88 did not preserve its first-legacy-skill projection and existing program-skill behavior.");
         }
 
         GameEngine FindFixture(GeneralSelectionSlot desiredSlot)

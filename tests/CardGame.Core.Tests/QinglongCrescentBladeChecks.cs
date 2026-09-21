@@ -91,31 +91,6 @@ internal static class QinglongCrescentBladeChecks
         Require(State(replayed) == State(used) && Events(replayed).SequenceEqual(Events(used)),
             "A paused Qinglong follow-up Slash must replay exactly.");
 
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 45 },
-            registry);
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("Rules v45 Qinglong fixture lost its play prompt.");
-        var legacyPlay = legacy.Submit(new PlayCardCommand(
-            0,
-            boundary.SlashAction.CardId!.Value,
-            boundary.SlashAction.TargetSeats,
-            legacy.Revision,
-            legacyPrompt.PromptId,
-            boundary.SlashAction.PlayedCardKind));
-        Require(legacyPlay.Accepted, legacyPlay.Error?.Message ??
-            "Rules v45 could not replay the Qinglong Slash fixture.");
-        for (var step = 0; step < 16 &&
-                           legacy.PendingDecision?.Kind != DecisionKind.PlayCard &&
-                           legacy.State.Status != EngineStatus.Completed; step++)
-        {
-            Require(legacy.Submit(new AdvanceOneStepCommand(legacy.Revision)).Accepted,
-                "Rules v45 could not finish the target's Dodge response.");
-        }
-        Require(legacy.PendingDecision?.Kind != DecisionKind.QinglongCrescentBlade &&
-                legacy.Events.Select(item => item.Payload)
-                    .All(item => item is not QinglongCrescentBladeResolvedEvent),
-            "Rules v45 must retain the historical successful-Dodge result without Qinglong.");
     }
 
     public static void AiUsesPrivatePublishedChoice()

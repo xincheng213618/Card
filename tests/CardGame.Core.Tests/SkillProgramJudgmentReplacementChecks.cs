@@ -178,14 +178,10 @@ internal static class SkillProgramJudgmentReplacementChecks
         var registry = ContentRegistry.Build(new StandardContentPackage(), new BaguaFixturePackage());
         var (beforeBagua, baguaId) = FindBaguaBoundary(registry);
         var current = GameReplay.Restore(RoundTrip(beforeBagua), registry);
-        var legacy = GameReplay.Restore(RoundTrip(beforeBagua) with { RulesVersion = 87 }, registry);
         SubmitBagua(current);
-        SubmitBagua(legacy);
 
         var currentPrompt = current.PendingDecision ??
             throw new InvalidOperationException("The current Bagua replacement prompt was lost.");
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("The legacy Bagua replacement prompt was lost.");
         var currentOwner = current.CreateSnapshot(0, revealAll: true).Players[0];
         var legalBlackHand = currentOwner.Hand
             .Where(card => card.Suit is Suit.Spade or Suit.Club)
@@ -201,9 +197,8 @@ internal static class SkillProgramJudgmentReplacementChecks
                 legalBlackHand.Length > 0 &&
                 currentPrompt.ValidCardIds.SequenceEqual(legalBlackHand) &&
                 !currentPrompt.ValidCardIds.Contains(baguaId) &&
-                currentOwner.Equipment.Any(card => card.Id == baguaId) &&
-                legacyPrompt.ValidCardIds.Contains(baguaId),
-            "Rules 88 must exclude the equipped Bagua that started this judgment while rules 87 retains the historical candidate.");
+                currentOwner.Equipment.Any(card => card.Id == baguaId),
+            "The current replacement prompt must exclude the equipped Bagua that started this judgment.");
 
         var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
         Require(replay.PendingDecision?.PromptId == currentPrompt.PromptId &&

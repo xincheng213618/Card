@@ -11,8 +11,6 @@ internal static class BuLianShiChecks
 
     public static void ContentAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 112,
-            "Formal Bu Lian Shi must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 90, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 89, 0));
         var general = current.Generals[GeneralId];
@@ -44,9 +42,6 @@ internal static class BuLianShiChecks
                 current.ContentHash != previous.ContentHash,
             "Package 1.90.0 must add Bu Lian Shi without mutating package 1.89.0.");
 
-        var legacy = FindAnxuGame(rulesVersion: 111);
-        Require(legacy.GetHumanLegalActions().All(action => action.Skill != SkillKind.Anxu),
-            "Rules v111 must not publish Anxu even when package 1.90.0 is loaded.");
     }
 
     public static void AnxuUsesOpaqueReceiverChoiceAndEffectiveSuit()

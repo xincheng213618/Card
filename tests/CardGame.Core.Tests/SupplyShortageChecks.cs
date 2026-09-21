@@ -41,17 +41,6 @@ internal static class SupplyShortageChecks
             formalTargets.SequenceEqual([1, 4]),
             $"Formal Supply Shortage targets must be the distance-one seats; actual=[{string.Join(',', formalTargets)}].");
 
-        var legacy = CreateGame(
-            targeting.Seed,
-            targetingRegistry,
-            "supply-shortage-targeting:deck",
-            rulesVersion: 17);
-        Require(legacy.Submit(new StartGameCommand()).Accepted, "The legacy targeting fixture failed to start.");
-        var legacyTargets = SupplyShortageTargets(legacy, supplyShortageId);
-        Require(
-            legacyTargets.Length == 0,
-            $"Rules v17 must retain the historical empty-hand target rejection; actual=[{string.Join(',', legacyTargets)}].");
-
         var beforeInvalid = SnapshotJson.Serialize(formal.CreateSnapshot(0, revealAll: true));
         var beforeRevision = formal.Revision;
         var beforeEvents = formal.Events.Count;
@@ -88,10 +77,6 @@ internal static class SupplyShortageChecks
         var formalResolution = ResolveCounteredSupplyShortage(
             CreateStartedGame(countered.Seed, resolutionRegistry, "supply-shortage-resolution:deck", GameCheckpoint.CurrentRulesVersion),
             countered.TargetSeat);
-        var legacyResolution = ResolveCounteredSupplyShortage(
-            CreateStartedGame(countered.Seed, resolutionRegistry, "supply-shortage-resolution:deck", rulesVersion: 17),
-            countered.TargetSeat);
-
         Require(
             formalResolution.State.Players.Single(player => player.Seat == countered.TargetSeat).HandCount == 0,
             "The target must spend its final hand card in the Nullification chain.");
@@ -108,27 +93,15 @@ internal static class SupplyShortageChecks
                 .All(item => item.CardKind != CardKind.SupplyShortage),
             "Formal Supply Shortage incorrectly skipped an empty-hand target.");
 
-        var legacySkip = legacyResolution.Events.Select(item => item.Payload)
-            .OfType<CardEffectSkippedEvent>()
-            .SingleOrDefault(item => item.CardKind == CardKind.SupplyShortage);
-        Require(
-            legacySkip is { Reason: CardEffectSkipReason.TargetHandEmpty } &&
-            legacyResolution.State.Players.Single(player => player.Seat == countered.TargetSeat).Judgment
-                .All(card => card.Kind != CardKind.SupplyShortage),
-            "Rules v17 must retain the historical empty-hand effect skip.");
         Require(
             formalResolution.ResolutionStack.Count == 0 &&
-            legacyResolution.ResolutionStack.Count == 0 &&
-            formalResolution.State.ProcessingCardCount == 0 &&
-            legacyResolution.State.ProcessingCardCount == 0,
+            formalResolution.State.ProcessingCardCount == 0,
             "Supply Shortage left a stranded resolution frame or processing card.");
         Require(
-            formalResolution.CreateCardZoneDiagnostics().Count == 24 &&
-            legacyResolution.CreateCardZoneDiagnostics().Count == 24,
+            formalResolution.CreateCardZoneDiagnostics().Count == 24,
             "Supply Shortage targeting lost a physical card.");
 
         AssertReplay(formalResolution, resolutionRegistry);
-        AssertReplay(legacyResolution, resolutionRegistry);
     }
 
     private static (GameEngine Game, int Seed, int CardId) FindTargetingFixture(

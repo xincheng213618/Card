@@ -10,8 +10,6 @@ internal static class MouLuMengChecks
 
     public static void ContentAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 102,
-            "Formal Mou Lu Meng must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 80, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 79, 0));
         Require(current.Packages.Any(package =>
@@ -41,15 +39,6 @@ internal static class MouLuMengChecks
                 current.ContentHash != previous.ContentHash,
             "Package 1.80.0 must add formal Mou Lu Meng without mutating package 1.79.0.");
 
-        var fixture = CreateFixture();
-        var legacy = GameReplay.Restore(
-            RoundTrip(fixture.Game.CreateCheckpoint()) with { RulesVersion = 101 },
-            fixture.Registry);
-        PlaySlash(legacy, fixture.TargetSeat);
-        Require(legacy.Events.Select(item => item.Payload).OfType<YingboCardModeEvent>().Count() == 0 &&
-                Growth(legacy) == 0 &&
-                legacy.PendingDecision?.Kind != DecisionKind.Yingbo,
-            "Rules v101 must retain the pre-Mou-Lu-Meng behavior for package 1.80.0 content.");
     }
 
     public static void HengyeGrowthAndKillReset()

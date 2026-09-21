@@ -16,10 +16,6 @@ internal static class XiaoQiaoChecks
             "Tianxiang must publish physical Hearts and Hongyan Spades, but no other hand cards.");
 
         var paused = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var legacy = GameReplay.Restore(paused with { RulesVersion = 65 }, registry);
-        Require(legacy.PendingDecision?.Kind != DecisionKind.Tianxiang,
-            "Rules v65 must retain the pre-Xiao-Qiao damage path.");
-
         var answered = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, use.Id, game.Revision));
         Require(answered.Accepted, answered.Error?.Message ?? "Tianxiang transfer choice was rejected.");
         for (var step = 0; step < 32 && !game.Events.Any(item => item.Payload is TianxiangCardsDrawnEvent); step++)

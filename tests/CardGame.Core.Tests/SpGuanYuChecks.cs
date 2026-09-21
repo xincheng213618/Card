@@ -78,13 +78,6 @@ internal static class SpGuanYuChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "Danji acquisition and its game-scoped record must restore from the command prefix.");
 
-        var legacy = GameReplay.Restore(checkpoint with { RulesVersion = 97 }, registry);
-        var legacyOwner = legacy.CreateSnapshot(0, revealAll: true).Players[0];
-        Require(legacyOwner.MaxHp == 5 &&
-                legacyOwner.Skills!.Select(skill => skill.ContentId)
-                    .SequenceEqual([WushengSkillId, DanjiSkillId]) &&
-                legacyOwner.SkillRuntimeStates is null,
-            "Rules v97 must retain the pre-acquisition behavior for the same accepted setup commands.");
     }
 
     public static void NuzhanUsesExactConversionSource()

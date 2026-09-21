@@ -41,11 +41,6 @@ internal static class YanYanChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "The initial Juzhan polarity must reconstruct exactly from the accepted setup commands.");
 
-        var legacy = GameReplay.Restore(checkpoint with { RulesVersion = 98 }, registry);
-        var legacyState = legacy.CreateSnapshot(0, revealAll: true).Players[0]
-            .SkillRuntimeStates!.Single(state => state.SkillId == SkillId);
-        Require(legacyState.Polarity is null && legacyState.Usages.Count == 0,
-            "Rules v98 must retain the pre-consumer projection for the same selected Yan Yan content.");
     }
 
     public static void YangYinLedgerAndReplay()

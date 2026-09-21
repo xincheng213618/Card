@@ -35,7 +35,10 @@ public enum ActiveSkillEffectKind
     RemoveAuthorityDrawAndDamage,
     ChooseOrdinaryTrick,
     UseTwoHandCardsAsSlash,
-    TransferHandBetweenUnequalTargets
+    TransferHandBetweenUnequalTargets,
+    DiscardForUnlimitedRange,
+    AidByAttackRange,
+    DiscardHandForCategoryChoice
 }
 
 public sealed record ActiveSkillEffect(
@@ -1133,6 +1136,80 @@ public sealed class ZhiyuSkill : IPassiveSkill
             : DamageSkillEffectKind.None;
 }
 
+public sealed class ChengxiangSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Chengxiang;
+    public string Name => "称象";
+
+    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
+        context.Amount > 0 && context.TargetSeat == context.Owner.Seat;
+
+    public bool OffersDamageCardChoice(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context);
+
+    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context)
+            ? DamageSkillEffectKind.SelectRevealedCardsByRank
+            : DamageSkillEffectKind.None;
+}
+
+public sealed class RenxinSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Renxin;
+    public string Name => "仁心";
+}
+
+public sealed class JingceSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Jingce;
+    public string Name => "精策";
+}
+
+public sealed class JunxingSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Junxing;
+    public string Name => "峻刑";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.IsOwnTurn &&
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount > 0 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.DiscardHandForCategoryChoice,
+            MinCardCount: 1,
+            MaxCardCount: Math.Max(0, context.Owner.HandCount),
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
+}
+
+public sealed class YuceSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Yuce;
+    public string Name => "御策";
+
+    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
+        context.Amount > 0 &&
+        context.TargetSeat == context.Owner.Seat &&
+        context.Owner.HandCount > 0;
+
+    public bool OffersDamageCardChoice(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context);
+
+    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context)
+            ? DamageSkillEffectKind.RevealCardAndChallengeSource
+            : DamageSkillEffectKind.None;
+}
+
+public sealed class LongyinSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Longyin;
+    public string Name => "龙吟";
+}
+
 public sealed class DangxianSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Dangxian;
@@ -1188,6 +1265,45 @@ public sealed class LihuoSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Lihuo;
     public string Name => "疠火";
+}
+
+public sealed class ChunlaoSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Chunlao;
+    public string Name => "醇醪";
+}
+
+public sealed class GongqiSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Gongqi;
+    public string Name => "弓骑";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.IsOwnTurn &&
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount + context.AdditionalSelectableCardCount > 0 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.DiscardForUnlimitedRange,
+            MinCardCount: 1,
+            MaxCardCount: 1);
+}
+
+public sealed class JiefanSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Jiefan;
+    public string Name => "解烦";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.IsOwnTurn && context.Owner.Phase == TurnPhase.Play;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.AidByAttackRange,
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
 }
 
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
@@ -1409,6 +1525,15 @@ public static class SkillRegistry
             [SkillKind.Anxu] = new AnxuSkill(),
             [SkillKind.Zhuiyi] = new ZhuiyiSkill(),
             [SkillKind.Lihuo] = new LihuoSkill(),
+            [SkillKind.Chunlao] = new ChunlaoSkill(),
+            [SkillKind.Gongqi] = new GongqiSkill(),
+            [SkillKind.Jiefan] = new JiefanSkill(),
+            [SkillKind.Chengxiang] = new ChengxiangSkill(),
+            [SkillKind.Renxin] = new RenxinSkill(),
+            [SkillKind.Jingce] = new JingceSkill(),
+            [SkillKind.Junxing] = new JunxingSkill(),
+            [SkillKind.Yuce] = new YuceSkill(),
+            [SkillKind.Longyin] = new LongyinSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),

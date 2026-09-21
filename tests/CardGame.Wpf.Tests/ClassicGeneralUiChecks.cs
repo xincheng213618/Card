@@ -1443,7 +1443,13 @@ internal static class ClassicGeneralUiChecks
         var slashAction = tieqiEngine.GetHumanLegalActions()
             .Where(action => action.Kind == LegalActionKind.Slash &&
                              action.CardId is not null &&
-                             action.TargetSeat is not null)
+                             action.TargetSeat is { } targetSeat &&
+                             !HasVisibleSkill(
+                                 tieqiEngine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
+                                 SkillKind.Zhenlie) &&
+                             !HasVisibleSkill(
+                                 tieqiEngine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
+                                 SkillKind.Liuli))
             .OrderBy(action => action.CardId)
             .ThenBy(action => action.TargetSeat)
             .First();
@@ -1471,7 +1477,9 @@ internal static class ClassicGeneralUiChecks
                        tieqiViewModel.CurrentGuideTitle == "决定是否发动铁骑" &&
                        tieqiViewModel.CurrentGuideSteps.Any(step =>
                            step.Text.Contains("红色结果", StringComparison.Ordinal)),
-            "The WPF must render both private Tieqi choices before the target receives a Dodge response.");
+            $"The WPF must render both private Tieqi choices before the target receives a Dodge response " +
+            $"(pending={tieqiPrompt?.Kind}, target={tieqiTarget.Seat}, general={tieqiTarget.GeneralName}, " +
+            $"choices={string.Join(',', tieqiViewModel.SkillChoices.Select(choice => choice.Id.Value))}).");
         var tieqiWindow = new MainWindow(tieqiViewModel);
         tieqiWindow.ApplyTemplate();
         Program.Render(
@@ -2984,7 +2992,13 @@ internal static class ClassicGeneralUiChecks
                     engine.GetHumanLegalActions().Any(action =>
                         action.Kind == LegalActionKind.Slash &&
                         action.CardId is not null &&
-                        action.TargetSeat is not null))
+                        action.TargetSeat is { } targetSeat &&
+                        !HasVisibleSkill(
+                            engine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
+                            SkillKind.Zhenlie) &&
+                        !HasVisibleSkill(
+                            engine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
+                            SkillKind.Liuli)))
                 {
                     return candidate;
                 }
@@ -2995,6 +3009,9 @@ internal static class ClassicGeneralUiChecks
 
         throw new InvalidOperationException("Could not find a deterministic classic Tieqi WPF fixture.");
     }
+
+    private static bool HasVisibleSkill(PlayerSnapshot player, SkillKind kind) =>
+        player.Skill == kind || player.Skills?.Any(skill => skill.Kind == kind) == true;
 
     private static GameEngine FindLiegongFixture()
     {

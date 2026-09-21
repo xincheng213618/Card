@@ -10,8 +10,6 @@ internal static class GuanXingZhangBaoChecks
 
     public static void ContentAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 111,
-            "Formal Guan Xing & Zhang Bao must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 89, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 88, 0));
         var general = current.Generals[GeneralId];
@@ -37,11 +35,6 @@ internal static class GuanXingZhangBaoChecks
                 current.ContentHash != previous.ContentHash,
             "Package 1.89.0 must add Guan Xing & Zhang Bao without mutating package 1.88.0.");
 
-        var legacy = CreateGame(CreateRegistry(), ScenarioPackage.ActiveModeId, seed: 1, rulesVersion: 110);
-        StartAndSelect(legacy);
-        ReachHumanPlay(legacy);
-        Require(legacy.GetHumanLegalActions().All(action => action.Skill != SkillKind.Fuhun),
-            "Rules v110 must not publish Fuhun even when package 1.89.0 is loaded.");
     }
 
     public static void ActiveSlashGrantsParentSkillsForOneTurnAndReplays()

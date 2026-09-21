@@ -9,11 +9,7 @@ public sealed partial class GameEngine
     private bool _dangxianExtraPlayActive;
 
     private bool UsesFormalLiaoHua =>
-        _rulesVersion >= 110 &&
-        IsClassicIdentityMode &&
-        _contentRegistry?.Packages.Any(package =>
-            package.Id == "standard-classic-generals" &&
-            package.Version >= new Version(1, 88, 0)) == true;
+        HasClassicGeneralPackage(new Version(1, 88, 0));
 
     private bool TryBeginDangxianExtraPlay(PlayerRuntime current)
     {
@@ -44,6 +40,11 @@ public sealed partial class GameEngine
 
     private void CompleteCurrentPlayPhase()
     {
+        if (TryBeginPhaseSkill(PhaseSkillWindow.PlayEnding, _players[_currentSeat]))
+        {
+            return;
+        }
+
         if (!_dangxianExtraPlayActive)
         {
             BeginDiscardPhase();

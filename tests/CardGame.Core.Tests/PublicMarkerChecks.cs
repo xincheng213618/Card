@@ -16,11 +16,8 @@ internal static class PublicMarkerChecks
             "Source-attributed public markers require rules version 91 or newer.");
         var registry = CreateRegistry(ownerHp: 3, packageId: "wuhun-marker-nonlethal");
         var current = FindFixture(registry, requireAlcohol: true);
-        var boundary = RoundTrip(current.CreateCheckpoint());
-        var legacy = GameReplay.Restore(boundary with { RulesVersion = 89 }, registry);
 
         PlayAlcoholAndSlash(current, useAlcohol: true);
-        PlayAlcoholAndSlash(legacy, useAlcohol: true);
 
         var markerEvents = current.Events.Select(item => item.Payload)
             .OfType<PlayerMarkerChangedEvent>()
@@ -42,11 +39,7 @@ internal static class PublicMarkerChecks
             Count: 2
         },
             "An ordinary observer did not receive the exact public Nightmare counter.");
-        Require(!legacy.Events.Select(item => item.Payload).OfType<PlayerMarkerChangedEvent>().Any() &&
-                legacy.CreateSnapshot(1).Players[0].Markers is null,
-            "Rules v89 did not preserve the pre-marker event and snapshot boundary.");
         AssertReplay(current, registry, expectedCount: 2);
-        AssertReplay(legacy, registry, expectedCount: 0);
 
         var lethalRegistry = CreateRegistry(ownerHp: 1, packageId: "wuhun-marker-lethal");
         var lethal = FindFixture(lethalRegistry, requireAlcohol: false);
@@ -95,11 +88,8 @@ internal static class PublicMarkerChecks
             packageId: "wuhun-death-direct",
             deckCards: [new ContentDeckCardCount("standard:slash", 60)]);
         var current = FindFixture(registry, requireAlcohol: false);
-        var boundary = RoundTrip(current.CreateCheckpoint());
-        var legacy = GameReplay.Restore(boundary with { RulesVersion = 91 }, registry);
 
         PlayAlcoholAndSlash(current, useAlcohol: false);
-        PlayAlcoholAndSlash(legacy, useAlcohol: false);
 
         var events = current.Events.Select(item => item.Payload).ToArray();
         var ownerDeath = Array.FindIndex(events, item => item is PlayerDiedEvent died && died.VictimSeat == 1);
@@ -123,14 +113,7 @@ internal static class PublicMarkerChecks
                 !current.CreateSnapshot(0, revealAll: true).Players[0].IsAlive,
             "Wuhun must select the positive maximum after owner death, judge, then directly kill without dying rescue.");
 
-        Require(!legacy.Events.Select(item => item.Payload).OfType<DeathSkillStartedEvent>().Any() &&
-                !legacy.Events.Select(item => item.Payload).OfType<DirectDeathDeclaredEvent>().Any() &&
-                legacy.CreateSnapshot(0, revealAll: true).Players[0].IsAlive &&
-                legacy.CreateSnapshot(0, revealAll: true).Players[0].Markers?.Single().Count == 1,
-            "Rules v91 must preserve source attribution without activating or clearing the death skill.");
-
         AssertReplayStateAndDeathEvents(current, registry);
-        AssertReplayStateAndDeathEvents(legacy, registry);
     }
 
     public static void WuhunHumanTargetPromptAndReplay()

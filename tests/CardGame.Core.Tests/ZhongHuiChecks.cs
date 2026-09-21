@@ -12,8 +12,6 @@ internal static class ZhongHuiChecks
 
     public static void ContentQuanjiAndBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 108,
-            "Formal Zhong Hui must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 86, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 85, 0));
         Require(current.Packages.Any(package =>
@@ -83,12 +81,6 @@ internal static class ZhongHuiChecks
                 SnapshotJson.Serialize(snapshot),
             "The completed three-Authority command prefix must replay exactly.");
 
-        var legacy = CreateGame(registry, fixture.Seed, rulesVersion: 107);
-        StartAndSelect(legacy);
-        ResolveSelfFireAttack(legacy, expectQuanji: false);
-        Require(legacy.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].AuthorityCount == 0 &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not QuanjiResolvedEvent),
-            "Rules v107 must retain ordinary damage even when package 1.86.0 is loaded.");
     }
 
     public static void ZiliAndPaiyiReplay()

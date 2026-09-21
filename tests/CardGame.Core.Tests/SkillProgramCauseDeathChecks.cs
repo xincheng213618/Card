@@ -147,16 +147,6 @@ internal static class SkillProgramCauseDeathChecks
                     .SequenceEqual(game.Events.Select(item => item.Payload.GetType().Name)),
             "Terminal causeDeath did not replay exactly.");
 
-        try
-        {
-            _ = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()) with { RulesVersion = 92 }, registry);
-        }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains("require rules version 93", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-        throw new InvalidOperationException("Rules v92 must reject schema 9 causeDeath content.");
     }
 
     private static (GameEngine Game, int SourceSeat, int ObserverSeat) FindGanglieBoundary(

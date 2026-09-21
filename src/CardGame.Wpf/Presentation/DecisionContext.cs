@@ -20,7 +20,13 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
         var card = prompt.IncomingCard is { } kind ? $"【{CardCatalog.Get(kind).DisplayName}】" : "技能";
         string title;
         var targetLabel = "受影响";
-        switch (prompt.Kind)
+        if (prompt.SkillPrompt is { } skillPrompt)
+        {
+            target ??= prompt.PlayerSeat;
+            title = skillPrompt.Title;
+            targetLabel = "技能拥有者";
+        }
+        else switch (prompt.Kind)
         {
             case DecisionKind.SelectFaction:
                 title = "选择本局势力";
@@ -67,10 +73,54 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 title = $"安恤 · {Name(prompt.PlayerSeat)}选择暗手牌";
                 targetLabel = "手牌较多者";
                 break;
+            case DecisionKind.Junxing:
+                target = prompt.PlayerSeat;
+                title = $"峻刑 · {Name(prompt.PlayerSeat)}选择弃牌或翻面摸牌";
+                targetLabel = "技能目标";
+                break;
             case DecisionKind.ZhuiyiTarget:
                 target = prompt.PlayerSeat;
                 title = "追忆 · 选择受益角色或跳过";
                 targetLabel = "技能拥有者";
+                break;
+            case DecisionKind.Gongqi:
+                target ??= prompt.ValidTargetSeats.FirstOrDefault(-1);
+                title = "弓骑 · 选择弃置一张牌或跳过";
+                targetLabel = "可弃牌角色";
+                break;
+            case DecisionKind.Jiefan:
+                target ??= prompt.ValidTargetSeats.SingleOrDefault(-1);
+                title = $"解烦 · {Name(prompt.PlayerSeat)}选择响应方式";
+                targetLabel = "受益角色";
+                break;
+            case DecisionKind.Chengxiang:
+                target = prompt.PlayerSeat;
+                title = prompt.ValidCardIds.Count == 0
+                    ? "称象 · 决定是否亮出牌堆顶四张牌"
+                    : "称象 · 选择点数和不超过13的牌";
+                targetLabel = "技能拥有者";
+                break;
+            case DecisionKind.Renxin:
+                title = $"仁心 · 防止 {Name(target)} 受到伤害";
+                targetLabel = "受保护角色";
+                break;
+            case DecisionKind.Jingce:
+                target = prompt.PlayerSeat;
+                title = "精策 · 决定是否摸两张牌";
+                targetLabel = "技能拥有者";
+                break;
+            case DecisionKind.Yuce:
+                target = prompt.TargetSeat ?? prompt.PlayerSeat;
+                title = prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "yuce-use")
+                    ? "御策 · 选择展示一张手牌或跳过"
+                    : "御策 · 伤害来源选择弃牌或令其回复";
+                targetLabel = "技能拥有者";
+                break;
+            case DecisionKind.Longyin:
+                target = prompt.TargetSeat;
+                title = "龙吟 · 选择弃置一张牌或跳过";
+                targetLabel = "此杀目标";
                 break;
             default:
                 title = $"当前技能选择 · {Name(prompt.PlayerSeat)}";

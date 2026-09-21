@@ -252,7 +252,16 @@ public enum SkillKind
     Fuhun,
     Anxu,
     Zhuiyi,
-    Lihuo
+    Lihuo,
+    Chunlao,
+    Gongqi,
+    Jiefan,
+    Chengxiang,
+    Renxin,
+    Jingce,
+    Junxing,
+    Yuce,
+    Longyin
 }
 
 public enum DecisionKind
@@ -330,7 +339,17 @@ public enum DecisionKind
     Qice,
     Zhiyu,
     Anxu,
-    ZhuiyiTarget
+    ZhuiyiTarget,
+    Chunlao,
+    Gongqi,
+    Jiefan,
+    Chengxiang,
+    Renxin,
+    Jingce,
+    Junxing,
+    Yuce,
+    Longyin,
+    SkillModule
 }
 
 public enum JiangchiMode
@@ -716,6 +735,13 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int AuthorityCount { get; init; }
 
+    /// <summary>Public "醇" cards placed on classic Cheng Pu's general card.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? ChunlaoCards { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ChunlaoCount { get; init; }
+
     /// <summary>
     /// Private/public effective faction metadata. In national war, a viewer may
     /// receive its own hidden faction before it is revealed. In identity mode,
@@ -769,6 +795,10 @@ public sealed partial record PendingDecision(
 
 public sealed partial record PendingDecision
 {
+    /// <summary>Optional content-owned presentation for a generic skill choice.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillPromptPresentation? SkillPrompt { get; init; }
+
     /// <summary>Stable id of this exact prompt; zero means legacy construction.</summary>
     public PromptId PromptId { get; init; }
 

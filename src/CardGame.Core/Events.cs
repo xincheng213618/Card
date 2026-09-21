@@ -334,6 +334,30 @@ public sealed record SkillUsageConsumedEvent(
     SkillUsageScope Scope,
     int Count) : IGameEvent;
 
+/// <summary>Public result of Han Dang establishing unlimited range for the turn.</summary>
+public sealed record GongqiResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int CostCardId,
+    bool EquipmentCost,
+    int? TargetSeat,
+    int? DiscardedCardId) : IGameEvent;
+
+/// <summary>Public frozen responder order for one limited Jiefan activation.</summary>
+public sealed record JiefanStartedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int TargetSeat,
+    IReadOnlyList<int> ResponderSeats) : IGameEvent;
+
+/// <summary>Public result of one responder's mandatory Jiefan choice.</summary>
+public sealed record JiefanChoiceResolvedEvent(
+    long ResolutionId,
+    int ResponderSeat,
+    int TargetSeat,
+    int? DiscardedWeaponCardId,
+    IReadOnlyList<int> DrawnCardIds) : IGameEvent;
+
 /// <summary>Public audit record for a skill being restored to its game-start state.</summary>
 public sealed record SkillResetEvent(
     int SkillOwnerSeat,
@@ -831,6 +855,71 @@ public sealed record ZhiyuResolvedEvent(
     bool AllSameColor,
     int? DiscardedCardId) : IGameEvent;
 
+/// <summary>The four public cards and exact legal subset selected by classic Cao Chong.</summary>
+public sealed record ChengxiangResolvedEvent(
+    long DamageFrameId,
+    int OwnerSeat,
+    bool Used,
+    IReadOnlyList<int> RevealedCardIds,
+    IReadOnlyList<int> ObtainedCardIds,
+    IReadOnlyList<int> DiscardedCardIds,
+    int ObtainedRankSum) : IGameEvent;
+
+/// <summary>Classic Cao Chong discarded equipment and turned over to prevent damage to another 1-HP character.</summary>
+public sealed record RenxinResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int SourceSeat,
+    int TargetSeat,
+    bool Used,
+    int PreventedAmount,
+    int? DiscardedCardId,
+    bool IsFaceDown) : IGameEvent;
+
+/// <summary>Classic Guo Huai checked his turn-wide card-use count at the end of a Play phase.</summary>
+public sealed record JingceResolvedEvent(
+    int OwnerSeat,
+    int UsedCardCount,
+    int CurrentHp,
+    bool Used,
+    IReadOnlyList<int> DrawnCardIds) : IGameEvent;
+
+/// <summary>Classic Man Chong paid an exact hand-card cost and the target chose one legal branch.</summary>
+public sealed record JunxingResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int TargetSeat,
+    IReadOnlyList<int> CostCardIds,
+    IReadOnlyList<string> CostCategories,
+    int? DiscardedCardId,
+    bool TurnedOver,
+    IReadOnlyList<int> DrawnCardIds,
+    bool TargetIsFaceDown) : IGameEvent;
+
+/// <summary>Classic Man Chong revealed one hand card and the damage source answered the category challenge.</summary>
+public sealed record YuceResolvedEvent(
+    long DamageFrameId,
+    int OwnerSeat,
+    int SourceSeat,
+    bool Used,
+    int? RevealedCardId,
+    string? RevealedCategory,
+    int? DiscardedCardId,
+    int RecoveredHp) : IGameEvent;
+
+/// <summary>Classic Guan Ping paid one exact card after a Play-phase Slash was declared.</summary>
+public sealed record LongyinResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int SlashSourceSeat,
+    bool Used,
+    int? DiscardedCardId,
+    CardKind? DiscardedCardKind,
+    CardKind SlashKind,
+    bool SlashWasRed,
+    bool SlashCountRemoved,
+    IReadOnlyList<int> DrawnCardIds) : IGameEvent;
+
 /// <summary>Classic Liao Hua entered or completed the mandatory extra Play phase from Dangxian.</summary>
 public sealed record DangxianExtraPlayPhaseEvent(
     int OwnerSeat,
@@ -993,6 +1082,24 @@ public sealed record DyingResponseEvent(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardKind? UsedPeachPhysicalCardKind { get; init; }
 }
+
+/// <summary>Public result of placing physical Slash cards on Cheng Pu as "醇".</summary>
+public sealed record ChunlaoStoredEvent(
+    int OwnerSeat,
+    IReadOnlyList<int> CardIds) : IGameEvent;
+
+/// <summary>
+/// Public result of one Chunlao trigger in a dying occurrence. The victim is
+/// treated as the user of a virtual Alcohol; the owner only pays the public
+/// "醇" card.
+/// </summary>
+public sealed record ChunlaoRescueEvent(
+    long DyingFrameId,
+    int OwnerSeat,
+    int VictimSeat,
+    int ChunCardId,
+    int RecoveredHp,
+    int VictimHp) : IGameEvent;
 
 public sealed record JiuyuanAppliedEvent(
     long ResolutionId,

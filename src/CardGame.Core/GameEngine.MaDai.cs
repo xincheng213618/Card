@@ -8,11 +8,7 @@ public sealed partial class GameEngine
     private QianxiResolution? _pendingQianxi;
 
     private bool UsesFormalQianxi =>
-        _rulesVersion >= 104 &&
-        IsClassicIdentityMode &&
-        _contentRegistry?.Packages.Any(package =>
-            package.Id == "standard-classic-generals" &&
-            package.Version >= new Version(1, 82, 0)) == true;
+        HasClassicGeneralPackage(new Version(1, 82, 0));
 
     private static CardColor GetCardColor(Suit suit) =>
         suit is Suit.Heart or Suit.Diamond ? CardColor.Red : CardColor.Black;

@@ -100,9 +100,6 @@ internal static class QuhuChecks
                     item.SourceSeat == tie.OpponentSeat && item.TargetSeat == tie.SourceSeat),
             "A tied Pindian must count as Xun Yu not winning and damage Xun Yu from the opponent.");
 
-        var legacy = GameReplay.Restore(RoundTrip(win.BeforeUse) with { RulesVersion = 59 }, registry);
-        Require(legacy.GetHumanLegalActions().All(action => action.Skill != SkillKind.Quhu),
-            "Rules v59 must not expose Quhu even when loading package 1.45 content.");
     }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

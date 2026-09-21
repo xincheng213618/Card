@@ -28,11 +28,6 @@ internal static class PangTongChecks
             if (converted is null) continue;
 
             var physicalId = converted.CardId!.Value;
-            var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 62 }, registry);
-            Require(!legacy.GetHumanLegalActions().Any(action =>
-                    action.CardId == physicalId && action.PlayedCardKind == CardKind.IronChain),
-                "Rules v62 must not expose Lianhuan conversions.");
-
             var branch = game.CreateCheckpoint();
             var recast = game.Submit(new RecastCardCommand(0, physicalId, game.Revision, play.PromptId));
             Require(recast.Accepted && game.Events.Any(item => item.Payload is CardRecastEvent evt &&

@@ -86,30 +86,6 @@ internal static class StoneAxeChecks
         Require(State(completed) == State(used) && Events(completed).SequenceEqual(Events(used)),
             "A completed Stone Axe damage branch must replay exactly.");
 
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 42 },
-            registry);
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("Rules v42 Stone Axe fixture lost its play prompt.");
-        var legacyPlay = legacy.Submit(new PlayCardCommand(
-            0,
-            boundary.SlashAction.CardId!.Value,
-            boundary.SlashAction.TargetSeats,
-            legacy.Revision,
-            legacyPrompt.PromptId,
-            boundary.SlashAction.PlayedCardKind));
-        Require(legacyPlay.Accepted, legacyPlay.Error?.Message ??
-            "Rules v42 could not replay the Stone Axe Slash fixture.");
-        for (var step = 0; step < 16 &&
-                           legacy.PendingDecision?.Kind != DecisionKind.PlayCard &&
-                           legacy.State.Status != EngineStatus.Completed; step++)
-        {
-            Require(legacy.Submit(new AdvanceOneStepCommand(legacy.Revision)).Accepted,
-                "Rules v42 could not finish the target's Dodge response.");
-        }
-        Require(legacy.PendingDecision?.Kind != DecisionKind.StoneAxe &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not StoneAxeResolvedEvent),
-            "Rules v42 must retain the historical successful-Dodge result without Stone Axe.");
     }
 
     public static void AiUsesPrivatePublishedChoices()

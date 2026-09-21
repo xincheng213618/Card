@@ -29,9 +29,6 @@ internal static class ZhuRongChecks
                     offer.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "lieren-use"))
                 {
                     var checkpoint = game.CreateCheckpoint();
-                    var legacy = GameReplay.Restore(checkpoint with { RulesVersion = 74 }, registry);
-                    Require(legacy.PendingDecision?.Kind != DecisionKind.Lieren,
-                        "Rules v74 must not publish the Lieren post-damage trigger.");
                     ResolveLieren(game);
                     var resolved = game.Events.Select(e => e.Payload).OfType<LierenResolvedEvent>().Last();
                     Require(resolved is { OwnerSeat: 0, Used: true } &&

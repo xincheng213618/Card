@@ -55,8 +55,6 @@ internal static class NationalHealthChecks
                     "AI and human dual-general health initialization differ.");
             Require(fixture.Submit(new RevealGeneralCommand(0, GeneralSelectionSlot.Primary, fixture.Revision, fixture.PendingDecision!.PromptId)).Accepted, "Reveal failed after health initialization.");
             Require(fixture.CreateSnapshot(0).Players[0].Hp == pair.Item3 && fixture.CreateSnapshot(0).Players[0].MaxHp == pair.Item3, "Reveal silently healed or changed maximum HP.");
-            var old = GameReplay.Restore(fixture.CreateCheckpoint() with { RulesVersion = 7 }, registry);
-            Require(old.CreateSnapshot(0, true).Players.All(player => player.Hp == 4 && player.MaxHp == 4), "Rules 7 no longer uses fixed health.");
         }
         var immediate = GameEngine.CreateStandard(new GameOptions { Seed = 721022, HumanSeat = -1, HumanRole = null, PlayerCount = 4, ModeId = "national:lite-4", UseInteractiveSetup = false }, registry);
         Require(immediate.CreateSnapshot(-1, true).Players.All(player => player.Hp == player.MaxHp && player.MaxHp ==

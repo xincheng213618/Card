@@ -10,8 +10,6 @@ internal static class LiuBiaoChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 106,
-            "Formal Liu Biao must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 84, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 83, 0));
         Require(current.Packages.Any(package =>
@@ -83,14 +81,6 @@ internal static class LiuBiaoChecks
                 ZishouUsages(skipped).Count == 0,
             "Skipping Zishou must keep normal drawing and create no turn restriction.");
 
-        var legacy = CreateGame(fixture.Registry, fixture.Seed, rulesVersion: 105);
-        StartAndSelect(legacy);
-        ReachHumanPlay(legacy);
-        Require(legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not ZishouResolvedEvent) &&
-                legacy.GetHumanLegalActions().Any(action =>
-                    action.TargetSeats.Any(target => target != 0)),
-            "Rules v105 must keep Liu Biao's new runtime effects disabled even with package 1.84.0 loaded.");
     }
 
     public static void ZishouTargetsAndZongshiHandLimit()
@@ -141,11 +131,6 @@ internal static class LiuBiaoChecks
         Require(fullLimit == ownerHp + 4 && reducedLimit == ownerHp + 3,
             "Zongshi must add the live distinct-faction count to Liu Biao's current-HP hand limit.");
 
-        var legacy = CreateGame(handLimitFixture.Registry, handLimitFixture.Seed, rulesVersion: 105);
-        StartAndSelect(legacy);
-        var legacyHp = legacy.CreateSnapshot(0, revealAll: true).Players[0].Hp;
-        Require(GetHandLimit(legacy, 0) == legacyHp,
-            "Rules v105 must retain the unmodified hand limit for package 1.84.0 replays.");
     }
 
     private static void Play(GameEngine game, LegalAction action)

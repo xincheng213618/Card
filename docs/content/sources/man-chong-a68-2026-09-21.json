@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:man-chong",
+  "acceptedAt": "2026-09-21T21:16:54+08:00",
+  "scope": "P1-A68 complete classic Man Chong, Junxing and Yuce runtime, AI, WPF presentation and official portrait",
+  "selectedVersion": "一将成名官网当前经典满宠（魏3体力，峻刑／御策）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/312.html",
+      "use": "一将成名官方武将页冻结当前经典满宠、峻刑与御策文本，并提供经典静态大图入口。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20170405_6998_1709",
+      "use": "官方历史规则文章用于交叉核对峻刑的多牌类别约束，以及御策展示后由伤害来源弃置异类别牌的结算。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161102_9051_3113",
+      "use": "官方历史攻略用于交叉核对经典满宠的魏势力、3 体力与技能组合。"
+    }
+  ],
+  "ruleText": {
+    "junxing": "出牌阶段限一次，你可以弃置至少一张手牌并选择一名其他角色，令其选择一项：1.弃置与你弃置的牌类别均不同的一张手牌；2.翻面，然后摸等量的牌。",
+    "yuce": "每当你受到伤害后，你可以展示一张手牌，令来源选择是否弃置与之类别不同的一张手牌，若其选择否，你回复1点体力。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.96.0",
+    "rulesVersion": 101,
+    "generalId": "classic:man-chong",
+    "skillIds": [
+      "classic:junxing",
+      "classic:yuce"
+    ],
+    "skillMetadata": {
+      "junxing": "Active",
+      "yuce": "Trigger"
+    },
+    "junxingInteraction": "once per Play phase, select one or more exact hand cards and one other living target; all discarded cost categories are frozen, then the target privately chooses one exact hand card whose category differs from every cost category or always-available turn-over-and-draw-equal branch",
+    "yuceInteraction": "after damage, the owner privately reveals one exact hand card or skips; the source privately discards one exact hand card of a different category or declines, while no eligible source card immediately resolves as decline and recovers the owner by one",
+    "aiPolicy": "Junxing chooses the cheapest legal target response unless turning over is favorable; Yuce reveals deterministically and the source pays the cheapest eligible different-category card when available",
+    "auditEvents": [
+      "CardsRevealedEvent",
+      "JunxingResolvedEvent",
+      "YuceResolvedEvent",
+      "RecoveryAppliedEvent",
+      "CardMovedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.95.0",
+    "rulesVersionChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "accepted commands reconstruct Junxing costs and category challenge, Yuce reveal and source response, private prompts, exact movements, face state, recovery and public events under rules v101",
+    "legacyPolicy": "package 1.95.0 retains the complete Guo Huai roster without Man Chong; package signature and content hash provide the new-content boundary"
+  },
+  "portrait": {
+    "resourceKey": "man_chong",
+    "localPath": "src/CardGame.Wpf/Assets/official-man-chong.png",
+    "sourcePage": "https://x.sanguosha.com/hero/312.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/131201.png",
+    "remoteHeadStatus": 200,
+    "remoteContentType": "image/png",
+    "remoteContentLength": 218937,
+    "sha256": "67EBE0DF412DDE519926090602E41809D12269EC2564C69F5AB8490EF6A2EF0E",
+    "bytes": 218937,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Man Chong artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "isolatedBuildCommand": "dotnet build CardGame.sln -c Release --artifacts-path <isolated-temp> --no-restore",
+    "isolatedBuildWarnings": 0,
+    "isolatedBuildErrors": 0,
+    "targetedCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll --only-man-chong",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "fullCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll",
+    "fullCorePassed": 344,
+    "fullCoreTotal": 344,
+    "targetedWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll --only-man-chong <render-dir>",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "fullWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll <render-dir>",
+    "fullWpfPassed": 101,
+    "fullWpfTotal": 101,
+    "visualReview": "224 through 226 at 1120x740 inspected: official card art, exact Junxing target draft, Yuce reveal-card prompt and skip branch are readable without clipping or overlap",
+    "assertions": [
+      "package 1.96.0 publishes complete Man Chong while package 1.95.0 retains its prior Guo Huai boundary",
+      "Junxing freezes every selected cost category and only permits a target discard whose category differs from them all",
+      "Junxing always retains the alternative branch that turns the target over and draws exactly the discarded-card count",
+      "Yuce reveals without moving the owner's card and only permits the source to discard a different-category hand card",
+      "decline, no eligible counter-card or absent living source recovers the owner by exactly one while a legal discard prevents recovery",
+      "paused Junxing and Yuce choices replay with identical state, events and legal actions",
+      "WPF exposes Active and Trigger metadata, exact private choices, public reveal, player guidance, event stack and battle cues"
+    ]
+  },
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI acceptance",
+    "physical multiplayer host and remote-client acceptance"
+  ]
+}

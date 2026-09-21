@@ -63,15 +63,6 @@ internal static class GodFactionSelectionChecks
                     .SequenceEqual(restoredAtPrompt.Events.Select(item => item.Payload.GetType().Name)),
             "The selected faction, effective Huangtian relation and event stream did not replay exactly.");
 
-        var legacyRegistry = CreateRegistry(new Version(1, 66, 0));
-        var (legacySetup, _) = FindFixture(legacyRegistry);
-        var legacy = GameReplay.Restore(
-            RoundTrip(legacySetup.CreateCheckpoint()) with { RulesVersion = 94 },
-            legacyRegistry);
-        Require(legacy.PendingDecision?.Kind != DecisionKind.SelectFaction &&
-                legacy.CreateSnapshot(0, revealAll: true).Players[0].FactionId is null,
-            "Rules v94 must retain the pre-god-faction setup and snapshot behavior.");
-
         var unattended = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 27,

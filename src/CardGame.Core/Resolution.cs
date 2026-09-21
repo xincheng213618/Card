@@ -33,7 +33,8 @@ public enum ResolutionFrameKind
     ProgramSkill,
     ProgramCardTriggerWindow,
     ProgramJudgmentTriggerWindow,
-    DeathSkill
+    DeathSkill,
+    PhaseSkill
 }
 
 public enum ResolutionFrameStep
@@ -56,7 +57,9 @@ public enum DamageSkillEffectKind
     RecoverDamageSource,
     BenefitDamageSource,
     StoreAuthority,
-    RevealHandAndPunishSource
+    RevealHandAndPunishSource,
+    SelectRevealedCardsByRank,
+    RevealCardAndChallengeSource
 }
 
 /// <summary>
@@ -81,6 +84,7 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(ProgramCardTriggerWindowFrame), "program-card-trigger-window")]
 [JsonDerivedType(typeof(ProgramJudgmentTriggerWindowFrame), "program-judgment-trigger-window")]
 [JsonDerivedType(typeof(DeathSkillFrame), "death-skill")]
+[JsonDerivedType(typeof(PhaseSkillFrame), "phase-skill")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,

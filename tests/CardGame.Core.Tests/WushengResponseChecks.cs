@@ -19,22 +19,6 @@ internal static class WushengResponseChecks
             Require(physical.Suit is Suit.Heart or Suit.Diamond && choice.Parameters["response-card-kind"] == "Slash" && choice.Description.Contains("当作【杀】"), "Response did not publish an explicit red-card Slash conversion.");
             Require(game.CreateSnapshot(1).PendingDecision is null, "Private red-card options leaked to another viewer.");
             var checkpoint = game.CreateCheckpoint();
-            var registry = StandardContentRegistry.Create();
-            var legacyBase = GameEngine.CreateStandard(checkpoint.Options, registry);
-            var legacy = GameReplay.Restore(legacyBase.CreateCheckpoint() with { RulesVersion = 8 }, registry);
-            var legacyPlayers = ((System.Collections.IEnumerable)typeof(GameEngine)
-                    .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
-                    .GetValue(legacy)!)
-                .Cast<object>()
-                .ToArray();
-            var responseCards = (IReadOnlyList<Card>)typeof(GameEngine)
-                .GetMethod("GetResponseCards", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .Invoke(legacy, [legacyPlayers[0], CardKind.Slash])!;
-            Require(responseCards.All(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash),
-                "Rules 8 gained the new response conversion.");
-            var legacyBefore = GameCheckpointJson.Serialize(legacy.CreateCheckpoint());
-            Require(!legacy.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, legacy.Revision)).Accepted &&
-                GameCheckpointJson.Serialize(legacy.CreateCheckpoint()) == legacyBefore, "Rejected old-rule conversion paid a cost or changed the journal.");
             var response = new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision);
             Require(game.Submit(response).Accepted, "Published Wusheng response was rejected.");
             Require(game.Events.Count(item => item.Payload is CardRespondedEvent responded && responded.CardId == physical.Id && responded.ResponderSeat == 0 && responded.EffectiveCardKind == CardKind.Slash) == 1,
@@ -103,11 +87,6 @@ internal static class WushengResponseChecks
                         "Hidden national Wusheng appeared in a Slash response before reveal.");
                     Require(game.CreateSnapshot(1).PendingDecision is null && !publicBefore.IsGeneralPublic,
                         "National response prompt or hidden general leaked before reveal.");
-                    var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 8 },
-                        StandardContentRegistry.CreateWithNationalWarLite());
-                    Require(legacy.GetHumanLegalActions().Count == 0,
-                        "Rules 8 gained the new response-time national reveal action.");
-
                     var revealResult = game.Submit(new RevealGeneralCommand(
                             0,
                             GeneralSelectionSlot.Primary,

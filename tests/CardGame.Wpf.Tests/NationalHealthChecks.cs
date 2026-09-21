@@ -74,16 +74,18 @@ internal static class NationalHealthChecks
         using (var file = File.Create(oldStore.GetPath(GameSaveSlot.Manual))) resource.CopyTo(file);
         var oldFile = oldStore.Read(GameSaveSlot.Manual);
         using var legacy = new MainViewModel(false, 33, true, oldStore, useExpandedContent: true);
+        var activeBeforeRejectedLoad = Checkpoint(legacy);
         legacy.LoadManualGameCommand.Execute(null);
-        Require(!legacy.HasSaveError && Program.Engine(legacy).RulesVersion == 7 && Checkpoint(legacy) == GameCheckpointJson.Serialize(oldFile.Checkpoint),
-            "Frozen shipped 1.0.0 save no longer restores with its exact original journal and fingerprint.");
-        Require(legacy.Seats.All(seat => seat.MaxHp == 4) && legacy.NationalHealthRuleText.Contains("固定为 4"), "Legacy game silently adopted the new pair formula.");
+        Require(legacy.HasSaveError &&
+                Program.Engine(legacy).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
+                Checkpoint(legacy) == activeBeforeRejectedLoad &&
+                GameCheckpointJson.Serialize(oldStore.Read(GameSaveSlot.Manual).Checkpoint) ==
+                    GameCheckpointJson.Serialize(oldFile.Checkpoint),
+            "The exact-rules loader accepted the frozen rules v7 save, changed the active game, or rewrote the protected file.");
         legacy.NewGameCommand.Execute(null);
         Require(legacy.NationalHealthRuleText.Contains("平均"), "New-game setup retained the loaded save's obsolete health explanation.");
         legacy.CancelNewGameSetupCommand.Execute(null);
-        Require(legacy.NationalHealthRuleText.Contains("固定为 4"), "Canceling setup lost the old match's rule explanation.");
-        NationalExperienceChecks.Complete(legacy);
-        MatchSummaryChecks.VerifyCompleted(legacy);
+        Require(legacy.NationalHealthRuleText.Contains("平均"), "Canceling setup changed the preserved current-rules explanation.");
         window.Content = null;
         window.Close();
     }

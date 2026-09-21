@@ -56,11 +56,15 @@ internal static class SkillProgramSelectedJudgmentChecks
         AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":85",
                 StringComparison.Ordinal),
             "schema minimum 86");
-        AssertReject(Rules.Replace(
+        var forwardCapability = SkillProgramCatalog.Load(
+            Rules.Replace(
                 "\"revision\":1",
                 $"\"revision\":1,\"minimumRulesVersion\":{GameCheckpoint.CurrentRulesVersion + 1}",
                 StringComparison.Ordinal),
-            $"current rules {GameCheckpoint.CurrentRulesVersion}");
+            Presentation);
+        Require(forwardCapability.Programs.Values.All(item =>
+                item.MinimumRulesVersion == GameCheckpoint.CurrentRulesVersion + 1),
+            "Program capability metadata must not force an unrelated replay-rules bump.");
         AssertReject(Rules.Replace(
                 "{\"op\":\"selectTarget\",\"target\":\"selectedTarget\",\"targetKind\":\"otherLiving\"},",
                 string.Empty,
@@ -165,24 +169,16 @@ internal static class SkillProgramSelectedJudgmentChecks
         var targetSeat = targetPrompt.ValidTargetSeats.First(seat => seat != turnActorSeat);
         var beforeTarget = RoundTrip(game.CreateCheckpoint());
         var current = GameReplay.Restore(beforeTarget, registry);
-        var legacy = GameReplay.Restore(beforeTarget with { RulesVersion = 86 }, registry);
         SubmitTarget(current, targetSeat);
-        SubmitTarget(legacy, targetSeat);
 
         var currentCandidates = current.ResolutionStack.OfType<JudgmentFrame>().Single()
-            .ReplacementCandidateSeats ?? [];
-        var legacyCandidates = legacy.ResolutionStack.OfType<JudgmentFrame>().Single()
             .ReplacementCandidateSeats ?? [];
         var expectedCurrent = Enumerable.Range(0, 5)
             .Select(offset => (turnActorSeat + offset) % 5)
             .ToArray();
-        var expectedLegacy = Enumerable.Range(0, 5)
-            .Select(offset => (targetSeat + offset) % 5)
-            .ToArray();
         Require(targetSeat != turnActorSeat &&
-                currentCandidates.SequenceEqual(expectedCurrent) &&
-                legacyCandidates.SequenceEqual(expectedLegacy),
-            "Rules 87 must order frozen replacement candidates from the current turn actor while rules 86 retains the judgment-subject origin.");
+                currentCandidates.SequenceEqual(expectedCurrent),
+            "Current rules must order frozen replacement candidates from the current turn actor.");
 
         var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
         Require(replay.ResolutionStack.OfType<JudgmentFrame>().Single()

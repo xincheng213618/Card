@@ -9,11 +9,7 @@ public sealed partial class GameEngine
     private XianzhenResolution? _pendingXianzhen;
 
     private bool UsesFormalGaoShun =>
-        _rulesVersion >= 105 &&
-        IsClassicIdentityMode &&
-        _contentRegistry?.Packages.Any(package =>
-            package.Id == "standard-classic-generals" &&
-            package.Version >= new Version(1, 83, 0)) == true;
+        HasClassicGeneralPackage(new Version(1, 83, 0));
 
     private static string GetXianzhenWinUsageId(int targetSeat) =>
         $"{XianzhenWinUsagePrefix}{targetSeat}";

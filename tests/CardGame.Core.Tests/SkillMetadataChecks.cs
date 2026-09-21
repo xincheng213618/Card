@@ -666,9 +666,6 @@ internal static class SkillMetadataChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "A completed rules v96 Niepan use must restore from its accepted command prefix.");
 
-        var legacy = GameReplay.Restore(checkpoint with { RulesVersion = 95 }, registry);
-        Require(GetStructuredNiepanUsage(legacy) == 0 && HasLegacyNiepanUsage(legacy),
-            "Rules v95 must replay the same accepted command through its historical limited-skill set.");
     }
 
     private static void Require(bool value, string message)

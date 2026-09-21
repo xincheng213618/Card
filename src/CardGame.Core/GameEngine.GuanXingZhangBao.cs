@@ -9,11 +9,7 @@ public sealed partial class GameEngine
     private const string FuhunViewAsBindingId = "two-hand-cards-as-slash";
 
     private bool UsesFormalGuanXingZhangBao =>
-        _rulesVersion >= 111 &&
-        IsClassicIdentityMode &&
-        _contentRegistry?.Packages.Any(package =>
-            package.Id == "standard-classic-generals" &&
-            package.Version >= new Version(1, 89, 0)) == true;
+        HasClassicGeneralPackage(new Version(1, 89, 0));
 
     private CardConversionSource CreateFuhunConversionSource(PlayerRuntime owner) =>
         new(

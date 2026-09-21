@@ -10,8 +10,6 @@ internal static class WangYiChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 107,
-            "Formal Wang Yi must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 85, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 84, 0));
         Require(current.Packages.Any(package =>
@@ -80,18 +78,6 @@ internal static class WangYiChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)) == before,
             "A forged Zhenlie answer must be rejected atomically.");
 
-        var legacy = CreateGame(
-            fixture.Registry,
-            fixture.Seed,
-            ScenarioPackage.SlashModeId,
-            rulesVersion: 106);
-        Require(TryStartAndSelect(legacy),
-            "The selected Wang Yi seed must preserve its general candidate under rules v106.");
-        ReachHumanPlay(legacy, skipAdditionalZhenlie: false);
-        Require(legacy.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } &&
-                legacy.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp == 2 &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not ZhenlieResolvedEvent),
-            "Rules v106 must retain ordinary Slash damage with package 1.85.0 loaded.");
     }
 
     public static void ZhenlieSlashAndMijiDistributionReplay()
@@ -330,7 +316,7 @@ internal static class WangYiChecks
             if (game.PendingDecision is { Kind: DecisionKind.Zhenlie, PlayerSeat: HumanSeat })
             {
                 Require(skipAdditionalZhenlie,
-                    "Rules v106 unexpectedly exposed a Zhenlie prompt.");
+                    "The fixture unexpectedly exposed an additional Zhenlie prompt.");
                 Answer(game, DecisionKind.Zhenlie, "zhenlie-skip");
                 continue;
             }

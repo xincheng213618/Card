@@ -333,10 +333,9 @@ public sealed class SkillProgramCatalog
             if (schemaVersion >= 8 && skill.TryGetProperty("minimumRulesVersion", out _))
             {
                 skillMinimumRulesVersion = RequiredInt(skill, "minimumRulesVersion", skillPath);
-                if (skillMinimumRulesVersion < minimumRulesVersion ||
-                    skillMinimumRulesVersion > GameCheckpoint.CurrentRulesVersion)
+                if (skillMinimumRulesVersion < minimumRulesVersion)
                     Fail(skillPath + ".minimumRulesVersion",
-                        $"must be from schema minimum {minimumRulesVersion} through current rules {GameCheckpoint.CurrentRulesVersion}");
+                        $"must be at least the schema minimum {minimumRulesVersion}");
             }
             var modifiers = ReadArray(skill, "modifiers", skillPath,
                 (node, modifierPath) => ParseModifier(node, modifierPath, schemaVersion), schemaVersion >= 2);

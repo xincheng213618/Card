@@ -138,27 +138,6 @@ internal static class IceSwordChecks
         Require(State(replayed) == State(used) && Events(replayed).SequenceEqual(Events(used)),
             "A completed Ice Sword prevention must replay exactly.");
 
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 46 },
-            registry);
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("Rules v46 Ice Sword fixture lost its play prompt.");
-        var legacyHp = legacy.CreateSnapshot(0, revealAll: true).Players
-            .Single(player => player.Seat == boundary.TargetSeat).Hp;
-        var legacyPlay = legacy.Submit(new PlayCardCommand(
-            0,
-            boundary.SlashAction.CardId!.Value,
-            boundary.SlashAction.TargetSeats,
-            legacy.Revision,
-            legacyPrompt.PromptId,
-            boundary.SlashAction.PlayedCardKind));
-        Require(legacyPlay.Accepted &&
-                legacy.PendingDecision?.Kind != DecisionKind.IceSword &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not IceSwordResolvedEvent) &&
-                legacy.CreateSnapshot(0, revealAll: true).Players
-                    .Single(player => player.Seat == boundary.TargetSeat).Hp < legacyHp,
-            legacyPlay.Error?.Message ??
-            "Rules v46 must retain ordinary Slash damage without Ice Sword.");
     }
 
     public static void AiUsesPrivateOpaqueChoices()

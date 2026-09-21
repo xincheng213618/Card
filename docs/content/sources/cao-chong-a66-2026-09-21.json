@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:cao-chong",
+  "acceptedAt": "2026-09-21T21:30:00+08:00",
+  "scope": "P1-A66 complete classic Cao Chong, Chengxiang and Renxin runtime, AI, WPF presentation and official portrait",
+  "selectedVersion": "一将成名官网当前经典曹冲（魏3体力，称象、仁心）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/310.html",
+      "use": "一将成名官方武将页冻结当前经典曹冲、称象与仁心文本，并提供经典静态大图入口。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20150626_2305_2917",
+      "use": "官方攻略用于交叉核对当前经典称象与仁心的触发时点、牌点数上限和防止伤害流程。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20140422_7718_0829",
+      "use": "官方调整公告用于识别历史版本差异并确认本包不采用调整前的旧文本。"
+    }
+  ],
+  "ruleText": {
+    "chengxiang": "每当你受到伤害后，你可以亮出牌堆顶的四张牌。若如此做，你获得其中任意张点数之和小于等于13的牌，然后将其余的牌置入弃牌堆。",
+    "renxin": "每当体力值为1的一名其他角色受到伤害时，你可以翻面并弃置一张装备牌。若如此做，防止此伤害。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.94.0",
+    "rulesVersion": 101,
+    "generalId": "classic:cao-chong",
+    "skillIds": [
+      "classic:chengxiang",
+      "classic:renxin"
+    ],
+    "skillMetadata": {
+      "chengxiang": "Trigger",
+      "renxin": "Trigger"
+    },
+    "chengxiangInteraction": "after each damage instance the owner first receives a private use-or-skip prompt; use reveals up to four physical draw-pile cards publicly, then publishes every exact subset whose rank sum is at most 13, moves that subset to hand and discards the remainder",
+    "renxinInteraction": "before damage would be applied to another living character at exactly 1 HP, eligible owners are frozen in deterministic relative-seat order; use discards one exact equipment-category card from hand or equipment, toggles the owner face state and prevents the whole pending damage instance",
+    "damageCoverage": "Renxin is evaluated before ordinary card or skill damage and before the separately nested Ganglie counter-damage path",
+    "aiPolicy": "Chengxiang chooses a legal subset by greatest card count then greatest rank sum; Renxin saves a 1-HP target with the first deterministic equipment-category card",
+    "auditEvents": [
+      "ChengxiangResolvedEvent",
+      "RenxinResolvedEvent",
+      "CardMovedEvent",
+      "DamagePreventedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.93.0",
+    "rulesVersionChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "accepted commands reconstruct paused Chengxiang activation and subset selection, paused Renxin equipment selection, public reveal state, exact movements and completed event history under rules v101",
+    "legacyPolicy": "package 1.93.0 retains the complete Han Dang roster without Cao Chong; package signature and content hash provide the new-content boundary"
+  },
+  "portrait": {
+    "resourceKey": "cao_chong",
+    "localPath": "src/CardGame.Wpf/Assets/official-cao-chong.png",
+    "sourcePage": "https://x.sanguosha.com/hero/310.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/131001.png",
+    "remoteHeadStatus": 200,
+    "remoteContentType": "image/png",
+    "remoteContentLength": 168433,
+    "sha256": "64A4E9C7FF9583A3E7633199A2FF67F9F161587A04DC08890A6DD646800E0E03",
+    "bytes": 168433,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Cao Chong artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "isolatedBuildCommand": "dotnet build CardGame.sln -c Release --artifacts-path <isolated-temp> --no-restore",
+    "isolatedBuildWarnings": 0,
+    "isolatedBuildErrors": 0,
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release -- --only-cao-chong",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "fullCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll",
+    "fullCorePassed": 338,
+    "fullCoreTotal": 338,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release -- --only-cao-chong <render-dir>",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "fullWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll <render-dir>",
+    "fullWpfPassed": 99,
+    "fullWpfTotal": 99,
+    "visualReview": "219 through 221 at 1120x740 inspected: card, public Chengxiang reveal and private Renxin prevention prompt are readable without clipping or overlap",
+    "assertions": [
+      "package 1.94.0 publishes complete Cao Chong while package 1.93.0 retains its prior Han Dang boundary",
+      "Chengxiang exposes only legal exact subsets whose rank sum is at most 13 and accounts for every revealed physical card",
+      "Renxin accepts equipment-category cards from hand or equipment, toggles face state and prevents the entire pending damage instance",
+      "ordinary damage and nested Ganglie counter-damage both enter the Renxin prevention window",
+      "paused and completed continuations replay with exact prompts, movements, public reveals, events and legal actions",
+      "WPF exposes both metadata axes, public revealed cards, private exact costs, target context and battle cues",
+      "the pre-existing Tieqi WPF fixture now excludes targets whose Zhenlie or Liuli could legitimately replace the intended response window"
+    ]
+  },
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI acceptance",
+    "physical multiplayer host and remote-client acceptance"
+  ]
+}

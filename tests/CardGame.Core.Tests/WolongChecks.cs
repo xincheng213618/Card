@@ -18,9 +18,6 @@ internal static class WolongChecks
                     card.Id == id && card.Kind != CardKind.FireAttack && card.Suit is Suit.Heart or Suit.Diamond));
             if (huoji is null) continue;
             var physicalId = huoji.CardId!.Value;
-            var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 61 }, registry);
-            Require(!legacy.GetHumanLegalActions().Any(action => action.CardId == physicalId && action.PlayedCardKind == CardKind.FireAttack),
-                "Rules v61 must not expose Huoji conversions.");
             var used = game.Submit(new PlayCardCommand(0, physicalId, huoji.TargetSeats, game.Revision,
                 play.PromptId, CardKind.FireAttack));
             Require(used.Accepted, used.Error?.Message ?? "Huoji conversion was rejected.");

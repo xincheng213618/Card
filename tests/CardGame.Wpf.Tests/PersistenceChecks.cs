@@ -84,15 +84,14 @@ internal static class PersistenceChecks
         oldJson["Checkpoint"]!.AsObject().Remove("RulesVersion");
         File.WriteAllText(legacyPath, oldJson.ToJsonString());
         using var resumedLegacy = Create(store, showSetup: true);
+        var stateBeforeRejectedLoad = State(resumedLegacy);
+        var oldFileText = File.ReadAllText(legacyPath);
         resumedLegacy.LoadManualGameCommand.Execute(null);
-        Require(!resumedLegacy.HasSaveError && Engine(resumedLegacy).CreateCheckpoint().Options.AiPolicyVersion == 1,
-            "UI must retain legacy AI when a real JSON file has no policy field.");
-        Require(State(resumedLegacy) == SnapshotJson.Serialize(legacy.CreateSnapshot(0, true)), "Legacy JSON changed during UI load.");
-        Step(resumedLegacy);
-        resumedLegacy.SaveGameCommand.Execute(null);
-        Require(store.Read(GameSaveSlot.Manual).Checkpoint.Options.AiPolicyVersion == 1 &&
-            store.Read(GameSaveSlot.Manual).Checkpoint.RulesVersion == 1,
-            "Re-saving an old game must not silently upgrade its AI or rules event semantics.");
+        Require(resumedLegacy.HasSaveError &&
+                Engine(resumedLegacy).RulesVersion == GameCheckpoint.CurrentRulesVersion &&
+                State(resumedLegacy) == stateBeforeRejectedLoad &&
+                File.ReadAllText(legacyPath) == oldFileText,
+            "The exact-rules loader accepted a JSON save without a rules marker, changed the active game, or rewrote the protected file.");
         resumedLegacy.StartNewGameCommand.Execute(null);
         Require(Engine(resumedLegacy).CreateCheckpoint().Options.AiPolicyVersion == 3, "Starting another game should opt into the current public-evidence AI.");
     }

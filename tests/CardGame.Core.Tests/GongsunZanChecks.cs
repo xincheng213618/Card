@@ -14,10 +14,6 @@ internal static class GongsunZanChecks
                 game.GetCombatDistance(2, 0) == 2,
             "Healthy Yicong must reduce only Gongsun Zan's outgoing distance by one.");
 
-        var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 70 }, registry);
-        Require(legacy.GetCombatDistance(0, 2) == 2 && legacy.GetCombatDistance(2, 0) == 2,
-            "Rules v70 must preserve the pre-Yicong distance calculation.");
-
         SetHp(game, 0, 2);
         Require(game.GetCombatDistance(0, 2) == 2 && game.GetCombatDistance(2, 0) == 3,
             "At two HP, Yicong must stop its outgoing reduction and increase incoming distance by one.");

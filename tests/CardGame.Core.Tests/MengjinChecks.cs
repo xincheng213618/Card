@@ -92,19 +92,6 @@ internal static class MengjinChecks
         Require(State(replayed) == State(used) && Events(replayed).SequenceEqual(Events(used)),
             "A completed Mengjin use must replay exactly.");
 
-        var legacy = GameReplay.Restore(RoundTrip(boundary.BeforeSlash) with { RulesVersion = 58 }, registry);
-        var legacyPrompt = legacy.PendingDecision!;
-        var legacyPlay = legacy.Submit(new PlayCardCommand(
-            boundary.SourceSeat,
-            boundary.SlashAction.CardId!.Value,
-            boundary.SlashAction.TargetSeats,
-            legacy.Revision,
-            legacyPrompt.PromptId,
-            boundary.SlashAction.PlayedCardKind));
-        Require(legacyPlay.Accepted &&
-                legacy.PendingDecision?.Kind != DecisionKind.Mengjin &&
-                legacy.Events.All(item => item.Payload is not MengjinResolvedEvent),
-            legacyPlay.Error?.Message ?? "Rules v58 must retain the pre-Mengjin Slash response path.");
     }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

@@ -8,10 +8,6 @@ internal static class TianyiChecks
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 49, 0));
         var win = Find(registry, sourceWins: true, requireSlash: true);
-        var legacy = GameReplay.Restore(win.BeforeUse with { RulesVersion = 63 }, registry);
-        Require(legacy.GetHumanLegalActions().All(action => action.Skill != SkillKind.Tianyi),
-            "Rules v63 must not expose Tianyi.");
-
         var winEvent = win.Game.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>().Last();
         var actions = win.Game.GetHumanLegalActions();
         Require(winEvent is { Skill: SkillKind.Tianyi, InitiatorWon: true } &&

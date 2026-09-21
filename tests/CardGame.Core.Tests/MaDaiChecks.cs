@@ -9,8 +9,6 @@ internal static class MaDaiChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 104,
-            "Formal Qianxi must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 82, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
         Require(current.Packages.Any(package =>
@@ -74,12 +72,6 @@ internal static class MaDaiChecks
                 QianxiUsages(game).Count == 0,
             "Skipping Qianxi must continue with the normal draw and create no turn restriction.");
 
-        var legacy = CreateGame(fixture.Registry, fixture.Seed, rulesVersion: 103);
-        StartAndSelect(legacy);
-        ReachHumanPlay(legacy);
-        Require(legacy.Events.Select(item => item.Payload).All(item => item is not QianxiResolvedEvent) &&
-                legacy.PendingDecision?.Kind != DecisionKind.Qianxi,
-            "Rules v103 must preserve the pre-Qianxi path even with package 1.82.0 content.");
     }
 
     public static void RedRestrictionFiltersHandResponsesAndReplays() =>

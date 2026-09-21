@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:han-dang",
+  "acceptedAt": "2026-09-21T19:37:41+08:00",
+  "scope": "P1-A65 complete classic Han Dang, Gongqi and Jiefan runtime, AI, WPF presentation and official portrait",
+  "selectedVersion": "一将成名官网经典韩当（吴4体力，弓骑、解烦）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/304.html",
+      "use": "一将成名官方武将页冻结经典韩当、弓骑和解烦文本，并提供经典静态大图入口。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/170",
+      "use": "三国杀 OL 官方韩当页用于核对武将身份、势力与技能名称。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161110_8825_5718",
+      "use": "官方历史攻略用于交叉核对经典弓骑与解烦的实际选择流程。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20210412_5205_3310",
+      "use": "官方调整公告明确列出调整前技能文本，用于排除后续改版并锁定本包采用的经典版本。"
+    }
+  ],
+  "ruleText": {
+    "gongqi": "出牌阶段限一次，你可以弃置一张牌使你本回合的攻击范围无限。若弃置的为装备牌，你可以弃置一名其他角色的一张牌。",
+    "jiefan": "限定技，出牌阶段，你可以选择一名角色，令能攻击到该角色的所有角色选择一项：1.弃置一张武器牌；2.令该角色摸一张牌。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.93.0",
+    "rulesVersion": 101,
+    "generalId": "classic:han-dang",
+    "skillIds": [
+      "classic:gongqi",
+      "classic:jiefan"
+    ],
+    "skillMetadata": {
+      "gongqi": "Active + State",
+      "jiefan": "Active + Limited"
+    },
+    "gongqiInteraction": "one exact owned hand or equipment card is discarded; the turn-scoped range usage is consumed immediately; an equipment-category cost publishes one private optional target-card prompt with opaque hand slots, public equipment and skip",
+    "jiefanInteraction": "the game-scoped limited use is consumed at declaration; every living non-beneficiary currently able to attack the beneficiary is frozen in owner-relative seat order and must either discard an equipped weapon or let the beneficiary draw one card",
+    "aiPolicy": "Gongqi target-card continuation uses only public relationship, target and equipment information while hand slots stay opaque; Jiefan responses compare public relationship against the public weapon cost",
+    "auditEvents": [
+      "SkillUsageConsumedEvent",
+      "GongqiResolvedEvent",
+      "JiefanStartedEvent",
+      "JiefanChoiceResolvedEvent",
+      "ActiveSkillResolvedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.92.0",
+    "rulesVersionChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "accepted commands reconstruct paused Gongqi opaque-card selection, paused Jiefan responder choices, turn/game usage ledgers, movements and completed event history under rules v101",
+    "legacyPolicy": "package 1.92.0 retains the complete Cheng Pu roster without Han Dang; package signature and content hash provide the new-content boundary"
+  },
+  "portrait": {
+    "resourceKey": "han_dang",
+    "localPath": "src/CardGame.Wpf/Assets/official-han-dang.png",
+    "sourcePage": "https://x.sanguosha.com/hero/304.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130401.png",
+    "remoteHeadStatus": 200,
+    "remoteContentType": "image/png",
+    "remoteContentLength": 224033,
+    "sha256": "6D7753D00C1040E97C4FFA3D3A6E856BD7089C40CED5599E5DF3F6AA156A506D",
+    "bytes": 224033,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Han Dang artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "isolatedBuildCommand": "dotnet build CardGame.sln -c Release --artifacts-path <isolated-temp>",
+    "isolatedBuildWarnings": 0,
+    "isolatedBuildErrors": 0,
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release -- --only-han-dang",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "fullCoreCommand": "dotnet <isolated-temp>/bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll",
+    "fullCorePassed": 335,
+    "fullCoreTotal": 335,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release -- --only-han-dang <render-dir>",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "fullWpfCommand": "dotnet <isolated-temp>/bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll <render-dir>",
+    "fullWpfPassed": 98,
+    "fullWpfTotal": 98,
+    "visualReview": "216 through 218 at 1120x740 inspected: card, private Gongqi card selection and mandatory Jiefan response are readable without clipping or overlap",
+    "assertions": [
+      "package 1.93.0 publishes complete Han Dang while package 1.92.0 retains its prior content boundary",
+      "Gongqi recognizes equipment cards from hand or equipment, grants unlimited range immediately and exposes other hands only as opaque slots",
+      "Jiefan freezes responders using activation-time distance and range, excludes the beneficiary and consumes its game-limited use",
+      "Gongqi unlimited range can add Han Dang to Jiefan's frozen responder set",
+      "paused and completed continuations replay with exact movements, events and legal actions",
+      "WPF exposes both metadata axes, private choices, target context and public battle cues"
+    ]
+  },
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI acceptance",
+    "physical multiplayer host and remote-client acceptance"
+  ]
+}

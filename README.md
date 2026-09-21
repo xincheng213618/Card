@@ -137,9 +137,11 @@ dotnet run --project .\tests\CardGame.Core.Tests\CardGame.Core.Tests.csproj -c R
 
 规划和设计文档：
 
+- [`docs/CONTENT_MODULE_ARCHITECTURE.md`](docs/CONTENT_MODULE_ARCHITECTURE.md)：新增技能的职责边界、独立 C# 阶段模块、精策／闭月试点及后续结算拆分顺序；
 - [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md)：总路线、核心/内容分工和阶段门槛；
 - [`docs/CORE_CONTROL_DESIGN.md`](docs/CORE_CONTROL_DESIGN.md)：命令、询问、结算栈、牌区、事件和投影契约；
 - [`docs/SKILL_COMPOSITION_DESIGN.md`](docs/SKILL_COMPOSITION_DESIGN.md)：技能组合重构设计、独立描述、配置示例和分阶段迁移验收；当前已有可运行 v1 薄切片，完整触发／判定／死亡模型仍在后续阶段；
+- [`docs/DEVELOPMENT_GATES.md`](docs/DEVELOPMENT_GATES.md)：内容包版本、技能能力检查与全局回放规则版本的边界；新增内容不再重复抬高 `RulesVersion`；
 - [`docs/content/BWIKI_REFERENCE_DATA.md`](docs/content/BWIKI_REFERENCE_DATA.md)：武将／技能参考资料的实际抓取范围、版本记录、缺项和刷新命令；
 - [`docs/content/BWIKI_CONTENT_BACKLOG.md`](docs/content/BWIKI_CONTENT_BACKLOG.md)：持续迭代任务负责的武将版本、通用能力需求与逐批验收清单；
 - [`docs/MODES_AND_RULESETS.md`](docs/MODES_AND_RULESETS.md)：选将、发牌、5/8 人身份、2v2 和国战拆分；

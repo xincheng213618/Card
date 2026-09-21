@@ -99,7 +99,6 @@ internal static class FangtianHalberdChecks
             "A completed multi-target Fangtian Slash must replay exactly.");
 
         VerifySequentialDodgeBoundary();
-        VerifyRules48Boundary(boundary, action);
     }
 
     private static void VerifySequentialDodgeBoundary()
@@ -175,42 +174,6 @@ internal static class FangtianHalberdChecks
         var replayed = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), boundary.Registry);
         Require(State(replayed) == State(game) && Events(replayed).SequenceEqual(Events(game)),
             "A Fangtian Slash with per-target responses must replay exactly.");
-    }
-
-    private static void VerifyRules48Boundary(
-        FangtianHalberdBoundary boundary,
-        LegalAction formalAction)
-    {
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 48 },
-            boundary.Registry);
-        var legacyActions = legacy.GetHumanLegalActions()
-            .Where(action => action.Kind == LegalActionKind.Slash && action.CardId == boundary.Slash.Id)
-            .ToArray();
-        Require(legacyActions.Length == 4 && legacyActions.All(action => action.TargetSeats.Count == 1),
-            "Rules v48 must not publish Fangtian multi-target Slash choices.");
-
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("Rules v48 Fangtian fixture lost its play prompt.");
-        var forged = legacy.Submit(new PlayCardCommand(
-            0,
-            boundary.Slash.Id,
-            formalAction.TargetSeats,
-            legacy.Revision,
-            legacyPrompt.PromptId));
-        Require(!forged.Accepted,
-            "Rules v48 must reject a forged multi-target Fangtian command.");
-
-        var single = legacyActions[0];
-        var played = legacy.Submit(new PlayCardCommand(
-            0,
-            boundary.Slash.Id,
-            single.TargetSeats,
-            legacy.Revision,
-            legacy.PendingDecision!.PromptId));
-        Require(played.Accepted &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not FangtianHalberdUsedEvent),
-            played.Error?.Message ?? "Rules v48 must retain an ordinary single-target Slash.");
     }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

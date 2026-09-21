@@ -3,7 +3,7 @@ using CardGame.Core;
 
 internal static class FireAttackFormalChecks
 {
-    public static void SelfTargetAndLegacy()
+    public static void SelfTargetAndReplay()
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 19,
             "Formal FireAttack requires rules version 19 or newer.");
@@ -11,23 +11,14 @@ internal static class FireAttackFormalChecks
         var fixture = FindSelfTargetFixture(registry);
         var formal = fixture.Game;
         var fireAttackId = fixture.CardId;
-        var legacy = CreateStartedGame(fixture.Seed, registry, rulesVersion: 18);
-
         Require(formal.GetHumanLegalActions().Any(action =>
                 action.Kind == LegalActionKind.FireAttack &&
                 action.CardId == fireAttackId &&
                 action.TargetSeat == 0),
-            "Rules v19 did not expose the formal self-target FireAttack action.");
-        Require(!legacy.GetHumanLegalActions().Any(action =>
-                action.Kind == LegalActionKind.FireAttack &&
-                action.CardId == fireAttackId &&
-                action.TargetSeat == 0),
-            "Rules v18 must retain the historical other-player-only FireAttack targeting.");
+            "Current rules did not expose the formal self-target FireAttack action.");
 
         formal = ResolveFormalSelfTarget(formal, fireAttackId, registry);
-        ResolveLegacyOtherTarget(legacy, fireAttackId);
         AssertReplay(formal, registry);
-        AssertReplay(legacy, registry);
     }
 
     private static (GameEngine Game, int Seed, int CardId) FindSelfTargetFixture(ContentRegistry registry)
@@ -153,60 +144,6 @@ internal static class FireAttackFormalChecks
         return game;
     }
 
-    private static void ResolveLegacyOtherTarget(GameEngine game, int fireAttackId)
-    {
-        var action = game.GetHumanLegalActions().First(candidate =>
-            candidate.Kind == LegalActionKind.FireAttack &&
-            candidate.CardId == fireAttackId &&
-            candidate.TargetSeat is not null and not 0);
-        Require(Play(game, action).Accepted, "Legacy non-self FireAttack was rejected.");
-
-        for (var step = 0; step < 80 && game.ResolutionStack.Count > 0; step++)
-        {
-            if (game.PendingDecision is { } prompt)
-            {
-                Require(prompt.PlayerSeat == 0, "Legacy FireAttack unexpectedly paused for another human seat.");
-                var response = prompt.Kind switch
-                {
-                    DecisionKind.Nullification => "pass",
-                    DecisionKind.FireAttackDiscard => "fire-attack-skip",
-                    _ => throw new InvalidOperationException($"Unexpected legacy FireAttack prompt {prompt.Kind}.")
-                };
-                var choice = prompt.Choices.Single(candidate =>
-                    candidate.Parameters.GetValueOrDefault("response") == response);
-                Require(game.Submit(new AnswerPromptCommand(
-                    0,
-                    prompt.PromptId,
-                    choice.Id,
-                    game.Revision)).Accepted,
-                    "Legacy FireAttack continuation was rejected.");
-            }
-            else
-            {
-                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                    "Legacy FireAttack step was rejected.");
-            }
-        }
-
-        var revealed = game.Events.Select(item => item.Payload).OfType<FireAttackCardRevealedEvent>().Single();
-        Require(game.CardMovements.Any(movement =>
-                movement.CardId == revealed.CardId &&
-                movement.From == CardLocation.Hand(action.TargetSeat!.Value) &&
-                movement.To == CardLocation.Processing &&
-                movement.Reason == CardMoveReasons.FireAttackReveal),
-            "Rules v18 did not preserve the historical reveal-to-processing movement.");
-        Require(game.CardMovements.Any(movement =>
-                movement.CardId == revealed.CardId &&
-                movement.From == CardLocation.Processing &&
-                movement.To == CardLocation.DiscardPile &&
-                movement.Reason == CardMoveReasons.FireAttackFinished),
-            "Rules v18 did not preserve the historical revealed-card discard.");
-        Require(game.State.ProcessingCardCount == 0 && game.ResolutionStack.Count == 0,
-            "Legacy FireAttack left a stranded card or resolution frame.");
-        Require(game.CreateCardZoneDiagnostics().Count == 90,
-            "Legacy FireAttack lost a physical card.");
-    }
-
     private static CommandResult Play(GameEngine game, LegalAction action) => game.Submit(new PlayCardCommand(
         ActorSeat: 0,
         CardId: action.CardId!.Value,
@@ -256,8 +193,8 @@ internal static class FireAttackFormalChecks
                 AiPolicyVersion = 2
             },
             registry);
-        if (rulesVersion != GameCheckpoint.CurrentRulesVersion)
-            game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        Require(rulesVersion == GameCheckpoint.CurrentRulesVersion,
+            "FireAttack fixtures must use the current development rules version.");
         Require(game.Submit(new StartGameCommand()).Accepted, "FireAttack fixture failed to start.");
         return game;
     }

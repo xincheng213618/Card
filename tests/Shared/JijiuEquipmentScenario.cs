@@ -85,7 +85,6 @@ internal static class JijiuEquipmentScenario
                     try
                     {
                         _ = GameReplay.Restore(game.CreateCheckpoint(), registry);
-                        _ = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 40 }, registry);
                         return game;
                     }
                     catch (InvalidOperationException)

@@ -230,9 +230,16 @@ public sealed partial class MainViewModel
         }
         else if (prompt is not null)
         {
-            (CurrentGuideTitle, steps) = prompt.Kind switch
+            if (prompt.SkillPrompt is { } skillPrompt)
             {
-                DecisionKind.RespondDodge when prompt.Choices.Any(choice =>
+                CurrentGuideTitle = skillPrompt.Title;
+                steps = [skillPrompt.Instructions];
+            }
+            else
+            {
+                (CurrentGuideTitle, steps) = prompt.Kind switch
+                {
+                    DecisionKind.RespondDodge when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("response") == "hujia-request") => ("决定是否发动护驾", new[] { "发动后，会按当前行动顺序依次询问其他存活的魏势力角色。", "若无人代出闪，你仍可使用自己的闪或八卦阵，也可以放弃响应。" }),
                 DecisionKind.RespondDodge when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("response") is "hujia-dodge" or "hujia-bagua") => ("响应曹操的护驾", new[] { "你可以打出自己的闪，或发动自己的八卦阵；成功后视为曹操打出闪。", "也可以拒绝，系统会继续询问下一名魏势力角色。" }),
@@ -268,8 +275,20 @@ public sealed partial class MainViewModel
                 DecisionKind.Zhiyu when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("action") == "zhiyu-use") => ("决定是否发动智愚", new[] { "受到伤害后可摸一张牌，再公开展示此时的全部手牌。", "若展示牌均为红色或均为黑色，伤害来源必须从自己的手牌中选择一张弃置。" }),
                 DecisionKind.Zhiyu => ("为智愚弃置一张手牌", new[] { "荀攸展示的全部手牌颜色相同，你是本次伤害来源，必须弃置一张自己的手牌。", "候选只在你的私有视图中显示；选择后继续原伤害结算链。" }),
+                DecisionKind.Yuce when prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "yuce-use") => ("决定是否发动御策", new[] { "受到伤害后，可以从自己的手牌中选择一张公开展示。", "伤害来源若不弃置一张不同类别的手牌，你回复1点体力。" }),
+                DecisionKind.Yuce => ("响应御策的类别挑战", new[] { "中央公开展示的是满宠选择的手牌；候选只列出你手中类别不同的牌。", "也可以不弃置，让满宠回复1点体力。" }),
+                DecisionKind.Longyin => ("决定是否发动龙吟", new[] { "一名角色在其出牌阶段使用了杀；可以弃置自己的一张手牌或装备，令此杀不计入次数限制。", "若这张杀的全部实体牌均为红色，发动后再摸一张牌；也可以跳过并保留牌。" }),
                 DecisionKind.Anxu => ("为安恤选择一张暗手牌", new[] { "你是两名目标中手牌较少的一方；中央每个按钮只代表手牌较多者的一个不透明牌位，不会提前显示牌面。", "取得后该牌会公开展示；展示时按你的有效花色结算，例如小乔获得黑桃牌后会因红颜视为红桃。" }),
+                DecisionKind.Junxing => ("响应峻刑", new[] { "可以弃置一张类别与满宠本次全部代价牌均不同的手牌。", "也可以翻面，然后摸与其代价牌数量相同的牌；中央候选已经过滤非法类别。" }),
                 DecisionKind.ZhuiyiTarget => ("决定是否发动追忆", new[] { "步练师已经死亡；中央只列出除实际击杀者外的其他存活角色，也可以选择不发动。", "目标先摸三张牌，再回复1点体力；满体力角色仍可成为目标，只会摸牌。" }),
+                DecisionKind.Chunlao => ("选择醇醪的“醇”", new[] { "结束阶段且武将牌上没有“醇”时，可以依次选择至少一张【杀】。", "选中后点击完成，全部所选【杀】会公开置于武将牌上；未选牌时可以跳过。" }),
+                DecisionKind.Gongqi => ("处理弓骑的装备牌追加效果", new[] { "弓骑的弃牌代价已经支付，本回合攻击范围已变为无限。", "若代价是装备牌，可弃置一名其他角色的一张牌；暗手牌只显示不透明牌位，也可以跳过。" }),
+                DecisionKind.Jiefan => ("响应解烦", new[] { "你在技能发动时能攻击到受益角色，因此必须选择一项。", "有武器时可以弃置一张武器；否则或不想弃置时，令受益角色摸一张牌。" }),
+                DecisionKind.Chengxiang when prompt.ValidCardIds.Count == 0 => ("决定是否发动称象", new[] { "受到伤害后，你可以公开亮出牌堆顶四张牌。", "发动后还会出现一次选牌：所选牌的点数之和不能超过13。" }),
+                DecisionKind.Chengxiang => ("为称象选择获得牌", new[] { "中央展示的是本次公开亮出的四张实体牌。", "选择一个点数和不超过13的组合；其余牌会置入弃牌堆。" }),
+                DecisionKind.Renxin => ("决定是否发动仁心", new[] { "另一名角色当前体力值为1且将受到伤害。", "你可以弃置手牌或装备区里的一张装备牌并翻面，防止这次全部伤害。" }),
+                DecisionKind.Jingce => ("决定是否发动精策", new[] { "出牌阶段已经结束；中央提示会显示本回合累计使用牌数和你此时的当前体力。", "用牌数不少于当前体力时，可以发动并摸两张牌；跳过后直接继续弃牌阶段。" }),
                 DecisionKind.Qianxi => ("处理潜袭", new[] { "先决定是否发动；发动后摸一张，再从自己的手牌或装备中弃置一张。", "最后选择距离为 1 的其他角色；其本回合不能使用或打出与弃牌同色的手牌，但装备区和木牛流马中的牌不受此限制。" }),
                 DecisionKind.Tiandu => ("决定是否发动天妒", new[] { "判定结果已经生效；发动后，公开判定牌会进入你的手牌。", "也可以跳过，让判定牌按通常流程进入弃牌堆。" }),
                 DecisionKind.Fanjian => ("为反间选择一种花色", new[] { "先选择黑桃、红桃、梅花或方块；此时周瑜的随机手牌尚未公开。", "你会获得并展示那张牌；若它与所选花色不同，周瑜对你造成 1 点普通伤害。" }),
@@ -298,8 +317,9 @@ public sealed partial class MainViewModel
                 DecisionKind.XianzhenPindian => ("选择陷阵拼点牌", new[] { "双方各自私下选择一张手牌，提交后同时公开点数并弃置。", "严格大于对方才算赢；获胜后本回合仅对该角色使用牌无距离限制、对其使用杀不计次数且无视防具，未赢则本回合不能使用杀。" }),
                 DecisionKind.WuhunTarget => ("选择武魂判定目标", new[] { "武魂拥有者已经死亡；中央只列出其来源账本中梦魇标记数最多的存活角色，若并列则由拥有者选择。", "选中角色进行判定：桃或桃园结义不会令其死亡，其他牌名会令其直接死亡，不能进入求桃流程。" }),
                 DecisionKind.ZhuqueFan => ("决定是否发动朱雀羽扇", new[] { "蜀势力角色已经为激将提供普通杀；现在由实际使用者决定牌名。", "改为火杀会造成火焰伤害，并可能沿公开的连环状态传导；保持普通杀则没有属性传导。" }),
-                _ => ("处理当前技能选择", new[] { "先读中央说明，再选择发动、支付代价或跳过。", "中央的每个按钮都是完整选择，点击后立即执行。" })
-            };
+                    _ => ("处理当前技能选择", new[] { "先读中央说明，再选择发动、支付代价或跳过。", "中央的每个按钮都是完整选择，点击后立即执行。" })
+                };
+            }
             CurrentGuideBody = prompt.Prompt;
             if (IsHandResponsePending)
                 steps = [HandResponseHint, "点选手牌不会立即消耗；再次点击或按 Esc 可取消，关闭指南会保留选择。", .. steps];

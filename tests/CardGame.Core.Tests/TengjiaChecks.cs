@@ -18,15 +18,6 @@ internal static class TengjiaChecks
                     item.TargetSeat != boundary.TargetSeat || item.IncomingCard != CardKind.Slash),
             "Tengjia must make an ordinary Slash ineffective before opening a Dodge response.");
 
-        var legacy = GameReplay.Restore(RoundTrip(boundary.BeforeSlash) with { RulesVersion = 51 }, boundary.Registry);
-        var action = legacy.GetHumanLegalActions().Single(candidate =>
-            candidate.CardId == boundary.SlashAction.CardId && candidate.TargetSeat == boundary.TargetSeat);
-        result = legacy.Submit(new PlayCardCommand(boundary.SourceSeat, action.CardId!.Value, action.TargetSeats,
-            legacy.Revision, legacy.PendingDecision!.PromptId, action.PlayedCardKind));
-        Require(result.Accepted && legacy.Events.Select(item => item.Payload).All(item =>
-                item is not ArmorEffectAppliedEvent { ArmorCard: CardKind.Tengjia }),
-            "Rules v51 must preserve the pre-Tengjia armor behavior.");
-
         VerifyFireDamageIncrease();
     }
 

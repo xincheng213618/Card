@@ -102,16 +102,6 @@ internal static class SkillProgramCardIdentityChecks
                     .SequenceEqual(restoredAtPrompt.Events.Select(item => item.Payload.GetType().Name)),
             "A paused mandatory card-identity action did not replay exactly.");
 
-        try
-        {
-            _ = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()) with { RulesVersion = 93 }, registry);
-        }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains("require rules version 94", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-        throw new InvalidOperationException("Rules v93 must reject schema 10 card-identity content.");
     }
 
     private static void AdvanceToHumanPlay(GameEngine game)

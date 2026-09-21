@@ -15,14 +15,15 @@ public enum CardZoneKind
     WoodenOxGrain,
     BuquWound,
     Authority,
-    OutsideGame
+    OutsideGame,
+    Chunlao
 }
 
 public readonly record struct CardLocation
 {
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -60,6 +61,8 @@ public readonly record struct CardLocation
     public static CardLocation BuquWound(int seat) => new(CardZoneKind.BuquWound, seat);
 
     public static CardLocation Authority(int seat) => new(CardZoneKind.Authority, seat);
+
+    public static CardLocation Chunlao(int seat) => new(CardZoneKind.Chunlao, seat);
 
     public override string ToString() => OwnerSeat is { } seat ? $"{Zone}[{seat}]" : Zone.ToString();
 }
@@ -184,6 +187,24 @@ public static class CardMoveReasons
     public static CardMoveReason QuanjiDraw { get; } = new("skill.quanji.draw");
     public static CardMoveReason QuanjiStore { get; } = new("skill.quanji.store-authority");
     public static CardMoveReason AuthorityDeathDiscard { get; } = new("skill.quanji.death-discard");
+    public static CardMoveReason ChunlaoStore { get; } = new("skill.chunlao.store-chun");
+    public static CardMoveReason ChunlaoRescue { get; } = new("skill.chunlao.rescue");
+    public static CardMoveReason ChunlaoDeathDiscard { get; } = new("skill.chunlao.death-discard");
+    public static CardMoveReason GongqiCost { get; } = new("skill.gongqi.cost");
+    public static CardMoveReason GongqiDiscard { get; } = new("skill.gongqi.discard-target-card");
+    public static CardMoveReason ChengxiangReveal { get; } = new("skill.chengxiang.reveal");
+    public static CardMoveReason ChengxiangObtain { get; } = new("skill.chengxiang.obtain");
+    public static CardMoveReason ChengxiangDiscard { get; } = new("skill.chengxiang.discard");
+    public static CardMoveReason RenxinDiscard { get; } = new("skill.renxin.discard-equipment");
+    public static CardMoveReason JingceDraw { get; } = new("skill.jingce.draw");
+    public static CardMoveReason JunxingCost { get; } = new("skill.junxing.cost");
+    public static CardMoveReason JunxingDiscard { get; } = new("skill.junxing.discard-response");
+    public static CardMoveReason JunxingDraw { get; } = new("skill.junxing.draw");
+    public static CardMoveReason YuceDiscard { get; } = new("skill.yuce.discard-response");
+    public static CardMoveReason LongyinDiscard { get; } = new("skill.longyin.discard");
+    public static CardMoveReason LongyinDraw { get; } = new("skill.longyin.draw");
+    public static CardMoveReason JiefanWeaponDiscard { get; } = new("skill.jiefan.discard-weapon");
+    public static CardMoveReason JiefanDraw { get; } = new("skill.jiefan.draw");
     public static CardMoveReason PaiyiRemove { get; } = new("skill.paiyi.remove-authority");
     public static CardMoveReason PaiyiDraw { get; } = new("skill.paiyi.draw");
     public static CardMoveReason ZhiyuDraw { get; } = new("skill.zhiyu.draw");
@@ -254,6 +275,7 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.WoodenOxGrain(seat));
             AddZone(CardLocation.BuquWound(seat));
             AddZone(CardLocation.Authority(seat));
+            AddZone(CardLocation.Chunlao(seat));
         }
     }
 

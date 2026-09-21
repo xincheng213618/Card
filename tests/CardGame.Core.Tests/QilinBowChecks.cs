@@ -113,29 +113,6 @@ internal static class QilinBowChecks
                 Events(replayed).SequenceEqual(Events(used)),
             "A completed Qilin Bow use must replay exactly.");
 
-        var legacy = GameReplay.Restore(
-            RoundTrip(boundary.BeforeSlash) with { RulesVersion = 47 },
-            registry);
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("Rules v47 Qilin Bow fixture lost its play prompt.");
-        var legacyBefore = legacy.CreateSnapshot(boundary.SourceSeat, revealAll: true)
-            .Players[boundary.TargetSeat];
-        var legacyPlay = legacy.Submit(new PlayCardCommand(
-            boundary.SourceSeat,
-            boundary.SlashAction.CardId!.Value,
-            boundary.SlashAction.TargetSeats,
-            legacy.Revision,
-            legacyPrompt.PromptId,
-            boundary.SlashAction.PlayedCardKind));
-        var legacyAfter = legacy.CreateSnapshot(boundary.SourceSeat, revealAll: true)
-            .Players[boundary.TargetSeat];
-        Require(legacyPlay.Accepted &&
-                legacy.PendingDecision?.Kind != DecisionKind.QilinBow &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not QilinBowResolvedEvent) &&
-                legacyAfter.Hp < legacyBefore.Hp &&
-                currentMountIds.All(id => legacyAfter.Equipment.Any(card => card.Id == id)),
-            legacyPlay.Error?.Message ??
-            "Rules v47 must retain ordinary Slash damage without Qilin Bow.");
     }
 
     public static void AiUsesPublicMountChoices()

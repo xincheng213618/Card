@@ -51,111 +51,27 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ReadEmbeddedText(ClassicGaoShunPresentationResource)));
     private readonly Version _version;
 
+    public static Version CurrentVersion { get; } = new(1, 97, 0);
+
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 91, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : CurrentVersion)
     {
     }
 
     public StandardClassicGeneralPackage(Version version)
     {
         ArgumentNullException.ThrowIfNull(version);
-        if (version != new Version(1, 0, 0) &&
-            version != new Version(1, 1, 0) &&
-            version != new Version(1, 2, 0) &&
-            version != new Version(1, 3, 0) &&
-            version != new Version(1, 4, 0) &&
-            version != new Version(1, 5, 0) &&
-            version != new Version(1, 6, 0) &&
-            version != new Version(1, 7, 0) &&
-            version != new Version(1, 8, 0) &&
-            version != new Version(1, 9, 0) &&
-            version != new Version(1, 10, 0) &&
-            version != new Version(1, 11, 0) &&
-            version != new Version(1, 12, 0) &&
-            version != new Version(1, 13, 0) &&
-            version != new Version(1, 14, 0) &&
-            version != new Version(1, 15, 0) &&
-            version != new Version(1, 16, 0) &&
-            version != new Version(1, 17, 0) &&
-            version != new Version(1, 18, 0) &&
-            version != new Version(1, 19, 0) &&
-            version != new Version(1, 20, 0) &&
-            version != new Version(1, 21, 0) &&
-            version != new Version(1, 22, 0) &&
-            version != new Version(1, 23, 0) &&
-            version != new Version(1, 24, 0) &&
-            version != new Version(1, 25, 0) &&
-            version != new Version(1, 26, 0) &&
-            version != new Version(1, 27, 0) &&
-            version != new Version(1, 28, 0) &&
-            version != new Version(1, 29, 0) &&
-            version != new Version(1, 30, 0) &&
-            version != new Version(1, 31, 0) &&
-            version != new Version(1, 32, 0) &&
-            version != new Version(1, 33, 0) &&
-            version != new Version(1, 34, 0) &&
-            version != new Version(1, 35, 0) &&
-            version != new Version(1, 36, 0) &&
-            version != new Version(1, 37, 0) &&
-            version != new Version(1, 38, 0) &&
-            version != new Version(1, 39, 0) &&
-            version != new Version(1, 40, 0) &&
-            version != new Version(1, 41, 0) &&
-            version != new Version(1, 42, 0) &&
-            version != new Version(1, 43, 0) &&
-            version != new Version(1, 44, 0) &&
-            version != new Version(1, 45, 0) &&
-            version != new Version(1, 46, 0) &&
-            version != new Version(1, 47, 0) &&
-            version != new Version(1, 48, 0) &&
-            version != new Version(1, 49, 0) &&
-            version != new Version(1, 50, 0) &&
-            version != new Version(1, 51, 0) &&
-            version != new Version(1, 52, 0) &&
-            version != new Version(1, 53, 0) &&
-            version != new Version(1, 54, 0) &&
-            version != new Version(1, 55, 0) &&
-            version != new Version(1, 56, 0) &&
-            version != new Version(1, 57, 0) &&
-            version != new Version(1, 58, 0) &&
-            version != new Version(1, 59, 0) &&
-            version != new Version(1, 60, 0) &&
-            version != new Version(1, 61, 0) &&
-            version != new Version(1, 62, 0) &&
-            version != new Version(1, 63, 0) &&
-            version != new Version(1, 64, 0) &&
-            version != new Version(1, 65, 0) &&
-            version != new Version(1, 66, 0) &&
-            version != new Version(1, 67, 0) &&
-            version != new Version(1, 68, 0) &&
-            version != new Version(1, 69, 0) &&
-            version != new Version(1, 70, 0) &&
-            version != new Version(1, 71, 0) &&
-            version != new Version(1, 72, 0) &&
-            version != new Version(1, 73, 0) &&
-            version != new Version(1, 74, 0) &&
-            version != new Version(1, 75, 0) &&
-            version != new Version(1, 76, 0) &&
-            version != new Version(1, 77, 0) &&
-            version != new Version(1, 78, 0) &&
-            version != new Version(1, 79, 0) &&
-            version != new Version(1, 80, 0) &&
-            version != new Version(1, 81, 0) &&
-            version != new Version(1, 82, 0) &&
-            version != new Version(1, 83, 0) &&
-            version != new Version(1, 84, 0) &&
-            version != new Version(1, 85, 0) &&
-            version != new Version(1, 86, 0) &&
-            version != new Version(1, 87, 0) &&
-            version != new Version(1, 88, 0) &&
-            version != new Version(1, 89, 0) &&
-            version != new Version(1, 90, 0) &&
-            version != new Version(1, 91, 0))
+        var isSupportedDevelopmentVersion =
+            version.Major == CurrentVersion.Major &&
+            version.Minor <= CurrentVersion.Minor &&
+            version.Build == 0 &&
+            version.Revision < 0;
+        if (!isSupportedDevelopmentVersion)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.91.0.");
+                $"Supported classic-general package versions are 1.0.0 through {CurrentVersion}.");
         }
 
         _version = version;
@@ -772,6 +688,76 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillTag.None,
                 SkillExecutionForm.State));
         }
+        if (_version >= new Version(1, 92, 0))
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:chunlao",
+                "醇醪",
+                "结束阶段，若你没有“醇”，你可以将至少一张【杀】置于武将牌上，称为“醇”；每当一名角色处于濒死状态时，你可以将一张“醇”置入弃牌堆，令其视为使用【酒】。同一次濒死限发动一次。",
+                SkillKind.Chunlao)));
+        }
+        if (_version >= new Version(1, 93, 0))
+        {
+            builder.AddSkill(WithActiveActionMetadata(
+                WithContinuousStateMetadata(new ContentSkillDefinition(
+                    "classic:gongqi",
+                    "弓骑",
+                    "出牌阶段限一次，你可以弃置一张牌使你本回合的攻击范围无限。若弃置的为装备牌，你可以弃置一名其他角色的一张牌。",
+                    SkillKind.Gongqi)),
+                new Version(1, 93, 0)));
+            builder.AddSkill(WithActiveActionMetadata(
+                WithStructuredSkillMetadata(new ContentSkillDefinition(
+                        "classic:jiefan",
+                        "解烦",
+                        "限定技，出牌阶段，你可以选择一名角色，令能攻击到该角色的所有角色选择一项：1.弃置一张武器牌；2.令该角色摸一张牌。",
+                        SkillKind.Jiefan),
+                    SkillTag.Limited,
+                    SkillExecutionForm.None,
+                    new Version(1, 93, 0)),
+                new Version(1, 93, 0)));
+        }
+        if (_version >= new Version(1, 94, 0))
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:chengxiang",
+                "称象",
+                "每当你受到伤害后，你可以亮出牌堆顶的四张牌。若如此做，你获得其中任意张点数之和小于等于13的牌，然后将其余的牌置入弃牌堆。",
+                SkillKind.Chengxiang)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:renxin",
+                "仁心",
+                "每当体力值为1的一名其他角色受到伤害时，你可以翻面并弃置一张装备牌。若如此做，防止此伤害。",
+                SkillKind.Renxin)));
+        }
+        if (_version >= new Version(1, 95, 0))
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:jingce",
+                "精策",
+                "出牌阶段结束时，若你于此回合内使用过的牌的数量大于等于你当前的体力值，你可以摸两张牌。",
+                SkillKind.Jingce) { PhaseSkill = new Skills.JingceModule() }));
+        }
+        if (_version >= new Version(1, 96, 0))
+        {
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:junxing",
+                "峻刑",
+                "出牌阶段限一次，你可以弃置至少一张手牌并选择一名其他角色，令其选择一项：弃置一张类别与你弃置的所有牌均不同的手牌；或翻面，然后摸等量的牌。",
+                SkillKind.Junxing)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:yuce",
+                "御策",
+                "每当你受到伤害后，你可以展示一张手牌，令伤害来源选择是否弃置一张与展示牌类别不同的手牌；若其不弃置，你回复1点体力。",
+                SkillKind.Yuce)));
+        }
+        if (_version >= new Version(1, 97, 0))
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:longyin",
+                "龙吟",
+                "每当一名角色于其出牌阶段内使用【杀】时，你可以弃置一张牌，令此【杀】不计入限制的使用次数，然后若此【杀】为红色，你摸一张牌。",
+                SkillKind.Longyin)));
+        }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
             "classic:feedback",
@@ -977,7 +963,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:biyue",
                 "闭月",
                 "结束阶段，你可以摸一张牌。",
-                SkillKind.Biyue)));
+                SkillKind.Biyue) { PhaseSkill = new Skills.BiyueModule() }));
         }
         if (_version >= new Version(1, 42, 0))
         {
@@ -1894,9 +1880,55 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:zhuiyi"],
                 Gender: GeneralGender.Female));
         }
+        if (_version >= new Version(1, 92, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:cheng-pu", "程普", "cheng_pu",
+                "classic:lihuo", "wu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:chunlao"]));
+        }
+        if (_version >= new Version(1, 93, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:han-dang", "韩当", "han_dang",
+                "classic:gongqi", "wu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:jiefan"]));
+        }
+        if (_version >= new Version(1, 94, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:cao-chong", "曹冲", "cao_chong",
+                "classic:chengxiang", "wei", BaseHp: 3,
+                AdditionalSkillIds: ["classic:renxin"]));
+        }
+        if (_version >= new Version(1, 95, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:guo-huai", "郭淮", "guo_huai",
+                "classic:jingce", "wei", BaseHp: 4));
+        }
+        if (_version >= new Version(1, 96, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:man-chong", "满宠", "man_chong",
+                "classic:junxing", "wei", BaseHp: 3,
+                AdditionalSkillIds: ["classic:yuce"]));
+        }
+        if (_version >= new Version(1, 97, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:guan-ping", "关平", "guan_ping",
+                "classic:longyin", "shu", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 97 } => GuanPingClassicGeneralIds,
+            { Major: 1, Minor: 96 } => ManChongClassicGeneralIds,
+            { Major: 1, Minor: 95 } => GuoHuaiClassicGeneralIds,
+            { Major: 1, Minor: 94 } => CaoChongClassicGeneralIds,
+            { Major: 1, Minor: 93 } => HanDangClassicGeneralIds,
+            { Major: 1, Minor: 92 } => ChengPuClassicGeneralIds,
             { Major: 1, Minor: >= 90 } => BuLianShiClassicGeneralIds,
             { Major: 1, Minor: 89 } => GuanXingZhangBaoClassicGeneralIds,
             { Major: 1, Minor: >= 88 } => LiaoHuaClassicGeneralIds,
@@ -2442,6 +2474,42 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. GuanXingZhangBaoClassicGeneralIds,
         "classic:bu-lian-shi"
+    ];
+
+    internal static IReadOnlyList<string> ChengPuClassicGeneralIds { get; } =
+    [
+        .. BuLianShiClassicGeneralIds,
+        "classic:cheng-pu"
+    ];
+
+    internal static IReadOnlyList<string> HanDangClassicGeneralIds { get; } =
+    [
+        .. ChengPuClassicGeneralIds,
+        "classic:han-dang"
+    ];
+
+    internal static IReadOnlyList<string> CaoChongClassicGeneralIds { get; } =
+    [
+        .. HanDangClassicGeneralIds,
+        "classic:cao-chong"
+    ];
+
+    internal static IReadOnlyList<string> GuoHuaiClassicGeneralIds { get; } =
+    [
+        .. CaoChongClassicGeneralIds,
+        "classic:guo-huai"
+    ];
+
+    internal static IReadOnlyList<string> ManChongClassicGeneralIds { get; } =
+    [
+        .. GuoHuaiClassicGeneralIds,
+        "classic:man-chong"
+    ];
+
+    internal static IReadOnlyList<string> GuanPingClassicGeneralIds { get; } =
+    [
+        .. ManChongClassicGeneralIds,
+        "classic:guan-ping"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

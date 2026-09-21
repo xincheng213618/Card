@@ -40,25 +40,6 @@ internal static class SilverLionChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(boundary.SourceSeat, revealAll: true)),
             "A completed Silver Lion damage cap must replay exactly.");
 
-        var legacy = GameReplay.Restore(RoundTrip(boundary.Checkpoint) with { RulesVersion = 52 }, boundary.Registry);
-        result = legacy.Submit(new PlayCardCommand(boundary.SourceSeat, boundary.Action.CardId!.Value, [],
-            legacy.Revision, legacy.PendingDecision!.PromptId));
-        Require(result.Accepted, result.Error?.Message ?? "Rules v52 Alcohol was rejected.");
-        if (legacy.PendingDecision is null)
-        {
-            Require(legacy.Submit(new AdvanceOneStepCommand(legacy.Revision)).Accepted,
-                "Rules v52 play did not resume after Alcohol.");
-        }
-        slash = legacy.GetHumanLegalActions().Single(candidate =>
-            candidate.CardId == boundary.SlashCardId && candidate.TargetSeat == boundary.TargetSeat);
-        result = legacy.Submit(new PlayCardCommand(boundary.SourceSeat, slash.CardId!.Value, slash.TargetSeats,
-            legacy.Revision, legacy.PendingDecision!.PromptId, slash.PlayedCardKind));
-        var legacyDamage = legacy.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
-            .Last(item => item.TargetSeat == boundary.TargetSeat);
-        Require(result.Accepted && legacyDamage.Amount == 2 &&
-                legacy.Events.Select(item => item.Payload).All(item => item is not SilverLionDamageCappedEvent),
-            "Rules v52 must preserve the uncapped two-point Slash behavior.");
-
         VerifyRemovalRecovery();
     }
 

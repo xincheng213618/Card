@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:cheng-pu",
+  "acceptedAt": "2026-09-21T18:57:36+08:00",
+  "scope": "P1-A64b complete classic Cheng Pu, Chunlao runtime, AI, WPF presentation and official portrait",
+  "selectedVersion": "一将成名官网经典程普（吴4体力，疠火、醇醪）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/303.html",
+      "use": "一将成名官方武将页冻结经典程普、疠火和醇醪文本：结束阶段无醇时可将至少一张杀置为醇；每当一名角色处于濒死状态时可弃置一张醇，令其视为使用酒。该页同时链接经典静态大图。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161122_5544_2318",
+      "use": "官方历史问答继续作为疠火转换来源、伤害事实和结算后失去体力边界的依据。"
+    }
+  ],
+  "ruleText": {
+    "lihuo": "你使用普通的〖杀〗可以改为火〖杀〗，若此〖杀〗造成过伤害，你失去1点体力；你使用火〖杀〗可以多选择一个目标。",
+    "chunlao": "结束阶段，若没有〖醇〗，你可以将至少一张〖杀〗置于武将牌上，称为〖醇〗；每当一名角色处于濒死状态时，你可以将一张〖醇〗置入弃牌堆，令其视为使用〖酒〗。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.92.0",
+    "rulesVersion": 101,
+    "generalId": "classic:cheng-pu",
+    "skillIds": [
+      "classic:lihuo",
+      "classic:chunlao"
+    ],
+    "skillMetadata": {
+      "lihuo": "State",
+      "chunlao": "optional Trigger"
+    },
+    "storageInteraction": "at the owner's end phase, only when the public Chun pile is empty, a private multi-step prompt selects at least one exact Slash from hand; finish moves every selected physical card to the owner-scoped public Chunlao zone",
+    "dyingInteraction": "each living Chunlao owner may spend at most one public Chun in one dying occurrence; the physical card moves through Processing to DiscardPile while the dying victim is the source and target of one effective Alcohol use",
+    "aiPolicy": "an AI owner stores one lowest-keep-value Slash as an explained public reserve instead of emptying its whole Slash hand; dying use is scored from public relation and victim state",
+    "deathCleanup": "all remaining Chun cards move to DiscardPile when their owner dies",
+    "auditEvents": [
+      "ChunlaoStoredEvent",
+      "CardUseDeclaredEvent",
+      "RecoveryAppliedEvent",
+      "CardUseFinishedEvent",
+      "ChunlaoRescueEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.91.0",
+    "previousRulesVersion": 101,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "accepted commands reconstruct paused storage selection, exact public Chun cards, virtual Alcohol rescue, movement ledger and completed event history under rules v101",
+    "legacyPolicy": "package 1.91.0 retains Lihuo without publishing the incomplete Cheng Pu general; the package signature and content hash provide the boundary"
+  },
+  "portrait": {
+    "resourceKey": "cheng_pu",
+    "localPath": "src/CardGame.Wpf/Assets/official-cheng-pu.png",
+    "sourcePage": "https://x.sanguosha.com/hero/303.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130301.png",
+    "remoteHeadStatus": 200,
+    "remoteContentType": "image/png",
+    "remoteContentLength": 261181,
+    "sha256": "D6A08061F7A63C5273DEF0BC70A1E1F18054AFDBC782CD8995865F5DA67D3669",
+    "bytes": 261181,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Indexed8",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Cheng Pu artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build -- --only-cheng-pu",
+    "targetedCorePassed": 8,
+    "targetedCoreTotal": 8,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build",
+    "fullCorePassed": 332,
+    "fullCoreTotal": 332,
+    "targetedWpfCommand": "isolated Release build, then dotnet CardGame.Wpf.Tests.dll <render-dir> --only-cheng-pu",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "fullWpfCommand": "isolated Release build, then dotnet CardGame.Wpf.Tests.dll <render-dir>",
+    "fullWpfPassed": 97,
+    "fullWpfTotal": 97,
+    "isolatedSolutionBuildWarnings": 0,
+    "isolatedSolutionBuildErrors": 0,
+    "visualReview": "212 through 215 at 1120x740 inspected: card, private selection, public Chun badge and dying response are readable without clipping or overlap",
+    "assertions": [
+      "package 1.92.0 publishes complete Cheng Pu while package 1.91.0 and rules v113 retain their old boundaries",
+      "paused multi-card selection is private, exact and replayable",
+      "stored Chun cards are public and remain in one owner-scoped physical zone",
+      "one Chun becomes one effective Alcohol used by the dying victim and follows the movement ledger",
+      "AI stores one explained reserve instead of every Slash",
+      "WPF exposes trigger choices, public pile details, rescue response and battle cues"
+    ]
+  },
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI acceptance",
+    "physical multiplayer host and remote-client acceptance"
+  ]
+}

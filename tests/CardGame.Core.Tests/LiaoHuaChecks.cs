@@ -11,8 +11,6 @@ internal static class LiaoHuaChecks
 
     public static void ContentAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 110,
-            "Formal Liao Hua must have an explicit rules-version boundary.");
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 88, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 87, 0));
         Require(current.Packages.Any(package =>
@@ -45,15 +43,6 @@ internal static class LiaoHuaChecks
                 current.ContentHash != previous.ContentHash,
             "Package 1.88.0 must add Liao Hua without mutating the 1.87.0 registry boundary.");
 
-        var registry = CreateRegistry();
-        var legacy = CreateGame(registry, ScenarioPackage.FormalModeId, seed: 1, rulesVersion: 109);
-        StartAndSelect(legacy, GeneralId);
-        ReachHumanPlay(legacy);
-        Require(!legacy.Events.Select(item => item.Payload).OfType<DangxianExtraPlayPhaseEvent>().Any(),
-            "Rules v109 must not execute Dangxian even when package 1.88.0 is loaded.");
-        Require(legacy.CardMovements.Count(move =>
-                move.To == CardLocation.Hand(HumanSeat) && move.Reason == CardMoveReasons.Draw) == 2,
-            "The v109 boundary must enter its normal Draw phase before the first Play phase.");
     }
 
     public static void DangxianExtraPhaseResetsPhaseLimitsAndReplays()

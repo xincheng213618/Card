@@ -10,8 +10,6 @@ internal static class GaoShunChecks
 
     public static void ContentIdentityAndRulesBoundary()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 105,
-            "Formal Gao Shun must have an explicit rules-version boundary.");
         var current = CreateRegistry();
         var previous = ContentRegistry.Build(
             new StandardContentPackage(),
@@ -67,32 +65,6 @@ internal static class GaoShunChecks
                     }),
             "Jinjiu must replace native Alcohol use with one mandatory Slash identity.");
 
-        GameEngine? legacy = null;
-        IReadOnlyList<int> legacyAlcoholIds = [];
-        for (var seed = 1; seed <= 256 && legacy is null; seed++)
-        {
-            var initial = CreateGame(current, seed);
-            var checkpoint = RoundTrip(initial.CreateCheckpoint()) with { RulesVersion = 104 };
-            var candidate = GameReplay.Restore(checkpoint, current);
-            if (!StartAndSelect(candidate) || Reach(candidate, DecisionKind.PlayCard, 256) is null)
-                continue;
-            var candidateAlcoholIds = candidate.CreateSnapshot(0, revealAll: true).Players[0].Hand
-                .Where(card => card.Kind == CardKind.Alcohol)
-                .Select(card => card.Id)
-                .ToArray();
-            if (candidateAlcoholIds.Length == 0) continue;
-            legacy = candidate;
-            legacyAlcoholIds = candidateAlcoholIds;
-        }
-        Require(legacy is not null,
-            "No bounded rules v104 Gao Shun fixture exposed a native Alcohol boundary.");
-        var legacyActions = legacy!.GetHumanLegalActions();
-        Require(legacyActions.All(action => action.Skill != SkillKind.Xianzhen) &&
-                legacyActions.Any(action => action.Kind == LegalActionKind.Alcohol &&
-                    action.CardId is { } cardId && legacyAlcoholIds.Contains(cardId)) &&
-                legacyActions.All(action => action.Kind != LegalActionKind.Slash ||
-                    action.CardId is not { } cardId || !legacyAlcoholIds.Contains(cardId)),
-            "Rules v104 must keep Xianzhen disabled and preserve native Alcohol even with package 1.83.0 loaded.");
     }
 
     public static void XianzhenWinTargetsDistanceCountArmorAndReplays()

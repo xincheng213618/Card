@@ -32,9 +32,6 @@ internal static class ClassicGeneralChecks
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Shuangxiong fixture could not reach Draw phase.");
             var offer = game.PendingDecision;
             if (offer is not { Kind: DecisionKind.Shuangxiong, PlayerSeat: 0, IsPrivate: true }) continue;
-            var legacy = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = 60 }, registry);
-            Require(legacy.PendingDecision?.Kind != DecisionKind.Shuangxiong,
-                "Rules v60 must not publish the Shuangxiong draw replacement.");
             var use = offer.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "shuangxiong-use");
             var accepted = game.Submit(new AnswerPromptCommand(0, offer.PromptId, use.Id, game.Revision));
             Require(accepted.Accepted, accepted.Error?.Message ?? "Shuangxiong fixture could not accept the skill.");
@@ -129,7 +126,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.91.0"]),
+                "standard-classic-generals@1.97.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -150,7 +147,9 @@ internal static class ClassicGeneralChecks
             "classic:yu-jin", "classic:xu-shu", "sp:zhao-yun", "classic:shen-guan-yu", "sp:guan-yu",
             "classic:yan-yan", "mou:lu-meng", "classic:cao-zhang", "classic:ma-dai",
             "classic:gao-shun", "classic:liu-biao", "classic:wang-yi", "classic:zhong-hui",
-            "classic:xun-you", "classic:liao-hua", "classic:guan-xing-zhang-bao", "classic:bu-lian-shi"
+            "classic:xun-you", "classic:liao-hua", "classic:guan-xing-zhang-bao", "classic:bu-lian-shi",
+            "classic:cheng-pu", "classic:han-dang", "classic:cao-chong", "classic:guo-huai",
+            "classic:man-chong", "classic:guan-ping"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)
@@ -856,9 +855,6 @@ internal static class ClassicGeneralChecks
         var (current, providerSeat, peachCardId, selfPeachCardId, nonWuProviderSeat, nonWuPeachCardId) =
             FindJiuyuanFixture(registry);
         var checkpoint = current.CreateCheckpoint();
-        var legacy = GameReplay.Restore(
-            checkpoint with { RulesVersion = 26 },
-            registry);
         var selfRescue = GameReplay.Restore(checkpoint, registry);
         var nonWuRescue = GameReplay.Restore(checkpoint, registry);
 
@@ -872,13 +868,6 @@ internal static class ClassicGeneralChecks
                 applied.RecoveryAmount == 2 &&
                 current.Events.Select(item => item.Payload).OfType<RecoveryAppliedEvent>().Last().Amount == 2,
             "A different Wu provider's Peach must recover the dying Lord Sun Quan for two through Jiuyuan.");
-
-        ApplySyntheticDyingPeach(legacy, providerSeat, peachCardId);
-        var legacySun = legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(legacySun.Hp == 1 &&
-                legacy.Events.Select(item => item.Payload).OfType<JiuyuanAppliedEvent>().Count() == 0 &&
-                legacy.Events.Select(item => item.Payload).OfType<RecoveryAppliedEvent>().Last().Amount == 1,
-            "Rules v26 must keep the same physical Peach at the historical one-point recovery amount.");
 
         ApplySyntheticDyingPeach(selfRescue, 0, selfPeachCardId);
         Require(selfRescue.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp == 1 &&
@@ -902,22 +891,11 @@ internal static class ClassicGeneralChecks
                 currentSunPlayer.Skills.Select(skill => skill.Kind).SequenceEqual([SkillKind.Zhiheng, SkillKind.Jiuyuan]),
             "The current snapshot must publish the selected general's ordered skill list.");
 
-        var legacySun = SelectGeneral(registry, "classic:sun-quan", rulesVersion: 9);
-        var legacySunPlayer = legacySun.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(legacySunPlayer.MaxHp == 5 && legacySunPlayer.Hp == 5 && legacySunPlayer.Skills is null,
-            $"A rules-v9 replay must retain the old fixed 5-HP Lord rule and singular skill projection " +
-            $"(rules={legacySun.RulesVersion}, hp={legacySunPlayer.Hp}/{legacySunPlayer.MaxHp}, skills={legacySunPlayer.Skills?.Count.ToString() ?? "null"}).");
-
         var simaYi = SelectGeneral(registry, "classic:sima-yi", GameCheckpoint.CurrentRulesVersion);
         var simaYiPlayer = simaYi.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(simaYiPlayer.MaxHp == 4 &&
                 simaYiPlayer.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Feedback, SkillKind.Guicai]),
             "Sima Yi must combine base 3 HP, the Lord bonus, Feedback and Guicai.");
-        var legacySimaYi = SelectGeneral(registry, "classic:sima-yi", rulesVersion: 9)
-            .CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(legacySimaYi.MaxHp == 5 && legacySimaYi.Skills is null,
-            "Rules v9 must ignore the new base HP and additional-skill fields.");
-
         var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(simaYi.CreateCheckpoint()));
         var restored = GameReplay.Restore(checkpoint, registry);
         Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
@@ -1136,16 +1114,6 @@ internal static class ClassicGeneralChecks
                 EventSignatures(replayed).SequenceEqual(EventSignatures(replaySource)),
             "Restored Rende must cross the cumulative threshold with identical state and events.");
 
-        var rules99 = FindRende(registry, 99);
-        Require(!rules99.UsesFormalRende,
-            "Rules v99 must not expose the formal Rende capability.");
-        var rules99Action = rules99.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
-        GiveOne(rules99, rules99Action.SelectableCardIds[0], rules99Action.SelectableTargetSeats[0]);
-        Require(rules99.GetHumanLegalActions().All(action => action.Skill != SkillKind.Rende) &&
-                GivenThisPhase(rules99) == 0,
-            "Rules v99 must retain the historical once-per-turn Rende slice without the new ledger.");
-
         var package177 = FindRende(previousRegistry, GameCheckpoint.CurrentRulesVersion);
         Require(!package177.UsesFormalRende,
             "Classic package 1.77.0 must not expose the formal Rende capability under current rules.");
@@ -1172,7 +1140,6 @@ internal static class ClassicGeneralChecks
             "Qixi must accept black physical cards, reject red cards and avoid duplicating native Dismantlement actions.");
 
         GameEngine? current = null;
-        GameEngine? legacy = null;
         CardSnapshot? blackEquipment = null;
         CardSnapshot? redCard = null;
         LegalAction? handConversion = null;
@@ -1211,20 +1178,13 @@ internal static class ClassicGeneralChecks
                 continue;
             }
 
-            var legacyCandidate = StartClassicGeneralAtPlay(registry, seed, "classic:gan-ning", rulesVersion: 27);
-            if (legacyCandidate is null)
-            {
-                continue;
-            }
-
             current = candidate;
-            legacy = legacyCandidate;
             blackEquipment = candidateEquipment;
             redCard = candidateRed;
             handConversion = conversion;
         }
 
-        if (current is null || legacy is null || blackEquipment is null || redCard is null || handConversion is null)
+        if (current is null || blackEquipment is null || redCard is null || handConversion is null)
         {
             throw new InvalidOperationException("No deterministic Gan Ning fixture exposed black equipment and a Nullification responder.");
         }
@@ -1243,11 +1203,6 @@ internal static class ClassicGeneralChecks
                     action.CardId == redCard.Id &&
                     action.PlayedCardKind == CardKind.Dismantlement),
             "Formal Qixi must publish black hand-card conversions without converting red hand cards.");
-        Require(!legacy.GetHumanLegalActions().Any(action =>
-                action.CardId == blackEquipment.Id &&
-                action.PlayedCardKind == CardKind.Dismantlement),
-            "Rules v27 must not gain Qixi conversion actions from current content.");
-
         var prompt = current.PendingDecision ??
             throw new InvalidOperationException("Gan Ning fixture lost its play prompt.");
         var stateBeforeInvalid = SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true));
@@ -1264,17 +1219,13 @@ internal static class ClassicGeneralChecks
             "A mismatched Qixi effective kind must reject atomically.");
 
         Equip(current, blackEquipment.Id);
-        Equip(legacy, blackEquipment.Id);
         var equippedConversion = current.GetHumanLegalActions().FirstOrDefault(action =>
             action.Kind == LegalActionKind.Dismantlement &&
             action.CardId == blackEquipment.Id &&
             action.PlayedCardKind == CardKind.Dismantlement &&
             action.TargetCardId is null);
-        Require(equippedConversion is not null &&
-                !legacy.GetHumanLegalActions().Any(action =>
-                    action.CardId == blackEquipment.Id &&
-                    action.PlayedCardKind == CardKind.Dismantlement),
-            "Formal Qixi must convert a black card from the equipment zone while rules v27 remains unchanged.");
+        Require(equippedConversion is not null,
+            "Formal Qixi must convert a black card from the equipment zone.");
         var selectedEquippedConversion = equippedConversion ??
             throw new InvalidOperationException("The equipped Qixi action disappeared before submission.");
 
@@ -1466,20 +1417,6 @@ internal static class ClassicGeneralChecks
                     resolved.Skill == SkillKind.Keji && !resolved.Used),
             discarded.Error?.Message ?? "Skipping Keji must retain the ordinary hand-limit discard.");
 
-        var legacy = SelectGeneral(registry, "classic:lu-meng", rulesVersion: 28);
-        Require(legacy.Submit(new AdvanceCommand(legacy.Revision)).Accepted &&
-                legacy.PendingDecision?.Kind == DecisionKind.PlayCard,
-            "The Keji legacy fixture did not reach play.");
-        var legacyEnd = legacy.Submit(new EndPlayPhaseCommand(
-            0,
-            legacy.Revision,
-            legacy.PendingDecision!.PromptId));
-        Require(legacyEnd.Accepted &&
-                legacy.State.Phase == TurnPhase.Discard &&
-                legacy.PendingDecision?.Kind != DecisionKind.Keji &&
-                legacy.Events.Select(item => item.Payload).OfType<PhaseSkillResolvedEvent>().Count() == 0,
-            "Rules v28 must keep the historical discard path without a Keji choice.");
-
         var slashGame = FindLuMengSlashFixture(registry);
         var slashAction = slashGame.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Slash);
         var slashPlayed = slashGame.Submit(new PlayCardCommand(
@@ -1624,14 +1561,6 @@ internal static class ClassicGeneralChecks
                     resolved.Skill == SkillKind.Tuxi && !resolved.Used && resolved.CardCount == 0),
             skipped.Error?.Message ?? "Skipping Tuxi must preserve the ordinary two-card draw.");
 
-        var legacy = SelectGeneral(registry, "classic:zhang-liao", rulesVersion: 29);
-        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
-        Require(legacyAdvance.Accepted &&
-                legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
-                6 &&
-                legacy.Events.Select(item => item.Payload).OfType<HandCardsGainedBySkillEvent>().Count() == 0,
-            legacyAdvance.Error?.Message ?? "Rules v29 must retain the historical ordinary draw without Tuxi.");
     }
 
     public static void FormalLuoyiFlow()
@@ -1792,14 +1721,6 @@ internal static class ClassicGeneralChecks
             declined.Error?.Message ??
             "A Duel opponent must deal unmodified damage when Xu Chu used the Duel but then failed to respond.");
 
-        var legacy = SelectGeneral(registry, "classic:xu-chu", rulesVersion: 30);
-        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
-        Require(legacyAdvance.Accepted &&
-                legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount == 6 &&
-                legacy.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>()
-                    .All(resolved => resolved.Skill != SkillKind.Luoyi),
-            legacyAdvance.Error?.Message ?? "Rules v30 must retain ordinary drawing without Luoyi.");
     }
 
     public static void FormalQiangxiFlow()
@@ -2005,11 +1926,6 @@ internal static class ClassicGeneralChecks
             triggered.Error?.Message ??
             "Cardless Qiangxi damage must still enter the shared after-damage trigger window.");
 
-        var legacy = SelectGeneral(registry, "classic:dian-wei", rulesVersion: 31);
-        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
-        Require(legacyAdvance.Accepted &&
-                legacy.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Qiangxi),
-            legacyAdvance.Error?.Message ?? "Rules v31 must not expose formal Qiangxi actions.");
     }
 
     public static void FormalDuanliangFlow()
@@ -2126,16 +2042,6 @@ internal static class ClassicGeneralChecks
                 EventSignatures(resolvedReplay).SequenceEqual(EventSignatures(game)),
             "A resolved Duanliang delayed card must replay exactly.");
 
-        var legacy = SelectGeneral(registry, "classic:xu-huang", rulesVersion: 32);
-        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
-        Require(legacyAdvance.Accepted &&
-                legacy.GetHumanLegalActions().All(action =>
-                    action.PlayedCardKind != CardKind.SupplyShortage ||
-                    action.CardId is null ||
-                    legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
-                        .Hand.Single(card => card.Id == action.CardId).Kind == CardKind.SupplyShortage),
-            legacyAdvance.Error?.Message ??
-            "Rules v32 must not expose Duanliang card conversions.");
     }
 
     public static void FormalLuoshenAndQingguoFlow()
@@ -2263,23 +2169,6 @@ internal static class ClassicGeneralChecks
                 $"The Qingguo {incoming} response must replay exactly.");
         }
 
-        var legacy = SelectGeneral(registry, "classic:zhen-ji", rulesVersion: 33);
-        var legacyAdvance = legacy.Submit(new AdvanceCommand(legacy.Revision));
-        var legacyPlayers = ((System.Collections.IEnumerable)typeof(GameEngine)
-                .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .GetValue(legacy)!)
-            .Cast<object>()
-            .ToArray();
-        var legacyResponseCards = (IReadOnlyList<Card>)typeof(GameEngine)
-            .GetMethod("GetResponseCards", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(legacy, [legacyPlayers[0], CardKind.Dodge])!;
-        Require(legacyAdvance.Accepted &&
-                legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                legacy.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
-                    .All(item => item.Reason != JudgmentReasons.Luoshen) &&
-                legacyResponseCards.All(card => card.Kind == CardKind.Dodge),
-            legacyAdvance.Error?.Message ??
-            "Rules v33 must retain the historical turn start and native-only Dodge response set.");
     }
 
     public static void FormalJizhiAndQicaiFlow()
@@ -2399,24 +2288,6 @@ internal static class ClassicGeneralChecks
                 GameReplay.Restore(nullificationCheckpoint, registry).PendingDecision?.Kind == DecisionKind.Jizhi,
             "Paused and resumed Nullification-triggered Jizhi must replay exactly.");
 
-        var (legacy, legacyAction) = FindHuangYueyingOrdinaryTrickFixture(
-            registry,
-            rulesVersion: 34,
-            requireNullification: false);
-        var legacyPlayed = legacy.Submit(new PlayCardCommand(
-            0,
-            legacyAction.CardId!.Value,
-            legacyAction.TargetSeats,
-            legacy.Revision,
-            legacy.PendingDecision!.PromptId,
-            legacyAction.PlayedCardKind,
-            legacyAction.TargetCardId));
-        Require(legacyPlayed.Accepted &&
-                legacy.PendingDecision?.Kind != DecisionKind.Jizhi &&
-                legacy.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>()
-                    .All(resolved => resolved.Skill != SkillKind.Jizhi) &&
-                legacy.CardMovements.All(movement => movement.Reason != CardMoveReasons.JizhiDraw),
-            legacyPlayed.Error?.Message ?? "Rules v34 must not publish or resolve Jizhi.");
     }
 
     public static void FormalTieqiAndMashuFlow()
@@ -2528,14 +2399,6 @@ internal static class ClassicGeneralChecks
             $"judgment={string.Join(',', blackEvents.OfType<JudgmentResolvedEvent>().Where(item => item.Reason == JudgmentReasons.Tieqi).Select(item => $"{item.Suit}/{item.Succeeded}"))}, " +
             $"responses={blackEvents.OfType<ResponseRequestedEvent>().Count()}).");
 
-        var legacy = FindMaChaoSlashFixture(registry, red.Seed, rulesVersion: 35);
-        Require(legacy.Game.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
-                    requested.TargetSeat == legacy.TargetSeat &&
-                    requested.RequiredCardKind == CardKind.Dodge) &&
-                legacy.Game.Events.Select(item => item.Payload).OfType<TieqiChoiceResolvedEvent>().Count() == 0 &&
-                legacy.Game.Events.Select(item => item.Payload).OfType<JudgmentRequestedEvent>()
-                    .All(item => item.Reason != JudgmentReasons.Tieqi),
-            "Rules v35 must not publish or resolve Tieqi.");
     }
 
     public static void FormalLiegongFlow()
@@ -2646,15 +2509,6 @@ internal static class ClassicGeneralChecks
                 ineligible.Game.Events.Select(item => item.Payload).OfType<LiegongChoiceResolvedEvent>().Count() == 0,
             "A Slash target outside both Liegong hand-count conditions must receive the ordinary Dodge response.");
 
-        var legacy = FindHuangZhongLiegongFixture(
-            registry,
-            rulesVersion: 36,
-            LiegongFixtureKind.EligibleByHp);
-        Require(legacy.Game.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
-                    requested.TargetSeat == legacy.TargetSeat &&
-                    requested.RequiredCardKind == CardKind.Dodge) &&
-                legacy.Game.Events.Select(item => item.Payload).OfType<LiegongChoiceResolvedEvent>().Count() == 0,
-            "Rules v36 must not publish or resolve Liegong.");
     }
 
     public static void FormalKuangguFlow()
@@ -2701,18 +2555,6 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(replayed).SequenceEqual(EventSignatures(game)),
             "A completed Kuanggu recovery must replay exactly.");
-
-        var legacyFixture = FindWeiYanKuangguFixture(registry, rulesVersion: 37);
-        var legacy = legacyFixture.Game;
-        var legacyEvents = legacy.Events.Skip(legacyFixture.EventCount).Select(item => item.Payload).ToArray();
-        Require(legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp ==
-                legacyFixture.SourceHpBefore &&
-                legacyEvents.OfType<DamageAppliedEvent>().Any(damage =>
-                    damage.TargetSeat == legacyFixture.TargetSeat && damage.Amount == 1) &&
-                legacyEvents.OfType<KuangguRecoveredEvent>().Count() == 0 &&
-                legacyEvents.OfType<RecoveryAppliedEvent>().All(recovery =>
-                    recovery.TargetSeat != 0),
-            "A match created under rules v37 must not resolve Kuanggu.");
 
         var fullHealth = GameReplay.Restore(fixture.BeforeDamage, registry);
         SetPlayerHp(fullHealth, seat: 0, hp: 4);
@@ -2792,25 +2634,6 @@ internal static class ClassicGeneralChecks
                 EventSignatures(slashReplay).SequenceEqual(EventSignatures(slashFixture.Game)),
             "A completed two-Dodge Wushuang Slash must replay exactly.");
 
-        var legacySlash = GameReplay.Restore(
-            slashFixture.BeforeAction with { RulesVersion = 38 },
-            registry);
-        var legacySlashEventCount = legacySlash.Events.Count;
-        var legacySlashResult = SubmitPlayAction(legacySlash, slashFixture.Action);
-        Require(legacySlashResult.Accepted, legacySlashResult.Error?.Message ??
-            "Rules v38 could not reproduce the Slash fixture.");
-        DriveAiUntil(legacySlash, () => legacySlash.Events.Skip(legacySlashEventCount)
-            .Select(item => item.Payload)
-            .OfType<CardRespondedEvent>()
-            .Any(response => response.ResponderSeat == slashFixture.TargetSeat));
-        var legacySlashEvents = legacySlash.Events.Skip(legacySlashEventCount).Select(item => item.Payload).ToArray();
-        Require(legacySlashEvents.OfType<CardRespondedEvent>().Count(response =>
-                    response.ResponderSeat == slashFixture.TargetSeat) == 1 &&
-                legacySlashEvents.OfType<RequiredResponseProgressEvent>().Count() == 0 &&
-                legacySlashEvents.OfType<DamageAppliedEvent>().All(damage =>
-                    damage.TargetSeat != slashFixture.TargetSeat),
-            "Rules v38 must retain the historical one-Dodge Slash response.");
-
         var duelFixture = FindLuBuWushuangDuelFixture(registry);
         SetPlayerHp(duelFixture.Game, duelFixture.TargetSeat, hp: 1);
         var duelEventCount = duelFixture.Game.Events.Count;
@@ -2842,23 +2665,6 @@ internal static class ClassicGeneralChecks
                     progress.RequiredResponseCount == 2),
             $"A Wushuang Duel opponent with one Slash must pay it and then fail the second response. {duelDiagnostics}");
 
-        var legacyDuel = GameReplay.Restore(
-            duelFixture.BeforeAction with { RulesVersion = 38 },
-            registry);
-        SetPlayerHp(legacyDuel, duelFixture.TargetSeat, hp: 1);
-        var legacyDuelEventCount = legacyDuel.Events.Count;
-        var legacyDuelResult = SubmitPlayAction(legacyDuel, duelFixture.Action);
-        Require(legacyDuelResult.Accepted, legacyDuelResult.Error?.Message ??
-            "Rules v38 could not reproduce the Duel fixture.");
-        DriveAiUntil(legacyDuel, () => legacyDuel.Events.Skip(legacyDuelEventCount)
-            .Select(item => item.Payload)
-            .OfType<DuelResponseEvent>()
-            .Any(response => response.ResponderSeat == duelFixture.TargetSeat && response.UsedSlash));
-        var legacyDuelEvents = legacyDuel.Events.Skip(legacyDuelEventCount).Select(item => item.Payload).ToArray();
-        Require(legacyDuelEvents.OfType<RequiredResponseProgressEvent>().Count() == 0 &&
-                legacyDuelEvents.OfType<DamageAppliedEvent>().All(damage =>
-                    damage.TargetSeat != duelFixture.TargetSeat),
-            "Rules v38 must let one Slash complete the opponent's Duel response set.");
     }
 
     public static void FormalPaoxiaoFlow()
@@ -3018,23 +2824,6 @@ internal static class ClassicGeneralChecks
                 equipment.Suit is Suit.Heart or Suit.Diamond &&
                 fixture.ActiveAction.PlayedCardKind == CardKind.Slash,
             "Classic Guan Yu must publish a red equipment card as a typed Slash through formal Wusheng.");
-        Require(!fixture.LegacyGame.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.Slash &&
-                    action.CardId == equipment.Id &&
-                    action.PlayedCardKind == CardKind.Slash),
-            "Rules v39 must not publish Wusheng conversion actions from the equipment zone.");
-
-        var legacyPlayers = ((System.Collections.IEnumerable)typeof(GameEngine)
-                .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .GetValue(fixture.LegacyGame)!)
-            .Cast<object>()
-            .ToArray();
-        var legacyResponseCards = (IReadOnlyList<Card>)typeof(GameEngine)
-            .GetMethod("GetResponseCards", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(fixture.LegacyGame, [legacyPlayers[0], CardKind.Slash])!;
-        Require(legacyResponseCards.All(card => card.Id != equipment.Id),
-            "Rules v39 must not publish an equipped red card as a Slash response.");
-
         var eventCount = activeGame.Events.Count;
         var used = SubmitPlayAction(activeGame, fixture.ActiveAction);
         Require(used.Accepted, used.Error?.Message ??
@@ -3246,15 +3035,10 @@ internal static class ClassicGeneralChecks
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("Damage-skill effect resolver not found.");
         var currentRules = CreateInteractive(registry, seed: 1);
-        var legacyRules = GameReplay.Restore(
-            CreateInteractive(registry, seed: 1).CreateCheckpoint() with { RulesVersion = 15 },
-            registry);
         var jianxiong = SkillRegistry.Get(SkillKind.Jianxiong);
         Require((DamageSkillEffectKind)effectMethod.Invoke(currentRules, [jianxiong, duelContext])! ==
-                DamageSkillEffectKind.ClaimDamageCard &&
-                (DamageSkillEffectKind)effectMethod.Invoke(legacyRules, [jianxiong, duelContext])! ==
-                DamageSkillEffectKind.None,
-            "Rules v16 must accept a Duel damage card while rules v15 retains Slash-only Jianxiong.");
+                DamageSkillEffectKind.ClaimDamageCard,
+            "Jianxiong must accept a Duel damage card under the current rules.");
 
         GameEngine? selectedGame = null;
         PendingDecision? selectedPrompt = null;
@@ -3385,7 +3169,6 @@ internal static class ClassicGeneralChecks
             "Formal Zhiheng must have an explicit rules version.");
 
         GameEngine? current = null;
-        GameEngine? legacy = null;
         LegalAction? equipmentAction = null;
         for (var seed = 1; seed <= 8_192 && current is null; seed++)
         {
@@ -3402,16 +3185,13 @@ internal static class ClassicGeneralChecks
             }
 
             current = candidate;
-            legacy = StartClassicGeneralAtPlay(registry, seed, "classic:sun-quan", rulesVersion: 16) ??
-                throw new InvalidOperationException("The rules-v16 Zhiheng fixture did not reproduce.");
             equipmentAction = candidateEquipment;
         }
 
-        if (current is null || legacy is null || equipmentAction?.CardId is not { } equipmentCardId)
+        if (current is null || equipmentAction?.CardId is not { } equipmentCardId)
             throw new InvalidOperationException("No deterministic classic Sun Quan equipment fixture was found.");
 
         Equip(current, equipmentCardId);
-        Equip(legacy, equipmentCardId);
 
         var currentBefore = current.CreateSnapshot(0, revealAll: true);
         var currentPlayerBefore = currentBefore.Players.Single(player => player.Seat == 0);
@@ -3468,46 +3248,6 @@ internal static class ClassicGeneralChecks
                 EventSignatures(restored).SequenceEqual(EventSignatures(current)),
             "Equipment Zhiheng must restore with identical state and events.");
 
-        var legacyBefore = legacy.CreateSnapshot(0, revealAll: true);
-        var legacyPlayerBefore = legacyBefore.Players.Single(player => player.Seat == 0);
-        var legacyPrompt = legacy.PendingDecision ??
-            throw new InvalidOperationException("Legacy Zhiheng fixture lost its play prompt.");
-        var legacyAction = legacy.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng);
-        Require(legacyPrompt.ActiveSkillValidCardIds?.Contains(equipmentCardId) == false &&
-                legacyAction.MaxCardCount == legacyPlayerBefore.Hand.Count,
-            "Rules v16 must retain the hand-only Zhiheng candidate set.");
-        var legacyState = SnapshotJson.Serialize(legacyBefore);
-        var legacyRejected = legacy.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Zhiheng,
-            [equipmentCardId],
-            [],
-            legacy.Revision,
-            legacyPrompt.PromptId));
-        Require(!legacyRejected.Accepted && legacyRejected.Error?.Code == CommandErrorCode.InvalidCard &&
-                SnapshotJson.Serialize(legacy.CreateSnapshot(0, revealAll: true)) == legacyState,
-            "Rules v16 must reject an equipment Zhiheng selection atomically.");
-
-        var legacyHandCardId = legacyPlayerBefore.Hand.First().Id;
-        var legacyUsed = legacy.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Zhiheng,
-            [legacyHandCardId],
-            [],
-            legacy.Revision,
-            legacyPrompt.PromptId));
-        Require(legacyUsed.Accepted, legacyUsed.Error?.Message ??
-            "Rules-v16 hand-only Zhiheng was rejected.");
-        if (legacy.PendingDecision?.Kind != DecisionKind.PlayCard)
-        {
-            var advanced = legacy.Submit(new AdvanceCommand(legacy.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ??
-                "Rules-v16 Zhiheng did not return to the play boundary.");
-        }
-        Require(legacy.GetHumanLegalActions().Any(action =>
-                action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng),
-            "Rules v16 must retain the historical repeatable hand-only Zhiheng behavior.");
     }
 
     public static void FormalYingziChoice()
@@ -3592,12 +3332,6 @@ internal static class ClassicGeneralChecks
                 }),
             usedResult.Error?.Message ?? "Using Yingzi must draw one extra card and publish its result.");
 
-        var legacy = SelectGeneral(registry, "classic:zhou-yu", rulesVersion: 20);
-        var legacyResult = legacy.Submit(new AdvanceCommand(legacy.Revision));
-        Require(legacyResult.Accepted && legacy.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                legacy.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount == 7 &&
-                legacy.Events.All(envelope => envelope.Payload is not DrawSkillResolvedEvent),
-            legacyResult.Error?.Message ?? "Rules v20 must retain automatic Yingzi drawing.");
     }
 
     public static void FormalTianduJudgment()
@@ -3727,38 +3461,6 @@ internal static class ClassicGeneralChecks
                 movement.Reason == CardMoveReasons.JudgmentFinish),
             skipped.Error?.Message ?? "Skipping Tiandu did not discard the judgment card normally.");
 
-        var legacyRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 1, 0));
-        GameEngine? legacy = null;
-        for (var seed = 1; seed <= 8_192 && legacy is null; seed++)
-        {
-            var candidate = StartClassicGeneralAtPlay(
-                legacyRegistry,
-                seed,
-                "classic:guo-jia",
-                rulesVersion: 21);
-            var legacyLightning = candidate?.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Lightning && action.CardId is not null);
-            if (candidate is null || legacyLightning is null ||
-                !candidate.Submit(new PlayCardCommand(
-                    0,
-                    legacyLightning.CardId!.Value,
-                    legacyLightning.TargetSeats,
-                    candidate.Revision,
-                    candidate.PendingDecision!.PromptId)).Accepted ||
-                !DriveUntilOwnLightningJudgment(candidate, expectTiandu: false, out var legacyJudgment) ||
-                candidate.PendingDecision?.Kind == DecisionKind.Tiandu ||
-                !candidate.CardMovements.Any(movement =>
-                    movement.CardId == legacyJudgment.CardId &&
-                    movement.To == CardLocation.DiscardPile &&
-                    movement.Reason == CardMoveReasons.JudgmentFinish))
-            {
-                continue;
-            }
-
-            legacy = candidate;
-        }
-        Require(legacy is not null,
-            "Rules v21 must retain the historical automatic judgment discard path.");
     }
 
     public static void FormalFanjianFlow()
@@ -3938,9 +3640,6 @@ internal static class ClassicGeneralChecks
                 EventSignatures(replay).SequenceEqual(EventSignatures(mismatchingGame)),
             "The chosen Fanjian suit, random transfer and damage branch must replay exactly.");
 
-        var legacy = ReachZhouYuPlayPhase(registry, rulesVersion: 22);
-        Require(legacy.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Fanjian),
-            "Rules v22 must not expose the formal Fanjian active action.");
     }
 
     public static void FormalGuanxingFlow()
@@ -4128,11 +3827,6 @@ internal static class ClassicGeneralChecks
                 EventSignatures(resolvedReplay).SequenceEqual(EventSignatures(game)),
             "Guanxing top/bottom ordering and the following draw must replay exactly.");
 
-        var legacy = SelectGeneral(registry, "classic:zhuge-liang", rulesVersion: 23);
-        var legacyAdvanced = legacy.Submit(new AdvanceCommand(legacy.Revision));
-        Require(legacyAdvanced.Accepted && legacy.PendingDecision?.Kind != DecisionKind.Guanxing &&
-                legacy.Events.All(envelope => envelope.Payload is not GuanxingResolvedEvent),
-            "Rules v23 must retain the historical turn start without a Guanxing prompt.");
     }
 
     public static void FormalHujiaFlow()
@@ -4910,11 +4604,6 @@ internal static class ClassicGeneralChecks
                 activeGuoseGame.CardMovements.Any(item =>
                     item.CardId == physicalCard.Id && item.To == CardLocation.Processing),
             used.Error?.Message ?? "Guose must retain the diamond physical card while declaring Indulgence.");
-        var legacy = GameReplay.Restore(beforeGuose with { RulesVersion = 54 }, registry);
-        Require(legacy.GetHumanLegalActions().All(action =>
-                action.PlayedCardKind != CardKind.Indulgence || action.CardId != physicalCard.Id),
-            "Rules v54 must not expose Guose conversions from the same checkpoint.");
-
         var liuliGame = FindDaQiaoLiuliFixture(registry);
         var prompt = liuliGame.PendingDecision!;
         var redirect = prompt.Choices.First(choice =>
@@ -5076,31 +4765,6 @@ internal static class ClassicGeneralChecks
         Require(xiaojiGame is not null && equipmentActions is { Length: 2 },
             "Could not find a deterministic Sun Shangxiang equipment-replacement fixture.");
         var xiaoji = xiaojiGame!;
-        var legacyXiaoji = StartClassicGeneralAtPlay(
-            registry,
-            xiaoji.Seed,
-            "classic:sun-shangxiang",
-            rulesVersion: 56) ?? throw new InvalidOperationException("The rules v56 Xiaoji fixture was not reproducible.");
-        foreach (var equipment in equipmentActions!)
-        {
-            if (legacyXiaoji.PendingDecision is null)
-            {
-                var continued = legacyXiaoji.Submit(new AdvanceCommand(legacyXiaoji.Revision));
-                Require(continued.Accepted && legacyXiaoji.PendingDecision?.Kind == DecisionKind.PlayCard,
-                    continued.Error?.Message ?? "The rules v56 fixture did not return to play.");
-            }
-            var equipped = legacyXiaoji.Submit(new PlayCardCommand(
-                0,
-                equipment.CardId!.Value,
-                [],
-                legacyXiaoji.Revision,
-                legacyXiaoji.PendingDecision!.PromptId));
-            Require(equipped.Accepted, equipped.Error?.Message ?? "The rules v56 fixture could not equip.");
-        }
-        Require(legacyXiaoji.PendingDecision?.Kind != DecisionKind.Xiaoji &&
-                legacyXiaoji.CardMovements.All(move => move.Reason != CardMoveReasons.XiaojiDraw),
-            "Rules v56 must preserve equipment replacement without Xiaoji.");
-
         foreach (var equipment in equipmentActions!)
         {
             if (xiaoji.PendingDecision is null)
@@ -5230,18 +4894,6 @@ internal static class ClassicGeneralChecks
                 current.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == 1,
             drew.Error?.Message ?? "Lianying must draw exactly one card after the last hand card is lost.");
 
-        var legacy = StartClassicGeneralAtPlay(registry, current.Seed, "classic:lu-xun", rulesVersion: 57) ??
-            throw new InvalidOperationException("The rules v57 Lu Xun fixture was not reproducible.");
-        KeepOnlyHandCard(legacy, 0, lastCardId);
-        var legacyEquip = legacy.Submit(new PlayCardCommand(
-            0,
-            lastCardId,
-            [],
-            legacy.Revision,
-            legacy.PendingDecision!.PromptId));
-        Require(legacyEquip.Accepted && legacy.PendingDecision?.Kind != DecisionKind.Lianying &&
-                legacy.CardMovements.All(move => move.Reason != CardMoveReasons.LianyingDraw),
-            legacyEquip.Error?.Message ?? "Rules v57 must preserve last-hand-card loss without Lianying.");
     }
 
     private static void KeepOnlyHandCard(GameEngine game, int seat, int keptCardId)
@@ -6168,7 +5820,6 @@ internal static class ClassicGeneralChecks
 
     private static (
         GameEngine ActiveGame,
-        GameEngine LegacyGame,
         GameEngine ResponseGame,
         int EquipmentCardId,
         LegalAction ActiveAction) FindGuanYuWushengEquipmentFixture(ContentRegistry registry)
@@ -6194,14 +5845,7 @@ internal static class ClassicGeneralChecks
                 continue;
             }
 
-            var legacy = StartClassicGeneralAtPlay(registry, seed, "classic:guan-yu", rulesVersion: 39);
-            if (legacy is null)
-            {
-                continue;
-            }
-
             Equip(current, redEquipment.Id);
-            Equip(legacy, redEquipment.Id);
             var activeAction = current.GetHumanLegalActions().FirstOrDefault(action =>
                 action.Kind == LegalActionKind.Slash &&
                 action.CardId == redEquipment.Id &&
@@ -6235,7 +5879,7 @@ internal static class ClassicGeneralChecks
                         choice.Cards.SequenceEqual([redEquipment.Id]) &&
                         choice.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Slash)))
                 {
-                    return (current, legacy, response, redEquipment.Id, activeAction);
+                    return (current, response, redEquipment.Id, activeAction);
                 }
 
                 var responseOwner = response.CreateSnapshot(0, revealAll: true).Players
