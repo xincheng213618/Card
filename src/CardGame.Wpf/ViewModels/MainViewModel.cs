@@ -680,6 +680,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Zili or
                     DecisionKind.Qice or
                     DecisionKind.Zhiyu or
+                    DecisionKind.Anxu or
+                    DecisionKind.ZhuiyiTarget or
                     DecisionKind.Qianxi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
@@ -742,6 +744,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Zili or
             DecisionKind.Qice or
             DecisionKind.Zhiyu or
+            DecisionKind.Anxu or
+            DecisionKind.ZhuiyiTarget or
             DecisionKind.Qianxi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
@@ -2071,6 +2075,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      DamageResolved");
                 EventStack.Add("        AskForSkill(Zhiyu)");
+            }
+            else if (pending.Kind == DecisionKind.Anxu)
+            {
+                EventStack.Add("      ActiveSkill(Anxu)");
+                EventStack.Add("        SelectOpaqueDonorHandSlot()");
+            }
+            else if (pending.Kind == DecisionKind.ZhuiyiTarget)
+            {
+                EventStack.Add("      DeathSkill(Zhuiyi)");
+                EventStack.Add("        SelectNonKillerTargetOrSkip()");
             }
             else if (pending.Kind == DecisionKind.Qianxi)
             {

@@ -935,6 +935,24 @@ public sealed record DirectDeathDeclaredEvent(
     SkillKind Skill,
     int TargetSeat) : IGameEvent;
 
+public sealed record AnxuResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int ReceiverSeat,
+    int DonorSeat,
+    int CardId,
+    CardKind CardKind,
+    Suit EffectiveSuit,
+    bool OwnerDrewCard) : IGameEvent;
+
+public sealed record ZhuiyiResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int TargetSeat,
+    int DrawnCardCount,
+    int RecoveredHp,
+    int TargetHp) : IGameEvent;
+
 public sealed record PlayerDyingEvent(
     long ResolutionId,
     int VictimSeat,

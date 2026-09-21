@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 89, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 90, 0))
     {
     }
 
@@ -148,12 +148,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 86, 0) &&
             version != new Version(1, 87, 0) &&
             version != new Version(1, 88, 0) &&
-            version != new Version(1, 89, 0))
+            version != new Version(1, 89, 0) &&
+            version != new Version(1, 90, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.89.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.90.0.");
         }
 
         _version = version;
@@ -744,6 +745,20 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     "你可以将两张手牌当【杀】使用或打出；每当你于出牌阶段内以此法使用的【杀】造成伤害后，你于此回合内拥有“武圣”和“咆哮”。",
                     SkillKind.Fuhun)),
                 new Version(1, 89, 0)));
+        }
+
+        if (_version >= new Version(1, 90, 0))
+        {
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:anxu",
+                "安恤",
+                "出牌阶段限一次，你可以选择两名手牌数不同的其他角色，令其中手牌少的角色先获得手牌多的角色的一张手牌再展示之，然后若以此法展示的牌不为黑桃，你摸一张牌。",
+                SkillKind.Anxu)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:zhuiyi",
+                "追忆",
+                "当你死亡时，你可以令除杀死你的角色外的一名其他角色摸三张牌，然后其回复1点体力。",
+                SkillKind.Zhuiyi)));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1859,10 +1874,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:guan-xing-zhang-bao", "关兴张苞", "guan_xing_zhang_bao",
                 "classic:fuhun", "shu", BaseHp: 4));
         }
+        if (_version >= new Version(1, 90, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:bu-lian-shi", "步练师", "bu_lian_shi",
+                "classic:anxu", "wu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:zhuiyi"],
+                Gender: GeneralGender.Female));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 89 } => GuanXingZhangBaoClassicGeneralIds,
+            { Major: 1, Minor: >= 90 } => BuLianShiClassicGeneralIds,
+            { Major: 1, Minor: 89 } => GuanXingZhangBaoClassicGeneralIds,
             { Major: 1, Minor: >= 88 } => LiaoHuaClassicGeneralIds,
             { Major: 1, Minor: >= 87 } => XunYouClassicGeneralIds,
             { Major: 1, Minor: 86 } => ZhongHuiClassicGeneralIds,
@@ -2400,6 +2424,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. LiaoHuaClassicGeneralIds,
         "classic:guan-xing-zhang-bao"
+    ];
+
+    internal static IReadOnlyList<string> BuLianShiClassicGeneralIds { get; } =
+    [
+        .. GuanXingZhangBaoClassicGeneralIds,
+        "classic:bu-lian-shi"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

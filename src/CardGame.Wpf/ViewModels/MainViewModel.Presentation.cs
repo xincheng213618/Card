@@ -347,6 +347,7 @@ public sealed partial class MainViewModel
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
         _selectedActiveSkillCardIds.All(id => action.SelectableCardIds.Contains(id)) &&
         _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat)) &&
+        (action.Skill != SkillKind.Anxu || HasUnequalAnxuTargetHands()) &&
         (action.Skill != SkillKind.Luanji || Hand.Where(card => _selectedActiveSkillCardIds.Contains(card.Id))
             .Select(card => card.SuitGlyph).Distinct(StringComparer.Ordinal).Count() == 1);
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;
@@ -625,6 +626,19 @@ public sealed partial class MainViewModel
         return string.Join("、", parts);
     }
 
+    private bool HasUnequalAnxuTargetHands()
+    {
+        if (_selectedActiveSkillTargetSeats.Count != 2)
+        {
+            return false;
+        }
+
+        var selected = Seats
+            .Where(seat => _selectedActiveSkillTargetSeats.Contains(seat.Seat))
+            .ToArray();
+        return selected.Length == 2 && selected[0].HandCount != selected[1].HandCount;
+    }
+
     private string GetActiveSkillSelectionHint()
     {
         var action = HumanActiveSkillAction;
@@ -642,7 +656,11 @@ public sealed partial class MainViewModel
             parts.Add($"目标 {_selectedActiveSkillTargetSeats.Count}/{FormatSelectionRange(action.MinTargetCount, action.MaxTargetCount)}");
         }
 
-        var next = CanConfirmActiveSkill ? $"点击「发动{skillName}」或按 Enter 确认。" : "选够牌和目标后即可确认；Esc 取消。";
+        var next = CanConfirmActiveSkill
+            ? $"点击「发动{skillName}」或按 Enter 确认。"
+            : action.Skill == SkillKind.Anxu && _selectedActiveSkillTargetSeats.Count == 2
+                ? "两名目标的手牌数必须不同；Esc 取消。"
+                : "选够牌和目标后即可确认；Esc 取消。";
         return $"【{skillName}】{string.Join(" · ", parts)} · {next}";
     }
 

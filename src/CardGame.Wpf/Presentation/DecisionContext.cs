@@ -62,6 +62,16 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 title = $"{Name(source)} · {card} · 轮到你选牌";
                 targetLabel = "正在选牌";
                 break;
+            case DecisionKind.Anxu:
+                target ??= prompt.ValidTargetSeats.SingleOrDefault(-1);
+                title = $"安恤 · {Name(prompt.PlayerSeat)}选择暗手牌";
+                targetLabel = "手牌较多者";
+                break;
+            case DecisionKind.ZhuiyiTarget:
+                target = prompt.PlayerSeat;
+                title = "追忆 · 选择受益角色或跳过";
+                targetLabel = "技能拥有者";
+                break;
             default:
                 title = $"当前技能选择 · {Name(prompt.PlayerSeat)}";
                 break;

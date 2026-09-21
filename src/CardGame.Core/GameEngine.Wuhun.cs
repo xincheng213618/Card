@@ -34,6 +34,7 @@ public sealed partial class GameEngine
             frameId,
             death,
             owner.Seat,
+            SkillKind.Wuhun,
             candidates,
             _pendingDeathSkill);
         _pendingDeathSkill = pending;
@@ -189,20 +190,31 @@ public sealed partial class GameEngine
 
     private void CompleteWuhunDeathSkill(DeathSkillResolution pending)
     {
-        if (!ReferenceEquals(_pendingDeathSkill, pending))
+        if (!ReferenceEquals(_pendingDeathSkill, pending) || pending.Skill != SkillKind.Wuhun)
         {
             throw new InvalidOperationException("The completed Wuhun death skill is not current.");
+        }
+
+        CompleteDeathSkillResolution(pending);
+    }
+
+    private void CompleteDeathSkillResolution(DeathSkillResolution pending)
+    {
+        if (!ReferenceEquals(_pendingDeathSkill, pending))
+        {
+            throw new InvalidOperationException("The completed death skill is not current.");
         }
 
         ReplaceDeathSkillFrame(pending, ResolutionFrameStep.Completed);
         QueueGameEvent(new DeathSkillResolvedEvent(
             pending.FrameId,
             pending.OwnerSeat,
-            SkillKind.Wuhun,
+            pending.Skill,
             pending.TargetSeat));
         PopResolutionFrame(pending.FrameId, ResolutionFrameKind.DeathSkill);
         _pendingDeathSkill = pending.Parent;
-        CompleteDeathResolution(pending.Death);
+        pending.Death.ResolvedSkills.Add(pending.Skill);
+        ContinueDeathResolution(pending.Death);
     }
 
     private void CompleteDeathResolution(DeathResolution death)
@@ -306,7 +318,8 @@ public sealed partial class GameEngine
     {
         var pending = _pendingDeathSkill ??
             throw new InvalidOperationException("A Wuhun death-skill invariant requires an active continuation.");
-        if (!SupportsWuhunDeathTargetSelection ||
+        if (pending.Skill != SkillKind.Wuhun ||
+            !SupportsWuhunDeathTargetSelection ||
             !ReferenceEquals(_pendingDeath, pending.Death) ||
             _winner != Winner.None ||
             _players[pending.OwnerSeat].IsAlive)
@@ -415,18 +428,21 @@ public sealed partial class GameEngine
         public DeathSkillResolution? CausingDeathSkill { get; } = causingDeathSkill;
         public ProgramCauseDeathResolution? CausingProgramCauseDeath { get; } = causingProgramCauseDeath;
         public DeathResolution? Parent { get; } = parent;
+        public HashSet<SkillKind> ResolvedSkills { get; } = [];
     }
 
     private sealed class DeathSkillResolution(
         long frameId,
         DeathResolution death,
         int ownerSeat,
+        SkillKind skill,
         IReadOnlyList<int> candidateSeats,
         DeathSkillResolution? parent)
     {
         public long FrameId { get; } = frameId;
         public DeathResolution Death { get; } = death;
         public int OwnerSeat { get; } = ownerSeat;
+        public SkillKind Skill { get; } = skill;
         public IReadOnlyList<int> CandidateSeats { get; } =
             Array.AsReadOnly(candidateSeats.ToArray());
         public int? TargetSeat { get; set; }

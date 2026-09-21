@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:bu-lian-shi",
+  "acceptedAt": "2026-09-21T17:43:01+08:00",
+  "scope": "P1-A63 classic Bu Lian Shi, Anxu and Zhuiyi rules, interaction and official portrait",
+  "selectedVersion": "一将成名官网与BWIKI一将成名2012经典步练师（吴3体力，安恤、追忆）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/302.html",
+      "use": "一将成名官方武将页冻结经典步练师规则：安恤选择两名手牌数不同的其他角色，由手牌少者获得并展示手牌多者的一张手牌，若展示牌不为黑桃则步练师摸一张；追忆在死亡时可令杀死她的角色之外的一名其他角色摸三张并回复1点体力。该页同时提供574x761经典静态大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%AD%A5%E7%BB%83%E5%B8%88",
+      "use": "交叉核对一将成名2012、吴势力、女性、3体力与经典问答：所有其他角色手牌数相同时不能发动安恤；小乔以红颜改变所展示黑桃的有效花色后步练师摸牌；追忆可选择满体力角色；没有伤害来源的死亡不会排除通常意义上的杀死者。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分技能标签、应用状态与触发执行：安恤由玩家在出牌阶段发起，建模为Active；追忆在死亡事件上询问拥有者是否发动，建模为可选Trigger，而非锁定或自动State。"
+    }
+  ],
+  "ruleText": {
+    "anxu": "出牌阶段限一次，你可以选择两名手牌数不同的其他角色，令其中手牌少的角色先获得手牌多的角色的一张手牌再展示之，然后若以此法展示的牌不为黑桃，你摸一张牌。",
+    "zhuiyi": "当你死亡时，你可以令除杀死你的角色外的一名其他角色摸三张牌，然后其回复1点体力。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.90.0",
+    "rulesVersion": 112,
+    "generalId": "classic:bu-lian-shi",
+    "skillIds": [
+      "classic:anxu",
+      "classic:zhuiyi"
+    ],
+    "skillMetadata": {
+      "anxu": "Active",
+      "zhuiyi": "optional Trigger"
+    },
+    "anxuInteraction": "the shared active-skill draft requires exactly two other living targets with unequal public hand counts; the lower-hand receiver alone gets a private prompt containing opaque donor-hand slot ordinals, and the chosen physical card moves through Processing before entering the receiver hand and being publicly revealed",
+    "anxuEffectiveSuit": "the revealed card checks EffectiveSuit on the receiver, so classic Hongyan converts a Spade to Heart before deciding whether Bu Lian Shi draws",
+    "zhuiyiInteraction": "the dead owner receives one private optional target prompt over frozen living candidates excluding the actual killer; the target draws three before recovering up to one HP, so a full-health target still draws without a fabricated recovery",
+    "deathContinuation": "death-skill continuation now records resolved SkillKind values and can sequence Wuhun and Zhuiyi without re-entering an already completed death skill",
+    "auditEvents": [
+      "AnxuResolvedEvent",
+      "CardsRevealedEvent",
+      "DeathSkillStartedEvent",
+      "DeathSkillTargetSelectedEvent",
+      "ZhuiyiResolvedEvent",
+      "DeathSkillResolvedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.89.0",
+    "previousRulesVersion": 111,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the accepted command prefix reconstructs the selected Anxu target pair, private opaque hand-slot choice, effective-suit result, optional Zhuiyi target or skip, card movements and death-skill continuation",
+    "legacyPolicy": "rules v111 keeps Anxu and Zhuiyi disabled even when package 1.90.0 is loaded; package 1.89.0 does not register Bu Lian Shi"
+  },
+  "portrait": {
+    "resourceKey": "bu_lian_shi",
+    "localPath": "src/CardGame.Wpf/Assets/official-bu-lian-shi.png",
+    "sourcePage": "https://x.sanguosha.com/hero/302.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130201.png",
+    "sha256": "700C025B276F3B7E37091DAD1843B202346AFD474DE7A98FBFA645A9456C824A",
+    "bytes": 206865,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Format8bppIndexed",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Bu Lian Shi artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build -- --only-bu-lian-shi",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "targetedCoreDurationSeconds": 0.97,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore",
+    "fullCorePassed": 324,
+    "fullCoreTotal": 324,
+    "fullCoreDurationSeconds": 34.11,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-build -- --only-bu-lian-shi",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 2.19,
+    "fullWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-build",
+    "fullWpfPassed": 96,
+    "fullWpfTotal": 96,
+    "fullWpfDurationSeconds": 95.96,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 1.09,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "%LOCALAPPDATA%/Temp/card-ui-check/209-classic-bu-lian-shi-card.png",
+      "%LOCALAPPDATA%/Temp/card-ui-check/210-classic-anxu-active-draft.png",
+      "%LOCALAPPDATA%/Temp/card-ui-check/211-classic-zhuiyi-target-choice.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "Anxu is absent before package 1.90.0 and rules v112, remains once per play phase and rejects equal-hand target pairs in both the engine and WPF confirmation surface",
+      "only the lower-hand receiver sees opaque donor-hand slot ordinals; no hidden card id or kind leaks to the owner, donor or observers",
+      "the selected physical card moves through Processing, is publicly revealed and checks the receiver's effective suit, including the classic Hongyan Spade-to-Heart FAQ",
+      "Zhuiyi is an optional dead-owner trigger that excludes the actual killer while allowing a full-health target to draw three cards and recover zero HP",
+      "paused Anxu and Zhuiyi prompts and their completed branches replay exactly from accepted commands",
+      "the official portrait, exact classic rule text, Active/Trigger skill rail, active draft, private death prompt and public battle cues render without clipping or binding errors"
+    ]
+  },
+  "excludedVariants": [
+    "Jie Bu Lian Shi and other boundary-breakthrough Anxu or Zhuiyi variants",
+    "mobile, self-chess and other-product Bu Lian Shi definitions",
+    "automatic Zhuiyi resolution without the dead owner's optional trigger choice"
+  ],
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

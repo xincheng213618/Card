@@ -249,7 +249,9 @@ public enum SkillKind
     Zhiyu,
     Dangxian,
     Fuli,
-    Fuhun
+    Fuhun,
+    Anxu,
+    Zhuiyi
 }
 
 public enum DecisionKind
@@ -325,7 +327,9 @@ public enum DecisionKind
     Quanji,
     Zili,
     Qice,
-    Zhiyu
+    Zhiyu,
+    Anxu,
+    ZhuiyiTarget
 }
 
 public enum JiangchiMode

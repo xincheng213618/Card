@@ -1065,6 +1065,8 @@ public sealed partial class GameEngine
                 DecisionKind.Zili or
                 DecisionKind.Qice or
                 DecisionKind.Zhiyu or
+                DecisionKind.Anxu or
+                DecisionKind.ZhuiyiTarget or
                 DecisionKind.Qianxi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
@@ -1187,6 +1189,16 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.WuhunTarget)
         {
             return SubmitWuhunTargetAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Anxu)
+        {
+            return SubmitAnxuPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.ZhuiyiTarget)
+        {
+            return SubmitZhuiyiTargetAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Yingzi)
@@ -2752,7 +2764,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.StartArrowBarrage or
                 ActiveSkillEffectKind.RemoveAuthorityDrawAndDamage or
                 ActiveSkillEffectKind.ChooseOrdinaryTrick or
-                ActiveSkillEffectKind.UseTwoHandCardsAsSlash) ||
+                ActiveSkillEffectKind.UseTwoHandCardsAsSlash or
+                ActiveSkillEffectKind.TransferHandBetweenUnequalTargets) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -2811,6 +2824,10 @@ public sealed partial class GameEngine
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
              effect.MinCardCount != 2 || effect.MaxCardCount != 2 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
+            effect.Kind == ActiveSkillEffectKind.TransferHandBetweenUnequalTargets &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 0 || effect.MaxCardCount != 0 ||
+             effect.MinTargetCount != 2 || effect.MaxTargetCount != 2) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
             effect.MinTargetCount < 0 ||
@@ -2864,6 +2881,13 @@ public sealed partial class GameEngine
             return new CommandError(
                 CommandErrorCode.InvalidTarget,
                 "Every active-skill target must be one of the published candidates.");
+        }
+
+        if (skill == SkillKind.Anxu && UsesFormalBuLianShi && !IsAnxuTargetPair(targetSeats))
+        {
+            return new CommandError(
+                CommandErrorCode.InvalidTarget,
+                "Anxu requires two other living characters with different hand counts.");
         }
 
         return null;
@@ -3171,6 +3195,8 @@ public sealed partial class GameEngine
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
+                    IsAiAnxuPending() ||
+                    IsAiZhuiyiTargetPending() ||
                     IsAiLiuliPending() ||
                     IsAiGuanxingPending())
                 {
@@ -7192,6 +7218,18 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiZhuiyiTargetPending())
+        {
+            ResolvePendingAiZhuiyiTarget();
+            return;
+        }
+
+        if (IsAiAnxuPending())
+        {
+            ResolvePendingAiAnxu();
+            return;
+        }
+
         if (_pendingDying is not null)
         {
             RunOneDyingStep();
@@ -7408,7 +7446,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.StartArrowBarrage or
                 ActiveSkillEffectKind.RemoveAuthorityDrawAndDamage or
                 ActiveSkillEffectKind.ChooseOrdinaryTrick or
-                ActiveSkillEffectKind.UseTwoHandCardsAsSlash))
+                ActiveSkillEffectKind.UseTwoHandCardsAsSlash or
+                ActiveSkillEffectKind.TransferHandBetweenUnequalTargets))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -7463,6 +7502,12 @@ public sealed partial class GameEngine
             recordedCardIds,
             recordedTargetSeats));
         SetActiveSkillFrameStep(frameId, ResolutionFrameStep.ResolvingEffect);
+
+        if (effect.Kind == ActiveSkillEffectKind.TransferHandBetweenUnequalTargets)
+        {
+            BeginAnxuSelection(frameId, actor, targetSeats);
+            return;
+        }
 
         if (effect.Kind == ActiveSkillEffectKind.RemoveAuthorityDrawAndDamage)
         {
@@ -21096,6 +21141,11 @@ public sealed partial class GameEngine
                 continue;
             }
 
+            if (activeSkill.Kind == SkillKind.Anxu && !CanUseAnxu(actor))
+            {
+                continue;
+            }
+
             if (activeSkill.Kind == SkillKind.Jijiang && !CanUseActiveJijiang(actor))
             {
                 continue;
@@ -22692,10 +22742,7 @@ public sealed partial class GameEngine
                     IsNationalWarMode ? _winnerFactionId : null));
             }
 
-            if (!TryBeginWuhunDeathTargetSelection(death, victim))
-            {
-                CompleteDeathResolution(death);
-            }
+            ContinueDeathResolution(death);
         }
         catch
         {
@@ -23337,6 +23384,8 @@ public sealed partial class GameEngine
                 .ToHashSet(),
             SkillKind.Fuhun when UsesFormalGuanXingZhangBao =>
                 GetFuhunTargetSeats(actor),
+            SkillKind.Anxu when UsesFormalBuLianShi =>
+                GetAnxuTargetSeats(actor),
             _ => new HashSet<int>()
         };
 
@@ -23552,6 +23601,7 @@ public sealed partial class GameEngine
             AssertXianzhenInvariant();
             AssertZishouInvariant();
             AssertWangYiInvariant();
+            AssertAnxuInvariant();
         }
         _cardZones.AssertInvariants(_initialCardCount);
 
@@ -23586,7 +23636,7 @@ public sealed partial class GameEngine
 
         if (_pendingDeathSkill is not null)
         {
-            AssertWuhunDeathSkillInvariant();
+            AssertDeathSkillInvariant();
             return;
         }
 
@@ -25056,6 +25106,13 @@ public sealed partial class GameEngine
                 activeSkillFrame.Effect == ActiveSkillEffectKind.RequestSlash &&
                 _pendingJijiang is { IsActiveUse: true } activeJijiang &&
                 activeJijiang.ActiveSkillFrameId == activeSkillFrame.Id;
+            var isAnxuContinuation =
+                activeSkillFrame.Skill == SkillKind.Anxu &&
+                activeSkillFrame.Effect == ActiveSkillEffectKind.TransferHandBetweenUnequalTargets &&
+                activeSkillFrame.Step == ResolutionFrameStep.AwaitingResponse &&
+                _pendingAnxu is { } anxu &&
+                anxu.FrameId == activeSkillFrame.Id &&
+                _pendingDecision is { Kind: DecisionKind.Anxu };
             if (!isSelfCostDying &&
                 !isFanjianPrompt &&
                 !isFanjianDamage &&
@@ -25065,7 +25122,8 @@ public sealed partial class GameEngine
                 !isTianyiContinuation &&
                 !isXianzhenContinuation &&
                 !isLijianDuel &&
-                !isJijiangContinuation)
+                !isJijiangContinuation &&
+                !isAnxuContinuation)
             {
                 throw new InvalidOperationException(
                     "An active-skill frame has no supported prompt, damage or dying continuation.");

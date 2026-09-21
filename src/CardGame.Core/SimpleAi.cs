@@ -466,6 +466,15 @@ public sealed partial class SimpleAiBrain
         {
             return [Seat];
         }
+        if (action.Skill == SkillKind.Anxu)
+        {
+            var pair = ChooseAnxuPair(view, selfRole, candidates);
+            if (pair is null)
+            {
+                throw new InvalidOperationException("Anxu published no unequal-hand target pair.");
+            }
+            return [pair.Value.Receiver.Seat, pair.Value.Donor.Seat];
+        }
         if (action.Kind == LegalActionKind.UseProgramSkill)
         {
             var hint = action.ProgramAiHint ?? throw new InvalidOperationException(
@@ -494,6 +503,42 @@ public sealed partial class SimpleAiBrain
             .Take(action.MinTargetCount)
             .Select(player => player.Seat)
             .ToArray();
+    }
+
+    private (PlayerSnapshot Receiver, PlayerSnapshot Donor)? ChooseAnxuPair(
+        GameSnapshot view,
+        Role selfRole,
+        IReadOnlyList<PlayerSnapshot> candidates)
+    {
+        var pairs = new List<(PlayerSnapshot Receiver, PlayerSnapshot Donor, double Score)>();
+        for (var first = 0; first < candidates.Count; first++)
+        {
+            for (var second = first + 1; second < candidates.Count; second++)
+            {
+                if (candidates[first].HandCount == candidates[second].HandCount)
+                {
+                    continue;
+                }
+
+                var receiver = candidates[first].HandCount < candidates[second].HandCount
+                    ? candidates[first]
+                    : candidates[second];
+                var donor = receiver.Seat == candidates[first].Seat
+                    ? candidates[second]
+                    : candidates[first];
+                var score = GetTacticalSupport(view, selfRole, receiver) * 24d -
+                            GetTacticalSupport(view, selfRole, donor) * 18d +
+                            Math.Min(4, donor.HandCount - receiver.HandCount) * 3d;
+                pairs.Add((receiver, donor, score));
+            }
+        }
+
+        return pairs
+            .OrderByDescending(pair => pair.Score)
+            .ThenBy(pair => pair.Receiver.Seat)
+            .ThenBy(pair => pair.Donor.Seat)
+            .Select(pair => ((PlayerSnapshot Receiver, PlayerSnapshot Donor)?)(pair.Receiver, pair.Donor))
+            .FirstOrDefault();
     }
 
     /// <summary>
@@ -2221,7 +2266,8 @@ public sealed partial class SimpleAiBrain
         int targetSeat,
         LegalActionKind actionKind,
         IReadOnlyList<PromptChoice> choices,
-        int thoughtSequence)
+        int thoughtSequence,
+        string? effectNameOverride = null)
     {
         if (choices.Count == 0)
         {
@@ -2229,7 +2275,8 @@ public sealed partial class SimpleAiBrain
         }
 
         var target = view.Players.Single(player => player.Seat == targetSeat);
-        var effectName = actionKind == LegalActionKind.Dismantlement ? "过河拆桥" : "顺手牵羊";
+        var effectName = effectNameOverride ??
+            (actionKind == LegalActionKind.Dismantlement ? "过河拆桥" : "顺手牵羊");
         var candidates = choices
             .Select(choice => new AiCandidateScore(
                 new LegalAction(actionKind, null, targetSeat, choice.Description),
@@ -2245,6 +2292,58 @@ public sealed partial class SimpleAiBrain
             candidates,
             $"{effectName}：目标 {target.Name} 有 {target.HandCount} 张隐藏手牌，候选牌位信息相同，选择第一个不透明牌位。");
         return (selected.Id, thought);
+    }
+
+    /// <summary>
+    /// Chooses whether and where to grant Zhuiyi's public draw/recovery benefit.
+    /// The killer is already excluded by the engine; scoring uses only roles,
+    /// health and hand counts present in this dead owner's filtered snapshot.
+    /// </summary>
+    public (int? TargetSeat, AiThoughtRecord Thought) ChooseZhuiyiTarget(
+        GameSnapshot view,
+        IReadOnlyList<int> targetSeats,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var selfRole = self.Role ?? Role.Renegade;
+        var candidates = targetSeats
+            .Select(targetSeat => view.Players.Single(player => player.Seat == targetSeat))
+            .Where(player => player.IsAlive)
+            .Select(target =>
+            {
+                var support = GetTacticalSupport(view, selfRole, target);
+                var recovery = target.Hp < target.MaxHp ? 18d : 0d;
+                var handNeed = Math.Max(0, target.MaxHp - target.HandCount) * 2d;
+                var score = Math.Round(support * (30d + recovery + handNeed) +
+                    _random.NextDouble() * 0.001d, 3);
+                return new AiCandidateScore(
+                    new LegalAction(
+                        LegalActionKind.UseSkill,
+                        null,
+                        target.Seat,
+                        $"对座位 {target.Seat + 1} 发动追忆",
+                        Skill: SkillKind.Zhuiyi),
+                    score,
+                    "令公开关系更友好的合法目标摸三张牌，并在受伤时回复1点体力。");
+            })
+            .ToList();
+        candidates.Add(new AiCandidateScore(
+            new LegalAction(LegalActionKind.UseSkill, null, null, "不发动追忆", Skill: SkillKind.Zhuiyi),
+            0d,
+            "没有合适受益者时保留可选触发。"));
+
+        var selected = candidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.Action.TargetSeat ?? int.MaxValue)
+            .First();
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Action.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"追忆：从 {targetSeats.Count} 个已排除实际击杀者的公开候选中选择受益者。 ");
+        return (selected.Action.TargetSeat, thought);
     }
 
     /// <summary>
@@ -2666,6 +2765,28 @@ public sealed partial class SimpleAiBrain
                     ? (19d + fuhunHostility * .45d + (fuhunTarget.Hp <= 1 ? 35d : 0d) - cost,
                         $"发动【父魂】对座位 {fuhunTarget.Seat + 1} 使用虚拟【杀】，支付两张最低保留价值手牌。")
                     : (-100d, "父魂合法目标中没有值得支付两张手牌攻击的敌对角色。");
+            }
+
+            if (action.Skill == SkillKind.Anxu)
+            {
+                var candidates = view.Players
+                    .Where(player => player.IsAlive &&
+                        player.Seat != Seat &&
+                        action.SelectableTargetSeats.Contains(player.Seat))
+                    .ToArray();
+                var pair = ChooseAnxuPair(view, selfRole, candidates);
+                if (pair is null)
+                {
+                    return (-100d, "没有手牌数不同的两名其他角色，不能发动安恤。");
+                }
+
+                var support = GetTacticalSupport(view, selfRole, pair.Value.Receiver);
+                var donorSupport = GetTacticalSupport(view, selfRole, pair.Value.Donor);
+                var score = 18d + support * 16d - donorSupport * 12d;
+                return score > 0
+                    ? (score,
+                        $"令座位 {pair.Value.Receiver.Seat + 1} 从手牌较多的座位 {pair.Value.Donor.Seat + 1} 获得一张暗牌；只依据公开手牌数和关系评分。")
+                    : (-80d, "当前安恤组合更可能帮助敌对角色，暂不发动。");
             }
 
             if (action.Skill == SkillKind.Qiangxi)

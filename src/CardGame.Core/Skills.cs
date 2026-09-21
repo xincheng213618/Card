@@ -34,7 +34,8 @@ public enum ActiveSkillEffectKind
     StartArrowBarrage,
     RemoveAuthorityDrawAndDamage,
     ChooseOrdinaryTrick,
-    UseTwoHandCardsAsSlash
+    UseTwoHandCardsAsSlash,
+    TransferHandBetweenUnequalTargets
 }
 
 public sealed record ActiveSkillEffect(
@@ -1161,6 +1162,28 @@ public sealed class FuhunSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
+public sealed class AnxuSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Anxu;
+    public string Name => "安恤";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.TransferHandBetweenUnequalTargets,
+            MinTargetCount: 2,
+            MaxTargetCount: 2);
+}
+
+public sealed class ZhuiyiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Zhuiyi;
+    public string Name => "追忆";
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -1377,6 +1400,8 @@ public static class SkillRegistry
             [SkillKind.Dangxian] = new DangxianSkill(),
             [SkillKind.Fuli] = new FuliSkill(),
             [SkillKind.Fuhun] = new FuhunSkill(),
+            [SkillKind.Anxu] = new AnxuSkill(),
+            [SkillKind.Zhuiyi] = new ZhuiyiSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),

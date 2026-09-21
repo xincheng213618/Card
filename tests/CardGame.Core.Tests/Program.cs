@@ -91,6 +91,9 @@ var tests = new (string Name, Action Body)[]
     ("formal Guan Xing and Zhang Bao version continuous active Fuhun", GuanXingZhangBaoChecks.ContentAndRulesBoundary),
     ("Fuhun damage grants Wusheng and Paoxiao for one turn", GuanXingZhangBaoChecks.ActiveSlashGrantsParentSkillsForOneTurnAndReplays),
     ("Fuhun responds with two exact hand cards without granting parent skills", GuanXingZhangBaoChecks.SlashResponseUsesExactPairWithoutGrantAndReplays),
+    ("formal Bu Lian Shi versions active Anxu and optional Zhuiyi", BuLianShiChecks.ContentAndRulesBoundary),
+    ("Anxu lets the lower-hand receiver choose an opaque card and applies effective suit", BuLianShiChecks.AnxuUsesOpaqueReceiverChoiceAndEffectiveSuit),
+    ("Zhuiyi excludes the killer and may benefit a full-health target", BuLianShiChecks.ZhuiyiExcludesKillerAndAllowsFullHealthTarget),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -405,6 +408,14 @@ if (args.FirstOrDefault() == "--only-guan-xing-zhang-bao")
     tests = tests.Where(test =>
         test.Name.Contains("Guan Xing", StringComparison.Ordinal) ||
         test.Name.Contains("Fuhun", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-bu-lian-shi")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Bu Lian Shi", StringComparison.Ordinal) ||
+        test.Name.Contains("Anxu", StringComparison.Ordinal) ||
+        test.Name.Contains("Zhuiyi", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;
