@@ -167,6 +167,67 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void SpGuanYuPortraitAndCard(string output)
+    {
+        using var viewModel = FindGeneralChoice("sp:guan-yu");
+        var spGuanYu = viewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "sp:guan-yu");
+        var portrait = spGuanYu.PortraitBrush as System.Windows.Media.ImageBrush;
+        var classicPortrait = GeneralArt.GetPortrait("classic:guan-yu");
+        Program.Assert(spGuanYu.Name == "SP关羽" &&
+                       spGuanYu.Kingdom == "魏" &&
+                       spGuanYu.SkillName == "武圣 / 单骑" &&
+                       spGuanYu.SkillDescription.Contains("方块【杀】无距离限制", StringComparison.Ordinal) &&
+                       spGuanYu.SkillDescription.Contains("获得【马术】和【怒斩】", StringComparison.Ordinal) &&
+                       spGuanYu.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(spGuanYu.GeneralId) &&
+                       portrait is
+                       {
+                           Stretch: System.Windows.Media.Stretch.UniformToFill,
+                           AlignmentY: System.Windows.Media.AlignmentY.Top,
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource
+                           {
+                               PixelWidth: 750,
+                               PixelHeight: 950
+                           }
+                       } &&
+                       !ReferenceEquals(portrait, classicPortrait),
+            $"The formal SP Guan Yu card must render Wei, Wusheng, Danji, Lord health and its independent official portrait " +
+            $"(name={spGuanYu.Name}, kingdom={spGuanYu.Kingdom}, skills={spGuanYu.SkillName}, " +
+            $"health={spGuanYu.HealthText}, portrait={portrait?.ImageSource.Width}x{portrait?.ImageSource.Height}).");
+
+        viewModel.PreviewGeneralChoiceCommand.Execute(spGuanYu);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "180-sp-guan-yu-card.png"));
+        var skillDescription = Program.Find<System.Windows.Controls.TextBlock>(root)
+            .Single(text => ReferenceEquals(text.DataContext, spGuanYu) &&
+                            text.Text == spGuanYu.SkillDescription);
+        var unconstrainedDescription = new System.Windows.Controls.TextBlock
+        {
+            Text = skillDescription.Text,
+            TextWrapping = skillDescription.TextWrapping,
+            FontFamily = skillDescription.FontFamily,
+            FontStyle = skillDescription.FontStyle,
+            FontWeight = skillDescription.FontWeight,
+            FontStretch = skillDescription.FontStretch,
+            FontSize = skillDescription.FontSize,
+            LineHeight = skillDescription.LineHeight,
+            LineStackingStrategy = skillDescription.LineStackingStrategy,
+            FlowDirection = skillDescription.FlowDirection,
+            Language = skillDescription.Language
+        };
+        unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+        Program.Assert(skillDescription.ActualHeight > 0 &&
+                       skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height,
+            $"The 1120x740 SP Guan Yu selection card must keep both complete skill descriptions visible " +
+            $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}).");
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MouLuMengSkillState(string output)
     {
         using var viewModel = FindGeneralChoice("mou:lu-meng");

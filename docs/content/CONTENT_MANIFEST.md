@@ -167,6 +167,7 @@
 | `classic:zhang-fei` | 张飞 | `zhang_fei` | `classic:paoxiao` | implemented-registry + classic 1.20 | locked-slash-limit, same-phase-multiple-slash, shared-ai-policy |
 | `classic:zhao-yun` | 赵云 | `zhao_yun` | `classic:longdan` | implemented-registry + classic 1.21 | dodge-to-slash, slash-to-dodge, physical-effective-kind-separation, private-response |
 | `classic:guan-yu` | 关羽 | `guan_yu` | `classic:wusheng` | implemented-registry + classic 1.22 | hand-or-equipment red-card, active-or-response conversion, source-zone-preservation |
+| `sp:guan-yu` | SP关羽 | `sp-guan-yu`（官网独立肖像） | `sp:guan-yu-wusheng` + `sp:danji`，觉醒后获得 `sp:guan-yu-mashu` + `sp:nuzhan` | implemented-registry + classic 1.69 / rules v98 | awakening, acquired-skills, exact-conversion-source, square-slash-distance, trick-slash-limit, equipment-slash-damage |
 | `classic:yan-yan` | 严颜 | `yan_yan` | `classic:juzhan` | implemented-registry + classic 1.70 | conversion-state, slash-target-trigger, opaque-target-card, per-target-turn-prohibition |
 | `mou:lu-meng` | 谋吕蒙 | `mou-lu-meng`（官网独立肖像） | `mou:hengye` + `mou:yingbo` | implemented-registry + classic 1.80 / rules v102 | game-growth, skill-reset, round-card-name-ledger, unrespondable-first-use, optional-card-gift, fire-damage-bonus |
 | `standard:guan-yu` | 关羽 | `guan_yu` | `standard:wusheng` | implemented-registry + classic 1.21 compatibility | hand red-card, conversion, attack |

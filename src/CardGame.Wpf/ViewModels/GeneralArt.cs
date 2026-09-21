@@ -74,6 +74,8 @@ public static class GeneralArt
             ["boundary-zhang-jiao"] = "general-zhang-jiao.png",
             ["shen-guan-yu"] = "wiki-shen-guan-yu-classic.png",
             ["sp-zhao-yun"] = "wiki-sp-zhao-yun-classic.png",
+            // Official artwork URL and hash: docs/content/sources/sp-guan-yu-c23-2026-09-21.json.
+            ["sp-guan-yu"] = "official-sp-guan-yu.png",
             // Official artwork URL and hash: docs/content/sources/mou-lu-meng-c22-2026-09-21.json.
             ["mou-lu-meng"] = "official-mou-lu-meng.png",
             ["sun-jian"] = "general-sun-jian.png",
