@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:liao-hua",
+  "acceptedAt": "2026-09-21T15:56:27+08:00",
+  "scope": "P1-A61 classic Liao Hua, Dangxian/Fuli rules and official portrait",
+  "selectedVersion": "一将成名官网与BWIKI经典版本廖化（蜀4体力，当先／伏枥）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/300.html",
+      "use": "一将成名官方武将页冻结经典廖化规则：当先在回合开始时强制执行一个额外出牌阶段；伏枥在自己濒死时可将体力回复至现存势力数并翻面。该页同时提供574x761经典静态大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E5%BB%96%E5%8C%96",
+      "use": "交叉核对一将成名2012经典版本、蜀势力、4体力及当先／伏枥，并与界限突破版分栏，防止混入失去体力、获得杀或补手牌等增量。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页拆分标签与执行形态：当先是无需确认且持续由规则自动执行的Locked + State；伏枥是本局限一次且在濒死时由玩家确认的Limited + Trigger。"
+    }
+  ],
+  "ruleText": {
+    "dangxian": "锁定技，回合开始时，你执行一个额外的出牌阶段。",
+    "fuli": "限定技，当你处于濒死状态时，你可以将体力回复至X点（X为现存势力数），然后将你的武将牌翻面。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.88.0",
+    "rulesVersion": 110,
+    "generalId": "classic:liao-hua",
+    "skillIds": [
+      "classic:dangxian",
+      "classic:fuli"
+    ],
+    "dangxianMetadata": "Locked + State",
+    "fuliMetadata": "Limited + Trigger",
+    "dangxianInteraction": "a mandatory extra Play phase starts before the normal preparation and draw chain; phase-scoped Slash, active-skill, Wooden Ox and failed Jijiang state reset independently while turn-scoped Alcohol state remains",
+    "fuliInteraction": "the existing private RescueDying prompt offers Fuli only to its dying owner; resolution consumes one game-scoped activation, recovers to the living-faction count capped by max HP, toggles face state and resumes the shared dying chain",
+    "auditEvents": [
+      "DangxianExtraPlayPhaseEvent",
+      "FuliResolvedEvent",
+      "RecoveryAppliedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.87.0",
+    "previousRulesVersion": 109,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the mandatory extra phase, every accepted action, optional Fuli response, game-scoped usage, recovery and face state reconstruct from the accepted command prefix",
+    "legacyPolicy": "rules v109 keeps Dangxian and Fuli disabled even when package 1.88.0 is loaded; package 1.87.0 does not register Liao Hua"
+  },
+  "portrait": {
+    "resourceKey": "liao-hua",
+    "localPath": "src/CardGame.Wpf/Assets/official-liao-hua.png",
+    "sourcePage": "https://x.sanguosha.com/hero/300.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130001.png",
+    "sha256": "A5FEA48DC864433778D8FB4CA8FEB69ABCEF0B173D65887267228697CB26BDC6",
+    "bytes": 223129,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Indexed8",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Liao Hua artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build -- --only-liao-hua",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "targetedCoreDurationSeconds": 0.92,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build",
+    "fullCorePassed": 318,
+    "fullCoreTotal": 318,
+    "fullCoreDurationSeconds": 29.16,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-build -- artifacts/ui-check --only-liao-hua",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 2.36,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore --nologo",
+    "buildDurationSeconds": 0.98,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/ui-check/203-classic-liao-hua-card.png",
+      "artifacts/ui-check/204-classic-liao-hua-dangxian-play.png",
+      "artifacts/ui-check/205-classic-liao-hua-fuli-choice.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "Dangxian starts before the normal draw phase and a paused extra Play phase restores exactly",
+      "ending Dangxian resumes the normal turn chain and creates a second Play phase with fresh phase-scoped Slash and skill limits",
+      "Fuli is offered only to its dying owner and freezes the current living-faction count in the private choice",
+      "Fuli recovers to four in the four-faction fixture, flips the general, consumes its game-scoped use and is never offered a second time",
+      "rules v109 and package 1.87.0 preserve both pre-Liao-Hua boundaries",
+      "official portrait, exact classic text, Locked/State and Limited/Trigger types, consumed limited status, private dying choice and public battle cues render without clipping or binding errors"
+    ]
+  },
+  "excludedVariants": [
+    "boundary-breakthrough Dangxian that may lose HP to gain a Slash and its additional effects",
+    "boundary-breakthrough Fuli hand-refill and other changed recovery behavior",
+    "mobile, national-war and other-product Liao Hua definitions"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

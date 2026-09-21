@@ -246,7 +246,9 @@ public enum SkillKind
     Zili,
     Paiyi,
     Qice,
-    Zhiyu
+    Zhiyu,
+    Dangxian,
+    Fuli
 }
 
 public enum DecisionKind

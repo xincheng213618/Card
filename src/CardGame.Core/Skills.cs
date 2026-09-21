@@ -1131,6 +1131,18 @@ public sealed class ZhiyuSkill : IPassiveSkill
             : DamageSkillEffectKind.None;
 }
 
+public sealed class DangxianSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Dangxian;
+    public string Name => "当先";
+}
+
+public sealed class FuliSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Fuli;
+    public string Name => "伏枥";
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -1344,6 +1356,8 @@ public static class SkillRegistry
             [SkillKind.Paiyi] = new PaiyiSkill(),
             [SkillKind.Qice] = new QiceSkill(),
             [SkillKind.Zhiyu] = new ZhiyuSkill(),
+            [SkillKind.Dangxian] = new DangxianSkill(),
+            [SkillKind.Fuli] = new FuliSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),

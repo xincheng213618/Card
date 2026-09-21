@@ -2668,6 +2668,8 @@ public sealed partial class GameEngine
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             "niepan" when selected.Cards.Count == 0 => Accept(() => HumanNiepanCore(
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+            "fuli" when selected.Cards.Count == 0 => Accept(() => HumanFuliCore(
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
             "let-die" when selected.Cards.Count == 0 => Accept(() => HumanDyingResponseCore(
                 usePeach: false,
                 requestedPeachCardId: null,
@@ -3444,7 +3446,7 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.PlayCard);
         ClearPendingDecision();
-        BeginDiscardPhase();
+        CompleteCurrentPlayPhase();
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -5765,12 +5767,12 @@ public sealed partial class GameEngine
         }
 
         _pendingTurnDelayedEffects = DelayedTurnEffects.None;
-        if (TryBeginZiliAwakening(current))
+        if (TryBeginDangxianExtraPlay(current))
         {
             return;
         }
 
-        BeginTurnStartAfterZili(current);
+        BeginNormalTurnStartAfterDangxian(current);
     }
 
     private void BeginTurnStartAfterQianxi(PlayerRuntime current)
@@ -6487,6 +6489,13 @@ public sealed partial class GameEngine
 
     private void EnterPlayPhase(PlayerRuntime current)
     {
+        // Play-phase limits are distinct from turn-wide effects. Dangxian can
+        // create two Play phases in one turn, so Slash count and phase-limited
+        // actions reset here while Alcohol's once-per-turn flag remains intact.
+        _slashCountThisTurn = 0;
+        _woodenOxUsedThisTurn = false;
+        current.AiJijiangFailedThisTurn = false;
+        current.UsedActiveSkillKinds.Clear();
         ResetProgramContributionUsesForPlayPhase(current.Seat);
         _skillRuntimeState.ResetPhase();
         _phase = TurnPhase.Play;
@@ -7267,7 +7276,7 @@ public sealed partial class GameEngine
 
         if (action.Kind == LegalActionKind.EndPlay)
         {
-            BeginDiscardPhase();
+            CompleteCurrentPlayPhase();
             PublishState();
             return;
         }
@@ -18589,7 +18598,8 @@ public sealed partial class GameEngine
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
         if (responder.IsHuman)
         {
-            if (peaches.Length > 0 || alcohols.Length > 0 || CanUseNiepan(responder, dying))
+            if (peaches.Length > 0 || alcohols.Length > 0 || CanUseNiepan(responder, dying) ||
+                CanUseFuli(responder, dying))
             {
                 RequestHumanDyingResponse(responder, peaches, alcohols);
                 return;
@@ -18601,6 +18611,13 @@ public sealed partial class GameEngine
                 peachCardId: null,
                 useAlcohol: false,
                 alcoholCardId: null);
+            PublishState();
+            return;
+        }
+
+        if (CanUseFuli(responder, dying))
+        {
+            ResolveFuli();
             PublishState();
             return;
         }
@@ -18642,7 +18659,8 @@ public sealed partial class GameEngine
 
         var peaches = GetDyingPeaches(responder);
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
-        if (peaches.Length > 0 || alcohols.Length > 0 || CanUseNiepan(responder, dying))
+        if (peaches.Length > 0 || alcohols.Length > 0 || CanUseNiepan(responder, dying) ||
+            CanUseFuli(responder, dying))
         {
             RequestHumanDyingResponse(responder, peaches, alcohols);
         }
@@ -18693,13 +18711,30 @@ public sealed partial class GameEngine
                     ["target-seat"] = victim.Seat.ToString(System.Globalization.CultureInfo.InvariantCulture)
                 }));
         }
+        if (CanUseFuli(responder, dying))
+        {
+            var livingFactionCount = Math.Max(1, GetLivingFactionCount());
+            choices.Add(new PromptChoice(
+                new ChoiceId("dying.fuli"),
+                $"发动限定技【伏枥】：将体力回复至 {Math.Min(responder.MaxHp, livingFactionCount)} 点，然后翻面。",
+                [], [],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "fuli",
+                    ["target-seat"] = victim.Seat.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["living-factions"] = livingFactionCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                }));
+        }
         var rescueCardIds = peaches
             .Select(card => card.Id)
             .Concat(alcohols.Select(card => card.Id))
             .ToArray();
-        var rescueNames = peaches.Count > 0
-            ? alcohols.Count > 0 ? "桃】或【酒" : "桃"
-            : alcohols.Count > 0 ? "酒" : "涅槃";
+        var rescueNameParts = new List<string>();
+        if (peaches.Count > 0) rescueNameParts.Add("桃");
+        if (alcohols.Count > 0) rescueNameParts.Add("酒");
+        if (CanUseNiepan(responder, dying)) rescueNameParts.Add("涅槃");
+        if (CanUseFuli(responder, dying)) rescueNameParts.Add("伏枥");
+        var rescueNames = string.Join("】或【", rescueNameParts);
         choices.Add(new PromptChoice(
             new ChoiceId("dying.let-die"),
             $"不使用【{rescueNames}】，让 {victim.Name} 阵亡。",
@@ -22033,6 +22068,10 @@ public sealed partial class GameEngine
     private void EndTurn()
     {
         var previous = _players[_currentSeat];
+        if (_dangxianExtraPlayActive)
+        {
+            CancelDangxianExtraPlay();
+        }
         if (TryBeginMijiChoice(previous))
         {
             return;

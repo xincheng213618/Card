@@ -195,6 +195,16 @@ public sealed partial class MainViewModel
                 ? "已觉醒"
                 : "等待觉醒条件";
         }
+        if (tags.HasFlag(SkillTag.Limited))
+        {
+            return runtimeState?.Usages.Any(usage =>
+                usage.Scope == SkillUsageScope.Game &&
+                usage.Count > 0) == true
+                ? "已发动 · 本局不可再用"
+                : executionForms.HasFlag(SkillExecutionForm.Trigger)
+                    ? "等待触发时机 · 本局限一次"
+                    : "本局限一次";
+        }
         if (runtimeState?.Polarity is { } polarity)
             return polarity == SkillPolarity.Yang ? "当前：阳" : "当前：阴";
         if (runtimeState?.SkillId == "mou:hengye")

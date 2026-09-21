@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 87, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 88, 0))
     {
     }
 
@@ -146,12 +146,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 84, 0) &&
             version != new Version(1, 85, 0) &&
             version != new Version(1, 86, 0) &&
-            version != new Version(1, 87, 0))
+            version != new Version(1, 87, 0) &&
+            version != new Version(1, 88, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.87.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.88.0.");
         }
 
         _version = version;
@@ -713,6 +714,24 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "智愚",
                 "每当你受到伤害后，你可以摸一张牌，然后展示所有手牌；若颜色均相同，伤害来源弃置一张手牌。",
                 SkillKind.Zhiyu)));
+        }
+
+        if (_version >= new Version(1, 88, 0))
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:dangxian",
+                    "当先",
+                    "锁定技，回合开始时，你执行一个额外的出牌阶段。",
+                    SkillKind.Dangxian),
+                SkillTag.Locked,
+                SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:fuli",
+                    "伏枥",
+                    "限定技，当你处于濒死状态时，你可以将体力回复至X点（X为现存势力数），然后将你的武将牌翻面。",
+                    SkillKind.Fuli),
+                SkillTag.Limited,
+                SkillExecutionForm.Trigger));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1815,9 +1834,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:qice", "wei", BaseHp: 3,
                 AdditionalSkillIds: ["classic:zhiyu"]));
         }
+        if (_version >= new Version(1, 88, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:liao-hua", "廖化", "liao_hua",
+                "classic:dangxian", "shu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:fuli"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 88 } => LiaoHuaClassicGeneralIds,
             { Major: 1, Minor: >= 87 } => XunYouClassicGeneralIds,
             { Major: 1, Minor: 86 } => ZhongHuiClassicGeneralIds,
             { Major: 1, Minor: 85 } => WangYiClassicGeneralIds,
@@ -2342,6 +2369,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. ZhongHuiClassicGeneralIds,
         "classic:xun-you"
+    ];
+
+    internal static IReadOnlyList<string> LiaoHuaClassicGeneralIds { get; } =
+    [
+        .. XunYouClassicGeneralIds,
+        "classic:liao-hua"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

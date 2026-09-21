@@ -823,6 +823,20 @@ public sealed record ZhiyuResolvedEvent(
     bool AllSameColor,
     int? DiscardedCardId) : IGameEvent;
 
+/// <summary>Classic Liao Hua entered or completed the mandatory extra Play phase from Dangxian.</summary>
+public sealed record DangxianExtraPlayPhaseEvent(
+    int OwnerSeat,
+    bool Started) : IGameEvent;
+
+/// <summary>Classic Liao Hua used his once-per-game dying recovery and turned his general card over.</summary>
+public sealed record FuliResolvedEvent(
+    long DyingFrameId,
+    int OwnerSeat,
+    int LivingFactionCount,
+    int PreviousHp,
+    int RemainingHp,
+    bool IsFaceDown) : IGameEvent;
+
 public sealed record DamageSkillCardsDrawnEvent(
     long ResolutionId,
     int OwnerSeat,

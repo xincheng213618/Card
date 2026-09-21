@@ -85,6 +85,9 @@ var tests = new (string Name, Action Body)[]
     ("formal Xun You versions active Qice and optional Zhiyu", XunYouChecks.ContentAndRulesBoundary),
     ("Qice converts every hand card once and replays", XunYouChecks.QiceUsesAllHandCardsAndReplays),
     ("Zhiyu draws reveals and makes the source discard", XunYouChecks.ZhiyuDrawRevealDiscardAndReplay),
+    ("formal Liao Hua versions locked Dangxian and limited Fuli", LiaoHuaChecks.ContentAndRulesBoundary),
+    ("Dangxian runs a pre-draw Play phase with fresh phase limits", LiaoHuaChecks.DangxianExtraPhaseResetsPhaseLimitsAndReplays),
+    ("Fuli recovers by living factions flips and remains limited", LiaoHuaChecks.FuliRecoversFlipsConsumesAndReplays),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -384,6 +387,14 @@ if (args.FirstOrDefault() == "--only-xun-you")
         test.Name.Contains("Xun You", StringComparison.Ordinal) ||
         test.Name.Contains("Qice", StringComparison.Ordinal) ||
         test.Name.Contains("Zhiyu", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-liao-hua")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Liao Hua", StringComparison.Ordinal) ||
+        test.Name.Contains("Dangxian", StringComparison.Ordinal) ||
+        test.Name.Contains("Fuli", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;

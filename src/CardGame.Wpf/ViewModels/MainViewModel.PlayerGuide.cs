@@ -241,6 +241,8 @@ public sealed partial class MainViewModel
                 DecisionKind.RespondSlash when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("response") == "jijiang-slash") => ("响应刘备的激将", new[] { "你可以打出自己的一张杀；成功后视为刘备打出杀。", "也可以拒绝，系统会继续询问下一名蜀势力角色。" }),
                 DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪；中央会列出合法的手牌、技能或装备选项。", "点击中央候选会立即提交响应。选择不响应可能受到伤害。" }),
+                DecisionKind.RescueDying when prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("response") == "fuli") => ("决定是否发动伏枥", new[] { "伏枥是限定技，本局只能发动一次；发动后会将体力回复至现存势力数（不超过体力上限）。", "结算后武将牌翻面；也可以保留伏枥，改用桃、酒自救，或放弃救援。" }),
                 DecisionKind.RescueDying => ("决定是否救援濒死角色", _game.RulesVersion >= 12
                     ? new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救。庞统还可发动一次限定技涅槃。", "选择使用哪张牌、发动涅槃或不救援；按当前模式的阵营关系决定希望保护谁。" }
                     : new[] { "桃和酒都可用于救援当前濒死角色；酒也会在濒死窗口中恢复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }),
