@@ -154,6 +154,7 @@ public sealed partial class GameEngine
         if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
         {
+            if (IsQianxiHandCardRestricted(owner, card)) return false;
             var identities = GetProgramCardIdentityMatches(owner, card);
             return identities.Count != 0
                 ? identities.Any(match => match.Identity.OutputKind == CardKind.Slash)

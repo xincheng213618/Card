@@ -69,6 +69,9 @@ var tests = new (string Name, Action Body)[]
     ("formal Cao Zhang versions original Jiangchi with a three-branch prompt", CaoZhangChecks.ContentPromptAndRulesBoundary),
     ("Jiangchi extra draw blocks Slash use and play", CaoZhangChecks.DrawMoreBlocksSlashUseAndResponse),
     ("Jiangchi assault adds no-distance and exactly one Slash", CaoZhangChecks.AssaultAddsDistanceAndOneSlash),
+    ("formal Ma Dai versions current Qianxi with staged private choices", MaDaiChecks.ContentPromptAndRulesBoundary),
+    ("Qianxi red restriction filters same-color hand responses", MaDaiChecks.RedRestrictionFiltersHandResponsesAndReplays),
+    ("Qianxi black restriction filters responses and expires", MaDaiChecks.BlackRestrictionFiltersHandResponsesAndExpires),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -323,6 +326,11 @@ var tests = new (string Name, Action Body)[]
 if (args.FirstOrDefault() == "--only-cao-zhang")
 {
     tests = tests.Where(test => test.Name.Contains("Jiangchi", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-ma-dai")
+{
+    tests = tests.Where(test => test.Name.Contains("Qianxi", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;

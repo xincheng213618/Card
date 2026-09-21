@@ -363,6 +363,14 @@ public sealed record JiangchiResolvedEvent(
     JiangchiMode Mode,
     int DrawCount) : IGameEvent;
 
+/// <summary>Public result of Ma Dai's preparation-phase Qianxi choice.</summary>
+public sealed record QianxiResolvedEvent(
+    int PlayerSeat,
+    bool Used,
+    int? DiscardedCardId,
+    int? TargetSeat,
+    CardColor? RestrictedColor) : IGameEvent;
+
 /// <summary>Public resolution of Yingbo's optional post-resolution card transfer.</summary>
 public sealed record YingboGiftResolvedEvent(
     long ResolutionId,

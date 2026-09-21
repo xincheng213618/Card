@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:ma-dai",
+  "acceptedAt": "2026-09-21T11:58:59+08:00",
+  "scope": "P1-A55 current classic Ma Dai, Qianxi rules and official portrait",
+  "selectedVersion": "一将成名官网当前经典形象马岱",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/301.html",
+      "use": "当前官方武将页：蜀势力4体力、马术，以及准备阶段摸一张、弃一张、选择距离1目标并封禁同色手牌的潜袭；同时提供574x761经典形象大图。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20140320_7641_4620",
+      "use": "官方历史公告：归档曾使用准备阶段判定的修订版，以及更早在杀造成伤害时改减体力上限的旧版；本块均不采用。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20160428_1827_0314",
+      "use": "官方历史攻略：交叉核对判定版潜袭的目标、颜色和回合边界，用于明确与当前摸弃版的差异。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%BD%9C%E8%A2%AD",
+      "use": "潜袭版本发现与经典／界限／国战差异对照。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分锁定标签、状态技与触发技；潜袭同时具有可选时机和回合内持续状态。"
+    }
+  ],
+  "ruleText": "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。",
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.82.0",
+    "rulesVersion": 104,
+    "generalId": "classic:ma-dai",
+    "skillIds": [
+      "classic:mashu",
+      "classic:qianxi"
+    ],
+    "qianxiMetadata": "State + Trigger",
+    "runtimeUsage": "restriction.target-{seat}.{red|black} / Turn",
+    "auditEvent": "QianxiResolvedEvent"
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.81.0",
+    "previousRulesVersion": 103,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the offer, exact discard, target, color restriction and expiry reconstruct from the accepted command prefix"
+  },
+  "portrait": {
+    "resourceKey": "ma-dai",
+    "localPath": "src/CardGame.Wpf/Assets/official-ma-dai.png",
+    "sourcePage": "https://x.sanguosha.com/hero/301.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130101.png",
+    "sha256": "202F2D22F215FDA40D209D55EEAA59715116D99C45CFBDAE3DE7479976CFA0DC",
+    "bytes": 199891,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Indexed8",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Ma Dai artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore -- --only-ma-dai",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore",
+    "fullCorePassed": 302,
+    "fullCoreTotal": 302,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore -- artifacts/wpf-check --only-ma-dai",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 0.85,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/wpf-check/184-classic-ma-dai-card.png",
+      "artifacts/wpf-check/185-classic-ma-dai-qianxi-discard.png",
+      "artifacts/wpf-check/186-classic-ma-dai-qianxi-state.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "Qianxi opens a private use-or-skip prompt, then exact discard and distance-1 target prompts",
+      "red restriction excludes red hand Slashes while preserving black hand Slashes",
+      "black restriction excludes black hand Slashes while preserving red hand Slashes",
+      "the restriction applies only to hand cards and clears at the next turn boundary",
+      "rules v103 and package 1.81.0 preserve the previous boundary",
+      "paused offer and color-filtered response replay deterministically",
+      "official portrait, both skill texts, discard choices and live color state are visible without clipping"
+    ]
+  },
+  "excludedVariants": [
+    "the 2014/2016 preparation-phase judgment version",
+    "the older damage-prevention and max-HP-loss version",
+    "boundary and national-war additions"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

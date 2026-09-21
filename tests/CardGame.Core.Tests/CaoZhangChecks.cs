@@ -11,7 +11,7 @@ internal static class CaoZhangChecks
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 103,
             "Formal Jiangchi must have an explicit rules-version boundary.");
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 80, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&

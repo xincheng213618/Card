@@ -188,6 +188,8 @@ public static class CardMoveReasons
     public static CardMoveReason RendeGive { get; } = new("skill.rende.give-card");
     public static CardMoveReason QingnangDiscard { get; } = new("skill.qingnang.discard");
     public static CardMoveReason HuichunDiscard { get; } = new("skill.huichun.discard");
+    public static CardMoveReason QianxiDraw { get; } = new("skill.qianxi.draw");
+    public static CardMoveReason QianxiDiscard { get; } = new("skill.qianxi.discard");
     public static CardMoveReason NiepanDiscard { get; } = new("skill.niepan.discard");
     public static CardMoveReason NiepanDraw { get; } = new("skill.niepan.draw");
     public static CardMoveReason HandLimitDiscard { get; } = new("rule.hand-limit-discard");

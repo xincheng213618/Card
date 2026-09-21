@@ -222,6 +222,25 @@ public sealed partial class MainViewModel
                 return "本回合：杀次数 +1 · 无距离限制";
             }
         }
+        if (runtimeState?.SkillId == "classic:qianxi")
+        {
+            var restriction = runtimeState.Usages.FirstOrDefault(usage =>
+                usage.Scope == SkillUsageScope.Turn &&
+                usage.Count > 0 &&
+                usage.UsageId.StartsWith("restriction.target-", StringComparison.Ordinal));
+            if (restriction is not null)
+            {
+                var parts = restriction.UsageId.Split('.');
+                var targetPart = parts.FirstOrDefault(part =>
+                    part.StartsWith("target-", StringComparison.Ordinal));
+                var color = parts.LastOrDefault() == "red" ? "红色" : "黑色";
+                if (targetPart is not null &&
+                    int.TryParse(targetPart["target-".Length..], out var targetSeat))
+                {
+                    return $"本回合：{targetSeat + 1:D2}号位 · {color}手牌封禁";
+                }
+            }
+        }
         return executionForms.HasFlag(SkillExecutionForm.Trigger)
             ? "等待触发时机"
             : automaticText;

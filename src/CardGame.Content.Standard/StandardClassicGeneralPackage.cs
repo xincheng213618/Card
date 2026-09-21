@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 81, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 82, 0))
     {
     }
 
@@ -132,12 +132,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 78, 0) &&
             version != new Version(1, 79, 0) &&
             version != new Version(1, 80, 0) &&
-            version != new Version(1, 81, 0))
+            version != new Version(1, 81, 0) &&
+            version != new Version(1, 82, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.81.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.82.0.");
         }
 
         _version = version;
@@ -594,6 +595,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:jiangchi",
                 "将驰",
                 "摸牌阶段，你可以选择一项：1.额外摸一张牌，若如此做，你不能使用或打出【杀】，直到回合结束；2.少摸一张牌，若如此做，你于出牌阶段内使用【杀】无距离限制且能额外使用一张【杀】，直到回合结束。")
+            {
+                ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
+            });
+        }
+
+        if (_version >= new Version(1, 82, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "classic:qianxi",
+                "潜袭",
+                "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。")
             {
                 ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
             });
@@ -1656,9 +1668,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:cao-zhang", "曹彰", "cao_zhang",
                 "classic:jiangchi", "wei", BaseHp: 4));
         }
+        if (_version >= new Version(1, 82, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:ma-dai", "马岱", "ma_dai",
+                "classic:mashu", "shu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:qianxi"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 82 } => MaDaiClassicGeneralIds,
             { Major: 1, Minor: >= 81 } => CaoZhangClassicGeneralIds,
             { Major: 1, Minor: >= 80 } => MouLuMengClassicGeneralIds,
             { Major: 1, Minor: >= 70 } => YanYanClassicGeneralIds,
@@ -2141,6 +2161,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. MouLuMengClassicGeneralIds,
         "classic:cao-zhang"
+    ];
+
+    internal static IReadOnlyList<string> MaDaiClassicGeneralIds { get; } =
+    [
+        .. CaoZhangClassicGeneralIds,
+        "classic:ma-dai"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

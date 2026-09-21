@@ -85,6 +85,14 @@ internal static class Program
                 Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
                 return 0;
             }
+            if (args.Contains("--only-ma-dai", StringComparer.Ordinal))
+            {
+                Check("formal Ma Dai renders official art and staged Qianxi",
+                    () => ClassicGeneralUiChecks.MaDaiQianxiCard(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
 
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
@@ -111,6 +119,7 @@ internal static class Program
             Check("formal SP Guan Yu renders independent official art and complete skills", () => ClassicGeneralUiChecks.SpGuanYuPortraitAndCard(output));
             Check("formal Mou Lu Meng renders compound skill metadata and Hengye growth", () => ClassicGeneralUiChecks.MouLuMengSkillState(output));
             Check("formal Cao Zhang renders official art and original Jiangchi", () => ClassicGeneralUiChecks.CaoZhangJiangchiCard(output));
+            Check("formal Ma Dai renders official art and staged Qianxi", () => ClassicGeneralUiChecks.MaDaiQianxiCard(output));
             Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
             Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
             Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));

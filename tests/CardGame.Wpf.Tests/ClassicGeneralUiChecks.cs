@@ -440,6 +440,123 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void MaDaiQianxiCard(string output)
+    {
+        using var viewModel = FindGeneralChoice("classic:ma-dai");
+        var maDai = viewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:ma-dai");
+        var portrait = maDai.PortraitBrush as System.Windows.Media.ImageBrush;
+        Program.Assert(maDai.Name == "马岱" &&
+                       maDai.Kingdom == "蜀" &&
+                       maDai.SkillName == "马术 / 潜袭" &&
+                       maDai.SkillDescription.Contains("距离始终 -1", StringComparison.Ordinal) &&
+                       maDai.SkillDescription.Contains("摸一张牌然后弃置一张牌", StringComparison.Ordinal) &&
+                       maDai.SkillDescription.Contains("颜色相同的手牌", StringComparison.Ordinal) &&
+                       maDai.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(maDai.GeneralId) &&
+                       portrait is
+                       {
+                           Stretch: System.Windows.Media.Stretch.UniformToFill,
+                           AlignmentY: System.Windows.Media.AlignmentY.Top,
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource
+                           {
+                               PixelWidth: 574,
+                               PixelHeight: 761
+                           }
+                       },
+            $"The formal Ma Dai card must render Shu, Mashu/Qianxi, Lord health and its official portrait " +
+            $"(name={maDai.Name}, kingdom={maDai.Kingdom}, skills={maDai.SkillName}, " +
+            $"health={maDai.HealthText}, portrait={portrait?.ImageSource.Width}x{portrait?.ImageSource.Height}).");
+
+        viewModel.PreviewGeneralChoiceCommand.Execute(maDai);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "184-classic-ma-dai-card.png"));
+        var skillDescription = Program.Find<System.Windows.Controls.TextBlock>(root)
+            .Single(text => ReferenceEquals(text.DataContext, maDai) &&
+                            text.Text == maDai.SkillDescription);
+        var unconstrainedDescription = new System.Windows.Controls.TextBlock
+        {
+            Text = skillDescription.Text,
+            TextWrapping = skillDescription.TextWrapping,
+            FontFamily = skillDescription.FontFamily,
+            FontStyle = skillDescription.FontStyle,
+            FontWeight = skillDescription.FontWeight,
+            FontStretch = skillDescription.FontStretch,
+            FontSize = skillDescription.FontSize,
+            LineHeight = skillDescription.LineHeight,
+            LineStackingStrategy = skillDescription.LineStackingStrategy,
+            FlowDirection = skillDescription.FlowDirection,
+            Language = skillDescription.Language
+        };
+        unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+        Program.Assert(skillDescription.ActualHeight > 0 &&
+                       skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height,
+            $"The 1120x740 Ma Dai card must keep both skill descriptions visible " +
+            $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}).");
+
+        viewModel.SelectGeneralChoiceCommand.Execute(maDai);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        var engine = Program.Engine(viewModel);
+        var mashu = viewModel.HumanSkillCards.Single(skill => skill.Name == "马术");
+        var qianxi = viewModel.HumanSkillCards.Single(skill => skill.Name == "潜袭");
+        Program.Assert(engine.PendingDecision is
+                       {
+                           Kind: DecisionKind.Qianxi,
+                           IsPrivate: true,
+                           Choices.Count: 2
+                       } &&
+                       viewModel.CurrentGuideTitle == "处理潜袭" &&
+                       mashu.TypeText == "状态技 · 锁定技" &&
+                       qianxi.TypeText == "状态技 · 触发技" &&
+                       qianxi.StateText == "等待触发时机",
+            $"The WPF Qianxi offer must expose exact metadata and guidance " +
+            $"(pending={engine.PendingDecision?.Kind}, mashu={mashu.TypeText}, qianxi={qianxi.TypeText}).");
+
+        var use = viewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "qianxi-use");
+        viewModel.SelectSkillChoiceCommand.Execute(use);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        Program.Assert(engine.PendingDecision is
+                       {
+                           Kind: DecisionKind.Qianxi,
+                           IsPrivate: true,
+                           Choices.Count: > 0
+                       } discardPrompt &&
+                       discardPrompt.Choices.All(choice =>
+                           choice.Parameters.GetValueOrDefault("action") == "qianxi-discard" &&
+                           choice.Cards.Count == 1),
+            "The WPF Qianxi flow must expose exact private discard choices after drawing.");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "185-classic-ma-dai-qianxi-discard.png"));
+
+        viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices[0]);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        var target = viewModel.SkillChoices[0];
+        Program.Assert(target.Parameters.GetValueOrDefault("action") == "qianxi-target" &&
+                       target.Targets.Count == 1,
+            "The WPF Qianxi flow must expose one distance-1 target per exact choice.");
+        viewModel.SelectSkillChoiceCommand.Execute(target);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        qianxi = viewModel.HumanSkillCards.Single(skill => skill.Name == "潜袭");
+        Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                       qianxi.StateText.Contains("手牌封禁", StringComparison.Ordinal) &&
+                       engine.Events.Select(item => item.Payload).OfType<QianxiResolvedEvent>()
+                           .Any(item => item is { PlayerSeat: 0, Used: true }),
+            $"Resolving Qianxi must update its live target-and-color state " +
+            $"(pending={engine.PendingDecision?.Kind}, state={qianxi.StateText}).");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "186-classic-ma-dai-qianxi-state.png"));
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;

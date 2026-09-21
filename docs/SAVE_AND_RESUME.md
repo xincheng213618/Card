@@ -156,6 +156,8 @@ rules v102／`standard-classic-generals@1.80.0` 的谋吕蒙仍不新增 Checkpo
 
 rules v103／`standard-classic-generals@1.81.0` 的曹彰同样不新增 Checkpoint 字段。将驰待选的私有三分支 Choice，以及选定后本回合 `draw-more` 禁杀或 `assault` 杀次数 +1／无距离限制状态，都由已接受命令前缀确定性重建。rules v102 重放同一内容前缀时不启用将驰消费者，1.80.0 Registry 不注册曹彰；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
 
+rules v104／`standard-classic-generals@1.82.0` 的马岱不新增 Checkpoint 字段。潜袭的发动确认、摸牌后精确弃牌、距离 1 目标选择、弃牌颜色和 `restriction.target-{seat}.{red|black}` 回合状态，均由已接受命令前缀确定性重建；暂停在任一私有 Choice 或受限响应窗口都必须得到相同候选。rules v103 不启用潜袭消费者，1.81.0 Registry 不注册马岱；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

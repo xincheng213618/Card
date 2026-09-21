@@ -303,7 +303,8 @@ public enum DecisionKind
     ProgramJudgmentTarget,
     WuhunTarget,
     SelectFaction,
-    Jiangchi
+    Jiangchi,
+    Qianxi
 }
 
 public enum JiangchiMode
@@ -311,6 +312,12 @@ public enum JiangchiMode
     Skipped,
     DrawMore,
     Assault
+}
+
+public enum CardColor
+{
+    Red,
+    Black
 }
 
 public enum GangliePunishmentKind

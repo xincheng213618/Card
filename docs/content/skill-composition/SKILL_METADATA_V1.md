@@ -168,6 +168,14 @@ rules v103／`standard-classic-generals@1.81.0` 注册原版 `classic:cao-zhang`
 
 rules v102 不启用该消费者，经典包 1.80.0 不注册曹彰；Checkpoint schema 与玩家资料不新增字段，恢复时从已接受命令前缀重建本回合分支。来源、异版排除与素材归档见 `docs/content/sources/cao-zhang-a54-2026-09-21.json`。
 
+## 分段摸弃选择与目标颜色封禁消费者
+
+rules v104／`standard-classic-generals@1.82.0` 注册当前官网经典 `classic:ma-dai`。马术继续复用 `classic:mashu` 的 `Locked + State` 距离查询；潜袭需要在准备阶段确认发动、私有弃牌并选择目标，因此包含 `Trigger`，弃牌颜色又持续限制目标直至回合结束，因此同时包含 `State`，没有出牌阶段主动入口。
+
+潜袭按官方顺序拆成三个可暂停点：发动后先摸一张，再从自己的手牌或装备区精确弃置一张，最后以弃置时的有效颜色从实时距离为 1 的其他存活角色中选择一名。`classic:qianxi` 以 `restriction.target-{seat}.{red|black}` 的 `Turn` 用途记录结果；同色手牌从杀／闪响应、无懈可击、濒死桃、杀转换及丈八双牌候选中统一移除，异色手牌和非手牌区域不受影响，下一名角色开始回合时统一清除。
+
+三段私有 Choice、红／黑两种过滤、异色保留、回合过期、暂停响应和完成状态均由已接受命令前缀确定性重建。rules v103 不启用消费者，经典包 1.81.0 不注册马岱；Checkpoint schema 与玩家资料不新增字段。当前摸弃版、判定历史版、减体力上限旧版以及界／国战增量的边界见 `docs/content/sources/ma-dai-a55-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：

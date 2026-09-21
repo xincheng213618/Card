@@ -1057,6 +1057,7 @@ public sealed partial class GameEngine
                 DecisionKind.Leiji or
                 DecisionKind.Yingzi or
                 DecisionKind.Jiangchi or
+                DecisionKind.Qianxi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
                 DecisionKind.Guanxing or
@@ -1187,6 +1188,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Jiangchi)
         {
             return SubmitJiangchiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Qianxi)
+        {
+            return SubmitQianxiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Tiandu)
@@ -3071,6 +3077,7 @@ public sealed partial class GameEngine
                     IsAiProgramJudgmentPending() ||
                     IsAiYingziPending() ||
                     IsAiJiangchiPending() ||
+                    IsAiQianxiPending() ||
                     IsAiTuxiPending() ||
                     IsAiShuangxiongPending() ||
                     IsAiLuoyiPending() ||
@@ -5690,6 +5697,16 @@ public sealed partial class GameEngine
 
         _pendingTurnDelayedEffects = DelayedTurnEffects.None;
         ResolveDanjiAwakening(current);
+        if (TryBeginQianxiChoice(current))
+        {
+            return;
+        }
+
+        BeginTurnStartAfterQianxi(current);
+    }
+
+    private void BeginTurnStartAfterQianxi(PlayerRuntime current)
+    {
         if (UsesFormalSunJian && current.General.HasSkill(SkillKind.Yinghun) && current.Hp < current.MaxHp)
         {
             BeginYinghunChoice(current);
@@ -6931,6 +6948,12 @@ public sealed partial class GameEngine
         if (IsAiJiangchiPending())
         {
             ResolvePendingAiJiangchi();
+            return;
+        }
+
+        if (IsAiQianxiPending())
+        {
+            ResolvePendingAiQianxi();
             return;
         }
 
@@ -8373,6 +8396,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetNullificationCards(PlayerRuntime responder) =>
         GetPlayableCards(responder).Where(card =>
+            !IsQianxiHandCardRestricted(responder, card) &&
             !HasProgramCardIdentity(responder, card) &&
             (card.Kind == CardKind.Nullification ||
             UsesFormalWolong && responder.General.HasSkill(SkillKind.Kanpo) &&
@@ -18295,6 +18319,7 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(responder);
         var passiveSkills = EnabledPassiveSkills(responder).ToArray();
         var handCandidates = GetPlayableCards(responder)
+            .Where(card => !IsQianxiHandCardRestricted(responder, card))
             .Where(card => !HasProgramCardIdentity(responder, card))
             .Where(card => card.Kind == CardKind.Peach || passiveSkills.Any(skill =>
                 skill.Kind == SkillKind.Jijiu && (_rulesVersion < 10 || !IsClassicIdentityMode)
@@ -19720,7 +19745,7 @@ public sealed partial class GameEngine
         !IsJiangchiSlashForbidden(actor) &&
         UsesFormalZhangbaSerpentSpear &&
         GetEquipment(actor).Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
-        GetPlayableCards(actor).Count >= 2;
+        GetPlayableCards(actor).Count(card => !IsQianxiHandCardRestricted(actor, card)) >= 2;
 
     private bool HasZhuqueFan(PlayerRuntime actor) =>
         UsesFormalZhuqueFan &&
@@ -19793,7 +19818,10 @@ public sealed partial class GameEngine
             actions.AddRange(BuildNationalRevealActions(actor));
         }
 
-        var physicalPlayableCards = GetPlayableCards(actor);
+        var allPhysicalPlayableCards = GetPlayableCards(actor);
+        var physicalPlayableCards = allPhysicalPlayableCards
+            .Where(card => !IsQianxiHandCardRestricted(actor, card))
+            .ToArray();
         var playableCards = physicalPlayableCards
             .Where(card => !HasProgramCardIdentity(actor, card))
             .ToArray();
@@ -20093,6 +20121,7 @@ public sealed partial class GameEngine
         {
             foreach (var converted in GetHand(actor)
                          .Concat(GetEquipment(actor))
+                         .Where(card => !IsQianxiHandCardRestricted(actor, card))
                          .Where(card => !HasProgramCardIdentity(actor, card))
                          .Where(card => skill.CanUseAsIndulgence(skillContext, card)))
             {
@@ -20139,6 +20168,7 @@ public sealed partial class GameEngine
             var distanceLimit = skill.ModifySupplyShortageDistanceLimit(skillContext, 1);
             var convertedCards = GetHand(actor)
                 .Concat(GetEquipment(actor))
+                .Where(card => !IsQianxiHandCardRestricted(actor, card))
                 .Where(card => !HasProgramCardIdentity(actor, card))
                 .Where(card => skill.CanUseAsSupplyShortage(skillContext, card));
             foreach (var converted in convertedCards)
@@ -20176,10 +20206,22 @@ public sealed partial class GameEngine
             .Where(player => player.IsAlive && (_rulesVersion >= 6 || player.Seat != actor.Seat))
             .OrderBy(player => player.Seat)
             .ToArray();
+        if (_rulesVersion >= 6)
+        {
+            foreach (var ironChain in allPhysicalPlayableCards.Where(card =>
+                         !HasProgramCardIdentity(actor, card) &&
+                         card.Kind == CardKind.IronChain))
+            {
+                actions.Add(new LegalAction(
+                    LegalActionKind.Recast,
+                    ironChain.Id,
+                    null,
+                    "重铸【铁索连环】，摸一张牌"));
+            }
+        }
+
         foreach (var ironChain in playableCards.Where(card => card.Kind == CardKind.IronChain))
         {
-            if (_rulesVersion >= 6)
-                actions.Add(new LegalAction(LegalActionKind.Recast, ironChain.Id, null, "重铸【铁索连环】，摸一张牌"));
             foreach (var target in ironChainTargets)
             {
                 actions.Add(new LegalAction(
@@ -20214,6 +20256,10 @@ public sealed partial class GameEngine
                 actions.Add(new LegalAction(LegalActionKind.Recast, converted.Id, null,
                     $"发动【连环】，将【{converted.DisplayName}】当【铁索连环】重铸并摸一张牌",
                     PlayedCardKind: CardKind.IronChain));
+                if (IsQianxiHandCardRestricted(actor, converted))
+                {
+                    continue;
+                }
                 foreach (var target in ironChainTargets)
                 {
                     actions.Add(new LegalAction(LegalActionKind.IronChain, converted.Id, target.Seat,
@@ -20278,6 +20324,7 @@ public sealed partial class GameEngine
         {
             var qixiCards = GetHand(actor)
                 .Concat(GetEquipment(actor))
+                .Where(card => !IsQianxiHandCardRestricted(actor, card))
                 .Where(card => !HasProgramCardIdentity(actor, card))
                 .Where(card => skill.CanUseAsDismantlement(skillContext, card));
             foreach (var converted in qixiCards)
@@ -20357,6 +20404,7 @@ public sealed partial class GameEngine
         if (UsesFormalWolong && actor.General.HasSkill(SkillKind.Huoji))
         {
             foreach (var converted in GetHand(actor).Where(card =>
+                         !IsQianxiHandCardRestricted(actor, card) &&
                          !HasProgramCardIdentity(actor, card) &&
                          card.Kind != CardKind.FireAttack && IsRedSuit(card.Suit)))
             {
@@ -20863,6 +20911,7 @@ public sealed partial class GameEngine
         }
 
         var cards = GetPlayableCards(responder)
+            .Where(card => !IsQianxiHandCardRestricted(responder, card))
             .Where(card => CanUseCardAsResponse(responder, card, requiredCardKind));
         if (UsesFormalWushengEquipment && requiredCardKind == CardKind.Slash)
         {
@@ -20880,7 +20929,10 @@ public sealed partial class GameEngine
             return [];
         }
 
-        var hand = GetPlayableCards(responder).OrderBy(card => card.Id).ToArray();
+        var hand = GetPlayableCards(responder)
+            .Where(card => !IsQianxiHandCardRestricted(responder, card))
+            .OrderBy(card => card.Id)
+            .ToArray();
         var pairs = new List<IReadOnlyList<Card>>();
         for (var first = 0; first < hand.Length - 1; first++)
         {
@@ -22802,6 +22854,7 @@ public sealed partial class GameEngine
             AssertJuzhanInvariant();
             AssertYingboInvariant();
             AssertJiangchiInvariant();
+            AssertQianxiInvariant();
         }
         _cardZones.AssertInvariants(_initialCardCount);
 
@@ -25004,6 +25057,7 @@ public sealed partial class GameEngine
              _pendingDamageSkill is not null ||
              _pendingJudgment is not null ||
              _pendingJiangchiDraw is not null ||
+             _pendingQianxi is not null ||
              _pendingLeiji is not null ||
              _pendingLuoshen is not null ||
              _pendingJizhi is not null ||
