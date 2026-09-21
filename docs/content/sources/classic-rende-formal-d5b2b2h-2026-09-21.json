@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-rules:classic-rende-formal-d5b2b2h",
+  "retrievedAt": "2026-09-21T09:32:36+08:00",
+  "selectedVersion": "三国杀OL当前经典刘备仁德",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/1",
+      "use": "当前仁德正文：出牌阶段可将任意张手牌交给其他角色，本阶段以此法给出第二张牌或更多时自己回复1点体力。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/1.html",
+      "use": "一将成名官网当前经典刘备页以“首次达到两张或更多”明确回复只跨越一次阈值。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "标签、状态技、触发技和项目主动入口继续分轴；阶段用途账本属于运行状态，不从中文说明推断。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20140805_4377_0616",
+      "use": "历史2.48新标准版的一阶段限一次文本，只作为rules v99兼容语义，不覆盖当前正式规则。"
+    }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.78.0",
+    "rulesVersion": 100,
+    "skillId": "classic:rende",
+    "skillKind": "Rende",
+    "tags": [],
+    "executionForms": [],
+    "actionForms": ["Active"],
+    "usageLedger": {
+      "scope": "Phase",
+      "usageId": "cards-given",
+      "meaning": "本出牌阶段以仁德给出的累计实体手牌数"
+    }
+  },
+  "behavior": [
+    "每次命令选择至少一张自己的手牌和一名其他存活角色",
+    "同一出牌阶段可重复发动并可选择不同目标",
+    "每张实体牌经Hand到Processing再到目标Hand移动",
+    "累计数量从少于2首次达到2或更多时仅令技能拥有者回复1点体力",
+    "达到阈值时即使满体力也不会在后续给牌时再次尝试回复",
+    "离开出牌阶段时清除阶段累计记录"
+  ],
+  "versionBoundary": {
+    "previousPackageVersion": "1.77.0",
+    "previousRulesVersion": 99,
+    "previousBehavior": "每回合一次；一次向一名角色交牌；单次至少两张时沿历史切片令目标回复",
+    "currentRequiresBothPackageAndRules": true,
+    "stableActivePackageChanged": false,
+    "nationalZhangJiaoPackageChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "saveAndReplay": {
+    "trustedState": "不可变设置、精确内容包签名与已接受命令前缀",
+    "derivedState": "阶段累计账本、回复事件、当前合法动作与技能状态投影",
+    "restore": "重放第一次给牌可恢复count=1，第二次给牌跨阈值后的玩家快照与事件保持一致"
+  },
+  "acceptance": [
+    "当前包与1.77.0内容指纹不同，两个版本均可显式加载",
+    "一张加一张跨两个目标时只在第二张后回复刘备",
+    "第三次给牌仍合法且不重复回复",
+    "阶段结束清除累计记录",
+    "一张给牌Checkpoint恢复后可继续跨阈值且状态和事件一致",
+    "rules v99与经典包1.77.0分别保留旧限次语义",
+    "AI奖励回复时读取刘备伤势而非目标伤势",
+    "WPF第一次给牌并返回人类决策后继续显示仁德与激将独立入口",
+    "Release编译0 warning / 0 error，Core全量292/292，定向WPF 1/1"
+  ],
+  "visualEvidence": {
+    "render": "artifacts/ui-check/176-classic-rende-repeat-entry.png",
+    "size": "1120x740",
+    "review": "第一次给牌后仁德仍为当前可发动；激将入口、技能栏、操作区和手牌均无裁切"
+  },
+  "deferred": [
+    "其余共享技能独立身份与结构化元数据迁移",
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

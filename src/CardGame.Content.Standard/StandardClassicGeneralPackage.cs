@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 77, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 78, 0))
     {
     }
 
@@ -128,12 +128,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 74, 0) &&
             version != new Version(1, 75, 0) &&
             version != new Version(1, 76, 0) &&
-            version != new Version(1, 77, 0))
+            version != new Version(1, 77, 0) &&
+            version != new Version(1, 78, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.77.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.78.0.");
         }
 
         _version = version;
@@ -505,7 +506,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:rende",
                 "仁德",
-                "出牌阶段将一至若干张手牌交给一名其他角色；一次交给至少两张时回复 1 点体力。",
+                _version >= new Version(1, 78, 0)
+                    ? "出牌阶段，你可以将任意张手牌交给其他角色，然后你本阶段以此法给出第二张牌或更多时，你回复 1 点体力。"
+                    : "出牌阶段将一至若干张手牌交给一名其他角色；一次交给至少两张时回复 1 点体力。",
                 SkillKind.Rende)));
             builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:zhiheng",

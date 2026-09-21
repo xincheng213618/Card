@@ -229,7 +229,8 @@ internal static class ClassicGeneralUiChecks
         var liuBei = jijiangDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:liu-bei");
         Program.Assert(liuBei.SkillName == "仁德 / 激将" &&
-                       liuBei.SkillDescription.Contains("交给一名其他角色", StringComparison.Ordinal) &&
+                       liuBei.SkillDescription.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal) &&
+                       liuBei.SkillDescription.Contains("你回复 1 点体力", StringComparison.Ordinal) &&
                        liuBei.SkillDescription.Contains("其他蜀势力角色", StringComparison.Ordinal) &&
                        liuBei.HealthText == "体力上限 5" &&
                        GeneralArt.HasPortrait(liuBei.GeneralId),
@@ -1963,13 +1964,43 @@ internal static class ClassicGeneralUiChecks
                        visibleSkillButtons.Contains("发动【激将】", StringComparer.Ordinal),
             "The play toolbar must keep both of Liu Bei's active skills directly visible.");
 
-        viewModel.SelectActiveSkillCommand.Execute(jijiang);
+        var rende = actions.Single(action => action.Skill == SkillKind.Rende);
+        var beforeRende = engine.CreateSnapshot(0, revealAll: true);
+        viewModel.SelectActiveSkillCommand.Execute(rende);
+        var rendeCard = viewModel.Hand.Single(card => card.Id == rende.SelectableCardIds.Order().First());
+        var rendeTarget = viewModel.Seats.Single(seat => seat.Seat == rende.SelectableTargetSeats.Order().First());
+        viewModel.SelectCardCommand.Execute(rendeCard);
+        viewModel.SelectTargetCommand.Execute(rendeTarget);
+        var rendeRevision = engine.Revision;
+        viewModel.ConfirmSelectedCommand.Execute(null);
+        var afterRende = engine.CreateSnapshot(0, revealAll: true);
+        Program.AdvanceToDecision(viewModel);
+        var hasRepeatedRende = viewModel.HumanActiveSkillActions.Any(action => action.Skill == SkillKind.Rende);
+        var currentJijiang = viewModel.HumanActiveSkillActions.Single(action => action.Skill == SkillKind.Jijiang);
+        var hasFormalDescription = viewModel.HumanSkillCards.Any(skill =>
+            skill.Name == "仁德" &&
+            skill.Description.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal));
+        Program.Assert(engine.AcceptedCommands.Any(command =>
+                           command is UseSkillCommand { Skill: SkillKind.Rende } &&
+                           command.ExpectedRevision == rendeRevision) &&
+                       afterRende.Players[0].HandCount == beforeRende.Players[0].HandCount - 1 &&
+                       afterRende.Players[rendeTarget.Seat].HandCount ==
+                       beforeRende.Players[rendeTarget.Seat].HandCount + 1 &&
+                       hasRepeatedRende &&
+                       hasFormalDescription,
+            $"One Rende gift must transfer the exact card while leaving its formal repeated action and text visible " +
+            $"(revision={rendeRevision}->{engine.Revision}, ownerHand={beforeRende.Players[0].HandCount}->{afterRende.Players[0].HandCount}, " +
+            $"targetHand={beforeRende.Players[rendeTarget.Seat].HandCount}->{afterRende.Players[rendeTarget.Seat].HandCount}, " +
+            $"repeatable={hasRepeatedRende}, formalText={hasFormalDescription}).");
+        Program.Render(root, 1120, 740, Path.Combine(output, "82-classic-rende-repeat-entry.png"));
+
+        viewModel.SelectActiveSkillCommand.Execute(currentJijiang);
         Program.Assert(viewModel.IsActiveSkillSelectionPending &&
                        viewModel.PlayButtonText == "发动激将" &&
                        viewModel.CurrentGuideTitle == "选择【激将】的牌和目标" &&
                        viewModel.Seats.Where(seat => seat.IsLegalTarget).Select(seat => seat.Seat)
                            .Order()
-                           .SequenceEqual(jijiang.SelectableTargetSeats.Order()),
+                           .SequenceEqual(currentJijiang.SelectableTargetSeats.Order()),
             "Choosing the Jijiang entry must switch the shared draft to Jijiang's own target set.");
         var target = viewModel.Seats.First(seat => seat.IsLegalTarget);
         viewModel.SelectTargetCommand.Execute(target);

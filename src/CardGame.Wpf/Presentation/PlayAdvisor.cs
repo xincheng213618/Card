@@ -8,14 +8,22 @@ public sealed record PlayAdvice(long Revision, string Action, string Selection, 
 /// <summary>A separate, reproducible decision from player-visible inputs; never advances an engine or its AI.</summary>
 public static class PlayAdvisor
 {
-    public static PlayAdvice? Recommend(GameSnapshot view, IReadOnlyList<LegalAction> actions, IEnumerable<int> recastCardIds)
+    public static PlayAdvice? Recommend(
+        GameSnapshot view,
+        IReadOnlyList<LegalAction> actions,
+        IEnumerable<int> recastCardIds,
+        bool usesFormalRende = false)
     {
         if (view.Status != EngineStatus.AwaitingHumanPlay || view.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt ||
             prompt.PlayerSeat != view.HumanSeat || actions.Count == 0) return null;
         // Refuse trusted/debug snapshots: this boundary accepts only a player's private view.
         if (view.Seed is not null || view.Players.Any(player => player.Seat != view.HumanSeat && player.Hand.Count != 0))
             throw new ArgumentException("Advice requires a player-filtered snapshot.", nameof(view));
-        var brain = new SimpleAiBrain(view.HumanSeat, 721019, policyVersion: 2);
+        var brain = new SimpleAiBrain(
+            view.HumanSeat,
+            721019,
+            policyVersion: 2,
+            usesFormalRende: usesFormalRende);
         foreach (var id in recastCardIds) brain.ObserveRecast(view.TurnNumber, id);
         var (action, thought) = brain.ChoosePlay(view, actions, 1);
         var self = view.Players.Single(player => player.Seat == view.HumanSeat);

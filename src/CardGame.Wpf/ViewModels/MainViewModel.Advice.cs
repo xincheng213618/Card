@@ -22,7 +22,11 @@ public sealed partial class MainViewModel
         var recastIds = _game.Events.Reverse().TakeWhile(item => item.Payload is not TurnStartedEvent)
             .Select(item => item.Payload).OfType<CardRecastEvent>()
             .Where(item => item.ActorSeat == view.HumanSeat).Select(item => item.CardId);
-        CurrentPlayAdvice = PlayAdvisor.Recommend(view, _game.GetHumanLegalActions(), recastIds);
+        CurrentPlayAdvice = PlayAdvisor.Recommend(
+            view,
+            _game.GetHumanLegalActions(),
+            recastIds,
+            usesFormalRende: _game.UsesFormalRende);
         _adviceGame = _game;
         SelectedGuideSection = GuideSections[0];
         IsHelpOpen = true;

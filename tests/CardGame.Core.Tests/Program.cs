@@ -126,6 +126,7 @@ var tests = new (string Name, Action Body)[]
     ("classic standard and military decks match their official physical tables", PhysicalDeckRecipeChecks.ClassicPhysicalDecksMatchOfficialTables),
     ("classic identity roster is opt-in, formal and replay-versioned", ClassicGeneralChecks.ContentContract),
     ("classic identity applies base HP, multiple skills and legacy replay boundaries", ClassicGeneralChecks.SetupHealthAndReplay),
+    ("classic Liu Bei repeats formal Rende with cumulative self-recovery and replay", ClassicGeneralChecks.FormalRendeFlow),
     ("classic Huang Gai repeats formal Kujin and replays", ClassicGeneralChecks.FormalKujinFlow),
     ("classic Gan Ning converts black hand and equipped cards through formal Qixi", ClassicGeneralChecks.FormalQixiFlow),
     ("classic Lu Meng optionally skips discard through formal Keji", ClassicGeneralChecks.FormalKejiFlow),
@@ -1968,7 +1969,7 @@ static void CheckpointRestore()
         decoded with { ContentHash = "00BAD-CONTENT-HASH" },
         StandardContentRegistry.Create()));
     Throws<InvalidOperationException>(() => GameReplay.Restore(
-        decoded with { RulesVersion = 100 },
+        decoded with { RulesVersion = 101 },
         StandardContentRegistry.Create()));
 
     var selectedGeneralId = pending.ValidContentIds.First();

@@ -11,7 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.77.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.77.0 为仁德、制衡、青囊、苦肉建立带 `ActionForms.Active` 的独立 `classic:` ID；1.76.0 为激将、乱击、天义、双雄组合独立标签、状态／触发形态和主动入口轴；1.75.0 为反间、强袭、离间、结姻、驱虎增加独立主动入口；1.74.0 将 11 项持续牌转化技能标为 `State`；1.73.0 将 27 项纯可选技能标为 `Trigger`；1.72.0 为空城／马术／奇才建立独立 `classic:` ID；1.71.0 为另外 13 项锁定技补齐元数据；1.70.0 注册严颜／拒战；1.0.0–1.76.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.78.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.78.0 配合 rules v100 完成当前仁德的同阶段重复给牌、累计第二张时自我回复一次与阶段账本；1.77.0 为仁德、制衡、青囊、苦肉建立带 `ActionForms.Active` 的独立 `classic:` ID；1.76.0 为激将、乱击、天义、双雄组合独立标签、状态／触发形态和主动入口轴；1.75.0 为反间、强袭、离间、结姻、驱虎增加独立主动入口；1.74.0 将 11 项持续牌转化技能标为 `State`；1.73.0 将 27 项纯可选技能标为 `Trigger`；1.72.0 为空城／马术／奇才建立独立 `classic:` ID；1.71.0 为另外 13 项锁定技补齐元数据；1.70.0 注册严颜／拒战；1.0.0–1.77.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
 | `standard-national-war-ambitious@1.0.0` | `standard-national-war-lite@1.0.0` | `national:ambitious-6`；魏 3、蜀 2、野心家 1 的六人独立势力试验 | implemented-registry；M3 可选扩展 |
@@ -229,7 +229,7 @@
 | `standard:rende` | 仁德 | 主动交牌并按数量回复 | implemented-registry + extension | K2/K5：私有选牌/其他存活目标白名单、Processing 跨手牌移动、按数量恢复、回合一次限制 |
 | `standard:zhiheng` | 制衡 | 规则 v17 经典身份每阶段限一次，可混选自己的手牌与公开装备后弃置并摸等量牌；旧规则/演示模式仅手牌 | implemented-registry + extension | K2/K5/K6：主动多选、混合来源 `Processing` 牌区、等量摸牌和私有 Prompt |
 | `standard:qingnang` | 青囊 | 出牌阶段每回合弃置一张手牌，令一名受伤角色回复 1 点体力 | implemented-registry + extension | K5：私有手牌/受伤存活目标选择、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
-| `classic:kujin` / `classic:rende` / `classic:zhiheng` / `classic:qingnang` | 经典苦肉／仁德／制衡／青囊 | 当前经典包 1.77.0 的独立主动技能身份 | implemented-registry + classic extension | 复用对应 `SkillKind` 主动实现并显式标记 `ActionForms.Active`；1.76.0 与演示包仍使用 `standard:` ID；仁德完整累计规则另行版本化 |
+| `classic:kujin` / `classic:rende` / `classic:zhiheng` / `classic:qingnang` | 经典苦肉／仁德／制衡／青囊 | 经典包 1.77.0 建立独立主动技能身份；当前包 1.78.0 完成正式仁德规则 | implemented-registry + classic extension | 四项复用对应 `SkillKind` 并显式标记 `ActionForms.Active`；rules v100 + 包 1.78.0 的仁德可在同阶段重复向不同目标交牌，累计第二张时只让刘备回复一次；rules v99、包 1.77.0 与演示包继续旧行为 |
 | `standard:huichun` | 回春 | 出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力 | implemented-registry + extension | K5：私有两牌/多目标选择、逐目标 `RecoveryFrame`、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `standard:mashu` | 马术 | 计算与其他角色的距离 -1 | implemented-registry + extension | K6：`IPassiveSkill.ModifyOutgoingDistance`，由 Core 统一影响公开距离型合法性 |
 | `standard:qicai` | 奇才 | 使用锦囊牌无距离限制 | implemented-registry + extension | K6：`IPassiveSkill.IgnoresTrickDistance`，由 Core 统一影响距离型锦囊合法性 |

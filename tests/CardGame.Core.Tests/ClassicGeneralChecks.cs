@@ -129,7 +129,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.77.0"]),
+                "standard-classic-generals@1.78.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -976,6 +976,183 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(restored).SequenceEqual(EventSignatures(game)),
             "Repeated formal Kujin commands must restore with identical state and events.");
+    }
+
+    public static void FormalRendeFlow()
+    {
+        Require(GameCheckpoint.CurrentRulesVersion >= 100,
+            "Formal Rende must have an explicit rules-version boundary.");
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var previousRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 77, 0));
+        Require(registry.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" &&
+                    package.Version == new Version(1, 78, 0)) &&
+                registry.Skills["classic:rende"].Description.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal) &&
+                previousRegistry.Skills["classic:rende"].Description.Contains("一次交给至少两张", StringComparison.Ordinal) &&
+                registry.ContentHash != previousRegistry.ContentHash,
+            "Classic package 1.78.0 must version the formal Rende text without mutating 1.77.0.");
+
+        GameEngine FindRende(ContentRegistry content, int rulesVersion)
+        {
+            for (var seed = 1; seed <= 4_096; seed++)
+            {
+                var candidate = StartClassicGeneralAtPlay(
+                    content,
+                    seed,
+                    "classic:liu-bei",
+                    rulesVersion);
+                if (candidate?.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.UseSkill &&
+                        action.Skill == SkillKind.Rende &&
+                        action.SelectableCardIds.Count >= 3 &&
+                        action.SelectableTargetSeats.Count >= 2) == true)
+                {
+                    return candidate;
+                }
+            }
+
+            throw new InvalidOperationException("No deterministic formal Rende fixture exposed three cards and two targets.");
+        }
+
+        static void GiveOne(GameEngine game, int cardId, int targetSeat)
+        {
+            var prompt = game.PendingDecision ??
+                throw new InvalidOperationException("Rende did not return to the play boundary.");
+            var result = game.Submit(new UseSkillCommand(
+                0,
+                SkillKind.Rende,
+                [cardId],
+                [targetSeat],
+                game.Revision,
+                prompt.PromptId));
+            Require(result.Accepted, result.Error?.Message ?? "The formal Rende command was rejected.");
+            if (game.PendingDecision is null && game.State.Status != EngineStatus.Completed)
+            {
+                var resumed = game.Submit(new AdvanceCommand(game.Revision));
+                Require(resumed.Accepted,
+                    resumed.Error?.Message ?? "Rende did not resume the human play boundary.");
+            }
+        }
+
+        static int GivenThisPhase(GameEngine game) =>
+            game.CreateSnapshot(0, revealAll: true).Players[0].SkillRuntimeStates!
+                .Single(state => state.SkillId == "classic:rende").Usages
+                .SingleOrDefault(usage =>
+                    usage.UsageId == "cards-given" &&
+                    usage.Scope == SkillUsageScope.Phase)?.Count ?? 0;
+
+        var current = FindRende(registry, GameCheckpoint.CurrentRulesVersion);
+        var openingAction = current.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
+        var cards = openingAction.SelectableCardIds.Order().Take(3).ToArray();
+        var targets = openingAction.SelectableTargetSeats.Order().Take(2).ToArray();
+        var before = current.CreateSnapshot(0, revealAll: true);
+        var ownerBefore = before.Players[0];
+        var targetHpBefore = targets.ToDictionary(seat => seat, seat => before.Players[seat].Hp);
+        SetRuntimeHp(current, 0, ownerBefore.MaxHp - 1);
+        Require(current.UsesFormalRende,
+            "Current rules and classic package 1.78.0 must expose the formal Rende capability.");
+        var aiView = current.CreateSnapshot(0, revealAll: false);
+        var aiActions = current.GetHumanLegalActions();
+        var formalAi = new SimpleAiBrain(0, seed: 100, policyVersion: 2, usesFormalRende: true)
+            .ChoosePlay(aiView, aiActions, thoughtSequence: 1).Thought.Candidates
+            .Single(candidate => candidate.Action.Skill == SkillKind.Rende);
+        var legacyAi = new SimpleAiBrain(0, seed: 100, policyVersion: 2, usesFormalRende: false)
+            .ChoosePlay(aiView, aiActions, thoughtSequence: 1).Thought.Candidates
+            .Single(candidate => candidate.Action.Skill == SkillKind.Rende);
+        Require(formalAi.Score >= legacyAi.Score + 17.9d,
+            "Formal Rende AI must value Liu Bei's own missing HP without changing the legacy target-recovery score.");
+
+        GiveOne(current, cards[0], targets[0]);
+        var afterFirstCount = GivenThisPhase(current);
+        var afterFirstHp = current.CreateSnapshot(0, revealAll: true).Players[0].Hp;
+        var afterFirstCanUse = current.GetHumanLegalActions().Any(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
+        Require(afterFirstCount == 1 &&
+                afterFirstHp == ownerBefore.MaxHp - 1 &&
+                afterFirstCanUse,
+            $"The first formal Rende gift must record one phase card without healing or closing the action " +
+            $"(count={afterFirstCount}, hp={afterFirstHp}/{ownerBefore.MaxHp}, canUse={afterFirstCanUse}).");
+
+        GiveOne(current, cards[1], targets[1]);
+        var afterSecond = current.CreateSnapshot(0, revealAll: true);
+        var ownerAfterSecond = afterSecond.Players[0];
+        var selfRecovery = current.Events.Select(envelope => envelope.Payload)
+            .OfType<RecoveryAppliedEvent>()
+            .Where(recovery => recovery.SourceSeat == 0 && recovery.TargetSeat == 0)
+            .ToArray();
+        Require(GivenThisPhase(current) == 2 &&
+                ownerAfterSecond.Hp == ownerBefore.MaxHp &&
+                targets.All(seat => afterSecond.Players[seat].Hp == targetHpBefore[seat]) &&
+                selfRecovery is [{ Amount: 1 }] &&
+                current.GetHumanLegalActions().Any(action =>
+                    action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende),
+            "The second cumulative Rende card must heal Liu Bei once while preserving both recipients and repeatability.");
+
+        GiveOne(current, cards[2], targets[0]);
+        Require(GivenThisPhase(current) == 3 &&
+                current.Events.Select(envelope => envelope.Payload).OfType<RecoveryAppliedEvent>()
+                    .Count(recovery => recovery.SourceSeat == 0 && recovery.TargetSeat == 0) == 1 &&
+                current.GetHumanLegalActions().Any(action =>
+                    action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende),
+            "Later Rende gifts in the same phase must remain legal without repeating the threshold recovery.");
+
+        var ended = current.Submit(new EndPlayPhaseCommand(
+            0,
+            current.Revision,
+            current.PendingDecision!.PromptId));
+        Require(ended.Accepted,
+            ended.Error?.Message ?? "Ending the Rende play phase was rejected.");
+        if (GivenThisPhase(current) != 0 && current.State.Status != EngineStatus.Completed)
+        {
+            var advanced = current.Submit(new AdvanceCommand(current.Revision));
+            Require(advanced.Accepted,
+                advanced.Error?.Message ?? "The Rende phase boundary did not advance.");
+        }
+        Require(GivenThisPhase(current) == 0,
+            "Leaving the play phase must clear Rende's cumulative phase ledger.");
+
+        var replaySource = FindRende(registry, GameCheckpoint.CurrentRulesVersion);
+        var replayOpening = replaySource.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
+        var replayCards = replayOpening.SelectableCardIds.Order().Take(2).ToArray();
+        var replayTargets = replayOpening.SelectableTargetSeats.Order().Take(2).ToArray();
+        GiveOne(replaySource, replayCards[0], replayTargets[0]);
+        var replayed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(replaySource.CreateCheckpoint())),
+            registry);
+        Require(GivenThisPhase(replayed) == 1 &&
+                SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(replaySource.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replayed).SequenceEqual(EventSignatures(replaySource)),
+            "A one-card Rende phase ledger must restore exactly from the command prefix.");
+        GiveOne(replaySource, replayCards[1], replayTargets[1]);
+        GiveOne(replayed, replayCards[1], replayTargets[1]);
+        Require(GivenThisPhase(replaySource) == 2 && GivenThisPhase(replayed) == 2 &&
+                SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(replaySource.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replayed).SequenceEqual(EventSignatures(replaySource)),
+            "Restored Rende must cross the cumulative threshold with identical state and events.");
+
+        var rules99 = FindRende(registry, 99);
+        Require(!rules99.UsesFormalRende,
+            "Rules v99 must not expose the formal Rende capability.");
+        var rules99Action = rules99.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
+        GiveOne(rules99, rules99Action.SelectableCardIds[0], rules99Action.SelectableTargetSeats[0]);
+        Require(rules99.GetHumanLegalActions().All(action => action.Skill != SkillKind.Rende) &&
+                GivenThisPhase(rules99) == 0,
+            "Rules v99 must retain the historical once-per-turn Rende slice without the new ledger.");
+
+        var package177 = FindRende(previousRegistry, GameCheckpoint.CurrentRulesVersion);
+        Require(!package177.UsesFormalRende,
+            "Classic package 1.77.0 must not expose the formal Rende capability under current rules.");
+        var package177Action = package177.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
+        GiveOne(package177, package177Action.SelectableCardIds[0], package177Action.SelectableTargetSeats[0]);
+        Require(package177.GetHumanLegalActions().All(action => action.Skill != SkillKind.Rende) &&
+                GivenThisPhase(package177) == 0,
+            "Classic package 1.77.0 must retain the historical Rende behavior under current rules.");
     }
 
     public static void FormalQixiFlow()

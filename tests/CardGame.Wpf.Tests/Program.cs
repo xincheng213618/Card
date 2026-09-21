@@ -33,8 +33,19 @@ internal static class Program
         PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning;
         try
         {
-            var output = args.FirstOrDefault() ?? Path.Combine(Path.GetTempPath(), "card-ui-check");
+            var output = args.FirstOrDefault(argument =>
+                !argument.StartsWith("--", StringComparison.Ordinal)) ??
+                Path.Combine(Path.GetTempPath(), "card-ui-check");
             Directory.CreateDirectory(output);
+            if (args.Contains("--only-classic-rende", StringComparer.Ordinal))
+            {
+                Check("classic Rende remains repeatable before Jijiang opens its separate target draft",
+                    () => ClassicGeneralUiChecks.JijiangActiveAction(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
+
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general gallery combines registered series, faction and text filters without changing the match", () => CheckGeneralGallery(output));
@@ -62,7 +73,7 @@ internal static class Program
             Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));
             Check("classic Guanxing restores and orders private cards through the WPF choice surface", () => ClassicGeneralUiChecks.GuanxingChoiceAndRestore(output));
             Check("classic Hujia restores and requests Wei responses through the WPF choice surface", () => ClassicGeneralUiChecks.HujiaChoiceAndRestore(output));
-            Check("classic Jijiang exposes a separate active action and target draft", () => ClassicGeneralUiChecks.JijiangActiveAction(output));
+            Check("classic Rende remains repeatable before Jijiang opens its separate target draft", () => ClassicGeneralUiChecks.JijiangActiveAction(output));
             Check("skill drafts confirm through Enter and resume intact after guides and tutorials", () => SkillInteractionChecks.ConfirmAndResume(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));
             Check("Wusheng hand responses restore versioned prompts and confirm explicit conversions", () => WushengResponseChecks.ControlsAndSavedRules(output));

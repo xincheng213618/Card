@@ -1055,14 +1055,15 @@ public sealed class RendeSkill : IPassiveSkill, IActiveSkill
     public string Name => "仁德";
 
     /// <summary>
-    /// The first target-selection slice gives one or more hand cards to one
-    /// other living character. It can be used once per turn; giving at least
-    /// two cards in that use also grants one point of recovery when needed.
+    /// Gives one or more hand cards to one other living character. The engine
+    /// supplies the versioned phase ledger and cumulative self-recovery rule;
+    /// EnforceOncePerTurn retains the earlier showcase and replay behavior.
     /// </summary>
     public bool CanUse(ActiveSkillContext context) =>
         context.Owner.Phase == TurnPhase.Play &&
         context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+        (!context.EnforceOncePerTurn ||
+         context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true);
 
     public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
         new(

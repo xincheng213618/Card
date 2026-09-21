@@ -156,7 +156,8 @@ public sealed partial class GameEngine
             _aiBrains[player.Seat] = new SimpleAiBrain(
                 player.Seat,
                 unchecked(options.Seed * 397) ^ (player.Seat + 1),
-                options.AiPolicyVersion);
+                options.AiPolicyVersion,
+                usesFormalRende: UsesFormalRende);
         }
     }
 
@@ -203,6 +204,13 @@ public sealed partial class GameEngine
     private bool SupportsStructuredSkillOwnership => _rulesVersion >= 97;
 
     private bool SupportsRuntimeSkillAcquisition => _rulesVersion >= 98;
+
+    public bool UsesFormalRende =>
+        _rulesVersion >= 100 &&
+        IsClassicIdentityMode &&
+        _contentRegistry?.Packages.Any(package =>
+            package.Id == "standard-classic-generals" &&
+            package.Version >= new Version(1, 78, 0)) == true;
 
     private bool SupportsMultiSkillGenerals =>
         _rulesVersion >= 10 && IsClassicIdentityMode ||
@@ -2928,7 +2936,9 @@ public sealed partial class GameEngine
                 : "，孙权可在出牌阶段弃置至少一张手牌并摸等量牌"
             : string.Empty;
         var rendeRules = !IsNationalWarMode && _players.Any(player => player.General.HasSkill(SkillKind.Rende))
-            ? "，刘备可在出牌阶段将一至若干张手牌交给一名其他角色，一次交给至少两张时回复 1 点体力"
+            ? UsesFormalRende
+                ? "，刘备可在同一出牌阶段多次将任意张手牌交给其他角色，本阶段累计给出第二张牌时自己回复 1 点体力"
+                : "，刘备可在出牌阶段将一至若干张手牌交给一名其他角色，一次交给至少两张时回复 1 点体力"
             : string.Empty;
         var kongchengRules = UsesFormalKongchengTargeting &&
                              _players.Any(player => player.General.HasSkill(SkillKind.Kongcheng))
@@ -7465,25 +7475,85 @@ public sealed partial class GameEngine
                 Array.AsReadOnly(cardIds)));
 
             var recovery = 0;
-            if (effect.RecoveryAmount > 0 && target.IsAlive && target.Hp < target.MaxHp)
+            var recovering = target;
+            var shouldRecover = effect.RecoveryAmount > 0;
+            if (skillKind == SkillKind.Rende && UsesFormalRende)
             {
-                recovery = Math.Min(effect.RecoveryAmount, target.MaxHp - target.Hp);
-                target.Hp += recovery;
-                QueueGameEvent(new RecoveryAppliedEvent(
+                const string skillId = "classic:rende";
+                const string usageId = "cards-given";
+                var givenBefore = _skillRuntimeState.GetUsage(
                     actor.Seat,
-                    target.Seat,
-                    recovery,
-                    target.Hp));
+                    skillId,
+                    usageId,
+                    SkillUsageScope.Phase);
+                foreach (var _ in givenCards)
+                {
+                    if (!_skillRuntimeState.TryConsumeUsage(
+                            actor.Seat,
+                            skillId,
+                            usageId,
+                            SkillUsageScope.Phase,
+                            int.MaxValue))
+                    {
+                        throw new InvalidOperationException("Rende's phase card ledger overflowed.");
+                    }
+                }
+
+                recovering = actor;
+                shouldRecover = givenBefore < 2 && givenBefore + givenCards.Length >= 2;
             }
 
-            actor.UsedActiveSkillKinds.Add(skillKind);
+            if (shouldRecover && recovering.IsAlive && recovering.Hp < recovering.MaxHp)
+            {
+                var recoveryAmount = skillKind == SkillKind.Rende && UsesFormalRende
+                    ? 1
+                    : effect.RecoveryAmount;
+                recovery = Math.Min(recoveryAmount, recovering.MaxHp - recovering.Hp);
+                if (skillKind == SkillKind.Rende && UsesFormalRende)
+                {
+                    var recoveryFrameId = BeginRecovery(
+                        frameId,
+                        actor.Seat,
+                        recovering.Seat,
+                        recovery);
+                    try
+                    {
+                        recovering.Hp += recovery;
+                        QueueGameEvent(new RecoveryAppliedEvent(
+                            actor.Seat,
+                            recovering.Seat,
+                            recovery,
+                            recovering.Hp));
+                    }
+                    finally
+                    {
+                        PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
+                    }
+                }
+                else
+                {
+                    // Keep the pre-v100 Rende sequence byte-for-byte compatible:
+                    // it recovered the recipient without allocating a child frame.
+                    recovering.Hp += recovery;
+                    QueueGameEvent(new RecoveryAppliedEvent(
+                        actor.Seat,
+                        recovering.Seat,
+                        recovery,
+                        recovering.Hp));
+                }
+            }
+
+            if (skillKind != SkillKind.Rende || !UsesFormalRende)
+            {
+                actor.UsedActiveSkillKinds.Add(skillKind);
+            }
             SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
             QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
             PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
             AddLog(
                 "ActiveSkill",
                 recovery > 0
-                    ? $"{actor.Name} 发动【{skill.Name}】，向 {target.Name} 交给 {givenCards.Length} 张牌并回复 {recovery} 点体力。"
+                    ? $"{actor.Name} 发动【{skill.Name}】，向 {target.Name} 交给 {givenCards.Length} 张牌，{recovering.Name} 回复 {recovery} 点体力。"
                     : $"{actor.Name} 发动【{skill.Name}】，向 {target.Name} 交给 {givenCards.Length} 张牌。",
                 actor.Seat);
             return;
@@ -20935,6 +21005,8 @@ public sealed partial class GameEngine
                 "当你受到伤害后，你可以获得造成此伤害的牌。",
             SkillKind.Zhiheng when UsesFormalZhihengEquipment =>
                 "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",
+            SkillKind.Rende when UsesFormalRende =>
+                "出牌阶段，你可以将任意张手牌交给其他角色，然后你本阶段以此法给出第二张牌或更多时，你回复 1 点体力。",
             SkillKind.Hujia when UsesFormalHujia =>
                 "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
             SkillKind.Jijiang when UsesFormalJijiang =>
@@ -22256,7 +22328,8 @@ public sealed partial class GameEngine
                 : 0,
             EnforceOncePerTurn:
                 skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment ||
-                skill == SkillKind.Qiangxi && UsesFormalQiangxi);
+                skill == SkillKind.Qiangxi && UsesFormalQiangxi ||
+                skill == SkillKind.Rende && !UsesFormalRende);
 
     private IReadOnlySet<int> GetActiveSkillValidCardIds(
         PlayerRuntime actor,

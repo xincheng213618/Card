@@ -103,7 +103,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | `k2.prompt.answer-once` | `AnswerPromptCommand` | 错误 responder、旧 Prompt、未发布 Choice 和重复回答均拒绝 |
 | `k3.registry.isolated` | `ContentRegistry` | 两个 Registry 不共享可变注册状态，公开集合为只读投影 |
 | `k3.registry.references` | 包依赖和引用校验 | 重复 ID、未知引用、版本不足和依赖环在 Build 时失败 |
-| `k2.command.active-skill` | `UseSkillCommand` / `LegalActionKind.UseSkill` | 出牌阶段从合法动作提交无牌、无目标的 `苦肉`，提交带当前拥有者私有手牌/公开装备集合的正式 `制衡`（旧规则仅手牌），或提交带私有手牌集合和其他存活目标的 `仁德`，或提交带私有手牌集合和受伤存活目标的 `青囊`，或提交带两张私有手牌和两至三名受伤存活目标的 `回春`，或为 `强袭` 提交 0–1 张手牌/装备区武器与一个攻击范围内目标；Core 校验技能、数量、所有权、牌型、重复项、目标白名单、PromptId 和 Revision 后才闭合主动技能帧 |
+| `k2.command.active-skill` | `UseSkillCommand` / `LegalActionKind.UseSkill` | 出牌阶段从合法动作提交无牌、无目标的 `苦肉`，提交带当前拥有者私有手牌/公开装备集合的正式 `制衡`（旧规则仅手牌），或提交带私有手牌集合和其他存活目标的 `仁德`，或提交带私有手牌集合和受伤存活目标的 `青囊`，或提交带两张私有手牌和两至三名受伤存活目标的 `回春`，或为 `强袭` 提交 0–1 张手牌/装备区武器与一个攻击范围内目标；Core 校验技能、数量、所有权、牌型、重复项、目标白名单、PromptId 和 Revision 后才闭合主动技能帧；rules v100 + 经典包 1.78.0 的仁德结算后可在同阶段重新发布动作 |
 | `k3.registry.active-skills` | `standard-active-skills@1.0.0` | 扩展包依赖 `standard@1.11.0`，注册五项主动技能、两个被动技能、七个演示武将和 5/8 人模式；基础 Standard Registry 的内容指纹不变 |
 
 ## C0-K4 模式开局与选将
@@ -126,6 +126,7 @@ M3 新增场景：`mode.national_ambitious_6` 验证六人魏 3、蜀 2、野心
 | `k5.resolution.serializable` | 数据型结算帧 | 可信宿主可将当前帧栈序列化为 JSON；帧中不包含委托、WPF 对象或玩家视图数据 |
 | `k5.events.card-damage` | 类型化事件 | 提交事件包含出牌声明、目标确认、携带 `DamageNature` 的伤害请求/应用/AfterDamage 和结算完成信息 |
 | `k5.events.active-skill` | 主动技能帧与类型化事件 | `ActiveSkillRequestedEvent`、`SkillHpLostEvent`、`SkillCardsDiscardedEvent`、`SkillCardsGivenEvent`、`SkillCardsDrawnEvent`、`ActiveSkillResolvedEvent` 共用 `ResolutionId`；苦肉的 `skill.kujin.draw`、制衡的 `skill.zhiheng.discard`/`skill.zhiheng.draw`、仁德的 `skill.rende.give-card` 和强袭的 `skill.qiangxi.discard` 移动可审计；青囊的 `skill.qingnang.discard` 移动及回春的 `skill.huichun.discard`、逐目标 `RecoveryAppliedEvent` 可审计；苦肉或强袭体力成本降至 0 时保留 `ActiveSkillFrame`，救援完成后才继续各自效果，精确手牌/目标 ID 不进入普通快照 |
+| `skill.rende.formal-phase-ledger` | 当前经典仁德 | rules v100 + 经典包 1.78.0 逐张累计 `classic:rende/cards-given` 阶段用途：一张后仍可对另一目标发动，第二张后仅刘备回复 1 点，第三张不重复回复，阶段结束清零；第一次给牌后的 Checkpoint 恢复再跨阈值得到相同快照与事件；rules v99 和包 1.77.0 分别保留旧限次语义 |
 | `skill.qiangxi.cardless-damage` | 强袭可选成本与无牌来源伤害 | 规则 v32 每阶段限一次；空牌成本失去 1 点体力，手牌/装备区武器成本经 `Processing` 弃置，目标必须是当前攻击范围内一名其他存活角色；`AttackResolution.SourceSkill=Qiangxi` 且来源牌/有效牌型为空，仍进入共享伤害后技能与濒死链；自损先濒死时获救后才继续目标伤害，v31 不发布动作 |
 | `k5.events.damage-skill` | 伤害后技能触发 | 存活目标收到私有 `Feedback`、`Yiji` 或 `Jieming` Choice；非受伤者的援护者收到私有 `Yuanhu` 弃牌 Choice；刚烈受伤者收到私有 `Ganglie` Choice，红色判定后伤害来源收到私有 `GangliePunish` Choice；`DamageSkillRequestedEvent`/`DamageSkillResolvedEvent` 记录请求与发动/跳过，反馈发动时 `DamageCardClaimedEvent` 记录取得伤害牌，遗计发动时 `DamageSkillCardsDrawnEvent`/`DamageSkillCardGivenEvent` 记录私有摸牌与跨座位赠牌，节命发动时 `DamageSkillCardsDrawnEvent.TargetSeat` 记录补牌目标，援护发动时 `DamageSkillCardDiscardedEvent`/`RecoveryAppliedEvent` 记录弃牌和恢复，刚烈发动时 `JudgmentRequestedEvent`/`JudgmentResolvedEvent`/`GangliePunishmentResolvedEvent` 记录判定与来源反制，并与对应移动 reason 一致 |
 | `k5.events.damage-trigger-order` | 伤害触发候选排序 | `DamageTriggerCandidate` 按优先级、相对当前行动者座次、技能序号和 `CandidateId` 稳定排序；`DamageTriggerWindowFrame.CandidateIndex` 冻结并推进当前候选，收集逐个检查存活拥有者的 `CanTriggerAfterDamage`，候选身份写入触发/技能帧和请求/结果事件；`DamageTriggerScope` 统一表达受伤者、其他存活角色和任意存活角色的座位关系，援护通过 `OtherLivingPlayer` 复用该契约，刚烈的跨座位部分发生在红色判定后的显式来源反制效果，遗计的效果可把牌交给其他座位，节命的效果可把牌补给公开合法目标 |

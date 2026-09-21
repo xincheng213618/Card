@@ -11,17 +11,23 @@ public sealed partial class SimpleAiBrain
     private readonly Dictionary<int, double> _nationalEnemySuspicion = [];
     private readonly DeterministicRandom _random;
     private readonly int _policyVersion;
+    private readonly bool _usesFormalRende;
     private readonly HashSet<int> _recastCardsThisTurn = [];
     private int _recastTurn = -1;
     private readonly Dictionary<(string SkillId, string ActivationId), int> _programUsesThisTurn = [];
     private int _programUseTurn = -1;
 
-    public SimpleAiBrain(int seat, int seed, int policyVersion = 1)
+    public SimpleAiBrain(
+        int seat,
+        int seed,
+        int policyVersion = 1,
+        bool usesFormalRende = false)
     {
         if (policyVersion is not (1 or 2 or 3))
             throw new ArgumentOutOfRangeException(nameof(policyVersion));
         Seat = seat;
         _policyVersion = policyVersion;
+        _usesFormalRende = usesFormalRende;
         _random = new DeterministicRandom(seed == 0 ? seat + 1 : seed);
     }
 
@@ -2440,7 +2446,7 @@ public sealed partial class SimpleAiBrain
             selected.Action.Kind == LegalActionKind.Alcohol ? selected.Action.CardId : null,
             thought);
     }
-    private static (double Score, string Reason) ScoreGeneral(
+    private (double Score, string Reason) ScoreGeneral(
         Role role,
         GeneralDefinition candidate)
     {
@@ -2489,7 +2495,9 @@ public sealed partial class SimpleAiBrain
             SkillKind.Qiangxi => "出牌阶段以体力或武器牌为代价，对攻击范围内的角色造成直接伤害。",
             SkillKind.Duanliang => "可将黑色基本牌或装备牌当兵粮寸断，并把目标距离扩展到 2。",
             SkillKind.Zhiheng => "出牌阶段用低保留价值手牌换取等量新牌，稳定调整手牌质量。",
-            SkillKind.Rende => "出牌阶段将手牌交给其他角色；一次交给至少两张时可回复 1 点体力。",
+            SkillKind.Rende => _usesFormalRende
+                ? "出牌阶段可多次将手牌交给其他角色；本阶段累计给出第二张牌时自己回复 1 点体力。"
+                : "出牌阶段将手牌交给其他角色；一次交给至少两张时按历史规则回复 1 点体力。",
             SkillKind.Qingnang => "出牌阶段弃置一张手牌令受伤角色回复 1 点体力，每回合一次。",
             SkillKind.Huichun => "出牌阶段弃置两张手牌，令至少两名受伤角色各回复 1 点体力，每回合一次。",
             SkillKind.Mashu => "计算与其他角色的距离 -1，扩大杀和顺手牵羊的公开合法范围。",

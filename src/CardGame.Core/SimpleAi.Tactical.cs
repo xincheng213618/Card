@@ -99,7 +99,8 @@ public sealed partial class SimpleAiBrain
                     return (-100d, "没有其他存活角色，不能发动仁德。 ");
 
                 var support = GetTacticalSupport(view, role, target);
-                var recoveryBonus = self.HandCount >= 2 && target.Hp < target.MaxHp ? 18d : 0d;
+                var recoveryTarget = _usesFormalRende ? self : target;
+                var recoveryBonus = self.HandCount >= 2 && recoveryTarget.Hp < recoveryTarget.MaxHp ? 18d : 0d;
                 return (
                     16d + support * 18d + Math.Min(self.HandCount, 5) * 1.4d + recoveryBonus,
                     $"向公开上最值得支持的目标 {target.Seat + 1} 交给手牌；支持收益 {support:0.#}，不读取目标暗牌。 ");

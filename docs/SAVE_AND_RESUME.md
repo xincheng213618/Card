@@ -148,6 +148,8 @@ rules v99 的拒战同样不新增 Checkpoint 字段。阳／阴私有 Choice、
 
 `standard-classic-generals@1.77.0` 新增 `classic:rende`、`classic:zhiheng`、`classic:qingnang`、`classic:kujin` 并只切换当前经典刘备、孙权、华佗、黄盖；主动演示包、国战试验和 1.76.0 经典包继续引用原 `standard:` ID。新旧定义投影到相同 `SkillKind`，本块不改 rules v99、命令或执行效果；内容签名与玩法指纹会阻止两版 Registry 静默互换。Checkpoint schema 与玩家资料不变，旧存档必须继续装载其原内容包版本。
 
+rules v100／`standard-classic-generals@1.78.0` 只在两个版本边界同时满足时启用当前经典仁德：每次已接受的 `UseSkillCommand` 逐张重建 `classic:rende`／`cards-given` 阶段记录，第一次从少于两张跨到两张或更多时重建刘备自己的 1 点回复帧；后续给牌继续合法但不重复回复，离开出牌阶段清账。Checkpoint schema 仍为 3，不序列化运行账本；暂停在第一次一张给牌后恢复，再提交第二次给牌，会得到与不中断执行相同的玩家快照和事件。rules v99 或包 1.77.0 任一条件不满足时都走原一次限用、收牌者回复且不分配子回复帧的历史路径，因而旧命令前缀、后续结算序号、玩家资料及演示主动包不漂移。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

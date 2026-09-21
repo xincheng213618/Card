@@ -125,14 +125,21 @@ WPF 已分别验证激将显示“主动技 · 触发技 · 主公技”和双�
 
 1.76.0 及更早经典包仍引用 `standard:` ID，因而旧内容签名、玩法指纹和 Checkpoint 恢复路径不变。新 `classic:` 定义让技能栏和后续规则迁移不再依赖演示扩展包元数据，同时完整保留既有主动命令、实体牌移动、濒死续接、AI、Prompt 与 Replay。
 
-本块不是玩法纠错：官网当前仁德允许在一个出牌阶段内多次分牌，并在累计给出第二张牌时回复；现有 `IActiveSkill` 仍是一次交给同一目标、每回合一次的早期切片。该差距已写入来源快照，后续必须单独提升 rules 版本并验证累计账本、多个目标、AI、Checkpoint 与 Replay，不能借内容 ID 迁移静默修改。WPF 的刘备技能栏和黄盖选将卡分别由 `174-classic-shared-active-metadata.png`、`175-classic-kujin-card.png` 在 1120×740 复核。来源与边界见 `docs/content/sources/classic-shared-active-skill-metadata-d5b2b2g-2026-09-21.json`。
+1.77.0 只迁移技能身份而不改玩法：当时仁德仍保留一次交牌、每回合一次的早期切片。WPF 的刘备技能栏和黄盖选将卡分别由 `174-classic-shared-active-metadata.png`、`175-classic-kujin-card.png` 在 1120×740 复核。该历史边界见 `docs/content/sources/classic-shared-active-skill-metadata-d5b2b2g-2026-09-21.json`。
+
+## 当前经典仁德与阶段累计账本
+
+rules v100／`standard-classic-generals@1.78.0` 按当前官网补全 `classic:rende`：每次仍通过统一主动草稿选择至少一张自己的手牌和一名其他存活角色，但完成一次交牌后不消费回合限次，因此可在同一出牌阶段再次选择相同或不同目标。每张实体牌仍经 `Hand → Processing → Hand(target)` 移动；`classic:rende`／`cards-given` 的 `Phase` 用途记录累计本阶段给出的实体牌数。
+
+只有累计数量第一次从少于 2 跨到 2 或更多时建立回复帧，回复目标是技能拥有者刘备而不是收牌角色，回复量固定为 1。满体力时该时点的回复没有效果，也不会在本阶段后续给牌时再次触发；阶段边界按既有通用状态仓清除累计记录。该记录是运行时派生状态，不改变仁德的 `ActionForms.Active` 元数据，也不把主动操作入口误标为 BWIKI 的状态技或触发技。
+
+Checkpoint 继续只保存内容包签名、rules 版本和已接受命令前缀：恢复第一次一张给牌后会重建 `count=1`，再执行第二次给牌时以相同玩家快照和事件跨越阈值。rules v99 或包 1.77.0 任一边界都保留旧限次、旧回复对象和旧结算序号；`standard-active-skills@1.0.0` 的演示仁德也不变。AI 对回复收益改为读取刘备自己的伤势。`176-classic-rende-repeat-entry.png` 在 1120×740 验证第一次给牌后仁德与激将仍是两个可见入口。来源与边界见 `docs/content/sources/classic-rende-formal-d5b2b2h-2026-09-21.json`。
 
 ## 后续边界
 
 D5b 后续仍需完成：
 
 - 为剩余正式技能逐项核对并迁移标签、执行形态和动作入口，尤其是鬼才、刚烈、急救、遗计、英姿、奸雄、节命等仍复用 `standard:` ID 的经典技能；
-- 以独立规则版本把仁德从一次交牌切片升级为同阶段可多次分配、累计第二张牌回复一次的完整规则；
 - 为正式转换技补充技能重置消费者；阳／阴当前形态和 Checkpoint／Replay 已由严颜验证，正式觉醒消费者已由 SP 关羽完成；
 - 在已落地的每目标回合账本之外增加每事件等复合限次维度，并由真实消费者冻结其生命周期；
 - 在全部正式技能迁移后移除 WPF 的旧兼容类型文案。
