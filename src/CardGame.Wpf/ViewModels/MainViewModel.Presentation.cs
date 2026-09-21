@@ -94,6 +94,13 @@ public sealed partial class MainViewModel
                                      skill.LegacyKind is { } kind && SkillRegistry.GetActive(kind) is not null;
                         var isAvailable = availablePrograms.Contains(skill.Id) ||
                                           skill.LegacyKind is { } legacyKind && available.Contains(legacyKind);
+                        var isFuhunGranted = runtimeState?.IsAcquired == true &&
+                            human.SkillRuntimeStates?.Any(state =>
+                                state.SkillId == "classic:fuhun" &&
+                                state.Usages.Any(usage =>
+                                    usage.UsageId == "parent-skills-granted" &&
+                                    usage.Scope == SkillUsageScope.Turn &&
+                                    usage.Count > 0)) == true;
                         return new HumanSkillViewModel(
                             skill.Name,
                             GetVisibleSkillDescription(skill),
@@ -106,7 +113,9 @@ public sealed partial class MainViewModel
                                 skill.Tags,
                                 runtimeState),
                             runtimeState?.IsAcquired == true
-                                ? $"{human.GeneralName} · 觉醒获得"
+                                ? isFuhunGranted
+                                    ? $"{human.GeneralName} · 父魂获得"
+                                    : $"{human.GeneralName} · 觉醒获得"
                                 : human.GeneralName,
                             isAvailable,
                             false);
@@ -185,6 +194,14 @@ public sealed partial class MainViewModel
         SkillTag tags = SkillTag.None,
         SkillRuntimeStateSnapshot? runtimeState = null)
     {
+        if (runtimeState?.SkillId == "classic:fuhun" &&
+            runtimeState.Usages.Any(usage =>
+                usage.UsageId == "parent-skills-granted" &&
+                usage.Scope == SkillUsageScope.Turn &&
+                usage.Count > 0))
+        {
+            return "本回合已获得武圣／咆哮";
+        }
         if (isAvailable) return "当前可发动";
         if (tags.HasFlag(SkillTag.Awakening))
         {

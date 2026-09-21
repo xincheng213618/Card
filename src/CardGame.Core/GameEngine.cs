@@ -2594,6 +2594,10 @@ public sealed partial class GameEngine
                     Accept(() => HumanZhangbaSlashResponseCore(
                         selected.Cards,
                         _options.AdvanceAfterHumanCommands)),
+                "fuhun-slash" when selected.Cards.Count == 2 =>
+                    Accept(() => HumanFuhunSlashResponseCore(
+                        selected.Cards,
+                        _options.AdvanceAfterHumanCommands)),
                 "borrowed-sword-give-weapon" when selected.Cards.Count == 0 =>
                     Accept(() => HumanBorrowedSwordResponseCore(
                         useSlash: false,
@@ -2617,6 +2621,9 @@ public sealed partial class GameEngine
             "zhangba-slash" when selected.Cards.Count == 2 => Accept(() => HumanZhangbaSlashResponseCore(
                 selected.Cards,
                 _options.AdvanceAfterHumanCommands)),
+            "fuhun-slash" when selected.Cards.Count == 2 => Accept(() => HumanFuhunSlashResponseCore(
+                selected.Cards,
+                _options.AdvanceAfterHumanCommands)),
             "take-damage" when selected.Cards.Count == 0 => Accept(() => HumanSlashResponseCore(
                 useSlash: false,
                 requestedSlashCardId: null,
@@ -2635,6 +2642,9 @@ public sealed partial class GameEngine
                 requestedEffectiveKind: ReadResponseCardKind(selected),
                 _options.AdvanceAfterHumanCommands)),
             "zhangba-slash" when selected.Cards.Count == 2 => Accept(() => HumanZhangbaSlashResponseCore(
+                selected.Cards,
+                _options.AdvanceAfterHumanCommands)),
+            "fuhun-slash" when selected.Cards.Count == 2 => Accept(() => HumanFuhunSlashResponseCore(
                 selected.Cards,
                 _options.AdvanceAfterHumanCommands)),
             "jijiang-decline" when selected.Cards.Count == 0 => Accept(() => HumanJijiangResponseCore(
@@ -2741,7 +2751,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.PindianForSlashBonus or
                 ActiveSkillEffectKind.StartArrowBarrage or
                 ActiveSkillEffectKind.RemoveAuthorityDrawAndDamage or
-                ActiveSkillEffectKind.ChooseOrdinaryTrick) ||
+                ActiveSkillEffectKind.ChooseOrdinaryTrick or
+                ActiveSkillEffectKind.UseTwoHandCardsAsSlash) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -2796,6 +2807,10 @@ public sealed partial class GameEngine
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
              effect.MinCardCount <= 0 || effect.MaxCardCount != effect.MinCardCount ||
              effect.MinTargetCount != 0 || effect.MaxTargetCount != 0) ||
+            effect.Kind == ActiveSkillEffectKind.UseTwoHandCardsAsSlash &&
+            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
+             effect.MinCardCount != 2 || effect.MaxCardCount != 2 ||
+             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
             effect.MinCardCount < 0 ||
             effect.MaxCardCount < effect.MinCardCount ||
             effect.MinTargetCount < 0 ||
@@ -4369,6 +4384,44 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
+    private EngineRunResult HumanFuhunSlashResponseCore(
+        IReadOnlyList<int> requestedCardIds,
+        bool advanceToHumanBoundary)
+    {
+        RequireHumanDecision(DecisionKind.RespondSlash);
+        var responder = _players[_pendingDecision!.PlayerSeat];
+        var pair = FindFuhunSlashPair(responder, requestedCardIds) ??
+            throw new InvalidOperationException("The responding player has no matching Fuhun Slash pair.");
+
+        if (_pendingJijiang is { } jijiang)
+        {
+            ResolveJijiangFuhunCandidateResponse(jijiang, responder, pair);
+        }
+        else if (_pendingBorrowedSword is { AwaitingSlashChoice: true } borrowedSword)
+        {
+            ResolveBorrowedSwordFuhunSlashChoice(borrowedSword, pair);
+        }
+        else if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group)
+        {
+            PopResponseWindow(group.ResolutionId);
+            SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+            ClearPendingDecision();
+            ResolveGroupFuhunResponse(group, responder, pair);
+        }
+        else
+        {
+            var duel = _pendingDuel ??
+                throw new InvalidOperationException("There is no Slash response continuation.");
+            PopResponseWindow(duel.ResolutionId);
+            SetCardUseStep(duel.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+            ClearPendingDecision();
+            ResolveDuelFuhunResponse(duel, responder, pair);
+        }
+
+        PublishState();
+        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+    }
+
     private EngineRunResult HumanBorrowedSwordResponseCore(
         bool useSlash,
         int? requestedSlashCardId,
@@ -4917,7 +4970,7 @@ public sealed partial class GameEngine
                         .Select(skillId => _skillRuntimeState.CreateSnapshot(
                             player.Seat,
                             skillId,
-                            player.AcquiredSkillIds.Contains(skillId)))
+                            IsRuntimeAcquiredSkill(player, skillId)))
                         .ToArray())
                     : null
             };
@@ -7354,7 +7407,8 @@ public sealed partial class GameEngine
                 ActiveSkillEffectKind.PindianForSlashBonus or
                 ActiveSkillEffectKind.StartArrowBarrage or
                 ActiveSkillEffectKind.RemoveAuthorityDrawAndDamage or
-                ActiveSkillEffectKind.ChooseOrdinaryTrick))
+                ActiveSkillEffectKind.ChooseOrdinaryTrick or
+                ActiveSkillEffectKind.UseTwoHandCardsAsSlash))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
@@ -7368,6 +7422,14 @@ public sealed partial class GameEngine
         if (effect.Kind == ActiveSkillEffectKind.ChooseOrdinaryTrick)
         {
             BeginQiceChoice(actor, cardIds);
+            return;
+        }
+
+        if (effect.Kind == ActiveSkillEffectKind.UseTwoHandCardsAsSlash)
+        {
+            var cards = cardIds.Select(cardId =>
+                GetHand(actor).Single(card => card.Id == cardId)).ToArray();
+            ResolveFuhunSlash(actor, _players[targetSeats.Single()], cards);
             return;
         }
 
@@ -10230,12 +10292,15 @@ public sealed partial class GameEngine
         var zhangbaPairs = requiredCardKind == CardKind.Slash
             ? GetZhangbaSlashPairs(target)
             : [];
+        var fuhunPairs = requiredCardKind == CardKind.Slash
+            ? GetFuhunSlashPairs(target)
+            : [];
         var hasBagua = UsesFormalArmorResponseTiming &&
                        requiredCardKind == CardKind.Dodge &&
                        HasBagua(target);
         var canRequestHujia = requiredCardKind == CardKind.Dodge && CanRequestHujia(target, attack);
         var canRequestJijiang = requiredCardKind == CardKind.Slash && CanRequestJijiangResponse(target, attack);
-        if (responseCards.Count == 0 && zhangbaPairs.Count == 0 &&
+        if (responseCards.Count == 0 && zhangbaPairs.Count == 0 && fuhunPairs.Count == 0 &&
             !hasBagua && !canRequestHujia && !canRequestJijiang)
         {
             SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
@@ -10260,6 +10325,7 @@ public sealed partial class GameEngine
             $"{_players[group.SourceSeat].Name} 使用了【{incomingName}】，是否打出【{requiredName}】？",
             responseCards.Select(card => card.Id)
                 .Concat(zhangbaPairs.SelectMany(pair => pair.Select(card => card.Id)))
+                .Concat(fuhunPairs.SelectMany(pair => pair.Select(card => card.Id)))
                 .Distinct()
                 .ToArray(),
             [],
@@ -10364,8 +10430,9 @@ public sealed partial class GameEngine
 
         var slashes = GetBorrowedSwordSlashCards(weaponOwner, slashTarget);
         var zhangbaPairs = GetZhangbaSlashPairs(weaponOwner);
+        var fuhunPairs = GetFuhunSlashPairs(weaponOwner);
         var canRequestJijiang = includeJijiang && CanRequestBorrowedSwordJijiang(pending);
-        if (slashes.Count == 0 && zhangbaPairs.Count == 0 && !canRequestJijiang)
+        if (slashes.Count == 0 && zhangbaPairs.Count == 0 && fuhunPairs.Count == 0 && !canRequestJijiang)
         {
             CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
             return;
@@ -10423,6 +10490,22 @@ public sealed partial class GameEngine
                         System.Globalization.CultureInfo.InvariantCulture)
                 }));
         }
+        foreach (var pair in fuhunPairs)
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"borrowed-sword.fuhun-slash.cards-{pair[0].Id}-{pair[1].Id}"),
+                $"发动【父魂】，将两张手牌当【杀】攻击 {slashTarget.Name}。",
+                [pair[0].Id, pair[1].Id],
+                [slashTarget.Seat],
+                new Dictionary<string, string>
+                {
+                    ["response"] = "fuhun-slash",
+                    ["response-card-kind"] = CardKind.Slash.ToString(),
+                    ["skill"] = SkillKind.Fuhun.ToString(),
+                    ["target-seat"] = slashTarget.Seat.ToString(
+                        System.Globalization.CultureInfo.InvariantCulture)
+                }));
+        }
         if (canRequestJijiang)
         {
             choices.Add(new PromptChoice(
@@ -10455,6 +10538,7 @@ public sealed partial class GameEngine
             $"{source.Name} 对你使用【借刀杀人】：请对 {slashTarget.Name} 使用【杀】，否则交出武器。",
             slashes.Select(card => card.Id)
                 .Concat(zhangbaPairs.SelectMany(pair => pair.Select(card => card.Id)))
+                .Concat(fuhunPairs.SelectMany(pair => pair.Select(card => card.Id)))
                 .Distinct()
                 .ToArray(),
             [slashTarget.Seat],
@@ -10542,6 +10626,34 @@ public sealed partial class GameEngine
             weaponOwner.Seat,
             borrowedSword: pending,
             physicalCards: pair);
+    }
+
+    private void ResolveBorrowedSwordFuhunSlashChoice(
+        BorrowedSwordResolution pending,
+        IReadOnlyList<Card> pair)
+    {
+        var weaponOwner = _players[pending.WeaponOwnerSeat];
+        var slashTarget = _players[pending.SlashTargetSeat];
+        if (!ReferenceEquals(_pendingBorrowedSword, pending) ||
+            !pending.AwaitingSlashChoice ||
+            !IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget) ||
+            FindFuhunSlashPair(weaponOwner, pair.Select(card => card.Id).ToArray()) is null)
+        {
+            throw new InvalidOperationException("The selected Borrowed Sword Fuhun Slash is no longer legal.");
+        }
+
+        PopResponseWindow(pending.ResolutionId);
+        SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        ClearPendingDecision();
+        pending.AwaitingSlashChoice = false;
+        pending.SlashCardId = pair[0].Id;
+        pending.EffectiveSlashKind = CardKind.Slash;
+        ResolveFuhunSlash(
+            weaponOwner,
+            slashTarget,
+            pair,
+            borrowedSword: pending,
+            enforceOwnTurnSlashLimit: false);
     }
 
     private void CompleteBorrowedSwordWithoutSlash(
@@ -11024,7 +11136,8 @@ public sealed partial class GameEngine
         BorrowedSwordResolution? borrowedSword = null,
         IReadOnlyList<Card>? physicalCards = null,
         bool countsTowardSlashLimit = true,
-        bool usesZhuqueFan = false)
+        bool usesZhuqueFan = false,
+        CardConversionSource? conversionSource = null)
     {
         var slashCards = physicalCards?.ToArray() ?? [slash];
         if (slashCards.Length == 0 || slashCards[0].Id != slash.Id)
@@ -11043,7 +11156,8 @@ public sealed partial class GameEngine
             [target.Seat],
             playedCardKind,
             ignoresArmor,
-            slashCards.Select(card => card.Id).ToArray());
+            slashCards.Select(card => card.Id).ToArray(),
+            conversionSource);
         var nuzhan = GetNuzhanModifiers(resolutionId, source);
         if (usesZhuqueFan)
         {
@@ -11082,7 +11196,8 @@ public sealed partial class GameEngine
             damageAmount,
             playedCardKind,
             ignoresArmor,
-            physicalCards: slashCards);
+            physicalCards: slashCards,
+            conversionSource: conversionSource);
         if (activeJijiang is not null)
         {
             activeJijiang.ActiveAttack = attack;
@@ -11093,7 +11208,9 @@ public sealed partial class GameEngine
         }
         _pendingAttack = attack;
         var slashName = CardCatalog.Get(playedCardKind).DisplayName;
-        var useDescription = slashCards.Length == 2
+        var useDescription = conversionSource?.SkillId == FuhunSkillId
+            ? "发动【父魂】，将两张手牌当作【杀】使用"
+            : slashCards.Length == 2
             ? "发动【丈八蛇矛】，将两张手牌当作【杀】使用"
             : playedCardKind == slash.Kind
             ? $"使用【{slashName}】"
@@ -11105,7 +11222,16 @@ public sealed partial class GameEngine
             source.Seat,
             target.Seat,
             IgnoresArmor: ignoresArmor));
-        if (slashCards.Length == 2)
+        if (conversionSource?.SkillId == FuhunSkillId)
+        {
+            QueueGameEvent(new FuhunConvertedEvent(
+                resolutionId,
+                source.Seat,
+                Array.AsReadOnly(slashCards.Select(card => card.Id).ToArray()),
+                IsUse: true,
+                target.Seat));
+        }
+        else if (slashCards.Length == 2)
         {
             QueueGameEvent(new ZhangbaSerpentSpearConvertedEvent(
                 resolutionId,
@@ -11342,7 +11468,7 @@ public sealed partial class GameEngine
 
         if (UsesFormalArmorResponseTiming &&
             !ignoresArmor &&
-            !attack.IsZhangbaSerpentSpearUse &&
+            !attack.IsTwoCardVirtualSlash &&
             slash?.Suit is Suit.Spade or Suit.Club &&
             HasBlackSlashBarrier(target))
         {
@@ -11763,8 +11889,9 @@ public sealed partial class GameEngine
         var responseOrdinal = duel.SuccessfulSlashResponses + 1;
         var slashes = GetResponseCards(responder, CardKind.Slash);
         var zhangbaPairs = GetZhangbaSlashPairs(responder);
+        var fuhunPairs = GetFuhunSlashPairs(responder);
         var canRequestJijiang = CanRequestJijiangResponse(responder, duel.Attack);
-        if (slashes.Count == 0 && zhangbaPairs.Count == 0 && !canRequestJijiang)
+        if (slashes.Count == 0 && zhangbaPairs.Count == 0 && fuhunPairs.Count == 0 && !canRequestJijiang)
         {
             if (_pendingAttack is null)
             {
@@ -11790,6 +11917,7 @@ public sealed partial class GameEngine
                 : $"{opponent.Name} 对你使用了【决斗】，是否打出【杀】？",
             slashes.Select(card => card.Id)
                 .Concat(zhangbaPairs.SelectMany(pair => pair.Select(card => card.Id)))
+                .Concat(fuhunPairs.SelectMany(pair => pair.Select(card => card.Id)))
                 .Distinct()
                 .ToArray(),
             [],
@@ -12964,7 +13092,8 @@ public sealed partial class GameEngine
         CardKind effectiveSlashKind,
         int physicalOwnerSeat,
         IReadOnlyList<Card> physicalCards,
-        JijiangResolution? jijiang = null)
+        JijiangResolution? jijiang = null,
+        CardConversionSource? conversionSource = null)
     {
         var attack = pending.Attack;
         if (!ReferenceEquals(_pendingQinglongCrescentBlade, pending) ||
@@ -13000,7 +13129,8 @@ public sealed partial class GameEngine
             physicalOwnerSeat,
             activeJijiang: jijiang,
             physicalCards: physicalCards,
-            countsTowardSlashLimit: false);
+            countsTowardSlashLimit: false,
+            conversionSource: conversionSource);
     }
 
     private bool TryBeginStoneAxeChoice(AttackResolution attack)
@@ -13394,7 +13524,11 @@ public sealed partial class GameEngine
                                string.Equals(GetEffectiveFactionId(provider), "shu", StringComparison.Ordinal)
                 ? GetZhangbaSlashPairs(provider)
                 : [];
-            if (slashes.Count == 0 && zhangbaPairs.Count == 0)
+            var fuhunPairs = provider.IsAlive &&
+                             string.Equals(GetEffectiveFactionId(provider), "shu", StringComparison.Ordinal)
+                ? GetFuhunSlashPairs(provider)
+                : [];
+            if (slashes.Count == 0 && zhangbaPairs.Count == 0 && fuhunPairs.Count == 0)
             {
                 pending.CandidateIndex++;
                 continue;
@@ -13406,6 +13540,7 @@ public sealed partial class GameEngine
                 $"{_players[pending.OwnerSeat].Name} 发动了【激将】，是否替其打出【杀】？",
                 slashes.Select(card => card.Id)
                     .Concat(zhangbaPairs.SelectMany(pair => pair.Select(card => card.Id)))
+                    .Concat(fuhunPairs.SelectMany(pair => pair.Select(card => card.Id)))
                     .Distinct()
                     .ToArray(),
                 [],
@@ -13466,6 +13601,21 @@ public sealed partial class GameEngine
                     ["response-card-kind"] = CardKind.Slash.ToString(),
                     ["skill"] = SkillKind.Jijiang.ToString(),
                     ["equipment"] = CardKind.ZhangbaSerpentSpear.ToString()
+                }));
+        }
+        foreach (var pair in GetFuhunSlashPairs(provider))
+        {
+            choices.Add(new PromptChoice(
+                new ChoiceId($"jijiang.fuhun-slash.cards-{pair[0].Id}-{pair[1].Id}"),
+                $"发动【父魂】，将两张手牌当【杀】替 {_players[pending.OwnerSeat].Name} 响应【激将】。",
+                [pair[0].Id, pair[1].Id],
+                responseTargets,
+                new Dictionary<string, string>
+                {
+                    ["response"] = "fuhun-slash",
+                    ["response-card-kind"] = CardKind.Slash.ToString(),
+                    ["skill"] = SkillKind.Jijiang.ToString(),
+                    ["conversion-skill"] = FuhunSkillId
                 }));
         }
         choices.Add(new PromptChoice(
@@ -13648,6 +13798,112 @@ public sealed partial class GameEngine
             IsActiveUse: false));
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, CardKind.Slash);
         FinishZhangbaResponseCards(pair);
+
+        if (pending.Purpose == JijiangPurpose.DuelResponse)
+        {
+            QueueGameEvent(new DuelResponseEvent(
+                duel!.ResolutionId,
+                owner.Seat,
+                UsedSlash: true,
+                SlashCardId: pair[0].Id,
+                ResponseCardKind: CardKind.Slash));
+            ContinueDuelAfterSuccessfulSlash(duel, owner.Seat);
+            return;
+        }
+
+        var group = _pendingGroupCard ??
+            throw new InvalidOperationException("A group Jijiang response has no group continuation.");
+        QueueGameEvent(new GroupResponseEvent(
+            group.ResolutionId,
+            group.Card.Kind,
+            CardKind.Slash,
+            owner.Seat,
+            UsedResponse: true,
+            ResponseCardId: pair[0].Id,
+            ResponseCardKind: CardKind.Slash));
+        CompleteAttack(attack);
+    }
+
+    private void ResolveJijiangFuhunCandidateResponse(
+        JijiangResolution pending,
+        PlayerRuntime provider,
+        IReadOnlyList<Card> pair)
+    {
+        if (!ReferenceEquals(_pendingJijiang, pending) ||
+            !pending.AwaitingProviders ||
+            provider.Seat != pending.CurrentCandidateSeat ||
+            FindFuhunSlashPair(provider, pair.Select(card => card.Id).ToArray()) is null)
+        {
+            throw new InvalidOperationException("The Fuhun Jijiang response is not current.");
+        }
+
+        var owner = _players[pending.OwnerSeat];
+        var conversion = CreateFuhunConversionSource(provider);
+        if (pending.IsBorrowedSwordUse)
+        {
+            ClearPendingDecision();
+            BeginBorrowedSwordJijiangSlash(
+                pending,
+                provider,
+                pair,
+                CardKind.Slash,
+                usesZhuqueFan: false,
+                conversionSource: conversion);
+            return;
+        }
+
+        if (pending.IsQinglongCrescentBladeUse)
+        {
+            ClearPendingDecision();
+            BeginQinglongCrescentBladeJijiangSlash(
+                pending,
+                provider,
+                pair,
+                CardKind.Slash,
+                usesZhuqueFan: false,
+                conversionSource: conversion);
+            return;
+        }
+
+        if (pending.IsActiveUse)
+        {
+            ClearPendingDecision();
+            BeginProvidedJijiangSlash(
+                pending,
+                provider,
+                pair,
+                CardKind.Slash,
+                usesZhuqueFan: false,
+                conversionSource: conversion);
+            return;
+        }
+
+        var attack = pending.ResponseAttack ??
+            throw new InvalidOperationException("A response Jijiang has no attack continuation.");
+        var duel = pending.Purpose == JijiangPurpose.DuelResponse
+            ? _pendingDuel ?? throw new InvalidOperationException("A Duel Jijiang response has no Duel continuation.")
+            : null;
+        var responseOpponentSeat = duel?.OpponentSeat ?? attack.SourceSeat;
+        PopResponseWindow(attack.ResolutionId);
+        SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+        _pendingJijiang = null;
+        ClearPendingDecision();
+        MoveFuhunResponseCards(
+            provider,
+            pair,
+            pending.ResolutionId,
+            responseOpponentSeat,
+            owner.Seat);
+        QueueGameEvent(new JijiangResolvedEvent(
+            pending.ResolutionId,
+            owner.Seat,
+            Succeeded: true,
+            provider.Seat,
+            pair[0].Id,
+            CardKind.Slash,
+            IsActiveUse: false));
+        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, CardKind.Slash);
+        FinishFuhunResponseCards(pair);
 
         if (pending.Purpose == JijiangPurpose.DuelResponse)
         {
@@ -13896,7 +14152,8 @@ public sealed partial class GameEngine
         PlayerRuntime provider,
         IReadOnlyList<Card> physicalCards,
         CardKind effectiveKind,
-        bool usesZhuqueFan)
+        bool usesZhuqueFan,
+        CardConversionSource? conversionSource = null)
     {
         var selectedSlash = physicalCards.FirstOrDefault() ??
             throw new InvalidOperationException("An active Jijiang Slash must retain a physical card.");
@@ -13942,7 +14199,8 @@ public sealed partial class GameEngine
             provider.Seat,
             pending,
             physicalCards: physicalCards,
-            usesZhuqueFan: usesZhuqueFan);
+            usesZhuqueFan: usesZhuqueFan,
+            conversionSource: conversionSource);
     }
 
     private void BeginBorrowedSwordJijiangSlash(
@@ -13950,7 +14208,8 @@ public sealed partial class GameEngine
         PlayerRuntime provider,
         IReadOnlyList<Card> physicalCards,
         CardKind effectiveKind,
-        bool usesZhuqueFan)
+        bool usesZhuqueFan,
+        CardConversionSource? conversionSource = null)
     {
         var selectedSlash = physicalCards.FirstOrDefault() ??
             throw new InvalidOperationException("A Borrowed Sword Jijiang Slash must retain a physical card.");
@@ -13996,7 +14255,8 @@ public sealed partial class GameEngine
             activeJijiang: pending,
             borrowedSword: borrowedSword,
             physicalCards: physicalCards,
-            usesZhuqueFan: usesZhuqueFan);
+            usesZhuqueFan: usesZhuqueFan,
+            conversionSource: conversionSource);
     }
 
     private void BeginQinglongCrescentBladeJijiangSlash(
@@ -14004,7 +14264,8 @@ public sealed partial class GameEngine
         PlayerRuntime provider,
         IReadOnlyList<Card> physicalCards,
         CardKind effectiveKind,
-        bool usesZhuqueFan)
+        bool usesZhuqueFan,
+        CardConversionSource? conversionSource = null)
     {
         var selectedSlash = physicalCards.FirstOrDefault() ??
             throw new InvalidOperationException("A Qinglong Crescent Blade Jijiang Slash must retain a physical card.");
@@ -14046,7 +14307,8 @@ public sealed partial class GameEngine
             effectiveKind,
             provider.Seat,
             physicalCards,
-            pending);
+            pending,
+            conversionSource);
     }
 
     private bool TryBeginJijiangZhuqueFanChoice(
@@ -14512,6 +14774,10 @@ public sealed partial class GameEngine
         {
             ResolveBorrowedSwordZhangbaSlashChoice(pending, pair);
         }
+        else if (useSlash && GetFuhunSlashPairs(owner).FirstOrDefault() is { } fuhunPair)
+        {
+            ResolveBorrowedSwordFuhunSlashChoice(pending, fuhunPair);
+        }
         else
         {
             CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
@@ -14534,6 +14800,7 @@ public sealed partial class GameEngine
         var provider = _players[decision.PlayerSeat];
         var slashes = GetJijiangSlashCards(pending, provider);
         var zhangbaPair = GetZhangbaSlashPairs(provider).FirstOrDefault();
+        var fuhunPair = GetFuhunSlashPairs(provider).FirstOrDefault();
         var view = CreateSnapshot(provider.Seat);
         var (useSlash, thought) = _aiBrains[provider.Seat]
             .ChooseJijiangResponse(view, pending.OwnerSeat, ++_thoughtSequence);
@@ -14542,6 +14809,12 @@ public sealed partial class GameEngine
         if (useSlash && selectedSlash is null && zhangbaPair is not null)
         {
             ResolveJijiangZhangbaCandidateResponse(pending, provider, zhangbaPair);
+            PublishState();
+            return;
+        }
+        if (useSlash && selectedSlash is null && fuhunPair is not null)
+        {
+            ResolveJijiangFuhunCandidateResponse(pending, provider, fuhunPair);
             PublishState();
             return;
         }
@@ -14918,11 +15191,12 @@ public sealed partial class GameEngine
         }
         var slashes = GetResponseCards(responder, CardKind.Slash);
         var zhangbaPair = GetZhangbaSlashPairs(responder).FirstOrDefault();
+        var fuhunPair = GetFuhunSlashPairs(responder).FirstOrDefault();
         PopResponseWindow(duel.ResolutionId);
         SetCardUseStep(duel.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         _pendingDecision = null;
 
-        if (slashes.Count == 0 && zhangbaPair is null)
+        if (slashes.Count == 0 && zhangbaPair is null && fuhunPair is null)
         {
             ResolveDuelResponse(duel, responder, selectedSlash: null);
         }
@@ -14941,6 +15215,10 @@ public sealed partial class GameEngine
             else if (useSlash && zhangbaPair is not null)
             {
                 ResolveDuelZhangbaResponse(duel, responder, zhangbaPair);
+            }
+            else if (useSlash && fuhunPair is not null)
+            {
+                ResolveDuelFuhunResponse(duel, responder, fuhunPair);
             }
             else
             {
@@ -14979,6 +15257,9 @@ public sealed partial class GameEngine
         var zhangbaPair = requiredCardKind == CardKind.Slash
             ? GetZhangbaSlashPairs(responder).FirstOrDefault()
             : null;
+        var fuhunPair = requiredCardKind == CardKind.Slash
+            ? GetFuhunSlashPairs(responder).FirstOrDefault()
+            : null;
         var hasBagua = UsesFormalArmorResponseTiming &&
                        requiredCardKind == CardKind.Dodge &&
                        HasBagua(responder);
@@ -14986,7 +15267,7 @@ public sealed partial class GameEngine
         SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         _pendingDecision = null;
 
-        if (responseCards.Count == 0 && zhangbaPair is null && !hasBagua)
+        if (responseCards.Count == 0 && zhangbaPair is null && fuhunPair is null && !hasBagua)
         {
             ResolveGroupResponse(group, responder, selectedResponse: null);
         }
@@ -15034,6 +15315,10 @@ public sealed partial class GameEngine
             else if (useResponse && zhangbaPair is not null)
             {
                 ResolveGroupZhangbaResponse(group, responder, zhangbaPair);
+            }
+            else if (useResponse && fuhunPair is not null)
+            {
+                ResolveGroupFuhunResponse(group, responder, fuhunPair);
             }
             else
             {
@@ -16807,6 +17092,7 @@ public sealed partial class GameEngine
                 nature));
             ApplyHengyeGrowth(damageFrameId, source, target, amount);
             ApplyWuhunNightmareMarks(damageFrameId, source, target, amount);
+            ApplyFuhunParentSkillGrant(attack, damageFrameId, amount);
 
             if (target.Hp > 0 || SupportsLethalAfterDamageTriggers)
             {
@@ -19657,13 +19943,20 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targetSeats,
         CardKind? playedCardKind = null,
         bool ignoresArmor = false,
-        IReadOnlyList<int>? physicalCardIds = null)
+        IReadOnlyList<int>? physicalCardIds = null,
+        CardConversionSource? conversionSource = null)
     {
         var resolutionId = ++_resolutionSequence;
         var targets = Array.AsReadOnly(targetSeats.ToArray());
         var effectiveCardKind = playedCardKind ?? card.Kind;
         var physicalIds = Array.AsReadOnly((physicalCardIds ?? [card.Id]).ToArray());
-        var actionContext = CaptureCardUseAction(card, sourceSeat, targets, effectiveCardKind, physicalIds);
+        var actionContext = CaptureCardUseAction(
+            card,
+            sourceSeat,
+            targets,
+            effectiveCardKind,
+            physicalIds,
+            conversionSource);
         _resolutionStack.Add(new CardUseFrame(
             resolutionId,
             sourceSeat,
@@ -20798,6 +21091,11 @@ public sealed partial class GameEngine
                 continue;
             }
 
+            if (activeSkill.Kind == SkillKind.Fuhun && !CanUseFuhunSlash(actor))
+            {
+                continue;
+            }
+
             if (activeSkill.Kind == SkillKind.Jijiang && !CanUseActiveJijiang(actor))
             {
                 continue;
@@ -21871,6 +22169,23 @@ public sealed partial class GameEngine
                         ["equipment"] = CardKind.ZhangbaSerpentSpear.ToString()
                     }));
             }
+            foreach (var pair in GetFuhunSlashPairs(responder))
+            {
+                choices.Add(new PromptChoice(
+                    new ChoiceId($"respond.fuhun-slash.cards-{pair[0].Id}-{pair[1].Id}"),
+                    isGroupAttack
+                        ? $"发动【父魂】，将两张手牌当【杀】响应【{incomingName}】。"
+                        : "发动【父魂】，将两张手牌当【杀】继续应战【决斗】。",
+                    [pair[0].Id, pair[1].Id],
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["response"] = "fuhun-slash",
+                        ["required-card"] = responseName,
+                        ["response-card-kind"] = CardKind.Slash.ToString(),
+                        ["skill"] = SkillKind.Fuhun.ToString()
+                    }));
+            }
         }
         if (isDodge && includeBagua)
         {
@@ -22911,6 +23226,11 @@ public sealed partial class GameEngine
             return GetHand(actor).Select(card => card.Id).ToHashSet();
         }
 
+        if (skill == SkillKind.Fuhun && UsesFormalGuanXingZhangBao)
+        {
+            return GetFuhunEligibleHandCards(actor).Select(card => card.Id).ToHashSet();
+        }
+
         if (skill == SkillKind.Qiangxi && UsesFormalQiangxi)
         {
             return GetHand(actor)
@@ -23015,7 +23335,9 @@ public sealed partial class GameEngine
                 .Where(player => player.IsAlive)
                 .Select(player => player.Seat)
                 .ToHashSet(),
-            _ => []
+            SkillKind.Fuhun when UsesFormalGuanXingZhangBao =>
+                GetFuhunTargetSeats(actor),
+            _ => new HashSet<int>()
         };
 
     private void MoveCard(
@@ -25072,13 +25394,22 @@ public sealed partial class GameEngine
         }
 
         if (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group &&
+            !(_pendingYingboGift is
+              {
+                  Continuation: YingboGiftContinuation.GroupAttack,
+                  Attack: null,
+                  Group: { } yingboGroup
+              } &&
+              ReferenceEquals(yingboGroup, group) &&
+              group.CurrentAttack is null &&
+              _pendingAttack is null) &&
             (_pendingAttack is null ||
              (!ReferenceEquals(group.CurrentAttack, _pendingAttack) &&
               !(_pendingAttack.IsProgramJudgmentDamage &&
                 ReferenceEquals(_pendingJudgment?.Attack, group.CurrentAttack)))))
         {
             throw new InvalidOperationException(
-                "A group continuation must retain its current target attack.");
+                "A group continuation must retain its current target attack or pending Yingbo gift choice.");
         }
 
         if (_pendingHujia is { } hujia)
@@ -27068,7 +27399,8 @@ public sealed partial class GameEngine
         DamageNature? damageNatureOverride = null,
         IReadOnlyList<Card>? physicalCards = null,
         bool isLeijiDamage = false,
-        long? programJudgmentFrameId = null)
+        long? programJudgmentFrameId = null,
+        CardConversionSource? conversionSource = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; private set; } = sourceSeat;
@@ -27077,8 +27409,10 @@ public sealed partial class GameEngine
         public Card? Card { get; } = card;
         public IReadOnlyList<Card> PhysicalCards { get; } =
             Array.AsReadOnly((physicalCards ?? (card is null ? [] : [card])).ToArray());
-        public bool IsZhangbaSerpentSpearUse =>
+        public CardConversionSource? ConversionSource { get; } = conversionSource;
+        public bool IsTwoCardVirtualSlash =>
             PhysicalCards.Count == 2 && EffectiveCardKind == CardKind.Slash;
+        public bool IsFuhunSlash => ConversionSource?.SkillId == FuhunSkillId;
         public int DamageAmount { get; private set; } = damageAmount;
         public bool DamageAmountFinalized { get; private set; }
         public CardKind? EffectiveCardKind { get; } = playedCardKind ?? card?.Kind;

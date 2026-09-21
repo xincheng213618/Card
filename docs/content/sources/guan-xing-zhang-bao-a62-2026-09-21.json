@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:guan-xing-zhang-bao",
+  "acceptedAt": "2026-09-21T16:45:47+08:00",
+  "scope": "P1-A62 classic Guan Xing and Zhang Bao, Fuhun rules and official portrait",
+  "selectedVersion": "一将成名官网与BWIKI经典版本关兴张苞（蜀4体力，父魂）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/299.html",
+      "use": "一将成名官方武将页冻结经典关兴张苞规则：两张手牌可当杀使用或打出；出牌阶段内以此法使用的杀造成伤害后，本回合获得武圣和咆哮。该页同时提供574x761经典静态大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E5%85%B3%E5%85%B4%E5%BC%A0%E8%8B%9E",
+      "use": "交叉核对一将成名2012经典版本、蜀势力、4体力及父魂问答：杀的使用次数仍按通常规则检查，可响应南蛮入侵，只有父魂转化的杀造成伤害才获得两个父辈技能。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分标签与应用执行形态：父魂持续提供两牌转杀规则，因此为State；由玩家在出牌阶段直接发起，因此同时投影Active；伤害后的技能获得是原技能的强制后续而非额外可选Trigger。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/2.html",
+      "use": "核对经典父辈技能武圣的基础版本身份，运行时获得既有classic:wusheng，不混入界限突破附加条款。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/3.html",
+      "use": "核对经典父辈技能咆哮的基础版本身份，运行时获得既有classic:paoxiao，不混入界限突破附加条款。"
+    }
+  ],
+  "ruleText": {
+    "fuhun": "你可以将两张手牌当【杀】使用或打出；每当你于出牌阶段内以此法使用的【杀】造成伤害后，你于此回合内拥有“武圣”和“咆哮”。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.89.0",
+    "rulesVersion": 111,
+    "generalId": "classic:guan-xing-zhang-bao",
+    "skillIds": [
+      "classic:fuhun"
+    ],
+    "fuhunMetadata": "State + Active",
+    "activeInteraction": "the shared active-skill draft selects exactly two distinct current hand cards and one legal Slash target; both physical cards enter one Slash use with explicit Fuhun conversion provenance",
+    "responseInteraction": "the same exact two-hand-card conversion can answer Duel, Barbarian Assault, Borrowed Sword and Jijiang provider Slash windows without creating a separate trigger prompt",
+    "parentSkillGrant": "damage from a Fuhun-converted Slash used by its owner during any Play phase consumes a turn-scoped grant marker; runtime skill discovery then exposes classic:wusheng and classic:paoxiao until the turn boundary",
+    "auditEvents": [
+      "FuhunConvertedEvent",
+      "FuhunSkillsGrantedEvent",
+      "DamageAppliedEvent"
+    ],
+    "compatibilityRepair": "the full WPF regression exposed and fixed a pre-existing legal group-card continuation where Mou Lu Meng's Yingbo gift starts after the final target and no current attack remains"
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.88.0",
+    "previousRulesVersion": 110,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the selected physical pair, Slash target, conversion provenance, damage result and turn-scoped parent-skill grant reconstruct from the accepted command prefix",
+    "legacyPolicy": "rules v110 keeps Fuhun disabled even when package 1.89.0 is loaded; package 1.88.0 does not register Guan Xing and Zhang Bao"
+  },
+  "portrait": {
+    "resourceKey": "guan-xing-zhang-bao",
+    "localPath": "src/CardGame.Wpf/Assets/official-guan-xing-zhang-bao.png",
+    "sourcePage": "https://x.sanguosha.com/hero/299.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129901.png",
+    "sha256": "BB6FE5B975B56C436D58AA63260287DC13D9232BB2BEEB387730F5532D081DE3",
+    "bytes": 775980,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Format32bppArgb",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Guan Xing and Zhang Bao artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore -- --only-guan-xing-zhang-bao",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "targetedCoreDurationSeconds": 3.12,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore",
+    "fullCorePassed": 321,
+    "fullCoreTotal": 321,
+    "fullCoreDurationSeconds": 40.99,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore -- --only-guan-xing-zhang-bao",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 5.22,
+    "fullWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore",
+    "fullWpfPassed": 95,
+    "fullWpfTotal": 95,
+    "fullWpfDurationSeconds": 98.44,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 0.99,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "%LOCALAPPDATA%/Temp/card-ui-check/206-classic-guan-xing-zhang-bao-card.png",
+      "%LOCALAPPDATA%/Temp/card-ui-check/207-classic-fuhun-active-draft.png",
+      "%LOCALAPPDATA%/Temp/card-ui-check/208-classic-fuhun-parent-skills.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "active Fuhun consumes exactly two distinct hand cards in one virtual Slash and records both physical costs",
+      "damage from that Play-phase Fuhun Slash grants classic Wusheng and Paoxiao for the remainder of the turn, allowing repeated later Slashes through Paoxiao",
+      "the temporary parent skills appear as acquired runtime skills and expire at the turn boundary",
+      "a Barbarian Assault response consumes the exact pair but does not grant parent skills because it was not a Play-phase use that dealt damage",
+      "Borrowed Sword and Jijiang provider paths accept the same Fuhun pair without weakening their private response boundaries",
+      "rules v110 and package 1.88.0 preserve both pre-Guan-Xing-Zhang-Bao boundaries",
+      "the official portrait, exact skill text, active draft, turn grant state and parent-skill source labels render without clipping or binding errors",
+      "the full WPF suite passes the repaired group-card to Yingbo continuation reached by the updated current roster"
+    ]
+  },
+  "excludedVariants": [
+    "boundary-breakthrough or mobile Fuhun variants with different timing, draw effects or parent-skill clauses",
+    "newer Wusheng clauses beyond the existing classic:guan-yu definition",
+    "newer Paoxiao clauses beyond the existing classic:zhang-fei definition",
+    "national-war and other-product Guan Xing and Zhang Bao definitions"
+  ],
+  "deferred": [
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

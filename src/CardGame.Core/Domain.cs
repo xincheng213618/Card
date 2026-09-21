@@ -248,7 +248,8 @@ public enum SkillKind
     Qice,
     Zhiyu,
     Dangxian,
-    Fuli
+    Fuli,
+    Fuhun
 }
 
 public enum DecisionKind

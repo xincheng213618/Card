@@ -39,10 +39,17 @@ public sealed partial class GameEngine
         GeneralDefinition general,
         bool includeAcquired)
     {
-        foreach (var skill in OwnedPrintedSkills(player, general)) yield return skill;
+        var emitted = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var skill in OwnedPrintedSkills(player, general))
+        {
+            if (skill.ContentId is null || emitted.Add(skill.ContentId)) yield return skill;
+        }
         if (!includeAcquired || !SupportsRuntimeSkillAcquisition) yield break;
-        foreach (var skillId in player.AcquiredSkillIds)
+        foreach (var skillId in player.AcquiredSkillIds.Concat(GetTurnGrantedSkillIds(player)))
+        {
+            if (!emitted.Add(skillId)) continue;
             yield return ToRuntimeSkillDefinition(skillId);
+        }
     }
 
     private IEnumerable<GeneralSkillDefinition> RuntimePassiveSkillDefinitions(
@@ -64,11 +71,17 @@ public sealed partial class GameEngine
                     ActionForms = general.SkillActionForms
                 }
             ];
+        var emitted = new HashSet<string>(StringComparer.Ordinal);
         foreach (var skill in definitions.Where(skill => CanOwnPrintedSkill(player, skill.Tags)))
-            yield return skill;
+        {
+            if (skill.ContentId is null || emitted.Add(skill.ContentId)) yield return skill;
+        }
         if (!SupportsRuntimeSkillAcquisition) yield break;
-        foreach (var skillId in player.AcquiredSkillIds)
+        foreach (var skillId in player.AcquiredSkillIds.Concat(GetTurnGrantedSkillIds(player)))
+        {
+            if (!emitted.Add(skillId)) continue;
             yield return ToRuntimeSkillDefinition(skillId);
+        }
     }
 
     private IReadOnlyList<string> EnabledPrintedContentSkillIds(PlayerRuntime player)
@@ -94,7 +107,11 @@ public sealed partial class GameEngine
     private IReadOnlyList<string> EnabledContentSkillIds(PlayerRuntime player)
     {
         var ids = EnabledPrintedContentSkillIds(player).ToList();
-        if (SupportsRuntimeSkillAcquisition) ids.AddRange(player.AcquiredSkillIds);
+        if (SupportsRuntimeSkillAcquisition)
+        {
+            ids.AddRange(player.AcquiredSkillIds);
+            ids.AddRange(GetTurnGrantedSkillIds(player));
+        }
         return ids.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
     }
 

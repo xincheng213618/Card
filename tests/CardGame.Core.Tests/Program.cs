@@ -88,6 +88,9 @@ var tests = new (string Name, Action Body)[]
     ("formal Liao Hua versions locked Dangxian and limited Fuli", LiaoHuaChecks.ContentAndRulesBoundary),
     ("Dangxian runs a pre-draw Play phase with fresh phase limits", LiaoHuaChecks.DangxianExtraPhaseResetsPhaseLimitsAndReplays),
     ("Fuli recovers by living factions flips and remains limited", LiaoHuaChecks.FuliRecoversFlipsConsumesAndReplays),
+    ("formal Guan Xing and Zhang Bao version continuous active Fuhun", GuanXingZhangBaoChecks.ContentAndRulesBoundary),
+    ("Fuhun damage grants Wusheng and Paoxiao for one turn", GuanXingZhangBaoChecks.ActiveSlashGrantsParentSkillsForOneTurnAndReplays),
+    ("Fuhun responds with two exact hand cards without granting parent skills", GuanXingZhangBaoChecks.SlashResponseUsesExactPairWithoutGrantAndReplays),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -395,6 +398,13 @@ if (args.FirstOrDefault() == "--only-liao-hua")
         test.Name.Contains("Liao Hua", StringComparison.Ordinal) ||
         test.Name.Contains("Dangxian", StringComparison.Ordinal) ||
         test.Name.Contains("Fuli", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-guan-xing-zhang-bao")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Guan Xing", StringComparison.Ordinal) ||
+        test.Name.Contains("Fuhun", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;

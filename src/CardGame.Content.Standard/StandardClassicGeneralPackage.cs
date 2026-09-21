@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 88, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 89, 0))
     {
     }
 
@@ -147,12 +147,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 85, 0) &&
             version != new Version(1, 86, 0) &&
             version != new Version(1, 87, 0) &&
-            version != new Version(1, 88, 0))
+            version != new Version(1, 88, 0) &&
+            version != new Version(1, 89, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.88.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.89.0.");
         }
 
         _version = version;
@@ -732,6 +733,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     SkillKind.Fuli),
                 SkillTag.Limited,
                 SkillExecutionForm.Trigger));
+        }
+
+        if (_version >= new Version(1, 89, 0))
+        {
+            builder.AddSkill(WithActiveActionMetadata(
+                WithContinuousStateMetadata(new ContentSkillDefinition(
+                    "classic:fuhun",
+                    "父魂",
+                    "你可以将两张手牌当【杀】使用或打出；每当你于出牌阶段内以此法使用的【杀】造成伤害后，你于此回合内拥有“武圣”和“咆哮”。",
+                    SkillKind.Fuhun)),
+                new Version(1, 89, 0)));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1841,9 +1853,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:dangxian", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:fuli"]));
         }
+        if (_version >= new Version(1, 89, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:guan-xing-zhang-bao", "关兴张苞", "guan_xing_zhang_bao",
+                "classic:fuhun", "shu", BaseHp: 4));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 89 } => GuanXingZhangBaoClassicGeneralIds,
             { Major: 1, Minor: >= 88 } => LiaoHuaClassicGeneralIds,
             { Major: 1, Minor: >= 87 } => XunYouClassicGeneralIds,
             { Major: 1, Minor: 86 } => ZhongHuiClassicGeneralIds,
@@ -2375,6 +2394,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. XunYouClassicGeneralIds,
         "classic:liao-hua"
+    ];
+
+    internal static IReadOnlyList<string> GuanXingZhangBaoClassicGeneralIds { get; } =
+    [
+        .. LiaoHuaClassicGeneralIds,
+        "classic:guan-xing-zhang-bao"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

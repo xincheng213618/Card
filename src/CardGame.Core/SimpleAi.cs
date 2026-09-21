@@ -480,7 +480,7 @@ public sealed partial class SimpleAiBrain
         }
 
         var orderedCandidates = action.Kind == LegalActionKind.UseEquipmentEffect ||
-                                action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi
+                                action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi or SkillKind.Fuhun
             ? candidates
                 .OrderByDescending(player => GetHostility(view, selfRole, player))
                 .ThenBy(player => player.Hp)
@@ -2645,6 +2645,27 @@ public sealed partial class SimpleAiBrain
                 return self.HandCount == 1
                     ? (42d, "仅余一张手牌时发动奇策并优先当【无中生有】使用，以一换二。")
                     : (-100d, $"当前有 {self.HandCount} 张手牌，内置策略不以全部手牌只换两张牌。");
+            }
+
+            if (action.Skill == SkillKind.Fuhun)
+            {
+                var fuhunTarget = view.Players
+                    .Where(player => player.IsAlive && action.SelectableTargetSeats.Contains(player.Seat))
+                    .OrderByDescending(player => GetHostility(view, selfRole, player))
+                    .ThenBy(player => player.Hp)
+                    .ThenBy(player => player.Seat)
+                    .FirstOrDefault();
+                if (fuhunTarget is null) return (-100d, "没有父魂可攻击的合法目标。");
+                var fuhunHostility = GetHostility(view, selfRole, fuhunTarget);
+                var cost = GetActiveSkillSelectableCards(self, action)
+                    .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                    .ThenBy(card => card.Id)
+                    .Take(2)
+                    .Sum(card => CardCatalog.Get(card.Kind).HandKeepValue) * .18d;
+                return fuhunHostility > 0
+                    ? (19d + fuhunHostility * .45d + (fuhunTarget.Hp <= 1 ? 35d : 0d) - cost,
+                        $"发动【父魂】对座位 {fuhunTarget.Seat + 1} 使用虚拟【杀】，支付两张最低保留价值手牌。")
+                    : (-100d, "父魂合法目标中没有值得支付两张手牌攻击的敌对角色。");
             }
 
             if (action.Skill == SkillKind.Qiangxi)

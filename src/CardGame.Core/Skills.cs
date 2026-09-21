@@ -33,7 +33,8 @@ public enum ActiveSkillEffectKind
     PindianForSlashBonus,
     StartArrowBarrage,
     RemoveAuthorityDrawAndDamage,
-    ChooseOrdinaryTrick
+    ChooseOrdinaryTrick,
+    UseTwoHandCardsAsSlash
 }
 
 public sealed record ActiveSkillEffect(
@@ -1143,6 +1144,23 @@ public sealed class FuliSkill : IPassiveSkill
     public string Name => "伏枥";
 }
 
+public sealed class FuhunSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Fuhun;
+    public string Name => "父魂";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.Phase == TurnPhase.Play && context.Owner.HandCount >= 2;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.UseTwoHandCardsAsSlash,
+            MinCardCount: 2,
+            MaxCardCount: 2,
+            MinTargetCount: 1,
+            MaxTargetCount: 1);
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -1358,6 +1376,7 @@ public static class SkillRegistry
             [SkillKind.Zhiyu] = new ZhiyuSkill(),
             [SkillKind.Dangxian] = new DangxianSkill(),
             [SkillKind.Fuli] = new FuliSkill(),
+            [SkillKind.Fuhun] = new FuhunSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),

@@ -13,15 +13,17 @@ public sealed partial class GameEngine
             ? prepared[index].TargetSeat : pending.TargetSeats[index];
 
     private CardActionContext? CaptureCardUseAction(Card card, int actorSeat,
-        IReadOnlyList<int> targets, CardKind effectiveKind, IReadOnlyList<int> physicalIds)
+        IReadOnlyList<int> targets, CardKind effectiveKind, IReadOnlyList<int> physicalIds,
+        CardConversionSource? explicitConversion = null)
     {
         if (_rulesVersion < 80) return null;
         var costs = physicalIds.Select(id => new CardActionCost(id,
             _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(item => item.Id == id).Kind,
             _cardZones.GetLocation(id))).ToArray();
         var provider = costs.FirstOrDefault()?.From.OwnerSeat ?? actorSeat;
-        var conversion = physicalIds.Count == 1
-            ? GetSelectedUseConversion(_players[provider], card, effectiveKind) : null;
+        var conversion = explicitConversion ?? (physicalIds.Count == 1
+            ? GetSelectedUseConversion(_players[provider], card, effectiveKind)
+            : null);
         return new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,

@@ -224,6 +224,14 @@ rules v110／`standard-classic-generals@1.88.0` 注册官网与 BWIKI 经典版�
 
 伏枥复用统一 `RescueDying` 私有窗口，只向濒死的技能拥有者添加发动选项。确认时以 `classic:fuli/activation` 的 `Game` 用途消费整局一次额度，按仍存活角色的有效势力去重得到 X，将体力回复至不超过体力上限的 X 点，再切换武将牌正／背面并继续统一濒死续接；第二次濒死不再出现该选项。rules v109 即使加载 1.88.0 Registry 也不启用两项消费者；经典包 1.87.0 不注册廖化。Checkpoint schema 与玩家资料不新增字段。规则、素材、异版排除和验收见 `docs/content/sources/liao-hua-a61-2026-09-21.json`。
 
+## 双手牌转杀与回合内技能获得消费者
+
+rules v111／`standard-classic-generals@1.89.0` 注册官网与 BWIKI 经典版本 `classic:guan-xing-zhang-bao`。父魂持续为两张手牌提供杀的牌身份，因此包含 `State`；玩家也能在出牌阶段直接发起该转换，因此同时包含应用的 `ActionForms.Active`。它没有独立的发动／跳过询问：转换杀造成伤害后的技能获得是原效果的强制后续，不另标可选 `Trigger`。
+
+主动草稿冻结两张互异且仍在拥有者手牌区的实体牌及一个合法杀目标，两张牌共同进入同一 `CardUseFrame.PhysicalCardIds`，并以父魂转换来源复用杀次数、距离、响应、防具、伤害和处理区清理。决斗、南蛮入侵、借刀杀人及激将提供者窗口也接受同一精确双牌成本；响应虽然发布父魂转换事件，但不满足“出牌阶段内以此法使用的杀造成伤害”，不会错误获得父辈技能。
+
+父魂杀在任一出牌阶段由拥有者实际使用并造成伤害后，以 `classic:fuhun`／`parent-skills-granted` 的 `Turn` 用途记录本回合状态；借刀杀人的持刀者仍是杀的使用者，激将提供者则只是替主公打出实体牌。运行时技能集合随即投影既有经典 `classic:wusheng` 与 `classic:paoxiao`，因此后续红牌转杀和不限出杀次数直接复用原正式消费者；两个技能显示为“关兴张苞 · 父魂获得”，回合边界统一过期，不写入玩家资料。rules v110 即使加载 1.89.0 Registry 也不启用父魂；经典包 1.88.0 不注册关兴张苞。Checkpoint schema 不变，双牌成本、伤害与临时技能由已接受命令前缀确定性重建。来源、素材和验收见 `docs/content/sources/guan-xing-zhang-bao-a62-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：

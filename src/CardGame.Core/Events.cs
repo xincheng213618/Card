@@ -1207,6 +1207,23 @@ public sealed record ZhuqueFanConvertedEvent(
     IReadOnlyList<int> PhysicalCardIds,
     IReadOnlyList<int> TargetSeats) : IGameEvent;
 
+/// <summary>
+/// Public audit record for Guan Xing &amp; Zhang Bao converting exactly two
+/// hand cards into one Slash. The physical cards remain independently tracked.
+/// </summary>
+public sealed record FuhunConvertedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    IReadOnlyList<int> PhysicalCardIds,
+    bool IsUse,
+    int ResponseTargetSeat) : IGameEvent;
+
+/// <summary>Public turn-scoped grant produced after a Fuhun Slash deals damage.</summary>
+public sealed record FuhunSkillsGrantedEvent(
+    long DamageFrameId,
+    int OwnerSeat,
+    IReadOnlyList<string> SkillIds) : IGameEvent;
+
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,
