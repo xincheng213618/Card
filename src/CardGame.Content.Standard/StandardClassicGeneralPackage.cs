@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 85, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 86, 0))
     {
     }
 
@@ -144,12 +144,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 82, 0) &&
             version != new Version(1, 83, 0) &&
             version != new Version(1, 84, 0) &&
-            version != new Version(1, 85, 0))
+            version != new Version(1, 85, 0) &&
+            version != new Version(1, 86, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.85.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.86.0.");
         }
 
         _version = version;
@@ -674,6 +675,29 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "秘计",
                 "结束阶段，若你已受伤，你可以摸X张牌（X为你已损失的体力值）。若如此做，你可以将等量的手牌交给其他角色。",
                 SkillKind.Miji)));
+        }
+
+        if (_version >= new Version(1, 86, 0))
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:quanji",
+                    "权计",
+                    "每当你受到1点伤害后，你可以摸一张牌，然后将一张手牌置于武将牌上，称为“权”；你的手牌上限+X（X为“权”数）。",
+                    SkillKind.Quanji),
+                SkillTag.None,
+                SkillExecutionForm.State | SkillExecutionForm.Trigger));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:zili",
+                    "自立",
+                    "觉醒技，准备阶段，若“权”的数量不小于3，你选择一项：回复1点体力；或摸两张牌。若如此做，你减1点体力上限，获得“排异”。",
+                    SkillKind.Zili),
+                SkillTag.Awakening,
+                SkillExecutionForm.Trigger));
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:paiyi",
+                "排异",
+                "出牌阶段限一次，你可以移去一张“权”，令一名角色摸两张牌，然后若其手牌数大于你，你对其造成1点伤害。",
+                SkillKind.Paiyi)));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1762,10 +1786,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:miji"],
                 Gender: GeneralGender.Female));
         }
+        if (_version >= new Version(1, 86, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhong-hui", "钟会", "zhong_hui",
+                "classic:quanji", "wei", BaseHp: 4,
+                AdditionalSkillIds: ["classic:zili"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 85 } => WangYiClassicGeneralIds,
+            { Major: 1, Minor: >= 86 } => ZhongHuiClassicGeneralIds,
+            { Major: 1, Minor: 85 } => WangYiClassicGeneralIds,
             { Major: 1, Minor: 84 } => LiuBiaoClassicGeneralIds,
             { Major: 1, Minor: 83 } => GaoShunClassicGeneralIds,
             { Major: 1, Minor: >= 82 } => MaDaiClassicGeneralIds,
@@ -2275,6 +2307,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. LiuBiaoClassicGeneralIds,
         "classic:wang-yi"
+    ];
+
+    internal static IReadOnlyList<string> ZhongHuiClassicGeneralIds { get; } =
+    [
+        .. WangYiClassicGeneralIds,
+        "classic:zhong-hui"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

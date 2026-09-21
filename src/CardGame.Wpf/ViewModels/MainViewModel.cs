@@ -676,6 +676,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Zishou or
                     DecisionKind.Zhenlie or
                     DecisionKind.Miji or
+                    DecisionKind.Quanji or
+                    DecisionKind.Zili or
                     DecisionKind.Qianxi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
@@ -734,6 +736,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Zishou or
             DecisionKind.Zhenlie or
             DecisionKind.Miji or
+            DecisionKind.Quanji or
+            DecisionKind.Zili or
             DecisionKind.Qianxi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
@@ -814,6 +818,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 IsFaceDown = player.IsFaceDown,
                 BuquWoundText = player.BuquWounds is { Count: > 0 }
                     ? $"创 {string.Join('/', player.BuquWounds.Select(card => card.Rank))}"
+                    : string.Empty,
+                AuthorityText = player.AuthorityCount > 0
+                    ? $"权 ×{player.AuthorityCount}"
                     : string.Empty,
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 SkillName = IsNationalSnapshot
@@ -916,6 +923,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · {human.Hp}/{human.MaxHp} 体力" +
                 (!IsNationalSnapshot && human.FactionId is not null ? $" · 本局{FactionName(human.FactionId)}势力" : string.Empty) +
                 (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
+                (human.AuthorityCount > 0 ? $" · 权 {human.AuthorityCount}" : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }
         else
@@ -1224,6 +1232,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     ? $"✓ 已选择装备【{equipment.DisplayName}】；点击取消"
                     : $"选择装备【{equipment.DisplayName}】",
                 [equipment.Id],
+                [],
+                new Dictionary<string, string>()));
+        }
+
+        foreach (var authority in (human.AuthorityCards ?? []).Where(card => activeSkillCardIds.Contains(card.Id)))
+        {
+            var selected = _selectedActiveSkillCardIds.Contains(authority.Id);
+            ActiveSkillEquipmentChoices.Add(new PromptChoice(
+                new ChoiceId($"active-skill.authority-{authority.Id}"),
+                selected
+                    ? $"✓ 已选择“权”【{authority.DisplayName}】；点击取消"
+                    : $"选择“权”【{authority.DisplayName}】",
+                [authority.Id],
                 [],
                 new Dictionary<string, string>()));
         }
@@ -2026,6 +2047,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Phase(Finished)");
                 EventStack.Add("        AskForSkill(Miji)");
+            }
+            else if (pending.Kind == DecisionKind.Quanji)
+            {
+                EventStack.Add("      DamageResolved");
+                EventStack.Add("        AskForSkill(Quanji)");
+            }
+            else if (pending.Kind == DecisionKind.Zili)
+            {
+                EventStack.Add("      Phase(Preparation)");
+                EventStack.Add("        AskForSkill(Zili)");
             }
             else if (pending.Kind == DecisionKind.Qianxi)
             {

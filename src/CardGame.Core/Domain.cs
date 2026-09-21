@@ -241,7 +241,10 @@ public enum SkillKind
     Zishou,
     Zongshi,
     Zhenlie,
-    Miji
+    Miji,
+    Quanji,
+    Zili,
+    Paiyi
 }
 
 public enum DecisionKind
@@ -313,7 +316,9 @@ public enum DecisionKind
     XianzhenPindian,
     Zishou,
     Zhenlie,
-    Miji
+    Miji,
+    Quanji,
+    Zili
 }
 
 public enum JiangchiMode
@@ -691,6 +696,13 @@ public sealed partial record PlayerSnapshot
     /// <summary>Public wound cards kept on Zhou Tai by classic Buqu.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardSnapshot>? BuquWounds { get; init; }
+
+    /// <summary>Public "权" cards placed on classic Zhong Hui's general card.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? AuthorityCards { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int AuthorityCount { get; init; }
 
     /// <summary>
     /// Private/public effective faction metadata. In national war, a viewer may

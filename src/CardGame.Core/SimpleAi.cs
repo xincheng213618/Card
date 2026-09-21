@@ -414,6 +414,7 @@ public sealed partial class SimpleAiBrain
         return self.Hand
             .Concat(self.WoodenOxGrain ?? [])
             .Concat(self.Equipment)
+            .Concat(self.AuthorityCards ?? [])
             .Where(card => selectable.Contains(card.Id))
             .ToArray();
     }
@@ -445,12 +446,14 @@ public sealed partial class SimpleAiBrain
             : action.SelectableTargetSeats.ToHashSet();
         var candidates = view.Players
             .Where(player => player.IsAlive &&
-                             (selectableTargets is null || selectableTargets.Contains(player.Seat)) &&
-                             (action.Kind == LegalActionKind.UseProgramSkill
-                                 ? true
-                                 : action.Skill is SkillKind.Qingnang or SkillKind.Huichun
-                                 ? player.Hp < player.MaxHp
-                                 : player.Seat != Seat))
+                              (selectableTargets is null || selectableTargets.Contains(player.Seat)) &&
+                              (action.Kind == LegalActionKind.UseProgramSkill
+                                  ? true
+                                  : action.Skill == SkillKind.Paiyi
+                                      ? true
+                                      : action.Skill is SkillKind.Qingnang or SkillKind.Huichun
+                                          ? player.Hp < player.MaxHp
+                                          : player.Seat != Seat))
             .ToArray();
         if (action.MinTargetCount > candidates.Length)
         {
@@ -459,6 +462,10 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
+        if (action.Skill == SkillKind.Paiyi && candidates.Any(player => player.Seat == Seat))
+        {
+            return [Seat];
+        }
         if (action.Kind == LegalActionKind.UseProgramSkill)
         {
             var hint = action.ProgramAiHint ?? throw new InvalidOperationException(

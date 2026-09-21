@@ -258,6 +258,10 @@ public sealed partial class MainViewModel
                 DecisionKind.Miji when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("action") == "miji-use") => ("决定是否发动秘计", new[] { "结束阶段受伤时，可按已损失体力值摸等量的牌。", "摸牌后可以完全不分配；一旦开始交牌，就必须将等量手牌逐张交给其他存活角色。" }),
                 DecisionKind.Miji => ("分配秘计手牌", new[] { "选择自己的一张手牌和一名其他存活角色；可以把多张牌交给同一角色。", "第一次交牌前可以放弃全部分配；交出第一张后必须继续，直到数量与本次摸牌数相同。" }),
+                DecisionKind.Quanji when prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "quanji-use") => ("决定是否发动权计", new[] { "每受到 1 点伤害，都会独立询问一次；发动后先摸一张牌。", "随后必须选择一张手牌作为公开的“权”；每张“权”令你的手牌上限 +1。" }),
+                DecisionKind.Quanji => ("选择一张手牌作为权", new[] { "权计已经摸牌；现在从自己的手牌中选择一张置于武将牌上。", "“权”牌会公开显示，不再属于手牌，并增加等量手牌上限。" }),
+                DecisionKind.Zili => ("选择自立收益", new[] { "“权”达到三张后，自立必须觉醒；先选择回复 1 点体力或摸两张牌。", "所选收益结算后，你减 1 点体力上限，并永久获得主动技“排异”。" }),
                 DecisionKind.Qianxi => ("处理潜袭", new[] { "先决定是否发动；发动后摸一张，再从自己的手牌或装备中弃置一张。", "最后选择距离为 1 的其他角色；其本回合不能使用或打出与弃牌同色的手牌，但装备区和木牛流马中的牌不受此限制。" }),
                 DecisionKind.Tiandu => ("决定是否发动天妒", new[] { "判定结果已经生效；发动后，公开判定牌会进入你的手牌。", "也可以跳过，让判定牌按通常流程进入弃牌堆。" }),
                 DecisionKind.Fanjian => ("为反间选择一种花色", new[] { "先选择黑桃、红桃、梅花或方块；此时周瑜的随机手牌尚未公开。", "你会获得并展示那张牌；若它与所选花色不同，周瑜对你造成 1 点普通伤害。" }),

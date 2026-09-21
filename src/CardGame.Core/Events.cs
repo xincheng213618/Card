@@ -776,6 +776,34 @@ public sealed record MijiResolvedEvent(
     IReadOnlyList<int> GivenCardIds,
     IReadOnlyList<int> TargetSeats) : IGameEvent;
 
+/// <summary>One independent per-damage-point result of classic Zhong Hui's Quanji.</summary>
+public sealed record QuanjiResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int DamagePoint,
+    bool Used,
+    int? DrawnCardId,
+    int? AuthorityCardId,
+    int AuthorityCount) : IGameEvent;
+
+/// <summary>Public awakening choice and acquired-skill result of classic Zili.</summary>
+public sealed record ZiliResolvedEvent(
+    int OwnerSeat,
+    bool Recovered,
+    IReadOnlyList<int> DrawnCardIds,
+    int RemainingHp,
+    int MaximumHp,
+    IReadOnlyList<string> AcquiredSkillIds) : IGameEvent;
+
+/// <summary>Public card, draw and conditional-damage branch of classic Paiyi.</summary>
+public sealed record PaiyiResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    int AuthorityCardId,
+    IReadOnlyList<int> DrawnCardIds,
+    bool DamageTriggered) : IGameEvent;
+
 public sealed record DamageSkillCardsDrawnEvent(
     long ResolutionId,
     int OwnerSeat,

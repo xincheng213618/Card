@@ -14,6 +14,7 @@ public enum CardZoneKind
     Judgment,
     WoodenOxGrain,
     BuquWound,
+    Authority,
     OutsideGame
 }
 
@@ -21,7 +22,7 @@ public readonly record struct CardLocation
 {
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -57,6 +58,8 @@ public readonly record struct CardLocation
     public static CardLocation WoodenOxGrain(int seat) => new(CardZoneKind.WoodenOxGrain, seat);
 
     public static CardLocation BuquWound(int seat) => new(CardZoneKind.BuquWound, seat);
+
+    public static CardLocation Authority(int seat) => new(CardZoneKind.Authority, seat);
 
     public override string ToString() => OwnerSeat is { } seat ? $"{Zone}[{seat}]" : Zone.ToString();
 }
@@ -178,6 +181,11 @@ public static class CardMoveReasons
     public static CardMoveReason ZhenlieDiscard { get; } = new("skill.zhenlie.discard");
     public static CardMoveReason MijiDraw { get; } = new("skill.miji.draw");
     public static CardMoveReason MijiGive { get; } = new("skill.miji.give-card");
+    public static CardMoveReason QuanjiDraw { get; } = new("skill.quanji.draw");
+    public static CardMoveReason QuanjiStore { get; } = new("skill.quanji.store-authority");
+    public static CardMoveReason AuthorityDeathDiscard { get; } = new("skill.quanji.death-discard");
+    public static CardMoveReason PaiyiRemove { get; } = new("skill.paiyi.remove-authority");
+    public static CardMoveReason PaiyiDraw { get; } = new("skill.paiyi.draw");
     public static CardMoveReason JushouDraw { get; } = new("skill.jushou.draw");
     public static CardMoveReason JujianDiscard { get; } = new("skill.jujian.discard");
     public static CardMoveReason JujianDraw { get; } = new("skill.jujian.draw");
@@ -240,6 +248,7 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.Judgment(seat));
             AddZone(CardLocation.WoodenOxGrain(seat));
             AddZone(CardLocation.BuquWound(seat));
+            AddZone(CardLocation.Authority(seat));
         }
     }
 

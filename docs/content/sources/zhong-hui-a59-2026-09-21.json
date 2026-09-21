@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:zhong-hui",
+  "acceptedAt": "2026-09-21T14:33:28+08:00",
+  "scope": "P1-A59 classic Zhong Hui, Quanji/Zili/Paiyi rules and official portrait",
+  "selectedVersion": "BWIKI经典版本钟会（魏4体力，权计／自立，觉醒获得排异）",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/%E9%92%9F%E4%BC%9A",
+      "use": "经典版本规则冻结：魏4体力；每受到1点伤害后可发动一次权计；权增加手牌上限；准备阶段权不少于3时自立；排异移去一张权，令一名角色摸两张，再按实时手牌数决定是否造成1点伤害。该页同时明确列出并隔离界限突破版本。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/308.html",
+      "use": "一将成名官方武将页用于交叉核对钟会身份、经典内容入口与574x761静态大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页拆分技能元数据：权计由可选Trigger与持续手牌上限State组成；自立为必须执行且附带Locked/Limited的Awakening Trigger；排异通过应用ActionForms.Active表示出牌阶段操作入口。"
+    }
+  ],
+  "ruleText": {
+    "quanji": "当你受到1点伤害后，你可以摸一张牌并将一张手牌置于你的武将牌上，称为“权”（你的手牌上限增加“权”的数量）。",
+    "zili": "觉醒技，准备阶段，若“权”的数量不小于3，你选择一项：回复1点体力；或摸两张牌。若如此做，你减1点体力上限，获得“排异”。",
+    "paiyi": "出牌阶段限一次，你可以移去一张“权”，令一名角色摸两张牌，然后若该角色的手牌数大于你，你对其造成1点伤害。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.86.0",
+    "rulesVersion": 108,
+    "generalId": "classic:zhong-hui",
+    "skillIds": [
+      "classic:quanji",
+      "classic:zili",
+      "classic:paiyi"
+    ],
+    "quanjiMetadata": "State + optional Trigger",
+    "ziliMetadata": "Awakening + Locked + Limited + mandatory Trigger",
+    "paiyiMetadata": "ActionForms.Active; acquired at runtime",
+    "publicCardZone": "Authority(ownerSeat)",
+    "auditEvents": [
+      "QuanjiResolvedEvent",
+      "MaximumHpChangedEvent",
+      "SkillAwakenedEvent",
+      "ZiliResolvedEvent",
+      "PaiyiResolvedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.85.0",
+    "previousRulesVersion": 107,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "private Quanji use/skip and exact hand-card storage, mandatory Zili branch and exact Paiyi Authority/target choices reconstruct from the accepted command prefix",
+    "legacyPolicy": "rules v107 keeps all Zhong Hui runtime effects disabled even when package 1.86.0 is loaded; package 1.85.0 does not register Zhong Hui"
+  },
+  "portrait": {
+    "resourceKey": "zhong-hui",
+    "localPath": "src/CardGame.Wpf/Assets/official-zhong-hui.png",
+    "sourcePage": "https://x.sanguosha.com/hero/308.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130801.png",
+    "sha256": "E832354BDDC56A5663F7803B6B4621669E96BBCD5F7C0B946FD5DF7C3B28D186",
+    "bytes": 201059,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Indexed8",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Zhong Hui artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build -- --only-zhong-hui",
+    "targetedCorePassed": 2,
+    "targetedCoreTotal": 2,
+    "targetedCoreDurationSeconds": 6.33,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build",
+    "fullCorePassed": 312,
+    "fullCoreTotal": 312,
+    "fullCoreDurationSeconds": 24.83,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-build -- artifacts/wpf-check --only-zhong-hui",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 9.06,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 0.82,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/wpf-check/197-classic-zhong-hui-card.png",
+      "artifacts/wpf-check/198-classic-zhong-hui-quanji-choice.png",
+      "artifacts/wpf-check/199-classic-zhong-hui-zili-paiyi.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "each point of damage opens one private Quanji use/skip window, then stores one exact hand card as a public Authority",
+      "Authority cards add to hand limit, are discarded on death and survive paused and completed replay reconstruction",
+      "Zili is mandatory once at three Authorities, resolves the chosen recover/draw benefit before reducing maximum HP, and acquires Paiyi once",
+      "Paiyi removes one exact Authority, lets any living target draw two, then compares current hand sizes before routing conditional damage through the normal damage chain",
+      "rules v107 and package 1.85.0 preserve both pre-Zhong-Hui boundaries",
+      "official portrait, structured skill types, private prompts, Authority badge and acquired Paiyi draft render without clipping or binding errors"
+    ]
+  },
+  "excludedVariants": [
+    "boundary-breakthrough Quanji that also triggers after another character obtains Zhong Hui's cards",
+    "boundary-breakthrough Zili that recovers and draws without a choice",
+    "boundary-breakthrough Paiyi with per-option limits and X-card or multi-target branches",
+    "god, scheme and other-product Zhong Hui definitions"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

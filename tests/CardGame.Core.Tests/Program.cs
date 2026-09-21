@@ -80,6 +80,8 @@ var tests = new (string Name, Action Body)[]
     ("formal Wang Yi versions optional Zhenlie and Miji triggers", WangYiChecks.ContentPromptAndRulesBoundary),
     ("Zhenlie nullifies Slash while Miji draws and distributes exactly", WangYiChecks.ZhenlieSlashAndMijiDistributionReplay),
     ("Zhenlie nullifies only Wang Yi during a group trick", WangYiChecks.ZhenlieNullifiesOnlyItsGroupEffect),
+    ("formal Zhong Hui versions Quanji Zili and Paiyi", ZhongHuiChecks.ContentQuanjiAndBoundary),
+    ("Quanji awakens Zili and acquired Paiyi replays", ZhongHuiChecks.ZiliAndPaiyiReplay),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -362,6 +364,15 @@ if (args.FirstOrDefault() == "--only-wang-yi")
         test.Name.Contains("Wang Yi", StringComparison.Ordinal) ||
         test.Name.Contains("Zhenlie", StringComparison.Ordinal) ||
         test.Name.Contains("Miji", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-zhong-hui")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Zhong Hui", StringComparison.Ordinal) ||
+        test.Name.Contains("Quanji", StringComparison.Ordinal) ||
+        test.Name.Contains("Zili", StringComparison.Ordinal) ||
+        test.Name.Contains("Paiyi", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;
