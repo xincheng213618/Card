@@ -189,6 +189,14 @@ public sealed record SkillHpLostEvent(
     int Amount,
     int RemainingHp) : IGameEvent;
 
+public sealed record LihuoSlashUsedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    IReadOnlyList<int> PhysicalCardIds,
+    IReadOnlyList<int> TargetSeats,
+    bool ConvertedFromOrdinarySlash,
+    bool AddedTarget) : IGameEvent;
+
 /// <summary>
 /// Trusted-host result for cards drawn by an active skill. Physical card ids
 /// stay out of ordinary player snapshots and are retained only in this host

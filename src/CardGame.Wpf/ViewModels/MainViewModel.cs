@@ -1524,7 +1524,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             candidate.CardId == selectedCardId &&
             candidate.TargetSeat == choice.Targets[0] &&
             candidate.TargetCardId == targetCardId &&
-            ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters));
+            ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
+            ModifierSkillsMatchChoice(candidate, choice.Parameters));
         if (action is null)
         {
             PromptText = "公开目标牌已不再合法，请重新选择。";
@@ -1543,7 +1544,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 pending.PromptId,
                 action.PlayedCardKind,
                 targetCardId)
-            { ConversionSource = action.ConversionSource });
+            {
+                ConversionSource = action.ConversionSource,
+                CardKindModifierSkill = action.CardKindModifierSkill,
+                TargetCountModifierSkill = action.TargetCountModifierSkill
+            });
             if (!result.Accepted)
             {
                 PromptText = $"公开目标牌未执行：{result.Error?.Message}";
@@ -1573,7 +1578,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var action = _game.GetHumanLegalActions().SingleOrDefault(candidate =>
             candidate.CardId == selectedCardId &&
             candidate.TargetSeats.SequenceEqual(choice.Targets) &&
-            ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters));
+            ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
+            ModifierSkillsMatchChoice(candidate, choice.Parameters));
         if (action is null)
         {
             PromptText = "目标组合已不再合法，请重新选择。";
@@ -1592,7 +1598,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 pending.PromptId,
                 action.PlayedCardKind,
                 action.TargetCardId)
-            { ConversionSource = action.ConversionSource });
+            {
+                ConversionSource = action.ConversionSource,
+                CardKindModifierSkill = action.CardKindModifierSkill,
+                TargetCountModifierSkill = action.TargetCountModifierSkill
+            });
             if (!result.Accepted)
             {
                 PromptText = $"目标组合未执行：{result.Error?.Message}";
@@ -1757,7 +1767,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         PromptId promptId) => new(actorSeat, cardId, action.TargetSeats, revision, promptId,
             action.PlayedCardKind, action.TargetCardId)
         {
-            ConversionSource = action.ConversionSource
+            ConversionSource = action.ConversionSource,
+            CardKindModifierSkill = action.CardKindModifierSkill,
+            TargetCountModifierSkill = action.TargetCountModifierSkill
         };
 
     private static bool ConversionSourceMatchesChoice(
@@ -1766,6 +1778,21 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         TryReadConversionSource(parameters, out var choiceSource)
             ? source == choiceSource
             : true;
+
+    private static bool ModifierSkillsMatchChoice(
+        LegalAction action,
+        IReadOnlyDictionary<string, string> parameters)
+    {
+        var cardKindMatches = parameters.TryGetValue("card-kind-modifier-skill", out var cardKindText)
+            ? Enum.TryParse<SkillKind>(cardKindText, out var cardKindSkill) &&
+              action.CardKindModifierSkill == cardKindSkill
+            : action.CardKindModifierSkill is null;
+        var targetCountMatches = parameters.TryGetValue("target-count-modifier-skill", out var targetCountText)
+            ? Enum.TryParse<SkillKind>(targetCountText, out var targetCountSkill) &&
+              action.TargetCountModifierSkill == targetCountSkill
+            : action.TargetCountModifierSkill is null;
+        return cardKindMatches && targetCountMatches;
+    }
 
     private void UseActiveSkill()
     {

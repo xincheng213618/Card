@@ -843,7 +843,9 @@ public sealed partial class GameEngine
             targets,
             command.PlayedCardKind,
             command.TargetCardId,
-            command.ConversionSource);
+            command.ConversionSource,
+            command.CardKindModifierSkill,
+            command.TargetCountModifierSkill);
 
         if (action is null)
         {
@@ -859,7 +861,9 @@ public sealed partial class GameEngine
             playedCardKind: action.PlayedCardKind,
             targetCardId: action.TargetCardId,
             targetSeats: action.TargetSeats,
-            conversionSource: action.ConversionSource));
+            conversionSource: action.ConversionSource,
+            cardKindModifierSkill: action.CardKindModifierSkill,
+            targetCountModifierSkill: action.TargetCountModifierSkill));
     }
 
     private CommandResult SubmitUseSkill(UseSkillCommand command)
@@ -3378,7 +3382,9 @@ public sealed partial class GameEngine
         CardKind? playedCardKind = null,
         int? targetCardId = null,
         IReadOnlyList<int>? targetSeats = null,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null,
+        SkillKind? targetCountModifierSkill = null)
     {
         RequireHumanDecision(DecisionKind.PlayCard);
         var actor = _players[_options.HumanSeat];
@@ -3398,7 +3404,9 @@ public sealed partial class GameEngine
                 selectedTargets,
                 playedCardKind,
                 targetCardId,
-                conversionSource);
+                conversionSource,
+                cardKindModifierSkill,
+                targetCountModifierSkill);
 
         if (action is null || action.Kind == LegalActionKind.EndPlay)
         {
@@ -8103,7 +8111,10 @@ public sealed partial class GameEngine
                         actor,
                         action.TargetSeats.Select(seat => _players[seat]).ToArray(),
                         card,
-                        action.PlayedCardKind ?? card.Kind);
+                        action.PlayedCardKind ?? card.Kind,
+                        action.ConversionSource,
+                        action.CardKindModifierSkill,
+                        action.TargetCountModifierSkill);
                 }
                 else
                 {
@@ -8111,7 +8122,10 @@ public sealed partial class GameEngine
                         actor,
                         _players[action.TargetSeat.Value],
                         card,
-                        action.PlayedCardKind ?? card.Kind);
+                        action.PlayedCardKind ?? card.Kind,
+                        action.ConversionSource,
+                        action.CardKindModifierSkill,
+                        action.TargetCountModifierSkill);
                 }
                 break;
             case LegalActionKind.Peach:
@@ -10811,13 +10825,19 @@ public sealed partial class GameEngine
         PlayerRuntime source,
         PlayerRuntime target,
         Card slash,
-        CardKind playedCardKind)
+        CardKind playedCardKind,
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null,
+        SkillKind? targetCountModifierSkill = null)
     {
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == LegalActionKind.Slash &&
             action.CardId == slash.Id &&
             action.TargetSeat == target.Seat &&
-            (action.PlayedCardKind ?? slash.Kind) == playedCardKind);
+            (action.PlayedCardKind ?? slash.Kind) == playedCardKind &&
+            action.ConversionSource == conversionSource &&
+            action.CardKindModifierSkill == cardKindModifierSkill &&
+            action.TargetCountModifierSkill == targetCountModifierSkill);
         if (!stillLegal)
         {
             throw new InvalidOperationException("Slash became illegal before resolution.");
@@ -10830,29 +10850,42 @@ public sealed partial class GameEngine
             playedCardKind,
             source.Seat,
             usesZhuqueFan: playedCardKind == CardKind.FireSlash &&
+                           cardKindModifierSkill != SkillKind.Lihuo &&
                            (slash.Kind == CardKind.Slash ||
                             GetProgramCardIdentityMatches(source, slash).Any(match =>
-                                match.Identity.OutputKind == CardKind.Slash)));
+                                match.Identity.OutputKind == CardKind.Slash)),
+            conversionSource: conversionSource,
+            cardKindModifierSkill: cardKindModifierSkill,
+            targetCountModifierSkill: targetCountModifierSkill);
     }
 
     private void ResolveFangtianHalberdSlash(
         PlayerRuntime source,
         IReadOnlyList<PlayerRuntime> targets,
         Card slash,
-        CardKind playedCardKind)
+        CardKind playedCardKind,
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null,
+        SkillKind? targetCountModifierSkill = null)
     {
         var targetSeats = targets.Select(target => target.Seat).ToArray();
-        var stillLegal = targetSeats.Length is >= 2 and <= 4 &&
+        var stillLegal = targetSeats.Length is >= 2 and <= 5 &&
             BuildLegalActions(source).Any(action =>
                 action.Kind == LegalActionKind.Slash &&
                 action.CardId == slash.Id &&
                 action.TargetSeats.SequenceEqual(targetSeats) &&
-                (action.PlayedCardKind ?? slash.Kind) == playedCardKind);
+                (action.PlayedCardKind ?? slash.Kind) == playedCardKind &&
+                action.ConversionSource == conversionSource &&
+                action.CardKindModifierSkill == cardKindModifierSkill &&
+                action.TargetCountModifierSkill == targetCountModifierSkill);
         var usesFangtian = UsesFormalFangtianHalberd &&
             GetHand(source).Count == 1 && GetHand(source)[0].Id == slash.Id &&
             GetEquipment(source).Any(card => card.Kind == CardKind.FangtianHalberd);
         var usesTianyi = UsesFormalTaishiCi && source.TianyiWonThisTurn && targetSeats.Length == 2;
-        if (!stillLegal || (!usesFangtian && !usesTianyi))
+        var usesLihuoExtraTarget = targetCountModifierSkill == SkillKind.Lihuo &&
+                                   playedCardKind == CardKind.FireSlash &&
+                                   HasLihuo(source);
+        if (!stillLegal || (!usesFangtian && !usesTianyi && !usesLihuoExtraTarget))
         {
             throw new InvalidOperationException("Fangtian Halberd Slash became illegal before resolution.");
         }
@@ -10863,7 +10896,9 @@ public sealed partial class GameEngine
             source.Seat,
             targetSeats,
             playedCardKind,
-            ignoresArmor);
+            ignoresArmor,
+            conversionSource: conversionSource,
+            cardKindModifierSkill: cardKindModifierSkill);
         var nuzhan = GetNuzhanModifiers(resolutionId, source);
         MoveCard(
             slash,
@@ -10886,7 +10921,10 @@ public sealed partial class GameEngine
             ignoresArmor,
             damageAmount,
             targetSeats,
-            usesFangtian);
+            usesFangtian,
+            conversionSource,
+            cardKindModifierSkill,
+            targetCountModifierSkill);
         _pendingFangtianHalberd = pending;
         if (usesFangtian)
         {
@@ -10897,6 +10935,29 @@ public sealed partial class GameEngine
                 playedCardKind,
                 Array.AsReadOnly(targetSeats)));
         }
+        var usesZhuqueFan = playedCardKind == CardKind.FireSlash &&
+                            cardKindModifierSkill != SkillKind.Lihuo &&
+                            (slash.Kind == CardKind.Slash ||
+                             GetProgramCardIdentityMatches(source, slash).Any(match =>
+                                 match.Identity.OutputKind == CardKind.Slash));
+        if (usesZhuqueFan)
+        {
+            QueueGameEvent(new ZhuqueFanConvertedEvent(
+                resolutionId,
+                source.Seat,
+                Array.AsReadOnly(new[] { slash.Id }),
+                Array.AsReadOnly(targetSeats)));
+        }
+        if (cardKindModifierSkill == SkillKind.Lihuo || usesLihuoExtraTarget)
+        {
+            QueueGameEvent(new LihuoSlashUsedEvent(
+                resolutionId,
+                source.Seat,
+                Array.AsReadOnly(new[] { slash.Id }),
+                Array.AsReadOnly(targetSeats),
+                ConvertedFromOrdinarySlash: cardKindModifierSkill == SkillKind.Lihuo,
+                AddedTarget: usesLihuoExtraTarget));
+        }
         QueueGameEvent(new CardUsedEvent(
             slash.Id,
             playedCardKind,
@@ -10906,7 +10967,7 @@ public sealed partial class GameEngine
         var slashName = CardCatalog.Get(playedCardKind).DisplayName;
         AddLog(
             usesFangtian ? "EquipmentEffect" : "SkillTriggered",
-            $"{source.Name} 发动【{(usesFangtian ? "方天画戟" : "天义")}】，以【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}。",
+            $"{source.Name} 发动【{(usesLihuoExtraTarget ? "疠火" : usesFangtian ? "方天画戟" : "天义")}】，以【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}。",
             source.Seat,
             targetSeats[0]);
         foreach (var target in targets)
@@ -10947,7 +11008,10 @@ public sealed partial class GameEngine
             pending.Card,
             pending.DamageAmount,
             pending.EffectiveCardKind,
-            targetIgnoresArmor);
+            targetIgnoresArmor,
+            conversionSource: pending.ConversionSource,
+            cardKindModifierSkill: pending.CardKindModifierSkill,
+            targetCountModifierSkill: pending.TargetCountModifierSkill);
         if (_acceptedProgramUses.Contains(pending.ResolutionId) &&
             _preparedProgramTargets.TryGetValue(pending.ResolutionId, out var prepared))
             attack = prepared[pending.TargetIndex];
@@ -11182,7 +11246,9 @@ public sealed partial class GameEngine
         IReadOnlyList<Card>? physicalCards = null,
         bool countsTowardSlashLimit = true,
         bool usesZhuqueFan = false,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null,
+        SkillKind? targetCountModifierSkill = null)
     {
         var slashCards = physicalCards?.ToArray() ?? [slash];
         if (slashCards.Length == 0 || slashCards[0].Id != slash.Id)
@@ -11202,7 +11268,8 @@ public sealed partial class GameEngine
             playedCardKind,
             ignoresArmor,
             slashCards.Select(card => card.Id).ToArray(),
-            conversionSource);
+            conversionSource,
+            cardKindModifierSkill);
         var nuzhan = GetNuzhanModifiers(resolutionId, source);
         if (usesZhuqueFan)
         {
@@ -11216,6 +11283,16 @@ public sealed partial class GameEngine
                 $"{source.Name} 发动【朱雀羽扇】，将本次普通【杀】改为【火杀】使用。",
                 source.Seat,
                 target.Seat);
+        }
+        if (cardKindModifierSkill == SkillKind.Lihuo || targetCountModifierSkill == SkillKind.Lihuo)
+        {
+            QueueGameEvent(new LihuoSlashUsedEvent(
+                resolutionId,
+                source.Seat,
+                Array.AsReadOnly(slashCards.Select(card => card.Id).ToArray()),
+                Array.AsReadOnly(new[] { target.Seat }),
+                ConvertedFromOrdinarySlash: cardKindModifierSkill == SkillKind.Lihuo,
+                AddedTarget: targetCountModifierSkill == SkillKind.Lihuo));
         }
         foreach (var physicalCard in slashCards)
         {
@@ -11242,7 +11319,9 @@ public sealed partial class GameEngine
             playedCardKind,
             ignoresArmor,
             physicalCards: slashCards,
-            conversionSource: conversionSource);
+            conversionSource: conversionSource,
+            cardKindModifierSkill: cardKindModifierSkill,
+            targetCountModifierSkill: targetCountModifierSkill);
         if (activeJijiang is not null)
         {
             activeJijiang.ActiveAttack = attack;
@@ -19256,6 +19335,11 @@ public sealed partial class GameEngine
             CompleteProgramSkillAfterDying(dying);
             return;
         }
+        if (dying.ResumesLihuo)
+        {
+            CompleteLihuoAfterDying(dying);
+            return;
+        }
         if (dying.ResumesCardTargetSkill)
         {
             CompleteZhenlieAfterDying(dying, survived);
@@ -19671,6 +19755,7 @@ public sealed partial class GameEngine
         if (_pendingFangtianHalberd is { } fangtian &&
             ReferenceEquals(fangtian.CurrentAttack, attack))
         {
+            fangtian.DamageWasApplied |= attack.DamageWasApplied;
             fangtian.CurrentAttack = null;
             fangtian.TargetIndex++;
             while (fangtian.TargetIndex < fangtian.TargetSeats.Count &&
@@ -19689,10 +19774,20 @@ public sealed partial class GameEngine
             }
 
             SetCardUseTargetIndex(fangtian.ResolutionId, fangtian.TargetSeats.Count);
+            attack.SetLihuoCausedDamage(fangtian.DamageWasApplied);
             _pendingFangtianHalberd = null;
         }
 
+        if (attack.IsLihuoConversion && !attack.LihuoCausedDamage)
+        {
+            attack.SetLihuoCausedDamage(attack.DamageWasApplied);
+        }
+
         if (FinishAttack(attack))
+        {
+            return;
+        }
+        if (TryApplyLihuoPenaltyAfterCardUse(attack))
         {
             return;
         }
@@ -19989,7 +20084,8 @@ public sealed partial class GameEngine
         CardKind? playedCardKind = null,
         bool ignoresArmor = false,
         IReadOnlyList<int>? physicalCardIds = null,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null)
     {
         var resolutionId = ++_resolutionSequence;
         var targets = Array.AsReadOnly(targetSeats.ToArray());
@@ -20001,7 +20097,8 @@ public sealed partial class GameEngine
             targets,
             effectiveCardKind,
             physicalIds,
-            conversionSource);
+            conversionSource,
+            cardKindModifierSkill);
         _resolutionStack.Add(new CardUseFrame(
             resolutionId,
             sourceSeat,
@@ -20393,9 +20490,11 @@ public sealed partial class GameEngine
     private IReadOnlyList<CardKind> GetSlashUseKinds(
         PlayerRuntime actor,
         CardKind baseEffectiveKind) =>
-        HasZhuqueFan(actor) && baseEffectiveKind == CardKind.Slash
-            ? [CardKind.Slash, CardKind.FireSlash]
-            : [baseEffectiveKind];
+        GetSlashUseVariants(actor, baseEffectiveKind)
+            .Where(variant => variant.CardKindModifierSkill is null)
+            .Select(variant => variant.EffectiveKind)
+            .Distinct()
+            .ToArray();
 
     private bool IsZhuqueFanConversion(
         PlayerRuntime actor,
@@ -20483,8 +20582,9 @@ public sealed partial class GameEngine
                 var card = transformed.Card;
                 var conversionSource = transformed.Match.Source;
                 var targets = GetFangtianOrderedSlashTargets(actor, card, conversionSource);
-                foreach (var effectiveKind in GetSlashUseKinds(actor, CardKind.Slash))
+                foreach (var variant in GetSlashUseVariants(actor, CardKind.Slash))
                 {
+                    var effectiveKind = variant.EffectiveKind;
                     var physicalName = CardCatalog.Get(card.Kind).DisplayName;
                     var effectiveName = CardCatalog.Get(effectiveKind).DisplayName;
                     foreach (var target in targets)
@@ -20494,27 +20594,36 @@ public sealed partial class GameEngine
                             card.Id,
                             target.Seat,
                             DescribeConversion(conversionSource,
-                                effectiveKind == CardKind.FireSlash
+                                variant.CardKindModifierSkill == SkillKind.Lihuo
+                                    ? $"将【{physicalName}】视为【杀】，再发动【疠火】改为【火杀】对 {target.Name} 使用"
+                                    : variant.UsesZhuqueFan
                                     ? $"将【{physicalName}】视为【杀】，再以【朱雀羽扇】改为【火杀】对 {target.Name} 使用"
                                     : $"将【{physicalName}】视为【{effectiveName}】对 {target.Name} 使用"),
                             PlayedCardKind: effectiveKind)
                         {
-                            ConversionSource = conversionSource
+                            ConversionSource = conversionSource,
+                            CardKindModifierSkill = variant.CardKindModifierSkill
                         });
                     }
 
                     AddFangtianHalberdSlashActions(
-                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource);
+                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource,
+                        variant.CardKindModifierSkill);
                     AddTianyiSlashActions(
-                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource);
+                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource,
+                        variant.CardKindModifierSkill);
+                    AddLihuoSlashActions(
+                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource,
+                        variant.CardKindModifierSkill);
                 }
             }
 
             foreach (var slash in playableCards.Where(card => IsSlashCard(card.Kind)))
             {
                 var targets = GetFangtianOrderedSlashTargets(actor, slash);
-                foreach (var effectiveKind in GetSlashUseKinds(actor, slash.Kind))
+                foreach (var variant in GetSlashUseVariants(actor, slash.Kind))
                 {
+                    var effectiveKind = variant.EffectiveKind;
                     var slashName = CardCatalog.Get(effectiveKind).DisplayName;
                     CardKind? playedCardKind = effectiveKind == slash.Kind
                         ? null
@@ -20525,10 +20634,15 @@ public sealed partial class GameEngine
                             LegalActionKind.Slash,
                             slash.Id,
                             target.Seat,
-                            playedCardKind == CardKind.FireSlash
+                            variant.CardKindModifierSkill == SkillKind.Lihuo
+                                ? $"发动【疠火】，将【杀】改为【火杀】对 {target.Name} 使用"
+                                : variant.UsesZhuqueFan
                                 ? $"发动【朱雀羽扇】，将【杀】改为【火杀】对 {target.Name} 使用"
                                 : $"对 {target.Name} 使用【{slashName}】",
-                            PlayedCardKind: playedCardKind));
+                            PlayedCardKind: playedCardKind)
+                        {
+                            CardKindModifierSkill = variant.CardKindModifierSkill
+                        });
                     }
 
                     AddFangtianHalberdSlashActions(
@@ -20537,8 +20651,14 @@ public sealed partial class GameEngine
                         slash,
                         targets,
                         slashName,
-                        playedCardKind);
-                    AddTianyiSlashActions(actions, actor, slash, targets, slashName, playedCardKind);
+                        playedCardKind,
+                        cardKindModifierSkill: variant.CardKindModifierSkill);
+                    AddTianyiSlashActions(
+                        actions, actor, slash, targets, slashName, playedCardKind,
+                        cardKindModifierSkill: variant.CardKindModifierSkill);
+                    AddLihuoSlashActions(
+                        actions, actor, slash, targets, slashName, playedCardKind,
+                        cardKindModifierSkill: variant.CardKindModifierSkill);
                 }
             }
 
@@ -20558,29 +20678,38 @@ public sealed partial class GameEngine
                 sources.AddRange(programSources);
                 foreach (var conversionSource in sources)
                 {
-                    foreach (var target in targets)
+                    foreach (var variant in GetSlashUseVariants(actor, CardKind.Slash))
                     {
-                        actions.Add(new LegalAction(
-                            LegalActionKind.Slash,
-                            converted.Id,
-                            target.Seat,
-                            DescribeConversion(conversionSource, $"将【{physicalName}】当作【杀】对 {target.Name} 使用"),
-                            PlayedCardKind: CardKind.Slash)
+                        var effectiveName = CardCatalog.Get(variant.EffectiveKind).DisplayName;
+                        foreach (var target in targets)
                         {
-                            ConversionSource = conversionSource
-                        });
-                    }
+                            var description = variant.CardKindModifierSkill == SkillKind.Lihuo
+                                ? $"将【{physicalName}】当作【杀】，再发动【疠火】改为【火杀】对 {target.Name} 使用"
+                                : variant.UsesZhuqueFan
+                                    ? $"将【{physicalName}】当作【杀】，再以【朱雀羽扇】改为【火杀】对 {target.Name} 使用"
+                                    : $"将【{physicalName}】当作【杀】对 {target.Name} 使用";
+                            actions.Add(new LegalAction(
+                                LegalActionKind.Slash,
+                                converted.Id,
+                                target.Seat,
+                                DescribeConversion(conversionSource, description),
+                                PlayedCardKind: variant.EffectiveKind)
+                            {
+                                ConversionSource = conversionSource,
+                                CardKindModifierSkill = variant.CardKindModifierSkill
+                            });
+                        }
 
-                    AddFangtianHalberdSlashActions(
-                        actions,
-                        actor,
-                        converted,
-                        targets,
-                        "杀",
-                        CardKind.Slash,
-                        conversionSource);
-                    AddTianyiSlashActions(
-                        actions, actor, converted, targets, "杀", CardKind.Slash, conversionSource);
+                        AddFangtianHalberdSlashActions(
+                            actions, actor, converted, targets, effectiveName,
+                            variant.EffectiveKind, conversionSource, variant.CardKindModifierSkill);
+                        AddTianyiSlashActions(
+                            actions, actor, converted, targets, effectiveName,
+                            variant.EffectiveKind, conversionSource, variant.CardKindModifierSkill);
+                        AddLihuoSlashActions(
+                            actions, actor, converted, targets, effectiveName,
+                            variant.EffectiveKind, conversionSource, variant.CardKindModifierSkill);
+                    }
                 }
             }
 
@@ -20598,27 +20727,34 @@ public sealed partial class GameEngine
                     foreach (var conversionSource in sources)
                     {
                         var targets = GetFangtianOrderedSlashTargets(actor, converted, conversionSource);
-                        foreach (var target in targets)
+                        foreach (var variant in GetSlashUseVariants(actor, CardKind.Slash))
                         {
-                            actions.Add(new LegalAction(
-                                LegalActionKind.Slash,
-                                converted.Id,
-                                target.Seat,
-                                DescribeConversion(conversionSource,
-                                    $"将装备区【{physicalName}】当作【杀】对 {target.Name} 使用"),
-                                PlayedCardKind: CardKind.Slash)
+                            var effectiveName = CardCatalog.Get(variant.EffectiveKind).DisplayName;
+                            foreach (var target in targets)
                             {
-                                ConversionSource = conversionSource
-                            });
+                                var description = variant.CardKindModifierSkill == SkillKind.Lihuo
+                                    ? $"将装备区【{physicalName}】当作【杀】，再发动【疠火】改为【火杀】对 {target.Name} 使用"
+                                    : variant.UsesZhuqueFan
+                                        ? $"将装备区【{physicalName}】当作【杀】，再以【朱雀羽扇】改为【火杀】对 {target.Name} 使用"
+                                        : $"将装备区【{physicalName}】当作【杀】对 {target.Name} 使用";
+                                actions.Add(new LegalAction(
+                                    LegalActionKind.Slash,
+                                    converted.Id,
+                                    target.Seat,
+                                    DescribeConversion(conversionSource, description),
+                                    PlayedCardKind: variant.EffectiveKind)
+                                {
+                                    ConversionSource = conversionSource,
+                                    CardKindModifierSkill = variant.CardKindModifierSkill
+                                });
+                            }
+                            AddTianyiSlashActions(
+                                actions, actor, converted, targets, effectiveName,
+                                variant.EffectiveKind, conversionSource, variant.CardKindModifierSkill);
+                            AddLihuoSlashActions(
+                                actions, actor, converted, targets, effectiveName,
+                                variant.EffectiveKind, conversionSource, variant.CardKindModifierSkill);
                         }
-                        AddTianyiSlashActions(
-                            actions,
-                            actor,
-                            converted,
-                            targets,
-                            "杀",
-                            CardKind.Slash,
-                            conversionSource);
                     }
                 }
             }
@@ -21317,7 +21453,8 @@ public sealed partial class GameEngine
         IReadOnlyList<PlayerRuntime> legalTargets,
         string slashName,
         CardKind? playedCardKind,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null)
     {
         if (!actor.TianyiWonThisTurn || legalTargets.Count < 2 ||
             UsesFormalFangtianHalberd &&
@@ -21337,7 +21474,8 @@ public sealed partial class GameEngine
                     PlayedCardKind: playedCardKind,
                     TargetSeats: targets.Select(target => target.Seat).ToArray())
                 {
-                    ConversionSource = conversionSource
+                    ConversionSource = conversionSource,
+                    CardKindModifierSkill = cardKindModifierSkill
                 });
             }
     }
@@ -21349,7 +21487,8 @@ public sealed partial class GameEngine
         IReadOnlyList<PlayerRuntime> legalTargets,
         string slashName,
         CardKind? playedCardKind,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null)
     {
         if (!UsesFormalFangtianHalberd ||
             GetHand(actor).Count != 1 ||
@@ -21378,7 +21517,8 @@ public sealed partial class GameEngine
                         slashName,
                         playedCardKind,
                         selected,
-                        conversionSource);
+                        conversionSource,
+                        cardKindModifierSkill);
                     return;
                 }
 
@@ -21398,7 +21538,8 @@ public sealed partial class GameEngine
         string slashName,
         CardKind? playedCardKind,
         IReadOnlyList<PlayerRuntime> targets,
-        CardConversionSource? conversionSource)
+        CardConversionSource? conversionSource,
+        SkillKind? cardKindModifierSkill)
     {
         var targetSeats = Array.AsReadOnly(targets.Select(target => target.Seat).ToArray());
         actions.Add(new LegalAction(
@@ -21409,7 +21550,8 @@ public sealed partial class GameEngine
             PlayedCardKind: playedCardKind,
             TargetSeats: targetSeats)
         {
-            ConversionSource = conversionSource
+            ConversionSource = conversionSource,
+            CardKindModifierSkill = cardKindModifierSkill
         });
     }
 
@@ -21532,7 +21674,9 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targets,
         CardKind? playedCardKind,
         int? targetCardId,
-        CardConversionSource? conversionSource)
+        CardConversionSource? conversionSource,
+        SkillKind? cardKindModifierSkill,
+        SkillKind? targetCountModifierSkill)
     {
         var matching = legalActions
             .Where(candidate => candidate.Kind != LegalActionKind.Recast)
@@ -21543,13 +21687,31 @@ public sealed partial class GameEngine
         {
             return matching.FirstOrDefault(candidate =>
                 (candidate.PlayedCardKind ?? card.Kind) == (playedCardKind ?? card.Kind) &&
-                candidate.ConversionSource == requestedSource);
+                candidate.ConversionSource == requestedSource &&
+                candidate.CardKindModifierSkill == cardKindModifierSkill &&
+                candidate.TargetCountModifierSkill == targetCountModifierSkill);
+        }
+        if (cardKindModifierSkill is not null || targetCountModifierSkill is not null)
+        {
+            return matching.FirstOrDefault(candidate =>
+                (candidate.PlayedCardKind ?? card.Kind) == (playedCardKind ?? card.Kind) &&
+                candidate.CardKindModifierSkill == cardKindModifierSkill &&
+                candidate.TargetCountModifierSkill == targetCountModifierSkill);
         }
         if (playedCardKind is { } requestedKind)
         {
             var kindMatches = matching.Where(candidate =>
                 (candidate.PlayedCardKind ?? card.Kind) == requestedKind).ToArray();
-            return kindMatches.Select(candidate => candidate.ConversionSource).Distinct().Count() > 1
+            if (kindMatches.Any(candidate =>
+                    candidate.CardKindModifierSkill is not null ||
+                    candidate.TargetCountModifierSkill is not null))
+            {
+                return null;
+            }
+            return kindMatches.Select(candidate => (
+                    candidate.ConversionSource,
+                    candidate.CardKindModifierSkill,
+                    candidate.TargetCountModifierSkill)).Distinct().Count() > 1
                 ? null
                 : kindMatches.FirstOrDefault();
         }
@@ -21561,7 +21723,10 @@ public sealed partial class GameEngine
                    candidate.PlayedCardKind is null && candidate.TargetCardId is null) ??
                matching.FirstOrDefault(candidate => candidate.PlayedCardKind is null) ??
                matching.FirstOrDefault();
-        if (selected?.ConversionSource is not null &&
+        if (selected is not null &&
+            (selected.ConversionSource is not null ||
+             selected.CardKindModifierSkill is not null ||
+             selected.TargetCountModifierSkill is not null) &&
             matching.Count(candidate =>
                 (candidate.PlayedCardKind ?? card.Kind) == (selected.PlayedCardKind ?? card.Kind)) > 1)
         {
@@ -22086,6 +22251,14 @@ public sealed partial class GameEngine
             {
                 choiceId += $".conversion-{conversionChoiceSource.SkillId}-{conversionChoiceSource.BindingId}";
             }
+            if (action.CardKindModifierSkill is { } cardKindModifier)
+            {
+                choiceId += $".card-kind-modifier-{cardKindModifier}";
+            }
+            if (action.TargetCountModifierSkill is { } targetCountModifier)
+            {
+                choiceId += $".target-count-modifier-{targetCountModifier}";
+            }
 
             var parameters = new Dictionary<string, string>
             {
@@ -22098,6 +22271,14 @@ public sealed partial class GameEngine
             if (action.ConversionSource is { } conversionSource)
             {
                 AddConversionParameters(parameters, conversionSource);
+            }
+            if (action.CardKindModifierSkill is { } cardKindModifierSkill)
+            {
+                parameters["card-kind-modifier-skill"] = cardKindModifierSkill.ToString();
+            }
+            if (action.TargetCountModifierSkill is { } targetCountModifierSkill)
+            {
+                parameters["target-count-modifier-skill"] = targetCountModifierSkill.ToString();
             }
             if (action.TargetCardId is { } targetCardIdParameter)
             {
@@ -27458,7 +27639,9 @@ public sealed partial class GameEngine
         IReadOnlyList<Card>? physicalCards = null,
         bool isLeijiDamage = false,
         long? programJudgmentFrameId = null,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null,
+        SkillKind? targetCountModifierSkill = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; private set; } = sourceSeat;
@@ -27468,6 +27651,9 @@ public sealed partial class GameEngine
         public IReadOnlyList<Card> PhysicalCards { get; } =
             Array.AsReadOnly((physicalCards ?? (card is null ? [] : [card])).ToArray());
         public CardConversionSource? ConversionSource { get; } = conversionSource;
+        public SkillKind? CardKindModifierSkill { get; } = cardKindModifierSkill;
+        public SkillKind? TargetCountModifierSkill { get; } = targetCountModifierSkill;
+        public bool IsLihuoConversion => CardKindModifierSkill == SkillKind.Lihuo;
         public bool IsTwoCardVirtualSlash =>
             PhysicalCards.Count == 2 && EffectiveCardKind == CardKind.Slash;
         public bool IsFuhunSlash => ConversionSource?.SkillId == FuhunSkillId;
@@ -27496,6 +27682,8 @@ public sealed partial class GameEngine
         public bool IceSwordAttempted { get; private set; }
         public bool QilinBowAttempted { get; private set; }
         public bool DamageWasApplied { get; private set; }
+        public bool LihuoCausedDamage { get; private set; }
+        public bool LihuoPenaltyApplied { get; private set; }
         public bool LierenAttempted { get; private set; }
         public bool LiuliResolved { get; private set; }
         public bool ZhenlieResolved { get; private set; }
@@ -27526,6 +27714,10 @@ public sealed partial class GameEngine
         public void MarkTianxiangResolved() => TianxiangResolved = true;
 
         public void MarkDamageApplied() => DamageWasApplied = true;
+
+        public void SetLihuoCausedDamage(bool value) => LihuoCausedDamage = value;
+
+        public void MarkLihuoPenaltyApplied() => LihuoPenaltyApplied = true;
 
         public void MarkLierenAttempted() => LierenAttempted = true;
 
@@ -27775,7 +27967,10 @@ public sealed partial class GameEngine
         bool ignoresArmor,
         int damageAmount,
         IReadOnlyList<int> targetSeats,
-        bool usesFangtian)
+        bool usesFangtian,
+        CardConversionSource? conversionSource = null,
+        SkillKind? cardKindModifierSkill = null,
+        SkillKind? targetCountModifierSkill = null)
     {
         public long ResolutionId { get; } = resolutionId;
         public int SourceSeat { get; } = sourceSeat;
@@ -27784,6 +27979,10 @@ public sealed partial class GameEngine
         public bool IgnoresArmor { get; } = ignoresArmor;
         public int DamageAmount { get; } = damageAmount;
         public bool UsesFangtian { get; } = usesFangtian;
+        public CardConversionSource? ConversionSource { get; } = conversionSource;
+        public SkillKind? CardKindModifierSkill { get; } = cardKindModifierSkill;
+        public SkillKind? TargetCountModifierSkill { get; } = targetCountModifierSkill;
+        public bool DamageWasApplied { get; set; }
         public IReadOnlyList<int> TargetSeats { get; } = Array.AsReadOnly(targetSeats.ToArray());
         public int TargetIndex { get; set; }
         public AttackResolution? CurrentAttack { get; set; }
@@ -28031,7 +28230,8 @@ public sealed partial class GameEngine
         DamageSkill,
         ActiveSkill,
         ProgramSkill,
-        CardTargetSkill
+        CardTargetSkill,
+        Lihuo
     }
 
     private sealed class DyingResolution(
@@ -28055,6 +28255,7 @@ public sealed partial class GameEngine
         public bool ResumesActiveSkill => continuation == DyingContinuation.ActiveSkill;
         public bool ResumesProgramSkill => continuation == DyingContinuation.ProgramSkill;
         public bool ResumesCardTargetSkill => continuation == DyingContinuation.CardTargetSkill;
+        public bool ResumesLihuo => continuation == DyingContinuation.Lihuo;
         public int ResponderIndex { get; set; }
         public int ResponderSeat => ResponderSeats[ResponderIndex];
     }

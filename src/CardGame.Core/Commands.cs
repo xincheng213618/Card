@@ -123,6 +123,12 @@ public sealed record PlayCardCommand(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillKind? CardKindModifierSkill { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillKind? TargetCountModifierSkill { get; init; }
 }
 
 /// <summary>Recasts an eligible physical hand card without using it as a trick.</summary>

@@ -14,20 +14,42 @@ public sealed partial class GameEngine
 
     private CardActionContext? CaptureCardUseAction(Card card, int actorSeat,
         IReadOnlyList<int> targets, CardKind effectiveKind, IReadOnlyList<int> physicalIds,
-        CardConversionSource? explicitConversion = null)
+        CardConversionSource? explicitConversion = null,
+        SkillKind? cardKindModifierSkill = null)
     {
         if (_rulesVersion < 80) return null;
         var costs = physicalIds.Select(id => new CardActionCost(id,
             _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(item => item.Id == id).Kind,
             _cardZones.GetLocation(id))).ToArray();
         var provider = costs.FirstOrDefault()?.From.OwnerSeat ?? actorSeat;
-        var conversion = explicitConversion ?? (physicalIds.Count == 1
-            ? GetSelectedUseConversion(_players[provider], card, effectiveKind)
-            : null);
+        CardConversionSource? conversion;
+        if (explicitConversion is not null)
+        {
+            var selectedConversion = _selectedUseConversion ?? _selectedResponseConversion;
+            _selectedUseConversion = null;
+            _selectedResponseConversion = null;
+            if (selectedConversion is not null && selectedConversion != explicitConversion)
+            {
+                throw new InvalidOperationException("The explicit card-use conversion no longer matches the selected action.");
+            }
+            conversion = explicitConversion;
+        }
+        else
+        {
+            conversion = physicalIds.Count == 1
+                ? GetSelectedUseConversion(_players[provider], card, effectiveKind)
+                : null;
+        }
+        var conversionChain = new List<CardConversionSource>();
+        if (conversion is not null) conversionChain.Add(conversion);
+        if (cardKindModifierSkill == SkillKind.Lihuo)
+        {
+            conversionChain.Add(CreateLihuoConversionSource(_players[actorSeat]));
+        }
         return new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
-            null, null, effectiveKind, targets, costs, conversion is null ? [] : [conversion]);
+            null, null, effectiveKind, targets, costs, conversionChain);
     }
 
     private bool TryBeginCardResponsePrograms(AttackResolution attack, PlayerRuntime actor,

@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 90, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 91, 0))
     {
     }
 
@@ -149,12 +149,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 87, 0) &&
             version != new Version(1, 88, 0) &&
             version != new Version(1, 89, 0) &&
-            version != new Version(1, 90, 0))
+            version != new Version(1, 90, 0) &&
+            version != new Version(1, 91, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.90.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.91.0.");
         }
 
         _version = version;
@@ -759,6 +760,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "追忆",
                 "当你死亡时，你可以令除杀死你的角色外的一名其他角色摸三张牌，然后其回复1点体力。",
                 SkillKind.Zhuiyi)));
+        }
+
+        if (_version >= new Version(1, 91, 0))
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:lihuo",
+                    "疠火",
+                    "你使用普通的【杀】可以改为【火杀】；你使用【火杀】可以多选择一个目标。若以此法转化的【火杀】造成过伤害，结算结束后你失去1点体力。",
+                    SkillKind.Lihuo),
+                SkillTag.None,
+                SkillExecutionForm.State));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(

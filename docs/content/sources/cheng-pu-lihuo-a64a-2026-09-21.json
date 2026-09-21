@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:lihuo",
+  "acceptedAt": "2026-09-21T18:20:00+08:00",
+  "scope": "P1-A64a classic Cheng Pu Lihuo direct-play runtime without publishing an incomplete general",
+  "selectedVersion": "一将成名2012经典程普疠火",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/303.html",
+      "use": "一将成名官方武将页冻结经典疠火文本：普通杀可改为火杀，以此法使用且造成过伤害后失去1点体力；使用火杀可多选择一个目标。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161122_5544_2318",
+      "use": "官方历史问答用于区分转换来源和结算边界：疠火转换为可选；全部目标闪避时不失去体力；朱雀羽扇转换不是疠火转换，因此不会触发失去体力。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分持久状态规则与需确认触发：疠火的牌名修改、目标数修改和用牌后条件结算建模为State规则，不生成独立主动技能按钮。"
+    },
+    {
+      "url": "https://gltjk.com/sanguosha/rules/flow/damage.html",
+      "use": "伤害流程用于锁定‘造成过伤害’边界：只有实际伤害落地才累计本次用牌的伤害事实，被防止或全部闪避不计。"
+    }
+  ],
+  "ruleText": "你使用普通的〖杀〗可以改为火〖杀〗，若此〖杀〗造成过伤害，你失去1点体力；你使用火〖杀〗可以多选择一个目标。",
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.91.0",
+    "rulesVersion": 113,
+    "generalPublished": false,
+    "skillId": "classic:lihuo",
+    "skillExecutionForm": "State",
+    "directPlayScope": "native Slash/Fire Slash/Thunder Slash plus existing play-phase Slash conversion actions",
+    "modifierModel": "LegalAction and PlayCardCommand independently preserve card-kind and target-count modifiers, so Lihuo conversion, Zhuque conversion, and Lihuo extra-target provenance cannot be conflated",
+    "penaltyTiming": "after the complete Slash use finishes; once per use and only when the Lihuo card-kind conversion caused at least one actual damage"
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.90.0",
+    "previousRulesVersion": 112,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "generalPoolChanged": false,
+    "replayPolicy": "accepted commands preserve exact conversion provenance, target extension and post-use HP loss under rules v113",
+    "legacyPolicy": "rules v112 disables formal Lihuo even when package 1.91.0 is present; package 1.90.0 does not register the skill"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore -- --only-cheng-pu-lihuo",
+    "targetedCorePassed": 4,
+    "targetedCoreTotal": 4,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build",
+    "fullCorePassed": 328,
+    "fullCoreTotal": 328,
+    "fullCoreDurationSeconds": 30.54,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 2.02,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "assertions": [
+      "an ordinary Slash exposes both its original action and a distinct Lihuo Fire Slash action",
+      "any effective Fire Slash can add exactly one target beyond the current Slash target ceiling",
+      "a Lihuo-converted multi-target Slash that deals damage loses exactly one HP after the whole card use",
+      "native Fire Slash and Zhuque-converted Fire Slash gain the extra target but never pay the Lihuo conversion penalty",
+      "a fully dodged Lihuo conversion does not lose HP",
+      "forged modifier provenance is rejected atomically and a completed branch replays exactly"
+    ]
+  },
+  "deferred": [
+    "Chunlao runtime and the complete Cheng Pu general registration",
+    "WPF presentation and official portrait acceptance for the complete general",
+    "non-direct Slash request pipelines such as Borrowed Sword or acquired cross-general skills",
+    "full WPF suite, intentionally skipped because no Cheng Pu general or presentation was published in this runtime-only block",
+    "real Windows desktop and multi-DPI acceptance"
+  ]
+}

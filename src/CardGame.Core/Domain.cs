@@ -251,7 +251,8 @@ public enum SkillKind
     Fuli,
     Fuhun,
     Anxu,
-    Zhuiyi
+    Zhuiyi,
+    Lihuo
 }
 
 public enum DecisionKind
@@ -893,6 +894,19 @@ public sealed record LegalAction
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
+
+    /// <summary>
+    /// Identifies a rule modifier that changes the effective card kind after an
+    /// existing card identity or view-as conversion. This stays separate from
+    /// <see cref="ConversionSource"/> so compound uses such as Wusheng followed
+    /// by Lihuo retain both sources.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillKind? CardKindModifierSkill { get; init; }
+
+    /// <summary>Identifies a skill that enlarges this use's exact target set.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillKind? TargetCountModifierSkill { get; init; }
 
     /// <summary>
     /// Selection bounds for a cardless active-skill action. The prompt carries

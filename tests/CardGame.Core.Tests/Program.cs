@@ -94,6 +94,10 @@ var tests = new (string Name, Action Body)[]
     ("formal Bu Lian Shi versions active Anxu and optional Zhuiyi", BuLianShiChecks.ContentAndRulesBoundary),
     ("Anxu lets the lower-hand receiver choose an opaque card and applies effective suit", BuLianShiChecks.AnxuUsesOpaqueReceiverChoiceAndEffectiveSuit),
     ("Zhuiyi excludes the killer and may benefit a full-health target", BuLianShiChecks.ZhuiyiExcludesKillerAndAllowsFullHealthTarget),
+    ("formal Cheng Pu Lihuo is a versioned state rule without publishing an incomplete general", ChengPuLihuoChecks.ContentAndRulesBoundary),
+    ("Lihuo converts Slash adds one target and loses HP once after the use", ChengPuLihuoChecks.ConvertedFireSlashAddsTargetAndLosesHpOnce),
+    ("native and Zhuque Fire Slash use Lihuo target extension without conversion penalty", ChengPuLihuoChecks.NativeAndZhuqueFireSlashDoNotPayConversionPenalty),
+    ("a fully dodged Lihuo conversion does not lose HP", ChengPuLihuoChecks.FullyDodgedConversionDoesNotLoseHp),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -416,6 +420,11 @@ if (args.FirstOrDefault() == "--only-bu-lian-shi")
         test.Name.Contains("Bu Lian Shi", StringComparison.Ordinal) ||
         test.Name.Contains("Anxu", StringComparison.Ordinal) ||
         test.Name.Contains("Zhuiyi", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-cheng-pu-lihuo")
+{
+    tests = tests.Where(test => test.Name.Contains("Lihuo", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;
