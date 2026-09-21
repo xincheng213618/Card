@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "contentId": "mou:lu-meng-d5b2b2k",
+  "retrievedAt": "2026-09-21T10:57:54+08:00",
+  "selectedVersion": "一将成名6.3.6平衡调整后的谋吕蒙",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/news/20260325_5653_4315.html",
+      "use": "2026-03-26调整后横野明确令摸牌数、杀次数、攻击范围、手牌上限每个数值各+1且最多+3；击杀后重置横野，英博不变。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/1651.html",
+      "use": "当前官方谋吕蒙页交叉核对横野、英博完整技能文本。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "按用户指定概念页区分锁定标签、状态技与触发技；技能重置恢复开局状态并清除记录；伤害牌包含杀及非延时伤害锦囊。"
+    }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.80.0",
+    "rulesVersion": 102,
+    "generalId": "mou:lu-meng",
+    "skills": [
+      {
+        "id": "mou:hengye",
+        "metadata": "Locked + State",
+        "runtimeState": "growth / Game / 0..3",
+        "reset": "ResetSkill after owner kills a character"
+      },
+      {
+        "id": "mou:yingbo",
+        "metadata": "State + Trigger",
+        "runtimeState": "system round damage-card history keyed by CardKind",
+        "firstUse": "unrespondable, then optional single-physical-card gift",
+        "repeatedUse": "+1 damage and Fire nature"
+      }
+    ],
+    "auditEvents": [
+      "RoundStartedEvent",
+      "SkillUsageConsumedEvent",
+      "SkillResetEvent",
+      "HengyeGrowthChangedEvent",
+      "YingboCardModeEvent",
+      "YingboDamageIncreasedEvent",
+      "YingboGiftResolvedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.79.0",
+    "previousRulesVersion": 101,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "all growth, reset, round history and paused gift state reconstruct from the accepted command prefix"
+  },
+  "acceptance": [
+    "首张同名杀不可响应且暂停在私有英博交牌Choice，实体牌可交给其他存活角色",
+    "本轮第二张同名杀改为2点火焰伤害并发布增伤事件",
+    "横野逐次成长至3/3，同步修改攻击范围、摸牌数、杀次数与手牌上限",
+    "3/3后拥有者回合开始回复1点体力",
+    "击杀后ResetSkill清除横野整局成长记录并发布SkillResetEvent",
+    "新一轮清除同名伤害牌Round账本并恢复首次分支",
+    "rules v101与经典包1.79.0分别保持旧规则和缺席边界",
+    "完整Core 296/296，谋吕蒙定向WPF 1/1，Release 0 warning / 0 error"
+  ],
+  "visual": {
+    "render": "artifacts/wpf-check/179-mou-lu-meng-skill-state.png",
+    "size": "1120x740",
+    "portrait": "通过mou命名空间显式复用现有classic:lu-meng占位映射，不声明为独立谋吕蒙素材"
+  },
+  "deferred": [
+    "独立谋吕蒙肖像来源归档",
+    "完整WPF回归套件",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

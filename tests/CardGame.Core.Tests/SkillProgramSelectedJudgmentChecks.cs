@@ -56,7 +56,9 @@ internal static class SkillProgramSelectedJudgmentChecks
         AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":85",
                 StringComparison.Ordinal),
             "schema minimum 86");
-        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":102",
+        AssertReject(Rules.Replace(
+                "\"revision\":1",
+                $"\"revision\":1,\"minimumRulesVersion\":{GameCheckpoint.CurrentRulesVersion + 1}",
                 StringComparison.Ordinal),
             $"current rules {GameCheckpoint.CurrentRulesVersion}");
         AssertReject(Rules.Replace(

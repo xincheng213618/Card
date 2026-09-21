@@ -11,6 +11,7 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.80.0` | `standard-rescue-skills@1.0.0` | 当前正式经典身份层；1.80.0／rules v102 注册谋吕蒙，以横野完成整局成长与技能重置消费者、以英博完成所有角色同名伤害牌轮账本及首次不可响应／结算后可交牌、重复牌火焰增伤分支；1.79.0 及更早内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
 | `standard-classic-generals@1.79.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.79.0 为鬼才、刚烈、急救、遗计、英姿、奸雄、节命建立独立 `classic:` ID 及 Trigger／State 元数据；1.78.0 配合 rules v100 完成当前仁德的同阶段重复给牌、累计第二张时自我回复一次与阶段账本；1.77.0 为仁德、制衡、青囊、苦肉建立带 `ActionForms.Active` 的独立 `classic:` ID；1.76.0 为激将、乱击、天义、双雄组合独立标签、状态／触发形态和主动入口轴；1.75.0 为反间、强袭、离间、结姻、驱虎增加独立主动入口；1.74.0 将 11 项持续牌转化技能标为 `State`；1.73.0 将 27 项纯可选技能标为 `Trigger`；1.72.0 为空城／马术／奇才建立独立 `classic:` ID；1.71.0 为另外 13 项锁定技补齐元数据；1.70.0 注册严颜／拒战；1.0.0–1.78.0 的内容定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
 | `standard-team-modes@1.0.0` | `standard@1.11.0` | `team:standard-2v2`；公开青/赤阵营和队伍胜负适配 | implemented-registry；可选扩展 |
 | `standard-national-war-lite@1.1.0` | `standard@1.11.0` | `national:lite-4`；四人魏蜀双将国战 Lite | implemented-registry；可选扩展 |
@@ -167,6 +168,7 @@
 | `classic:zhao-yun` | 赵云 | `zhao_yun` | `classic:longdan` | implemented-registry + classic 1.21 | dodge-to-slash, slash-to-dodge, physical-effective-kind-separation, private-response |
 | `classic:guan-yu` | 关羽 | `guan_yu` | `classic:wusheng` | implemented-registry + classic 1.22 | hand-or-equipment red-card, active-or-response conversion, source-zone-preservation |
 | `classic:yan-yan` | 严颜 | `yan_yan` | `classic:juzhan` | implemented-registry + classic 1.70 | conversion-state, slash-target-trigger, opaque-target-card, per-target-turn-prohibition |
+| `mou:lu-meng` | 谋吕蒙 | `lu_meng`（现有经典吕蒙占位映射） | `mou:hengye` + `mou:yingbo` | implemented-registry + classic 1.80 / rules v102 | game-growth, skill-reset, round-card-name-ledger, unrespondable-first-use, optional-card-gift, fire-damage-bonus |
 | `standard:guan-yu` | 关羽 | `guan_yu` | `standard:wusheng` | implemented-registry + classic 1.21 compatibility | hand red-card, conversion, attack |
 | `standard:zhao-yun` | 赵云 | `zhao-yun` | `standard:longdan` | implemented-registry | slash-dodge, conversion, response |
 | `standard:sun-quan` | 孙权 | `sun-quan` | `standard:none` | implemented-registry | placeholder |
@@ -231,6 +233,7 @@
 | `standard:qingnang` | 青囊 | 出牌阶段每回合弃置一张手牌，令一名受伤角色回复 1 点体力 | implemented-registry + extension | K5：私有手牌/受伤存活目标选择、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `classic:kujin` / `classic:rende` / `classic:zhiheng` / `classic:qingnang` | 经典苦肉／仁德／制衡／青囊 | 经典包 1.77.0 建立独立主动技能身份；1.78.0 起使用正式仁德规则 | implemented-registry + classic extension | 四项复用对应 `SkillKind` 并显式标记 `ActionForms.Active`；rules v100 + 包 1.78.0 及以后版本的仁德可在同阶段重复向不同目标交牌，累计第二张时只让刘备回复一次；rules v99、包 1.77.0 与演示包继续旧行为 |
 | `classic:guicai` / `classic:ganglie` / `classic:jijiu` / `classic:yiji` / `classic:yingzi` / `classic:jianxiong` / `classic:jieming` | 经典鬼才／刚烈／急救／遗计／英姿／奸雄／节命 | 经典包 1.79.0 建立独立共享技能身份 | implemented-registry + classic extension | 鬼才、刚烈、遗计、英姿、奸雄、节命为 `Trigger`，急救为 `State`；七项复用对应 `SkillKind`，1.78.0 与稳定标准／救援包继续原 `standard:` ID，rules v100 不变 |
+| `mou:hengye` / `mou:yingbo` | 横野／英博 | 经典包 1.80.0 注册谋吕蒙双技能 | implemented-registry + classic extension | 横野为 `Locked + State`，`Game` 成长最多 3 并在击杀后通用重置；英博为 `State + Trigger`，读取 `Round` 同名伤害牌账本，首次不可响应并可交实体牌，重复使用改火伤且 +1；rules v101 与包 1.79.0 保留边界 |
 | `standard:huichun` | 回春 | 出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力 | implemented-registry + extension | K5：私有两牌/多目标选择、逐目标 `RecoveryFrame`、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `standard:mashu` | 马术 | 计算与其他角色的距离 -1 | implemented-registry + extension | K6：`IPassiveSkill.ModifyOutgoingDistance`，由 Core 统一影响公开距离型合法性 |
 | `standard:qicai` | 奇才 | 使用锦囊牌无距离限制 | implemented-registry + extension | K6：`IPassiveSkill.IgnoresTrickDistance`，由 Core 统一影响距离型锦囊合法性 |

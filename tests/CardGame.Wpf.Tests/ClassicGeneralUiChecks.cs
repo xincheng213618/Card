@@ -167,6 +167,70 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void MouLuMengSkillState(string output)
+    {
+        using var viewModel = FindGeneralChoice("mou:lu-meng");
+        var mouLuMeng = viewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "mou:lu-meng");
+        Program.Assert(mouLuMeng.Name == "谋吕蒙" &&
+                       mouLuMeng.Kingdom == "吴" &&
+                       mouLuMeng.SkillName == "横野 / 英博" &&
+                       mouLuMeng.SkillDescription.Contains("每个数值各+1", StringComparison.Ordinal) &&
+                       mouLuMeng.SkillDescription.Contains("本轮使用过", StringComparison.Ordinal) &&
+                       mouLuMeng.SkillDescription.Contains("重置此技能", StringComparison.Ordinal) &&
+                       mouLuMeng.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(mouLuMeng.GeneralId) &&
+                       mouLuMeng.PortraitBrush is System.Windows.Media.ImageBrush,
+            $"The formal Mou Lu Meng card must render Wu, current Hengye/Yingbo text and the Lord health bonus " +
+            $"(name={mouLuMeng.Name}, kingdom={mouLuMeng.Kingdom}, skills={mouLuMeng.SkillName}, " +
+            $"health={mouLuMeng.HealthText}, description={mouLuMeng.SkillDescription}).");
+
+        viewModel.PreviewGeneralChoiceCommand.Execute(mouLuMeng);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "179-mou-lu-meng-skill-state.png"));
+        var skillDescription = Program.Find<System.Windows.Controls.TextBlock>(root)
+            .Single(text => ReferenceEquals(text.DataContext, mouLuMeng) &&
+                            text.Text == mouLuMeng.SkillDescription);
+        var unconstrainedDescription = new System.Windows.Controls.TextBlock
+        {
+            Text = skillDescription.Text,
+            TextWrapping = skillDescription.TextWrapping,
+            FontFamily = skillDescription.FontFamily,
+            FontStyle = skillDescription.FontStyle,
+            FontWeight = skillDescription.FontWeight,
+            FontStretch = skillDescription.FontStretch,
+            FontSize = skillDescription.FontSize,
+            LineHeight = skillDescription.LineHeight,
+            LineStackingStrategy = skillDescription.LineStackingStrategy,
+            FlowDirection = skillDescription.FlowDirection,
+            Language = skillDescription.Language
+        };
+        unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+        Program.Assert(skillDescription.ActualHeight > 0 &&
+                       skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height,
+            $"The 1120x740 Mou Lu Meng selection card must keep both full skill descriptions visible " +
+            $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}).");
+
+        viewModel.SelectGeneralChoiceCommand.Execute(mouLuMeng);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        var hengye = viewModel.HumanSkillCards.Single(skill => skill.Name == "横野");
+        var yingbo = viewModel.HumanSkillCards.Single(skill => skill.Name == "英博");
+        Program.Assert(hengye.TypeText == "状态技 · 锁定技" &&
+                       hengye.StateText == "成长 0/3 · 规则自动生效" &&
+                       yingbo.TypeText == "状态技 · 触发技" &&
+                       yingbo.StateText == "等待触发时机" &&
+                       hengye.SourceText == "谋吕蒙" &&
+                       yingbo.SourceText == "谋吕蒙",
+            $"The skill rail must expose Hengye growth and Yingbo's state/trigger composition " +
+            $"(Hengye={hengye.TypeText}/{hengye.StateText}, Yingbo={yingbo.TypeText}/{yingbo.StateText}).");
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;

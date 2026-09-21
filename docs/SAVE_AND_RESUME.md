@@ -152,6 +152,8 @@ rules v100／`standard-classic-generals@1.78.0` 只在两个版本边界同时�
 
 `standard-classic-generals@1.79.0` 只把鬼才、刚烈、急救、遗计、英姿、奸雄、节命从共享 `standard:` 定义切换到独立 `classic:` ID，并补充六项 `Trigger` 与急救 `State` 元数据；规则仍复用同一 `SkillKind`，rules v100、命令、Prompt、事件、Checkpoint schema 和玩家资料均不变。1.78.0 Checkpoint 必须继续使用 1.78.0 Registry 及原 `standard:` 引用恢复，1.79.0 的内容签名和玩法指纹阻止两版静默互换；基础与救援扩展包旧存档不受影响。
 
+rules v102／`standard-classic-generals@1.80.0` 的谋吕蒙仍不新增 Checkpoint 字段。横野 `growth` 整局记录、击杀后的 `ResetSkill`、所有角色本轮伤害牌名记录、英博首次／重复分支及暂停中的私有交牌 Choice，均由内容签名、rules 版本和已接受命令前缀确定性重建；完成或暂停恢复必须得到相同技能状态、实体牌区、事件和合法动作。rules v101 重放同一 1.80.0 前缀时不启用谋吕蒙消费者，1.79.0 Registry 则没有该武将；旧存档必须继续使用其原包版本，玩家资料与 Checkpoint schema 3 保持不变。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

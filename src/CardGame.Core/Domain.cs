@@ -277,6 +277,7 @@ public enum DecisionKind
     Tieqi,
     Liegong,
     Juzhan,
+    Yingbo,
     StoneAxe,
     CixiongDoubleSwords,
     QinglongCrescentBlade,

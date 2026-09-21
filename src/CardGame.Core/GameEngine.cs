@@ -523,13 +523,13 @@ public sealed partial class GameEngine
             var weapon = GetEquipment(sourceSeat)
                 .Select(card => EquipmentCatalog.Get(card.Kind))
                 .SingleOrDefault(definition => definition.Slot == EquipmentSlot.Weapon);
-            return weapon?.WeaponAttackRange ?? 1;
+            return (weapon?.WeaponAttackRange ?? 1) + GetHengyeGrowth(_players[sourceSeat]);
         }
 
         var bonus = GetEquipment(sourceSeat)
             .Select(card => EquipmentCatalog.Get(card.Kind).AttackRangeBonus)
             .Sum();
-        return Math.Max(1, 1 + bonus);
+        return Math.Max(1, 1 + bonus + GetHengyeGrowth(_players[sourceSeat]));
     }
 
     /// <summary>The namespaced mode definition selected for this match.</summary>
@@ -1068,6 +1068,7 @@ public sealed partial class GameEngine
                 DecisionKind.Tieqi or
                 DecisionKind.Liegong or
                 DecisionKind.Juzhan or
+                DecisionKind.Yingbo or
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Liuli or
@@ -1295,6 +1296,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Juzhan)
         {
             return SubmitJuzhanPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Yingbo)
+        {
+            return SubmitYingboPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.StoneAxe)
@@ -3066,6 +3072,7 @@ public sealed partial class GameEngine
                     IsAiTieqiPending() ||
                     IsAiLiegongPending() ||
                     IsAiJuzhanPending() ||
+                    IsAiYingboPending() ||
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
@@ -5636,6 +5643,7 @@ public sealed partial class GameEngine
             return;
         }
 
+        BeginRoundForTurn(current);
         _turnNumber++;
         _slashCountThisTurn = 0;
         _usedOrPlayedSlashDuringPlayPhase = false;
@@ -5658,6 +5666,7 @@ public sealed partial class GameEngine
             $"第 {_turnNumber} 回合：{current.Name}（{GetPublicGeneralName(current)}）行动。",
             current.Seat);
         QueueGameEvent(new TurnStartedEvent(_turnNumber, current.Seat));
+        ResolveHengyeTurnStart(current);
 
         if (current.IsFaceDown)
         {
@@ -6107,7 +6116,8 @@ public sealed partial class GameEngine
         var drawCount = _drawPerTurn + GetEquipment(current)
             .Select(card => EquipmentCatalog.Get(card.Kind).DrawCountBonus)
             .Sum();
-        return PassiveRules(current).ModifyDrawCount(CreateSkillContext(current), drawCount);
+        return PassiveRules(current).ModifyDrawCount(CreateSkillContext(current), drawCount) +
+               GetHengyeGrowth(current);
     }
 
     private void BeginShuangxiongDrawChoice(PlayerRuntime current, DelayedTurnEffects delayedEffects)
@@ -6880,6 +6890,12 @@ public sealed partial class GameEngine
         if (IsAiJuzhanPending())
         {
             ResolvePendingAiJuzhan();
+            return;
+        }
+
+        if (IsAiYingboPending())
+        {
+            ResolvePendingAiYingbo();
             return;
         }
 
@@ -8182,6 +8198,22 @@ public sealed partial class GameEngine
         CardKind? requiredCardKind = null,
         CardKind? playedCardKind = null)
     {
+        if (IsYingboUnrespondable(resolutionId))
+        {
+            SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+            ResolveNullifiableEffect(new NullificationResolution(
+                resolutionId,
+                0,
+                effectCard,
+                sourceSeat,
+                targetSeats,
+                actionKind,
+                targetCardId,
+                requiredCardKind,
+                playedCardKind ?? effectCard.Kind));
+            return;
+        }
+
         if (_pendingNullification is not null)
         {
             throw new InvalidOperationException("The engine cannot open two Nullification windows at once.");
@@ -9975,6 +10007,12 @@ public sealed partial class GameEngine
             CompleteAttack(attack);
             return;
         }
+        if (IsYingboUnrespondable(group.ResolutionId))
+        {
+            SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+            ResolveGroupResponse(group, target, selectedResponse: null);
+            return;
+        }
         var requiredCardKind = group.RequiredCardKind ??
             throw new InvalidOperationException("A group response attack must declare a required card kind.");
         var responseCards = GetResponseCards(target, requiredCardKind);
@@ -11134,6 +11172,16 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsYingboUnrespondable(resolutionId))
+        {
+            SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+            if (!ApplyAttackDamage(attack))
+            {
+                CompleteAttack(attack);
+            }
+            return;
+        }
+
         if (attack.ProhibitsDodge)
         {
             var prohibitingSkills = string.Join("、", new[]
@@ -11476,6 +11524,14 @@ public sealed partial class GameEngine
 
         var responder = _players[duel.ResponderSeat];
         var opponent = _players[duel.OpponentSeat];
+        if (IsYingboUnrespondable(duel.ResolutionId))
+        {
+            SetCardUseStep(duel.ResolutionId, ResolutionFrameStep.ResolvingEffect);
+            _pendingDecision = null;
+            ResolveDuelResponse(duel, responder, selectedSlash: null);
+            return;
+        }
+
         var requiredSlashResponses = GetRequiredResponseCount(
             opponent,
             opponent.Seat,
@@ -16513,6 +16569,7 @@ public sealed partial class GameEngine
                 amount,
                 Math.Max(0, target.Hp),
                 nature));
+            ApplyHengyeGrowth(damageFrameId, source, target, amount);
             ApplyWuhunNightmareMarks(damageFrameId, source, target, amount);
 
             if (target.Hp > 0 || SupportsLethalAfterDamageTriggers)
@@ -17513,6 +17570,11 @@ public sealed partial class GameEngine
             Amount: 1,
             RemainingHp: Math.Max(0, source.Hp),
             Nature: DamageNature.Normal));
+        ApplyHengyeGrowth(
+            damageFrameId,
+            _players[pending.OwnerSeat],
+            source,
+            amount: 1);
         if (source.Hp <= 0)
         {
             BeginGanglieDying(pending);
@@ -18697,7 +18759,7 @@ public sealed partial class GameEngine
         CompleteAttack(attack);
     }
 
-    private void FinishAttack(AttackResolution attack)
+    private bool FinishAttack(AttackResolution attack, bool allowYingboGift = true)
     {
         if (attack.IsProgramJudgmentDamage)
         {
@@ -18706,7 +18768,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException(
                     "Configured judgment damage must retain its program frame and no physical card.");
             }
-            return;
+            return false;
         }
 
         if (attack.IsLeijiDamage)
@@ -18719,7 +18781,7 @@ public sealed partial class GameEngine
             {
                 CompleteGame();
             }
-            return;
+            return false;
         }
 
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
@@ -18732,13 +18794,14 @@ public sealed partial class GameEngine
             if (_winner != Winner.None)
             {
                 if (_status != EngineStatus.Completed) CompleteGame();
-                return;
+                return false;
             }
             if (stage == 1)
                 CompleteTurnStartAfterDraw(source, DelayedTurnEffects.None);
             else
                 BeginDiscardPhase();
-            return;
+            ClearYingboCardUse(attack.ResolutionId);
+            return false;
         }
 
         if (attack.IsActiveSkillDamage)
@@ -18763,7 +18826,7 @@ public sealed partial class GameEngine
                 {
                     CompleteGame();
                 }
-                return;
+                return false;
             }
 
             if (attack.SourceSkill == SkillKind.Qiangxi)
@@ -18778,7 +18841,7 @@ public sealed partial class GameEngine
                 {
                     CompleteGame();
                 }
-                return;
+                return false;
             }
 
             if (attack.SourceSkill == SkillKind.Quhu)
@@ -18794,7 +18857,7 @@ public sealed partial class GameEngine
                 {
                     CompleteGame();
                 }
-                return;
+                return false;
             }
 
             var activeSkillCard = RequireAttackCard(attack);
@@ -18817,7 +18880,7 @@ public sealed partial class GameEngine
                 CompleteGame();
             }
 
-            return;
+            return false;
         }
 
         var attackCard = RequireAttackCard(attack);
@@ -18844,7 +18907,20 @@ public sealed partial class GameEngine
                 CompleteGame();
             }
 
-            return;
+            return false;
+        }
+
+        if (allowYingboGift &&
+            TryBeginYingboGift(
+                attack.ResolutionId,
+                attack.CardUserSeat,
+                attackCard,
+                RequireAttackCardKind(attack),
+                attack.PhysicalCards,
+                YingboGiftContinuation.Attack,
+                attack: attack))
+        {
+            return true;
         }
 
         foreach (var physicalCard in attack.PhysicalCards)
@@ -18885,6 +18961,7 @@ public sealed partial class GameEngine
         {
             CompleteGame();
         }
+        return false;
     }
 
     private void CompleteAttack(AttackResolution attack)
@@ -18979,6 +19056,15 @@ public sealed partial class GameEngine
             _pendingFangtianHalberd = null;
         }
 
+        if (FinishAttack(attack))
+        {
+            return;
+        }
+        CompleteAttackAfterCardResolution(attack);
+    }
+
+    private void CompleteAttackAfterCardResolution(AttackResolution attack)
+    {
         var borrowedSword = _pendingBorrowedSword is { ActiveAttack: { } borrowedAttack } pendingBorrowedSword &&
                             ReferenceEquals(borrowedAttack, attack)
             ? pendingBorrowedSword
@@ -18986,7 +19072,6 @@ public sealed partial class GameEngine
         var resumesDelayedTurn = attack.IsDelayedJudgmentDamage;
         var resumesLeiji = attack.IsLeijiDamage;
         var resumesProgramJudgment = attack.IsProgramJudgmentDamage;
-        FinishAttack(attack);
         _pendingAttack = null;
         _pendingDuel = null;
         _pendingDecision = null;
@@ -19038,7 +19123,7 @@ public sealed partial class GameEngine
         ContinueProgramJudgmentWindow();
     }
 
-    private void FinishGroupAttack(GroupCardResolution group)
+    private void FinishGroupAttack(GroupCardResolution group, bool allowYingboGift = true)
     {
         if (!ReferenceEquals(_pendingGroupCard, group) || group.Effect != GroupCardEffect.ResponseAttack)
         {
@@ -19049,6 +19134,19 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException(
                 "A group card cannot finish while a target continuation is pending.");
+        }
+
+        if (allowYingboGift &&
+            TryBeginYingboGift(
+                group.ResolutionId,
+                group.SourceSeat,
+                group.Card,
+                group.Card.Kind,
+                group.PhysicalCards,
+                YingboGiftContinuation.GroupAttack,
+                group: group))
+        {
+            return;
         }
 
         foreach (var physicalCard in group.PhysicalCards)
@@ -19277,6 +19375,7 @@ public sealed partial class GameEngine
             sourceSeat,
             IgnoresArmor: ignoresArmor));
         QueueGameEvent(new TargetsConfirmedEvent(resolutionId, targets));
+        RecordYingboCardUse(resolutionId, sourceSeat, effectiveCardKind);
         return resolutionId;
     }
 
@@ -19532,6 +19631,7 @@ public sealed partial class GameEngine
         _acceptedProgramUses.Remove(frameId);
         _preparedProgramTargets.Remove(frameId);
         ClearJuzhanCardUseLedger(frameId);
+        ClearYingboCardUse(frameId);
     }
 
     private void PopResolutionFrame(long frameId, ResolutionFrameKind expectedKind)
@@ -19569,7 +19669,9 @@ public sealed partial class GameEngine
             limit = (int)Math.Clamp((long)limit + bonus, 0, int.MaxValue);
         }
 
-        return limit;
+        return limit == int.MaxValue
+            ? int.MaxValue
+            : (int)Math.Clamp((long)limit + GetHengyeGrowth(actor), 0, int.MaxValue);
     }
 
     private bool CanUseSlashTarget(
@@ -20870,8 +20972,10 @@ public sealed partial class GameEngine
         _ => DamageNature.Normal
     };
 
-    private static DamageNature GetDamageNature(AttackResolution attack) =>
-        attack.DamageNatureOverride ?? GetDamageNature(RequireAttackCardKind(attack));
+    private DamageNature GetDamageNature(AttackResolution attack) =>
+        IsYingboRepeated(attack.ResolutionId)
+            ? DamageNature.Fire
+            : attack.DamageNatureOverride ?? GetDamageNature(RequireAttackCardKind(attack));
 
     private static Card RequireAttackCard(AttackResolution attack) =>
         attack.Card ?? throw new InvalidOperationException(
@@ -20902,6 +21006,7 @@ public sealed partial class GameEngine
             attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
             GetHand(_players[attack.TargetSeat]).Count == 0 &&
             GetEquipment(_players[attack.SourceSeat]).Any(card => card.Kind == CardKind.GudingBlade);
+        var receivesYingboBonus = IsYingboRepeated(attack.ResolutionId);
         var receivesTengjiaBonus = UsesFormalTengjia &&
             GetDamageNature(attack) == DamageNature.Fire &&
             HasTengjia(_players[attack.TargetSeat]) &&
@@ -20909,11 +21014,13 @@ public sealed partial class GameEngine
         var silverLionCapsDamage = UsesFormalSilverLion &&
             baseAmount + (receivesLuoyiBonus ? 1 : 0) +
             (receivesGudingBladeBonus ? 1 : 0) +
+            (receivesYingboBonus ? 1 : 0) +
             (receivesTengjiaBonus ? 1 : 0) > 1 &&
             HasSilverLion(_players[attack.TargetSeat]) &&
             (attack.IsChainPropagation || !attack.IgnoresArmor);
         var damageBonus = (receivesLuoyiBonus ? 1 : 0) +
                           (receivesGudingBladeBonus ? 1 : 0) +
+                          (receivesYingboBonus ? 1 : 0) +
                           (receivesTengjiaBonus ? 1 : 0);
         attack.FinalizeDamageAmount(damageBonus, silverLionCapsDamage ? 1 : null);
         var runningAmount = baseAmount;
@@ -20948,6 +21055,23 @@ public sealed partial class GameEngine
             AddLog(
                 "EquipmentEffect",
                 $"{_players[attack.SourceSeat].Name} 的【古锭刀】对空手的 {_players[attack.TargetSeat].Name} 生效，本次伤害 +1。",
+                attack.SourceSeat,
+                attack.TargetSeat);
+            runningAmount = modifiedAmount;
+        }
+        if (receivesYingboBonus)
+        {
+            var modifiedAmount = checked(runningAmount + 1);
+            QueueGameEvent(new YingboDamageIncreasedEvent(
+                attack.ResolutionId,
+                attack.SourceSeat,
+                attack.TargetSeat,
+                RequireAttackCardKind(attack),
+                runningAmount,
+                modifiedAmount));
+            AddLog(
+                "SkillTriggered",
+                $"{_players[attack.SourceSeat].Name} 的【英博】令本次伤害 +1。",
                 attack.SourceSeat,
                 attack.TargetSeat);
             runningAmount = modifiedAmount;
@@ -21762,6 +21886,7 @@ public sealed partial class GameEngine
                 killer?.Seat,
                 victim.Seat);
             QueueGameEvent(new PlayerDiedEvent(victim.Seat, killer?.Seat));
+            ResetHengyeAfterKill(killer);
             if (!IsNationalWarMode)
             {
                 NotifyAiOfDeath(killer, victim);
@@ -22089,7 +22214,7 @@ public sealed partial class GameEngine
                 string.Equals(GetEffectiveFactionId(other), "qun", StringComparison.Ordinal)) * 2;
         }
         return Math.Max(0, SkillProgramRules.Modify(SkillRuleQuery.HandLimit,
-            CreateSkillContext(player), baseLimit, EnabledSkillPrograms(player)));
+            CreateSkillContext(player), baseLimit, EnabledSkillPrograms(player)) + GetHengyeGrowth(player));
     }
 
     private IReadOnlyList<Card> GetPlayableCards(PlayerRuntime player) =>
@@ -22640,6 +22765,7 @@ public sealed partial class GameEngine
             AssertDiscardPromptInvariant();
             AssertYinghunInvariant();
             AssertJuzhanInvariant();
+            AssertYingboInvariant();
         }
         _cardZones.AssertInvariants(_initialCardCount);
 
@@ -22688,6 +22814,7 @@ public sealed partial class GameEngine
             _pendingTieqi is not null ||
             _pendingLiegong is not null ||
             _pendingJuzhan is not null ||
+            _pendingYingboGift is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
             _resolutionStack.Any(frame => frame is ActiveSkillFrame or ProgramSkillFrame or ProgramCardTriggerWindowFrame);
@@ -23948,6 +24075,20 @@ public sealed partial class GameEngine
                         "An active Lieren choice must retain its Slash frame as the stack top.");
                 }
             }
+            else if (_pendingYingboGift is
+                     {
+                         Continuation: YingboGiftContinuation.Attack,
+                         Attack: { } giftAttack
+                     })
+            {
+                if (!ReferenceEquals(giftAttack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame giftCardUse ||
+                    giftCardUse.Id != pendingAttack.ResolutionId)
+                {
+                    throw new InvalidOperationException(
+                        "An active Yingbo gift must retain its Slash frame as the stack top.");
+                }
+            }
             else if (_pendingDying is null &&
                 _pendingDamageTrigger is null &&
                 _pendingDamageSkill is null)
@@ -24695,6 +24836,12 @@ public sealed partial class GameEngine
                 "A Jujian prompt cannot exist without its end-phase continuation.");
         }
 
+        if (_pendingDecision?.Kind == DecisionKind.Yingbo && _pendingYingboGift is null)
+        {
+            throw new InvalidOperationException(
+                "A Yingbo prompt cannot exist without its card continuation.");
+        }
+
         if (_pendingDecision?.Kind == DecisionKind.ZhuqueFan &&
             _pendingJijiang is not { AwaitingZhuqueFanChoice: true })
         {
@@ -24801,6 +24948,7 @@ public sealed partial class GameEngine
             _pendingDamageTrigger is null &&
             _pendingDamageSkill is null &&
             _pendingJudgment is null &&
+            _pendingYingboGift is null &&
             _pendingAttack is not null &&
             awaitingHumanResponse == awaitingAiResponse)
         {
@@ -24825,6 +24973,7 @@ public sealed partial class GameEngine
              _pendingTieqi is not null ||
              _pendingLiegong is not null ||
              _pendingJuzhan is not null ||
+             _pendingYingboGift is not null ||
              _pendingJujian is not null ||
              _pendingHujia is not null ||
              _pendingJijiang is not null ||

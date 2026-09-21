@@ -45,6 +45,8 @@ public sealed record TeamAssignedEvent(int Seat, string TeamId) : IGameEvent;
 
 public sealed record TurnStartedEvent(int TurnNumber, int ActorSeat) : IGameEvent;
 
+public sealed record RoundStartedEvent(int RoundNumber, int ActorSeat) : IGameEvent;
+
 public sealed record TurnEndedEvent(int TurnNumber, int ActorSeat) : IGameEvent;
 
 public sealed record PhaseChangedEvent(TurnPhase Phase, int ActorSeat) : IGameEvent;
@@ -323,6 +325,45 @@ public sealed record SkillUsageConsumedEvent(
     string UsageId,
     SkillUsageScope Scope,
     int Count) : IGameEvent;
+
+/// <summary>Public audit record for a skill being restored to its game-start state.</summary>
+public sealed record SkillResetEvent(
+    int SkillOwnerSeat,
+    string SkillId,
+    int PreviousUsageCount) : IGameEvent;
+
+/// <summary>Public growth state of Mou Lu Meng's locked Hengye skill.</summary>
+public sealed record HengyeGrowthChangedEvent(
+    long DamageFrameId,
+    int SourceSeat,
+    int PreviousGrowth,
+    int CurrentGrowth) : IGameEvent;
+
+/// <summary>Public Yingbo branch selected from this round's same-name damage-card ledger.</summary>
+public sealed record YingboCardModeEvent(
+    long ResolutionId,
+    int SourceSeat,
+    CardKind CardKind,
+    bool WasUsedEarlierThisRound,
+    bool CannotBeRespondedTo,
+    bool ConvertsDamageToFire,
+    int DamageBonus) : IGameEvent;
+
+public sealed record YingboDamageIncreasedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int TargetSeat,
+    CardKind CardKind,
+    int OriginalAmount,
+    int ModifiedAmount) : IGameEvent;
+
+/// <summary>Public resolution of Yingbo's optional post-resolution card transfer.</summary>
+public sealed record YingboGiftResolvedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    int CardId,
+    CardKind CardKind,
+    int? TargetSeat) : IGameEvent;
 
 /// <summary>Public result of one optional Juzhan side; hidden hand identities remain omitted.</summary>
 public sealed record JuzhanResolvedEvent(

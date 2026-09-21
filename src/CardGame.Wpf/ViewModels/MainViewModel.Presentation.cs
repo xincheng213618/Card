@@ -198,6 +198,13 @@ public sealed partial class MainViewModel
         }
         if (runtimeState?.Polarity is { } polarity)
             return polarity == SkillPolarity.Yang ? "当前：阳" : "当前：阴";
+        if (runtimeState?.SkillId == "mou:hengye")
+        {
+            var growth = runtimeState.Usages.SingleOrDefault(usage =>
+                usage.UsageId == "growth" &&
+                usage.Scope == SkillUsageScope.Game)?.Count ?? 0;
+            return $"成长 {growth}/3 · {automaticText}";
+        }
         return executionForms.HasFlag(SkillExecutionForm.Trigger)
             ? "等待触发时机"
             : automaticText;

@@ -63,6 +63,9 @@ var tests = new (string Name, Action Body)[]
     ("formal Nuzhan uses the exact SP Wusheng conversion source", SpGuanYuChecks.NuzhanUsesExactConversionSource),
     ("formal Yan Yan registers tagged Juzhan with a rules 98 boundary", YanYanChecks.ContentPolarityAndRulesBoundary),
     ("formal Juzhan uses per-target turn and per-card-use event ledgers", YanYanChecks.YangYinLedgerAndReplay),
+    ("formal Mou Lu Meng versions Hengye and Yingbo behind rules 102", MouLuMengChecks.ContentAndRulesBoundary),
+    ("formal Hengye grows on damage and resets after a kill", MouLuMengChecks.HengyeGrowthAndKillReset),
+    ("formal Yingbo uses first and repeated same-name round branches", MouLuMengChecks.YingboRoundLedgerAndReplay),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -1970,7 +1973,7 @@ static void CheckpointRestore()
         decoded with { ContentHash = "00BAD-CONTENT-HASH" },
         StandardContentRegistry.Create()));
     Throws<InvalidOperationException>(() => GameReplay.Restore(
-        decoded with { RulesVersion = 102 },
+        decoded with { RulesVersion = GameCheckpoint.CurrentRulesVersion + 1 },
         StandardContentRegistry.Create()));
 
     var selectedGeneralId = pending.ValidContentIds.First();

@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 79, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 80, 0))
     {
     }
 
@@ -130,12 +130,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 76, 0) &&
             version != new Version(1, 77, 0) &&
             version != new Version(1, 78, 0) &&
-            version != new Version(1, 79, 0))
+            version != new Version(1, 79, 0) &&
+            version != new Version(1, 80, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.79.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.80.0.");
         }
 
         _version = version;
@@ -565,6 +566,25 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "节命",
                 "受到伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。",
                 SkillKind.Jieming)));
+        }
+
+        if (_version >= new Version(1, 80, 0))
+        {
+            builder.AddSkill(new ContentSkillDefinition(
+                "mou:hengye",
+                "横野",
+                "锁定技，你造成伤害后，你令本局游戏以下每个数值各+1（最多+3）：1.摸牌阶段摸牌数；2.出牌阶段使用【杀】次数；3.攻击范围；4.手牌上限。数值+3后，你每回合开始时回复1点体力。你杀死一名角色后重置此技能。")
+            {
+                Tags = SkillTag.Locked,
+                ExecutionForms = SkillExecutionForm.State
+            });
+            builder.AddSkill(new ContentSkillDefinition(
+                "mou:yingbo",
+                "英博",
+                "你使用的伤害牌若已有角色本轮使用过，则此牌造成的伤害改为火属性伤害且伤害+1；若本轮没有角色使用过，则此牌不能被响应且结算后你可将之交给一名其他角色。")
+            {
+                ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
+            });
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1611,9 +1631,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:yan-yan", "严颜", "yan_yan",
                 "classic:juzhan", "shu", BaseHp: 4));
         }
+        if (_version >= new Version(1, 80, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "mou:lu-meng", "谋吕蒙", "lu_meng",
+                "mou:hengye", "wu", BaseHp: 4,
+                AdditionalSkillIds: ["mou:yingbo"]));
+        }
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 80 } => MouLuMengClassicGeneralIds,
             { Major: 1, Minor: >= 70 } => YanYanClassicGeneralIds,
             { Major: 1, Minor: >= 69 } => SpGuanYuClassicGeneralIds,
             { Major: 1, Minor: >= 67 } => ShenGuanYuClassicGeneralIds,
@@ -2082,6 +2110,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. SpGuanYuClassicGeneralIds,
         "classic:yan-yan"
+    ];
+
+    internal static IReadOnlyList<string> MouLuMengClassicGeneralIds { get; } =
+    [
+        .. YanYanClassicGeneralIds,
+        "mou:lu-meng"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =
