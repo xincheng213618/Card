@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 86, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 87, 0))
     {
     }
 
@@ -145,12 +145,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 83, 0) &&
             version != new Version(1, 84, 0) &&
             version != new Version(1, 85, 0) &&
-            version != new Version(1, 86, 0))
+            version != new Version(1, 86, 0) &&
+            version != new Version(1, 87, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.86.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.87.0.");
         }
 
         _version = version;
@@ -698,6 +699,20 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "排异",
                 "出牌阶段限一次，你可以移去一张“权”，令一名角色摸两张牌，然后若其手牌数大于你，你对其造成1点伤害。",
                 SkillKind.Paiyi)));
+        }
+
+        if (_version >= new Version(1, 87, 0))
+        {
+            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
+                "classic:qice",
+                "奇策",
+                "出牌阶段限一次，你可以将所有手牌（至少一张）当任意一张普通锦囊牌使用。",
+                SkillKind.Qice)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:zhiyu",
+                "智愚",
+                "每当你受到伤害后，你可以摸一张牌，然后展示所有手牌；若颜色均相同，伤害来源弃置一张手牌。",
+                SkillKind.Zhiyu)));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1793,10 +1808,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:quanji", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["classic:zili"]));
         }
+        if (_version >= new Version(1, 87, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:xun-you", "荀攸", "xun_you",
+                "classic:qice", "wei", BaseHp: 3,
+                AdditionalSkillIds: ["classic:zhiyu"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 86 } => ZhongHuiClassicGeneralIds,
+            { Major: 1, Minor: >= 87 } => XunYouClassicGeneralIds,
+            { Major: 1, Minor: 86 } => ZhongHuiClassicGeneralIds,
             { Major: 1, Minor: 85 } => WangYiClassicGeneralIds,
             { Major: 1, Minor: 84 } => LiuBiaoClassicGeneralIds,
             { Major: 1, Minor: 83 } => GaoShunClassicGeneralIds,
@@ -2313,6 +2336,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. WangYiClassicGeneralIds,
         "classic:zhong-hui"
+    ];
+
+    internal static IReadOnlyList<string> XunYouClassicGeneralIds { get; } =
+    [
+        .. ZhongHuiClassicGeneralIds,
+        "classic:xun-you"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

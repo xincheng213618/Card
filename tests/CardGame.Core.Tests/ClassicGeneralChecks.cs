@@ -129,7 +129,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.86.0"]),
+                "standard-classic-generals@1.87.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -149,7 +149,8 @@ internal static class ClassicGeneralChecks
             "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong",
             "classic:yu-jin", "classic:xu-shu", "sp:zhao-yun", "classic:shen-guan-yu", "sp:guan-yu",
             "classic:yan-yan", "mou:lu-meng", "classic:cao-zhang", "classic:ma-dai",
-            "classic:gao-shun", "classic:liu-biao", "classic:wang-yi", "classic:zhong-hui"
+            "classic:gao-shun", "classic:liu-biao", "classic:wang-yi", "classic:zhong-hui",
+            "classic:xun-you"
         };
         Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
                 .Order(StringComparer.Ordinal)

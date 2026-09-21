@@ -82,6 +82,9 @@ var tests = new (string Name, Action Body)[]
     ("Zhenlie nullifies only Wang Yi during a group trick", WangYiChecks.ZhenlieNullifiesOnlyItsGroupEffect),
     ("formal Zhong Hui versions Quanji Zili and Paiyi", ZhongHuiChecks.ContentQuanjiAndBoundary),
     ("Quanji awakens Zili and acquired Paiyi replays", ZhongHuiChecks.ZiliAndPaiyiReplay),
+    ("formal Xun You versions active Qice and optional Zhiyu", XunYouChecks.ContentAndRulesBoundary),
+    ("Qice converts every hand card once and replays", XunYouChecks.QiceUsesAllHandCardsAndReplays),
+    ("Zhiyu draws reveals and makes the source discard", XunYouChecks.ZhiyuDrawRevealDiscardAndReplay),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -373,6 +376,14 @@ if (args.FirstOrDefault() == "--only-zhong-hui")
         test.Name.Contains("Quanji", StringComparison.Ordinal) ||
         test.Name.Contains("Zili", StringComparison.Ordinal) ||
         test.Name.Contains("Paiyi", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-xun-you")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Xun You", StringComparison.Ordinal) ||
+        test.Name.Contains("Qice", StringComparison.Ordinal) ||
+        test.Name.Contains("Zhiyu", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;

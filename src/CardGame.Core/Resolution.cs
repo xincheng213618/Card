@@ -55,7 +55,8 @@ public enum DamageSkillEffectKind
     TakeSourceCard,
     RecoverDamageSource,
     BenefitDamageSource,
-    StoreAuthority
+    StoreAuthority,
+    RevealHandAndPunishSource
 }
 
 /// <summary>

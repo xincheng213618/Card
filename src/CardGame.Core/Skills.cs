@@ -32,7 +32,8 @@ public enum ActiveSkillEffectKind
     PindianAndDamage,
     PindianForSlashBonus,
     StartArrowBarrage,
-    RemoveAuthorityDrawAndDamage
+    RemoveAuthorityDrawAndDamage,
+    ChooseOrdinaryTrick
 }
 
 public sealed record ActiveSkillEffect(
@@ -1095,6 +1096,41 @@ public sealed class PaiyiSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
+public sealed class QiceSkill : IPassiveSkill, IActiveSkill
+{
+    public SkillKind Kind => SkillKind.Qice;
+    public string Name => "奇策";
+
+    public bool CanUse(ActiveSkillContext context) =>
+        context.Owner.IsOwnTurn &&
+        context.Owner.Phase == TurnPhase.Play &&
+        context.Owner.HandCount > 0 &&
+        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
+
+    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
+        new(
+            ActiveSkillEffectKind.ChooseOrdinaryTrick,
+            MinCardCount: context.Owner.HandCount,
+            MaxCardCount: context.Owner.HandCount);
+}
+
+public sealed class ZhiyuSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Zhiyu;
+    public string Name => "智愚";
+
+    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
+        context.Amount > 0 && context.TargetSeat == context.Owner.Seat;
+
+    public bool OffersDamageCardChoice(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context);
+
+    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
+        CanTriggerAfterDamage(context)
+            ? DamageSkillEffectKind.RevealHandAndPunishSource
+            : DamageSkillEffectKind.None;
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -1306,6 +1342,8 @@ public static class SkillRegistry
             [SkillKind.Quanji] = new QuanjiSkill(),
             [SkillKind.Zili] = new ZiliSkill(),
             [SkillKind.Paiyi] = new PaiyiSkill(),
+            [SkillKind.Qice] = new QiceSkill(),
+            [SkillKind.Zhiyu] = new ZhiyuSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),

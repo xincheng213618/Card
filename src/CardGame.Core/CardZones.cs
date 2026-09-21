@@ -186,6 +186,8 @@ public static class CardMoveReasons
     public static CardMoveReason AuthorityDeathDiscard { get; } = new("skill.quanji.death-discard");
     public static CardMoveReason PaiyiRemove { get; } = new("skill.paiyi.remove-authority");
     public static CardMoveReason PaiyiDraw { get; } = new("skill.paiyi.draw");
+    public static CardMoveReason ZhiyuDraw { get; } = new("skill.zhiyu.draw");
+    public static CardMoveReason ZhiyuDiscard { get; } = new("skill.zhiyu.discard");
     public static CardMoveReason JushouDraw { get; } = new("skill.jushou.draw");
     public static CardMoveReason JujianDiscard { get; } = new("skill.jujian.discard");
     public static CardMoveReason JujianDraw { get; } = new("skill.jujian.draw");

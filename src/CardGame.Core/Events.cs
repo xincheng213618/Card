@@ -804,6 +804,25 @@ public sealed record PaiyiResolvedEvent(
     IReadOnlyList<int> DrawnCardIds,
     bool DamageTriggered) : IGameEvent;
 
+/// <summary>Classic Xun You converted every current hand card into one ordinary trick.</summary>
+public sealed record QiceConvertedEvent(
+    long ResolutionId,
+    int SourceSeat,
+    IReadOnlyList<int> PhysicalCardIds,
+    CardKind EffectiveCardKind,
+    IReadOnlyList<int> TargetSeats) : IGameEvent;
+
+/// <summary>The public hand reveal and optional source discard produced by classic Zhiyu.</summary>
+public sealed record ZhiyuResolvedEvent(
+    long DamageFrameId,
+    int OwnerSeat,
+    int SourceSeat,
+    bool Used,
+    int? DrawnCardId,
+    IReadOnlyList<CardSnapshot> RevealedCards,
+    bool AllSameColor,
+    int? DiscardedCardId) : IGameEvent;
+
 public sealed record DamageSkillCardsDrawnEvent(
     long ResolutionId,
     int OwnerSeat,

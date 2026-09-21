@@ -2640,6 +2640,13 @@ public sealed partial class SimpleAiBrain
                 : (32d, "重铸铁索换取一张未知牌；不读取牌堆顺序，优先保留更有利的连环或解链行动。");
         if (action.Kind == LegalActionKind.UseSkill)
         {
+            if (action.Skill == SkillKind.Qice)
+            {
+                return self.HandCount == 1
+                    ? (42d, "仅余一张手牌时发动奇策并优先当【无中生有】使用，以一换二。")
+                    : (-100d, $"当前有 {self.HandCount} 张手牌，内置策略不以全部手牌只换两张牌。");
+            }
+
             if (action.Skill == SkillKind.Qiangxi)
             {
                 var qiangxiTarget = view.Players

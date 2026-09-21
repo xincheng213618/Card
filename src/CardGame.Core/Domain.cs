@@ -244,7 +244,9 @@ public enum SkillKind
     Miji,
     Quanji,
     Zili,
-    Paiyi
+    Paiyi,
+    Qice,
+    Zhiyu
 }
 
 public enum DecisionKind
@@ -318,7 +320,9 @@ public enum DecisionKind
     Zhenlie,
     Miji,
     Quanji,
-    Zili
+    Zili,
+    Qice,
+    Zhiyu
 }
 
 public enum JiangchiMode

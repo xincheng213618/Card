@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:xun-you",
+  "acceptedAt": "2026-09-21T15:22:21+08:00",
+  "scope": "P1-A60 classic Xun You, Qice/Zhiyu rules and official portrait",
+  "selectedVersion": "一将成名官网与BWIKI经典版本荀攸（魏3体力，奇策／智愚）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/305.html",
+      "use": "一将成名官方武将页冻结经典荀攸规则：奇策每个出牌阶段限一次，以至少一张且全部手牌视为任意普通锦囊；智愚在受到伤害后可摸一张、展示全部手牌，同色时令来源弃置一张手牌。该页同时提供574x761经典静态大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E8%8D%80%E6%94%B8",
+      "use": "经典版本交叉核对魏势力、3体力、奇策／智愚，并明确与界限突破及国战版本分栏，防止混入界智愚的强制弃牌、获得弃牌与奇策次数增加，或国战奇策的目标数限制。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页分类：奇策是出牌阶段由玩家操作的应用主动入口，使用ActionForms.Active；智愚需要玩家在伤害后确认是否发动，使用可选Trigger，不误标为Locked或State。展示按公开观看、牌仍留在原手牌区的语义处理。"
+    }
+  ],
+  "ruleText": {
+    "qice": "出牌阶段限一次，你可以将所有的手牌（至少一张）当做任意一张普通锦囊牌使用。",
+    "zhiyu": "每当你受到伤害后，你可以摸一张牌，然后展示所有手牌，若颜色均相同，来源弃置一张手牌。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.87.0",
+    "rulesVersion": 109,
+    "generalId": "classic:xun-you",
+    "skillIds": [
+      "classic:qice",
+      "classic:zhiyu"
+    ],
+    "qiceMetadata": "ActionForms.Active",
+    "zhiyuMetadata": "optional Trigger",
+    "qiceInteraction": "shared active-skill draft requires the exact complete hand, then a private choice freezes one legal ordinary-trick use with exact ordered targets and target card",
+    "supportedProactiveOrdinaryTricks": [
+      "DrawTwo",
+      "Duel",
+      "BarbarianAssault",
+      "ArrowBarrage",
+      "PeachGarden",
+      "FiveGrains",
+      "Dismantlement",
+      "Snatch",
+      "FireAttack",
+      "IronChain",
+      "BorrowedSword"
+    ],
+    "auditEvents": [
+      "QiceConvertedEvent",
+      "CardsRevealedEvent",
+      "ZhiyuResolvedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.86.0",
+    "previousRulesVersion": 108,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the exact all-hand Qice cost, chosen ordinary-trick option, optional Zhiyu trigger and exact source discard reconstruct from the accepted command prefix",
+    "legacyPolicy": "rules v108 keeps Qice and Zhiyu disabled even when package 1.87.0 is loaded; package 1.86.0 does not register Xun You"
+  },
+  "portrait": {
+    "resourceKey": "xun-you",
+    "localPath": "src/CardGame.Wpf/Assets/official-xun-you.png",
+    "sourcePage": "https://x.sanguosha.com/hero/305.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130501.png",
+    "sha256": "779FBAEEAD71D70A8DFE1E0E0FA5A72F760D91F77C306951863273BA313280ED",
+    "bytes": 205675,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Xun You artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build -- --only-xun-you",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "targetedCoreDurationSeconds": 0.91,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build",
+    "fullCorePassed": 315,
+    "fullCoreTotal": 315,
+    "fullCoreDurationSeconds": 28.03,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-build -- artifacts/ui-check --only-xun-you",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 2.64,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore --nologo",
+    "buildDurationSeconds": 2.41,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/ui-check/200-classic-xun-you-card.png",
+      "artifacts/ui-check/201-classic-xun-you-qice-choice.png",
+      "artifacts/ui-check/202-classic-xun-you-zhiyu-choice.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "Qice accepts exactly every current hand card and atomically rejects forged subsets",
+      "the second private Qice stage publishes only currently legal proactive ordinary-trick options with frozen exact target data",
+      "all Qice physical subcards enter Processing and are cleaned up through the existing trick, Jizhi, Nullification, response and damage paths",
+      "Qice is once per play phase and paused and completed command prefixes replay exactly",
+      "Zhiyu is optional after damage, draws once, publicly reveals the complete current hand without moving it, and makes a living source with cards privately choose one exact discard when all colors match",
+      "an AI source's private discard candidates do not leak into the human snapshot",
+      "rules v108 and package 1.86.0 preserve both pre-Xun-You boundaries",
+      "official portrait, structured skill types, active all-hand draft, private Qice/Zhiyu prompts and public battle cues render without clipping or binding errors"
+    ]
+  },
+  "excludedVariants": [
+    "boundary-breakthrough Zhiyu that always makes the source discard, may gain that card and may increase Qice uses",
+    "national-war Qice target-count cap and deputy-general change",
+    "self-battle and other-product Xun You definitions",
+    "Nullification as a proactive play-phase Qice option"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

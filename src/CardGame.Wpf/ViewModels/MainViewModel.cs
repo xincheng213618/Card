@@ -678,6 +678,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Miji or
                     DecisionKind.Quanji or
                     DecisionKind.Zili or
+                    DecisionKind.Qice or
+                    DecisionKind.Zhiyu or
                     DecisionKind.Qianxi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
@@ -738,6 +740,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Miji or
             DecisionKind.Quanji or
             DecisionKind.Zili or
+            DecisionKind.Qice or
+            DecisionKind.Zhiyu or
             DecisionKind.Qianxi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
@@ -2057,6 +2061,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Phase(Preparation)");
                 EventStack.Add("        AskForSkill(Zili)");
+            }
+            else if (pending.Kind == DecisionKind.Qice)
+            {
+                EventStack.Add("      Phase(Play)");
+                EventStack.Add("        ChooseOrdinaryTrick(Qice)");
+            }
+            else if (pending.Kind == DecisionKind.Zhiyu)
+            {
+                EventStack.Add("      DamageResolved");
+                EventStack.Add("        AskForSkill(Zhiyu)");
             }
             else if (pending.Kind == DecisionKind.Qianxi)
             {
