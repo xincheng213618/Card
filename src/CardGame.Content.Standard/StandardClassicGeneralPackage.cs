@@ -44,7 +44,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 78, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 79, 0))
     {
     }
 
@@ -129,12 +129,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 75, 0) &&
             version != new Version(1, 76, 0) &&
             version != new Version(1, 77, 0) &&
-            version != new Version(1, 78, 0))
+            version != new Version(1, 78, 0) &&
+            version != new Version(1, 79, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.78.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.79.0.");
         }
 
         _version = version;
@@ -525,6 +526,45 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "苦肉",
                 "出牌阶段，你可以失去 1 点体力，然后摸两张牌。",
                 SkillKind.Kujin)));
+        }
+
+        if (_version >= new Version(1, 79, 0))
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:guicai",
+                "鬼才",
+                "当一张判定牌生效前，你可以用一张手牌代替之。",
+                SkillKind.Guicai)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:ganglie",
+                "刚烈",
+                "当你受到伤害后，你可以判定，若结果不为红桃，伤害来源选择弃置两张手牌或受到 1 点伤害。",
+                SkillKind.Ganglie)));
+            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
+                "classic:jijiu",
+                "急救",
+                "你的回合外，你可以将一张红色牌当【桃】使用。",
+                SkillKind.Jijiu)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:yiji",
+                "遗计",
+                "受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。",
+                SkillKind.Yiji)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:yingzi",
+                "英姿",
+                "摸牌阶段，你可以多摸一张牌。",
+                SkillKind.Yingzi)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:jianxiong",
+                "奸雄",
+                "当你受到伤害后，你可以获得造成此伤害的牌。",
+                SkillKind.Jianxiong)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:jieming",
+                "节命",
+                "受到伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。",
+                SkillKind.Jieming)));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1082,12 +1122,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             "classic:feedback",
             "wei",
             BaseHp: 3,
-            AdditionalSkillIds: ["standard:guicai"]));
+            AdditionalSkillIds:
+            [
+                _version >= new Version(1, 79, 0)
+                    ? "classic:guicai"
+                    : "standard:guicai"
+            ]));
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:xiahou-dun",
             "夏侯惇",
             "xiahou_dun",
-            "standard:ganglie",
+            _version >= new Version(1, 79, 0)
+                ? "classic:ganglie"
+                : "standard:ganglie",
             "wei",
             BaseHp: 4));
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -1099,7 +1146,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 : "standard:qingnang",
             "qun",
             BaseHp: 3,
-            AdditionalSkillIds: ["standard:jijiu"]));
+            AdditionalSkillIds:
+            [
+                _version >= new Version(1, 79, 0)
+                    ? "classic:jijiu"
+                    : "standard:jijiu"
+            ]));
         if (_version >= new Version(1, 1, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
@@ -1109,7 +1161,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:tiandu",
                 "wei",
                 BaseHp: 3,
-                AdditionalSkillIds: ["standard:yiji"]));
+                AdditionalSkillIds:
+                [
+                    _version >= new Version(1, 79, 0)
+                        ? "classic:yiji"
+                        : "standard:yiji"
+                ]));
         }
         if (_version >= new Version(1, 2, 0))
         {
@@ -1117,7 +1174,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:zhou-yu",
                 "周瑜",
                 "zhou_yu",
-                "standard:yingzi",
+                _version >= new Version(1, 79, 0)
+                    ? "classic:yingzi"
+                    : "standard:yingzi",
                 "wu",
                 BaseHp: 3,
                 AdditionalSkillIds: ["classic:fanjian"]));
@@ -1144,7 +1203,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:cao-cao",
                 "曹操",
                 "cao_cao",
-                "standard:jianxiong",
+                _version >= new Version(1, 79, 0)
+                    ? "classic:jianxiong"
+                    : "standard:jianxiong",
                 "wei",
                 BaseHp: 4,
                 AdditionalSkillIds: ["classic:hujia"]));
@@ -1399,7 +1460,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:quhu",
                 "wei",
                 BaseHp: 3,
-                AdditionalSkillIds: ["standard:jieming"]));
+                AdditionalSkillIds:
+                [
+                    _version >= new Version(1, 79, 0)
+                        ? "classic:jieming"
+                        : "standard:jieming"
+                ]));
         }
         if (_version >= new Version(1, 46, 0))
         {

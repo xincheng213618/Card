@@ -129,7 +129,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.11.0",
                 "standard-active-skills@1.0.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.78.0"]),
+                "standard-classic-generals@1.79.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -309,7 +309,7 @@ internal static class ClassicGeneralChecks
                 !luXunClassic.Generals.ContainsKey("classic:pang-de") &&
                 !luXunClassic.Skills.ContainsKey("classic:mengjin") &&
                 classic.Generals["classic:xun-yu"] is { BaseHp: 3, FactionId: "wei" } xunYu &&
-                xunYu.SkillIds.SequenceEqual(["classic:quhu", "standard:jieming"]) &&
+                xunYu.SkillIds.SequenceEqual(["classic:quhu", "classic:jieming"]) &&
                 !pangDeClassic.Generals.ContainsKey("classic:xun-yu") &&
                 !pangDeClassic.Skills.ContainsKey("classic:quhu") &&
                 classic.Generals["classic:yan-liang-wen-chou"] is { BaseHp: 4, FactionId: "qun" } yanLiangWenChou &&
@@ -571,23 +571,23 @@ internal static class ClassicGeneralChecks
 
         var simaYi = classic.Generals["classic:sima-yi"];
         Require(simaYi.Name == "司马懿" && simaYi.BaseHp == 3 &&
-                simaYi.SkillIds.SequenceEqual(["classic:feedback", "standard:guicai"]),
+                simaYi.SkillIds.SequenceEqual(["classic:feedback", "classic:guicai"]),
             "Sima Yi must expose Feedback and Guicai in a stable order.");
         var huaTuo = classic.Generals["classic:hua-tuo"];
         Require(huaTuo.Name == "华佗" && huaTuo.BaseHp == 3 &&
-                huaTuo.SkillIds.SequenceEqual(["classic:qingnang", "standard:jijiu"]),
+                huaTuo.SkillIds.SequenceEqual(["classic:qingnang", "classic:jijiu"]),
             "Hua Tuo must expose Qingnang and Jijiu in a stable order.");
         Require(classic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["classic:rende", "classic:jijiang"]) &&
                 classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) &&
-                classic.Generals["classic:xiahou-dun"].SkillIds.SequenceEqual(["standard:ganglie"]),
+                classic.Generals["classic:xiahou-dun"].SkillIds.SequenceEqual(["classic:ganglie"]),
             "The current classic roster must point at the implemented formal skills.");
         var guoJia = classic.Generals["classic:guo-jia"];
         Require(guoJia.BaseHp == 3 &&
-                guoJia.SkillIds.SequenceEqual(["classic:tiandu", "standard:yiji"]),
+                guoJia.SkillIds.SequenceEqual(["classic:tiandu", "classic:yiji"]),
             "The current classic Guo Jia must expose Tiandu and Yiji in a stable order.");
         var zhouYu = classic.Generals["classic:zhou-yu"];
         Require(zhouYu.BaseHp == 3 &&
-                zhouYu.SkillIds.SequenceEqual(["standard:yingzi", "classic:fanjian"]),
+                zhouYu.SkillIds.SequenceEqual(["classic:yingzi", "classic:fanjian"]),
             "The current classic Zhou Yu must expose Yingzi and Fanjian in a stable order.");
         var zhugeLiang = classic.Generals["classic:zhuge-liang"];
         Require(zhugeLiang.BaseHp == 3 &&
@@ -595,7 +595,7 @@ internal static class ClassicGeneralChecks
             "The current classic Zhuge Liang must expose Guanxing and Kongcheng in a stable order.");
         var caoCao = classic.Generals["classic:cao-cao"];
         Require(caoCao.BaseHp == 4 &&
-                caoCao.SkillIds.SequenceEqual(["standard:jianxiong", "classic:hujia"]),
+                caoCao.SkillIds.SequenceEqual(["classic:jianxiong", "classic:hujia"]),
             "The current classic Cao Cao must expose Jianxiong and Hujia in a stable order.");
         var huangGai = classic.Generals["classic:huang-gai"];
         Require(huangGai.Name == "黄盖" &&
@@ -982,7 +982,7 @@ internal static class ClassicGeneralChecks
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 100,
             "Formal Rende must have an explicit rules-version boundary.");
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 78, 0));
         var previousRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 77, 0));
         Require(registry.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&

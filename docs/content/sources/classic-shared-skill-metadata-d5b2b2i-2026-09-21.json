@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "contentId": "skill-metadata:classic-shared-skills-d5b2b2i",
+  "retrievedAt": "2026-09-21T09:54:40+08:00",
+  "selectedVersion": "当前经典司马懿、夏侯惇、华佗、郭嘉、周瑜、曹操与荀彧的正式共享技能身份",
+  "sources": [
+    {
+      "url": "https://wiki.biligame.com/sgs/index.php?title=技能概念介绍&oldid=78953",
+      "use": "状态技是不需拥有者确认而持续生效的部分；触发技是在时机上由拥有者确认发动的部分。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/16",
+      "use": "司马懿印刷鬼才：判定牌生效前可以用手牌替换。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/17",
+      "use": "夏侯惇印刷刚烈：受到伤害后可以判定并令伤害来源承担代价。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/23.html",
+      "use": "华佗印刷急救：回合外持续允许红色牌作为桃使用。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/20",
+      "use": "郭嘉印刷遗计：受到每点伤害后可以处理两张牌。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/12.html",
+      "use": "周瑜印刷英姿：摸牌阶段可以额外摸一张牌。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/15",
+      "use": "曹操印刷奸雄：受到伤害后可以获得造成伤害的牌。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/35",
+      "use": "荀彧印刷节命：受到每点伤害后可以令一名角色补手牌。"
+    }
+  ],
+  "skills": [
+    { "id": "classic:guicai", "legacyKind": "Guicai", "executionForms": ["Trigger"] },
+    { "id": "classic:ganglie", "legacyKind": "Ganglie", "executionForms": ["Trigger"] },
+    { "id": "classic:jijiu", "legacyKind": "Jijiu", "executionForms": ["State"] },
+    { "id": "classic:yiji", "legacyKind": "Yiji", "executionForms": ["Trigger"] },
+    { "id": "classic:yingzi", "legacyKind": "Yingzi", "executionForms": ["Trigger"] },
+    { "id": "classic:jianxiong", "legacyKind": "Jianxiong", "executionForms": ["Trigger"] },
+    { "id": "classic:jieming", "legacyKind": "Jieming", "executionForms": ["Trigger"] }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.79.0",
+    "rulesVersion": 100,
+    "tags": [],
+    "actionForms": [],
+    "gameplayBehaviorChanged": false
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.78.0",
+    "previousReferences": [
+      "standard:guicai",
+      "standard:ganglie",
+      "standard:jijiu",
+      "standard:yiji",
+      "standard:yingzi",
+      "standard:jianxiong",
+      "standard:jieming"
+    ],
+    "stableStandardPackagesChanged": false,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false
+  },
+  "acceptance": [
+    "七项当前定义均使用独立classic ID并保留对应SkillKind实现",
+    "鬼才、刚烈、遗计、英姿、奸雄、节命显式投影Trigger，急救显式投影State",
+    "经典包1.78.0继续引用原standard ID，标准与救援包定义保持不变",
+    "内容指纹区分1.79.0和1.78.0",
+    "WPF郭嘉遗计显示触发技，华佗急救显示状态技且青囊仍显示主动技",
+    "两张1120×740离屏图经人工复核无技能栏、操作区或手牌裁切",
+    "Release 0 warning / 0 error，Core 293/293，定向WPF 1/1"
+  ],
+  "deferred": [
+    "正式技能重置消费者",
+    "每事件等复合限次账本",
+    "全部迁移后移除WPF兼容类型文案",
+    "真实Windows桌面鼠标键盘与多DPI验收"
+  ]
+}

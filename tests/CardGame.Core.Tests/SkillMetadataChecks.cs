@@ -521,6 +521,91 @@ internal static class SkillMetadataChecks
             "The shared active-skill identity migration must be isolated to package 1.77.0.");
     }
 
+    public static void ClassicRemainingSharedSkillsReceiveDistinctIdentities()
+    {
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 79, 0));
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 78, 0));
+        var stable = StandardContentRegistry.CreateWithRescueSkills();
+        (string ClassicId, string StandardId, SkillKind Kind, SkillExecutionForm Form)[] skills =
+        [
+            ("classic:guicai", "standard:guicai", SkillKind.Guicai, SkillExecutionForm.Trigger),
+            ("classic:ganglie", "standard:ganglie", SkillKind.Ganglie, SkillExecutionForm.Trigger),
+            ("classic:jijiu", "standard:jijiu", SkillKind.Jijiu, SkillExecutionForm.State),
+            ("classic:yiji", "standard:yiji", SkillKind.Yiji, SkillExecutionForm.Trigger),
+            ("classic:yingzi", "standard:yingzi", SkillKind.Yingzi, SkillExecutionForm.Trigger),
+            ("classic:jianxiong", "standard:jianxiong", SkillKind.Jianxiong, SkillExecutionForm.Trigger),
+            ("classic:jieming", "standard:jieming", SkillKind.Jieming, SkillExecutionForm.Trigger)
+        ];
+
+        foreach (var (classicId, standardId, kind, form) in skills)
+        {
+            Require(migrated.Skills[classicId] is
+                    {
+                        Tags: SkillTag.None,
+                        ExecutionForms: var projectedForm,
+                        ActionForms: SkillActionForm.None,
+                        LegacyKind: var projectedKind
+                    } &&
+                    projectedForm == form &&
+                    projectedKind == kind &&
+                    SkillRegistry.Get(kind).Kind == kind,
+                $"Current classic content did not register {classicId} with its backed execution form.");
+            Require(!previous.Skills.ContainsKey(classicId) &&
+                    previous.Skills[standardId] is
+                    {
+                        Tags: SkillTag.None,
+                        ExecutionForms: SkillExecutionForm.None,
+                        ActionForms: SkillActionForm.None
+                    },
+                $"Package 1.78.0 unexpectedly gained the distinct identity {classicId}.");
+            Require(!stable.Skills.ContainsKey(classicId) &&
+                    stable.Skills[standardId] is
+                    {
+                        Tags: SkillTag.None,
+                        ExecutionForms: SkillExecutionForm.None,
+                        ActionForms: SkillActionForm.None
+                    },
+                $"A stable standard package was mutated while migrating {classicId}.");
+        }
+
+        Require(migrated.Generals["classic:sima-yi"].SkillIds
+                    .SequenceEqual(["classic:feedback", "classic:guicai"]) &&
+                migrated.Generals["classic:xiahou-dun"].SkillIds
+                    .SequenceEqual(["classic:ganglie"]) &&
+                migrated.Generals["classic:hua-tuo"].SkillIds
+                    .SequenceEqual(["classic:qingnang", "classic:jijiu"]) &&
+                migrated.Generals["classic:guo-jia"].SkillIds
+                    .SequenceEqual(["classic:tiandu", "classic:yiji"]) &&
+                migrated.Generals["classic:zhou-yu"].SkillIds
+                    .SequenceEqual(["classic:yingzi", "classic:fanjian"]) &&
+                migrated.Generals["classic:cao-cao"].SkillIds
+                    .SequenceEqual(["classic:jianxiong", "classic:hujia"]) &&
+                migrated.Generals["classic:xun-yu"].SkillIds
+                    .SequenceEqual(["classic:quhu", "classic:jieming"]),
+            "Current classic generals did not switch to all seven distinct shared-skill identities.");
+        Require(previous.Generals["classic:sima-yi"].SkillIds
+                    .SequenceEqual(["classic:feedback", "standard:guicai"]) &&
+                previous.Generals["classic:xiahou-dun"].SkillIds
+                    .SequenceEqual(["standard:ganglie"]) &&
+                previous.Generals["classic:hua-tuo"].SkillIds
+                    .SequenceEqual(["classic:qingnang", "standard:jijiu"]) &&
+                previous.Generals["classic:guo-jia"].SkillIds
+                    .SequenceEqual(["classic:tiandu", "standard:yiji"]) &&
+                previous.Generals["classic:zhou-yu"].SkillIds
+                    .SequenceEqual(["standard:yingzi", "classic:fanjian"]) &&
+                previous.Generals["classic:cao-cao"].SkillIds
+                    .SequenceEqual(["standard:jianxiong", "classic:hujia"]) &&
+                previous.Generals["classic:xun-yu"].SkillIds
+                    .SequenceEqual(["classic:quhu", "standard:jieming"]),
+            "Package 1.78.0 did not preserve the historical shared-skill references.");
+        Require(migrated.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 79, 0)) &&
+                previous.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 78, 0)) &&
+                migrated.ContentHash != previous.ContentHash,
+            "The remaining shared-skill identity migration must be isolated to package 1.79.0.");
+    }
+
     public static void StructuredNiepanUsageReplays()
     {
         var registry = ContentRegistry.Build(

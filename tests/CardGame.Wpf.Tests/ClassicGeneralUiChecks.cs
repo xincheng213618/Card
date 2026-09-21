@@ -2031,6 +2031,49 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void SharedSkillIdentityMetadata(string output)
+    {
+        using var guoJiaViewModel = FindGeneralChoice("classic:guo-jia");
+        var guoJia = guoJiaViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:guo-jia");
+        guoJiaViewModel.SelectGeneralChoiceCommand.Execute(guoJia);
+        Program.AdvanceToDecision(guoJiaViewModel);
+        Program.Assert(guoJiaViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "遗计" &&
+                           skill.TypeText == "触发技" &&
+                           skill.StateText == "等待触发时机") &&
+                       guoJiaViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "天妒" &&
+                           skill.TypeText == "触发技"),
+            "Classic Guo Jia must render Yiji and Tiandu as distinct trigger skills.");
+        var guoJiaWindow = new MainWindow(guoJiaViewModel);
+        guoJiaWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)guoJiaWindow.Content, 1120, 740,
+            Path.Combine(output, "177-classic-shared-trigger-skills.png"));
+        guoJiaWindow.Content = null;
+        guoJiaWindow.Close();
+
+        using var huaTuoViewModel = FindGeneralChoice("classic:hua-tuo");
+        var huaTuo = huaTuoViewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:hua-tuo");
+        huaTuoViewModel.SelectGeneralChoiceCommand.Execute(huaTuo);
+        Program.AdvanceToDecision(huaTuoViewModel);
+        Program.Assert(huaTuoViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "急救" &&
+                           skill.TypeText == "状态技" &&
+                           skill.StateText == "规则自动生效") &&
+                       huaTuoViewModel.HumanSkillCards.Any(skill =>
+                           skill.Name == "青囊" &&
+                           skill.TypeText == "主动技"),
+            "Classic Hua Tuo must render Jijiu as a state skill without changing Qingnang's active entry.");
+        var huaTuoWindow = new MainWindow(huaTuoViewModel);
+        huaTuoWindow.ApplyTemplate();
+        Program.Render((FrameworkElement)huaTuoWindow.Content, 1120, 740,
+            Path.Combine(output, "178-classic-shared-jijiu-state.png"));
+        huaTuoWindow.Content = null;
+        huaTuoWindow.Close();
+    }
+
     private static MainViewModel FindGeneralChoice(string generalId)
     {
         for (var seed = 1; seed <= 1_024; seed++)

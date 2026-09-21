@@ -135,11 +135,18 @@ rules v100／`standard-classic-generals@1.78.0` 按当前官网补全 `classic:r
 
 Checkpoint 继续只保存内容包签名、rules 版本和已接受命令前缀：恢复第一次一张给牌后会重建 `count=1`，再执行第二次给牌时以相同玩家快照和事件跨越阈值。rules v99 或包 1.77.0 任一边界都保留旧限次、旧回复对象和旧结算序号；`standard-active-skills@1.0.0` 的演示仁德也不变。AI 对回复收益改为读取刘备自己的伤势。`176-classic-rende-repeat-entry.png` 在 1120×740 验证第一次给牌后仁德与激将仍是两个可见入口。来源与边界见 `docs/content/sources/classic-rende-formal-d5b2b2h-2026-09-21.json`。
 
+## 其余经典共享技能独立身份
+
+`standard-classic-generals@1.79.0` 为此前仍借用基础／救援包定义的七项技能建立独立身份：`classic:guicai`、`classic:ganglie`、`classic:jijiu`、`classic:yiji`、`classic:yingzi`、`classic:jianxiong`、`classic:jieming`。当前经典司马懿、夏侯惇、华佗、郭嘉、周瑜、曹操和荀彧切换到这些 ID；1.78.0 及稳定基础／救援包继续引用原 `standard:` ID。
+
+鬼才、刚烈、遗计、英姿、奸雄和节命均在明确时机询问技能拥有者是否发动，因此投影为 `Trigger`。急救在拥有者回合外持续为红色实体牌提供【桃】身份，选择该响应动作不构成独立的技能发动／跳过窗口，因此投影为 `State`。七项都继续复用对应 `SkillKind` 和既有被动规则实现，不创建新结算分支，不提高 rules v100，也不改变 Prompt、事件、AI、Replay、Checkpoint schema 或玩家资料。
+
+WPF 技能栏已验证郭嘉的遗计显示“触发技／等待触发时机”，华佗的急救显示“状态技／规则自动生效”且青囊仍显示“主动技”；`177-classic-shared-trigger-skills.png` 和 `178-classic-shared-jijiu-state.png` 在 1120×740 经人工复核无裁切。来源、逐项分类和版本边界见 `docs/content/sources/classic-shared-skill-metadata-d5b2b2i-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：
 
-- 为剩余正式技能逐项核对并迁移标签、执行形态和动作入口，尤其是鬼才、刚烈、急救、遗计、英姿、奸雄、节命等仍复用 `standard:` ID 的经典技能；
 - 为正式转换技补充技能重置消费者；阳／阴当前形态和 Checkpoint／Replay 已由严颜验证，正式觉醒消费者已由 SP 关羽完成；
 - 在已落地的每目标回合账本之外增加每事件等复合限次维度，并由真实消费者冻结其生命周期；
 - 在全部正式技能迁移后移除 WPF 的旧兼容类型文案。
