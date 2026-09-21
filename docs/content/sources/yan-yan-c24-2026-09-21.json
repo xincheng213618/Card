@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:yan-yan",
+  "acceptedAt": "2026-09-21T11:16:23+08:00",
+  "scope": "C24 official portrait binding and WPF card acceptance",
+  "portrait": {
+    "resourceKey": "yan-yan",
+    "localPath": "src/CardGame.Wpf/Assets/official-yan-yan.png",
+    "sourcePage": "https://www.sanguosha.com/hero/400",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40000.png",
+    "retrievedAt": "2026-09-21T03:16:23Z",
+    "sha256": "51ae9ee5857358cf4533589337f89d1b7598f37ec264513bfbd640ac1f693651",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "pixelFormat": "Bgra32",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Current official Yan Yan artwork from the public hero page; reused for the local experiment under the user's explicit authorization, not claimed as original project artwork"
+  },
+  "acceptance": {
+    "testCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore -- --only-yan-yan",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 1.65,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "render": "artifacts/wpf-check/166-classic-yan-yan-card.png",
+    "renderSize": "1120x740",
+    "assertions": [
+      "classic:yan-yan resolves to the independent yan-yan resource key",
+      "portrait decodes to the archived 750x950 bitmap",
+      "portrait uses UniformToFill with top alignment",
+      "Juzhan's complete Yang and Yin description remains visible",
+      "the in-match skill rail still shows initial Yang state",
+      "manual inspection confirms the portrait, full Juzhan text, card border and confirm control are not clipped at 1120x740"
+    ]
+  },
+  "compatibility": [
+    "no content package or rules version change",
+    "no save or player profile schema change",
+    "existing atlas coordinates and other portrait keys remain unchanged"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

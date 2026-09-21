@@ -132,6 +132,7 @@ internal static class ClassicGeneralUiChecks
         using var viewModel = FindGeneralChoice("classic:yan-yan");
         var yanYan = viewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:yan-yan");
+        var portrait = yanYan.PortraitBrush as System.Windows.Media.ImageBrush;
         Program.Assert(yanYan.Name == "严颜" &&
                        yanYan.Kingdom == "蜀" &&
                        yanYan.SkillName == "拒战" &&
@@ -139,8 +140,20 @@ internal static class ClassicGeneralUiChecks
                        yanYan.SkillDescription.Contains("阳：", StringComparison.Ordinal) &&
                        yanYan.SkillDescription.Contains("阴：", StringComparison.Ordinal) &&
                        yanYan.SkillDescription.Contains("本回合不能再对", StringComparison.Ordinal) &&
-                       yanYan.HealthText == "体力上限 5",
-            "The formal Yan Yan card must render Shu, Juzhan's two conversion faces and the Lord health bonus.");
+                       yanYan.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(yanYan.GeneralId) &&
+                       portrait is
+                       {
+                           Stretch: System.Windows.Media.Stretch.UniformToFill,
+                           AlignmentY: System.Windows.Media.AlignmentY.Top,
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource
+                           {
+                               PixelWidth: 750,
+                               PixelHeight: 950
+                           }
+                       },
+            $"The formal Yan Yan card must render Shu, Juzhan's two conversion faces, the Lord health bonus and its independent official portrait " +
+            $"(portrait={portrait?.ImageSource.Width}x{portrait?.ImageSource.Height}).");
 
         viewModel.PreviewGeneralChoiceCommand.Execute(yanYan);
         var window = new MainWindow(viewModel);
@@ -148,11 +161,28 @@ internal static class ClassicGeneralUiChecks
         var root = (FrameworkElement)window.Content;
         Program.Render(root, 1120, 740,
             Path.Combine(output, "166-classic-yan-yan-card.png"));
-        Program.Assert(Program.Find<System.Windows.Controls.TextBlock>(root)
-                .Any(text => ReferenceEquals(text.DataContext, yanYan) &&
-                             text.Text == yanYan.SkillDescription &&
-                             text.ActualHeight > 0),
-            "The Yan Yan selection card did not show the complete Juzhan conversion text.");
+        var skillDescription = Program.Find<System.Windows.Controls.TextBlock>(root)
+            .Single(text => ReferenceEquals(text.DataContext, yanYan) &&
+                            text.Text == yanYan.SkillDescription);
+        var unconstrainedDescription = new System.Windows.Controls.TextBlock
+        {
+            Text = skillDescription.Text,
+            TextWrapping = skillDescription.TextWrapping,
+            FontFamily = skillDescription.FontFamily,
+            FontStyle = skillDescription.FontStyle,
+            FontWeight = skillDescription.FontWeight,
+            FontStretch = skillDescription.FontStretch,
+            FontSize = skillDescription.FontSize,
+            LineHeight = skillDescription.LineHeight,
+            LineStackingStrategy = skillDescription.LineStackingStrategy,
+            FlowDirection = skillDescription.FlowDirection,
+            Language = skillDescription.Language
+        };
+        unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+        Program.Assert(skillDescription.ActualHeight > 0 &&
+                       skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height,
+            $"The Yan Yan selection card must show the complete Juzhan conversion text " +
+            $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}).");
 
         viewModel.SelectGeneralChoiceCommand.Execute(yanYan);
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);

@@ -69,6 +69,14 @@ internal static class Program
                 Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
                 return 0;
             }
+            if (args.Contains("--only-yan-yan", StringComparer.Ordinal))
+            {
+                Check("formal Yan Yan renders independent official art and Juzhan state",
+                    () => ClassicGeneralUiChecks.YanYanConversionCard(output));
+                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
+                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
+                return 0;
+            }
 
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
