@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 84, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 85, 0))
     {
     }
 
@@ -143,12 +143,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 81, 0) &&
             version != new Version(1, 82, 0) &&
             version != new Version(1, 83, 0) &&
-            version != new Version(1, 84, 0))
+            version != new Version(1, 84, 0) &&
+            version != new Version(1, 85, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.84.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.85.0.");
         }
 
         _version = version;
@@ -659,6 +660,20 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     SkillKind.Zongshi),
                 SkillTag.Locked,
                 SkillExecutionForm.State));
+        }
+
+        if (_version >= new Version(1, 85, 0))
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:zhenlie",
+                "贞烈",
+                "当你成为其他角色使用【杀】或普通锦囊牌的目标后，你可以失去1点体力，令此牌对你无效，然后你弃置其一张牌。",
+                SkillKind.Zhenlie)));
+            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:miji",
+                "秘计",
+                "结束阶段，若你已受伤，你可以摸X张牌（X为你已损失的体力值）。若如此做，你可以将等量的手牌交给其他角色。",
+                SkillKind.Miji)));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1739,10 +1754,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:zishou", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["classic:zongshi"]));
         }
+        if (_version >= new Version(1, 85, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:wang-yi", "王异", "wang_yi",
+                "classic:zhenlie", "wei", BaseHp: 3,
+                AdditionalSkillIds: ["classic:miji"],
+                Gender: GeneralGender.Female));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 84 } => LiuBiaoClassicGeneralIds,
+            { Major: 1, Minor: >= 85 } => WangYiClassicGeneralIds,
+            { Major: 1, Minor: 84 } => LiuBiaoClassicGeneralIds,
             { Major: 1, Minor: 83 } => GaoShunClassicGeneralIds,
             { Major: 1, Minor: >= 82 } => MaDaiClassicGeneralIds,
             { Major: 1, Minor: >= 81 } => CaoZhangClassicGeneralIds,
@@ -2245,6 +2269,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. GaoShunClassicGeneralIds,
         "classic:liu-biao"
+    ];
+
+    internal static IReadOnlyList<string> WangYiClassicGeneralIds { get; } =
+    [
+        .. LiuBiaoClassicGeneralIds,
+        "classic:wang-yi"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

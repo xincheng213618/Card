@@ -111,6 +111,9 @@ public sealed record CardUseFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardActionContext? Action { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? IneffectiveTargetSeats { get; init; }
 }
 
 public sealed record ResponseWindowFrame(

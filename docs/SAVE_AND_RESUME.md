@@ -162,6 +162,8 @@ rules v105／`standard-classic-generals@1.83.0` 的高顺同样不新增 Checkpo
 
 rules v106／`standard-classic-generals@1.84.0` 的刘表不新增 Checkpoint 字段。自守待选的私有发动／跳过 Choice、选择时冻结的现存势力数、额外摸牌及 `classic:zishou`／`active` 回合状态，都由已接受命令前缀确定性重建；完成后恢复必须得到相同的牌目标集合，五谷丰登只保留刘表自己。宗室的动态手牌上限由当前存活角色的有效势力实时派生，不序列化缓存。rules v105 即使配合 1.84.0 Registry 也保持两项运行效果关闭，1.83.0 Registry 不注册刘表；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
 
+rules v107／`standard-classic-generals@1.85.0` 的王异仍不新增 Checkpoint 字段。贞烈的私有发动／跳过 Choice、失去体力后的濒死续接、对使用者手牌槽位或公开装备的弃牌 Choice，以及当前 `CardUseFrame` 中仅对王异生效的无效目标集合，都由已接受命令前缀确定性重建；秘计的发动 Choice、按已损失体力摸牌和可选的等量手牌分配 Choice 同样依赖命令前缀恢复。暂停在贞烈发动、弃牌或秘计分配，以及完成后恢复，都必须得到相同事件和合法动作。rules v106 即使配合 1.85.0 Registry 也保持两项运行效果关闭，1.84.0 Registry 不注册王异；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

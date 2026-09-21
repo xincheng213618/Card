@@ -390,9 +390,9 @@ public sealed record JuzhanResolvedEvent(
     CardZoneKind? ObtainedFromZone,
     int? PublicObtainedCardId) : IGameEvent;
 
-public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing }
+public enum CardEffectSkipReason { TargetHandEmpty, PublicTargetMissing, SkillNullified }
 
-/// <summary>The declared target lost its required cards during the response window.</summary>
+/// <summary>A declared target no longer receives this card's effect.</summary>
 public sealed record CardEffectSkippedEvent(
     long ResolutionId, int SourceSeat, int TargetSeat, CardKind CardKind,
     CardEffectSkipReason Reason) : IGameEvent;
@@ -757,6 +757,24 @@ public sealed record KuangguRecoveredEvent(
     int DamageAmount,
     int RecoveredAmount,
     int RemainingHp) : IGameEvent;
+
+public sealed record ZhenlieResolvedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    int SourceSeat,
+    CardKind CardKind,
+    bool Used,
+    int RemainingHp,
+    int? DiscardedCardId = null,
+    CardZoneKind? DiscardedFromZone = null) : IGameEvent;
+
+public sealed record MijiResolvedEvent(
+    int OwnerSeat,
+    bool Used,
+    int LostHp,
+    IReadOnlyList<int> DrawnCardIds,
+    IReadOnlyList<int> GivenCardIds,
+    IReadOnlyList<int> TargetSeats) : IGameEvent;
 
 public sealed record DamageSkillCardsDrawnEvent(
     long ResolutionId,

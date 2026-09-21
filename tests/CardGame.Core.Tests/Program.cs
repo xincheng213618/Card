@@ -77,6 +77,9 @@ var tests = new (string Name, Action Body)[]
     ("losing Xianzhen blocks Slash use only", GaoShunChecks.XianzhenLossBlocksSlashOnly),
     ("formal Liu Biao versions Zishou and Zongshi with a private draw choice", LiuBiaoChecks.ContentPromptAndRulesBoundary),
     ("Zishou restricts card targets while Zongshi follows living factions", LiuBiaoChecks.ZishouTargetsAndZongshiHandLimit),
+    ("formal Wang Yi versions optional Zhenlie and Miji triggers", WangYiChecks.ContentPromptAndRulesBoundary),
+    ("Zhenlie nullifies Slash while Miji draws and distributes exactly", WangYiChecks.ZhenlieSlashAndMijiDistributionReplay),
+    ("Zhenlie nullifies only Wang Yi during a group trick", WangYiChecks.ZhenlieNullifiesOnlyItsGroupEffect),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -351,6 +354,14 @@ if (args.FirstOrDefault() == "--only-liu-biao")
         test.Name.Contains("Liu Biao", StringComparison.Ordinal) ||
         test.Name.Contains("Zishou", StringComparison.Ordinal) ||
         test.Name.Contains("Zongshi", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-wang-yi")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Wang Yi", StringComparison.Ordinal) ||
+        test.Name.Contains("Zhenlie", StringComparison.Ordinal) ||
+        test.Name.Contains("Miji", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;

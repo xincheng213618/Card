@@ -239,7 +239,9 @@ public enum SkillKind
     Wuhun,
     Xianzhen,
     Zishou,
-    Zongshi
+    Zongshi,
+    Zhenlie,
+    Miji
 }
 
 public enum DecisionKind
@@ -309,7 +311,9 @@ public enum DecisionKind
     Jiangchi,
     Qianxi,
     XianzhenPindian,
-    Zishou
+    Zishou,
+    Zhenlie,
+    Miji
 }
 
 public enum JiangchiMode

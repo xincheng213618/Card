@@ -51,6 +51,7 @@ public sealed partial class GameEngine
     private bool _biyueResolvedThisTurn;
     private bool _jushouResolvedThisTurn;
     private bool _jujianResolvedThisTurn;
+    private bool _mijiResolvedThisTurn;
     private bool _shensuTwoResolvedThisTurn;
     private int _pendingShensuStage;
     private int _logSequence;
@@ -1058,6 +1059,8 @@ public sealed partial class GameEngine
                 DecisionKind.Yingzi or
                 DecisionKind.Jiangchi or
                 DecisionKind.Zishou or
+                DecisionKind.Zhenlie or
+                DecisionKind.Miji or
                 DecisionKind.Qianxi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
@@ -1195,6 +1198,16 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Zishou)
         {
             return SubmitZishouPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Zhenlie)
+        {
+            return SubmitZhenliePromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Miji)
+        {
+            return SubmitMijiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Qianxi)
@@ -3090,6 +3103,8 @@ public sealed partial class GameEngine
                     IsAiYingziPending() ||
                     IsAiJiangchiPending() ||
                     IsAiZishouPending() ||
+                    IsAiZhenliePending() ||
+                    IsAiMijiPending() ||
                     IsAiQianxiPending() ||
                     IsAiTuxiPending() ||
                     IsAiShuangxiongPending() ||
@@ -6872,6 +6887,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsAiZhenliePending())
+        {
+            ResolvePendingAiZhenlie();
+            return;
+        }
+
         if (IsAiQuhuPending())
         {
             ResolvePendingAiQuhu();
@@ -6995,6 +7016,12 @@ public sealed partial class GameEngine
         if (IsAiBiyuePending())
         {
             ResolvePendingAiBiyue();
+            return;
+        }
+
+        if (IsAiMijiPending())
+        {
+            ResolvePendingAiMiji();
             return;
         }
 
@@ -8163,20 +8190,11 @@ public sealed partial class GameEngine
             targetCardId,
             requiredCardKind,
             activeNullification: null);
-        if (TryBeginJizhiChoice(pending))
+        if (TryBeginZhenlieChoice(pending))
         {
             return;
         }
-
-        BeginNullificationWindow(
-            resolutionId,
-            effectCard,
-            sourceSeat,
-            targetSeats,
-            actionKind,
-            targetCardId,
-            requiredCardKind,
-            effectiveCardKind);
+        ContinueJizhiOrNullificationAfterTargetTriggers(pending);
     }
 
     private bool TryBeginJizhiChoice(JizhiResolution pending)
@@ -8567,6 +8585,13 @@ public sealed partial class GameEngine
 
     private void ResolveNullifiableEffect(NullificationResolution pending)
     {
+        if (pending.TargetSeats.Count == 1 &&
+            IsCardEffectIneffective(pending.ResolutionId, pending.TargetSeats[0]))
+        {
+            CompleteIneffectiveTrickTarget(pending, pending.TargetSeats[0]);
+            return;
+        }
+
         switch (pending.ActionKind)
         {
             case LegalActionKind.DrawTwo:
@@ -9008,6 +9033,15 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Borrowed Sword must retain its ordered two targets.");
         }
 
+        var ineffectiveTarget = pending.TargetSeats.FirstOrDefault(
+            targetSeat => IsCardEffectIneffective(pending.ResolutionId, targetSeat),
+            -1);
+        if (ineffectiveTarget >= 0)
+        {
+            CompleteIneffectiveTrickTarget(pending, ineffectiveTarget);
+            return;
+        }
+
         var resolution = new BorrowedSwordResolution(
             pending.ResolutionId,
             pending.SourceSeat,
@@ -9064,7 +9098,7 @@ public sealed partial class GameEngine
         foreach (var targetSeat in pending.TargetSeats)
         {
             var target = _players[targetSeat];
-            if (!target.IsAlive)
+            if (!target.IsAlive || IsCardEffectIneffective(pending.ResolutionId, targetSeat))
             {
                 continue;
             }
@@ -9844,6 +9878,14 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The FiveGrains draft is not the current card resolution.");
         }
 
+        while (group.TargetIndex < group.TargetSeats.Count &&
+               (!_players[group.TargetSeats[group.TargetIndex]].IsAlive ||
+                IsCardEffectIneffective(group.ResolutionId, group.TargetSeats[group.TargetIndex])))
+        {
+            group.TargetIndex++;
+            SetCardUseTargetIndex(group.ResolutionId, group.TargetIndex);
+        }
+
         if (group.TargetIndex >= group.TargetSeats.Count)
         {
             FinishFiveGrains(group);
@@ -10004,7 +10046,9 @@ public sealed partial class GameEngine
         }
 
         var target = _players[group.TargetSeats[group.TargetIndex]];
-        if (target.IsAlive && target.Hp < target.MaxHp)
+        if (target.IsAlive &&
+            !IsCardEffectIneffective(group.ResolutionId, target.Seat) &&
+            target.Hp < target.MaxHp)
         {
             var recoveryFrameId = BeginRecovery(
                 group.ResolutionId,
@@ -10062,7 +10106,7 @@ public sealed partial class GameEngine
 
         var targetSeat = group.TargetSeats[group.TargetIndex];
         var target = _players[targetSeat];
-        if (!target.IsAlive)
+        if (!target.IsAlive || IsCardEffectIneffective(group.ResolutionId, targetSeat))
         {
             group.TargetIndex++;
             SetCardUseTargetIndex(group.ResolutionId, group.TargetIndex);
@@ -11004,6 +11048,12 @@ public sealed partial class GameEngine
 
     private void ContinueSlashAfterFinalizedTargets(AttackResolution attack)
     {
+        if (TryBeginZhenlieChoice(attack))
+        {
+            PublishState();
+            return;
+        }
+
         if (TryBeginJuzhanWindow(attack))
         {
             PublishState();
@@ -18729,6 +18779,11 @@ public sealed partial class GameEngine
             CompleteProgramSkillAfterDying(dying);
             return;
         }
+        if (dying.ResumesCardTargetSkill)
+        {
+            CompleteZhenlieAfterDying(dying, survived);
+            return;
+        }
         if (dying.ResumesActiveSkill)
         {
             CompleteActiveSkillAfterDying(dying, survived);
@@ -21831,6 +21886,10 @@ public sealed partial class GameEngine
     private void EndTurn()
     {
         var previous = _players[_currentSeat];
+        if (TryBeginMijiChoice(previous))
+        {
+            return;
+        }
         if (UsesFormalCaoRen && !_jushouResolvedThisTurn && previous.IsAlive &&
             previous.General.HasSkill(SkillKind.Jushou))
         {
@@ -21902,6 +21961,7 @@ public sealed partial class GameEngine
         _biyueResolvedThisTurn = false;
         _jushouResolvedThisTurn = false;
         _jujianResolvedThisTurn = false;
+        _mijiResolvedThisTurn = false;
         _currentSeat = FindNextAliveSeat(_currentSeat);
         _phase = TurnPhase.NotStarted;
         PublishState();
@@ -22959,6 +23019,7 @@ public sealed partial class GameEngine
             AssertQianxiInvariant();
             AssertXianzhenInvariant();
             AssertZishouInvariant();
+            AssertWangYiInvariant();
         }
         _cardZones.AssertInvariants(_initialCardCount);
 
@@ -23007,6 +23068,7 @@ public sealed partial class GameEngine
             _pendingTieqi is not null ||
             _pendingLiegong is not null ||
             _pendingJuzhan is not null ||
+            _pendingZhenlie is not null ||
             _pendingYingboGift is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
@@ -24282,6 +24344,22 @@ public sealed partial class GameEngine
                         "An active Yingbo gift must retain its Slash frame as the stack top.");
                 }
             }
+            else if (_pendingZhenlie is
+                     {
+                         Continuation: ZhenlieContinuationKind.Slash,
+                         Attack: { } zhenlieAttack
+                     } &&
+                     _pendingDying is null)
+            {
+                if (!ReferenceEquals(zhenlieAttack, pendingAttack) ||
+                    _resolutionStack.LastOrDefault() is not CardUseFrame zhenlieCardUse ||
+                    zhenlieCardUse.Id != pendingAttack.ResolutionId ||
+                    zhenlieCardUse.Step != ResolutionFrameStep.Declared)
+                {
+                    throw new InvalidOperationException(
+                        "An active Zhenlie choice must retain its declared Slash frame as the stack top.");
+                }
+            }
             else if (_pendingDying is null &&
                 _pendingDamageTrigger is null &&
                 _pendingDamageSkill is null)
@@ -24367,7 +24445,9 @@ public sealed partial class GameEngine
         AssertProgramSkillState();
         if (_pendingDying is not null &&
             _pendingAttack is null &&
-            !_pendingDying.ResumesActiveSkill && !_pendingDying.ResumesProgramSkill)
+            !_pendingDying.ResumesActiveSkill &&
+            !_pendingDying.ResumesProgramSkill &&
+            !_pendingDying.ResumesCardTargetSkill)
         {
             throw new InvalidOperationException("A dying continuation must retain its active card resolution.");
         }
@@ -25129,6 +25209,7 @@ public sealed partial class GameEngine
             _pendingBorrowedSword is null &&
             _pendingDying?.ResumesActiveSkill != true &&
             _pendingDying?.ResumesProgramSkill != true &&
+            _pendingDying?.ResumesCardTargetSkill != true &&
             (awaitingHumanResponse || awaitingHumanDying || awaitingAiResponse || awaitingAiDamageSkill || awaitingAiJudgment))
         {
             throw new InvalidOperationException("A response continuation exists without an active Slash.");
@@ -25156,6 +25237,7 @@ public sealed partial class GameEngine
             _pendingDamageSkill is null &&
             _pendingJudgment is null &&
             _pendingYingboGift is null &&
+            _pendingZhenlie is null &&
             _pendingAttack is not null &&
             awaitingHumanResponse == awaitingAiResponse)
         {
@@ -25182,6 +25264,8 @@ public sealed partial class GameEngine
              _pendingTieqi is not null ||
              _pendingLiegong is not null ||
              _pendingJuzhan is not null ||
+             _pendingZhenlie is not null ||
+             _pendingMiji is not null ||
              _pendingYingboGift is not null ||
              _pendingJujian is not null ||
              _pendingHujia is not null ||
@@ -26786,6 +26870,7 @@ public sealed partial class GameEngine
         public bool DamageWasApplied { get; private set; }
         public bool LierenAttempted { get; private set; }
         public bool LiuliResolved { get; private set; }
+        public bool ZhenlieResolved { get; private set; }
         public bool TianxiangResolved { get; private set; }
         private int? TianxiangOwnerSeat { get; set; }
         private int? TianxiangTargetSeat { get; set; }
@@ -26805,6 +26890,8 @@ public sealed partial class GameEngine
         }
 
         public void MarkLiuliResolved() => LiuliResolved = true;
+
+        public void MarkZhenlieResolved() => ZhenlieResolved = true;
 
         public void SetIgnoresArmor(bool value) => IgnoresArmor = value;
 
@@ -27315,7 +27402,8 @@ public sealed partial class GameEngine
         Damage,
         DamageSkill,
         ActiveSkill,
-        ProgramSkill
+        ProgramSkill,
+        CardTargetSkill
     }
 
     private sealed class DyingResolution(
@@ -27338,6 +27426,7 @@ public sealed partial class GameEngine
         public bool ResumesDamageSkill => continuation == DyingContinuation.DamageSkill;
         public bool ResumesActiveSkill => continuation == DyingContinuation.ActiveSkill;
         public bool ResumesProgramSkill => continuation == DyingContinuation.ProgramSkill;
+        public bool ResumesCardTargetSkill => continuation == DyingContinuation.CardTargetSkill;
         public int ResponderIndex { get; set; }
         public int ResponderSeat => ResponderSeats[ResponderIndex];
     }

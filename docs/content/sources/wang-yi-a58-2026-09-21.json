@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:wang-yi",
+  "acceptedAt": "2026-09-21T13:40:02+08:00",
+  "scope": "P1-A58 current classic Wang Yi, Zhenlie/Miji rules and official portrait",
+  "selectedVersion": "一将成名当前经典王异（魏3体力，贞烈／秘计）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/306.html",
+      "use": "当前官方武将页：魏势力女性3体力；贞烈可在成为其他角色杀或普通锦囊目标后失去1点体力令此牌对自己无效，再弃置使用者一张牌；秘计在结束阶段按已损失体力摸牌，并可交给其他角色等量手牌；同时提供574x761经典形象大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E7%8E%8B%E5%BC%82",
+      "use": "版本页用于区分当前经典、旧判定替换版与界限突破等不同王异定义。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E8%B4%9E%E7%83%88",
+      "use": "规则问答确认贞烈失去体力可进入濒死，获救后继续弃牌；弃置范围为手牌区或装备区，不含判定区；对群体牌只令王异自身目标无效。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分可选触发与主动技能；贞烈、秘计均建模为可选Trigger，不提供出牌阶段Active入口。"
+    }
+  ],
+  "ruleText": {
+    "zhenlie": "当你成为其他角色使用【杀】或普通锦囊牌的目标后，你可以失去1点体力，令此牌对你无效，然后你弃置该角色的一张牌。",
+    "miji": "结束阶段，若你已受伤，你可以摸X张牌（X为你已损失的体力值），若如此做，你可以将等量的手牌交给其他角色。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.85.0",
+    "rulesVersion": 107,
+    "generalId": "classic:wang-yi",
+    "skillIds": [
+      "classic:zhenlie",
+      "classic:miji"
+    ],
+    "zhenlieMetadata": "optional Trigger",
+    "mijiMetadata": "optional Trigger",
+    "ineffectiveTargetProjection": "CardUseFrame.IneffectiveTargetSeats",
+    "auditEvents": [
+      "ZhenlieResolvedEvent",
+      "MijiResolvedEvent",
+      "CardEffectSkippedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.84.0",
+    "previousRulesVersion": 106,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "private use/skip, opaque hand/public equipment discard, Miji activation and exact gift choices reconstruct from the accepted command prefix",
+    "legacyPolicy": "rules v106 keeps both runtime effects disabled even when package 1.85.0 is loaded; package 1.84.0 does not register Wang Yi"
+  },
+  "portrait": {
+    "resourceKey": "wang-yi",
+    "localPath": "src/CardGame.Wpf/Assets/official-wang-yi.png",
+    "sourcePage": "https://x.sanguosha.com/hero/306.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130601.png",
+    "sha256": "80B05E3F52D20A7433667D10B7CB3110BB0D95B76615FBDC27DC096C03437C9B",
+    "bytes": 682263,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Bgra32",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Wang Yi artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build -- --only-wang-yi",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "targetedCoreDurationSeconds": 0.84,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build",
+    "fullCorePassed": 310,
+    "fullCoreTotal": 310,
+    "fullCoreDurationSeconds": 27.41,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-build -- artifacts/wpf-check --only-wang-yi",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 3.06,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 1.38,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/wpf-check/193-classic-wang-yi-card.png",
+      "artifacts/wpf-check/194-classic-wang-yi-zhenlie-choice.png",
+      "artifacts/wpf-check/195-classic-wang-yi-zhenlie-discard.png",
+      "artifacts/wpf-check/196-classic-wang-yi-miji-choice.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "Zhenlie publishes a private use/skip choice for Slash and ordinary tricks and uses an opaque hand/public equipment discard prompt",
+      "using Zhenlie loses one HP, marks only Wang Yi ineffective in the current card frame and emits auditable typed events",
+      "a group attack skips Wang Yi while continuing to resolve against the other declared targets",
+      "Miji draws exactly the current lost-HP count and optionally transfers that many hand cards to other characters",
+      "paused and completed Zhenlie/Miji flows reconstruct from accepted commands",
+      "rules v106 and package 1.84.0 preserve both pre-Wang-Yi boundaries",
+      "official portrait, both skill texts, Zhenlie choices and Miji activation are visible without clipping"
+    ]
+  },
+  "excludedVariants": [
+    "older Zhenlie version that replaces a judgment card",
+    "boundary or other-product Wang Yi definitions with different HP or additional skills"
+  ],
+  "deferred": [
+    "an independent official FAQ for Borrowed Sword's two-target interaction with per-target ineffectiveness",
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}
