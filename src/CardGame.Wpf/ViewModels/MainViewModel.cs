@@ -672,6 +672,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Guidao or
                     DecisionKind.Leiji or
                     DecisionKind.Yingzi or
+                    DecisionKind.Jiangchi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
                     DecisionKind.Guanxing or
@@ -724,6 +725,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Guidao or
             DecisionKind.Leiji or
             DecisionKind.Yingzi or
+            DecisionKind.Jiangchi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
             DecisionKind.Guanxing or
@@ -1994,6 +1996,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Phase(Draw)");
                 EventStack.Add("        AskForSkill(Tuxi)");
+            }
+            else if (pending.Kind == DecisionKind.Jiangchi)
+            {
+                EventStack.Add("      Phase(Draw)");
+                EventStack.Add("        AskForSkill(Jiangchi)");
             }
             else if (pending.Kind == DecisionKind.Shuangxiong)
             {

@@ -12,7 +12,7 @@ internal static class MouLuMengChecks
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 102,
             "Formal Mou Lu Meng must have an explicit rules-version boundary.");
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 80, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 79, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&

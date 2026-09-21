@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:cao-zhang",
+  "acceptedAt": "2026-09-21T11:40:52+08:00",
+  "scope": "P1-A54 original Cao Zhang, Jiangchi rules and official portrait",
+  "selectedVersion": "一将成名原版曹彰",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/307.html",
+      "use": "原版官方武将页：魏势力4体力及将驰两项效果；同时提供574x761官方大图。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161220_3907_2817",
+      "use": "官方旧版攻略：确认摸牌阶段也可不发动将驰并按通常数量摸牌。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161011_3198_1709",
+      "use": "官方旧版资料：交叉核对原版将驰文本。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/162",
+      "use": "当前不同版本边界：该页为摸牌阶段结束后摸一张或弃一张的异版，本块明确不采用。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分状态技与触发技；将驰同时具有选择触发和回合内持续状态。"
+    }
+  ],
+  "ruleText": "摸牌阶段，你可以选择一项：额外摸一张牌，然后本回合不能使用或打出杀；或少摸一张牌，然后出牌阶段使用杀无距离限制且可额外使用一张杀；也可以不发动并正常摸牌。",
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.81.0",
+    "rulesVersion": 103,
+    "generalId": "classic:cao-zhang",
+    "skillId": "classic:jiangchi",
+    "metadata": "State + Trigger",
+    "turnUsageIds": [
+      "draw-more",
+      "assault"
+    ],
+    "auditEvent": "JiangchiResolvedEvent"
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.80.0",
+    "previousRulesVersion": 102,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the selected branch and its turn-scoped state reconstruct from the accepted command prefix"
+  },
+  "portrait": {
+    "resourceKey": "cao-zhang",
+    "localPath": "src/CardGame.Wpf/Assets/official-cao-zhang.png",
+    "sourcePage": "https://x.sanguosha.com/hero/307.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130701.png",
+    "sha256": "14BBF4F157583092310407118780EAB8BD6317264D982E1FD4E9282C2F3E735A",
+    "bytes": 181454,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Format8bppIndexed",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official original Cao Zhang artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore -- --only-cao-zhang",
+    "targetedCorePassed": 3,
+    "targetedCoreTotal": 3,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-restore",
+    "fullCorePassed": 299,
+    "fullCoreTotal": 299,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore -- artifacts/wpf-check --only-cao-zhang",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 0.77,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/wpf-check/181-classic-cao-zhang-card.png",
+      "artifacts/wpf-check/182-classic-cao-zhang-jiangchi-choice.png",
+      "artifacts/wpf-check/183-classic-cao-zhang-jiangchi-assault.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "three private choices are draw one more, draw one fewer for assault, and normal draw",
+      "draw-more branch draws three and blocks every Slash use or response route for the turn",
+      "assault branch draws one, ignores Slash distance and grants exactly one additional Slash use during Play",
+      "rules v102 and package 1.80.0 preserve the previous boundary",
+      "pending choice and completed branches replay deterministically",
+      "official portrait and full skill text are visible without clipping"
+    ]
+  },
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

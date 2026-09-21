@@ -302,7 +302,15 @@ public enum DecisionKind
     ProgramJudgmentReplacement,
     ProgramJudgmentTarget,
     WuhunTarget,
-    SelectFaction
+    SelectFaction,
+    Jiangchi
+}
+
+public enum JiangchiMode
+{
+    Skipped,
+    DrawMore,
+    Assault
 }
 
 public enum GangliePunishmentKind

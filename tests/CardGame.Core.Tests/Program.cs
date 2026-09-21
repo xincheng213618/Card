@@ -66,6 +66,9 @@ var tests = new (string Name, Action Body)[]
     ("formal Mou Lu Meng versions Hengye and Yingbo behind rules 102", MouLuMengChecks.ContentAndRulesBoundary),
     ("formal Hengye grows on damage and resets after a kill", MouLuMengChecks.HengyeGrowthAndKillReset),
     ("formal Yingbo uses first and repeated same-name round branches", MouLuMengChecks.YingboRoundLedgerAndReplay),
+    ("formal Cao Zhang versions original Jiangchi with a three-branch prompt", CaoZhangChecks.ContentPromptAndRulesBoundary),
+    ("Jiangchi extra draw blocks Slash use and play", CaoZhangChecks.DrawMoreBlocksSlashUseAndResponse),
+    ("Jiangchi assault adds no-distance and exactly one Slash", CaoZhangChecks.AssaultAddsDistanceAndOneSlash),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -316,6 +319,11 @@ var tests = new (string Name, Action Body)[]
     ("long AI runs finish without leaving an active resolution", StepGuardFinishesResponse),
     ("snapshot is JSON serializable", SnapshotSerialization)
 };
+
+if (args.FirstOrDefault() == "--only-cao-zhang")
+{
+    tests = tests.Where(test => test.Name.Contains("Jiangchi", StringComparison.Ordinal)).ToArray();
+}
 
 var failed = 0;
 foreach (var (name, body) in tests)

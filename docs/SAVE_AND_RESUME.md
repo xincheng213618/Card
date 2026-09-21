@@ -154,6 +154,8 @@ rules v100／`standard-classic-generals@1.78.0` 只在两个版本边界同时�
 
 rules v102／`standard-classic-generals@1.80.0` 的谋吕蒙仍不新增 Checkpoint 字段。横野 `growth` 整局记录、击杀后的 `ResetSkill`、所有角色本轮伤害牌名记录、英博首次／重复分支及暂停中的私有交牌 Choice，均由内容签名、rules 版本和已接受命令前缀确定性重建；完成或暂停恢复必须得到相同技能状态、实体牌区、事件和合法动作。rules v101 重放同一 1.80.0 前缀时不启用谋吕蒙消费者，1.79.0 Registry 则没有该武将；旧存档必须继续使用其原包版本，玩家资料与 Checkpoint schema 3 保持不变。
 
+rules v103／`standard-classic-generals@1.81.0` 的曹彰同样不新增 Checkpoint 字段。将驰待选的私有三分支 Choice，以及选定后本回合 `draw-more` 禁杀或 `assault` 杀次数 +1／无距离限制状态，都由已接受命令前缀确定性重建。rules v102 重放同一内容前缀时不启用将驰消费者，1.80.0 Registry 不注册曹彰；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
+
 - 通过实际 JSON 文件保存、创建新视图模型、读取并继续：选将、推进中、出牌、手动弃牌、在途结算、五谷丰登、决斗杀响应；比较可信完整玩家状态、公开战报及下一步结果。
 - 文件被占用时，写入失败且旧文件内容保持完整；解除占用后重试成功，保留上一份文件。
 - 损坏 JSON、错误 SchemaVersion、不存在的模式、未知 AI 版本、文件消失均被拒绝，当前引擎实例、状态与战报不变。

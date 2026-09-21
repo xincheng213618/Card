@@ -160,6 +160,14 @@ rules v102／`standard-classic-generals@1.80.0` 注册调整后的 `mou:lu-meng`
 
 成长、击杀重置、两种英博分支、交牌暂停点、下一轮首次分支和完整状态均由已接受命令前缀确定性重建，Checkpoint schema 与玩家资料不新增字段。rules v101 对相同 1.80.0 内容不启动这些消费者；1.79.0 不注册谋吕蒙。WPF 技能栏显示“横野：成长 x/3 · 规则自动生效”和“英博：状态技 · 触发技”，1120×740 选将卡复用现有经典吕蒙占位肖像且未冒充独立素材。来源与边界见 `docs/content/sources/mou-lu-meng-d5b2b2k-2026-09-21.json`。
 
+## 摸牌阶段选择与回合杀状态消费者
+
+rules v103／`standard-classic-generals@1.81.0` 注册原版 `classic:cao-zhang`。将驰需要曹彰在摸牌阶段明确选择，因此包含 `Trigger`；两种发动结果又持续修改本回合的出牌与响应合法性，因此同时包含 `State`，但没有独立出牌阶段按钮，不标 `ActionForms.Active`。
+
+`classic:jiangchi` 使用两个稳定的 `Turn` 用途：`draw-more` 令本次摸牌数 +1，并在回合结束前禁止所有实体、转化和虚拟【杀】的使用或打出；`assault` 令本次摸牌数 -1，并只在出牌阶段令【杀】无距离限制且可额外使用一张。第三项不消费状态并按通常数量摸牌。分支结果发布 `JiangchiResolvedEvent`，WPF 技能栏投影当前回合状态；待选 Choice、完成分支和非法伪造命令均由 Replay 回归覆盖。
+
+rules v102 不启用该消费者，经典包 1.80.0 不注册曹彰；Checkpoint schema 与玩家资料不新增字段，恢复时从已接受命令前缀重建本回合分支。来源、异版排除与素材归档见 `docs/content/sources/cao-zhang-a54-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：

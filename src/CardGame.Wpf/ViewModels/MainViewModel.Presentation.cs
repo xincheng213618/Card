@@ -205,6 +205,23 @@ public sealed partial class MainViewModel
                 usage.Scope == SkillUsageScope.Game)?.Count ?? 0;
             return $"成长 {growth}/3 · {automaticText}";
         }
+        if (runtimeState?.SkillId == "classic:jiangchi")
+        {
+            if (runtimeState.Usages.Any(usage =>
+                    usage.UsageId == "draw-more" &&
+                    usage.Scope == SkillUsageScope.Turn &&
+                    usage.Count > 0))
+            {
+                return "本回合：额外摸牌 · 禁止杀";
+            }
+            if (runtimeState.Usages.Any(usage =>
+                    usage.UsageId == "assault" &&
+                    usage.Scope == SkillUsageScope.Turn &&
+                    usage.Count > 0))
+            {
+                return "本回合：杀次数 +1 · 无距离限制";
+            }
+        }
         return executionForms.HasFlag(SkillExecutionForm.Trigger)
             ? "等待触发时机"
             : automaticText;

@@ -150,6 +150,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetSlashUseCards(PlayerRuntime owner)
     {
+        if (IsJiangchiSlashForbidden(owner)) return [];
         if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
         {

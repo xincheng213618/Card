@@ -357,6 +357,12 @@ public sealed record YingboDamageIncreasedEvent(
     int OriginalAmount,
     int ModifiedAmount) : IGameEvent;
 
+/// <summary>Public result of Cao Zhang's draw-phase Jiangchi branch.</summary>
+public sealed record JiangchiResolvedEvent(
+    int PlayerSeat,
+    JiangchiMode Mode,
+    int DrawCount) : IGameEvent;
+
 /// <summary>Public resolution of Yingbo's optional post-resolution card transfer.</summary>
 public sealed record YingboGiftResolvedEvent(
     long ResolutionId,

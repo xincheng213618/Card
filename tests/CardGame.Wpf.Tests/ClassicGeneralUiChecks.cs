@@ -335,6 +335,111 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void CaoZhangJiangchiCard(string output)
+    {
+        using var viewModel = FindGeneralChoice("classic:cao-zhang");
+        var caoZhang = viewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:cao-zhang");
+        var portrait = caoZhang.PortraitBrush as System.Windows.Media.ImageBrush;
+        Program.Assert(caoZhang.Name == "曹彰" &&
+                       caoZhang.Kingdom == "魏" &&
+                       caoZhang.SkillName == "将驰" &&
+                       caoZhang.SkillDescription.Contains("额外摸一张牌", StringComparison.Ordinal) &&
+                       caoZhang.SkillDescription.Contains("不能使用或打出【杀】", StringComparison.Ordinal) &&
+                       caoZhang.SkillDescription.Contains("无距离限制且能额外使用一张【杀】", StringComparison.Ordinal) &&
+                       caoZhang.HealthText == "体力上限 5" &&
+                       GeneralArt.HasPortrait(caoZhang.GeneralId) &&
+                       portrait is
+                       {
+                           Stretch: System.Windows.Media.Stretch.UniformToFill,
+                           AlignmentY: System.Windows.Media.AlignmentY.Top,
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource
+                           {
+                               PixelWidth: 574,
+                               PixelHeight: 761
+                           }
+                       },
+            $"The formal Cao Zhang card must render Wei, original Jiangchi, Lord health and its official portrait " +
+            $"(name={caoZhang.Name}, kingdom={caoZhang.Kingdom}, skill={caoZhang.SkillDescription}, " +
+            $"health={caoZhang.HealthText}, portrait={portrait?.ImageSource.Width}x{portrait?.ImageSource.Height}).");
+
+        viewModel.PreviewGeneralChoiceCommand.Execute(caoZhang);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "181-classic-cao-zhang-card.png"));
+        var skillDescription = Program.Find<System.Windows.Controls.TextBlock>(root)
+            .Single(text => ReferenceEquals(text.DataContext, caoZhang) &&
+                            text.Text == caoZhang.SkillDescription);
+        var unconstrainedDescription = new System.Windows.Controls.TextBlock
+        {
+            Text = skillDescription.Text,
+            TextWrapping = skillDescription.TextWrapping,
+            FontFamily = skillDescription.FontFamily,
+            FontStyle = skillDescription.FontStyle,
+            FontWeight = skillDescription.FontWeight,
+            FontStretch = skillDescription.FontStretch,
+            FontSize = skillDescription.FontSize,
+            LineHeight = skillDescription.LineHeight,
+            LineStackingStrategy = skillDescription.LineStackingStrategy,
+            FlowDirection = skillDescription.FlowDirection,
+            Language = skillDescription.Language
+        };
+        unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+        Program.Assert(skillDescription.ActualHeight > 0 &&
+                       skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height,
+            $"The 1120x740 Cao Zhang card must keep the complete original Jiangchi text visible " +
+            $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}).");
+
+        viewModel.SelectGeneralChoiceCommand.Execute(caoZhang);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        var engine = Program.Engine(viewModel);
+        var jiangchi = viewModel.HumanSkillCards.Single(skill => skill.Name == "将驰");
+        Program.Assert(engine.PendingDecision is
+                       {
+                           Kind: DecisionKind.Jiangchi,
+                           IsPrivate: true,
+                           Choices.Count: 3
+                       } &&
+                       viewModel.IsSkillSelectionPending &&
+                       viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                           .Order(StringComparer.Ordinal)
+                           .SequenceEqual(new[]
+                           {
+                               "jiangchi-assault",
+                               "jiangchi-draw-more",
+                               "jiangchi-skip"
+                           }) &&
+                       viewModel.CurrentGuideTitle == "选择将驰方式" &&
+                       jiangchi.TypeText == "状态技 · 触发技" &&
+                       jiangchi.StateText == "等待触发时机",
+            $"The WPF Jiangchi prompt must expose three complete branches and its compound metadata " +
+            $"(pending={engine.PendingDecision?.Kind}, choices={viewModel.SkillChoices.Count}, " +
+            $"type={jiangchi.TypeText}, state={jiangchi.StateText}).");
+
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "182-classic-cao-zhang-jiangchi-choice.png"));
+        var assault = viewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "jiangchi-assault");
+        viewModel.SelectSkillChoiceCommand.Execute(assault);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        jiangchi = viewModel.HumanSkillCards.Single(skill => skill.Name == "将驰");
+        Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                       jiangchi.StateText == "本回合：杀次数 +1 · 无距离限制" &&
+                       engine.Events.Select(item => item.Payload).OfType<JiangchiResolvedEvent>()
+                           .Any(item => item is
+                               { PlayerSeat: 0, Mode: JiangchiMode.Assault, DrawCount: 1 }),
+            $"Resolving the WPF assault branch must update the live skill state " +
+            $"(pending={engine.PendingDecision?.Kind}, state={jiangchi.StateText}).");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "183-classic-cao-zhang-jiangchi-assault.png"));
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;

@@ -1056,6 +1056,7 @@ public sealed partial class GameEngine
                 DecisionKind.Guidao or
                 DecisionKind.Leiji or
                 DecisionKind.Yingzi or
+                DecisionKind.Jiangchi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
                 DecisionKind.Guanxing or
@@ -1181,6 +1182,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Yingzi)
         {
             return SubmitYingziPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Jiangchi)
+        {
+            return SubmitJiangchiPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Tiandu)
@@ -3064,6 +3070,7 @@ public sealed partial class GameEngine
                     IsAiProgramJudgmentReplacementPending() ||
                     IsAiProgramJudgmentPending() ||
                     IsAiYingziPending() ||
+                    IsAiJiangchiPending() ||
                     IsAiTuxiPending() ||
                     IsAiShuangxiongPending() ||
                     IsAiLuoyiPending() ||
@@ -6078,6 +6085,10 @@ public sealed partial class GameEngine
             BeginZaiqiChoice(current, delayedEffects);
             return;
         }
+        else if (TryBeginJiangchiDrawChoice(current, delayedEffects))
+        {
+            return;
+        }
         else if (UsesFormalShuangxiong && current.General.HasSkill(SkillKind.Shuangxiong))
         {
             BeginShuangxiongDrawChoice(current, delayedEffects);
@@ -6914,6 +6925,12 @@ public sealed partial class GameEngine
         if (IsAiYingziPending())
         {
             ResolvePendingAiYingzi();
+            return;
+        }
+
+        if (IsAiJiangchiPending())
+        {
+            ResolvePendingAiJiangchi();
             return;
         }
 
@@ -19669,9 +19686,10 @@ public sealed partial class GameEngine
             limit = (int)Math.Clamp((long)limit + bonus, 0, int.MaxValue);
         }
 
-        return limit == int.MaxValue
+        var finalLimit = limit == int.MaxValue
             ? int.MaxValue
             : (int)Math.Clamp((long)limit + GetHengyeGrowth(actor), 0, int.MaxValue);
+        return AddJiangchiSlashLimit(actor, finalLimit);
     }
 
     private bool CanUseSlashTarget(
@@ -19679,22 +19697,27 @@ public sealed partial class GameEngine
         PlayerRuntime target,
         Card slashCard,
         CardConversionSource? conversionSource = null) =>
+        !IsJiangchiSlashForbidden(source) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
         (IgnoresProgramSlashDistance(source, conversionSource) ||
          IgnoresSpGuanYuWushengDistance(source, slashCard) ||
+         IgnoresJiangchiSlashDistance(source) ||
          GetCombatDistance(source.Seat, target.Seat) <= GetAttackRange(source.Seat)) &&
         !IsJuzhanCardTargetProhibited(source.Seat, target.Seat) &&
         !IsSlashProhibited(source, target, slashCard);
 
     private bool CanUseVirtualSlashTarget(PlayerRuntime source, PlayerRuntime target) =>
+        !IsJiangchiSlashForbidden(source) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        GetCombatDistance(source.Seat, target.Seat) <= GetAttackRange(source.Seat) &&
+        (IgnoresJiangchiSlashDistance(source) ||
+         GetCombatDistance(source.Seat, target.Seat) <= GetAttackRange(source.Seat)) &&
         !IsJuzhanCardTargetProhibited(source.Seat, target.Seat) &&
         !IsSlashProhibited(target);
 
     private bool CanUseZhangbaSerpentSpear(PlayerRuntime actor) =>
+        !IsJiangchiSlashForbidden(actor) &&
         UsesFormalZhangbaSerpentSpear &&
         GetEquipment(actor).Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
         GetPlayableCards(actor).Count >= 2;
@@ -19780,7 +19803,9 @@ public sealed partial class GameEngine
         var slashLimit = actor.TianyiWonThisTurn && baseSlashLimit < int.MaxValue
             ? baseSlashLimit + 1
             : baseSlashLimit;
-        if (!actor.TianyiLostThisTurn && _slashCountThisTurn < slashLimit)
+        if (!IsJiangchiSlashForbidden(actor) &&
+            !actor.TianyiLostThisTurn &&
+            _slashCountThisTurn < slashLimit)
         {
             foreach (var transformed in physicalPlayableCards
                          .SelectMany(card => GetProgramCardIdentityMatches(actor, card)
@@ -19956,7 +19981,7 @@ public sealed partial class GameEngine
                 }
             }
         }
-        else if (!actor.TianyiLostThisTurn)
+        else if (!IsJiangchiSlashForbidden(actor) && !actor.TianyiLostThisTurn)
         {
             AddNuzhanUnlimitedTrickSlashActions(actions, actor, playableCards);
         }
@@ -20544,7 +20569,9 @@ public sealed partial class GameEngine
         PlayerRuntime actor,
         Card slash,
         CardConversionSource? conversionSource = null) =>
-        _players
+        IsJiangchiSlashForbidden(actor)
+            ? []
+            : _players
             .Where(player => actor.TianyiWonThisTurn
                 ? player.IsAlive &&
                   player.Seat != actor.Seat &&
@@ -20830,6 +20857,11 @@ public sealed partial class GameEngine
         PlayerRuntime responder,
         CardKind requiredCardKind)
     {
+        if (requiredCardKind == CardKind.Slash && IsJiangchiSlashForbidden(responder))
+        {
+            return [];
+        }
+
         var cards = GetPlayableCards(responder)
             .Where(card => CanUseCardAsResponse(responder, card, requiredCardKind));
         if (UsesFormalWushengEquipment && requiredCardKind == CardKind.Slash)
@@ -22307,6 +22339,7 @@ public sealed partial class GameEngine
     private bool CanRequestJijiangResponse(PlayerRuntime owner, AttackResolution attack)
     {
         if (!UsesFormalJijiang ||
+            IsJiangchiSlashForbidden(owner) ||
             !owner.IsAlive ||
             owner.Role != Role.Lord ||
             !owner.General.HasSkill(SkillKind.Jijiang) ||
@@ -22326,6 +22359,7 @@ public sealed partial class GameEngine
     private bool CanUseActiveJijiang(PlayerRuntime owner)
     {
         if (!UsesFormalJijiang ||
+            IsJiangchiSlashForbidden(owner) ||
             !owner.IsAlive ||
             owner.Role != Role.Lord ||
             !owner.General.HasSkill(SkillKind.Jijiang) ||
@@ -22343,7 +22377,8 @@ public sealed partial class GameEngine
     private bool CanUseJijiangTarget(PlayerRuntime owner, PlayerRuntime target) =>
         target.IsAlive &&
         target.Seat != owner.Seat &&
-        GetCombatDistance(owner.Seat, target.Seat) <= GetAttackRange(owner.Seat) &&
+        (IgnoresJiangchiSlashDistance(owner) ||
+         GetCombatDistance(owner.Seat, target.Seat) <= GetAttackRange(owner.Seat)) &&
         !IsJuzhanCardTargetProhibited(owner.Seat, target.Seat) &&
         !IsSlashProhibited(target);
 
@@ -22766,6 +22801,7 @@ public sealed partial class GameEngine
             AssertYinghunInvariant();
             AssertJuzhanInvariant();
             AssertYingboInvariant();
+            AssertJiangchiInvariant();
         }
         _cardZones.AssertInvariants(_initialCardCount);
 
@@ -24967,6 +25003,7 @@ public sealed partial class GameEngine
              _pendingDamageTrigger is not null ||
              _pendingDamageSkill is not null ||
              _pendingJudgment is not null ||
+             _pendingJiangchiDraw is not null ||
              _pendingLeiji is not null ||
              _pendingLuoshen is not null ||
              _pendingJizhi is not null ||
