@@ -172,6 +172,8 @@ internal static class ClassicGeneralUiChecks
         using var viewModel = FindGeneralChoice("mou:lu-meng");
         var mouLuMeng = viewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "mou:lu-meng");
+        var portrait = mouLuMeng.PortraitBrush as System.Windows.Media.ImageBrush;
+        var classicPortrait = GeneralArt.GetPortrait("classic:lu-meng");
         Program.Assert(mouLuMeng.Name == "谋吕蒙" &&
                        mouLuMeng.Kingdom == "吴" &&
                        mouLuMeng.SkillName == "横野 / 英博" &&
@@ -180,10 +182,21 @@ internal static class ClassicGeneralUiChecks
                        mouLuMeng.SkillDescription.Contains("重置此技能", StringComparison.Ordinal) &&
                        mouLuMeng.HealthText == "体力上限 5" &&
                        GeneralArt.HasPortrait(mouLuMeng.GeneralId) &&
-                       mouLuMeng.PortraitBrush is System.Windows.Media.ImageBrush,
-            $"The formal Mou Lu Meng card must render Wu, current Hengye/Yingbo text and the Lord health bonus " +
+                       portrait is
+                       {
+                           Stretch: System.Windows.Media.Stretch.UniformToFill,
+                           AlignmentY: System.Windows.Media.AlignmentY.Top,
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource
+                           {
+                               PixelWidth: 574,
+                               PixelHeight: 761
+                           }
+                       } &&
+                       !ReferenceEquals(portrait, classicPortrait),
+            $"The formal Mou Lu Meng card must render Wu, current Hengye/Yingbo text, the Lord health bonus and its independent official portrait " +
             $"(name={mouLuMeng.Name}, kingdom={mouLuMeng.Kingdom}, skills={mouLuMeng.SkillName}, " +
-            $"health={mouLuMeng.HealthText}, description={mouLuMeng.SkillDescription}).");
+            $"health={mouLuMeng.HealthText}, description={mouLuMeng.SkillDescription}, " +
+            $"portrait={portrait?.ImageSource.Width}x{portrait?.ImageSource.Height}).");
 
         viewModel.PreviewGeneralChoiceCommand.Execute(mouLuMeng);
         var window = new MainWindow(viewModel);

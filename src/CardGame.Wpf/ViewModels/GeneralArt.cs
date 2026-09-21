@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 
 namespace CardGame.Wpf.ViewModels;
 
-/// <summary>Local artwork and attributed BWIKI assets. Only the public general ID selects the image.</summary>
+/// <summary>Local artwork and attributed external assets. Only the public general ID selects the image.</summary>
 public static class GeneralArt
 {
     private static readonly string[] PortraitIds =
@@ -74,6 +74,8 @@ public static class GeneralArt
             ["boundary-zhang-jiao"] = "general-zhang-jiao.png",
             ["shen-guan-yu"] = "wiki-shen-guan-yu-classic.png",
             ["sp-zhao-yun"] = "wiki-sp-zhao-yun-classic.png",
+            // Official artwork URL and hash: docs/content/sources/mou-lu-meng-c22-2026-09-21.json.
+            ["mou-lu-meng"] = "official-mou-lu-meng.png",
             ["sun-jian"] = "general-sun-jian.png",
             ["meng-huo"] = "general-meng-huo.png",
             ["zhu-rong"] = "general-zhu-rong.png",
@@ -132,7 +134,7 @@ public static class GeneralArt
     {
         var key = id.Replace("standard:", string.Empty, StringComparison.Ordinal)
             .Replace("classic:", string.Empty, StringComparison.Ordinal)
-            .Replace("mou:", string.Empty, StringComparison.Ordinal)
+            .Replace("mou:", "mou-", StringComparison.Ordinal)
             .Replace("boundary:", "boundary-", StringComparison.Ordinal)
             .Replace("sp:", "sp-", StringComparison.Ordinal)
             .Replace("national:wei-", string.Empty, StringComparison.Ordinal)

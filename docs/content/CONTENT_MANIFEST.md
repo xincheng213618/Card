@@ -168,7 +168,7 @@
 | `classic:zhao-yun` | 赵云 | `zhao_yun` | `classic:longdan` | implemented-registry + classic 1.21 | dodge-to-slash, slash-to-dodge, physical-effective-kind-separation, private-response |
 | `classic:guan-yu` | 关羽 | `guan_yu` | `classic:wusheng` | implemented-registry + classic 1.22 | hand-or-equipment red-card, active-or-response conversion, source-zone-preservation |
 | `classic:yan-yan` | 严颜 | `yan_yan` | `classic:juzhan` | implemented-registry + classic 1.70 | conversion-state, slash-target-trigger, opaque-target-card, per-target-turn-prohibition |
-| `mou:lu-meng` | 谋吕蒙 | `lu_meng`（现有经典吕蒙占位映射） | `mou:hengye` + `mou:yingbo` | implemented-registry + classic 1.80 / rules v102 | game-growth, skill-reset, round-card-name-ledger, unrespondable-first-use, optional-card-gift, fire-damage-bonus |
+| `mou:lu-meng` | 谋吕蒙 | `mou-lu-meng`（官网独立肖像） | `mou:hengye` + `mou:yingbo` | implemented-registry + classic 1.80 / rules v102 | game-growth, skill-reset, round-card-name-ledger, unrespondable-first-use, optional-card-gift, fire-damage-bonus |
 | `standard:guan-yu` | 关羽 | `guan_yu` | `standard:wusheng` | implemented-registry + classic 1.21 compatibility | hand red-card, conversion, attack |
 | `standard:zhao-yun` | 赵云 | `zhao-yun` | `standard:longdan` | implemented-registry | slash-dodge, conversion, response |
 | `standard:sun-quan` | 孙权 | `sun-quan` | `standard:none` | implemented-registry | placeholder |

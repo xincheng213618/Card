@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "contentId": "mou:lu-meng",
+  "acceptedAt": "2026-09-21T11:08:52+08:00",
+  "scope": "C22 official portrait binding and WPF card acceptance",
+  "portrait": {
+    "resourceKey": "mou-lu-meng",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-lu-meng.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1651.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1165101.png",
+    "retrievedAt": "2026-09-21T03:08:52Z",
+    "sha256": "899e474e4523fd127c3f99ade405c128525a2bd0edb1822c218a43387c747c93",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Bgr24",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Current official Mou Lu Meng artwork from the public hero page; reused for the local experiment under the user's explicit authorization, not claimed as original project artwork"
+  },
+  "acceptance": {
+    "testCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-restore -- --only-mou-lu-meng",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 1.66,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "render": "artifacts/wpf-check/179-mou-lu-meng-skill-state.png",
+    "renderSize": "1120x740",
+    "assertions": [
+      "mou:lu-meng resolves to the independent mou-lu-meng resource key",
+      "portrait decodes to the archived 574x761 bitmap",
+      "portrait uses UniformToFill with top alignment and is not the classic Lu Meng brush",
+      "Hengye and Yingbo descriptions remain fully visible",
+      "manual inspection confirms the portrait, both skill texts, card border and confirm control are not clipped at 1120x740"
+    ]
+  },
+  "compatibility": [
+    "no content package or rules version change",
+    "no save or player profile schema change",
+    "classic:lu-meng keeps its existing atlas alias",
+    "existing atlas coordinates and other portrait keys remain unchanged"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}
