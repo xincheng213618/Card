@@ -1057,6 +1057,7 @@ public sealed partial class GameEngine
                 DecisionKind.Leiji or
                 DecisionKind.Yingzi or
                 DecisionKind.Jiangchi or
+                DecisionKind.Zishou or
                 DecisionKind.Qianxi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
@@ -1189,6 +1190,11 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Jiangchi)
         {
             return SubmitJiangchiPromptAnswer(selected);
+        }
+
+        if (pending.Kind == DecisionKind.Zishou)
+        {
+            return SubmitZishouPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Qianxi)
@@ -3083,6 +3089,7 @@ public sealed partial class GameEngine
                     IsAiProgramJudgmentPending() ||
                     IsAiYingziPending() ||
                     IsAiJiangchiPending() ||
+                    IsAiZishouPending() ||
                     IsAiQianxiPending() ||
                     IsAiTuxiPending() ||
                     IsAiShuangxiongPending() ||
@@ -6108,6 +6115,10 @@ public sealed partial class GameEngine
             BeginZaiqiChoice(current, delayedEffects);
             return;
         }
+        else if (TryBeginZishouDrawChoice(current, delayedEffects))
+        {
+            return;
+        }
         else if (TryBeginJiangchiDrawChoice(current, delayedEffects))
         {
             return;
@@ -6960,6 +6971,12 @@ public sealed partial class GameEngine
         if (IsAiJiangchiPending())
         {
             ResolvePendingAiJiangchi();
+            return;
+        }
+
+        if (IsAiZishouPending())
+        {
+            ResolvePendingAiZishou();
             return;
         }
 
@@ -9240,11 +9257,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("PeachGarden became illegal before resolution.");
         }
 
-        var targets = Enumerable.Range(0, _playerCount)
+        var targets = ApplyZishouGroupTargetRestriction(source, Enumerable.Range(0, _playerCount)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
             .Where(player => player.IsAlive)
             .Select(player => player.Seat)
-            .ToArray();
+            .ToArray());
         var resolutionId = BeginCardUse(peachGarden, source.Seat, targets);
         MoveCard(
             peachGarden,
@@ -9270,11 +9287,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("FiveGrains became illegal before resolution.");
         }
 
-        var aliveSeats = Enumerable.Range(0, _playerCount)
+        var aliveSeats = ApplyZishouGroupTargetRestriction(source, Enumerable.Range(0, _playerCount)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
             .Where(player => player.IsAlive)
             .Select(player => player.Seat)
-            .ToArray();
+            .ToArray());
         var availableCards = _cardZones.Count(CardLocation.DrawPile) +
                              _cardZones.Count(CardLocation.DiscardPile);
         var targets = aliveSeats.Take(availableCards).ToArray();
@@ -20606,7 +20623,9 @@ public sealed partial class GameEngine
 
         actions.AddRange(BuildProgramActions(actor));
         actions.Add(new LegalAction(LegalActionKind.EndPlay, null, null, "结束出牌"));
-        return FilterJuzhanProhibitedCardActions(actor, actions);
+        return FilterZishouProhibitedCardActions(
+            actor,
+            FilterJuzhanProhibitedCardActions(actor, actions));
     }
 
     private bool TryGetHuangtianLord(PlayerRuntime provider, out PlayerRuntime lord)
@@ -22376,7 +22395,8 @@ public sealed partial class GameEngine
                 string.Equals(GetEffectiveFactionId(other), "qun", StringComparison.Ordinal)) * 2;
         }
         return Math.Max(0, SkillProgramRules.Modify(SkillRuleQuery.HandLimit,
-            CreateSkillContext(player), baseLimit, EnabledSkillPrograms(player)) + GetHengyeGrowth(player));
+            CreateSkillContext(player), baseLimit, EnabledSkillPrograms(player)) +
+            GetHengyeGrowth(player) + GetZongshiHandLimitBonus(player));
     }
 
     private IReadOnlyList<Card> GetPlayableCards(PlayerRuntime player) =>
@@ -22938,6 +22958,7 @@ public sealed partial class GameEngine
             AssertJiangchiInvariant();
             AssertQianxiInvariant();
             AssertXianzhenInvariant();
+            AssertZishouInvariant();
         }
         _cardZones.AssertInvariants(_initialCardCount);
 

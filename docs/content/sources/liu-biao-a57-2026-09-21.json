@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "contentId": "classic:liu-biao",
+  "acceptedAt": "2026-09-21T12:54:09+08:00",
+  "scope": "P1-A57 classic Liu Biao, Zishou/Zongshi rules and official portrait",
+  "selectedVersion": "一将成名当前经典刘表（群3体力，自守／宗室）",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/309.html",
+      "use": "当前官方武将页：群势力3体力；自守按现存势力数额外摸牌并限制本回合出牌阶段的其他角色目标；锁定技宗室按现存势力数增加手牌上限；同时提供574x761经典形象大图。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E8%A1%A8",
+      "use": "版本页区分经典与界限突破；经典规则问答确认自守后可使用无中生有，五谷丰登仅以自己为目标并只亮一张牌，跳过摸牌阶段时不能发动自守。"
+    },
+    {
+      "url": "https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D",
+      "use": "按用户指定概念页区分锁定标签、触发入口和持续状态；自守为State + Trigger，宗室为Locked + State。"
+    }
+  ],
+  "ruleText": {
+    "zishou": "摸牌阶段摸牌时，你可以额外摸X张牌（X为现存势力数）。若如此做，你于本回合出牌阶段内使用的牌不能指定其他角色为目标。",
+    "zongshi": "锁定技，你的手牌上限+X（X为现存势力数）。"
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.84.0",
+    "rulesVersion": 106,
+    "generalId": "classic:liu-biao",
+    "skillIds": [
+      "classic:zishou",
+      "classic:zongshi"
+    ],
+    "zishouMetadata": "State + Trigger",
+    "zongshiMetadata": "Locked + State",
+    "runtimeUsage": "classic:zishou / active / Turn",
+    "livingFactionProjection": "distinct effective faction ids of living players",
+    "auditEvents": [
+      "SkillUsageConsumedEvent",
+      "ZishouResolvedEvent",
+      "TargetsConfirmedEvent"
+    ]
+  },
+  "versionBoundary": {
+    "previousPackageVersion": "1.83.0",
+    "previousRulesVersion": 105,
+    "checkpointSchemaChanged": false,
+    "playerProfileChanged": false,
+    "replayPolicy": "the private use/skip choice, frozen living-faction count and active turn usage reconstruct from the accepted command prefix",
+    "legacyPolicy": "rules v105 keeps both runtime effects disabled even when package 1.84.0 is loaded; package 1.83.0 does not register Liu Biao"
+  },
+  "portrait": {
+    "resourceKey": "liu-biao",
+    "localPath": "src/CardGame.Wpf/Assets/official-liu-biao.png",
+    "sourcePage": "https://x.sanguosha.com/hero/309.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/130901.png",
+    "sha256": "DC446C7F4375202EFCC379C478AC1F5811687597617B4074A6AF41C73E73003B",
+    "bytes": 205756,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "pixelFormat": "Indexed8",
+    "stretch": "UniformToFill",
+    "alignmentY": "Top",
+    "attribution": "Official classic Liu Biao artwork reused only for the user's local experiment under explicit authorization"
+  },
+  "acceptance": {
+    "targetedCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build -- --only-liu-biao",
+    "targetedCorePassed": 2,
+    "targetedCoreTotal": 2,
+    "targetedCoreDurationSeconds": 1.15,
+    "fullCoreCommand": "dotnet run --project tests/CardGame.Core.Tests/CardGame.Core.Tests.csproj -c Release --no-build",
+    "fullCorePassed": 307,
+    "fullCoreTotal": 307,
+    "fullCoreDurationSeconds": 25.49,
+    "targetedWpfCommand": "dotnet run --project tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --no-build -- artifacts/wpf-check --only-liu-biao",
+    "targetedWpfPassed": 1,
+    "targetedWpfTotal": 1,
+    "targetedWpfDurationSeconds": 2.09,
+    "buildCommand": "dotnet build CardGame.sln -c Release --no-restore",
+    "buildDurationSeconds": 0.80,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "renders": [
+      "artifacts/wpf-check/190-classic-liu-biao-card.png",
+      "artifacts/wpf-check/191-classic-liu-biao-zishou-choice.png",
+      "artifacts/wpf-check/192-classic-liu-biao-zishou-state.png"
+    ],
+    "renderSize": "1120x740",
+    "assertions": [
+      "Zishou publishes one private use/skip choice with an exact living-faction count and replays while paused",
+      "using Zishou draws normal cards plus the frozen living-faction count and records one Turn usage",
+      "other-target cards and group attacks disappear while self-use cards remain",
+      "Five Grains confirms only Liu Biao as target and therefore reveals one card",
+      "Zongshi hand limit drops immediately when the only living member of one faction dies",
+      "rules v105 and package 1.83.0 preserve both pre-Liu-Biao boundaries",
+      "official portrait, both skill texts, draw choice and live turn state are visible without clipping"
+    ]
+  },
+  "excludedVariants": [
+    "boundary Liu Biao with damage prevention and end-phase replacement text",
+    "older classic text using total faction count instead of the selected official living-faction wording"
+  ],
+  "deferred": [
+    "complete WPF regression suite",
+    "real Windows desktop mouse and keyboard acceptance",
+    "multi-DPI monitor acceptance"
+  ]
+}

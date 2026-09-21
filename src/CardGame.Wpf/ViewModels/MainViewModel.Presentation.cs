@@ -260,6 +260,14 @@ public sealed partial class MainViewModel
                 return $"本回合：对 {targetSeat + 1:D2}号位无距 · 杀不限次 · 无视防具";
             }
         }
+        if (runtimeState?.SkillId == "classic:zishou" &&
+            runtimeState.Usages.Any(usage =>
+                usage.UsageId == "active" &&
+                usage.Scope == SkillUsageScope.Turn &&
+                usage.Count > 0))
+        {
+            return "本回合：额外摸牌 · 牌仅指定自己";
+        }
         if (hasActiveEntry) return "当前不可发动";
         return executionForms.HasFlag(SkillExecutionForm.Trigger)
             ? "等待触发时机"

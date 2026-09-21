@@ -75,6 +75,8 @@ var tests = new (string Name, Action Body)[]
     ("formal Gao Shun versions Xianzhen and mandatory Jinjiu identity", GaoShunChecks.ContentIdentityAndRulesBoundary),
     ("winning Xianzhen scopes distance count and armor to one target", GaoShunChecks.XianzhenWinTargetsDistanceCountArmorAndReplays),
     ("losing Xianzhen blocks Slash use only", GaoShunChecks.XianzhenLossBlocksSlashOnly),
+    ("formal Liu Biao versions Zishou and Zongshi with a private draw choice", LiuBiaoChecks.ContentPromptAndRulesBoundary),
+    ("Zishou restricts card targets while Zongshi follows living factions", LiuBiaoChecks.ZishouTargetsAndZongshiHandLimit),
     ("formal SP Zhao Yun triggers Chongzhen after a configured Longdan Slash", SpZhaoYunChecks.ConvertedSlashUseTriggersChongzhenAndReplays),
     ("formal SP Zhao Yun targets the attacker after a configured Longdan Dodge", SpZhaoYunChecks.ConvertedDodgeResponseTargetsTheAttackerAndReplays),
     ("formal classic Zhang Jiao resolves configured Leiji and Guidao with replay", ClassicZhangJiaoProgramChecks.LeijiGuidaoAndReplay),
@@ -341,6 +343,14 @@ if (args.FirstOrDefault() == "--only-gao-shun")
     tests = tests.Where(test =>
         test.Name.Contains("Gao Shun", StringComparison.Ordinal) ||
         test.Name.Contains("Xianzhen", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-liu-biao")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Liu Biao", StringComparison.Ordinal) ||
+        test.Name.Contains("Zishou", StringComparison.Ordinal) ||
+        test.Name.Contains("Zongshi", StringComparison.Ordinal)).ToArray();
 }
 
 var failed = 0;

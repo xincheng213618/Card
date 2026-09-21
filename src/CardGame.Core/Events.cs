@@ -1062,6 +1062,13 @@ public sealed record XianzhenResolvedEvent(
     int TargetSeat,
     bool SourceWon) : IGameEvent;
 
+/// <summary>Public draw-phase result and exact living-faction count for Liu Biao's Zishou.</summary>
+public sealed record ZishouResolvedEvent(
+    int PlayerSeat,
+    bool Used,
+    int LivingFactionCount,
+    int DrawCount) : IGameEvent;
+
 /// <summary>
 /// Public declaration that one last-hand Slash used Fangtian Halberd's target
 /// expansion. The ordered target list is exact and contains two or three seats.

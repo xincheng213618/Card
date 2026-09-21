@@ -675,6 +675,108 @@ internal static class ClassicGeneralUiChecks
         window.Close();
     }
 
+    public static void LiuBiaoZishouCard(string output)
+    {
+        using var viewModel = FindGeneralChoice("classic:liu-biao");
+        var liuBiao = viewModel.GeneralChoices.Single(choice =>
+            choice.GeneralId == "classic:liu-biao");
+        var portrait = liuBiao.PortraitBrush as System.Windows.Media.ImageBrush;
+        Program.Assert(liuBiao.Name == "刘表" &&
+                       liuBiao.Kingdom == "群" &&
+                       liuBiao.SkillName == "自守 / 宗室" &&
+                       liuBiao.SkillDescription.Contains("额外摸X张牌", StringComparison.Ordinal) &&
+                       liuBiao.SkillDescription.Contains("不能指定其他角色为目标", StringComparison.Ordinal) &&
+                       liuBiao.SkillDescription.Contains("手牌上限+X", StringComparison.Ordinal) &&
+                       liuBiao.HealthText == "体力上限 4" &&
+                       GeneralArt.HasPortrait(liuBiao.GeneralId) &&
+                       portrait is
+                       {
+                           Stretch: System.Windows.Media.Stretch.UniformToFill,
+                           AlignmentY: System.Windows.Media.AlignmentY.Top,
+                           ImageSource: System.Windows.Media.Imaging.BitmapSource
+                           {
+                               PixelWidth: 574,
+                               PixelHeight: 761
+                           }
+                       },
+            $"The formal Liu Biao card must render Qun, Zishou/Zongshi, Lord health and official art " +
+            $"(name={liuBiao.Name}, kingdom={liuBiao.Kingdom}, skills={liuBiao.SkillName}, " +
+            $"health={liuBiao.HealthText}, portrait={portrait?.ImageSource.Width}x{portrait?.ImageSource.Height}).");
+
+        viewModel.PreviewGeneralChoiceCommand.Execute(liuBiao);
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "190-classic-liu-biao-card.png"));
+        var skillDescription = Program.Find<System.Windows.Controls.TextBlock>(root)
+            .Single(text => ReferenceEquals(text.DataContext, liuBiao) &&
+                            text.Text == liuBiao.SkillDescription);
+        var unconstrainedDescription = new System.Windows.Controls.TextBlock
+        {
+            Text = skillDescription.Text,
+            TextWrapping = skillDescription.TextWrapping,
+            FontFamily = skillDescription.FontFamily,
+            FontStyle = skillDescription.FontStyle,
+            FontWeight = skillDescription.FontWeight,
+            FontStretch = skillDescription.FontStretch,
+            FontSize = skillDescription.FontSize,
+            LineHeight = skillDescription.LineHeight,
+            LineStackingStrategy = skillDescription.LineStackingStrategy,
+            FlowDirection = skillDescription.FlowDirection,
+            Language = skillDescription.Language
+        };
+        unconstrainedDescription.Measure(new Size(skillDescription.ActualWidth, double.PositiveInfinity));
+        Program.Assert(skillDescription.ActualHeight > 0 &&
+                       skillDescription.ActualHeight + 0.5 >= unconstrainedDescription.DesiredSize.Height,
+            $"The 1120x740 Liu Biao card must keep both complete descriptions visible " +
+            $"(actual={skillDescription.ActualHeight:F1}, required={unconstrainedDescription.DesiredSize.Height:F1}).");
+
+        viewModel.SelectGeneralChoiceCommand.Execute(liuBiao);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        var engine = Program.Engine(viewModel);
+        var zishou = viewModel.HumanSkillCards.Single(skill => skill.Name == "自守");
+        var zongshi = viewModel.HumanSkillCards.Single(skill => skill.Name == "宗室");
+        Program.Assert(engine.PendingDecision is
+                       {
+                           Kind: DecisionKind.Zishou,
+                           IsPrivate: true,
+                           Choices.Count: 2
+                       } &&
+                       viewModel.IsSkillSelectionPending &&
+                       viewModel.CurrentGuideTitle == "决定是否自守" &&
+                       zishou.TypeText == "状态技 · 触发技" &&
+                       zishou.StateText == "等待触发时机" &&
+                       zongshi.TypeText == "状态技 · 锁定技" &&
+                       zongshi.StateText == "规则自动生效",
+            $"The WPF Zishou prompt must expose its private branches, compound metadata and locked Zongshi " +
+            $"(pending={engine.PendingDecision?.Kind}, Zishou={zishou.TypeText}/{zishou.StateText}, " +
+            $"Zongshi={zongshi.TypeText}/{zongshi.StateText}).");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "191-classic-liu-biao-zishou-choice.png"));
+
+        var use = viewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "zishou-use");
+        viewModel.SelectSkillChoiceCommand.Execute(use);
+        if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        zishou = viewModel.HumanSkillCards.Single(skill => skill.Name == "自守");
+        Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                       zishou.StateText == "本回合：额外摸牌 · 牌仅指定自己" &&
+                       engine.GetHumanLegalActions().All(action =>
+                           action.Kind is not (LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage) &&
+                           action.TargetSeats.All(target => target == 0)) &&
+                       engine.Events.Select(item => item.Payload).OfType<ZishouResolvedEvent>()
+                           .Any(item => item is { PlayerSeat: 0, Used: true, LivingFactionCount: > 0 }),
+            $"Resolving Zishou must return to play with its live target restriction " +
+            $"(pending={engine.PendingDecision?.Kind}, state={zishou.StateText}).");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "192-classic-liu-biao-zishou-state.png"));
+        window.Content = null;
+        window.Close();
+    }
+
     public static void MultiSkillSelectionAndRestore(string output)
     {
         MainViewModel? selected = null;

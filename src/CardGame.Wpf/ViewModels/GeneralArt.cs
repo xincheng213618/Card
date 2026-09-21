@@ -86,6 +86,8 @@ public static class GeneralArt
             ["ma-dai"] = "official-ma-dai.png",
             // Official artwork URL and hash: docs/content/sources/gao-shun-a56-2026-09-21.json.
             ["gao-shun"] = "official-gao-shun.png",
+            // Official artwork URL and hash: docs/content/sources/liu-biao-a57-2026-09-21.json.
+            ["liu-biao"] = "official-liu-biao.png",
             ["sun-jian"] = "general-sun-jian.png",
             ["meng-huo"] = "general-meng-huo.png",
             ["zhu-rong"] = "general-zhu-rong.png",

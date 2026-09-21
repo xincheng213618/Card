@@ -184,6 +184,14 @@ rules v105／`standard-classic-generals@1.83.0` 注册经典 `classic:gao-shun`�
 
 对手拼点牌 Choice、胜负账本、目标修正和完成状态均由已接受命令前缀确定性重建。rules v104 即使加载 1.83.0 Registry 也不开放陷阵且保留原生酒；经典包 1.82.0 不注册高顺。Checkpoint schema 与玩家资料不新增字段。规则、素材、异版排除和验收见 `docs/content/sources/gao-shun-a56-2026-09-21.json`。
 
+## 现存势力聚合、回合目标限制与动态手牌上限消费者
+
+rules v106／`standard-classic-generals@1.84.0` 注册当前官网经典 `classic:liu-biao`。自守在摸牌阶段提供明确发动／跳过入口，因此包含 `Trigger`；发动后又持续修改本回合出牌阶段的牌目标合法性，因此同时包含 `State`，但没有出牌阶段主动按钮。宗室没有独立发动时点，以 `Locked + State` 表示持续强制的动态手牌上限。
+
+自守在选择窗口创建时以仍存活角色的有效势力 ID 去重并冻结 X，发动后按通常摸牌数 +X 摸牌，以 `classic:zishou`／`active` 的 `Turn` 用途记录限制。合法动作统一移除指定其他角色的牌及没有自己的南蛮／万箭目标；桃园结义和五谷丰登仍可使用，但结算前只保留刘表自己，符合 BWIKI 的经典规则问答。宗室在每次手牌上限查询时重新计算现存势力数，因此唯一成员死亡后立即少 1，不序列化派生值。
+
+待选 Choice、冻结的势力数、完成后的回合账本和牌目标均由已接受命令前缀确定性重建。rules v105 即使加载 1.84.0 Registry 也不启用两项消费者；经典包 1.83.0 不注册刘表。Checkpoint schema 与玩家资料不新增字段。规则、素材、异版排除和验收见 `docs/content/sources/liu-biao-a57-2026-09-21.json`。
+
 ## 后续边界
 
 D5b 后续仍需完成：

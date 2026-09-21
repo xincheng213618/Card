@@ -11,7 +11,8 @@
 | `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
 | `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.83.0` | `standard-rescue-skills@1.0.0` | 当前正式经典身份层；1.83.0／rules v105 注册经典高顺，陷阵以私有拼点进入目标限定的用牌距离／杀次数／防具无视或整回合禁杀状态，禁酒以强制牌身份令手牌酒视为杀；1.82.0 及更早定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.84.0` | `standard-rescue-skills@1.0.0` | 当前正式经典身份层；1.84.0／rules v106 注册经典刘表，自守以私有摸牌阶段选择按现存势力数额外摸牌并写入回合目标限制，宗室动态增加同值手牌上限；1.83.0 及更早定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.83.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.83.0／rules v105 注册经典高顺，陷阵以私有拼点进入目标限定的用牌距离／杀次数／防具无视或整回合禁杀状态，禁酒以强制牌身份令手牌酒视为杀；1.82.0 及更早定义保持不变 | implemented-registry；可选扩展 |
 | `standard-classic-generals@1.82.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.82.0／rules v104 注册当前官网经典马岱，潜袭按准备阶段摸一张、弃一张、选择距离 1 目标并封禁其同色手牌的三段私有流程结算；1.81.0 及更早定义保持不变 | implemented-registry；可选扩展 |
 | `standard-classic-generals@1.81.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.81.0／rules v103 注册原版曹彰，将驰在摸牌阶段提供额外摸一张并整回合禁杀、少摸一张并于出牌阶段杀次数 +1／无距离限制、正常摸牌三项选择；1.80.0 及更早定义保持不变 | implemented-registry；可选扩展 |
 | `standard-classic-generals@1.80.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.80.0／rules v102 注册谋吕蒙，以横野完成整局成长与技能重置消费者、以英博完成所有角色同名伤害牌轮账本及首次不可响应／结算后可交牌、重复牌火焰增伤分支；1.79.0 及更早内容定义保持不变 | implemented-registry；可选扩展 |
@@ -241,6 +242,7 @@
 | `classic:jiangchi` | 将驰 | 经典包 1.81.0 注册原版曹彰 | implemented-registry + classic extension | `State + Trigger`；摸牌阶段三选一，额外摸牌分支以回合状态禁止使用或打出杀，少摸牌分支令本回合出牌阶段杀次数 +1 且无距离限制；rules v102 与包 1.80.0 保留边界 |
 | `classic:qianxi` | 潜袭 | 经典包 1.82.0 注册当前官网经典马岱 | implemented-registry + classic extension | `State + Trigger`；准备阶段可选摸一弃一，再从实时距离为 1 的角色中选择目标，以 `Turn` 状态封禁其与弃牌同色的手牌使用／打出；异色手牌保留，下一回合统一清除；rules v103 与包 1.81.0 保留边界 |
 | `classic:xianzhen` / `classic:jinjiu` | 陷阵／禁酒 | 经典包 1.83.0 注册经典高顺 | implemented-registry + classic extension | 陷阵为 `State + Active`，以 `win.target-{seat}`／`loss` 回合账本记录私有拼点结果：胜利后只对该目标用牌无距离、杀不限次且无视防具，未赢则不能使用杀；禁酒为 `Locked + State`，schema 10 强制手牌身份令酒仅视为杀；rules v104 与包 1.82.0 保留边界 |
+| `classic:zishou` / `classic:zongshi` | 自守／宗室 | 经典包 1.84.0 注册当前官网经典刘表 | implemented-registry + classic extension | 自守为 `State + Trigger`，按摸牌时冻结的现存势力数额外摸牌并以 `active` 回合账本禁止牌指定其他角色；南蛮／万箭移除，桃园／五谷仅保留自己；宗室为 `Locked + State`，实时按存活角色有效势力去重修正手牌上限；rules v105 与包 1.83.0 保留边界 |
 | `standard:huichun` | 回春 | 出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力 | implemented-registry + extension | K5：私有两牌/多目标选择、逐目标 `RecoveryFrame`、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `standard:mashu` | 马术 | 计算与其他角色的距离 -1 | implemented-registry + extension | K6：`IPassiveSkill.ModifyOutgoingDistance`，由 Core 统一影响公开距离型合法性 |
 | `standard:qicai` | 奇才 | 使用锦囊牌无距离限制 | implemented-registry + extension | K6：`IPassiveSkill.IgnoresTrickDistance`，由 Core 统一影响距离型锦囊合法性 |

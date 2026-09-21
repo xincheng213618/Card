@@ -52,7 +52,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private readonly Version _version;
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 83, 0))
+        : this(legacyRoster ? new Version(1, 0, 0) : new Version(1, 84, 0))
     {
     }
 
@@ -142,12 +142,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             version != new Version(1, 80, 0) &&
             version != new Version(1, 81, 0) &&
             version != new Version(1, 82, 0) &&
-            version != new Version(1, 83, 0))
+            version != new Version(1, 83, 0) &&
+            version != new Version(1, 84, 0))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(version),
                 version,
-                "Supported classic-general package versions are 1.0.0 through 1.83.0.");
+                "Supported classic-general package versions are 1.0.0 through 1.84.0.");
         }
 
         _version = version;
@@ -640,6 +641,24 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 Program = jinjiuProgram
             }, SkillTag.Locked, SkillExecutionForm.State));
+        }
+
+        if (_version >= new Version(1, 84, 0))
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:zishou",
+                    "自守",
+                    "摸牌阶段摸牌时，你可以额外摸X张牌（X为现存势力数）。若如此做，你于本回合出牌阶段内使用的牌不能指定其他角色为目标。",
+                    SkillKind.Zishou),
+                SkillTag.None,
+                SkillExecutionForm.State | SkillExecutionForm.Trigger));
+            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
+                    "classic:zongshi",
+                    "宗室",
+                    "锁定技，你的手牌上限+X（X为现存势力数）。",
+                    SkillKind.Zongshi),
+                SkillTag.Locked,
+                SkillExecutionForm.State));
         }
 
         builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -1713,10 +1732,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:xianzhen", "qun", BaseHp: 4,
                 AdditionalSkillIds: ["classic:jinjiu"]));
         }
+        if (_version >= new Version(1, 84, 0))
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:liu-biao", "刘表", "liu_biao",
+                "classic:zishou", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:zongshi"]));
+        }
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 83 } => GaoShunClassicGeneralIds,
+            { Major: 1, Minor: >= 84 } => LiuBiaoClassicGeneralIds,
+            { Major: 1, Minor: 83 } => GaoShunClassicGeneralIds,
             { Major: 1, Minor: >= 82 } => MaDaiClassicGeneralIds,
             { Major: 1, Minor: >= 81 } => CaoZhangClassicGeneralIds,
             { Major: 1, Minor: >= 80 } => MouLuMengClassicGeneralIds,
@@ -2212,6 +2239,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     [
         .. MaDaiClassicGeneralIds,
         "classic:gao-shun"
+    ];
+
+    internal static IReadOnlyList<string> LiuBiaoClassicGeneralIds { get; } =
+    [
+        .. GaoShunClassicGeneralIds,
+        "classic:liu-biao"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

@@ -237,7 +237,9 @@ public enum SkillKind
     Wuyan,
     Jujian,
     Wuhun,
-    Xianzhen
+    Xianzhen,
+    Zishou,
+    Zongshi
 }
 
 public enum DecisionKind
@@ -306,7 +308,8 @@ public enum DecisionKind
     SelectFaction,
     Jiangchi,
     Qianxi,
-    XianzhenPindian
+    XianzhenPindian,
+    Zishou
 }
 
 public enum JiangchiMode

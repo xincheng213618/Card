@@ -1027,6 +1027,18 @@ public sealed class XianzhenSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
+public sealed class ZishouSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Zishou;
+    public string Name => "自守";
+}
+
+public sealed class ZongshiSkill : IPassiveSkill
+{
+    public SkillKind Kind => SkillKind.Zongshi;
+    public string Name => "宗室";
+}
+
 public sealed class KujinSkill : IPassiveSkill, IActiveSkill
 {
     public SkillKind Kind => SkillKind.Kujin;
@@ -1231,6 +1243,8 @@ public static class SkillRegistry
             [SkillKind.Quhu] = new QuhuSkill(),
             [SkillKind.Tianyi] = new TianyiSkill(),
             [SkillKind.Xianzhen] = new XianzhenSkill(),
+            [SkillKind.Zishou] = new ZishouSkill(),
+            [SkillKind.Zongshi] = new ZongshiSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),
