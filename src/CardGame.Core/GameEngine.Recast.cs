@@ -21,7 +21,7 @@ public sealed partial class GameEngine
         });
     }
 
-    private void ResolveRecast(PlayerRuntime actor, Card card, CardKind? playedCardKind = null)
+    private void ResolveRecast(CharacterState actor, Card card, CardKind? playedCardKind = null)
     {
         if (_rulesVersion < 6 ||
             (playedCardKind is null && card.Kind != CardKind.IronChain) ||

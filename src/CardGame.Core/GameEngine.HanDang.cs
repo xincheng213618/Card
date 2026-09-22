@@ -13,13 +13,13 @@ public sealed partial class GameEngine
     private bool UsesFormalHanDang =>
         HasClassicGeneralPackage(new Version(1, 93, 0));
 
-    private bool HasGongqi(PlayerRuntime owner) =>
+    private bool HasGongqi(CharacterState owner) =>
         UsesFormalHanDang && HasRuntimeSkill(owner, GongqiSkillId);
 
-    private bool HasJiefan(PlayerRuntime owner) =>
+    private bool HasJiefan(CharacterState owner) =>
         UsesFormalHanDang && HasRuntimeSkill(owner, JiefanSkillId);
 
-    private bool HasGongqiUnlimitedRange(PlayerRuntime owner) =>
+    private bool HasGongqiUnlimitedRange(CharacterState owner) =>
         HasGongqi(owner) &&
         _skillRuntimeState.GetUsage(
             owner.Seat,
@@ -27,7 +27,7 @@ public sealed partial class GameEngine
             GongqiRangeUsageId,
             SkillUsageScope.Turn) > 0;
 
-    private bool CanUseJiefan(PlayerRuntime owner) =>
+    private bool CanUseJiefan(CharacterState owner) =>
         HasJiefan(owner) &&
         owner.IsAlive &&
         owner.Seat == _currentSeat &&
@@ -39,7 +39,7 @@ public sealed partial class GameEngine
             JiefanUsageId,
             SkillUsageScope.Game) == 0;
 
-    private void BeginGongqi(long frameId, PlayerRuntime owner, int costCardId)
+    private void BeginGongqi(long frameId, CharacterState owner, int costCardId)
     {
         if (!HasGongqi(owner) || owner.UsedActiveSkillKinds.Contains(SkillKind.Gongqi))
         {
@@ -280,7 +280,7 @@ public sealed partial class GameEngine
 
     private void CompleteGongqi(
         long frameId,
-        PlayerRuntime owner,
+        CharacterState owner,
         int costCardId,
         bool equipmentCost,
         int? targetSeat,
@@ -302,7 +302,7 @@ public sealed partial class GameEngine
         PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
     }
 
-    private void BeginJiefan(long frameId, PlayerRuntime owner, int targetSeat)
+    private void BeginJiefan(long frameId, CharacterState owner, int targetSeat)
     {
         if (!CanUseJiefan(owner) || !_players[targetSeat].IsAlive)
         {

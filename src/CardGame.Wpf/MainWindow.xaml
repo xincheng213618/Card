@@ -339,19 +339,32 @@
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <TextBlock x:Name="DecisionDescriptionText" Text="{Binding CurrentDecisionContext.Description}" Visibility="{Binding HasDecisionContext, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" FontSize="12" Foreground="#D1DCCB" Margin="6,1,6,8" />
-                                    <ScrollViewer Grid.Row="1" x:Name="ResponseViewport" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxWidth="760">
+                                    <ItemsControl Grid.Row="1" x:Name="PinnedPublicModuleChoices" ItemsSource="{Binding SkillChoices}" ItemTemplate="{StaticResource SkillChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" Margin="0,0,0,6" Visibility="{Binding HasPinnedPublicModuleChoices, Converter={StaticResource BoolToVisibility}}" />
+                                    <ScrollViewer Grid.Row="2" x:Name="ResponseViewport" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxWidth="760">
                                         <StackPanel>
-                                            <TextBlock Text="{Binding PublicRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" Visibility="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" />
+                                            <TextBlock x:Name="PublicRevealTitleText" Text="{Binding PublicRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" Visibility="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" />
                                             <ItemsControl ItemsSource="{Binding PublicRevealedCards}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding DyingChoices}" ItemTemplate="{StaticResource DyingChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding TargetCardChoices}" ItemTemplate="{StaticResource TargetCardChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding FireAttackChoices}" ItemTemplate="{StaticResource FireAttackChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding NullificationChoices}" ItemTemplate="{StaticResource NullificationChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding ResponseChoices}" ItemTemplate="{StaticResource ResponseChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
-                                            <ItemsControl ItemsSource="{Binding SkillChoices}" ItemTemplate="{StaticResource SkillChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
+                                            <ItemsControl x:Name="ScrollingSkillChoices" ItemsSource="{Binding SkillChoices}" ItemTemplate="{StaticResource SkillChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}">
+                                                <ItemsControl.Style>
+                                                    <Style TargetType="ItemsControl">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasPinnedPublicModuleChoices}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ItemsControl.Style>
+                                            </ItemsControl>
                                             <ItemsControl x:Name="ActiveSkillEquipmentChoices" ItemsSource="{Binding ActiveSkillEquipmentChoices}" ItemTemplate="{StaticResource ActiveSkillEquipmentChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl x:Name="EquipmentPlayChoices" ItemsSource="{Binding EquipmentPlayChoices}" ItemTemplate="{StaticResource EquipmentPlayChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <ItemsControl ItemsSource="{Binding PublicTargetChoices}" ItemTemplate="{StaticResource PublicTargetChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />

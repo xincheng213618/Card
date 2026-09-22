@@ -52,8 +52,8 @@ internal static class CaoChongUiChecks
 
     private static void RenderChengxiangPrompt(string output)
     {
-        var fixture = FindPrompt(DecisionKind.Chengxiang);
-        AnswerAction(fixture.Game, "chengxiang-use");
+        var fixture = FindPrompt(DecisionKind.ProgramTrigger, "classic:chengxiang");
+        AnswerAction(fixture.Game, "activate", "program-action");
         using var viewModel = Load(fixture.Game, fixture.Registry);
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
@@ -61,18 +61,34 @@ internal static class CaoChongUiChecks
         var chengxiang = viewModel.HumanSkillCards.Single(skill => skill.Name == "称象");
         var renxin = viewModel.HumanSkillCards.Single(skill => skill.Name == "仁心");
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "为称象选择获得牌" &&
-                       viewModel.PublicRevealTitle == "称象 · 亮出的牌" &&
+                       viewModel.CurrentGuideTitle == "称象 · 选择牌" &&
+                       viewModel.PublicRevealTitle == "称象 · 公开牌" &&
                        viewModel.PublicRevealedCards.Count == 4 &&
                        viewModel.SkillChoices.All(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "chengxiang-obtain") &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-subset") &&
                        chengxiang.TypeText == "触发技" && renxin.TypeText == "触发技" &&
-                       viewModel.EventStack.Any(line =>
-                           line.Contains("SelectRevealedCards(RankSum<=13)", StringComparison.Ordinal)),
+                       fixture.Game.PendingDecision is
+                       {
+                           Kind: DecisionKind.ProgramTrigger,
+                           IsPrivate: true,
+                           SkillPrompt.SkillId: "classic:chengxiang"
+                       },
             $"The generic WPF surface must expose Chengxiang public cards and legal subset buttons " +
             $"(guide={viewModel.CurrentGuideTitle}, public={viewModel.PublicRevealedCards.Count}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "220-classic-chengxiang-subset.png"));
+        var selected = viewModel.SkillChoices
+            .Where(choice => choice.Cards.Count > 0)
+            .OrderByDescending(choice => choice.Cards.Count)
+            .First();
+        var selectedIds = selected.Cards.ToHashSet();
+        viewModel.SelectSkillChoiceCommand.Execute(selected);
+        var engine = Program.Engine(viewModel);
+        Program.Assert(selectedIds.All(cardId => engine.CardMovements.Any(move =>
+                           move.CardId == cardId && move.To == CardLocation.Hand(HumanSeat))) &&
+                       engine.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                           item.SkillId == "classic:chengxiang" && item is { Activated: true, Completed: true }),
+            "The generic ProgramTrigger subset command must be accepted and move the chosen cards to hand.");
         window.Content = null;
         window.Close();
     }
@@ -104,7 +120,9 @@ internal static class CaoChongUiChecks
         window.Close();
     }
 
-    private static (GameEngine Game, ContentRegistry Registry) FindPrompt(DecisionKind sought)
+    private static (GameEngine Game, ContentRegistry Registry) FindPrompt(
+        DecisionKind sought,
+        string? skillId = null)
     {
         var registry = Registry();
         for (var seed = 1; seed <= 1024; seed++)
@@ -115,7 +133,8 @@ internal static class CaoChongUiChecks
             {
                 if (game.PendingDecision is { PlayerSeat: HumanSeat } prompt)
                 {
-                    if (prompt.Kind == sought) return (game, registry);
+                    if (prompt.Kind == sought &&
+                        (skillId is null || prompt.SkillPrompt?.SkillId == skillId)) return (game, registry);
                     if (prompt.Kind == DecisionKind.PlayCard)
                     {
                         var ended = game.Submit(new EndPlayPhaseCommand(
@@ -123,9 +142,9 @@ internal static class CaoChongUiChecks
                         Program.Assert(ended.Accepted, ended.Error?.Message ?? "Could not end Cao Chong Play.");
                         continue;
                     }
-                    if (prompt.Kind == DecisionKind.Chengxiang)
+                    if (prompt.Kind == DecisionKind.ProgramTrigger)
                     {
-                        AnswerAction(game, "chengxiang-skip");
+                        AnswerAction(game, "skip", "program-action");
                         continue;
                     }
                     if (prompt.Kind == DecisionKind.Renxin)
@@ -210,10 +229,10 @@ internal static class CaoChongUiChecks
         throw new InvalidOperationException("Could not find a deterministic Cao Chong WPF card fixture.");
     }
 
-    private static void AnswerAction(GameEngine game, string action)
+    private static void AnswerAction(GameEngine game, string action, string parameter = "action")
     {
         var prompt = game.PendingDecision ?? throw new InvalidOperationException("No prompt is pending.");
-        Answer(game, prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == action));
+        Answer(game, prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault(parameter) == action));
     }
 
     private static void Answer(GameEngine game, PromptChoice choice)

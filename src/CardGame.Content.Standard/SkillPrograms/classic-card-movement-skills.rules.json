@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 14,
+  "skills": [
+    {
+      "id": "classic:xiaoji",
+      "revision": 2,
+      "minimumRulesVersion": 119,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "equipment-left-draw",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["equipment"],
+          "movementOccurrence": "perCard",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:lianying",
+      "revision": 2,
+      "minimumRulesVersion": 119,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "last-hand-left-draw",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": { "kind": "sourceZoneCountBefore" },
+                "operator": "greaterThan",
+                "right": { "kind": "integerConstant", "value": 0 }
+              },
+              {
+                "kind": "compare",
+                "left": { "kind": "sourceZoneCountAfter" },
+                "operator": "equal",
+                "right": { "kind": "integerConstant", "value": 0 }
+              }
+            ]
+          },
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

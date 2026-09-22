@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 15,
+  "skills": [
+    {
+      "id": "standard:jianxiong",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "claim-damage-cards",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "claimDamageCards", "target": "owner" }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "standard:feedback",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "claim-damage-cards",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "claimDamageCards", "target": "owner" }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "standard:yiji",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-and-give-per-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "resultBind": "drawn"
+            },
+            {
+              "op": "giveBoundCard",
+              "target": "owner",
+              "sourceBind": "drawn",
+              "targetKind": "otherLiving"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "standard:jieming",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-target-to-max-per-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "selectedTarget",
+              "targetKind": "anyLivingHandBelowMaxHp"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "numberExpression": "targetMaxHpMinusHandCount"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:jianxiong",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "claim-damage-cards",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "claimDamageCards", "target": "owner" }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:feedback",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "take-source-card",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectSourceCard",
+              "target": "owner",
+              "zones": ["hand", "equipment"],
+              "resultBind": "selected"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "selected",
+              "destination": "ownerHand"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:yiji",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-and-give-per-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "resultBind": "drawn"
+            },
+            {
+              "op": "giveBoundCard",
+              "target": "owner",
+              "sourceBind": "drawn",
+              "targetKind": "otherLiving"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:jieming",
+      "revision": 2,
+      "minimumRulesVersion": 120,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-target-to-max-per-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "selectedTarget",
+              "targetKind": "anyLivingHandBelowMaxHp"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "numberExpression": "targetMaxHpMinusHandCount"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

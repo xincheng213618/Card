@@ -1,6 +1,6 @@
 # Standard 内容清单（C0 草案 / M3 试验）
 
-更新时间：2026-09-21
+更新时间：2026-09-22
 
 这是内容流水线的设计清单和正式包的对照表。稳定内容 ID 使用 `package:name` 形式；`implemented-registry` 表示已经进入 `CardGame.Content.Standard`，`implemented-legacy` 表示仍由 Core 的 `CardKind`/`SkillKind` 兼容投影运行，`planned` 表示内容定义已规划但等待后续核心 API。K1 的牌区生命周期、K2 的 Prompt/Choice、reason、可见性和强制场景见 [`CARD_MOVEMENT_CONTRACT.md`](./CARD_MOVEMENT_CONTRACT.md)；`definitionId`/`instanceId` 的 Registry 关系已在 K3 冻结。所有文案、AI 标签和规则描述均为本项目自有文字，不包含卡面、插画、音频或其他素材。
 
@@ -8,10 +8,13 @@
 
 | 包 ID | 依赖 | 内容 | 状态 |
 | --- | --- | --- | --- |
-| `standard@1.11.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式 | implemented-registry |
-| `standard-active-skills@1.0.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5` | implemented-registry；可选扩展 |
+| `standard@1.14.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式；保留 rules v117 的 schema 12 咆哮与 rules v120 的 schema 15 伤害程序，并在 rules v121 以 schema 16 `DrawPhaseStarting` 迁移强制标准英姿；1.13.0 定义与指纹保留但不复活旧被动执行路线 | implemented-registry |
+| `standard-active-skills@1.1.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5`；马术使用 schema 12 距离修正，1.0.0 定义与指纹保留 | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.85.0` | `standard-rescue-skills@1.0.0` | 当前正式经典身份层；1.85.0／rules v107 注册当前经典王异，贞烈在成为其他角色杀或普通锦囊目标后以失去体力换取仅对自己的目标无效并弃置来源牌，秘计在结束阶段按已损失体力摸牌并可将等量手牌交给其他角色；1.84.0 及更早定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.107.0` | `standard-rescue-skills@1.0.0` | 当前正式经典身份层；保留 rules v117–v125 的 schema 12–20 程序，并在 rules v126 以 schema 21 共享判定结果绑定和回合牌转换迁移经典双雄；1.106.0 定义、包签名与内容指纹保留给历史构造和旧专属双雄边界 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.106.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；保留 rules v117–v124 的 schema 12–19 程序，并在 rules v125 以 schema 20 互斥分支和类型化回合策略迁移经典将驰、自守；1.105.0 定义、包签名与内容指纹保留给历史构造，但不复活旧专属将驰／自守执行器 | implemented-registry；历史构造 |
+| `standard-classic-generals@1.105.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；rules v124 以 schema 19 `DrawPhaseStarting` 摸牌调整与回合伤害修正迁移经典裸衣；1.104.0 定义、包签名与内容指纹继续保留 | implemented-registry；历史构造 |
+| `standard-classic-generals@1.85.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；1.85.0 注册经典王异，贞烈在成为其他角色杀或普通锦囊目标后以失去体力换取仅对自己的目标无效并弃置来源牌，秘计在结束阶段按已损失体力摸牌并可将等量手牌交给其他角色 | implemented-registry；历史构造 |
 | `standard-classic-generals@1.84.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.84.0／rules v106 注册经典刘表，自守以私有摸牌阶段选择按现存势力数额外摸牌并写入回合目标限制，宗室动态增加同值手牌上限；1.83.0 及更早定义、规则版本、存档签名与历史牌堆继续保留 | implemented-registry；可选扩展 |
 | `standard-classic-generals@1.83.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.83.0／rules v105 注册经典高顺，陷阵以私有拼点进入目标限定的用牌距离／杀次数／防具无视或整回合禁杀状态，禁酒以强制牌身份令手牌酒视为杀；1.82.0 及更早定义保持不变 | implemented-registry；可选扩展 |
 | `standard-classic-generals@1.82.0` | `standard-rescue-skills@1.0.0` | 正式经典身份层；1.82.0／rules v104 注册当前官网经典马岱，潜袭按准备阶段摸一张、弃一张、选择距离 1 目标并封禁其同色手牌的三段私有流程结算；1.81.0 及更早定义保持不变 | implemented-registry；可选扩展 |
@@ -90,7 +93,7 @@
 | `standard:jade_seal` | 1 |
 | `standard:renwang_shield` | 1 |
 | 初始手牌 | 每人 4 张，逐轮发牌 |
-| 摸牌阶段 | 基础 2 张，英姿由技能 modifier 增加 |
+| 摸牌阶段 | 基础 2 张；rules v121 中英姿通过 `DrawPhaseStarting` Program 加量；rules v122 中突袭可优先替代整次摸牌；rules v123 中再起可按已损失体力亮牌、弃置红桃、获得其余牌并按红桃数回复；rules v124 中裸衣可把普通摸牌调整为 -1，并授予本回合特定用牌直接伤害 +1；rules v125 中将驰以互斥分支选择额外摸牌并禁杀，或少摸牌并取得额外一次／无限距离杀，自守按现存势力数额外摸牌并限制本回合牌只能指定自己；rules v126 中双雄可用公开最终判定牌替代摸牌、取得该牌并在本回合把相反颜色手牌转为决斗。任一替代完成后压制后续加量／减量与正常摸牌，跳过则继续候选并只执行一次调整后的正常摸牌 |
 | 首行动者 | 主公 |
 | 兼容别名 | `identity_8_basic_demo` |
 | 状态 | implemented-registry |
@@ -210,8 +213,10 @@
 | `standard:wusheng` / `classic:wusheng` | 武圣 | 红色牌转化为杀；rules v40 经典身份含自己的装备区 | implemented-registry + classic extension | K5：`PlayedCardKind` 与物理牌实例分离；Hand/Equipment 实际来源区；主动/响应/激将 |
 | `standard:longdan` / `classic:longdan` | 龙胆 | 杀/闪互相转化 | implemented-registry | K5：有效/物理牌型分离与精确响应 Prompt；经典包 1.21 正式身份 |
 | `standard:ganglie` | 刚烈 | 受伤后判定并令伤害来源选择弃两张手牌或承受 1 点伤害 | implemented-registry | K5/K7：公开判定、私有反制 Choice、牌区移动与濒死续接 |
-| `standard:yiji` | 遗计 | 受伤后私有摸牌并分配一张给其他角色 | implemented-registry | K1/K2/K5：牌移动、精确牌/目标 Choice 与隐私 |
-| `standard:jieming` | 节命 | 受伤后按公开手牌数补牌至目标体力上限 | implemented-registry | K1/K2/K5：公开目标筛选、私有 Choice、牌堆到目标手牌移动与隐私 |
+| `standard:jianxiong` / `standard:feedback` | 奸雄／反馈 | 每次受伤后可取得仍在处理区的全部伤害实体牌 | implemented-registry + schema 15 program | `standard@1.13.0`／rules v120：`perDamage`、通用 `claimDamageCards`、私有发动／跳过、处理区正常收尾与暂停回放；1.12.0 保留历史定义但不复活专属路线 |
+| `standard:yiji` | 遗计 | 每受到 1 点伤害后可摸两张，并可将其中一张交给其他角色 | implemented-registry + schema 15 program | `standard@1.13.0`／rules v120：`perDamagePoint`、私有摸牌绑定、通用绑定牌／目标 Choice、保留全部分支与暂停回放 |
+| `standard:jieming` | 节命 | 每受到 1 点伤害后可令一名合格角色补牌至体力上限 | implemented-registry + schema 15 program | `standard@1.13.0`／rules v120：`perDamagePoint`、公开目标条件、私有 Choice、执行时 `targetMaxHpMinusHandCount` 与暂停回放 |
+| `standard:yingzi` | 英姿 | 普通摸牌前强制额外摸一张 | implemented-registry + schema 16 program | `standard@1.14.0`／rules v121：`DrawPhaseStarting` 固定 `draw owner 1`，多个加量程序稳定组合后只执行一次正常摸牌；1.13.0 保留历史定义但不复活被动 modifier |
 | `standard:yuanhu` | 援护 | 其他角色受伤后弃置一张手牌并令其回复 1 点体力 | implemented-registry | K5：`DamageTriggerScope.OtherLivingPlayer`、私有弃牌 Choice、恢复子帧与脱敏事件 |
 | `standard:guicai` | 鬼才 | 判定牌生效前用一张手牌替换 | implemented-registry | K7：`JudgmentFrame` 候选游标、私有替换 Choice、公开结果与 `skill.guicai.replace` 移动 |
 | `classic:tiandu` | 天妒 | 规则 v22 经典身份中，自己的判定牌生效后可获得此牌 | implemented-registry + classic extension | K2/K7：结果后私有 Choice、`Judgment → Hand` 移动、`JudgmentCardClaimedEvent` 与父判定续接 |
@@ -221,8 +226,9 @@
 | `classic:jiuyuan` | 救援 | 规则 v27 经典身份中，其他吴势力角色对濒死主公孙权使用桃时回复量+1 | implemented-registry + classic extension | K1/K2/K7：复用私有濒死 Choice、实体桃牌区与恢复帧，专用事件记录提供者和 2 点回复；自救、非吴、酒与旧规则不加成 |
 | `classic:qixi` | 奇袭 | 规则 v28 经典身份中，将一张黑色手牌或装备区牌当过河拆桥使用 | implemented-registry + classic extension | K2/K5/K6/K7：物理牌与有效 Dismantlement 分离、Hand/Equipment 来源、目标牌精确或不透明选择、无懈暂停与回放；v27 不发布动作 |
 | `classic:keji` | 克己 | 规则 v29 经典身份中，若本回合 Play 阶段未使用或打出杀，可选择跳过弃牌阶段 | implemented-registry + classic extension | K2/K5/K7：有效杀历史标记、Discard 阶段私有 Choice、阶段结束事件、超上限手牌保留、暂停/完成回放；v28 不发布选择 |
-| `classic:tuxi` | 突袭 | 规则 v30 经典身份中，摸牌阶段可改为获得至多两名其他角色各一张手牌 | implemented-registry + classic extension | K1/K2/K5/K7：有手牌公开目标组合、随机暗手牌 `Hand → Processing → Hand`、脱敏结果事件、暂停/完成回放；v29 不发布选择 |
-| `classic:luoyi` | 裸衣 | 规则 v31 经典身份中，摸牌阶段可少摸一张，使本回合由自己使用的杀或决斗伤害 +1 | implemented-registry + classic extension | K2/K5/K7：私有发动/跳过、回合标记、原始用牌者/实际伤害来源分离、类型化伤害修正事件、暂停/完成回放；v30 不发布选择并保留旧决斗归因 |
+| `classic:tuxi` | 突袭 | 摸牌阶段可改为获得至多两名其他角色各一张手牌 | implemented-registry + schema 17 program | `standard-classic-generals@1.103.0`／rules v122：优先级 100 的 `replacement`，通用一至两目标组合、随机暗手牌 `Hand → Processing → Hand`、脱敏结果事件与两段暂停回放；完成后压制英姿及正常摸牌，跳过后继续；1.102.0 保留历史定义但不复活专属路线 |
+| `classic:zaiqi` | 再起 | 摸牌阶段开始时若已受伤，可按已损失体力亮牌，以红桃回复并获得其余牌 | implemented-registry + schema 18 program | `standard-classic-generals@1.104.0`／rules v123：优先级 90 的 `replacement`，`OwnerLostHp` 动态亮牌、红桃／非红桃绑定集合过滤、分别移至弃牌堆／手牌并以 `BoundCardCount` 回复；发动与暂停回放均走通用 Program，1.103.0 保留历史定义但不复活专属路线 |
+| `classic:luoyi` | 裸衣 | 摸牌阶段可少摸一张，使本回合由自己使用的杀或决斗伤害 +1 | implemented-registry + schema 19 program | `standard-classic-generals@1.105.0`／rules v124：优先级 80 的 `additive` 计划依次执行 `AdjustNormalDraw(-1)` 与 `GrantTurnCardDamageModifier(+1)`，只匹配拥有者本人用杀／火杀／雷杀／决斗造成的非连环直接伤害；通用 AI、WPF、事件、暂停与完成回放均不按技能名分派。1.104.0 及更早定义只保留历史内容／指纹与兼容 DTO，不复活 `DecisionKind.Luoyi`、回合标记或 v31 专属伤害执行器 |
 | `classic:qiangxi` | 强袭 | 规则 v32 经典身份中，每个出牌阶段限一次，失去 1 点体力或弃置一张手牌/装备区武器牌，对攻击范围内一名其他角色造成 1 点伤害 | implemented-registry + classic extension | K1/K2/K5/K6/K7：可选武器成本、Hand/Equipment 统一弃置、攻击范围目标、无实体牌来源伤害、伤害后触发、自损濒死续接与旧规则兼容 |
 | `classic:duanliang` | 断粮 | 规则 v33 经典身份中，将一张黑色基本牌或黑色装备牌当兵粮寸断使用，并可对距离 2 的角色使用兵粮寸断 | implemented-registry + classic extension | K1/K2/K6/K7：Hand/Equipment 实体来源、有效 SupplyShortage 与物理牌分离、判定区持久有效牌型、距离上限修正、同名去重、无懈/判定/回放与 v32 兼容 |
 | `classic:luoshen` | 洛神 | 规则 v34 经典身份中，准备阶段可反复判定；获得生效后的黑色判定牌，红色结果结束 | implemented-registry + classic extension | K1/K2/K7：准备阶段私有发动/停止 Choice、公开判定、鬼才替换、`Judgment → Hand` 取得、重复游标、暂停/完成回放与 v33 兼容 |
@@ -238,15 +244,22 @@
 | `standard:zhiheng` | 制衡 | 规则 v17 经典身份每阶段限一次，可混选自己的手牌与公开装备后弃置并摸等量牌；旧规则/演示模式仅手牌 | implemented-registry + extension | K2/K5/K6：主动多选、混合来源 `Processing` 牌区、等量摸牌和私有 Prompt |
 | `standard:qingnang` | 青囊 | 出牌阶段每回合弃置一张手牌，令一名受伤角色回复 1 点体力 | implemented-registry + extension | K5：私有手牌/受伤存活目标选择、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
 | `classic:kujin` / `classic:rende` / `classic:zhiheng` / `classic:qingnang` | 经典苦肉／仁德／制衡／青囊 | 经典包 1.77.0 建立独立主动技能身份；1.78.0 起使用正式仁德规则 | implemented-registry + classic extension | 四项复用对应 `SkillKind` 并显式标记 `ActionForms.Active`；rules v100 + 包 1.78.0 及以后版本的仁德可在同阶段重复向不同目标交牌，累计第二张时只让刘备回复一次；rules v99、包 1.77.0 与演示包继续旧行为 |
-| `classic:guicai` / `classic:ganglie` / `classic:jijiu` / `classic:yiji` / `classic:yingzi` / `classic:jianxiong` / `classic:jieming` | 经典鬼才／刚烈／急救／遗计／英姿／奸雄／节命 | 经典包 1.79.0 建立独立共享技能身份 | implemented-registry + classic extension | 鬼才、刚烈、遗计、英姿、奸雄、节命为 `Trigger`，急救为 `State`；七项复用对应 `SkillKind`，1.78.0 与稳定标准／救援包继续原 `standard:` ID，rules v100 不变 |
+| `classic:guicai` / `classic:ganglie` / `classic:jijiu` / `classic:yiji` / `classic:yingzi` / `classic:jianxiong` / `classic:jieming` | 经典鬼才／刚烈／急救／遗计／英姿／奸雄／节命 | 经典包 1.79.0 建立独立共享技能身份；1.101.0 迁移伤害程序；1.102.0 迁移英姿 | implemented-registry + classic extension | 鬼才、刚烈、遗计、英姿、奸雄、节命为 `Trigger`，急救为 `State`；rules v120 中经典遗计／节命按每点、奸雄按每次伤害复用 schema 15 Program；rules v121 中经典英姿以 schema 16 通用 `ProgramTrigger` 可选加摸，1.101.0 保留旧定义但不复活专属路线 |
+| `classic:feedback` | 经典反馈 | 每次受伤后可从伤害来源手牌或装备区获得一张牌 | implemented-registry + schema 15 program | 经典包 1.101.0／rules v120：暗手牌用不透明槽位，公开装备用精确 ID，选择结果绑定其冻结来源位置后移入拥有者手牌；暂停回放一致 |
 | `mou:hengye` / `mou:yingbo` | 横野／英博 | 经典包 1.80.0 注册谋吕蒙双技能 | implemented-registry + classic extension | 横野为 `Locked + State`，`Game` 成长最多 3 并在击杀后通用重置；英博为 `State + Trigger`，读取 `Round` 同名伤害牌账本，首次不可响应并可交实体牌，重复使用改火伤且 +1；rules v101 与包 1.79.0 保留边界 |
-| `classic:jiangchi` | 将驰 | 经典包 1.81.0 注册原版曹彰 | implemented-registry + classic extension | `State + Trigger`；摸牌阶段三选一，额外摸牌分支以回合状态禁止使用或打出杀，少摸牌分支令本回合出牌阶段杀次数 +1 且无距离限制；rules v102 与包 1.80.0 保留边界 |
+| `classic:jiangchi` | 将驰 | 经典包 1.81.0 注册原版曹彰；1.106.0 迁入摸牌程序 | implemented-registry + schema 20 program | `standard-classic-generals@1.106.0`／rules v125：同一 `choiceGroup` 的两个可选 `additive` 分支由通用 `ProgramTrigger` 一次选择；额外摸一张后以 `GrantTurnCardActionProhibition` 禁止使用／打出杀，少摸一张后以 `GrantTurnRuleModifier` 令杀次数 +1 且距离无限。分支标签来自 presentation schema 2，AI、WPF、合法动作和响应均不按技能名分派；1.105.0 及更早定义保留历史边界 |
+| `classic:shuangxiong` | 双雄 | 经典包 1.46.0 注册颜良文丑；1.107.0 迁入摸牌程序 | implemented-registry + schema 21 program | `standard-classic-generals@1.107.0`／rules v126：可选 `replacement` 依次执行公开 `StartJudgment`、从最终单牌绑定授予 `OppositeBoundCard → Duel` 回合转换，并把该实体判定牌移动至拥有者手牌。改判、天妒、决斗响应、合法动作、AI 和 Replay 均复用通用流程；1.106.0 及更早定义保留历史专属边界 |
 | `classic:qianxi` | 潜袭 | 经典包 1.82.0 注册当前官网经典马岱 | implemented-registry + classic extension | `State + Trigger`；准备阶段可选摸一弃一，再从实时距离为 1 的角色中选择目标，以 `Turn` 状态封禁其与弃牌同色的手牌使用／打出；异色手牌保留，下一回合统一清除；rules v103 与包 1.81.0 保留边界 |
 | `classic:xianzhen` / `classic:jinjiu` | 陷阵／禁酒 | 经典包 1.83.0 注册经典高顺 | implemented-registry + classic extension | 陷阵为 `State + Active`，以 `win.target-{seat}`／`loss` 回合账本记录私有拼点结果：胜利后只对该目标用牌无距离、杀不限次且无视防具，未赢则不能使用杀；禁酒为 `Locked + State`，schema 10 强制手牌身份令酒仅视为杀；rules v104 与包 1.82.0 保留边界 |
-| `classic:zishou` / `classic:zongshi` | 自守／宗室 | 经典包 1.84.0 注册当前官网经典刘表 | implemented-registry + classic extension | 自守为 `State + Trigger`，按摸牌时冻结的现存势力数额外摸牌并以 `active` 回合账本禁止牌指定其他角色；南蛮／万箭移除，桃园／五谷仅保留自己；宗室为 `Locked + State`，实时按存活角色有效势力去重修正手牌上限；rules v105 与包 1.83.0 保留边界 |
+| `classic:zishou` / `classic:zongshi` | 自守／宗室 | 经典包 1.84.0 注册当前官网经典刘表；1.98.0 迁移宗室规则查询；1.106.0 迁移自守摸牌计划 | implemented-registry + schema 20/schema 12 programs | 自守在 rules v125 以 `LivingFactionCount` 动态摸牌并授予 `SelfOnly` 回合目标限制，单体合法动作和南蛮／万箭／桃园／五谷的群体目标都消费同一策略；宗室继续以 schema 12 `handLimit + livingFactionCount` 实时按存活有效势力去重。通用 AI、WPF、事件与回放不按自守技能名分派；1.105.0 及更早定义保留历史边界 |
 | `classic:zhenlie` / `classic:miji` | 贞烈／秘计 | 经典包 1.85.0 注册当前官网经典王异 | implemented-registry + classic extension | 两项均为可选 `Trigger`。贞烈在杀或普通锦囊目标确认后私有选择，失去 1 点体力后仅标记自己为该牌的无效目标，再从使用者手牌／装备区弃一张；秘计在受伤角色结束阶段可摸已损失体力张牌，并可继续将等量手牌一次性交给一名或多名其他角色；rules v106 与包 1.84.0 保留边界 |
+| `classic:jingce` | 精策 | 经典包 1.99.0 迁移出牌阶段结束触发 | implemented-registry + schema 13 program | rules v118：以冻结的本回合用牌数、当前体力和经典身份模式事实判断；每个实际 Play 阶段限一次，正常 Play 被跳过时不生成伪 `PlayEnding`；额外／正常 Play 各自独立 |
+| `classic:jushou` / `classic:biyue` | 据守／闭月 | 经典包 1.99.0 迁移结束阶段触发 | implemented-registry + schema 13 program | rules v118：共享可序列化 `TurnEndingBoundaryFrame`；据守优先级 100、闭月 -100，据守摸三张后精确置背面，闭月摸一张；通用 `ProgramTrigger` 私有提示、实例去重、动态所有权复验与回放 |
+| `classic:jujian` | 举荐 | 结束阶段弃非基本牌并令目标选择收益 | implemented-legacy bridge | rules v118：仅作为 `TurnEndingBoundaryFrame` 中优先级 0 的受限桥；抵达时实时计算成本与目标，据守新摸牌可支付，完成或跳过后只推进父游标一次，不重复春醪／秘计，也不迁入 JSON 或基础处理器 |
+| `classic:xiaoji` | 枭姬 | 每失去一张装备牌可摸两张牌 | implemented-registry + schema 14 program | 经典包 1.100.0／rules v119：订阅拥有者 `Equipment` 来源区，`perCard` 冻结批次中的每张移动，复用通用 `ProgramTrigger`、拥有关系复验与回放；1.99.0 保留历史定义但不复活专属路线 |
+| `classic:lianying` | 连营 | 一批移动后失去最后手牌可摸一张牌 | implemented-registry + schema 14 program | 经典包 1.100.0／rules v119：订阅拥有者 `Hand` 来源区，`perBatch` 检查冻结的 `countBefore > 0 && countAfter == 0`，复用同一通用窗口；1.99.0 保留历史定义但不复活专属路线 |
 | `standard:huichun` | 回春 | 出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力 | implemented-registry + extension | K5：私有两牌/多目标选择、逐目标 `RecoveryFrame`、`Processing` 弃牌、`RecoveryAppliedEvent` 和回合一次限制 |
-| `standard:mashu` | 马术 | 计算与其他角色的距离 -1 | implemented-registry + extension | K6：`IPassiveSkill.ModifyOutgoingDistance`，由 Core 统一影响公开距离型合法性 |
+| `standard:mashu` | 马术 | 计算与其他角色的距离 -1 | implemented-registry + extension | rules v117／主动技能包 1.1.0：schema 12 `outgoingDistance + -1`，由统一规则查询影响公开距离和距离型合法性；1.0.0 保留旧投影 |
 | `standard:qicai` | 奇才 | 使用锦囊牌无距离限制 | implemented-registry + extension | K6：`IPassiveSkill.IgnoresTrickDistance`，由 Core 统一影响距离型锦囊合法性 |
 | `standard:jijiu` | 急救 | 回合外在濒死窗口将红色非桃牌当作桃使用；rules v41 经典华佗含自己的装备区 | implemented-registry + rescue extension | K5：`IPassiveSkill.CanUseAsDyingRescue`，有效牌型为 Peach，物理牌型和 Hand/Equipment 实际来源保留在事件与移动账本 |
 

@@ -8,19 +8,55 @@ public sealed partial class GameEngine
     private readonly Dictionary<(int ProviderSeat, int SkillOwnerSeat, string Skill, string Contribution), int>
         _programContributionUses = new();
 
-    private IReadOnlyList<SkillProgram> EnabledSkillPrograms(PlayerRuntime player)
-    {
-        if (_rulesVersion < 79 || _contentRegistry is null) return [];
-        return EnabledContentSkillIds(player)
-            .Select(id => _contentRegistry.Skills[id].Program)
-            .OfType<SkillProgram>().ToArray();
-    }
+    // Compatibility inspection surface for existing diagnostics and tests. The
+    // result is projected by the match-local index and does not scan registry values.
+    private IReadOnlyList<SkillProgram> EnabledSkillPrograms(CharacterState player) =>
+        _rulesVersion < 79 || _contentRegistry is null
+            ? []
+            : GetSkillBindingShard(player)!.Programs;
 
-    private IEnumerable<LegalAction> BuildProgramActions(PlayerRuntime owner)
+    private IReadOnlyList<SkillProgram> EnabledActivationPrograms(CharacterState player) =>
+        _rulesVersion < 79 || _contentRegistry is null
+            ? []
+            : GetSkillBindingShard(player)!.ActivationPrograms;
+
+    private IReadOnlyList<SkillProgram> EnabledContributionPrograms(CharacterState player) =>
+        _rulesVersion < 79 || _contentRegistry is null
+            ? []
+            : GetSkillBindingShard(player)!.ContributionPrograms;
+
+    private IReadOnlyList<SkillProgram> EnabledViewAsPrograms(CharacterState player) =>
+        _rulesVersion < 79 || _contentRegistry is null
+            ? []
+            : GetSkillBindingShard(player)!.ViewAsPrograms;
+
+    private IReadOnlyList<SkillProgram> EnabledCardIdentityPrograms(CharacterState player) =>
+        _rulesVersion < 79 || _contentRegistry is null
+            ? []
+            : GetSkillBindingShard(player)!.CardIdentityPrograms;
+
+    private IReadOnlyList<SkillProgram> EnabledPassiveRulePrograms(CharacterState player) =>
+        _rulesVersion < 79 || _contentRegistry is null
+            ? []
+            : GetSkillBindingShard(player)!.PassiveRulePrograms;
+
+    private IReadOnlyList<IndexedSkillProgramTrigger> EnabledUniqueProgramTriggers(
+        CharacterState player,
+        SkillProgramTriggerWindow window) =>
+        _rulesVersion < 79 || _contentRegistry is null
+            ? []
+            : GetSkillBindingShard(player)!.GetUniqueTriggers(window);
+
+    private SkillProgram GetEnabledSkillProgram(CharacterState player, string skillId) =>
+        GetSkillBindingShard(player)?.GetProgram(skillId) ??
+        throw new InvalidOperationException(
+            $"Player {player.Seat} does not own enabled skill program '{skillId}'.");
+
+    private IEnumerable<LegalAction> BuildProgramActions(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play) yield break;
         var context = CreateSkillContext(owner);
-        foreach (var program in EnabledSkillPrograms(owner))
+        foreach (var program in EnabledActivationPrograms(owner))
         foreach (var activation in program.Activations)
         {
             if (!activation.Condition.Evaluate(context) ||
@@ -52,7 +88,7 @@ public sealed partial class GameEngine
 
         if (_rulesVersion < 85) yield break;
         foreach (var skillOwner in _players.Where(player => player.IsAlive && player.Seat != owner.Seat).OrderBy(player => player.Seat))
-        foreach (var program in EnabledSkillPrograms(skillOwner))
+        foreach (var program in EnabledContributionPrograms(skillOwner))
         foreach (var contribution in program.Contributions)
         {
             var providerFaction = GetEffectiveFactionId(owner);
@@ -136,7 +172,7 @@ public sealed partial class GameEngine
         });
     }
 
-    private void ExecuteProgramSkill(PlayerRuntime owner, LegalAction action,
+    private void ExecuteProgramSkill(CharacterState owner, LegalAction action,
         IReadOnlyList<int> cards, IReadOnlyList<int> targets)
     {
         var current = BuildProgramActions(owner).SingleOrDefault(candidate =>
@@ -151,22 +187,27 @@ public sealed partial class GameEngine
             ExecuteProgramContribution(owner, _players[skillOwnerSeat], current, cards[0]);
             return;
         }
-        var program = EnabledSkillPrograms(owner).Single(item => item.Id == action.ProgramSkillId);
+        var program = GetEnabledSkillProgram(owner, action.ProgramSkillId ??
+            throw new InvalidOperationException("The program action has no skill identity."));
         var activation = program.Activations.Single(item => item.Id == action.ProgramActivationId);
         var key = (owner.Seat, program.Id, activation.Id);
         _programUses[key] = _programUses.GetValueOrDefault(key) + 1;
         var frame = new ProgramSkillFrame(++_resolutionSequence, owner.Seat, program.Id, activation.Id,
-            program.GameplayHash, 0, Array.AsReadOnly(cards.ToArray()), Array.AsReadOnly(targets.ToArray()));
+            program.GameplayHash, 0, Array.AsReadOnly(cards.ToArray()), Array.AsReadOnly(targets.ToArray()))
+        {
+            SkillInstanceId = GetRuntimeSkillInstanceId(owner, program.Id)
+        };
         _resolutionStack.Add(frame);
         QueueGameEvent(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
         AddLog("ActiveSkill", $"{owner.Name} 发动【{_contentRegistry!.Skills[program.Id].Name}】。", owner.Seat);
         ContinueProgramSkill(frame.Id);
     }
 
-    private void ExecuteProgramContribution(PlayerRuntime provider, PlayerRuntime skillOwner,
+    private void ExecuteProgramContribution(CharacterState provider, CharacterState skillOwner,
         LegalAction action, int cardId)
     {
-        var program = EnabledSkillPrograms(skillOwner).Single(item => item.Id == action.ProgramSkillId);
+        var program = GetEnabledSkillProgram(skillOwner, action.ProgramSkillId ??
+            throw new InvalidOperationException("The contribution action has no skill identity."));
         var contribution = program.Contributions.Single(item => item.Id == action.ProgramActivationId);
         var key = (provider.Seat, skillOwner.Seat, program.Id, contribution.Id);
         if (_programContributionUses.GetValueOrDefault(key) >= contribution.UsesPerPlayPhase)
@@ -196,80 +237,25 @@ public sealed partial class GameEngine
 
     private void ContinueProgramSkill(long frameId)
     {
-        while (_resolutionStack.LastOrDefault() is ProgramSkillFrame frame && frame.Id == frameId)
-        {
-            var owner = _players[frame.OwnerSeat];
-            var program = _contentRegistry!.Skills[frame.SkillId].Program
-                ?? throw new InvalidOperationException("A running program is missing its compiled definition.");
-            if (program.GameplayHash != frame.GameplayHash)
-                throw new InvalidOperationException("A running program's gameplay hash has changed.");
-            var activation = program.Activations.Single(item => item.Id == frame.ActivationId);
-            if (!owner.IsAlive || _winner != Winner.None || frame.InstructionIndex >= activation.Effects.Count)
-            {
-                FinishProgramSkill(frame, completed: owner.IsAlive && frame.InstructionIndex >= activation.Effects.Count);
-                return;
-            }
-            var effect = activation.Effects[frame.InstructionIndex];
-            // Commit the cursor before any child resolution can suspend it.
-            _resolutionStack[^1] = frame with { InstructionIndex = frame.InstructionIndex + 1 };
-            if (!effect.Condition.Evaluate(CreateSkillContext(owner))) continue;
-            var target = effect.Target == SkillProgramEffectTarget.Owner
-                ? owner : _players[frame.SelectedTargetSeats.Single()];
-            if (effect.Op is SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected &&
-                (!target.IsAlive || frame.SelectedCardIds.Any(id => GetHand(owner).All(card => card.Id != id))))
-            {
-                // A rescue may consume a previously selected physical card.
-                // Do not pay partially, or grant later benefits for an unpaid step.
-                AddLog("ActiveSkill", "所选牌或接收者在结算中已失效，技能剩余步骤取消。", owner.Seat);
-                FinishProgramSkill(frame, completed: false);
-                return;
-            }
-            if (!target.IsAlive) continue;
-            var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
-            switch (effect.Op)
-            {
-                case SkillProgramEffectOp.Draw:
-                    DrawCards(target, effect.Amount, log: true, reason: reason);
-                    break;
-                case SkillProgramEffectOp.Recover:
-                    var amount = Math.Min(effect.Amount, target.MaxHp - target.Hp);
-                    if (amount <= 0) break;
-                    var recovery = BeginRecovery(frame.Id, owner.Seat, target.Seat, amount);
-                    target.Hp += amount;
-                    QueueGameEvent(new RecoveryAppliedEvent(owner.Seat, target.Seat, amount, target.Hp));
-                    PopResolutionFrame(recovery, ResolutionFrameKind.Recovery);
-                    break;
-                case SkillProgramEffectOp.LoseHp:
-                    var lost = Math.Min(target.Hp, effect.Amount);
-                    target.Hp = Math.Max(0, target.Hp - effect.Amount);
-                    QueueGameEvent(new ProgramSkillHpLostEvent(frame.Id, frame.SkillId, target.Seat, lost, target.Hp));
-                    if (target.Hp == 0)
-                    {
-                        BeginProgramSkillDying(frame.Id, target);
-                        return;
-                    }
-                    break;
-                case SkillProgramEffectOp.GiveSelected:
-                case SkillProgramEffectOp.DiscardSelected:
-                    var selected = frame.SelectedCardIds.Select(id => GetHand(owner).Single(card => card.Id == id)).ToArray();
-                    MoveCards(selected, CardLocation.Hand(owner.Seat),
-                        effect.Op == SkillProgramEffectOp.GiveSelected ? CardLocation.Hand(target.Seat) : CardLocation.DiscardPile,
-                        reason);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Unsupported compiled skill effect {effect.Op}.");
-            }
-        }
+        var host = new ProgramSkillHost(this);
+        new SkillProgramExecutor().Run(frameId, host, host);
     }
 
     private void FinishProgramSkill(ProgramSkillFrame frame, bool completed)
     {
+        if (frame.TriggerId is not null)
+        {
+            CleanupProgramBoundCards(frame, completed);
+            CompleteProgramBinding(frame, completed);
+            if (_winner != Winner.None && _status != EngineStatus.Completed) CompleteGame();
+            return;
+        }
         QueueGameEvent(new ProgramSkillResolvedEvent(frame.Id, frame.OwnerSeat, frame.SkillId, frame.ActivationId, completed));
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
         if (_winner != Winner.None && _status != EngineStatus.Completed) CompleteGame();
     }
 
-    private void BeginProgramSkillDying(long parentFrameId, PlayerRuntime victim)
+    private void BeginProgramSkillDying(long parentFrameId, CharacterState victim)
     {
         if (_pendingDying is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != parentFrameId)
             throw new InvalidOperationException("A program dying continuation requires its program frame.");
@@ -293,28 +279,56 @@ public sealed partial class GameEngine
     private void AssertProgramSkillState()
     {
         var frames = _resolutionStack.OfType<ProgramSkillFrame>().ToArray();
-        if (frames.Length > 1) throw new InvalidOperationException("Active skill programs cannot overlap.");
-        if (frames.SingleOrDefault() is { } frame)
+        foreach (var frame in frames)
         {
             var program = _contentRegistry?.Skills.GetValueOrDefault(frame.SkillId)?.Program;
-            var activation = program?.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
             if (_rulesVersion < 79 || !IsValidPlayerSeat(frame.OwnerSeat) ||
-                program?.GameplayHash != frame.GameplayHash || activation is null ||
-                frame.InstructionIndex < 1 || frame.InstructionIndex > activation.Effects.Count ||
+                string.IsNullOrWhiteSpace(frame.SkillInstanceId) ||
+                program?.GameplayHash != frame.GameplayHash)
+                throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+
+            if (frame.TriggerId is { } triggerId)
+            {
+                var trigger = program.Triggers.SingleOrDefault(item => item.Id == triggerId);
+                if (trigger is null || frame.WindowContext is not { } context ||
+                    context.OwnerSeat != frame.OwnerSeat || context.Window != trigger.Window ||
+                    frame.ActivationId != triggerId || frame.InstructionIndex < 1 ||
+                    frame.InstructionIndex > trigger.Effects.Count ||
+                    frame.SelectedCardIds.Count != 0 || frame.SelectedTargetSeats.Count > 1 ||
+                    frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
+                    frame.SelectedTargetSeats.Count > 0 && !trigger.Effects
+                        .Take(frame.InstructionIndex)
+                        .Any(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTarget) ||
+                    frame.CardSetBindings.Select(binding => binding.Name).Distinct().Count() !=
+                        frame.CardSetBindings.Count ||
+                    frame.CardSetBindings.Any(binding =>
+                        binding.CardIds.Count != binding.SourceLocations.Count ||
+                        binding.CardIds.Distinct().Count() != binding.CardIds.Count))
+                    throw new InvalidOperationException("An active trigger program has an invalid cursor or context.");
+                continue;
+            }
+
+            var activation = program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
+            if (activation is null || frame.InstructionIndex < 1 ||
+                frame.InstructionIndex > activation.Effects.Count ||
                 frame.SelectedCardIds.Count != activation.MinCards ||
                 frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||
                 frame.SelectedTargetSeats.Count < activation.MinTargets ||
                 frame.SelectedTargetSeats.Count > activation.MaxTargets ||
                 frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
-            if (_pendingDying is not { ResumesProgramSkill: true } dying ||
-                dying.ParentFrameId != frame.Id || dying.Attack is not null || dying.DamageFrameId is not null ||
-                _resolutionStack.LastOrDefault() is not DyingFrame child || child.Id != dying.FrameId ||
-                child.ParentFrameId != frame.Id)
-                throw new InvalidOperationException("A suspended skill program must retain its dying child.");
         }
-        else if (_pendingDying?.ResumesProgramSkill == true)
-            throw new InvalidOperationException("A program dying continuation is missing its program frame.");
+
+        if (_pendingDying is { ResumesProgramSkill: true } dying)
+        {
+            var parentIndex = _resolutionStack.FindLastIndex(item => item is ProgramSkillFrame program &&
+                program.Id == dying.ParentFrameId);
+            if (parentIndex < 0 || parentIndex + 1 >= _resolutionStack.Count ||
+                _resolutionStack[parentIndex + 1] is not DyingFrame child || child.Id != dying.FrameId ||
+                child.ParentFrameId != dying.ParentFrameId || dying.Attack is not null ||
+                dying.DamageFrameId is not null)
+                throw new InvalidOperationException("A program dying continuation is missing its parent program frame.");
+        }
     }
 
     private static PromptChoice CreateProgramPlayChoice(LegalAction action)

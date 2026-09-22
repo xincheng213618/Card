@@ -130,17 +130,22 @@ internal static class NationalWarChecks
 
         var damage = SkillFixture("national:wei-cao-cao", "national:wei-guo-jia", GeneralSelectionSlot.Primary, requireRed: false);
         var collect = typeof(GameEngine).GetMethod("CollectDamageTriggerCandidates", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
-        SkillKind[] Candidates()
+        string[] Candidates()
         {
             var context = new DamageSkillContext(new PlayerSkillContext(0, 3, 4, 4, TurnPhase.Play), 1, CardKind.Slash, true,
                 SourceCardId: 1, TargetSeat: 0, TargetHp: 3, TargetMaxHp: 4);
-            return ((IReadOnlyList<DamageTriggerCandidate>)collect.Invoke(damage, [context])!).Select(candidate => candidate.Skill).ToArray();
+            return ((IReadOnlyList<DamageTriggerCandidate>)collect.Invoke(damage, [context])!)
+                .Select(candidate => candidate.ProgramId ?? candidate.Skill.ToString())
+                .ToArray();
         }
         Require(Candidates().Length == 0, "Hidden generals entered a damage trigger window.");
         Reveal(damage, GeneralSelectionSlot.Primary);
-        Require(Candidates().SequenceEqual(new[] { SkillKind.Jianxiong }), "Primary reveal did not enable only Jianxiong.");
+        Require(Candidates().SequenceEqual(["standard:jianxiong"]),
+            "Primary reveal did not enable only Jianxiong.");
         Reveal(damage, GeneralSelectionSlot.Secondary);
-        Require(Candidates().ToHashSet().SetEquals(new[] { SkillKind.Jianxiong, SkillKind.Yiji }), "Two revealed damage skills lost their separate trigger identities.");
+        Require(Candidates().ToHashSet(StringComparer.Ordinal)
+                .SetEquals(["standard:jianxiong", "standard:yiji"]),
+            "Two revealed damage skills lost their separate trigger identities.");
     }
 
     public static void MultiSkillRevealAndLegacy()
@@ -216,8 +221,10 @@ internal static class NationalWarChecks
             var own = game.CreateSnapshot(0).Players[0];
             var observer = game.CreateSnapshot(1).Players[0];
             var projected = slot == GeneralSelectionSlot.Primary ? own.Skills : own.SecondarySkills;
-            Require(projected is { Count: 3 } && projected.Select(skill => skill.Kind)
-                    .SequenceEqual([SkillKind.Paoxiao, SkillKind.Wusheng, SkillKind.None]) &&
+            Require(projected is { Count: 3 } && projected.Select(skill => skill.ContentId)
+                    .SequenceEqual(["standard:paoxiao", "standard:wusheng", programId]) &&
+                    projected.Select(skill => skill.Kind)
+                    .SequenceEqual([SkillKind.None, SkillKind.Wusheng, SkillKind.None]) &&
                     projected[2].Name == "试验程序技",
                 "Rules 89 did not privately project every ordered legacy and program skill for the selected national slot.");
             Require((slot == GeneralSelectionSlot.Primary ? observer.Skills : observer.SecondarySkills) is null,
@@ -230,8 +237,8 @@ internal static class NationalWarChecks
             Require(EnabledKinds(game).Length == 0 && EnabledPrograms(game).Length == 0,
                 "Revealing the other national slot enabled the hidden multi-skill general.");
             Reveal(game, slot);
-            Require(EnabledKinds(game).SequenceEqual([SkillKind.Paoxiao, SkillKind.Wusheng]) &&
-                    EnabledPrograms(game).SequenceEqual([programId]),
+            Require(EnabledKinds(game).SequenceEqual([SkillKind.Wusheng]) &&
+                    EnabledPrograms(game).SequenceEqual([programId, "standard:paoxiao"]),
                 "Rules 89 did not enable every legacy and program skill on the revealed national general.");
             var publicView = game.CreateSnapshot(1).Players[0];
             Require((slot == GeneralSelectionSlot.Primary ? publicView.Skills : publicView.SecondarySkills) is { Count: 3 },

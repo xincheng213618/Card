@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:xiaoji": {
+      "name": "枭姬",
+      "description": "当你失去装备区里的一张牌后，你可以摸两张牌。"
+    },
+    "classic:lianying": {
+      "name": "连营",
+      "description": "当你失去最后的手牌时，你可以摸一张牌。"
+    }
+  }
+}

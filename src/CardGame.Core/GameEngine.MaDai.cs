@@ -16,7 +16,7 @@ public sealed partial class GameEngine
     private static string GetQianxiRestrictionUsageId(int targetSeat, CardColor color) =>
         $"{QianxiRestrictionUsagePrefix}.target-{targetSeat}.{color.ToString().ToLowerInvariant()}";
 
-    private bool IsQianxiHandCardRestricted(PlayerRuntime player, Card card)
+    private bool IsQianxiHandCardRestricted(CharacterState player, Card card)
     {
         if (!UsesFormalQianxi ||
             _cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat))
@@ -34,7 +34,7 @@ public sealed partial class GameEngine
                 SkillUsageScope.Turn) > 0);
     }
 
-    private IReadOnlyList<PlayerRuntime> GetQianxiTargets(PlayerRuntime owner) =>
+    private IReadOnlyList<CharacterState> GetQianxiTargets(CharacterState owner) =>
         _players
             .Where(target =>
                 target.IsAlive &&
@@ -43,7 +43,7 @@ public sealed partial class GameEngine
             .OrderBy(target => target.Seat)
             .ToArray();
 
-    private bool TryBeginQianxiChoice(PlayerRuntime current)
+    private bool TryBeginQianxiChoice(CharacterState current)
     {
         if (!UsesFormalQianxi || !HasRuntimeSkill(current, QianxiSkillId))
         {
@@ -107,7 +107,7 @@ public sealed partial class GameEngine
         }
     }
 
-    private void CompleteQianxiSkipped(PlayerRuntime owner)
+    private void CompleteQianxiSkipped(CharacterState owner)
     {
         QueueGameEvent(new QianxiResolvedEvent(
             owner.Seat,
@@ -121,7 +121,7 @@ public sealed partial class GameEngine
         BeginTurnStartAfterQianxi(owner);
     }
 
-    private void BeginQianxiDiscard(PlayerRuntime owner)
+    private void BeginQianxiDiscard(CharacterState owner)
     {
         ClearPendingDecision();
         DrawCards(owner, 1, log: true, CardMoveReasons.QianxiDraw);
@@ -155,7 +155,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
-    private void ResolveQianxiDiscard(PlayerRuntime owner, PromptChoice selected)
+    private void ResolveQianxiDiscard(CharacterState owner, PromptChoice selected)
     {
         if (selected.Cards.Count != 1 || selected.Targets.Count != 0)
         {
@@ -204,7 +204,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
-    private void ResolveQianxiTarget(PlayerRuntime owner, PromptChoice selected)
+    private void ResolveQianxiTarget(CharacterState owner, PromptChoice selected)
     {
         var pending = _pendingQianxi is { Stage: QianxiStage.Target } current
             ? current

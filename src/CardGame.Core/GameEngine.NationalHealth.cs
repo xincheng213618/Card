@@ -19,7 +19,7 @@ public sealed partial class GameEngine
         }
     }
 
-    private PromptChoice WithNationalHealthPreview(PromptChoice choice, PlayerRuntime player, GeneralDefinition candidate)
+    private PromptChoice WithNationalHealthPreview(PromptChoice choice, CharacterState player, GeneralDefinition candidate)
     {
         if (!IsNationalWarMode || _rulesVersion < 8) return choice;
         var parameters = new Dictionary<string, string>(choice.Parameters);

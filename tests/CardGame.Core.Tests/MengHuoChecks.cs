@@ -5,7 +5,7 @@ internal static class MengHuoChecks
 {
     public static void HuoshouAndZaiqiReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 59, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var huoshouVerified = false;
         for (var seed = 1; seed <= 4096; seed++)
         {
@@ -32,19 +32,52 @@ internal static class MengHuoChecks
                         "Huoshou must exclude Meng Huo from Barbarian Assault and attribute its damage to him.");
                     huoshouVerified = true;
                 }
-                if (game.PendingDecision is { Kind: DecisionKind.Zaiqi, PlayerSeat: 0, IsPrivate: true } offer)
+                if (game.PendingDecision is
+                    {
+                        Kind: DecisionKind.ProgramTrigger,
+                        PlayerSeat: 0,
+                        IsPrivate: true,
+                        SkillPrompt.SkillId: "classic:zaiqi"
+                    } offer)
                 {
                     var checkpoint = game.CreateCheckpoint();
-                    var use = offer.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "zaiqi-use");
+                    var ownerBefore = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+                    var lostHpBefore = ownerBefore.MaxHp - ownerBefore.Hp;
+                    var skipped = GameReplay.Restore(checkpoint, registry);
+                    var skippedOffer = skipped.PendingDecision!;
+                    var skip = skippedOffer.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "skip");
+                    Require(skipped.Submit(new AnswerPromptCommand(
+                                0, skippedOffer.PromptId, skip.Id, skipped.Revision)).Accepted &&
+                            skipped.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
+                                .HandCount == ownerBefore.HandCount + 2 &&
+                            skipped.Events.Select(e => e.Payload).OfType<ProgramCardsRevealedEvent>()
+                                .All(item => item.SkillId != "classic:zaiqi") &&
+                            skipped.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                                item.SkillId == "classic:zaiqi" && !item.Activated && !item.Completed),
+                        "Skipping generic Zaiqi must perform one normal two-card draw without revealing cards.");
+                    var use = offer.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "activate");
                     Require(game.Submit(new AnswerPromptCommand(0, offer.PromptId, use.Id, game.Revision)).Accepted,
                         "Zaiqi choice was rejected.");
-                    var resolved = game.Events.Select(e => e.Payload).OfType<ZaiqiResolvedEvent>().Last();
-                    Require(resolved.OwnerSeat == 0 && resolved.RevealedCardIds.Count > 0 &&
-                            resolved.HeartCardIds.All(id => game.CardMovements.Any(move =>
-                                move.CardId == id && move.Reason == CardMoveReasons.ZaiqiDiscard)) &&
-                            resolved.GainedCardIds.All(id => game.CardMovements.Any(move =>
-                                move.CardId == id && move.Reason == CardMoveReasons.ZaiqiGain)),
-                        "Zaiqi must discard revealed Hearts, gain every other revealed card and recover by Hearts.");
+                    var revealed = game.Events.Select(e => e.Payload).OfType<ProgramCardsRevealedEvent>()
+                        .Last(item => item.SkillId == "classic:zaiqi");
+                    var hearts = revealed.Cards.Where(card => card.Suit == Suit.Heart).Select(card => card.Id).ToArray();
+                    var gained = revealed.Cards.Where(card => card.Suit != Suit.Heart).Select(card => card.Id).ToArray();
+                    Require(lostHpBefore > 0 && revealed.Cards.Count == lostHpBefore &&
+                            hearts.All(id => game.CardMovements.Any(move =>
+                                move.CardId == id && move.To == CardLocation.DiscardPile &&
+                                move.Reason.Value == "skill-program.classic:zaiqi.MoveBoundCards")) &&
+                            gained.All(id => game.CardMovements.Any(move =>
+                                move.CardId == id && move.To == CardLocation.Hand(0) &&
+                                move.Reason.Value == "skill-program.classic:zaiqi.MoveBoundCards")) &&
+                            (hearts.Length == 0 ||
+                             game.Events.Select(e => e.Payload).OfType<RecoveryAppliedEvent>().Any(item =>
+                                 item.SourceSeat == 0 && item.TargetSeat == 0 && item.Amount == hearts.Length)) &&
+                            game.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                                item.SkillId == "classic:zaiqi" && item.Activated && item.Completed) &&
+                            game.Events.Select(e => e.Payload).All(item => item is not ZaiqiResolvedEvent),
+                        "Zaiqi must use generic reveal, partition, move, recovery and completion evidence.");
                     var restored = GameReplay.Restore(checkpoint, registry);
                     var restoredOffer = restored.PendingDecision!;
                     var restoredUse = restoredOffer.Choices.Single(choice => choice.Id == use.Id);

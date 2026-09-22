@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 16,
+  "skills": [
+    {
+      "id": "standard:yingzi",
+      "revision": 2,
+      "minimumRulesVersion": 121,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-phase-extra-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:yingzi",
+      "revision": 2,
+      "minimumRulesVersion": 121,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-phase-extra-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

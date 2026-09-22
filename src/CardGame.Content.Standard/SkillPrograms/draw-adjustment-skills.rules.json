@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 19,
+  "skills": [
+    {
+      "id": "classic:luoyi",
+      "revision": 2,
+      "minimumRulesVersion": 124,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "reduce-draw-for-card-damage",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 80,
+          "effects": [
+            {
+              "op": "adjustNormalDraw",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantTurnCardDamageModifier",
+              "target": "owner",
+              "amount": 1,
+              "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel"]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

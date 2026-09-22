@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 12,
+  "skills": [
+    {
+      "id": "standard:paoxiao",
+      "revision": 1,
+      "minimumRulesVersion": 117,
+      "modifiers": [
+        {
+          "id": "unlimited-slash-uses",
+          "query": "slashLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "standard:mashu",
+      "revision": 1,
+      "minimumRulesVersion": 117,
+      "modifiers": [
+        {
+          "id": "outgoing-distance-minus-one",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "value": -1,
+          "priority": 0
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:paoxiao",
+      "revision": 1,
+      "minimumRulesVersion": 117,
+      "modifiers": [
+        {
+          "id": "unlimited-slash-uses",
+          "query": "slashLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:mashu",
+      "revision": 1,
+      "minimumRulesVersion": 117,
+      "modifiers": [
+        {
+          "id": "outgoing-distance-minus-one",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "value": -1,
+          "priority": 0
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "sp:guan-yu-mashu",
+      "revision": 1,
+      "minimumRulesVersion": 117,
+      "modifiers": [
+        {
+          "id": "outgoing-distance-minus-one",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "value": -1,
+          "priority": 0
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:yicong",
+      "revision": 1,
+      "minimumRulesVersion": 117,
+      "modifiers": [
+        {
+          "id": "healthy-outgoing-distance-minus-one",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "value": -1,
+          "priority": 0,
+          "condition": {
+            "kind": "hpAtLeast",
+            "value": 3
+          }
+        },
+        {
+          "id": "wounded-incoming-distance-plus-one",
+          "query": "incomingDistance",
+          "operation": "add",
+          "value": 1,
+          "priority": 0,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "hpAtLeast",
+                "value": 3
+              }
+            ]
+          }
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:zongshi",
+      "revision": 1,
+      "minimumRulesVersion": 117,
+      "modifiers": [
+        {
+          "id": "living-faction-hand-limit",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "livingFactionCount",
+          "priority": 0
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

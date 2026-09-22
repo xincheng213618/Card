@@ -29,6 +29,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.rules.json";
     private const string ClassicGaoShunPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.presentation.json";
+    private const string ClassicLifecycleRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.rules.json";
+    private const string ClassicLifecyclePresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.presentation.json";
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
@@ -49,9 +53,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
             ReadEmbeddedText(ClassicGaoShunPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicLifecycleCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicLifecycleRulesResource),
+            ReadEmbeddedText(ClassicLifecyclePresentationResource)));
     private readonly Version _version;
 
-    public static Version CurrentVersion { get; } = new(1, 97, 0);
+    public static Version CurrentVersion { get; } = new(1, 108, 0);
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
         : this(legacyRoster ? new Version(1, 0, 0) : CurrentVersion)
@@ -481,26 +489,34 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "急救",
                 "你的回合外，你可以将一张红色牌当【桃】使用。",
                 SkillKind.Jijiu)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:yiji",
-                "遗计",
-                "受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。",
-                SkillKind.Yiji)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:yingzi",
-                "英姿",
-                "摸牌阶段，你可以多摸一张牌。",
-                SkillKind.Yingzi)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:jianxiong",
-                "奸雄",
-                "当你受到伤害后，你可以获得造成此伤害的牌。",
-                SkillKind.Jianxiong)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:jieming",
-                "节命",
-                "受到伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。",
-                SkillKind.Jieming)));
+            builder.AddSkill(_version >= new Version(1, 101, 0)
+                ? DamageSkillPrograms.Definition("classic:yiji")
+                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                    "classic:yiji",
+                    "遗计",
+                    "受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。",
+                    SkillKind.Yiji)));
+            builder.AddSkill(_version >= new Version(1, 102, 0)
+                ? DrawPhaseSkillPrograms.Definition("classic:yingzi")
+                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                    "classic:yingzi",
+                    "英姿",
+                    "摸牌阶段，你可以多摸一张牌。",
+                    SkillKind.Yingzi)));
+            builder.AddSkill(_version >= new Version(1, 101, 0)
+                ? DamageSkillPrograms.Definition("classic:jianxiong")
+                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                    "classic:jianxiong",
+                    "奸雄",
+                    "当你受到伤害后，你可以获得造成此伤害的牌。",
+                    SkillKind.Jianxiong)));
+            builder.AddSkill(_version >= new Version(1, 101, 0)
+                ? DamageSkillPrograms.Definition("classic:jieming")
+                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                    "classic:jieming",
+                    "节命",
+                    "受到伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。",
+                    SkillKind.Jieming)));
         }
 
         if (_version >= new Version(1, 80, 0))
@@ -524,13 +540,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         if (_version >= new Version(1, 81, 0))
         {
-            builder.AddSkill(new ContentSkillDefinition(
-                "classic:jiangchi",
-                "将驰",
-                "摸牌阶段，你可以选择一项：1.额外摸一张牌，若如此做，你不能使用或打出【杀】，直到回合结束；2.少摸一张牌，若如此做，你于出牌阶段内使用【杀】无距离限制且能额外使用一张【杀】，直到回合结束。")
-            {
-                ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
-            });
+            builder.AddSkill(_version >= new Version(1, 106, 0)
+                ? DrawPolicySkillPrograms.Definition("classic:jiangchi")
+                : new ContentSkillDefinition(
+                    "classic:jiangchi",
+                    "将驰",
+                    "摸牌阶段，你可以选择一项：1.额外摸一张牌，若如此做，你不能使用或打出【杀】，直到回合结束；2.少摸一张牌，若如此做，你于出牌阶段内使用【杀】无距离限制且能额外使用一张【杀】，直到回合结束。")
+                {
+                    ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
+                });
         }
 
         if (_version >= new Version(1, 82, 0))
@@ -568,18 +586,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         if (_version >= new Version(1, 84, 0))
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:zishou",
-                    "自守",
-                    "摸牌阶段摸牌时，你可以额外摸X张牌（X为现存势力数）。若如此做，你于本回合出牌阶段内使用的牌不能指定其他角色为目标。",
-                    SkillKind.Zishou),
-                SkillTag.None,
-                SkillExecutionForm.State | SkillExecutionForm.Trigger));
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:zongshi",
-                    "宗室",
-                    "锁定技，你的手牌上限+X（X为现存势力数）。",
-                    SkillKind.Zongshi),
+            builder.AddSkill(_version >= new Version(1, 106, 0)
+                ? DrawPolicySkillPrograms.Definition("classic:zishou")
+                : WithStructuredSkillMetadata(new ContentSkillDefinition(
+                        "classic:zishou",
+                        "自守",
+                        "摸牌阶段摸牌时，你可以额外摸X张牌（X为现存势力数）。若如此做，你于本回合出牌阶段内使用的牌不能指定其他角色为目标。",
+                        SkillKind.Zishou),
+                    SkillTag.None,
+                    SkillExecutionForm.State | SkillExecutionForm.Trigger));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                _version >= new Version(1, 98, 0)
+                    ? RuleQuerySkillPrograms.Definition("classic:zongshi")
+                    : new ContentSkillDefinition(
+                        "classic:zongshi",
+                        "宗室",
+                        "锁定技，你的手牌上限+X（X为现存势力数）。",
+                        SkillKind.Zongshi),
                 SkillTag.Locked,
                 SkillExecutionForm.State));
         }
@@ -637,18 +660,26 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         if (_version >= new Version(1, 88, 0))
         {
+            var dangxian = ClassicLifecycleCatalog.Value.Programs["classic:dangxian"];
+            var dangxianPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:dangxian"];
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:dangxian",
-                    "当先",
-                    "锁定技，回合开始时，你执行一个额外的出牌阶段。",
-                    SkillKind.Dangxian),
+                    dangxian.Id,
+                    dangxianPresentation.Name,
+                    dangxianPresentation.Description)
+                {
+                    Program = dangxian
+                },
                 SkillTag.Locked,
                 SkillExecutionForm.State));
+            var fuli = ClassicLifecycleCatalog.Value.Programs["classic:fuli"];
+            var fuliPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:fuli"];
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:fuli",
-                    "伏枥",
-                    "限定技，当你处于濒死状态时，你可以将体力回复至X点（X为现存势力数），然后将你的武将牌翻面。",
-                    SkillKind.Fuli),
+                    fuli.Id,
+                    fuliPresentation.Name,
+                    fuliPresentation.Description)
+                {
+                    Program = fuli
+                },
                 SkillTag.Limited,
                 SkillExecutionForm.Trigger));
         }
@@ -718,11 +749,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 94, 0))
         {
+            var chengxiang = ClassicLifecycleCatalog.Value.Programs["classic:chengxiang"];
+            var chengxiangPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:chengxiang"];
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:chengxiang",
-                "称象",
-                "每当你受到伤害后，你可以亮出牌堆顶的四张牌。若如此做，你获得其中任意张点数之和小于等于13的牌，然后将其余的牌置入弃牌堆。",
-                SkillKind.Chengxiang)));
+                chengxiang.Id,
+                chengxiangPresentation.Name,
+                chengxiangPresentation.Description)
+            {
+                Program = chengxiang
+            }));
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:renxin",
                 "仁心",
@@ -731,11 +766,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 95, 0))
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:jingce",
-                "精策",
-                "出牌阶段结束时，若你于此回合内使用过的牌的数量大于等于你当前的体力值，你可以摸两张牌。",
-                SkillKind.Jingce) { PhaseSkill = new Skills.JingceModule() }));
+            builder.AddSkill(WithOptionalTriggerMetadata(
+                _version >= new Version(1, 99, 0)
+                    ? ClassicPhaseWindowSkillPrograms.Definition("classic:jingce")
+                    : new ContentSkillDefinition(
+                        "classic:jingce",
+                        "精策",
+                        "出牌阶段结束时，若你于此回合内使用过的牌的数量大于等于你当前的体力值，你可以摸两张牌。",
+                        SkillKind.Jingce)));
         }
         if (_version >= new Version(1, 96, 0))
         {
@@ -759,11 +797,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillKind.Longyin)));
         }
 
-        builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-            "classic:feedback",
-            "反馈",
-            "受到伤害后，你可以获得伤害来源的一张牌。",
-            SkillKind.Feedback)));
+        builder.AddSkill(_version >= new Version(1, 101, 0)
+            ? DamageSkillPrograms.Definition("classic:feedback")
+            : WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                "classic:feedback",
+                "反馈",
+                "受到伤害后，你可以获得伤害来源的一张牌。",
+                SkillKind.Feedback)));
         if (_version >= new Version(1, 1, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -832,19 +872,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 10, 0))
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:tuxi",
-                "突袭",
-                "摸牌阶段，你可以改为获得至多两名其他角色的各一张手牌。",
-                SkillKind.Tuxi)));
+            builder.AddSkill(_version >= new Version(1, 103, 0)
+                ? DrawReplacementSkillPrograms.Definition("classic:tuxi")
+                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                    "classic:tuxi",
+                    "突袭",
+                    "摸牌阶段，你可以改为获得至多两名其他角色的各一张手牌。",
+                    SkillKind.Tuxi)));
         }
         if (_version >= new Version(1, 11, 0))
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:luoyi",
-                "裸衣",
-                "摸牌阶段，你可以少摸一张牌，若如此做，每当你于此回合内使用【杀】或【决斗】对目标角色造成伤害时，此伤害+1。",
-                SkillKind.Luoyi)));
+            builder.AddSkill(_version >= new Version(1, 105, 0)
+                ? DrawAdjustmentSkillPrograms.Definition("classic:luoyi")
+                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
+                    "classic:luoyi",
+                    "裸衣",
+                    "摸牌阶段，你可以少摸一张牌，若如此做，每当你于此回合内使用【杀】或【决斗】对目标角色造成伤害时，此伤害+1。",
+                    SkillKind.Luoyi)));
         }
         if (_version >= new Version(1, 12, 0))
         {
@@ -917,11 +961,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 20, 0))
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:paoxiao",
-                "咆哮",
-                "锁定技，你使用【杀】无次数限制。",
-                SkillKind.Paoxiao), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                _version >= new Version(1, 98, 0)
+                    ? RuleQuerySkillPrograms.Definition("classic:paoxiao")
+                    : new ContentSkillDefinition(
+                        "classic:paoxiao",
+                        "咆哮",
+                        "锁定技，你使用【杀】无次数限制。",
+                        SkillKind.Paoxiao),
+                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 21, 0))
         {
@@ -959,11 +1007,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "离间",
                 "出牌阶段限一次，你可以弃置一张牌并选择两名男性角色，视为其中一名角色对另一名角色使用一张不能被无懈可击响应的【决斗】。",
                 SkillKind.Lijian)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:biyue",
-                "闭月",
-                "结束阶段，你可以摸一张牌。",
-                SkillKind.Biyue) { PhaseSkill = new Skills.BiyueModule() }));
+            builder.AddSkill(WithOptionalTriggerMetadata(
+                _version >= new Version(1, 99, 0)
+                    ? ClassicPhaseWindowSkillPrograms.Definition("classic:biyue")
+                    : new ContentSkillDefinition(
+                        "classic:biyue",
+                        "闭月",
+                        "结束阶段，你可以摸一张牌。",
+                        SkillKind.Biyue)));
         }
         if (_version >= new Version(1, 42, 0))
         {
@@ -972,11 +1023,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "结姻",
                 "出牌阶段限一次，你可以弃置两张手牌并选择一名已受伤的男性角色，令你与其各回复1点体力。",
                 SkillKind.Jieyin)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:xiaoji",
-                "枭姬",
-                "当你失去装备区里的一张牌后，你可以摸两张牌。",
-                SkillKind.Xiaoji)));
+            builder.AddSkill(WithOptionalTriggerMetadata(
+                _version >= new Version(1, 100, 0)
+                    ? ClassicCardMovementSkillPrograms.Definition("classic:xiaoji")
+                    : new ContentSkillDefinition(
+                        "classic:xiaoji",
+                        "枭姬",
+                        "当你失去装备区里的一张牌后，你可以摸两张牌。",
+                        SkillKind.Xiaoji)));
         }
         if (_version >= new Version(1, 43, 0))
         {
@@ -985,11 +1039,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "谦逊",
                 "锁定技，你不能被选择为【顺手牵羊】和【乐不思蜀】的目标。",
                 SkillKind.Qianxun), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:lianying",
-                "连营",
-                "当你失去最后的手牌时，你可以摸一张牌。",
-                SkillKind.Lianying)));
+            builder.AddSkill(WithOptionalTriggerMetadata(
+                _version >= new Version(1, 100, 0)
+                    ? ClassicCardMovementSkillPrograms.Definition("classic:lianying")
+                    : new ContentSkillDefinition(
+                        "classic:lianying",
+                        "连营",
+                        "当你失去最后的手牌时，你可以摸一张牌。",
+                        SkillKind.Lianying)));
         }
         if (_version >= new Version(1, 44, 0))
         {
@@ -1009,13 +1066,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 46, 0))
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:shuangxiong", "双雄",
-                    "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
-                    SkillKind.Shuangxiong),
-                SkillTag.None,
-                SkillExecutionForm.State | SkillExecutionForm.Trigger,
-                new Version(1, 76, 0)));
+            builder.AddSkill(_version >= new Version(1, 107, 0)
+                ? JudgmentDrawSkillPrograms.Definition("classic:shuangxiong")
+                : WithStructuredSkillMetadata(new ContentSkillDefinition(
+                        "classic:shuangxiong", "双雄",
+                        "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
+                        SkillKind.Shuangxiong),
+                    SkillTag.None,
+                    SkillExecutionForm.State | SkillExecutionForm.Trigger,
+                    new Version(1, 76, 0)));
         }
         if (_version >= new Version(1, 47, 0))
         {
@@ -1031,11 +1090,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:lianhuan", "连环",
                 "出牌阶段，你可以将一张梅花手牌当【铁索连环】使用或重铸。", SkillKind.Lianhuan)));
-            builder.AddSkill(WithStructuredSkillMetadata(
-                new ContentSkillDefinition("classic:niepan", "涅槃",
-                    "限定技，当你处于濒死状态时，你可以弃置区域内所有牌，解除连环状态，摸三张牌并将体力回复至3点。", SkillKind.Niepan),
-                SkillTag.Limited,
-                SkillExecutionForm.Trigger));
+            builder.AddSkill(_version >= new Version(1, 108, 0)
+                ? SelfDyingSkillPrograms.Definition("classic:niepan")
+                : WithStructuredSkillMetadata(
+                    new ContentSkillDefinition("classic:niepan", "涅槃",
+                        "限定技，当你处于濒死状态时，你可以弃置区域内所有牌，解除连环状态，摸三张牌并将体力回复至3点。", SkillKind.Niepan),
+                    SkillTag.Limited,
+                    SkillExecutionForm.Trigger));
         }
         if (_version >= new Version(1, 49, 0))
         {
@@ -1049,8 +1110,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 50, 0))
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:jushou", "据守",
-                "结束阶段，你可以摸三张牌，然后将武将牌翻面。", SkillKind.Jushou)));
+            builder.AddSkill(WithOptionalTriggerMetadata(
+                _version >= new Version(1, 99, 0)
+                    ? ClassicPhaseWindowSkillPrograms.Definition("classic:jushou")
+                    : new ContentSkillDefinition("classic:jushou", "据守",
+                        "结束阶段，你可以摸三张牌，然后将武将牌翻面。", SkillKind.Jushou)));
         }
         if (_version >= new Version(1, 51, 0))
         {
@@ -1091,8 +1155,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 56, 0))
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yicong", "义从",
-                "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。", SkillKind.Yicong),
+            builder.AddSkill(WithStructuredSkillMetadata(
+                _version >= new Version(1, 98, 0)
+                    ? RuleQuerySkillPrograms.Definition("classic:yicong")
+                    : new ContentSkillDefinition("classic:yicong", "义从",
+                        "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。", SkillKind.Yicong),
                 SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
         }
         if (_version >= new Version(1, 57, 0))
@@ -1184,11 +1251,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "觉醒技，准备阶段，若你的手牌数大于体力值且本局主公不为刘备，你减1点体力上限，然后获得【马术】和【怒斩】。"),
                 SkillTag.Awakening,
                 SkillExecutionForm.Trigger));
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "sp:guan-yu-mashu",
-                "马术",
-                "锁定技，你计算与其他角色的距离-1。",
-                SkillKind.Mashu), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                _version >= new Version(1, 98, 0)
+                    ? RuleQuerySkillPrograms.Definition("sp:guan-yu-mashu")
+                    : new ContentSkillDefinition(
+                        "sp:guan-yu-mashu",
+                        "马术",
+                        "锁定技，你计算与其他角色的距离-1。",
+                        SkillKind.Mashu),
+                SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "sp:nuzhan",
                 "怒斩",
@@ -1212,11 +1283,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "空城",
                 "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
                 SkillKind.Kongcheng), SkillTag.Locked, SkillExecutionForm.State));
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:mashu",
-                "马术",
-                "锁定技，你计算与其他角色的距离始终 -1。",
-                SkillKind.Mashu), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                _version >= new Version(1, 98, 0)
+                    ? RuleQuerySkillPrograms.Definition("classic:mashu")
+                    : new ContentSkillDefinition(
+                        "classic:mashu",
+                        "马术",
+                        "锁定技，你计算与其他角色的距离始终 -1。",
+                        SkillKind.Mashu),
+                SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:qicai",
                 "奇才",
@@ -1233,8 +1308,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:huoshou", "祸首",
                 "锁定技，南蛮入侵对你无效；其他角色使用南蛮入侵造成的伤害来源改为你。", SkillKind.Huoshou),
                 SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:zaiqi", "再起",
-                "摸牌阶段开始时，若你已受伤，你可以放弃摸牌并展示牌堆顶X张牌（X为你已损失的体力值）：每有一张红桃牌，你回复1点体力，然后弃置这些红桃牌并获得其余牌。", SkillKind.Zaiqi)));
+            builder.AddSkill(_version >= new Version(1, 104, 0)
+                ? DrawRevealReplacementSkillPrograms.Definition("classic:zaiqi")
+                : WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:zaiqi", "再起",
+                    "摸牌阶段开始时，若你已受伤，你可以放弃摸牌并展示牌堆顶X张牌（X为你已损失的体力值）：每有一张红桃牌，你回复1点体力，然后弃置这些红桃牌并获得其余牌。", SkillKind.Zaiqi)));
         }
         if (_version >= new Version(1, 60, 0))
         {

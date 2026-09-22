@@ -32,8 +32,6 @@ internal static class GuanPingChecks
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
             "Package 1.97.0 must publish complete classic Guan Ping with optional Longyin.");
-        Require(GameCheckpoint.CurrentRulesVersion == 101,
-            "Adding package-owned Guan Ping content must not create another global replay-rules gate.");
     }
 
     public static void RedSlashDrawsAndReplays()

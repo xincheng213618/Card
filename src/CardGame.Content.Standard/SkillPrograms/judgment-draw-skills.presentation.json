@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "skills": {
+    "classic:shuangxiong": {
+      "name": "双雄",
+      "description": "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
+      "triggerChoices": {
+        "judgment-replacement": "以判定替代通常摸牌，获得判定牌并取得异色牌转化能力。"
+      }
+    }
+  }
+}

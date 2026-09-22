@@ -10,11 +10,12 @@ internal static class LiuBiaoChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 84, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 83, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 105, 0));
+        var zishou = current.Skills[ZishouSkillId];
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 84, 0)) &&
+                    package.Version == new Version(1, 107, 0)) &&
                 current.Generals[GeneralId] is
                 {
                     FactionId: "qun",
@@ -23,42 +24,29 @@ internal static class LiuBiaoChecks
                     PortraitKey: "liu_biao",
                     SkillIds: var skillIds
                 } && skillIds.SequenceEqual([ZishouSkillId, ZongshiSkillId]) &&
-                current.Skills[ZishouSkillId] is
-                {
-                    LegacyKind: SkillKind.Zishou,
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
-                } &&
-                current.Skills[ZongshiSkillId] is
-                {
-                    LegacyKind: SkillKind.Zongshi,
-                    Tags: SkillTag.Locked,
-                    ExecutionForms: SkillExecutionForm.State,
-                    ActionForms: SkillActionForm.None
-                } &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(ZishouSkillId) &&
-                !previous.Skills.ContainsKey(ZongshiSkillId) &&
+                zishou.LegacyKind is null &&
+                zishou.Program is { RuntimeVersion: "skill-program-v20", MinimumRulesVersion: 125 } &&
+                current.Skills.ContainsKey(ZongshiSkillId) &&
+                previous.Skills[ZishouSkillId] is { LegacyKind: SkillKind.Zishou, Program: null } &&
                 current.ContentHash != previous.ContentHash,
-            "Package 1.84.0 must add exact Liu Biao content without mutating 1.83.0.");
+            "Current package must retain the 1.106 Zishou migration without mutating 1.105.0.");
 
         var fixture = FindFixture();
         var game = fixture.Game;
-        var prompt = RequirePrompt(game, DecisionKind.Zishou);
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(prompt.IsPrivate &&
                 prompt.Choices.Count == 2 &&
-                prompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("living-factions") == "4") &&
-                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
                     .Order(StringComparer.Ordinal)
-                    .SequenceEqual(["zishou-skip", "zishou-use"]),
-            "Zishou must publish one private use/skip choice using the exact four living factions.");
+                    .SequenceEqual(["activate", "skip"]) &&
+                zishou.Program!.Triggers.Single().Effects[0].NumberExpression ==
+                    SkillProgramNumberExpression.LivingFactionCount,
+            "Zishou must publish one generic private choice backed by livingFactionCount.");
 
         var before = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
         var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) == before &&
-                restored.PendingDecision is { Kind: DecisionKind.Zishou, IsPrivate: true },
+                restored.PendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true },
             "A paused Zishou draw choice must replay exactly.");
 
         var revision = game.Revision;
@@ -76,9 +64,8 @@ internal static class LiuBiaoChecks
         Answer(skipped, "zishou-skip");
         ReachHumanPlay(skipped);
         Require(skipped.CreateSnapshot(0, revealAll: true).Players[0].HandCount == skippedBefore + 2 &&
-                skipped.Events.Select(item => item.Payload).OfType<ZishouResolvedEvent>().Any(item =>
-                    item is { PlayerSeat: 0, Used: false, LivingFactionCount: 4, DrawCount: 2 }) &&
-                ZishouUsages(skipped).Count == 0,
+                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.SkillId == ZishouSkillId && !item.Activated),
             "Skipping Zishou must keep normal drawing and create no turn restriction.");
 
     }
@@ -94,10 +81,8 @@ internal static class LiuBiaoChecks
         var snapshot = game.CreateSnapshot(0, revealAll: true);
         var actions = game.GetHumanLegalActions();
         Require(snapshot.Players[0].HandCount == beforeHand + 6 &&
-                ZishouUsages(game).SingleOrDefault() is
-                    { UsageId: "active", Scope: SkillUsageScope.Turn, Count: 1 } &&
-                game.Events.Select(item => item.Payload).OfType<ZishouResolvedEvent>().Any(item =>
-                    item is { PlayerSeat: 0, Used: true, LivingFactionCount: 4, DrawCount: 6 }),
+                game.Events.Select(item => item.Payload).OfType<CardTargetRestrictionGrantedEvent>().Any(item =>
+                    item.Restriction.Source.SkillId == ZishouSkillId),
             "Using Zishou must draw normal two plus four living factions and record one turn state.");
         Require(actions.All(action =>
                     action.Kind is not (LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage) &&
@@ -148,9 +133,10 @@ internal static class LiuBiaoChecks
 
     private static void Answer(GameEngine game, string action)
     {
-        var prompt = RequirePrompt(game, DecisionKind.Zishou);
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        var programAction = action == "zishou-use" ? "activate" : "skip";
         var choice = prompt.Choices.Single(candidate =>
-            candidate.Parameters.GetValueOrDefault("action") == action);
+            candidate.Parameters.GetValueOrDefault("program-action") == programAction);
         var result = game.Submit(new AnswerPromptCommand(
             0,
             prompt.PromptId,
@@ -185,7 +171,7 @@ internal static class LiuBiaoChecks
         {
             var game = CreateGame(registry, seed);
             StartAndSelect(game);
-            if (game.PendingDecision?.Kind != DecisionKind.Zishou) continue;
+            if (game.PendingDecision?.Kind != DecisionKind.ProgramTrigger) continue;
             var handKinds = game.CreateSnapshot(0, revealAll: true).Players[0].Hand
                 .Select(card => card.Kind)
                 .ToHashSet();
@@ -211,7 +197,7 @@ internal static class LiuBiaoChecks
             "The Liu Biao fixture could not select its formal general.");
         for (var step = 0; step < 256; step++)
         {
-            if (game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.Zishou or DecisionKind.PlayCard })
+            if (game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.ProgramTrigger or DecisionKind.PlayCard })
             {
                 return;
             }
@@ -222,10 +208,6 @@ internal static class LiuBiaoChecks
         }
         throw new InvalidOperationException("The Liu Biao fixture did not reach Zishou or play in bounded steps.");
     }
-
-    private static IReadOnlyList<SkillUsageStateSnapshot> ZishouUsages(GameEngine game) =>
-        game.CreateSnapshot(0, revealAll: true).Players[0].SkillRuntimeStates!
-            .Single(state => state.SkillId == ZishouSkillId).Usages;
 
     private static int GetHandLimit(GameEngine game, int seat)
     {

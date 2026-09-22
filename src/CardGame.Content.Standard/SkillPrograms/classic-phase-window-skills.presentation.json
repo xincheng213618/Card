@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:jingce": {
+      "name": "精策",
+      "description": "出牌阶段结束时，若你于此回合内使用过的牌的数量大于等于你当前的体力值，你可以摸两张牌。"
+    },
+    "classic:jushou": {
+      "name": "据守",
+      "description": "结束阶段，你可以摸三张牌，然后将武将牌翻至背面。"
+    },
+    "classic:biyue": {
+      "name": "闭月",
+      "description": "结束阶段，你可以摸一张牌。"
+    }
+  }
+}

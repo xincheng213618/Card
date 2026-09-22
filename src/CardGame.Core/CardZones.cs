@@ -21,6 +21,7 @@ public enum CardZoneKind
 
 public readonly record struct CardLocation
 {
+    [System.Text.Json.Serialization.JsonConstructor]
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
         var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao;
@@ -80,6 +81,7 @@ public sealed record CardZoneDiagnostic(
 /// <summary>A stable, namespaced reason identifier suitable for movement rules and replay.</summary>
 public readonly record struct CardMoveReason
 {
+    [System.Text.Json.Serialization.JsonConstructor]
     public CardMoveReason(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || !value.Contains('.'))
@@ -180,7 +182,6 @@ public static class CardMoveReasons
     public static CardMoveReason QiangxiDiscard { get; } = new("skill.qiangxi.discard-weapon");
     public static CardMoveReason LiuliDiscard { get; } = new("skill.liuli.discard");
     public static CardMoveReason LijianDiscard { get; } = new("skill.lijian.discard");
-    public static CardMoveReason BiyueDraw { get; } = new("skill.biyue.draw");
     public static CardMoveReason ZhenlieDiscard { get; } = new("skill.zhenlie.discard");
     public static CardMoveReason MijiDraw { get; } = new("skill.miji.draw");
     public static CardMoveReason MijiGive { get; } = new("skill.miji.give-card");
@@ -192,11 +193,7 @@ public static class CardMoveReasons
     public static CardMoveReason ChunlaoDeathDiscard { get; } = new("skill.chunlao.death-discard");
     public static CardMoveReason GongqiCost { get; } = new("skill.gongqi.cost");
     public static CardMoveReason GongqiDiscard { get; } = new("skill.gongqi.discard-target-card");
-    public static CardMoveReason ChengxiangReveal { get; } = new("skill.chengxiang.reveal");
-    public static CardMoveReason ChengxiangObtain { get; } = new("skill.chengxiang.obtain");
-    public static CardMoveReason ChengxiangDiscard { get; } = new("skill.chengxiang.discard");
     public static CardMoveReason RenxinDiscard { get; } = new("skill.renxin.discard-equipment");
-    public static CardMoveReason JingceDraw { get; } = new("skill.jingce.draw");
     public static CardMoveReason JunxingCost { get; } = new("skill.junxing.cost");
     public static CardMoveReason JunxingDiscard { get; } = new("skill.junxing.discard-response");
     public static CardMoveReason JunxingDraw { get; } = new("skill.junxing.draw");
@@ -212,13 +209,10 @@ public static class CardMoveReasons
     public static CardMoveReason AnxuTransfer { get; } = new("skill.anxu.transfer");
     public static CardMoveReason AnxuDraw { get; } = new("skill.anxu.draw");
     public static CardMoveReason ZhuiyiDraw { get; } = new("skill.zhuiyi.draw");
-    public static CardMoveReason JushouDraw { get; } = new("skill.jushou.draw");
     public static CardMoveReason JujianDiscard { get; } = new("skill.jujian.discard");
     public static CardMoveReason JujianDraw { get; } = new("skill.jujian.draw");
     public static CardMoveReason ShensuDiscard { get; } = new("skill.shensu.discard-equipment");
     public static CardMoveReason JieyinDiscard { get; } = new("skill.jieyin.discard");
-    public static CardMoveReason XiaojiDraw { get; } = new("skill.xiaoji.draw");
-    public static CardMoveReason LianyingDraw { get; } = new("skill.lianying.draw");
     public static CardMoveReason KujinDraw { get; } = new("skill.kujin.draw");
     public static CardMoveReason ZhihengDiscard { get; } = new("skill.zhiheng.discard");
     public static CardMoveReason ZhihengDraw { get; } = new("skill.zhiheng.draw");

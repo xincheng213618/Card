@@ -1,6 +1,8 @@
 # 技能组合系统重构设计
 
-> 当前门禁策略：rules v102–v114 的逐内容门禁已回收到 v101，后续内容能力由 Registry 与内容哈希控制；开发期存档只接受当前 rules v101，不迁移旧版本，也不为每个武将递增内容包版本。只有同一内容指纹下的引擎回放语义变化才统一提升当前规则版本并废弃旧开发存档。详见 [`DEVELOPMENT_GATES.md`](DEVELOPMENT_GATES.md)。下方 v102–v114 记录属于历史交付说明，不再表示当前仍有双重门禁。
+> 2026-09-22 架构重新确认：当前目标与迁移验收见 [组合式规则引擎](COMPOSABLE_RULE_ENGINE.md)。人物模板提供默认属性与技能；当前人物状态、技能实例、触发组合和规则查询分离。以下阶段记录是历史能力说明，不能以已完成部分推断整体已解耦。当前规则版本以 `DEVELOPMENT_GATES.md` 和 `GameCheckpoint.CurrentRulesVersion` 为准。
+
+> 当前门禁策略：rules v102–v114 的逐内容门禁已回收到 v101，后续内容能力由 Registry 与内容哈希控制；当前语义版本已随共享拼点及 schema 11–17 公共能力演进到 rules v122，开发期存档只接受当前版本，不迁移旧版本，也不为每个武将递增规则版本。只有同一内容指纹下的引擎回放语义变化才统一提升当前规则版本并废弃旧开发存档。详见 [`DEVELOPMENT_GATES.md`](DEVELOPMENT_GATES.md)。下方 v102–v114 记录属于历史交付说明，不再表示当前仍有双重门禁。
 
 状态：v1 基础组合至 v8 判定／贡献链、v9 判定后直接死亡及 v10 持续牌身份与来源限定距离均已接入；经典张角 1.65.0、界张角 1.66.0 与正式服 I 版神关羽 1.67.0 已按各自版本边界注册。D5a 在经典包 1.68.0／rules v96 接入首批结构化元数据，D5b 又以 SP 关羽 1.69.0／rules v98 验证正式觉醒和动态获得技能，以严颜 1.70.0／rules v99 验证正式阳阴转换及每目标回合账本，在 1.71.0–1.79.0 逐批冻结结构化元数据、共享技能身份和仁德阶段账本，以 rules v101 将拒战每用牌记录迁入 `Event` 作用域，在谋吕蒙 1.80.0／rules v102 完成正式技能重置和轮作用域消费者，于曹彰 1.81.0／rules v103 验证摸牌阶段三分支与回合杀状态，于马岱 1.82.0／rules v104 验证分段摸弃选择和目标颜色封禁，于高顺 1.83.0／rules v105 验证主动拼点后的精确目标回合修正及强制手牌身份，于刘表 1.84.0／rules v106 验证现存势力聚合、回合牌目标限制和动态手牌上限，并于王异 1.85.0／rules v107 验证目标确认后的单目标无效、来源区弃牌和结束阶段可选等量分配；契约见 [结构化技能元数据 v1](content/skill-composition/SKILL_METADATA_V1.md)。2026-09-21 更新。
 
@@ -42,11 +44,13 @@ v9 的最终判定后通用 `causeDeath`、独立 cause 审计、无 Damage／�
 
 v10 的拥有者手牌持续牌身份、物理牌普通入口抑制、动作接受时身份冻结及按身份来源限定的杀距离修正见 [可执行配置 v10](content/skill-composition/RUNTIME_V10.md)。A53b2 已用 `classic:wushen` 注册正式服 I 版武神，显式要求 rules v95，并验证红桃桃按杀、通常次数、濒死无桃入口和 Replay；“锁定技”仍只作标签，不替代状态绑定。
 
+schema 11–21 继续沿同一 `SkillProgram`、玩法 hash、通用选择与可恢复帧演进：schema 11 加入生命周期程序，schema 12 加入可解释规则查询，schema 13 加入冻结条件事实与 PlayEnding／TurnEnding，schema 14 加入有界 `CardsMoved`，schema 15 加入 `AfterDamageApplied`、`perDamage`／`perDamagePoint`、伤害牌与来源牌选择、绑定牌交付、通用目标选择和动态补牌表达式，schema 16 加入普通摸牌前的 `DrawPhaseStarting` 及其 `CompleteDrawPhase` 继续点，schema 17 再加入显式加量／替代模式、通用多目标组合和每目标随机暗手牌转移，schema 18 加入动态亮牌、花色集合分流与按绑定数量回复，schema 19 加入普通摸牌调整和回合用牌伤害修正，schema 20 加入同技能互斥分支、动态势力数摸牌以及动作、规则查询和目标三类回合策略，schema 21 加入公开最终判定牌绑定与按绑定牌颜色授予的回合转换。当前标准／经典奸雄、反馈、遗计、节命使用 schema 15，标准／经典英姿使用 schema 16，经典突袭使用 schema 17，经典再起使用 schema 18，经典裸衣使用 schema 19，经典将驰与自守使用 schema 20，经典双雄使用 schema 21；内容层不需要新增人物名或技能名分派。
+
 D5a 的 [结构化技能元数据 v1](content/skill-composition/SKILL_METADATA_V1.md) 将主公／锁定／限定／觉醒／转换标签、状态／触发执行形态与本应用的主动操作入口作为三条独立轴写入内容定义和玩法指纹；`Active` 不冒充 BWIKI 的第三种次要技能类型。标签不从中文说明推断，觉醒显式归一化出锁定与限定，锁定标签不进入优先级。通用状态仓覆盖阶段／回合／轮／整局限次及阳／阴转换、技能重置；rules v96 的涅槃消费稳定内容 ID 整局记录，rules v98 的 SP 关羽消费觉醒记录并动态获得技能，rules v99 的严颜在实际发动拒战后切换阳阴面并记录每目标回合禁用，rules v100 的仁德使用阶段累计，rules v101 把拒战同一用牌防重复迁入 `Event` 作用域。经典包 1.80.0／rules v102 又以谋吕蒙【横野】的 `Game` 成长与击杀重置验证通用 `ResetSkill`，以【英博】的全角色同名伤害牌历史验证 `Round` 清理和首次／重复分支；所有状态继续由命令前缀重建。WPF 技能栏对已结构化技能展示精确类型、动作入口、转换面和横野成长，未迁移技能保留兼容文案。
 
 v1 使用严格校验、版本化且可计算玩法哈希的 JSON，展示文案与规则文件分离。可运行样例现有 11 项技能程序，覆盖 DrawCount、HandLimit、SlashLimit、基础距离查询修正、红色手牌化杀、龙胆式杀闪互换，以及主动步骤 draw、recover、loseHp、giveSelected、discardSelected；另有一名样例武将同时绑定增摸、手牌上限与无限杀三个程序，验证多程序叠加。WPF 通过统一合法动作读取选牌／目标边界，并用 SkillId + ActivationId 保留每个动作身份。
 
-schema 1 本身不支持事件 trigger、判定／改判、死亡技能、标记、复杂响应后的订阅或虚拟无实体【杀】；schema 2～10 以新执行语义扩展已验收窗口而不改变旧文件。`loseHp` 会进入既有濒死／救援链，并在存活后恢复后续配置步骤；schema 5 的最终判定伤害进入既有伤害／濒死／死亡链，schema 6 可从受控牌动作发起判定，schema 7 可让其他合格角色向技能拥有者贡献一张实体手牌，schema 8 可先选判定主体并按发起者和稳定原因订阅最终结果，schema 9 可从最终判定调用通用直接死亡，schema 10 可声明强制手牌身份及其杀距离修正。当前配置运行时仍不提供自定义濒死或死亡时机触发器；需要这类窗口的技能复用现有类型化通用消费者，不能按技能名写临时分支。当前加载器也不会把本设计文档所附的旧 example JSON 当作可执行配置。
+schema 1 本身不支持事件 trigger、判定／改判、死亡技能、标记、复杂响应后的订阅或虚拟无实体【杀】；schema 2～21 以版本化执行语义扩展已验收窗口而不改变旧文件。`loseHp` 会进入既有濒死／救援链，并在存活后恢复后续配置步骤；schema 5 的最终判定伤害进入既有伤害／濒死／死亡链，schema 6 可从受控牌动作发起判定，schema 7 可让其他合格角色向技能拥有者贡献一张实体手牌，schema 8 可先选判定主体并按发起者和稳定原因订阅最终结果，schema 9 可从最终判定调用通用直接死亡，schema 10 可声明强制手牌身份及其杀距离修正，schema 11–14 分别覆盖生命周期、规则查询、阶段结束和有界牌移动窗口，schema 15 覆盖受伤后复杂选择，schema 16 覆盖普通摸牌前的固定拥有者加量摸牌，schema 17 覆盖经校验的一至两目标随机手牌转移替代，schema 18 覆盖有界亮牌集合分流，schema 19 则允许在同一摸牌候选内线性组合 `Draw`、`Recover`、`AdjustNormalDraw`、`GrantTurnCardDamageModifier`、`RevealTopCards`、`FilterBoundCards`、`MoveBoundCards`、`SelectTargets` 与 `TakeRandomHandCardFromSelectedTargets`，schema 20 再允许受约束的 `choiceGroup` 与类型化回合策略，schema 21 进一步允许 `StartJudgment` 生产一个公开最终判定牌绑定，并由 `GrantTurnCardConversion` 仅按该单牌绑定的红黑关系授予本回合【决斗】转换。加载器按绑定生产／消费、同一亮牌根、实体牌恰好一次消费、替代目标集一次消费及无条件生产者约束拒绝不安全图；互斥分支必须同窗口、同优先级、可选、无条件且无独立使用额度，判定转换必须引用已生产的单牌公开绑定。当前配置运行时仍不提供自定义濒死或死亡时机触发器，也未开放多替代共存或任意伤害改写；需要这类窗口的技能复用现有类型化通用消费者，不能按技能名写临时分支。当前加载器也不会把本设计文档所附的旧 example JSON 当作可执行配置。
 
 ## 2. 当前实现的依据与边界
 
@@ -146,12 +150,12 @@ RuleWindow 是引擎内部的执行入口，RuleEventContext 是该窗口的不�
 | DrawCountCalculating / HandLimitCalculating | 摸牌数和手牌上限修正 |
 | CardUseDeclared / CardUseTargetsFinalized | 用牌已成立、最终目标已确定；冲阵等需要区分这两个阶段 |
 | CardResponseAccepted | 使用／打出响应牌已成立，原响应效果尚未继续 |
-| DamageCalculating / DamageCommittedBeforeDying / AfterDamage | 改伤害、记录实际伤害及前置状态、伤害后技能；时序由规则集定义 |
+| DamageCalculating / DamageCommittedBeforeDying / AfterDamageApplied | 改伤害、记录实际伤害及前置状态、伤害后技能；时序由规则集定义 |
 | JudgmentReplacing / JudgmentFinalized / JudgmentCleaningUp | 改判、最终结果、判定牌收尾 |
 | DyingStarted / DeathCommitted / DeathCleaningUp | 濒死救援、死亡技能、死亡清理 |
 | CardsMoved / PhaseStarting / TurnEnded | 失去装备、失去最后手牌、阶段技、状态清理 |
 
-表中 `CardUseTargetsFinalized`、`CardResponseAccepted`、受限的 `JudgmentReplacing` 与 `JudgmentFinalized` 已分别由 v2／v4／v3 提供，其余名称仍是拟议契约。武魂的标记必须计入致死伤害，不能等“只收集存活者”的普通伤害后窗口；具体绑定窗口必须跟所选规则版本一致。
+表中 `CardUseTargetsFinalized`、`CardResponseAccepted`、受限的 `JudgmentReplacing` 与 `JudgmentFinalized` 已分别由 v2／v4／v3 提供；`CardsMoved` 已由 schema 14／rules v119 提供首个有界实现：只接受一个拥有者来源牌区、显式 `perCard`／`perBatch` 出现策略、冻结移动数量与来源区前后数量，并只开放拥有者摸牌效果。`AfterDamageApplied` 已由 schema 15／rules v120 提供有界实现：冻结来源、目标、实际伤害点数和实体伤害牌，显式区分 `perDamage`／`perDamagePoint`，并只开放经校验的选牌、选目标、绑定移动及摸牌表达式。`DrawPhaseStarting` 由 schema 16／rules v121 提供固定 `draw owner` 加量；schema 17／rules v122 在同一稳定候选窗口加入显式 `replacement`、多目标选择与随机暗手牌转移；schema 18／rules v123 再加入 `OwnerLostHp` 动态亮牌、按花色过滤绑定集合、分流移动与 `BoundCardCount` 回复；schema 19／rules v124 将这些既有节点与普通摸牌调整、带来源／牌型／实际用牌者／非连环／回合期限约束的伤害修正纳入同一个线性图校验器；schema 20／rules v125 再加入互斥分支标签、`LivingFactionCount` 摸牌、用牌／打出禁止、规则查询修正与仅可指定自己的目标限制；schema 21／rules v126 加入共享公开判定结果绑定和按绑定牌相反颜色授予的本回合【决斗】转换。节点可重复、可换序，只要绑定与实体牌守恒仍成立；同一互斥组只执行被选中的一个分支。替代完成终止剩余候选并跳过正常摸牌，跳过替代则继续候选和调整后的正常摸牌。其他 `PhaseStarting`、`TurnEnded` 等名称仍是拟议契约。武魂的标记必须计入致死伤害，不能等“只收集存活者”的普通伤害后窗口；具体绑定窗口必须跟所选规则版本一致。
 
 ### 5.2 保留牌的来历和参与者
 

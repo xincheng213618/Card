@@ -8,7 +8,7 @@ public sealed partial class GameEngine
     private const string NuzhanSkillId = "sp:nuzhan";
     private const string AwakeningUsageId = "awakening";
 
-    private void ResolveDanjiAwakening(PlayerRuntime player)
+    private void ResolveDanjiAwakening(CharacterState player)
     {
         if (!SupportsRuntimeSkillAcquisition ||
             !HasRuntimeSkill(player, DanjiSkillId) ||
@@ -56,45 +56,18 @@ public sealed partial class GameEngine
             player.Seat);
     }
 
-    private IReadOnlyList<string> AcquireRuntimeSkills(
-        PlayerRuntime player,
-        string sourceSkillId,
-        IReadOnlyList<string> skillIds)
-    {
-        if (_contentRegistry is null)
-            throw new InvalidOperationException("Runtime skills require an active content registry.");
-
-        var acquired = new List<string>();
-        foreach (var skillId in skillIds.Distinct(StringComparer.Ordinal))
-        {
-            _ = _contentRegistry.GetSkill(skillId);
-            if (!EnabledContentSkillIds(player).Contains(skillId, StringComparer.Ordinal))
-                acquired.Add(skillId);
-        }
-        if (acquired.Count == 0) return [];
-
-        player.AcquiredSkillIds.AddRange(acquired);
-        foreach (var skillId in acquired)
-            RegisterTaggedConversionSkill(player, skillId);
-        QueueGameEvent(new SkillsAcquiredEvent(
-            player.Seat,
-            sourceSkillId,
-            Array.AsReadOnly(acquired.ToArray())));
-        return Array.AsReadOnly(acquired.ToArray());
-    }
-
     private bool IsLiuBeiLord()
     {
         var lord = _players.SingleOrDefault(player => player.Role == Role.Lord);
         return lord is not null && lord.General.Id is "classic:liu-bei" or "standard:liu-bei" or "liu-bei";
     }
 
-    private bool IgnoresSpGuanYuWushengDistance(PlayerRuntime player, Card card) =>
+    private bool IgnoresSpGuanYuWushengDistance(CharacterState player, Card card) =>
         SupportsRuntimeSkillAcquisition &&
         HasRuntimeSkill(player, SpGuanYuWushengSkillId) &&
         card.Suit == Suit.Diamond;
 
-    private NuzhanModifiers GetNuzhanModifiers(long frameId, PlayerRuntime source)
+    private NuzhanModifiers GetNuzhanModifiers(long frameId, CharacterState source)
     {
         if (!SupportsRuntimeSkillAcquisition || !HasRuntimeSkill(source, NuzhanSkillId))
             return default;
@@ -137,7 +110,7 @@ public sealed partial class GameEngine
 
     private void AddNuzhanUnlimitedTrickSlashActions(
         ICollection<LegalAction> actions,
-        PlayerRuntime actor,
+        CharacterState actor,
         IReadOnlyList<Card> playableCards)
     {
         if (!SupportsRuntimeSkillAcquisition || !HasRuntimeSkill(actor, NuzhanSkillId)) return;

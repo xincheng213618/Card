@@ -17,16 +17,14 @@ public static class BattleCueProjector
         var events = source.ToArray();
         var targets = events.Select(item => item.Payload).OfType<TargetsConfirmedEvent>()
             .GroupBy(item => item.ResolutionId).ToDictionary(group => group.Key, group => group.Last().TargetSeats);
-        var legacyJingceOwners = events.Select(item => item.Payload).OfType<JingceResolvedEvent>()
-            .Where(item => item.Used).Select(item => item.OwnerSeat).ToHashSet();
         var cues = new List<BattleCue>();
         var responseCards = new HashSet<int>();
         string Name(int seat) => playerView.Players.FirstOrDefault(player => player.Seat == seat)?.GeneralName ?? "武将";
-        string SkillName(SkillModuleResolvedEvent resolved)
+        string SkillName(int ownerSeat, string skillId)
         {
-            var player = playerView.Players.FirstOrDefault(candidate => candidate.Seat == resolved.OwnerSeat);
+            var player = playerView.Players.FirstOrDefault(candidate => candidate.Seat == ownerSeat);
             var skills = (player?.Skills ?? []).Concat(player?.SecondarySkills ?? []);
-            return skills.FirstOrDefault(skill => skill.ContentId == resolved.SkillId)?.Name ?? resolved.SkillId;
+            return skills.FirstOrDefault(skill => skill.ContentId == skillId)?.Name ?? skillId;
         }
         IReadOnlyList<int> Seats(IEnumerable<int> seats) => Array.AsReadOnly(seats.Where(seat => seat >= 0 && seat < playerView.Players.Count).Distinct().ToArray());
 
@@ -111,22 +109,13 @@ public static class BattleCueProjector
                     jiefan.ResponderSeat, Seats([jiefan.TargetSeat]), "解烦 · 响应",
                     Name(jiefan.ResponderSeat),
                     Detail: jiefan.DiscardedWeaponCardId is null ? "令目标摸一张牌" : "弃置一张武器"),
-                ChengxiangResolvedEvent { Used: true } chengxiang => new(envelope.Sequence,
-                    BattleCueKind.Response, chengxiang.OwnerSeat, Seats([chengxiang.OwnerSeat]),
-                    $"称象 · 获得{chengxiang.ObtainedCardIds.Count}张", Name(chengxiang.OwnerSeat),
-                    Detail: $"点数和 {chengxiang.ObtainedRankSum} · 其余{chengxiang.DiscardedCardIds.Count}张弃置"),
                 RenxinResolvedEvent { Used: true } renxin => new(envelope.Sequence,
                     BattleCueKind.Response, renxin.OwnerSeat, Seats([renxin.TargetSeat]),
                     $"仁心 · 防止{renxin.PreventedAmount}点伤害", Name(renxin.OwnerSeat),
                     Detail: renxin.IsFaceDown ? "弃置装备 · 翻至背面" : "弃置装备 · 翻至正面"),
-                JingceResolvedEvent { Used: true } jingce => new(envelope.Sequence,
-                    BattleCueKind.Response, jingce.OwnerSeat, Seats([jingce.OwnerSeat]),
-                    $"精策 · 摸{jingce.DrawnCardIds.Count}张", Name(jingce.OwnerSeat),
-                    Detail: $"本回合用牌 {jingce.UsedCardCount} · 当前体力 {jingce.CurrentHp}"),
-                SkillModuleResolvedEvent { Used: true } skillModule
-                    when skillModule.SkillId != "classic:jingce" || !legacyJingceOwners.Contains(skillModule.OwnerSeat) => new(envelope.Sequence,
+                SkillModuleResolvedEvent { Used: true } skillModule => new(envelope.Sequence,
                         BattleCueKind.Response, skillModule.OwnerSeat, Seats([skillModule.OwnerSeat]),
-                        $"{SkillName(skillModule)} · 已发动", Name(skillModule.OwnerSeat)),
+                        $"{SkillName(skillModule.OwnerSeat, skillModule.SkillId)} · 已发动", Name(skillModule.OwnerSeat)),
                 JunxingResolvedEvent junxing => new(envelope.Sequence,
                     BattleCueKind.Response, junxing.OwnerSeat, Seats([junxing.TargetSeat]),
                     junxing.DiscardedCardId is not null ? "峻刑 · 弃置异类手牌" : $"峻刑 · 翻面摸{junxing.DrawnCardIds.Count}张",
@@ -141,12 +130,13 @@ public static class BattleCueProjector
                     BattleCueKind.Response, longyin.OwnerSeat, Seats([longyin.SlashSourceSeat]),
                     "龙吟 · 杀不计次数", Name(longyin.OwnerSeat),
                     Detail: longyin.SlashWasRed ? "弃置一张牌 · 红色杀摸一张" : "弃置一张牌 · 黑色杀不摸牌"),
-                DangxianExtraPlayPhaseEvent { Started: true } dangxian => new(envelope.Sequence,
-                    BattleCueKind.Turn, dangxian.OwnerSeat, Seats([dangxian.OwnerSeat]),
-                    "当先 · 额外出牌阶段", Name(dangxian.OwnerSeat), Detail: "正常准备与摸牌前"),
-                FuliResolvedEvent fuli => new(envelope.Sequence, BattleCueKind.Recovery, fuli.OwnerSeat,
-                    Seats([fuli.OwnerSeat]), $"伏枥 · 回复至{fuli.RemainingHp}", Name(fuli.OwnerSeat),
-                    Detail: $"现存势力 {fuli.LivingFactionCount} · {(fuli.IsFaceDown ? "翻至背面" : "翻至正面")}"),
+                ProgramPhaseScheduledEvent { Started: true } phase => new(envelope.Sequence,
+                    BattleCueKind.Turn, phase.OwnerSeat, Seats([phase.OwnerSeat]),
+                    $"{SkillName(phase.OwnerSeat, phase.SkillId)} · 额外{PhaseName(phase.Phase)}阶段",
+                    Name(phase.OwnerSeat), Detail: "正常回合流程前"),
+                ProgramBindingResolvedEvent { Activated: true, Completed: true } program => new(envelope.Sequence,
+                    BattleCueKind.Response, program.OwnerSeat, Seats([program.OwnerSeat]),
+                    $"{SkillName(program.OwnerSeat, program.SkillId)} · 已发动", Name(program.OwnerSeat)),
                 FuhunConvertedEvent fuhun => new(envelope.Sequence, BattleCueKind.Response, fuhun.SourceSeat,
                     Seats([fuhun.ResponseTargetSeat]), "父魂 · 两牌化杀", Name(fuhun.SourceSeat),
                     Detail: fuhun.IsUse ? "作为【杀】使用" : "作为【杀】打出"),
@@ -204,6 +194,15 @@ public static class BattleCueProjector
         JujianBenefitKind.RecoverOne => "回复1点体力",
         JujianBenefitKind.RestoreGeneral => "复原武将牌",
         _ => "未发动"
+    };
+
+    private static string PhaseName(TurnPhase phase) => phase switch
+    {
+        TurnPhase.Draw => "摸牌",
+        TurnPhase.Play => "出牌",
+        TurnPhase.Discard => "弃牌",
+        TurnPhase.Finished => "结束",
+        _ => phase.ToString()
     };
 
     private static string JudgmentName(string reason) => reason switch

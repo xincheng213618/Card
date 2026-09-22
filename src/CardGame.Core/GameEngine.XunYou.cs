@@ -16,7 +16,7 @@ public sealed partial class GameEngine
         _pendingDecision is { Kind: DecisionKind.Qice } decision &&
         !_players[decision.PlayerSeat].IsHuman;
 
-    private bool CanUseFormalQice(PlayerRuntime source)
+    private bool CanUseFormalQice(CharacterState source)
     {
         var hand = GetHand(source);
         return UsesFormalXunYou &&
@@ -28,7 +28,7 @@ public sealed partial class GameEngine
                hand.All(card => !IsQianxiHandCardRestricted(source, card));
     }
 
-    private void BeginQiceChoice(PlayerRuntime source, IReadOnlyList<int> selectedCardIds)
+    private void BeginQiceChoice(CharacterState source, IReadOnlyList<int> selectedCardIds)
     {
         var hand = GetHand(source).OrderBy(card => card.Id).ToArray();
         var selected = selectedCardIds.Order().ToArray();
@@ -137,7 +137,7 @@ public sealed partial class GameEngine
             option.EffectiveCardKind);
     }
 
-    private IReadOnlyList<QiceOption> BuildQiceOptions(PlayerRuntime source)
+    private IReadOnlyList<QiceOption> BuildQiceOptions(CharacterState source)
     {
         var options = new List<QiceOption>();
         void Add(
@@ -171,8 +171,8 @@ public sealed partial class GameEngine
                 .Select(player => player.Seat)
                 .ToArray();
             var barbarianTargets = otherSeats.Where(seat =>
-                    !(UsesFormalMengHuo && _players[seat].General.HasSkill(SkillKind.Huoshou)) &&
-                    !(UsesFormalZhuRong && _players[seat].General.HasSkill(SkillKind.Juxiang)))
+                    !(UsesFormalMengHuo && HasRuntimeSkill(_players[seat], SkillKind.Huoshou)) &&
+                    !(UsesFormalZhuRong && HasRuntimeSkill(_players[seat], SkillKind.Juxiang)))
                 .ToArray();
             Add(CardKind.BarbarianAssault, LegalActionKind.BarbarianAssault,
                 "当【南蛮入侵】使用：其他角色依次响应【杀】", barbarianTargets,
@@ -267,8 +267,8 @@ public sealed partial class GameEngine
 
     private void AddQiceTargetCardOptions(
         ICollection<QiceOption> options,
-        PlayerRuntime source,
-        PlayerRuntime target,
+        CharacterState source,
+        CharacterState target,
         CardKind cardKind,
         LegalActionKind actionKind,
         string cardName)

@@ -143,19 +143,6 @@ public interface IPassiveSkill
         PlayerSkillContext owner,
         bool usedOrPlayedSlashDuringPlayPhase) => false;
 
-    /// <summary>
-    /// Returns whether the owner may replace the current draw phase with a
-    /// skill-specific hand-card gain. The engine owns target privacy and moves.
-    /// </summary>
-    bool CanReplaceDrawPhase(PlayerSkillContext owner) => false;
-
-    /// <summary>
-    /// Returns whether the owner may draw one fewer card to enable a
-    /// turn-scoped skill effect. The engine owns the optional prompt, draw
-    /// count and later damage attribution.
-    /// </summary>
-    bool CanReduceDrawPhase(PlayerSkillContext owner) => false;
-
     bool CanUseAsResponse(
         PlayerSkillContext owner,
         Card card,
@@ -212,12 +199,8 @@ public interface IPassiveSkill
 
     bool OffersDamageCardChoice(DamageSkillContext context) => false;
 
-    bool ClaimsDamageCard(DamageSkillContext context) => false;
-
     DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        ClaimsDamageCard(context)
-            ? DamageSkillEffectKind.ClaimDamageCard
-            : DamageSkillEffectKind.None;
+        DamageSkillEffectKind.None;
 
     bool CanTriggerBeforeJudgment(JudgmentSkillContext context) => false;
 
@@ -289,10 +272,6 @@ public sealed class JianxiongSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Jianxiong;
     public string Name => "奸雄";
-
-    public bool ClaimsDamageCard(DamageSkillContext context) =>
-        (context.SourceCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
-        context.SourceCardIsInProcessing;
 }
 
 public sealed class HujiaSkill : IPassiveSkill
@@ -439,18 +418,12 @@ public sealed class TuxiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Tuxi;
     public string Name => "突袭";
-
-    public bool CanReplaceDrawPhase(PlayerSkillContext owner) =>
-        owner.IsOwnTurn && owner.Phase == TurnPhase.Draw;
 }
 
 public sealed class LuoyiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Luoyi;
     public string Name => "裸衣";
-
-    public bool CanReduceDrawPhase(PlayerSkillContext owner) =>
-        owner.IsOwnTurn && owner.Phase == TurnPhase.Draw;
 }
 
 public sealed class QiangxiSkill : IPassiveSkill, IActiveSkill
@@ -477,60 +450,18 @@ public sealed class FeedbackSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Feedback;
     public string Name => "反馈";
-
-    // Rules v1-v9 and the legacy demo modes keep the original bounded rule
-    // where Feedback claims the damage card from Processing. Classic identity
-    // modes select the formal source-card effect in GameEngine instead.
-    public bool ClaimsDamageCard(DamageSkillContext context) =>
-        context.SourceCard is not null && context.SourceCardIsInProcessing;
-
-    public bool OffersDamageCardChoice(DamageSkillContext context) =>
-        context.Amount > 0 &&
-        context.SourceSeat is not null &&
-        context.SourceSeat != context.Owner.Seat &&
-        (context.SourceCardIsInProcessing || context.SourceCardCount > 0);
-
-    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        OffersDamageCardChoice(context)
-            ? DamageSkillEffectKind.TakeSourceCard
-            : DamageSkillEffectKind.None;
 }
 
 public sealed class YijiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Yiji;
     public string Name => "遗计";
-
-    /// <summary>
-    /// The current bounded demo slice draws two cards and offers one private
-    /// card-to-seat choice. The owner remains the damaged player, while the
-    /// resulting card movement can cross seats.
-    /// </summary>
-    public bool OffersDamageCardChoice(DamageSkillContext context) => context.Amount > 0;
-
-    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        context.Amount > 0
-            ? DamageSkillEffectKind.GiftDrawnCard
-            : DamageSkillEffectKind.None;
 }
 
 public sealed class JiemingSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Jieming;
     public string Name => "节命";
-
-    /// <summary>
-    /// The bounded slice keeps the real timing rule: the owner must be the
-    /// character who just took positive damage. The effect target may be any
-    /// living character whose hand is below max HP and is selected privately.
-    /// </summary>
-    public bool OffersDamageCardChoice(DamageSkillContext context) =>
-        context.Amount > 0 && context.TargetSeat == context.Owner.Seat;
-
-    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        OffersDamageCardChoice(context)
-            ? DamageSkillEffectKind.DrawToMaxHand
-            : DamageSkillEffectKind.None;
 }
 
 public sealed class YuanhuSkill : IPassiveSkill
@@ -867,8 +798,6 @@ public sealed class YingziSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Yingzi;
     public string Name => "英姿";
-
-    public int ModifyDrawCount(PlayerSkillContext owner, int currentCount) => currentCount + 1;
 }
 
 public sealed class MashuSkill : IPassiveSkill
@@ -1136,23 +1065,6 @@ public sealed class ZhiyuSkill : IPassiveSkill
             : DamageSkillEffectKind.None;
 }
 
-public sealed class ChengxiangSkill : IPassiveSkill
-{
-    public SkillKind Kind => SkillKind.Chengxiang;
-    public string Name => "称象";
-
-    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
-        context.Amount > 0 && context.TargetSeat == context.Owner.Seat;
-
-    public bool OffersDamageCardChoice(DamageSkillContext context) =>
-        CanTriggerAfterDamage(context);
-
-    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        CanTriggerAfterDamage(context)
-            ? DamageSkillEffectKind.SelectRevealedCardsByRank
-            : DamageSkillEffectKind.None;
-}
-
 public sealed class RenxinSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Renxin;
@@ -1208,18 +1120,6 @@ public sealed class LongyinSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Longyin;
     public string Name => "龙吟";
-}
-
-public sealed class DangxianSkill : IPassiveSkill
-{
-    public SkillKind Kind => SkillKind.Dangxian;
-    public string Name => "当先";
-}
-
-public sealed class FuliSkill : IPassiveSkill
-{
-    public SkillKind Kind => SkillKind.Fuli;
-    public string Name => "伏枥";
 }
 
 public sealed class FuhunSkill : IPassiveSkill, IActiveSkill
@@ -1519,8 +1419,6 @@ public static class SkillRegistry
             [SkillKind.Paiyi] = new PaiyiSkill(),
             [SkillKind.Qice] = new QiceSkill(),
             [SkillKind.Zhiyu] = new ZhiyuSkill(),
-            [SkillKind.Dangxian] = new DangxianSkill(),
-            [SkillKind.Fuli] = new FuliSkill(),
             [SkillKind.Fuhun] = new FuhunSkill(),
             [SkillKind.Anxu] = new AnxuSkill(),
             [SkillKind.Zhuiyi] = new ZhuiyiSkill(),
@@ -1528,7 +1426,6 @@ public static class SkillRegistry
             [SkillKind.Chunlao] = new ChunlaoSkill(),
             [SkillKind.Gongqi] = new GongqiSkill(),
             [SkillKind.Jiefan] = new JiefanSkill(),
-            [SkillKind.Chengxiang] = new ChengxiangSkill(),
             [SkillKind.Renxin] = new RenxinSkill(),
             [SkillKind.Jingce] = new JingceSkill(),
             [SkillKind.Junxing] = new JunxingSkill(),

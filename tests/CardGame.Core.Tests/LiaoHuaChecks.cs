@@ -26,13 +26,27 @@ internal static class LiaoHuaChecks
             $"gender={general.Gender}, portrait={general.PortraitKey}, skills={string.Join(',', general.SkillIds)}.");
 
         var dangxian = current.Skills[DangxianSkillId];
-        Require(dangxian.LegacyKind == SkillKind.Dangxian && dangxian.Tags == SkillTag.Locked &&
+        Require(dangxian.LegacyKind is null && dangxian.Program is { } dangxianProgram &&
+                dangxianProgram.Triggers.Single() is
+                {
+                    Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+                    Optional: false
+                } &&
+                dangxian.Tags == SkillTag.Locked &&
                 dangxian.ExecutionForms == SkillExecutionForm.State &&
                 dangxian.ActionForms == SkillActionForm.None,
             $"Dangxian metadata drifted: kind={dangxian.LegacyKind}, tags={dangxian.Tags}, " +
             $"execution={dangxian.ExecutionForms}, actions={dangxian.ActionForms}.");
         var fuli = current.Skills[FuliSkillId];
-        Require(fuli.LegacyKind == SkillKind.Fuli && fuli.Tags == SkillTag.Limited &&
+        Require(fuli.LegacyKind is null && fuli.Program is { } fuliProgram &&
+                fuliProgram.Triggers.Single() is
+                {
+                    Window: SkillProgramTriggerWindow.SelfDyingResponse,
+                    Optional: true,
+                    UsageScope: SkillUsageScope.Game,
+                    UsageLimit: 1
+                } &&
+                fuli.Tags == SkillTag.Limited &&
                 fuli.ExecutionForms == SkillExecutionForm.Trigger &&
                 fuli.ActionForms == SkillActionForm.None,
             $"Fuli metadata drifted: kind={fuli.LegacyKind}, tags={fuli.Tags}, " +
@@ -53,8 +67,8 @@ internal static class LiaoHuaChecks
         ReachHumanPlay(game);
 
         var extraPrompt = RequirePrompt(game, DecisionKind.PlayCard);
-        Require(game.Events.Select(item => item.Payload).OfType<DangxianExtraPlayPhaseEvent>()
-                    .Count(item => item.Started) == 1 &&
+        Require(game.Events.Select(item => item.Payload).OfType<ProgramPhaseScheduledEvent>()
+                    .Count(item => item.SkillId == DangxianSkillId && item.Started) == 1 &&
                 game.CardMovements.All(move =>
                     move.To != CardLocation.Hand(HumanSeat) || move.Reason != CardMoveReasons.Draw),
             "Dangxian must enter an extra Play phase before the normal Draw phase.");
@@ -92,7 +106,8 @@ internal static class LiaoHuaChecks
         ReachHumanPlay(game);
 
         var dangxianEvents = game.Events.Select(item => item.Payload)
-            .OfType<DangxianExtraPlayPhaseEvent>().ToArray();
+            .OfType<ProgramPhaseScheduledEvent>()
+            .Where(item => item.SkillId == DangxianSkillId).ToArray();
         Require(dangxianEvents.Length == 2 && dangxianEvents[0].Started && !dangxianEvents[1].Started &&
                 game.Events.Select(item => item.Payload).OfType<PhaseChangedEvent>()
                     .Count(item => item.ActorSeat == HumanSeat && item.Phase == TurnPhase.Play) == 2 &&
@@ -126,10 +141,10 @@ internal static class LiaoHuaChecks
         UseKujin(game);
         var fuliPrompt = RequirePrompt(game, DecisionKind.RescueDying);
         Require(fuliPrompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") == "fuli" &&
-                    choice.Parameters.GetValueOrDefault("living-factions") == "4") &&
+                    choice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+                    choice.Parameters.GetValueOrDefault("skill-id") == FuliSkillId) &&
                 fuliPrompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "let-die"),
-            "Fuli must appear as an optional private dying response with the frozen living-faction count.");
+            "Fuli must appear as an optional private configured dying response.");
 
         var paused = RoundTrip(game.CreateCheckpoint());
         var replay = GameReplay.Restore(paused, registry);
@@ -138,17 +153,16 @@ internal static class LiaoHuaChecks
         ReachHumanPlay(game);
         ReachHumanPlay(replay);
 
-        var resolved = game.Events.Select(item => item.Payload).OfType<FuliResolvedEvent>().Single();
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+            .Single(item => item.SkillId == FuliSkillId && item.Activated);
         var owner = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
         var fuliState = (owner.SkillRuntimeStates ?? [])
             .Single(state => state.SkillId == FuliSkillId);
         Require(resolved is
                 {
                     OwnerSeat: HumanSeat,
-                    LivingFactionCount: 4,
-                    PreviousHp: 0,
-                    RemainingHp: 4,
-                    IsFaceDown: true
+                    Window: SkillProgramTriggerWindow.SelfDyingResponse,
+                    Completed: true
                 } && owner.Hp == 4 && owner.IsFaceDown &&
                 fuliState.Usages.Single(usage => usage.Scope == SkillUsageScope.Game).Count == 1,
             "Fuli must recover to the living-faction count, flip the general and consume its game-scoped use.");
@@ -164,7 +178,8 @@ internal static class LiaoHuaChecks
         UseKujin(game);
         Require(game.PendingDecision is null &&
                 game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp == 0 &&
-                game.Events.Select(item => item.Payload).OfType<FuliResolvedEvent>().Count() == 1,
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .Count(item => item.SkillId == FuliSkillId) == 1,
             "Consumed Fuli must not be offered again in a later dying window.");
     }
 
@@ -187,7 +202,8 @@ internal static class LiaoHuaChecks
     {
         var prompt = RequirePrompt(game, DecisionKind.RescueDying);
         var choice = prompt.Choices.Single(candidate =>
-            candidate.Parameters.GetValueOrDefault("response") == "fuli");
+            candidate.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+            candidate.Parameters.GetValueOrDefault("skill-id") == FuliSkillId);
         var result = game.Submit(new AnswerPromptCommand(
             HumanSeat,
             prompt.PromptId,

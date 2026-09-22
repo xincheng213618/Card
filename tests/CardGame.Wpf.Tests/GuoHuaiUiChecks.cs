@@ -62,14 +62,14 @@ internal static class GuoHuaiUiChecks
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         var loadedGame = Program.Engine(viewModel);
-        var prompt = RequirePrompt(loadedGame, DecisionKind.Jingce);
+        var prompt = RequirePrompt(loadedGame, DecisionKind.ProgramTrigger);
         var presentation = prompt.SkillPrompt;
         var jingce = viewModel.HumanSkillCards.Single(skill => skill.Name == "精策");
         Program.Assert(presentation is
                        {
                            SkillId: "classic:jingce",
                            Name: "精策",
-                           Title: "精策 · 决定是否摸两张牌"
+                           Title: "精策 · 是否发动"
                        } &&
                        viewModel.IsSkillSelectionPending &&
                        viewModel.CurrentGuideTitle == presentation.Title &&
@@ -77,15 +77,15 @@ internal static class GuoHuaiUiChecks
                        viewModel.CurrentGuideSteps[0].Text == presentation.Instructions &&
                        viewModel.CurrentDecisionContext is
                        {
-                           Title: "精策 · 决定是否摸两张牌",
+                           Title: "精策 · 是否发动",
                            TargetSeat: HumanSeat
                        } &&
                        viewModel.SkillChoices.Select(choice =>
-                           choice.Parameters.GetValueOrDefault("action"))
+                           choice.Parameters.GetValueOrDefault("program-action"))
                            .Order(StringComparer.Ordinal)
-                           .SequenceEqual(["jingce-skip", "jingce-use"]) &&
+                           .SequenceEqual(["activate", "skip"]) &&
                        viewModel.SkillChoices.All(choice =>
-                           choice.Parameters.GetValueOrDefault("used-card-count") == "5" &&
+                           choice.Parameters.GetValueOrDefault("cards-used-this-turn") == "5" &&
                            choice.Parameters.GetValueOrDefault("current-hp") == "5") &&
                        jingce.TypeText == "触发技" &&
                        viewModel.EventStack.Any(line =>
@@ -95,16 +95,15 @@ internal static class GuoHuaiUiChecks
         var promptId = prompt.PromptId;
         var handBefore = loadedGame.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count;
         var use = viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "jingce-use");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "223-classic-jingce-play-end.png"));
         viewModel.SelectSkillChoiceCommand.Execute(use);
         Program.Assert(loadedGame.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count == handBefore + 2 &&
                        loadedGame.PendingDecision?.PromptId != promptId &&
-                       loadedGame.Events.Select(item => item.Payload).OfType<SkillModuleResolvedEvent>()
-                           .Count(item => item.SkillId == "classic:jingce" && item.OwnerSeat == HumanSeat && item.Used) == 1 &&
-                       loadedGame.Events.Select(item => item.Payload).OfType<JingceResolvedEvent>()
-                           .Count(item => item.OwnerSeat == HumanSeat && item.Used) == 1 &&
+                       loadedGame.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                           .Count(item => item.SkillId == "classic:jingce" && item.OwnerSeat == HumanSeat &&
+                               item.Activated && item.Completed) == 1 &&
                        viewModel.BattleCues.Count(cue => cue.Label.StartsWith("精策 ·", StringComparison.Ordinal)) == 1,
             "The metadata-driven Jingce choice must resume play-end exactly once without duplicate battle cues.");
         window.Content = null;
@@ -237,7 +236,7 @@ internal static class GuoHuaiUiChecks
 
         public PackageManifest Manifest { get; } = new(
             "guo-huai-wpf-test", new Version(1, 0, 0),
-            [new PackageDependency("standard-classic-generals", new Version(1, 95, 0))]);
+            [new PackageDependency("standard-classic-generals", new Version(1, 99, 0))]);
 
         public void Register(IContentRegistryBuilder builder)
         {

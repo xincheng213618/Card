@@ -226,7 +226,7 @@ public sealed partial class MainViewModel
         if (nationalZhangJiaoPackages.Length == 1)
             throw new InvalidDataException("存档中的国战张角内容包组合不是当前桌面版支持的组合。");
         var hasRescueSkills = packages.Contains("standard-rescue-skills@1.0.0", StringComparer.Ordinal);
-        var hasActiveSkills = packages.Contains("standard-active-skills@1.0.0", StringComparer.Ordinal);
+        var hasActiveSkills = packages.Contains("standard-active-skills@1.1.0", StringComparer.Ordinal);
         var classicPackageVersion = packages
             .Where(package => package.StartsWith("standard-classic-generals@", StringComparison.Ordinal))
             .Select(package => Version.Parse(package["standard-classic-generals@".Length..]))

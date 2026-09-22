@@ -114,10 +114,14 @@ internal static class LiaoHuaUiChecks
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         var fuliChoice = viewModel.DyingChoices.SingleOrDefault(choice =>
-            choice.Parameters.GetValueOrDefault("response") == "fuli");
+            choice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+            choice.Parameters.GetValueOrDefault("skill-id") == "classic:fuli");
         Program.Assert(viewModel.IsDyingSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动伏枥" &&
-                       fuliChoice?.Parameters.GetValueOrDefault("living-factions") == "4" &&
+                       game.PendingDecision is { Kind: DecisionKind.RescueDying, IsPrivate: true } &&
+                       fuliChoice?.Description.Contains("伏枥", StringComparison.Ordinal) == true &&
+                       fuliChoice.Description.Contains("现存势力", StringComparison.Ordinal) &&
+                       fuliChoice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+                       fuliChoice.Parameters.GetValueOrDefault("skill-id") == "classic:fuli" &&
                        viewModel.DyingChoices.Any(choice =>
                            choice.Parameters.GetValueOrDefault("response") == "let-die"),
             $"The WPF must expose Fuli as a private optional dying response with four living factions " +
@@ -130,10 +134,17 @@ internal static class LiaoHuaUiChecks
         var owner = engine.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
         var fuli = viewModel.HumanSkillCards.Single(skill => skill.Name == "伏枥");
         Program.Assert(owner.Hp == 4 && owner.IsFaceDown &&
-                       engine.Events.Select(item => item.Payload).OfType<FuliResolvedEvent>().Any(result =>
-                           result is { OwnerSeat: HumanSeat, LivingFactionCount: 4, RemainingHp: 4, IsFaceDown: true }) &&
+                       engine.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(result =>
+                           result is
+                           {
+                               SkillId: "classic:fuli",
+                               OwnerSeat: HumanSeat,
+                               Window: SkillProgramTriggerWindow.SelfDyingResponse,
+                               Activated: true,
+                               Completed: true
+                           }) &&
                        viewModel.BattleCues.Any(cue =>
-                           cue.Kind == BattleCueKind.Recovery && cue.Label == "伏枥 · 回复至4") &&
+                           cue.Kind == BattleCueKind.Response && cue.Label == "伏枥 · 已发动") &&
                        fuli.StateText == "已发动 · 本局不可再用",
             $"Confirming Fuli must recover to four, flip the general, publish its cue and mark the limited " +
             $"skill consumed (hp={owner.Hp}, faceDown={owner.IsFaceDown}, state={fuli.StateText}).");

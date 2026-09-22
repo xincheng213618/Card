@@ -11,13 +11,13 @@ public sealed partial class GameEngine
         if (_rulesVersion < 81 || _contentRegistry is null) return false;
         if (!_players[pending.TargetSeat].IsAlive) return false;
         var candidates = _players.Where(player => player.IsAlive).OrderBy(player => player.Seat)
-            .SelectMany(owner => EnabledSkillPrograms(owner)
-                .OrderBy(program => program.Id, StringComparer.Ordinal)
-                .SelectMany(program => program.Triggers
-                    .Where(trigger => MatchesFinalJudgment(trigger, owner, pending, judgmentCard, effectiveSuit))
-                    .OrderBy(trigger => trigger.Id, StringComparer.Ordinal)
-                    .Select(trigger => new ProgramJudgmentTriggerCandidate(
-                        owner.Seat, program.Id, trigger.Id, program.GameplayHash))))
+            .SelectMany(owner => EnabledUniqueProgramTriggers(owner, SkillProgramTriggerWindow.JudgmentFinalized)
+                .OrderBy(binding => binding.SkillId, StringComparer.Ordinal)
+                .ThenBy(binding => binding.Trigger.Id, StringComparer.Ordinal)
+                .Where(binding => MatchesFinalJudgment(
+                    binding.Trigger, owner, pending, judgmentCard, effectiveSuit))
+                .Select(binding => new ProgramJudgmentTriggerCandidate(
+                    owner.Seat, binding.Program.Id, binding.Trigger.Id, binding.Program.GameplayHash)))
             .ToArray();
         if (candidates.Length == 0) return false;
 
@@ -42,7 +42,7 @@ public sealed partial class GameEngine
 
     private bool MatchesFinalJudgment(
         SkillProgramTrigger trigger,
-        PlayerRuntime owner,
+        CharacterState owner,
         JudgmentResolution pending,
         Card judgmentCard,
         Suit effectiveSuit) =>
@@ -77,7 +77,7 @@ public sealed partial class GameEngine
                CanStartFinalJudgmentEffects(owner, trigger);
     }
 
-    private bool CanStartFinalJudgmentEffects(PlayerRuntime owner, SkillProgramTrigger trigger)
+    private bool CanStartFinalJudgmentEffects(CharacterState owner, SkillProgramTrigger trigger)
     {
         var first = trigger.Effects.FirstOrDefault(effect =>
             effect.Condition.Evaluate(CreateSkillContext(owner)));
@@ -87,7 +87,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<int> GetProgramJudgmentTargetSeats(
-        PlayerRuntime owner,
+        CharacterState owner,
         SkillProgramTriggerEffect effect)
     {
         if (effect is not
@@ -139,7 +139,7 @@ public sealed partial class GameEngine
             if (!frame.Activated)
             {
                 if (!CanRunProgramJudgmentTrigger(candidate, trigger, frame.Judgment) ||
-                    !EnabledSkillPrograms(owner).Any(item => item.Id == candidate.SkillId))
+                    !GetSkillBindingShard(owner)!.HasProgram(candidate.SkillId, candidate.GameplayHash))
                 {
                     AdvanceProgramJudgmentCandidate(frame);
                     continue;

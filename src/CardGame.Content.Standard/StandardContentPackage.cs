@@ -8,10 +8,34 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class StandardContentPackage : IGameContentPackage
 {
-    public PackageManifest Manifest { get; } = new(
-        Id: "standard",
-        Version: new Version(1, 11, 0),
-        Dependencies: []);
+    private readonly Version _version;
+
+    public static Version CurrentVersion { get; } = new(1, 14, 0);
+
+    public StandardContentPackage()
+        : this(CurrentVersion)
+    {
+    }
+
+    public StandardContentPackage(Version version)
+    {
+        ArgumentNullException.ThrowIfNull(version);
+        if (version is not { Major: 1, Minor: 11 or 12 or 13 or 14, Build: 0, Revision: < 0 })
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(version),
+                version,
+                $"Supported standard package versions are 1.11.0 through {CurrentVersion}.");
+        }
+
+        _version = version;
+        Manifest = new PackageManifest(
+            Id: "standard",
+            Version: version,
+            Dependencies: []);
+    }
+
+    public PackageManifest Manifest { get; }
 
     public void Register(IContentRegistryBuilder builder)
     {
@@ -306,24 +330,40 @@ public sealed class StandardContentPackage : IGameContentPackage
 
         builder.AddSkill(new ContentSkillDefinition(
             "standard:none", "无", "演示版暂未启用技能。", SkillKind.None));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:jianxiong", "奸雄", "受到杀造成的伤害后，获得这张杀。", SkillKind.Jianxiong));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:feedback", "反馈", "受到伤害且伤害牌仍在处理区时，可选择发动并获得造成伤害的牌。", SkillKind.Feedback));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:paoxiao", "咆哮", "出牌阶段使用杀没有次数限制。", SkillKind.Paoxiao));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:yingzi", "英姿", "摸牌阶段额外摸一张牌。", SkillKind.Yingzi));
+        builder.AddSkill(_version >= new Version(1, 13, 0)
+            ? DamageSkillPrograms.Definition("standard:jianxiong")
+            : new ContentSkillDefinition(
+                "standard:jianxiong", "奸雄", "受到杀造成的伤害后，获得这张杀。", SkillKind.Jianxiong));
+        builder.AddSkill(_version >= new Version(1, 13, 0)
+            ? DamageSkillPrograms.Definition("standard:feedback")
+            : new ContentSkillDefinition(
+                "standard:feedback", "反馈", "受到伤害且伤害牌仍在处理区时，可选择发动并获得造成伤害的牌。", SkillKind.Feedback));
+        builder.AddSkill(_version >= new Version(1, 12, 0)
+            ? RuleQuerySkillPrograms.Definition("standard:paoxiao") with
+            {
+                Tags = SkillTag.Locked,
+                ExecutionForms = SkillExecutionForm.State
+            }
+            : new ContentSkillDefinition(
+                "standard:paoxiao", "咆哮", "出牌阶段使用杀没有次数限制。", SkillKind.Paoxiao));
+        builder.AddSkill(_version >= new Version(1, 14, 0)
+            ? DrawPhaseSkillPrograms.Definition("standard:yingzi")
+            : new ContentSkillDefinition(
+                "standard:yingzi", "英姿", "摸牌阶段额外摸一张牌。", SkillKind.Yingzi));
         builder.AddSkill(new ContentSkillDefinition(
             "standard:kongcheng", "空城", "没有手牌时不能成为杀的目标。", SkillKind.Kongcheng));
         builder.AddSkill(new ContentSkillDefinition(
             "standard:wusheng", "武圣", "红色牌可当作杀使用。", SkillKind.Wusheng));
         builder.AddSkill(new ContentSkillDefinition(
             "standard:longdan", "龙胆", "杀可当闪，闪可当杀使用。", SkillKind.Longdan));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:yiji", "遗计", "受到伤害后摸两张牌，然后可将其中一张交给一名其他存活角色。", SkillKind.Yiji));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:jieming", "节命", "受到伤害后，可令一名手牌数少于体力上限的角色摸牌至上限。", SkillKind.Jieming));
+        builder.AddSkill(_version >= new Version(1, 13, 0)
+            ? DamageSkillPrograms.Definition("standard:yiji")
+            : new ContentSkillDefinition(
+                "standard:yiji", "遗计", "受到伤害后摸两张牌，然后可将其中一张交给一名其他存活角色。", SkillKind.Yiji));
+        builder.AddSkill(_version >= new Version(1, 13, 0)
+            ? DamageSkillPrograms.Definition("standard:jieming")
+            : new ContentSkillDefinition(
+                "standard:jieming", "节命", "受到伤害后，可令一名手牌数少于体力上限的角色摸牌至上限。", SkillKind.Jieming));
         builder.AddSkill(new ContentSkillDefinition(
             "standard:yuanhu", "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。", SkillKind.Yuanhu));
         builder.AddSkill(new ContentSkillDefinition(
@@ -449,6 +489,8 @@ public sealed class StandardContentPackage : IGameContentPackage
 
 public static class StandardContentRegistry
 {
+    private static readonly Version RuleQueryProgramMigrationVersion = new(1, 98, 0);
+
     public static ContentRegistry Create() =>
         ContentRegistry.Build(new StandardContentPackage());
 
@@ -474,18 +516,20 @@ public static class StandardContentRegistry
             new StandardRescueSkillExpansionPackage());
 
     public static ContentRegistry CreateWithClassicGenerals(bool legacyRoster = false) =>
-        ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(legacyRoster));
+        legacyRoster
+            ? CreateWithClassicGenerals(new Version(1, 0, 0))
+            : CreateWithClassicGenerals(StandardClassicGeneralPackage.CurrentVersion);
 
-    public static ContentRegistry CreateWithClassicGenerals(Version classicPackageVersion) =>
-        ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+    public static ContentRegistry CreateWithClassicGenerals(Version classicPackageVersion)
+    {
+        ArgumentNullException.ThrowIfNull(classicPackageVersion);
+        var legacyDependencies = classicPackageVersion < RuleQueryProgramMigrationVersion;
+        return ContentRegistry.Build(
+            StandardPackage(legacyDependencies),
+            ActiveSkillPackage(legacyDependencies, includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
             new StandardClassicGeneralPackage(classicPackageVersion));
+    }
 
     public static ContentRegistry CreateWithTeamModes() =>
         ContentRegistry.Build(
@@ -494,12 +538,12 @@ public static class StandardContentRegistry
 
     public static ContentRegistry CreateWithNationalWarLite(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
+            StandardPackage(legacyVitals),
             new StandardNationalWarLitePackage(legacyVitals));
 
     public static ContentRegistry CreateWithNationalWarAmbitious(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
+            StandardPackage(legacyVitals),
             new StandardNationalWarLitePackage(legacyVitals),
             new StandardNationalWarAmbitiousPackage());
 
@@ -511,14 +555,14 @@ public static class StandardContentRegistry
 
     public static ContentRegistry CreateWithActiveSkillsAndNationalWarLite(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(),
+            StandardPackage(legacyVitals),
+            ActiveSkillPackage(legacyVitals),
             new StandardNationalWarLitePackage(legacyVitals));
 
     public static ContentRegistry CreateWithActiveSkillsAndNationalWarAmbitious(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(),
+            StandardPackage(legacyVitals),
+            ActiveSkillPackage(legacyVitals),
             new StandardNationalWarLitePackage(legacyVitals),
             new StandardNationalWarAmbitiousPackage());
 
@@ -531,39 +575,39 @@ public static class StandardContentRegistry
 
     public static ContentRegistry CreateWithRescueSkillsAndTeamModesAndNationalWarLite(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            StandardPackage(legacyVitals),
+            ActiveSkillPackage(legacyVitals, includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
             new StandardTeamModePackage(),
             new StandardNationalWarLitePackage(legacyVitals));
 
     public static ContentRegistry CreateWithRescueSkillsAndNationalWarAmbitious(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            StandardPackage(legacyVitals),
+            ActiveSkillPackage(legacyVitals, includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
             new StandardNationalWarLitePackage(legacyVitals),
             new StandardNationalWarAmbitiousPackage());
 
     public static ContentRegistry CreateWithActiveSkillsAndTeamModesAndNationalWarAmbitious(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(),
+            StandardPackage(legacyVitals),
+            ActiveSkillPackage(legacyVitals),
             new StandardTeamModePackage(),
             new StandardNationalWarLitePackage(legacyVitals),
             new StandardNationalWarAmbitiousPackage());
 
     public static ContentRegistry CreateWithTeamModesAndNationalWarAmbitious(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
+            StandardPackage(legacyVitals),
             new StandardTeamModePackage(),
             new StandardNationalWarLitePackage(legacyVitals),
             new StandardNationalWarAmbitiousPackage());
 
     public static ContentRegistry CreateWithRescueSkillsAndTeamModesAndNationalWarAmbitious(bool legacyVitals = false) =>
         ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            StandardPackage(legacyVitals),
+            ActiveSkillPackage(legacyVitals, includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
             new StandardTeamModePackage(),
             new StandardNationalWarLitePackage(legacyVitals),
@@ -572,24 +616,37 @@ public static class StandardContentRegistry
     public static ContentRegistry CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(
         bool legacyVitals = false,
         bool legacyClassicRoster = false) =>
-        ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(legacyClassicRoster),
-            new StandardTeamModePackage(),
-            new StandardNationalWarLitePackage(legacyVitals),
-            new StandardNationalWarAmbitiousPackage());
+        CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(
+            legacyVitals,
+            legacyClassicRoster ? new Version(1, 0, 0) : StandardClassicGeneralPackage.CurrentVersion);
 
     public static ContentRegistry CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(
         bool legacyVitals,
         Version classicPackageVersion) =>
-        ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+        BuildClassicNationalRegistry(legacyVitals, classicPackageVersion);
+
+    private static ContentRegistry BuildClassicNationalRegistry(bool legacyVitals, Version classicPackageVersion)
+    {
+        ArgumentNullException.ThrowIfNull(classicPackageVersion);
+        var legacyDependencies = legacyVitals ||
+                                 classicPackageVersion < RuleQueryProgramMigrationVersion;
+        return ContentRegistry.Build(
+            StandardPackage(legacyDependencies),
+            ActiveSkillPackage(legacyDependencies, includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
             new StandardClassicGeneralPackage(classicPackageVersion),
             new StandardTeamModePackage(),
             new StandardNationalWarLitePackage(legacyVitals),
             new StandardNationalWarAmbitiousPackage());
+    }
+
+    private static StandardContentPackage StandardPackage(bool legacy) =>
+        new(legacy ? new Version(1, 11, 0) : StandardContentPackage.CurrentVersion);
+
+    private static StandardActiveSkillExpansionPackage ActiveSkillPackage(
+        bool legacy,
+        bool includeJijiu = false) =>
+        new(
+            legacy ? new Version(1, 0, 0) : StandardActiveSkillExpansionPackage.CurrentVersion,
+            includeJijiu);
 }

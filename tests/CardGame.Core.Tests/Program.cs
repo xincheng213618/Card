@@ -19,6 +19,63 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("execution plans unify active and trigger instruction identities", ProgramExecutionPlanChecks.ActiveAndTriggerUseStableInstructionPlans),
+    ("execution plans freeze instructions and reject ambiguous bindings", ProgramExecutionPlanChecks.PlansFreezeInstructionsAndRejectAmbiguousBindings),
+    ("rule query reduction is input-order independent", RuleQueryReducerChecks.IsIndependentOfInputOrderAndRejectsOnlyWinningSetConflicts),
+    ("rule query reduction sums before one final clamp", RuleQueryReducerChecks.SumsBeforeClampingAndHandlesIntegerExtremes),
+    ("rule query reduction keeps unlimited separate", RuleQueryReducerChecks.KeepsUnlimitedSeparateAndStillValidatesFiniteConflicts),
+    ("rule query reduction rejects invalid mutable inputs", RuleQueryReducerChecks.RejectsInvalidInputsAndFreezesOutput),
+    ("rule query reducer has no concrete skill dependency", RuleQueryReducerChecks.HasNoConcreteSkillDependency),
+    ("rule query base terms precede Set and remain inspectable", RuleQueryReducerChecks.BaseTermsPrecedeSetsAndRemainInspectable),
+    ("rule query distance runs both directions before clamping", RuleQueryReducerChecks.DirectionalDistanceRunsBothStagesBeforeClamping),
+    ("rule query programs deduplicate instances and evaluate dynamic values", RuleQueryReducerChecks.ProgramContributionsUseInstanceIdentityAndDynamicValues),
+    ("rule query registry rejects future Set conflicts", RuleQueryReducerChecks.StaticSetConflictsAreRejectedBeforePlay),
+    ("rule query schema requires explicit modifier identity and priority", RuleQueryReducerChecks.SchemaTwelveRequiresExplicitModifierIdentityAndPriority),
+    ("rule query content preserves formal and legacy version boundaries", RuleQueryIntegrationChecks.FormalContentPreservesVersionBoundaries),
+    ("rule query engine tracks dynamic grants and program instances", RuleQueryIntegrationChecks.EngineTracksDynamicSourcesAndInstanceIdentity),
+    ("rule query engine consumes formal unlimited slash programs", RuleQueryIntegrationChecks.EngineConsumesFormalUnlimitedSlashProgram),
+    ("character skills retain separate sources and stable ownership", CharacterSkillSetChecks.GrantsRetainSourcesAndStableOwnership),
+    ("character skills reject conflicting grants without partial state", CharacterSkillSetChecks.InvalidGrantsAndConflictsLeaveStateUnchanged),
+    ("character templates supply defaults without owning current state", CharacterSkillSetChecks.CharacterTemplatesSupplyDefaultsWithoutOwningCurrentState),
+    ("match skill binding reads reuse shards and partition numeric buckets", MatchSkillBindingIndexChecks.ReadPathsReuseShardsAndPartitionNumericBuckets),
+    ("match skill binding sources preserve instance and unique-program semantics", MatchSkillBindingIndexChecks.SourcesDeduplicateInstancesAndUniqueProgramBuckets),
+    ("match skill binding Lord templates do not suppress independent grants", MatchSkillBindingIndexChecks.LordTemplateGateDoesNotSuppressIndependentSources),
+    ("match skill binding stamps rebuild only the changed seat", MatchSkillBindingIndexChecks.OnlyBindingStampChangesRebuildOneSeatAndOldShardsStayFrozen),
+    ("match skill binding indexes remain isolated per match", MatchSkillBindingIndexChecks.MatchIndexesDoNotShareCaches),
+    ("skill executor composes primitive handlers with conditions and committed cursors", SkillProgramExecutorChecks.ExecutesComposedEffectsConditionsAndCursorOrder),
+    ("skill executor resumes child resolution without repeating paid effects", SkillProgramExecutorChecks.SuspendedChildResumesWithoutRepeatingPaidEffect),
+    ("skill executor cancels remaining effects after an invalid selected cost", SkillProgramExecutorChecks.InvalidSelectedCostCancelsRemainingEffectsAtomically),
+    ("skill executor rejects changed programs and missing or duplicate handlers", SkillProgramExecutorChecks.RejectsChangedProgramsUnknownHandlersAndDuplicates),
+    ("skill executor discovers reusable primitive handlers by reflection", SkillProgramExecutorChecks.ReflectionDiscoversEveryPrimitiveHandler),
+    ("card subset selector enumerates every legal subset once", CardSubsetSelectorChecks.EnumeratesEveryLegalSubsetExactlyOnce),
+    ("card subset selector keeps impossible and empty constraints explicit", CardSubsetSelectorChecks.ImpossibleAndEmptySelectionDoNotInventChoices),
+    ("card subset selector rejects oversized sources and freezes choices", CardSubsetSelectorChecks.RejectsOversizedOrAmbiguousSourcesAndFreezesChoices),
+    ("lifecycle programs reject unsupported event usage scope", ProgramLifecycleChecks.RejectsUnsupportedEventUsageScope),
+    ("lifecycle programs use typed frozen comparisons and bounded condition windows", ProgramLifecycleChecks.TypedTriggerComparisonsAndWindowBoundaries),
+    ("lifecycle programs reject live card bindings across inserted phases", ProgramLifecycleChecks.RejectsCardBindingsAcrossDetachedPhaseBoundary),
+    ("lifecycle programs clean unconsumed temporary cards on success", ProgramLifecycleChecks.SuccessfulProgramsCleanupUnconsumedTemporaryCards),
+    ("lifecycle programs cancel missing conditional bindings without leaks", ProgramLifecycleChecks.MissingConditionalBindingsCancelWithoutLeakingCards),
+    ("cancelled lifecycle programs preserve parent attack cards", ProgramLifecycleChecks.CancelledDamageProgramsDoNotCleanupParentAttackCards),
+    ("AI optional lifecycle programs route and resume subset choices", ProgramLifecycleChecks.AiOptionalProgramsUseTheProgramRouterAndResumeSubsetChoices),
+    ("same lifecycle skill instance across sources subscribes once", ProgramLifecycleChecks.SameSkillInstanceAcrossSourcesProducesOneCandidate),
+    ("card movement schema and classic content preserve their version boundary", CardMovementProgramChecks.DefinitionsAndVersionBoundary),
+    ("card movement programs compose atomic per-card and per-batch triggers with replay", CardMovementProgramChecks.AtomicBatchRunsPerCardAndPerBatchAndReplays),
+    ("nested card movement batches retain immediate parent identity", CardMovementProgramChecks.NestedBatchesRetainImmediateParentIdentity),
+    ("damage programs preserve schema and package version boundaries", DamageProgramChecks.DefinitionsAndVersionBoundaries),
+    ("damage programs claim select gift draw and replay through generic choices", DamageProgramChecks.GenericDamageChoicesClaimSelectGiftDrawAndReplay),
+    ("draw-phase programs preserve schema and package version boundaries", DrawPhaseProgramChecks.DefinitionsAndVersionBoundaries),
+    ("standard Yingzi runs a mandatory extra draw before one normal draw", DrawPhaseProgramChecks.StandardMandatoryExtraDrawRunsBeforeNormalDraw),
+    ("classic Yingzi uses a generic optional choice and replays", DrawPhaseProgramChecks.ClassicOptionalChoiceSkipsActivatesAndReplays),
+    ("multiple additive draw-phase programs compose before one normal draw", DrawPhaseProgramChecks.MultipleAdditiveProgramsComposeBeforeOneNormalDraw),
+    ("draw-phase replacement suppresses additive programs while skip falls through", DrawPhaseProgramChecks.ReplacementSuppressesAdditiveWhileSkipFallsThrough),
+    ("schema-19 additive draw adjustments, explicit draws and damage grants compose and replay", DrawPhaseCompositionChecks.AdditiveAdjustmentDrawAndDamageGrantComposeAndReplay),
+    ("schema-19 reveal partitions, recovery and explicit draws conserve cards and replay", DrawPhaseCompositionChecks.RevealPartitionRecoveryAndExtraDrawConserveCardsAndReplay),
+    ("schema-19 target-hand replacement composes with an explicit draw and replays", DrawPhaseCompositionChecks.TargetHandReplacementAndExplicitDrawPauseAndReplay),
+    ("schema-19 draw-phase validation rejects unsafe data-flow graphs", DrawPhaseCompositionChecks.ValidatorRejectsUnsafeGraphs),
+    ("schema-20 draw policies preserve grouped definitions and active-operation boundaries", DrawPolicyProgramChecks.DefinitionsGroupsAndActivationBoundary),
+    ("schema-20 turn policies are typed idempotent and expire together", DrawPolicyProgramChecks.TurnPoliciesAreTypedIdempotentAndExpireTogether),
+    ("schema-21 judgment draw programs preserve definitions and package boundary", JudgmentDrawProgramChecks.DefinitionsAndVersionBoundary),
+    ("schema-21 judgment results bind turn conversion and replay", JudgmentDrawProgramChecks.JudgmentBindingConversionAndReplay),
     ("structured skill metadata normalizes explicitly and fingerprints content", SkillMetadataChecks.TagsNormalizeAndFingerprint),
     ("classic locked-state metadata is versioned without changing package 1.70", SkillMetadataChecks.ClassicLockedStateMetadataIsVersioned),
     ("classic shared locked skills receive distinct versioned identities", SkillMetadataChecks.ClassicSharedLockedSkillsReceiveDistinctIdentities),
@@ -57,6 +114,17 @@ var tests = new (string Name, Action Body)[]
     ("phase modules share private prompts replay and continuation", PhaseSkillModuleChecks.IndependentModulesSharePromptReplayAndContinuation),
     ("phase modules use the same AI choices", PhaseSkillModuleChecks.AiUsesTheSameModuleDecisions),
     ("phase modules version native bindings in the fingerprint", PhaseSkillModuleChecks.ModuleBindingParticipatesInFingerprint),
+    ("card-use module effects validate categories conditions and JSON", CardUseModuleEffectChecks.DefinitionsValidateAndClassifyEffectiveCards),
+    ("turn card-use effects union order consume and expire by action semantics", CardUseModuleEffectChecks.TurnStateUsesActionSemanticsStableOrderAndExpiration),
+    ("Pindian-conditioned card-use effects filter native and converted uses and replay", CardUseModuleEffectChecks.PindianConditionFiltersNativeAndConvertedUsesAndReplays),
+    ("Pindian modules preserve child privacy cards and replay", PindianModuleChecks.PhaseChildPreservesPrivacyCardsAndReplay),
+    ("Pindian modules skip activation and empty opponents", PindianModuleChecks.DeclineAndEmptyOpponentsDoNotStartAChild),
+    ("Pindian modules share AI choices and candidate availability", PindianModuleChecks.AiUsesPrivateChoicesAndSkipsConsumedCandidates),
+    ("Pindian modules fingerprint result revisions", PindianModuleChecks.ResultModuleRevisionChangesFingerprint),
+    ("Pindian modules suspend and resume existing active skill parents", PindianModuleChecks.ExistingActiveSkillsResumeAfterResultModules),
+    ("Pindian modules allow both owners to claim with private prompts", PindianModuleChecks.BothParticipantsCanClaimWithoutExposingTheirPrompts),
+    ("Zongshi module selects win loss tie and available cards", ZongshiModuleChecks.PlanFollowsWinLossAndAvailability),
+    ("Zongshi module claims privately and resumes after replay", ZongshiModuleChecks.SharedPindianClaimIsPrivateReplayableAndResumes),
     ("god generals choose a private effective faction before reveal and replay", GodFactionSelectionChecks.PromptPrivacyEffectiveFactionAndReplay),
     ("chosen god factions feed existing configured lord-skill checks", GodFactionSelectionChecks.EffectiveFactionFeedsConfiguredLordSkill),
     ("formal Wushen treats a real heart Peach as a distance-free counted Slash", ClassicShenGuanYuChecks.WushenRealDeckIdentityAndReplay),
@@ -111,9 +179,16 @@ var tests = new (string Name, Action Body)[]
     ("formal Cao Chong publishes Chengxiang and Renxin behind package 1.94", CaoChongChecks.ContentAndPackageBoundary),
     ("Chengxiang reveals four cards selects a legal subset and replays", CaoChongChecks.ChengxiangRevealsLegalSubsetAndReplays),
     ("Renxin discards equipment turns over prevents damage and replays", CaoChongChecks.RenxinDiscardsEquipmentTurnsOverPreventsAndReplays),
-    ("formal Guo Huai publishes optional Jingce behind package 1.95", GuoHuaiChecks.ContentAndPackageBoundary),
+    ("formal Guo Huai migrates Jingce at package 1.99", GuoHuaiChecks.ContentAndPackageBoundary),
     ("Jingce counts turn card uses draws two cards and replays", GuoHuaiChecks.JingceCountsTurnUsesDrawsAndReplays),
     ("Jingce requires card uses at least current HP", GuoHuaiChecks.JingceRequiresUseCountAtLeastCurrentHp),
+    ("Jingce deduplicates grants composes instances and rechecks ownership", GuoHuaiChecks.JingceDeduplicatesSourcesComposesInstancesAndRechecksOwnership),
+    ("Jingce uses independent Dangxian extra and normal Play windows", GuoHuaiChecks.JingceUsesIndependentDangxianPlayWindows),
+    ("Jingce does not open a second PlayEnding when normal Play is skipped", GuoHuaiChecks.JingceDoesNotOpenForSkippedNormalPlay),
+    ("turn-ending content preserves legacy definitions and publishes programs", TurnEndingBoundaryChecks.ContentPreservesLegacyBoundaryAndPublishesPrograms),
+    ("turn-ending boundary orders Jushou Jujian Biyue and replays", TurnEndingBoundaryChecks.OrdersJushouJujianBiyueAndReplays),
+    ("turn-ending programs deduplicate sources and recheck ownership", TurnEndingBoundaryChecks.DeduplicatesSourcesAndRechecksOwnership),
+    ("turn-ending boundary freezes facts across earlier effects", TurnEndingBoundaryChecks.FreezesFactsAcrossEarlierTurnEndingEffects),
     ("formal Man Chong publishes active Junxing and optional Yuce behind package 1.96", ManChongChecks.ContentAndPackageBoundary),
     ("Junxing enforces exact card categories and replays both target branches", ManChongChecks.JunxingUsesExactCategoriesAndReplaysBothBranches),
     ("Yuce reveals one card challenges the source recovers and replays", ManChongChecks.YuceRevealsChallengesRecoversAndReplays),
@@ -153,6 +228,7 @@ var tests = new (string Name, Action Body)[]
     ("recast is an independent validated card movement and replays exactly", RecastChecks.CommandAndReplay),
     ("Iron Chain current rules and AI avoid repeated recasts", RecastChecks.CurrentRulesAndAi),
     ("claimed group cards continue after the claimant dies and replay exactly", GroupClaimChecks.ClaimantDeathContinues),
+    ("only corresponding claimed group cards may finish after entering a reshuffled draw pile", GroupClaimChecks.OnlyClaimedCardsMayFinishFromTheDrawPile),
     ("standard setup has the 1/2/4/1 identity distribution", IdentityDistribution),
     ("viewer snapshot hides private roles and hands", SnapshotHidesSecrets),
     ("viewer snapshot hides seed and other players' decisions", SnapshotHidesEngineSecrets),
@@ -190,7 +266,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Gan Ning converts black hand and equipped cards through formal Qixi", ClassicGeneralChecks.FormalQixiFlow),
     ("classic Lu Meng optionally skips discard through formal Keji", ClassicGeneralChecks.FormalKejiFlow),
     ("classic Zhang Liao replaces drawing through formal Tuxi", ClassicGeneralChecks.FormalTuxiFlow),
-    ("classic Xu Chu reduces drawing and attributes formal Luoyi damage", ClassicGeneralChecks.FormalLuoyiFlow),
+    ("current classic Luoyi uses generic draw adjustment and card-damage state", ClassicGeneralChecks.ProgramLuoyiFlow),
     ("classic Dian Wei pays HP or a weapon for formal Qiangxi damage", ClassicGeneralChecks.FormalQiangxiFlow),
     ("classic Xu Huang converts black cards into persistent Supply Shortage", ClassicGeneralChecks.FormalDuanliangFlow),
     ("classic Zhen Ji repeats black Luoshen judgments and converts Qingguo Dodge responses", ClassicGeneralChecks.FormalLuoshenAndQingguoFlow),
@@ -246,10 +322,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Tengjia makes ordinary Slash ineffective before response", TengjiaChecks.OrdinarySlashImmunityAndLegacyBoundary),
     ("classic Silver Lion caps damage and recovers after leaving equipment", SilverLionChecks.DamageCapRemovalRecoveryAndLegacyBoundary),
     ("classic Wooden Ox stores private playable grain and replays", WoodenOxChecks.StoresPrivatePlayableGrainAndReplays),
-    ("classic Feedback privately takes an exact source card and replays", ClassicGeneralChecks.FormalFeedbackFlow),
-    ("classic Jianxiong optionally claims non-Slash damage cards and replays", ClassicGeneralChecks.FormalJianxiongFlow),
     ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
-    ("classic Yingzi asks before the extra draw and preserves legacy rules", ClassicGeneralChecks.FormalYingziChoice),
     ("classic Tiandu can claim a resolved judgment and preserves legacy rules", ClassicGeneralChecks.FormalTianduJudgment),
     ("classic Fanjian transfers a random card after suit choice and preserves legacy rules", ClassicGeneralChecks.FormalFanjianFlow),
     ("classic Guanxing privately orders the draw-pile top and preserves legacy rules", ClassicGeneralChecks.FormalGuanxingFlow),
@@ -277,6 +350,8 @@ var tests = new (string Name, Action Body)[]
     ("AI uses the card content policy values", AiCardContentPolicy),
     ("tactical AI weighs friendly fire, recovery, alcohol and conversions", TacticalAiChecks.PlayDecisions),
     ("tactical AI protects the Lord and orders rescue choices", TacticalAiChecks.RescueDecisions),
+    ("tactical AI compares configured draw replacements with normal drawing", TacticalAiChecks.DrawReplacementActivation),
+    ("tactical AI values schema-19 draw programs by visible node contributions", TacticalAiChecks.DrawPhaseProgramActivation),
     ("tactical AI changes camp inference only after public evidence", TacticalAiChecks.PublicEvidence),
     ("national AI updates hidden-faction hostility only from public attacks", TacticalAiChecks.NationalPublicEvidence),
     ("tactical AI resolves hidden endgames and avoids canceling beneficial effects", TacticalAiChecks.EndgameAndNullification),
@@ -291,8 +366,6 @@ var tests = new (string Name, Action Body)[]
     ("passive skill hooks stay small and deterministic", PassiveSkills),
     ("formal Kongcheng rejects Duel targets while rules v14 replays Slash-only behavior", KongchengChecks.DuelTargetingAndLegacy),
     ("damage trigger candidates use a stable ordering", DamageTriggerOrdering),
-    ("damage trigger windows pause with a serializable cursor", DamageTriggerWindowFlow),
-    ("lethal damage keeps its typed trigger window before dying", LethalDamageTriggerWindowFlow),
     ("AI suspicion changes only from public actions", AiPublicEvidence),
     ("same seed creates the same initial state", FixedSeed),
     ("accepted command journals serialize and replay deterministically", CommandJournalReplay),
@@ -329,12 +402,6 @@ var tests = new (string Name, Action Body)[]
     ("FireSlash and ThunderSlash preserve typed damage nature", AttributeSlashFlow),
     ("Alcohol arms a one-shot Slash damage boost", AlcoholFlow),
     ("formal play-phase Alcohol is limited once per turn and replays", AlcoholLimitChecks.OncePerTurnAndReplay),
-    ("Feedback claims a surviving damage card through a typed event", FeedbackFlow),
-    ("Feedback exposes a private human trigger choice", FeedbackHumanChoiceFlow),
-    ("Feedback can be skipped without claiming the damage card", FeedbackSkipChoiceFlow),
-    ("Yiji draws privately and gives one card across seats", YijiGiftFlow),
-    ("Yiji accepts a private human gift choice", YijiHumanChoiceFlow),
-    ("Jieming draws to a legal target's hand limit", JiemingFlow),
     ("Yuanhu can trigger from another seat and recover the damaged player", YuanhuCrossSeatFlow),
     ("Ganglie opens a public judgment and a private source punishment", GanglieFlow),
     ("Guicai privately replaces a public judgment with a hand card", GuicaiFlow),
@@ -369,6 +436,17 @@ var tests = new (string Name, Action Body)[]
     ("long AI runs finish without leaving an active resolution", StepGuardFinishesResponse),
     ("snapshot is JSON serializable", SnapshotSerialization)
 };
+
+// These historical fixtures remain as source references until their large inline
+// bodies are removed; current rules are covered by DamageProgramChecks instead.
+_ = (Action)DamageTriggerWindowFlow;
+_ = (Action)LethalDamageTriggerWindowFlow;
+_ = (Action)FeedbackFlow;
+_ = (Action)FeedbackHumanChoiceFlow;
+_ = (Action)FeedbackSkipChoiceFlow;
+_ = (Action)YijiGiftFlow;
+_ = (Action)YijiHumanChoiceFlow;
+_ = (Action)JiemingFlow;
 
 var nameFilter = args.FirstOrDefault(argument =>
     argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase));
@@ -485,11 +563,36 @@ if (args.FirstOrDefault() == "--only-cao-chong")
         test.Name.Contains("Renxin", StringComparison.Ordinal)).ToArray();
 }
 
+if (args.FirstOrDefault() == "--only-program-lifecycle")
+{
+    tests = tests.Where(test => test.Name.Contains("lifecycle program", StringComparison.Ordinal) ||
+        test.Name.Contains("lifecycle skill instance", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-draw-phase")
+{
+    tests = tests.Where(test => test.Name.Contains("draw-phase", StringComparison.OrdinalIgnoreCase) ||
+        test.Name.Contains("Yingzi", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-rule-query")
+{
+    tests = tests.Where(test => test.Name.Contains("rule query", StringComparison.Ordinal)).ToArray();
+}
+
 if (args.FirstOrDefault() == "--only-guo-huai")
 {
     tests = tests.Where(test =>
         test.Name.Contains("Guo Huai", StringComparison.Ordinal) ||
         test.Name.Contains("Jingce", StringComparison.Ordinal)).ToArray();
+}
+
+if (args.FirstOrDefault() == "--only-turn-ending")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("turn-ending", StringComparison.OrdinalIgnoreCase) ||
+        test.Name.Contains("Jushou", StringComparison.Ordinal) ||
+        test.Name.Contains("Biyue", StringComparison.Ordinal)).ToArray();
 }
 
 if (args.FirstOrDefault() == "--only-man-chong")
@@ -1031,9 +1134,16 @@ static void StandardContentRegistryBuilds()
     Equal("standard:jianxiong", registry.Generals["standard:cao-cao"].SkillId);
     Equal("standard:wusheng", registry.Generals["standard:guan-yu"].SkillId);
     Equal("standard:longdan", registry.Generals["standard:zhao-yun"].SkillId);
-    Equal(SkillKind.Yiji, registry.GetSkill("standard:yiji").LegacyKind);
+    TrueWithMessage(registry.GetSkill("standard:yingzi") is
+        { LegacyKind: null, Program.RuntimeVersion: "skill-program-v16" },
+        "current Yingzi uses the schema-16 draw-phase program runtime");
+    TrueWithMessage(registry.GetSkill("standard:yiji") is
+        { LegacyKind: null, Program.RuntimeVersion: "skill-program-v15" },
+        "current Yiji uses the schema-15 program runtime");
     Equal("standard:yiji", registry.Generals["standard:guo-jia"].SkillId);
-    Equal(SkillKind.Jieming, registry.GetSkill("standard:jieming").LegacyKind);
+    TrueWithMessage(registry.GetSkill("standard:jieming") is
+        { LegacyKind: null, Program.RuntimeVersion: "skill-program-v15" },
+        "current Jieming uses the schema-15 program runtime");
     Equal("standard:jieming", registry.Generals["standard:xun-yu"].SkillId);
     Equal(SkillKind.Yuanhu, registry.GetSkill("standard:yuanhu").LegacyKind);
     Equal("standard:yuanhu", registry.Generals["standard:demo-yuanhu"].SkillId);
@@ -1554,31 +1664,6 @@ static void AiCardContentPolicy()
     Equal(22, harvest.CardId);
     True(harvest.Thought.Candidates.Count == 2);
 
-    var feedbackWithFullHand = new SimpleAiBrain(seat: 0, seed: 5).ChooseFeedback(
-        view,
-        sourceSeat: 1,
-        incomingCard: CardKind.Slash,
-        thoughtSequence: 4);
-    False(feedbackWithFullHand.UseFeedback);
-    True(feedbackWithFullHand.Thought.Candidates.Any(candidate =>
-        candidate.Action.Kind == LegalActionKind.SkipFeedback));
-
-    var sparseSelf = self with
-    {
-        Hp = 1,
-        HandCount = 0,
-        Hand = []
-    };
-    var sparseView = view with { Players = [sparseSelf, target] };
-    var feedbackWithSparseHand = new SimpleAiBrain(seat: 0, seed: 5).ChooseFeedback(
-        sparseView,
-        sourceSeat: 1,
-        incomingCard: CardKind.Slash,
-        thoughtSequence: 5);
-    True(feedbackWithSparseHand.UseFeedback);
-    True(feedbackWithSparseHand.Thought.Candidates.Any(candidate =>
-        candidate.Action.Kind == LegalActionKind.Feedback));
-
     var redVirtualSlash = new CardSnapshot(23, CardKind.Peach, Suit.Heart, 10, "桃", "10");
     var wushengSelf = self with
     {
@@ -1605,26 +1690,6 @@ static void AiCardContentPolicy()
     Equal(redVirtualSlash.Id, wushengAction.CardId);
     True(wushengThought.Candidates.Single(candidate =>
         candidate.Action.CardId == redVirtualSlash.Id).Reason.Contains("当作杀", StringComparison.Ordinal));
-
-    var jiemingSelf = self with
-    {
-        Skill = SkillKind.Jieming,
-        SkillName = "节命",
-        SkillDescription = "受到伤害后，可令一名手牌数少于体力上限的角色摸牌至上限。",
-        HandCount = 2,
-        Hand = []
-    };
-    var sparseTarget = target with { MaxHp = 4, HandCount = 1, Hand = [] };
-    var jiemingView = view with { Players = [jiemingSelf, sparseTarget] };
-    var (jiemingTargetSeat, jiemingThought) = new SimpleAiBrain(seat: 0, seed: 5)
-        .ChooseJiemingTarget(jiemingView, [1], thoughtSequence: 7);
-    Equal<int?>(1, jiemingTargetSeat);
-    True(jiemingThought.Candidates.Any(candidate =>
-        candidate.Action.Kind == LegalActionKind.Jieming &&
-        candidate.Action.TargetSeat == 1));
-    True(jiemingThought.Candidates.All(candidate =>
-        candidate.Action.Kind != LegalActionKind.Jieming ||
-        candidate.Reason.Contains("不读取目标隐藏牌面", StringComparison.Ordinal)));
 
     var yuanhuSelf = self with
     {
@@ -1660,33 +1725,9 @@ static void PassiveSkills()
     var fullHand = new PlayerSkillContext(0, 4, 4, 3, TurnPhase.Draw);
     var emptyHand = fullHand with { HandCount = 0 };
 
-    Equal(3, SkillRegistry.Get(SkillKind.Yingzi).ModifyDrawCount(fullHand, 2));
+    Equal(2, SkillRegistry.Get(SkillKind.Yingzi).ModifyDrawCount(fullHand, 2));
     Equal(int.MaxValue, SkillRegistry.Get(SkillKind.Paoxiao).ModifySlashLimit(fullHand, 1));
     True(SkillRegistry.Get(SkillKind.Kongcheng).ProhibitsSlashTarget(emptyHand));
-    True(SkillRegistry.Get(SkillKind.Jianxiong).ClaimsDamageCard(
-        new DamageSkillContext(fullHand, 1, CardKind.Slash, true)));
-    True(SkillRegistry.Get(SkillKind.Jianxiong).ClaimsDamageCard(
-        new DamageSkillContext(fullHand, 1, CardKind.FireSlash, true, DamageNature.Fire)));
-    True(SkillRegistry.Get(SkillKind.Jianxiong).ClaimsDamageCard(
-        new DamageSkillContext(fullHand, 1, CardKind.ThunderSlash, true, DamageNature.Thunder)));
-    True(SkillRegistry.Get(SkillKind.Feedback).ClaimsDamageCard(
-        new DamageSkillContext(fullHand, 1, CardKind.Duel, true)));
-    True(SkillRegistry.Get(SkillKind.Feedback).OffersDamageCardChoice(
-        new DamageSkillContext(fullHand, 1, CardKind.Duel, true)));
-    True(SkillRegistry.Get(SkillKind.Feedback).CanTriggerAfterDamage(
-        new DamageSkillContext(fullHand, 1, CardKind.Duel, true, TargetSeat: 0)));
-    False(SkillRegistry.Get(SkillKind.Feedback).CanTriggerAfterDamage(
-        new DamageSkillContext(fullHand, 1, CardKind.Duel, true, TargetSeat: 1)));
-    Equal(
-        DamageTriggerScope.DamagedPlayer,
-        SkillRegistry.Get(SkillKind.Feedback).AfterDamageTriggerScope);
-    False(SkillRegistry.Get(SkillKind.Feedback).CanTriggerAfterDamage(
-        new DamageSkillContext(fullHand, 0, CardKind.Duel, true, Amount: 0, TargetSeat: 0)));
-    False(SkillRegistry.Get(SkillKind.Feedback).OffersDamageCardChoice(
-        new DamageSkillContext(fullHand, 1, CardKind.Duel, false)));
-    False(SkillRegistry.Get(SkillKind.Feedback).ClaimsDamageCard(
-        new DamageSkillContext(fullHand, 1, CardKind.Duel, false)));
-
     var yijiContext = new DamageSkillContext(
         fullHand,
         1,
@@ -1695,24 +1736,14 @@ static void PassiveSkills()
         Amount: 1,
         SourceCardId: 21,
         TargetSeat: 0);
-    True(SkillRegistry.Get(SkillKind.Yiji).OffersDamageCardChoice(yijiContext));
-    Equal(
-        DamageSkillEffectKind.GiftDrawnCard,
+    Equal(DamageSkillEffectKind.None,
+        SkillRegistry.Get(SkillKind.Jianxiong).GetDamageSkillEffect(yijiContext));
+    Equal(DamageSkillEffectKind.None,
+        SkillRegistry.Get(SkillKind.Feedback).GetDamageSkillEffect(yijiContext));
+    Equal(DamageSkillEffectKind.None,
         SkillRegistry.Get(SkillKind.Yiji).GetDamageSkillEffect(yijiContext));
-    True(SkillRegistry.Get(SkillKind.Yiji).CanTriggerAfterDamage(yijiContext));
-    False(SkillRegistry.Get(SkillKind.Yiji).CanTriggerAfterDamage(
-        yijiContext with { TargetSeat = 1 }));
-
-    var jiemingContext = yijiContext;
-    True(SkillRegistry.Get(SkillKind.Jieming).OffersDamageCardChoice(jiemingContext));
-    Equal(
-        DamageSkillEffectKind.DrawToMaxHand,
-        SkillRegistry.Get(SkillKind.Jieming).GetDamageSkillEffect(jiemingContext));
-    True(SkillRegistry.Get(SkillKind.Jieming).CanTriggerAfterDamage(jiemingContext));
-    False(SkillRegistry.Get(SkillKind.Jieming).CanTriggerAfterDamage(
-        jiemingContext with { TargetSeat = 1 }));
-    False(SkillRegistry.Get(SkillKind.Jieming).OffersDamageCardChoice(
-        jiemingContext with { Amount = 0 }));
+    Equal(DamageSkillEffectKind.None,
+        SkillRegistry.Get(SkillKind.Jieming).GetDamageSkillEffect(yijiContext));
 
     var yuanhuContext = yijiContext with
     {
@@ -2141,7 +2172,7 @@ static void CheckpointRestore()
     Equal(1, checkpoint.Commands.Count);
     Equal(GameCheckpoint.CurrentRulesVersion, checkpoint.RulesVersion);
     TrueWithMessage(
-        checkpoint.ContentPackages.SequenceEqual(["standard@1.11.0"]),
+        checkpoint.ContentPackages.SequenceEqual(["standard@1.14.0"]),
         "checkpoint records the content package signature");
     Equal(StandardContentRegistry.Create().ContentHash, checkpoint.ContentHash);
 
@@ -4146,12 +4177,14 @@ static void PublicTargetCardFlow()
                  round < 12 && result.Status == EngineStatus.AwaitingHumanPlay;
                  round++)
             {
+                var full = game.CreateSnapshot(0, revealAll: true);
                 if (game.GetHumanLegalActions().Any(action =>
                         action.Kind == actionKind &&
                         action.TargetSeat is not null &&
                         action.TargetCardId is not null &&
-                        game.CreateSnapshot(0, revealAll: true).Players.Single(player =>
-                            player.Seat == action.TargetSeat).Role == Role.Rebel &&
+                        full.Players.Single(player => player.Seat == action.TargetSeat).Role == Role.Rebel &&
+                        full.Players.Where(player => player.Seat != 0).All(player =>
+                            player.Hand.All(card => card.Kind != CardKind.Nullification)) &&
                         HasPublicTarget(game, action, targetZone)))
                 {
                     return game;
@@ -4228,7 +4261,7 @@ static void PublicTargetCardFlow()
             CardZoneKind.Judgment => targetBefore.Judgment,
             _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
         };
-        True(targetCardsBefore.Any(card => card.Id == targetCard.Id));
+        TrueWithMessage(targetCardsBefore.Any(card => card.Id == targetCard.Id), "target has selected public card before use");
         var ordinaryTargetBefore = game.CreateSnapshot(2).Players.Single(player => player.Seat == targetSeat);
         var ordinaryTargetCardsBefore = targetZone switch
         {
@@ -4236,7 +4269,7 @@ static void PublicTargetCardFlow()
             CardZoneKind.Judgment => ordinaryTargetBefore.Judgment,
             _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
         };
-        True(ordinaryTargetCardsBefore.Any(card => card.Id == targetCard.Id));
+        TrueWithMessage(ordinaryTargetCardsBefore.Any(card => card.Id == targetCard.Id), "public viewer sees selected target card");
 
         var result = game.HumanPlay(
             action.CardId!.Value,
@@ -4262,7 +4295,11 @@ static void PublicTargetCardFlow()
             CardZoneKind.Judgment => targetAfter.Judgment,
             _ => throw new ArgumentOutOfRangeException(nameof(targetZone), targetZone, null)
         };
-        True(targetCardsAfter.All(card => card.Id != targetCard.Id));
+        TrueWithMessage(targetCardsAfter.All(card => card.Id != targetCard.Id),
+            $"target public zone no longer contains selected card: action={actionKind}, zone={targetZone}, " +
+            $"target={targetSeat}, card={targetCard.Id}, remaining=[{string.Join(',', targetCardsAfter.Select(card => card.Id))}], " +
+            $"status={game.State.Status}, stack={game.ResolutionStack.Count}, " +
+            $"moves=[{string.Join(" | ", game.CardMovements.Where(move => move.CardId == targetCard.Id).Select(move => $"{move.From}->{move.To}:{move.Reason}"))}]");
 
         if (actionKind == LegalActionKind.Dismantlement)
         {
@@ -4280,23 +4317,24 @@ static void PublicTargetCardFlow()
             var targetFinishReason = targetZone == CardZoneKind.Judgment
                 ? CardMoveReasons.DismantlementJudgmentFinished
                 : CardMoveReasons.DismantlementFinished;
-            True(game.CardMovements.Any(movement =>
+            TrueWithMessage(game.CardMovements.Any(movement =>
                 movement.CardId == targetCard.Id &&
                 movement.From == new CardLocation(targetZone, targetSeat) &&
                 movement.To == CardLocation.Processing &&
-                movement.Reason == targetMoveReason));
-            True(game.CardMovements.Any(movement =>
+                movement.Reason == targetMoveReason), "Dismantlement target card enters Processing");
+            TrueWithMessage(game.CardMovements.Any(movement =>
                 movement.CardId == targetCard.Id &&
                 movement.From == CardLocation.Processing &&
                 movement.To == CardLocation.DiscardPile &&
-                movement.Reason == targetFinishReason));
-            True(game.CreateCardZoneDiagnostics().Any(card =>
-                card.CardId == targetCard.Id && card.Location == CardLocation.DiscardPile));
+                movement.Reason == targetFinishReason), "Dismantlement target card reaches discard pile");
+            TrueWithMessage(game.CreateCardZoneDiagnostics().Any(card =>
+                card.CardId == targetCard.Id && card.Location == CardLocation.DiscardPile),
+                "Dismantlement target card final location is discard pile");
         }
         else
         {
             Equal(sourceBefore.HandCount, sourceAfter.HandCount);
-            True(sourceAfter.Hand.Any(card => card.Id == targetCard.Id));
+            TrueWithMessage(sourceAfter.Hand.Any(card => card.Id == targetCard.Id), "Snatch source receives target card");
             var taken = game.Events
                 .Select(eventItem => eventItem.Payload)
                 .OfType<TargetCardTakenEvent>()
@@ -4310,26 +4348,26 @@ static void PublicTargetCardFlow()
             var targetFinishReason = targetZone == CardZoneKind.Judgment
                 ? CardMoveReasons.SnatchJudgmentFinished
                 : CardMoveReasons.SnatchFinished;
-            True(game.CardMovements.Any(movement =>
+            TrueWithMessage(game.CardMovements.Any(movement =>
                 movement.CardId == targetCard.Id &&
                 movement.From == new CardLocation(targetZone, targetSeat) &&
                 movement.To == CardLocation.Processing &&
-                movement.Reason == targetMoveReason));
-            True(game.CardMovements.Any(movement =>
+                movement.Reason == targetMoveReason), "Snatch target card enters Processing");
+            TrueWithMessage(game.CardMovements.Any(movement =>
                 movement.CardId == targetCard.Id &&
                 movement.From == CardLocation.Processing &&
                 movement.To == CardLocation.Hand(0) &&
-                movement.Reason == targetFinishReason));
+                movement.Reason == targetFinishReason), "Snatch target card reaches source hand");
         }
 
-        True(game.Log.Last(entry => entry.Type == "CardEffect")
-            .Message.Contains(targetCard.DisplayName, StringComparison.Ordinal));
-        True(game.Events.Any(eventItem =>
+        TrueWithMessage(game.Log.Last(entry => entry.Type == "CardEffect")
+            .Message.Contains(targetCard.DisplayName, StringComparison.Ordinal), "public target appears in effect log");
+        TrueWithMessage(game.Events.Any(eventItem =>
             eventItem.Payload is CardUseFinishedEvent finished &&
             finished.ResolutionId == resolutionId &&
             finished.CardKind == (actionKind == LegalActionKind.Dismantlement
                 ? CardKind.Dismantlement
-                : CardKind.Snatch)));
+                : CardKind.Snatch)), "public target card use finishes");
         AssertCardInventory(game);
     }
 
@@ -5999,8 +6037,6 @@ static void FeedbackFlow()
     Equal(targetBefore.HandCount + 1, targetAfter.HandCount);
     TrueWithMessage(targetAfter.Hand.Any(card => card.Id == attackCard.Id), "Feedback claimed damage card");
     TrueWithMessage(gameWithFeedback.AiThoughts.Count > aiThoughtCountBefore, "Feedback AI thought");
-    TrueWithMessage(gameWithFeedback.AiThoughts.Last().Candidates.Any(candidate =>
-        candidate.Action.Kind == LegalActionKind.Feedback), "Feedback AI candidate");
     Equal(sourceBefore.HandCount - 1, gameWithFeedback.State.Players.Single(player => player.Seat == 0).HandCount);
     var claim = gameWithFeedback.Events
         .Select(eventItem => eventItem.Payload)
@@ -6408,8 +6444,6 @@ static void YijiGiftFlow()
         .First(seat => seat != yijiSeat && seat != given.TargetSeat);
     False(SnapshotJson.Serialize(gameWithYiji.CreateSnapshot(privateViewer))
         .Contains($"\"Id\": {given.CardId},", StringComparison.Ordinal));
-    TrueWithMessage(gameWithYiji.AiThoughts.Any(thought =>
-        thought.Candidates.Any(candidate => candidate.Action.Kind == LegalActionKind.YijiGift)), "Yiji AI exposes gift candidates");
     AssertCardInventory(gameWithYiji);
 }
 
@@ -7409,6 +7443,8 @@ static EngineRunResult ResolveDelayedCardHumanPrompt(GameEngine game)
     var prompt = game.PendingDecision ??
         throw new InvalidOperationException("The delayed card flow expected a human prompt.");
     var choice = prompt.Choices.FirstOrDefault(candidate =>
+                     candidate.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                 prompt.Choices.FirstOrDefault(candidate =>
         candidate.Cards.Count == 0 && candidate.Targets.Count == 0) ??
         throw new InvalidOperationException(
             $"The delayed card flow could not find a safe pass choice for {prompt.Kind}.");
@@ -8048,6 +8084,8 @@ static void WushengFlow()
                    target.IsAlive &&
                    target.Hp > 1 &&
                    target.Skill == SkillKind.None &&
+                   target.Skills?.All(skill => skill.ContentId is not
+                       ("standard:feedback" or "standard:jianxiong")) != false &&
                    target.Hand.All(handCard => handCard.Kind != CardKind.Dodge) &&
                    target.Equipment.All(equipment => equipment.Kind != CardKind.BaguaFormation);
         });
@@ -8120,10 +8158,12 @@ static void WushengFlow()
         movement.To == CardLocation.Processing &&
         movement.Reason == CardMoveReasons.Use), "Wusheng keeps physical card movement");
     TrueWithMessage(gameWithWusheng.CardMovements.Any(movement =>
-        movement.CardId == convertedCard.Id &&
-        movement.From == CardLocation.Processing &&
-        movement.To == CardLocation.DiscardPile &&
-        movement.Reason == CardMoveReasons.UseFinished), "Wusheng finishes physical card");
+            movement.CardId == convertedCard.Id &&
+            movement.From == CardLocation.Processing &&
+            (movement.To == CardLocation.DiscardPile && movement.Reason == CardMoveReasons.UseFinished ||
+             movement.To.Zone == CardZoneKind.Hand &&
+             movement.Reason.Value.EndsWith(".ClaimDamageCards", StringComparison.Ordinal))),
+        "Wusheng must finish or explicitly transfer its physical card out of Processing");
     TrueWithMessage(actionAfterStart.Description.Contains("当作【杀】", StringComparison.Ordinal),
         "Wusheng action exposes card conversion");
     AssertCardInventory(gameWithWusheng);

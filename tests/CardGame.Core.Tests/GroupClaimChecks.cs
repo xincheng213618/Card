@@ -3,17 +3,46 @@ using CardGame.Core;
 
 internal static class GroupClaimChecks
 {
+    public static void OnlyClaimedCardsMayFinishFromTheDrawPile()
+    {
+        var claimedIds = new HashSet<int>();
+        var physicalCards = new[]
+        {
+            new Card(101, CardKind.Slash, Suit.Spade, 1),
+            new Card(102, CardKind.Dodge, Suit.Spade, 2)
+        };
+        Require(GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.DrawPile, damageCardClaimed: true, [1, 2]) &&
+                !GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.DrawPile, damageCardClaimed: false, [1, 2]) &&
+                GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.DiscardPile, damageCardClaimed: false, [1, 2]) &&
+                GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.Hand(2), damageCardClaimed: false, [1, 2]) &&
+                !GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.Hand(3), damageCardClaimed: true, [1, 2]) &&
+                GameEngine.RecordClaimedGroupPhysicalCard(
+                    claimedIds, 17, physicalCards, 17, physicalCards[1].Id) &&
+                claimedIds.SetEquals([physicalCards[1].Id]) &&
+                !GameEngine.RecordClaimedGroupPhysicalCard(
+                    claimedIds, 17, physicalCards, 18, physicalCards[0].Id) &&
+                !GameEngine.RecordClaimedGroupPhysicalCard(
+                    claimedIds, 17, physicalCards, 17, 999),
+            "Only a corresponding physical group card claimed by a damage skill may finish from a reshuffled draw pile; hand destinations remain target-scoped.");
+    }
+
     public static void ClaimantDeathContinues()
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new ClaimScenario());
         var game = CreateCurrentFixture(registry);
-        var claim = game.Events.Select(e => e.Payload).OfType<DamageCardClaimedEvent>().Last();
+        var claim = game.Events.Select(e => e.Payload).OfType<ProgramDamageCardsClaimedEvent>().Last();
         var use = game.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>().Last();
-        Require(claim.CardId == use.CardId && claim.CardKind == CardKind.ArrowBarrage &&
+        Require(claim.CardIds.Contains(use.CardId) && use.CardKind == CardKind.ArrowBarrage &&
             game.State.Players.Single(player => player.Seat == claim.OwnerSeat) is { IsAlive: true, Hp: 0 },
             "Fixture must suspend a real claimed group card before its owner dies.");
+        var claimedCardId = use.CardId;
         var start = game.Events.Count;
         for (var step = 0; step < 100 && !game.Events.Skip(start).Any(e =>
             e.Payload is CardUseFinishedEvent finished && finished.ResolutionId == use.ResolutionId); step++)
@@ -25,7 +54,7 @@ internal static class GroupClaimChecks
         }
         Require(!game.State.Players.Single(player => player.Seat == claim.OwnerSeat).IsAlive, "Claimant did not die.");
         var events = game.Events.Skip(start).Select(e => e.Payload).ToArray();
-        Require(events.OfType<CardMovedEvent>().Any(e => e.CardId == claim.CardId &&
+        Require(events.OfType<CardMovedEvent>().Any(e => e.CardId == claimedCardId &&
             e.From == CardLocation.Hand(claim.OwnerSeat) && e.To == CardLocation.DiscardPile), "Death did not clean up the claimed physical card.");
         Require(events.OfType<GroupResponseEvent>().Any(e => e.ResolutionId == use.ResolutionId && e.ResponderSeat == (claim.OwnerSeat + 1) % 8),
             "The surviving next target never responded to the existing group effect.");
@@ -56,11 +85,18 @@ internal static class GroupClaimChecks
             "Claim scenario could not declare Arrow Barrage.");
         for (var step = 0; step < 128; step++)
         {
-            if (game.Events.Select(item => item.Payload).OfType<DamageCardClaimedEvent>().LastOrDefault() is { } claim &&
+            if (game.Events.Select(item => item.Payload).OfType<ProgramDamageCardsClaimedEvent>().LastOrDefault() is { } claim &&
                 game.State.Players[claim.OwnerSeat] is { IsAlive: true, Hp: 0 }) return game;
             var result = game.PendingDecision is { PlayerSeat: 0 } prompt
                 ? game.Submit(new AnswerPromptCommand(0, prompt.PromptId,
-                    prompt.Choices.First(choice => choice.Cards.Count == 0).Id, game.Revision))
+                    (prompt.Kind == DecisionKind.ProgramTrigger &&
+                     prompt.SkillPrompt?.SkillId == "classic:jianxiong"
+                        ? prompt.Choices.Single(choice =>
+                            choice.Parameters.GetValueOrDefault("program-action") == "activate")
+                        : prompt.Choices.FirstOrDefault(choice =>
+                            choice.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                          prompt.Choices.First(choice => choice.Cards.Count == 0)).Id,
+                    game.Revision))
                 : game.Submit(new AdvanceOneStepCommand(game.Revision));
             Require(result.Accepted, result.Error?.Message ?? "Claim scenario could not advance.");
         }

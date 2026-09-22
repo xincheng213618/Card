@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:dangxian": {
+      "name": "当先",
+      "description": "锁定技，回合开始时，你执行一个额外的出牌阶段。"
+    },
+    "classic:fuli": {
+      "name": "伏枥",
+      "description": "限定技，当你处于濒死状态时，你可以将体力回复至X点（X为现存势力数），然后将你的武将牌翻面。"
+    },
+    "classic:chengxiang": {
+      "name": "称象",
+      "description": "每当你受到伤害后，你可以亮出牌堆顶的四张牌。若如此做，你获得其中任意张点数之和小于等于13的牌，然后将其余的牌置入弃牌堆。"
+    }
+  }
+}

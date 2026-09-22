@@ -21,7 +21,7 @@ public sealed partial class GameEngine
         attack.MarkLierenAttempted();
         var owner = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
-        if (!owner.IsAlive || !target.IsAlive || !owner.General.HasSkill(SkillKind.Lieren) ||
+        if (!owner.IsAlive || !target.IsAlive || !HasRuntimeSkill(owner, SkillKind.Lieren) ||
             GetHand(owner).Count == 0 || GetHand(target).Count == 0)
             return false;
         _pendingLieren = new LierenResolution(attack) { Stage = LierenStage.Offer };

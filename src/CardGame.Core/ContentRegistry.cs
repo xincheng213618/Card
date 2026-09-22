@@ -72,6 +72,7 @@ public sealed record ContentSkillDefinition(
 {
     public SkillProgram? Program { get; init; }
     public IPhaseSkillModule? PhaseSkill { get; init; }
+    public IPindianResultModule? PindianResultSkill { get; init; }
     public SkillTag Tags { get; init; }
     public SkillExecutionForm ExecutionForms { get; init; }
     public SkillActionForm ActionForms { get; init; }
@@ -227,7 +228,11 @@ public sealed class ContentRegistry
         }
 
         builder.ValidateReferences();
-        return builder.Freeze(ordered);
+        var registry = builder.Freeze(ordered);
+        SkillProgramRules.ValidateSetModifierConflicts(registry.Skills.Values
+            .Select(skill => skill.Program)
+            .OfType<SkillProgram>());
+        return registry;
     }
 
     private static IReadOnlyList<PackageManifest> TopologicallyOrderPackages(
@@ -576,8 +581,17 @@ public sealed class ContentRegistry
             {
                 HashSchema = 11,
                 Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                PhaseSkillRuntime = "phase-skills-v1",
+                PhaseSkillRuntime = "phase-skills-v2",
                 PhaseSkills = phaseSkills
+            });
+        var pindianSkills = skills.Values.Where(skill => skill.PindianResultSkill is not null)
+            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
+            .Select(skill => new { skill.Id, skill.PindianResultSkill!.Revision }).ToArray();
+        if (pindianSkills.Length > 0)
+            canonical = JsonSerializer.Serialize(new
+            {
+                HashSchema = 12, Base = JsonSerializer.Deserialize<JsonElement>(canonical),
+                PindianRuntime = "pindian-v1", PindianSkills = pindianSkills
             });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
@@ -936,6 +950,9 @@ public sealed class ContentRegistry
                 (phaseSkill.SkillId != normalized.Id || phaseSkill.Revision < 1 ||
                  !Enum.IsDefined(phaseSkill.Window) || normalized.Program is not null))
                 throw new InvalidOperationException($"Invalid phase skill binding for '{normalized.Id}'.");
+            if (normalized.PindianResultSkill is { } pindianSkill &&
+                (pindianSkill.SkillId != normalized.Id || pindianSkill.Revision < 1 || normalized.Program is not null))
+                throw new InvalidOperationException($"Invalid Pindian result skill binding for '{normalized.Id}'.");
             if (normalized.Program is null)
                 return normalized;
 

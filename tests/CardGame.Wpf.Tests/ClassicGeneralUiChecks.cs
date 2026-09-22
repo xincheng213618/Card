@@ -399,21 +399,20 @@ internal static class ClassicGeneralUiChecks
         var jiangchi = viewModel.HumanSkillCards.Single(skill => skill.Name == "将驰");
         Program.Assert(engine.PendingDecision is
                        {
-                           Kind: DecisionKind.Jiangchi,
+                           Kind: DecisionKind.ProgramTrigger,
                            IsPrivate: true,
                            Choices.Count: 3
                        } &&
                        viewModel.IsSkillSelectionPending &&
-                       viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                       viewModel.SkillChoices.Where(choice =>
+                               choice.Parameters.GetValueOrDefault("program-action") == "activate")
+                           .Select(choice => choice.Parameters.GetValueOrDefault("binding-id"))
                            .Order(StringComparer.Ordinal)
-                           .SequenceEqual(new[]
-                           {
-                               "jiangchi-assault",
-                               "jiangchi-draw-more",
-                               "jiangchi-skip"
-                           }) &&
-                       viewModel.CurrentGuideTitle == "选择将驰方式" &&
-                       jiangchi.TypeText == "状态技 · 触发技" &&
+                           .SequenceEqual(["mode-assault", "mode-draw-more"]) &&
+                       viewModel.SkillChoices.Count(choice =>
+                           choice.Parameters.GetValueOrDefault("program-action") == "skip") == 1 &&
+                       viewModel.CurrentGuideTitle == "将驰 · 选择方式" &&
+                       jiangchi.TypeText == "触发技" &&
                        jiangchi.StateText == "等待触发时机",
             $"The WPF Jiangchi prompt must expose three complete branches and its compound metadata " +
             $"(pending={engine.PendingDecision?.Kind}, choices={viewModel.SkillChoices.Count}, " +
@@ -422,16 +421,18 @@ internal static class ClassicGeneralUiChecks
         Program.Render(root, 1120, 740,
             Path.Combine(output, "182-classic-cao-zhang-jiangchi-choice.png"));
         var assault = viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "jiangchi-assault");
+            choice.Parameters.GetValueOrDefault("binding-id") == "mode-assault" &&
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         viewModel.SelectSkillChoiceCommand.Execute(assault);
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         jiangchi = viewModel.HumanSkillCards.Single(skill => skill.Name == "将驰");
         Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                       jiangchi.StateText == "本回合：杀次数 +1 · 无距离限制" &&
-                       engine.Events.Select(item => item.Payload).OfType<JiangchiResolvedEvent>()
-                           .Any(item => item is
-                               { PlayerSeat: 0, Mode: JiangchiMode.Assault, DrawCount: 1 }),
+                       jiangchi.StateText == "等待触发时机" &&
+                       engine.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                           .Any(item => item.SkillId == "classic:jiangchi" &&
+                                       item.BindingId == "mode-assault" &&
+                                       item.Activated && item.Completed),
             $"Resolving the WPF assault branch must update the live skill state " +
             $"(pending={engine.PendingDecision?.Kind}, state={jiangchi.StateText}).");
         Program.Render(root, 1120, 740,
@@ -740,13 +741,13 @@ internal static class ClassicGeneralUiChecks
         var zongshi = viewModel.HumanSkillCards.Single(skill => skill.Name == "宗室");
         Program.Assert(engine.PendingDecision is
                        {
-                           Kind: DecisionKind.Zishou,
+                           Kind: DecisionKind.ProgramTrigger,
                            IsPrivate: true,
                            Choices.Count: 2
                        } &&
                        viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否自守" &&
-                       zishou.TypeText == "状态技 · 触发技" &&
+                       viewModel.CurrentGuideTitle == "自守 · 是否发动" &&
+                       zishou.TypeText == "触发技" &&
                        zishou.StateText == "等待触发时机" &&
                        zongshi.TypeText == "状态技 · 锁定技" &&
                        zongshi.StateText == "规则自动生效",
@@ -757,18 +758,20 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "191-classic-liu-biao-zishou-choice.png"));
 
         var use = viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "zishou-use");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         viewModel.SelectSkillChoiceCommand.Execute(use);
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         zishou = viewModel.HumanSkillCards.Single(skill => skill.Name == "自守");
         Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                       zishou.StateText == "本回合：额外摸牌 · 牌仅指定自己" &&
+                       zishou.StateText == "等待触发时机" &&
                        engine.GetHumanLegalActions().All(action =>
                            action.Kind is not (LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage) &&
                            action.TargetSeats.All(target => target == 0)) &&
-                       engine.Events.Select(item => item.Payload).OfType<ZishouResolvedEvent>()
-                           .Any(item => item is { PlayerSeat: 0, Used: true, LivingFactionCount: > 0 }),
+                       engine.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                           .Any(item => item.SkillId == "classic:zishou" && item.Activated && item.Completed) &&
+                       engine.Events.Select(item => item.Payload).OfType<CardTargetRestrictionGrantedEvent>()
+                           .Any(item => item.Restriction.Source.SkillId == "classic:zishou"),
             $"Resolving Zishou must return to play with its live target restriction " +
             $"(pending={engine.PendingDecision?.Kind}, state={zishou.StateText}).");
         Program.Render(root, 1120, 740,
@@ -985,9 +988,22 @@ internal static class ClassicGeneralUiChecks
         tuxiViewModel.SelectGeneralChoiceCommand.Execute(zhangLiao);
         Program.AdvanceToDecision(tuxiViewModel);
         var tuxiEngine = Program.Engine(tuxiViewModel);
+        var tuxiActivationPrompt = tuxiEngine.PendingDecision;
+        var activateTuxi = tuxiViewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
+        Program.Assert(tuxiViewModel.IsSkillSelectionPending &&
+                       tuxiActivationPrompt is
+                           { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" } &&
+                       tuxiViewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("program-action") == "skip") &&
+                       tuxiViewModel.CurrentGuideTitle == "突袭 · 是否发动" &&
+                       tuxiViewModel.CurrentGuideSteps.Any(step =>
+                           step.Text.Contains("至多两名", StringComparison.Ordinal)),
+            "The WPF must render Tuxi's generic private activation choice and presentation.");
+        tuxiViewModel.SelectSkillChoiceCommand.Execute(activateTuxi);
         var tuxiPrompt = tuxiEngine.PendingDecision;
         var useTuxi = tuxiViewModel.SkillChoices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
+            choice.Parameters.GetValueOrDefault("program-action") == "select-targets" &&
             choice.Targets.Count == 2);
         var tuxiBefore = tuxiEngine.CreateSnapshot(0, revealAll: true);
         var tuxiSourceBefore = tuxiBefore.Players.Single(player => player.Seat == 0).HandCount;
@@ -995,16 +1011,15 @@ internal static class ClassicGeneralUiChecks
             seat => seat,
             seat => tuxiBefore.Players.Single(player => player.Seat == seat).HandCount);
         Program.Assert(tuxiViewModel.IsSkillSelectionPending &&
-                       tuxiPrompt?.Kind == DecisionKind.Tuxi &&
+                       tuxiPrompt is
+                           { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" } &&
                        tuxiViewModel.SkillChoices.Count(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-targets" &&
                            choice.Targets.Count is 1 or 2) > 0 &&
-                       tuxiViewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "tuxi-skip") &&
-                       tuxiViewModel.CurrentGuideTitle == "选择突袭目标" &&
+                       tuxiViewModel.CurrentGuideTitle == "突袭 · 选择目标" &&
                        tuxiViewModel.CurrentGuideSteps.Any(step =>
-                           step.Text.Contains("一至两名", StringComparison.Ordinal)),
-            "The WPF must render Tuxi target combinations, ordinary draw and private guidance.");
+                           step.Text.Contains("至多两名", StringComparison.Ordinal)),
+            "The WPF must render Tuxi's generic target combinations and private guidance.");
         Program.Render(
             tuxiRoot,
             1120,
@@ -1019,14 +1034,13 @@ internal static class ClassicGeneralUiChecks
                        useTuxi.Targets.All(seat =>
                            tuxiAfter.Players.Single(player => player.Seat == seat).HandCount ==
                            tuxiTargetsBefore[seat] - 1) &&
-                       tuxiEngine.Events.Any(item => item.Payload is HandCardsGainedBySkillEvent
+                       tuxiEngine.Events.Any(item => item.Payload is ProgramRandomHandCardsTakenEvent
                        {
-                           SourceSeat: 0,
-                           Skill: SkillKind.Tuxi,
-                           Used: true,
+                           OwnerSeat: 0,
+                           SkillId: "classic:tuxi",
                            CardCount: 2
                        }),
-            "The WPF Tuxi choice must gain one hidden hand card from each selected target.");
+            "The WPF generic Tuxi choice must gain one hidden hand card from each selected target.");
         tuxiWindow.Content = null;
         tuxiWindow.Close();
         using var luoyiViewModel = FindGeneralChoice("classic:xu-chu");
@@ -1054,37 +1068,36 @@ internal static class ClassicGeneralUiChecks
         var luoyiBefore = luoyiEngine.CreateSnapshot(0, revealAll: true)
             .Players.Single(player => player.Seat == 0).HandCount;
         Program.Assert(luoyiViewModel.IsSkillSelectionPending &&
-                       luoyiEngine.PendingDecision?.Kind == DecisionKind.Luoyi &&
+                       luoyiEngine.PendingDecision is
+                           { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:luoyi" } &&
                        luoyiViewModel.SkillChoices.Count == 2 &&
                        luoyiViewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "luoyi-use") &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
                        luoyiViewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "luoyi-skip") &&
-                       luoyiViewModel.CurrentGuideTitle == "决定是否发动裸衣" &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "skip") &&
+                       luoyiViewModel.CurrentGuideTitle == "裸衣 · 是否发动" &&
                        luoyiViewModel.CurrentGuideSteps.Any(step =>
-                           step.Text.Contains("对方造成的伤害不会增加", StringComparison.Ordinal)),
-            "The WPF must render both Luoyi choices and explain Duel damage attribution.");
+                           step.Text.Contains("少摸一张牌", StringComparison.Ordinal) &&
+                           step.Text.Contains("伤害+1", StringComparison.Ordinal)),
+            "The WPF must render Luoyi's generic activation choice and configured presentation.");
         Program.Render(
             luoyiRoot,
             1120,
             740,
             Path.Combine(output, "89-classic-luoyi-choice.png"));
         var useLuoyi = luoyiViewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "luoyi-use");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         luoyiViewModel.SelectSkillChoiceCommand.Execute(useLuoyi);
         Program.Assert(!luoyiViewModel.IsSkillSelectionPending &&
                        luoyiEngine.PendingDecision is null &&
                        luoyiEngine.State.Phase == TurnPhase.Play &&
                        luoyiEngine.CreateSnapshot(0, revealAll: true)
                            .Players.Single(player => player.Seat == 0).HandCount == luoyiBefore + 1 &&
-                       luoyiEngine.Events.Any(item => item.Payload is DrawSkillResolvedEvent
-                       {
-                           SourceSeat: 0,
-                           Skill: SkillKind.Luoyi,
-                           Used: true,
-                           DrawCount: 1
-                       }),
-            "The WPF Luoyi choice must draw one fewer card and preserve the play boundary.");
+                       luoyiEngine.Events.Any(item => item.Payload is ProgramNormalDrawAdjustedEvent
+                           { SkillId: "classic:luoyi", OwnerSeat: 0, Adjustment: -1 }) &&
+                       luoyiEngine.Events.Any(item => item.Payload is CardDamageModifierGrantedEvent
+                           { Modifier: { Source: { SkillId: "classic:luoyi", OwnerSeat: 0 } } }),
+            "The WPF generic Luoyi choice must reduce the normal draw, grant its turn modifier and preserve play.");
         luoyiWindow.Content = null;
         luoyiWindow.Close();
         using var qiangxiViewModel = FindGeneralChoice("classic:dian-wei");
@@ -1828,7 +1841,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(caoRen.Name == "曹仁" && caoRen.Kingdom == "魏" &&
                        caoRen.SkillName == "据守" &&
                        caoRen.SkillDescription.Contains("摸三张牌", StringComparison.Ordinal) &&
-                       caoRen.SkillDescription.Contains("翻面", StringComparison.Ordinal) &&
+                       caoRen.SkillDescription.Contains("背面", StringComparison.Ordinal) &&
                        GeneralArt.HasPortrait(caoRen.GeneralId) && caoRen.HealthText == "体力上限 5",
             "The current classic Cao Ren card must render Wei, Jushou and the Lord health bonus.");
         var caoRenWindow = new MainWindow(caoRenViewModel);
@@ -2142,15 +2155,16 @@ internal static class ClassicGeneralUiChecks
         var beforeYingzi = yingziEngine.CreateSnapshot(0, revealAll: true)
             .Players.Single(player => player.Seat == 0).HandCount;
         Program.Assert(yingziViewModel.IsSkillSelectionPending &&
-                       yingziEngine.PendingDecision?.Kind == DecisionKind.Yingzi &&
+                       yingziEngine.PendingDecision is
+                           { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:yingzi" } &&
                        yingziViewModel.SkillChoices.Count == 2,
-            "The WPF must render both complete Yingzi choices at the draw-phase boundary.");
+            "The WPF must render both generic Yingzi choices at the draw-phase boundary.");
         var yingziWindow = new MainWindow(yingziViewModel);
         yingziWindow.ApplyTemplate();
         Program.Render((FrameworkElement)yingziWindow.Content, 1120, 740,
             Path.Combine(output, "71-classic-yingzi-choice.png"));
         var skipYingzi = yingziViewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "yingzi-skip");
+            choice.Parameters.GetValueOrDefault("program-action") == "skip");
         yingziViewModel.SelectSkillChoiceCommand.Execute(skipYingzi);
         Program.Assert(!yingziViewModel.IsSkillSelectionPending &&
                        yingziEngine.CreateSnapshot(0, revealAll: true)

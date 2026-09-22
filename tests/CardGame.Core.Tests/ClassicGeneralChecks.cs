@@ -123,10 +123,10 @@ internal static class ClassicGeneralChecks
             "The legacy rescue registry must not silently gain the classic roster.");
         Require(classic.Packages.Select(package => $"{package.Id}@{package.Version}")
             .SequenceEqual([
-                "standard@1.11.0",
-                "standard-active-skills@1.0.0",
+                "standard@1.14.0",
+                "standard-active-skills@1.1.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.97.0"]),
+                "standard-classic-generals@1.107.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -732,17 +732,8 @@ internal static class ClassicGeneralChecks
             "Classic Wusheng equipment conversion must have an explicit replay-versioned rules boundary.");
         var feedback = SkillRegistry.Get(SkillKind.Feedback);
         var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
-        var feedbackContext = new DamageSkillContext(
-            damaged,
-            SourceSeat: 1,
-            SourceCard: CardKind.Slash,
-            SourceCardIsInProcessing: true,
-            Amount: 1,
-            TargetSeat: 0,
-            SourceCardCount: 2);
-        Require(feedback.ClaimsDamageCard(feedbackContext) &&
-                feedback.GetDamageSkillEffect(feedbackContext) == DamageSkillEffectKind.TakeSourceCard,
-            "Feedback must retain the legacy hook while declaring its formal source-card effect.");
+        Require(feedback.Kind == SkillKind.Feedback && feedback.Name == "反馈",
+            "Feedback must retain only its stable legacy identity metadata.");
 
         var jijiu = SkillRegistry.Get(SkillKind.Jijiu);
         var red = new Card(9001, CardKind.Slash, Suit.Heart, 7);
@@ -785,15 +776,12 @@ internal static class ClassicGeneralChecks
             "Formal Wushuang must require two sequential responses only from the skill owner's opponent.");
 
         var tuxi = SkillRegistry.Get(SkillKind.Tuxi);
-        var draw = damaged with { Phase = TurnPhase.Draw, IsOwnTurn = true };
-        Require(tuxi.CanReplaceDrawPhase(draw) &&
-                !tuxi.CanReplaceDrawPhase(draw with { IsOwnTurn = false }),
-            "Formal Tuxi must replace only its owner's draw phase.");
+        Require(tuxi.Kind == SkillKind.Tuxi && tuxi.Name == "突袭",
+            "Tuxi must retain only its stable legacy identity metadata.");
 
         var luoyi = SkillRegistry.Get(SkillKind.Luoyi);
-        Require(luoyi.CanReduceDrawPhase(draw) &&
-                !luoyi.CanReduceDrawPhase(draw with { IsOwnTurn = false }),
-            "Formal Luoyi must reduce only its owner's draw phase.");
+        Require(luoyi.Kind == SkillKind.Luoyi && luoyi.Name == "裸衣",
+            "Luoyi must retain only its stable legacy identity metadata.");
 
         var qiangxi = SkillRegistry.GetActive(SkillKind.Qiangxi) ??
             throw new InvalidOperationException("Formal Qiangxi must expose an active-skill contract.");
@@ -1443,61 +1431,90 @@ internal static class ClassicGeneralChecks
 
     public static void FormalTuxiFlow()
     {
-        var registry = CreatePreProgramClassicRegistry();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = SelectGeneral(registry, "classic:zhang-liao", GameCheckpoint.CurrentRulesVersion);
         var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:zhang-liao" &&
                 selected.MaxHp == 5 &&
                 selected.Hp == 5 &&
-                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Tuxi]),
+                selected.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:tuxi"]) &&
+                selected.Skills!.Single().Kind == SkillKind.None,
             "Classic Zhang Liao must combine base 4 HP, the Lord bonus and formal Tuxi.");
 
         var advanced = game.Submit(new AdvanceCommand(game.Revision));
-        var eligibleTargetCount = game.CreateSnapshot(0, revealAll: true).Players.Count(player =>
-            player.Seat != 0 && player.IsAlive && player.HandCount > 0);
-        var expectedChoiceCount = eligibleTargetCount + eligibleTargetCount * (eligibleTargetCount - 1) / 2 + 1;
-        Require(advanced.Accepted &&
-                game.State.Phase == TurnPhase.Draw &&
+        Require(advanced.Accepted && game.State.Phase == TurnPhase.Draw &&
                 game.PendingDecision is
                 {
-                    Kind: DecisionKind.Tuxi,
+                    Kind: DecisionKind.ProgramTrigger,
                     PlayerSeat: 0,
-                    IsPrivate: true
-                } prompt &&
-                prompt.ValidTargetSeats.Count == eligibleTargetCount &&
-                prompt.Choices.Count == expectedChoiceCount &&
-                prompt.Choices.Count(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
-                    choice.Targets.Count == 2) == eligibleTargetCount * (eligibleTargetCount - 1) / 2 &&
-                prompt.Choices.Count(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "tuxi-skip") == 1,
-            advanced.Error?.Message ?? "Classic Zhang Liao must publish every legal one- or two-target Tuxi choice.");
+                    IsPrivate: true,
+                    SkillPrompt.SkillId: "classic:tuxi"
+                } activation &&
+                activation.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
+                    .OrderBy(action => action, StringComparer.Ordinal)
+                    .SequenceEqual(["activate", "skip"]),
+            advanced.Error?.Message ?? "Classic Zhang Liao must publish the generic Tuxi activation choice.");
         Require(game.CreateSnapshot(1).PendingDecision is null,
-            "Another seat must not receive Zhang Liao's private Tuxi choice surface.");
+            "Another seat must not receive Zhang Liao's private Tuxi activation.");
 
         var pausedCheckpoint = GameCheckpointJson.Deserialize(
             GameCheckpointJson.Serialize(game.CreateCheckpoint()));
         var skippedBranch = GameReplay.Restore(pausedCheckpoint, registry);
-        Require(skippedBranch.PendingDecision?.Kind == DecisionKind.Tuxi &&
+        Require(skippedBranch.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" } &&
                 SnapshotJson.Serialize(skippedBranch.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
-            "A paused Tuxi target choice must restore exactly from its command checkpoint.");
+            "A paused Tuxi activation must restore exactly from its command checkpoint.");
 
         var beforeForged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
         var forged = game.Submit(new AnswerPromptCommand(
             0,
             game.PendingDecision!.PromptId,
-            new ChoiceId("tuxi.forged"),
+            new ChoiceId("program-trigger.forged"),
             game.Revision));
         Require(!forged.Accepted &&
                 forged.Error?.Code == CommandErrorCode.InvalidChoice &&
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForged,
             "A forged Tuxi choice must be rejected atomically.");
 
-        var usePrompt = game.PendingDecision!;
-        var useChoice = usePrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "tuxi-use" &&
-            choice.Targets.Count == 2);
+        var activationPrompt = game.PendingDecision!;
+        var activated = game.Submit(new AnswerPromptCommand(
+            0,
+            activationPrompt.PromptId,
+            activationPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
+            game.Revision));
+        var targetPrompt = game.PendingDecision;
+        var eligibleTargetCount = game.CreateSnapshot(0, revealAll: true).Players.Count(player =>
+            player.Seat != 0 && player.IsAlive && player.HandCount > 0);
+        var expectedChoiceCount = eligibleTargetCount + eligibleTargetCount * (eligibleTargetCount - 1) / 2;
+        Require(activated.Accepted && targetPrompt is
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    PlayerSeat: 0,
+                    IsPrivate: true,
+                    SkillPrompt.SkillId: "classic:tuxi"
+                } &&
+                targetPrompt.ValidTargetSeats.Count == eligibleTargetCount &&
+                targetPrompt.Choices.Count == expectedChoiceCount &&
+                targetPrompt.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-targets" &&
+                    choice.Targets.Count is 1 or 2),
+            activated.Error?.Message ?? "Activated Tuxi must publish every legal one- or two-target combination.");
+        Require(game.CreateSnapshot(1).PendingDecision is null,
+            "Another seat must not receive Zhang Liao's private Tuxi target combinations.");
+
+        var targetCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restoredTargetChoice = GameReplay.Restore(targetCheckpoint, registry);
+        Require(SnapshotJson.Serialize(restoredTargetChoice.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                restoredTargetChoice.PendingDecision?.Choices.Select(choice => choice.Id)
+                    .SequenceEqual(targetPrompt!.Choices.Select(choice => choice.Id)) == true,
+            "A paused generic Tuxi target choice must restore exactly.");
+
+        var usePrompt = targetPrompt!;
+        var useChoice = usePrompt.Choices.First(choice => choice.Targets.Count == 2);
         var beforeUse = game.CreateSnapshot(0, revealAll: true);
         var sourceHandBefore = beforeUse.Players.Single(player => player.Seat == 0).Hand
             .Select(card => card.Id)
@@ -1525,15 +1542,17 @@ internal static class ClassicGeneralChecks
                 useChoice.Targets.All(seat =>
                     targetHandsBefore[seat].Except(
                         afterUse.Players.Single(player => player.Seat == seat).Hand.Select(card => card.Id)).Count() == 1) &&
-                game.Events.Select(item => item.Payload).OfType<HandCardsGainedBySkillEvent>().Any(resolved =>
-                    resolved.SourceSeat == 0 &&
-                    resolved.Skill == SkillKind.Tuxi &&
-                    resolved.Used &&
+                game.Events.Select(item => item.Payload).OfType<ProgramRandomHandCardsTakenEvent>().Any(resolved =>
+                    resolved.OwnerSeat == 0 &&
+                    resolved.SkillId == "classic:tuxi" &&
                     resolved.CardCount == 2 &&
                     resolved.TargetSeats.SequenceEqual(useChoice.Targets)) &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(resolved =>
+                    resolved.SkillId == "classic:tuxi" && resolved.Activated && resolved.Completed) &&
                 gainedIds.All(cardId => game.CardMovements.Count(movement =>
                     movement.CardId == cardId &&
-                    movement.Reason == CardMoveReasons.TuxiGain) == 2),
+                    movement.Reason.Value ==
+                    "skill-program.classic:tuxi.TakeRandomHandCardFromSelectedTargets") == 2),
             used.Error?.Message ?? "Using Tuxi must replace drawing with one hidden hand card from each selected target.");
         var usedReplay = GameReplay.Restore(
             GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
@@ -1550,16 +1569,35 @@ internal static class ClassicGeneralChecks
             0,
             skipPrompt.PromptId,
             skipPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "tuxi-skip").Id,
+                choice.Parameters.GetValueOrDefault("program-action") == "skip").Id,
             skippedBranch.Revision));
         Require(skipped.Accepted &&
                 skippedBranch.PendingDecision is null &&
                 skippedBranch.State.Phase == TurnPhase.Play &&
                 skippedBranch.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
                 sourceBeforeSkip + 2 &&
-                skippedBranch.Events.Select(item => item.Payload).OfType<HandCardsGainedBySkillEvent>().Any(resolved =>
-                    resolved.Skill == SkillKind.Tuxi && !resolved.Used && resolved.CardCount == 0),
+                skippedBranch.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(resolved =>
+                    resolved.SkillId == "classic:tuxi" && !resolved.Activated && !resolved.Completed),
             skipped.Error?.Message ?? "Skipping Tuxi must preserve the ordinary two-card draw.");
+
+        var historicalRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 102, 0));
+        var historical = SelectGeneral(
+            historicalRegistry, "classic:zhang-liao", GameCheckpoint.CurrentRulesVersion);
+        var historicalAdvanced = historical.Submit(new AdvanceCommand(historical.Revision));
+        Require(historicalAdvanced.Accepted && historical.State.Phase == TurnPhase.Play &&
+                historical.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                historical.CreateSnapshot(0, revealAll: true)
+                    .Players.Single(player => player.Seat == 0).HandCount == 6 &&
+                historical.CardMovements.Count(move =>
+                    move.Reason == CardMoveReasons.Draw &&
+                    move.To == CardLocation.Hand(0)) == 2 &&
+                historical.Events.Select(item => item.Payload).All(item =>
+                    item is not ProgramBindingStartedEvent { SkillId: "classic:tuxi" }),
+            $"The historical 1.102 Tuxi definition must retain its fingerprint without reviving the removed route " +
+            $"(accepted={historicalAdvanced.Accepted}, phase={historical.State.Phase}, " +
+            $"prompt={historical.PendingDecision?.Kind.ToString() ?? "none"}, " +
+            $"hand={historical.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount}, " +
+            $"programStarts={historical.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>().Count(item => item.SkillId == "classic:tuxi")}).");
 
     }
 
@@ -1652,7 +1690,11 @@ internal static class ClassicGeneralChecks
         var (slashGame, slashAction, slashTargetHp) = FindXuChuDirectAttackFixture(
             registry,
             LegalActionKind.Slash,
-            target => target.Hand.All(card => card.Kind != CardKind.Dodge) && target.Equipment.Count == 0);
+            target => target.Hand.All(card => card.Kind != CardKind.Dodge) &&
+                      target.Equipment.Count == 0 &&
+                      target.Skills?.All(skill => skill.Kind is not
+                          (SkillKind.Yizhong or SkillKind.Zhenlie or SkillKind.Liuli or SkillKind.Renxin or
+                           SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Bazhen or SkillKind.Hujia)) != false);
         var slashTargetSeat = slashAction.TargetSeat!.Value;
         var slashPlayed = slashGame.Submit(new PlayCardCommand(
             0,
@@ -1669,8 +1711,9 @@ internal static class ClassicGeneralChecks
                 slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Hp ==
                 slashTargetHp - 2 &&
                 slashGame.Events.Select(item => item.Payload).OfType<DamageModifiedBySkillEvent>().Any(modified =>
-                    modified.ResolutionId == slashDamage.ResolutionId - 1 &&
                     modified.Skill == SkillKind.Luoyi &&
+                    modified.SourceSeat == 0 &&
+                    modified.TargetSeat == slashTargetSeat &&
                     modified.BaseAmount == 1 &&
                     modified.ModifiedAmount == 2),
             slashPlayed.Error?.Message ?? "Luoyi must add one damage to a Slash used by Xu Chu this turn.");
@@ -1721,6 +1764,141 @@ internal static class ClassicGeneralChecks
             declined.Error?.Message ??
             "A Duel opponent must deal unmodified damage when Xu Chu used the Duel but then failed to respond.");
 
+    }
+
+    public static void ProgramLuoyiFlow()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 104, 0));
+        Require(historical.Skills["classic:luoyi"] is
+                    { LegacyKind: SkillKind.Luoyi, Program: null } &&
+                registry.Skills["classic:luoyi"] is
+                {
+                    LegacyKind: null,
+                    Program.RuntimeVersion: "skill-program-v19"
+                } current &&
+                current.Program!.MinimumRulesVersion == 124,
+            "Classic Luoyi must preserve the 1.104 legacy definition and publish schema 19 at 1.105.");
+
+        var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
+        var advanced = game.Submit(new AdvanceCommand(game.Revision));
+        Require(advanced.Accepted && game.PendingDecision is
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    PlayerSeat: 0,
+                    IsPrivate: true,
+                    SkillPrompt.SkillId: "classic:luoyi"
+                } prompt &&
+                prompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "activate") == 1 &&
+                prompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip") == 1 &&
+                game.CreateSnapshot(1).PendingDecision is null,
+            advanced.Error?.Message ?? "Current Luoyi must publish a private generic activation choice.");
+
+        var paused = RoundTrip(game.CreateCheckpoint());
+        var skipped = GameReplay.Restore(paused, registry);
+        var handBeforeUse = game.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        var usePrompt = game.PendingDecision!;
+        var used = game.Submit(new AnswerPromptCommand(
+            0,
+            usePrompt.PromptId,
+            usePrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
+            game.Revision));
+        Require(used.Accepted && game.State.Phase == TurnPhase.Play && game.PendingDecision is null &&
+                game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                handBeforeUse + 1 &&
+                game.Events.Select(item => item.Payload).OfType<ProgramNormalDrawAdjustedEvent>().Any(item =>
+                    item.SkillId == "classic:luoyi" && item.Adjustment == -1 && item.TotalAdjustment == -1) &&
+                game.Events.Select(item => item.Payload).OfType<CardDamageModifierGrantedEvent>().Any(item =>
+                    item.Modifier.Source.SkillId == "classic:luoyi" &&
+                    item.Modifier.Amount == 1 &&
+                    item.Modifier.CardKinds.SequenceEqual(
+                        [CardKind.Slash, CardKind.Duel, CardKind.FireSlash, CardKind.ThunderSlash])) &&
+                game.Events.Select(item => item.Payload).All(item =>
+                    item is not DrawSkillResolvedEvent { Skill: SkillKind.Luoyi }),
+            used.Error?.Message ?? "Program Luoyi must reduce only the normal draw and grant its turn modifier.");
+
+        var activatedReplay = GameReplay.Restore(paused, registry);
+        var replayPrompt = activatedReplay.PendingDecision!;
+        var replayed = activatedReplay.Submit(new AnswerPromptCommand(
+            0,
+            replayPrompt.PromptId,
+            replayPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
+            activatedReplay.Revision));
+        Require(replayed.Accepted &&
+                SnapshotJson.Serialize(activatedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventTrace(activatedReplay).SequenceEqual(EventTrace(game)),
+            replayed.Error?.Message ?? "Activated program Luoyi must replay exactly from its private prompt.");
+
+        var handBeforeSkip = skipped.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0).HandCount;
+        var skipPrompt = skipped.PendingDecision!;
+        var skip = skipped.Submit(new AnswerPromptCommand(
+            0,
+            skipPrompt.PromptId,
+            skipPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "skip").Id,
+            skipped.Revision));
+        Require(skip.Accepted && skipped.State.Phase == TurnPhase.Play &&
+                skipped.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
+                handBeforeSkip + 2 &&
+                skipped.Events.Select(item => item.Payload).All(item =>
+                    item is not CardDamageModifierGrantedEvent),
+            skip.Error?.Message ?? "Skipping program Luoyi must keep the normal draw and grant no modifier.");
+
+        var (slashGame, slashAction, slashTargetHp) = FindXuChuDirectAttackFixture(
+            registry,
+            LegalActionKind.Slash,
+            target => target.Hand.All(card => card.Kind != CardKind.Dodge) &&
+                      target.Equipment.Count == 0 &&
+                      target.Skills?.All(skill => skill.Kind is not
+                          (SkillKind.Yizhong or SkillKind.Zhenlie or SkillKind.Liuli or SkillKind.Renxin or
+                           SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Bazhen or SkillKind.Hujia)) != false);
+        var slashTargetSeat = slashAction.TargetSeat!.Value;
+        var slashPlayed = slashGame.Submit(new PlayCardCommand(
+            0,
+            slashAction.CardId!.Value,
+            slashAction.TargetSeats,
+            slashGame.Revision,
+            slashGame.PendingDecision!.PromptId,
+            slashAction.PlayedCardKind));
+        Require(slashPlayed.Accepted &&
+                slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Hp ==
+                slashTargetHp - 2 &&
+                slashGame.Events.Select(item => item.Payload).OfType<ProgramCardDamageModifiedEvent>().Any(item =>
+                    item.Source.SkillId == "classic:luoyi" && item.Source.OwnerSeat == 0 &&
+                    item.TargetSeat == slashTargetSeat && item.BaseAmount == 1 && item.ModifiedAmount == 2),
+            slashPlayed.Error?.Message ??
+            $"Program Luoyi must increase direct Slash damage (targetHp={slashTargetHp}, " +
+            $"after={slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Hp}, " +
+            $"target={slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).GeneralId}, " +
+            $"skills={string.Join(',', slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Skills?.Select(skill => skill.ContentId ?? skill.Kind.ToString()) ?? [])}, " +
+            $"pending={slashGame.PendingDecision?.Kind.ToString() ?? "none"}, " +
+            $"modifierEvents={slashGame.Events.Select(item => item.Payload).OfType<ProgramCardDamageModifiedEvent>().Count()}, " +
+            $"damage={slashGame.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>().LastOrDefault(item => item.TargetSeat == slashTargetSeat)?.Amount.ToString() ?? "none"}).");
+
+        var (reverseGame, reverseTargetSeat, reverseResolutionId, xuChuHpBefore) =
+            FindXuChuReverseDuelFixture(registry);
+        var reversePrompt = reverseGame.PendingDecision!;
+        var declined = reverseGame.Submit(new AnswerPromptCommand(
+            0,
+            reversePrompt.PromptId,
+            reversePrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "take-damage").Id,
+            reverseGame.Revision));
+        Require(declined.Accepted &&
+                reverseGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp ==
+                xuChuHpBefore - 1 &&
+                reverseGame.Events.Select(item => item.Payload).OfType<ProgramCardDamageModifiedEvent>()
+                    .All(item => item.ResolutionId != reverseResolutionId) &&
+                reverseTargetSeat != 0,
+            declined.Error?.Message ??
+            "Program Luoyi must not increase Duel damage when the opponent becomes the actual source.");
     }
 
     public static void FormalQiangxiFlow()
@@ -1925,6 +2103,94 @@ internal static class ClassicGeneralChecks
                     opened.Candidates.Any(candidate => candidate.Skill == SkillKind.Ganglie)),
             triggered.Error?.Message ??
             "Cardless Qiangxi damage must still enter the shared after-damage trigger window.");
+
+        var (tianxiangFixture, _, tianxiangTargetSeat, _) = FindDianWeiQiangxiFixture(
+            registry,
+            requireWeapon: false,
+            targetSkill: SkillKind.Tianxiang,
+            requireTargetHeart: true);
+        var tianxiangBefore = tianxiangFixture.CreateSnapshot(0, revealAll: true);
+        var tianxiangOpened = tianxiangFixture.Submit(new UseSkillCommand(
+            0,
+            SkillKind.Qiangxi,
+            [],
+            [tianxiangTargetSeat],
+            tianxiangFixture.Revision,
+            tianxiangFixture.PendingDecision!.PromptId));
+        var tianxiangPrompt = tianxiangFixture
+            .CreateSnapshot(tianxiangTargetSeat)
+            .PendingDecision;
+        Require(tianxiangOpened.Accepted &&
+                tianxiangFixture.PendingDecision is null &&
+                tianxiangPrompt is { Kind: DecisionKind.Tianxiang } &&
+                tianxiangFixture.State.Status == EngineStatus.Running &&
+                tianxiangFixture.ResolutionStack is
+                [ActiveSkillFrame { Skill: SkillKind.Qiangxi, Step: ResolutionFrameStep.AwaitingResponse } active,
+                    ResponseWindowFrame response] &&
+                response.ParentFrameId == active.Id,
+            tianxiangOpened.Error?.Message ??
+            "Tianxiang over Qiangxi must suspend a typed ActiveSkill parent beneath its private AI response window.");
+
+        var pausedCheckpoint = GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(tianxiangFixture.CreateCheckpoint()));
+        var activeSkillFrameId = tianxiangFixture.ResolutionStack[0].Id;
+        var skipped = tianxiangFixture.Submit(new AnswerPromptCommand(
+            tianxiangTargetSeat,
+            tianxiangPrompt!.PromptId,
+            tianxiangPrompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "tianxiang-skip").Id,
+            tianxiangFixture.Revision));
+        var skippedAfter = tianxiangFixture.CreateSnapshot(0, revealAll: true);
+        Require(skipped.Accepted &&
+                skippedAfter.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp ==
+                tianxiangBefore.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp - 1 &&
+                tianxiangFixture.ResolutionStack.Count == 0 &&
+                tianxiangFixture.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Count(resolved =>
+                    resolved.ResolutionId == activeSkillFrameId && resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Qiangxi) == 1,
+            skipped.Error?.Message ??
+            "Skipping Tianxiang must resume and complete its Qiangxi ActiveSkill parent exactly once.");
+
+        var transferredGame = GameReplay.Restore(pausedCheckpoint, registry);
+        var transferPrompt = transferredGame.CreateSnapshot(tianxiangTargetSeat).PendingDecision ??
+            throw new InvalidOperationException("The restored Qiangxi branch lost Tianxiang's private prompt.");
+        var transferChoice = transferPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "tianxiang-use" &&
+            choice.Targets.SequenceEqual([0]));
+        var transferSourceBefore = transferredGame.CreateSnapshot(0, revealAll: true)
+            .Players.Single(player => player.Seat == 0);
+        var transferred = transferredGame.Submit(new AnswerPromptCommand(
+            tianxiangTargetSeat,
+            transferPrompt.PromptId,
+            transferChoice.Id,
+            transferredGame.Revision));
+        var transferAfter = transferredGame.CreateSnapshot(0, revealAll: true);
+        var transferDraw = transferredGame.Events.Select(item => item.Payload)
+            .OfType<TianxiangCardsDrawnEvent>()
+            .Single(item => item.ResolutionId == activeSkillFrameId && item.TargetSeat == 0);
+        Require(transferred.Accepted &&
+                transferAfter.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp ==
+                tianxiangBefore.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp &&
+                transferAfter.Players.Single(player => player.Seat == 0).Hp == transferSourceBefore.Hp - 1 &&
+                transferDraw.DrawCount ==
+                transferAfter.Players.Single(player => player.Seat == 0).MaxHp -
+                transferAfter.Players.Single(player => player.Seat == 0).Hp &&
+                transferredGame.ResolutionStack.Count == 0 &&
+                transferredGame.Events.Select(item => item.Payload).OfType<TianxiangTransferredEvent>().Count(item =>
+                    item.ResolutionId == activeSkillFrameId && item.OwnerSeat == tianxiangTargetSeat &&
+                    item.TargetSeat == 0) == 1 &&
+                transferredGame.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Count(resolved =>
+                    resolved.ResolutionId == activeSkillFrameId && resolved.SourceSeat == 0 &&
+                    resolved.Skill == SkillKind.Qiangxi) == 1,
+            transferred.Error?.Message ??
+            "Using Tianxiang must transfer damage and resume its Qiangxi ActiveSkill parent exactly once.");
+        var transferReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(transferredGame.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(transferReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(transferredGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(transferReplay).SequenceEqual(EventSignatures(transferredGame)),
+            "A paused Tianxiang response over Qiangxi must transfer and replay exactly.");
 
     }
 
@@ -3250,90 +3516,6 @@ internal static class ClassicGeneralChecks
 
     }
 
-    public static void FormalYingziChoice()
-    {
-        var registry = CreatePreProgramClassicRegistry();
-        Require(GameCheckpoint.CurrentRulesVersion >= 21,
-            "Formal Yingzi must have an explicit rules version.");
-
-        var skipped = SelectGeneral(registry, "classic:zhou-yu", GameCheckpoint.CurrentRulesVersion);
-        var reachedChoice = skipped.Submit(new AdvanceCommand(skipped.Revision));
-        Require(reachedChoice.Accepted, reachedChoice.Error?.Message ?? "Could not reach the Yingzi choice.");
-        var skipPrompt = skipped.PendingDecision;
-        Require(skipPrompt is { Kind: DecisionKind.Yingzi } &&
-                skipPrompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
-                    .OrderBy(action => action, StringComparer.Ordinal)
-                    .SequenceEqual(["yingzi-skip", "yingzi-use"]),
-            "Rules v21 must publish complete use and skip choices for Yingzi.");
-        var initialHandCount = skipped.CreateSnapshot(0, revealAll: true)
-            .Players.Single(player => player.Seat == 0).HandCount;
-
-        var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(skipped.CreateCheckpoint()));
-        var restored = GameReplay.Restore(checkpoint, registry);
-        Require(restored.PendingDecision?.Kind == DecisionKind.Yingzi,
-            "A paused Yingzi choice must restore from the command checkpoint.");
-
-        var staleSnapshot = SnapshotJson.Serialize(skipped.CreateSnapshot(0, revealAll: true));
-        var rejected = skipped.Submit(new AnswerPromptCommand(
-            0,
-            skipPrompt!.PromptId,
-            new ChoiceId("yingzi.unknown"),
-            skipped.Revision));
-        Require(!rejected.Accepted && rejected.Error?.Code == CommandErrorCode.InvalidChoice &&
-                SnapshotJson.Serialize(skipped.CreateSnapshot(0, revealAll: true)) == staleSnapshot,
-            "A forged Yingzi choice must be rejected atomically.");
-
-        var skipChoice = skipPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "yingzi-skip");
-        var skippedResult = skipped.Submit(new AnswerPromptCommand(
-            0,
-            skipPrompt.PromptId,
-            skipChoice.Id,
-            skipped.Revision));
-        Require(skippedResult.Accepted && skipped.State.Phase == TurnPhase.Play && skipped.PendingDecision is null,
-            skippedResult.Error?.Message ??
-            $"Skipping Yingzi did not continue to the play phase (status={skipped.State.Status}, prompt={skipped.PendingDecision?.Kind.ToString() ?? "none"}, phase={skipped.State.Phase}).");
-        Require(skipped.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
-                initialHandCount + 2,
-            "Skipping Yingzi must draw only the normal two cards.");
-
-        var restoredSkip = restored.Submit(new AnswerPromptCommand(
-            0,
-            restored.PendingDecision!.PromptId,
-            restored.PendingDecision.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "yingzi-skip").Id,
-            restored.Revision));
-        Require(restoredSkip.Accepted &&
-                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(skipped.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(restored).SequenceEqual(EventSignatures(skipped)),
-            "A restored Yingzi choice must resolve deterministically.");
-
-        var used = SelectGeneral(registry, "classic:zhou-yu", GameCheckpoint.CurrentRulesVersion);
-        Require(used.Submit(new AdvanceCommand(used.Revision)).Accepted,
-            "Could not reach the second Yingzi choice.");
-        var usePrompt = used.PendingDecision!;
-        var beforeUse = used.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount;
-        var usedResult = used.Submit(new AnswerPromptCommand(
-            0,
-            usePrompt.PromptId,
-            usePrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "yingzi-use").Id,
-            used.Revision));
-        Require(usedResult.Accepted &&
-                used.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
-                beforeUse + 3 &&
-                used.Events.Any(envelope => envelope.Payload is DrawSkillResolvedEvent
-                {
-                    SourceSeat: 0,
-                    Skill: SkillKind.Yingzi,
-                    Used: true,
-                    DrawCount: 3
-                }),
-            usedResult.Error?.Message ?? "Using Yingzi must draw one extra card and publish its result.");
-
-    }
-
     public static void FormalTianduJudgment()
     {
         var registry = CreatePreProgramClassicRegistry();
@@ -4033,6 +4215,7 @@ internal static class ClassicGeneralChecks
         JudgmentResolvedEvent? failedJudgment = null;
         int ownerSeat = -1;
         int ownerHpBefore = -1;
+        var failedEventStart = -1;
         for (var seed = 1; seed <= 4_096 && failedBagua is null; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -4082,6 +4265,7 @@ internal static class ClassicGeneralChecks
                     {
                         failedBagua = game;
                         failedJudgment = judgment;
+                        failedEventStart = beforeEvents;
                     }
                     break;
                 }
@@ -4124,6 +4308,8 @@ internal static class ClassicGeneralChecks
                 else
                 {
                     var decline = prompt.Choices.FirstOrDefault(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                        prompt.Choices.FirstOrDefault(choice =>
                         choice.Parameters.Values.Any(value =>
                             value.StartsWith("skip", StringComparison.Ordinal) ||
                             value is "take-damage" or "no-nullification" or "ganglie-lose-hp")) ??
@@ -4148,7 +4334,7 @@ internal static class ClassicGeneralChecks
                 failedBagua.CreateSnapshot(1, revealAll: true).Players[ownerSeat].Hp == ownerHpBefore &&
                 failedBagua.ResolutionStack.OfType<ResponseWindowFrame>().Any(frame =>
                     frame.ResponderSeat == ownerSeat && frame.RequiredCardKind == CardKind.Dodge) &&
-                failedBagua.Events.Select(envelope => envelope.Payload)
+                failedBagua.Events.Skip(failedEventStart).Select(envelope => envelope.Payload)
                     .OfType<HujiaResolvedEvent>()
                     .All(resolved => !resolved.Succeeded),
             "A failed allied Bagua judgment must keep Cao Cao unharmed and continue the original Dodge response window.");
@@ -4704,11 +4890,12 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(active.CreateSnapshot(0, revealAll: true)),
             "A completed Lijian Duel must replay exactly.");
 
+        var biyueRegistry = StandardContentRegistry.CreateWithClassicGenerals();
         var biyue = StartClassicGeneralAtPlay(
-            registry,
+            biyueRegistry,
             1,
             "classic:diao-chan",
-            GameCheckpoint.CurrentRulesVersion) ?? SelectGeneral(registry, "classic:diao-chan", GameCheckpoint.CurrentRulesVersion);
+            GameCheckpoint.CurrentRulesVersion) ?? SelectGeneral(biyueRegistry, "classic:diao-chan", GameCheckpoint.CurrentRulesVersion);
         if (biyue.PendingDecision?.Kind != DecisionKind.PlayCard)
         {
             var reached = biyue.Submit(new AdvanceCommand(biyue.Revision));
@@ -4717,23 +4904,26 @@ internal static class ClassicGeneralChecks
         var ended = biyue.Submit(new EndPlayPhaseCommand(0, biyue.Revision, biyue.PendingDecision!.PromptId));
         Require(ended.Accepted, ended.Error?.Message ?? "Diao Chan could not end play.");
         var advanced = biyue.Submit(new AdvanceCommand(biyue.Revision));
-        Require(advanced.Accepted && biyue.PendingDecision is { Kind: DecisionKind.Biyue, PlayerSeat: 0 },
+        Require(advanced.Accepted && biyue.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, SkillPrompt.SkillId: "classic:biyue" },
             advanced.Error?.Message ?? "Diao Chan must receive the optional Biyue end-phase prompt.");
         var prompt = biyue.PendingDecision!;
         var handBefore = biyue.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
         var drew = biyue.Submit(new AnswerPromptCommand(
             0,
             prompt.PromptId,
-            prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "biyue-use").Id,
+            prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
             biyue.Revision));
-        Require(drew.Accepted && biyue.CardMovements.Any(move => move.Reason == CardMoveReasons.BiyueDraw) &&
+        Require(drew.Accepted && biyue.CardMovements.Any(move =>
+                    move.Reason.Value == "skill-program.classic:biyue.Draw") &&
                 biyue.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == handBefore + 1,
             drew.Error?.Message ?? "Biyue must draw exactly one card before ending the turn.");
     }
 
     public static void FormalJieyinAndXiaojiFlow()
     {
-        var registry = CreatePreProgramClassicRegistry();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         GameEngine? xiaojiGame = null;
         LegalAction[]? equipmentActions = null;
         for (var seed = 1; seed <= 8_192 && equipmentActions is null; seed++)
@@ -4783,25 +4973,31 @@ internal static class ClassicGeneralChecks
             Require(equipped.Accepted, equipped.Error?.Message ?? "Sun Shangxiang could not equip the fixture card.");
         }
 
-        Require(xiaoji.PendingDecision is { Kind: DecisionKind.Xiaoji, PlayerSeat: 0 } &&
+        Require(xiaoji.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                  SkillPrompt.SkillId: "classic:xiaoji" } &&
                 xiaoji.PendingDecision.Choices.Count == 2,
             "Replacing Sun Shangxiang's equipment must publish an optional Xiaoji prompt.");
         var xiaojiPrompt = xiaoji.PendingDecision!;
         var paused = xiaoji.CreateCheckpoint();
         var pausedRestore = GameReplay.Restore(paused, registry);
-        Require(pausedRestore.PendingDecision?.Kind == DecisionKind.Xiaoji,
+        Require(pausedRestore.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:xiaoji" },
             "A paused Xiaoji prompt must replay exactly.");
         var handBeforeXiaoji = xiaoji.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
         var drew = xiaoji.Submit(new AnswerPromptCommand(
             0,
             xiaojiPrompt.PromptId,
             xiaojiPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "xiaoji-use").Id,
+                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
             xiaoji.Revision));
         Require(drew.Accepted &&
-                xiaoji.CardMovements.Count(move => move.Reason == CardMoveReasons.XiaojiDraw) == 2 &&
-                xiaoji.Events.Select(item => item.Payload).OfType<EquipmentLossSkillResolvedEvent>().Any(item =>
-                    item.SourceSeat == 0 && item.Skill == SkillKind.Xiaoji && item.Used && item.DrawCount == 2) &&
+                xiaoji.CardMovements.Count(move =>
+                    move.Reason.Value == "skill-program.classic:xiaoji.Draw") == 2 &&
+                xiaoji.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.OwnerSeat == 0 && item.SkillId == "classic:xiaoji" &&
+                    item.Window == SkillProgramTriggerWindow.CardsMoved &&
+                    item.Activated && item.Completed) &&
                 xiaoji.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == handBeforeXiaoji + 2,
             drew.Error?.Message ?? "Xiaoji must draw exactly two cards after one equipment leaves.");
 
@@ -4845,7 +5041,7 @@ internal static class ClassicGeneralChecks
                 !qianxun.ProhibitsCardTarget(context, CardKind.Dismantlement),
             "Qianxun must prohibit Snatch and Indulgence without blocking other tricks.");
 
-        var registry = CreatePreProgramClassicRegistry();
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         GameEngine? game = null;
         LegalAction? equipment = null;
         for (var seed = 1; seed <= 8_192 && equipment is null; seed++)
@@ -4877,7 +5073,9 @@ internal static class ClassicGeneralChecks
             current.Revision,
             current.PendingDecision!.PromptId));
         Require(equipped.Accepted &&
-                current.PendingDecision is { Kind: DecisionKind.Lianying, PlayerSeat: 0 } &&
+                current.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                  SkillPrompt.SkillId: "classic:lianying" } &&
                 current.PendingDecision.Choices.Count == 2,
             equipped.Error?.Message ?? "Losing Lu Xun's last hand card must publish an optional Lianying prompt.");
         var prompt = current.PendingDecision!;
@@ -4885,12 +5083,15 @@ internal static class ClassicGeneralChecks
             0,
             prompt.PromptId,
             prompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "lianying-use").Id,
+                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
             current.Revision));
         Require(drew.Accepted && handBefore == 1 &&
-                current.CardMovements.Count(move => move.Reason == CardMoveReasons.LianyingDraw) == 1 &&
-                current.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(item =>
-                    item.SourceSeat == 0 && item.Skill == SkillKind.Lianying && item.Used && item.DrawCount == 1) &&
+                current.CardMovements.Count(move =>
+                    move.Reason.Value == "skill-program.classic:lianying.Draw") == 1 &&
+                current.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.OwnerSeat == 0 && item.SkillId == "classic:lianying" &&
+                    item.Window == SkillProgramTriggerWindow.CardsMoved &&
+                    item.Activated && item.Completed) &&
                 current.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == 1,
             drew.Error?.Message ?? "Lianying must draw exactly one card after the last hand card is lost.");
 
@@ -4968,14 +5169,21 @@ internal static class ClassicGeneralChecks
     {
         var game = SelectGeneral(registry, "classic:zhou-yu", rulesVersion);
         var reachedYingzi = game.Submit(new AdvanceCommand(game.Revision));
-        Require(reachedYingzi.Accepted && game.PendingDecision?.Kind == DecisionKind.Yingzi,
-            reachedYingzi.Error?.Message ?? "Could not reach Zhou Yu's Yingzi choice.");
+        Require(reachedYingzi.Accepted,
+            reachedYingzi.Error?.Message ?? "Could not advance Zhou Yu through the draw phase.");
+        if (game.PendingDecision is not
+            { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:yingzi" })
+        {
+            Require(game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
+                "A historical package without the migrated Yingzi program must not revive its removed choice route.");
+            return game;
+        }
         var prompt = game.PendingDecision!;
         var skipped = game.Submit(new AnswerPromptCommand(
             0,
             prompt.PromptId,
             prompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "yingzi-skip").Id,
+                choice.Parameters.GetValueOrDefault("program-action") == "skip").Id,
             game.Revision));
         Require(skipped.Accepted, skipped.Error?.Message ?? "Could not skip Yingzi for the Fanjian fixture.");
         var reachedPlay = game.Submit(new AdvanceCommand(game.Revision));
@@ -5065,6 +5273,24 @@ internal static class ClassicGeneralChecks
         throw new InvalidOperationException("Could not find a deterministic Lu Meng Slash fixture.");
     }
 
+    private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
+        GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
+
+    private static IReadOnlyList<string> EventTrace(GameEngine game) => game.Events
+        .Select(item => $"{item.Sequence}|{item.Payload.GetType().Name}|" +
+            System.Text.Json.JsonSerializer.Serialize(item.Payload, item.Payload.GetType()))
+        .ToArray();
+
+    private static bool IsLuoyiActivationPrompt(PendingDecision? prompt) =>
+        prompt is { Kind: DecisionKind.Luoyi } ||
+        prompt is { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:luoyi" };
+
+    private static PromptChoice GetLuoyiActivateChoice(PendingDecision prompt) =>
+        prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault(
+                prompt.Kind == DecisionKind.ProgramTrigger ? "program-action" : "action") ==
+            (prompt.Kind == DecisionKind.ProgramTrigger ? "activate" : "luoyi-use"));
+
     private static (GameEngine Game, LegalAction Action, int TargetHp) FindXuChuDirectAttackFixture(
         ContentRegistry registry,
         LegalActionKind actionKind,
@@ -5091,7 +5317,7 @@ internal static class ClassicGeneralChecks
             var reachedLuoyi = game.Submit(new AdvanceCommand(game.Revision));
             Require(reachedLuoyi.Accepted, reachedLuoyi.Error?.Message ?? "Xu Chu did not reach Luoyi.");
             var luoyi = game.PendingDecision;
-            if (luoyi?.Kind != DecisionKind.Luoyi)
+            if (!IsLuoyiActivationPrompt(luoyi))
             {
                 continue;
             }
@@ -5099,8 +5325,7 @@ internal static class ClassicGeneralChecks
             var used = game.Submit(new AnswerPromptCommand(
                 0,
                 luoyi.PromptId,
-                luoyi.Choices.Single(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "luoyi-use").Id,
+                GetLuoyiActivateChoice(luoyi).Id,
                 game.Revision));
             Require(used.Accepted, used.Error?.Message ?? "Could not enable Luoyi for the attack fixture.");
             var reachedPlay = game.Submit(new AdvanceCommand(game.Revision));
@@ -5291,10 +5516,11 @@ internal static class ClassicGeneralChecks
 
     private static (GameEngine Game, LegalAction Action, int TargetSeat, int WeaponCardId)
         FindDianWeiQiangxiFixture(
-            ContentRegistry registry,
-            bool requireWeapon,
-            SkillKind? targetSkill = null,
-            bool requirePeach = false)
+        ContentRegistry registry,
+        bool requireWeapon,
+        SkillKind? targetSkill = null,
+        bool requirePeach = false,
+        bool requireTargetHeart = false)
     {
         var damageTriggerSkills = new HashSet<SkillKind>
         {
@@ -5352,9 +5578,11 @@ internal static class ClassicGeneralChecks
 
             var target = full.Players
                 .Where(player => action.SelectableTargetSeats.Contains(player.Seat))
-                .FirstOrDefault(player => targetSkill is { } required
-                    ? player.Skills?.Any(skill => skill.Kind == required) == true
-                    : player.Skills?.All(skill => !damageTriggerSkills.Contains(skill.Kind)) != false);
+                .FirstOrDefault(player =>
+                    (targetSkill is { } required
+                        ? player.Skills?.Any(skill => skill.Kind == required) == true
+                        : player.Skills?.All(skill => !damageTriggerSkills.Contains(skill.Kind)) != false) &&
+                    (!requireTargetHeart || player.Hand.Any(card => card.Suit is Suit.Heart or Suit.Spade)));
             if (target is null)
             {
                 continue;
@@ -5366,7 +5594,7 @@ internal static class ClassicGeneralChecks
         throw new InvalidOperationException(
             $"Could not find a deterministic Dian Wei Qiangxi fixture " +
             $"(weapon={requireWeapon}, peach={requirePeach}, " +
-            $"target-skill={targetSkill?.ToString() ?? "none"}).");
+            $"target-skill={targetSkill?.ToString() ?? "none"}, target-heart={requireTargetHeart}).");
     }
 
     private static void SetPlayerHp(GameEngine game, int seat, int hp)
@@ -5407,14 +5635,13 @@ internal static class ClassicGeneralChecks
                 game.PendingDecision.PromptId));
             Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Xu Chu.");
             var reachedLuoyi = game.Submit(new AdvanceCommand(game.Revision));
-            Require(reachedLuoyi.Accepted && game.PendingDecision?.Kind == DecisionKind.Luoyi,
+            Require(reachedLuoyi.Accepted && IsLuoyiActivationPrompt(game.PendingDecision),
                 reachedLuoyi.Error?.Message ?? "Reverse Duel fixture did not reach Luoyi.");
             var luoyi = game.PendingDecision!;
             var used = game.Submit(new AnswerPromptCommand(
                 0,
                 luoyi.PromptId,
-                luoyi.Choices.Single(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "luoyi-use").Id,
+                GetLuoyiActivateChoice(luoyi).Id,
                 game.Revision));
             Require(used.Accepted, used.Error?.Message ?? "Could not enable Luoyi for reverse Duel.");
             var reachedPlay = game.Submit(new AdvanceCommand(game.Revision));

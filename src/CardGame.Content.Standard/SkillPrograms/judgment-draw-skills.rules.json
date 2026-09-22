@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 21,
+  "skills": [
+    {
+      "id": "classic:shuangxiong",
+      "revision": 1,
+      "minimumRulesVersion": 126,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "judgment-replacement",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 100,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.shuangxiong",
+              "resultBind": "judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "grantTurnCardConversion",
+              "target": "owner",
+              "sourceBind": "judgment",
+              "colorRelation": "oppositeBoundCard",
+              "outputKind": "duel"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "judgment",
+              "destination": "ownerHand"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

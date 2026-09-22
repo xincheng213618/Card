@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "standard:yingzi": {
+      "name": "英姿",
+      "description": "摸牌阶段额外摸一张牌。"
+    },
+    "classic:yingzi": {
+      "name": "英姿",
+      "description": "摸牌阶段，你可以多摸一张牌。"
+    }
+  }
+}

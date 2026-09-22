@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "standard:jianxiong": {
+      "name": "奸雄",
+      "description": "受到伤害后，你可以获得造成此伤害的牌。"
+    },
+    "standard:feedback": {
+      "name": "反馈",
+      "description": "受到伤害后，你可以获得造成此伤害的牌。"
+    },
+    "standard:yiji": {
+      "name": "遗计",
+      "description": "每受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。"
+    },
+    "standard:jieming": {
+      "name": "节命",
+      "description": "每受到 1 点伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。"
+    },
+    "classic:jianxiong": {
+      "name": "奸雄",
+      "description": "受到伤害后，你可以获得造成此伤害的牌。"
+    },
+    "classic:feedback": {
+      "name": "反馈",
+      "description": "受到伤害后，你可以获得伤害来源的一张手牌或装备牌。"
+    },
+    "classic:yiji": {
+      "name": "遗计",
+      "description": "每受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。"
+    },
+    "classic:jieming": {
+      "name": "节命",
+      "description": "每受到 1 点伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。"
+    }
+  }
+}

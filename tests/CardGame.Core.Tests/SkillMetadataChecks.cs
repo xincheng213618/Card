@@ -171,10 +171,10 @@ internal static class SkillMetadataChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 71, 0));
-        var expected = new Dictionary<string, SkillKind>
+        var expected = new Dictionary<string, SkillKind?>
         {
             ["classic:kongcheng"] = SkillKind.Kongcheng,
-            ["classic:mashu"] = SkillKind.Mashu,
+            ["classic:mashu"] = null,
             ["classic:qicai"] = SkillKind.Qicai
         };
 
@@ -184,7 +184,9 @@ internal static class SkillMetadataChecks
                 {
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State
-                } definition && definition.LegacyKind == kind,
+                } definition && definition.LegacyKind == kind &&
+                (skillId != "classic:mashu" ||
+                 definition.Program is { RuntimeVersion: "skill-program-v12", MinimumRulesVersion: 117 }),
                 $"Current classic content did not give {skillId} its locked-state identity.");
             Require(!previous.Skills.ContainsKey(skillId),
                 $"Package 1.71.0 unexpectedly contains {skillId}.");
@@ -209,9 +211,15 @@ internal static class SkillMetadataChecks
                     .SequenceEqual(["standard:mashu", "classic:mengjin"]),
             "Package 1.71.0 no longer preserves its shared standard skill references.");
         Require(current.Skills["standard:kongcheng"].Tags == SkillTag.None &&
-                current.Skills["standard:mashu"].Tags == SkillTag.None &&
+                current.Skills["standard:mashu"] is
+                {
+                    LegacyKind: null,
+                    Tags: SkillTag.Locked,
+                    ExecutionForms: SkillExecutionForm.State,
+                    Program.RuntimeVersion: "skill-program-v12"
+                } &&
                 current.Skills["standard:qicai"].Tags == SkillTag.None,
-            "The classic migration must not mutate the stable standard or active-skill packages.");
+            "The classic identity migration and current rule-query package must retain independent metadata.");
     }
 
     public static void ClassicOptionalTriggerMetadataIsVersioned()
@@ -534,7 +542,10 @@ internal static class SkillMetadataChecks
     {
         var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 79, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 78, 0));
-        var stable = StandardContentRegistry.CreateWithRescueSkills();
+        var stable = ContentRegistry.Build(
+            new StandardContentPackage(new Version(1, 11, 0)),
+            new StandardActiveSkillExpansionPackage(new Version(1, 0, 0), includeJijiu: true),
+            new StandardRescueSkillExpansionPackage());
         (string ClassicId, string StandardId, SkillKind Kind, SkillExecutionForm Form)[] skills =
         [
             ("classic:guicai", "standard:guicai", SkillKind.Guicai, SkillExecutionForm.Trigger),

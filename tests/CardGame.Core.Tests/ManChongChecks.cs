@@ -39,8 +39,6 @@ internal static class ManChongChecks
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
             "Package 1.96.0 must publish complete classic Man Chong with active Junxing and optional Yuce.");
-        Require(GameCheckpoint.CurrentRulesVersion == 101,
-            "Adding package-owned Man Chong content must not create another global replay-rules gate.");
     }
 
     public static void JunxingUsesExactCategoriesAndReplaysBothBranches()

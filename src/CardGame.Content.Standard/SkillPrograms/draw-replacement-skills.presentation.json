@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:tuxi": {
+      "name": "突袭",
+      "description": "摸牌阶段，你可以改为获得至多两名其他角色的各一张手牌。"
+    }
+  }
+}

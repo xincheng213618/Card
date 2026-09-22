@@ -40,7 +40,10 @@ internal static class HandGuidanceChecks
             var game = GameEngine.CreateStandard(new GameOptions { Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5, AiPolicyVersion = 2, DeckId = "guidance:deck", AdvanceAfterHumanCommands = false }, registry);
             Require(game.Submit(new StartGameCommand()).Accepted, "Controlled game failed.");
             var human = game.State.Players.Single(player => player.IsHuman);
-            if (human.Skill != SkillKind.Paoxiao && human.Hand.Count(card => card.Kind == CardKind.Alcohol) >= 2 && human.Hand.Count(card => card.Kind == CardKind.Slash) >= 2) selected = game;
+            if (human.GeneralId is { } generalId &&
+                !registry.Generals[generalId].SkillIds.Contains("standard:paoxiao", StringComparer.Ordinal) &&
+                human.Hand.Count(card => card.Kind == CardKind.Alcohol) >= 2 &&
+                human.Hand.Count(card => card.Kind == CardKind.Slash) >= 2) selected = game;
         }
         Require(selected is not null, "Controlled hand was not found.");
         var match = selected!;

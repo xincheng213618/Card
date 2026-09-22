@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 13,
+  "skills": [
+    {
+      "id": "classic:jingce",
+      "revision": 2,
+      "minimumRulesVersion": 118,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "play-ending-draw",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "classicIdentityMode" },
+              {
+                "kind": "compare",
+                "left": { "kind": "cardsUsedThisTurn" },
+                "operator": "greaterThanOrEqual",
+                "right": { "kind": "currentHp" }
+              }
+            ]
+          },
+          "priority": 0,
+          "usageScope": "phase",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:jushou",
+      "revision": 2,
+      "minimumRulesVersion": 118,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "turn-ending-draw-and-face-down",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 100,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "setFaceState",
+              "target": "owner",
+              "faceDown": true
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:biyue",
+      "revision": 2,
+      "minimumRulesVersion": 118,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "turn-ending-draw",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": -100,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

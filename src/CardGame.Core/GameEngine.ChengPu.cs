@@ -9,33 +9,33 @@ public sealed partial class GameEngine
     private bool UsesFormalLihuo =>
         HasClassicGeneralPackage(new Version(1, 91, 0));
 
-    private bool HasLihuo(PlayerRuntime owner) =>
+    private bool HasLihuo(CharacterState owner) =>
         UsesFormalLihuo && HasRuntimeSkill(owner, LihuoSkillId);
 
     private bool UsesFormalChunlao =>
         HasClassicGeneralPackage(new Version(1, 92, 0));
 
-    private bool HasChunlao(PlayerRuntime owner) =>
+    private bool HasChunlao(CharacterState owner) =>
         UsesFormalChunlao && HasRuntimeSkill(owner, ChunlaoSkillId);
 
-    private IReadOnlyList<Card> GetChunlaoCards(PlayerRuntime owner) =>
+    private IReadOnlyList<Card> GetChunlaoCards(CharacterState owner) =>
         _cardZones.CardsAt(CardLocation.Chunlao(owner.Seat));
 
-    private CardConversionSource CreateLihuoConversionSource(PlayerRuntime owner) =>
+    private CardConversionSource CreateLihuoConversionSource(CharacterState owner) =>
         new(
             LihuoSkillId,
             "ordinary-slash-to-fire-slash",
             owner.Seat,
             $"seat-{owner.Seat}:{LihuoSkillId}");
 
-    private CardConversionSource CreateChunlaoConversionSource(PlayerRuntime owner) =>
+    private CardConversionSource CreateChunlaoConversionSource(CharacterState owner) =>
         new(
             ChunlaoSkillId,
             "chun-as-alcohol",
             owner.Seat,
             $"seat-{owner.Seat}:{ChunlaoSkillId}");
 
-    private bool TryBeginChunlaoChoice(PlayerRuntime owner)
+    private bool TryBeginChunlaoChoice(CharacterState owner)
     {
         if (!UsesFormalChunlao ||
             _chunlaoResolvedThisTurn ||
@@ -226,7 +226,7 @@ public sealed partial class GameEngine
         EndTurn();
     }
 
-    private void StoreChunlaoCards(PlayerRuntime owner, IReadOnlyList<Card> cards)
+    private void StoreChunlaoCards(CharacterState owner, IReadOnlyList<Card> cards)
     {
         if (cards.Count == 0 || GetChunlaoCards(owner).Count != 0 ||
             cards.Any(card => !IsSlashCard(card.Kind) ||
@@ -240,14 +240,14 @@ public sealed partial class GameEngine
         AddLog("SkillTriggered", $"{owner.Name} 发动【醇醪】，将 {cards.Count} 张【杀】置于武将牌上作为“醇”。", owner.Seat);
     }
 
-    private Card[] GetAvailableChunlaoCards(PlayerRuntime owner, DyingResolution dying) =>
+    private Card[] GetAvailableChunlaoCards(CharacterState owner, DyingResolution dying) =>
         HasChunlao(owner) && owner.IsAlive && !dying.ChunlaoUsedOwnerSeats.Contains(owner.Seat)
             ? GetChunlaoCards(owner).ToArray()
             : [];
 
     private void ResolveChunlaoRescue(
-        PlayerRuntime owner,
-        PlayerRuntime victim,
+        CharacterState owner,
+        CharacterState victim,
         DyingResolution dying,
         int? requestedCardId)
     {
@@ -308,7 +308,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<SlashUseVariant> GetSlashUseVariants(
-        PlayerRuntime actor,
+        CharacterState actor,
         CardKind baseEffectiveKind)
     {
         var variants = new List<SlashUseVariant>
@@ -339,9 +339,9 @@ public sealed partial class GameEngine
 
     private void AddLihuoSlashActions(
         ICollection<LegalAction> actions,
-        PlayerRuntime actor,
+        CharacterState actor,
         Card physicalCard,
-        IReadOnlyList<PlayerRuntime> legalTargets,
+        IReadOnlyList<CharacterState> legalTargets,
         string slashName,
         CardKind? playedCardKind,
         CardConversionSource? conversionSource = null,
@@ -371,7 +371,7 @@ public sealed partial class GameEngine
             .ToArray();
         AddCombinations(0, []);
 
-        void AddCombinations(int startIndex, IReadOnlyList<PlayerRuntime> selected)
+        void AddCombinations(int startIndex, IReadOnlyList<CharacterState> selected)
         {
             if (selected.Count == targetCount)
             {
@@ -443,7 +443,7 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private void BeginLihuoDying(AttackResolution attack, PlayerRuntime owner)
+    private void BeginLihuoDying(AttackResolution attack, CharacterState owner)
     {
         if (_pendingDying is not null)
         {

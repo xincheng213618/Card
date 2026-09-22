@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 20,
+  "skills": [
+    {
+      "id": "classic:jiangchi",
+      "revision": 1,
+      "minimumRulesVersion": 125,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "mode-draw-more",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 110,
+          "drawPhaseMode": "additive",
+          "choiceGroup": "turn-mode",
+          "effects": [
+            {
+              "op": "adjustNormalDraw",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantTurnCardActionProhibition",
+              "target": "owner",
+              "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+              "actionTypes": ["use", "response"]
+            }
+          ]
+        },
+        {
+          "id": "mode-assault",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 110,
+          "drawPhaseMode": "additive",
+          "choiceGroup": "turn-mode",
+          "effects": [
+            {
+              "op": "adjustNormalDraw",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashLimit",
+              "ruleOperation": "add",
+              "amount": 1
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashDistanceLimit",
+              "ruleOperation": "unlimited"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:zishou",
+      "revision": 1,
+      "minimumRulesVersion": 125,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "extra-draw-self-only",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 120,
+          "drawPhaseMode": "additive",
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "livingFactionCount"
+            },
+            {
+              "op": "grantTurnCardTargetRestriction",
+              "target": "owner",
+              "targetRestriction": "selfOnly"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

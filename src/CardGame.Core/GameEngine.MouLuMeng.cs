@@ -17,7 +17,7 @@ public sealed partial class GameEngine
     private bool UsesFormalMouLuMeng =>
         HasClassicGeneralPackage(new Version(1, 80, 0));
 
-    private void BeginRoundForTurn(PlayerRuntime current)
+    private void BeginRoundForTurn(CharacterState current)
     {
         if (!UsesFormalMouLuMeng) return;
 
@@ -103,7 +103,7 @@ public sealed partial class GameEngine
         _yingboRepeatedFrames.Remove(resolutionId);
     }
 
-    private int GetHengyeGrowth(PlayerRuntime player) =>
+    private int GetHengyeGrowth(CharacterState player) =>
         UsesFormalMouLuMeng && HasRuntimeSkill(player, HengyeSkillId)
             ? _skillRuntimeState.GetUsage(
                 player.Seat,
@@ -114,8 +114,8 @@ public sealed partial class GameEngine
 
     private void ApplyHengyeGrowth(
         long damageFrameId,
-        PlayerRuntime source,
-        PlayerRuntime target,
+        CharacterState source,
+        CharacterState target,
         int amount)
     {
         if (!UsesFormalMouLuMeng || amount <= 0 || !source.IsAlive ||
@@ -150,7 +150,7 @@ public sealed partial class GameEngine
             target.Seat);
     }
 
-    private void ResolveHengyeTurnStart(PlayerRuntime player)
+    private void ResolveHengyeTurnStart(CharacterState player)
     {
         if (GetHengyeGrowth(player) < 3 || player.Hp >= player.MaxHp) return;
 
@@ -167,7 +167,7 @@ public sealed partial class GameEngine
         }
     }
 
-    private void ResetHengyeAfterKill(PlayerRuntime? killer)
+    private void ResetHengyeAfterKill(CharacterState? killer)
     {
         if (!UsesFormalMouLuMeng || killer is not { IsAlive: true } ||
             !HasRuntimeSkill(killer, HengyeSkillId))

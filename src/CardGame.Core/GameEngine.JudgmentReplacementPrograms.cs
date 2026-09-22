@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool MatchesProgramJudgmentReplacement(
-        PlayerRuntime owner,
+        CharacterState owner,
         SkillProgramTrigger trigger,
         int targetSeat,
         string reason) =>
@@ -13,7 +13,7 @@ public sealed partial class GameEngine
         trigger.Effects[0].Condition.Evaluate(CreateSkillContext(owner));
 
     private IReadOnlyList<Card> GetProgramJudgmentReplacementCards(
-        PlayerRuntime owner,
+        CharacterState owner,
         SkillProgramTrigger trigger,
         int judgmentSubjectSeat,
         string judgmentReason)
@@ -61,8 +61,7 @@ public sealed partial class GameEngine
         var (program, trigger) = GetProgramJudgmentReplacement(candidate);
         var owner = _players[candidate.OwnerSeat];
         var enabled = owner.IsAlive &&
-            EnabledSkillPrograms(owner).Any(item =>
-                item.Id == program.Id && item.GameplayHash == program.GameplayHash) &&
+            GetSkillBindingShard(owner)!.HasProgram(program.Id, program.GameplayHash) &&
             MatchesProgramJudgmentReplacement(owner, trigger, pending.TargetSeat, pending.Reason);
         var replacementCards = enabled
             ? GetProgramJudgmentReplacementCards(
@@ -221,7 +220,7 @@ public sealed partial class GameEngine
 
     private void CommitProgramJudgmentReplacement(
         JudgmentResolution pending,
-        PlayerRuntime owner,
+        CharacterState owner,
         Card oldJudgmentCard,
         Card replacement,
         Suit committedSuit,
@@ -236,33 +235,44 @@ public sealed partial class GameEngine
         var oldTo = oldDestination == SkillProgramOldJudgmentCardDestination.OwnerHand
             ? CardLocation.Hand(owner.Seat)
             : CardLocation.DiscardPile;
-        var lianyingOwnerSeat = GetLianyingOwnerBeforeHandLoss(replacementFrom);
-        _cardZones.MoveBatch([
-            new CardTransfer(oldJudgmentCard.Id, oldFrom, oldTo),
-            new CardTransfer(replacement.Id, replacementFrom, CardLocation.Processing)
-        ]);
-        _cardZones.Move(replacement.Id, CardLocation.Processing, oldFrom);
-        pending.CurrentCard = replacement;
-        pending.WasReplaced = true;
-        ReplaceJudgmentFrame(GetJudgmentFrame(pending.FrameId) with
+        var batch = BeginCardMovementBatch([oldFrom, replacementFrom, CardLocation.Processing]);
+        var movements = new List<CardMovementRecord>(3);
+        var committed = false;
+        try
         {
-            CardId = replacement.Id,
-            CardKind = replacement.Kind,
-            Suit = committedSuit
-        });
+            _cardZones.MoveBatch([
+                new CardTransfer(oldJudgmentCard.Id, oldFrom, oldTo),
+                new CardTransfer(replacement.Id, replacementFrom, CardLocation.Processing)
+            ]);
+            _cardZones.Move(replacement.Id, CardLocation.Processing, oldFrom);
+            pending.CurrentCard = replacement;
+            pending.WasReplaced = true;
+            ReplaceJudgmentFrame(GetJudgmentFrame(pending.FrameId) with
+            {
+                CardId = replacement.Id,
+                CardKind = replacement.Kind,
+                Suit = committedSuit
+            });
 
-        RecordMovement(oldJudgmentCard, oldFrom, oldTo, CardMoveReasons.ProgramJudgmentOldCard);
-        ClearJudgmentEffectiveKindAfterMove(oldJudgmentCard, oldFrom, oldTo);
-        RecordMovement(replacement, replacementFrom, CardLocation.Processing,
-            CardMoveReasons.ProgramJudgmentReplace);
-        ClearJudgmentEffectiveKindAfterMove(replacement, replacementFrom, CardLocation.Processing);
-        ResolveSilverLionRemoval(replacement, replacementFrom, CardMoveReasons.ProgramJudgmentReplace);
-        ResolveWoodenOxMove(replacement, replacementFrom, CardLocation.Processing);
-        QueueXiaojiTrigger(replacement, replacementFrom);
-        RecordMovement(replacement, CardLocation.Processing, oldFrom,
-            CardMoveReasons.ProgramJudgmentReplace);
-        ClearJudgmentEffectiveKindAfterMove(replacement, CardLocation.Processing, oldFrom);
-        QueueLianyingTriggerIfHandBecameEmpty(lianyingOwnerSeat, [replacement.Id]);
+            movements.Add(RecordMovement(
+                oldJudgmentCard, oldFrom, oldTo, CardMoveReasons.ProgramJudgmentOldCard));
+            ClearJudgmentEffectiveKindAfterMove(oldJudgmentCard, oldFrom, oldTo);
+            movements.Add(RecordMovement(
+                replacement, replacementFrom, CardLocation.Processing,
+                CardMoveReasons.ProgramJudgmentReplace));
+            ClearJudgmentEffectiveKindAfterMove(replacement, replacementFrom, CardLocation.Processing);
+            ResolveSilverLionRemoval(replacement, replacementFrom, CardMoveReasons.ProgramJudgmentReplace);
+            ResolveWoodenOxMove(replacement, replacementFrom, CardLocation.Processing);
+            movements.Add(RecordMovement(
+                replacement, CardLocation.Processing, oldFrom,
+                CardMoveReasons.ProgramJudgmentReplace));
+            ClearJudgmentEffectiveKindAfterMove(replacement, CardLocation.Processing, oldFrom);
+            committed = true;
+        }
+        finally
+        {
+            CompleteCardMovementBatch(batch, movements, committed);
+        }
     }
 
     private bool IsAiProgramJudgmentReplacementPending() =>

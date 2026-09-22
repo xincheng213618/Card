@@ -647,12 +647,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             }
         }
         IsNullificationSelectionPending = _snapshot.PendingDecision?.Kind == DecisionKind.Nullification;
-        PublicRevealTitle = _snapshot.PendingDecision?.Kind switch
+        PublicRevealTitle = _snapshot.PendingDecision switch
         {
-            DecisionKind.FireAttackDiscard => "火攻 · 公开牌",
-            DecisionKind.Chengxiang => "称象 · 亮出的牌",
-            DecisionKind.Yuce => "御策 · 展示牌",
-            _ => "五谷丰登 · 公开牌"
+            { SkillPrompt: { } presentation } => $"{presentation.Name} · 公开牌",
+            { Kind: DecisionKind.FireAttackDiscard } => "火攻 · 公开牌",
+            { Kind: DecisionKind.Yuce } => "御策 · 展示牌",
+            { Kind: DecisionKind.SelectHarvestCard } => "五谷丰登 · 公开牌",
+            _ => "公开牌"
         };
         if (_snapshot.PendingDecision is { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash } responsePrompt)
         {
@@ -673,16 +674,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         else if (_snapshot.PendingDecision is
             {
                 Kind: DecisionKind.SelectFaction or
-                    DecisionKind.Feedback or
-                    DecisionKind.Yiji or
-                    DecisionKind.Jieming or
                     DecisionKind.Yuanhu or
                     DecisionKind.Ganglie or
                     DecisionKind.GangliePunish or
                     DecisionKind.Guicai or
                     DecisionKind.Guidao or
                     DecisionKind.Leiji or
-                    DecisionKind.Yingzi or
                     DecisionKind.Jiangchi or
                     DecisionKind.Zishou or
                     DecisionKind.Zhenlie or
@@ -698,17 +695,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Chunlao or
                     DecisionKind.Gongqi or
                     DecisionKind.Jiefan or
-                    DecisionKind.Chengxiang or
                     DecisionKind.Renxin or
-                    DecisionKind.Jingce or
                     DecisionKind.Qianxi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
                     DecisionKind.Guanxing or
                     DecisionKind.Keji or
-                    DecisionKind.Tuxi or
                     DecisionKind.Shuangxiong or
-                    DecisionKind.Luoyi or
                     DecisionKind.Luoshen or
                     DecisionKind.Shensu or
                     DecisionKind.Jizhi or
@@ -753,16 +746,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IsSkillSelectionPending = _snapshot.PendingDecision?.SkillPrompt is not null;
         IsSkillSelectionPending |= pendingDecisionKind is
             DecisionKind.SelectFaction or
-            DecisionKind.Feedback or
-            DecisionKind.Yiji or
-            DecisionKind.Jieming or
             DecisionKind.Yuanhu or
             DecisionKind.Ganglie or
             DecisionKind.GangliePunish or
             DecisionKind.Guicai or
             DecisionKind.Guidao or
             DecisionKind.Leiji or
-            DecisionKind.Yingzi or
             DecisionKind.Jiangchi or
             DecisionKind.Zishou or
             DecisionKind.Zhenlie or
@@ -778,17 +767,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Chunlao or
             DecisionKind.Gongqi or
             DecisionKind.Jiefan or
-            DecisionKind.Chengxiang or
             DecisionKind.Renxin or
-            DecisionKind.Jingce or
             DecisionKind.Qianxi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
             DecisionKind.Guanxing or
             DecisionKind.Keji or
-            DecisionKind.Tuxi or
             DecisionKind.Shuangxiong or
-            DecisionKind.Luoyi or
             DecisionKind.Luoshen or
             DecisionKind.Shensu or
             DecisionKind.Jizhi or
@@ -815,6 +800,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.WuhunTarget or
             DecisionKind.ZhuqueFan;
         IsSkillSelectionPending |= pendingDecisionKind == DecisionKind.Longyin;
+        RaisePropertyChanged(nameof(HasPinnedPublicModuleChoices));
 
         var legalActions = _game.GetHumanLegalActions();
         var playableCardIds = legalActions
@@ -2106,11 +2092,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      Phase(Discard)");
                 EventStack.Add("        AskForSkill(Keji)");
             }
-            else if (pending.Kind == DecisionKind.Tuxi)
-            {
-                EventStack.Add("      Phase(Draw)");
-                EventStack.Add("        AskForSkill(Tuxi)");
-            }
             else if (pending.Kind == DecisionKind.Jiangchi)
             {
                 EventStack.Add("      Phase(Draw)");
@@ -2195,13 +2176,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      ActiveSkill(Jiefan)");
                 EventStack.Add("        DiscardWeaponOrLetTargetDraw()");
             }
-            else if (pending.Kind == DecisionKind.Chengxiang)
-            {
-                EventStack.Add("      DamageResolved");
-                EventStack.Add(pending.ValidCardIds.Count == 0
-                    ? "        AskForSkill(Chengxiang)"
-                    : "        SelectRevealedCards(RankSum<=13)");
-            }
             else if (pending.Kind == DecisionKind.Renxin)
             {
                 EventStack.Add("      BeforeDamage");
@@ -2216,11 +2190,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Phase(Draw)");
                 EventStack.Add("        AskForSkill(Shuangxiong)");
-            }
-            else if (pending.Kind == DecisionKind.Luoyi)
-            {
-                EventStack.Add("      Phase(Draw)");
-                EventStack.Add("        AskForSkill(Luoyi)");
             }
             else if (pending.Kind == DecisionKind.Luoshen)
             {
@@ -2308,16 +2277,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("        SelectMaximumNightmareTarget()");
             }
             else if (pending.Kind is
-                DecisionKind.Feedback or
-                DecisionKind.Yiji or
-                DecisionKind.Jieming or
                 DecisionKind.Yuanhu or
                 DecisionKind.Ganglie or
                 DecisionKind.GangliePunish or
                 DecisionKind.Guicai or
                 DecisionKind.Guidao or
                 DecisionKind.Leiji or
-                DecisionKind.Yingzi or
                 DecisionKind.Tiandu or
                 DecisionKind.Fanjian or
                 DecisionKind.Guanxing)

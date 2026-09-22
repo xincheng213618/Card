@@ -116,7 +116,7 @@ public sealed partial class GameEngine
         CompleteLongyinWindow(pending);
     }
 
-    private IReadOnlyList<Card> GetLongyinCostCards(PlayerRuntime owner) =>
+    private IReadOnlyList<Card> GetLongyinCostCards(CharacterState owner) =>
         GetHand(owner).Concat(GetEquipment(owner)).ToArray();
 
     private CommandResult SubmitLongyinPromptAnswer(PromptChoice selected)

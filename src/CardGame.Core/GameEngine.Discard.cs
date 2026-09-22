@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private void RequestHumanDiscard(PlayerRuntime player)
+    private void RequestHumanDiscard(CharacterState player)
     {
         var hand = GetHand(player);
         var handLimit = GetHandLimit(player);

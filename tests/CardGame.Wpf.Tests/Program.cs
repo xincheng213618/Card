@@ -256,6 +256,7 @@ internal static class Program
             Check("formal Cao Chong renders official art, Chengxiang and Renxin prompts", () => CaoChongUiChecks.CardAndDamagePrompts(output));
             Check("formal Guo Huai renders official art and Jingce prompt", () => GuoHuaiUiChecks.CardAndJingcePrompt(output));
             Check("formal Diao Chan renders and resolves the metadata-driven Biyue prompt", () => DiaoChanUiChecks.BiyuePromptAndContinuation(output));
+            Check("Zongshi module renders shared Pindian choices and resumes Play", () => ZongshiModuleUiChecks.GenericClaimPromptAndContinuation(output));
             Check("formal Man Chong renders official art, Junxing selection and Yuce prompt", () => ManChongUiChecks.CardActiveSelectionAndYucePrompt(output));
             Check("formal Guan Ping renders official art and the private Longyin prompt", () => GuanPingUiChecks.CardAndLongyinPrompt(output));
             Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));

@@ -14,14 +14,14 @@ public sealed partial class GameEngine
         source is null ? description : $"【{_contentRegistry!.Skills[source.SkillId].Name}】{description}";
 
     private IReadOnlyList<ProgramCardIdentityMatch> GetProgramCardIdentityMatches(
-        PlayerRuntime owner,
+        CharacterState owner,
         Card card)
     {
         if (_rulesVersion < 94 || _cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat))
             return [];
 
         var context = CreateSkillContext(owner);
-        return EnabledSkillPrograms(owner)
+        return EnabledCardIdentityPrograms(owner)
             .Where(program => program.Id != "classic:jinjiu" || UsesFormalGaoShun)
             .SelectMany(program => program.CardIdentities
                 .Where(identity => identity.Zones.Contains(CardZoneKind.Hand) &&
@@ -43,7 +43,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<CardConversionSource> GetProgramCardIdentitySources(
-        PlayerRuntime owner,
+        CharacterState owner,
         Card card,
         CardKind effectiveKind,
         bool forResponse)
@@ -58,26 +58,26 @@ public sealed partial class GameEngine
             .ToArray();
     }
 
-    private bool HasProgramCardIdentity(PlayerRuntime owner, Card card) =>
+    private bool HasProgramCardIdentity(CharacterState owner, Card card) =>
         GetProgramCardIdentityMatches(owner, card).Count != 0;
 
     private bool IgnoresProgramSlashDistance(
-        PlayerRuntime owner,
+        CharacterState owner,
         CardConversionSource? source)
     {
         if (source is null || source.OwnerSeat != owner.Seat) return false;
         var context = CreateSkillContext(owner);
-        return EnabledSkillPrograms(owner).Any(program =>
-            program.Id == source.SkillId &&
-            program.Modifiers.Any(modifier =>
+        return GetSkillBindingShard(owner)!.GetNumericModifiers(SkillRuleQuery.SlashDistanceLimit).Any(binding =>
+            binding.Source.SkillId == source.SkillId &&
+            binding.Modifier is { } modifier &&
                 modifier.Query == SkillRuleQuery.SlashDistanceLimit &&
                 modifier.Operation == SkillRuleOperation.Unlimited &&
                 modifier.SourceCardIdentityId == source.BindingId &&
-                modifier.Condition.Evaluate(context)));
+                modifier.Condition.Evaluate(context));
     }
 
     private IReadOnlyList<CardConversionSource> GetProgramViewAsConversions(
-        PlayerRuntime owner,
+        CharacterState owner,
         Card card,
         CardKind outputKind,
         bool forResponse)
@@ -90,7 +90,7 @@ public sealed partial class GameEngine
         }
 
         var context = CreateSkillContext(owner);
-        return EnabledSkillPrograms(owner)
+        var configured = EnabledViewAsPrograms(owner)
             .SelectMany(program => program.ViewAs
                 .Where(rule => rule.OutputKind == outputKind &&
                                (forResponse ? rule.ForResponse : rule.ForPlay) &&
@@ -102,6 +102,23 @@ public sealed partial class GameEngine
                     rule.Id,
                     owner.Seat,
                     $"seat-{owner.Seat}:{program.Id}")))
+            .ToArray();
+        var turnScoped = forResponse
+            ? Array.Empty<CardConversionSource>()
+            : _turnCardUseEffects.GetConversions(
+                    _turnNumber,
+                    _currentSeat,
+                    owner.Seat,
+                    outputKind,
+                    IsRedSuit(EffectiveSuit(owner, card)))
+                .Select(item => new CardConversionSource(
+                    item.Source.SkillId,
+                    $"{item.Source.BindingId}.turn-{item.EffectIndex}",
+                    item.Source.OwnerSeat,
+                    item.Source.SkillInstanceId))
+                .ToArray();
+        return configured.Concat(turnScoped)
+            .Distinct()
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.BindingId, StringComparer.Ordinal)
             .ThenBy(source => source.SkillInstanceId, StringComparer.Ordinal)
@@ -109,7 +126,7 @@ public sealed partial class GameEngine
     }
 
     private bool HasLegacyViewAsConversion(
-        PlayerRuntime owner,
+        CharacterState owner,
         Card card,
         CardKind outputKind,
         bool forResponse)
@@ -122,7 +139,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<CardConversionSource> GetLegacyViewAsConversions(
-        PlayerRuntime owner,
+        CharacterState owner,
         Card card,
         CardKind outputKind,
         bool forResponse)
@@ -149,9 +166,9 @@ public sealed partial class GameEngine
             .ToArray();
     }
 
-    private IReadOnlyList<Card> GetSlashUseCards(PlayerRuntime owner)
+    private IReadOnlyList<Card> GetSlashUseCards(CharacterState owner)
     {
-        if (IsJiangchiSlashForbidden(owner) || HasXianzhenLost(owner)) return [];
+        if (IsCardUseForbidden(owner.Seat, CardKind.Slash, CardActionType.Use) || HasXianzhenLost(owner)) return [];
         if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
         {
@@ -171,12 +188,12 @@ public sealed partial class GameEngine
     private static bool IsJijiangUse(JijiangResolution pending) =>
         pending.IsActiveUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
 
-    private IReadOnlyList<Card> GetJijiangSlashCards(JijiangResolution pending, PlayerRuntime provider) =>
+    private IReadOnlyList<Card> GetJijiangSlashCards(JijiangResolution pending, CharacterState provider) =>
         IsJijiangUse(pending) ? GetSlashUseCards(provider) : GetResponseCards(provider, CardKind.Slash);
 
     private CardKind GetJijiangEffectiveSlashKind(
         JijiangResolution pending,
-        PlayerRuntime provider,
+        CharacterState provider,
         Card card)
     {
         var identity = GetProgramCardIdentityMatches(provider, card).FirstOrDefault();
@@ -198,7 +215,7 @@ public sealed partial class GameEngine
     }
 
     private IEnumerable<PromptChoice> CreateConversionChoiceVariants(
-        PlayerRuntime owner,
+        CharacterState owner,
         Card card,
         CardKind effectiveKind,
         bool forResponse,
@@ -268,7 +285,7 @@ public sealed partial class GameEngine
     }
 
     private CardConversionSource? GetSelectedResponseConversion(
-        PlayerRuntime provider,
+        CharacterState provider,
         Card responseCard,
         CardKind effectiveKind)
     {
@@ -297,7 +314,7 @@ public sealed partial class GameEngine
         _selectedUseConversion = action.ConversionSource;
 
     private CardConversionSource? GetSelectedUseConversion(
-        PlayerRuntime provider,
+        CharacterState provider,
         Card card,
         CardKind effectiveKind)
     {

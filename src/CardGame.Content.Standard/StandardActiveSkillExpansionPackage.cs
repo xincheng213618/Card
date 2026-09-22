@@ -10,16 +10,35 @@ namespace CardGame.Content.Standard;
 public sealed class StandardActiveSkillExpansionPackage : IGameContentPackage
 {
     private readonly bool _includeJijiu;
+    private readonly Version _version;
+
+    public static Version CurrentVersion { get; } = new(1, 1, 0);
 
     public StandardActiveSkillExpansionPackage(bool includeJijiu = false)
+        : this(CurrentVersion, includeJijiu)
     {
-        _includeJijiu = includeJijiu;
     }
 
-    public PackageManifest Manifest { get; } = new(
-        Id: "standard-active-skills",
-        Version: new Version(1, 0, 0),
-        Dependencies: [new PackageDependency("standard", new Version(1, 11, 0))]);
+    public StandardActiveSkillExpansionPackage(Version version, bool includeJijiu = false)
+    {
+        ArgumentNullException.ThrowIfNull(version);
+        if (version is not { Major: 1, Minor: 0 or 1, Build: 0, Revision: < 0 })
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(version),
+                version,
+                $"Supported active-skill package versions are 1.0.0 through {CurrentVersion}.");
+        }
+
+        _version = version;
+        _includeJijiu = includeJijiu;
+        Manifest = new PackageManifest(
+            Id: "standard-active-skills",
+            Version: version,
+            Dependencies: [new PackageDependency("standard", new Version(1, 11, 0))]);
+    }
+
+    public PackageManifest Manifest { get; }
 
     public void Register(IContentRegistryBuilder builder)
     {
@@ -50,11 +69,17 @@ public sealed class StandardActiveSkillExpansionPackage : IGameContentPackage
             "回春",
             "出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力。",
             SkillKind.Huichun));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:mashu",
-            "马术",
-            "锁定技，你计算与其他角色的距离始终 -1。",
-            SkillKind.Mashu));
+        builder.AddSkill(_version >= new Version(1, 1, 0)
+            ? RuleQuerySkillPrograms.Definition("standard:mashu") with
+            {
+                Tags = SkillTag.Locked,
+                ExecutionForms = SkillExecutionForm.State
+            }
+            : new ContentSkillDefinition(
+                "standard:mashu",
+                "马术",
+                "锁定技，你计算与其他角色的距离始终 -1。",
+                SkillKind.Mashu));
         builder.AddSkill(new ContentSkillDefinition(
             "standard:qicai",
             "奇才",

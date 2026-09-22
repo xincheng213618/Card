@@ -52,7 +52,8 @@ public sealed partial class GameEngine
             if (identity is null && card.Kind == CardKind.Peach && actor.Hp >= actor.MaxHp)
                 return Hint(HandGuidanceReason.HealthFull, "你的体力已满，当前不能用桃回复；保留后可在濒死时救援。");
             if ((IsSlashCard(card.Kind) || identity?.Identity.OutputKind == CardKind.Slash) &&
-                _slashCountThisTurn >= GetSlashLimit(actor, skill, context))
+                _slashCountThisTurn >= GetSlashUseLimit(actor) &&
+                !_players.Any(target => target.IsAlive && IsXianzhenTarget(actor, target)))
                 return Hint(HandGuidanceReason.SlashLimitReached, "本回合可使用杀的次数已用完；可以保留它用于响应或下个回合。");
             if (identity is null && card.Kind == CardKind.Alcohol && actor.HasAlcoholEffect)
                 return Hint(HandGuidanceReason.AlcoholAlreadyActive, "你已有酒的效果，等待下一张杀消耗加伤；当前不能叠加饮酒。");

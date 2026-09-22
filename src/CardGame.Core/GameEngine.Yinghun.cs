@@ -20,7 +20,7 @@ public sealed partial class GameEngine
         public List<int> DiscardedCardIds { get; } = [];
     }
 
-    private void BeginYinghunChoice(PlayerRuntime owner)
+    private void BeginYinghunChoice(CharacterState owner)
     {
         var lostHp = owner.MaxHp - owner.Hp;
         var targets = _players.Where(player => player.IsAlive && player.Seat != owner.Seat)
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
     }
 
     private PromptChoice CreateYinghunOfferChoice(
-        PlayerRuntime owner, PlayerRuntime target, int lostHp, bool drawMany)
+        CharacterState owner, CharacterState target, int lostHp, bool drawMany)
     {
         var drawCount = drawMany ? lostHp : 1;
         var discardCount = drawMany ? 1 : lostHp;
@@ -195,7 +195,8 @@ public sealed partial class GameEngine
     private bool TryCompleteYinghunAfterLossTriggers()
     {
         if (_pendingYinghun is not { Stage: YinghunStage.AwaitingEquipmentLossTriggers } pending ||
-            _pendingDecision is not null || _pendingXiaojiTriggers.Count > 0 || _pendingLianyingTriggers.Count > 0)
+            _pendingDecision is not null || _pendingCardsMovedBatches.Count > 0 ||
+            _resolutionStack.Any(frame => frame is CardsMovedTriggerWindowFrame))
             return false;
 
         var owner = _players[pending.OwnerSeat];
@@ -212,7 +213,7 @@ public sealed partial class GameEngine
         if (_pendingYinghun is not { } pending) return;
         if (!UsesFormalSunJian || _phase != TurnPhase.Draw || _currentSeat != pending.OwnerSeat ||
             !_players[pending.OwnerSeat].IsAlive ||
-            !_players[pending.OwnerSeat].General.HasSkill(SkillKind.Yinghun) || pending.LostHp <= 0)
+            !HasRuntimeSkill(_players[pending.OwnerSeat], SkillKind.Yinghun) || pending.LostHp <= 0)
             throw new InvalidOperationException("Yinghun must remain at its wounded owner's preparation boundary.");
         if (pending.Stage != YinghunStage.AwaitingEquipmentLossTriggers &&
             _pendingDecision is not { Kind: DecisionKind.Yinghun })

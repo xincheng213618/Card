@@ -777,69 +777,6 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
-    /// Chooses whether to use the private Feedback trigger. The incoming card
-    /// kind is public combat context; the AI does not inspect the engine zone or
-    /// another player's hand to make this choice.
-    /// </summary>
-    public (bool UseFeedback, AiThoughtRecord Thought) ChooseFeedback(
-        GameSnapshot view,
-        int sourceSeat,
-        CardKind? incomingCard,
-        int thoughtSequence,
-        bool takeSourceCard = false,
-        string skillName = "反馈")
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var profile = incomingCard is { } cardKind ? CardCatalog.Get(cardKind) : null;
-        var source = view.Players.Single(player => player.Seat == sourceSeat);
-        var useScore = takeSourceCard
-            ? 38d + source.HandCount * 2d + source.Equipment.Count * 8d - self.HandCount * 3d
-            : (profile?.HandKeepValue ?? 0d) +
-              Math.Max(0, self.MaxHp - self.HandCount) * 8d -
-              self.HandCount * 4d;
-        var skipScore = self.HandCount > self.MaxHp ? 52d : 8d;
-        var gainDescription = takeSourceCard
-            ? $"获得伤害来源的一张牌（其公开手牌数 {source.HandCount}、装备数 {source.Equipment.Count}）"
-            : $"获得{profile?.DisplayName ?? "伤害牌"}";
-        var gainReason = takeSourceCard
-            ? $"{gainDescription}并扩大资源；只使用本座可见的生命、公开手牌数量和装备。"
-            : $"获得{profile?.DisplayName ?? "伤害牌"}并扩大资源；只使用本座可见的生命和手牌数量。";
-        var useAction = new LegalAction(
-            LegalActionKind.Feedback,
-            null,
-            sourceSeat,
-            $"发动【{skillName}】{gainDescription}");
-        var skipAction = new LegalAction(
-            LegalActionKind.SkipFeedback,
-            null,
-            sourceSeat,
-            $"不发动【{skillName}】");
-        var candidates = new[]
-        {
-            new AiCandidateScore(
-                useAction,
-                Math.Round(useScore + _random.NextDouble() * 0.001d, 3),
-                gainReason),
-            new AiCandidateScore(
-                skipAction,
-                Math.Round(skipScore + _random.NextDouble() * 0.001d, 3),
-                "手牌接近上限时保留当前结构，避免无条件继续拿牌。")
-        };
-        var selected = candidates
-            .OrderByDescending(candidate => candidate.Score)
-            .ThenBy(candidate => candidate.Action.Kind)
-            .First();
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Action.Description,
-            candidates,
-            $"{skillName}触发：手牌 {self.HandCount}/{self.MaxHp}，决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
-        return (selected.Action.Kind == LegalActionKind.Feedback, thought);
-    }
-
-    /// <summary>
     /// Chooses whether to open the private Ganglie judgment trigger. The
     /// judgment result is deliberately not supplied here: it remains a hidden
     /// draw-pile fact until the engine commits the public judgment event.
@@ -1116,133 +1053,6 @@ public sealed partial class SimpleAiBrain
             selected.Action.Description,
             candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
             $"雷击：从 {targetSeats.Count} 个公开合法目标中选择 {selected.Action.Description}。"));
-    }
-
-    /// <summary>
-    /// Chooses the bounded Yiji gift from the owner's private hand and the
-    /// published legal target seats. The AI never reads another player's cards
-    /// or the engine's zone store.
-    /// </summary>
-    public (int? CardId, int? TargetSeat, AiThoughtRecord Thought) ChooseYijiGift(
-        GameSnapshot view,
-        IReadOnlyList<int> drawnCardIds,
-        IReadOnlyList<int> targetSeats,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var cards = drawnCardIds
-            .Select(cardId => self.Hand.Single(card => card.Id == cardId))
-            .ToArray();
-        var targets = targetSeats
-            .Select(targetSeat => view.Players.Single(player => player.Seat == targetSeat))
-            .Where(player => player.IsAlive && player.Seat != Seat)
-            .ToArray();
-
-        var candidates = (
-            from card in cards
-            from target in targets
-            let profile = CardCatalog.Get(card.Kind)
-            let score = profile.HandKeepValue +
-                        Math.Max(0, self.MaxHp - target.HandCount) * 6d +
-                        (target.Role is Role.Lord && self.Role is Role.Loyalist ? 8d : 0d)
-            let evaluated = _policyVersion >= 2
-                ? GetTacticalSupport(view, self.Role ?? Role.Renegade, target) * (24 + Math.Max(0, target.MaxHp - target.HandCount) * 6) - profile.HandKeepValue * .4
-                : score
-            select new AiCandidateScore(
-                new LegalAction(
-                    LegalActionKind.YijiGift,
-                    card.Id,
-                    target.Seat,
-                    $"将【{profile.DisplayName}】交给座位 {target.Seat + 1}"),
-                Math.Round(evaluated + _random.NextDouble() * 0.001d, 3),
-                $"将自己可见的候选牌交给公开可见的存活座位；不读取目标手牌牌面。"))
-            .ToList();
-
-        candidates.Add(new AiCandidateScore(
-            new LegalAction(
-                LegalActionKind.SkipYiji,
-                null,
-                null,
-                "不发动遗计分配，保留摸到的牌"),
-            self.HandCount > self.MaxHp + 2 ? 58d : 4d,
-            "保留两张牌；只使用自己的手牌数量判断是否资源过载。"));
-
-        var selected = candidates
-            .OrderByDescending(candidate => candidate.Score)
-            .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
-            .ThenBy(candidate => candidate.Action.TargetSeat ?? int.MaxValue)
-            .First();
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Action.Description,
-            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"遗计：从 {cards.Length} 张私有候选牌和 {targets.Length} 个公开合法目标中选择 {selected.Action.Description}。");
-        return (
-            selected.Action.Kind == LegalActionKind.YijiGift ? selected.Action.CardId : null,
-            selected.Action.Kind == LegalActionKind.YijiGift ? selected.Action.TargetSeat : null,
-            thought);
-    }
-
-    /// <summary>
-    /// Chooses a public target for Jieming from the exact seats published by the
-    /// prompt. Only hand counts, max HP, and roles already visible in the AI's
-    /// snapshot are used; no target hand or engine zone is inspected.
-    /// </summary>
-    public (int? TargetSeat, AiThoughtRecord Thought) ChooseJiemingTarget(
-        GameSnapshot view,
-        IReadOnlyList<int> targetSeats,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var selfRole = self.Role ?? Role.Renegade;
-        var candidates = targetSeats
-            .Select(targetSeat => view.Players.Single(player => player.Seat == targetSeat))
-            .Where(player => player.IsAlive && player.HandCount < player.MaxHp)
-            .Select(target =>
-            {
-                var deficit = target.MaxHp - target.HandCount;
-                var roleBonus = target.Role switch
-                {
-                    Role.Lord when selfRole is Role.Lord or Role.Loyalist => 8d,
-                    Role.Loyalist when selfRole is Role.Lord or Role.Loyalist => 4d,
-                    Role.Rebel when selfRole == Role.Rebel => 4d,
-                    _ => 0d
-                };
-                var value = _policyVersion >= 2 ? deficit * 20d * GetTacticalSupport(view, selfRole, target) : deficit * 20d + roleBonus;
-                var score = Math.Round(value + _random.NextDouble() * 0.001d, 3);
-                return new AiCandidateScore(
-                    new LegalAction(
-                        LegalActionKind.Jieming,
-                        null,
-                        target.Seat,
-                        $"令座位 {target.Seat + 1} 摸牌至体力上限"),
-                    score,
-                    $"按公开手牌数量补足 {deficit} 张；不读取目标隐藏牌面。 ");
-            })
-            .ToList();
-        candidates.Add(new AiCandidateScore(
-            new LegalAction(LegalActionKind.SkipJieming, null, null, "不发动节命"),
-            self.HandCount > self.MaxHp + 2 ? 36d : 2d,
-            "保留当前结算；只使用自己的公开手牌数量。"));
-
-        var selected = candidates
-            .OrderByDescending(candidate => candidate.Score)
-            .ThenBy(candidate => candidate.Action.TargetSeat ?? int.MaxValue)
-            .First();
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Action.Description,
-            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"节命：从 {candidates.Count - 1} 个公开合法目标中选择 {selected.Action.Description}。 ");
-        return (
-            selected.Action.Kind == LegalActionKind.Jieming
-                ? selected.Action.TargetSeat
-                : null,
-            thought);
     }
 
     /// <summary>
@@ -2141,46 +1951,33 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
-    /// Chooses among the exact public-seat combinations published by Tuxi.
-    /// Scores use only visible roles/teams, public hand counts and the AI's
+    /// Chooses among configured public-seat combinations that take hidden hand
+    /// cards. Scores use only visible roles/teams, public hand counts and the
     /// bounded suspicion model; no target card identity is inspected.
     /// </summary>
-    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseTuxi(
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseHostileHandTargets(
         GameSnapshot view,
         IReadOnlyList<PromptChoice> choices,
         int thoughtSequence)
     {
         if (choices.Count == 0)
         {
-            throw new InvalidOperationException("AI was asked to resolve an empty Tuxi prompt.");
+            throw new InvalidOperationException("AI was asked to resolve an empty configured target prompt.");
         }
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
         var scored = choices.Select(choice =>
         {
-            if (choice.Parameters.GetValueOrDefault("action") == "tuxi-skip")
-            {
-                return (
-                    Choice: choice,
-                    Candidate: new AiCandidateScore(
-                        new LegalAction(LegalActionKind.SkipTuxi, null, null, choice.Description),
-                        30d,
-                        "保留通常摸牌；不查看牌堆或任何目标暗牌。"));
-            }
-
             var targets = choice.Targets
                 .Select(seat => view.Players.Single(player => player.Seat == seat))
                 .ToArray();
-            var score = targets.Sum(target =>
-                GetHostility(view, selfRole, target) * .45d +
-                Math.Min(target.HandCount, 5) * 2d +
-                14d);
+            var score = ScoreHostileHandTargets(view, selfRole, targets);
             return (
                 Choice: choice,
                 Candidate: new AiCandidateScore(
                     new LegalAction(
-                        LegalActionKind.Tuxi,
+                        LegalActionKind.UseProgramSkill,
                         null,
                         targets.FirstOrDefault()?.Seat,
                         choice.Description,
@@ -2198,62 +1995,127 @@ public sealed partial class SimpleAiBrain
             Seat,
             selected.Choice.Description,
             scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"突袭：从 {choices.Count - 1} 个公开目标组合和普通摸牌中选择 {selected.Choice.Description}。");
+            $"配置技能：从 {choices.Count} 个公开目标组合中选择 {selected.Choice.Description}。");
         return (selected.Choice.Id, thought);
     }
 
     /// <summary>
-    /// Decides whether to trade one draw for Luoyi using only the AI owner's
-    /// private hand and public prompt. No deck order or opponent hand is read.
+    /// Decides whether a configured draw replacement is worth giving up the
+    /// ordinary two-card draw. Inputs are public seats and hand counts only.
     /// </summary>
-    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseLuoyi(
+    public (bool Activate, AiThoughtRecord Thought) ChooseHostileHandReplacementActivation(
         GameSnapshot view,
-        IReadOnlyList<PromptChoice> choices,
+        IReadOnlyList<int> targetSeats,
+        int minimumTargets,
+        int maximumTargets,
+        string skillName,
         int thoughtSequence)
     {
-        if (choices.Count != 2)
-        {
-            throw new InvalidOperationException("AI Luoyi requires exactly use and skip choices.");
-        }
+        if (minimumTargets < 1 || maximumTargets < minimumTargets || maximumTargets > 2 ||
+            targetSeats.Count < minimumTargets || targetSeats.Distinct().Count() != targetSeats.Count ||
+            targetSeats.Contains(Seat))
+            throw new InvalidOperationException("AI received an invalid configured hand-replacement target set.");
 
         var self = view.Players.Single(player => player.Seat == Seat);
-        var attackCardCount = self.Hand.Count(card =>
-            IsSlashCard(card.Kind) || card.Kind == CardKind.Duel);
-        var scored = choices.Select(choice =>
+        var selfRole = self.Role ?? Role.Renegade;
+        var scoredTargets = new List<(IReadOnlyList<int> Seats, double Score)>();
+        for (var first = 0; first < targetSeats.Count; first++)
         {
-            var useSkill = choice.Parameters.GetValueOrDefault("action") == "luoyi-use";
-            var score = useSkill
-                ? attackCardCount == 0 ? 24d : 58d + Math.Min(attackCardCount, 3) * 7d
-                : 45d;
-            var reason = useSkill
-                ? attackCardCount == 0
-                    ? "当前没有可见的杀或决斗，少摸一张的即时收益较低。"
-                    : $"当前私有手牌有 {attackCardCount} 张杀或决斗，可利用本回合伤害加成。"
-                : "保留通常摸牌数量，不读取牌堆顺序。";
-            return (
-                Choice: choice,
-                Candidate: new AiCandidateScore(
-                    new LegalAction(
-                        useSkill ? LegalActionKind.Luoyi : LegalActionKind.SkipLuoyi,
-                        null,
-                        null,
-                        choice.Description,
-                        Skill: SkillKind.Luoyi),
-                    score,
-                    reason));
-        }).ToArray();
-        var selected = scored
-            .OrderByDescending(item => item.Candidate.Score)
-            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+            if (minimumTargets <= 1)
+            {
+                var seats = new[] { targetSeats[first] };
+                scoredTargets.Add((seats, ScoreHostileHandTargets(
+                    view, selfRole, seats.Select(seat => view.Players.Single(player => player.Seat == seat)))));
+            }
+            if (maximumTargets < 2) continue;
+            for (var second = first + 1; second < targetSeats.Count; second++)
+            {
+                var seats = new[] { targetSeats[first], targetSeats[second] };
+                scoredTargets.Add((seats, ScoreHostileHandTargets(
+                    view, selfRole, seats.Select(seat => view.Players.Single(player => player.Seat == seat)))));
+            }
+        }
+
+        var best = scoredTargets
+            .OrderByDescending(item => item.Score)
+            .ThenBy(item => string.Join("-", item.Seats), StringComparer.Ordinal)
             .First();
+        const double normalDrawScore = 30d;
+        var activate = best.Score > normalDrawScore;
+        var activateAction = new LegalAction(
+            LegalActionKind.UseProgramSkill,
+            null,
+            best.Seats[0],
+            $"发动【{skillName}】",
+            TargetSeats: best.Seats);
+        var skipAction = new LegalAction(
+            LegalActionKind.UseProgramSkill,
+            null,
+            null,
+            $"不发动【{skillName}】");
+        var candidates = new[]
+        {
+            new AiCandidateScore(
+                activateAction,
+                Math.Round(best.Score, 3),
+                $"最佳公开目标组合含 {best.Seats.Count} 人；按关系和手牌数估值，不读取牌面。"),
+            new AiCandidateScore(
+                skipAction,
+                normalDrawScore,
+                "保留通常摸两张；不查看牌堆或任何目标暗牌。")
+        };
         var thought = new AiThoughtRecord(
             thoughtSequence,
             view.TurnNumber,
             Seat,
-            selected.Choice.Description,
-            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"裸衣：根据自己的 {attackCardCount} 张杀或决斗选择是否少摸一张牌。");
-        return (selected.Choice.Id, thought);
+            activate ? activateAction.Description : skipAction.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"配置摸牌替代：最佳组合 {best.Score:0.##}，通常摸牌 {normalDrawScore:0.##}，" +
+            $"决定{(activate ? "发动" : "跳过")}【{skillName}】。");
+        return (activate, thought);
+    }
+
+    private double ScoreHostileHandTargets(
+        GameSnapshot view,
+        Role selfRole,
+        IEnumerable<PlayerSnapshot> targets) =>
+        targets.Sum(target =>
+            GetHostility(view, selfRole, target) * .45d +
+            Math.Min(target.HandCount, 5) * 2d +
+            14d);
+
+    /// <summary>
+    /// Compares a lost-HP-sized reveal replacement with normal drawing using
+    /// only the acting player's visible health. Critical health keeps the
+    /// recovery chance valuable even when only one card would be revealed.
+    /// </summary>
+    public (bool Activate, AiThoughtRecord Thought) ChooseLostHpRevealReplacementActivation(
+        GameSnapshot view,
+        string skillName,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var lostHp = Math.Max(0, self.MaxHp - self.Hp);
+        var activate = lostHp >= 2 || self.Hp == 1;
+        var candidates = new[]
+        {
+            new AiCandidateScore(
+                new LegalAction(LegalActionKind.UseProgramSkill, null, null, $"发动【{skillName}】"),
+                activate ? 60d : 28d,
+                $"展示数量为已损失体力 {lostHp}；当前体力 {self.Hp}。"),
+            new AiCandidateScore(
+                new LegalAction(LegalActionKind.UseProgramSkill, null, null, $"跳过【{skillName}】"),
+                activate ? 35d : 45d,
+                "保留通常摸牌数量。")
+        };
+        var thought = new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            activate ? candidates[0].Action.Description : candidates[1].Action.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"配置失血亮牌替代：失去 {lostHp} 点体力，决定{(activate ? "发动" : "跳过")}【{skillName}】。");
+        return (activate, thought);
     }
 
     /// <summary>

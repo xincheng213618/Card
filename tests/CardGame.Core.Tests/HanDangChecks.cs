@@ -35,8 +35,6 @@ internal static class HanDangChecks
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(HanDangId),
             "Package 1.93.0 must publish complete classic Han Dang with active/state and limited metadata.");
-        Require(GameCheckpoint.CurrentRulesVersion == 101,
-            "Adding package-owned Han Dang content must not create another global replay-rules gate.");
     }
 
     public static void GongqiEquipmentCostAndOpaqueDiscardReplay()

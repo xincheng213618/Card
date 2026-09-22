@@ -93,21 +93,9 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 title = $"解烦 · {Name(prompt.PlayerSeat)}选择响应方式";
                 targetLabel = "受益角色";
                 break;
-            case DecisionKind.Chengxiang:
-                target = prompt.PlayerSeat;
-                title = prompt.ValidCardIds.Count == 0
-                    ? "称象 · 决定是否亮出牌堆顶四张牌"
-                    : "称象 · 选择点数和不超过13的牌";
-                targetLabel = "技能拥有者";
-                break;
             case DecisionKind.Renxin:
                 title = $"仁心 · 防止 {Name(target)} 受到伤害";
                 targetLabel = "受保护角色";
-                break;
-            case DecisionKind.Jingce:
-                target = prompt.PlayerSeat;
-                title = "精策 · 决定是否摸两张牌";
-                targetLabel = "技能拥有者";
                 break;
             case DecisionKind.Yuce:
                 target = prompt.TargetSeat ?? prompt.PlayerSeat;

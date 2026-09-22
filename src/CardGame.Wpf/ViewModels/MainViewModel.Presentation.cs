@@ -386,6 +386,10 @@ public sealed partial class MainViewModel
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
     public bool HasCenterChoices => HasChoicePrompt || HasPublicTargetChoices || HasTargetCombinationChoices ||
         HasPublicRevealedCards || ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
+    public bool HasPinnedPublicModuleChoices =>
+        HasPublicRevealedCards &&
+        _snapshot.PendingDecision is { SkillPrompt: not null, Choices.Count: 2 } &&
+        SkillChoices.Count == 2;
     public bool IsTableIdle => !HasCenterChoices;
     public bool HasSelection => _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
         _isSelectingActiveSkillCards || _selectedActiveSkillCardIds.Count > 0 ||

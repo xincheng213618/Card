@@ -21,7 +21,8 @@ public sealed record GameCheckpoint(
     // Development save compatibility epoch. This project is not released yet,
     // so checkpoints from any other rules version are rejected instead of
     // migrated. Adding content is versioned by its package and content hash.
-    public const int CurrentRulesVersion = 101;
+    // 102-114 were retired development epochs; do not reuse one for new semantics.
+    public const int CurrentRulesVersion = 127;
 
     public int RulesVersion { get; init; }
 }

@@ -547,7 +547,7 @@ public sealed partial class GameEngine
         PublishState();
     }
 
-    private bool TryBeginMijiChoice(PlayerRuntime owner)
+    private bool TryBeginMijiChoice(CharacterState owner)
     {
         if (!UsesFormalWangYi ||
             _mijiResolvedThisTurn ||
@@ -859,7 +859,7 @@ public sealed partial class GameEngine
         PublishState();
     }
 
-    private static bool AreMijiAllies(PlayerRuntime owner, PlayerRuntime target) =>
+    private static bool AreMijiAllies(CharacterState owner, CharacterState target) =>
         owner.TeamId is not null || target.TeamId is not null
             ? owner.TeamId is not null && owner.TeamId == target.TeamId
             : owner.Role switch

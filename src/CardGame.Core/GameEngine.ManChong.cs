@@ -13,7 +13,7 @@ public sealed partial class GameEngine
 
     private void BeginJunxing(
         long frameId,
-        PlayerRuntime owner,
+        CharacterState owner,
         IReadOnlyList<int> costCardIds,
         int targetSeat)
     {

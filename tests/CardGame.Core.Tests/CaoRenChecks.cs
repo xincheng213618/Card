@@ -5,29 +5,34 @@ internal static class CaoRenChecks
 {
     public static void JushouDrawFlipSkipAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 50, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = CreateSelectedCaoRen(registry);
         ReachHumanPlay(game);
         Require(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)).Accepted,
             "Cao Ren must receive a private optional Jushou window at the end phase.");
-        for (var step = 0; step < 4 && game.PendingDecision?.Kind != DecisionKind.Jushou; step++)
+        for (var step = 0; step < 4 && game.PendingDecision?.SkillPrompt?.SkillId != "classic:jushou"; step++)
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Could not reach the Jushou window.");
-        Require(game.PendingDecision is { Kind: DecisionKind.Jushou, PlayerSeat: 0, IsPrivate: true },
+        Require(game.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, IsPrivate: true,
+                  SkillPrompt.SkillId: "classic:jushou" },
             "Cao Ren must receive a private optional Jushou window at the end phase.");
         var prompt = game.PendingDecision!;
         var before = game.CreateSnapshot(0, revealAll: true).Players[0].HandCount;
         var paused = GameReplay.Restore(game.CreateCheckpoint(), registry);
-        var use = prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "jushou-use");
+        var use = prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         Require(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, use.Id, game.Revision)).Accepted,
             "Jushou use choice was rejected.");
         var after = game.CreateSnapshot(0, revealAll: true).Players[0];
         Require(after.HandCount == before + 3 && after.IsFaceDown &&
-                game.CardMovements.Count(move => move.Reason == CardMoveReasons.JushouDraw && move.To == CardLocation.Hand(0)) == 3,
+                game.CardMovements.Count(move => move.Reason.Value == "skill-program.classic:jushou.Draw" &&
+                    move.To == CardLocation.Hand(0)) == 3,
             "Jushou must draw exactly three physical cards and turn Cao Ren face down.");
 
         var pausedPrompt = paused.PendingDecision!;
         Require(paused.Submit(new AnswerPromptCommand(0, pausedPrompt.PromptId,
-                    pausedPrompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "jushou-use").Id,
+                    pausedPrompt.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
                     paused.Revision)).Accepted &&
                 SnapshotJson.Serialize(paused.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),

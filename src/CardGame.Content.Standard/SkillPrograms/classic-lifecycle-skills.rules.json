@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 11,
+  "skills": [
+    {
+      "id": "classic:dangxian",
+      "revision": 1,
+      "minimumRulesVersion": 116,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "turn-start-extra-play",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "insertPhase",
+              "target": "owner",
+              "phase": "play",
+              "phaseContinuation": "beforeNormalPreparation"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:fuli",
+      "revision": 1,
+      "minimumRulesVersion": 116,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "self-dying-recovery",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "recoverTo",
+              "target": "owner",
+              "numberExpression": "livingFactionCount",
+              "minimumValue": 1,
+              "clampToMaxHp": true
+            },
+            {
+              "op": "turnOver",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:chengxiang",
+      "revision": 1,
+      "minimumRulesVersion": 116,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "after-damage-weigh",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "amount": 4,
+              "resultBind": "revealed",
+              "visibility": "public"
+            },
+            {
+              "op": "selectCardSubset",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "resultBind": "selected",
+              "minimumCards": 0,
+              "maximumCards": 4,
+              "maximumRankSum": 13,
+              "aiOrder": "mostCardsThenRankSum"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "selected",
+              "destination": "ownerHand"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "exceptBind": "selected",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

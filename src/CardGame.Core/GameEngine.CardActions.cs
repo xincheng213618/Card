@@ -52,8 +52,8 @@ public sealed partial class GameEngine
             null, null, effectiveKind, targets, costs, conversionChain);
     }
 
-    private bool TryBeginCardResponsePrograms(AttackResolution attack, PlayerRuntime actor,
-        PlayerRuntime provider, int? requesterSeat, int opponentSeat, CardKind effectiveKind,
+    private bool TryBeginCardResponsePrograms(AttackResolution attack, CharacterState actor,
+        CharacterState provider, int? requesterSeat, int opponentSeat, CardKind effectiveKind,
         IReadOnlyList<CardActionCost> costs, ProgramCardContinuation continuation,
         CardConversionSource? conversionSource = null)
     {
@@ -118,18 +118,22 @@ public sealed partial class GameEngine
         {
             var owner = _players[ownerSeat];
             if (!owner.IsAlive) continue;
-            foreach (var program in EnabledSkillPrograms(owner))
-            foreach (var trigger in program.Triggers.Where(item => item.Window == window &&
-                         (item.CardKinds.Count > 0
-                             ? ownerSeat == action.ActorSeat && item.CardKinds.Contains(action.EffectiveKind)
-                             : action.ConversionChain.Any(source => source.OwnerSeat == ownerSeat &&
-                                 source.SkillId == item.SourceSkillId &&
-                                 (item.SourceViewAsId is null || source.BindingId == item.SourceViewAsId)))))
-            foreach (var opponentSeat in opponents.Distinct())
+            foreach (var binding in EnabledUniqueProgramTriggers(owner, window))
             {
-                var candidate = new ProgramCardTriggerCandidate(ownerSeat, opponentSeat, program.Id,
-                    trigger.Id, program.GameplayHash);
-                if (CanRunProgramCardTrigger(candidate, trigger)) candidates.Add(candidate);
+                var program = binding.Program;
+                var trigger = binding.Trigger;
+                if (!(trigger.CardKinds.Count > 0
+                             ? ownerSeat == action.ActorSeat && trigger.CardKinds.Contains(action.EffectiveKind)
+                             : action.ConversionChain.Any(source => source.OwnerSeat == ownerSeat &&
+                                 source.SkillId == trigger.SourceSkillId &&
+                                 (trigger.SourceViewAsId is null || source.BindingId == trigger.SourceViewAsId))))
+                    continue;
+                foreach (var opponentSeat in opponents.Distinct())
+                {
+                    var candidate = new ProgramCardTriggerCandidate(ownerSeat, opponentSeat, program.Id,
+                        trigger.Id, program.GameplayHash);
+                    if (CanRunProgramCardTrigger(candidate, trigger)) candidates.Add(candidate);
+                }
             }
         }
         if (candidates.Count == 0) return false;
@@ -160,7 +164,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<int> GetProgramCardTargetSeats(
-        PlayerRuntime owner,
+        CharacterState owner,
         SkillProgramTriggerEffect effect)
     {
         if (effect is not
@@ -208,7 +212,7 @@ public sealed partial class GameEngine
             if (!frame.Activated)
             {
                 if (!CanRunProgramCardTrigger(candidate, trigger) ||
-                    !EnabledSkillPrograms(owner).Any(item => item.Id == candidate.SkillId))
+                    !GetSkillBindingShard(owner)!.HasProgram(candidate.SkillId, candidate.GameplayHash))
                 {
                     AdvanceProgramCardCandidate(frame);
                     continue;

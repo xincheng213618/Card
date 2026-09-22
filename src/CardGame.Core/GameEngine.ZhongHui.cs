@@ -46,7 +46,7 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    private IReadOnlyList<Card> GetAuthority(PlayerRuntime player) =>
+    private IReadOnlyList<Card> GetAuthority(CharacterState player) =>
         _cardZones.CardsAt(CardLocation.Authority(player.Seat));
 
     private PendingDecision CreateQuanjiDecision(DamageSkillResolution pending)
@@ -276,7 +276,7 @@ public sealed partial class GameEngine
         ResolveQuanjiChoice(selected);
     }
 
-    private bool TryBeginZiliAwakening(PlayerRuntime player)
+    private bool TryBeginZiliAwakening(CharacterState player)
     {
         if (!UsesFormalZhongHui ||
             !HasRuntimeSkill(player, ZiliSkillId) ||
@@ -409,7 +409,7 @@ public sealed partial class GameEngine
         ResolveZiliChoice(choice);
     }
 
-    private void BeginTurnStartAfterZili(PlayerRuntime current)
+    private void BeginTurnStartAfterZili(CharacterState current)
     {
         ResolveDanjiAwakening(current);
         if (TryBeginQianxiChoice(current))
@@ -422,7 +422,7 @@ public sealed partial class GameEngine
 
     private void ResolvePaiyi(
         long frameId,
-        PlayerRuntime source,
+        CharacterState source,
         int authorityCardId,
         int targetSeat)
     {
@@ -473,7 +473,7 @@ public sealed partial class GameEngine
         }
     }
 
-    private void BeginPaiyiDamage(long frameId, PlayerRuntime source, PlayerRuntime target)
+    private void BeginPaiyiDamage(long frameId, CharacterState source, CharacterState target)
     {
         SetActiveSkillFrameStep(frameId, ResolutionFrameStep.ResolvingEffect);
         var attack = new AttackResolution(

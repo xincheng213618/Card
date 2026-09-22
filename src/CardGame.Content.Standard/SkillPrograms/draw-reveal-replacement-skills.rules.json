@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 18,
+  "skills": [
+    {
+      "id": "classic:zaiqi",
+      "revision": 2,
+      "minimumRulesVersion": 123,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "replace-draw-with-lost-hp-reveal",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 90,
+          "drawPhaseMode": "replacement",
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHp" },
+            "operator": "lessThan",
+            "right": { "kind": "currentMaxHp" }
+          },
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "numberExpression": "ownerLostHp",
+              "resultBind": "revealed",
+              "visibility": "public"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "resultBind": "hearts",
+              "suits": ["heart"]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "hearts",
+              "destination": "discardPile"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "exceptBind": "hearts",
+              "destination": "ownerHand"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "numberExpression": "boundCardCount",
+              "sourceBind": "hearts"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

@@ -34,7 +34,11 @@ public enum ResolutionFrameKind
     ProgramCardTriggerWindow,
     ProgramJudgmentTriggerWindow,
     DeathSkill,
-    PhaseSkill
+    PhaseSkill,
+    Pindian,
+    ProgramLifecycleTriggerWindow,
+    TurnEndingBoundary,
+    CardsMovedTriggerWindow
 }
 
 public enum ResolutionFrameStep
@@ -85,6 +89,10 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(ProgramJudgmentTriggerWindowFrame), "program-judgment-trigger-window")]
 [JsonDerivedType(typeof(DeathSkillFrame), "death-skill")]
 [JsonDerivedType(typeof(PhaseSkillFrame), "phase-skill")]
+[JsonDerivedType(typeof(PindianFrame), "pindian")]
+[JsonDerivedType(typeof(ProgramLifecycleTriggerWindowFrame), "program-lifecycle-trigger-window")]
+[JsonDerivedType(typeof(TurnEndingBoundaryFrame), "turn-ending-boundary")]
+[JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
@@ -101,7 +109,21 @@ public sealed record ProgramSkillFrame(
     IReadOnlyList<int> SelectedCardIds,
     IReadOnlyList<int> SelectedTargetSeats,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
-    : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
+{
+    /// <summary>The exact current grant selected when this execution was frozen.</summary>
+    public string SkillInstanceId { get; init; } = "";
+
+    /// <summary>Null for a play activation; otherwise the stable trigger/binding id.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TriggerId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSkillWindowContext? WindowContext { get; init; }
+
+    public IReadOnlyList<ProgramSkillNumberBinding> NumberBindings { get; init; } = [];
+    public IReadOnlyList<ProgramSkillCardSetBinding> CardSetBindings { get; init; } = [];
+}
 
 public sealed record CardUseFrame(
     long Id,

@@ -293,8 +293,6 @@ public enum DecisionKind
     Keji,
     Liuli,
     Biyue,
-    Xiaoji,
-    Lianying,
     Tuxi,
     Luoyi,
     Luoshen,
@@ -349,7 +347,8 @@ public enum DecisionKind
     Junxing,
     Yuce,
     Longyin,
-    SkillModule
+    SkillModule,
+    ProgramTrigger
 }
 
 public enum JiangchiMode
@@ -418,12 +417,6 @@ public enum LegalActionKind
     SelectHarvestCard,
     EndPlay,
     Alcohol,
-    Feedback,
-    SkipFeedback,
-    YijiGift,
-    SkipYiji,
-    Jieming,
-    SkipJieming,
     Yuanhu,
     SkipYuanhu,
     Equip,

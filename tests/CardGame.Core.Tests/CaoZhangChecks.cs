@@ -9,11 +9,11 @@ internal static class CaoZhangChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 80, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 105, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 81, 0)) &&
+                    package.Version == new Version(1, 107, 0)) &&
                 current.Generals[GeneralId] is
                 {
                     FactionId: "wei",
@@ -25,29 +25,26 @@ internal static class CaoZhangChecks
                 {
                     LegacyKind: null,
                     Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
+                    ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } skill &&
-                skill.Description ==
-                "摸牌阶段，你可以选择一项：1.额外摸一张牌，若如此做，你不能使用或打出【杀】，直到回合结束；2.少摸一张牌，若如此做，你于出牌阶段内使用【杀】无距离限制且能额外使用一张【杀】，直到回合结束。" &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(SkillId) &&
+                skill.Program is { RuntimeVersion: "skill-program-v20", MinimumRulesVersion: 125 } &&
+                previous.Skills[SkillId].Program is null &&
                 current.ContentHash != previous.ContentHash,
-            "Package 1.81.0 must add original Cao Zhang and structured Jiangchi without mutating 1.80.0.");
+            "Current package must retain the 1.106 Jiangchi migration without mutating 1.105.0.");
 
         var fixture = FindFixture();
         var game = fixture.Game;
-        var prompt = RequirePrompt(game, DecisionKind.Jiangchi);
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(prompt.IsPrivate &&
                 prompt.Choices.Count == 3 &&
-                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                prompt.Choices.Count(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip") == 1 &&
+                prompt.Choices.Where(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "activate")
+                    .Select(choice => choice.Parameters.GetValueOrDefault("binding-id"))
                     .Order(StringComparer.Ordinal)
-                    .SequenceEqual(new[]
-                    {
-                        "jiangchi-assault",
-                        "jiangchi-draw-more",
-                        "jiangchi-skip"
-                    }),
+                    .SequenceEqual(["mode-assault", "mode-draw-more"]),
             "Jiangchi must publish exactly the two official modes plus an explicit normal-draw skip.");
 
         var beforeRevision = game.Revision;
@@ -64,7 +61,7 @@ internal static class CaoZhangChecks
 
         var restoredPrompt = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(SnapshotJson.Serialize(restoredPrompt.CreateSnapshot(0, revealAll: true)) == beforeState &&
-                restoredPrompt.PendingDecision is { Kind: DecisionKind.Jiangchi, IsPrivate: true },
+                restoredPrompt.PendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true },
             "A paused three-branch Jiangchi prompt must replay exactly.");
 
         var skipped = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
@@ -72,9 +69,8 @@ internal static class CaoZhangChecks
         Answer(skipped, "jiangchi-skip");
         ReachHumanPlay(skipped);
         Require(skipped.CreateSnapshot(0, revealAll: true).Players[0].HandCount == skippedBefore + 2 &&
-                skipped.Events.Select(item => item.Payload).OfType<JiangchiResolvedEvent>()
-                    .Any(item => item is { PlayerSeat: 0, Mode: JiangchiMode.Skipped, DrawCount: 2 }) &&
-                JiangchiUsages(skipped).Count == 0,
+                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Count(item => item.SkillId == SkillId && !item.Activated) == 2,
             "Skipping Jiangchi must draw normally and create no turn-scoped mode record.");
 
     }
@@ -90,14 +86,15 @@ internal static class CaoZhangChecks
 
         var afterDraw = game.CreateSnapshot(0, revealAll: true);
         Require(afterDraw.Players[0].HandCount == handBefore + 3 &&
-                JiangchiUsages(game).SingleOrDefault() is
-                { UsageId: "draw-more", Scope: SkillUsageScope.Turn, Count: 1 } &&
+                game.Events.Select(item => item.Payload).OfType<CardActionProhibitionGrantedEvent>()
+                    .Any(item => item.Prohibition.Source.SkillId == SkillId) &&
                 game.GetHumanLegalActions().All(action => action.Kind != LegalActionKind.Slash),
             "Jiangchi's extra-draw branch must draw three and suppress every direct Slash action.");
         var branchReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(SnapshotJson.Serialize(branchReplay.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                JiangchiUsages(branchReplay).Single().UsageId == "draw-more",
+                branchReplay.Events.Select(item => item.Payload).OfType<CardActionProhibitionGrantedEvent>()
+                    .Any(item => item.Prohibition.Source.SkillId == SkillId),
             "Jiangchi's resolved extra-draw branch and Slash prohibition must replay exactly.");
 
         var duel = game.GetHumanLegalActions()
@@ -149,8 +146,8 @@ internal static class CaoZhangChecks
                 game.GetCombatDistance(0, targetSeat) > game.GetAttackRange(0)) ??
             throw new InvalidOperationException("Jiangchi did not expose a beyond-range Slash target.");
         Require(afterDraw.Players[0].HandCount == handBefore + 1 &&
-                JiangchiUsages(game).SingleOrDefault() is
-                { UsageId: "assault", Scope: SkillUsageScope.Turn, Count: 1 },
+                game.Events.Select(item => item.Payload).OfType<TurnRuleModifierGrantedEvent>()
+                    .Count(item => item.Modifier.Source.SkillId == SkillId) == 2,
             "Jiangchi's assault branch must draw one and publish one turn-scoped state record.");
 
         Play(game, farSlash);
@@ -177,15 +174,16 @@ internal static class CaoZhangChecks
         Require(!forged.Accepted && game.Revision == revision,
             "A third Jiangchi Slash command must be rejected without changing the game revision.");
 
-        var modes = game.Events.Select(item => item.Payload).OfType<JiangchiResolvedEvent>().ToArray();
-        Require(modes.Count(item => item is
-                    { PlayerSeat: 0, Mode: JiangchiMode.Assault, DrawCount: 1 }) == 1,
-            "Jiangchi must emit one typed public result for the assault branch.");
+        var modes = game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().ToArray();
+        Require(modes.Count(item => item.SkillId == SkillId && item.BindingId == "mode-assault" &&
+                                    item.Activated && item.Completed) == 1,
+            "Jiangchi must complete exactly one configured assault branch.");
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 replay.GetHumanLegalActions().All(action => action.Kind != LegalActionKind.Slash) &&
-                JiangchiUsages(replay).Single().UsageId == "assault",
+                replay.Events.Select(item => item.Payload).OfType<TurnRuleModifierGrantedEvent>()
+                    .Count(item => item.Modifier.Source.SkillId == SkillId) == 2,
             "The assault draw, distance-free first Slash and exact two-use limit must replay exactly.");
     }
 
@@ -204,9 +202,18 @@ internal static class CaoZhangChecks
 
     private static void Answer(GameEngine game, string action)
     {
-        var prompt = RequirePrompt(game, DecisionKind.Jiangchi);
-        var choice = prompt.Choices.Single(candidate =>
-            candidate.Parameters.GetValueOrDefault("action") == action);
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        var binding = action switch
+        {
+            "jiangchi-draw-more" => "mode-draw-more",
+            "jiangchi-assault" => "mode-assault",
+            "jiangchi-skip" => null,
+            _ => throw new InvalidOperationException("Unknown Jiangchi fixture action.")
+        };
+        var choice = prompt.Choices.Single(candidate => binding is null
+            ? candidate.Parameters.GetValueOrDefault("program-action") == "skip"
+            : candidate.Parameters.GetValueOrDefault("binding-id") == binding &&
+              candidate.Parameters.GetValueOrDefault("program-action") == "activate");
         var result = game.Submit(new AnswerPromptCommand(
             0,
             prompt.PromptId,
@@ -241,7 +248,7 @@ internal static class CaoZhangChecks
         {
             var game = CreateGame(registry, seed);
             StartAndSelect(game);
-            if (game.PendingDecision?.Kind != DecisionKind.Jiangchi) continue;
+            if (game.PendingDecision?.Kind != DecisionKind.ProgramTrigger) continue;
             var snapshot = game.CreateSnapshot(0, revealAll: true);
             var hand = snapshot.Players[0].Hand;
             if (hand.Count(card => card.Kind == CardKind.Slash) < 4 ||
@@ -270,7 +277,7 @@ internal static class CaoZhangChecks
             "The Cao Zhang fixture could not select its formal general.");
         for (var step = 0; step < 256; step++)
         {
-            if (game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.Jiangchi or DecisionKind.PlayCard })
+            if (game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.ProgramTrigger or DecisionKind.PlayCard })
             {
                 return;
             }
@@ -281,10 +288,6 @@ internal static class CaoZhangChecks
         }
         throw new InvalidOperationException("The Cao Zhang fixture did not reach Jiangchi or play in bounded steps.");
     }
-
-    private static IReadOnlyList<SkillUsageStateSnapshot> JiangchiUsages(GameEngine game) =>
-        game.CreateSnapshot(0, revealAll: true).Players[0].SkillRuntimeStates!
-            .Single(state => state.SkillId == SkillId).Usages;
 
     private static GameEngine CreateGame(
         ContentRegistry registry,

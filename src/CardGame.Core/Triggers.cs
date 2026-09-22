@@ -11,7 +11,27 @@ public sealed record DamageTriggerCandidate(
     string CandidateId,
     int Priority = 0,
     bool IsOptional = false,
-    DamageSkillEffectKind Effect = DamageSkillEffectKind.None);
+    DamageSkillEffectKind Effect = DamageSkillEffectKind.None,
+    string? ProgramId = null,
+    string? ProgramTriggerId = null,
+    string? SkillInstanceId = null,
+    string? GameplayHash = null,
+    int OccurrenceIndex = 0)
+{
+    public bool IsProgram => ProgramId is not null;
+
+    public ProgramTriggerCandidate? ToProgramCandidate() =>
+        IsProgram
+            ? new ProgramTriggerCandidate(
+                OwnerSeat,
+                ProgramId!,
+                ProgramTriggerId!,
+                SkillInstanceId!,
+                GameplayHash!,
+                Priority,
+                OccurrenceIndex)
+            : null;
+}
 
 public sealed record JudgmentTriggerCandidate(
     int OwnerSeat,
@@ -57,8 +77,24 @@ public static class DamageTriggerOrdering
                 nameof(candidates));
         }
 
+        if (materialized.Any(candidate =>
+                candidate.IsProgram !=
+                (candidate.ProgramTriggerId is not null && candidate.SkillInstanceId is not null &&
+                 candidate.GameplayHash is not null) ||
+                !candidate.IsProgram &&
+                (candidate.ProgramTriggerId is not null || candidate.SkillInstanceId is not null ||
+                 candidate.GameplayHash is not null) ||
+                candidate.IsProgram &&
+                (candidate.Skill != SkillKind.None || candidate.Effect != DamageSkillEffectKind.None)))
+        {
+            throw new ArgumentException(
+                "A configured damage candidate must retain its program, trigger, skill instance and gameplay hash.",
+                nameof(candidates));
+        }
+
         if (materialized
-            .GroupBy(candidate => (candidate.OwnerSeat, candidate.Skill, candidate.CandidateId))
+            .GroupBy(candidate =>
+                (candidate.OwnerSeat, candidate.Skill, candidate.CandidateId, candidate.OccurrenceIndex))
             .Any(group => group.Count() > 1))
         {
             throw new ArgumentException(
@@ -73,6 +109,10 @@ public static class DamageTriggerOrdering
                 candidate.OwnerSeat,
                 playerCount))
             .ThenBy(candidate => (int)candidate.Skill)
+            .ThenBy(candidate => candidate.ProgramId ?? candidate.CandidateId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.ProgramTriggerId ?? string.Empty, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.SkillInstanceId ?? string.Empty, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.OccurrenceIndex)
             .ThenBy(candidate => candidate.CandidateId, StringComparer.Ordinal)
             .ToArray();
     }

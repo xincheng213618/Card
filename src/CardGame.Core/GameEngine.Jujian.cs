@@ -18,7 +18,7 @@ public sealed partial class GameEngine
 
     private JujianResolution? _pendingJujian;
 
-    private bool TryBeginJujianChoice(PlayerRuntime owner)
+    private bool TryBeginJujianChoice(CharacterState owner)
     {
         var cards = GetHand(owner)
             .Concat(GetEquipment(owner))

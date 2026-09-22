@@ -23,7 +23,7 @@ public sealed partial class GameEngine
             }
     }
 
-    private void RegisterTaggedConversionSkill(PlayerRuntime player, string skillId)
+    private void RegisterTaggedConversionSkill(CharacterState player, string skillId)
     {
         if (!SupportsFormalJuzhan || _contentRegistry is null) return;
         if ((_contentRegistry.GetSkill(skillId).Tags & SkillTag.Conversion) != 0)
@@ -126,7 +126,7 @@ public sealed partial class GameEngine
             SkillUsageScope.Turn));
     }
 
-    private SkillPolarity ToggleJuzhan(PlayerRuntime owner, SkillPolarity previous)
+    private SkillPolarity ToggleJuzhan(CharacterState owner, SkillPolarity previous)
     {
         var current = _skillRuntimeState.ToggleConversionState(owner.Seat, JuzhanSkillId);
         QueueGameEvent(new SkillConversionStateChangedEvent(
@@ -309,7 +309,7 @@ public sealed partial class GameEngine
     private static void AddJuzhanPublicCardChoices(
         ICollection<PromptChoice> choices,
         JuzhanResolution pending,
-        PlayerRuntime target,
+        CharacterState target,
         IReadOnlyList<Card> cards,
         string zone,
         string zoneLabel)
@@ -536,7 +536,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<LegalAction> FilterJuzhanProhibitedCardActions(
-        PlayerRuntime actor,
+        CharacterState actor,
         IReadOnlyList<LegalAction> actions)
     {
         if (!SupportsFormalJuzhan) return actions;
@@ -545,7 +545,7 @@ public sealed partial class GameEngine
             .ToArray();
     }
 
-    private IEnumerable<int> GetJuzhanCardTargets(PlayerRuntime actor, LegalAction action)
+    private IEnumerable<int> GetJuzhanCardTargets(CharacterState actor, LegalAction action)
     {
         switch (action.Kind)
         {
@@ -575,7 +575,7 @@ public sealed partial class GameEngine
         }
     }
 
-    private bool CanUseJuzhanGlobalCard(PlayerRuntime actor) =>
+    private bool CanUseJuzhanGlobalCard(CharacterState actor) =>
         !SupportsFormalJuzhan ||
         _players.Where(player => player.IsAlive && player.Seat != actor.Seat)
             .All(player => !IsJuzhanCardTargetProhibited(actor.Seat, player.Seat));

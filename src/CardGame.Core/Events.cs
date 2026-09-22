@@ -255,14 +255,6 @@ public sealed record DrawSkillResolvedEvent(
     int DrawCount) : IGameEvent;
 
 /// <summary>Public result of an optional skill caused by one equipment leaving its owner's area.</summary>
-public sealed record EquipmentLossSkillResolvedEvent(
-    int SourceSeat,
-    SkillKind Skill,
-    int LostCardId,
-    CardKind LostCardKind,
-    bool Used,
-    int DrawCount) : IGameEvent;
-
 /// <summary>Public result of an optional phase-skip skill decision.</summary>
 public sealed record PhaseSkillResolvedEvent(
     int SourceSeat,
@@ -855,16 +847,6 @@ public sealed record ZhiyuResolvedEvent(
     bool AllSameColor,
     int? DiscardedCardId) : IGameEvent;
 
-/// <summary>The four public cards and exact legal subset selected by classic Cao Chong.</summary>
-public sealed record ChengxiangResolvedEvent(
-    long DamageFrameId,
-    int OwnerSeat,
-    bool Used,
-    IReadOnlyList<int> RevealedCardIds,
-    IReadOnlyList<int> ObtainedCardIds,
-    IReadOnlyList<int> DiscardedCardIds,
-    int ObtainedRankSum) : IGameEvent;
-
 /// <summary>Classic Cao Chong discarded equipment and turned over to prevent damage to another 1-HP character.</summary>
 public sealed record RenxinResolvedEvent(
     long ResolutionId,
@@ -875,14 +857,6 @@ public sealed record RenxinResolvedEvent(
     int PreventedAmount,
     int? DiscardedCardId,
     bool IsFaceDown) : IGameEvent;
-
-/// <summary>Classic Guo Huai checked his turn-wide card-use count at the end of a Play phase.</summary>
-public sealed record JingceResolvedEvent(
-    int OwnerSeat,
-    int UsedCardCount,
-    int CurrentHp,
-    bool Used,
-    IReadOnlyList<int> DrawnCardIds) : IGameEvent;
 
 /// <summary>Classic Man Chong paid an exact hand-card cost and the target chose one legal branch.</summary>
 public sealed record JunxingResolvedEvent(
@@ -919,20 +893,6 @@ public sealed record LongyinResolvedEvent(
     bool SlashWasRed,
     bool SlashCountRemoved,
     IReadOnlyList<int> DrawnCardIds) : IGameEvent;
-
-/// <summary>Classic Liao Hua entered or completed the mandatory extra Play phase from Dangxian.</summary>
-public sealed record DangxianExtraPlayPhaseEvent(
-    int OwnerSeat,
-    bool Started) : IGameEvent;
-
-/// <summary>Classic Liao Hua used his once-per-game dying recovery and turned his general card over.</summary>
-public sealed record FuliResolvedEvent(
-    long DyingFrameId,
-    int OwnerSeat,
-    int LivingFactionCount,
-    int PreviousHp,
-    int RemainingHp,
-    bool IsFaceDown) : IGameEvent;
 
 public sealed record DamageSkillCardsDrawnEvent(
     long ResolutionId,

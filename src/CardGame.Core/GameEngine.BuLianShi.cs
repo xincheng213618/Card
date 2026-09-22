@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     private bool UsesFormalBuLianShi =>
         HasClassicGeneralPackage(new Version(1, 90, 0));
 
-    private bool CanUseAnxu(PlayerRuntime owner) =>
+    private bool CanUseAnxu(CharacterState owner) =>
         UsesFormalBuLianShi &&
         HasRuntimeSkill(owner, AnxuSkillId) &&
         owner.IsAlive &&
@@ -19,7 +19,7 @@ public sealed partial class GameEngine
         !owner.UsedActiveSkillKinds.Contains(SkillKind.Anxu) &&
         HasAnxuTargetPair(owner);
 
-    private bool HasAnxuTargetPair(PlayerRuntime owner)
+    private bool HasAnxuTargetPair(CharacterState owner)
     {
         var others = _players.Where(player => player.IsAlive && player.Seat != owner.Seat).ToArray();
         for (var first = 0; first < others.Length; first++)
@@ -35,7 +35,7 @@ public sealed partial class GameEngine
         return false;
     }
 
-    private IReadOnlySet<int> GetAnxuTargetSeats(PlayerRuntime owner)
+    private IReadOnlySet<int> GetAnxuTargetSeats(CharacterState owner)
     {
         var others = _players.Where(player => player.IsAlive && player.Seat != owner.Seat).ToArray();
         return others
@@ -89,7 +89,7 @@ public sealed partial class GameEngine
 
     private void BeginAnxuSelection(
         long frameId,
-        PlayerRuntime owner,
+        CharacterState owner,
         IReadOnlyList<int> targetSeats)
     {
         if (!CanUseAnxu(owner) || !IsAnxuTargetPair(targetSeats) || _pendingAnxu is not null)
@@ -233,7 +233,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginZhuiyiDeathTargetSelection(
         DeathResolution death,
-        PlayerRuntime owner)
+        CharacterState owner)
     {
         if (!UsesFormalBuLianShi ||
             death.ResolvedSkills.Contains(SkillKind.Zhuiyi) ||

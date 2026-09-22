@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool TryBeginWuhunDeathTargetSelection(
         DeathResolution death,
-        PlayerRuntime owner)
+        CharacterState owner)
     {
         if (!SupportsWuhunDeathTargetSelection ||
             _winner != Winner.None ||
@@ -251,12 +251,12 @@ public sealed partial class GameEngine
     }
 
     private int GetMarkerSourceCount(
-        PlayerRuntime player,
+        CharacterState player,
         PlayerMarkerKind marker,
         int skillOwnerSeat) =>
         player.MarkerSourceCounts.GetValueOrDefault((marker, skillOwnerSeat));
 
-    private void ClearWuhunMarkerSource(PlayerRuntime owner, long resolutionId)
+    private void ClearWuhunMarkerSource(CharacterState owner, long resolutionId)
     {
         if (!SupportsWuhunDeathTargetSelection)
         {

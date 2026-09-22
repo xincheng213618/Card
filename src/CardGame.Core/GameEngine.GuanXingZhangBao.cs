@@ -11,68 +11,48 @@ public sealed partial class GameEngine
     private bool UsesFormalGuanXingZhangBao =>
         HasClassicGeneralPackage(new Version(1, 89, 0));
 
-    private CardConversionSource CreateFuhunConversionSource(PlayerRuntime owner) =>
+    private CardConversionSource CreateFuhunConversionSource(CharacterState owner) =>
         new(
             FuhunSkillId,
             FuhunViewAsBindingId,
             owner.Seat,
             $"seat-{owner.Seat}:{FuhunSkillId}");
 
-    private IReadOnlyList<string> GetTurnGrantedSkillIds(PlayerRuntime player)
-    {
-        if (!UsesFormalGuanXingZhangBao ||
-            _skillRuntimeState.GetUsage(
-                player.Seat,
-                FuhunSkillId,
-                FuhunGrantUsageId,
-                SkillUsageScope.Turn) == 0)
-        {
-            return [];
-        }
-
-        return [FuhunWushengSkillId, FuhunPaoxiaoSkillId];
-    }
-
-    private bool IsRuntimeAcquiredSkill(PlayerRuntime player, string skillId) =>
+    private bool IsRuntimeAcquiredSkill(CharacterState player, string skillId) =>
         player.AcquiredSkillIds.Contains(skillId) ||
-        GetTurnGrantedSkillIds(player).Contains(skillId, StringComparer.Ordinal);
+        player.TurnGrantedSkillIds.Contains(skillId, StringComparer.Ordinal);
 
-    private bool CanUseFuhunSlash(PlayerRuntime source)
+    private bool CanUseFuhunSlash(CharacterState source)
     {
         if (!UsesFormalGuanXingZhangBao ||
             !source.IsAlive ||
             !HasRuntimeSkill(source, FuhunSkillId) ||
             GetFuhunEligibleHandCards(source).Count < 2 ||
-            IsJiangchiSlashForbidden(source) ||
+            IsCardUseForbidden(source.Seat, CardKind.Slash, CardActionType.Use) ||
             source.TianyiLostThisTurn ||
             HasXianzhenLost(source))
         {
             return false;
         }
 
-        var slashLimit = GetSlashLimit(source, PassiveRules(source), CreateSkillContext(source));
-        if (source.TianyiWonThisTurn && slashLimit < int.MaxValue)
-        {
-            slashLimit++;
-        }
-        return _slashCountThisTurn < slashLimit || HasXianzhenWon(source);
+        return _slashCountThisTurn < GetSlashUseLimit(source) || HasXianzhenWon(source);
     }
 
-    private bool CanUseFuhunConversion(PlayerRuntime source) =>
+    private bool CanUseFuhunConversion(CharacterState source) =>
         UsesFormalGuanXingZhangBao &&
         source.IsAlive &&
         HasRuntimeSkill(source, FuhunSkillId) &&
         GetFuhunEligibleHandCards(source).Count >= 2 &&
-        !IsJiangchiSlashForbidden(source) &&
+        !IsCardUseForbidden(source.Seat, CardKind.Slash, CardActionType.Use) &&
         !HasXianzhenLost(source);
 
-    private IReadOnlyList<Card> GetFuhunEligibleHandCards(PlayerRuntime player) =>
+    private IReadOnlyList<Card> GetFuhunEligibleHandCards(CharacterState player) =>
         GetHand(player)
             .Where(card => !IsQianxiHandCardRestricted(player, card))
             .OrderBy(card => card.Id)
             .ToArray();
 
-    private IReadOnlySet<int> GetFuhunTargetSeats(PlayerRuntime source) =>
+    private IReadOnlySet<int> GetFuhunTargetSeats(CharacterState source) =>
         !CanUseFuhunSlash(source)
             ? new HashSet<int>()
             : _players
@@ -80,7 +60,7 @@ public sealed partial class GameEngine
                 .Select(target => target.Seat)
                 .ToHashSet();
 
-    private IReadOnlyList<IReadOnlyList<Card>> GetFuhunSlashPairs(PlayerRuntime responder)
+    private IReadOnlyList<IReadOnlyList<Card>> GetFuhunSlashPairs(CharacterState responder)
     {
         if (!CanUseFuhunConversion(responder))
         {
@@ -100,7 +80,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<Card>? FindFuhunSlashPair(
-        PlayerRuntime responder,
+        CharacterState responder,
         IReadOnlyList<int> requestedCardIds)
     {
         if (requestedCardIds.Count != 2 || requestedCardIds.Distinct().Count() != 2)
@@ -114,8 +94,8 @@ public sealed partial class GameEngine
     }
 
     private void ResolveFuhunSlash(
-        PlayerRuntime source,
-        PlayerRuntime target,
+        CharacterState source,
+        CharacterState target,
         IReadOnlyList<Card> physicalCards,
         BorrowedSwordResolution? borrowedSword = null,
         JijiangResolution? activeJijiang = null,
@@ -145,7 +125,7 @@ public sealed partial class GameEngine
     }
 
     private void MoveFuhunResponseCards(
-        PlayerRuntime responder,
+        CharacterState responder,
         IReadOnlyList<Card> pair,
         long resolutionId,
         int responseTargetSeat,
@@ -213,7 +193,7 @@ public sealed partial class GameEngine
 
     private void ResolveDuelFuhunResponse(
         DuelResolution duel,
-        PlayerRuntime responder,
+        CharacterState responder,
         IReadOnlyList<Card> pair)
     {
         if (!ReferenceEquals(_pendingDuel, duel) || responder.Seat != duel.ResponderSeat)
@@ -240,7 +220,7 @@ public sealed partial class GameEngine
 
     private void ResolveGroupFuhunResponse(
         GroupCardResolution group,
-        PlayerRuntime responder,
+        CharacterState responder,
         IReadOnlyList<Card> pair)
     {
         if (!ReferenceEquals(_pendingGroupCard, group) ||
@@ -297,6 +277,12 @@ public sealed partial class GameEngine
         }
 
         var granted = Array.AsReadOnly(new[] { FuhunWushengSkillId, FuhunPaoxiaoSkillId });
+        var sourceId = $"turn:{_turnNumber}:{FuhunSkillId}";
+        foreach (var skillId in granted)
+        {
+            var grantId = $"{sourceId}:{skillId}";
+            owner.SkillGrants.Grant(new SkillGrant(grantId, skillId, grantId, sourceId));
+        }
         QueueGameEvent(new FuhunSkillsGrantedEvent(damageFrameId, owner.Seat, granted));
         AddLog(
             "SkillTriggered",

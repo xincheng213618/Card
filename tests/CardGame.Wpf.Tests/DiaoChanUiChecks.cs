@@ -24,7 +24,7 @@ internal static class DiaoChanUiChecks
             AssertGenericPrompt(viewModel, prompt);
             var handBefore = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count;
             var use = viewModel.SkillChoices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "biyue-use");
+                choice.Parameters.GetValueOrDefault("program-action") == "activate");
 
             Program.Render(root, 1120, 740,
                 Path.Combine(output, "224-classic-biyue-finished-phase.png"));
@@ -32,9 +32,10 @@ internal static class DiaoChanUiChecks
 
             Program.Assert(game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count == handBefore + 1 &&
                            game.PendingDecision?.PromptId != prompt.PromptId &&
-                           !game.ResolutionStack.OfType<PhaseSkillFrame>().Any() &&
-                           game.Events.Select(item => item.Payload).OfType<SkillModuleResolvedEvent>()
-                               .Count(item => item.SkillId == "classic:biyue" && item.OwnerSeat == HumanSeat && item.Used) == 1 &&
+                           !game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any() &&
+                           game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                               .Count(item => item.SkillId == "classic:biyue" && item.OwnerSeat == HumanSeat &&
+                                   item.Activated && item.Completed) == 1 &&
                            viewModel.BattleCues.Count(cue => cue.Label == "闭月 · 已发动") == 1,
                 "Clicking the metadata-driven Biyue activation must draw once, resume the turn ending, and emit one cue.");
             window.Content = null;
@@ -49,15 +50,16 @@ internal static class DiaoChanUiChecks
             AssertGenericPrompt(viewModel, prompt);
             var handBefore = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count;
             var skip = viewModel.SkillChoices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "biyue-skip");
+                choice.Parameters.GetValueOrDefault("program-action") == "skip");
 
             viewModel.SelectSkillChoiceCommand.Execute(skip);
 
             Program.Assert(game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count == handBefore &&
                            game.PendingDecision?.PromptId != prompt.PromptId &&
-                           !game.ResolutionStack.OfType<PhaseSkillFrame>().Any() &&
-                           game.Events.Select(item => item.Payload).OfType<SkillModuleResolvedEvent>()
-                               .Count(item => item.SkillId == "classic:biyue" && item.OwnerSeat == HumanSeat && !item.Used) == 1,
+                           !game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any() &&
+                           game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                               .Count(item => item.SkillId == "classic:biyue" && item.OwnerSeat == HumanSeat &&
+                                   !item.Activated && !item.Completed) == 1,
                 "Skipping the metadata-driven Biyue choice must preserve the hand and resume the turn ending.");
         }
     }
@@ -70,15 +72,15 @@ internal static class DiaoChanUiChecks
                        {
                            SkillId: "classic:biyue",
                            Name: "闭月",
-                           Title: "闭月 · 决定是否摸一张牌"
+                           Title: "闭月 · 是否发动"
                        } &&
                        viewModel.IsSkillSelectionPending &&
-                       viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                       viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
                            .Order(StringComparer.Ordinal)
-                           .SequenceEqual(["biyue-skip", "biyue-use"]) &&
+                           .SequenceEqual(["activate", "skip"]) &&
                        viewModel.CurrentDecisionContext is
                        {
-                           Title: "闭月 · 决定是否摸一张牌",
+                           Title: "闭月 · 是否发动",
                            TargetSeat: HumanSeat
                        } &&
                        viewModel.CurrentDecisionContext.Description == prompt.Prompt &&

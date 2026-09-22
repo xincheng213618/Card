@@ -8,8 +8,14 @@ internal static class DistanceSkillChecks
         var registry = StandardContentRegistry.CreateWithActiveSkills();
         Require(
             registry.Skills.TryGetValue("standard:mashu", out var definition) &&
-            definition.LegacyKind == SkillKind.Mashu,
-            "The Mashu content definition must retain a typed legacy projection.");
+            definition is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v12" } &&
+            definition.Program.Modifiers.Single() is
+            {
+                Query: SkillRuleQuery.OutgoingDistance,
+                Operation: SkillRuleOperation.Add,
+                Value: -1
+            },
+            "The current Mashu content definition must use the formal rule-query program.");
 
         var skill = SkillRegistry.Get(SkillKind.Mashu);
         var context = new PlayerSkillContext(0, 4, 4, 4, TurnPhase.Play);
@@ -91,7 +97,9 @@ internal static class DistanceSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var initial = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (initial.Skill != SkillKind.Mashu || !initial.Hand.Any(card => card.Kind == CardKind.Snatch))
+            if (initial.GeneralId is not { } generalId ||
+                !registry.Generals[generalId].SkillIds.Contains("standard:mashu", StringComparer.Ordinal) ||
+                !initial.Hand.Any(card => card.Kind == CardKind.Snatch))
             {
                 continue;
             }

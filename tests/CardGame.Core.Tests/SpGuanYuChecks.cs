@@ -28,7 +28,8 @@ internal static class SpGuanYuChecks
         } &&
             current.Skills[MashuSkillId] is
             {
-                LegacyKind: SkillKind.Mashu,
+                LegacyKind: null,
+                Program.RuntimeVersion: "skill-program-v12",
                 Tags: SkillTag.Locked,
                 ExecutionForms: SkillExecutionForm.State
             } &&
