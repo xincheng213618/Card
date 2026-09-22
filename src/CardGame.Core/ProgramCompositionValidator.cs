@@ -19,6 +19,7 @@ internal static class ProgramCompositionValidator
         var targetSetAvailable = false;
         var targetSetConsumed = false;
         var pindianResults = new HashSet<string>(StringComparer.Ordinal);
+        var choiceResults = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
         var capabilities = ProgramEntryCapabilities.For(window);
         for (var index = 0; index < effects.Count; index++)
         {
@@ -26,9 +27,15 @@ internal static class ProgramCompositionValidator
             var nodePath = $"{path}.effects[{index}]";
             var descriptor = ProgramOperationCatalog.Default.Resolve(effect.Op);
             foreach (var condition in Conditions(effect.Condition))
-                if (condition.Kind == SkillProgramConditionKind.PindianWon &&
+            {
+                if (condition.Kind is (SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon) &&
                     !pindianResults.Contains(condition.SourceBind!))
                     Fail($"unknown Pindian result binding '{condition.SourceBind}'");
+                if (condition.Kind == SkillProgramConditionKind.ChoiceIs &&
+                    (!choiceResults.TryGetValue(condition.SourceBind!, out var options) ||
+                     !options.Contains(condition.OptionId!, StringComparer.Ordinal)))
+                    Fail($"unknown choice result or option '{condition.SourceBind}/{condition.OptionId}'");
+            }
             if ((capabilities & descriptor.RequiredCapabilities) != descriptor.RequiredCapabilities)
                 throw Error(nodePath, $"operation requires context {descriptor.RequiredCapabilities}, supplied {capabilities}");
             if (drawPhaseMode == SkillProgramDrawPhaseMode.Replacement &&
@@ -146,12 +153,17 @@ internal static class ProgramCompositionValidator
                     case CreatePindianResult result:
                         if (roots.Any(root => root.NeedsCleanup && !root.Consumed.SetEquals(root.Atoms.Keys)))
                             Fail("pindian cannot start while an earlier revealed card binding still needs cleanup");
-                        if (!pindianResults.Add(result.Name) || bindings.ContainsKey(result.Name))
+                        if (!pindianResults.Add(result.Name) || bindings.ContainsKey(result.Name) || choiceResults.ContainsKey(result.Name))
                             Fail($"duplicate result binding '{result.Name}'");
                         break;
                     case ReadPindianResult result:
                         if (!pindianResults.Contains(result.Name))
                             Fail($"unknown Pindian result binding '{result.Name}'");
+                        break;
+                    case CreateChoiceResult choice:
+                        if (!choiceResults.TryAdd(choice.Name, choice.Options) ||
+                            bindings.ContainsKey(choice.Name) || pindianResults.Contains(choice.Name))
+                            Fail($"duplicate result binding '{choice.Name}'");
                         break;
                     case ReadSelectedTarget:
                         if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
@@ -183,7 +195,8 @@ internal static class ProgramCompositionValidator
                 ? value : throw Error(nodePath, $"unknown card binding '{name}'");
             void Add(string name, Binding value)
             {
-                if (!bindings.TryAdd(name, value)) Fail($"duplicate card binding '{name}'");
+                if (!bindings.TryAdd(name, value) || choiceResults.ContainsKey(name) || pindianResults.Contains(name))
+                    Fail($"duplicate card binding '{name}'");
             }
             void Fail(string message) => throw Error(nodePath, message);
         }

@@ -279,7 +279,7 @@ public sealed partial class GameEngine
     private bool TryBeginZiliAwakening(CharacterState player)
     {
         if (!UsesFormalZhongHui ||
-            !HasRuntimeSkill(player, ZiliSkillId) ||
+            !HasLegacyRuntimeSkill(player, ZiliSkillId) ||
             GetAuthority(player).Count < 3 ||
             _skillRuntimeState.GetUsage(
                 player.Seat,

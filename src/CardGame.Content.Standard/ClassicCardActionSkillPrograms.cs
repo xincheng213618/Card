@@ -13,7 +13,6 @@ internal static class ClassicCardActionSkillPrograms
         {
             "classic:longyin" => definition with
             {
-                LegacyKind = SkillKind.Longyin,
                 ExecutionForms = SkillExecutionForm.Trigger
             },
             "classic:juzhan" => definition with
@@ -23,7 +22,6 @@ internal static class ClassicCardActionSkillPrograms
             },
             "classic:xianzhen" => definition with
             {
-                LegacyKind = SkillKind.Xianzhen,
                 ExecutionForms = SkillExecutionForm.State,
                 ActionForms = SkillActionForm.Active
             },

@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private const string SimpleProgramPindianResultBind = "__active-pindian-result";
+
     // The journal rebuilds these counters through accepted commands. They are
     // keyed by content identities, never by translated presentation text.
     private readonly Dictionary<(int Seat, string Skill, string Activation), int> _programUses = new();
@@ -66,7 +68,9 @@ public sealed partial class GameEngine
             if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) &&
                 GetHand(owner).Count == 0)
                 continue;
-            var cards = activation.MaxCards == 0 ? [] : GetHand(owner).Select(card => card.Id).Order().ToArray();
+            var cards = activation.MaxCards == 0 ? [] : activation.SourceZones
+                .SelectMany(zone => _cardZones.CardsAt(new CardLocation(zone, owner.Seat)))
+                .Select(card => card.Id).Distinct().Order().ToArray();
             var targets = activation.MaxTargets == 0 ? [] : _players
                 .Where(target => target.IsAlive &&
                     (target.Seat != owner.Seat || !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected)) &&
@@ -297,6 +301,56 @@ public sealed partial class GameEngine
         QueueGameEvent(new PlayerDyingEvent(id, victim.Seat, null));
         _status = EngineStatus.Running;
         if (!TryResolveBuqu(_pendingDying)) ExposeHumanDyingPrompt();
+    }
+
+    private SkillProgramStepOutcome BeginProgramSkillDamage(
+        ProgramSkillFrame frame,
+        int targetSeat,
+        int amount)
+    {
+        if (_pendingAttack is not null || _pendingDying is not null ||
+            _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
+            amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
+            throw new InvalidOperationException("A program damage effect requires one active program and living target.");
+        var attack = new AttackResolution(
+            frame.Id,
+            frame.OwnerSeat,
+            targetSeat,
+            card: null,
+            damageAmount: amount,
+            damageNatureOverride: DamageNature.Normal,
+            programSkillFrameId: frame.Id);
+        _pendingAttack = attack;
+        if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
+        return SkillProgramStepOutcome.AwaitChild;
+    }
+
+    private SkillProgramStepOutcome BeginProgramSkillPindian(
+        ProgramSkillFrame frame,
+        int targetSeat)
+    {
+        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
+            frame.PindianResultBindings.Any(item => item.Name == SimpleProgramPindianResultBind) ||
+            frame.SelectedCardIds.Count != 1 ||
+            frame.SelectedTargetSeats.Count != 1 || frame.SelectedTargetSeats[0] != targetSeat ||
+            !IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat ||
+            !_players[targetSeat].IsAlive || GetHand(_players[targetSeat]).Count == 0 ||
+            !GetHand(_players[frame.OwnerSeat]).Any(card => card.Id == frame.SelectedCardIds[0]))
+        {
+            throw new InvalidOperationException(
+                "A program Pindian requires one current owner hand card and one living other target with hand cards.");
+        }
+        var definition = _contentRegistry!.Skills[frame.SkillId];
+        BeginSharedPindian(
+            frame.Id,
+            new(frame.SkillId, definition.Name, definition.Name, "选择拼点牌"),
+            frame.OwnerSeat,
+            targetSeat,
+            frame.SelectedCardIds[0],
+            legacySkill: null,
+            programResultBind: SimpleProgramPindianResultBind,
+            programResultVisibility: SkillProgramCardSetVisibility.Public);
+        return SkillProgramStepOutcome.AwaitChild;
     }
 
     private void CompleteProgramSkillAfterDying(DyingResolution dying)

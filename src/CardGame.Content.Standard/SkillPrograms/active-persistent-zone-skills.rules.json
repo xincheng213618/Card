@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 28,
+  "skills": [
+    {
+      "id": "classic:paiyi",
+      "revision": 1,
+      "minimumRulesVersion": 133,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "remove-authority",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["authority"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "draw", "target": "selectedTarget", "amount": 2 },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "all",
+                "children": [
+                  { "kind": "selectedTargetIsOther" },
+                  { "kind": "selectedTargetHandGreaterThanOwner" }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

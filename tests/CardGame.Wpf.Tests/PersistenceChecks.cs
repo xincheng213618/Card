@@ -158,9 +158,16 @@ internal static class PersistenceChecks
             Step(vm);
             Step(vm);
             Require(store.WriteCount == 0, "Autosave should coalesce rapid engine steps.");
+            var commandsBeforeAuto = Engine(vm).CreateCheckpoint().Commands.Count;
             vm.IsAutoAdvance = true;
             Pump(TimeSpan.FromMilliseconds(1150));
-            Require(store.WriteCount == 1 && vm.CanStepAi && vm.HasAutomaticSave && !vm.HasSaveError, "Continuous AI should not starve autosave.");
+            Require(store.WriteCount == 1 && vm.HasAutomaticSave && !vm.HasSaveError,
+                "Automatic play should not starve autosave.");
+            // Faster playback may already be waiting for the human. Verify saved
+            // progress instead of requiring the AI to remain busy for 1.15 seconds.
+            var savedCommands = store.Read(GameSaveSlot.Automatic).Checkpoint.Commands.Count;
+            Require(savedCommands > commandsBeforeAuto && savedCommands <= Engine(vm).CreateCheckpoint().Commands.Count,
+                "Autosave did not include the automatically committed progress.");
             vm.IsAutoAdvance = false;
             Step(vm);
             expected = State(vm);

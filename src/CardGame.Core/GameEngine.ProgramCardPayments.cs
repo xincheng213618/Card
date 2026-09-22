@@ -25,12 +25,13 @@ public sealed partial class GameEngine
         IReadOnlyList<CardZoneKind> zones,
         SkillProgramCardDestination destination,
         string? resultBind,
-        CardMoveReason reason)
+        CardMoveReason reason,
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var chooserSeat = ResolveProgramParticipant(active, chooser);
         var cardOwnerSeat = ResolveProgramParticipant(active, cardOwner);
-        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones);
+        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories);
         if (choices.Count == 0)
         {
             CancelProgramBindingAndCleanup(active, "没有可支付的区域牌，技能结算已取消。");
@@ -54,7 +55,8 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<PromptChoice> BuildOwnedCardPaymentChoices(
-        long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones)
+        long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones,
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null)
     {
         var result = new List<PromptChoice>();
         foreach (var zone in zones)
@@ -68,6 +70,8 @@ public sealed partial class GameEngine
             };
             for (var slot = 0; slot < cards.Count; slot++)
             {
+                if (cardCategories is { Count: > 0 } && !MatchesProgramCardCategory(cards[slot].Kind, cardCategories))
+                    continue;
                 var hidden = zone == CardZoneKind.Hand && chooserSeat != cardOwnerSeat;
                 var parameters = new Dictionary<string, string>
                 {
@@ -111,6 +115,13 @@ public sealed partial class GameEngine
             return;
         }
         var card = cards[slot];
+        if (effect.CardCategories.Count > 0 &&
+            !MatchesProgramCardCategory(card.Kind, effect.CardCategories))
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(frame, "公布的支付牌类别已失效，技能结算已取消。");
+            return;
+        }
         if (!(zone == CardZoneKind.Hand && chooserSeat != ownerSeat) &&
             (selected.Cards.Count != 1 || selected.Cards[0] != card.Id))
             throw new InvalidOperationException("The visible payment card identity changed.");
@@ -128,5 +139,20 @@ public sealed partial class GameEngine
         if (effect.ResultBind is { } bind)
             SetProgramCardSet(frame.Id, bind, [card.Id], SkillProgramCardSetVisibility.Private, [destination]);
         ContinueProgramSkill(frame.Id);
+    }
+
+    private static bool MatchesProgramCardCategory(
+        CardKind kind,
+        IReadOnlyList<SkillProgramCardCategory> categories)
+    {
+        var category = EquipmentCatalog.IsEquipment(kind)
+            ? SkillProgramCardCategory.Equipment
+            : CardCatalog.Get(kind).CategoryName switch
+            {
+                "基本牌" => SkillProgramCardCategory.Basic,
+                "锦囊牌" => SkillProgramCardCategory.Trick,
+                _ => throw new InvalidOperationException($"Card kind '{kind}' has no supported skill-program category.")
+            };
+        return categories.Contains(category);
     }
 }

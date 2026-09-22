@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed record SkillProgramRuleContext(
     PlayerSkillContext Owner,
-    int LivingFactionCount);
+    int LivingFactionCount,
+    Func<CardZoneKind, int>? OwnedZoneCount = null);
 
 public sealed record SkillProgramRuleSource(
     string SkillId,
@@ -132,7 +133,7 @@ public sealed class SkillProgramRules : IPassiveSkill
                     context.Owner.Seat,
                     source,
                     modifier,
-                    context.LivingFactionCount)))
+                    context)))
             .ToArray();
         return Array.AsReadOnly(contributions);
     }
@@ -161,7 +162,7 @@ public sealed class SkillProgramRules : IPassiveSkill
                 context.Owner.Seat,
                 binding.Source,
                 binding.Modifier,
-                context.LivingFactionCount));
+                context));
         }
         return Array.AsReadOnly(contributions.ToArray());
     }
@@ -200,7 +201,7 @@ public sealed class SkillProgramRules : IPassiveSkill
         int ownerSeat,
         SkillProgramRuleSource source,
         SkillProgramModifier modifier,
-        int livingFactionCount)
+        SkillProgramRuleContext context)
     {
         var sourceId = CreateContributionSourceId(ownerSeat, source, modifier);
         return modifier.Operation switch
@@ -208,7 +209,7 @@ public sealed class SkillProgramRules : IPassiveSkill
             SkillRuleOperation.Add or SkillRuleOperation.Set => new FiniteRuleQueryContribution(
                 sourceId,
                 modifier.Operation,
-                modifier.EvaluateValue(livingFactionCount),
+                modifier.EvaluateValue(context),
                 modifier.Priority),
             SkillRuleOperation.Unlimited => new UnlimitedRuleQueryContribution(sourceId),
             _ => throw new InvalidOperationException(

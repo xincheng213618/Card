@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 26,
+  "skills": [
+    {
+      "id": "classic:zili",
+      "revision": 1,
+      "minimumRulesVersion": 131,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "recover",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "choiceGroup": "awakening-benefit",
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentOwnedZoneCount",
+                  "zone": "authority"
+                },
+                "operator": "greaterThanOrEqual",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 3
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "lessThan",
+                "right": {
+                  "kind": "currentMaxHp"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:paiyi"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "draw",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "choiceGroup": "awakening-benefit",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentOwnedZoneCount",
+              "zone": "authority"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 3
+            }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:paiyi"
+              ]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

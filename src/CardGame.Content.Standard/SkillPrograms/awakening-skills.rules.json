@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 25,
+  "skills": [
+    {
+      "id": "sp:danji",
+      "revision": 1,
+      "minimumRulesVersion": 130,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHandCount"
+                },
+                "operator": "greaterThan",
+                "right": {
+                  "kind": "currentHp"
+                }
+              },
+              {
+                "kind": "lordGeneralNotIn",
+                "generalIds": [
+                  "classic:liu-bei",
+                  "standard:liu-bei",
+                  "liu-bei"
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "sp:guan-yu-mashu",
+                "sp:nuzhan"
+              ]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

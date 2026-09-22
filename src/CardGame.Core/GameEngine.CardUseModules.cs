@@ -32,9 +32,10 @@ public sealed partial class GameEngine
 
     private bool HasTurnCardTargetRestriction(
         int actorSeat,
-        SkillProgramCardTargetRestriction restriction) =>
+        SkillProgramCardTargetRestriction restriction,
+        int? targetSeat = null) =>
         _turnCardUseEffects.HasTargetRestriction(
-            _turnNumber, _currentSeat, actorSeat, restriction);
+            _turnNumber, _currentSeat, actorSeat, restriction, targetSeat);
 
     private IReadOnlyList<int> ApplyTurnCardGroupTargetRestrictions(
         CharacterState source,
@@ -140,14 +141,17 @@ public sealed partial class GameEngine
 
     private void GrantProgramTurnCardTargetRestriction(
         ProgramSkillFrame frame,
-        SkillProgramCardTargetRestriction restriction)
+        SkillProgramCardTargetRestriction restriction,
+        int targetSeat)
     {
         ValidateProgramTurnEffectGrant(frame);
-        if (restriction != SkillProgramCardTargetRestriction.SelfOnly)
-            throw new InvalidOperationException("The turn card-target restriction is unsupported.");
+        var targetScoped = restriction != SkillProgramCardTargetRestriction.SelfOnly;
+        if (targetScoped && (!IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat) ||
+            !targetScoped && targetSeat != frame.OwnerSeat)
+            throw new InvalidOperationException("The turn card-target restriction has an invalid subject.");
         var granted = _turnCardUseEffects.GrantTargetRestriction(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,
-            CreateProgramTurnEffectSource(frame), restriction);
+            CreateProgramTurnEffectSource(frame), restriction, targetScoped ? targetSeat : null);
         QueueGameEvent(new CardTargetRestrictionGrantedEvent(granted));
     }
 

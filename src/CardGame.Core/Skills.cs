@@ -7,7 +7,9 @@ public sealed record PlayerSkillContext(
     int HandCount,
     TurnPhase Phase,
     IReadOnlySet<SkillKind>? UsedActiveSkillKinds = null,
-    bool IsOwnTurn = false);
+    bool IsOwnTurn = false,
+    bool IsFaceDown = false,
+    bool IsChained = false);
 
 public sealed record ActiveSkillContext(
     PlayerSkillContext Owner,

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 27,
+  "skills": [
+    {
+      "id": "classic:quanji",
+      "revision": 1,
+      "minimumRulesVersion": 132,
+      "modifiers": [
+        {
+          "id": "authority-hand-limit",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "ownedZoneCount",
+          "valueZone": "authority",
+          "priority": 0,
+          "condition": { "kind": "always" }
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "store-authority",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 },
+            {
+              "op": "selectSourceCard",
+              "target": "owner",
+              "cardSource": "owner",
+              "zones": ["hand"],
+              "resultBind": "authority-card"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "authority-card",
+              "destination": "ownerPersistentZone",
+              "destinationZone": "authority"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

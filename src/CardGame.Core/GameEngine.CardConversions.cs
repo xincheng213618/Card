@@ -2,6 +2,116 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private const string SpGuanYuWushengSkillId = "sp:guan-yu-wusheng";
+
+    private bool IgnoresSpGuanYuWushengDistance(CharacterState player, Card card) =>
+        SupportsRuntimeSkillAcquisition &&
+        HasRuntimeSkill(player, SpGuanYuWushengSkillId) &&
+        card.Suit == Suit.Diamond;
+
+    private NuzhanModifiers GetNuzhanModifiers(long frameId, CharacterState source)
+    {
+        if (!SupportsRuntimeSkillAcquisition || !HasRuntimeSkill(source, NuzhanSkillId))
+            return default;
+
+        var action = _resolutionStack
+            .OfType<CardUseFrame>()
+            .Single(frame => frame.Id == frameId)
+            .Action;
+        if (action is null ||
+            action.EffectiveKind != CardKind.Slash ||
+            action.PhysicalCards.Count != 1 ||
+            !action.ConversionChain.Any(conversion =>
+                conversion.OwnerSeat == source.Seat &&
+                string.Equals(conversion.SkillId, SpGuanYuWushengSkillId, StringComparison.Ordinal)))
+        {
+            return default;
+        }
+
+        var physical = action.PhysicalCards[0];
+        var modifiers = new NuzhanModifiers(
+            IgnoresSlashLimit: CardCatalog.Get(physical.CardKind).CategoryName == "锦囊牌",
+            DamageBonus: EquipmentCatalog.IsEquipment(physical.CardKind) ? 1 : 0,
+            PhysicalCardId: physical.CardId);
+        if (!modifiers.IgnoresSlashLimit && modifiers.DamageBonus == 0) return default;
+
+        QueueGameEvent(new NuzhanAppliedEvent(
+            frameId,
+            source.Seat,
+            modifiers.PhysicalCardId,
+            modifiers.IgnoresSlashLimit,
+            modifiers.DamageBonus));
+        AddLog(
+            "SkillTriggered",
+            modifiers.IgnoresSlashLimit
+                ? $"{source.Name} 的【怒斩】令此【杀】不计入出牌阶段次数。"
+                : $"{source.Name} 的【怒斩】令此【杀】的伤害值+1。",
+            source.Seat);
+        return modifiers;
+    }
+
+    private void AddNuzhanUnlimitedTrickSlashActions(
+        ICollection<LegalAction> actions,
+        CharacterState actor,
+        IReadOnlyList<Card> playableCards)
+    {
+        if (!SupportsRuntimeSkillAcquisition || !HasRuntimeSkill(actor, NuzhanSkillId)) return;
+
+        foreach (var converted in playableCards.Where(card =>
+                     CardCatalog.Get(card.Kind).CategoryName == "锦囊牌"))
+        {
+            var source = GetLegacyViewAsConversions(
+                    actor,
+                    converted,
+                    CardKind.Slash,
+                    forResponse: false)
+                .SingleOrDefault(candidate =>
+                    string.Equals(candidate.SkillId, SpGuanYuWushengSkillId, StringComparison.Ordinal));
+            if (source is null) continue;
+
+            var targets = GetFangtianOrderedSlashTargets(
+                actor,
+                converted,
+                source,
+                ignoresSlashLimit: true);
+            foreach (var target in targets)
+            {
+                actions.Add(new LegalAction(
+                    LegalActionKind.Slash,
+                    converted.Id,
+                    target.Seat,
+                    DescribeConversion(source,
+                        $"将【{converted.DisplayName}】当作【杀】对 {target.Name} 使用（【怒斩】不计次数）"),
+                    PlayedCardKind: CardKind.Slash)
+                {
+                    ConversionSource = source
+                });
+            }
+
+            AddFangtianHalberdSlashActions(
+                actions,
+                actor,
+                converted,
+                targets,
+                "杀",
+                CardKind.Slash,
+                source);
+            AddTianyiSlashActions(
+                actions,
+                actor,
+                converted,
+                targets,
+                "杀",
+                CardKind.Slash,
+                source);
+        }
+    }
+
+    private readonly record struct NuzhanModifiers(
+        bool IgnoresSlashLimit,
+        int DamageBonus,
+        int PhysicalCardId);
+
     private sealed record ProgramCardIdentityMatch(
         SkillProgram Program,
         SkillProgramCardIdentity Identity,

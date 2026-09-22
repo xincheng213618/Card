@@ -33,6 +33,66 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    private const string DanjiSkillId = "sp:danji";
+    private const string SpGuanYuMashuSkillId = "sp:guan-yu-mashu";
+    private const string NuzhanSkillId = "sp:nuzhan";
+    private const string AwakeningUsageId = "awakening";
+
+    /// <summary>Historical pre-schema-23 Danji execution retained for old package fingerprints.</summary>
+    private void ResolveDanjiAwakening(CharacterState player)
+    {
+        if (!SupportsRuntimeSkillAcquisition ||
+            !HasLegacyRuntimeSkill(player, DanjiSkillId) ||
+            _skillRuntimeState.GetUsage(
+                player.Seat,
+                DanjiSkillId,
+                AwakeningUsageId,
+                SkillUsageScope.Game) != 0 ||
+            GetHand(player).Count <= player.Hp ||
+            IsLiuBeiLord())
+        {
+            return;
+        }
+
+        if (!_skillRuntimeState.TryConsumeUsage(
+                player.Seat,
+                DanjiSkillId,
+                AwakeningUsageId,
+                SkillUsageScope.Game,
+                limit: 1))
+        {
+            throw new InvalidOperationException("Danji awakening was consumed twice.");
+        }
+
+        player.MaxHp = Math.Max(1, player.MaxHp - 1);
+        player.Hp = Math.Min(player.Hp, player.MaxHp);
+        QueueGameEvent(new MaximumHpChangedEvent(
+            player.Seat,
+            Delta: -1,
+            player.MaxHp,
+            DanjiSkillId));
+
+        var acquired = AcquireRuntimeSkills(
+            player,
+            DanjiSkillId,
+            [SpGuanYuMashuSkillId, NuzhanSkillId]);
+        QueueGameEvent(new SkillAwakenedEvent(
+            player.Seat,
+            DanjiSkillId,
+            player.MaxHp,
+            acquired));
+        AddLog(
+            "SkillTriggered",
+            $"{player.Name} 的【单骑】觉醒：减1点体力上限，获得【马术】和【怒斩】。",
+            player.Seat);
+    }
+
+    private bool IsLiuBeiLord()
+    {
+        var lord = _players.SingleOrDefault(player => player.Role == Role.Lord);
+        return lord is not null && lord.General.Id is "classic:liu-bei" or "standard:liu-bei" or "liu-bei";
+    }
+
     private ProgramPhaseSchedule? _programPhaseSchedule;
 
     private bool HasProgramLifecycleBoundaryFrame()
@@ -275,7 +335,7 @@ public sealed partial class GameEngine
             discarded));
     }
 
-    private void SetProgramChainedState(ProgramSkillFrame frame, bool chained)
+    private void SetProgramChainedState(ProgramSkillFrame frame, bool chained, int targetSeat)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId ||
@@ -284,13 +344,55 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Chained-state mutation requires the active program binding.");
         }
 
-        _players[frame.OwnerSeat].IsChained = chained;
+        _players[targetSeat].IsChained = chained;
         QueueGameEvent(new ProgramChainedStateSetEvent(
             frame.Id,
             frame.SkillId,
             GetProgramBindingId(frame),
             frame.OwnerSeat,
-            chained));
+            chained,
+            targetSeat));
+    }
+
+    private void ChangeProgramMaximumHp(ProgramSkillFrame frame, int amount)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId ||
+            active.TriggerId != frame.TriggerId)
+        {
+            throw new InvalidOperationException("Maximum-HP mutation requires the active program binding.");
+        }
+
+        var owner = _players[frame.OwnerSeat];
+        var previous = owner.MaxHp;
+        owner.MaxHp = Math.Max(1, checked(owner.MaxHp + amount));
+        owner.Hp = Math.Min(owner.Hp, owner.MaxHp);
+        QueueGameEvent(new MaximumHpChangedEvent(
+            owner.Seat,
+            owner.MaxHp - previous,
+            owner.MaxHp,
+            frame.SkillId));
+    }
+
+    private void GrantProgramSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId ||
+            active.TriggerId != frame.TriggerId)
+        {
+            throw new InvalidOperationException("Runtime-skill grants require the active program binding.");
+        }
+
+        var owner = _players[frame.OwnerSeat];
+        var acquired = AcquireRuntimeSkills(owner, frame.SkillId, skillIds);
+        if ((_contentRegistry!.GetSkill(frame.SkillId).Tags & SkillTag.Awakening) != 0)
+        {
+            QueueGameEvent(new SkillAwakenedEvent(
+                owner.Seat,
+                frame.SkillId,
+                owner.MaxHp,
+                acquired));
+        }
     }
 
     private void TurnOverProgramTarget(long frameId, int ownerSeat, int targetSeat)
@@ -650,12 +752,16 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome SelectProgramSourceCard(
         long frameId,
         int ownerSeat,
+        SkillProgramCardSource cardSource,
         IReadOnlyList<CardZoneKind> zones,
         string resultBind)
     {
         var frame = GetActiveProgramFrame(frameId);
-        var sourceSeat = frame.WindowContext?.SourceSeat;
-        if (sourceSeat is null || !IsValidPlayerSeat(sourceSeat.Value) || sourceSeat == ownerSeat)
+        var sourceSeat = cardSource == SkillProgramCardSource.Owner
+            ? ownerSeat
+            : frame.WindowContext?.SourceSeat;
+        if (sourceSeat is null || !IsValidPlayerSeat(sourceSeat.Value) ||
+            (cardSource == SkillProgramCardSource.DamageSource && sourceSeat == ownerSeat))
         {
             CancelProgramBindingAndCleanup(frame, "伤害来源不再可供选择牌，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
@@ -710,7 +816,9 @@ public sealed partial class GameEngine
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramTrigger,
             ownerSeat,
-            $"【{presentation.Name}】请选择伤害来源的一张牌。",
+            cardSource == SkillProgramCardSource.Owner
+                ? $"【{presentation.Name}】请选择自己的一张牌。"
+                : $"【{presentation.Name}】请选择伤害来源的一张牌。",
             zones.Contains(CardZoneKind.Equipment)
                 ? GetEquipment(_players[sourceSeat.Value]).Select(card => card.Id).ToArray()
                 : [],
@@ -945,6 +1053,7 @@ public sealed partial class GameEngine
         string sourceBind,
         string? exceptBind,
         SkillProgramCardDestination destination,
+        CardZoneKind? destinationZone,
         CardMoveReason reason)
     {
         var frame = GetActiveProgramFrame(frameId);
@@ -982,6 +1091,9 @@ public sealed partial class GameEngine
             SkillProgramCardDestination.DiscardPile => CardLocation.DiscardPile,
             SkillProgramCardDestination.SelectedTargetHand when frame.SelectedTargetSeats.Count == 1 =>
                 CardLocation.Hand(frame.SelectedTargetSeats.Single()),
+            SkillProgramCardDestination.OwnerPersistentZone when destinationZone is
+                CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or
+                CardZoneKind.Chunlao => new CardLocation(destinationZone.Value, ownerSeat),
             _ => throw new InvalidOperationException($"Unsupported program card destination '{destination}'.")
         };
         foreach (var group in selected.GroupBy(item => item.Location))
@@ -1102,6 +1214,23 @@ public sealed partial class GameEngine
             _skillRuntimeState.GetUsage(
                 owner.Seat, candidate.SkillId, ProgramTriggerUsageId(candidate), scope) >= limit)
             return false;
+        // Only an initial, unconditional payment is a prerequisite. A later payment
+        // may intentionally use cards or participants produced by earlier nodes.
+        if (trigger.Effects.FirstOrDefault() is
+            { Op: SkillProgramTriggerEffectOp.SelectAndMoveOwnedCard,
+              Condition.Kind: SkillProgramConditionKind.Always } payment)
+        {
+            var payer = payment.CardOwnerRef?.Kind switch
+            {
+                ProgramParticipantRef.Owner => owner.Seat,
+                ProgramParticipantRef.Actor => context.CardUse?.ActorSeat,
+                ProgramParticipantRef.EventTarget => context.TargetSeat,
+                _ => null
+            };
+            if (payer is { } payerSeat && (!IsValidPlayerSeat(payerSeat) ||
+                !payment.Zones.Any(zone => _cardZones.CardsAt(new CardLocation(zone, payerSeat)).Count > 0)))
+                return false;
+        }
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTarget &&
             effect.TargetKind is { } kind && !GetProgramTargetSeats(owner.Seat, kind, context).Any(seat =>
                 effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
@@ -1193,12 +1322,16 @@ public sealed partial class GameEngine
                         return false;
                     break;
                 case SkillProgramTriggerEffectOp.SelectSourceCard:
-                    if (context.SourceSeat is not { } sourceSeat || sourceSeat == owner.Seat ||
-                        !IsValidPlayerSeat(sourceSeat) ||
+                    var sourceSeat = effect.CardSource == SkillProgramCardSource.Owner
+                        ? owner.Seat
+                        : context.SourceSeat;
+                    if (sourceSeat is not { } resolvedSourceSeat ||
+                        (effect.CardSource == SkillProgramCardSource.DamageSource && resolvedSourceSeat == owner.Seat) ||
+                        !IsValidPlayerSeat(resolvedSourceSeat) ||
                         !effect.Zones.Any(zone => zone switch
                         {
-                            CardZoneKind.Hand => GetHand(_players[sourceSeat]).Count > 0,
-                            CardZoneKind.Equipment => GetEquipment(_players[sourceSeat]).Count > 0,
+                            CardZoneKind.Hand => GetHand(_players[resolvedSourceSeat]).Count > 0,
+                            CardZoneKind.Equipment => GetEquipment(_players[resolvedSourceSeat]).Count > 0,
                             _ => false
                         }))
                         return false;
@@ -1225,8 +1358,14 @@ public sealed partial class GameEngine
             candidate.OwnerSeat, candidate.SkillId, candidate.BindingId, scope, 1));
     }
 
-    private static string ProgramTriggerUsageId(ProgramTriggerCandidate candidate) =>
-        $"{candidate.BindingId}@{candidate.SkillInstanceId}";
+    private string ProgramTriggerUsageId(ProgramTriggerCandidate candidate)
+    {
+        var trigger = GetProgramTrigger(candidate);
+        var usageBinding = trigger.ChoiceGroup is { } choiceGroup
+            ? $"choice-group:{choiceGroup}"
+            : candidate.BindingId;
+        return $"{usageBinding}@{candidate.SkillInstanceId}";
+    }
 
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner)
     {
@@ -1243,6 +1382,13 @@ public sealed partial class GameEngine
             owner.Hp,
             IsClassicIdentityMode,
             CurrentMaxHp: owner.MaxHp,
+            CurrentHandCount: GetHand(owner).Count,
+            LordGeneralId: _players.SingleOrDefault(player => player.Role == Role.Lord)?.General.Id,
+            OwnedZoneCounts: new SkillProgramOwnedZoneCounts(
+                _cardZones.Count(CardLocation.WoodenOxGrain(owner.Seat)),
+                _cardZones.Count(CardLocation.BuquWound(owner.Seat)),
+                _cardZones.Count(CardLocation.Authority(owner.Seat)),
+                _cardZones.Count(CardLocation.Chunlao(owner.Seat))),
             BooleanStates: states);
     }
 
@@ -1600,12 +1746,18 @@ public sealed partial class GameEngine
             }
             var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
                 .Single(item => item.Id == candidate.BindingId);
+            if (trigger.ChoiceGroup is { } choiceGroup)
+            {
+                var members = GetProgramTriggerChoiceGroup(frame, candidate, choiceGroup);
+                if (members.Count > 1 || trigger.Optional)
+                    ExposeProgramTriggerGroupDecision(frame, candidate, context, choiceGroup);
+                else
+                    BeginProgramBinding(candidate, context);
+                return;
+            }
             if (trigger.Optional)
             {
-                if (trigger.ChoiceGroup is not null)
-                    ExposeProgramTriggerGroupDecision(frame, candidate, context, trigger.ChoiceGroup);
-                else
-                    ExposeProgramTriggerDecision(candidate, context);
+                ExposeProgramTriggerDecision(candidate, context);
                 return;
             }
             BeginProgramBinding(candidate, context);
@@ -1646,8 +1798,8 @@ public sealed partial class GameEngine
                 candidate.Priority == first.Priority &&
                 GetProgramTrigger(candidate).ChoiceGroup == choiceGroup)
             .ToArray();
-        if (members.Length < 2)
-            throw new InvalidOperationException("A configured program choice group lost its branches.");
+        if (members.Length == 0)
+            throw new InvalidOperationException("A configured program choice group lost every eligible branch.");
         return members;
     }
 
@@ -1675,10 +1827,12 @@ public sealed partial class GameEngine
                 trigger.ChoiceLabel ?? throw new InvalidOperationException(
                     "A configured program choice branch lost its presentation label."),
                 [], [], Parameters(candidate, "activate"));
-        }).Append(new PromptChoice(
-            new ChoiceId($"program-trigger.skip-group.{first.SkillId}.{choiceGroup}.{first.SkillInstanceId}"),
-            $"不发动【{skill.Name}】。",
-            [], [], Parameters(first, "skip"))).ToArray();
+        }).ToList();
+        if (GetProgramTrigger(first).Optional)
+            choices.Add(new PromptChoice(
+                new ChoiceId($"program-trigger.skip-group.{first.SkillId}.{choiceGroup}.{first.SkillInstanceId}"),
+                $"不发动【{skill.Name}】。",
+                [], [], Parameters(first, "skip")));
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramTrigger,
             first.OwnerSeat,
@@ -1690,7 +1844,7 @@ public sealed partial class GameEngine
             TargetSeat = context.TargetSeat ?? first.OwnerSeat,
             SkillPrompt = new SkillPromptPresentation(
                 first.SkillId, skill.Name, $"{skill.Name} · 选择方式", skill.Description),
-            Choices = Array.AsReadOnly(choices)
+            Choices = Array.AsReadOnly(choices.ToArray())
         };
         _status = _players[first.OwnerSeat].IsHuman
             ? EngineStatus.AwaitingHumanResponse
@@ -1743,6 +1897,11 @@ public sealed partial class GameEngine
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
         var action = selected.Parameters.GetValueOrDefault("program-action");
+        if (action == "choose-option")
+        {
+            ResolveProgramOptionChoice(selected);
+            return;
+        }
         if (action is "select-target" or "select-targets" or "select-source-card" or "select-and-move-owned-card" or
             "give-bound-card" or "keep-bound-cards")
         {
@@ -1833,6 +1992,8 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         if (action == "skip")
         {
+            if (!GetProgramTrigger(first).Optional)
+                throw new InvalidOperationException("A mandatory program choice group cannot be skipped.");
             foreach (var member in members)
                 QueueGameEvent(new ProgramBindingResolvedEvent(
                     frame.Id, member.SkillId, member.BindingId, member.SkillInstanceId,
@@ -1936,7 +2097,9 @@ public sealed partial class GameEngine
                     !Enum.TryParse<CardZoneKind>(
                         selected.Parameters.GetValueOrDefault("source-zone"), out var zone) ||
                     !effect.Zones.Contains(zone) ||
-                    frame.WindowContext?.SourceSeat is not { } sourceSeat)
+                    (effect.CardSource == SkillProgramCardSource.Owner
+                        ? frame.OwnerSeat
+                        : frame.WindowContext?.SourceSeat) is not { } sourceSeat)
                     throw new InvalidOperationException("The source-card choice does not match the suspended instruction.");
 
                 Card card;
@@ -2138,6 +2301,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
                 SkillProgramEffectOp.SelectCardSubset
                     when paused.AiOrder == SkillProgramSubsetAiOrder.MostCardsThenRankSum =>
                     decision.Choices
@@ -2172,8 +2336,7 @@ public sealed partial class GameEngine
         var skip = decision.Choices.SingleOrDefault(choice =>
             choice.Parameters.GetValueOrDefault("program-action") == "skip");
         if (activateChoices.Length > 1)
-            return SelectAiProgramChoiceGroup(decision, activateChoices, skip ??
-                throw new InvalidOperationException("A program choice group lost its skip branch."));
+            return SelectAiProgramChoiceGroup(decision, activateChoices, skip);
         var activate = activateChoices.Single();
         if (skip is null) return activate;
 
@@ -2274,14 +2437,30 @@ public sealed partial class GameEngine
     private PromptChoice SelectAiProgramChoiceGroup(
         PendingDecision decision,
         IReadOnlyList<PromptChoice> activateChoices,
-        PromptChoice skip)
+        PromptChoice? skip)
     {
-        if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame drawPhase ||
-            drawPhase.Window != SkillProgramTriggerWindow.DrawPhaseStarting ||
-            drawPhase.OwnerSeat != decision.PlayerSeat)
-            throw new InvalidOperationException("A draw-phase choice group lost its lifecycle parent.");
+        if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame lifecycle ||
+            lifecycle.OwnerSeat != decision.PlayerSeat)
+            throw new InvalidOperationException("A program choice group lost its lifecycle parent.");
         var owner = _players[decision.PlayerSeat];
-        var normalDrawCount = checked(GetTurnDrawCount(owner) + drawPhase.NormalDrawAdjustment);
+        if (lifecycle.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)
+        {
+            var ranked = activateChoices
+                .Select(choice =>
+                {
+                    var skill = _contentRegistry!.GetSkill(choice.Parameters.GetValueOrDefault("skill-id")!);
+                    var trigger = skill.Program!.Triggers.Single(item =>
+                        item.Id == choice.Parameters.GetValueOrDefault("binding-id"));
+                    return (Choice: choice, Score: ScoreTurnStartChoice(owner, trigger));
+                })
+                .OrderByDescending(item => item.Score)
+                .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+                .ToArray();
+            return ranked[0].Score > 0 || skip is null ? ranked[0].Choice : skip;
+        }
+        if (lifecycle.Window != SkillProgramTriggerWindow.DrawPhaseStarting || skip is null)
+            throw new InvalidOperationException("An optional draw-phase choice group lost its skip branch.");
+        var normalDrawCount = checked(GetTurnDrawCount(owner) + lifecycle.NormalDrawAdjustment);
         var choices = activateChoices
             .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal)
             .Select(choice =>
@@ -2439,6 +2618,26 @@ public sealed partial class GameEngine
             }, targets);
         return decision.Choices.First(choice => choice.Targets.Contains(selected.TargetSeat ??
             throw new InvalidOperationException("A configured target selection has no published candidate.")));
+    }
+
+    private int ScoreTurnStartChoice(CharacterState owner, SkillProgramTrigger trigger)
+    {
+        var context = CreateSkillContext(owner);
+        var score = 0;
+        foreach (var effect in trigger.Effects.Where(effect => effect.Condition.Evaluate(context)))
+        {
+            score = checked(score + effect.Op switch
+            {
+                SkillProgramTriggerEffectOp.Draw => effect.Amount * 4,
+                SkillProgramTriggerEffectOp.Recover =>
+                    Math.Min(effect.Amount, Math.Max(0, owner.MaxHp - owner.Hp)) *
+                    (owner.Hp <= 1 ? 100 : 6),
+                SkillProgramTriggerEffectOp.ChangeMaximumHp => effect.Amount * 5,
+                SkillProgramTriggerEffectOp.GrantSkills => effect.SkillIds.Count * 10,
+                _ => 0
+            });
+        }
+        return score;
     }
 
     private PromptChoice SelectAiProgramTargets(

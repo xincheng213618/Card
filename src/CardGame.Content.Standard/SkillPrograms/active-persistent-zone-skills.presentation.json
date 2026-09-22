@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:paiyi": {
+      "name": "排异",
+      "description": "出牌阶段限一次，你可以移去一张“权”，令一名角色摸两张牌，然后若其手牌数大于你，你对其造成1点伤害。"
+    }
+  }
+}

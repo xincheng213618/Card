@@ -18,6 +18,12 @@ public sealed record ProgramSkillWindowContext(
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
 
+public sealed record ProgramChoiceResultBinding(string Name, string OptionId, int ChooserSeat);
+
+public sealed record ProgramOptionChosenEvent(
+    long FrameId, string SkillId, string BindingId, int OwnerSeat,
+    string ResultBind, string OptionId, int ChooserSeat) : IGameEvent;
+
 public sealed record ProgramPindianResultBinding(
     string Name,
     int SourceSeat,
@@ -69,7 +75,8 @@ public sealed record ProgramChainedStateSetEvent(
     string SkillId,
     string BindingId,
     int OwnerSeat,
-    bool IsChained) : IGameEvent;
+    bool IsChained,
+    int? TargetSeat = null) : IGameEvent;
 
 /// <summary>A configured trigger opportunity frozen independently of reflection and legacy enums.</summary>
 public sealed record ProgramTriggerCandidate(

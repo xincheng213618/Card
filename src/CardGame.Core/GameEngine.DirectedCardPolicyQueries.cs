@@ -12,9 +12,20 @@ public sealed partial class GameEngine
         HasArmorBypass(actor) ||
         HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreArmor);
 
-    private bool HasSlashAllowanceForAnyTarget(CharacterState actor) =>
+    private bool HasDirectedCardArmorBypass(long resolutionId, int targetSeat)
+    {
+        var action = _resolutionStack.OfType<CardUseFrame>()
+            .SingleOrDefault(frame => frame.Id == resolutionId)?.Action;
+        // Damage sources can change (for example in a duel). The policy belongs
+        // to the original card actor and its actual declared targets.
+        return action is not null && action.TargetSeats.Contains(targetSeat) &&
+            HasDirectedTurnCardPolicy(action.ActorSeat, targetSeat, action.EffectiveKind,
+                DirectedTurnCardPolicyEffect.IgnoreArmor);
+    }
+
+    private bool HasSlashAllowanceForAnyTarget(CharacterState actor, IEnumerable<CardKind>? kinds = null) =>
         _players.Any(target => target.IsAlive && target.Seat != actor.Seat &&
-            SlashKinds.Any(kind =>
+            (kinds ?? SlashKinds).Any(kind =>
                 !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use) &&
                 !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) &&
                 CanSpendSlashUse(actor, target, ignoresCount: false, kind)));

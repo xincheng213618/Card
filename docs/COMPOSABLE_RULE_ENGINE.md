@@ -1,8 +1,24 @@
+2026-09-22 整合说明：当前 rules v134／schema 29。主目录 schema 23/24 的已验收组合内核、目标策略和交互能力保留；a148 分支原 schema 23–27 顺延为 25–29，纳入状态授予、强制分支、持久牌区和主动子结算。具体能力映射与整合验收见 SKILL_MIGRATION_PLAN.md 顶部；下列各批快照数字均是历史验收记录。
+
+本次整合验收：完整 Solution Release 0 警告/0 错误、Core 436/436、WPF 105/105。现有公共节点目录接入新增能力，正式陷阵继续使用 schema 24 的命名拼点结果和定向策略；未完成的 `ChooseTargetBenefit` 不开放给内容。后续执行目录统一为主目录，原始工作树修改和完整验证日志保留在 `%TEMP%\CardWorktreeMerge-20260922-213617`。
+
 # 组合式规则引擎：重新设计与迁移契约
 
 2026-09-22。本文为当前架构方向，优先于旧文档中“每个技能编写独立 C# 模块”的过渡方案。目标是复用已有 `SkillPrograms`，补齐基础类型和公共执行机制，而不是另建人物继承体系或第三套技能语言。本文区分目标设计与已实现范围，不代表整套迁移已经完成。
 
-## 当前公共内核（2026-09-22，schema 23 / rules 128）
+## 上一批已验收能力（2026-09-22，schema 24 / rules 129）
+
+公共事件参与者、区域牌支付、用牌次数退款、拼点结果绑定、有向回合规则和声明式布尔状态已整合。节点目录共 34 个操作，通过同一 descriptor 解析、资源检查、执行与 AI 估值；普通效果可显式以 `Actor` 为目标，必须由入口提供 CardAction 上下文，不能在普通主动入口猜测出牌者。
+
+正式龙吟、拒战、陷阵已成为 `classic-card-action-skills.rules.json` 中的组合。人物专属 `GameEngine.GuanPing.cs`、`GameEngine.Juzhan.cs`、`GameEngine.GaoShun.cs` 已实际删除；Core/AI/WPF 不再以三个技能名称分派它们的执行。拼点使用公共子帧，支付使用通用私密提示，布尔状态与临时目标规则由公共 UI 投影展示。此前 `GameEngine.LiuBiao.cs` 已删除。
+
+最终匹配产物 `%TEMP%\CardPublicMechanisms129`：`solution-build4.log` 为完整 Solution Release 零警告/零错误，`core-full2.log` 为 433/433，`wpf-full2.log` 为 104/104。独立不可变 DLL 快照 `%TEMP%\CardMechanisms129-Independent-d1d5ea91b65a4035a72b6a54a254f019` 与最终产物哈希一致。三套独立实际引擎检查通过：无正式技能 ID 的支付/退款/状态/目标限制组合及暂停回放；火杀专属距离/次数授权、真实消费与禁令优先；无牌型过滤的防具豁免覆盖群体牌和火攻，同时保持其他目标的防具及私密提示。
+
+边界：卡牌公共触发适配仍以当前真实接入的杀、响应及直接延时牌路径为准，不能把枚举存在视为所有牌型均已发布相同时机；主动拼点目前要求选定目标；持久状态本批支持整局布尔值。尚未接入的窗口、状态类型和嵌套机制仍需公共能力扩展。本批通过证明这些不同技能能用同一框架组合，不表示全库旧技能已清零或已测得新增武将耗时。
+
+已有能力的新内容直接维护组合定义、人物默认绑定、展示和差异场景；先用 `tools/Inspect-SkillProgram.ps1` 查节点与入口能力。缺能力时补公共机制及其检查，再把同类定义成批接入，不为每个技能增加引擎/AI/UI 分支，也不为纯组合定义重复升级规则 epoch。批量工作完成集中一次整合验收，日常按实际变更定向验证。
+
+## 上一已验收内核（schema 23 / rules 128）
 
 统一组合内核已合入主工作区。28 个现有 `SkillProgramEffectOp` 都由独立 operation descriptor 提供字段解析、执行 handler、资源要求与 AI 估值；descriptor 经反射一次注册，入口不再重复列举整套技能配方。`Program.UsesCompositionKernel` 由加载器确定，执行器与 AI 不再逐处识别最新版本字符串。
 
@@ -168,6 +184,8 @@ AI 补齐了目标收益与当前规则限制：动态目标补牌按候选的�
 - 第 4 批第五切片已正式验收：schema20/epoch125 在 `DrawPhaseStarting` 加入同一技能实例内的互斥可选分支和展示层分支标签，并开放 `LivingFactionCount` 摸牌、回合用牌／打出禁止、规则查询修正及仅可指定自己的目标限制。经典将驰和自守已迁入 `standard-classic-generals@1.106.0`；当前 Core、AI、WPF 只消费通用 `ProgramTrigger`、规则查询和回合策略存储，1.105.0 及更早内容仍保持原定义与指纹。主动技效果加载改为明确正列表，避免仅供生命周期窗口的状态授予被误接到主动技能入口。
 - 第 4 批第六切片已正式验收：schema21/epoch126 为同一 `DrawPhaseStarting` 线性图加入 `StartJudgment` 和 `GrantTurnCardConversion`。判定复用现有改判、天妒和公开结果流程，最终判定牌形成公开单牌绑定；转换节点从该绑定冻结颜色，在本回合把相反颜色手牌投影为【决斗】，随后 `MoveBoundCards` 将最终判定牌交给拥有者。经典双雄已迁入 `standard-classic-generals@1.107.0`，1.106.0 保留历史定义和旧执行边界；当前路径不按双雄技能名新增 Engine、AI 或 WPF 分支。
 - 第 5 批第一切片已正式验收：schema22/epoch127 在受控 `SelfDyingResponse` 窗口加入 `DiscardOwnedZoneCards`、`SetChainedState` 与固定整数 `RecoverTo`。经典涅槃现由 `standard-classic-generals@1.108.0` 线性组合手牌／装备区／判定区清理、解除连环、回复至 3 点和摸三张牌；整局限次按技能实例记录，濒死父流程、AI、WPF、Checkpoint 与 Replay 继续消费通用程序入口。1.107.0 及更早版本保留专属历史实现与内容指纹。
+- 第 5 批第二切片把 schema25/epoch130 的冻结触发事实扩展为 `CurrentHandCount` 与通用 `LordGeneralNotIn`，并加入 `ChangeMaximumHp`、`GrantSkills` 两个准备阶段状态节点。`standard-classic-generals@1.109.0` 的单骑以强制 `TurnStartBeforeNormalFlow` 绑定组合这些能力，授予记录继续使用稳定来源，觉醒事件由技能标签统一投影；1.108.0 及更早定义仍走历史执行边界。加载器拒绝旧 schema、重复授予和未知被授予技能，当前 Core、AI、WPF 不新增单骑专属路由。
+- 第 5 批第三切片以 schema26/epoch131 加入拥有者持久命名牌区数量事实，并把互斥组扩展为准备阶段可强制选择、共享使用额度的通用能力。`standard-classic-generals@1.110.0` 的自立只维护两条组合分支；当前执行、AI 选择、暂停恢复和觉醒事件不识别钟会或自立，1.109.0 继续保留专属历史边界。
 - 程序执行器现通过按不可变 `SkillProgram` 引用缓存的 `ProgramExecutionPlan` 统一解析主动与触发指令；计划只缓存定义，不缓存对局状态，并用来源种类、绑定 ID 和指令序号区分身份。暂停恢复仍以已提交游标定位同一条指令，不重复执行之前已经支付或授予的效果。
 - 最终匹配产物为 `%TEMP%\CardComposition124-Independent-50b22b3e9e314935bf3ae61b75c1576b`：Core SHA256 `133E0B158C27B670FE2FBF0513DDED60552D980797BDD0C19243782D2C90B828`，Content SHA256 `C71B9D9D41D61F7E8416276DDBC4E23E2489B3E3E738FBCAA138EB2BAD6CC4A5`。Solution Release 零警告零错误，完整 Core **410/410**、WPF **104/104**；独立加载审计接受 66 个合法组合并拒绝 37 个非法图，覆盖 15 个非空花色子集的双向分流、多亮牌根、已移动绑定的历史计数、条件与目标能力。真实引擎混合图验证暂停时公开可见性、Checkpoint 精确恢复、技能失效取消时四张临时牌恰好清理一次并恢复普通摸二；另一个 schema19 定义在摸牌与回合结束两个窗口各完成 5 次，共 1001 个事件，与 Replay 完全一致。
 - 通用 AI 只按玩家可见事实估算 schema19 节点贡献：多个摸牌调整先求和再钳制，同类伤害授予叠加，替代只扣除一次普通摸牌，亮牌按公开先验估计，不读取牌堆顺序或对手暗牌身份。三类不同组合——摸牌调整加显式摸牌与伤害授予、亮牌分流加回复与显式摸牌、目标暗手牌替代加显式摸牌——均由定义、通用展示／绑定和差异场景完成，没有新增技能专属 Engine/AI/WPF 分支。

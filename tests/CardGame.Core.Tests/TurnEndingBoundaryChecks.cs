@@ -69,7 +69,8 @@ internal static class TurnEndingBoundaryChecks
                 serializedBoundary.Id == frame.Id && serializedBoundary.OwnerSeat == frame.OwnerSeat &&
                 serializedBoundary.TurnNumber == frame.TurnNumber &&
                 serializedBoundary.ItemIndex == frame.ItemIndex && serializedBoundary.Step == frame.Step &&
-                serializedBoundary.Facts == frame.Facts && serializedBoundary.Items.SequenceEqual(frame.Items) &&
+                JsonSerializer.Serialize(serializedBoundary.Facts) == JsonSerializer.Serialize(frame.Facts) &&
+                serializedBoundary.Items.SequenceEqual(frame.Items) &&
                 JsonSerializer.Serialize(serializedRoundTrip) == serializedFrames,
             "The TurnEnding parent and its union items must be plain serializable resolution data.");
 
@@ -102,7 +103,7 @@ internal static class TurnEndingBoundaryChecks
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         var replayFrame = replay.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single();
         Require(replayFrame.ItemIndex == 2 && replayFrame.Step == ResolutionFrameStep.AwaitingResponse &&
-                replayFrame.Facts == frame.Facts,
+                JsonSerializer.Serialize(replayFrame.Facts) == JsonSerializer.Serialize(frame.Facts),
             "A paused Biyue prompt must preserve the same serialized parent cursor and frozen facts.");
 
         AnswerProgram(game, "activate");

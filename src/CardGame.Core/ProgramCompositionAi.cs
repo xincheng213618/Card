@@ -95,14 +95,14 @@ internal sealed class ProgramAiEstimateContext
         {
             SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
             SkillProgramNumberExpression.TargetMaxHpMinusHandCount =>
-                effect.Target == SkillProgramEffectTarget.Owner
+                TargetsOwner(effect)
                     ? Math.Max(0, _player.MaxHp - _estimatedHandCount)
                     : _publicContext.SelectedTarget is { } target
                         ? Math.Max(0, target.MaxHp - target.HandCount)
                         : 1d,
             _ => effect.Amount
         };
-        if (effect.Target == SkillProgramEffectTarget.Owner)
+        if (TargetsOwner(effect))
         {
             _ownerDraw += amount;
             _estimatedHandCount += amount;
@@ -117,7 +117,7 @@ internal sealed class ProgramAiEstimateContext
         var amount = effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
             ? Binding(effect.SourceBind).Count
             : effect.Amount;
-        if (effect.Target == SkillProgramEffectTarget.Owner)
+        if (TargetsOwner(effect))
         {
             var actual = Math.Min(amount, Math.Max(0, _player.MaxHp - _estimatedHp));
             _ownerRecovery += actual;
@@ -128,7 +128,7 @@ internal sealed class ProgramAiEstimateContext
 
     internal void LoseHp(SkillProgramEffect effect)
     {
-        if (effect.Target == SkillProgramEffectTarget.Owner)
+        if (TargetsOwner(effect))
         {
             _ownerHpLoss += effect.Amount;
             _estimatedHp -= effect.Amount;
@@ -215,7 +215,7 @@ internal sealed class ProgramAiEstimateContext
                 Math.Max(effect.MinimumValue, _publicContext.LivingFactionCount),
             _ => effect.MinimumValue
         };
-        if (effect.Target == SkillProgramEffectTarget.Owner)
+        if (TargetsOwner(effect))
         {
             var actual = Math.Max(0d, Math.Min(_player.MaxHp, targetHp) - _estimatedHp);
             _ownerRecovery += actual;
@@ -307,7 +307,7 @@ internal sealed class ProgramAiEstimateContext
 
     internal void TurnOver(SkillProgramEffect effect)
     {
-        if (effect.Target != SkillProgramEffectTarget.Owner)
+        if (!TargetsOwner(effect))
         {
             _otherAdjustment += 12d;
             return;
@@ -318,7 +318,7 @@ internal sealed class ProgramAiEstimateContext
 
     internal void SetFaceState(SkillProgramEffect effect)
     {
-        if (effect.Target != SkillProgramEffectTarget.Owner)
+        if (!TargetsOwner(effect))
         {
             _otherAdjustment += effect.FaceDown == true ? 12d : -12d;
             return;
@@ -335,6 +335,12 @@ internal sealed class ProgramAiEstimateContext
         _discardsSelected = true;
     }
 
+    internal void Damage(SkillProgramEffect effect) => _targetHpLoss += effect.Amount;
+    internal void Pindian(SkillProgramEffect effect) => _otherAdjustment += 4d;
+    internal void ChangeMaximumHp(SkillProgramEffect effect) =>
+        _otherAdjustment += effect.Amount * 18d;
+    internal void GrantSkills(SkillProgramEffect effect) =>
+        _otherAdjustment += effect.SkillIds.Count * 12d;
     internal ProgramAiEstimate Build()
     {
         var ownerDraw = Rounded(Math.Max(0, _ownerDraw));
@@ -357,6 +363,10 @@ internal sealed class ProgramAiEstimateContext
         name is not null && _bindings.TryGetValue(name, out var binding)
             ? binding
             : UnknownCards(0d, ownerHeld: false);
+
+    private bool TargetsOwner(SkillProgramEffect effect) =>
+        effect.Target == SkillProgramEffectTarget.Owner ||
+        effect.Target == SkillProgramEffectTarget.Actor && _publicContext.CardActionActorIsOwner;
 
     private static CardSetEstimate UnknownCards(double count, bool ownerHeld) =>
         new(count, Enumerable.Repeat(count / 4d, 4).ToArray(), ownerHeld);

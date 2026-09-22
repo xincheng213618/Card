@@ -182,9 +182,7 @@ public sealed partial class MainViewModel
         }
         else if (IsActiveSkillSelectionPending && HumanActiveSkillAction is { } skillAction)
         {
-            var activeSkillName = skillAction.Skill is { } skill
-                ? SkillRegistry.Get(skill).Name
-                : "技能";
+            var activeSkillName = ActiveSkillName(skillAction);
             CurrentGuideTitle = CanConfirmActiveSkill ? $"确认发动【{activeSkillName}】" : $"选择【{activeSkillName}】的牌和目标";
             CurrentGuideBody = $"{human?.SkillDescription}\n{GetActiveSkillSelectionHint()}";
             var selectedNames = Seats.Where(seat => _selectedActiveSkillTargetSeats.Contains(seat.Seat))

@@ -24,7 +24,7 @@ public interface ISkillProgramExecutionHost
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
     bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId);
-    bool OwnsHandCards(int ownerSeat, IReadOnlyList<int> cardIds);
+    bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds, IReadOnlyList<CardZoneKind> sourceZones);
     bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition, PlayerSkillContext context);
     void UpdateFrame(ProgramSkillFrame frame);
     void Complete(ProgramSkillFrame frame, bool completed, string? reason = null);
@@ -39,8 +39,10 @@ public interface ISkillProgramEffectHost
     void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? sourceBind);
     SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount);
+    SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount);
+    SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
     void MoveSelected(
-        int ownerSeat,
+        ProgramSkillFrame frame,
         int targetSeat,
         IReadOnlyList<int> cardIds,
         bool toDiscard,
@@ -60,7 +62,12 @@ public interface ISkillProgramEffectHost
         ProgramSkillFrame frame,
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason);
-    void SetChainedState(ProgramSkillFrame frame, bool chained);
+    void SetChainedState(ProgramSkillFrame frame, bool chained, int? targetSeat = null);
+    SkillProgramStepOutcome ChooseOption(ProgramSkillFrame frame, int chooserSeat,
+        string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
+        throw new InvalidOperationException("The host does not provide named program choices.");
+    void ChangeMaximumHp(ProgramSkillFrame frame, int amount);
+    void GrantSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds);
     void TurnOver(long frameId, int ownerSeat, int targetSeat);
     void SetFaceState(long frameId, int ownerSeat, int targetSeat, bool faceDown);
     SkillProgramStepOutcome StartJudgment(
@@ -96,6 +103,7 @@ public interface ISkillProgramEffectHost
         string sourceBind,
         string? exceptBind,
         SkillProgramCardDestination destination,
+        CardZoneKind? destinationZone,
         CardMoveReason reason);
     SkillProgramStepOutcome SelectTarget(
         long frameId,
@@ -112,6 +120,7 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome SelectSourceCard(
         long frameId,
         int ownerSeat,
+        SkillProgramCardSource cardSource,
         IReadOnlyList<CardZoneKind> zones,
         string resultBind);
     SkillProgramStepOutcome GiveBoundCard(
@@ -142,7 +151,8 @@ public interface ISkillProgramEffectHost
         int amount);
     void GrantTurnCardTargetRestriction(
         ProgramSkillFrame frame,
-        SkillProgramCardTargetRestriction restriction);
+        SkillProgramCardTargetRestriction restriction,
+        int targetSeat);
     void GrantTurnCardConversion(
         ProgramSkillFrame frame,
         string sourceBind,
@@ -155,7 +165,9 @@ public interface ISkillProgramEffectHost
         IReadOnlyList<CardZoneKind> zones,
         SkillProgramCardDestination destination,
         string? resultBind,
-        CardMoveReason reason) => throw new InvalidOperationException("The host does not provide card-action payments.");
+        CardMoveReason reason,
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null) =>
+        throw new InvalidOperationException("The host does not provide card-action payments.");
     void RefundCardUseDebit(ProgramSkillFrame frame) =>
         throw new InvalidOperationException("The host does not provide card-use debit refunds.");
     SkillProgramStepOutcome StartPindian(
@@ -268,6 +280,7 @@ public sealed class SelectSourceCardSkillProgramEffectHandler : ISkillProgramEff
         host.SelectSourceCard(
             frame.Id,
             frame.OwnerSeat,
+            effect.CardSource,
             effect.Zones,
             effect.ResultBind ?? throw new InvalidOperationException("selectSourceCard has no result bind."));
 }
@@ -335,6 +348,42 @@ public sealed class LoseHpSkillProgramEffectHandler : ISkillProgramEffectHandler
         host.LoseHp(frame.Id, frame.SkillId, targetSeat, effect.Amount);
 }
 
+public sealed class DamageSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.Damage;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.Damage(frame, targetSeat, effect.Amount);
+}
+
+public sealed class PindianSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.Pindian;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.Pindian(frame, targetSeat);
+}
+
+public sealed class ChangeMaximumHpSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ChangeMaximumHp;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        host.ChangeMaximumHp(frame, effect.Amount);
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
+public sealed class GrantSkillsSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantSkills;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        host.GrantSkills(frame, effect.SkillIds);
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
 public sealed class GiveSelectedSkillProgramEffectHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveSelected;
@@ -346,7 +395,7 @@ public sealed class GiveSelectedSkillProgramEffectHandler : ISkillProgramEffectH
         ISkillProgramEffectHost host)
     {
         host.MoveSelected(
-            frame.OwnerSeat,
+            frame,
             targetSeat,
             frame.SelectedCardIds,
             toDiscard: false,
@@ -369,7 +418,7 @@ public sealed class DiscardSelectedSkillProgramEffectHandler : ISkillProgramEffe
         ISkillProgramEffectHost host)
     {
         host.MoveSelected(
-            frame.OwnerSeat,
+            frame,
             targetSeat,
             frame.SelectedCardIds,
             toDiscard: true,
@@ -437,7 +486,7 @@ public sealed class SetChainedStateSkillProgramEffectHandler : ISkillProgramEffe
     {
         host.SetChainedState(
             frame,
-            effect.Chained ?? throw new InvalidOperationException("setChainedState has no chained value."));
+            effect.Chained ?? throw new InvalidOperationException("setChainedState has no chained value."), targetSeat);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -538,6 +587,7 @@ public sealed class MoveBoundCardsSkillProgramEffectHandler : ISkillProgramEffec
             effect.SourceBind ?? throw new InvalidOperationException("moveBoundCards has no source bind."),
             effect.ExceptBind,
             effect.Destination ?? throw new InvalidOperationException("moveBoundCards has no destination."),
+            effect.DestinationZone,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         return SkillProgramStepOutcome.Continue;
     }
@@ -620,7 +670,8 @@ public sealed class GrantTurnCardTargetRestrictionSkillProgramEffectHandler : IS
         host.GrantTurnCardTargetRestriction(
             frame,
             effect.TargetRestriction ??
-            throw new InvalidOperationException("A turn card-target restriction lost its policy."));
+            throw new InvalidOperationException("A turn card-target restriction lost its policy."),
+            targetSeat);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -655,7 +706,16 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
         effect.Zones,
         effect.Destination ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no destination."),
         effect.ResultBind,
-        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories);
+}
+
+public sealed class ChooseOptionSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseOption;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.ChooseOption(frame, targetSeat,
+        effect.ResultBind ?? throw new InvalidOperationException("chooseOption requires a result binding."),
+        effect.Options);
 }
 
 public sealed class RefundCardUseDebitSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -829,13 +889,18 @@ public sealed class SkillProgramExecutor
                 : effect.Target switch
             {
                 SkillProgramEffectTarget.Owner => frame.OwnerSeat,
+                SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
+                    throw new InvalidOperationException(
+                        $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
                 SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
                 _ => throw new InvalidOperationException(
                     $"Skill program '{frame.SkillId}' uses unsupported target '{effect.Target}'.")
             };
             var target = state.GetActor(targetSeat);
+            var activation = program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
             if (effect.Op is SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected &&
-                (!target.IsAlive || !state.OwnsHandCards(frame.OwnerSeat, frame.SelectedCardIds)))
+                (activation is null || !target.IsAlive ||
+                 !state.OwnsCards(frame.OwnerSeat, frame.SelectedCardIds, activation.SourceZones)))
             {
                 state.Complete(
                     frame,

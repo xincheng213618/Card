@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using System.Windows.Threading;
 using CardGame.Core;
@@ -8,6 +9,7 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private DispatcherTimer? _advanceTimer;
+    private bool _isAutomaticAdvanceRunning;
     private bool _isAutoAdvance;
     private bool _isLogOpen;
     private bool _isHelpOpen;
@@ -186,7 +188,7 @@ public sealed partial class MainViewModel
         return string.Join(" · ", parts);
     }
 
-    private static string GetSkillStateText(
+    private string GetSkillStateText(
         bool hasActiveEntry,
         bool isAvailable,
         SkillExecutionForm executionForms,
@@ -469,9 +471,47 @@ public sealed partial class MainViewModel
 
     private void OnAdvanceTick(object? sender, EventArgs args)
     {
-        // One committed step per tick keeps WPF responsive and pauses at every human decision.
-        if (IsAutoAdvance && CanStepAi && !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen && !IsSettingsOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible) StepAi();
+        if (_isAutomaticAdvanceRunning) return;
+        if (!CanAutomaticallyAdvance)
+        {
+            if (_advanceTimer is not null)
+                _advanceTimer.Interval = TimeSpan.FromMilliseconds(SelectedPlaybackSpeed.IntervalMilliseconds);
+            return;
+        }
+        _isAutomaticAdvanceRunning = true;
+        var started = Stopwatch.GetTimestamp();
+        var visibleAction = false;
+        var progressed = false;
+        try
+        {
+            // Internal phase/frame continuations have no presentation to read.
+            // Drain a bounded amount, stopping at public feedback or human input.
+            for (var step = 0; step < 32 && CanAutomaticallyAdvance; step++)
+            {
+                var revision = _snapshot.Revision;
+                var lastCue = BattleCues.LastOrDefault()?.Sequence;
+                StepAi();
+                progressed = _snapshot.Revision != revision;
+                visibleAction = BattleCues.LastOrDefault()?.Sequence != lastCue;
+                if (!progressed || visibleAction || Stopwatch.GetElapsedTime(started).TotalMilliseconds >= 8)
+                    break;
+            }
+        }
+        finally
+        {
+            _isAutomaticAdvanceRunning = false;
+            // Yield to WPF when the work budget expires, without another full
+            // reading delay for an invisible continuation.
+            if (_advanceTimer is not null)
+                _advanceTimer.Interval = TimeSpan.FromMilliseconds(
+                    progressed && !visibleAction && CanAutomaticallyAdvance
+                        ? 1 : SelectedPlaybackSpeed.IntervalMilliseconds);
+        }
     }
+
+    private bool CanAutomaticallyAdvance => IsAutoAdvance && CanStepAi &&
+        !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen &&
+        !IsSettingsOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible;
 
     private void ResetPresentation()
     {

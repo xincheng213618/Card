@@ -9540,10 +9540,11 @@ public sealed partial class GameEngine
             target.Seat,
             group.Card,
             playedCardKind: group.Card.Kind,
-            physicalCards: group.PhysicalCards);
+            physicalCards: group.PhysicalCards,
+            ignoresArmor: HasDirectedCardArmorBypass(group.ResolutionId, target.Seat));
         group.CurrentAttack = attack;
         _pendingAttack = attack;
-        if (UsesFormalTengjia && HasTengjia(target) &&
+        if (UsesFormalTengjia && !attack.IgnoresArmor && HasTengjia(target) &&
             group.Card.Kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage)
         {
             AddLog("ArmorEffect", $"{target.Name} 的【藤甲】令【{CardCatalog.Get(group.Card.Kind).DisplayName}】对其无效。", target.Seat, group.SourceSeat);
@@ -9570,6 +9571,7 @@ public sealed partial class GameEngine
             : [];
         var hasBagua = UsesFormalArmorResponseTiming &&
                        requiredCardKind == CardKind.Dodge &&
+                       !attack.IgnoresArmor &&
                        HasBagua(target);
         var canRequestHujia = requiredCardKind == CardKind.Dodge && CanRequestHujia(target, attack);
         var canRequestJijiang = requiredCardKind == CardKind.Slash && CanRequestJijiangResponse(target, attack);
@@ -14621,6 +14623,7 @@ public sealed partial class GameEngine
             : null;
         var hasBagua = UsesFormalArmorResponseTiming &&
                        requiredCardKind == CardKind.Dodge &&
+                       !attack.IgnoresArmor &&
                        HasBagua(responder);
         PopResponseWindow(group.ResolutionId);
         SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
@@ -16419,6 +16422,8 @@ public sealed partial class GameEngine
             return false;
         }
 
+        if (!attack.IsChainPropagation && HasDirectedCardArmorBypass(attack.ResolutionId, target.Seat))
+            attack.SetIgnoresArmor(true);
         var nature = GetDamageNature(attack);
         var amount = FinalizeAttackDamageAmount(attack);
         if (TryPreventWuyanDamage(attack, amount))
@@ -17611,7 +17616,6 @@ public sealed partial class GameEngine
     }
 
     private bool IsDamageSkillEnabledForRules(SkillKind kind) =>
-        (kind != SkillKind.Quanji || UsesFormalZhongHui) &&
         (kind != SkillKind.Zhiyu || UsesFormalXunYou);
 
     private DamageSkillEffectKind ResolveDamageSkillEffect(
@@ -18442,6 +18446,14 @@ public sealed partial class GameEngine
 
     private bool FinishAttack(AttackResolution attack, bool allowYingboGift = true)
     {
+        if (attack.IsProgramSkillDamage)
+        {
+            if (attack.Card is not null || attack.ProgramSkillFrameId != attack.ResolutionId)
+                throw new InvalidOperationException(
+                    "Configured active-program damage must retain its program frame and no physical card.");
+            return false;
+        }
+
         if (attack.IsProgramJudgmentDamage)
         {
             if (attack.Card is not null || attack.ProgramJudgmentFrameId is null)
@@ -18779,6 +18791,7 @@ public sealed partial class GameEngine
         var resumesDelayedTurn = attack.IsDelayedJudgmentDamage;
         var resumesLeiji = attack.IsLeijiDamage;
         var resumesProgramJudgment = attack.IsProgramJudgmentDamage;
+        var resumesProgramSkill = attack.IsProgramSkillDamage;
         _pendingAttack = null;
         _pendingDuel = null;
         _pendingDecision = null;
@@ -18787,7 +18800,14 @@ public sealed partial class GameEngine
             CompleteBorrowedSwordAfterSlash(borrowedSword);
             return;
         }
-        if (resumesProgramJudgment && _status != EngineStatus.Completed)
+        if (resumesProgramSkill)
+        {
+            if (attack.ProgramSkillFrameId is not { } frameId ||
+                _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId)
+                throw new InvalidOperationException("Configured active-program damage lost its parent frame.");
+            ContinueProgramSkill(frameId);
+        }
+        else if (resumesProgramJudgment && _status != EngineStatus.Completed)
         {
             ResumeAfterProgramJudgmentDamage(attack);
         }
@@ -22317,7 +22337,9 @@ public sealed partial class GameEngine
             GetHand(player).Count,
             _phase,
             player.UsedActiveSkillKinds,
-            player.Seat == _currentSeat);
+            player.Seat == _currentSeat,
+            player.IsFaceDown,
+            player.IsChained);
 
     private ActiveSkillContext CreateActiveSkillContext(
         CharacterState actor,
@@ -23659,6 +23681,7 @@ public sealed partial class GameEngine
             if (!pendingAttack.IsDelayedJudgmentDamage &&
                 !pendingAttack.IsActiveSkillDamage &&
                 !pendingAttack.IsProgramJudgmentDamage &&
+                !pendingAttack.IsProgramSkillDamage &&
                 !_resolutionStack.Any(frame =>
                     frame is CardUseFrame cardUse && cardUse.Id == pendingAttack.ResolutionId))
             {
@@ -23674,6 +23697,15 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException(
                     "An active-skill damage continuation has no parent ActiveSkill frame.");
+            }
+
+            if (pendingAttack.IsProgramSkillDamage &&
+                !_resolutionStack.Any(frame =>
+                    frame is ProgramSkillFrame programSkill &&
+                    programSkill.Id == pendingAttack.ProgramSkillFrameId))
+            {
+                throw new InvalidOperationException(
+                    "An active-program damage continuation has no parent ProgramSkill frame.");
             }
 
             if (_programCardAttack is not null)
@@ -24880,7 +24912,7 @@ public sealed partial class GameEngine
         }
 
         if (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is { } programFrame &&
-            programFrame.Continuation != ProgramCardContinuation.Slash)
+            programFrame.Action.Type == CardActionType.Response)
         {
             var responseIds = programFrame.Action.PhysicalCards.Select(cost => cost.CardId).ToHashSet();
             if (responseIds.Any(id => processing.All(card => card.Id != id))) return false;
@@ -24910,6 +24942,13 @@ public sealed partial class GameEngine
                    attack.ProgramJudgmentFrameId is { } frameId &&
                    _resolutionStack.OfType<ProgramJudgmentTriggerWindowFrame>()
                        .Any(frame => frame.Id == frameId);
+        }
+
+        if (attack.IsProgramSkillDamage)
+        {
+            return attack.Card is null && processing.Count == 0 &&
+                   attack.ProgramSkillFrameId is { } frameId &&
+                   _resolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.Id == frameId);
         }
 
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
@@ -26051,6 +26090,7 @@ public sealed partial class GameEngine
         IReadOnlyList<Card>? physicalCards = null,
         bool isLeijiDamage = false,
         long? programJudgmentFrameId = null,
+        long? programSkillFrameId = null,
         CardConversionSource? conversionSource = null,
         SkillKind? cardKindModifierSkill = null,
         SkillKind? targetCountModifierSkill = null)
@@ -26077,6 +26117,8 @@ public sealed partial class GameEngine
         public bool IsLeijiDamage { get; } = isLeijiDamage;
         public long? ProgramJudgmentFrameId { get; } = programJudgmentFrameId;
         public bool IsProgramJudgmentDamage => ProgramJudgmentFrameId is not null;
+        public long? ProgramSkillFrameId { get; } = programSkillFrameId;
+        public bool IsProgramSkillDamage => ProgramSkillFrameId is not null;
         public int? DelayedJudgmentSeat { get; } = delayedJudgmentSeat;
         public SkillKind? SourceSkill { get; } = sourceSkill;
         public bool IsActiveSkillDamage => SourceSkill is not null;

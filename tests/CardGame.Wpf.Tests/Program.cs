@@ -297,6 +297,7 @@ internal static class Program
             Check("settings modal groups real preferences and match pacing without changing the game", () => CheckSettingsPanel(output));
             Check("play advice uses private player views and preserves the original selection", () => AdviceChecks.ControlsAndPrivacy(output));
             Check("playback speed persists and dead players can pause and resume observation", () => PlaybackChecks.SettingsAndSpectating(output));
+            Check("playback batches internal steps while preserving human boundaries and replay", PlaybackChecks.AutomaticStepsPreserveCommittedBoundaries);
             Check("expanded rescue content renders and commits Jijiu dying choices", JijiuChecks.ControlsAndDying);
             Check("classic Jijiu renders and commits equipped rescue choices", () => JijiuChecks.EquipmentControls(output));
             Check("opaque target-card slots render privately and commit through WPF commands", () => TargetCardChecks.Controls(output));

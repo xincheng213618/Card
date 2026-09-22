@@ -8,11 +8,64 @@ internal static class SpGuanYuChecks
     private const string DanjiSkillId = "sp:danji";
     private const string MashuSkillId = "sp:guan-yu-mashu";
     private const string NuzhanSkillId = "sp:nuzhan";
+    private const string ValidationRules =
+        """{"schemaVersion":25,"skills":[{"id":"fixture:awakening","revision":1,"minimumRulesVersion":130,"modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"awakening","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"condition":{"kind":"all","children":[{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"greaterThan","right":{"kind":"currentHp"}},{"kind":"lordGeneralNotIn","generalIds":["classic:liu-bei"]}]},"effects":[{"op":"changeMaximumHp","target":"owner","amount":-1},{"op":"grantSkills","target":"owner","skillIds":["sp:guan-yu-mashu","sp:nuzhan"]}]}],"contributions":[],"cardIdentities":[]}]}""";
+    private const string ValidationPresentation =
+        """{"schemaVersion":1,"skills":{"fixture:awakening":{"name":"觉醒夹具","description":"验证通用觉醒状态节点。"}}}""";
+
+    public static void ProgramPrimitivesAndConditionsValidate()
+    {
+        var program = SkillProgramCatalog.Load(ValidationRules, ValidationPresentation)
+            .Programs["fixture:awakening"];
+        var trigger = program.Triggers.Single();
+        Require(program is { RuntimeVersion: "skill-program-v25", MinimumRulesVersion: 130 } &&
+                trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
+                    0, 3, true, CurrentHandCount: 4, LordGeneralId: "classic:cao-cao")) &&
+                !trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
+                    0, 3, true, CurrentHandCount: 3, LordGeneralId: "classic:cao-cao")) &&
+                !trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
+                    0, 3, true, CurrentHandCount: 4, LordGeneralId: "classic:liu-bei")),
+            "Schema 25 must compose frozen hand-count and Lord-general facts without a Danji-specific predicate.");
+
+        Reject(
+            ValidationRules
+                .Replace("\"schemaVersion\":25", "\"schemaVersion\":22", StringComparison.Ordinal)
+                .Replace("\"minimumRulesVersion\":130", "\"minimumRulesVersion\":127", StringComparison.Ordinal),
+            "schema version 25");
+        Reject(
+            ValidationRules.Replace(
+                "\"sp:guan-yu-mashu\",\"sp:nuzhan\"",
+                "\"sp:nuzhan\",\"sp:nuzhan\"",
+                StringComparison.Ordinal),
+            "duplicate values");
+        Reject(
+            ValidationRules.Replace(
+                "\"generalIds\":[\"classic:liu-bei\"]",
+                "\"generalIds\":[]",
+                StringComparison.Ordinal),
+            "must not be empty");
+        Reject(
+            ValidationRules.Replace("\"amount\":-1", "\"amount\":0", StringComparison.Ordinal),
+            "non-zero value");
+
+        try
+        {
+            _ = ContentRegistry.Build(new MissingGrantPackage(program));
+            throw new InvalidOperationException("A grant to unknown content skills was accepted.");
+        }
+        catch (InvalidOperationException exception) when (
+            exception.Message.Contains("grants unknown skill", StringComparison.Ordinal))
+        {
+        }
+    }
 
     public static void ContentAndDanjiReplayBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 68, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 108, 0));
+        var danji = current.Skills[DanjiSkillId];
+        var awakening = danji.Program?.Triggers.Single();
         Require(current.Generals[GeneralId] is
         {
             FactionId: "wei",
@@ -20,12 +73,38 @@ internal static class SpGuanYuChecks
             SkillIds: var skillIds
         } && skillIds.SequenceEqual([WushengSkillId, DanjiSkillId]),
             "The current package must register the formal Wei SP Guan Yu skill order.");
-        Require(current.Skills[DanjiSkillId] is
+        Require(GameCheckpoint.CurrentRulesVersion == 134 &&
+            StandardClassicGeneralPackage.CurrentVersion == new Version(1, 113, 0) &&
+            danji is
         {
             LegacyKind: null,
             Tags: SkillTag.Awakening | SkillTag.Locked | SkillTag.Limited,
-            ExecutionForms: SkillExecutionForm.Trigger
+            ExecutionForms: SkillExecutionForm.Trigger,
+            Program.RuntimeVersion: "skill-program-v25",
+            Program.MinimumRulesVersion: 130
         } &&
+            awakening is
+            {
+                Id: "awakening",
+                Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+                Subject: SkillProgramTriggerSubject.Owner,
+                Optional: false,
+                UsageScope: SkillUsageScope.Game,
+                UsageLimit: 1,
+                Effects:
+                [
+                    {
+                        Op: SkillProgramTriggerEffectOp.ChangeMaximumHp,
+                        Target: SkillProgramTriggerEffectTarget.Owner,
+                        Amount: -1
+                    },
+                    {
+                        Op: SkillProgramTriggerEffectOp.GrantSkills,
+                        Target: SkillProgramTriggerEffectTarget.Owner,
+                        SkillIds: [MashuSkillId, NuzhanSkillId]
+                    }
+                ]
+            } &&
             current.Skills[MashuSkillId] is
             {
                 LegacyKind: null,
@@ -40,8 +119,9 @@ internal static class SpGuanYuChecks
                 ExecutionForms: SkillExecutionForm.State
             } &&
             !previous.Generals.ContainsKey(GeneralId) &&
-            !previous.Skills.ContainsKey(DanjiSkillId),
-            "Package 1.69.0 must add structured Danji, Mashu and Nuzhan without changing 1.68.0.");
+            !previous.Skills.ContainsKey(DanjiSkillId) &&
+            historical.Skills[DanjiSkillId].Program is null,
+            "Package 1.109.0 must migrate Danji without changing its 1.69.0 registration or 1.108.0 runtime boundary.");
 
         var registry = CreateRegistry();
         var game = CreateGame(registry);
@@ -54,7 +134,7 @@ internal static class SpGuanYuChecks
         var runtimeStates = owner.SkillRuntimeStates!;
         var danjiState = runtimeStates.Single(state => state.SkillId == DanjiSkillId);
         Require(!danjiState.IsAcquired && danjiState.Usages.Single() is
-        { UsageId: "awakening", Scope: SkillUsageScope.Game, Count: 1 } &&
+        { UsageId: "awakening@template:primary:sp:danji", Scope: SkillUsageScope.Game, Count: 1 } &&
                 runtimeStates.Single(state => state.SkillId == MashuSkillId).IsAcquired &&
                 runtimeStates.Single(state => state.SkillId == NuzhanSkillId).IsAcquired,
             "The public runtime projection must distinguish the consumed awakening from acquired skills.");
@@ -65,6 +145,11 @@ internal static class SpGuanYuChecks
                 game.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>().Single() is
                 { PlayerSeat: 0, SkillId: DanjiSkillId, MaximumHp: 4 },
             "Danji must publish typed maximum-HP, acquisition and awakening events.");
+        Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>().Single() is
+                { SkillId: DanjiSkillId, BindingId: "awakening", Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow } &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Single(item =>
+                    item.SkillId == DanjiSkillId) is { Activated: true, Completed: true },
+            "Current Danji must resolve through the generic mandatory lifecycle binding.");
         var diamondSlash = owner.Hand.First(card =>
             card.Kind == CardKind.Slash && card.Suit == Suit.Diamond);
         Require(game.GetHumanLegalActions().Any(action =>
@@ -78,6 +163,18 @@ internal static class SpGuanYuChecks
         Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "Danji acquisition and its game-scoped record must restore from the command prefix.");
+
+        var historicalGame = CreateGame(CreateRegistry(new Version(1, 108, 0)));
+        ReachHumanPlay(historicalGame);
+        var historicalOwner = historicalGame.CreateSnapshot(0, revealAll: true).Players[0];
+        Require(historicalOwner is { Hp: 4, MaxHp: 4 } &&
+                historicalOwner.Skills!.Select(skill => skill.ContentId).SequenceEqual(
+                    [WushengSkillId, DanjiSkillId, MashuSkillId, NuzhanSkillId]) &&
+                historicalOwner.SkillRuntimeStates!.Single(state => state.SkillId == DanjiSkillId)
+                    .Usages.Single().UsageId == "awakening" &&
+                !historicalGame.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .Any(item => item.SkillId == DanjiSkillId),
+            "Package 1.108.0 must retain the historical Danji execution and usage identity.");
 
     }
 
@@ -198,11 +295,13 @@ internal static class SpGuanYuChecks
         Require(result.Accepted, result.Error?.Message ?? "SP Guan Yu's Slash was rejected.");
     }
 
-    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry(Version? classicVersion = null) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        classicVersion is null
+            ? new StandardClassicGeneralPackage()
+            : new StandardClassicGeneralPackage(classicVersion),
         new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
@@ -211,6 +310,39 @@ internal static class SpGuanYuChecks
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private static void Reject(string rules, string expectedMessage)
+    {
+        try
+        {
+            _ = SkillProgramCatalog.Load(rules, ValidationPresentation);
+        }
+        catch (InvalidOperationException exception) when (
+            exception.Message.Contains(expectedMessage, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+        throw new InvalidOperationException($"Expected schema rejection containing '{expectedMessage}'.");
+    }
+
+    private sealed class MissingGrantPackage(SkillProgram program) : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new(
+            "missing-awakening-grant-fixture",
+            new Version(1, 0, 0),
+            []);
+
+        public void Register(IContentRegistryBuilder builder) =>
+            builder.AddSkill(new ContentSkillDefinition(
+                program.Id,
+                "觉醒夹具",
+                "验证未知授予技能。")
+            {
+                Program = program,
+                Tags = SkillTag.Awakening,
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
     }
 
     private sealed class ScenarioPackage : IGameContentPackage

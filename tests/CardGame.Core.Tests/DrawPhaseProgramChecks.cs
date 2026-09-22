@@ -11,7 +11,7 @@ internal static class DrawPhaseProgramChecks
         Require(GameCheckpoint.CurrentRulesVersion >= 125,
             "Schema-20 draw-policy programs require at least rules version 125.");
         Require(StandardContentPackage.CurrentVersion == new Version(1, 14, 0) &&
-                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 108, 0),
+                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 113, 0),
             "The current standard and classic packages must expose their draw-phase-program boundaries.");
 
         var historicalStandard = ContentRegistry.Build(new StandardContentPackage(new Version(1, 13, 0)));

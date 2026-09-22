@@ -664,6 +664,21 @@ public sealed class ContentRegistry
 
         public void ValidateReferences()
         {
+            foreach (var skill in _skills.Values.Where(item => item.Program is not null))
+            {
+                foreach (var grantedSkillId in skill.Program!.Triggers
+                             .SelectMany(trigger => trigger.Effects)
+                             .Where(effect => effect.Op == SkillProgramTriggerEffectOp.GrantSkills)
+                             .SelectMany(effect => effect.SkillIds))
+                {
+                    if (!_skills.ContainsKey(grantedSkillId))
+                    {
+                        throw new InvalidOperationException(
+                            $"Skill '{skill.Id}' grants unknown skill '{grantedSkillId}'.");
+                    }
+                }
+            }
+
             foreach (var general in _generals.Values)
             {
                 foreach (var skillId in general.SkillIds)

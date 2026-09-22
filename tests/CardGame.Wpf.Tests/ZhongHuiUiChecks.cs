@@ -11,6 +11,7 @@ internal static class ZhongHuiUiChecks
 {
     private const int HumanSeat = 0;
     private const string GeneralId = "classic:zhong-hui";
+    private const string PaiyiSkillId = "classic:paiyi";
 
     public static void CardPromptsAuthorityAndPaiyi(string output)
     {
@@ -61,7 +62,7 @@ internal static class ZhongHuiUiChecks
         BeginSelfFireAttack(game);
         Program.Assert(game.PendingDecision is
                        {
-                           Kind: DecisionKind.Quanji,
+                           Kind: DecisionKind.ProgramTrigger,
                            PlayerSeat: HumanSeat,
                            IsPrivate: true
                        },
@@ -74,9 +75,9 @@ internal static class ZhongHuiUiChecks
         var quanji = viewModel.HumanSkillCards.SingleOrDefault(skill => skill.Name == "权计");
         var zili = viewModel.HumanSkillCards.SingleOrDefault(skill => skill.Name == "自立");
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动权计" &&
+                       viewModel.CurrentGuideTitle.Contains("权计", StringComparison.Ordinal) &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "quanji-use") &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
                        quanji is { TypeText: "状态技 · 触发技", StateText: "等待触发时机" } &&
                        zili is not null &&
                        zili.TypeText.Contains("觉醒技", StringComparison.Ordinal) &&
@@ -87,16 +88,16 @@ internal static class ZhongHuiUiChecks
             Path.Combine(output, "198-classic-zhong-hui-quanji-choice.png"));
 
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "quanji-use"));
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "选择一张手牌作为权" &&
+                       viewModel.CurrentGuideTitle.Contains("权计", StringComparison.Ordinal) &&
                        viewModel.SkillChoices.All(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "quanji-store" &&
-                           choice.Cards.Count == 1),
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-source-card" &&
+                           choice.Parameters.ContainsKey("slot-index")),
             "After drawing for Quanji, WPF must require one exact hand card to become Authority.");
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "quanji-store"));
+            choice.Parameters.GetValueOrDefault("program-action") == "select-source-card"));
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         Program.Assert(viewModel.HumanPlayer is { AuthorityText: "权 ×1", HasAuthority: true } &&
                        viewModel.HumanSummary.Contains("权 1", StringComparison.Ordinal),
@@ -113,28 +114,34 @@ internal static class ZhongHuiUiChecks
         var play = RequirePrompt(game, DecisionKind.PlayCard);
         Program.Assert(game.Submit(new EndPlayPhaseCommand(HumanSeat, game.Revision, play.PromptId)).Accepted,
             "The WPF Zhong Hui fixture could not end its play phase.");
-        ReachPrompt(game, DecisionKind.Zili, 2_048);
+        ReachPrompt(game, DecisionKind.ProgramTrigger, 2_048);
 
         using var viewModel = Load(game, registry);
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "选择自立收益" &&
+                       viewModel.CurrentGuideTitle == "自立 · 选择方式" &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "zili-recover") &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
+                           choice.Parameters.GetValueOrDefault("binding-id") == "recover") &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "zili-draw") &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
+                           choice.Parameters.GetValueOrDefault("binding-id") == "draw") &&
+                       viewModel.SkillChoices.All(choice =>
+                           choice.Parameters.GetValueOrDefault("program-action") != "skip") &&
                        viewModel.HumanPlayer?.AuthorityText == "权 ×3",
             $"The mandatory Zili choice must expose both legal benefits and three Authorities " +
             $"(guide={viewModel.CurrentGuideTitle}, authority={viewModel.HumanPlayer?.AuthorityText}).");
 
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "zili-recover"));
+            choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
+            choice.Parameters.GetValueOrDefault("binding-id") == "recover"));
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         var paiyi = viewModel.HumanSkillCards.SingleOrDefault(skill => skill.Name == "排异");
-        var action = viewModel.HumanActiveSkillActions.SingleOrDefault(candidate => candidate.Skill == SkillKind.Paiyi);
+        var action = viewModel.HumanActiveSkillActions.SingleOrDefault(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill && candidate.ProgramSkillId == PaiyiSkillId);
         Program.Assert(Program.Engine(viewModel).PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } &&
                        paiyi is
                        {
@@ -158,7 +165,9 @@ internal static class ZhongHuiUiChecks
         Program.Assert(viewModel.CanConfirmActiveSkill &&
                        viewModel.CurrentGuideTitle == "确认发动【排异】" &&
                        viewModel.HumanPlayer?.AuthorityText == "权 ×3",
-            "Selecting one Authority and one living target must enable Paiyi confirmation.");
+            $"Selecting one Authority and one living target must enable Paiyi confirmation " +
+            $"(confirm={viewModel.CanConfirmActiveSkill}, guide={viewModel.CurrentGuideTitle}, " +
+            $"selection={viewModel.SelectedCardText}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "199-classic-zhong-hui-zili-paiyi.png"));
 
@@ -167,7 +176,7 @@ internal static class ZhongHuiUiChecks
         Program.Assert(viewModel.HumanPlayer?.AuthorityText == "权 ×2" &&
                        viewModel.BattleCues.Any(cue =>
                            cue.Kind == BattleCueKind.Response &&
-                           cue.Label == "排异 · 摸两张"),
+                           cue.Label == "排异 · 已发动"),
             "Confirmed Paiyi must remove one Authority and publish its public battle cue.");
         window.Content = null;
         window.Close();
@@ -259,22 +268,26 @@ internal static class ZhongHuiUiChecks
         Program.Assert(result.Accepted, result.Error?.Message ?? "The self Fire Attack was rejected.");
         AnswerCard(game, DecisionKind.FireAttackReveal, CardKind.Dodge);
         AnswerCard(game, DecisionKind.FireAttackDiscard, CardKind.Dodge);
-        Program.Assert(game.PendingDecision is { Kind: DecisionKind.Quanji, PlayerSeat: HumanSeat },
+        Program.Assert(game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat },
             "Self Fire Attack did not reach Quanji.");
     }
 
     private static void ResolveSelfFireAttack(GameEngine game)
     {
         BeginSelfFireAttack(game);
-        Answer(game, DecisionKind.Quanji, "quanji-use");
+        var activate = RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
+        Answer(game, activate);
         var dodgeIds = game.CreateSnapshot(HumanSeat, revealAll: true).Players
             .Single(player => player.Seat == HumanSeat).Hand
             .Where(card => card.Kind == CardKind.Dodge)
             .Select(card => card.Id)
             .ToHashSet();
-        var store = RequirePrompt(game, DecisionKind.Quanji).Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "quanji-store" &&
-            choice.Cards.Count == 1 && dodgeIds.Contains(choice.Cards[0]));
+        var hand = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand;
+        var store = RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-source-card" &&
+            int.TryParse(choice.Parameters.GetValueOrDefault("slot-index"), out var slot) &&
+            slot >= 0 && slot < hand.Count && dodgeIds.Contains(hand[slot].Id));
         Answer(game, store);
         ReachPrompt(game, DecisionKind.PlayCard, 512);
     }

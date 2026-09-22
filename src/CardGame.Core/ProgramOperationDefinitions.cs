@@ -15,7 +15,8 @@ internal enum ProgramOperationAiSemantic
     GrantTurnCardActionProhibition, GrantTurnRuleModifier, GrantTurnCardTargetRestriction,
     StartJudgment, GrantTurnCardConversion, DiscardOwnedZoneCards, SetChainedState,
     SelectAndMoveOwnedCard, RefundCardUseDebit,
-    StartPindian, SetBooleanState, ToggleBooleanState, GrantDirectedTurnCardPolicy
+    StartPindian, SetBooleanState, ToggleBooleanState, GrantDirectedTurnCardPolicy,
+    Damage, Pindian, ChangeMaximumHp, GrantSkills, ChooseOption
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -38,6 +39,7 @@ internal sealed record SelectSingleTarget : ProgramResourceOperation;
 internal sealed record ConsumeSelectedCards(int Count) : ProgramResourceOperation;
 internal sealed record CreatePindianResult(string Name) : ProgramResourceOperation;
 internal sealed record ReadPindianResult(string Name) : ProgramResourceOperation;
+internal sealed record CreateChoiceResult(string Name, IReadOnlyList<string> Options) : ProgramResourceOperation;
 
 internal interface IProgramOperationDescriptor
 {
@@ -163,6 +165,21 @@ internal sealed class ProgramOperationNodeReader
     }
     internal IReadOnlyList<T>? OptionalEnumArray<T>(string name) where T : struct, Enum =>
         Has(name) ? RequiredEnumArray<T>(name) : null;
+    internal IReadOnlyList<string> RequiredIdentifierArray(string name)
+    {
+        var array = Required(name, JsonValueKind.Array);
+        if (array.GetArrayLength() > MaximumItems) Fail(Path + "." + name, $"contains more than {MaximumItems} items");
+        var values = array.EnumerateArray().Select((item, index) =>
+        {
+            if (item.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(item.GetString()) ||
+                item.GetString()!.Length > 128)
+                Fail($"{Path}.{name}[{index}]", "must contain 1 to 128 characters");
+            return item.GetString()!;
+        }).ToArray();
+        if (values.Distinct(StringComparer.Ordinal).Count() != values.Length)
+            Fail(Path + "." + name, "contains duplicate values");
+        return Array.AsReadOnly(values);
+    }
     internal ProgramParticipantReference RequiredParticipantReference(string name,
         ProgramParticipantRef? defaultKind = null)
     {
@@ -193,6 +210,22 @@ internal sealed class ProgramOperationNodeReader
     internal SkillProgramCondition Condition() => Has("condition")
         ? _conditionParser(_node.GetProperty("condition"), Path + ".condition")
         : new SkillProgramCondition(SkillProgramConditionKind.Always, 0, []);
+
+    internal IReadOnlyList<SkillProgramChoiceOption> ChoiceOptions()
+    {
+        var array = Required("options", JsonValueKind.Array);
+        if (array.GetArrayLength() is < 1 or > 16)
+            Fail(Path + ".options", "requires between 1 and 16 options");
+        var options = array.EnumerateArray().Select((node, index) =>
+        {
+            var reader = new ProgramOperationNodeReader(node, $"{Path}.options[{index}]", _conditionParser);
+            reader.AllowOnly("id", "condition");
+            return new SkillProgramChoiceOption(reader.RequiredIdentifier("id"), reader.Condition());
+        }).ToArray();
+        if (options.Select(option => option.Id).Distinct(StringComparer.Ordinal).Count() != options.Length)
+            Fail(Path + ".options", "option ids must be distinct");
+        return Array.AsReadOnly(options);
+    }
 
     private string RequiredString(string name)
     {
@@ -256,9 +289,13 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
     }
     protected static IReadOnlyList<ProgramResourceOperation> WithSelectedTarget(
         SkillProgramEffect effect, IEnumerable<ProgramResourceOperation>? resources = null) =>
-        effect.Target == SkillProgramEffectTarget.SelectedTarget
-            ? Array.AsReadOnly((resources ?? []).Append(new ReadSelectedTarget()).ToArray())
-            : Array.AsReadOnly((resources ?? []).ToArray());
+        Array.AsReadOnly((resources ?? []).Concat(effect.Target switch
+        {
+            SkillProgramEffectTarget.SelectedTarget => [new ReadSelectedTarget()],
+            SkillProgramEffectTarget.Actor =>
+                [new RequireContext(ProgramContextCapability.CardAction)],
+            _ => []
+        }).ToArray());
 
     protected static IReadOnlyList<ProgramResourceOperation> ParticipantResources(
         params ProgramParticipantReference?[] references) => references
@@ -446,15 +483,22 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         static (effect, context) => context.Move(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "sourceBind", "exceptBind", "destination", "condition");
+        r.AllowOnly("op", "target", "sourceBind", "exceptBind", "destination", "destinationZone", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var source = r.RequiredIdentifier("sourceBind"); var except = r.OptionalIdentifier("exceptBind");
         if (source == except) throw new InvalidOperationException($"Invalid skill program at {r.Path}: exceptBind must differ.");
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
-        if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile))
+        if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
+                SkillProgramCardDestination.OwnerPersistentZone))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
+        var destinationZone = r.Has("destinationZone") ? r.RequiredEnum<CardZoneKind>("destinationZone") : (CardZoneKind?)null;
+        if ((destination == SkillProgramCardDestination.OwnerPersistentZone) != (destinationZone is not null))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: destinationZone is required only for ownerPersistentZone.");
+        if (destinationZone is not null && destinationZone is not
+                (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
-            exceptBind: except, destination: destination);
+            exceptBind: except, destination: destination, destinationZone: destinationZone);
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>

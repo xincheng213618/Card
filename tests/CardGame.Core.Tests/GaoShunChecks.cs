@@ -25,7 +25,7 @@ internal static class GaoShunChecks
                 general.FactionId == "qun" &&
                 general.BaseHp == 4 &&
                 general.SkillIds.SequenceEqual([XianzhenSkillId, JinjiuSkillId]) &&
-                xianzhen.LegacyKind == SkillKind.Xianzhen &&
+                xianzhen.LegacyKind is null && xianzhen.Program?.UsesCompositionKernel == true &&
                 xianzhen.ExecutionForms == SkillExecutionForm.State &&
                 xianzhen.ActionForms == SkillActionForm.Active &&
                 jinjiu.Tags == SkillTag.Locked &&

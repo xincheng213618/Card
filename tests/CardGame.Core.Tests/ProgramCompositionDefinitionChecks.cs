@@ -53,6 +53,15 @@ internal static class ProgramCompositionDefinitionChecks
         const string faceDown = """[{"op":"setFaceState","target":"owner","faceDown":true}]""";
         Require(Estimate(faceDown).Score < 0 && Estimate(faceDown, true).Score == 0,
             "Setting a face state must differ from toggling or repeatedly charging for an unchanged state.");
+        var actorDraw = Parse(ProgramOperationCatalog.Default,
+            """{"op":"draw","target":"actor","amount":2}""");
+        var ownerActor = ProgramCompositionAi.Estimate([actorDraw], player,
+            publicContext: new ProgramAiPublicContext(0, CardActionActorIsOwner: true));
+        var otherActor = ProgramCompositionAi.Estimate([actorDraw], player,
+            publicContext: new ProgramAiPublicContext(0, CardActionActorIsOwner: false));
+        Require(ownerActor.Hint is { OwnerDraw: 2, TargetDraw: 0 } &&
+                otherActor.Hint is { OwnerDraw: 0, TargetDraw: 2 },
+            "Actor-target AI must count an owner actor exactly once and retain a distinct external actor target.");
     }
 
     public static void CatalogDiscoversCompleteOperations()
@@ -92,7 +101,11 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.StartPindian] = """{"op":"startPindian","target":"owner","opponentRef":{"kind":"selectedTarget"},"resultBind":"contest","visibility":"public"}""",
             [SkillProgramEffectOp.SetBooleanState] = """{"op":"setBooleanState","target":"owner","stateId":"ready","value":true}""",
             [SkillProgramEffectOp.ToggleBooleanState] = """{"op":"toggleBooleanState","target":"owner","stateId":"ready"}""",
-            [SkillProgramEffectOp.GrantDirectedTurnCardPolicy] = """{"op":"grantDirectedTurnCardPolicy","target":"owner","actorRef":{"kind":"owner"},"targetRef":{"kind":"selectedTarget"},"effects":["ignoreDistance"]}"""
+            [SkillProgramEffectOp.GrantDirectedTurnCardPolicy] = """{"op":"grantDirectedTurnCardPolicy","target":"owner","actorRef":{"kind":"owner"},"targetRef":{"kind":"selectedTarget"},"effects":["ignoreDistance"]}""",
+            [SkillProgramEffectOp.Damage] = """{"op":"damage","target":"selectedTarget","amount":1}""",
+            [SkillProgramEffectOp.Pindian] = """{"op":"pindian","target":"selectedTarget","amount":1}""",
+            [SkillProgramEffectOp.ChangeMaximumHp] = """{"op":"changeMaximumHp","target":"owner","amount":-1}""",
+            [SkillProgramEffectOp.GrantSkills] = """{"op":"grantSkills","target":"owner","skillIds":["classic:paiyi"]}"""
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");
@@ -271,6 +284,23 @@ internal static class ProgramCompositionDefinitionChecks
         Require(cardProgram.RuntimeVersion == "skill-program-v24" && cardProgram.MinimumRulesVersion == 129 &&
                 cardProgram.Triggers.Single().UsesSharedExecutor,
             "Schema 24 card-action programs must use the shared executor without changing schema 23.");
+        const string actorEffects = """[{"op":"draw","target":"actor","amount":1}]""";
+        var actorTrigger = $$"""
+        {"id":"actor-card","window":"cardUseCommitted","ownerRelation":"observer","cardKinds":["slash"],
+         "optional":true,"effects":{{actorEffects}}}
+        """;
+        var actorProgram = Load("fixture:actor24", Rules("fixture:actor24", actorEffects,
+            $"\"activations\":[],\"triggers\":[{actorTrigger}]", schema: 24, minimumRules: 129));
+        var actorTriggerEffect = actorProgram.Triggers.Single().Effects.Single();
+        Require(actorTriggerEffect.Target == SkillProgramTriggerEffectTarget.Actor &&
+                actorTriggerEffect.ToExecutionEffect().Target == SkillProgramEffectTarget.Actor,
+            "Trigger actor targets must map bidirectionally without becoming selectedTarget.");
+        Reject(() => Load("fixture:actor-activation", Rules("fixture:actor-activation", actorEffects,
+            Entries(actorEffects, includeTriggers: false), schema: 24, minimumRules: 129)),
+            "requires context CardAction");
+        Reject(() => Load("fixture:actor20", Rules("fixture:actor20", actorEffects,
+            Entries(actorEffects, includeTriggers: false), schema: 20, minimumRules: 125)),
+            "schema 24 card-action composition");
         Reject(() => Load("fixture:card23", Rules("fixture:card23", cardEffects,
             $"\"activations\":[],\"triggers\":[{cardTrigger}]")), "schema version 24");
         Reject(() => Parse(ProgramOperationCatalog.Default,

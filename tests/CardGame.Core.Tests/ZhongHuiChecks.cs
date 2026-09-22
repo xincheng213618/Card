@@ -47,21 +47,98 @@ internal static class ZhongHuiChecks
                 current.ContentHash != previous.ContentHash,
             "Package 1.86.0 must add Zhong Hui without mutating the 1.85.0 registry boundary.");
 
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 109, 0));
+        var historicalQuanji = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 110, 0));
+        var historicalPaiyi = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 111, 0));
+        Require(GameCheckpoint.CurrentRulesVersion == 134 &&
+                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 113, 0) &&
+                migrated.Skills[ZiliSkillId].Program is
+                {
+                    RuntimeVersion: "skill-program-v26",
+                    MinimumRulesVersion: 131,
+                    Triggers.Count: 2
+                } program &&
+                program.Triggers.All(trigger =>
+                    trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
+                    trigger.ChoiceGroup == "awakening-benefit" &&
+                    !trigger.Optional && trigger.UsageScope == SkillUsageScope.Game &&
+                    trigger.UsageLimit == 1) &&
+                migrated.Skills[QuanjiSkillId].Program is
+                {
+                    RuntimeVersion: "skill-program-v27",
+                    MinimumRulesVersion: 132,
+                    Triggers.Count: 1,
+                    Modifiers.Count: 1
+                } quanjiProgram &&
+                quanjiProgram.Triggers.Single().Effects.Select(effect => effect.Op).SequenceEqual([
+                    SkillProgramTriggerEffectOp.Draw,
+                    SkillProgramTriggerEffectOp.SelectSourceCard,
+                    SkillProgramTriggerEffectOp.MoveBoundCards
+                ]) &&
+                migrated.Skills[PaiyiSkillId] is
+                {
+                    LegacyKind: null,
+                    ActionForms: SkillActionForm.Active,
+                    Program:
+                    {
+                        RuntimeVersion: "skill-program-v28",
+                        MinimumRulesVersion: 133,
+                        Activations.Count: 1
+                    }
+                } &&
+                migrated.Skills[PaiyiSkillId].Program!.Activations.Single() is
+                {
+                    SourceZones.Count: 1,
+                    Effects.Count: 3
+                } &&
+                migrated.Skills[PaiyiSkillId].Program!.Activations.Single().SourceZones.Single() == CardZoneKind.Authority &&
+                migrated.Skills[PaiyiSkillId].Program!.Activations.Single().Effects.Select(effect => effect.Op).SequenceEqual([
+                    SkillProgramEffectOp.DiscardSelected,
+                    SkillProgramEffectOp.Draw,
+                    SkillProgramEffectOp.Damage
+                ]) &&
+                historicalPaiyi.Skills[PaiyiSkillId].Program is null &&
+                historicalPaiyi.Skills[PaiyiSkillId].LegacyKind == SkillKind.Paiyi &&
+                historicalQuanji.Skills[QuanjiSkillId].Program is null &&
+                historical.Skills[ZiliSkillId].Program is null &&
+                historical.Skills[ZiliSkillId].LegacyKind == SkillKind.Zili,
+            "Package 1.112/rules 131 must migrate Paiyi while preserving the 1.111 legacy route and earlier Quanji/Zili boundaries.");
+
+        var paiyiProgram = migrated.Skills[PaiyiSkillId].Program!.Activations.Single();
+        var activeRules = ReadResource(typeof(StandardClassicGeneralPackage).Assembly,
+            "CardGame.Content.Standard.SkillPrograms.active-persistent-zone-skills.rules.json");
+        var activePresentation = ReadResource(typeof(StandardClassicGeneralPackage).Assembly,
+            "CardGame.Content.Standard.SkillPrograms.active-persistent-zone-skills.presentation.json");
+        RequireLoadFailure(activeRules.Replace("\"schemaVersion\": 28", "\"schemaVersion\": 27"),
+            activePresentation, "Named-zone activation costs must require schema 28.");
+        RequireLoadFailure(activeRules.Replace("\"sourceZones\": [\"authority\"]",
+                "\"sourceZones\": [\"discardPile\"]"),
+            activePresentation, "Activation costs must reject non-owner source zones.");
+        RequireLoadFailure(activeRules.Replace("\"op\": \"damage\",\n              \"target\": \"selectedTarget\"",
+                "\"op\": \"damage\",\n              \"target\": \"owner\""),
+            activePresentation, "Active-program damage must require its selected target.");
+        var damageCondition = paiyiProgram.Effects.Single(effect => effect.Op == SkillProgramEffectOp.Damage).Condition;
+        var ownerContext = new PlayerSkillContext(0, 3, 4, 3, TurnPhase.Play, IsOwnTurn: true);
+        Require(damageCondition.Evaluate(ownerContext,
+                    new PlayerSkillContext(1, 4, 4, 4, TurnPhase.Play), UnexpectedFrameLookup, UnexpectedFrameLookup) &&
+                !damageCondition.Evaluate(ownerContext,
+                    new PlayerSkillContext(0, 3, 4, 5, TurnPhase.Play), UnexpectedFrameLookup, UnexpectedFrameLookup) &&
+                !damageCondition.Evaluate(ownerContext,
+                    new PlayerSkillContext(1, 4, 4, 3, TurnPhase.Play), UnexpectedFrameLookup, UnexpectedFrameLookup),
+            "Paiyi's reusable selected-target conditions must compare post-draw state and exclude self.");
+
+        static bool UnexpectedFrameLookup(string _) =>
+            throw new InvalidOperationException("Paiyi target conditions must not read a Pindian or state binding.");
+
         var fixture = FindFixture();
         var registry = CreateRegistry();
         var game = CreateFixtureGame(registry, fixture.Seed);
         ResolveSelfFireAttack(game, expectQuanji: true, testForgery: true);
         var first = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
         Require(first.AuthorityCount == 1 && first.AuthorityCards?.Count == 1 &&
-                game.Events.Select(item => item.Payload).OfType<QuanjiResolvedEvent>().Last() is
-                {
-                    OwnerSeat: HumanSeat,
-                    DamagePoint: 1,
-                    Used: true,
-                    DrawnCardId: not null,
-                    AuthorityCardId: not null,
-                    AuthorityCount: 1
-                },
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.SkillId == QuanjiSkillId && item.BindingId == "store-authority" && item.Completed),
             "One point of damage must offer one Quanji draw-and-store result in the public Authority zone.");
 
         ResolveSelfFireAttack(game, expectQuanji: true);
@@ -73,7 +150,8 @@ internal static class ZhongHuiChecks
                     AuthorityCards.Count: 3
                 } owner &&
                 GetHandLimit(game, HumanSeat) == owner.Hp + 3 &&
-                game.Events.Select(item => item.Payload).OfType<QuanjiResolvedEvent>().Count(item => item.Used) == 3,
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Count(item =>
+                    item.SkillId == QuanjiSkillId && item.BindingId == "store-authority" && item.Completed) == 3,
             "Three independent damage points must create three public Authorities and add exactly three to hand limit.");
 
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
@@ -96,59 +174,101 @@ internal static class ZhongHuiChecks
         var play = RequirePrompt(game, DecisionKind.PlayCard);
         Require(game.Submit(new EndPlayPhaseCommand(HumanSeat, game.Revision, play.PromptId)).Accepted,
             "The Zhong Hui fixture could not end its play phase.");
-        ReachPrompt(game, DecisionKind.Zili, 2_048);
-        var zili = RequirePrompt(game, DecisionKind.Zili);
+        ReachPrompt(game, DecisionKind.ProgramTrigger, 2_048);
+        var zili = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(zili.IsPrivate &&
-                zili.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                zili.SkillPrompt?.SkillId == ZiliSkillId &&
+                zili.Choices.Select(choice => choice.Parameters.GetValueOrDefault("binding-id"))
                     .Order(StringComparer.Ordinal)
-                    .SequenceEqual(["zili-draw", "zili-recover"]) &&
+                    .SequenceEqual(["draw", "recover"]) &&
+                zili.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
                 game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].MaxHp ==
                     beforeAwakening.MaxHp,
-            "Zili must awaken once at the next preparation phase and publish its benefit choice before losing maximum HP.");
+            "Zili must publish one mandatory generic benefit choice at the next preparation phase before losing maximum HP.");
 
         var pausedReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        Require(pausedReplay.PendingDecision is { Kind: DecisionKind.Zili, PlayerSeat: HumanSeat, IsPrivate: true } &&
+        Require(pausedReplay.PendingDecision is
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    PlayerSeat: HumanSeat,
+                    IsPrivate: true,
+                    SkillPrompt.SkillId: ZiliSkillId
+                } &&
                 SnapshotJson.Serialize(pausedReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
-            "A paused Zili awakening choice must replay exactly.");
+            "A paused generic Zili awakening choice must replay exactly.");
 
         var drawBranch = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        Answer(drawBranch, DecisionKind.Zili, "zili-draw");
-        var drawResult = drawBranch.Events.Select(item => item.Payload).OfType<ZiliResolvedEvent>().Last();
-        Require(!drawResult.Recovered && drawResult.DrawnCardIds.Count == 2 &&
-                drawResult.MaximumHp == beforeAwakening.MaxHp - 1 &&
-                drawResult.AcquiredSkillIds.SequenceEqual([PaiyiSkillId]),
-            "Zili's draw branch must draw exactly two before losing one maximum HP and acquiring Paiyi.");
+        AnswerProgramBranch(drawBranch, "draw");
+        ReachPrompt(drawBranch, DecisionKind.PlayCard, 512);
+        var drawnOwner = drawBranch.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
+        Require(drawBranch.CardMovements.Count(move =>
+                    move.To == CardLocation.Hand(HumanSeat) &&
+                    move.Reason.Value == "skill-program.classic:zili.Draw") == 2 &&
+                drawnOwner.MaxHp == beforeAwakening.MaxHp - 1 &&
+                drawBranch.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>().Last() is
+                { SkillId: ZiliSkillId, AcquiredSkillIds.Count: 1 } drawAwakening &&
+                drawAwakening.AcquiredSkillIds.SequenceEqual([PaiyiSkillId]) &&
+                drawBranch.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.SkillId == ZiliSkillId && item.BindingId == "draw" && item.Activated && item.Completed),
+            "Zili's generic draw branch must draw exactly two before losing one maximum HP and acquiring Paiyi.");
 
-        Answer(game, DecisionKind.Zili, "zili-recover");
+        var recoveryHp = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp;
+        AnswerProgramBranch(game, "recover");
         ReachPrompt(game, DecisionKind.PlayCard, 512);
         var awakened = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
         Require(awakened.Skills?.Any(skill => skill.ContentId == PaiyiSkillId &&
-                    skill.Kind == SkillKind.Paiyi && skill.ActionForms == SkillActionForm.Active) == true &&
+                    skill.Kind == SkillKind.None && skill.ActionForms == SkillActionForm.Active) == true &&
                 awakened.SkillRuntimeStates?.Single(state => state.SkillId == PaiyiSkillId).IsAcquired == true &&
-                game.Events.Select(item => item.Payload).OfType<ZiliResolvedEvent>().Last() is
-                {
-                    OwnerSeat: HumanSeat,
-                    Recovered: true,
-                    DrawnCardIds.Count: 0,
-                    MaximumHp: var recoveredMaximumHp,
-                    AcquiredSkillIds.Count: 1
-                } && recoveredMaximumHp == beforeAwakening.MaxHp - 1,
-            "Zili's recovery branch must recover one before losing one maximum HP and expose dynamically acquired active Paiyi.");
+                awakened.Hp == Math.Min(recoveryHp + 1, awakened.MaxHp) &&
+                awakened.MaxHp == beforeAwakening.MaxHp - 1 &&
+                game.Events.Select(item => item.Payload).OfType<MaximumHpChangedEvent>().Any(item =>
+                    item.PlayerSeat == HumanSeat && item.SkillId == ZiliSkillId && item.Delta == -1) &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.SkillId == ZiliSkillId && item.BindingId == "recover" && item.Activated && item.Completed),
+            "Zili's generic recovery branch must recover one before losing one maximum HP and expose dynamically acquired active Paiyi.");
 
         var beforePaiyi = RoundTrip(game.CreateCheckpoint());
         var selfBranch = GameReplay.Restore(beforePaiyi, registry);
         UsePaiyi(selfBranch, HumanSeat);
-        var selfResult = selfBranch.Events.Select(item => item.Payload).OfType<PaiyiResolvedEvent>().Last();
-        Require(selfResult is
-                {
-                    SourceSeat: HumanSeat,
-                    TargetSeat: HumanSeat,
-                    DrawnCardIds.Count: 2,
-                    DamageTriggered: false
-                } &&
+        Require(selfBranch.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
+                    item.OwnerSeat == HumanSeat && item.SkillId == PaiyiSkillId &&
+                    item.ActivationId == "remove-authority" && item.Completed) &&
+                selfBranch.CardMovements.Count(move =>
+                    move.To == CardLocation.Hand(HumanSeat) &&
+                    move.Reason.Value == "skill-program.classic:paiyi.Draw") == 2 &&
                 selfBranch.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].AuthorityCount == 2,
             "Paiyi may target its owner, draws two, removes one Authority and cannot damage the same player.");
+
+        var lethalBranch = GameReplay.Restore(beforePaiyi, registry);
+        var lethalTargetSeat = lethalBranch.CreateSnapshot(HumanSeat, revealAll: true).Players
+            .Where(player => player.IsAlive && player.Seat != HumanSeat)
+            .OrderByDescending(player => player.HandCount)
+            .First().Seat;
+        SetPlayerHp(lethalBranch, lethalTargetSeat, 1);
+        SubmitPaiyi(lethalBranch, lethalTargetSeat);
+        for (var step = 0; step < 128 && !lethalBranch.Events.Select(item => item.Payload)
+                 .OfType<ProgramSkillResolvedEvent>().Any(item =>
+                     item.SkillId == PaiyiSkillId && item.ActivationId == "remove-authority"); step++)
+        {
+            CommandResult continued;
+            if (lethalBranch.PendingDecision is { PlayerSeat: HumanSeat, Kind: DecisionKind.RescueDying } dying)
+            {
+                var decline = dying.Choices.Single(choice => choice.Cards.Count == 0);
+                continued = lethalBranch.Submit(new AnswerPromptCommand(
+                    HumanSeat, dying.PromptId, decline.Id, lethalBranch.Revision));
+            }
+            else
+            {
+                continued = lethalBranch.Submit(new AdvanceOneStepCommand(lethalBranch.Revision));
+            }
+            Require(continued.Accepted, continued.Error?.Message ?? "Lethal Paiyi could not resume its program parent.");
+        }
+        Require(!lethalBranch.CreateSnapshot(HumanSeat, revealAll: true).Players[lethalTargetSeat].IsAlive &&
+                lethalBranch.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
+                    item.SkillId == PaiyiSkillId && item.ActivationId == "remove-authority" && item.Completed),
+            "Lethal active-program damage must finish death handling and then complete its program frame once.");
 
         var targetSeat = game.CreateSnapshot(HumanSeat, revealAll: true).Players
             .Where(player => player.IsAlive && player.Seat != HumanSeat)
@@ -156,16 +276,11 @@ internal static class ZhongHuiChecks
             .First().Seat;
         var targetHp = game.CreateSnapshot(HumanSeat, revealAll: true).Players[targetSeat].Hp;
         UsePaiyi(game, targetSeat);
-        var result = game.Events.Select(item => item.Payload).OfType<PaiyiResolvedEvent>().Last();
-        Require(result is
-                {
-                    SourceSeat: HumanSeat,
-                    TargetSeat: var resolvedTarget,
-                    DrawnCardIds.Count: 2,
-                    DamageTriggered: true
-                } && resolvedTarget == targetSeat &&
-                game.CreateSnapshot(HumanSeat, revealAll: true).Players[targetSeat].Hp == targetHp - 1 &&
+        Require(game.CreateSnapshot(HumanSeat, revealAll: true).Players[targetSeat].Hp == targetHp - 1 &&
                 game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].AuthorityCount == 2 &&
+                game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
+                    item.OwnerSeat == HumanSeat && item.SkillId == PaiyiSkillId &&
+                    item.ActivationId == "remove-authority" && item.Completed) &&
                 game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
                     item.SourceSeat == HumanSeat && item.TargetSeat == targetSeat && item.Amount == 1),
             "Paiyi must draw first, compare current hands, then route its conditional damage through the normal damage chain.");
@@ -173,8 +288,62 @@ internal static class ZhongHuiChecks
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)) &&
-                replay.Events.Select(item => item.Payload).OfType<PaiyiResolvedEvent>().Last().DamageTriggered,
+                replay.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
+                    item.SkillId == PaiyiSkillId && item.ActivationId == "remove-authority" && item.Completed),
             "The completed Zili-to-Paiyi chain must replay exactly.");
+    }
+
+    public static void ZiliProgramValidationAndHistoricalBoundary()
+    {
+        const string rulesResource =
+            "CardGame.Content.Standard.SkillPrograms.state-awakening-skills.rules.json";
+        const string presentationResource =
+            "CardGame.Content.Standard.SkillPrograms.state-awakening-skills.presentation.json";
+        var assembly = typeof(StandardClassicGeneralPackage).Assembly;
+        var rules = ReadResource(assembly, rulesResource);
+        var presentation = ReadResource(assembly, presentationResource);
+        var catalog = SkillProgramCatalog.Load(rules, presentation);
+        var triggers = catalog.Programs[ZiliSkillId].Triggers.ToDictionary(item => item.Id);
+        var twoAuthorities = new SkillProgramTriggerFacts(
+            0, 2, true, CurrentMaxHp: 4,
+            OwnedZoneCounts: new SkillProgramOwnedZoneCounts(0, 0, 2, 0));
+        var woundedThreeAuthorities = twoAuthorities with
+        {
+            OwnedZoneCounts = new SkillProgramOwnedZoneCounts(0, 0, 3, 0)
+        };
+        var fullThreeAuthorities = woundedThreeAuthorities with { CurrentHp = 4 };
+        Require(!triggers["recover"].Condition.Evaluate(twoAuthorities) &&
+                !triggers["draw"].Condition.Evaluate(twoAuthorities) &&
+                triggers["recover"].Condition.Evaluate(woundedThreeAuthorities) &&
+                triggers["draw"].Condition.Evaluate(woundedThreeAuthorities) &&
+                !triggers["recover"].Condition.Evaluate(fullThreeAuthorities) &&
+                triggers["draw"].Condition.Evaluate(fullThreeAuthorities),
+            "The generic owned-zone condition must require three Authorities and omit only the illegal recovery branch at full HP.");
+        RequireLoadFailure(
+            rules.Replace("\"schemaVersion\": 26", "\"schemaVersion\": 25", StringComparison.Ordinal),
+            presentation,
+            "schema 25 must reject the owned-zone count and turn-start choice group");
+        RequireLoadFailure(
+            rules.Replace("\"zone\": \"authority\"", "\"zone\": \"hand\"", StringComparison.Ordinal),
+            presentation,
+            "currentOwnedZoneCount must reject ordinary hand zones");
+
+        var fixture = FindFixture();
+        var historicalRegistry = CreateRegistry(new Version(1, 109, 0));
+        var historical = CreateFixtureGame(historicalRegistry, fixture.Seed);
+        ResolveSelfFireAttack(historical, expectQuanji: true);
+        ResolveSelfFireAttack(historical, expectQuanji: true);
+        ResolveSelfFireAttack(historical, expectQuanji: true);
+        var play = RequirePrompt(historical, DecisionKind.PlayCard);
+        Require(historical.Submit(new EndPlayPhaseCommand(
+                HumanSeat, historical.Revision, play.PromptId)).Accepted,
+            "The historical Zhong Hui fixture could not end its play phase.");
+        ReachPrompt(historical, DecisionKind.Zili, 2_048);
+        Answer(historical, DecisionKind.Zili, "zili-draw");
+        Require(historical.Events.Select(item => item.Payload).OfType<ZiliResolvedEvent>().Any() &&
+                historical.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .All(item => item.SkillId != ZiliSkillId),
+            "Package 1.109 must retain its historical Zili prompt without entering the schema-26 program path.");
     }
 
     private static void ResolveSelfFireAttack(GameEngine game, bool expectQuanji, bool testForgery = false)
@@ -216,11 +385,32 @@ internal static class ZhongHuiChecks
             return;
         }
 
-        var quanji = RequirePrompt(game, DecisionKind.Quanji);
+        if (game.PendingDecision is { Kind: DecisionKind.Quanji } legacyQuanji)
+        {
+            if (testForgery)
+            {
+                var revision = game.Revision;
+                var forged = game.Submit(new AnswerPromptCommand(
+                    HumanSeat, legacyQuanji.PromptId, new ChoiceId("quanji.forged"), revision));
+                Require(!forged.Accepted && game.Revision == revision,
+                    "A forged historical Quanji answer must be rejected atomically.");
+            }
+            Answer(game, DecisionKind.Quanji, "quanji-use");
+            var legacyStore = RequirePrompt(game, DecisionKind.Quanji);
+            var legacyDodgeIds = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand
+                .Where(card => card.Kind == CardKind.Dodge).Select(card => card.Id).ToHashSet();
+            Answer(game, legacyStore.Choices.First(choice =>
+                choice.Parameters.GetValueOrDefault("action") == "quanji-store" &&
+                choice.Cards.Count == 1 && legacyDodgeIds.Contains(choice.Cards[0])));
+            ReachPrompt(game, DecisionKind.PlayCard, 512);
+            return;
+        }
+
+        var quanji = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(quanji.IsPrivate &&
-                quanji.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                quanji.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
                     .Order(StringComparer.Ordinal)
-                    .SequenceEqual(["quanji-skip", "quanji-use"]),
+                    .SequenceEqual(["activate", "skip"]),
             "Each damage point must publish one private Quanji use/skip choice.");
         if (testForgery)
         {
@@ -236,37 +426,46 @@ internal static class ZhongHuiChecks
                 "A forged Quanji answer must be rejected atomically.");
         }
 
-        Answer(game, DecisionKind.Quanji, "quanji-use");
-        var store = RequirePrompt(game, DecisionKind.Quanji);
+        Answer(game, quanji.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+        var store = RequirePrompt(game, DecisionKind.ProgramTrigger);
         var dodgeIds = game.CreateSnapshot(HumanSeat, revealAll: true).Players
             .Single(player => player.Seat == HumanSeat).Hand
             .Where(card => card.Kind == CardKind.Dodge)
             .Select(card => card.Id)
             .ToHashSet();
         var cardChoice = store.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "quanji-store" &&
-            choice.Cards.Count == 1 && dodgeIds.Contains(choice.Cards[0]));
+            choice.Parameters.GetValueOrDefault("program-action") == "select-source-card" &&
+            int.TryParse(choice.Parameters.GetValueOrDefault("slot-index"), out var slot) &&
+            slot >= 0 && slot < game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count &&
+            dodgeIds.Contains(game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand[slot].Id));
         Answer(game, cardChoice);
         ReachPrompt(game, DecisionKind.PlayCard, 512);
     }
 
     private static void UsePaiyi(GameEngine game, int targetSeat)
     {
+        SubmitPaiyi(game, targetSeat);
+        ReachPrompt(game, DecisionKind.PlayCard, 512);
+    }
+
+    private static void SubmitPaiyi(GameEngine game, int targetSeat)
+    {
         ReachPrompt(game, DecisionKind.PlayCard, 512);
         var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Paiyi);
+            candidate.Kind == LegalActionKind.UseProgramSkill && candidate.ProgramSkillId == PaiyiSkillId);
         Require(action.SelectableCardIds.Count > 0 && action.SelectableTargetSeats.Contains(targetSeat),
             "Paiyi did not publish its Authority card or requested living target.");
         var prompt = RequirePrompt(game, DecisionKind.PlayCard);
-        var result = game.Submit(new UseSkillCommand(
+        var result = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Paiyi,
+            action.ProgramSkillId!,
+            action.ProgramActivationId!,
             [action.SelectableCardIds[0]],
             [targetSeat],
             game.Revision,
             prompt.PromptId));
         Require(result.Accepted, result.Error?.Message ?? "Paiyi was rejected.");
-        ReachPrompt(game, DecisionKind.PlayCard, 512);
     }
 
     private static void AnswerCard(GameEngine game, DecisionKind kind, CardKind cardKind)
@@ -287,6 +486,16 @@ internal static class ZhongHuiChecks
         var prompt = RequirePrompt(game, kind);
         var choice = prompt.Choices.Single(candidate =>
             candidate.Parameters.GetValueOrDefault("action") == action);
+        Answer(game, choice);
+    }
+
+    private static void AnswerProgramBranch(GameEngine game, string bindingId)
+    {
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        var choice = prompt.Choices.Single(candidate =>
+            candidate.Parameters.GetValueOrDefault("program-action") == "activate" &&
+            candidate.Parameters.GetValueOrDefault("skill-id") == ZiliSkillId &&
+            candidate.Parameters.GetValueOrDefault("binding-id") == bindingId);
         Answer(game, choice);
     }
 
@@ -330,6 +539,14 @@ internal static class ZhongHuiChecks
         var method = typeof(GameEngine).GetMethod("GetHandLimit", BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine hand-limit query was not found.");
         return (int)method.Invoke(game, [players[seat]])!;
+    }
+
+    private static void SetPlayerHp(GameEngine game, int seat, int hp)
+    {
+        var playersField = typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine player store was not found.");
+        var players = (IReadOnlyList<CharacterState>)playersField.GetValue(game)!;
+        players[seat].Hp = hp;
     }
 
     private static Fixture FindFixture()
@@ -410,12 +627,36 @@ internal static class ZhongHuiChecks
             : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
     }
 
-    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry() => CreateRegistry(
+        StandardClassicGeneralPackage.CurrentVersion);
+
+    private static ContentRegistry CreateRegistry(Version classicVersion) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        new StandardClassicGeneralPackage(classicVersion),
         new ScenarioPackage());
+
+    private static string ReadResource(Assembly assembly, string resourceName)
+    {
+        using var stream = assembly.GetManifestResourceStream(resourceName) ??
+            throw new InvalidOperationException($"Missing test resource '{resourceName}'.");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd().ReplaceLineEndings("\n");
+    }
+
+    private static void RequireLoadFailure(string rules, string presentation, string message)
+    {
+        try
+        {
+            _ = SkillProgramCatalog.Load(rules, presentation);
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
+        throw new InvalidOperationException(message);
+    }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));

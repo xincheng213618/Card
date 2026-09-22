@@ -92,6 +92,47 @@ internal static class DamageProgramChecks
         Reject(ValidationRules.Replace("\"target\":\"selectedTarget\",\"numberExpression\"",
                 "\"target\":\"owner\",\"numberExpression\"", StringComparison.Ordinal),
             "selected target");
+
+        const string ownerSelectionRules = """
+            {"schemaVersion":27,"skills":[{"id":"fixture:damage","revision":1,
+            "minimumRulesVersion":132,"modifiers":[{"id":"authority-limit","query":"handLimit",
+            "operation":"add","valueExpression":"ownedZoneCount","valueZone":"authority",
+            "priority":0,"condition":{"kind":"always"}}],"viewAs":[],"activations":[],"triggers":[
+            {"id":"owner-card","window":"afterDamageApplied","subject":"owner",
+            "damageOccurrence":"perDamagePoint","optional":true,"priority":0,
+            "effects":[{"op":"selectSourceCard","target":"owner","cardSource":"owner",
+            "zones":["hand"],"resultBind":"selected"},
+            {"op":"moveBoundCards","target":"owner","sourceBind":"selected",
+            "destination":"ownerPersistentZone","destinationZone":"authority"}]}],
+            "contributions":[],"cardIdentities":[]}]}
+            """;
+        const string presentation =
+            "{\"schemaVersion\":1,\"skills\":{\"fixture:damage\":{\"name\":\"Damage\",\"description\":\"Fixture\"}}}";
+        var ownerSelection = SkillProgramCatalog.Load(ownerSelectionRules, presentation)
+            .Programs["fixture:damage"].Triggers.Single().Effects;
+        Require(ownerSelection[0].CardSource == SkillProgramCardSource.Owner,
+            "Schema 27 must preserve the typed owner-card source on selectSourceCard.");
+        Require(ownerSelection[1] is
+                {
+                    Destination: SkillProgramCardDestination.OwnerPersistentZone,
+                    DestinationZone: CardZoneKind.Authority
+                },
+            "Schema 27 must preserve the whitelisted owner persistent-zone destination.");
+        var ownerModifier = SkillProgramCatalog.Load(ownerSelectionRules, presentation)
+            .Programs["fixture:damage"].Modifiers.Single();
+        Require(ownerModifier is
+                {
+                    ValueExpression: SkillRuleValueExpression.OwnedZoneCount,
+                    ValueZone: CardZoneKind.Authority
+                } && ownerModifier.EvaluateValue(new SkillProgramRuleContext(
+                    new PlayerSkillContext(0, 4, 4, 0, TurnPhase.Play, IsOwnTurn: true),
+                    LivingFactionCount: 1,
+                    OwnedZoneCount: zone => zone == CardZoneKind.Authority ? 3 : 0)) == 3,
+            "Schema 27 ownedZoneCount must evaluate the selected owner's frozen named-zone count.");
+        Reject(ownerSelectionRules.Replace("\"schemaVersion\":27", "\"schemaVersion\":26",
+            StringComparison.Ordinal), "valueZone: unsupported property");
+        Reject(ownerSelectionRules.Replace("\"destinationZone\":\"authority\"",
+            "\"destinationZone\":\"hand\"", StringComparison.Ordinal), "persistent owner zone");
     }
 
     public static void GenericDamageChoicesClaimSelectGiftDrawAndReplay()

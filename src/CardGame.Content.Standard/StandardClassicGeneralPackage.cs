@@ -59,7 +59,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
     private readonly Version _version;
 
-    public static Version CurrentVersion { get; } = new(1, 108, 0);
+    public static Version CurrentVersion { get; } = new(1, 113, 0);
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
         : this(legacyRoster ? new Version(1, 0, 0) : CurrentVersion)
@@ -616,25 +616,31 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         if (_version >= new Version(1, 86, 0))
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:quanji",
-                    "权计",
-                    "每当你受到1点伤害后，你可以摸一张牌，然后将一张手牌置于武将牌上，称为“权”；你的手牌上限+X（X为“权”数）。",
-                    SkillKind.Quanji),
-                SkillTag.None,
-                SkillExecutionForm.State | SkillExecutionForm.Trigger));
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:zili",
-                    "自立",
-                    "觉醒技，准备阶段，若“权”的数量不小于3，你选择一项：回复1点体力；或摸两张牌。若如此做，你减1点体力上限，获得“排异”。",
-                    SkillKind.Zili),
-                SkillTag.Awakening,
-                SkillExecutionForm.Trigger));
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "classic:paiyi",
-                "排异",
-                "出牌阶段限一次，你可以移去一张“权”，令一名角色摸两张牌，然后若其手牌数大于你，你对其造成1点伤害。",
-                SkillKind.Paiyi)));
+            builder.AddSkill(_version >= new Version(1, 111, 0)
+                ? PersistentZoneSkillPrograms.Definition("classic:quanji")
+                : WithStructuredSkillMetadata(new ContentSkillDefinition(
+                        "classic:quanji",
+                        "权计",
+                        "每当你受到1点伤害后，你可以摸一张牌，然后将一张手牌置于武将牌上，称为“权”；你的手牌上限+X（X为“权”数）。",
+                        SkillKind.Quanji),
+                    SkillTag.None,
+                    SkillExecutionForm.State | SkillExecutionForm.Trigger));
+            builder.AddSkill(_version >= new Version(1, 110, 0)
+                ? AwakeningSkillPrograms.Definition("classic:zili")
+                : WithStructuredSkillMetadata(new ContentSkillDefinition(
+                        "classic:zili",
+                        "自立",
+                        "觉醒技，准备阶段，若“权”的数量不小于3，你选择一项：回复1点体力；或摸两张牌。若如此做，你减1点体力上限，获得“排异”。",
+                        SkillKind.Zili),
+                    SkillTag.Awakening,
+                    SkillExecutionForm.Trigger));
+            builder.AddSkill(_version >= new Version(1, 112, 0)
+                ? ActivePersistentZoneSkillPrograms.Definition("classic:paiyi")
+                : WithActiveActionMetadata(new ContentSkillDefinition(
+                    "classic:paiyi",
+                    "排异",
+                    "出牌阶段限一次，你可以移去一张“权”，令一名角色摸两张牌，然后若其手牌数大于你，你对其造成1点伤害。",
+                    SkillKind.Paiyi)));
         }
 
         if (_version >= new Version(1, 87, 0))
@@ -1234,12 +1240,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "武圣",
                 "你可以将一张红色牌当【杀】使用或打出；你使用或打出的方块【杀】无距离限制。",
                 SkillKind.Wusheng), SkillTag.None, SkillExecutionForm.State));
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "sp:danji",
-                "单骑",
-                "觉醒技，准备阶段，若你的手牌数大于体力值且本局主公不为刘备，你减1点体力上限，然后获得【马术】和【怒斩】。"),
-                SkillTag.Awakening,
-                SkillExecutionForm.Trigger));
+            builder.AddSkill(_version >= new Version(1, 109, 0)
+                ? AwakeningSkillPrograms.Definition("sp:danji")
+                : WithStructuredSkillMetadata(new ContentSkillDefinition(
+                        "sp:danji",
+                        "单骑",
+                        "觉醒技，准备阶段，若你的手牌数大于体力值且本局主公不为刘备，你减1点体力上限，然后获得【马术】和【怒斩】。"),
+                    SkillTag.Awakening,
+                    SkillExecutionForm.Trigger));
             builder.AddSkill(WithStructuredSkillMetadata(
                 _version >= new Version(1, 98, 0)
                     ? RuleQuerySkillPrograms.Definition("sp:guan-yu-mashu")

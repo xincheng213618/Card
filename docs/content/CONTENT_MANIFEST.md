@@ -11,7 +11,9 @@
 | `standard@1.14.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式；保留 rules v117 的 schema 12 咆哮与 rules v120 的 schema 15 伤害程序，并在 rules v121 以 schema 16 `DrawPhaseStarting` 迁移强制标准英姿；1.13.0 定义与指纹保留但不复活旧被动执行路线 | implemented-registry |
 | `standard-active-skills@1.1.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5`；马术使用 schema 12 距离修正，1.0.0 定义与指纹保留 | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.108.0` | `standard-rescue-skills@1.0.0` | 当前正式经典身份层；保留 rules v117–v126 的 schema 12–21 程序，并在 rules v127 以 schema 22 的拥有者牌区清理、连环设置和固定值回复迁移经典涅槃；1.107.0 定义、包签名与内容指纹保留给历史构造和旧专属涅槃边界 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.113.0` | `standard-rescue-skills@1.0.0` | 整合后的当前经典身份层；保留主目录组合内核、龙吟/拒战/陷阵定义，并纳入单骑、自立、权计、排异的公共状态与牌区能力；当前 rules v134 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.110.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；rules v131／schema 26 迁移自立，权计仍使用专属历史执行边界 | implemented-registry；历史构造 |
+| `standard-classic-generals@1.108.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；以 rules v127／schema 22 的拥有者牌区清理、连环设置和固定值回复迁移经典涅槃；单骑仍使用专属历史执行边界 | implemented-registry；历史构造 |
 | `standard-classic-generals@1.107.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；保留 rules v117–v125 的 schema 12–20 程序，并在 rules v126 以 schema 21 共享判定结果绑定和回合牌转换迁移经典双雄；涅槃仍使用专属历史执行边界 | implemented-registry；历史构造 |
 | `standard-classic-generals@1.106.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；保留 rules v117–v124 的 schema 12–19 程序，并在 rules v125 以 schema 20 互斥分支和类型化回合策略迁移经典将驰、自守；1.105.0 定义、包签名与内容指纹保留给历史构造，但不复活旧专属将驰／自守执行器 | implemented-registry；历史构造 |
 | `standard-classic-generals@1.105.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；rules v124 以 schema 19 `DrawPhaseStarting` 摸牌调整与回合伤害修正迁移经典裸衣；1.104.0 定义、包签名与内容指纹继续保留 | implemented-registry；历史构造 |
@@ -176,7 +178,7 @@
 | `classic:zhang-fei` | 张飞 | `zhang_fei` | `classic:paoxiao` | implemented-registry + classic 1.20 | locked-slash-limit, same-phase-multiple-slash, shared-ai-policy |
 | `classic:zhao-yun` | 赵云 | `zhao_yun` | `classic:longdan` | implemented-registry + classic 1.21 | dodge-to-slash, slash-to-dodge, physical-effective-kind-separation, private-response |
 | `classic:guan-yu` | 关羽 | `guan_yu` | `classic:wusheng` | implemented-registry + classic 1.22 | hand-or-equipment red-card, active-or-response conversion, source-zone-preservation |
-| `sp:guan-yu` | SP关羽 | `sp-guan-yu`（官网独立肖像） | `sp:guan-yu-wusheng` + `sp:danji`，觉醒后获得 `sp:guan-yu-mashu` + `sp:nuzhan` | implemented-registry + classic 1.69 / rules v98 | awakening, acquired-skills, exact-conversion-source, square-slash-distance, trick-slash-limit, equipment-slash-damage |
+| `sp:guan-yu` | SP关羽 | `sp-guan-yu`（官网独立肖像） | `sp:guan-yu-wusheng` + `sp:danji`，觉醒后获得 `sp:guan-yu-mashu` + `sp:nuzhan` | implemented-registry + classic 1.69 / rules v98；`sp:danji` 于 classic 1.109 / rules v128 迁入 schema 23 program | awakening, frozen-hand-count, lord-general-exclusion, maximum-hp-change, acquired-skills, exact-conversion-source, square-slash-distance, trick-slash-limit, equipment-slash-damage |
 | `classic:yan-yan` | 严颜 | `yan-yan`（官网独立肖像） | `classic:juzhan` | implemented-registry + classic 1.70 | conversion-state, slash-target-trigger, opaque-target-card, per-target-turn-prohibition |
 | `mou:lu-meng` | 谋吕蒙 | `mou-lu-meng`（官网独立肖像） | `mou:hengye` + `mou:yingbo` | implemented-registry + classic 1.80 / rules v102 | game-growth, skill-reset, round-card-name-ledger, unrespondable-first-use, optional-card-gift, fire-damage-bonus |
 | `standard:guan-yu` | 关羽 | `guan_yu` | `standard:wusheng` | implemented-registry + classic 1.21 compatibility | hand red-card, conversion, attack |

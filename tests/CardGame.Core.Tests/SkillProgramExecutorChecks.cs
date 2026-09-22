@@ -240,7 +240,8 @@ internal static class SkillProgramExecutorChecks
         public bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId) =>
             ownerSeat == 0 && skillId == _program.Id && skillInstanceId == "fixture-instance";
 
-        public bool OwnsHandCards(int ownerSeat, IReadOnlyList<int> cardIds) =>
+        public bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds,
+            IReadOnlyList<CardZoneKind> sourceZones) =>
             ownerSeat == 0 && cardIds.Distinct().Count() == cardIds.Count &&
             cardIds.All(HandCards.Contains);
 
@@ -274,15 +275,27 @@ internal static class SkillProgramExecutorChecks
             return LoseHpOutcome;
         }
 
+        public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount)
+        {
+            Calls.Add($"damage:{frame.OwnerSeat}:{targetSeat}:{amount}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat)
+        {
+            Calls.Add($"pindian:{frame.OwnerSeat}:{targetSeat}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
         public void MoveSelected(
-            int ownerSeat,
+            ProgramSkillFrame frame,
             int targetSeat,
             IReadOnlyList<int> cardIds,
             bool toDiscard,
             CardMoveReason reason)
         {
             foreach (var cardId in cardIds) HandCards.Remove(cardId);
-            Calls.Add($"move:{ownerSeat}:{targetSeat}:{string.Join(',', cardIds)}:" +
+            Calls.Add($"move:{frame.OwnerSeat}:{targetSeat}:{string.Join(',', cardIds)}:" +
                        $"{(toDiscard ? "discard" : "give")}:{reason.Value}");
         }
 
@@ -310,8 +323,14 @@ internal static class SkillProgramExecutorChecks
             CardMoveReason reason) =>
             Calls.Add($"discard-owned-zones:{frame.OwnerSeat}:{string.Join(',', zones)}:{reason.Value}");
 
-        public void SetChainedState(ProgramSkillFrame frame, bool chained) =>
+        public void SetChainedState(ProgramSkillFrame frame, bool chained, int? targetSeat = null) =>
             Calls.Add($"set-chained-state:{frame.OwnerSeat}:{chained}");
+
+        public void ChangeMaximumHp(ProgramSkillFrame frame, int amount) =>
+            Calls.Add($"change-maximum-hp:{frame.OwnerSeat}:{amount}");
+
+        public void GrantSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
+            Calls.Add($"grant-skills:{frame.OwnerSeat}:{string.Join(',', skillIds)}");
 
         public void TurnOver(long frameId, int ownerSeat, int targetSeat) =>
             Calls.Add($"turn-over:{ownerSeat}:{targetSeat}");
@@ -363,8 +382,9 @@ internal static class SkillProgramExecutorChecks
             string sourceBind,
             string? exceptBind,
             SkillProgramCardDestination destination,
+            CardZoneKind? destinationZone,
             CardMoveReason reason) =>
-            Calls.Add($"move-bound:{ownerSeat}:{sourceBind}:{exceptBind}:{destination}:{reason.Value}");
+            Calls.Add($"move-bound:{ownerSeat}:{sourceBind}:{exceptBind}:{destination}:{destinationZone}:{reason.Value}");
 
         public SkillProgramStepOutcome SelectTarget(
             long frameId,
@@ -391,6 +411,7 @@ internal static class SkillProgramExecutorChecks
         public SkillProgramStepOutcome SelectSourceCard(
             long frameId,
             int ownerSeat,
+            SkillProgramCardSource cardSource,
             IReadOnlyList<CardZoneKind> zones,
             string resultBind)
         {
@@ -444,8 +465,9 @@ internal static class SkillProgramExecutorChecks
 
         public void GrantTurnCardTargetRestriction(
             ProgramSkillFrame frame,
-            SkillProgramCardTargetRestriction restriction) =>
-            Calls.Add($"grant-turn-card-target-restriction:{frame.OwnerSeat}:{restriction}");
+            SkillProgramCardTargetRestriction restriction,
+            int targetSeat) =>
+            Calls.Add($"grant-turn-card-target-restriction:{frame.OwnerSeat}:{targetSeat}:{restriction}");
 
         public void GrantTurnCardConversion(
             ProgramSkillFrame frame,

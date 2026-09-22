@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "resultBind", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "resultBind", "cardCategories", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -23,10 +23,16 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
         if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: must be ownerHand or discardPile.");
+        var chooserRef = r.RequiredParticipantReference("chooserRef");
+        var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
+        var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");
+        if (cardCategories is { Count: 0 })
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: must not be empty when specified.");
+        if (cardCategories is not null && chooserRef != cardOwnerRef)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: category filtering requires chooserRef and cardOwnerRef to name the same participant.");
         var effect = new SkillProgramEffect(Op, target, count, r.Condition(), zones: zones,
             destination: destination, resultBind: r.OptionalIdentifier("resultBind"),
-            chooserRef: r.RequiredParticipantReference("chooserRef"),
-            cardOwnerRef: r.RequiredParticipantReference("cardOwnerRef"));
+            chooserRef: chooserRef, cardOwnerRef: cardOwnerRef, cardCategories: cardCategories);
         RequireAlways(effect, r.Path);
         return effect;
     }

@@ -131,7 +131,9 @@ public sealed partial class GameEngine
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.HandLimit).ToList();
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         AddFiniteContribution(contributions, $"state:{player.Seat}:classic:quanji:authority",
-            UsesFormalZhongHui && HasRuntimeSkill(player, QuanjiSkillId) ? GetAuthority(player).Count : 0);
+            UsesFormalZhongHui && HasLegacyRuntimeSkill(player, QuanjiSkillId)
+                ? GetAuthority(player).Count
+                : 0);
         return RuleQueryService.Evaluate(
             SkillRuleQuery.HandLimit,
             new RuleQueryBounds(0, int.MaxValue),
@@ -143,7 +145,10 @@ public sealed partial class GameEngine
         CharacterState player,
         SkillRuleQuery query)
     {
-        var context = new SkillProgramRuleContext(CreateSkillContext(player), GetLivingFactionCount());
+        var context = new SkillProgramRuleContext(
+            CreateSkillContext(player),
+            GetLivingFactionCount(),
+            zone => _cardZones.Count(new CardLocation(zone, player.Seat)));
         var programContributions = SkillProgramRules.CollectIndexedContributions(
             query,
             context,

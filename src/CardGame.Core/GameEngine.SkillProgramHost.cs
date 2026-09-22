@@ -28,18 +28,27 @@ public sealed partial class GameEngine
         public bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId) =>
             engine.HasRuntimeSkillInstance(engine._players[ownerSeat], skillId, skillInstanceId);
 
-        public bool OwnsHandCards(int ownerSeat, IReadOnlyList<int> cardIds) =>
-            cardIds.All(id => engine.GetHand(engine._players[ownerSeat]).Any(card => card.Id == id));
+        public bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds,
+            IReadOnlyList<CardZoneKind> sourceZones) =>
+            cardIds.All(id => sourceZones.Any(zone =>
+                engine._cardZones.CardsAt(new CardLocation(zone, ownerSeat)).Any(card => card.Id == id)));
 
         public bool EvaluateCondition(
             ProgramSkillFrame frame,
             SkillProgramCondition condition,
-            PlayerSkillContext context) =>
-            condition.Evaluate(
+            PlayerSkillContext context)
+        {
+            var selectedTarget = frame.SelectedTargetSeats.Count == 1
+                ? engine.CreateSkillContext(engine._players[frame.SelectedTargetSeats[0]])
+                : null;
+            return condition.Evaluate(
                 context,
+                selectedTarget,
                 bind => frame.PindianResultBindings.Single(item => item.Name == bind).SourceWon,
                 stateId => engine.GetProgramBooleanState(frame, stateId),
-                frame.WindowContext?.CardUse?.IsPublicRed);
+                frame.WindowContext?.CardUse?.IsPublicRed,
+                bind => frame.ChoiceBindings.Single(item => item.Name == bind).OptionId);
+        }
 
         public void UpdateFrame(ProgramSkillFrame frame)
         {
@@ -91,13 +100,31 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.AwaitChild;
         }
 
-        public void MoveSelected(int ownerSeat, int targetSeat, IReadOnlyList<int> cardIds,
+        public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount) =>
+            engine.BeginProgramSkillDamage(frame, targetSeat, amount);
+
+        public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat) =>
+            engine.BeginProgramSkillPindian(frame, targetSeat);
+
+        public void MoveSelected(ProgramSkillFrame frame, int targetSeat, IReadOnlyList<int> cardIds,
             bool toDiscard, CardMoveReason reason)
         {
+            var program = GetProgram(frame.SkillId);
+            var activation = program.Activations.Single(item => item.Id == frame.ActivationId);
             var selected = cardIds.Select(id =>
-                engine.GetHand(engine._players[ownerSeat]).Single(card => card.Id == id)).ToArray();
-            engine.MoveCards(selected, CardLocation.Hand(ownerSeat),
-                toDiscard ? CardLocation.DiscardPile : CardLocation.Hand(targetSeat), reason);
+            {
+                var locations = activation.SourceZones
+                    .Select(zone => new CardLocation(zone, frame.OwnerSeat))
+                    .Where(location => engine._cardZones.CardsAt(location).Any(card => card.Id == id))
+                    .ToArray();
+                if (locations.Length != 1)
+                    throw new InvalidOperationException("A selected program cost no longer has one valid owner location.");
+                return (Card: engine._cardZones.CardsAt(locations[0]).Single(card => card.Id == id),
+                    Location: locations[0]);
+            }).ToArray();
+            var destination = toDiscard ? CardLocation.DiscardPile : CardLocation.Hand(targetSeat);
+            foreach (var group in selected.GroupBy(item => item.Location))
+                engine.MoveCards(group.Select(item => item.Card).ToArray(), group.Key, destination, reason);
         }
 
         public SkillProgramStepOutcome InsertPhase(ProgramSkillFrame frame, TurnPhase phase,
@@ -114,8 +141,18 @@ public sealed partial class GameEngine
             CardMoveReason reason) =>
             engine.DiscardProgramOwnedZoneCards(frame, zones, reason);
 
-        public void SetChainedState(ProgramSkillFrame frame, bool chained) =>
-            engine.SetProgramChainedState(frame, chained);
+        public void SetChainedState(ProgramSkillFrame frame, bool chained, int? targetSeat = null) =>
+            engine.SetProgramChainedState(frame, chained, targetSeat ?? frame.OwnerSeat);
+
+        public SkillProgramStepOutcome ChooseOption(ProgramSkillFrame frame, int chooserSeat,
+            string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
+            engine.ChooseProgramOption(frame, chooserSeat, resultBind, options);
+
+        public void ChangeMaximumHp(ProgramSkillFrame frame, int amount) =>
+            engine.ChangeProgramMaximumHp(frame, amount);
+
+        public void GrantSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
+            engine.GrantProgramSkills(frame, skillIds);
 
         public void TurnOver(long frameId, int ownerSeat, int targetSeat) =>
             engine.TurnOverProgramTarget(frameId, ownerSeat, targetSeat);
@@ -148,8 +185,9 @@ public sealed partial class GameEngine
                 maximumCards, maximumRankSum, aiOrder);
 
         public void MoveBoundCards(long frameId, int ownerSeat, string sourceBind, string? exceptBind,
-            SkillProgramCardDestination destination, CardMoveReason reason) =>
-            engine.MoveProgramBoundCards(frameId, ownerSeat, sourceBind, exceptBind, destination, reason);
+            SkillProgramCardDestination destination, CardZoneKind? destinationZone, CardMoveReason reason) =>
+            engine.MoveProgramBoundCards(frameId, ownerSeat, sourceBind, exceptBind, destination,
+                destinationZone, reason);
 
         public SkillProgramStepOutcome SelectTarget(
             long frameId,
@@ -171,9 +209,10 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome SelectSourceCard(
             long frameId,
             int ownerSeat,
+            SkillProgramCardSource cardSource,
             IReadOnlyList<CardZoneKind> zones,
             string resultBind) =>
-            engine.SelectProgramSourceCard(frameId, ownerSeat, zones, resultBind);
+            engine.SelectProgramSourceCard(frameId, ownerSeat, cardSource, zones, resultBind);
 
         public SkillProgramStepOutcome GiveBoundCard(
             long frameId,
@@ -219,7 +258,13 @@ public sealed partial class GameEngine
         public void GrantTurnCardTargetRestriction(
             ProgramSkillFrame frame,
             SkillProgramCardTargetRestriction restriction) =>
-            engine.GrantProgramTurnCardTargetRestriction(frame, restriction);
+            engine.GrantProgramTurnCardTargetRestriction(frame, restriction, frame.OwnerSeat);
+
+        public void GrantTurnCardTargetRestriction(
+            ProgramSkillFrame frame,
+            SkillProgramCardTargetRestriction restriction,
+            int targetSeat) =>
+            engine.GrantProgramTurnCardTargetRestriction(frame, restriction, targetSeat);
 
         public void GrantTurnCardConversion(
             ProgramSkillFrame frame,
@@ -234,8 +279,8 @@ public sealed partial class GameEngine
             IReadOnlyList<CardZoneKind> zones,
             SkillProgramCardDestination destination,
             string? resultBind,
-            CardMoveReason reason) =>
-            engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, resultBind, reason);
+            CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null) =>
+            engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, resultBind, reason, cardCategories);
 
         public void RefundCardUseDebit(ProgramSkillFrame frame) =>
             engine.RefundProgramCardUseDebit(frame);

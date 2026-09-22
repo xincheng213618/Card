@@ -651,9 +651,8 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(viewModel.IsActiveSkillSelectionPending &&
                        viewModel.CanConfirmActiveSkill &&
                        viewModel.CurrentGuideTitle == "确认发动【陷阵】" &&
-                       viewModel.CurrentGuideBody.Contains("牌 0/0", StringComparison.Ordinal) &&
                        viewModel.CurrentGuideBody.Contains("目标 1/1", StringComparison.Ordinal),
-            $"The WPF Xianzhen draft must retain one private card and one target " +
+            $"The WPF Xianzhen draft must retain its selected target before the separate private-card choice " +
             $"(guide={viewModel.CurrentGuideTitle}, body={viewModel.CurrentGuideBody}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "188-classic-gao-shun-xianzhen-draft.png"));
@@ -662,6 +661,9 @@ internal static class ClassicGeneralUiChecks
         var sourcePrompt = engine.PendingDecision is { Kind: DecisionKind.SkillModule } prompt
             ? prompt
             : throw new InvalidOperationException("Xianzhen did not publish its shared source-card prompt.");
+        Program.Assert(sourcePrompt.IsPrivate && sourcePrompt.SkillPrompt?.SkillId == "classic:xianzhen" &&
+                       engine.CreateSnapshot(1).PendingDecision is null,
+            "The shared Pindian source-card prompt must remain private to Gao Shun.");
         viewModel.SelectSkillChoiceCommand.Execute(sourcePrompt.Choices.Single(choice =>
             choice.Cards.SequenceEqual([sourceCard.Id])));
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
@@ -669,7 +671,7 @@ internal static class ClassicGeneralUiChecks
         xianzhen = viewModel.HumanSkillCards.Single(skill => skill.Name == "陷阵");
         Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
                        xianzhen.StateText ==
-                       $"本回合：对 {target.Seat + 1:D2}号位无距 · 杀不限次 · 无视防具" &&
+                       $"本回合：01→{target.Seat + 1:D2}号位 · 无距 · 杀不限次 · 无视防具" &&
                        engine.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
                            .Any(item => item.Result is { SourceSeat: 0, SourceWon: true } &&
                                         item.Result.OpponentSeat == target.Seat),

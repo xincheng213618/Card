@@ -26,7 +26,8 @@ internal static class GuanPingChecks
                 guanPing.SkillIds.SequenceEqual(["classic:longyin"]) &&
                 current.Skills["classic:longyin"] is
                 {
-                    LegacyKind: SkillKind.Longyin,
+                    LegacyKind: null,
+                    Program.UsesCompositionKernel: true,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } &&
@@ -62,7 +63,7 @@ internal static class GuanPingChecks
         Require(moves.Count(move => move.CardId == fixture.CostCardId &&
                     move.From == CardLocation.Hand(HumanSeat) && move.To == CardLocation.DiscardPile) == 1 &&
                 moves.Count(move => move.To == CardLocation.Hand(HumanSeat) &&
-                    move.Reason.Value == "skill-program.classic:longyin.draw") == (requireRed ? 1 : 0),
+                    move.Reason.Value == "skill-program.classic:longyin.Draw") == (requireRed ? 1 : 0),
             "The combination must pay exactly once and draw exactly one card only for a red Slash.");
         Require(game.Events.Select(item => item.Payload).OfType<CardUseDebitRefundedEvent>()
                     .Count(item => item.Debit.ActorSeat == HumanSeat) == 1 &&

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 29,
+  "skills": [
+    {
+      "id": "classic:xianzhen",
+      "revision": 1,
+      "minimumRulesVersion": 134,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "contest",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerTurn": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "pindian",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": { "kind": "always" }
+            },
+            {
+              "op": "grantTurnCardTargetRestriction",
+              "target": "selectedTarget",
+              "amount": 1,
+              "targetRestriction": "distanceUnlimitedAgainstTarget",
+              "condition": { "kind": "pindianWon" }
+            },
+            {
+              "op": "grantTurnCardTargetRestriction",
+              "target": "selectedTarget",
+              "amount": 1,
+              "targetRestriction": "slashCountUnlimitedAgainstTarget",
+              "condition": { "kind": "pindianWon" }
+            },
+            {
+              "op": "grantTurnCardTargetRestriction",
+              "target": "selectedTarget",
+              "amount": 1,
+              "targetRestriction": "ignoreArmorAgainstTarget",
+              "condition": { "kind": "pindianWon" }
+            },
+            {
+              "op": "grantTurnCardActionProhibition",
+              "target": "owner",
+              "amount": 1,
+              "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+              "actionTypes": ["use"],
+              "condition": { "kind": "pindianNotWon" }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

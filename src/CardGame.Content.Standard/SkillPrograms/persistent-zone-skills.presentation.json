@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "skills": {
+    "classic:quanji": {
+      "name": "权计",
+      "description": "每当你受到1点伤害后，你可以摸一张牌，然后将一张手牌置于武将牌上，称为“权”；你的手牌上限+X（X为“权”数）。",
+      "triggerChoices": {
+        "store-authority": "摸一张牌，然后将一张手牌置为“权”。"
+      }
+    }
+  }
+}

@@ -122,6 +122,7 @@ public sealed record ProgramSkillFrame(
     public ProgramSkillWindowContext? WindowContext { get; init; }
 
     public IReadOnlyList<ProgramSkillNumberBinding> NumberBindings { get; init; } = [];
+    public IReadOnlyList<ProgramChoiceResultBinding> ChoiceBindings { get; init; } = [];
     public IReadOnlyList<ProgramSkillCardSetBinding> CardSetBindings { get; init; } = [];
     public IReadOnlyList<ProgramPindianResultBinding> PindianResultBindings { get; init; } = [];
 }
