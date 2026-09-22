@@ -28,14 +28,14 @@ public sealed partial class GameEngine
             !source.IsAlive ||
             !HasRuntimeSkill(source, FuhunSkillId) ||
             GetFuhunEligibleHandCards(source).Count < 2 ||
-            IsCardUseForbidden(source.Seat, CardKind.Slash, CardActionType.Use) ||
             source.TianyiLostThisTurn ||
-            HasXianzhenLost(source))
+            SlashKinds.All(kind => IsCardUseForbidden(source.Seat, kind, CardActionType.Use)))
         {
             return false;
         }
 
-        return _slashCountThisTurn < GetSlashUseLimit(source) || HasXianzhenWon(source);
+        return _players.Any(target => target.IsAlive && target.Seat != source.Seat &&
+            SlashKinds.Any(kind => CanSpendSlashUse(source, target, ignoresCount: false, kind)));
     }
 
     private bool CanUseFuhunConversion(CharacterState source) =>
@@ -43,8 +43,7 @@ public sealed partial class GameEngine
         source.IsAlive &&
         HasRuntimeSkill(source, FuhunSkillId) &&
         GetFuhunEligibleHandCards(source).Count >= 2 &&
-        !IsCardUseForbidden(source.Seat, CardKind.Slash, CardActionType.Use) &&
-        !HasXianzhenLost(source);
+        SlashKinds.Any(kind => !IsCardUseForbidden(source.Seat, kind, CardActionType.Use));
 
     private IReadOnlyList<Card> GetFuhunEligibleHandCards(CharacterState player) =>
         GetHand(player)

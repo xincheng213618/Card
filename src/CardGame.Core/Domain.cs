@@ -548,7 +548,13 @@ public sealed record SkillRuntimeStateSnapshot(
     string SkillId,
     bool IsAcquired,
     IReadOnlyList<SkillUsageStateSnapshot> Usages,
-    SkillPolarity? Polarity = null);
+    SkillPolarity? Polarity = null,
+    IReadOnlyList<ProgramBooleanStateSnapshot>? BooleanStates = null,
+    IReadOnlyList<DirectedTurnCardPolicy>? DirectedPolicies = null,
+    IReadOnlyList<TurnCardActionProhibition>? ActionProhibitions = null);
+
+public sealed record ProgramBooleanStateSnapshot(
+    string SkillInstanceId, string StateId, bool Value, string Text);
 
 public sealed partial record GeneralDefinition(
     string Id,

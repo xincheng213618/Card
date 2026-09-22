@@ -105,11 +105,6 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                     : "御策 · 伤害来源选择弃牌或令其回复";
                 targetLabel = "技能拥有者";
                 break;
-            case DecisionKind.Longyin:
-                target = prompt.TargetSeat;
-                title = "龙吟 · 选择弃置一张牌或跳过";
-                targetLabel = "此杀目标";
-                break;
             default:
                 title = $"当前技能选择 · {Name(prompt.PlayerSeat)}";
                 break;

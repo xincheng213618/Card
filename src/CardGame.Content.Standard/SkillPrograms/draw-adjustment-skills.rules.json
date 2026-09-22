@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 19,
+  "schemaVersion": 23,
   "skills": [
     {
       "id": "classic:luoyi",
       "revision": 2,
-      "minimumRulesVersion": 124,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

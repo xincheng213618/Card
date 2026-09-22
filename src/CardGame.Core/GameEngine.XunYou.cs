@@ -163,7 +163,8 @@ public sealed partial class GameEngine
 
         Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
 
-        if (CanUseJuzhanGlobalCard(source))
+        if (CanUseGlobalCard(source, CardKind.BarbarianAssault) ||
+            CanUseGlobalCard(source, CardKind.ArrowBarrage))
         {
             var otherSeats = Enumerable.Range(1, _playerCount - 1)
                 .Select(offset => _players[(source.Seat + offset) % _playerCount])
@@ -174,12 +175,14 @@ public sealed partial class GameEngine
                     !(UsesFormalMengHuo && HasRuntimeSkill(_players[seat], SkillKind.Huoshou)) &&
                     !(UsesFormalZhuRong && HasRuntimeSkill(_players[seat], SkillKind.Juxiang)))
                 .ToArray();
-            Add(CardKind.BarbarianAssault, LegalActionKind.BarbarianAssault,
-                "当【南蛮入侵】使用：其他角色依次响应【杀】", barbarianTargets,
-                requiredCardKind: CardKind.Slash);
-            Add(CardKind.ArrowBarrage, LegalActionKind.ArrowBarrage,
-                "当【万箭齐发】使用：其他角色依次响应【闪】", otherSeats,
-                requiredCardKind: CardKind.Dodge);
+            if (CanUseGlobalCard(source, CardKind.BarbarianAssault))
+                Add(CardKind.BarbarianAssault, LegalActionKind.BarbarianAssault,
+                    "当【南蛮入侵】使用：其他角色依次响应【杀】", barbarianTargets,
+                    requiredCardKind: CardKind.Slash);
+            if (CanUseGlobalCard(source, CardKind.ArrowBarrage))
+                Add(CardKind.ArrowBarrage, LegalActionKind.ArrowBarrage,
+                    "当【万箭齐发】使用：其他角色依次响应【闪】", otherSeats,
+                    requiredCardKind: CardKind.Dodge);
         }
 
         var allAliveSeats = Enumerable.Range(0, _playerCount)
@@ -187,17 +190,19 @@ public sealed partial class GameEngine
             .Where(player => player.IsAlive)
             .Select(player => player.Seat)
             .ToArray();
-        Add(CardKind.PeachGarden, LegalActionKind.PeachGarden,
-            "当【桃园结义】使用：所有存活角色依次回复体力", allAliveSeats);
+        if (CanUseGlobalCard(source, CardKind.PeachGarden))
+            Add(CardKind.PeachGarden, LegalActionKind.PeachGarden,
+                "当【桃园结义】使用：所有存活角色依次回复体力", allAliveSeats);
         var availableCards = _cardZones.Count(CardLocation.DrawPile) + _cardZones.Count(CardLocation.DiscardPile);
-        Add(CardKind.FiveGrains, LegalActionKind.FiveGrains,
-            "当【五谷丰登】使用：所有存活角色依次选牌", allAliveSeats.Take(availableCards).ToArray());
+        if (CanUseGlobalCard(source, CardKind.FiveGrains))
+            Add(CardKind.FiveGrains, LegalActionKind.FiveGrains,
+                "当【五谷丰登】使用：所有存活角色依次选牌", allAliveSeats.Take(availableCards).ToArray());
 
         foreach (var target in _players.Where(player =>
                      player.IsAlive &&
                      player.Seat != source.Seat &&
                      !IsCardTargetProhibited(player, CardKind.Duel) &&
-                     !IsJuzhanCardTargetProhibited(source.Seat, player.Seat)))
+                     !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Duel)))
         {
             Add(CardKind.Duel, LegalActionKind.Duel,
                 $"当【决斗】对 {target.Name} 使用", [target.Seat]);
@@ -207,7 +212,7 @@ public sealed partial class GameEngine
                      player.IsAlive &&
                      player.Seat != source.Seat &&
                      HasTargetCard(player) &&
-                     !IsJuzhanCardTargetProhibited(source.Seat, player.Seat)))
+                     !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Dismantlement)))
         {
             AddQiceTargetCardOptions(options, source, target, CardKind.Dismantlement,
                 LegalActionKind.Dismantlement, "过河拆桥");
@@ -216,10 +221,11 @@ public sealed partial class GameEngine
         foreach (var target in _players.Where(player =>
                      player.IsAlive &&
                      player.Seat != source.Seat &&
-                     GetCombatDistance(source.Seat, player.Seat) == 1 &&
+                     (HasCardDistanceExemption(source, player, CardKind.Snatch) ||
+                      GetCombatDistance(source.Seat, player.Seat) == 1) &&
                      HasTargetCard(player) &&
                      !IsCardTargetProhibited(player, CardKind.Snatch) &&
-                     !IsJuzhanCardTargetProhibited(source.Seat, player.Seat)))
+                     !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Snatch)))
         {
             AddQiceTargetCardOptions(options, source, target, CardKind.Snatch,
                 LegalActionKind.Snatch, "顺手牵羊");
@@ -228,14 +234,14 @@ public sealed partial class GameEngine
         foreach (var target in _players.Where(player =>
                      player.IsAlive &&
                      GetHand(player).Count > 0 &&
-                     !IsJuzhanCardTargetProhibited(source.Seat, player.Seat)))
+                     !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.FireAttack)))
         {
             Add(CardKind.FireAttack, LegalActionKind.FireAttack,
                 $"当【火攻】对 {target.Name} 使用", [target.Seat]);
         }
 
         var chainTargets = _players.Where(player =>
-                player.IsAlive && !IsJuzhanCardTargetProhibited(source.Seat, player.Seat))
+                player.IsAlive && !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.IronChain))
             .OrderBy(player => player.Seat).ToArray();
         foreach (var target in chainTargets)
         {
@@ -254,7 +260,7 @@ public sealed partial class GameEngine
                      player.IsAlive &&
                      player.Seat != source.Seat &&
                      GetWeapon(player) is not null &&
-                     !IsJuzhanCardTargetProhibited(source.Seat, player.Seat)))
+                     !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.BorrowedSword)))
         foreach (var slashTarget in _players.Where(player => IsLegalBorrowedSwordSlashTarget(weaponOwner, player)))
         {
             Add(CardKind.BorrowedSword, LegalActionKind.BorrowedSword,

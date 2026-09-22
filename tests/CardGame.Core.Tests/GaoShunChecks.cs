@@ -77,20 +77,13 @@ internal static class GaoShunChecks
         Require(targetDistance > attackRange,
             "The Xianzhen win fixture must keep its target outside normal attack range.");
 
-        var play = RequirePrompt(game, DecisionKind.PlayCard);
-        var used = game.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Xianzhen,
-            [fixture.SourceCardId],
-            [targetSeat],
-            game.Revision,
-            play.PromptId));
+        var used = BeginXianzhen(game, fixture.SourceCardId, targetSeat);
         Require(used.Accepted, used.Error?.Message ?? "Xianzhen could not start its Pindian.");
 
         var privatePrompt = GetHostPendingDecision(game);
         Require(privatePrompt is
                 {
-                    Kind: DecisionKind.XianzhenPindian,
+                    Kind: DecisionKind.SkillModule,
                     PlayerSeat: var responderSeat,
                     IsPrivate: true
                 } &&
@@ -111,7 +104,7 @@ internal static class GaoShunChecks
         var replay = GameReplay.Restore(RoundTrip(paused), fixture.Registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                GetHostPendingDecision(replay)?.Kind == DecisionKind.XianzhenPindian,
+                GetHostPendingDecision(replay)?.Kind == DecisionKind.SkillModule,
             "A paused Xianzhen opponent-card prompt must replay exactly.");
 
         ReachHumanPlay(game);
@@ -121,17 +114,19 @@ internal static class GaoShunChecks
             "The completed winning Xianzhen Pindian must replay exactly.");
 
         var result = game.Events.Select(item => item.Payload)
-            .OfType<XianzhenResolvedEvent>()
-            .Last();
-        var usage = game.CreateSnapshot(0, revealAll: true).Players[0]
+            .OfType<PindianResultDeterminedEvent>()
+            .Last().Result;
+        var runtime = game.CreateSnapshot(0, revealAll: true).Players[0]
             .SkillRuntimeStates!
-            .Single(state => state.SkillId == XianzhenSkillId)
-            .Usages
-            .Single(item => item.Scope == SkillUsageScope.Turn && item.Count == 1);
+            .Single(state => state.SkillId == XianzhenSkillId);
         var actions = game.GetHumanLegalActions();
         Require(result is { SourceSeat: 0, SourceWon: true } &&
-                result.TargetSeat == targetSeat &&
-                usage.UsageId == $"win.target-{targetSeat}" &&
+                result.OpponentSeat == targetSeat &&
+                runtime.DirectedPolicies is [var policy] &&
+                policy.ActorSeat == 0 && policy.TargetSeat == targetSeat &&
+                policy.Effects.HasFlag(DirectedTurnCardPolicyEffect.IgnoreDistance) &&
+                policy.Effects.HasFlag(DirectedTurnCardPolicyEffect.BypassSlashLimit) &&
+                policy.Effects.HasFlag(DirectedTurnCardPolicyEffect.IgnoreArmor) &&
                 actions.Any(action => action.Kind == LegalActionKind.Slash &&
                     action.TargetSeat == targetSeat) &&
                 actions.Any(action => action.Kind == LegalActionKind.Snatch &&
@@ -166,14 +161,7 @@ internal static class GaoShunChecks
     {
         var fixture = Find(sourceWins: false, requireAlcohol: true);
         var game = fixture.Game;
-        var play = RequirePrompt(game, DecisionKind.PlayCard);
-        var used = game.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Xianzhen,
-            [fixture.SourceCardId],
-            [fixture.TargetSeat],
-            game.Revision,
-            play.PromptId));
+        var used = BeginXianzhen(game, fixture.SourceCardId, fixture.TargetSeat);
         Require(used.Accepted, used.Error?.Message ?? "The losing Xianzhen fixture could not start.");
         ReachHumanPlay(game);
 
@@ -181,13 +169,33 @@ internal static class GaoShunChecks
         var runtime = game.CreateSnapshot(0, revealAll: true).Players[0]
             .SkillRuntimeStates!
             .Single(state => state.SkillId == XianzhenSkillId);
-        Require(game.Events.Select(item => item.Payload).OfType<XianzhenResolvedEvent>()
-                    .Last() is { SourceSeat: 0, SourceWon: false } &&
-                runtime.Usages.Single(item => item.Scope == SkillUsageScope.Turn).UsageId == "loss" &&
+        Require(game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+                    .Last().Result is { SourceSeat: 0, SourceWon: false } &&
+                runtime.ActionProhibitions is [var prohibition] &&
+                prohibition.Source.OwnerSeat == 0 &&
+                prohibition.CardKinds.SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
                 actions.All(action => action.Kind != LegalActionKind.Slash) &&
                 actions.Any(action => action.Kind == LegalActionKind.Snatch) &&
                 actions.All(action => action.Skill != SkillKind.Xianzhen),
             "Losing or tying Xianzhen must prohibit only Slash use and keep the once-per-phase active entry consumed.");
+    }
+
+    private static CommandResult BeginXianzhen(GameEngine game, int sourceCardId, int targetSeat)
+    {
+        var play = RequirePrompt(game, DecisionKind.PlayCard);
+        var action = game.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == XianzhenSkillId &&
+            candidate.ProgramActivationId == "challenge");
+        Require(action.SelectableTargetSeats.Contains(targetSeat),
+            "The Xianzhen target must be published by the shared activation.");
+        var used = game.Submit(new UseProgramSkillCommand(
+            0, XianzhenSkillId, "challenge", [], [targetSeat], game.Revision, play.PromptId));
+        if (!used.Accepted) return used;
+        var sourcePrompt = RequirePrompt(game, DecisionKind.SkillModule);
+        var choice = sourcePrompt.Choices.Single(item => item.Cards.SequenceEqual([sourceCardId]));
+        return game.Submit(new AnswerPromptCommand(
+            0, sourcePrompt.PromptId, choice.Id, game.Revision));
     }
 
     private static Fixture Find(bool sourceWins, bool requireAlcohol)

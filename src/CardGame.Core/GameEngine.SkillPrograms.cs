@@ -63,14 +63,30 @@ public sealed partial class GameEngine
                 activation.UsesPerTurn is { } limit &&
                 _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.Id)) >= limit)
                 continue;
+            if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) &&
+                GetHand(owner).Count == 0)
+                continue;
             var cards = activation.MaxCards == 0 ? [] : GetHand(owner).Select(card => card.Id).Order().ToArray();
             var targets = activation.MaxTargets == 0 ? [] : _players
                 .Where(target => target.IsAlive &&
                     (target.Seat != owner.Seat || !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected)) &&
                     (activation.TargetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded ||
                      target.Seat != owner.Seat) &&
-                    (activation.TargetKind is SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.AnyLiving ||
-                     target.Hp < target.MaxHp))
+                    (activation.TargetKind switch
+                    {
+                        SkillProgramTargetKind.OtherLiving => target.Seat != owner.Seat,
+                        SkillProgramTargetKind.OtherLivingWithHand =>
+                            target.Seat != owner.Seat && GetHand(target).Count > 0,
+                        SkillProgramTargetKind.AnyLiving => true,
+                        SkillProgramTargetKind.OtherWounded =>
+                            target.Seat != owner.Seat && target.Hp < target.MaxHp,
+                        SkillProgramTargetKind.AnyWounded => target.Hp < target.MaxHp,
+                        SkillProgramTargetKind.AnyLivingHandBelowMaxHp => GetHand(target).Count < target.MaxHp,
+                        SkillProgramTargetKind.EventTarget => false,
+                        _ => false
+                    }) &&
+                    (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) ||
+                     GetHand(target).Count > 0))
                 .Select(target => target.Seat).Order().ToArray();
             if (cards.Length < activation.MinCards || targets.Length < activation.MinTargets) continue;
             yield return new LegalAction(LegalActionKind.UseProgramSkill, null, null,
@@ -80,7 +96,7 @@ public sealed partial class GameEngine
             {
                 ProgramSkillId = program.Id,
                 ProgramActivationId = activation.Id,
-                ProgramAiHint = CreateProgramAiHint(activation, context),
+                ProgramAiHint = CreateProgramAiHint(program, activation, context, owner.IsFaceDown),
                 SelectableCardIds = Array.AsReadOnly(cards),
                 SelectableTargetSeats = Array.AsReadOnly(targets)
             };
@@ -116,8 +132,22 @@ public sealed partial class GameEngine
         }
     }
 
-    private static SkillProgramAiHint CreateProgramAiHint(SkillProgramActivation activation, PlayerSkillContext context)
+    private SkillProgramAiHint CreateProgramAiHint(
+        SkillProgram program,
+        SkillProgramActivation activation,
+        PlayerSkillContext context,
+        bool faceDown)
     {
+        if (program.UsesCompositionKernel)
+        {
+            var owner = _players[context.Seat];
+            var instanceId = GetRuntimeSkillInstanceId(owner, program.Id);
+            return ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
+                CreateProgramAiPublicContext(owner) with
+                {
+                    BooleanState = stateId => GetProgramBooleanState(owner.Seat, program.Id, instanceId, stateId)
+                }).Hint;
+        }
         var effects = activation.Effects.Where(effect => effect.Condition.Evaluate(context)).ToArray();
         int Sum(SkillProgramEffectOp op, SkillProgramEffectTarget target) =>
             effects.Where(effect => effect.Op == op && effect.Target == target).Sum(effect => effect.Amount);
@@ -243,9 +273,9 @@ public sealed partial class GameEngine
 
     private void FinishProgramSkill(ProgramSkillFrame frame, bool completed)
     {
+        CleanupProgramBoundCards(frame, completed);
         if (frame.TriggerId is not null)
         {
-            CleanupProgramBoundCards(frame, completed);
             CompleteProgramBinding(frame, completed);
             if (_winner != Winner.None && _status != EngineStatus.Completed) CompleteGame();
             return;
@@ -287,35 +317,72 @@ public sealed partial class GameEngine
                 program?.GameplayHash != frame.GameplayHash)
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
 
+            ProgramExecutionPlan plan;
+            try
+            {
+                plan = ProgramInstructionResolver.Default.Resolve(frame, program);
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+            }
+            if (frame.InstructionIndex < 1 || frame.InstructionIndex > plan.Instructions.Count ||
+                frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||
+                frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
+                frame.CardSetBindings.Select(binding => binding.Name).Distinct(StringComparer.Ordinal).Count() !=
+                    frame.CardSetBindings.Count ||
+                frame.CardSetBindings.Any(binding =>
+                    binding.CardIds.Count != binding.SourceLocations.Count ||
+                    binding.CardIds.Distinct().Count() != binding.CardIds.Count) ||
+                frame.PindianResultBindings.Select(binding => binding.Name)
+                    .Distinct(StringComparer.Ordinal).Count() != frame.PindianResultBindings.Count)
+                throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+
+            var executedSelection = plan.Instructions.Take(frame.InstructionIndex)
+                .LastOrDefault(effect => effect.Op is
+                    SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets);
+            var awaitingCurrentSelection = executedSelection is not null &&
+                ReferenceEquals(executedSelection, plan.Instructions[frame.InstructionIndex - 1]) &&
+                ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
+                _pendingDecision is { Kind: DecisionKind.ProgramTrigger } pending &&
+                pending.Choices.Count > 0 && pending.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("frame-id") ==
+                    frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
+                    choice.Parameters.GetValueOrDefault("program-action") ==
+                    (executedSelection.Op == SkillProgramEffectOp.SelectTarget
+                        ? "select-target"
+                        : "select-targets"));
+            var dynamicTargetsValid = executedSelection is null || executedSelection.Op switch
+            {
+                SkillProgramEffectOp.SelectTarget =>
+                    frame.SelectedTargetSeats.Count == 1 || awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0,
+                SkillProgramEffectOp.SelectTargets =>
+                    awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0 ||
+                    frame.SelectedTargetSeats.Count >= executedSelection.MinimumTargets &&
+                    frame.SelectedTargetSeats.Count <= executedSelection.MaximumTargets &&
+                    frame.SelectedTargetSeats.Distinct().Count() == frame.SelectedTargetSeats.Count,
+                _ => false
+            };
+            if (!dynamicTargetsValid)
+                throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+
             if (frame.TriggerId is { } triggerId)
             {
                 var trigger = program.Triggers.SingleOrDefault(item => item.Id == triggerId);
                 if (trigger is null || frame.WindowContext is not { } context ||
                     context.OwnerSeat != frame.OwnerSeat || context.Window != trigger.Window ||
-                    frame.ActivationId != triggerId || frame.InstructionIndex < 1 ||
-                    frame.InstructionIndex > trigger.Effects.Count ||
-                    frame.SelectedCardIds.Count != 0 || frame.SelectedTargetSeats.Count > 1 ||
-                    frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
-                    frame.SelectedTargetSeats.Count > 0 && !trigger.Effects
-                        .Take(frame.InstructionIndex)
-                        .Any(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTarget) ||
-                    frame.CardSetBindings.Select(binding => binding.Name).Distinct().Count() !=
-                        frame.CardSetBindings.Count ||
-                    frame.CardSetBindings.Any(binding =>
-                        binding.CardIds.Count != binding.SourceLocations.Count ||
-                        binding.CardIds.Distinct().Count() != binding.CardIds.Count))
+                    frame.ActivationId != triggerId || frame.SelectedCardIds.Count != 0 ||
+                    executedSelection is null && frame.SelectedTargetSeats.Count != 0)
                     throw new InvalidOperationException("An active trigger program has an invalid cursor or context.");
                 continue;
             }
 
             var activation = program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
-            if (activation is null || frame.InstructionIndex < 1 ||
-                frame.InstructionIndex > activation.Effects.Count ||
+            if (activation is null ||
                 frame.SelectedCardIds.Count != activation.MinCards ||
-                frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||
-                frame.SelectedTargetSeats.Count < activation.MinTargets ||
-                frame.SelectedTargetSeats.Count > activation.MaxTargets ||
-                frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)))
+                executedSelection is null &&
+                (frame.SelectedTargetSeats.Count < activation.MinTargets ||
+                 frame.SelectedTargetSeats.Count > activation.MaxTargets))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
         }
 

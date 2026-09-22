@@ -123,6 +123,7 @@ public sealed record ProgramSkillFrame(
 
     public IReadOnlyList<ProgramSkillNumberBinding> NumberBindings { get; init; } = [];
     public IReadOnlyList<ProgramSkillCardSetBinding> CardSetBindings { get; init; } = [];
+    public IReadOnlyList<ProgramPindianResultBinding> PindianResultBindings { get; init; } = [];
 }
 
 public sealed record CardUseFrame(

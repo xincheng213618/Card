@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 17,
+  "schemaVersion": 23,
   "skills": [
     {
       "id": "classic:tuxi",
       "revision": 2,
-      "minimumRulesVersion": 122,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

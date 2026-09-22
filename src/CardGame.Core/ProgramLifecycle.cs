@@ -13,9 +13,19 @@ public sealed record ProgramSkillWindowContext(
     SkillProgramTriggerFacts? Facts = null,
     CardMovementBatchContext? MovementBatch = null,
     int? MovementIndex = null,
-    int? ResumeCandidateIndex = null);
+    int? ResumeCandidateIndex = null,
+    ProgramCardUseContext? CardUse = null);
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
+
+public sealed record ProgramPindianResultBinding(
+    string Name,
+    int SourceSeat,
+    int OpponentSeat,
+    int SourceRank,
+    int OpponentRank,
+    bool SourceWon,
+    SkillProgramCardSetVisibility Visibility);
 
 public sealed record ProgramSkillCardSetBinding(
     string Name,

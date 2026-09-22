@@ -707,7 +707,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Jizhi or
                     DecisionKind.Tieqi or
                     DecisionKind.Liegong or
-                    DecisionKind.Juzhan or
                     DecisionKind.Yingbo or
                     DecisionKind.StoneAxe or
                     DecisionKind.CixiongDoubleSwords or
@@ -719,7 +718,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.QuhuPindian or
                     DecisionKind.QuhuDamageTarget or
                     DecisionKind.TianyiPindian or
-                    DecisionKind.XianzhenPindian or
                     DecisionKind.Jujian or
                     DecisionKind.ProgramCardTrigger or
                     DecisionKind.ProgramJudgmentTrigger or
@@ -730,13 +728,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             } skillPrompt)
         {
             foreach (var choice in skillPrompt.Choices)
-            {
-                SkillChoices.Add(choice);
-            }
-        }
-        if (_snapshot.PendingDecision is { SkillPrompt: null, Kind: DecisionKind.Longyin } longyinPrompt)
-        {
-            foreach (var choice in longyinPrompt.Choices)
             {
                 SkillChoices.Add(choice);
             }
@@ -779,7 +770,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Jizhi or
             DecisionKind.Tieqi or
             DecisionKind.Liegong or
-            DecisionKind.Juzhan or
             DecisionKind.Yingbo or
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
@@ -791,7 +781,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.QuhuPindian or
             DecisionKind.QuhuDamageTarget or
             DecisionKind.TianyiPindian or
-            DecisionKind.XianzhenPindian or
             DecisionKind.Jujian or
             DecisionKind.ProgramCardTrigger or
             DecisionKind.ProgramJudgmentTrigger or
@@ -799,7 +788,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.ProgramJudgmentTarget or
             DecisionKind.WuhunTarget or
             DecisionKind.ZhuqueFan;
-        IsSkillSelectionPending |= pendingDecisionKind == DecisionKind.Longyin;
         RaisePropertyChanged(nameof(HasPinnedPublicModuleChoices));
 
         var legalActions = _game.GetHumanLegalActions();
@@ -2140,12 +2128,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     ? "        RevealOneHandCardOrSkip(Yuce)"
                     : "        DiscardDifferentCategoryOrRecover(Yuce)");
             }
-            else if (pending.Kind == DecisionKind.Longyin)
-            {
-                EventStack.Add($"      CardUse({pending.IncomingCard ?? CardKind.Slash})");
-                EventStack.Add("        AskForSkill(Longyin)");
-                EventStack.Add("          DiscardOneCardThenUncountSlash()");
-            }
             else if (pending.Kind == DecisionKind.Anxu)
             {
                 EventStack.Add("      ActiveSkill(Anxu)");
@@ -2211,11 +2193,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      UseCard(Slash)");
                 EventStack.Add("        AskForSkill(Liegong)");
             }
-            else if (pending.Kind == DecisionKind.Juzhan)
-            {
-                EventStack.Add("      UseCard(Slash)");
-                EventStack.Add("        AskForSkill(Juzhan)");
-            }
             else if (pending.Kind == DecisionKind.Yingbo)
             {
                 EventStack.Add("      ResolveCard");
@@ -2260,11 +2237,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      ActiveSkill(Tianyi)");
                 EventStack.Add("        AskForSkill(TianyiPindian)");
-            }
-            else if (pending.Kind == DecisionKind.XianzhenPindian)
-            {
-                EventStack.Add("      ActiveSkill(Xianzhen)");
-                EventStack.Add("        AskForSkill(XianzhenPindian)");
             }
             else if (pending.Kind == DecisionKind.ZhuqueFan)
             {

@@ -194,6 +194,8 @@ public sealed partial class MainViewModel
         SkillTag tags = SkillTag.None,
         SkillRuntimeStateSnapshot? runtimeState = null)
     {
+        if (runtimeState is not null && GetProgramRuntimeStateText(runtimeState) is { Length: > 0 } programState)
+            return programState;
         if (runtimeState?.SkillId == "classic:fuhun" &&
             runtimeState.Usages.Any(usage =>
                 usage.UsageId == "parent-skills-granted" &&
@@ -267,26 +269,6 @@ public sealed partial class MainViewModel
                 }
             }
         }
-        if (runtimeState?.SkillId == "classic:xianzhen")
-        {
-            if (runtimeState.Usages.Any(usage =>
-                    usage.UsageId == "loss" &&
-                    usage.Scope == SkillUsageScope.Turn &&
-                    usage.Count > 0))
-            {
-                return "本回合：不能使用杀";
-            }
-
-            var target = runtimeState.Usages.FirstOrDefault(usage =>
-                usage.Scope == SkillUsageScope.Turn &&
-                usage.Count > 0 &&
-                usage.UsageId.StartsWith("win.target-", StringComparison.Ordinal));
-            if (target is not null &&
-                int.TryParse(target.UsageId["win.target-".Length..], out var targetSeat))
-            {
-                return $"本回合：对 {targetSeat + 1:D2}号位无距 · 杀不限次 · 无视防具";
-            }
-        }
         if (runtimeState?.SkillId == "classic:zishou" &&
             runtimeState.Usages.Any(usage =>
                 usage.UsageId == "active" &&
@@ -299,6 +281,29 @@ public sealed partial class MainViewModel
         return executionForms.HasFlag(SkillExecutionForm.Trigger)
             ? "等待触发时机"
             : automaticText;
+    }
+
+    private static string GetProgramRuntimeStateText(SkillRuntimeStateSnapshot state)
+    {
+        var parts = new List<string>();
+        parts.AddRange((state.BooleanStates ?? []).Select(item => item.Text).Distinct());
+        foreach (var policy in state.DirectedPolicies ?? [])
+        {
+            var effects = new List<string>();
+            if (policy.Effects.HasFlag(DirectedTurnCardPolicyEffect.ForbidTarget)) effects.Add("不能对其用牌");
+            if (policy.Effects.HasFlag(DirectedTurnCardPolicyEffect.IgnoreDistance)) effects.Add("无距");
+            if (policy.Effects.HasFlag(DirectedTurnCardPolicyEffect.BypassSlashLimit)) effects.Add("杀不限次");
+            if (policy.Effects.HasFlag(DirectedTurnCardPolicyEffect.IgnoreArmor)) effects.Add("无视防具");
+            parts.Add($"本回合：{policy.ActorSeat + 1:D2}→{policy.TargetSeat + 1:D2}号位 · {string.Join(" · ", effects)}");
+        }
+        foreach (var prohibition in state.ActionProhibitions ?? [])
+        {
+            var allSlashes = new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash };
+            var kinds = prohibition.CardKinds.Order().SequenceEqual(allSlashes.Order())
+                ? "杀" : string.Join("／", prohibition.CardKinds.Select(kind => new Card(0, kind, Suit.Spade, 1).DisplayName));
+            parts.Add($"本回合：不能{string.Join("／", prohibition.ActionTypes.Select(kind => kind == CardActionType.Use ? "使用" : "打出"))}{kinds}");
+        }
+        return string.Join(" · ", parts.Distinct());
     }
     public string AliveText => IsTeamSnapshot
         ? $"青队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:blue")} · 赤队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:red")} 存活"

@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 15,
+  "schemaVersion": 23,
   "skills": [
     {
       "id": "standard:jianxiong",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -27,7 +27,7 @@
     {
       "id": "standard:feedback",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -50,7 +50,7 @@
     {
       "id": "standard:yiji",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -84,7 +84,7 @@
     {
       "id": "standard:jieming",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -99,7 +99,7 @@
           "effects": [
             {
               "op": "selectTarget",
-              "target": "selectedTarget",
+              "target": "owner",
               "targetKind": "anyLivingHandBelowMaxHp"
             },
             {
@@ -116,7 +116,7 @@
     {
       "id": "classic:jianxiong",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -139,7 +139,7 @@
     {
       "id": "classic:feedback",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -173,7 +173,7 @@
     {
       "id": "classic:yiji",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -207,7 +207,7 @@
     {
       "id": "classic:jieming",
       "revision": 2,
-      "minimumRulesVersion": 120,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -222,7 +222,7 @@
           "effects": [
             {
               "op": "selectTarget",
-              "target": "selectedTarget",
+              "target": "owner",
               "targetKind": "anyLivingHandBelowMaxHp"
             },
             {

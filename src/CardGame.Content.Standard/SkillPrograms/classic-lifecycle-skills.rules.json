@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 11,
+  "schemaVersion": 23,
   "skills": [
     {
       "id": "classic:dangxian",
       "revision": 1,
-      "minimumRulesVersion": 116,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -31,7 +31,7 @@
     {
       "id": "classic:fuli",
       "revision": 1,
-      "minimumRulesVersion": 116,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -65,7 +65,7 @@
     {
       "id": "classic:chengxiang",
       "revision": 1,
-      "minimumRulesVersion": 116,
+      "minimumRulesVersion": 128,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -74,6 +74,7 @@
           "id": "after-damage-weigh",
           "window": "afterDamageApplied",
           "subject": "owner",
+          "damageOccurrence": "perDamage",
           "optional": true,
           "priority": 0,
           "effects": [

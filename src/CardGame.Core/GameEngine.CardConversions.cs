@@ -22,7 +22,6 @@ public sealed partial class GameEngine
 
         var context = CreateSkillContext(owner);
         return EnabledCardIdentityPrograms(owner)
-            .Where(program => program.Id != "classic:jinjiu" || UsesFormalGaoShun)
             .SelectMany(program => program.CardIdentities
                 .Where(identity => identity.Zones.Contains(CardZoneKind.Hand) &&
                                    identity.Condition.Evaluate(context) &&
@@ -148,7 +147,8 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(owner);
         return EnabledContentSkillIds(owner)
             .Select(id => _contentRegistry.Skills[id])
-            .Where(skill => skill.LegacyKind is { } kind && kind != SkillKind.None)
+            .Where(skill => skill.LegacyKind is { } kind && kind != SkillKind.None &&
+                            skill.Program?.UsesCompositionKernel != true)
             .Where(skill =>
             {
                 var rules = SkillRegistry.Get(skill.LegacyKind!.Value);
@@ -168,7 +168,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetSlashUseCards(CharacterState owner)
     {
-        if (IsCardUseForbidden(owner.Seat, CardKind.Slash, CardActionType.Use) || HasXianzhenLost(owner)) return [];
+        if (SlashKinds.All(kind => IsCardUseForbidden(owner.Seat, kind, CardActionType.Use))) return [];
         if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
         {

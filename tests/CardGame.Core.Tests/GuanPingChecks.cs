@@ -34,146 +34,92 @@ internal static class GuanPingChecks
             "Package 1.97.0 must publish complete classic Guan Ping with optional Longyin.");
     }
 
-    public static void RedSlashDrawsAndReplays()
+    public static void RedSlashDrawsAndReplays() => CheckPaidSlash(requireRed: true);
+
+    private static void CheckPaidSlash(bool requireRed)
     {
-        var fixture = FindSlashGame(requireRed: true);
+        var fixture = FindSlashGame(requireRed);
         var game = fixture.Game;
-        var play = RequirePrompt(game, DecisionKind.PlayCard);
-        var before = game.CreateSnapshot(HumanSeat, revealAll: true);
-        var started = Play(game, fixture.SlashAction, play);
-        Require(started.Accepted, started.Error?.Message ?? "The red Slash was rejected.");
-
-        var longyin = RequirePrompt(game, DecisionKind.Longyin);
-        Require(longyin is
-                {
-                    PlayerSeat: HumanSeat,
-                    IsPrivate: true,
-                    SourceSeat: HumanSeat,
-                    IncomingCard: CardKind.Slash
-                } &&
-                longyin.TargetSeat == fixture.SlashAction.TargetSeat &&
+        var before = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].HandCount;
+        Require(Play(game, fixture.SlashAction, RequirePrompt(game, DecisionKind.PlayCard)).Accepted,
+            "The Slash was rejected.");
+        var activation = RequireLongyin(game);
+        Require(activation.IsPrivate && activation.SourceSeat == HumanSeat &&
                 game.CreateSnapshot(1).PendingDecision is null,
-            "Longyin must publish one private exact-card prompt to its owner before the Slash target responds.");
-        var cost = longyin.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "longyin-use" &&
-            choice.Cards.SequenceEqual([fixture.CostCardId]));
-        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-
+            "The committed-card trigger must be private and keep its actual actor.");
+        Activate(game);
+        var payment = RequireLongyin(game);
+        var cost = payment.Choices.Single(choice => choice.Cards.SequenceEqual([fixture.CostCardId]));
+        Require(payment.ValidCardIds.Contains(fixture.CostCardId) &&
+                game.CreateSnapshot(1).PendingDecision is null,
+            "The owned-card payment must expose this owner's cards only to its chooser.");
+        var checkpoint = RoundTrip(game.CreateCheckpoint());
+        var replay = GameReplay.Restore(checkpoint, fixture.Registry);
+        var firstMove = game.CardMovements.Count;
         Answer(game, cost);
-        Answer(replay, RequirePrompt(replay, DecisionKind.Longyin).Choices.Single(choice => choice.Id == cost.Id));
-        var resolved = game.Events.Select(item => item.Payload).OfType<LongyinResolvedEvent>().Last();
-        Require(resolved is
-                {
-                    OwnerSeat: HumanSeat,
-                    SlashSourceSeat: HumanSeat,
-                    Used: true,
-                    SlashWasRed: true,
-                    SlashCountRemoved: true,
-                    DrawnCardIds.Count: 1
-                } &&
-                resolved.DiscardedCardId == fixture.CostCardId &&
-                game.CardMovements.Any(move =>
-                    move.CardId == fixture.CostCardId &&
-                    move.From == CardLocation.Hand(HumanSeat) &&
-                    move.To == CardLocation.DiscardPile &&
-                    move.Reason == CardMoveReasons.LongyinDiscard) &&
-                game.CardMovements.Any(move =>
-                    move.CardId == resolved.DrawnCardIds.Single() &&
-                    move.To == CardLocation.Hand(HumanSeat) &&
-                    move.Reason == CardMoveReasons.LongyinDraw),
-            "A red-Slash Longyin must discard exactly the chosen owned card, remove the use count and draw exactly one card.");
-        Require(game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].HandCount ==
-                    before.Players[HumanSeat].HandCount - 1 &&
+        Answer(replay, RequireLongyin(replay).Choices.Single(choice => choice.Id == cost.Id));
+        var moves = game.CardMovements.Skip(firstMove).ToArray();
+        Require(moves.Count(move => move.CardId == fixture.CostCardId &&
+                    move.From == CardLocation.Hand(HumanSeat) && move.To == CardLocation.DiscardPile) == 1 &&
+                moves.Count(move => move.To == CardLocation.Hand(HumanSeat) &&
+                    move.Reason.Value == "skill-program.classic:longyin.draw") == (requireRed ? 1 : 0),
+            "The combination must pay exactly once and draw exactly one card only for a red Slash.");
+        Require(game.Events.Select(item => item.Payload).OfType<CardUseDebitRefundedEvent>()
+                    .Count(item => item.Debit.ActorSeat == HumanSeat) == 1 &&
+                game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].HandCount == before - (requireRed ? 1 : 2) &&
                 State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
-            "The red Longyin branch must preserve net hand size after playing Slash and replay exactly from its private prompt.");
-
+            "The actual debit must be refunded once and the suspended payment must replay exactly.");
         ReachHumanPlay(game);
         Require(game.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Slash),
-            "Removing the first Slash count must leave another owned Slash legally usable in the same Play phase.");
-    }
-
-    public static void BlackSlashUncountsWithoutDrawingAndSkipPreservesLimit()
-    {
-        var fixture = FindSlashGame(requireRed: false);
-        var game = fixture.Game;
-        var started = Play(game, fixture.SlashAction, RequirePrompt(game, DecisionKind.PlayCard));
-        Require(started.Accepted, started.Error?.Message ?? "The black Slash was rejected.");
-        var firstPrompt = RequirePrompt(game, DecisionKind.Longyin);
-        var use = firstPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "longyin-use" &&
-            choice.Cards.SequenceEqual([fixture.CostCardId]));
-        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-
-        Answer(game, use);
-        Answer(replay, RequirePrompt(replay, DecisionKind.Longyin).Choices.Single(choice => choice.Id == use.Id));
-        var first = game.Events.Select(item => item.Payload).OfType<LongyinResolvedEvent>().Last();
-        Require(first is
-                {
-                    Used: true,
-                    SlashWasRed: false,
-                    SlashCountRemoved: true,
-                    DrawnCardIds.Count: 0
-                } &&
-                State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
-            "A black-Slash Longyin must remove the use count without drawing and replay exactly.");
-
-        ReachHumanPlay(game);
-        var secondSlash = game.GetHumanLegalActions().FirstOrDefault(action =>
-            action.Kind == LegalActionKind.Slash && action.CardId != fixture.SlashAction.CardId) ??
-            throw new InvalidOperationException("Longyin did not restore a second Slash use.");
-        var secondStarted = Play(game, secondSlash, RequirePrompt(game, DecisionKind.PlayCard));
-        Require(secondStarted.Accepted, secondStarted.Error?.Message ?? "The restored second Slash was rejected.");
-        var secondPrompt = RequirePrompt(game, DecisionKind.Longyin);
-        var skip = secondPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "longyin-skip");
-        Answer(game, skip);
-        var skipped = game.Events.Select(item => item.Payload).OfType<LongyinResolvedEvent>().Last();
-        Require(skipped is
-                {
-                    Used: false,
-                    SlashWasRed: var secondWasRed,
-                    SlashCountRemoved: false,
-                    DrawnCardIds.Count: 0
-                } &&
-                secondWasRed == fixture.IsCardRed(secondSlash.CardId!.Value),
-            "Skipping a later Longyin window must not alter count or draw cards.");
-
+            "A refunded Slash must allow another real Slash in the same phase.");
+        if (requireRed) return;
+        var second = game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Slash);
+        Require(Play(game, second, RequirePrompt(game, DecisionKind.PlayCard)).Accepted,
+            "The restored second Slash must actually submit.");
+        var refundCount = game.Events.Count(item => item.Payload is CardUseDebitRefundedEvent);
+        var moveCount = game.CardMovements.Count;
+        Answer(game, RequireLongyin(game).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "skip"));
+        Require(game.Events.Count(item => item.Payload is CardUseDebitRefundedEvent) == refundCount &&
+                game.CardMovements.Skip(moveCount).All(move =>
+                    !move.Reason.Value.StartsWith("skill-program.classic:longyin", StringComparison.Ordinal)),
+            "Skipping must neither pay, draw nor refund the second debit.");
         ReachHumanPlay(game);
         Require(game.GetHumanLegalActions().All(action => action.Kind != LegalActionKind.Slash),
-            "After the restored second Slash is allowed to count, the ordinary once-per-phase Slash limit must apply again.");
+            "The second counted Slash must exhaust the ordinary phase allowance.");
     }
+
+    public static void BlackSlashUncountsWithoutDrawingAndSkipPreservesLimit() => CheckPaidSlash(requireRed: false);
 
     public static void OtherCharactersSlashOffersPrivateChoiceAndReplays()
     {
         var fixture = FindOtherSourceLongyinGame();
         var game = fixture.Game;
-        var prompt = RequirePrompt(game, DecisionKind.Longyin);
-        var sourceSeat = prompt.SourceSeat ??
-            throw new InvalidOperationException("The cross-seat Longyin prompt lost its Slash source.");
+        var actor = RequireLongyin(game).SourceSeat!.Value;
+        Activate(game);
+        var payment = RequireLongyin(game);
         var owner = game.CreateSnapshot(HumanSeat).Players[HumanSeat];
-        Require(sourceSeat != HumanSeat &&
-                game.State.CurrentSeat == sourceSeat && game.State.Phase == TurnPhase.Play &&
-                prompt.ValidCardIds.Count == owner.HandCount + owner.Equipment.Count &&
-                game.CreateSnapshot(sourceSeat).PendingDecision is null,
-            "Longyin must privately offer every owned hand or equipment card when another current actor uses Slash during Play.");
-        var use = prompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "longyin-use");
+        Require(actor != HumanSeat && game.State.CurrentSeat == actor && game.State.Phase == TurnPhase.Play &&
+                payment.ValidCardIds.Count == owner.HandCount + owner.Equipment.Count &&
+                game.CreateSnapshot(actor).PendingDecision is null,
+            "Another actor's Play Slash must offer this holder a private owned-card payment.");
+        var cost = payment.Choices.First();
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-
-        Answer(game, use);
-        Answer(replay, RequirePrompt(replay, DecisionKind.Longyin).Choices.Single(choice => choice.Id == use.Id));
-        var resolved = game.Events.Select(item => item.Payload).OfType<LongyinResolvedEvent>().Last();
-        Require(resolved is
-                {
-                    OwnerSeat: HumanSeat,
-                    Used: true,
-                    SlashCountRemoved: true
-                } &&
-                resolved.SlashSourceSeat == sourceSeat &&
-                resolved.DiscardedCardId == use.Cards.Single() &&
+        Answer(game, cost);
+        Answer(replay, RequireLongyin(replay).Choices.Single(choice => choice.Id == cost.Id));
+        Require(game.Events.Select(item => item.Payload).OfType<CardUseDebitRefundedEvent>().Last().Debit.ActorSeat == actor &&
+                game.CardMovements.Any(move => move.CardId == cost.Cards.Single() &&
+                    move.From == CardLocation.Hand(HumanSeat) && move.To == CardLocation.DiscardPile) &&
                 State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
-            "A cross-seat Longyin use must pay the selected private cost, uncount the actor's Slash and replay exactly.");
+            "The observer must refund the actor's debit, pay its own card and replay identically.");
     }
+
+    private static PendingDecision RequireLongyin(GameEngine game) =>
+        game.PendingDecision is { PlayerSeat: HumanSeat, SkillPrompt.SkillId: "classic:longyin" } prompt
+            ? prompt : throw new InvalidOperationException("Expected the common Longyin program prompt.");
+
+    private static void Activate(GameEngine game) => Answer(game, RequireLongyin(game).Choices.Single(choice =>
+        choice.Parameters.GetValueOrDefault("program-action") == "activate"));
 
     private static SlashFixture FindSlashGame(bool requireRed)
     {
@@ -222,7 +168,7 @@ internal static class GuanPingChecks
             {
                 if (game.PendingDecision is { PlayerSeat: HumanSeat } prompt)
                 {
-                    if (prompt.Kind == DecisionKind.Longyin && prompt.SourceSeat != HumanSeat)
+                    if (prompt.SkillPrompt?.SkillId == "classic:longyin" && prompt.SourceSeat != HumanSeat)
                         return new Fixture(game, registry);
                     if (prompt.Kind == DecisionKind.PlayCard) break;
                     var decline = prompt.Choices.FirstOrDefault(choice => choice.Cards.Count == 0);

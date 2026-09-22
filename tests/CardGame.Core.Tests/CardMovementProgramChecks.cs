@@ -58,7 +58,7 @@ internal static class CardMovementProgramChecks
             Require(historical.Skills[skillId].Program is null,
                 $"Package 1.99 must retain historical {skillId} metadata without reviving its removed route.");
             Require(current.Skills[skillId].Program is
-                    { RuntimeVersion: "skill-program-v14", MinimumRulesVersion: 119 } migrated &&
+                    { UsesCompositionKernel: true, MinimumRulesVersion: 128 } migrated &&
                     migrated.Triggers.Single().Window == SkillProgramTriggerWindow.CardsMoved,
                 $"Package 1.100 must publish {skillId} through the schema-14 card-movement window.");
         }

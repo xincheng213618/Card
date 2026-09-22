@@ -564,14 +564,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         if (_version >= new Version(1, 83, 0))
         {
-            builder.AddSkill(WithActiveActionMetadata(
-                WithStructuredSkillMetadata(new ContentSkillDefinition(
-                        "classic:xianzhen",
-                        "陷阵",
-                        "出牌阶段限一次，你可以与一名角色拼点。若你赢，直到回合结束，你对该角色使用牌无距离限制且对其使用【杀】无次数限制，并无视其防具；若你没赢，直到回合结束，你不能使用【杀】。",
-                        SkillKind.Xianzhen),
-                    SkillTag.None,
-                    SkillExecutionForm.State)));
+            builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:xianzhen"));
 
             var jinjiuProgram = ClassicGaoShunCatalog.Value.Programs["classic:jinjiu"];
             var jinjiuPresentation = ClassicGaoShunCatalog.Value.Presentations["classic:jinjiu"];
@@ -790,11 +783,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 97, 0))
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:longyin",
-                "龙吟",
-                "每当一名角色于其出牌阶段内使用【杀】时，你可以弃置一张牌，令此【杀】不计入限制的使用次数，然后若此【杀】为红色，你摸一张牌。",
-                SkillKind.Longyin)));
+            builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:longyin"));
         }
 
         builder.AddSkill(_version >= new Version(1, 101, 0)
@@ -1269,12 +1258,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         if (_version >= new Version(1, 70, 0))
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:juzhan",
-                "拒战",
-                "转换技，阳：当你成为其他角色使用【杀】的目标后，你可以与其各摸一张牌，然后其本回合不能再对你使用牌；阴：当你使用【杀】指定目标后，你可以获得其中一名目标角色的一张牌，然后你本回合不能再对其使用牌。"),
-                SkillTag.Conversion,
-                SkillExecutionForm.Trigger));
+            builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:juzhan"));
         }
         if (_version >= new Version(1, 72, 0))
         {

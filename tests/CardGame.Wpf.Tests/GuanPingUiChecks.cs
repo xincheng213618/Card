@@ -52,34 +52,32 @@ internal static class GuanPingUiChecks
     private static void RenderLongyinPrompt(string output)
     {
         var fixture = FindLongyinPrompt();
+        var activation = fixture.Game.PendingDecision!;
+        using (var preview = Load(fixture.Game, fixture.Registry))
+        {
+            Program.Assert(preview.IsSkillSelectionPending && preview.SkillChoices.Count == 2 &&
+                           preview.CurrentDecisionContext?.Title.Contains("龙吟", StringComparison.Ordinal) == true &&
+                           preview.SkillChoices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip"),
+                "The common trigger surface must display optional activation and skip.");
+        }
+        var use = activation.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
+        var accepted = fixture.Game.Submit(new AnswerPromptCommand(HumanSeat, activation.PromptId, use.Id, fixture.Game.Revision));
+        Program.Assert(accepted.Accepted, accepted.Error?.Message ?? "The common activation failed.");
         using var viewModel = Load(fixture.Game, fixture.Registry);
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
-        var root = (FrameworkElement)window.Content;
-        var prompt = fixture.Game.PendingDecision ??
-            throw new InvalidOperationException("The Longyin WPF fixture lost its prompt.");
+        var prompt = fixture.Game.PendingDecision!;
         var owner = fixture.Game.CreateSnapshot(HumanSeat).Players[HumanSeat];
-        var longyin = viewModel.HumanSkillCards.Single(skill => skill.Name == "龙吟");
-        Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动龙吟" &&
-                       viewModel.CurrentDecisionContext is
-                       {
-                           Title: "龙吟 · 选择弃置一张牌或跳过",
-                           SourceSeat: HumanSeat,
-                           TargetSeat: not null,
-                           TargetLabel: "此杀目标"
-                       } &&
-                       viewModel.SkillChoices.Count(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "longyin-use") ==
-                           owner.HandCount + owner.Equipment.Count &&
-                       viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "longyin-skip") &&
-                       viewModel.EventStack.Any(line =>
-                           line.Contains("AskForSkill(Longyin)", StringComparison.Ordinal)) &&
-                       prompt.IsPrivate && longyin.TypeText == "触发技",
-            $"The generic WPF surface must render Longyin's exact owned-card costs and optional skip " +
-            $"(guide={viewModel.CurrentGuideTitle}, choices={viewModel.SkillChoices.Count}).");
-        Program.Render(root, 1120, 740,
+        Program.Assert(prompt.SkillPrompt?.SkillId == "classic:longyin" && prompt.IsPrivate &&
+                       viewModel.IsSkillSelectionPending &&
+                       viewModel.CurrentDecisionContext?.Title.Contains("龙吟", StringComparison.Ordinal) == true &&
+                       viewModel.SkillChoices.Count == owner.HandCount + owner.Equipment.Count &&
+                       viewModel.SkillChoices.All(choice => choice.Cards.Count == 1 &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card") &&
+                       fixture.Game.CreateSnapshot(1).PendingDecision is null &&
+                       viewModel.HumanSkillCards.Single(skill => skill.Name == "龙吟").TypeText == "触发技",
+            "The generic WPF selection surface must display private exact owned-card costs after activation.");
+        Program.Render((FrameworkElement)window.Content, 1120, 740,
             Path.Combine(output, "228-classic-longyin-choice.png"));
         window.Content = null;
         window.Close();
@@ -104,7 +102,7 @@ internal static class GuanPingUiChecks
                 prompt.PromptId,
                 action.PlayedCardKind));
             Program.Assert(played.Accepted, played.Error?.Message ?? "Could not play the WPF Longyin Slash.");
-            if (game.PendingDecision is { Kind: DecisionKind.Longyin, PlayerSeat: HumanSeat })
+            if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat, SkillPrompt.SkillId: "classic:longyin" })
                 return (game, registry);
         }
         throw new InvalidOperationException("Could not find a bounded WPF Longyin fixture.");

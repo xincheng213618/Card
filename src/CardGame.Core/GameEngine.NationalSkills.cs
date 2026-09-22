@@ -177,6 +177,19 @@ public sealed partial class GameEngine
 
     private IEnumerable<IPassiveSkill> EnabledPassiveSkills(CharacterState player)
     {
+        if (_contentRegistry is not null && GetSkillBindingShard(player) is { } shard)
+        {
+            // Complete compositions own their rules. LegacyKind is presentation
+            // metadata, not permission to execute a second implementation.
+            foreach (var kind in shard.Definitions.Values
+                         .Where(definition => definition.Program?.UsesCompositionKernel != true)
+                         .Select(definition => definition.LegacyKind)
+                         .OfType<SkillKind>()
+                         .Where(kind => kind != SkillKind.None && (kind != SkillKind.Yicong || UsesFormalGongsunZan))
+                         .Distinct())
+                yield return SkillRegistry.Get(kind);
+            yield break;
+        }
         // Older checkpoints retain their original primary-only behavior.
         if (!IsNationalWarMode)
         {

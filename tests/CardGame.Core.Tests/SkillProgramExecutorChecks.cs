@@ -101,6 +101,14 @@ internal static class SkillProgramExecutorChecks
         Require(missing.Frame is { InstructionIndex: 0 } && missing.Calls.Count == 0,
             "Missing handlers must fail before advancing the cursor or producing side effects.");
 
+        var composed = Runtime(Program(
+            """{"op":"recover","target":"owner","amount":1}""", schemaVersion: 23));
+        Throws<InvalidOperationException>(
+            () => new SkillProgramExecutor(drawOnly).Run(composed.Frame!.Id, composed, composed),
+            "Recover");
+        Require(composed.Frame is { InstructionIndex: 0 } && composed.Calls.Count == 0,
+            "Composed programs must honor an explicitly injected handler catalog before advancing.");
+
         Throws<InvalidOperationException>(
             () => _ = new SkillProgramEffectCatalog([
                 new DrawSkillProgramEffectHandler(),
@@ -137,10 +145,12 @@ internal static class SkillProgramExecutorChecks
         int minCards = 0,
         int maxCards = 0,
         int minTargets = 0,
-        int maxTargets = 0)
+        int maxTargets = 0,
+        int schemaVersion = 1)
     {
+        var minimumRules = schemaVersion == 23 ? "\"minimumRulesVersion\":128," : string.Empty;
         var rules = $$"""
-            {"schemaVersion":1,"skills":[{"id":"fixture:executor","revision":1,"modifiers":[],"viewAs":[],
+            {"schemaVersion":{{schemaVersion}},"skills":[{"id":"fixture:executor","revision":1,{{minimumRules}}"modifiers":[],"viewAs":[],
             "activations":[{"id":"run","minCards":{{minCards}},"maxCards":{{maxCards}},
             "minTargets":{{minTargets}},"maxTargets":{{maxTargets}},"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{{effects}}]}]}]}
@@ -221,6 +231,11 @@ internal static class SkillProgramExecutorChecks
                 : throw new InvalidOperationException($"Unknown program {skillId}.");
 
         public SkillProgramActorState GetActor(int seat) => _actors[seat];
+
+        public bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition,
+            PlayerSkillContext context) => condition.Evaluate(context,
+            bind => frame.PindianResultBindings.Single(item => item.Name == bind).SourceWon,
+            _ => false);
 
         public bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId) =>
             ownerSeat == 0 && skillId == _program.Id && skillInstanceId == "fixture-instance";
@@ -354,7 +369,8 @@ internal static class SkillProgramExecutorChecks
         public SkillProgramStepOutcome SelectTarget(
             long frameId,
             int ownerSeat,
-            SkillProgramTargetKind targetKind)
+            SkillProgramTargetKind targetKind,
+            IReadOnlyList<CardZoneKind> zones)
         {
             Calls.Add($"select-target:{ownerSeat}:{targetKind}");
             return SkillProgramStepOutcome.AwaitChoice;
@@ -437,6 +453,26 @@ internal static class SkillProgramExecutorChecks
             SkillProgramCardColorRelation colorRelation,
             CardKind outputKind) =>
             Calls.Add($"grant-turn-card-conversion:{frame.OwnerSeat}:{sourceBind}:{colorRelation}:{outputKind}");
+
+        public SkillProgramStepOutcome StartPindian(ProgramSkillFrame frame,
+            ProgramParticipantReference opponentReference, string resultBind,
+            SkillProgramCardSetVisibility visibility)
+        {
+            Calls.Add($"start-pindian:{frame.OwnerSeat}:{opponentReference.Kind}:{resultBind}:{visibility}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public void SetBooleanState(ProgramSkillFrame frame, string stateId, bool value) =>
+            Calls.Add($"set-boolean:{frame.OwnerSeat}:{stateId}:{value}");
+
+        public void ToggleBooleanState(ProgramSkillFrame frame, string stateId) =>
+            Calls.Add($"toggle-boolean:{frame.OwnerSeat}:{stateId}");
+
+        public void GrantDirectedTurnCardPolicy(ProgramSkillFrame frame,
+            ProgramParticipantReference actorReference, ProgramParticipantReference targetReference,
+            IReadOnlyList<CardKind> cardKinds, DirectedTurnCardPolicyEffect effects) =>
+            Calls.Add($"grant-directed:{frame.OwnerSeat}:{actorReference.Kind}:{targetReference.Kind}:" +
+                      $"{string.Join(',', cardKinds)}:{effects}");
     }
 
     private sealed class DuplicateDrawHandler : ISkillProgramEffectHandler

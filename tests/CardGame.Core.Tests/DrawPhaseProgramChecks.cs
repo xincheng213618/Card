@@ -11,7 +11,7 @@ internal static class DrawPhaseProgramChecks
         Require(GameCheckpoint.CurrentRulesVersion >= 125,
             "Schema-20 draw-policy programs require at least rules version 125.");
         Require(StandardContentPackage.CurrentVersion == new Version(1, 14, 0) &&
-                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 107, 0),
+                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 108, 0),
             "The current standard and classic packages must expose their draw-phase-program boundaries.");
 
         var historicalStandard = ContentRegistry.Build(new StandardContentPackage(new Version(1, 13, 0)));
@@ -29,18 +29,18 @@ internal static class DrawPhaseProgramChecks
 
         Require(historicalStandard.Skills["standard:yingzi"] is
                 { LegacyKind: SkillKind.Yingzi, Program: null } &&
-                standard is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v16" } &&
-                standard.Program!.MinimumRulesVersion == 121,
+                standard is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+                standard.Program!.MinimumRulesVersion == 128,
             "Standard Yingzi did not preserve the standard@1.13/current migration boundary.");
         Require(historicalClassic.Skills["classic:yingzi"] is
                 { LegacyKind: SkillKind.Yingzi, Program: null } &&
-                classic is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v16" } &&
-                classic.Program!.MinimumRulesVersion == 121,
+                classic is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+                classic.Program!.MinimumRulesVersion == 128,
             "Classic Yingzi did not preserve the classic@1.101/current migration boundary.");
         Require(additiveClassic.Skills["classic:tuxi"] is
                 { LegacyKind: SkillKind.Tuxi, Program: null } &&
-                tuxi is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v17" } &&
-                tuxi.Program!.MinimumRulesVersion == 122 &&
+                tuxi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+                tuxi.Program!.MinimumRulesVersion == 128 &&
                 tuxi.Program.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.DrawPhaseStarting,
@@ -60,8 +60,8 @@ internal static class DrawPhaseProgramChecks
             "Classic Tuxi did not preserve the classic@1.102/schema-17 replacement boundary.");
         Require(targetHandClassic.Skills["classic:zaiqi"] is
                 { LegacyKind: SkillKind.Zaiqi, Program: null } &&
-                zaiqi is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v18" } &&
-                zaiqi.Program!.MinimumRulesVersion == 123 &&
+                zaiqi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+                zaiqi.Program!.MinimumRulesVersion == 128 &&
                 zaiqi.Program.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.DrawPhaseStarting,
@@ -89,8 +89,8 @@ internal static class DrawPhaseProgramChecks
             "Classic Zaiqi did not preserve the classic@1.103/schema-18 reveal replacement boundary.");
         Require(revealClassic.Skills["classic:luoyi"] is
                 { LegacyKind: SkillKind.Luoyi, Program: null } &&
-                luoyi is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v19" } &&
-                luoyi.Program!.MinimumRulesVersion == 124 &&
+                luoyi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+                luoyi.Program!.MinimumRulesVersion == 128 &&
                 luoyi.Program.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.DrawPhaseStarting,

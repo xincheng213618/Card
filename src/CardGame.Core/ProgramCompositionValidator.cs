@@ -1,0 +1,223 @@
+namespace CardGame.Core;
+
+/// <summary>
+/// Validates resource relationships independently of the operation or entry point.
+/// Splitting symbolic card partitions preserves aliases, so consuming a subset and
+/// its complement is provably different from moving the same physical cards twice.
+/// </summary>
+internal static class ProgramCompositionValidator
+{
+    internal static void Validate(string path, IReadOnlyList<SkillProgramEffect> effects,
+        bool initialSelectedTarget = false, int selectedCardCount = 0,
+        SkillProgramTriggerWindow? window = null,
+        SkillProgramDrawPhaseMode drawPhaseMode = SkillProgramDrawPhaseMode.Additive)
+    {
+        var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
+        var roots = new List<Root>();
+        var selectedTarget = initialSelectedTarget;
+        var cardsConsumed = false;
+        var targetSetAvailable = false;
+        var targetSetConsumed = false;
+        var pindianResults = new HashSet<string>(StringComparer.Ordinal);
+        var capabilities = ProgramEntryCapabilities.For(window);
+        for (var index = 0; index < effects.Count; index++)
+        {
+            var effect = effects[index];
+            var nodePath = $"{path}.effects[{index}]";
+            var descriptor = ProgramOperationCatalog.Default.Resolve(effect.Op);
+            foreach (var condition in Conditions(effect.Condition))
+                if (condition.Kind == SkillProgramConditionKind.PindianWon &&
+                    !pindianResults.Contains(condition.SourceBind!))
+                    Fail($"unknown Pindian result binding '{condition.SourceBind}'");
+            if ((capabilities & descriptor.RequiredCapabilities) != descriptor.RequiredCapabilities)
+                throw Error(nodePath, $"operation requires context {descriptor.RequiredCapabilities}, supplied {capabilities}");
+            if (drawPhaseMode == SkillProgramDrawPhaseMode.Replacement &&
+                descriptor.RequiredCapabilities.HasFlag(ProgramContextCapability.DrawPlan))
+                throw Error(nodePath, "a replacement draw program cannot adjust the replaced normal draw");
+            if (descriptor.RequiredCapabilities.HasFlag(ProgramContextCapability.PhaseInsertion) && bindings.Count != 0)
+                throw Error(nodePath, "card bindings cannot cross an independently interactive inserted phase");
+            foreach (var resource in descriptor.Resources(effect))
+            {
+                switch (resource)
+                {
+                    case CreateCardSet create:
+                    {
+                        var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup);
+                        roots.Add(root);
+                        Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount));
+                        break;
+                    }
+                    case CaptureSourceCard sourceCard:
+                    {
+                        var root = new Root(sourceCard.Name, false, false);
+                        roots.Add(root);
+                        Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), 1));
+                        break;
+                    }
+                    case ReadSingleCardSet single:
+                    {
+                        var source = Get(single.Name);
+                        if (source.MaximumCount > 1 || source.Atoms.Overlaps(source.Root.Consumed) ||
+                            source.Atoms.Overlaps(source.Root.PossiblyGifted))
+                            Fail("the operation requires a stable single-card binding before movement");
+                        break;
+                    }
+                    case DeriveCardSet derive:
+                    {
+                        var source = Get(derive.Source);
+                        if (source.Atoms.Overlaps(source.Root.Consumed) || source.Atoms.Overlaps(source.Root.PossiblyGifted))
+                            Fail("a derived set reads cards that may already have moved");
+                        HashSet<int> atoms;
+                        var maximum = source.MaximumCount;
+                        if (derive.SelectionMaximum is { } limit)
+                        {
+                            maximum = Math.Min(maximum, limit);
+                            atoms = [];
+                            if (limit > 0)
+                            {
+                                // Each selected atom and its unselected sibling retain the
+                                // same suit. Every earlier alias must include both children.
+                                foreach (var atom in source.Atoms.ToArray())
+                                {
+                                    var selected = source.Root.NextAtom++;
+                                    source.Root.Atoms.Add(selected, source.Root.Atoms[atom]);
+                                    foreach (var prior in bindings.Values.Where(value =>
+                                                 ReferenceEquals(value.Root, source.Root) && value.Atoms.Contains(atom)))
+                                        prior.Atoms.Add(selected);
+                                    atoms.Add(selected);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            atoms = source.Atoms.Where(atom => derive.Suits.Contains(source.Root.Atoms[atom]))
+                                .ToHashSet();
+                        }
+                        if (source.Root.Atoms.Count > 4096)
+                            Fail("symbolic card partitions exceed the bounded composition limit");
+                        Add(derive.Result, new(source.Root, atoms, maximum));
+                        if (derive.SelectionMaximum is not null)
+                        {
+                            try
+                            {
+                                CardSubsetSelector.ValidateDefinition(source.MaximumCount,
+                                    new(effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum));
+                            }
+                            catch (ArgumentException exception) { Fail(exception.Message); }
+                        }
+                        break;
+                    }
+                    case ReadCardSet read:
+                        _ = Get(read.Name);
+                        break;
+                    case MoveCardSet move:
+                    {
+                        var source = Get(move.Source);
+                        if (source.Root.OwnerHeld && move.Destination == SkillProgramCardDestination.OwnerHand)
+                            Fail("cards already held by the owner cannot be moved to the same hand zone");
+                        var atoms = source.Atoms.ToHashSet();
+                        if (move.Except is { } exceptName)
+                        {
+                            var except = Get(exceptName);
+                            if (!ReferenceEquals(source.Root, except.Root) || !except.Atoms.IsSubsetOf(source.Atoms))
+                                Fail("excluded cards must be a subset of the same source root");
+                            atoms.ExceptWith(except.Atoms);
+                        }
+                        if (source.Root.Consumed.Overlaps(atoms) || source.Root.PossiblyGifted.Overlaps(atoms))
+                            Fail("cards may be moved more than once");
+                        source.Root.Consumed.UnionWith(atoms);
+                        break;
+                    }
+                    case GiftCardSet gift:
+                    {
+                        var source = Get(gift.Source);
+                        if (!source.Root.OwnerHeld)
+                            Fail("optional gifts require cards already held in hand, not unconsumed revealed cards");
+                        if (source.Atoms.Overlaps(source.Root.Consumed))
+                            Fail("a gift reads cards that have already been moved");
+                        source.Root.PossiblyGifted.UnionWith(source.Atoms);
+                        break;
+                    }
+                    case ConsumeSelectedCards consume:
+                        if (cardsConsumed || consume.Count != selectedCardCount || consume.Count <= 0)
+                            Fail("activation input cards must be consumed exactly once with their declared count");
+                        cardsConsumed = true;
+                        break;
+                    case CreatePindianResult result:
+                        if (roots.Any(root => root.NeedsCleanup && !root.Consumed.SetEquals(root.Atoms.Keys)))
+                            Fail("pindian cannot start while an earlier revealed card binding still needs cleanup");
+                        if (!pindianResults.Add(result.Name) || bindings.ContainsKey(result.Name))
+                            Fail($"duplicate result binding '{result.Name}'");
+                        break;
+                    case ReadPindianResult result:
+                        if (!pindianResults.Contains(result.Name))
+                            Fail($"unknown Pindian result binding '{result.Name}'");
+                        break;
+                    case ReadSelectedTarget:
+                        if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
+                        break;
+                    case RequireContext required:
+                        if ((capabilities & required.Capability) != required.Capability)
+                            Fail($"operation requires context {required.Capability}, supplied {capabilities}");
+                        break;
+                    case SelectSingleTarget:
+                        if (selectedTarget || targetSetAvailable) Fail("a composition may select its target only once");
+                        selectedTarget = true;
+                        break;
+                    case SelectTargetSet:
+                        if (selectedTarget || targetSetAvailable) Fail("a composition may select its targets only once");
+                        targetSetAvailable = true;
+                        break;
+                    case ConsumeTargetSet:
+                        if (!targetSetAvailable || targetSetConsumed)
+                            Fail("a target set must be selected before use and can be consumed only once");
+                        targetSetConsumed = true;
+                        break;
+                    default:
+                        Fail($"unknown resource contract '{resource.GetType().Name}'");
+                        break;
+                }
+            }
+
+            Binding Get(string name) => bindings.TryGetValue(name, out var value)
+                ? value : throw Error(nodePath, $"unknown card binding '{name}'");
+            void Add(string name, Binding value)
+            {
+                if (!bindings.TryAdd(name, value)) Fail($"duplicate card binding '{name}'");
+            }
+            void Fail(string message) => throw Error(nodePath, message);
+        }
+        foreach (var root in roots.Where(root => root.NeedsCleanup))
+            if (!root.Consumed.SetEquals(root.Atoms.Keys))
+                throw Error(path + ".effects", $"revealed card binding '{root.Name}' is not fully consumed");
+        if (selectedCardCount > 0 && !cardsConsumed)
+            throw Error(path + ".effects", "activation input cards are never consumed");
+        return;
+
+        static IEnumerable<SkillProgramCondition> Conditions(SkillProgramCondition condition)
+        {
+            yield return condition;
+            foreach (var child in condition.Children)
+            foreach (var nested in Conditions(child)) yield return nested;
+        }
+    }
+
+    private static InvalidOperationException Error(string path, string message) =>
+        new($"Invalid skill program at {path}: {message}.");
+
+    private sealed class Root(string name, bool needsCleanup, bool ownerHeld)
+    {
+        internal string Name { get; } = name;
+        internal bool NeedsCleanup { get; } = needsCleanup;
+        internal bool OwnerHeld { get; } = ownerHeld;
+        internal Dictionary<int, Suit> Atoms { get; } = new()
+        {
+            [0] = Suit.Spade, [1] = Suit.Heart, [2] = Suit.Club, [3] = Suit.Diamond
+        };
+        internal int NextAtom { get; set; } = 4;
+        internal HashSet<int> Consumed { get; } = [];
+        internal HashSet<int> PossiblyGifted { get; } = [];
+    }
+
+    private sealed record Binding(Root Root, HashSet<int> Atoms, int MaximumCount);
+}

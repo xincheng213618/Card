@@ -25,7 +25,9 @@ public sealed partial class GameEngine
                     return false;
             }
             if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind)) return true;
-            return !IsCardUseForbidden(actor.Seat, effectiveKind, CardActionType.Use);
+            return !IsCardUseForbidden(actor.Seat, effectiveKind, CardActionType.Use) &&
+                GetDeclaredCardTargets(actor, action.Kind, action.TargetSeats).All(targetSeat =>
+                    !IsDirectedCardTargetProhibited(actor.Seat, targetSeat, effectiveKind));
         }).ToArray();
 
     private bool HasTurnCardTargetRestriction(
@@ -76,6 +78,7 @@ public sealed partial class GameEngine
 
     private void ExpireTurnCardUseEffects(int turnNumber, int turnSeat)
     {
+        ExpireDirectedTurnCardPolicies(turnNumber, turnSeat);
         var expired = _turnCardUseEffects.ExpireTurn(turnNumber, turnSeat);
         if (expired.Count == 0) return;
         QueueGameEvent(new TurnCardUseEffectsExpiredEvent(turnNumber, turnSeat, expired));
@@ -86,20 +89,14 @@ public sealed partial class GameEngine
         IReadOnlyList<CardKind> cardKinds,
         int amount)
     {
-        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
-            frame.WindowContext is not { Window: SkillProgramTriggerWindow.DrawPhaseStarting } ||
-            frame.TriggerId is null || frame.OwnerSeat != _currentSeat || _phase != TurnPhase.Draw ||
-            amount <= 0 || cardKinds.Count == 0)
+        ValidateProgramTurnEffectGrant(frame);
+        if (amount <= 0 || cardKinds.Count == 0)
         {
             throw new InvalidOperationException(
-                "A turn card-damage modifier requires an active draw-phase program.");
+                "A turn card-damage modifier requires positive damage and card kinds.");
         }
 
-        var source = new CardUseEffectSource(
-            frame.SkillId,
-            frame.TriggerId,
-            frame.OwnerSeat,
-            frame.SkillInstanceId);
+        var source = CreateProgramTurnEffectSource(frame);
         var granted = _turnCardUseEffects.GrantDamageModifier(
             _turnNumber,
             _currentSeat,
@@ -187,11 +184,11 @@ public sealed partial class GameEngine
     private void ValidateProgramTurnEffectGrant(ProgramSkillFrame frame)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
-            frame.WindowContext is not { Window: SkillProgramTriggerWindow.DrawPhaseStarting } ||
-            frame.TriggerId is null || frame.OwnerSeat != _currentSeat || _phase != TurnPhase.Draw)
-            throw new InvalidOperationException("A turn effect requires an active draw-phase program.");
+            frame.OwnerSeat < 0 || frame.OwnerSeat >= _players.Count || _turnNumber <= 0 ||
+            (frame.TriggerId is null && string.IsNullOrWhiteSpace(frame.ActivationId)))
+            throw new InvalidOperationException("A turn effect requires an active program frame in an ongoing turn.");
     }
 
     private static CardUseEffectSource CreateProgramTurnEffectSource(ProgramSkillFrame frame) =>
-        new(frame.SkillId, frame.TriggerId!, frame.OwnerSeat, frame.SkillInstanceId);
+        new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
 }

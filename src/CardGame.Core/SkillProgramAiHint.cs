@@ -12,4 +12,7 @@ public sealed record SkillProgramAiHint(
     int TargetRecovery,
     int TargetHpLoss,
     bool GivesSelected,
-    bool DiscardsSelected);
+    bool DiscardsSelected)
+{
+    public double ValueAdjustment { get; init; }
+}

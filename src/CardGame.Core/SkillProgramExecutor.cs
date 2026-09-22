@@ -25,6 +25,7 @@ public interface ISkillProgramExecutionHost
     bool IsGameOver { get; }
     bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId);
     bool OwnsHandCards(int ownerSeat, IReadOnlyList<int> cardIds);
+    bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition, PlayerSkillContext context);
     void UpdateFrame(ProgramSkillFrame frame);
     void Complete(ProgramSkillFrame frame, bool completed, string? reason = null);
 }
@@ -99,7 +100,8 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome SelectTarget(
         long frameId,
         int ownerSeat,
-        SkillProgramTargetKind targetKind);
+        SkillProgramTargetKind targetKind,
+        IReadOnlyList<CardZoneKind> zones);
     SkillProgramStepOutcome SelectTargets(
         long frameId,
         int ownerSeat,
@@ -146,6 +148,29 @@ public interface ISkillProgramEffectHost
         string sourceBind,
         SkillProgramCardColorRelation colorRelation,
         CardKind outputKind);
+    SkillProgramStepOutcome SelectAndMoveOwnedCard(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        ProgramParticipantReference cardOwner,
+        IReadOnlyList<CardZoneKind> zones,
+        SkillProgramCardDestination destination,
+        string? resultBind,
+        CardMoveReason reason) => throw new InvalidOperationException("The host does not provide card-action payments.");
+    void RefundCardUseDebit(ProgramSkillFrame frame) =>
+        throw new InvalidOperationException("The host does not provide card-use debit refunds.");
+    SkillProgramStepOutcome StartPindian(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference opponentReference,
+        string resultBind,
+        SkillProgramCardSetVisibility visibility);
+    void SetBooleanState(ProgramSkillFrame frame, string stateId, bool value);
+    void ToggleBooleanState(ProgramSkillFrame frame, string stateId);
+    void GrantDirectedTurnCardPolicy(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference actorReference,
+        ProgramParticipantReference targetReference,
+        IReadOnlyList<CardKind> cardKinds,
+        DirectedTurnCardPolicyEffect effects);
 }
 
 /// <summary>One reusable primitive operation, never one character or skill.</summary>
@@ -190,7 +215,8 @@ public sealed class SelectTargetSkillProgramEffectHandler : ISkillProgramEffectH
         host.SelectTarget(
             frame.Id,
             frame.OwnerSeat,
-            effect.TargetKind ?? throw new InvalidOperationException("selectTarget has no target kind."));
+            effect.TargetKind ?? throw new InvalidOperationException("selectTarget has no target kind."),
+            effect.Zones);
 }
 
 public sealed class SelectTargetsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -618,6 +644,31 @@ public sealed class GrantTurnCardConversionSkillProgramEffectHandler : ISkillPro
     }
 }
 
+public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectAndMoveOwnedCard;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.SelectAndMoveOwnedCard(
+        frame,
+        effect.ChooserRef ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no chooserRef."),
+        effect.CardOwnerRef ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no cardOwnerRef."),
+        effect.Zones,
+        effect.Destination ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no destination."),
+        effect.ResultBind,
+        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+}
+
+public sealed class RefundCardUseDebitSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.RefundCardUseDebit;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        host.RefundCardUseDebit(frame);
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
 /// <summary>
 /// A deterministic catalog of primitive handlers. Reflection is scoped to one
 /// explicit assembly and never scans the AppDomain or filesystem.
@@ -723,10 +774,10 @@ public sealed class SkillProgramEffectCatalog
 /// </summary>
 public sealed class SkillProgramExecutor
 {
-    private readonly SkillProgramEffectCatalog _effects;
+    private readonly SkillProgramEffectCatalog? _effects;
 
     public SkillProgramExecutor(SkillProgramEffectCatalog? effects = null) =>
-        _effects = effects ?? SkillProgramEffectCatalog.Default;
+        _effects = effects;
 
     public void Run(
         long frameId,
@@ -765,11 +816,13 @@ public sealed class SkillProgramExecutor
             }
 
             var effect = plan.GetInstruction(frame.InstructionIndex).Effect;
-            var handler = _effects.Resolve(effect.Op);
+            var handler = _effects?.Resolve(effect.Op) ?? (program.UsesCompositionKernel
+                ? ProgramOperationCatalog.Default.Resolve(effect.Op).Handler
+                : SkillProgramEffectCatalog.Default.Resolve(effect.Op));
             // Commit the cursor before any primitive can suspend into a child.
             frame = frame with { InstructionIndex = frame.InstructionIndex + 1 };
             state.UpdateFrame(frame);
-            if (!effect.Condition.Evaluate(actor.Context)) continue;
+            if (!state.EvaluateCondition(frame, effect.Condition, actor.Context)) continue;
 
             var targetSeat = effect.Op is SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets
                 ? frame.OwnerSeat

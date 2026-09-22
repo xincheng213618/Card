@@ -65,7 +65,7 @@
 - 规则 v28 在经典身份局通过 `IPassiveSkill.CanUseAsDismantlement` 接入奇袭。合法动作可从拥有者手牌或装备区取得黑色实体牌，`CardUseFrame`、`NullificationWindowFrame`、`TargetCardSelectionFrame` 与用牌事件携带有效牌型 Dismantlement；`CardZoneStore` 仍按实际 Hand/Equipment 来源移动物理牌，避免把装备成本伪装成手牌或改写实体牌种。
 - 规则 v29 在经典身份局通过 `IPassiveSkill.CanSkipDiscardPhase` 接入克己。引擎在回合开始清空杀标记，并只在拥有者自己的 Play 阶段记录直接使用、决斗/南蛮入侵响应及激将代出的有效杀；进入 Discard 后若标记仍为空，则发布私有 `DecisionKind.Keji` Choice。发动会发布 `PhaseSkillResolvedEvent` 并结束回合，跳过则继续普通手牌上限弃置。
 - 规则 v30 曾在经典身份局通过 `IPassiveSkill.CanReplaceDrawPhase` 和专属 `DecisionKind.Tuxi` 接入突袭；当前 v122 已以 schema 17 通用替代摸牌程序取代该执行路线。历史枚举、事件和移动 reason 只保留兼容数据，不由当前 Core、AI 或 WPF 生产或消费。
-- 规则 v31 曾在经典身份局通过 `IPassiveSkill.CanReduceDrawPhase` 接入裸衣。当前 rules v126 继续由 schema 19 的 `AdjustNormalDraw` 修改摸牌父计划，并由 `GrantTurnCardDamageModifier` 授予带技能来源、有效牌型与回合边界的通用伤害修正。`AttackResolution` 仍分离原始 `CardUserSeat` 与本次实际 `SourceSeat`，所以只有拥有者自己使用的杀／决斗直接伤害会发布 `ProgramCardDamageModifiedEvent`；决斗反向伤害和连环传导不加成。当前 Core、AI 与 WPF 只消费通用 `ProgramTrigger` 路径；1.104.0 及更早内容定义、指纹和旧枚举／事件 DTO 只作历史数据契约，不复活 `DecisionKind.Luoyi`、专属标记或旧执行器。
+- 规则 v31 曾在经典身份局通过 `IPassiveSkill.CanReduceDrawPhase` 接入裸衣。当前 rules v127 继续由 schema 19 的 `AdjustNormalDraw` 修改摸牌父计划，并由 `GrantTurnCardDamageModifier` 授予带技能来源、有效牌型与回合边界的通用伤害修正。`AttackResolution` 仍分离原始 `CardUserSeat` 与本次实际 `SourceSeat`，所以只有拥有者自己使用的杀／决斗直接伤害会发布 `ProgramCardDamageModifiedEvent`；决斗反向伤害和连环传导不加成。当前 Core、AI 与 WPF 只消费通用 `ProgramTrigger` 路径；1.104.0 及更早内容定义、指纹和旧枚举／事件 DTO 只作历史数据契约，不复活 `DecisionKind.Luoyi`、专属标记或旧执行器。
 - 规则 v32 在经典身份局通过 `IActiveSkill` 接入强袭。主动技草稿冻结 0–1 张手牌/装备区武器牌和一名攻击范围内的其他存活角色；空牌分支先失去 1 点体力，武器分支按 `来源区 → Processing → DiscardPile` 移动。`AttackResolution` 的来源牌/有效牌型允许为空，但 `SourceSkill=Qiangxi`，因此无实体牌来源的 1 点伤害仍统一进入 `DamageFrame`、伤害后技能和濒死链；若体力成本先令典韦濒死，主动技帧保留在濒死帧下方，获救后继续原目标伤害。rules v31 保留未开放强袭的旧回放。
 - 规则 v33 在经典身份局通过 `IPassiveSkill.CanUseAsSupplyShortage` 和 `ModifySupplyShortageDistanceLimit` 接入断粮。徐晃自己的黑色基本牌或黑色装备牌可从手牌/装备区进入既有延时锦囊与无懈链，原生及转化兵粮寸断的距离上限为 2。`_judgmentEffectiveCardKinds` 只为判定区内的转化实体牌持久记录有效牌型：公开快照、同名延时牌去重、观星目的和判定结算读取兵粮寸断，牌区诊断、移动账本与最终弃置仍读取原实体牌；离开判定区即清理映射。rules v32 保留未开放断粮的旧回放。
 - 规则 v34 在经典身份局接入甄姬的洛神与倾国。准备阶段先发布仅本人可见的 `DecisionKind.Luoshen`；每次选择发动都进入既有 `JudgmentFrame`，可由鬼才替换，黑色生效牌通过 `skill.luoshen.claim-judgment` 进入甄姬手牌并再次询问，红色牌进入弃牌堆并结束链。倾国复用 `IPassiveSkill.CanUseAsResponse`，只把甄姬自己的黑色手牌作为有效闪，移动账本继续记录原实体牌；rules v33 保留无甄姬、无洛神 Choice、无倾国转化的旧回放。
@@ -234,7 +234,8 @@ HumanPlay / AI ChoosePlay
 - `standard-classic-generals@1.104.0` 配合 rules v123／schema 18 将经典再起迁入同一替代窗口：按已损失体力冻结亮牌集合，按花色绑定子集分流，并按红桃牌数回复。1.103.0 保留历史定义与指纹，不复活再起专属路线。
 - `standard-classic-generals@1.105.0` 配合 rules v124／schema 19 将经典裸衣迁入加量计划。发动后父帧累计普通摸牌调整 -1，并向同一回合授予只匹配拥有者本人使用的杀、火杀、雷杀和决斗直接伤害的 +1 修正；通用事件记录计划调整、状态授予和逐项伤害变化，回合结束按统一卡牌使用效果存储清理。1.104.0 保留历史定义、包签名与内容指纹，但不会使专属 v31 执行器重新可达。
 - `standard-classic-generals@1.106.0` 配合 rules v125／schema 20 将经典将驰与自守迁入同一摸牌计划。将驰的两个 `choiceGroup` 分支只执行选中的一项，并分别授予杀的使用／打出禁止，或杀次数 +1／距离无限；自守按公开现存势力数摸牌，并以通用 `SelfOnly` 目标策略过滤单体和群体牌目标。三类策略共用带技能、帧和指令身份的回合存储与到期清理，规则查询、合法动作、响应和群体逐目标结算均消费同一来源。1.105.0 保留历史定义、包签名与内容指纹，不复活专属将驰／自守执行器。
-- 当前 `standard-classic-generals@1.107.0` 配合 rules v126／schema 21 将经典双雄迁入同一摸牌计划。`StartJudgment` 复用共享公开判定及改判窗口，把最终实体牌冻结为命名绑定；`GrantTurnCardConversion` 从绑定牌的有效花色派生红黑，在当前回合向相反颜色手牌提供【决斗】转换；`MoveBoundCards` 再把最终判定牌交给拥有者。同一牌若已由天妒取得，移动节点安全视为完成。转换按技能、帧和指令身份幂等存储并随回合清理；1.106.0 保留历史定义、包签名与旧专属双雄执行边界。
+- 当前 `standard-classic-generals@1.108.0` 继续承载 rules v126／schema 21 的经典双雄摸牌计划。`StartJudgment` 复用共享公开判定及改判窗口，把最终实体牌冻结为命名绑定；`GrantTurnCardConversion` 从绑定牌的有效花色派生红黑，在当前回合向相反颜色手牌提供【决斗】转换；`MoveBoundCards` 再把最终判定牌交给拥有者。同一牌若已由天妒取得，移动节点安全视为完成。转换按技能、帧和指令身份幂等存储并随回合清理；1.106.0 保留历史定义、包签名与旧专属双雄执行边界。
+- rules v127／schema 22 在既有 `SelfDyingResponse` 父流程内开放受控的拥有者状态变换：`DiscardOwnedZoneCards` 按声明顺序清理手牌、装备区和判定区，`SetChainedState` 设置连环状态，`RecoverTo(IntegerConstant)` 在最大体力范围内恢复至固定值。`standard-classic-generals@1.108.0` 的经典涅槃由这些节点与通用 `Draw` 组合，限次按 `SkillId + SkillInstanceId + BindingId` 记录；Core、AI 和 WPF 不再按涅槃技能名进入当前执行分支。1.107.0 及更早内容仍使用专属历史实现，保证旧包签名和玩法指纹不漂移。
 - `ProgramInstructionResolver` 按不可变 `SkillProgram` 引用缓存主动与共享触发的只读 `ProgramExecutionPlan`。计划身份包含来源种类、绑定 ID 与指令序号；它只消除重复定义转换，不保存候选、玩家选择或其他比赛状态。执行与暂停恢复都从计划取得指令，已提交游标仍是“不重复支付前序效果”的唯一进度依据。
 - `standard-classic-generals@1.1.0` 在 1.0.0 的正式多技能武将层上增加 `classic:guo-jia` 与 `classic:tiandu`，并保留遗计作为第二技能；恢复 1.0.0 存档时仍构造旧武将池和旧包指纹，不把新版郭嘉静默写入历史命令前缀。
 - `standard-classic-generals@1.26.0` 在 1.25.0 的丈八蛇矛与 94 张牌堆上注册 `classic:cixiong-double-swords`、甄姬/黄月英的女性性别并生成 96 张当前经典牌堆；1.25.0 保留丈八蛇矛、94 张配方与默认男性投影，1.24.0 保留贯石斧和 93 张配方，1.23.0 保留借刀杀人与 92 张历史配方，1.22.0 仍用 `classic:guan-yu` / `classic:wusheng` 替换经典池的 Standard 占位关羽但保留 90 张牌堆，1.21.0 保留 `standard:guan-yu`，1.20.0 保留 `standard:zhao-yun`，1.19.0 保留 `standard:zhang-fei` 且不注册对应新经典 ID，1.18.0 保留不含吕布的武将池，1.17.0 保留不含魏延的武将池，1.16.0 保留不含黄忠的武将池，1.15.0 保留不含马超的武将池，1.14.0 保留不含黄月英的武将池，1.13.0 保留不含甄姬的武将池，1.12.0 保留不含徐晃的武将池，1.11.0 保留不含典韦的武将池，1.10.0 保留不含许褚的武将池，1.9.0 保留不含张辽的武将池，1.8.0 保留不含吕蒙的武将池，1.7.0 保留不含甘宁的武将池，1.6.0 保留不含黄盖的武将池，1.5.0 保留不含救援的孙权，1.4.0 再保留不含激将的刘备，1.3.0 继续使用旧 `standard:cao-cao`，更早版本按历史边界恢复诸葛亮、周瑜与郭嘉；二十七个版本分别保留原武将池、性别、卡牌/牌堆定义和内容指纹。
@@ -399,11 +400,13 @@ Console 自测覆盖：
 
 测试项目不用 MSTest/xUnit，是为了让这个教学 Demo 在离线环境中也能一条命令运行。
 
-规则 v61 首次在经典身份局接入颜良文丑的双雄：摸牌阶段私有选择发动后复用共享判定与鬼才改判，取得最终判定牌，并只在本回合把相反颜色手牌投影为有效【决斗】。原实体牌移动、集智、无懈和决斗杀响应链保持统一；rules v60 与经典包 1.45.0 不创建该窗口。当前 rules v126／经典包 1.107.0 已用 schema 21 的通用判定绑定和回合转换重建同一玩法，v61 段落仅记录历史边界。
+规则 v61 首次在经典身份局接入颜良文丑的双雄：摸牌阶段私有选择发动后复用共享判定与鬼才改判，取得最终判定牌，并只在本回合把相反颜色手牌投影为有效【决斗】。原实体牌移动、集智、无懈和决斗杀响应链保持统一；rules v60 与经典包 1.45.0 不创建该窗口。当前 rules v127／经典包 1.108.0 继续使用 schema 21 的通用判定绑定和回合转换重建同一玩法，v61 段落仅记录历史边界。
 
 规则 v62 接入卧龙诸葛亮：八阵在装备区没有任何防具时复用八卦阵判定入口；火计只把红色手牌投影为有效【火攻】；看破只把黑色手牌投影为私有【无懈可击】响应。三者均保留实体牌身份和可信移动记录，复用既有 CardUse、Nullification 与 Judgment 帧；rules v61 与经典包 1.46.0 不开放这些能力。
 
 规则 v63 接入庞统：连环把梅花手牌投影为有效【铁索连环】，同时开放一至二目标使用和独立重铸，实体牌仍沿统一手牌、处理区与弃牌堆边界移动；涅槃只在技能拥有者自己的濒死响应位开放一次，弃置手牌、装备区和判定区全部牌，解除连环状态，摸三张牌并将体力回复至 3 点。限定技使用状态由已接受的私有 Prompt 命令确定性重建，不扩展旧 Checkpoint schema；rules v62 与经典包 1.47.0 保持原行为。
+
+当前 rules v127／经典包 1.108.0 已用 schema 22 的通用拥有者牌区清理、连环状态设置、固定值回复和摸牌节点重建涅槃；暂停在私有濒死 Choice 或完成后恢复均由同一程序帧和命令前缀重放。1.107.0 及更早版本继续沿上段专属历史路线。
 
 规则 v64 接入太史慈：天义作为每阶段限一次的主动拼点，发起者先在私有主动技能草稿选择自己的手牌与一名有手牌的其他角色，再只向对方发布精确私有拼点牌 Choice；两张牌同时公开后经统一处理区进入弃牌堆。严格大点视为获胜，本回合出杀上限 +1、杀忽略距离并开放双目标；平点或小点视为未赢并过滤后续杀。结果标记由命令回放重建，rules v63 与经典包 1.48.0 不开放天义。
 

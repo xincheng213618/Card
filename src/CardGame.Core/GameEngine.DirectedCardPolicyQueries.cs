@@ -1,0 +1,44 @@
+namespace CardGame.Core;
+
+public sealed partial class GameEngine
+{
+    private static readonly CardKind[] SlashKinds =
+        [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
+
+    private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind) =>
+        HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
+
+    private bool HasCardArmorBypass(CharacterState actor, CharacterState target, CardKind kind) =>
+        HasArmorBypass(actor) ||
+        HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreArmor);
+
+    private bool HasSlashAllowanceForAnyTarget(CharacterState actor) =>
+        _players.Any(target => target.IsAlive && target.Seat != actor.Seat &&
+            SlashKinds.Any(kind =>
+                !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use) &&
+                !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) &&
+                CanSpendSlashUse(actor, target, ignoresCount: false, kind)));
+
+    private bool CanUseGlobalCard(CharacterState actor, CardKind kind) =>
+        GetDeclaredGlobalCardTargets(actor, kind).All(target =>
+            !IsDirectedCardTargetProhibited(actor.Seat, target, kind));
+
+    // These are declared targets, before immunity and replacement remove effects.
+    // Borrowed Sword's second seat is the target of a later Slash, not of this trick.
+    private IEnumerable<int> GetDeclaredGlobalCardTargets(CharacterState actor, CardKind kind) =>
+        _players.Where(player => player.IsAlive &&
+            (kind is CardKind.PeachGarden or CardKind.FiveGrains || player.Seat != actor.Seat))
+            .Select(player => player.Seat);
+
+    private IEnumerable<int> GetDeclaredCardTargets(
+        CharacterState actor, LegalActionKind actionKind, IReadOnlyList<int> targets) =>
+        actionKind switch
+        {
+            LegalActionKind.BarbarianAssault => GetDeclaredGlobalCardTargets(actor, CardKind.BarbarianAssault),
+            LegalActionKind.ArrowBarrage => GetDeclaredGlobalCardTargets(actor, CardKind.ArrowBarrage),
+            LegalActionKind.PeachGarden => GetDeclaredGlobalCardTargets(actor, CardKind.PeachGarden),
+            LegalActionKind.FiveGrains => GetDeclaredGlobalCardTargets(actor, CardKind.FiveGrains),
+            LegalActionKind.BorrowedSword => targets.Take(1),
+            _ => targets
+        };
+}

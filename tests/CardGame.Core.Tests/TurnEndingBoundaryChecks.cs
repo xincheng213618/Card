@@ -24,7 +24,7 @@ internal static class TurnEndingBoundaryChecks
                     historical.PhaseSkill is null,
                 $"Package 1.98 must retain historical {skillId} metadata without the removed runtime path.");
             Require(migrated.LegacyKind is null && migrated.PhaseSkill is null &&
-                    migrated.Program is { MinimumRulesVersion: 118 } program &&
+                    migrated.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } program &&
                     program.Triggers.Single() is
                     {
                         Window: SkillProgramTriggerWindow.TurnEnding,
@@ -32,7 +32,7 @@ internal static class TurnEndingBoundaryChecks
                         UsageScope: SkillUsageScope.Turn,
                         UsageLimit: 1
                     } && actualPriority == priority,
-                $"Package 1.99 must publish {skillId} as a schema-13 TurnEnding program.");
+                $"Package 1.99 must publish {skillId} as a shared-kernel TurnEnding program.");
         }
 
         var jushou = current.Skills["classic:jushou"].Program!.Triggers.Single();

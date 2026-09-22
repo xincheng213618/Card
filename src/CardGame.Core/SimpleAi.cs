@@ -2576,66 +2576,6 @@ public sealed partial class SimpleAiBrain
         return (selected.Choice, thought);
     }
 
-    /// <summary>
-    /// Chooses from Guan Ping's private exact-card Longyin prompt. The decision
-    /// uses only the public relation to the Slash source and this seat's own
-    /// visible hand/equipment values.
-    /// </summary>
-    public (PromptChoice Choice, AiThoughtRecord Thought) ChooseLongyinChoice(
-        GameSnapshot view,
-        int slashSourceSeat,
-        bool slashWasRed,
-        bool slashCountAlreadyRemoved,
-        IReadOnlyList<PromptChoice> choices,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var source = view.Players.Single(player => player.Seat == slashSourceSeat);
-        var selfRole = self.Role ?? Role.Renegade;
-        var support = GetTacticalSupport(view, selfRole, source);
-        var ownCards = self.Hand.Concat(self.Equipment).ToDictionary(card => card.Id);
-        var scored = choices.Select(choice =>
-        {
-            var use = choice.Parameters.GetValueOrDefault("action") == "longyin-use";
-            var cost = use && choice.Cards.Count == 1 && ownCards.TryGetValue(choice.Cards[0], out var card)
-                ? CardCatalog.Get(card.Kind).HandKeepValue
-                : 0d;
-            var countValue = slashCountAlreadyRemoved ? 0d : support * 30d;
-            var redCycleValue = slashWasRed ? 12d : 0d;
-            var score = use ? countValue + redCycleValue - cost * .5d : 0d;
-            var description = use
-                ? $"龙吟弃置【{(choice.Cards.Count == 1 && ownCards.TryGetValue(choice.Cards[0], out var exact) ? exact.DisplayName : "牌")}】"
-                : "不发动龙吟";
-            return new
-            {
-                Choice = choice,
-                Candidate = new AiCandidateScore(
-                    new LegalAction(
-                        LegalActionKind.UseSkill,
-                        choice.Cards.FirstOrDefault(),
-                        slashSourceSeat,
-                        description,
-                        Skill: SkillKind.Longyin),
-                    Math.Round(score + _random.NextDouble() * .001d, 3),
-                    use
-                        ? "依据公开阵营关系、杀的公开颜色和自己的精确牌值评估次数支援。"
-                        : "避免为低支援关系的杀提供额外次数，或在次数已移除后为黑杀继续付费。")
-            };
-        }).ToArray();
-        var selected = scored
-            .OrderByDescending(item => item.Candidate.Score)
-            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
-            .First();
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Candidate.Action.Description,
-            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"龙吟：来源支援值 {support:0.##}，红杀 {slashWasRed}，次数已移除 {slashCountAlreadyRemoved}；选择{selected.Candidate.Action.Description}。");
-        return (selected.Choice, thought);
-    }
-
     /// <summary>Chooses the mandatory Jiefan branch from public target and weapon state.</summary>
     public (PromptChoice Choice, AiThoughtRecord Thought) ChooseJiefanResponse(
         GameSnapshot view,
@@ -2829,9 +2769,15 @@ public sealed partial class SimpleAiBrain
             targetReason = $"；目标公开关系收益 {targetValue:0.#}";
         }
 
-        var score = 12d + ownerValue + targetValue - cardCost;
+        var score = 12d + ownerValue + targetValue - cardCost + hint.ValueAdjustment;
         return (score,
             $"配置技能公开效果：自身摸牌 {hint.OwnerDraw}、回复 {hint.OwnerRecovery}、失去体力 {hint.OwnerHpLoss}，选牌代价 {cardCost:0.#}{targetReason}。");
+    }
+
+    internal double ScoreProgramTarget(GameSnapshot view, int targetSeat, SkillProgramAiHint hint)
+    {
+        var selfRole = view.Players.Single(player => player.Seat == Seat).Role ?? Role.Renegade;
+        return ScoreProgramTarget(view, selfRole, view.Players.Single(player => player.Seat == targetSeat), hint);
     }
 
     private double ScoreProgramTarget(

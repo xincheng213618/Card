@@ -13,7 +13,7 @@ internal static class CaoZhangChecks
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 105, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 107, 0)) &&
+                    package.Version == new Version(1, 108, 0)) &&
                 current.Generals[GeneralId] is
                 {
                     FactionId: "wei",
@@ -28,7 +28,7 @@ internal static class CaoZhangChecks
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } skill &&
-                skill.Program is { RuntimeVersion: "skill-program-v20", MinimumRulesVersion: 125 } &&
+                skill.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } &&
                 previous.Skills[SkillId].Program is null &&
                 current.ContentHash != previous.ContentHash,
             "Current package must retain the 1.106 Jiangchi migration without mutating 1.105.0.");

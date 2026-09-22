@@ -30,7 +30,7 @@ public sealed record PindianCardClaimPlan(
 /// <summary>Ask the activating player for one hand card and another player with hand cards.</summary>
 public sealed record BeginSkillPindian : SkillModuleEffect;
 
-public enum PindianStep { ChooseParticipants, ChooseOpponentCard, AfterResult }
+public enum PindianStep { ChooseParticipants, ChooseSourceCard, ChooseOpponentCard, AfterResult }
 public sealed record PindianTriggerCandidate(int OwnerSeat, string SkillId);
 
 /// <summary>Trusted-host data only. It is not included in player snapshots.</summary>
@@ -40,6 +40,8 @@ public sealed record PindianFrame(
     SkillKind? LegacySkill = null, PindianStep PindianStep = PindianStep.ChooseParticipants,
     PindianResult? Result = null, IReadOnlyList<PindianTriggerCandidate>? Candidates = null,
     int CandidateIndex = 0, PindianCardClaimPlan? ClaimPlan = null,
+    string? ProgramResultBind = null,
+    SkillProgramCardSetVisibility ProgramResultVisibility = SkillProgramCardSetVisibility.Public,
     ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
     : ResolutionFrame(Id, ResolutionFrameKind.Pindian, Step);
 

@@ -126,7 +126,7 @@ internal static class ClassicGeneralChecks
                 "standard@1.14.0",
                 "standard-active-skills@1.1.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.107.0"]),
+                "standard-classic-generals@1.108.0"]),
             "The classic package signature must be explicit and dependency ordered.");
         var expectedCurrentRoster = new[]
         {
@@ -1775,9 +1775,9 @@ internal static class ClassicGeneralChecks
                 registry.Skills["classic:luoyi"] is
                 {
                     LegacyKind: null,
-                    Program.RuntimeVersion: "skill-program-v19"
+                    Program.UsesCompositionKernel: true
                 } current &&
-                current.Program!.MinimumRulesVersion == 124,
+                current.Program!.MinimumRulesVersion == 128,
             "Classic Luoyi must preserve the 1.104 legacy definition and publish schema 19 at 1.105.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);

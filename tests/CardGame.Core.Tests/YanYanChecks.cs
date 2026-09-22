@@ -32,7 +32,7 @@ internal static class YanYanChecks
         var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
         Require(owner.GeneralId == GeneralId &&
                 owner.SkillRuntimeStates!.Single(state => state.SkillId == SkillId) is
-                { IsAcquired: false, Polarity: SkillPolarity.Yang, Usages.Count: 0 },
+                { IsAcquired: false, Usages.Count: 0 } && !IsYin(game),
             "A tagged formal conversion skill must register its public initial Yang state at setup.");
 
         var checkpoint = RoundTrip(game.CreateCheckpoint());
@@ -66,40 +66,28 @@ internal static class YanYanChecks
             var pendingReplay = GameReplay.Restore(pendingCheckpoint, registry);
             Require(SnapshotJson.Serialize(pendingReplay.CreateSnapshot(0, revealAll: true)) ==
                     SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                    pendingReplay.PendingDecision?.Kind == DecisionKind.Juzhan,
+                    pendingReplay.PendingDecision?.SkillPrompt?.SkillId == SkillId,
                 "A paused Juzhan Yang choice must restore with the same private prompt and polarity.");
 
             var beforeYang = game.CreateSnapshot(0, revealAll: true);
             var yangChoice = yangPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "juzhan-yang-use");
+                choice.Parameters.GetValueOrDefault("program-action") == "activate");
             Require(Answer(game, yangPrompt, yangChoice), "The formal Juzhan Yang choice was rejected.");
             var afterYang = game.CreateSnapshot(0, revealAll: true);
             var yangOwner = afterYang.Players[0];
             var yangState = yangOwner.SkillRuntimeStates!.Single(state => state.SkillId == SkillId);
-            Require(yangState.Polarity == SkillPolarity.Yin &&
+            Require(IsYin(game) &&
                     yangOwner.HandCount == beforeYang.Players[0].HandCount + 1 &&
                     afterYang.Players[attackerSeat].HandCount == beforeYang.Players[attackerSeat].HandCount + 1 &&
-                    yangState.Usages.Single(usage => usage.Scope == SkillUsageScope.Turn) is
-                    {
-                        Scope: SkillUsageScope.Turn,
-                        Count: 1
-                    } yangUsage &&
-                    yangUsage.UsageId == $"card-target-prohibition.source-{attackerSeat}.target-0",
-                "Juzhan Yang must draw for both players, toggle to Yin and record its exact turn target prohibition.");
-            Require(game.Events.Select(item => item.Payload).OfType<SkillConversionStateChangedEvent>().Last() is
-            { PlayerSeat: 0, SkillId: SkillId, PreviousState: SkillPolarity.Yang, CurrentState: SkillPolarity.Yin } &&
-                    game.Events.Select(item => item.Payload).OfType<CardTargetProhibitionAddedEvent>().Last() is
-                    { SkillOwnerSeat: 0, SourceSeat: var sourceSeat, TargetSeat: 0, Scope: SkillUsageScope.Turn } &&
-                    sourceSeat == attackerSeat &&
-                    game.Events.Select(item => item.Payload).OfType<SkillUsageConsumedEvent>().Last() is
-                    {
-                        SkillOwnerSeat: 0,
-                        SkillId: SkillId,
-                        UsageId: var eventUsageId,
-                        Scope: SkillUsageScope.Event,
-                        Count: 1
-                    } && eventUsageId.StartsWith("card-use.resolution-", StringComparison.Ordinal),
-                "Juzhan Yang must publish typed conversion, per-target and per-card-use ledger events.");
+                    yangState.DirectedPolicies is [var yangPolicy] &&
+                    yangPolicy.ActorSeat == attackerSeat && yangPolicy.TargetSeat == 0 &&
+                    yangPolicy.Effects == DirectedTurnCardPolicyEffect.ForbidTarget,
+                "Yang must draw for both players, toggle its declared state and grant the exact directed prohibition.");
+            Require(game.Events.Select(item => item.Payload).OfType<ProgramBooleanStateChangedEvent>().Last() is
+                    { OwnerSeat: 0, SkillId: SkillId, StateId: "yin", Value: true } &&
+                    game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                        .Count(item => item.SkillId == SkillId && item.OwnerSeat == 0 && item.Activated && item.Completed) == 1,
+                "One card-use boundary must complete the binding and toggle its state exactly once.");
 
             if (!TryReachHumanPlay(game)) continue;
             var afterCardUseState = game.CreateSnapshot(0, revealAll: true).Players[0]
@@ -129,52 +117,46 @@ internal static class YanYanChecks
             {
                 ConversionSource = attack.ConversionSource
             });
-            if (!play.Accepted || game.PendingDecision is not { Kind: DecisionKind.Juzhan } yinPrompt)
+            if (!play.Accepted || game.PendingDecision is not { SkillPrompt.SkillId: SkillId } yinActivation)
                 continue;
 
+            Require(Answer(game, yinActivation, yinActivation.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate")), "Yin activation failed.");
+            var selectTarget = game.PendingDecision!;
+            Require(Answer(game, selectTarget, selectTarget.Choices.Single(choice =>
+                choice.Targets.SequenceEqual([targetSeat]))), "Yin event-target selection failed.");
+            var yinPrompt = game.PendingDecision!;
             var hiddenTargetIds = game.CreateSnapshot(0, revealAll: true).Players[targetSeat].Hand
-                .Select(card => card.Id)
-                .ToHashSet();
-            Require(yinPrompt.IsPrivate &&
-                    yinPrompt.Choices.Count(choice =>
-                        choice.Parameters.GetValueOrDefault("action") == "juzhan-yin-obtain") > 0 &&
+                .Select(card => card.Id).ToHashSet();
+            Require(yinPrompt.SkillPrompt?.SkillId == SkillId && yinPrompt.IsPrivate &&
+                    yinPrompt.Choices.Count > 0 &&
                     yinPrompt.ValidCardIds.All(id => !hiddenTargetIds.Contains(id)) &&
-                    yinPrompt.Choices.Where(choice =>
-                            choice.Parameters.GetValueOrDefault("target-zone") == "hand")
-                        .All(choice => choice.Cards.Count == 0),
-                "Juzhan Yin must expose opaque hand slots while keeping only public zone ids selectable.");
+                    yinPrompt.Choices.Where(choice => choice.Parameters.GetValueOrDefault("source-zone") == "Hand")
+                        .All(choice => choice.Cards.Count == 0) && game.CreateSnapshot(targetSeat).PendingDecision is null,
+                "Yin must select one actual event target then expose opaque foreign hand slots through the common payment UI.");
             var yinCheckpoint = RoundTrip(game.CreateCheckpoint());
             var yinReplay = GameReplay.Restore(yinCheckpoint, registry);
             Require(SnapshotJson.Serialize(yinReplay.CreateSnapshot(0, revealAll: true)) ==
                     SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
                 "A paused Juzhan Yin card choice must restore exactly.");
 
-            var yinChoice = yinPrompt.Choices.First(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "juzhan-yin-obtain");
+            var yinChoice = yinPrompt.Choices.First();
             Require(Answer(game, yinPrompt, yinChoice), "The formal Juzhan Yin choice was rejected.");
             if (!TryReachHumanPlay(game)) continue;
 
             var afterYin = game.CreateSnapshot(0, revealAll: true);
             var yinState = afterYin.Players[0].SkillRuntimeStates!.Single(state => state.SkillId == SkillId);
             var legalAfterYin = game.GetHumanLegalActions();
-            Require(yinState.Polarity == SkillPolarity.Yang &&
-                    yinState.Usages.Single() is
-                    {
-                        UsageId: var yinUsageId,
-                        Scope: SkillUsageScope.Turn,
-                        Count: 1
-                    } &&
-                    yinUsageId == $"card-target-prohibition.source-0.target-{targetSeat}" &&
+            Require(!IsYin(game) && yinState.DirectedPolicies is [var yinPolicy] &&
+                    yinPolicy.ActorSeat == 0 && yinPolicy.TargetSeat == targetSeat &&
+                    yinPolicy.Effects == DirectedTurnCardPolicyEffect.ForbidTarget &&
                     afterYin.Players[0].Hand.Any(card => card.Id == duelCardId) &&
-                    !legalAfterYin.Any(action => action.CardId == duelCardId &&
-                                                   action.TargetSeats.Contains(targetSeat)) &&
-                    legalAfterYin.Any(action => action.CardId == duelCardId &&
-                                                action.TargetSeats.Any(seat => seat != targetSeat)),
-                "Juzhan Yin must obtain one target card, toggle to Yang and remove every card action aimed at that exact target only.");
-            Require(game.Events.Select(item => item.Payload).OfType<JuzhanResolvedEvent>().Last() is
-            { OwnerSeat: 0, State: SkillPolarity.Yin, Used: true, TargetSeat: var resolvedTarget } &&
-                    resolvedTarget == targetSeat,
-                "Juzhan Yin must publish the chosen target without exposing a hidden obtained card id.");
+                    !legalAfterYin.Any(action => action.CardId == duelCardId && action.TargetSeats.Contains(targetSeat)) &&
+                    legalAfterYin.Any(action => action.CardId == duelCardId && action.TargetSeats.Any(seat => seat != targetSeat)),
+                "Yin must obtain a card, toggle to Yang and prohibit every use against only the chosen target.");
+            Require(game.Events.Select(item => item.Payload).OfType<ProgramBooleanStateChangedEvent>().Last() is
+                    { OwnerSeat: 0, SkillId: SkillId, StateId: "yin", Value: false },
+                "The common persistent-state event must publish the new face.");
 
             var completedCheckpoint = RoundTrip(game.CreateCheckpoint());
             var completedReplay = GameReplay.Restore(completedCheckpoint, registry);
@@ -192,7 +174,7 @@ internal static class YanYanChecks
             if (!TryReachHumanPlay(game, skipJuzhan: true)) continue;
             var nextTurnState = game.CreateSnapshot(0, revealAll: true).Players[0]
                 .SkillRuntimeStates!.Single(state => state.SkillId == SkillId);
-            Require(nextTurnState.Usages.Count == 0,
+            Require(nextTurnState.DirectedPolicies?.Count == 0 && !IsYin(game),
                 "Juzhan target prohibitions must expire with the turn-scope ledger while polarity remains unchanged.");
             return;
         }
@@ -200,14 +182,16 @@ internal static class YanYanChecks
         throw new InvalidOperationException("Could not find a bounded formal Juzhan Yang/Yin fixture.");
     }
 
+    private static bool IsYin(GameEngine game) => game.CreateSnapshot(0).Players[0].SkillRuntimeStates!
+        .Single(state => state.SkillId == SkillId).BooleanStates!.Single(state => state.StateId == "yin").Value;
+
     private static bool TryReachHumanJuzhan(GameEngine game, SkillPolarity expectedState)
     {
         for (var step = 0; step < 2_048 && game.State.Winner == Winner.None; step++)
         {
-            if (game.PendingDecision is { Kind: DecisionKind.Juzhan, PlayerSeat: 0 } prompt)
+            if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, SkillPrompt.SkillId: SkillId } prompt)
             {
-                var state = game.CreateSnapshot(0, revealAll: true).Players[0]
-                    .SkillRuntimeStates!.Single(item => item.SkillId == SkillId).Polarity;
+                var state = IsYin(game) ? SkillPolarity.Yin : SkillPolarity.Yang;
                 return state == expectedState && prompt.Choices.Any();
             }
             if (game.PendingDecision is { PlayerSeat: 0 } human)
@@ -229,10 +213,10 @@ internal static class YanYanChecks
             if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }) return true;
             if (game.PendingDecision is { PlayerSeat: 0 } human)
             {
-                if (human.Kind == DecisionKind.Juzhan && !skipJuzhan) return false;
+                if (human.SkillPrompt?.SkillId == SkillId && !skipJuzhan) return false;
                 if (human.Choices.Count == 0) return false;
-                var choice = human.Kind == DecisionKind.Juzhan
-                    ? human.Choices.Single(item => item.Parameters.GetValueOrDefault("action") == "juzhan-skip")
+                var choice = human.SkillPrompt?.SkillId == SkillId
+                    ? human.Choices.Single(item => item.Parameters.GetValueOrDefault("program-action") == "skip")
                     : human.Choices[^1];
                 if (!Answer(game, human, choice)) return false;
                 continue;

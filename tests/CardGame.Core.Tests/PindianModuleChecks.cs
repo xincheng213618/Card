@@ -120,10 +120,31 @@ internal static class PindianModuleChecks
             var game = Create(registry, expectActivation: false);
             var play = Prompt(game);
             var card = game.CreateSnapshot(0).Players[0].Hand[0];
-            Accept(game.Submit(new UseSkillCommand(0, skill, [card.Id], [1], game.Revision, play.PromptId)));
+            if (skill == SkillKind.Xianzhen)
+            {
+                var action = game.GetHumanLegalActions().Single(item =>
+                    item.Kind == LegalActionKind.UseProgramSkill &&
+                    item.ProgramSkillId == "classic:xianzhen" &&
+                    item.ProgramActivationId == "challenge");
+                Require(action.SelectableTargetSeats.Contains(1),
+                    "The composition Xianzhen activation must expose the shared Pindian opponent.");
+                Accept(game.Submit(new UseProgramSkillCommand(
+                    0, "classic:xianzhen", "challenge", [], [1], game.Revision, play.PromptId)));
+                var sourcePrompt = Prompt(game);
+                Accept(game.Submit(new AnswerPromptCommand(
+                    0, sourcePrompt.PromptId,
+                    sourcePrompt.Choices.Single(choice => choice.Cards.SequenceEqual([card.Id])).Id,
+                    game.Revision)));
+            }
+            else
+            {
+                Accept(game.Submit(new UseSkillCommand(0, skill, [card.Id], [1], game.Revision, play.PromptId)));
+            }
             Accept(game.Submit(new AdvanceOneStepCommand(game.Revision)));
             Require(Prompt(game).SkillPrompt!.SkillId == "fixture:claim-a" &&
-                game.ResolutionStack[0] is ActiveSkillFrame { Skill: var parent } && parent == skill,
+                (skill == SkillKind.Xianzhen
+                    ? game.ResolutionStack[0] is ProgramSkillFrame { SkillId: "classic:xianzhen" }
+                    : game.ResolutionStack[0] is ActiveSkillFrame { Skill: var parent } && parent == skill),
                 "An existing active skill must suspend at the shared result-module prompt.");
             var restored = VerifyReplay(game, registry);
             Answer(game, 0); Answer(restored, 0);
@@ -135,7 +156,11 @@ internal static class PindianModuleChecks
                 else
                 { Accept(game.Submit(new AdvanceOneStepCommand(game.Revision))); Accept(restored.Submit(new AdvanceOneStepCommand(restored.Revision))); }
             }
-            Require(game.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Count(item => item.Skill == skill) == 1 &&
+            Require((skill == SkillKind.Xianzhen
+                        ? game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                            .Count(item => item.SkillId == "classic:xianzhen" && item.Completed) == 1
+                        : game.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>()
+                            .Count(item => item.Skill == skill) == 1) &&
                 game.Events.Select(item => item.Payload).OfType<PindianCardClaimedEvent>().Count() == 1 && game.ResolutionStack.Count == 0,
                 "The legacy parent's own result effect and completion must execute once after card acquisition.");
             Equivalent(game, restored);

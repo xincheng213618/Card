@@ -118,7 +118,7 @@ public sealed partial class GameEngine
                     .ToArray();
                 if (matchingIndexes.Length == 0) continue;
                 var facts = CaptureCardsMovedTriggerFacts(owner, matchingIndexes.Length, sourceCount);
-                if (!trigger.Condition.Evaluate(facts)) continue;
+                if (!trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) continue;
                 var occurrenceIndexes = trigger.MovementOccurrence switch
                 {
                     SkillProgramMovementOccurrence.PerBatch => [0],

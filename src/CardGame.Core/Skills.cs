@@ -943,26 +943,6 @@ public sealed class TianyiSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
-public sealed class XianzhenSkill : IPassiveSkill, IActiveSkill
-{
-    public SkillKind Kind => SkillKind.Xianzhen;
-    public string Name => "陷阵";
-
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
-
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.PindianForSlashBonus,
-            MinCardCount: 1,
-            MaxCardCount: 1,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
-}
-
 public sealed class ZishouSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Zishou;
@@ -1114,12 +1094,6 @@ public sealed class YuceSkill : IPassiveSkill
         CanTriggerAfterDamage(context)
             ? DamageSkillEffectKind.RevealCardAndChallengeSource
             : DamageSkillEffectKind.None;
-}
-
-public sealed class LongyinSkill : IPassiveSkill
-{
-    public SkillKind Kind => SkillKind.Longyin;
-    public string Name => "龙吟";
 }
 
 public sealed class FuhunSkill : IPassiveSkill, IActiveSkill
@@ -1409,7 +1383,6 @@ public static class SkillRegistry
             [SkillKind.Mengjin] = new MengjinSkill(),
             [SkillKind.Quhu] = new QuhuSkill(),
             [SkillKind.Tianyi] = new TianyiSkill(),
-            [SkillKind.Xianzhen] = new XianzhenSkill(),
             [SkillKind.Zishou] = new ZishouSkill(),
             [SkillKind.Zongshi] = new ZongshiSkill(),
             [SkillKind.Zhenlie] = new ZhenlieSkill(),
@@ -1430,7 +1403,6 @@ public static class SkillRegistry
             [SkillKind.Jingce] = new JingceSkill(),
             [SkillKind.Junxing] = new JunxingSkill(),
             [SkillKind.Yuce] = new YuceSkill(),
-            [SkillKind.Longyin] = new LongyinSkill(),
             [SkillKind.Jushou] = new JushouSkill(),
             [SkillKind.Jujian] = new JujianSkill(),
             [SkillKind.Hongyan] = new HongyanSkill(),

@@ -11,7 +11,7 @@ public enum CardActionType { Use, Response }
 
 public enum ProgramCardContinuation
 {
-    Slash, Dodge, DuelSlash, GroupResponse, HujiaDodge, JijiangDuelSlash, JijiangGroupResponse, DelayedCard
+    Slash, BeforeTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, HujiaDodge, JijiangDuelSlash, JijiangGroupResponse, DelayedCard
 }
 
 /// <summary>A paid physical card and its original location, retained by the trusted rules host.</summary>
@@ -60,7 +60,9 @@ public sealed class CardActionContext
 public sealed record CardActionAcceptedEvent(CardActionContext Action) : IGameEvent;
 
 public sealed record ProgramCardTriggerCandidate(
-    int OwnerSeat, int OpponentSeat, string SkillId, string TriggerId, string GameplayHash);
+    int OwnerSeat, int OpponentSeat, string SkillId, string TriggerId, string GameplayHash,
+    string SkillInstanceId = "", bool UsesSharedExecutor = false, int Priority = 0,
+    ProgramSkillWindowContext? FrozenContext = null);
 
 public sealed record ProgramCardTriggerWindowFrame(
     long Id, long ParentFrameId, CardActionContext Action,

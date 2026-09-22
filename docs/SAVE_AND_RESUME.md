@@ -4,7 +4,7 @@
 
 规则行为版本 5 引入的兼容边界继续保留：若恢复点停在致命伤害的伤害后触发窗口，命令前缀会保留 `DamageTriggerWindowFrame`/`DamageSkillFrame` 的游标，恢复后完成触发再进入 `DyingFrame`；旧 v1–v4 回放仍按历史事件顺序重放。
 
-当前全局规则行为版本为 v126。v115 的共享拼点子帧改变了既有拼点事件与暂停点；v116 把当先、伏枥、称象迁入通用生命周期程序；v117 把距离、攻击范围、摸牌数、杀次数和手牌上限统一为可组合、可解释的 schema 12 规则查询；v118 加入 schema 13 的冻结触发事实、`PlayEnding`／`TurnEnding` 生命周期窗口、可序列化结束阶段父游标和精确武将正反面状态原语，并将精策、据守、闭月迁入通用程序；v119 加入 schema 14 `CardsMoved`、可序列化的原子移动批次／嵌套父批次上下文以及逐牌／逐批出现策略，并将枭姬、连营迁入通用程序；v120 加入 schema 15 `AfterDamageApplied`、每次／每点伤害候选、绑定牌来源位置、通用伤害牌／来源牌选择和动态补牌表达式，并将标准／经典奸雄、反馈、遗计、节命迁入通用程序；v121 加入 schema 16 `DrawPhaseStarting`、摸牌后继续点与跳过出牌阶段标记，并将标准／经典英姿迁入通用程序；v122 再以 schema 17 加入加量／替代模式、通用多目标选择与随机暗手牌转移，并将经典突袭迁入同一窗口；v123 以 schema 18 加入动态亮牌数量、花色过滤、绑定牌分流与按牌数回复，并将经典再起迁入同一窗口；v124 以 schema 19 加入普通摸牌调整及带来源、牌型和回合期限的用牌伤害修正，并将经典裸衣迁入同一窗口；v125 以 schema 20 加入互斥分支、动态势力数摸牌和类型化回合动作／规则／目标策略，并将经典将驰与自守迁入同一窗口；v126 以 schema 21 加入共享判定结果绑定和按最终判定牌颜色授予的回合牌转换，并将经典双雄迁入同一窗口。项目尚未发布，恢复时只接受 schema、当前 rules v126、内容包签名和内容哈希全部精确匹配的 Checkpoint；其他开发期存档直接判为过期，不做迁移或版本规范化。对应当前内容批次为 `standard@1.14.0`、`standard-active-skills@1.1.0`、`standard-classic-generals@1.107.0`；1.13.0／1.0.0／1.106.0 定义和指纹仅保留给现有历史构造。完整边界见 [`DEVELOPMENT_GATES.md`](DEVELOPMENT_GATES.md)。下文关于 v102–v114 的段落保留为历史交付记录，其中“旧规则 + 新内容包”的双门禁描述已不再适用。
+当前全局规则行为版本为 v127。v115 的共享拼点子帧改变了既有拼点事件与暂停点；v116 把当先、伏枥、称象迁入通用生命周期程序；v117 把距离、攻击范围、摸牌数、杀次数和手牌上限统一为可组合、可解释的 schema 12 规则查询；v118 加入 schema 13 的冻结触发事实、`PlayEnding`／`TurnEnding` 生命周期窗口、可序列化结束阶段父游标和精确武将正反面状态原语，并将精策、据守、闭月迁入通用程序；v119 加入 schema 14 `CardsMoved`、可序列化的原子移动批次／嵌套父批次上下文以及逐牌／逐批出现策略，并将枭姬、连营迁入通用程序；v120 加入 schema 15 `AfterDamageApplied`、每次／每点伤害候选、绑定牌来源位置、通用伤害牌／来源牌选择和动态补牌表达式，并将标准／经典奸雄、反馈、遗计、节命迁入通用程序；v121 加入 schema 16 `DrawPhaseStarting`、摸牌后继续点与跳过出牌阶段标记，并将标准／经典英姿迁入通用程序；v122 再以 schema 17 加入加量／替代模式、通用多目标选择与随机暗手牌转移，并将经典突袭迁入同一窗口；v123 以 schema 18 加入动态亮牌数量、花色过滤、绑定牌分流与按牌数回复，并将经典再起迁入同一窗口；v124 以 schema 19 加入普通摸牌调整及带来源、牌型和回合期限的用牌伤害修正，并将经典裸衣迁入同一窗口；v125 以 schema 20 加入互斥分支、动态势力数摸牌和类型化回合动作／规则／目标策略，并将经典将驰与自守迁入同一窗口；v126 以 schema 21 加入共享判定结果绑定和按最终判定牌颜色授予的回合牌转换，并将经典双雄迁入同一窗口；v127 以 schema 22 加入受控濒死状态下的拥有者牌区清理、连环状态设置与固定值回复，并将经典涅槃迁入通用程序。项目尚未发布，恢复时只接受 schema、当前 rules v127、内容包签名和内容哈希全部精确匹配的 Checkpoint；其他开发期存档直接判为过期，不做迁移或版本规范化。对应当前内容批次为 `standard@1.14.0`、`standard-active-skills@1.1.0`、`standard-classic-generals@1.108.0`；1.13.0／1.0.0／1.107.0 定义和指纹仅保留给现有历史构造。完整边界见 [`DEVELOPMENT_GATES.md`](DEVELOPMENT_GATES.md)。下文关于 v102–v114 的段落保留为历史交付记录，其中“旧规则 + 新内容包”的双门禁描述已不再适用。
 
 开发期兼容验证只覆盖当前组合：存档记录的规则版本、内容包签名与内容哈希必须共同精确匹配。人为改写 `RulesVersion` 或使用旧开发存档都会被拒绝，不要求逐技能关闭新功能。
 
@@ -21,6 +21,8 @@ rules v124 的摸牌调整继续复用同一父帧，新增的 `NormalDrawAdjust
 rules v125 的互斥分支仍复用 `ProgramLifecycleTriggerWindowFrame` 和 `ProgramSkillFrame`，父窗口以组后候选游标保证一次选择只推进整个组；已选择分支由接受的通用 `ProgramTrigger` 命令重建，未选分支只产生可审计的跳过结果。将驰与自守授予的动作禁止、规则修正和目标限制都带稳定帧／指令身份写入同一回合策略存储，重复恢复不会重复授予，回合结束统一清理。`ProgramExecutionPlan` 只缓存不可变定义指令，不进入 Checkpoint，也不缓存当前对局状态。1.105.0 Registry 保留历史定义和指纹，不会重新接通已删除的专属将驰／自守路径。
 
 rules v126 的判定摸牌程序沿用现有 `JudgmentFrame`、`ProgramLifecycleTriggerWindowFrame` 与 `ProgramSkillFrame`，不新增 Checkpoint 顶层字段。`ProgramSkill` 判定继续点保存父程序帧、结果绑定名及公开可见性；最终判定牌经过改判和可选天妒后，以同一实体牌身份重建公开绑定。按颜色授予的回合转换以技能、帧和指令身份写入通用回合存储，不单独序列化；恢复 accepted command 前缀会重建相同的异色【决斗】合法动作并在回合结束统一清理。1.106.0 Registry 保留历史双雄定义和指纹，不会与当前 schema 21 路径混用。
+
+rules v127 的濒死状态程序同样不增加 Checkpoint 顶层字段。暂停时由现有 `DyingResolution`、`ProgramSkillWindowContext` 和 `ProgramSkillFrame` 保存父濒死帧、候选技能实例、绑定 ID 及指令游标；接受发动后，三区逐牌移动、连环状态、回复帧、摸牌和实例化整局限次均由命令前缀确定性重建。1.107.0 Registry 仍发布带 `SkillKind.Niepan` 的历史定义，只有 1.108.0 使用 schema 22，不允许交叉恢复。
 
 ## 使用方式
 
@@ -74,7 +76,7 @@ rules v126 的判定摸牌程序沿用现有 `JudgmentFrame`、`ProgramLifecycle
 
 规则 v30 曾把突袭的一人／两人组合与普通摸牌写入专属 `DecisionKind.Tuxi` Prompt；当前 v122 已由 schema 17 通用 `ProgramTrigger` 的发动 Choice、目标组合 Choice 和 `ProgramSkillFrame` 恢复取代该路线。历史枚举仅保留为序列化数据契约，旧内容定义不会复活旧执行器。
 
-历史 rules v31 曾在 Draw 阶段把裸衣发动/跳过写入 `DecisionKind.Luoyi` 私有 Prompt，并在发动后保存仅本回合有效的标记；该段只记录旧回放边界。当前 rules v126 继续由 schema 19 通用程序帧保存选择、普通摸牌调整和回合伤害修正，不会从 1.104.0 或更早定义复活旧 Prompt、标记或专属执行器。`AttackResolution.CardUserSeat` 与可变的实际 `SourceSeat` 仍分离，确保许褚应战失败时对方造成的伤害不被误加成。
+历史 rules v31 曾在 Draw 阶段把裸衣发动/跳过写入 `DecisionKind.Luoyi` 私有 Prompt，并在发动后保存仅本回合有效的标记；该段只记录旧回放边界。当前 rules v127 继续由 schema 19 通用程序帧保存选择、普通摸牌调整和回合伤害修正，不会从 1.104.0 或更早定义复活旧 Prompt、标记或专属执行器。`AttackResolution.CardUserSeat` 与可变的实际 `SourceSeat` 仍分离，确保许褚应战失败时对方造成的伤害不被误加成。
 
 规则 v32 的强袭把 0–1 张武器牌、一个攻击范围内目标和每阶段限次状态写入主动技命令/帧。空牌分支的体力成本、手牌或装备区武器的统一弃置链、`SourceSkill=Qiangxi` 且来源牌为空的伤害帧，以及伤害后技能游标都可由 Checkpoint 精确恢复；若体力成本先令典韦濒死，暂停存档保留主动技帧与其上的濒死帧，桃救回后继续原目标伤害。rules v31 不发布该动作。
 
@@ -148,7 +150,7 @@ rules v94 不新增 Checkpoint 字段。skill-program schema 10 的持续牌身�
 
 rules v95 的神势力选择也不新增 Checkpoint 字段。身份模式中印刷势力为 `god` 的武将在所有人私有选将完成、统一亮将之前发布 `SelectFaction`；真人的精确 Choice 由既有 `AnswerPromptCommand` 进入命令日志，无人值守座位按 seed 与座位稳定选择。恢复时重建 `ChosenFactionId`、私有／公开投影和 `GodFactionSelectedEvent`，内容注册表中的武将 `FactionId` 始终保持 `god`。rules v94 恢复同一旧命令前缀时不会生成该 Prompt 或本局势力投影。
 
-rules v96 的结构化技能状态同样不新增 Checkpoint 字段。技能限次与转换面只能在接受命令后的确定性规则路径中改变；Restore 重放命令前缀时重建 `SkillRuntimeStateStore`。正式涅槃成功选择后以 `classic:niepan` 消耗整局一次额度，rules v95 重放同一前缀时仍重建历史 `UsedLimitedSkillKinds`。经典包 1.68.0 的结构化元数据进入内容指纹，1.67.0 存档必须继续配套原包恢复，不能把展示相似误当为内容兼容。
+rules v96 的结构化技能状态同样不新增 Checkpoint 字段。技能限次与转换面只能在接受命令后的确定性规则路径中改变；Restore 重放命令前缀时重建 `SkillRuntimeStateStore`。自 rules v127／经典包 1.108.0 起，涅槃由 schema 22 程序以 `binding@skill-instance` 用途 ID 消耗整局一次额度，并从同一命令前缀重建三区弃牌、解除连环、固定回复、摸牌及濒死父流程完成；1.107.0 及更早包仍重建历史专属记录。不同内容包版本必须继续配套原 Registry 恢复，不能把展示相似误当为内容兼容。
 
 rules v99 的拒战同样不新增 Checkpoint 字段。阳／阴私有 Choice、实际发动后的转换面、暗手牌位选择和 `source-target` 回合禁用均由已接受命令前缀确定性重建；暂停于任一面或完成后的 Replay 必须得到相同玩家快照、公开事件与合法动作。新回合重放会清除全部拥有者的回合账本而保留当前转换面。rules v98 不启动拒战窗口，经典包 1.69.0 不注册严颜；旧存档不会静默获得新武将或新限制。
 
@@ -172,13 +174,13 @@ rules v100／`standard-classic-generals@1.78.0` 只在两个版本边界同时�
 
 rules v102／`standard-classic-generals@1.80.0` 的谋吕蒙仍不新增 Checkpoint 字段。横野 `growth` 整局记录、击杀后的 `ResetSkill`、所有角色本轮伤害牌名记录、英博首次／重复分支及暂停中的私有交牌 Choice，均由内容签名、rules 版本和已接受命令前缀确定性重建；完成或暂停恢复必须得到相同技能状态、实体牌区、事件和合法动作。rules v101 重放同一 1.80.0 前缀时不启用谋吕蒙消费者，1.79.0 Registry 则没有该武将；旧存档必须继续使用其原包版本，玩家资料与 Checkpoint schema 3 保持不变。
 
-历史 rules v103／`standard-classic-generals@1.81.0` 的曹彰不新增 Checkpoint 字段；其专属三分支 Choice 和回合状态由已接受命令前缀确定性重建。自 rules v125／1.106.0 起改由 schema 20 通用组选择、摸牌调整和回合策略重建同一玩法，当前 v126／1.107.0 继续使用该定义；1.105.0 及更早 Registry 仍保留各自历史定义，旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
+历史 rules v103／`standard-classic-generals@1.81.0` 的曹彰不新增 Checkpoint 字段；其专属三分支 Choice 和回合状态由已接受命令前缀确定性重建。自 rules v125／1.106.0 起改由 schema 20 通用组选择、摸牌调整和回合策略重建同一玩法，当前 v127／1.108.0 继续使用该定义；1.105.0 及更早 Registry 仍保留各自历史定义，旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
 
 rules v104／`standard-classic-generals@1.82.0` 的马岱不新增 Checkpoint 字段。潜袭的发动确认、摸牌后精确弃牌、距离 1 目标选择、弃牌颜色和 `restriction.target-{seat}.{red|black}` 回合状态，均由已接受命令前缀确定性重建；暂停在任一私有 Choice 或受限响应窗口都必须得到相同候选。rules v103 不启用潜袭消费者，1.81.0 Registry 不注册马岱；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
 
 rules v105／`standard-classic-generals@1.83.0` 的高顺同样不新增 Checkpoint 字段。陷阵的主动源牌／目标、对手私有拼点牌 Choice、弃牌移动及 `win.target-{seat}`／`loss` 回合状态，均由已接受命令前缀确定性重建；暂停在对手 Choice 或完成后恢复，必须得到相同胜负、合法动作和防具忽略范围。禁酒的酒→杀强制身份来自版本化技能程序，不序列化额外状态。rules v104 即使配合 1.83.0 Registry 也保持陷阵关闭和原生酒，1.82.0 Registry 不注册高顺；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
 
-历史 rules v106／`standard-classic-generals@1.84.0` 的刘表不新增 Checkpoint 字段；自守专属发动／跳过 Choice、冻结势力数与 `classic:zishou`／`active` 回合状态由命令前缀重建。自 rules v125／1.106.0 起改由 schema 20 通用程序和 `SelfOnly` 策略重建同一目标集合，当前 v126／1.107.0 继续使用该定义，五谷丰登仍只保留刘表自己。宗室的动态手牌上限继续由当前存活角色的有效势力实时派生，不序列化缓存；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
+历史 rules v106／`standard-classic-generals@1.84.0` 的刘表不新增 Checkpoint 字段；自守专属发动／跳过 Choice、冻结势力数与 `classic:zishou`／`active` 回合状态由命令前缀重建。自 rules v125／1.106.0 起改由 schema 20 通用程序和 `SelfOnly` 策略重建同一目标集合，当前 v127／1.108.0 继续使用该定义，五谷丰登仍只保留刘表自己。宗室的动态手牌上限继续由当前存活角色的有效势力实时派生，不序列化缓存；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
 
 rules v107／`standard-classic-generals@1.85.0` 的王异仍不新增 Checkpoint 字段。贞烈的私有发动／跳过 Choice、失去体力后的濒死续接、对使用者手牌槽位或公开装备的弃牌 Choice，以及当前 `CardUseFrame` 中仅对王异生效的无效目标集合，都由已接受命令前缀确定性重建；秘计的发动 Choice、按已损失体力摸牌和可选的等量手牌分配 Choice 同样依赖命令前缀恢复。暂停在贞烈发动、弃牌或秘计分配，以及完成后恢复，都必须得到相同事件和合法动作。rules v106 即使配合 1.85.0 Registry 也保持两项运行效果关闭，1.84.0 Registry 不注册王异；旧存档、玩家资料与 Checkpoint schema 3 均保持不变。
 

@@ -14,8 +14,8 @@ internal static class DrawPolicyProgramChecks
 
         Require(GameCheckpoint.CurrentRulesVersion >= 125 &&
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 106, 0) &&
-                jiangchi.RuntimeVersion == "skill-program-v20" &&
-                jiangchi.MinimumRulesVersion == 125 &&
+                jiangchi.UsesCompositionKernel &&
+                jiangchi.MinimumRulesVersion == 128 &&
                 jiangchi.Triggers.Count == 2 &&
                 jiangchi.Triggers.All(trigger => trigger.ChoiceGroup == "turn-mode" &&
                     trigger.ChoiceLabel is not null) &&

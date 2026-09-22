@@ -71,6 +71,7 @@ public sealed record ContentSkillDefinition(
     SkillKind? LegacyKind = null)
 {
     public SkillProgram? Program { get; init; }
+    public SkillPresentation? ProgramPresentation { get; init; }
     public IPhaseSkillModule? PhaseSkill { get; init; }
     public IPindianResultModule? PindianResultSkill { get; init; }
     public SkillTag Tags { get; init; }

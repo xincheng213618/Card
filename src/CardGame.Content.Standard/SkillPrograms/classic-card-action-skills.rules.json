@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 24,
+  "skills": [
+    {
+      "id": "classic:longyin",
+      "revision": 1,
+      "minimumRulesVersion": 129,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "committed-slash",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionActorIsCurrentTurn" },
+              { "kind": "cardActionPhaseIsPlay" }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile"
+            },
+            { "op": "refundCardUseDebit", "target": "owner" },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": { "kind": "cardUseIsRed" }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:juzhan",
+      "revision": 1,
+      "minimumRulesVersion": 129,
+      "states": [
+        {
+          "id": "yin",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "yang-targeted",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "condition": { "kind": "booleanState", "stateId": "yin", "expectedValue": false },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 },
+            { "op": "draw", "target": "actor", "amount": 1 },
+            {
+              "op": "grantDirectedTurnCardPolicy",
+              "target": "owner",
+              "actorRef": { "kind": "actor" },
+              "targetRef": { "kind": "owner" },
+              "effects": ["forbidTarget"]
+            },
+            { "op": "toggleBooleanState", "target": "owner", "stateId": "yin" }
+          ]
+        },
+        {
+          "id": "yin-attacking",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "actor",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "condition": { "kind": "booleanState", "stateId": "yin", "expectedValue": true },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventTarget",
+              "zones": ["hand", "equipment", "judgment"]
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand", "equipment", "judgment"],
+              "count": 1,
+              "destination": "ownerHand"
+            },
+            {
+              "op": "grantDirectedTurnCardPolicy",
+              "target": "owner",
+              "actorRef": { "kind": "owner" },
+              "targetRef": { "kind": "selectedTarget" },
+              "effects": ["forbidTarget"]
+            },
+            { "op": "toggleBooleanState", "target": "owner", "stateId": "yin" }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:xianzhen",
+      "revision": 1,
+      "minimumRulesVersion": 129,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "challenge",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerTurn": 1,
+          "condition": { "kind": "ownTurn" },
+          "effects": [
+            {
+              "op": "startPindian",
+              "target": "owner",
+              "opponentRef": { "kind": "selectedTarget" },
+              "resultBind": "challenge-result",
+              "visibility": "public"
+            },
+            {
+              "op": "grantDirectedTurnCardPolicy",
+              "target": "owner",
+              "actorRef": { "kind": "resultSource", "resultBind": "challenge-result" },
+              "targetRef": { "kind": "resultOpponent", "resultBind": "challenge-result" },
+              "effects": ["ignoreDistance", "bypassSlashLimit", "ignoreArmor"],
+              "condition": { "kind": "pindianWon", "sourceBind": "challenge-result" }
+            },
+            {
+              "op": "grantTurnCardActionProhibition",
+              "target": "owner",
+              "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+              "actionTypes": ["use"],
+              "condition": {
+                "kind": "not",
+                "children": [
+                  { "kind": "pindianWon", "sourceBind": "challenge-result" }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

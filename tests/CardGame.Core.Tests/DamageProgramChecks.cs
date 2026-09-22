@@ -26,7 +26,7 @@ internal static class DamageProgramChecks
         {
             Require(historicalStandard.Skills[skillId].Program is null &&
                     currentStandard.Skills[skillId].Program is
-                        { RuntimeVersion: "skill-program-v15", MinimumRulesVersion: 120 },
+                        { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
                 $"{skillId} did not preserve the standard@1.12/current boundary.");
         }
 
@@ -37,7 +37,7 @@ internal static class DamageProgramChecks
         {
             Require(historicalClassic.Skills[skillId].Program is null &&
                     currentClassic.Skills[skillId].Program is
-                        { RuntimeVersion: "skill-program-v15", MinimumRulesVersion: 120 },
+                        { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
                 $"{skillId} did not preserve the classic@1.100/current boundary.");
         }
 

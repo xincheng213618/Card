@@ -13,13 +13,13 @@ internal static class JudgmentDrawProgramChecks
         var skill = current.Skills[SkillId];
         var trigger = skill.Program?.Triggers.Single();
 
-        Require(GameCheckpoint.CurrentRulesVersion == 126 &&
-                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 107, 0) &&
+        Require(GameCheckpoint.CurrentRulesVersion >= 126 &&
+                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 108, 0) &&
                 skill is
                 {
                     LegacyKind: null,
-                    Program.RuntimeVersion: "skill-program-v21",
-                    Program.MinimumRulesVersion: 126
+                    Program.UsesCompositionKernel: true,
+                    Program.MinimumRulesVersion: 128
                 } &&
                 skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
                 trigger is

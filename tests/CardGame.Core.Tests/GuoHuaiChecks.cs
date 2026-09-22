@@ -48,8 +48,8 @@ internal static class GuoHuaiChecks
                     ActionForms: SkillActionForm.None,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v13",
-                        MinimumRulesVersion: 118
+                        UsesCompositionKernel: true,
+                        MinimumRulesVersion: 128
                     } program
                 } && program.Triggers.Single() is
                 {
@@ -58,7 +58,7 @@ internal static class GuoHuaiChecks
                     UsageLimit: 1
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Package 1.99.0 must publish Guo Huai's schema-13 PlayEnding Jingce program.");
+            "Package 1.99.0 must publish Guo Huai's PlayEnding Jingce through the shared composition kernel.");
     }
 
     public static void JingceCountsTurnUsesDrawsAndReplays()

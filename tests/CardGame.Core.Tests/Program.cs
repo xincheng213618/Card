@@ -3,6 +3,9 @@ using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
+if (ProgramToolCommands.TryRun(args, out var programToolExitCode))
+    return programToolExitCode;
+
 if (args.FirstOrDefault() == "--ai-inspect")
 {
     TacticalAiSimulation.Inspect(int.Parse(args[1]), int.Parse(args[2]), args[3]);
@@ -19,6 +22,21 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("composition kernel descriptor contracts", ProgramCompositionDefinitionChecks.CatalogDiscoversCompleteOperations),
+    ("composition kernel current formal content", ProgramCompositionDefinitionChecks.CurrentExecutableContentUsesCompositionKernel),
+    ("composition AI activates target benefits in a real match", ProgramCompositionAiIntegrationChecks.JiemingAiActivatesAndDrawsForFriendlyTarget),
+    ("composition AI respects previously granted target restrictions", ProgramCompositionAiIntegrationChecks.ZishouSelfOnlyPreventsWastefulJiangchiAssault),
+    ("composition kernel cross-entry compilation", ProgramCompositionDefinitionChecks.EquivalentEntriesCompileSameEffects),
+    ("composition kernel resource graph safety", ProgramCompositionDefinitionChecks.ResourceGraphsRejectAliasingLeaksAndMissingInputs),
+    ("composition kernel malformed nodes", ProgramCompositionDefinitionChecks.MalformedNodesFailBeforeExecution),
+    ("composition kernel AI follows resource partitions and costs", ProgramCompositionDefinitionChecks.AiPoliciesFollowResourcePartitionsAndCosts),
+    ("composition kernel cross-entry reveal replay", ProgramCompositionEntryChecks.CrossEntryRevealSubsetReplays),
+    ("composition kernel cross-entry gift replay", ProgramCompositionEntryChecks.CrossEntryDrawGiftReplays),
+    ("composition kernel boundary capabilities", ProgramCompositionContextChecks.SharedWindowsAcceptCommonNodesAndRejectMissingContexts),
+    ("composition kernel target-set consumption", ProgramCompositionContextChecks.TargetSetIsConsumedOnce),
+    ("composition kernel active state and judgment replay", ProgramCompositionContextChecks.ActiveStateAndJudgmentReplay),
+    ("composition kernel public AI context", ProgramCompositionContextChecks.PublicAiContextAccountsForReplacementAndExpressions),
+    ("composition kernel active turn policy replay and expiry", ProgramCompositionContextChecks.ActiveTurnRuleModifierGrantsReplaysAndExpires),
     ("execution plans unify active and trigger instruction identities", ProgramExecutionPlanChecks.ActiveAndTriggerUseStableInstructionPlans),
     ("execution plans freeze instructions and reject ambiguous bindings", ProgramExecutionPlanChecks.PlansFreezeInstructionsAndRejectAmbiguousBindings),
     ("rule query reduction is input-order independent", RuleQueryReducerChecks.IsIndependentOfInputOrderAndRejectsOnlyWinningSetConflicts),
@@ -76,6 +94,8 @@ var tests = new (string Name, Action Body)[]
     ("schema-20 turn policies are typed idempotent and expire together", DrawPolicyProgramChecks.TurnPoliciesAreTypedIdempotentAndExpireTogether),
     ("schema-21 judgment draw programs preserve definitions and package boundary", JudgmentDrawProgramChecks.DefinitionsAndVersionBoundary),
     ("schema-21 judgment results bind turn conversion and replay", JudgmentDrawProgramChecks.JudgmentBindingConversionAndReplay),
+    ("schema-22 self-dying state programs preserve definitions and package boundary", SelfDyingStateProgramChecks.DefinitionsAndVersionBoundary),
+    ("schema-22 Niepan clears owned state and replays", SelfDyingStateProgramChecks.ClearsOwnedStateAndReplays),
     ("structured skill metadata normalizes explicitly and fingerprints content", SkillMetadataChecks.TagsNormalizeAndFingerprint),
     ("classic locked-state metadata is versioned without changing package 1.70", SkillMetadataChecks.ClassicLockedStateMetadataIsVersioned),
     ("classic shared locked skills receive distinct versioned identities", SkillMetadataChecks.ClassicSharedLockedSkillsReceiveDistinctIdentities),
@@ -86,7 +106,7 @@ var tests = new (string Name, Action Body)[]
     ("classic shared active skills receive distinct versioned identities", SkillMetadataChecks.ClassicSharedActiveSkillsReceiveDistinctIdentities),
     ("remaining classic shared skills receive distinct versioned identities", SkillMetadataChecks.ClassicRemainingSharedSkillsReceiveDistinctIdentities),
     ("skill runtime usage and conversion states reset by declared scope", SkillMetadataChecks.RuntimeUsageAndReset),
-    ("structured Niepan usage restores while rules 95 retains its legacy record", SkillMetadataChecks.StructuredNiepanUsageReplays),
+    ("program Niepan usage restores without touching its historical legacy record", SkillMetadataChecks.StructuredNiepanUsageReplays),
     ("printed Lord skills follow identity and rules 96 replay ownership boundaries", SkillOwnershipChecks.PrintedLordSkillsFollowIdentityAndReplayBoundary),
     ("Lord tags filter generic runtime skill discovery", SkillOwnershipChecks.LordTagFiltersGenericRuntimeDiscovery),
     ("skill program v2 trigger definitions validate and freeze", SkillProgramTriggerDefinitionChecks.Run),
@@ -1135,15 +1155,15 @@ static void StandardContentRegistryBuilds()
     Equal("standard:wusheng", registry.Generals["standard:guan-yu"].SkillId);
     Equal("standard:longdan", registry.Generals["standard:zhao-yun"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:yingzi") is
-        { LegacyKind: null, Program.RuntimeVersion: "skill-program-v16" },
-        "current Yingzi uses the schema-16 draw-phase program runtime");
+        { LegacyKind: null, Program.UsesCompositionKernel: true },
+        "current Yingzi uses the shared composition kernel");
     TrueWithMessage(registry.GetSkill("standard:yiji") is
-        { LegacyKind: null, Program.RuntimeVersion: "skill-program-v15" },
-        "current Yiji uses the schema-15 program runtime");
+        { LegacyKind: null, Program.UsesCompositionKernel: true },
+        "current Yiji uses the shared composition kernel");
     Equal("standard:yiji", registry.Generals["standard:guo-jia"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:jieming") is
-        { LegacyKind: null, Program.RuntimeVersion: "skill-program-v15" },
-        "current Jieming uses the schema-15 program runtime");
+        { LegacyKind: null, Program.UsesCompositionKernel: true },
+        "current Jieming uses the shared composition kernel");
     Equal("standard:jieming", registry.Generals["standard:xun-yu"].SkillId);
     Equal(SkillKind.Yuanhu, registry.GetSkill("standard:yuanhu").LegacyKind);
     Equal("standard:yuanhu", registry.Generals["standard:demo-yuanhu"].SkillId);

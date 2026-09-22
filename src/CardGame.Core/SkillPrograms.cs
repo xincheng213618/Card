@@ -18,12 +18,15 @@ public enum SkillRuleQuery
 }
 public enum SkillRuleOperation { Add, Set, Unlimited }
 public enum SkillRuleValueExpression { LivingFactionCount }
-public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, All, Any, Not }
+public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, PindianWon, BooleanState, All, Any, Not }
 public enum SkillProgramTriggerConditionKind
 {
     Always,
     Compare,
     ClassicIdentityMode,
+    BooleanState,
+    CardActionActorIsCurrentTurn,
+    CardActionPhaseIsPlay,
     All,
     Any,
     Not
@@ -54,7 +57,8 @@ public enum SkillProgramTargetKind
     AnyLiving,
     OtherWounded,
     AnyWounded,
-    AnyLivingHandBelowMaxHp
+    AnyLivingHandBelowMaxHp,
+    EventTarget
 }
 public enum SkillProgramEffectOp
 {
@@ -85,13 +89,21 @@ public enum SkillProgramEffectOp
     StartJudgment,
     GrantTurnCardConversion,
     DiscardOwnedZoneCards,
-    SetChainedState
+    SetChainedState,
+    SelectAndMoveOwnedCard,
+    RefundCardUseDebit,
+    StartPindian,
+    SetBooleanState,
+    ToggleBooleanState,
+    GrantDirectedTurnCardPolicy
 }
 public enum SkillProgramEffectTarget { Owner, SelectedTarget }
 public enum SkillProgramTriggerWindow
 {
     CardUseTargetsFinalized,
     CardResponseAccepted,
+    CardUseBeforeTargetEffects,
+    CardUseCommitted,
     JudgmentReplacing,
     JudgmentFinalized,
     TurnStartBeforeNormalFlow,
@@ -133,7 +145,13 @@ public enum SkillProgramTriggerEffectOp
     GrantTurnCardTargetRestriction,
     GrantTurnCardConversion,
     DiscardOwnedZoneCards,
-    SetChainedState
+    SetChainedState,
+    SelectAndMoveOwnedCard,
+    RefundCardUseDebit,
+    StartPindian,
+    SetBooleanState,
+    ToggleBooleanState,
+    GrantDirectedTurnCardPolicy
 }
 public enum SkillProgramTriggerEffectTarget { Owner, Opponent, SelectedTarget, JudgmentSubject }
 public enum SkillProgramTriggerSubject { Owner, Any }
@@ -156,21 +174,49 @@ public enum SkillProgramTargetAiOrder { Stable, HostileThenHandCount }
 public enum SkillProgramPhaseContinuation { BeforeNormalPreparation }
 public enum SkillProgramCardTargetRestriction { SelfOnly }
 public enum SkillProgramCardColorRelation { OppositeBoundCard }
+public enum SkillProgramStateVisibility { Public, Private }
+public enum SkillProgramStateResetScope { Game }
+public enum SkillProgramStateReacquirePolicy { PreserveUntilGameEnd }
+[Flags]
+public enum DirectedTurnCardPolicyEffect
+{
+    None = 0,
+    ForbidTarget = 1,
+    IgnoreDistance = 2,
+    BypassSlashLimit = 4,
+    IgnoreArmor = 8
+}
+
+public sealed record SkillProgramBooleanStateDefinition(
+    string Id,
+    bool InitialValue,
+    SkillProgramStateVisibility Visibility,
+    SkillProgramStateResetScope ResetScope,
+    SkillProgramStateReacquirePolicy ReacquirePolicy);
 
 public sealed class SkillProgramCondition
 {
-    internal SkillProgramCondition(SkillProgramConditionKind kind, int value, IReadOnlyList<SkillProgramCondition> children)
+    internal SkillProgramCondition(SkillProgramConditionKind kind, int value, IReadOnlyList<SkillProgramCondition> children,
+        string? sourceBind = null, string? stateId = null, bool expectedValue = true)
     {
         Kind = kind;
         Value = value;
         Children = children;
+        SourceBind = sourceBind;
+        StateId = stateId;
+        ExpectedValue = expectedValue;
     }
 
     public SkillProgramConditionKind Kind { get; }
     public int Value { get; }
     public IReadOnlyList<SkillProgramCondition> Children { get; }
+    public string? SourceBind { get; }
+    public string? StateId { get; }
+    public bool ExpectedValue { get; }
 
-    public bool Evaluate(PlayerSkillContext context) => Kind switch
+    public bool Evaluate(PlayerSkillContext context) => Evaluate(context, null);
+
+    internal bool Evaluate(PlayerSkillContext context, bool? cardUseIsRed) => Kind switch
     {
         SkillProgramConditionKind.Always => true,
         SkillProgramConditionKind.OwnTurn => context.IsOwnTurn,
@@ -178,10 +224,27 @@ public sealed class SkillProgramCondition
         SkillProgramConditionKind.Wounded => context.Hp < context.MaxHp,
         SkillProgramConditionKind.HpAtLeast => context.Hp >= Value,
         SkillProgramConditionKind.HandCountAtLeast => context.HandCount >= Value,
-        SkillProgramConditionKind.All => Children.All(child => child.Evaluate(context)),
-        SkillProgramConditionKind.Any => Children.Any(child => child.Evaluate(context)),
-        SkillProgramConditionKind.Not => !Children[0].Evaluate(context),
+        SkillProgramConditionKind.CardUseIsRed => cardUseIsRed == true,
+        SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.BooleanState =>
+            throw new InvalidOperationException($"Condition '{Kind}' requires a running program frame."),
+        SkillProgramConditionKind.All => Children.All(child => child.Evaluate(context, cardUseIsRed)),
+        SkillProgramConditionKind.Any => Children.Any(child => child.Evaluate(context, cardUseIsRed)),
+        SkillProgramConditionKind.Not => !Children[0].Evaluate(context, cardUseIsRed),
         _ => throw new InvalidOperationException($"Unsupported condition kind '{Kind}'.")
+    };
+
+    internal bool Evaluate(
+        PlayerSkillContext context,
+        Func<string, bool> pindianWon,
+        Func<string, bool> booleanState,
+        bool? cardUseIsRed = null) => Kind switch
+    {
+        SkillProgramConditionKind.PindianWon => pindianWon(SourceBind!),
+        SkillProgramConditionKind.BooleanState => booleanState(StateId!) == ExpectedValue,
+        SkillProgramConditionKind.All => Children.All(child => child.Evaluate(context, pindianWon, booleanState, cardUseIsRed)),
+        SkillProgramConditionKind.Any => Children.Any(child => child.Evaluate(context, pindianWon, booleanState, cardUseIsRed)),
+        SkillProgramConditionKind.Not => !Children[0].Evaluate(context, pindianWon, booleanState, cardUseIsRed),
+        _ => Evaluate(context, cardUseIsRed)
     };
 }
 
@@ -192,7 +255,18 @@ public sealed record SkillProgramTriggerFacts(
     int MovedCardCount = 0,
     int SourceZoneCountBefore = 0,
     int SourceZoneCountAfter = 0,
-    int CurrentMaxHp = 0);
+    int CurrentMaxHp = 0,
+    IReadOnlyDictionary<string, bool>? BooleanStates = null,
+    bool? CardActionActorIsCurrentTurn = null,
+    bool? CardActionPhaseIsPlay = null)
+{
+    public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
+        BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
+        throw new InvalidOperationException("The frozen trigger facts do not contain the requested boolean state.");
+
+    public static string BooleanStateKey(string skillId, string skillInstanceId, string stateId) =>
+        $"{skillId}\u001f{skillInstanceId}\u001f{stateId}";
+}
 
 public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind, int Value)
 {
@@ -216,23 +290,35 @@ public sealed class SkillProgramTriggerCondition
         IReadOnlyList<SkillProgramTriggerCondition> children,
         SkillProgramTriggerValue? left = null,
         SkillProgramComparisonOperator? comparison = null,
-        SkillProgramTriggerValue? right = null) =>
-        (Kind, Children, Left, Comparison, Right) = (kind, children, left, comparison, right);
+        SkillProgramTriggerValue? right = null,
+        string? stateId = null,
+        bool expectedValue = true) =>
+        (Kind, Children, Left, Comparison, Right, StateId, ExpectedValue) =
+        (kind, children, left, comparison, right, stateId, expectedValue);
 
     public SkillProgramTriggerConditionKind Kind { get; }
     public IReadOnlyList<SkillProgramTriggerCondition> Children { get; }
     public SkillProgramTriggerValue? Left { get; }
     public SkillProgramComparisonOperator? Comparison { get; }
     public SkillProgramTriggerValue? Right { get; }
+    public string? StateId { get; }
+    public bool ExpectedValue { get; }
 
-    public bool Evaluate(SkillProgramTriggerFacts facts) => Kind switch
+    public bool Evaluate(SkillProgramTriggerFacts facts, string? skillId = null, string? skillInstanceId = null) => Kind switch
     {
         SkillProgramTriggerConditionKind.Always => true,
         SkillProgramTriggerConditionKind.Compare => Compare(facts),
         SkillProgramTriggerConditionKind.ClassicIdentityMode => facts.IsClassicIdentityMode,
-        SkillProgramTriggerConditionKind.All => Children.All(child => child.Evaluate(facts)),
-        SkillProgramTriggerConditionKind.Any => Children.Any(child => child.Evaluate(facts)),
-        SkillProgramTriggerConditionKind.Not => !Children[0].Evaluate(facts),
+        SkillProgramTriggerConditionKind.BooleanState when skillId is not null && skillInstanceId is not null =>
+            facts.GetBooleanState(skillId, skillInstanceId, StateId!) == ExpectedValue,
+        SkillProgramTriggerConditionKind.BooleanState =>
+            throw new InvalidOperationException("A trigger boolean-state condition requires its skill instance."),
+        SkillProgramTriggerConditionKind.CardActionActorIsCurrentTurn =>
+            facts.CardActionActorIsCurrentTurn == true,
+        SkillProgramTriggerConditionKind.CardActionPhaseIsPlay => facts.CardActionPhaseIsPlay == true,
+        SkillProgramTriggerConditionKind.All => Children.All(child => child.Evaluate(facts, skillId, skillInstanceId)),
+        SkillProgramTriggerConditionKind.Any => Children.Any(child => child.Evaluate(facts, skillId, skillInstanceId)),
+        SkillProgramTriggerConditionKind.Not => !Children[0].Evaluate(facts, skillId, skillInstanceId),
         _ => throw new InvalidOperationException($"Unsupported trigger condition kind '{Kind}'.")
     };
 
@@ -356,20 +442,31 @@ public sealed class SkillProgramEffect
         string? judgmentReason = null,
         SkillProgramCardColorRelation? colorRelation = null,
         CardKind? outputKind = null,
-        bool? chained = null) =>
+        bool? chained = null,
+        ProgramParticipantReference? chooserRef = null,
+        ProgramParticipantReference? cardOwnerRef = null,
+        string? stateId = null,
+        bool? booleanValue = null,
+        ProgramParticipantReference? opponentReference = null,
+        ProgramParticipantReference? actorReference = null,
+        ProgramParticipantReference? targetReference = null,
+        DirectedTurnCardPolicyEffect directedPolicyEffects = DirectedTurnCardPolicyEffect.None) =>
         (Op, Target, Amount, Condition, Phase, PhaseContinuation, NumberExpression, MinimumValue,
             ClampToMaxHp, SourceBind, ResultBind, ExceptBind, Visibility, MinimumCards, MaximumCards,
             MaximumRankSum, AiOrder, Destination, FaceDown, Zones, TargetKind,
             MinimumTargets, MaximumTargets, TargetAiOrder, Suits, CardKinds, ActionTypes,
             RuleQuery, RuleOperation, TargetRestriction, JudgmentReason, ColorRelation, OutputKind,
-            Chained) =
+            Chained, ChooserRef, CardOwnerRef, StateId, BooleanValue, OpponentReference, ActorReference, TargetReference,
+            DirectedPolicyEffects) =
         (op, target, amount, condition, phase, phaseContinuation, numberExpression, minimumValue,
             clampToMaxHp, sourceBind, resultBind, exceptBind, visibility, minimumCards, maximumCards,
             maximumRankSum, aiOrder, destination, faceDown,
             zones ?? Array.Empty<CardZoneKind>(), targetKind, minimumTargets, maximumTargets, targetAiOrder,
             suits ?? Array.Empty<Suit>(), cardKinds ?? Array.Empty<CardKind>(),
             actionTypes ?? Array.Empty<CardActionType>(), ruleQuery, ruleOperation, targetRestriction,
-            judgmentReason, colorRelation, outputKind, chained);
+            judgmentReason, colorRelation, outputKind, chained, chooserRef, cardOwnerRef,
+            stateId, booleanValue, opponentReference,
+            actorReference, targetReference, directedPolicyEffects);
     public SkillProgramEffectOp Op { get; }
     public SkillProgramEffectTarget Target { get; }
     public int Amount { get; }
@@ -404,6 +501,14 @@ public sealed class SkillProgramEffect
     public SkillProgramCardColorRelation? ColorRelation { get; }
     public CardKind? OutputKind { get; }
     public bool? Chained { get; }
+    public ProgramParticipantReference? ChooserRef { get; }
+    public ProgramParticipantReference? CardOwnerRef { get; }
+    public string? StateId { get; }
+    public bool? BooleanValue { get; }
+    public ProgramParticipantReference? OpponentReference { get; }
+    public ProgramParticipantReference? ActorReference { get; }
+    public ProgramParticipantReference? TargetReference { get; }
+    public DirectedTurnCardPolicyEffect DirectedPolicyEffects { get; }
 }
 
 public sealed class SkillProgramActivation
@@ -465,21 +570,32 @@ public sealed class SkillProgramTriggerEffect
         SkillProgramCardTargetRestriction? targetRestriction = null,
         SkillProgramCardColorRelation? colorRelation = null,
         CardKind? outputKind = null,
-        bool? chained = null) =>
+        bool? chained = null,
+        ProgramParticipantReference? chooserRef = null,
+        ProgramParticipantReference? cardOwnerRef = null,
+        string? stateId = null,
+        bool? booleanValue = null,
+        ProgramParticipantReference? opponentReference = null,
+        ProgramParticipantReference? actorReference = null,
+        ProgramParticipantReference? targetReference = null,
+        DirectedTurnCardPolicyEffect directedPolicyEffects = DirectedTurnCardPolicyEffect.None) =>
         (Op, Target, Amount, Condition, Zones, Suits, OldCardDestination, ReplacementSuits,
             MinimumReplacementRank, MaximumReplacementRank, TargetKind, DamageNature, JudgmentReason,
             Phase, PhaseContinuation, NumberExpression, MinimumValue, ClampToMaxHp, SourceBind,
             ResultBind, ExceptBind, Visibility, MinimumCards, MaximumCards, MaximumRankSum, AiOrder,
             Destination, FaceDown, MinimumTargets, MaximumTargets, TargetAiOrder, CardKinds,
             ActionTypes, RuleQuery, RuleOperation, TargetRestriction, ColorRelation, OutputKind,
-            Chained) =
+            Chained, ChooserRef, CardOwnerRef, StateId, BooleanValue, OpponentReference,
+            ActorReference, TargetReference, DirectedPolicyEffects) =
         (op, target, amount, condition, zones, suits, oldCardDestination, replacementSuits,
             minimumReplacementRank, maximumReplacementRank, targetKind, damageNature, judgmentReason,
             phase, phaseContinuation, numberExpression, minimumValue, clampToMaxHp, sourceBind,
             resultBind, exceptBind, visibility, minimumCards, maximumCards, maximumRankSum, aiOrder,
             destination, faceDown, minimumTargets, maximumTargets, targetAiOrder,
             cardKinds ?? Array.Empty<CardKind>(), actionTypes ?? Array.Empty<CardActionType>(),
-            ruleQuery, ruleOperation, targetRestriction, colorRelation, outputKind, chained);
+            ruleQuery, ruleOperation, targetRestriction, colorRelation, outputKind, chained,
+            chooserRef, cardOwnerRef, stateId, booleanValue, opponentReference, actorReference,
+            targetReference, directedPolicyEffects);
     public SkillProgramTriggerEffectOp Op { get; }
     public SkillProgramTriggerEffectTarget Target { get; }
     public int Amount { get; }
@@ -519,6 +635,14 @@ public sealed class SkillProgramTriggerEffect
     public SkillProgramCardColorRelation? ColorRelation { get; }
     public CardKind? OutputKind { get; }
     public bool? Chained { get; }
+    public ProgramParticipantReference? ChooserRef { get; }
+    public ProgramParticipantReference? CardOwnerRef { get; }
+    public string? StateId { get; }
+    public bool? BooleanValue { get; }
+    public ProgramParticipantReference? OpponentReference { get; }
+    public ProgramParticipantReference? ActorReference { get; }
+    public ProgramParticipantReference? TargetReference { get; }
+    public DirectedTurnCardPolicyEffect DirectedPolicyEffects { get; }
 
     internal SkillProgramEffect ToExecutionEffect()
     {
@@ -536,7 +660,8 @@ public sealed class SkillProgramTriggerEffect
             ExceptBind, Visibility, MinimumCards, MaximumCards, MaximumRankSum, AiOrder, Destination,
             FaceDown, Zones, TargetKind, MinimumTargets, MaximumTargets, TargetAiOrder, Suits, CardKinds,
             ActionTypes, RuleQuery, RuleOperation, TargetRestriction, JudgmentReason, ColorRelation, OutputKind,
-            Chained);
+            Chained, ChooserRef, CardOwnerRef, StateId, BooleanValue, OpponentReference,
+            ActorReference, TargetReference, DirectedPolicyEffects);
     }
 }
 
@@ -553,15 +678,19 @@ public sealed class SkillProgramTrigger
         bool optional, SkillProgramTriggerCondition condition,
         IReadOnlyList<SkillProgramTriggerEffect> effects,
         int priority = 0, SkillUsageScope? usageScope = null, int? usageLimit = null,
-        string? choiceGroup = null) =>
+        string? choiceGroup = null,
+        SkillProgramCardActionOwnerRelation? ownerRelation = null,
+        bool usesSharedExecutor = false) =>
         (Id, Window, SourceSkillId, SourceViewAsId, Subject, Suits, MinimumRank, MaximumRank,
             ExcludedReasons, JudgmentReasons, JudgmentSource, CardKinds, SourceZones, MovementOccurrence,
             DamageOccurrence, DrawPhaseMode,
-            Optional, Condition, Effects, Priority, UsageScope, UsageLimit, ChoiceGroup) =
+            Optional, Condition, Effects, Priority, UsageScope, UsageLimit, ChoiceGroup, OwnerRelation,
+            UsesSharedExecutor) =
         (id, window, sourceSkillId, sourceViewAsId, subject, suits, minimumRank, maximumRank,
             excludedReasons, judgmentReasons, judgmentSource, cardKinds, sourceZones, movementOccurrence,
             damageOccurrence, drawPhaseMode,
-            optional, condition, effects, priority, usageScope, usageLimit, choiceGroup);
+            optional, condition, effects, priority, usageScope, usageLimit, choiceGroup, ownerRelation,
+            usesSharedExecutor);
     public string Id { get; }
     public SkillProgramTriggerWindow Window { get; }
     public string? SourceSkillId { get; }
@@ -585,13 +714,10 @@ public sealed class SkillProgramTrigger
     public SkillUsageScope? UsageScope { get; }
     public int? UsageLimit { get; }
     public string? ChoiceGroup { get; }
+    public SkillProgramCardActionOwnerRelation? OwnerRelation { get; }
     public string? ChoiceLabel { get; internal set; }
 
-    public bool UsesSharedExecutor => Window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
-        SkillProgramTriggerWindow.DrawPhaseStarting or
-        SkillProgramTriggerWindow.SelfDyingResponse or SkillProgramTriggerWindow.AfterDamageApplied or
-        SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.TurnEnding or
-        SkillProgramTriggerWindow.CardsMoved;
+    public bool UsesSharedExecutor { get; }
 }
 
 public sealed class SkillProgram
@@ -600,35 +726,45 @@ public sealed class SkillProgram
         IReadOnlyList<SkillProgramModifier> modifiers, IReadOnlyList<SkillProgramViewAs> viewAs,
         IReadOnlyList<SkillProgramActivation> activations, IReadOnlyList<SkillProgramTrigger> triggers,
         IReadOnlyList<SkillProgramContribution> contributions,
-        IReadOnlyList<SkillProgramCardIdentity> cardIdentities) =>
+        IReadOnlyList<SkillProgramCardIdentity> cardIdentities,
+        bool usesCompositionKernel = false,
+        IReadOnlyList<SkillProgramBooleanStateDefinition>? booleanStates = null) =>
         (Id, Revision, GameplayHash, RuntimeVersion, MinimumRulesVersion, Modifiers, ViewAs, Activations, Triggers,
-            Contributions, CardIdentities) =
+            Contributions, CardIdentities, UsesCompositionKernel, BooleanStates) =
         (id, revision, gameplayHash, runtimeVersion, minimumRulesVersion, modifiers, viewAs, activations, triggers,
-            contributions, cardIdentities);
+            contributions, cardIdentities, usesCompositionKernel, booleanStates ?? []);
     public string Id { get; }
     public int Revision { get; }
     public string GameplayHash { get; }
     public string RuntimeVersion { get; }
     public int MinimumRulesVersion { get; }
+    internal bool UsesCompositionKernel { get; }
     public IReadOnlyList<SkillProgramModifier> Modifiers { get; }
     public IReadOnlyList<SkillProgramViewAs> ViewAs { get; }
     public IReadOnlyList<SkillProgramActivation> Activations { get; }
     public IReadOnlyList<SkillProgramTrigger> Triggers { get; }
     public IReadOnlyList<SkillProgramContribution> Contributions { get; }
     public IReadOnlyList<SkillProgramCardIdentity> CardIdentities { get; }
+    public IReadOnlyList<SkillProgramBooleanStateDefinition> BooleanStates { get; }
 }
 
 public sealed class SkillPresentation
 {
     internal SkillPresentation(string name, string description,
-        IReadOnlyDictionary<string, string>? triggerChoices = null) =>
-        (Name, Description, TriggerChoices) =
+        IReadOnlyDictionary<string, string>? triggerChoices = null,
+        IReadOnlyDictionary<string, ProgramBooleanStatePresentation>? booleanStates = null) =>
+        (Name, Description, TriggerChoices, BooleanStates) =
         (name, description, triggerChoices ?? new ReadOnlyDictionary<string, string>(
-            new Dictionary<string, string>(StringComparer.Ordinal)));
+            new Dictionary<string, string>(StringComparer.Ordinal)), booleanStates ??
+            new ReadOnlyDictionary<string, ProgramBooleanStatePresentation>(
+                new Dictionary<string, ProgramBooleanStatePresentation>(StringComparer.Ordinal)));
     public string Name { get; }
     public string Description { get; }
     public IReadOnlyDictionary<string, string> TriggerChoices { get; }
+    public IReadOnlyDictionary<string, ProgramBooleanStatePresentation> BooleanStates { get; }
 }
+
+public sealed record ProgramBooleanStatePresentation(string TrueText, string FalseText);
 
 public sealed class SkillProgramCatalog
 {
@@ -689,7 +825,7 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(root, "rules");
         CheckProperties(root, "rules", "schemaVersion", "skills");
-        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
+        var schemaVersion = RequireVersion(root, "rules", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24);
         var runtimeVersion = schemaVersion switch
         {
             1 => RuntimeVersion,
@@ -713,7 +849,9 @@ public sealed class SkillProgramCatalog
             19 => "skill-program-v19",
             20 => "skill-program-v20",
             21 => "skill-program-v21",
-            _ => "skill-program-v22"
+            22 => "skill-program-v22",
+            23 => "skill-program-v23",
+            _ => "skill-program-v24"
         };
         var minimumRulesVersion = schemaVersion switch
         {
@@ -738,7 +876,9 @@ public sealed class SkillProgramCatalog
             19 => 124,
             20 => 125,
             21 => 126,
-            _ => 127
+            22 => 127,
+            23 => 128,
+            _ => 129
         };
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
@@ -754,7 +894,8 @@ public sealed class SkillProgramCatalog
                 < 7 => ["id", "revision", "modifiers", "viewAs", "activations", "triggers"],
                 8 => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions"],
                 9 => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions"],
-                _ => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions", "cardIdentities"]
+                < 24 => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions", "cardIdentities"],
+                _ => ["id", "revision", "minimumRulesVersion", "modifiers", "viewAs", "activations", "triggers", "contributions", "cardIdentities", "states"]
             });
             var id = Identifier(skill, "id", path);
             var skillPath = $"skill '{id}' ({path})";
@@ -771,7 +912,8 @@ public sealed class SkillProgramCatalog
             var modifiers = ReadArray(skill, "modifiers", skillPath,
                 (node, modifierPath) => ParseModifier(node, modifierPath, schemaVersion), schemaVersion >= 2);
             var viewAs = ReadArray(skill, "viewAs", skillPath, ParseViewAs, schemaVersion >= 2);
-            var activations = ReadArray(skill, "activations", skillPath, ParseActivation, schemaVersion >= 2);
+            var activations = ReadArray(skill, "activations", skillPath,
+                (node, activationPath) => ParseActivation(node, activationPath, schemaVersion), schemaVersion >= 2);
             var triggers = schemaVersion >= 2
                 ? ReadArray(skill, "triggers", skillPath,
                     (node, triggerPath) => ParseTrigger(node, triggerPath, schemaVersion), optional: true)
@@ -782,6 +924,9 @@ public sealed class SkillProgramCatalog
             var cardIdentities = schemaVersion >= 10
                 ? ReadArray(skill, "cardIdentities", skillPath, ParseCardIdentity, optional: true)
                 : Array.Empty<SkillProgramCardIdentity>();
+            var booleanStates = schemaVersion >= 24
+                ? ReadArray(skill, "states", skillPath, ParseBooleanState, optional: true)
+                : Array.Empty<SkillProgramBooleanStateDefinition>();
             if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0 && triggers.Count == 0 &&
                 contributions.Count == 0 && cardIdentities.Count == 0)
                 Fail(skillPath, "must define at least one modifier, viewAs rule, activation, trigger, contribution, or card identity");
@@ -792,13 +937,36 @@ public sealed class SkillProgramCatalog
             ValidateTriggerChoiceGroups(skillPath, triggers, schemaVersion);
             EnsureUniqueIds(contributions.Select(item => item.Id), skillPath + ".contributions");
             EnsureUniqueIds(cardIdentities.Select(item => item.Id), skillPath + ".cardIdentities");
+            EnsureUniqueIds(booleanStates.Select(item => item.Id), skillPath + ".states");
+            var declaredStateIds = booleanStates.Select(item => item.Id).ToHashSet(StringComparer.Ordinal);
+            foreach (var trigger in triggers)
+            foreach (var condition in EnumerateTriggerConditions(trigger.Condition))
+                if (condition.Kind == SkillProgramTriggerConditionKind.BooleanState &&
+                    !declaredStateIds.Contains(condition.StateId!))
+                    Fail(skillPath + ".triggers", $"trigger condition references undeclared state '{condition.StateId}'");
+            foreach (var condition in activations.SelectMany(item => item.Effects)
+                         .Select(item => item.Condition)
+                         .Concat(triggers.SelectMany(item => item.Effects).Select(item => item.Condition))
+                         .SelectMany(EnumerateConditions))
+                if (condition.Kind == SkillProgramConditionKind.BooleanState &&
+                    !declaredStateIds.Contains(condition.StateId!))
+                    Fail(skillPath, $"effect condition references undeclared state '{condition.StateId}'");
+            foreach (var effect in activations.SelectMany(item => item.Effects))
+                if (effect.Op is SkillProgramEffectOp.SetBooleanState or SkillProgramEffectOp.ToggleBooleanState &&
+                    !declaredStateIds.Contains(effect.StateId!))
+                    Fail(skillPath, $"effect references undeclared state '{effect.StateId}'");
+            foreach (var effect in triggers.SelectMany(item => item.Effects))
+                if (effect.Op is SkillProgramTriggerEffectOp.SetBooleanState or SkillProgramTriggerEffectOp.ToggleBooleanState &&
+                    !declaredStateIds.Contains(effect.StateId!))
+                    Fail(skillPath, $"trigger effect references undeclared state '{effect.StateId}'");
             EnsureUniqueIds(activations.Select(item => item.Id).Concat(contributions.Select(item => item.Id)),
                 skillPath + ".playBindings");
             ValidateCardIdentityModifiers(skillPath, modifiers, cardIdentities);
             var hashInput = runtimeVersion + "\n" + Canonicalize(skill);
             var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput))).ToLowerInvariant();
             result.Add(id, new SkillProgram(id, revision, hash, runtimeVersion, skillMinimumRulesVersion,
-                modifiers, viewAs, activations, triggers, contributions, cardIdentities));
+                modifiers, viewAs, activations, triggers, contributions, cardIdentities,
+                usesCompositionKernel: schemaVersion >= 23, booleanStates: booleanStates));
         }
         if (schemaVersion >= 2) ValidateTriggerSources(result);
         return result;
@@ -822,8 +990,9 @@ public sealed class SkillProgramCatalog
             RequireObject(property.Value, path);
             CheckProperties(property.Value, path, schemaVersion == 1
                 ? ["name", "description"]
-                : ["name", "description", "triggerChoices"]);
+                : ["name", "description", "triggerChoices", "booleanStates"]);
             var triggerChoices = new Dictionary<string, string>(StringComparer.Ordinal);
+            var booleanStates = new Dictionary<string, ProgramBooleanStatePresentation>(StringComparer.Ordinal);
             if (schemaVersion >= 2 && property.Value.TryGetProperty("triggerChoices", out var choices))
             {
                 RequireObject(choices, path + ".triggerChoices");
@@ -836,6 +1005,21 @@ public sealed class SkillProgramCatalog
                     var label = NonEmptyStringValue(choice.Value, path + ".triggerChoices." + choice.Name);
                     if (!triggerChoices.TryAdd(choice.Name, label))
                         Fail(path + ".triggerChoices." + choice.Name, "duplicates a trigger choice label");
+                }
+            }
+            if (schemaVersion >= 2 && property.Value.TryGetProperty("booleanStates", out var states))
+            {
+                RequireObject(states, path + ".booleanStates");
+                CheckCount(states.EnumerateObject().Count(), path + ".booleanStates");
+                foreach (var state in states.EnumerateObject())
+                {
+                    if (!programs[id].BooleanStates.Any(item => item.Id == state.Name))
+                        Fail(path + ".booleanStates." + state.Name, $"references unknown state '{state.Name}'");
+                    RequireObject(state.Value, path + ".booleanStates." + state.Name);
+                    CheckProperties(state.Value, path + ".booleanStates." + state.Name, "trueText", "falseText");
+                    booleanStates.Add(state.Name, new(
+                        NonEmptyString(state.Value, "trueText", path + ".booleanStates." + state.Name),
+                        NonEmptyString(state.Value, "falseText", path + ".booleanStates." + state.Name)));
                 }
             }
             foreach (var group in programs[id].Triggers
@@ -852,7 +1036,8 @@ public sealed class SkillProgramCatalog
             }
             result.Add(id, new SkillPresentation(NonEmptyString(property.Value, "name", path),
                 NonEmptyString(property.Value, "description", path),
-                new ReadOnlyDictionary<string, string>(triggerChoices)));
+                new ReadOnlyDictionary<string, string>(triggerChoices),
+                new ReadOnlyDictionary<string, ProgramBooleanStatePresentation>(booleanStates)));
         }
         foreach (var id in programs.Keys)
             if (!result.ContainsKey(id)) Fail("presentation.skills", $"missing presentation for skill '{id}'");
@@ -979,7 +1164,7 @@ public sealed class SkillProgramCatalog
         return new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse, OptionalCondition(node, path));
     }
 
-    private static SkillProgramActivation ParseActivation(JsonElement node, string path)
+    private static SkillProgramActivation ParseActivation(JsonElement node, string path, int schemaVersion)
     {
         RequireObject(node, path);
         CheckProperties(node, path, "id", "minCards", "maxCards", "minTargets", "maxTargets", "targetKind", "usesPerTurn", "condition", "effects");
@@ -1000,9 +1185,18 @@ public sealed class SkillProgramCatalog
             else { uses = GetInt(usesNode, path + ".usesPerTurn"); if (uses <= 0) Fail(path + ".usesPerTurn", "must be positive or null"); }
         }
         else Fail(path, "missing required property 'usesPerTurn'");
-        var effects = ReadArray(node, "effects", path, ParseEffect);
+        var effects = ReadArray<SkillProgramEffect>(node, "effects", path, schemaVersion >= 23
+            ? ParseCompositionEffect : ParseEffect);
+        if (effects.Any(effect => ContainsCardUseColorCondition(effect.Condition)))
+            Fail(path + ".effects", "card-use color conditions require a schema 24 card-action trigger");
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
-        ValidateActivation(path, minCards, maxCards, minTargets, maxTargets, effects);
+        if (schemaVersion >= 23)
+        {
+            if (minTargets != maxTargets || minCards != maxCards)
+                Fail(path, "composed activations require exact initial card and target counts");
+            ProgramCompositionValidator.Validate(path, effects, minTargets == 1, minCards);
+        }
+        else ValidateActivation(path, minCards, maxCards, minTargets, maxTargets, effects);
         return new SkillProgramActivation(id, minCards, maxCards, minTargets, maxTargets, targetKind, uses,
             OptionalCondition(node, path), effects);
     }
@@ -1028,6 +1222,18 @@ public sealed class SkillProgramCatalog
             usesPerPlayPhase);
     }
 
+    private static SkillProgramBooleanStateDefinition ParseBooleanState(JsonElement node, string path)
+    {
+        RequireObject(node, path);
+        CheckProperties(node, path, "id", "initialValue", "visibility", "resetScope", "reacquirePolicy");
+        return new(
+            Identifier(node, "id", path),
+            RequiredBool(node, "initialValue", path),
+            EnumValue<SkillProgramStateVisibility>(node, "visibility", path),
+            EnumValue<SkillProgramStateResetScope>(node, "resetScope", path),
+            EnumValue<SkillProgramStateReacquirePolicy>(node, "reacquirePolicy", path));
+    }
+
     private static SkillProgramEffect ParseEffect(JsonElement node, string path)
     {
         RequireObject(node, path);
@@ -1049,6 +1255,36 @@ public sealed class SkillProgramCatalog
             condition.Kind != SkillProgramConditionKind.Always)
             Fail(path + ".condition", "selected-card consumption must be unconditional after activation validation");
         return new SkillProgramEffect(op, target, amount, condition);
+    }
+
+    private static SkillProgramEffect ParseCompositionEffect(JsonElement node, string path) =>
+        ProgramOperationCatalog.Default.Parse(node, path,
+            (condition, conditionPath) => ParseCondition(condition, conditionPath, 0));
+
+    private static SkillProgramTriggerEffect ToCompositionTriggerEffect(SkillProgramEffect effect, string path)
+    {
+        if (!Enum.TryParse<SkillProgramTriggerEffectOp>(effect.Op.ToString(), out var triggerOp))
+            Fail(path + ".op", "this operation consumes activation input and cannot be used by a trigger");
+        var target = effect.Target == SkillProgramEffectTarget.Owner
+            ? SkillProgramTriggerEffectTarget.Owner : SkillProgramTriggerEffectTarget.SelectedTarget;
+        return new(triggerOp, target, effect.Amount, effect.Condition, effect.Zones, effect.Suits,
+            null, [], 0, 0, effect.TargetKind, null, effect.JudgmentReason,
+            phase: effect.Phase, phaseContinuation: effect.PhaseContinuation,
+            numberExpression: effect.NumberExpression, minimumValue: effect.MinimumValue,
+            clampToMaxHp: effect.ClampToMaxHp, sourceBind: effect.SourceBind,
+            resultBind: effect.ResultBind, exceptBind: effect.ExceptBind, visibility: effect.Visibility,
+            minimumCards: effect.MinimumCards, maximumCards: effect.MaximumCards,
+            maximumRankSum: effect.MaximumRankSum, aiOrder: effect.AiOrder,
+            destination: effect.Destination, faceDown: effect.FaceDown,
+            minimumTargets: effect.MinimumTargets, maximumTargets: effect.MaximumTargets,
+            targetAiOrder: effect.TargetAiOrder, cardKinds: effect.CardKinds,
+            actionTypes: effect.ActionTypes, ruleQuery: effect.RuleQuery,
+            ruleOperation: effect.RuleOperation, targetRestriction: effect.TargetRestriction,
+            colorRelation: effect.ColorRelation, outputKind: effect.OutputKind, chained: effect.Chained,
+            chooserRef: effect.ChooserRef, cardOwnerRef: effect.CardOwnerRef,
+            stateId: effect.StateId, booleanValue: effect.BooleanValue,
+            opponentReference: effect.OpponentReference, actorReference: effect.ActorReference,
+            targetReference: effect.TargetReference, directedPolicyEffects: effect.DirectedPolicyEffects);
     }
 
     private static SkillProgramTrigger ParseTrigger(JsonElement node, string path, int schemaVersion)
@@ -1154,10 +1390,13 @@ public sealed class SkillProgramCatalog
                 "usageLimit",
                 "drawPhaseMode",
                 "choiceGroup",
+                "ownerRelation",
                 "effects"]
         });
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
+        if (window == SkillProgramTriggerWindow.CardUseCommitted && schemaVersion < 24)
+            Fail(path + ".window", "cardUseCommitted requires schema version 24");
         string? sourceSkillId = null;
         string? sourceViewAsId = null;
         SkillProgramTriggerSubject? subject = null;
@@ -1176,6 +1415,10 @@ public sealed class SkillProgramCatalog
         SkillUsageScope? usageScope = null;
         int? usageLimit = null;
         string? choiceGroup = null;
+        SkillProgramCardActionOwnerRelation? ownerRelation = null;
+        var isSharedCardWindow = schemaVersion >= 24 && window is (
+            SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
+            SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted);
         var isLifecycleWindow = window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.SelfDyingResponse or
@@ -1183,7 +1426,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.PlayEnding or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved;
-        var supportsTriggerCondition = window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+        var supportsTriggerCondition = isSharedCardWindow || window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.PlayEnding or
             SkillProgramTriggerWindow.TurnEnding or
@@ -1198,6 +1441,11 @@ public sealed class SkillProgramCatalog
         if (window != SkillProgramTriggerWindow.DrawPhaseStarting &&
             (node.TryGetProperty("drawPhaseMode", out _) || node.TryGetProperty("choiceGroup", out _)))
             Fail(path, "drawPhaseMode and choiceGroup are supported only by drawPhaseStarting");
+        if (node.TryGetProperty("ownerRelation", out _) &&
+            (schemaVersion < 24 || window is not (SkillProgramTriggerWindow.CardUseCommitted or
+                SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
+                SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted)))
+            Fail(path + ".ownerRelation", "requires a schema 24 card-action window");
         if (node.TryGetProperty("drawPhaseMode", out _) && schemaVersion < 17)
             Fail(path + ".drawPhaseMode", "requires schema version 17");
         if (window == SkillProgramTriggerWindow.AfterDamageApplied && schemaVersion < 15 &&
@@ -1208,7 +1456,7 @@ public sealed class SkillProgramCatalog
              !supportsTriggerCondition))
             Fail(path + ".condition",
                 "trigger conditions require a supported lifecycle or card-movement boundary");
-        if (!isLifecycleWindow &&
+        if (!isLifecycleWindow && !isSharedCardWindow &&
             (node.TryGetProperty("priority", out _) || node.TryGetProperty("usageScope", out _) ||
              node.TryGetProperty("usageLimit", out _)))
             Fail(path, "priority and usage fields are supported only by schema 11 lifecycle windows");
@@ -1257,25 +1505,7 @@ public sealed class SkillProgramCatalog
                     Fail(path + ".choiceGroup", "requires schema version 20");
                 choiceGroup = Identifier(node, "choiceGroup", path);
             }
-            if (node.TryGetProperty("priority", out _))
-            {
-                priority = RequiredInt(node, "priority", path);
-                if (priority is < -1000 or > 1000)
-                    Fail(path + ".priority", "must be between -1000 and 1000");
-            }
-            var hasUsageScope = node.TryGetProperty("usageScope", out _);
-            var hasUsageLimit = node.TryGetProperty("usageLimit", out _);
-            if (hasUsageScope != hasUsageLimit)
-                Fail(path, "usageScope and usageLimit must be provided together");
-            if (hasUsageScope)
-            {
-                usageScope = EnumValue<SkillUsageScope>(node, "usageScope", path);
-                if (usageScope == SkillUsageScope.Event)
-                    Fail(path + ".usageScope",
-                        "event usage scope is not supported by schema 11 lifecycle triggers");
-                usageLimit = PositiveInt(node, "usageLimit", path);
-                if (usageLimit > 1024) Fail(path + ".usageLimit", "must not exceed 1024");
-            }
+
         }
         else if (window == SkillProgramTriggerWindow.JudgmentFinalized)
         {
@@ -1319,6 +1549,12 @@ public sealed class SkillProgramCatalog
         }
         else
         {
+            if (schemaVersion >= 24)
+            {
+                ownerRelation = EnumValue<SkillProgramCardActionOwnerRelation>(node, "ownerRelation", path);
+                if (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _))
+                    Fail(path, "schema 24 card-action composition selects owners by ownerRelation");
+            }
             if (node.TryGetProperty("subject", out _) || node.TryGetProperty("suits", out _) ||
                 node.TryGetProperty("minimumRank", out _) || node.TryGetProperty("maximumRank", out _) ||
                 node.TryGetProperty("excludedReasons", out _) || node.TryGetProperty("judgmentReasons", out _) ||
@@ -1330,7 +1566,7 @@ public sealed class SkillProgramCatalog
                     Fail(path, "cardKinds cannot be combined with card-conversion source fields");
                 cardKinds = EnumArray<CardKind>(node, "cardKinds", path);
                 if (cardKinds.Count == 0) Fail(path + ".cardKinds", "must contain at least one effective card kind");
-                var supported = window == SkillProgramTriggerWindow.CardUseTargetsFinalized
+                var supported = window is SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardUseBeforeTargetEffects or SkillProgramTriggerWindow.CardUseTargetsFinalized
                     ? cardKinds.All(kind => kind is CardKind.Slash or CardKind.FireSlash or
                         CardKind.ThunderSlash or CardKind.Lightning)
                     : cardKinds.All(kind => kind is CardKind.Slash or CardKind.FireSlash or
@@ -1354,10 +1590,39 @@ public sealed class SkillProgramCatalog
                 }
             }
         }
+        if (isLifecycleWindow || isSharedCardWindow)
+        {
+            if (node.TryGetProperty("priority", out _))
+            {
+                priority = RequiredInt(node, "priority", path);
+                if (priority is < -1000 or > 1000)
+                    Fail(path + ".priority", "must be between -1000 and 1000");
+            }
+            var hasUsageScope = node.TryGetProperty("usageScope", out _);
+            var hasUsageLimit = node.TryGetProperty("usageLimit", out _);
+            if (hasUsageScope != hasUsageLimit)
+                Fail(path, "usageScope and usageLimit must be provided together");
+            if (hasUsageScope)
+            {
+                usageScope = EnumValue<SkillUsageScope>(node, "usageScope", path);
+                if (usageScope == SkillUsageScope.Event)
+                    Fail(path + ".usageScope",
+                        "event usage scope is not supported by schema 11 lifecycle triggers");
+                usageLimit = PositiveInt(node, "usageLimit", path);
+                if (usageLimit > 1024) Fail(path + ".usageLimit", "must not exceed 1024");
+            }
+        }
         var optional = RequiredBool(node, "optional", path);
         var condition = schemaVersion >= 13
             ? OptionalTriggerCondition(node, path)
             : AlwaysTrigger;
+        if (EnumerateTriggerConditions(condition).Any(item => item.Kind is
+                SkillProgramTriggerConditionKind.CardActionActorIsCurrentTurn or
+                SkillProgramTriggerConditionKind.CardActionPhaseIsPlay) &&
+            (schemaVersion < 24 || window is not (SkillProgramTriggerWindow.CardUseCommitted or
+                SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
+                SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted)))
+            Fail(path + ".condition", "card-action facts require a schema 24 card-action trigger");
         if (window != SkillProgramTriggerWindow.CardsMoved &&
             EnumerateTriggerValues(condition).Any(value => value.Kind is
                 SkillProgramTriggerValueKind.MovedCardCount or
@@ -1370,30 +1635,43 @@ public sealed class SkillProgramCatalog
         var effects = ReadArray(node, "effects", path,
             (effect, effectPath) => ParseTriggerEffect(effect, effectPath, window, schemaVersion));
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
-        if (window == SkillProgramTriggerWindow.JudgmentReplacing &&
+        var cardActionWindow = window is SkillProgramTriggerWindow.CardUseCommitted or
+            SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
+            SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted;
+        if (effects.Any(effect => ContainsCardUseColorCondition(effect.Condition)) &&
+            (schemaVersion < 24 || !cardActionWindow))
+            Fail(path + ".effects", "cardUseIsRed requires a schema 24 card-action trigger");
+        if (schemaVersion >= 24 && ownerRelation is not SkillProgramCardActionOwnerRelation.Target &&
+            effects.Select(effect => effect.ToExecutionEffect()).SelectMany(EnumerateParticipantReferences)
+                .Any(reference => reference.Kind == ProgramParticipantRef.EventTarget))
+            Fail(path + ".effects", "eventTarget requires an ownerRelation target card-action trigger");
+        if (schemaVersion >= 23)
+            ProgramCompositionValidator.Validate(path, effects.Select(effect => effect.ToExecutionEffect()).ToArray(), window: window,
+                drawPhaseMode: drawPhaseMode);
+        else if (window == SkillProgramTriggerWindow.JudgmentReplacing &&
             (effects[0].Op != SkillProgramTriggerEffectOp.ReplaceJudgment ||
              effects.Skip(1).Any(effect => effect.Op is not
                  (SkillProgramTriggerEffectOp.Draw or SkillProgramTriggerEffectOp.Recover))))
             Fail(path + ".effects",
                 "judgmentReplacing requires replaceJudgment first, followed only by draw or recover effects");
-        if (window == SkillProgramTriggerWindow.JudgmentFinalized)
+        if (schemaVersion < 23 && window == SkillProgramTriggerWindow.JudgmentFinalized)
             ValidateFinalJudgmentEffects(path, schemaVersion, effects);
-        else if (window is SkillProgramTriggerWindow.CardUseTargetsFinalized or
-                 SkillProgramTriggerWindow.CardResponseAccepted)
+        else if (schemaVersion < 23 && window is (SkillProgramTriggerWindow.CardUseTargetsFinalized or
+                 SkillProgramTriggerWindow.CardResponseAccepted))
             ValidateCardActionEffects(path, schemaVersion, effects);
-        else if (window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+        else if (schemaVersion < 23 && window is (SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
                  SkillProgramTriggerWindow.DrawPhaseStarting or
                  SkillProgramTriggerWindow.SelfDyingResponse or
                  SkillProgramTriggerWindow.AfterDamageApplied or
                  SkillProgramTriggerWindow.PlayEnding or
                  SkillProgramTriggerWindow.TurnEnding or
-                 SkillProgramTriggerWindow.CardsMoved)
+                 SkillProgramTriggerWindow.CardsMoved))
             ValidateLifecycleEffects(path, window, effects);
-        if (window == SkillProgramTriggerWindow.CardsMoved &&
+        if (schemaVersion < 23 && window == SkillProgramTriggerWindow.CardsMoved &&
             effects.Any(effect => effect.Op != SkillProgramTriggerEffectOp.Draw ||
                                   effect.Target != SkillProgramTriggerEffectTarget.Owner))
             Fail(path + ".effects", "the initial cardsMoved window supports only owner draw effects");
-        if (window == SkillProgramTriggerWindow.DrawPhaseStarting)
+        if (schemaVersion < 23 && window == SkillProgramTriggerWindow.DrawPhaseStarting)
         {
             if (schemaVersion >= 19)
             {
@@ -1422,7 +1700,12 @@ public sealed class SkillProgramCatalog
         return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
             minimumRank, maximumRank, excludedReasons, judgmentReasons, judgmentSource,
             cardKinds, sourceZones, movementOccurrence, damageOccurrence, drawPhaseMode, optional, condition, effects, priority,
-            usageScope, usageLimit, choiceGroup);
+            usageScope, usageLimit, choiceGroup, ownerRelation,
+            usesSharedExecutor: ProgramEntryCapabilities.UsesSharedExecutor(window) &&
+                (window is not (SkillProgramTriggerWindow.CardUseCommitted or
+                    SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
+                    SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted) ||
+                 schemaVersion >= 24));
     }
 
     private static void ValidateTriggerChoiceGroups(
@@ -1456,6 +1739,16 @@ public sealed class SkillProgramCatalog
     private static SkillProgramTriggerEffect ParseTriggerEffect(
         JsonElement node, string path, SkillProgramTriggerWindow window, int schemaVersion)
     {
+        if (schemaVersion >= 23)
+        {
+            if (schemaVersion < 24 && window is (SkillProgramTriggerWindow.CardUseCommitted or
+                    SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
+                SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted))
+                Fail(path, "card-action composition requires schema version 24");
+            if (!ProgramEntryCapabilities.UsesSharedExecutor(window))
+                Fail(path, "this window requires a typed adapter to the shared program frame before composing effects");
+            return ToCompositionTriggerEffect(ParseCompositionEffect(node, path), path);
+        }
         RequireObject(node, path);
         CheckProperties(node, path, schemaVersion switch
         {
@@ -2507,12 +2800,14 @@ public sealed class SkillProgramCatalog
     {
         if (depth >= MaximumDepth) Fail(path, $"trigger condition nesting exceeds {MaximumDepth}");
         RequireObject(node, path);
-        CheckProperties(node, path, "kind", "children", "left", "operator", "right");
+        CheckProperties(node, path, "kind", "children", "left", "operator", "right", "stateId", "expectedValue");
         var kind = EnumValue<SkillProgramTriggerConditionKind>(node, "kind", path);
         var hasChildren = node.TryGetProperty("children", out var childrenNode);
         var hasLeft = node.TryGetProperty("left", out var leftNode);
         var hasOperator = node.TryGetProperty("operator", out _);
         var hasRight = node.TryGetProperty("right", out var rightNode);
+        var hasStateId = node.TryGetProperty("stateId", out _);
+        var hasExpectedValue = node.TryGetProperty("expectedValue", out _);
         var children = new List<SkillProgramTriggerCondition>();
         if (hasChildren)
         {
@@ -2536,6 +2831,11 @@ public sealed class SkillProgramCatalog
             Fail(path + ".children", "not requires exactly one child");
         if (kind is SkillProgramTriggerConditionKind.All or SkillProgramTriggerConditionKind.Any && children.Count == 0)
             Fail(path + ".children", "all and any require at least one child");
+        var booleanState = kind == SkillProgramTriggerConditionKind.BooleanState;
+        if (booleanState != hasStateId)
+            Fail(path, booleanState ? "booleanState requires stateId" : "this trigger condition does not accept stateId");
+        if (!booleanState && hasExpectedValue)
+            Fail(path, "this trigger condition does not accept expectedValue");
         var left = compare ? ParseTriggerValue(leftNode, path + ".left") : null;
         SkillProgramComparisonOperator? comparison = compare
             ? EnumValue<SkillProgramComparisonOperator>(node, "operator", path)
@@ -2546,7 +2846,9 @@ public sealed class SkillProgramCatalog
             new ReadOnlyCollection<SkillProgramTriggerCondition>(children),
             left,
             comparison,
-            right);
+            right,
+            booleanState ? Identifier(node, "stateId", path) : null,
+            booleanState && (!hasExpectedValue || RequiredBool(node, "expectedValue", path)));
     }
 
     private static IEnumerable<SkillProgramTriggerValue> EnumerateTriggerValues(
@@ -2557,6 +2859,30 @@ public sealed class SkillProgramCatalog
         foreach (var child in condition.Children)
         foreach (var value in EnumerateTriggerValues(child))
             yield return value;
+    }
+
+    private static IEnumerable<SkillProgramTriggerCondition> EnumerateTriggerConditions(
+        SkillProgramTriggerCondition condition)
+    {
+        yield return condition;
+        foreach (var child in condition.Children)
+        foreach (var nested in EnumerateTriggerConditions(child)) yield return nested;
+    }
+
+    private static IEnumerable<SkillProgramCondition> EnumerateConditions(SkillProgramCondition condition)
+    {
+        yield return condition;
+        foreach (var child in condition.Children)
+        foreach (var nested in EnumerateConditions(child)) yield return nested;
+    }
+
+    private static IEnumerable<ProgramParticipantReference> EnumerateParticipantReferences(SkillProgramEffect effect)
+    {
+        if (effect.ChooserRef is not null) yield return effect.ChooserRef;
+        if (effect.CardOwnerRef is not null) yield return effect.CardOwnerRef;
+        if (effect.OpponentReference is not null) yield return effect.OpponentReference;
+        if (effect.ActorReference is not null) yield return effect.ActorReference;
+        if (effect.TargetReference is not null) yield return effect.TargetReference;
     }
 
     private static SkillProgramTriggerValue ParseTriggerValue(JsonElement node, string path)
@@ -2578,11 +2904,14 @@ public sealed class SkillProgramCatalog
     {
         if (depth >= MaximumDepth) Fail(path, $"condition nesting exceeds {MaximumDepth}");
         RequireObject(node, path);
-        CheckProperties(node, path, "kind", "value", "children");
+        CheckProperties(node, path, "kind", "value", "children", "sourceBind", "stateId", "expectedValue");
         var kind = EnumValue<SkillProgramConditionKind>(node, "kind", path);
         var hasValue = node.TryGetProperty("value", out var valueNode);
         var hasChildren = node.TryGetProperty("children", out var childrenNode);
         var value = hasValue ? GetInt(valueNode, path + ".value") : 0;
+        var sourceBind = node.TryGetProperty("sourceBind", out _) ? Identifier(node, "sourceBind", path) : null;
+        var stateId = node.TryGetProperty("stateId", out _) ? Identifier(node, "stateId", path) : null;
+        var expectedValue = node.TryGetProperty("expectedValue", out _) ? RequiredBool(node, "expectedValue", path) : true;
         var children = new List<SkillProgramCondition>();
         if (hasChildren)
         {
@@ -2599,8 +2928,21 @@ public sealed class SkillProgramCatalog
         if (kind == SkillProgramConditionKind.Not && children.Count != 1) Fail(path + ".children", "not requires exactly one child");
         if (kind is SkillProgramConditionKind.All or SkillProgramConditionKind.Any && children.Count == 0)
             Fail(path + ".children", "all and any require at least one child");
-        return new SkillProgramCondition(kind, value, new ReadOnlyCollection<SkillProgramCondition>(children));
+        if ((kind == SkillProgramConditionKind.PindianWon) != (sourceBind is not null))
+            Fail(path, kind == SkillProgramConditionKind.PindianWon
+                ? "pindianWon requires sourceBind" : "sourceBind is accepted only by pindianWon");
+        if ((kind == SkillProgramConditionKind.BooleanState) != (stateId is not null))
+            Fail(path, kind == SkillProgramConditionKind.BooleanState
+                ? "booleanState requires stateId" : "stateId is accepted only by booleanState");
+        if (kind != SkillProgramConditionKind.BooleanState && node.TryGetProperty("expectedValue", out _))
+            Fail(path + ".expectedValue", "is accepted only by booleanState");
+        return new SkillProgramCondition(kind, value, new ReadOnlyCollection<SkillProgramCondition>(children),
+            sourceBind, stateId, expectedValue);
     }
+
+    private static bool ContainsCardUseColorCondition(SkillProgramCondition condition) =>
+        condition.Kind == SkillProgramConditionKind.CardUseIsRed ||
+        condition.Children.Any(ContainsCardUseColorCondition);
 
     private static IReadOnlyList<T> ReadArray<T>(JsonElement owner, string name, string path,
         Func<JsonElement, string, T> parser, bool optional = false)

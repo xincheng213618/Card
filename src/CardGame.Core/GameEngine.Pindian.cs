@@ -3,7 +3,9 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private void BeginSharedPindian(long parentId, SkillPromptPresentation presentation, int sourceSeat,
-        int? opponentSeat = null, int? sourceCardId = null, SkillKind? legacySkill = null)
+        int? opponentSeat = null, int? sourceCardId = null, SkillKind? legacySkill = null,
+        string? programResultBind = null,
+        SkillProgramCardSetVisibility programResultVisibility = SkillProgramCardSetVisibility.Public)
     {
         if (_pendingDecision is not null || _resolutionStack.LastOrDefault()?.Id != parentId ||
             _resolutionStack.Any(item => item is PindianFrame) || !_players[sourceSeat].IsAlive ||
@@ -11,7 +13,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Pindian requires one suspended parent and a living source with hand cards.");
         var frame = new PindianFrame(++_resolutionSequence, parentId, presentation.SkillId, presentation,
             sourceSeat, opponentSeat, sourceCardId, legacySkill,
-            opponentSeat is null ? PindianStep.ChooseParticipants : PindianStep.ChooseOpponentCard);
+            opponentSeat is null ? PindianStep.ChooseParticipants :
+            sourceCardId is null ? PindianStep.ChooseSourceCard : PindianStep.ChooseOpponentCard,
+            ProgramResultBind: programResultBind,
+            ProgramResultVisibility: programResultVisibility);
         _resolutionStack.Add(frame);
         PublishPindianSelection(frame);
     }
@@ -20,18 +25,17 @@ public sealed partial class GameEngine
     {
         SkillKind.Quhu => (DecisionKind.QuhuPindian, "quhu-pindian"),
         SkillKind.Tianyi => (DecisionKind.TianyiPindian, "tianyi-pindian"),
-        SkillKind.Xianzhen => (DecisionKind.XianzhenPindian, "xianzhen-pindian"),
         _ => (DecisionKind.SkillModule, "pindian-card")
     };
 
     private void PublishPindianSelection(PindianFrame frame)
     {
-        var selectingSource = frame.PindianStep == PindianStep.ChooseParticipants;
+        var selectingSource = frame.PindianStep is PindianStep.ChooseParticipants or PindianStep.ChooseSourceCard;
         var chooser = _players[selectingSource ? frame.SourceSeat : frame.OpponentSeat!.Value];
         var hand = GetHand(chooser);
-        var targets = selectingSource ? _players.Where(player => player.IsAlive &&
+        var targets = frame.PindianStep == PindianStep.ChooseParticipants ? _players.Where(player => player.IsAlive &&
             player.Seat != chooser.Seat && GetHand(player).Count > 0).Select(player => player.Seat).ToArray() : [];
-        if (!chooser.IsAlive || hand.Count == 0 || selectingSource && targets.Length == 0 ||
+        if (!chooser.IsAlive || hand.Count == 0 || frame.PindianStep == PindianStep.ChooseParticipants && targets.Length == 0 ||
             !selectingSource && (chooser.Seat == frame.SourceSeat ||
                 !GetHand(_players[frame.SourceSeat]).Any(card => card.Id == frame.SourceCardId)))
             throw new InvalidOperationException("Pindian participants no longer have legal hand cards.");
@@ -39,17 +43,24 @@ public sealed partial class GameEngine
         var choices = new List<PromptChoice>();
         foreach (var card in hand)
         {
-            if (selectingSource)
+            if (frame.PindianStep == PindianStep.ChooseParticipants)
                 foreach (var target in targets)
                     choices.Add(new(new ChoiceId($"pindian.{frame.Id}.card-{card.Id}.target-{target}"),
                         $"以【{card.DisplayName}】（{card.Rank}）与 {_players[target].Name} 拼点", [card.Id], [target],
                         new Dictionary<string, string> { ["action"] = "pindian-start" }));
+            else if (frame.PindianStep == PindianStep.ChooseSourceCard)
+                choices.Add(new(new ChoiceId($"pindian.{frame.Id}.source-card-{card.Id}"),
+                    $"以【{card.DisplayName}】（{card.Rank}）发起拼点", [card.Id], [],
+                    new Dictionary<string, string> { ["action"] = "pindian-source-card" }));
             else
                 choices.Add(new(new ChoiceId($"pindian.{frame.Id}.card-{card.Id}"),
                     $"以【{card.DisplayName}】（{card.Rank}）参与拼点", [card.Id], [],
                     new Dictionary<string, string> { ["action"] = compatibility.Action }));
         }
-        var prompt = selectingSource ? $"【{frame.Presentation.Name}】：选择自己的拼点牌及一名其他角色。"
+        var prompt = frame.PindianStep == PindianStep.ChooseParticipants
+            ? $"【{frame.Presentation.Name}】：选择自己的拼点牌及一名其他角色。"
+            : frame.PindianStep == PindianStep.ChooseSourceCard
+                ? $"【{frame.Presentation.Name}】：请选择自己的拼点牌。"
             : $"{_players[frame.SourceSeat].Name} 对你发动【{frame.Presentation.Name}】，请选择一张手牌作为拼点牌。";
         SetPindianPrompt(frame, chooser.Seat, selectingSource ? DecisionKind.SkillModule : compatibility.Kind,
             prompt, choices, hand.Select(card => card.Id).ToArray(), targets,
@@ -80,6 +91,11 @@ public sealed partial class GameEngine
             case PindianStep.ChooseParticipants:
                 frame = frame with { OpponentSeat = selected.Targets.Single(), SourceCardId = selected.Cards.Single(),
                     PindianStep = PindianStep.ChooseOpponentCard };
+                _resolutionStack[^1] = frame;
+                PublishPindianSelection(frame);
+                return;
+            case PindianStep.ChooseSourceCard:
+                frame = frame with { SourceCardId = selected.Cards.Single(), PindianStep = PindianStep.ChooseOpponentCard };
                 _resolutionStack[^1] = frame;
                 PublishPindianSelection(frame);
                 return;
@@ -181,10 +197,25 @@ public sealed partial class GameEngine
             switch (active.Skill)
             {
                 case SkillKind.Tianyi: CompleteTianyiPindian(active.Id, frame.Result!); break;
-                case SkillKind.Xianzhen: CompleteXianzhenPindian(active.Id, frame.Result!); break;
                 case SkillKind.Quhu: CompleteQuhuPindian(frame.Result!); break;
                 default: throw new InvalidOperationException("Unsupported legacy Pindian parent.");
             }
+        }
+        else if (_resolutionStack[^1] is ProgramSkillFrame program)
+        {
+            if (frame.ProgramResultBind is not { } bind ||
+                program.PindianResultBindings.Any(item => item.Name == bind))
+                throw new InvalidOperationException("Program Pindian lost its unique result binding.");
+            var result = frame.Result!;
+            _resolutionStack[^1] = program with
+            {
+                PindianResultBindings = Array.AsReadOnly(program.PindianResultBindings.Append(
+                    new ProgramPindianResultBinding(
+                        bind, result.SourceSeat, result.OpponentSeat,
+                        result.SourceRank, result.OpponentRank, result.SourceWon,
+                        frame.ProgramResultVisibility)).ToArray())
+            };
+            ContinueProgramSkill(program.Id);
         }
         else throw new InvalidOperationException("Pindian lost its parent continuation.");
     }
@@ -211,7 +242,7 @@ public sealed partial class GameEngine
         if (frames.Length == 0) return;
         if (frames.Length != 1 || _resolutionStack.Count != 2 || _resolutionStack[^1] != frames[0] ||
             _resolutionStack[0].Id != frames[0].ParentFrameId ||
-            _resolutionStack[0] is not (PhaseSkillFrame or ActiveSkillFrame) ||
+            _resolutionStack[0] is not (PhaseSkillFrame or ActiveSkillFrame or ProgramSkillFrame) ||
             _pendingDecision is not { IsPrivate: true, SkillPrompt: not null } decision || decision.Choices.Count == 0)
             throw new InvalidOperationException("Pindian must retain one parent and one private prompt.");
         var frame = frames[0];
@@ -232,7 +263,8 @@ public sealed partial class GameEngine
         }
         else
         {
-            var owner = frame.PindianStep == PindianStep.ChooseParticipants ? frame.SourceSeat : frame.OpponentSeat!.Value;
+            var owner = frame.PindianStep is PindianStep.ChooseParticipants or PindianStep.ChooseSourceCard
+                ? frame.SourceSeat : frame.OpponentSeat!.Value;
             if (decision.PlayerSeat != owner || _cardZones.Count(CardLocation.Processing) != 0 ||
                 decision.SkillPrompt.SkillId != frame.SkillId ||
                 decision.Choices.Any(choice => choice.Cards.Count != 1 ||

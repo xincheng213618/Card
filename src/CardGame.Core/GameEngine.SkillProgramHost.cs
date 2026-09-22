@@ -31,6 +31,16 @@ public sealed partial class GameEngine
         public bool OwnsHandCards(int ownerSeat, IReadOnlyList<int> cardIds) =>
             cardIds.All(id => engine.GetHand(engine._players[ownerSeat]).Any(card => card.Id == id));
 
+        public bool EvaluateCondition(
+            ProgramSkillFrame frame,
+            SkillProgramCondition condition,
+            PlayerSkillContext context) =>
+            condition.Evaluate(
+                context,
+                bind => frame.PindianResultBindings.Single(item => item.Name == bind).SourceWon,
+                stateId => engine.GetProgramBooleanState(frame, stateId),
+                frame.WindowContext?.CardUse?.IsPublicRed);
+
         public void UpdateFrame(ProgramSkillFrame frame)
         {
             if (GetActiveFrame(frame.Id) is null)
@@ -144,8 +154,9 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome SelectTarget(
             long frameId,
             int ownerSeat,
-            SkillProgramTargetKind targetKind) =>
-            engine.SelectProgramTarget(frameId, ownerSeat, targetKind);
+            SkillProgramTargetKind targetKind,
+            IReadOnlyList<CardZoneKind> zones) =>
+            engine.SelectProgramTarget(frameId, ownerSeat, targetKind, zones);
 
         public SkillProgramStepOutcome SelectTargets(
             long frameId,
@@ -216,5 +227,39 @@ public sealed partial class GameEngine
             SkillProgramCardColorRelation colorRelation,
             CardKind outputKind) =>
             engine.GrantProgramTurnCardConversion(frame, sourceBind, colorRelation, outputKind);
+        public SkillProgramStepOutcome SelectAndMoveOwnedCard(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference chooser,
+            ProgramParticipantReference cardOwner,
+            IReadOnlyList<CardZoneKind> zones,
+            SkillProgramCardDestination destination,
+            string? resultBind,
+            CardMoveReason reason) =>
+            engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, resultBind, reason);
+
+        public void RefundCardUseDebit(ProgramSkillFrame frame) =>
+            engine.RefundProgramCardUseDebit(frame);
+
+        public SkillProgramStepOutcome StartPindian(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference opponentReference,
+            string resultBind,
+            SkillProgramCardSetVisibility visibility) =>
+            engine.StartProgramPindian(frame, opponentReference, resultBind, visibility);
+
+        public void SetBooleanState(ProgramSkillFrame frame, string stateId, bool value) =>
+            engine.SetProgramBooleanState(frame, stateId, value);
+
+        public void ToggleBooleanState(ProgramSkillFrame frame, string stateId) =>
+            engine.SetProgramBooleanState(frame, stateId, !engine.GetProgramBooleanState(frame, stateId));
+
+        public void GrantDirectedTurnCardPolicy(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference actorReference,
+            ProgramParticipantReference targetReference,
+            IReadOnlyList<CardKind> cardKinds,
+            DirectedTurnCardPolicyEffect effects) =>
+            engine.GrantProgramDirectedTurnCardPolicy(
+                frame, actorReference, targetReference, cardKinds, effects);
     }
 }

@@ -625,10 +625,11 @@ internal static class ClassicGeneralUiChecks
         var root = (FrameworkElement)window.Content;
         var engine = Program.Engine(viewModel);
         var action = viewModel.HumanActiveSkillActions.Single(candidate =>
-            candidate.Skill == SkillKind.Xianzhen);
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:xianzhen" &&
+            candidate.ProgramActivationId == "challenge");
         var snapshot = engine.CreateSnapshot(0, revealAll: true);
         var sourceCard = snapshot.Players[0].Hand
-            .Where(card => action.SelectableCardIds.Contains(card.Id))
             .OrderByDescending(card => card.Rank)
             .First();
         var target = snapshot.Players
@@ -646,12 +647,11 @@ internal static class ClassicGeneralUiChecks
             $"(Xianzhen={xianzhen.TypeText}/{xianzhen.StateText}, Jinjiu={jinjiu.TypeText}/{jinjiu.StateText}).");
 
         viewModel.SelectActiveSkillCommand.Execute(action);
-        viewModel.SelectCardCommand.Execute(viewModel.Hand.Single(card => card.Id == sourceCard.Id));
         viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == target.Seat));
         Program.Assert(viewModel.IsActiveSkillSelectionPending &&
                        viewModel.CanConfirmActiveSkill &&
                        viewModel.CurrentGuideTitle == "确认发动【陷阵】" &&
-                       viewModel.CurrentGuideBody.Contains("牌 1/1", StringComparison.Ordinal) &&
+                       viewModel.CurrentGuideBody.Contains("牌 0/0", StringComparison.Ordinal) &&
                        viewModel.CurrentGuideBody.Contains("目标 1/1", StringComparison.Ordinal),
             $"The WPF Xianzhen draft must retain one private card and one target " +
             $"(guide={viewModel.CurrentGuideTitle}, body={viewModel.CurrentGuideBody}).");
@@ -659,15 +659,20 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "188-classic-gao-shun-xianzhen-draft.png"));
 
         viewModel.ConfirmSelectedCommand.Execute(null);
+        var sourcePrompt = engine.PendingDecision is { Kind: DecisionKind.SkillModule } prompt
+            ? prompt
+            : throw new InvalidOperationException("Xianzhen did not publish its shared source-card prompt.");
+        viewModel.SelectSkillChoiceCommand.Execute(sourcePrompt.Choices.Single(choice =>
+            choice.Cards.SequenceEqual([sourceCard.Id])));
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         xianzhen = viewModel.HumanSkillCards.Single(skill => skill.Name == "陷阵");
         Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
                        xianzhen.StateText ==
                        $"本回合：对 {target.Seat + 1:D2}号位无距 · 杀不限次 · 无视防具" &&
-                       engine.Events.Select(item => item.Payload).OfType<XianzhenResolvedEvent>()
-                           .Any(item => item is { SourceSeat: 0, SourceWon: true } &&
-                                        item.TargetSeat == target.Seat),
+                       engine.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+                           .Any(item => item.Result is { SourceSeat: 0, SourceWon: true } &&
+                                        item.Result.OpponentSeat == target.Seat),
             $"Winning Xianzhen must return to play and publish its exact live target state " +
             $"(pending={engine.PendingDecision?.Kind}, state={xianzhen.StateText}).");
         Program.Render(root, 1120, 740,
@@ -2751,12 +2756,13 @@ internal static class ClassicGeneralUiChecks
                 Program.AdvanceToDecision(candidate);
                 var engine = Program.Engine(candidate);
                 var action = candidate.HumanActiveSkillActions.SingleOrDefault(item =>
-                    item.Skill == SkillKind.Xianzhen);
+                    item.Kind == LegalActionKind.UseProgramSkill &&
+                    item.ProgramSkillId == "classic:xianzhen" &&
+                    item.ProgramActivationId == "challenge");
                 var snapshot = engine.CreateSnapshot(0, revealAll: true);
                 var sourceMax = action is null
                     ? 0
                     : snapshot.Players[0].Hand
-                        .Where(card => action.SelectableCardIds.Contains(card.Id))
                         .Select(card => card.Rank)
                         .DefaultIfEmpty(0)
                         .Max();

@@ -664,18 +664,20 @@ internal static class SkillMetadataChecks
                 game.PendingDecision!.PromptId)).Accepted,
             "The fixture could not enter dying through a replayable command.");
         var dying = game.PendingDecision ?? throw new InvalidOperationException("The fixture did not publish dying rescue.");
-        var niepan = dying.Choices.Single(choice => choice.Parameters.GetValueOrDefault("response") == "niepan");
+        var niepan = dying.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+            choice.Parameters.GetValueOrDefault("skill-id") == "classic:niepan");
         Require(game.Submit(new AnswerPromptCommand(0, dying.PromptId, niepan.Id, game.Revision)).Accepted,
             "Structured Niepan was rejected.");
         Require(GetStructuredNiepanUsage(game) == 1 && !HasLegacyNiepanUsage(game),
-            "Rules v96 must consume the structured game-scoped record rather than the legacy set.");
+            "Current program Niepan must consume its instance-scoped game record rather than the legacy set.");
 
         var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
         var restored = GameReplay.Restore(checkpoint, registry);
         Require(GetStructuredNiepanUsage(restored) == 1 &&
                 SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
-            "A completed rules v96 Niepan use must restore from its accepted command prefix.");
+            "A completed program Niepan use must restore from its accepted command prefix.");
 
     }
 
@@ -704,7 +706,11 @@ internal static class SkillMetadataChecks
             "_skillRuntimeState",
             BindingFlags.NonPublic | BindingFlags.Instance)!;
         var state = (SkillRuntimeStateStore)field.GetValue(game)!;
-        return state.GetUsage(0, "classic:niepan", "activation", SkillUsageScope.Game);
+        return state.GetUsage(
+            0,
+            "classic:niepan",
+            "activation@template:primary:classic:niepan",
+            SkillUsageScope.Game);
     }
 
     private static bool HasLegacyNiepanUsage(GameEngine game)

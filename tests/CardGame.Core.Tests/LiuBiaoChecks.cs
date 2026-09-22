@@ -15,7 +15,7 @@ internal static class LiuBiaoChecks
         var zishou = current.Skills[ZishouSkillId];
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 107, 0)) &&
+                    package.Version == new Version(1, 108, 0)) &&
                 current.Generals[GeneralId] is
                 {
                     FactionId: "qun",
@@ -25,7 +25,7 @@ internal static class LiuBiaoChecks
                     SkillIds: var skillIds
                 } && skillIds.SequenceEqual([ZishouSkillId, ZongshiSkillId]) &&
                 zishou.LegacyKind is null &&
-                zishou.Program is { RuntimeVersion: "skill-program-v20", MinimumRulesVersion: 125 } &&
+                zishou.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } &&
                 current.Skills.ContainsKey(ZongshiSkillId) &&
                 previous.Skills[ZishouSkillId] is { LegacyKind: SkillKind.Zishou, Program: null } &&
                 current.ContentHash != previous.ContentHash,

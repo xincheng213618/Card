@@ -2,6 +2,14 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private int GetLivingFactionCount() =>
+        _players
+            .Where(player => player.IsAlive)
+            .Select(GetEffectiveFactionId)
+            .OfType<string>()
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+
     private RuleQueryEvaluation EvaluateDistance(CharacterState source, CharacterState target)
     {
         var baseTerms = new List<RuleQueryBaseTerm>
@@ -209,7 +217,12 @@ public sealed partial class GameEngine
     private int GetSlashUseLimit(CharacterState player) =>
         ToLegacyRuleValue(EvaluateSlashUseLimit(player));
 
-    private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount) =>
-        _phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
-        _slashCountThisTurn < GetSlashUseLimit(player) || IsXianzhenTarget(player, target);
+    private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
+        CardKind effectiveKind = CardKind.Slash) =>
+        !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
+        !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
+        (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
+         _slashCountThisTurn < GetSlashUseLimit(player) ||
+         HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
+             DirectedTurnCardPolicyEffect.BypassSlashLimit));
 }

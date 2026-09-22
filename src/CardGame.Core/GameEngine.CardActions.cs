@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private long _cardActionSequence;
     private AttackResolution? _programCardAttack;
     private readonly HashSet<long> _acceptedProgramUses = [];
+    private readonly HashSet<long> _committedProgramUses = [];
     private readonly Dictionary<long, List<AttackResolution>> _preparedProgramTargets = [];
 
     private int GetFangtianEffectiveTarget(FangtianHalberdResolution pending, int index) =>
@@ -122,6 +123,7 @@ public sealed partial class GameEngine
             {
                 var program = binding.Program;
                 var trigger = binding.Trigger;
+                if (program.UsesCompositionKernel) continue;
                 if (!(trigger.CardKinds.Count > 0
                              ? ownerSeat == action.ActorSeat && trigger.CardKinds.Contains(action.EffectiveKind)
                              : action.ConversionChain.Any(source => source.OwnerSeat == ownerSeat &&
@@ -136,16 +138,116 @@ public sealed partial class GameEngine
                 }
             }
         }
+        candidates.AddRange(CollectSharedCardActionCandidates(action, window, opponents));
+        candidates = candidates
+            .OrderByDescending(candidate => candidate.Priority)
+            .ThenBy(candidate => candidate.OwnerSeat)
+            .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.TriggerId, StringComparer.Ordinal)
+            .ToList();
         if (candidates.Count == 0) return false;
         if (_resolutionStack.Any(frame => frame is ProgramCardTriggerWindowFrame))
             throw new InvalidOperationException("Card trigger windows cannot overlap.");
         _programCardAttack = attack;
-        var frame = new ProgramCardTriggerWindowFrame(++_resolutionSequence,
+        var frameId = ++_resolutionSequence;
+        candidates = candidates.Select(candidate => candidate.FrozenContext is { } frozen
+                ? candidate with
+                {
+                    FrozenContext = frozen with
+                    {
+                        ParentFrameId = frameId,
+                        CardUse = frozen.CardUse! with { ParentCardUseFrameId = _resolutionStack[^1].Id }
+                    }
+                }
+                : candidate)
+            .ToList();
+        var frame = new ProgramCardTriggerWindowFrame(frameId,
             _resolutionStack[^1].Id, action, continuation, Array.AsReadOnly(candidates.ToArray()));
         _resolutionStack.Add(frame);
         ContinueProgramCardWindow();
         return true;
     }
+
+    /// <summary>Called after target redirection/Zhenlie and before the first target effect.</summary>
+    private bool TryBeginProgramCardUseBeforeTargetEffects(AttackResolution attack)
+    {
+        var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == attack.ResolutionId);
+        var action = frame.Action ?? throw new InvalidOperationException(
+            "A before-target-effects program window requires the frozen card action.");
+        return TryBeginProgramCardWindow(attack, action,
+            SkillProgramTriggerWindow.CardUseBeforeTargetEffects, frame.TargetSeats,
+            ProgramCardContinuation.BeforeTargetEffects);
+    }
+
+    private IReadOnlyList<ProgramCardTriggerCandidate> CollectSharedCardActionCandidates(
+        CardActionContext action, SkillProgramTriggerWindow window, IReadOnlyList<int> eventTargets)
+    {
+        var targets = eventTargets.Distinct().ToHashSet();
+        var result = new List<ProgramCardTriggerCandidate>();
+        foreach (var owner in _players.Where(player => player.IsAlive).OrderBy(player => player.Seat))
+        foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
+        {
+            var trigger = binding.Trigger;
+            if (!binding.Program.UsesCompositionKernel || trigger.OwnerRelation is not { } relation ||
+                trigger.CardKinds.Count > 0 && !trigger.CardKinds.Contains(action.EffectiveKind)) continue;
+            var matches = relation switch
+            {
+                SkillProgramCardActionOwnerRelation.Actor => owner.Seat == action.ActorSeat,
+                SkillProgramCardActionOwnerRelation.Target => targets.Contains(owner.Seat),
+                SkillProgramCardActionOwnerRelation.Observer => true,
+                _ => false
+            };
+            if (!matches) continue;
+            var eventTarget = relation == SkillProgramCardActionOwnerRelation.Target
+                ? owner.Seat : targets.Count == 1 ? targets.Single() : -1;
+            var facts = CaptureProgramTriggerFacts(owner, action);
+            var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
+                owner.Seat, eventTarget, facts);
+            result.Add(new(owner.Seat, eventTarget, binding.SkillId, trigger.Id,
+                binding.Program.GameplayHash, binding.SkillInstanceId, true, trigger.Priority, context));
+        }
+        return result.DistinctBy(candidate => (action.ActionId, candidate.OwnerSeat, candidate.SkillId,
+            candidate.SkillInstanceId, candidate.TriggerId)).ToArray();
+    }
+
+    private static ProgramTriggerCandidate ToSharedCandidate(ProgramCardTriggerCandidate candidate) =>
+        new(candidate.OwnerSeat, candidate.SkillId, candidate.TriggerId, candidate.SkillInstanceId,
+            candidate.GameplayHash, candidate.Priority);
+
+    private ProgramSkillWindowContext CreateCardActionProgramContext(
+        ProgramCardTriggerWindowFrame frame, ProgramCardTriggerCandidate candidate)
+        => candidate.FrozenContext ?? CreateCardActionProgramContext(frame.Action,
+            GetCardActionWindow(frame), frame.Id, candidate.OwnerSeat, candidate.OpponentSeat,
+            CaptureProgramTriggerFacts(_players[candidate.OwnerSeat], frame.Action));
+
+    private ProgramSkillWindowContext CreateCardActionProgramContext(
+        CardActionContext action, SkillProgramTriggerWindow window, long parentFrameId,
+        int ownerSeat, int eventTargetSeat, SkillProgramTriggerFacts facts)
+    {
+        var suits = action.PhysicalCards.Select(cost =>
+        {
+            var location = _cardZones.GetLocation(cost.CardId);
+            return _cardZones.CardsAt(location).Single(card => card.Id == cost.CardId).Suit;
+        }).ToArray();
+        var publicSuit = suits.Length == 1 ? suits[0] : (Suit?)null;
+        bool? isRed = suits.Length == 0 ? null : suits.All(suit => suit is Suit.Heart or Suit.Diamond);
+        var debit = GetCardUseDebit(action.ActionId);
+        return new(window, parentFrameId, ownerSeat, SourceSeat: action.ActorSeat,
+            TargetSeat: eventTargetSeat >= 0 ? eventTargetSeat : null, Facts: facts,
+            CardUse: new(action.ActionId, parentFrameId, action.ActorSeat,
+                eventTargetSeat >= 0 ? eventTargetSeat : null,
+                action.EffectiveKind, publicSuit, isRed, debit is not null, debit));
+    }
+
+    private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
+        frame.Continuation == ProgramCardContinuation.CommittedSlash
+            ? SkillProgramTriggerWindow.CardUseCommitted
+            : frame.Continuation == ProgramCardContinuation.BeforeTargetEffects
+                ? SkillProgramTriggerWindow.CardUseBeforeTargetEffects
+                : frame.Action.Type == CardActionType.Use
+                    ? SkillProgramTriggerWindow.CardUseTargetsFinalized
+                    : SkillProgramTriggerWindow.CardResponseAccepted;
 
     private bool CanRunProgramCardTrigger(ProgramCardTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
@@ -193,7 +295,13 @@ public sealed partial class GameEngine
                 var attack = _programCardAttack;
                 _programCardAttack = null;
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
-                if (frame.Continuation == ProgramCardContinuation.Slash)
+                if (frame.Continuation == ProgramCardContinuation.CommittedSlash)
+                    ContinueCommittedSlashAfterPrograms(attack ??
+                        throw new InvalidOperationException("A committed Slash trigger lost its attack continuation."));
+                else if (frame.Continuation == ProgramCardContinuation.BeforeTargetEffects)
+                    ContinueSlashAfterProgramTargetEffects(attack ??
+                        throw new InvalidOperationException("A before-target-effects trigger lost its attack continuation."));
+                else if (frame.Continuation == ProgramCardContinuation.Slash)
                     ContinueSlashAfterFinalizedTargets(attack ??
                         throw new InvalidOperationException("A Slash card trigger lost its attack continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.DelayedCard)
@@ -209,6 +317,23 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A running card trigger definition changed.");
             var trigger = program.Triggers.Single(item => item.Id == candidate.TriggerId);
             var owner = _players[candidate.OwnerSeat];
+            if (candidate.UsesSharedExecutor)
+            {
+                var shared = ToSharedCandidate(candidate);
+                var context = CreateCardActionProgramContext(frame, candidate);
+                if (!CanRunProgramTrigger(shared, context))
+                {
+                    AdvanceProgramCardCandidate(frame);
+                    continue;
+                }
+                if (trigger.Optional)
+                {
+                    ExposeProgramTriggerDecision(shared, context);
+                    return;
+                }
+                BeginProgramBinding(shared, context);
+                return;
+            }
             if (!frame.Activated)
             {
                 if (!CanRunProgramCardTrigger(candidate, trigger) ||
@@ -324,6 +449,11 @@ public sealed partial class GameEngine
             action.TargetSeats,
             LegalActionKind.Lightning,
             playedCardKind: action.EffectiveKind);
+    }
+
+    private void ContinueCommittedSlashAfterPrograms(AttackResolution attack)
+    {
+        BeginSlashTargetResolution(attack);
     }
 
     private void AdvanceProgramCardCandidate(ProgramCardTriggerWindowFrame frame)
@@ -542,11 +672,25 @@ public sealed partial class GameEngine
             prompt.PlayerSeat == frame.Candidates[frame.CandidateIndex].OwnerSeat &&
             prompt.Choices.Count > 0 &&
             prompt.Choices.All(choice => choice.Cards.Count == 0);
+        var candidate = candidateCursorValid ? frame.Candidates[frame.CandidateIndex] : null;
+        var sharedContext = candidate?.FrozenContext;
+        var sharedIdentityMatches = candidate is { UsesSharedExecutor: true } &&
+            sharedContext is { CardUse: { } cardUse } && sharedContext.ParentFrameId == frame.Id &&
+            cardUse.ParentCardUseFrameId == frame.ParentFrameId && cardUse.CardActionId == frame.Action.ActionId;
+        var sharedPromptMatches = sharedIdentityMatches && ReferenceEquals(_resolutionStack.Last(), frame) &&
+            _pendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } sharedPrompt &&
+            sharedPrompt.PlayerSeat == candidate!.OwnerSeat && sharedPrompt.SkillPrompt?.SkillId == candidate.SkillId &&
+            sharedPrompt.Choices.Count > 0;
+        var sharedChildMatches = sharedIdentityMatches && frameIndex + 1 < _resolutionStack.Count &&
+            _resolutionStack[frameIndex + 1] is ProgramSkillFrame child &&
+            child.WindowContext == sharedContext && child.OwnerSeat == candidate!.OwnerSeat &&
+            child.SkillId == candidate.SkillId && child.SkillInstanceId == candidate.SkillInstanceId &&
+            child.TriggerId == candidate.TriggerId && child.GameplayHash == candidate.GameplayHash;
         if (_rulesVersion < 80 || !attackMatches ||
             frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
             (frame.Continuation == ProgramCardContinuation.DelayedCard && _rulesVersion < 84) ||
             !candidateCursorValid ||
-            (!judgmentIsActive && !directPromptMatches) ||
+            (!judgmentIsActive && !directPromptMatches && !sharedPromptMatches && !sharedChildMatches) ||
             frame.Action.PhysicalCards.Any(cost => _cardZones.GetLocation(cost.CardId) != CardLocation.Processing))
             throw new InvalidOperationException("A card trigger window has an invalid cursor, prompt or paid card.");
     }
