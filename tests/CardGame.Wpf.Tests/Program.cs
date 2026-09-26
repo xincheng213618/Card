@@ -218,6 +218,7 @@ internal static class Program
                 return 0;
             }
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
+            Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general portraits share selected skins across gallery, choices and battle and persist locally", () => GeneralPortraitChecks.SelectionAndPersistence(output));
@@ -646,7 +647,10 @@ internal static class Program
         Render(root, 1120, 740, Path.Combine(output, "133-human-skill-rail.png"));
         var panel = (FrameworkElement)window.FindName("HumanSkillPanel");
         var cards = (ItemsControl)window.FindName("HumanSkillCards");
-        Assert(panel.ActualWidth >= 180 && panel.ActualHeight > 170 && cards.Items.Count == 2 &&
+        var activeButton = Find<Button>(cards).Single(button => button.DataContext is HumanSkillViewModel { Name: "制衡" });
+        Assert(panel.ActualWidth >= activeButton.ActualWidth && panel.ActualHeight > 170 && cards.Items.Count == 2 &&
+               activeButton.ActualWidth >= 100 && activeButton.ActualHeight >= 32 && activeButton.IsEnabled &&
+               activeButton.ToolTip is string activeTooltip && activeTooltip.Contains(skills.Single(skill => skill.Name == "制衡").Description) &&
                Find<TextBlock>(cards).Any(text => text.Text == "当前可发动" && text.ActualHeight > 0),
             "The human skill rail or its actionable state is inaccessible in the minimum window.");
         Assert(Engine(vm).Revision == revision, "Rendering the human skill rail changed the game.");
@@ -670,8 +674,10 @@ internal static class Program
         var lockedRoot = (FrameworkElement)lockedWindow.Content;
         Render(lockedRoot, 1120, 740, Path.Combine(output, "167-locked-state-skill-metadata.png"));
         var lockedCards = (ItemsControl)lockedWindow.FindName("HumanSkillCards");
-        Assert(lockedCards.Items.Count == 1 &&
-               Find<TextBlock>(lockedCards).Any(text => text.Text == "状态技 · 锁定技" && text.ActualHeight > 0),
+        var lockedButton = Find<Button>(lockedCards).Single(button => button.DataContext is HumanSkillViewModel { Name: "咆哮" });
+        Assert(lockedCards.Items.Count == 1 && !lockedButton.IsEnabled && ToolTipService.GetShowOnDisabled(lockedButton) &&
+               lockedButton.ToolTip is string lockedTooltip && lockedTooltip.Contains("状态技 · 锁定技") &&
+               Find<TextBlock>(lockedCards).Any(text => text.Text == "规则自动生效" && text.ActualHeight > 0),
             "The rendered locked-state label is inaccessible in the minimum window.");
         lockedWindow.Content = null;
         lockedWindow.Close();

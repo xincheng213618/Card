@@ -64,6 +64,27 @@ internal static class PackageVerification
                 }
                 if (!cardKinds.SetEquals(CardCatalog.ImplementedCards.Select(card => card.Kind)))
                     throw new InvalidDataException("Card artwork does not cover the implemented card catalog.");
+                var cardComponents = cardCatalog.RootElement.GetProperty("components").EnumerateArray().ToArray();
+                foreach (var component in cardComponents)
+                {
+                    var name = component.GetProperty("file").GetString()!;
+                    if (Path.GetFileName(name) != name) throw new InvalidDataException("Invalid component file name.");
+                    using var file = File.OpenRead(Path.Combine(AppContext.BaseDirectory, "Assets", "Cards", name));
+                    if (!Convert.ToHexString(SHA256.HashData(file)).Equals(component.GetProperty("sha256").GetString(), StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException($"Invalid rank, suit or equipment asset: {name}");
+                }
+                using var tableStream = typeof(CardArt).Assembly.GetManifestResourceStream("CardGame.TableArtCatalog.json")
+                    ?? throw new InvalidDataException("Table artwork catalog did not ship.");
+                using var tableCatalog = JsonDocument.Parse(tableStream);
+                var tableAssets = tableCatalog.RootElement.GetProperty("assets").EnumerateArray().ToArray();
+                foreach (var entry in tableAssets)
+                {
+                    var name = entry.GetProperty("file").GetString()!;
+                    using var resource = Application.GetResourceStream(new Uri($"pack://application:,,,/CardGame.Wpf;component/Assets/Table/{name}"))?.Stream
+                        ?? throw new InvalidDataException($"Missing embedded table asset: {name}");
+                    if (!Convert.ToHexString(SHA256.HashData(resource)).Equals(entry.GetProperty("sha256").GetString(), StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException($"Invalid embedded table asset: {name}");
+                }
                 foreach (var asset in GameAudioCatalog.Assets)
                 {
                     using var file = File.OpenRead(asset.FilePath);
@@ -103,6 +124,8 @@ internal static class PackageVerification
                     OfficialAudioAssets = GameAudioCatalog.Assets.Count,
                     SkinAssets = skinFiles.Length,
                     CardAssets = cardKinds.Count,
+                    CardComponents = cardComponents.Length,
+                    TableAssets = tableAssets.Length,
                     Screenshot = screenshot,
                     VisibleWindowOpened = false,
                     PlayerSavesAccessed = false

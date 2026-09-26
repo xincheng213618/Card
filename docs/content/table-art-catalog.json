@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "description": "Original table and UI images. Empty equipment slots use only the blank first row of self_seat_bg; self_equip abolished-slot images are not used.",
+  "assets": [
+    {
+      "file": "Board.jpg",
+      "sha256": "901ECF596EC899DA1CE4C55F2FE637B09442025579FD240008ED192093345281",
+      "width": 1600,
+      "height": 960,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/wallpaper/bg/26.jpg",
+      "sourceSha256": "901ecf596ec899da1ce4c55f2fe637b09442025579fd240008ed192093345281"
+    },
+    {
+      "file": "gameBase__base_black_bg.png",
+      "sha256": "4BED6454F0B409E0C1C1000D4ECD1460006B52C807886F94E8ECB282C0518C29",
+      "width": 186,
+      "height": 260,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/gameBase.webp",
+      "sourceSha256": "36f555d936955019f40474088033bf55c47dc018068ffbbf7a04ebdec95b852c",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/gameBase.atlas",
+      "atlasSha256": "a74e7b2a9d5456ec6589956b1a30ac9c496006271a2fb6b13c7082b2e067574b",
+      "frame": "base_black_bg.png",
+      "rectangle": [
+        4,
+        394,
+        186,
+        260
+      ]
+    },
+    {
+      "file": "gameBase__game_right_bottom_bg.png",
+      "sha256": "898324574549D0A099CABCEBF5BD35129C954A084A379BC66A6143899EADA4E4",
+      "width": 440,
+      "height": 244,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/gameBase.webp",
+      "sourceSha256": "36f555d936955019f40474088033bf55c47dc018068ffbbf7a04ebdec95b852c",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/gameBase.atlas",
+      "atlasSha256": "a74e7b2a9d5456ec6589956b1a30ac9c496006271a2fb6b13c7082b2e067574b",
+      "frame": "game_right_bottom_bg.png",
+      "rectangle": [
+        1334,
+        138,
+        440,
+        244
+      ]
+    },
+    {
+      "file": "gameBase__game_right_top_bg.png",
+      "sha256": "F2407E29AEACBD061F16B41E582FD5FE1FEA8477888684876D41372A4BC0FCBF",
+      "width": 442,
+      "height": 578,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/gameBase.webp",
+      "sourceSha256": "36f555d936955019f40474088033bf55c47dc018068ffbbf7a04ebdec95b852c",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/gameBase.atlas",
+      "atlasSha256": "a74e7b2a9d5456ec6589956b1a30ac9c496006271a2fb6b13c7082b2e067574b",
+      "frame": "game_right_top_bg.png",
+      "rectangle": [
+        688,
+        60,
+        442,
+        578
+      ]
+    },
+    {
+      "file": "seatbottom__self_general_bg.png",
+      "sha256": "04164E181C960BDE5832BEF147A8CACD5BA665BE085668E91477F0D23309C7F3",
+      "width": 424,
+      "height": 306,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seatbottom.webp",
+      "sourceSha256": "d3ab4e217d188f0f73d8c4eaa99872635f6a19e5e02f27a585575652aa67a836",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seatbottom.atlas",
+      "atlasSha256": "0d7d1aaafebc61b91bf0be26f2211470c08fd94c0d497520e331f1c48d64d50a",
+      "frame": "self_general_bg.png",
+      "rectangle": [
+        552,
+        616,
+        424,
+        306
+      ]
+    },
+    {
+      "file": "seatbottom__self_seat_bg.png",
+      "sha256": "F14D38CCE43F203274202DBC2AAC8B6F29A7265A7B7598607E95E15A65B838EA",
+      "width": 540,
+      "height": 298,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seatbottom.webp",
+      "sourceSha256": "d3ab4e217d188f0f73d8c4eaa99872635f6a19e5e02f27a585575652aa67a836",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seatbottom.atlas",
+      "atlasSha256": "0d7d1aaafebc61b91bf0be26f2211470c08fd94c0d497520e331f1c48d64d50a",
+      "frame": "self_seat_bg.png",
+      "rectangle": [
+        560,
+        310,
+        540,
+        298
+      ]
+    },
+    {
+      "file": "selfseat__selfSeatCancelBtn_disabled.png",
+      "sha256": "E6BE1D159C022917B3EF89BD7226F92765639D0FADDF6A01880BC7D36AB02467",
+      "width": 160,
+      "height": 72,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "selfSeatCancelBtn_disabled.png",
+      "rectangle": [
+        856,
+        656,
+        160,
+        72
+      ]
+    },
+    {
+      "file": "selfseat__selfSeatCancelBtn_normal.png",
+      "sha256": "9C17D4E1D5F9B6DF99F8A13025404C266CD6AB20D7A1EEEDC28333AD2C935270",
+      "width": 160,
+      "height": 72,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "selfSeatCancelBtn_normal.png",
+      "rectangle": [
+        850,
+        816,
+        160,
+        72
+      ]
+    },
+    {
+      "file": "selfseat__selfSeatOkBtn_disabled.png",
+      "sha256": "DDA0A858C280AFDAD27CFDF8E3300F1428D27E0268A601C6A965B141889B621E",
+      "width": 200,
+      "height": 72,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "selfSeatOkBtn_disabled.png",
+      "rectangle": [
+        4,
+        620,
+        200,
+        72
+      ]
+    },
+    {
+      "file": "selfseat__selfSeatOkBtn_normal.png",
+      "sha256": "083EED55E168973D626175FE541C242AEA6F2094778C22E1546C0AD037E6361E",
+      "width": 200,
+      "height": 72,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "selfSeatOkBtn_normal.png",
+      "rectangle": [
+        4,
+        780,
+        200,
+        72
+      ]
+    },
+    {
+      "file": "selfseat__skillJueXing_disabled.png",
+      "sha256": "0247BC8B392CB7AB2FFE01C13B8824E7539C231D5917FCA838AE8AE5E586EED0",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillJueXing_disabled.png",
+      "rectangle": [
+        4,
+        1560,
+        116,
+        52
+      ]
+    },
+    {
+      "file": "selfseat__skillJueXing_up.png",
+      "sha256": "AB3552DED219D0E96DC5C1E338063177BC444E966C489E0F6F6336CCDB4D8CB9",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillJueXing_up.png",
+      "rectangle": [
+        828,
+        1468,
+        116,
+        52
+      ]
+    },
+    {
+      "file": "selfseat__skillPuTong_disabled.png",
+      "sha256": "B37707A693BCC1567C84C1DB4CC7FF5F42CD6445BC22657AF98D15837B16D1E3",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillPuTong_disabled.png",
+      "rectangle": [
+        480,
+        1520,
+        116,
+        52
+      ]
+    },
+    {
+      "file": "selfseat__skillPuTong_up.png",
+      "sha256": "A4B6F10A5B5E4A85C00DEA30AEE7DA0991432858C9C39565D11BF95DE9310234",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillPuTong_up.png",
+      "rectangle": [
+        480,
+        1580,
+        116,
+        52
+      ]
+    },
+    {
+      "file": "selfseat__skillSuoDing_disabled.png",
+      "sha256": "B922848D72D246D928D811DBFDBCFAA4F9F929660524006835EC20562829182B",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillSuoDing_disabled.png",
+      "rectangle": [
+        604,
+        1584,
+        116,
+        52
+      ]
+    },
+    {
+      "file": "selfseat__skillSuoDing_up.png",
+      "sha256": "3751F4191A69085024CCB5D54BBACF5B05831924FCE3D1CB791752A5E8430BAB",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillSuoDing_up.png",
+      "rectangle": [
+        784,
+        1588,
+        116,
+        52
+      ]
+    },
+    {
+      "file": "selfseat__skillXianDing_disabled.png",
+      "sha256": "6DD7BD845A7E1F92A4F3B3711970687B7A56239D5BE0A5A3E4F60D71D291ACBC",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillXianDing_disabled.png",
+      "rectangle": [
+        784,
+        1648,
+        116,
+        52
+      ]
+    },
+    {
+      "file": "selfseat__skillXianDing_up.png",
+      "sha256": "DF76216C941F818FCAD1462F4D7724835D66A3A6A41D37FBA4A63F2BB8F28169",
+      "width": 116,
+      "height": 52,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "skillXianDing_up.png",
+      "rectangle": [
+        128,
+        1566,
+        116,
+        52
+      ]
+    }
+  ]
+}

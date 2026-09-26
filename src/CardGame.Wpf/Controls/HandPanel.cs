@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace CardGame.Wpf.Controls;
 
-/// <summary>Keep a small hand spread out; overlap large hands while retaining a clickable edge.</summary>
+/// <summary>Keep the hand contiguous from the equipment rail; overlap only when space runs out.</summary>
 public sealed class HandPanel : Panel
 {
     private const double CardWidth = 112;
@@ -32,8 +32,8 @@ public sealed class HandPanel : Panel
     {
         var count = InternalChildren.Count;
         if (count == 0) return finalSize;
-        var step = count == 1 ? 0 : Math.Clamp((finalSize.Width - CardWidth) / (count - 1), MinimumStep, CardWidth + 12);
-        var offset = Math.Max(0, (finalSize.Width - (CardWidth + step * (count - 1))) / 2);
+        var step = count == 1 ? 0 : Math.Clamp((finalSize.Width - CardWidth) / (count - 1), MinimumStep, CardWidth);
+        var offset = 0.0;
         for (var index = 0; index < count; index++)
             InternalChildren[index].Arrange(new Rect(offset + index * step, 0, CardWidth, CardHeight));
         return finalSize;

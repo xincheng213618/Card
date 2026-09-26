@@ -548,5 +548,655 @@
       ],
       "sha256": "06013324B4AF5EC750B30B6A31B82902CD14622DA5B2BDC9FF34FD4C36965DD5"
     }
+  ],
+  "components": [
+    {
+      "key": "rank:black:A",
+      "frame": "black_A.png",
+      "file": "rank-black_A.png",
+      "rectangle": [
+        4054,
+        88,
+        38,
+        34
+      ],
+      "sha256": "4CE13AB7891DE06AA1F3D9C29F34BD711E3936288FD32C8AA10D0C5F125A1277"
+    },
+    {
+      "key": "rank:black:2",
+      "frame": "black_2.png",
+      "file": "rank-black_2.png",
+      "rectangle": [
+        812,
+        4054,
+        38,
+        34
+      ],
+      "sha256": "BBD585A23F05413E0AA326EA4C875B6C19239266CDF7E5407F04E7F6BE55C74C"
+    },
+    {
+      "key": "rank:black:3",
+      "frame": "black_3.png",
+      "file": "rank-black_3.png",
+      "rectangle": [
+        858,
+        4054,
+        38,
+        34
+      ],
+      "sha256": "1DB101647874B8111AD5B1CDF72C3B7BC47AAE561BEA17FB20BE98D96AAD6DF8"
+    },
+    {
+      "key": "rank:black:4",
+      "frame": "black_4.png",
+      "file": "rank-black_4.png",
+      "rectangle": [
+        904,
+        4054,
+        38,
+        34
+      ],
+      "sha256": "D0ADDB7B2A5FC8F4E0B4803D6700748F7A1C8C2225830DCEDC110E8950733F4E"
+    },
+    {
+      "key": "rank:black:5",
+      "frame": "black_5.png",
+      "file": "rank-black_5.png",
+      "rectangle": [
+        950,
+        4054,
+        38,
+        34
+      ],
+      "sha256": "F19B555ADBFA1CA28A602D81A0AD4AA8E4D0A2D42E013DA11806BE03A7B82EC1"
+    },
+    {
+      "key": "rank:black:6",
+      "frame": "black_6.png",
+      "file": "rank-black_6.png",
+      "rectangle": [
+        996,
+        4054,
+        38,
+        34
+      ],
+      "sha256": "6FF63FE5C088E4CCD449AE8F3013353AD0B868D096CB672AB1F4FA186BCCE4DC"
+    },
+    {
+      "key": "rank:black:7",
+      "frame": "black_7.png",
+      "file": "rank-black_7.png",
+      "rectangle": [
+        1042,
+        4054,
+        38,
+        34
+      ],
+      "sha256": "24FC0E12CF151CF271D2B8190E6973F816C6134192692D194F46484335BF994E"
+    },
+    {
+      "key": "rank:black:8",
+      "frame": "black_8.png",
+      "file": "rank-black_8.png",
+      "rectangle": [
+        1088,
+        4054,
+        38,
+        34
+      ],
+      "sha256": "52D65A4560A217FECC17BF6C68F262706FD1A00E080F9CE7E1B67973E32AD08C"
+    },
+    {
+      "key": "rank:black:9",
+      "frame": "black_9.png",
+      "file": "rank-black_9.png",
+      "rectangle": [
+        4054,
+        4,
+        38,
+        34
+      ],
+      "sha256": "17A157EA52294D3187ED9054FAF7178C0CD05002C338E446B8D0467D4B8F3BFB"
+    },
+    {
+      "key": "rank:black:10",
+      "frame": "black_10.png",
+      "file": "rank-black_10.png",
+      "rectangle": [
+        4054,
+        46,
+        38,
+        34
+      ],
+      "sha256": "8916D558144EE9FFBA235118C8842C8DE070F5C9C786AFAFAA6F605C4C6B5F38"
+    },
+    {
+      "key": "rank:black:J",
+      "frame": "black_J.png",
+      "file": "rank-black_J.png",
+      "rectangle": [
+        4054,
+        130,
+        38,
+        34
+      ],
+      "sha256": "1E6D774FAD18D4AFBE19033C78A0C500310980F36BB1C9BF73F78B8BAE927195"
+    },
+    {
+      "key": "rank:black:Q",
+      "frame": "black_Q.png",
+      "file": "rank-black_Q.png",
+      "rectangle": [
+        4054,
+        214,
+        38,
+        34
+      ],
+      "sha256": "D034AADDC1ED1713D3D57EB1B774112822237B23A20DCA94429F97C69F0BC2BC"
+    },
+    {
+      "key": "rank:black:K",
+      "frame": "black_K.png",
+      "file": "rank-black_K.png",
+      "rectangle": [
+        4054,
+        172,
+        38,
+        34
+      ],
+      "sha256": "2999A25C6564D5CCA881100E1DC44F0D412FC09B86219563CF630C522F2CE4F6"
+    },
+    {
+      "key": "rank:red:A",
+      "frame": "red_A.png",
+      "file": "rank-red_A.png",
+      "rectangle": [
+        780,
+        964,
+        38,
+        34
+      ],
+      "sha256": "469C6845DFFE7E75A8F6C1D8A52B89780D29DA86BD5D6D69172CA1EAC82D72ED"
+    },
+    {
+      "key": "rank:red:2",
+      "frame": "red_2.png",
+      "file": "rank-red_2.png",
+      "rectangle": [
+        4054,
+        382,
+        38,
+        34
+      ],
+      "sha256": "C2BDADBA41CF80D7CEAF57C78893AE26A0F41E86BF2B39242D6606881F3FD4A1"
+    },
+    {
+      "key": "rank:red:3",
+      "frame": "red_3.png",
+      "file": "rank-red_3.png",
+      "rectangle": [
+        4054,
+        424,
+        38,
+        34
+      ],
+      "sha256": "3393DF1AA797EEBEAE69D1A3FB4254DFF476AEE8CD7C19F3730B5DC81782B4DD"
+    },
+    {
+      "key": "rank:red:4",
+      "frame": "red_4.png",
+      "file": "rank-red_4.png",
+      "rectangle": [
+        4054,
+        466,
+        38,
+        34
+      ],
+      "sha256": "C48700DF21144549B5420E4D7C569B256171A56DC38819B2415E1E04F1F17954"
+    },
+    {
+      "key": "rank:red:5",
+      "frame": "red_5.png",
+      "file": "rank-red_5.png",
+      "rectangle": [
+        4024,
+        662,
+        38,
+        34
+      ],
+      "sha256": "6FD9A6BEB2684BDF75DDA69ADD1162585AF481BF6B6436B1E56CE48276761E76"
+    },
+    {
+      "key": "rank:red:6",
+      "frame": "red_6.png",
+      "file": "rank-red_6.png",
+      "rectangle": [
+        780,
+        754,
+        38,
+        34
+      ],
+      "sha256": "794CB39DFEDA994929AAE5431AD0DF34BACF67AA3BF5ACB31F17D5C01BAD5445"
+    },
+    {
+      "key": "rank:red:7",
+      "frame": "red_7.png",
+      "file": "rank-red_7.png",
+      "rectangle": [
+        780,
+        796,
+        38,
+        34
+      ],
+      "sha256": "131AA1127B06A88BBDC0EFD7B15B88ADC3286365D80B6DBEC1C21E8ABF6C3FF7"
+    },
+    {
+      "key": "rank:red:8",
+      "frame": "red_8.png",
+      "file": "rank-red_8.png",
+      "rectangle": [
+        780,
+        838,
+        38,
+        34
+      ],
+      "sha256": "B6ECBEC0514696569C7502CCE5D427C2C09E747A1FFFC0ADB0804C53A3CF1F08"
+    },
+    {
+      "key": "rank:red:9",
+      "frame": "red_9.png",
+      "file": "rank-red_9.png",
+      "rectangle": [
+        780,
+        880,
+        38,
+        34
+      ],
+      "sha256": "51EE096BA29EB8AAF564B28F78FE9A863974DC08BBD41636EF966755B1519BDC"
+    },
+    {
+      "key": "rank:red:10",
+      "frame": "red_10.png",
+      "file": "rank-red_10.png",
+      "rectangle": [
+        780,
+        922,
+        38,
+        34
+      ],
+      "sha256": "4C7C13C1C425D67374D5F297F4C592D9AB3E214F8CD908DCBA8BC4A8B319D657"
+    },
+    {
+      "key": "rank:red:J",
+      "frame": "red_J.png",
+      "file": "rank-red_J.png",
+      "rectangle": [
+        3984,
+        704,
+        38,
+        34
+      ],
+      "sha256": "8A7CADC4EFAF887356BEE9440B5B94B188AB0200D6265823B46CCF0F68080EDB"
+    },
+    {
+      "key": "rank:red:Q",
+      "frame": "red_Q.png",
+      "file": "rank-red_Q.png",
+      "rectangle": [
+        3984,
+        746,
+        38,
+        34
+      ],
+      "sha256": "DEFA748CEF98F0BE3A6612D7FFA859DB136F9497C7522B163D7D2C39A0C9D9EC"
+    },
+    {
+      "key": "rank:red:K",
+      "frame": "red_K.png",
+      "file": "rank-red_K.png",
+      "rectangle": [
+        4030,
+        704,
+        38,
+        34
+      ],
+      "sha256": "2939094A52C2CC74DD4B6BC3D84B6654230D025026FC72937294B56400272486"
+    },
+    {
+      "key": "suit:heart",
+      "frame": "heart.png",
+      "file": "suit-heart.png",
+      "rectangle": [
+        4054,
+        340,
+        38,
+        34
+      ],
+      "sha256": "B5593DE4F8EDED3D741A9F6219A79CF7D993FD72AE93B3993F9685A36E8507C8"
+    },
+    {
+      "key": "suit:diamond",
+      "frame": "diamond.png",
+      "file": "suit-diamond.png",
+      "rectangle": [
+        4054,
+        298,
+        38,
+        34
+      ],
+      "sha256": "4968DB37BBB1DE3B741E63DA498C7ACC4A341D43EF61E23AE68372DB9D96AC18"
+    },
+    {
+      "key": "suit:spade",
+      "frame": "spade.png",
+      "file": "suit-spade.png",
+      "rectangle": [
+        4030,
+        746,
+        38,
+        34
+      ],
+      "sha256": "023FE90A60CBB8EA2BAA0490EF7A60B5B4E91B68D5106651DCFDD3D23D71550F"
+    },
+    {
+      "key": "suit:club",
+      "frame": "club.png",
+      "file": "suit-club.png",
+      "rectangle": [
+        4054,
+        256,
+        38,
+        34
+      ],
+      "sha256": "5448E70550242572449993A9078451502C5C77AD6B146D58D0DD947850C3F8ED"
+    },
+    {
+      "key": "equipment:Crossbow",
+      "frame": "Equip_ZhuGeLianNu_S.png",
+      "file": "equip-Crossbow.png",
+      "rectangle": [
+        830,
+        522,
+        284,
+        50
+      ],
+      "sha256": "050CD3DD6C65CC4C507F970DDFB9CD96CDF69D6A513AB3DCFD2E1CFEBE2D9B53"
+    },
+    {
+      "key": "equipment:BaguaFormation",
+      "frame": "Equip_BaGuaZhen_S.png",
+      "file": "equip-BaguaFormation.png",
+      "rectangle": [
+        520,
+        4020,
+        284,
+        50
+      ],
+      "sha256": "5E34BB698B4D14B2D475F14A55672241F3DBCC99511CC72BF506B510C6638058"
+    },
+    {
+      "key": "equipment:RenwangShield",
+      "frame": "Equip_RenWangDun_S.png",
+      "file": "equip-RenwangShield.png",
+      "rectangle": [
+        3470,
+        236,
+        284,
+        50
+      ],
+      "sha256": "2236E46C2D97CBA257C62D3BE3BA1B7AF926E8502E6D9C896474679B65CBF1C4"
+    },
+    {
+      "key": "equipment:OffensiveHorse",
+      "frame": "Equip_ChiTu_S.png",
+      "file": "equip-OffensiveHorse.png",
+      "rectangle": [
+        2594,
+        4,
+        284,
+        50
+      ],
+      "sha256": "710DAF083717E01606BA705844CEAB0F71CFDCC3D03EE26CD83A62EF39ECAD53"
+    },
+    {
+      "key": "equipment:DefensiveHorse",
+      "frame": "Equip_JueYing_S.png",
+      "file": "equip-DefensiveHorse.png",
+      "rectangle": [
+        1718,
+        178,
+        284,
+        50
+      ],
+      "sha256": "2D7D2A94DB3543F90141E205E5C7511ADB9640769A202D6AC013DFC645813A67"
+    },
+    {
+      "key": "equipment:JadeSeal",
+      "frame": "Equip_YuXi_S.png",
+      "file": "equip-JadeSeal.png",
+      "rectangle": [
+        2594,
+        410,
+        284,
+        50
+      ],
+      "sha256": "B912D3B2D3C11DF31AD848A2437A6E4F9B12E531071D06FB66FBDA909D759C76"
+    },
+    {
+      "key": "equipment:QinggangSword",
+      "frame": "Equip_QingGangJian_S.png",
+      "file": "equip-QinggangSword.png",
+      "rectangle": [
+        2594,
+        236,
+        284,
+        50
+      ],
+      "sha256": "3B9A1DA6749FA1DF7C53C042AE4246EBD4A989BD1976BEEDFC6FD30098A10A76"
+    },
+    {
+      "key": "equipment:StoneAxe",
+      "frame": "Equip_GuanShiFu_S.png",
+      "file": "equip-StoneAxe.png",
+      "rectangle": [
+        3470,
+        62,
+        284,
+        50
+      ],
+      "sha256": "C989F025B457B7EFC170D1DF72C0CDE567E051E10CBD5309C04110B27D156434"
+    },
+    {
+      "key": "equipment:ZhangbaSerpentSpear",
+      "frame": "Equip_ZhangBaSheMao_S.png",
+      "file": "equip-ZhangbaSerpentSpear.png",
+      "rectangle": [
+        3178,
+        410,
+        284,
+        50
+      ],
+      "sha256": "44F7ED94EE5BA7623F5F702073FBC84A453F943CD7BF41532FA46C2EFEA7D813"
+    },
+    {
+      "key": "equipment:CixiongDoubleSwords",
+      "frame": "Equip_CiXiongShuangGuJian_S.png",
+      "file": "equip-CixiongDoubleSwords.png",
+      "rectangle": [
+        1426,
+        62,
+        284,
+        50
+      ],
+      "sha256": "C06E089EC4B476DBCBBD618544636A72303988E99194878730B0876B1D691313"
+    },
+    {
+      "key": "equipment:QinglongCrescentBlade",
+      "frame": "Equip_QingLongYanYueDao_S.png",
+      "file": "equip-QinglongCrescentBlade.png",
+      "rectangle": [
+        2886,
+        236,
+        284,
+        50
+      ],
+      "sha256": "DF45097CD4ED2BB1F14AB86CD8B8C029B06A6EFF8732E14B14433FB8ED16B63B"
+    },
+    {
+      "key": "equipment:IceSword",
+      "frame": "Equip_HanBingJian_S.png",
+      "file": "equip-IceSword.png",
+      "rectangle": [
+        1718,
+        120,
+        284,
+        50
+      ],
+      "sha256": "3AA703A9AC4543BBF4D6C02322A0C32B6CF5F1ADEB72CF5B03F66DFE0D82C469"
+    },
+    {
+      "key": "equipment:QilinBow",
+      "frame": "Equip_QiLinGong_S.png",
+      "file": "equip-QilinBow.png",
+      "rectangle": [
+        2010,
+        236,
+        284,
+        50
+      ],
+      "sha256": "DEB86690FB61DF68D5CE7ACCF51EDBF8503D8E699512ACA22BC53C6D2E03B73D"
+    },
+    {
+      "key": "equipment:FangtianHalberd",
+      "frame": "Equip_FangTianHuaJi_S.png",
+      "file": "equip-FangtianHalberd.png",
+      "rectangle": [
+        2594,
+        62,
+        284,
+        50
+      ],
+      "sha256": "84F4DEEAD5A5513E2017B87ECDD5BFF0FEAD11795188D94B10F4DC26C0FF17F5"
+    },
+    {
+      "key": "equipment:GudingBlade",
+      "frame": "Equip_GuDingDao_S.png",
+      "file": "equip-GudingBlade.png",
+      "rectangle": [
+        3762,
+        62,
+        284,
+        50
+      ],
+      "sha256": "70867C5D6C677D40577F9B4B8724BD7860B9FB2803D4F9148EFBD8DA9920E284"
+    },
+    {
+      "key": "equipment:ZhuqueFan",
+      "frame": "Equip_ZhuQueYuShan_S.png",
+      "file": "equip-ZhuqueFan.png",
+      "rectangle": [
+        1426,
+        468,
+        284,
+        50
+      ],
+      "sha256": "0FC057A88D40126D86913EC7B5DD3D58FA2D13AF7ADF52F833AD81C89CBFA482"
+    },
+    {
+      "key": "equipment:Tengjia",
+      "frame": "Equip_TengJia_S.png",
+      "file": "equip-Tengjia.png",
+      "rectangle": [
+        1134,
+        352,
+        284,
+        50
+      ],
+      "sha256": "A389BF0828B40B8237207DED638D7C0E4410B98CCD09816F0BEAEEE78D8ADE16"
+    },
+    {
+      "key": "equipment:SilverLion",
+      "frame": "Equip_BaiYinShiZi_S.png",
+      "file": "equip-SilverLion.png",
+      "rectangle": [
+        538,
+        3880,
+        284,
+        50
+      ],
+      "sha256": "54DF7DA193987137AE7EF48E8F253965D971B765808E4401ACA483235FBAA1A1"
+    },
+    {
+      "key": "equipment:WoodenOx",
+      "frame": "Equip_MuNiuLiuMa_S.png",
+      "file": "equip-WoodenOx.png",
+      "rectangle": [
+        3178,
+        178,
+        284,
+        50
+      ],
+      "sha256": "642B0AA9CBDAB2D33A43B85189F32B16DB23D56A0AFDE4AD7869735C22985175"
+    },
+    {
+      "key": "equipment:Dawan",
+      "frame": "Equip_DaWan_S.png",
+      "file": "equip-Dawan.png",
+      "rectangle": [
+        1718,
+        62,
+        284,
+        50
+      ],
+      "sha256": "1FE50C920A7A3C00649669D146B687AA805064A5ABA30F268AE7BC8F16DF5A9F"
+    },
+    {
+      "key": "equipment:Zixing",
+      "frame": "Equip_ZiXing_S.png",
+      "file": "equip-Zixing.png",
+      "rectangle": [
+        1718,
+        468,
+        284,
+        50
+      ],
+      "sha256": "F34430B22D4A1BF356F4F8AD0F7EDCD7A5DD5CF13B5718DF226EDE77D6A60B9B"
+    },
+    {
+      "key": "equipment:Dilu",
+      "frame": "Equip_DiLu_S.png",
+      "file": "equip-Dilu.png",
+      "rectangle": [
+        2010,
+        62,
+        284,
+        50
+      ],
+      "sha256": "F8CF012DA1DC0C04E68EB7F896B67914DDEE8CF00FBC471F9FEDF2AB56906585"
+    },
+    {
+      "key": "equipment:Zhaohuangfeidian",
+      "frame": "Equip_ZhuaHuangFeiDian_S.png",
+      "file": "equip-Zhaohuangfeidian.png",
+      "rectangle": [
+        3762,
+        410,
+        284,
+        50
+      ],
+      "sha256": "8F6378580F201EAF89AA14E45BD76DA972E31C9823E36A7F638E6EC2FEE4EDA7"
+    },
+    {
+      "key": "equipment:Hualiu",
+      "frame": "Equip_HuaLiu_S.png",
+      "file": "equip-Hualiu.png",
+      "rectangle": [
+        2302,
+        120,
+        284,
+        50
+      ],
+      "sha256": "B4D910F8CD65B5CB076202A57607AB07F866A119129D3F8D9998ED17B82B5FD5"
+    }
   ]
 }

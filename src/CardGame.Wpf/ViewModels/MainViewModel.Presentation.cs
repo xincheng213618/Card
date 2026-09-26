@@ -71,7 +71,7 @@ public sealed partial class MainViewModel
                                         : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用"),
                                     $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
                                     enabled && isAvailable,
-                                    !enabled);
+                                    !enabled) { ContentId = skill.Id, LegacyKind = skill.LegacyKind };
                             });
                     })
                     .ToArray();
@@ -120,7 +120,7 @@ public sealed partial class MainViewModel
                                     : $"{human.GeneralName} · 觉醒获得"
                                 : human.GeneralName,
                             isAvailable,
-                            false);
+                            false) { ContentId = skill.Id, LegacyKind = skill.LegacyKind };
                     })
                     .ToArray();
             }
@@ -141,7 +141,7 @@ public sealed partial class MainViewModel
                             "规则自动生效"),
                         human.GeneralName,
                         available.Contains(skill.Kind),
-                        false);
+                        false) { ContentId = skill.ContentId, LegacyKind = skill.Kind };
                 })
                  .ToArray();
         }
@@ -506,6 +506,7 @@ public sealed partial class MainViewModel
         TopSeats.Clear();
         foreach (var seat in Seats.Where(seat => seat.Seat >= 2 && seat.Seat < Seats.Count - 1)) TopSeats.Add(seat);
         RefreshBattleLogSeatOptions();
+        RaisePropertyChanged(nameof(HumanEquipmentSlots));
         foreach (var name in new[] { nameof(HumanPlayer), nameof(HumanSkillCards), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(AdditionalActiveSkillActions), nameof(ActiveSkillButtonText) })
             RaisePropertyChanged(name);
         RefreshSelectionHint();
@@ -727,6 +728,9 @@ public sealed partial class MainViewModel
 
 public sealed record TablePlayViewModel(long Sequence, string Name, string ActorName)
 {
+    public CardKind? Kind { get; init; }
+    public System.Windows.Media.ImageSource? Artwork => CardArt.Get(Kind);
+    public bool HasArtwork => Artwork is not null;
     public string VerticalName => string.Join("\n", Name.ToCharArray());
     public double NameSize => Name.Length > 3 ? 18 : Name.Length == 1 ? 33 : 23;
 }

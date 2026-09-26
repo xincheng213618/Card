@@ -38,21 +38,22 @@ $bitmap.Freeze()
 $outputDir = Join-Path $repoRoot 'src\CardGame.Wpf\Assets\Cards'
 [IO.Directory]::CreateDirectory($outputDir) | Out-Null
 # Validate every mapping before writing any sprite.
-foreach ($entry in $catalog.cards) {
-    if ($entry.file -ne ($entry.kind + '.png') -or $entry.kind -notmatch '^[A-Za-z]+$') {
+$entries = @($catalog.cards) + @($catalog.components)
+foreach ($entry in $entries) {
+    if ($entry.file -notmatch '^[A-Za-z0-9_-]+\.png$' -or ($entry.kind -and $entry.file -cne "$($entry.kind).png")) {
         throw "Invalid card file name: $($entry.file)"
     }
     $sprite = $atlas.frames.PSObject.Properties[$entry.frame].Value
     if (-not $sprite -or $sprite.rotated -or $sprite.frame.idx -ne 0 -or
-        $sprite.frame.w -ne 186 -or $sprite.frame.h -ne 260 -or
-        $sprite.sourceSize.w -ne 186 -or $sprite.sourceSize.h -ne 260 -or
+        $sprite.frame.w -ne $sprite.sourceSize.w -or $sprite.frame.h -ne $sprite.sourceSize.h -or
         $sprite.spriteSourceSize.x -ne 0 -or $sprite.spriteSourceSize.y -ne 0 -or
-        $sprite.frame.x -lt 0 -or $sprite.frame.y -lt 0 -or
-        ($sprite.frame.x + 186) -gt $bitmap.PixelWidth -or ($sprite.frame.y + 260) -gt $bitmap.PixelHeight) {
+        $sprite.frame.w -le 0 -or $sprite.frame.h -le 0 -or $sprite.frame.x -lt 0 -or $sprite.frame.y -lt 0 -or
+        ($sprite.frame.x + $sprite.frame.w) -gt $bitmap.PixelWidth -or ($sprite.frame.y + $sprite.frame.h) -gt $bitmap.PixelHeight -or
+        ($entry.kind -and ($sprite.frame.w -ne 186 -or $sprite.frame.h -ne 260))) {
         throw "Missing, trimmed, rotated or invalid card sprite: $($entry.frame)"
     }
 }
-foreach ($entry in $catalog.cards) {
+foreach ($entry in $entries) {
     $frame = $atlas.frames.PSObject.Properties[$entry.frame].Value.frame
     $rect = [Windows.Int32Rect]::new($frame.x, $frame.y, $frame.w, $frame.h)
     $crop = [Windows.Media.Imaging.CroppedBitmap]::new($bitmap, $rect)
@@ -65,4 +66,4 @@ foreach ($entry in $catalog.cards) {
     $entry | Add-Member -NotePropertyName sha256 -NotePropertyValue (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -Force
 }
 $catalog | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $catalogPath -Encoding utf8
-Write-Output "Imported $($catalog.cards.Count) original card faces to $outputDir"
+Write-Output "Imported $($catalog.cards.Count) original card faces and $($catalog.components.Count) components to $outputDir"

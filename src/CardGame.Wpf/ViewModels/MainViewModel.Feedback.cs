@@ -49,10 +49,14 @@ public sealed partial class MainViewModel
         var publicEvents = events.Where(item => item.Payload is CardUseDeclaredEvent or CardRecastEvent).TakeLast(3).ToArray();
         foreach (var cue in BattleCueProjector.Project(publicEvents, _snapshot))
         {
-            var recast = publicEvents.Single(item => item.Sequence == cue.Sequence).Payload as CardRecastEvent;
+            var payload = publicEvents.Single(item => item.Sequence == cue.Sequence).Payload;
+            var recast = payload as CardRecastEvent;
             RecentPlays.Insert(0, new TablePlayViewModel(cue.Sequence,
                 recast is null ? cue.Label : CardCatalog.Get(recast.CardKind).DisplayName,
-                recast is null ? cue.ActorName : $"{cue.ActorName} · 重铸"));
+                recast is null ? cue.ActorName : $"{cue.ActorName} · 重铸")
+            {
+                Kind = recast?.CardKind ?? (payload as CardUseDeclaredEvent)?.CardKind
+            });
             while (RecentPlays.Count > 3) RecentPlays.RemoveAt(RecentPlays.Count - 1);
         }
     }

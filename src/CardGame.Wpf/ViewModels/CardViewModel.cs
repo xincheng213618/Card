@@ -18,6 +18,10 @@ public sealed class CardViewModel : ObservableObject
     public bool IsStoredGrain => KindLabel.StartsWith("粮 ·", StringComparison.Ordinal);
     public required string SuitGlyph { get; init; }
     public required string Rank { get; init; }
+    public ImageSource? RankArtwork => CardArt.GetRank(Rank, SuitGlyph);
+    public ImageSource? SuitArtwork => CardArt.GetSuit(SuitGlyph);
+    public bool HasRankArtwork => RankArtwork is not null;
+    public bool HasSuitArtwork => SuitArtwork is not null;
     public required string Description { get; init; }
     public required bool IsPlayable { get => _isPlayable; set => SetProperty(ref _isPlayable, value); }
     public bool IsPublicChoice { get; init; }

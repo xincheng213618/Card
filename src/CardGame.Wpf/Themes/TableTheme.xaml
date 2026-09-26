@@ -182,6 +182,81 @@
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
+
+    <Style x:Key="TablePrimaryButton" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+        <Setter Property="Height" Value="36" />
+        <Setter Property="MinWidth" Value="84" />
+        <Setter Property="Padding" Value="16,5" />
+        <Setter Property="Margin" Value="4,2" />
+        <Setter Property="FontFamily" Value="KaiTi" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Background"><Setter.Value><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__selfSeatOkBtn_normal.png" Stretch="Fill" /></Setter.Value></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.85" /></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.7" /></Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="Foreground" Value="#FFFFFF" /></Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="#B1A99D" />
+                            <Setter TargetName="ButtonSurface" Property="Background"><Setter.Value><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__selfSeatOkBtn_disabled.png" Stretch="Fill" /></Setter.Value></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="TableSecondaryButton" TargetType="Button" BasedOn="{StaticResource TablePrimaryButton}">
+        <Setter Property="Background"><Setter.Value><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__selfSeatCancelBtn_normal.png" Stretch="Fill" /></Setter.Value></Setter>
+    </Style>
+    <DataTemplate x:Key="EquipmentSlotTemplate">
+        <Grid Width="142" Height="27" Margin="0,1" ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding Tooltip}">
+            <Grid.Background><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seatbottom__self_seat_bg.png" ViewboxUnits="Absolute" Viewbox="0,0,298,68" Stretch="Fill" /></Grid.Background>
+            <TextBlock x:Name="EmptySlotText" Text="{Binding SlotName}" Foreground="#928779" FontFamily="KaiTi" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Image Source="{Binding Artwork}" Stretch="Fill" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,3,0">
+                <Image Source="{Binding RankArtwork}" Width="14" Height="16" Stretch="Uniform" />
+                <Image Source="{Binding SuitArtwork}" Width="14" Height="16" Stretch="Uniform" />
+            </StackPanel>
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsOccupied}" Value="True"><Setter TargetName="EmptySlotText" Property="Visibility" Value="Collapsed" /></DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+    <DataTemplate x:Key="CompactSkillTemplate">
+        <Border x:Name="SkillCardFrame" Margin="0,2,0,5" ToolTip="{Binding Tooltip}">
+            <StackPanel>
+                <Button Command="{Binding DataContext.ActivateHumanSkillCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsAvailable}" ToolTip="{Binding Tooltip}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding Tooltip}" MaxWidth="112" Height="42" HorizontalAlignment="Stretch">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Grid x:Name="SkillButtonSurface">
+                                <Image Source="{Binding ButtonArtwork}" Stretch="Fill" />
+                                <TextBlock Text="{Binding Name}" Foreground="#FAF0DF" FontFamily="KaiTi" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="22,0,0,0">
+                                    <TextBlock.Effect><DropShadowEffect Color="#000000" BlurRadius="2" ShadowDepth="1" /></TextBlock.Effect>
+                                </TextBlock>
+                                <Border x:Name="SkillFocusRing" BorderBrush="#FFE3A4" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SkillButtonSurface" Property="Opacity" Value="0.85" /></Trigger>
+                                <Trigger Property="IsPressed" Value="True"><Setter TargetName="SkillButtonSurface" Property="Opacity" Value="0.65" /></Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="SkillFocusRing" Property="Visibility" Value="Visible" /></Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <TextBlock x:Name="SkillStateText" Text="{Binding StateText}" Foreground="#B9AC93" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" Margin="2,1" />
+            </StackPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsDisabled}" Value="True"><Setter TargetName="SkillCardFrame" Property="Opacity" Value="0.65" /></DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+
     <DataTemplate x:Key="SeatTemplate">
         <Button Style="{StaticResource BareButton}" Width="146" Height="194" Command="{Binding DataContext.SelectTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}" ToolTip="{Binding SkillText}" ToolTipService.InitialShowDelay="450" controls:BattleFeedbackLayer.SeatAnchor="{Binding Seat}">
             <Border x:Name="SeatFrame" Background="#152125" BorderBrush="#7C7056" BorderThickness="1" CornerRadius="4" Padding="3">
@@ -304,13 +379,21 @@
                     <TextBlock Text="{Binding VerticalName}" Foreground="{Binding AccentBrush}" FontFamily="KaiTi" FontWeight="Bold" FontSize="{Binding NameFontSize}" LineStackingStrategy="BlockLineHeight" LineHeight="{Binding NameLineHeight}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,0,0,0" />
                     <TextBlock Text="{Binding KindLabel}" Foreground="#7A6549" FontSize="14" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
                 </Grid>
-                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="9,10,0,0">
-                    <TextBlock x:Name="CardRank" Text="{Binding Rank}" FontFamily="Georgia" FontWeight="Bold" FontSize="22" Foreground="{Binding SuitBrush}" />
-                    <TextBlock x:Name="CardSuit" Text="{Binding SuitGlyph}" FontFamily="Segoe UI Symbol" FontSize="22" Foreground="{Binding SuitBrush}" LineHeight="24" LineStackingStrategy="BlockLineHeight" />
+                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3,7,0,0">
+                    <Grid Width="34" Height="31">
+                        <TextBlock x:Name="CardRank" Text="{Binding Rank}" FontFamily="Georgia" FontWeight="Bold" FontSize="22" Foreground="{Binding SuitBrush}" HorizontalAlignment="Center" />
+                        <Image Source="{Binding RankArtwork}" Stretch="Uniform" />
+                    </Grid>
+                    <Grid Width="34" Height="31">
+                        <TextBlock x:Name="CardSuit" Text="{Binding SuitGlyph}" FontFamily="Segoe UI Symbol" FontSize="22" Foreground="{Binding SuitBrush}" HorizontalAlignment="Center" />
+                        <Image Source="{Binding SuitArtwork}" Stretch="Uniform" />
+                    </Grid>
                 </StackPanel>
             </Grid>
         </Viewbox>
         <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding HasRankArtwork}" Value="True"><Setter TargetName="CardRank" Property="Visibility" Value="Collapsed" /></DataTrigger>
+            <DataTrigger Binding="{Binding HasSuitArtwork}" Value="True"><Setter TargetName="CardSuit" Property="Visibility" Value="Collapsed" /></DataTrigger>
             <DataTrigger Binding="{Binding HasArtwork}" Value="False">
                 <Setter TargetName="CardTextFallback" Property="Visibility" Value="Visible" />
             </DataTrigger>
@@ -318,7 +401,7 @@
     </DataTemplate>
     <DataTemplate x:Key="CardTemplate">
         <Button x:Name="CardButton" Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsPlayable}" VerticalAlignment="Bottom" Margin="0,18,0,0" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" ToolTipService.InitialShowDelay="250" AutomationProperties.Name="{Binding CardHint}">
-            <Border x:Name="CardBorder" Width="110" Height="160" Background="{StaticResource CardPaper}" CornerRadius="5" BorderBrush="#B29A6A" BorderThickness="1">
+            <Border x:Name="CardBorder" Width="110" Height="154" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
                     <Grid>
                         <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                         <TextBlock Text="粮" Foreground="#F9EAC5" Background="#A074562A" FontSize="10" Padding="4,1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" Visibility="{Binding IsStoredGrain, Converter={StaticResource BoolToVisibility}}" />
@@ -366,14 +449,18 @@
         </Button>
     </DataTemplate>
     <DataTemplate x:Key="TablePlayTemplate">
-        <StackPanel Margin="7,0">
-            <Border controls:BattleFeedbackLayer.PlayAnchor="{Binding Sequence}" Width="112" Height="54" CornerRadius="3" Background="#C8C0AC91" BorderBrush="#7D765F" BorderThickness="1" Padding="5">
-                <Border BorderBrush="#65736751" BorderThickness="1">
-                    <TextBlock Text="{Binding Name}" FontFamily="KaiTi" Foreground="#3F3830" FontSize="20" TextAlignment="Center" VerticalAlignment="Center" Margin="4,0" />
-                </Border>
+        <StackPanel Margin="5,0">
+            <Border controls:BattleFeedbackLayer.PlayAnchor="{Binding Sequence}" Width="86" Height="120" CornerRadius="2" Background="{StaticResource CardPaper}" BorderBrush="#74634B" BorderThickness="1" ToolTip="{Binding Name}">
+                <Grid>
+                    <TextBlock x:Name="PlayTextFallback" Text="{Binding Name}" FontFamily="KaiTi" Foreground="#3F3830" FontSize="20" TextAlignment="Center" VerticalAlignment="Center" Margin="4,0" TextWrapping="Wrap" />
+                    <Image Source="{Binding Artwork}" Stretch="Fill" />
+                </Grid>
             </Border>
-            <TextBlock Text="{Binding ActorName}" Foreground="#AEB0A1" FontSize="10" TextAlignment="Center" Margin="0,5,0,0" />
+            <TextBlock Text="{Binding ActorName}" Foreground="#302519" FontSize="10" TextAlignment="Center" Margin="0,3,0,0" />
         </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding HasArtwork}" Value="True"><Setter TargetName="PlayTextFallback" Property="Visibility" Value="Collapsed" /></DataTrigger>
+        </DataTemplate.Triggers>
     </DataTemplate>
     <DataTemplate x:Key="GeneralChoiceTemplate">
         <Button Style="{StaticResource BareButton}" Width="206" Margin="10,0" Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Text}">
