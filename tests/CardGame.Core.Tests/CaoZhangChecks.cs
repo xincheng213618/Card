@@ -13,7 +13,7 @@ internal static class CaoZhangChecks
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 105, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 113, 0)) &&
+                    package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
                 current.Generals[GeneralId] is
                 {
                     FactionId: "wei",

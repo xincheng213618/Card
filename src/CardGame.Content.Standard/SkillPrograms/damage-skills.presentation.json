@@ -25,6 +25,10 @@
       "name": "反馈",
       "description": "受到伤害后，你可以获得伤害来源的一张手牌或装备牌。"
     },
+    "boundary:feedback": {
+      "name": "反馈",
+      "description": "每受到1点伤害后，你可以获得伤害来源的一张手牌或装备牌。"
+    },
     "classic:yiji": {
       "name": "遗计",
       "description": "每受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。"

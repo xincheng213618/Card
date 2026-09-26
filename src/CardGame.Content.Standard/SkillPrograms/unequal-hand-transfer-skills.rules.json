@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 39,
+  "skills": [
+    {
+      "id": "classic:anxu",
+      "revision": 1,
+      "minimumRulesVersion": 144,
+      "activations": [
+        {
+          "id": "unequal-hand-transfer",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingUnequalHandPair",
+              "minimumTargets": 2,
+              "maximumTargets": 2,
+              "targetAiOrder": "supportFirstThenOpposeSecond"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "selectedFirst" },
+              "cardOwnerRef": { "kind": "selectedSecond" },
+              "zones": ["hand"],
+              "count": 1,
+              "destination": "selectedTargetHand",
+              "targetRef": { "kind": "selectedFirst" },
+              "resultBind": "transferred-card"
+            },
+            {
+              "op": "revealBoundCards",
+              "target": "owner",
+              "sourceBind": "transferred-card"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "transferred-card",
+              "resultBind": "non-spade-card",
+              "suits": ["heart", "club", "diamond"],
+              "effectiveSuitForRef": { "kind": "selectedFirst" }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "boundCardCount",
+              "sourceBind": "non-spade-card"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:qingguo": {
+      "name": "倾国",
+      "description": "你可以将1张黑色手牌当【闪】使用或打出。"
+    }
+  }
+}

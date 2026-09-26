@@ -9,6 +9,22 @@ using CardGame.Wpf.ViewModels;
 
 internal static class WuhunUiChecks
 {
+    private const string WuhunSkillId = "wuhun-ui:wuhun";
+    private const string WuhunRules = """
+    {"schemaVersion":53,"skills":[{"id":"wuhun-ui:wuhun","revision":3,"minimumRulesVersion":163,
+    "modifiers":[],"viewAs":[],"activations":[],"triggers":[
+      {"id":"damage-nightmare","window":"damageAppliedBeforeDying","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
+       "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
+      {"id":"death-judgment","window":"ownerDied","subject":"owner","optional":false,"priority":0,
+       "effects":[{"op":"selectTarget","target":"owner","targetKind":"maximumAttributedMarker","marker":"nightmare"},
+                  {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.wuhun.death","resultBind":"judgment","visibility":"public"},
+                  {"op":"causeDeathUnlessBoundCardKind","target":"selectedTarget","sourceBind":"judgment","excludedCardKinds":["peach","peachGarden"]}]}
+    ],"contributions":[],"cardIdentities":[],"states":[]}]}
+    """;
+    private const string WuhunPresentation = """
+    {"schemaVersion":1,"skills":{"wuhun-ui:wuhun":{"name":"武魂","description":"锁定技，受到伤害后令来源获得梦魇；死亡时令梦魇最多的角色判定，非桃或桃园结义则直接死亡。"}}}
+    """;
+
     public static void DeathTargetChoice(string output)
     {
         var (registry, game) = FindHumanTargetFixture();
@@ -36,29 +52,32 @@ internal static class WuhunUiChecks
                        viewModel.IsSkillSelectionPending &&
                        prompt is
                        {
-                           Kind: DecisionKind.WuhunTarget,
+                           Kind: DecisionKind.ProgramTrigger,
                            PlayerSeat: 0,
-                           IsPrivate: true
+                           IsPrivate: true,
+                           SkillPrompt.SkillId: WuhunSkillId
                        } &&
                        viewModel.SkillChoices.Count == prompt.Choices.Count &&
                        viewModel.SkillChoices.All(choice => choice.Targets.Count == 1) &&
-                       viewModel.EventStack.Any(line => line.Contains("DeathSkill(Wuhun)", StringComparison.Ordinal)),
-            $"WPF must restore the dead owner's private Wuhun target choice. " +
+                       viewModel.EventStack.Any(line => line.Contains($"Skill(武魂, id: {WuhunSkillId})", StringComparison.Ordinal)) &&
+                       engine.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Any() &&
+                       engine.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == WuhunSkillId),
+            $"WPF must restore the dead owner's private composed Wuhun target choice. " +
             $"saveError={viewModel.SaveStatus}; pending={prompt?.Kind}; choices={viewModel.SkillChoices.Count}.");
 
         Program.Render(root, 1120, 740, Path.Combine(output, "162-wuhun-death-target.png"));
         var visibleText = Program.Find<TextBlock>(root).Select(text => text.Text).ToArray();
-        Program.Assert(visibleText.Any(text => text.Contains("当前技能选择", StringComparison.Ordinal)) &&
+        Program.Assert(visibleText.Any(text => text.Contains("武魂 · 选择目标", StringComparison.Ordinal)) &&
                        visibleText.Any(text => text.Contains("梦魇", StringComparison.Ordinal)) &&
-                       visibleText.Any(text => text.Contains("武魂", StringComparison.Ordinal)),
+                       viewModel.HumanSkillCards.Any(skill => skill.Name == "武魂"),
             "The Wuhun choice surface must visibly expose its maximum-Nightmare judgment action.");
 
         viewModel.OpenContextGuideCommand.Execute(null);
-        Program.Assert(viewModel.CurrentGuideTitle == "选择武魂判定目标" &&
+        Program.Assert(viewModel.CurrentGuideTitle == "武魂 · 选择目标" &&
                        viewModel.CurrentGuideBody == prompt!.Prompt &&
-                       viewModel.CurrentGuideSteps.Any(step => step.Text.Contains("梦魇标记数最多", StringComparison.Ordinal)) &&
+                       viewModel.CurrentGuideSteps.Any(step => step.Text.Contains("梦魇最多", StringComparison.Ordinal)) &&
                        viewModel.CurrentGuideSteps.Any(step => step.Text.Contains("直接死亡", StringComparison.Ordinal)),
-            "The Wuhun player guide must explain tied maximum markers and the no-rescue direct-death result.");
+            "The shared program guide must expose Wuhun's marker maximum and direct-death result.");
         Program.Render(root, 1120, 740, Path.Combine(output, "163-wuhun-death-guide.png"));
         viewModel.ToggleHelpCommand.Execute(null);
 
@@ -66,15 +85,14 @@ internal static class WuhunUiChecks
         var targetSeat = choice.Targets.Single();
         viewModel.SelectSkillChoiceCommand.Execute(choice);
         var after = engine.CreateSnapshot(0, revealAll: true);
-        Program.Assert(engine.Events.Select(item => item.Payload).OfType<DeathSkillTargetSelectedEvent>().Any(item =>
-                           item.OwnerSeat == 0 && item.TargetSeat == targetSeat) &&
-                       engine.Events.Select(item => item.Payload).OfType<DirectDeathDeclaredEvent>().Any(item =>
-                           item.SourceSeat == 0 && item.TargetSeat == targetSeat && item.Skill == SkillKind.Wuhun) &&
+        Program.Assert(engine.Events.Select(item => item.Payload).OfType<ProgramSkillCauseDeathDeclaredEvent>().Any(item =>
+                           item.SourceSeat == 0 && item.TargetSeat == targetSeat && item.SkillId == WuhunSkillId) &&
                        !engine.Events.Select(item => item.Payload).OfType<PlayerDyingEvent>().Any(item =>
                            item.VictimSeat == targetSeat) &&
                        !after.Players[targetSeat].IsAlive &&
-                       engine.PendingDecision?.Kind != DecisionKind.WuhunTarget,
-            "Selecting a Wuhun target through WPF must complete its direct-death chain without a rescue prompt.");
+                       engine.PendingDecision?.Choices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("skill-id") == WuhunSkillId) != true,
+            "Selecting a composed Wuhun target through WPF must complete its direct-death chain without a rescue prompt.");
 
         window.Content = null;
         window.Close();
@@ -106,7 +124,11 @@ internal static class WuhunUiChecks
 
             for (var step = 0; step < 256; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.WuhunTarget, PlayerSeat: 0 })
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } targetPrompt &&
+                    targetPrompt.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
+                        choice.Parameters.GetValueOrDefault("target-kind") ==
+                        nameof(SkillProgramTargetKind.MaximumAttributedMarker)))
                     return (registry, game);
                 if (game.State.Status == EngineStatus.Completed)
                     break;
@@ -142,11 +164,16 @@ internal static class WuhunUiChecks
 
         public void Register(IContentRegistryBuilder builder)
         {
+            var wuhun = SkillProgramCatalog.Load(WuhunRules, WuhunPresentation).Programs[WuhunSkillId];
             builder.AddSkill(new ContentSkillDefinition(
-                "wuhun-ui:wuhun",
+                WuhunSkillId,
                 "武魂",
-                "受到每点伤害后，伤害来源获得一枚梦魇标记。",
-                SkillKind.Wuhun));
+                "锁定技，受到伤害后令来源获得梦魇；死亡时令梦魇最多的角色判定，非桃或桃园结义则直接死亡。")
+            {
+                Program = wuhun,
+                Tags = SkillTag.Locked,
+                ExecutionForms = SkillExecutionForm.State
+            });
             builder.AddGeneral(new ContentGeneralDefinition(
                 AttackerId, "攻击者", "guan_yu", "standard:none", "wei", BaseHp: 4));
             builder.AddGeneral(new ContentGeneralDefinition(

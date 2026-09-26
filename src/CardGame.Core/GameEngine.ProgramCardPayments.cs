@@ -9,7 +9,10 @@ public sealed partial class GameEngine
             ProgramParticipantRef.Owner => frame.OwnerSeat,
             ProgramParticipantRef.Actor when frame.WindowContext?.CardUse is { } context => context.ActorSeat,
             ProgramParticipantRef.EventTarget when frame.WindowContext?.TargetSeat is { } seat => seat,
+            ProgramParticipantRef.EventSource when frame.WindowContext?.SourceSeat is { } seat => seat,
             ProgramParticipantRef.SelectedTarget when frame.SelectedTargetSeats is [var seat] => seat,
+            ProgramParticipantRef.SelectedFirst when frame.SelectedTargetSeats.Count >= 1 => frame.SelectedTargetSeats[0],
+            ProgramParticipantRef.SelectedSecond when frame.SelectedTargetSeats.Count >= 2 => frame.SelectedTargetSeats[1],
             ProgramParticipantRef.ResultSource => frame.PindianResultBindings
                 .Single(item => item.Name == reference.ResultBind).SourceSeat,
             ProgramParticipantRef.ResultOpponent => frame.PindianResultBindings
@@ -24,30 +27,41 @@ public sealed partial class GameEngine
         ProgramParticipantReference cardOwner,
         IReadOnlyList<CardZoneKind> zones,
         SkillProgramCardDestination destination,
+        ProgramParticipantReference? destinationRef,
         string? resultBind,
         CardMoveReason reason,
-        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null)
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
+        bool skipIfNoCards = false)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var chooserSeat = ResolveProgramParticipant(active, chooser);
         var cardOwnerSeat = ResolveProgramParticipant(active, cardOwner);
+        var destinationSeat = destinationRef is null ? (int?)null : ResolveProgramParticipant(active, destinationRef);
+        if (destination == SkillProgramCardDestination.SelectedTargetHand &&
+            (destinationSeat is not { } seat || !_players[seat].IsAlive || seat == cardOwnerSeat))
+            throw new InvalidOperationException("A selected-target transfer requires a distinct living recipient.");
         var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories);
         if (choices.Count == 0)
         {
+            if (skipIfNoCards)
+                return SkillProgramStepOutcome.Continue;
             CancelProgramBindingAndCleanup(active, "没有可支付的区域牌，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
         var visibleCardIds = choices.SelectMany(choice => choice.Cards).Distinct().Order().ToArray();
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
         _pendingDecision = new PendingDecision(
-            DecisionKind.ProgramTrigger, chooserSeat, "请选择一张区域牌支付。", visibleCardIds, [],
+            DecisionKind.ProgramTrigger, chooserSeat,
+            destination == SkillProgramCardDestination.SelectedTargetHand
+                ? "请选择一张区域牌交给目标。" : "请选择一张区域牌支付。", visibleCardIds, [],
             chooserSeat)
         {
             PromptId = CreatePromptId(),
             IsPrivate = true,
-            TargetSeat = cardOwnerSeat,
+            TargetSeat = frame.WindowContext?.TargetSeat ?? cardOwnerSeat,
             SkillPrompt = new SkillPromptPresentation(frame.SkillId, skill.Name,
-                $"{skill.Name} · 选择支付牌", skill.Description),
+                destination == SkillProgramCardDestination.SelectedTargetHand
+                    ? $"{skill.Name} · 选择转交牌" : $"{skill.Name} · 选择支付牌", skill.Description),
             Choices = choices
         };
         _status = _players[chooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
@@ -95,6 +109,13 @@ public sealed partial class GameEngine
     {
         var chooserSeat = ResolveProgramParticipant(frame, effect.ChooserRef!);
         var ownerSeat = ResolveProgramParticipant(frame, effect.CardOwnerRef!);
+        if (!_players[frame.OwnerSeat].IsAlive || !_players[chooserSeat].IsAlive || !_players[ownerSeat].IsAlive ||
+            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(frame, "支付参与者或技能实例已失效，技能剩余步骤取消。");
+            return;
+        }
         if (selected.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
             selected.Parameters.GetValueOrDefault("card-owner-seat") != ownerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
             !Enum.TryParse<CardZoneKind>(selected.Parameters.GetValueOrDefault("source-zone"), out var zone) ||
@@ -132,10 +153,28 @@ public sealed partial class GameEngine
             CardZoneKind.Judgment => CardLocation.Judgment(ownerSeat),
             _ => throw new InvalidOperationException()
         };
-        var destination = effect.Destination == SkillProgramCardDestination.OwnerHand
-            ? CardLocation.Hand(frame.OwnerSeat) : CardLocation.DiscardPile;
+        var destination = effect.Destination switch
+        {
+            SkillProgramCardDestination.OwnerHand => CardLocation.Hand(frame.OwnerSeat),
+            SkillProgramCardDestination.SelectedTargetHand => CardLocation.Hand(
+                ResolveProgramParticipant(frame, effect.TargetReference!)),
+            SkillProgramCardDestination.DiscardPile => CardLocation.DiscardPile,
+            _ => throw new InvalidOperationException("Unsupported selected-card destination.")
+        };
+        if (destination.OwnerSeat is { } recipientSeat && !_players[recipientSeat].IsAlive)
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(frame, "受牌角色已失效，技能结算已取消。");
+            return;
+        }
         ClearPendingDecision();
-        MoveCard(card, source, destination, new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+        var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
+        if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
+        {
+            MoveCard(card, source, CardLocation.Processing, reason);
+            MoveCard(card, CardLocation.Processing, destination, reason);
+        }
+        else MoveCard(card, source, destination, reason);
         if (effect.ResultBind is { } bind)
             SetProgramCardSet(frame.Id, bind, [card.Id], SkillProgramCardSetVisibility.Private, [destination]);
         ContinueProgramSkill(frame.Id);
@@ -145,7 +184,12 @@ public sealed partial class GameEngine
         CardKind kind,
         IReadOnlyList<SkillProgramCardCategory> categories)
     {
-        var category = EquipmentCatalog.IsEquipment(kind)
+        return categories.Contains(GetProgramCardCategory(kind));
+    }
+
+    private static SkillProgramCardCategory GetProgramCardCategory(CardKind kind)
+    {
+        return EquipmentCatalog.IsEquipment(kind)
             ? SkillProgramCardCategory.Equipment
             : CardCatalog.Get(kind).CategoryName switch
             {
@@ -153,6 +197,5 @@ public sealed partial class GameEngine
                 "锦囊牌" => SkillProgramCardCategory.Trick,
                 _ => throw new InvalidOperationException($"Card kind '{kind}' has no supported skill-program category.")
             };
-        return categories.Contains(category);
     }
 }

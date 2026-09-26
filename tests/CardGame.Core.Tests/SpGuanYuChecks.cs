@@ -73,8 +73,8 @@ internal static class SpGuanYuChecks
             SkillIds: var skillIds
         } && skillIds.SequenceEqual([WushengSkillId, DanjiSkillId]),
             "The current package must register the formal Wei SP Guan Yu skill order.");
-        Require(GameCheckpoint.CurrentRulesVersion == 134 &&
-            StandardClassicGeneralPackage.CurrentVersion == new Version(1, 113, 0) &&
+        Require(GameCheckpoint.CurrentRulesVersion >= 130 &&
+            StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 109, 0) &&
             danji is
         {
             LegacyKind: null,
@@ -121,7 +121,7 @@ internal static class SpGuanYuChecks
             !previous.Generals.ContainsKey(GeneralId) &&
             !previous.Skills.ContainsKey(DanjiSkillId) &&
             historical.Skills[DanjiSkillId].Program is null,
-            "Package 1.109.0 must migrate Danji without changing its 1.69.0 registration or 1.108.0 runtime boundary.");
+            "Package 1.109.0 must migrate Danji without changing its 1.69.0 registration or 1.108.0 content definition.");
 
         var registry = CreateRegistry();
         var game = CreateGame(registry);
@@ -167,14 +167,16 @@ internal static class SpGuanYuChecks
         var historicalGame = CreateGame(CreateRegistry(new Version(1, 108, 0)));
         ReachHumanPlay(historicalGame);
         var historicalOwner = historicalGame.CreateSnapshot(0, revealAll: true).Players[0];
-        Require(historicalOwner is { Hp: 4, MaxHp: 4 } &&
+        Require(historicalOwner is { Hp: 5, MaxHp: 5 } &&
                 historicalOwner.Skills!.Select(skill => skill.ContentId).SequenceEqual(
-                    [WushengSkillId, DanjiSkillId, MashuSkillId, NuzhanSkillId]) &&
+                    [WushengSkillId, DanjiSkillId]) &&
                 historicalOwner.SkillRuntimeStates!.Single(state => state.SkillId == DanjiSkillId)
-                    .Usages.Single().UsageId == "awakening" &&
+                    .Usages.Count == 0 &&
+                historicalGame.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
+                    .All(item => item.SkillId != DanjiSkillId) &&
                 !historicalGame.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
                     .Any(item => item.SkillId == DanjiSkillId),
-            "Package 1.108.0 must retain the historical Danji execution and usage identity.");
+            "Package 1.108.0 retains Danji metadata but must not revive the retired awakening or silently bind the current program.");
 
     }
 

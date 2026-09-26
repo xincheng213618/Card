@@ -56,7 +56,10 @@ internal static class ManChongUiChecks
         var game = CreateGame(registry, seed: 1);
         ReachHumanPlay(game);
         using var viewModel = Load(game, registry);
-        var action = viewModel.HumanActiveSkillActions.Single(candidate => candidate.Skill == SkillKind.Junxing);
+        var action = viewModel.HumanActiveSkillActions.Single(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:junxing" &&
+            candidate.ProgramActivationId == "category-punishment");
         viewModel.SelectActiveSkillCommand.Execute(action);
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
@@ -64,7 +67,7 @@ internal static class ManChongUiChecks
         var junxing = viewModel.HumanSkillCards.Single(skill => skill.Name == "峻刑");
         var yuce = viewModel.HumanSkillCards.Single(skill => skill.Name == "御策");
         Program.Assert(viewModel.IsActiveSkillSelectionPending &&
-                       action.MinCardCount == 1 && action.MaxCardCount == viewModel.Hand.Count &&
+                       action.MinCardCount == 1 && action.MaxCardCount >= viewModel.Hand.Count &&
                        action.MinTargetCount == 1 && action.MaxTargetCount == 1 &&
                        action.SelectableCardIds.Count == viewModel.Hand.Count &&
                        action.SelectableTargetSeats.Count == 5 &&
@@ -83,6 +86,31 @@ internal static class ManChongUiChecks
     private static void RenderYucePrompt(string output)
     {
         var fixture = FindYucePrompt();
+        using (var activationViewModel = Load(fixture.Game, fixture.Registry))
+        {
+            Program.Assert(activationViewModel.IsSkillSelectionPending &&
+                           activationViewModel.CurrentGuideTitle == "御策 · 是否发动" &&
+                           activationViewModel.CurrentDecisionContext is
+                           {
+                               Title: "御策 · 是否发动",
+                               TargetSeat: HumanSeat
+                           } &&
+                           activationViewModel.SkillChoices.Select(choice =>
+                                   choice.Parameters.GetValueOrDefault("program-action"))
+                               .Order(StringComparer.Ordinal)
+                               .SequenceEqual(["activate", "skip"]) &&
+                           activationViewModel.EventStack.Any(line =>
+                               line.Contains("Skill(御策, id: classic:yuce)", StringComparison.Ordinal)) &&
+                           activationViewModel.EventStack.Any(line =>
+                               line.Contains("AskForActivation(ProgramTrigger)", StringComparison.Ordinal)),
+                $"The shared WPF prompt must render Yuce's optional activation gate " +
+                $"(guide={activationViewModel.CurrentGuideTitle}, choices={activationViewModel.SkillChoices.Count}).");
+        }
+        var activationPrompt = fixture.Game.PendingDecision ??
+            throw new InvalidOperationException("The Yuce WPF fixture lost its activation prompt.");
+        Answer(fixture.Game, activationPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+
         using var viewModel = Load(fixture.Game, fixture.Registry);
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
@@ -90,21 +118,22 @@ internal static class ManChongUiChecks
         var prompt = fixture.Game.PendingDecision ??
             throw new InvalidOperationException("The Yuce WPF fixture lost its prompt.");
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动御策" &&
+                       viewModel.CurrentGuideTitle == "御策 · 选择区域牌" &&
                        viewModel.CurrentDecisionContext is
                        {
-                           Title: "御策 · 选择展示一张手牌或跳过",
+                           Title: "御策 · 选择区域牌",
                            TargetSeat: HumanSeat
                        } &&
-                       viewModel.SkillChoices.Count(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "yuce-use") ==
+                       viewModel.SkillChoices.Count > 0 &&
+                       viewModel.SkillChoices.All(choice =>
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards" &&
+                           choice.Cards.Count == 1) &&
+                       viewModel.SkillChoices.Count ==
                            fixture.Game.CreateSnapshot(HumanSeat).Players[HumanSeat].HandCount &&
-                       viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "yuce-skip") &&
                        viewModel.EventStack.Any(line =>
-                           line.Contains("RevealOneHandCardOrSkip(Yuce)", StringComparison.Ordinal)) &&
+                           line.Contains("AskForActivation(ProgramTrigger)", StringComparison.Ordinal)) &&
                        prompt.IsPrivate,
-            $"The generic WPF surface must render Yuce's exact-card reveal choices and optional skip " +
+            $"The generic WPF surface must render Yuce's exact-card reveal choices after the optional gate " +
             $"(guide={viewModel.CurrentGuideTitle}, choices={viewModel.SkillChoices.Count}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "226-classic-yuce-reveal-choice.png"));
@@ -122,7 +151,11 @@ internal static class ManChongUiChecks
             {
                 if (game.PendingDecision is { PlayerSeat: HumanSeat } prompt)
                 {
-                    if (prompt.Kind == DecisionKind.Yuce) return (game, registry);
+                    if (prompt.Kind == DecisionKind.ProgramTrigger &&
+                        prompt.SkillPrompt?.SkillId == "classic:yuce" &&
+                        prompt.Choices.Any(choice =>
+                            choice.Parameters.GetValueOrDefault("program-action") == "activate"))
+                        return (game, registry);
                     if (prompt.Kind == DecisionKind.PlayCard)
                     {
                         var ended = game.Submit(new EndPlayPhaseCommand(
@@ -249,7 +282,7 @@ internal static class ManChongUiChecks
 
         public PackageManifest Manifest { get; } = new(
             "man-chong-wpf-test", new Version(1, 0, 0),
-            [new PackageDependency("standard-classic-generals", new Version(1, 96, 0))]);
+            [new PackageDependency("standard-classic-generals", new Version(1, 118, 0))]);
 
         public void Register(IContentRegistryBuilder builder)
         {

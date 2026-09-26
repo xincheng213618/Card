@@ -7,6 +7,7 @@ public sealed partial class GameEngine
     // The journal rebuilds these counters through accepted commands. They are
     // keyed by content identities, never by translated presentation text.
     private readonly Dictionary<(int Seat, string Skill, string Activation), int> _programUses = new();
+    private readonly Dictionary<(int Seat, string Skill, string Activation), int> _programPhaseUses = new();
     private readonly Dictionary<(int ProviderSeat, int SkillOwnerSeat, string Skill, string Contribution), int>
         _programContributionUses = new();
 
@@ -63,15 +64,52 @@ public sealed partial class GameEngine
         {
             if (!activation.Condition.Evaluate(context) ||
                 activation.UsesPerTurn is { } limit &&
-                _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.Id)) >= limit)
+                _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.Id)) >= limit ||
+                activation.UsesPerPhase is { } phaseLimit &&
+                _programPhaseUses.GetValueOrDefault((owner.Seat, program.Id, activation.Id)) >= phaseLimit ||
+                activation.UsesPerGame is { } gameLimit &&
+                _skillRuntimeState.GetUsage(
+                    owner.Seat,
+                    program.Id,
+                    activation.Id,
+                    SkillUsageScope.Game) >= gameLimit)
                 continue;
             if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) &&
                 GetHand(owner).Count == 0)
                 continue;
-            var cards = activation.MaxCards == 0 ? [] : activation.SourceZones
-                .SelectMany(zone => _cardZones.CardsAt(new CardLocation(zone, owner.Seat)))
-                .Select(card => card.Id).Distinct().Order().ToArray();
-            var targets = activation.MaxTargets == 0 ? [] : _players
+            if (activation.Effects.Any(effect => effect is
+                { Op: SkillProgramEffectOp.SelectTargets,
+                  TargetKind: SkillProgramTargetKind.OtherLivingUnequalHandPair }) &&
+                !_players.Where(player => player.IsAlive && player.Seat != owner.Seat)
+                    .Select(player => GetHand(player).Count).Distinct().Skip(1).Any())
+                continue;
+            var selectedCardUse = activation.Effects.SingleOrDefault(effect =>
+                effect.Op == SkillProgramEffectOp.UseSelectedCardsAs);
+            var allHandTrickUse = activation.Effects.SingleOrDefault(effect =>
+                effect.Op == SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick);
+            var multiCardUses = selectedCardUse is null
+                ? Array.Empty<ProgramMultiCardViewAsSelection>()
+                : GetProgramMultiCardViewAsSelections(
+                    owner,
+                    selectedCardUse.OutputKind!.Value,
+                    forResponse: false)
+                    .Where(item => item.Source.SkillId == program.Id &&
+                                   item.Source.BindingId == selectedCardUse.SourceBind)
+                    .ToArray();
+            var cards = selectedCardUse is not null
+                ? multiCardUses.SelectMany(item => item.Cards).Select(card => card.Id).Distinct().Order().ToArray()
+                : allHandTrickUse is not null
+                    ? GetHand(owner).Any(card => IsTurnHandCardRestricted(owner, card))
+                        ? []
+                        : GetHand(owner).Select(card => card.Id).Order().ToArray()
+                : activation.MaxCards == 0 ? [] : activation.SourceZones
+                    .SelectMany(zone => _cardZones.CardsAt(new CardLocation(zone, owner.Seat)))
+                    .Select(card => card.Id).Distinct().Order().ToArray();
+            var targets = selectedCardUse is not null
+                ? _players.Where(target => CanUseVirtualSlashTarget(owner, target))
+                    .Select(target => target.Seat).Order().ToArray()
+                : allHandTrickUse is not null ? []
+                : activation.MaxTargets == 0 ? [] : _players
                 .Where(target => target.IsAlive &&
                     (target.Seat != owner.Seat || !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected)) &&
                     (activation.TargetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded ||
@@ -81,6 +119,8 @@ public sealed partial class GameEngine
                         SkillProgramTargetKind.OtherLiving => target.Seat != owner.Seat,
                         SkillProgramTargetKind.OtherLivingWithHand =>
                             target.Seat != owner.Seat && GetHand(target).Count > 0,
+                        SkillProgramTargetKind.OtherLivingAtDistanceOne =>
+                            target.Seat != owner.Seat && GetCombatDistance(owner.Seat, target.Seat) == 1,
                         SkillProgramTargetKind.AnyLiving => true,
                         SkillProgramTargetKind.OtherWounded =>
                             target.Seat != owner.Seat && target.Hp < target.MaxHp,
@@ -92,10 +132,16 @@ public sealed partial class GameEngine
                     (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) ||
                      GetHand(target).Count > 0))
                 .Select(target => target.Seat).Order().ToArray();
-            if (cards.Length < activation.MinCards || targets.Length < activation.MinTargets) continue;
+            if (cards.Length < activation.MinCards || targets.Length < activation.MinTargets ||
+                selectedCardUse is not null && multiCardUses.Length == 0 ||
+                allHandTrickUse is not null &&
+                (cards.Length == 0 || BuildProgramOrdinaryTrickUseOptions(owner).Count == 0)) continue;
+            var minCardCount = allHandTrickUse is null ? activation.MinCards : cards.Length;
+            var maxCardCount = allHandTrickUse is not null || activation.MaxCards == int.MaxValue
+                ? cards.Length : activation.MaxCards;
             yield return new LegalAction(LegalActionKind.UseProgramSkill, null, null,
                 $"发动【{_contentRegistry!.Skills[program.Id].Name}】",
-                MinCardCount: activation.MinCards, MaxCardCount: activation.MaxCards,
+                MinCardCount: minCardCount, MaxCardCount: maxCardCount,
                 MinTargetCount: activation.MinTargets, MaxTargetCount: activation.MaxTargets)
             {
                 ProgramSkillId = program.Id,
@@ -149,6 +195,7 @@ public sealed partial class GameEngine
             return ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
                 CreateProgramAiPublicContext(owner) with
                 {
+                    ActivationCardCount = activation.MinCards,
                     BooleanState = stateId => GetProgramBooleanState(owner.Seat, program.Id, instanceId, stateId)
                 }).Hint;
         }
@@ -224,8 +271,26 @@ public sealed partial class GameEngine
         var program = GetEnabledSkillProgram(owner, action.ProgramSkillId ??
             throw new InvalidOperationException("The program action has no skill identity."));
         var activation = program.Activations.Single(item => item.Id == action.ProgramActivationId);
+        if (activation.UsesPerGame is { } gameLimit)
+        {
+            if (!_skillRuntimeState.TryConsumeUsage(
+                    owner.Seat,
+                    program.Id,
+                    activation.Id,
+                    SkillUsageScope.Game,
+                    gameLimit))
+                throw new InvalidOperationException("The skill activation already exhausted its game usage limit.");
+            QueueGameEvent(new SkillUsageConsumedEvent(
+                owner.Seat,
+                program.Id,
+                activation.Id,
+                SkillUsageScope.Game,
+                Count: 1));
+        }
         var key = (owner.Seat, program.Id, activation.Id);
         _programUses[key] = _programUses.GetValueOrDefault(key) + 1;
+        if (activation.UsesPerPhase is not null)
+            _programPhaseUses[key] = _programPhaseUses.GetValueOrDefault(key) + 1;
         var frame = new ProgramSkillFrame(++_resolutionSequence, owner.Seat, program.Id, activation.Id,
             program.GameplayHash, 0, Array.AsReadOnly(cards.ToArray()), Array.AsReadOnly(targets.ToArray()))
         {
@@ -353,6 +418,60 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    private SkillProgramStepOutcome UseProgramSelectedCardsAs(
+        ProgramSkillFrame frame,
+        int targetSeat,
+        string viewAsId,
+        CardKind outputKind)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.TriggerId is not null || active.OwnerSeat != frame.OwnerSeat ||
+            active.SkillId != frame.SkillId || outputKind != CardKind.Slash ||
+            _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id)
+            throw new InvalidOperationException(
+                "A selected-card use requires the current active program activation.");
+        var owner = _players[frame.OwnerSeat];
+        var source = new CardConversionSource(
+            frame.SkillId,
+            viewAsId,
+            owner.Seat,
+            frame.SkillInstanceId);
+        var selection = FindProgramMultiCardViewAsSelection(
+            owner,
+            frame.SelectedCardIds,
+            outputKind,
+            forResponse: false,
+            source) ?? throw new InvalidOperationException(
+                "The selected physical cards no longer satisfy the configured view-as rule.");
+        var target = _players.SingleOrDefault(player => player.Seat == targetSeat) ??
+            throw new InvalidOperationException("The selected card-use target no longer exists.");
+        if (!CanUseVirtualSlashTarget(owner, target))
+            throw new InvalidOperationException("The selected Slash target is no longer legal.");
+        ResolveSlashCore(
+            owner,
+            target,
+            selection.Cards[0],
+            outputKind,
+            owner.Seat,
+            physicalCards: selection.Cards,
+            conversionSource: selection.Source);
+        return SkillProgramStepOutcome.AwaitChild;
+    }
+
+    private void ContinueProgramAfterSelectedCardUse()
+    {
+        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.TriggerId is not null)
+            return;
+        var program = _contentRegistry?.Skills.GetValueOrDefault(frame.SkillId)?.Program;
+        var activation = program?.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
+        if (activation is null || frame.InstructionIndex == 0 ||
+            activation.Effects[frame.InstructionIndex - 1].Op is not
+                (SkillProgramEffectOp.UseSelectedCardsAs or
+                 SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick))
+            return;
+        ContinueProgramSkill(frame.Id);
+    }
+
     private void CompleteProgramSkillAfterDying(DyingResolution dying)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != dying.ParentFrameId)
@@ -420,6 +539,63 @@ public sealed partial class GameEngine
             if (!dynamicTargetsValid)
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
 
+            if (frame.ChoiceBindings.Select(binding => binding.Name).Distinct(StringComparer.Ordinal).Count() != frame.ChoiceBindings.Count)
+                throw new InvalidOperationException("An active program contains duplicate named choices.");
+            foreach (var binding in frame.ChoiceBindings)
+            {
+                var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
+                    (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard) &&
+                    effect.ResultBind == binding.Name);
+                var validOption = producer?.Op switch
+                {
+                    SkillProgramEffectOp.ChooseOption => producer.Options.Any(option => option.Id == binding.OptionId),
+                    SkillProgramEffectOp.ChooseDifferentCategoryDiscard => binding.OptionId is
+                        ChooseDifferentCategoryDiscardProgramOperationDescriptor.DiscardedOption or
+                        ChooseDifferentCategoryDiscardProgramOperationDescriptor.DeclinedOption,
+                    _ => false
+                };
+                var chooserSeat = producer?.Op == SkillProgramEffectOp.ChooseDifferentCategoryDiscard
+                    ? ResolveProgramParticipant(frame, producer.ChooserRef!)
+                    : producer is null ? -1 : ResolveProgramEffectTarget(frame, producer.Target);
+                if (producer is null || !validOption || binding.ChooserSeat != chooserSeat)
+                    throw new InvalidOperationException("An active program choice does not match its committed producer.");
+            }
+            var paused = plan.Instructions[frame.InstructionIndex - 1];
+            AssertProgramOwnedCardSelection(frame, paused);
+            AssertProgramOwnedCardDistribution(frame, paused);
+            AssertProgramAttackRangeAid(frame, paused);
+            if (paused.Op == SkillProgramEffectOp.ChooseOption && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
+                !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) &&
+                (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } choiceDecision ||
+                 choiceDecision.PlayerSeat != ResolveProgramEffectTarget(frame, paused.Target) ||
+                 choiceDecision.Choices.Count == 0 || choiceDecision.Choices.Any(choice =>
+                     choice.Parameters.GetValueOrDefault("program-action") != "choose-option" ||
+                     choice.Parameters.GetValueOrDefault("result-bind") != paused.ResultBind ||
+                     choice.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))))
+                throw new InvalidOperationException("An unanswered program choice lost its matching prompt.");
+            if (paused.Op == SkillProgramEffectOp.ChooseDifferentCategoryDiscard &&
+                ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
+                !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) &&
+                (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } categoryDecision ||
+                 categoryDecision.PlayerSeat != ResolveProgramParticipant(frame, paused.ChooserRef!) ||
+                 categoryDecision.Choices.Count == 0 || categoryDecision.Choices.Any(choice =>
+                     choice.Parameters.GetValueOrDefault("program-action") is not
+                         ("different-category-discard" or "different-category-decline") ||
+                     choice.Parameters.GetValueOrDefault("result-bind") != paused.ResultBind ||
+                     choice.Parameters.GetValueOrDefault("frame-id") !=
+                         frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))))
+                throw new InvalidOperationException("An unanswered category challenge lost its matching prompt.");
+            if (paused.Op == SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick &&
+                ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
+                (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } trickDecision ||
+                 trickDecision.PlayerSeat != frame.OwnerSeat || trickDecision.Choices.Count == 0 ||
+                 trickDecision.Choices.Any(choice =>
+                     choice.Parameters.GetValueOrDefault("program-action") != "use-all-hand-as-ordinary-trick" ||
+                     choice.Parameters.GetValueOrDefault("view-as-id") != paused.SourceBind ||
+                     choice.Parameters.GetValueOrDefault("frame-id") !=
+                         frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))))
+                throw new InvalidOperationException("An unanswered ordinary-trick conversion lost its matching prompt.");
+
             if (frame.TriggerId is { } triggerId)
             {
                 var trigger = program.Triggers.SingleOrDefault(item => item.Id == triggerId);
@@ -433,7 +609,8 @@ public sealed partial class GameEngine
 
             var activation = program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
             if (activation is null ||
-                frame.SelectedCardIds.Count != activation.MinCards ||
+                frame.SelectedCardIds.Count < activation.MinCards ||
+                frame.SelectedCardIds.Count > activation.MaxCards ||
                 executedSelection is null &&
                 (frame.SelectedTargetSeats.Count < activation.MinTargets ||
                  frame.SelectedTargetSeats.Count > activation.MaxTargets))

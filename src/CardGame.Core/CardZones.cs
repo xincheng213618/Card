@@ -166,8 +166,6 @@ public static class CardMoveReasons
     public static CardMoveReason ProgramJudgmentReplace { get; } = new("skill-program.judgment.replace");
     public static CardMoveReason ProgramJudgmentOldCard { get; } = new("skill-program.judgment.old-card");
     public static CardMoveReason HuangtianGive { get; } = new("skill.huangtian.give-card");
-    public static CardMoveReason YinghunDraw { get; } = new("skill.yinghun.draw");
-    public static CardMoveReason YinghunDiscard { get; } = new("skill.yinghun.discard");
     public static CardMoveReason ZaiqiReveal { get; } = new("skill.zaiqi.reveal");
     public static CardMoveReason ZaiqiGain { get; } = new("skill.zaiqi.gain");
     public static CardMoveReason ZaiqiDiscard { get; } = new("skill.zaiqi.discard");
@@ -185,32 +183,16 @@ public static class CardMoveReasons
     public static CardMoveReason ZhenlieDiscard { get; } = new("skill.zhenlie.discard");
     public static CardMoveReason MijiDraw { get; } = new("skill.miji.draw");
     public static CardMoveReason MijiGive { get; } = new("skill.miji.give-card");
-    public static CardMoveReason QuanjiDraw { get; } = new("skill.quanji.draw");
-    public static CardMoveReason QuanjiStore { get; } = new("skill.quanji.store-authority");
     public static CardMoveReason AuthorityDeathDiscard { get; } = new("skill.quanji.death-discard");
     public static CardMoveReason ChunlaoStore { get; } = new("skill.chunlao.store-chun");
     public static CardMoveReason ChunlaoRescue { get; } = new("skill.chunlao.rescue");
     public static CardMoveReason ChunlaoDeathDiscard { get; } = new("skill.chunlao.death-discard");
     public static CardMoveReason GongqiCost { get; } = new("skill.gongqi.cost");
     public static CardMoveReason GongqiDiscard { get; } = new("skill.gongqi.discard-target-card");
-    public static CardMoveReason RenxinDiscard { get; } = new("skill.renxin.discard-equipment");
-    public static CardMoveReason JunxingCost { get; } = new("skill.junxing.cost");
-    public static CardMoveReason JunxingDiscard { get; } = new("skill.junxing.discard-response");
-    public static CardMoveReason JunxingDraw { get; } = new("skill.junxing.draw");
-    public static CardMoveReason YuceDiscard { get; } = new("skill.yuce.discard-response");
     public static CardMoveReason LongyinDiscard { get; } = new("skill.longyin.discard");
     public static CardMoveReason LongyinDraw { get; } = new("skill.longyin.draw");
     public static CardMoveReason JiefanWeaponDiscard { get; } = new("skill.jiefan.discard-weapon");
     public static CardMoveReason JiefanDraw { get; } = new("skill.jiefan.draw");
-    public static CardMoveReason PaiyiRemove { get; } = new("skill.paiyi.remove-authority");
-    public static CardMoveReason PaiyiDraw { get; } = new("skill.paiyi.draw");
-    public static CardMoveReason ZhiyuDraw { get; } = new("skill.zhiyu.draw");
-    public static CardMoveReason ZhiyuDiscard { get; } = new("skill.zhiyu.discard");
-    public static CardMoveReason AnxuTransfer { get; } = new("skill.anxu.transfer");
-    public static CardMoveReason AnxuDraw { get; } = new("skill.anxu.draw");
-    public static CardMoveReason ZhuiyiDraw { get; } = new("skill.zhuiyi.draw");
-    public static CardMoveReason JujianDiscard { get; } = new("skill.jujian.discard");
-    public static CardMoveReason JujianDraw { get; } = new("skill.jujian.draw");
     public static CardMoveReason ShensuDiscard { get; } = new("skill.shensu.discard-equipment");
     public static CardMoveReason JieyinDiscard { get; } = new("skill.jieyin.discard");
     public static CardMoveReason KujinDraw { get; } = new("skill.kujin.draw");
@@ -219,8 +201,6 @@ public static class CardMoveReasons
     public static CardMoveReason RendeGive { get; } = new("skill.rende.give-card");
     public static CardMoveReason QingnangDiscard { get; } = new("skill.qingnang.discard");
     public static CardMoveReason HuichunDiscard { get; } = new("skill.huichun.discard");
-    public static CardMoveReason QianxiDraw { get; } = new("skill.qianxi.draw");
-    public static CardMoveReason QianxiDiscard { get; } = new("skill.qianxi.discard");
     public static CardMoveReason NiepanDiscard { get; } = new("skill.niepan.discard");
     public static CardMoveReason NiepanDraw { get; } = new("skill.niepan.draw");
     public static CardMoveReason HandLimitDiscard { get; } = new("rule.hand-limit-discard");
@@ -467,6 +447,19 @@ internal sealed class CardZoneStore
         drawPile.RemoveRange(drawPile.Count - viewedTopFirst.Count, viewedTopFirst.Count);
         drawPile.InsertRange(0, newBottomFirst.Select(id => viewedCards[id]));
         drawPile.AddRange(newTopFirst.Reverse().Select(id => viewedCards[id]));
+    }
+
+    /// <summary>Places cards just moved to the draw pile at its bottom, in supplied bottom-first order.</summary>
+    public void PlaceDrawPileCardsAtBottom(IReadOnlyList<int> cardIds)
+    {
+        ArgumentNullException.ThrowIfNull(cardIds);
+        var drawPile = GetZone(CardLocation.DrawPile);
+        if (cardIds.Count == 0) return;
+        if (!drawPile.TakeLast(cardIds.Count).Select(card => card.Id).SequenceEqual(cardIds))
+            throw new InvalidOperationException("The bottom placement must use the exact most recently moved cards.");
+        var moved = drawPile.TakeLast(cardIds.Count).ToArray();
+        drawPile.RemoveRange(drawPile.Count - cardIds.Count, cardIds.Count);
+        drawPile.InsertRange(0, moved);
     }
 
     public IReadOnlyList<CardZoneDiagnostic> CreateDiagnostics() =>

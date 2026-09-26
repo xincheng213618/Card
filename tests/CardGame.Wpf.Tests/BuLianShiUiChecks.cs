@@ -63,22 +63,9 @@ internal static class BuLianShiUiChecks
         var root = (FrameworkElement)window.Content;
         var anxuSkill = viewModel.HumanSkillCards.Single(skill => skill.Name == "安恤");
         var zhuiyiSkill = viewModel.HumanSkillCards.Single(skill => skill.Name == "追忆");
-        var action = viewModel.HumanActiveSkillActions.Single(candidate => candidate.Skill == SkillKind.Anxu);
-        var pair = FindUnequalPair(viewModel, action.SelectableTargetSeats);
+        var action = viewModel.HumanActiveSkillActions.Single(candidate =>
+            candidate.ProgramSkillId == "classic:anxu");
 
-        viewModel.SelectActiveSkillCommand.Execute(action);
-        var equalPair = FindEqualPair(viewModel, action.SelectableTargetSeats);
-        if (equalPair is { } invalid)
-        {
-            viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == invalid.FirstSeat));
-            viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == invalid.SecondSeat));
-            Program.Assert(!viewModel.CanConfirmActiveSkill,
-                "The Anxu draft must not confirm two targets with equal hand counts.");
-            viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == invalid.FirstSeat));
-            viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == invalid.SecondSeat));
-        }
-        viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == pair.ReceiverSeat));
-        viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == pair.DonorSeat));
         Program.Assert(anxuSkill is
                        {
                            TypeText: "主动技",
@@ -89,32 +76,35 @@ internal static class BuLianShiUiChecks
                        {
                            TypeText: "触发技",
                            StateText: "等待触发时机"
-                       } &&
-                       viewModel.IsActiveSkillSelectionPending &&
-                       viewModel.CanConfirmActiveSkill &&
-                       viewModel.Seats.Count(seat => seat.IsSelectedTarget) == 2,
-            $"The skill rail and shared draft must distinguish Anxu Active from Zhuiyi Trigger and select two targets " +
+                       },
+            $"The skill rail must distinguish Anxu Active from Zhuiyi Trigger " +
             $"(anxu={anxuSkill.TypeText}/{anxuSkill.StateText}, zhuiyi={zhuiyiSkill.TypeText}/{zhuiyiSkill.StateText}).");
+        viewModel.SelectActiveSkillCommand.Execute(action);
+        var pairChoices = viewModel.SkillChoices.Where(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-targets").ToArray();
+        Program.Assert(viewModel.IsSkillSelectionPending && pairChoices.Length > 0 &&
+                       pairChoices.All(choice => choice.Targets.Count == 2 &&
+                           Player(fixture.Game, choice.Targets[0]).HandCount <
+                           Player(fixture.Game, choice.Targets[1]).HandCount),
+            "The shared target-set prompt must show only legal unequal-hand pairs.");
         Program.Render(root, 1120, 740,
-            Path.Combine(output, "210-classic-anxu-active-draft.png"));
-        var visibleText = Program.Find<TextBlock>(root).Select(text => text.Text).ToArray();
-        Program.Assert(visibleText.Any(text => text.Contains("安恤", StringComparison.Ordinal)) &&
-                       visibleText.Any(text => text.Contains("目标 2/2", StringComparison.Ordinal)),
-            "The central Anxu draft must visibly require exactly two targets.");
-
-        viewModel.ConfirmSelectedCommand.Execute(null);
+            Path.Combine(output, "210-classic-anxu-target-pair.png"));
+        var pair = (ReceiverSeat: pairChoices[0].Targets[0], DonorSeat: pairChoices[0].Targets[1]);
+        viewModel.SelectSkillChoiceCommand.Execute(pairChoices[0]);
         Program.Assert(!viewModel.IsSkillSelectionPending && viewModel.CanStepAi &&
                        Program.Engine(viewModel).CreateSnapshot(pair.ReceiverSeat).PendingDecision is
                        {
-                           Kind: DecisionKind.Anxu,
+                           Kind: DecisionKind.ProgramTrigger,
                            IsPrivate: true
                        } receiverPrompt &&
                        receiverPrompt.Choices.All(choice => choice.Cards.Count == 0),
             "After the active draft, only the receiving AI should see opaque Anxu hand slots.");
         viewModel.StepAiCommand.Execute(null);
-        Program.Assert(Program.Engine(viewModel).Events.Select(item => item.Payload).OfType<AnxuResolvedEvent>().Any() &&
-                       viewModel.BattleCues.Any(cue => cue.Label == "安恤 · 获得并展示一张"),
-            "Resolving the hidden Anxu choice must publish the typed result and public battle cue.");
+        Program.Assert(Program.Engine(viewModel).Events.Select(item => item.Payload)
+                           .OfType<ProgramSkillResolvedEvent>().Any(item =>
+                               item.SkillId == "classic:anxu" && item.Completed) &&
+                       viewModel.BattleCues.Any(cue => cue.Label == "安恤 · 已发动"),
+            "Resolving the hidden Anxu choice must publish the shared program result and cue.");
         window.Content = null;
         window.Close();
     }
@@ -127,27 +117,34 @@ internal static class BuLianShiUiChecks
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         var targetChoice = viewModel.SkillChoices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "zhuiyi-target" &&
+            choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
             choice.Targets.Count == 1 &&
             Player(fixture.Game, choice.Targets[0]).Hp == Player(fixture.Game, choice.Targets[0]).MaxHp);
 
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动追忆" &&
-                       viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "zhuiyi-skip") &&
-                       viewModel.EventStack.Any(line => line.Contains("DeathSkill(Zhuiyi)", StringComparison.Ordinal)) &&
-                       viewModel.CurrentDecisionContext?.Title == "追忆 · 选择受益角色或跳过",
-            $"The WPF must render Zhuiyi as an optional dead-owner target prompt " +
-            $"(guide={viewModel.CurrentGuideTitle}, choices={viewModel.SkillChoices.Count}).");
+                       viewModel.CurrentGuideTitle == "追忆 · 选择目标" &&
+                       Program.Engine(viewModel).ResolutionStack
+                           .OfType<ProgramDeathTriggerWindowFrame>().Any() &&
+                       viewModel.CurrentDecisionContext?.Title == "追忆 · 选择目标",
+            $"The WPF must render composed Zhuiyi as a dead-owner target prompt " +
+            $"(guide={viewModel.CurrentGuideTitle}, context={viewModel.CurrentDecisionContext?.Title}, choices={viewModel.SkillChoices.Count}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "211-classic-zhuiyi-target-choice.png"));
 
         viewModel.SelectSkillChoiceCommand.Execute(targetChoice);
-        Program.Assert(Program.Engine(viewModel).Events.Select(item => item.Payload).OfType<ZhuiyiResolvedEvent>()
-                           .Any(result => result is { OwnerSeat: HumanSeat, DrawnCardCount: 3, RecoveredHp: 0 }) &&
-                       viewModel.BattleCues.Any(cue => cue.Label == "追忆 · 摸三张" &&
-                                                       cue.Detail == "目标体力已满"),
-            "Selecting a full-health Zhuiyi target through WPF must draw three and show the no-recovery cue.");
+        Program.Assert(Program.Engine(viewModel).Events.Select(item => item.Payload)
+                           .OfType<ProgramBindingResolvedEvent>()
+                           .Any(result => result is
+                           {
+                               OwnerSeat: HumanSeat,
+                               SkillId: "classic:zhuiyi",
+                               BindingId: "owner-death-benefit",
+                               Window: SkillProgramTriggerWindow.OwnerDied,
+                               Activated: true,
+                               Completed: true
+                           }) &&
+                       viewModel.BattleCues.Any(cue => cue.Label == "追忆 · 已发动"),
+            "Selecting a full-health composed Zhuiyi target through WPF must finish through the shared program cue.");
         window.Content = null;
         window.Close();
     }
@@ -201,7 +198,7 @@ internal static class BuLianShiUiChecks
         {
             var game = CreateGame(registry, ScenarioPackage.AnxuModeId, seed, Role.Loyalist, GeneralId);
             ReachHumanPlay(game);
-            if (game.GetHumanLegalActions().Any(action => action.Skill == SkillKind.Anxu))
+            if (game.GetHumanLegalActions().Any(action => action.ProgramSkillId == "classic:anxu"))
             {
                 return new Fixture(game, registry);
             }
@@ -222,8 +219,9 @@ internal static class BuLianShiUiChecks
                 ScenarioPackage.ZhuiyiOwnerId);
             for (var step = 0; step < 1_024 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ZhuiyiTarget, PlayerSeat: HumanSeat } prompt &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat } prompt &&
                     prompt.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
                         choice.Targets.Count == 1 &&
                         Player(game, choice.Targets[0]).Hp == Player(game, choice.Targets[0]).MaxHp))
                 {
@@ -232,6 +230,21 @@ internal static class BuLianShiUiChecks
 
                 if (game.PendingDecision is { PlayerSeat: HumanSeat } human)
                 {
+                    if (human.Kind == DecisionKind.ProgramTrigger &&
+                        human.Choices.FirstOrDefault(choice =>
+                            choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
+                            choice.Parameters.GetValueOrDefault("skill-id") == "classic:zhuiyi") is { } activate)
+                    {
+                        var activated = game.Submit(new AnswerPromptCommand(
+                            HumanSeat,
+                            human.PromptId,
+                            activate.Id,
+                            game.Revision));
+                        Program.Assert(activated.Accepted,
+                            activated.Error?.Message ?? "The Zhuiyi WPF fixture could not activate its owner-death program.");
+                        continue;
+                    }
+
                     if (human.Kind == DecisionKind.PlayCard)
                     {
                         var ended = game.Submit(new EndPlayPhaseCommand(
@@ -380,6 +393,11 @@ internal static class BuLianShiUiChecks
 
         public void Register(IContentRegistryBuilder builder)
         {
+            builder.AddSkill(new ContentSkillDefinition(
+                "fixture:zhuiyi-wpf-ai-decoy",
+                "追忆界面诱饵技能",
+                "仅用于令非玩家座位稳定选择界面测试目标。",
+                SkillKind.Yingzi));
             foreach (var id in AnxuTargets)
             {
                 builder.AddGeneral(new ContentGeneralDefinition(
@@ -406,7 +424,7 @@ internal static class BuLianShiUiChecks
                     id,
                     "追忆界面目标",
                     "supporter",
-                    "standard:none",
+                    "fixture:zhuiyi-wpf-ai-decoy",
                     "wei",
                     BaseHp: 4));
             }

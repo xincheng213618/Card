@@ -9,6 +9,21 @@ internal static class PublicMarkerChecks
     private const string OwnerId = "wuhun-marker:owner";
     private const string BystanderOneId = "wuhun-marker:bystander-1";
     private const string BystanderTwoId = "wuhun-marker:bystander-2";
+    private const string WuhunSkillId = "wuhun-marker:wuhun";
+    private const string WuhunRules = """
+    {"schemaVersion":38,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":143,
+    "modifiers":[],"viewAs":[],"activations":[],"triggers":[
+      {"id":"damage-nightmare","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
+       "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
+      {"id":"death-judgment","window":"ownerDied","subject":"owner","optional":false,"priority":0,
+       "effects":[{"op":"selectTarget","target":"owner","targetKind":"maximumAttributedMarker","marker":"nightmare"},
+                  {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.wuhun.death","resultBind":"judgment","visibility":"public"},
+                  {"op":"causeDeathUnlessBoundCardKind","target":"selectedTarget","sourceBind":"judgment","excludedCardKinds":["peach","peachGarden"]}]}
+    ],"contributions":[],"cardIdentities":[],"states":[]}]}
+    """;
+    private const string WuhunPresentation = """
+    {"schemaVersion":1,"skills":{"wuhun-marker:wuhun":{"name":"武魂","description":"归属梦魇与死亡判定测试。"}}}
+    """;
 
     public static void WuhunDamageOrderAndReplay()
     {
@@ -29,7 +44,7 @@ internal static class PublicMarkerChecks
                     item.PlayerSeat == 0 &&
                     item.Marker == PlayerMarkerKind.Nightmare &&
                     item.SkillOwnerSeat == 1 &&
-                    item.Reason == "skill.wuhun.damage"),
+                    item.Reason.Contains("damage-nightmare", StringComparison.Ordinal)),
             "Two actual damage points must commit two ordered public Nightmare increments.");
         var publicMarker = current.CreateSnapshot(1).Players[0].Markers?.Single();
         Require(publicMarker is
@@ -58,11 +73,44 @@ internal static class PublicMarkerChecks
 
     public static void WuhunCandidateRules()
     {
-        Require(GameRules.WuhunJudgmentCausesDeath(CardKind.Slash) &&
-                !GameRules.WuhunJudgmentCausesDeath(CardKind.Peach) &&
-                !GameRules.WuhunJudgmentCausesDeath(CardKind.PeachGarden) &&
-                !GameRules.WuhunJudgmentCausesDeath(null),
-            "Wuhun direct death must exempt only Peach, Peach Garden and an exhausted judgment.");
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 122, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 121, 0));
+        var wuhun = current.Skills["classic:wuhun"];
+        Require(wuhun is
+                {
+                    LegacyKind: null,
+                    Tags: SkillTag.Locked,
+                    ExecutionForms: SkillExecutionForm.State,
+                    Program.RuntimeVersion: "skill-program-v38",
+                    Program.MinimumRulesVersion: 143
+                } &&
+                wuhun.Program.Triggers.Select(trigger => trigger.Window)
+                    .SequenceEqual([
+                        SkillProgramTriggerWindow.AfterDamageApplied,
+                        SkillProgramTriggerWindow.OwnerDied
+                    ]) &&
+                historical.Skills["classic:wuhun"] is
+                {
+                    LegacyKind: SkillKind.Wuhun,
+                    Program: null
+                } &&
+                current.ContentHash != historical.ContentHash,
+            "Package 1.122.0 must bind Wuhun to schema 38 while 1.121.0 retains only its legacy identity.");
+        Exception? schemaFailure = null;
+        try
+        {
+            _ = SkillProgramCatalog.Load(
+                WuhunRules.Replace("\"schemaVersion\":38", "\"schemaVersion\":37", StringComparison.Ordinal),
+                WuhunPresentation);
+        }
+        catch (Exception exception)
+        {
+            schemaFailure = exception;
+        }
+        Require(schemaFailure is InvalidOperationException &&
+                schemaFailure.Message.Contains("require schema version 38", StringComparison.Ordinal),
+            "Schema 37 must reject attributed-marker death operations instead of accepting a partial Wuhun graph.");
+
         var tiedCandidates = GameRules.GetMaximumMarkerCandidates(
         [
             new PlayerMarkerCandidateState(3, IsAlive: true, Count: 2),
@@ -93,25 +141,27 @@ internal static class PublicMarkerChecks
 
         var events = current.Events.Select(item => item.Payload).ToArray();
         var ownerDeath = Array.FindIndex(events, item => item is PlayerDiedEvent died && died.VictimSeat == 1);
-        var skillStarted = Array.FindIndex(events, item => item is DeathSkillStartedEvent started &&
-            started.OwnerSeat == 1 && started.CandidateSeats.SequenceEqual([0]));
-        var targetSelected = Array.FindIndex(events, item => item is DeathSkillTargetSelectedEvent selected &&
-            selected.OwnerSeat == 1 && selected.TargetSeat == 0);
+        var skillStarted = Array.FindIndex(events, item => item is ProgramBindingStartedEvent started &&
+            started.OwnerSeat == 1 && started.SkillId == WuhunSkillId &&
+            started.Window == SkillProgramTriggerWindow.OwnerDied);
         var judgment = Array.FindIndex(events, item => item is JudgmentResolvedEvent resolved &&
-            resolved.Reason == JudgmentReasons.Wuhun && resolved.TargetSeat == 0 && resolved.Succeeded);
-        var directDeath = Array.FindIndex(events, item => item is DirectDeathDeclaredEvent direct &&
-            direct.SourceSeat == 1 && direct.TargetSeat == 0 && direct.Skill == SkillKind.Wuhun);
+            resolved.Reason == JudgmentReasons.Wuhun && resolved.TargetSeat == 0);
+        var directDeath = Array.FindIndex(events, item => item is ProgramSkillCauseDeathDeclaredEvent direct &&
+            direct.SourceSeat == 1 && direct.TargetSeat == 0 && direct.SkillId == WuhunSkillId);
         var targetDeath = Array.FindIndex(events, item => item is PlayerDiedEvent died &&
             died.VictimSeat == 0 && died.KillerSeat is null);
         var targetDying = events.OfType<PlayerDyingEvent>().Any(item => item.VictimSeat == 0);
         var cleared = events.OfType<PlayerMarkerChangedEvent>().SingleOrDefault(item =>
             item.PlayerSeat == 0 && item.SkillOwnerSeat == 1 && item.Delta == -1);
-        Require(ownerDeath >= 0 && skillStarted > ownerDeath && targetSelected > skillStarted &&
-                judgment > targetSelected && directDeath > judgment && targetDeath > directDeath &&
-                !targetDying && cleared is { Count: 0, Reason: "skill.wuhun.death-clear" } &&
+        Require(ownerDeath >= 0 && skillStarted > ownerDeath &&
+                judgment > skillStarted && directDeath > judgment && targetDeath > directDeath &&
+                !targetDying && cleared is { Count: 0, Reason: "program.attributed-marker.death-clear" } &&
                 current.State.Status == EngineStatus.Completed &&
                 !current.CreateSnapshot(0, revealAll: true).Players[0].IsAlive,
-            "Wuhun must select the positive maximum after owner death, judge, then directly kill without dying rescue.");
+            $"Wuhun must select the positive maximum after owner death, judge, then directly kill without dying rescue. " +
+            $"indices={ownerDeath}/{skillStarted}/{judgment}/{directDeath}/{targetDeath}; dying={targetDying}; " +
+            $"cleared={cleared?.Delta}/{cleared?.Count}/{cleared?.Reason}; " +
+            $"state={current.State.Winner}/{current.State.Status}; targetAlive={current.CreateSnapshot(0, revealAll: true).Players[0].IsAlive}.");
 
         AssertReplayStateAndDeathEvents(current, registry);
     }
@@ -135,7 +185,8 @@ internal static class PublicMarkerChecks
 
             for (var step = 0; step < 128; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.WuhunTarget, PlayerSeat: 1 })
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 1 } targetPrompt &&
+                    targetPrompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "select-target"))
                 {
                     selected = game;
                     break;
@@ -162,9 +213,9 @@ internal static class PublicMarkerChecks
         var prompt = current.PendingDecision!;
         Require(prompt.IsPrivate && prompt.ValidTargetSeats.SequenceEqual([0]) &&
                 current.CreateSnapshot(0).PendingDecision is null &&
-                current.CreateSnapshot(1).PendingDecision?.Kind == DecisionKind.WuhunTarget &&
+                current.CreateSnapshot(1).PendingDecision?.Kind == DecisionKind.ProgramTrigger &&
                 current.ResolutionStack.TakeLast(2).Select(frame => frame.Kind)
-                    .SequenceEqual([ResolutionFrameKind.Death, ResolutionFrameKind.DeathSkill]),
+                    .SequenceEqual([ResolutionFrameKind.ProgramDeathTriggerWindow, ResolutionFrameKind.ProgramSkill]),
             "A dead human Wuhun owner must privately choose from the frozen maximum-marker candidates.");
 
         var restored = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
@@ -219,12 +270,18 @@ internal static class PublicMarkerChecks
         var events = game.Events.Select(item => item.Payload).ToArray();
         Require(game.State is { Status: EngineStatus.Completed, Winner: Winner.LordAndLoyalists } &&
                 events.OfType<PlayerDiedEvent>().Any(item => item.VictimSeat == 1) &&
-                !events.OfType<DeathSkillStartedEvent>().Any() &&
-                !events.OfType<DirectDeathDeclaredEvent>().Any() &&
+                !events.OfType<ProgramBindingStartedEvent>().Any(item =>
+                    item.SkillId == WuhunSkillId && item.Window == SkillProgramTriggerWindow.OwnerDied) &&
+                !events.OfType<ProgramSkillCauseDeathDeclaredEvent>().Any() &&
                 events.OfType<PlayerMarkerChangedEvent>().Any(item =>
                     item.PlayerSeat == 0 && item.SkillOwnerSeat == 1 && item.Delta == -1) &&
                 game.CreateSnapshot(0, revealAll: true).Players[0].IsAlive,
-            "Wuhun must not start after its owner's death has already determined the winner.");
+            $"Wuhun must not start after its owner's death has already determined the winner. " +
+            $"state={game.State.Winner}/{game.State.Status}; ownerDied={events.OfType<PlayerDiedEvent>().Any(item => item.VictimSeat == 1)}; " +
+            $"started={events.OfType<ProgramBindingStartedEvent>().Any(item => item.SkillId == WuhunSkillId && item.Window == SkillProgramTriggerWindow.OwnerDied)}; " +
+            $"direct={events.OfType<ProgramSkillCauseDeathDeclaredEvent>().Any()}; " +
+            $"cleared={events.OfType<PlayerMarkerChangedEvent>().Any(item => item.PlayerSeat == 0 && item.SkillOwnerSeat == 1 && item.Delta == -1)}; " +
+            $"attackerAlive={game.CreateSnapshot(0, revealAll: true).Players[0].IsAlive}.");
         AssertReplayStateAndDeathEvents(game, registry);
     }
 
@@ -305,11 +362,11 @@ internal static class PublicMarkerChecks
         var events = current.Events.Select(item => item.Payload).ToArray();
         var resolved = events.OfType<JudgmentResolvedEvent>().Last(item =>
             item.Reason == JudgmentReasons.Wuhun);
-        Require(resolved.CardKind == CardKind.Peach && !resolved.Succeeded &&
+        Require(resolved.CardKind == CardKind.Peach &&
                 events.OfType<JudgmentReplacementResolvedEvent>().Any(item =>
                     item.Reason == JudgmentReasons.Wuhun && item.Used &&
                     item.NewCardKind == CardKind.Peach) &&
-                !events.OfType<DirectDeathDeclaredEvent>().Any() &&
+                !events.OfType<ProgramSkillCauseDeathDeclaredEvent>().Any() &&
                 current.CreateSnapshot(0, revealAll: true).Players[0].IsAlive &&
                 current.CreateSnapshot(0, revealAll: true).Players[0].Markers is null &&
                 SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
@@ -417,7 +474,7 @@ internal static class PublicMarkerChecks
             {
                 if (game.PendingDecision is
                     {
-                        Kind: DecisionKind.WuhunTarget,
+                        Kind: DecisionKind.ProgramTrigger,
                         PlayerSeat: 2,
                         ValidTargetSeats: var candidates
                     } && candidates.Contains(0))
@@ -444,9 +501,9 @@ internal static class PublicMarkerChecks
             throw new InvalidOperationException("Could not find a bounded nested Wuhun fixture.");
         var restored = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
         const int nestedTarget = 0;
-        Require(current.ResolutionStack.OfType<DeathSkillFrame>().Select(frame => frame.OwnerSeat)
+        Require(current.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Select(frame => frame.OwnerSeat)
                     .SequenceEqual([3, 2]),
-            "Nested Wuhun must retain both outer and inner death-skill frames.");
+            "Nested Wuhun must retain both outer and inner owner-death program windows.");
 
         var prompt = current.PendingDecision!;
         Require(current.Submit(new AnswerPromptCommand(
@@ -464,11 +521,15 @@ internal static class PublicMarkerChecks
             "The restored nested Wuhun target was rejected.");
 
         var events = current.Events.Select(item => item.Payload).ToArray();
-        Require(events.OfType<DeathSkillStartedEvent>().Select(item => item.OwnerSeat)
+        Require(events.OfType<ProgramBindingStartedEvent>().Where(item =>
+                        item.SkillId == WuhunSkillId && item.Window == SkillProgramTriggerWindow.OwnerDied)
+                    .Select(item => item.OwnerSeat)
                     .TakeLast(2).SequenceEqual([3, 2]) &&
-                events.OfType<DirectDeathDeclaredEvent>().Select(item => item.TargetSeat)
+                events.OfType<ProgramSkillCauseDeathDeclaredEvent>().Select(item => item.TargetSeat)
                     .TakeLast(2).SequenceEqual([2, nestedTarget]) &&
-                events.OfType<DeathSkillResolvedEvent>().Select(item => item.OwnerSeat)
+                events.OfType<ProgramBindingResolvedEvent>().Where(item =>
+                        item.SkillId == WuhunSkillId && item.Window == SkillProgramTriggerWindow.OwnerDied)
+                    .Select(item => item.OwnerSeat)
                     .TakeLast(2).SequenceEqual([2, 3]) &&
                 !current.CreateSnapshot(2, revealAll: true).Players[nestedTarget].IsAlive &&
                 !current.CreateSnapshot(2, revealAll: true).Players[2].IsAlive &&
@@ -601,11 +662,22 @@ internal static class PublicMarkerChecks
                 packageId,
                 builder =>
                 {
+                    var currentRules = WuhunRules
+                        .Replace("\"schemaVersion\":38", "\"schemaVersion\":53", StringComparison.Ordinal)
+                        .Replace("\"revision\":2", "\"revision\":3", StringComparison.Ordinal)
+                        .Replace("\"minimumRulesVersion\":143", "\"minimumRulesVersion\":163", StringComparison.Ordinal)
+                        .Replace("\"window\":\"afterDamageApplied\"",
+                            "\"window\":\"damageAppliedBeforeDying\"", StringComparison.Ordinal);
+                    var wuhun = SkillProgramCatalog.Load(currentRules, WuhunPresentation).Programs[WuhunSkillId];
                     builder.AddSkill(new ContentSkillDefinition(
-                        "wuhun-marker:wuhun",
+                        WuhunSkillId,
                         "武魂",
-                        "受到每点伤害后，伤害来源获得一枚梦魇标记。",
-                        SkillKind.Wuhun));
+                        "受到每点伤害后，伤害来源获得一枚梦魇标记。")
+                    {
+                        Program = wuhun,
+                        Tags = SkillTag.Locked,
+                        ExecutionForms = SkillExecutionForm.State
+                    });
                     if (attackerSkill == SkillKind.Guicai)
                     {
                         builder.AddSkill(new ContentSkillDefinition(
@@ -629,8 +701,8 @@ internal static class PublicMarkerChecks
                         attackerSkill switch
                         {
                             SkillKind.Guicai => "wuhun-marker:guicai",
-                            SkillKind.Wuhun => "wuhun-marker:wuhun",
-                            SkillKind.Quhu => "wuhun-marker:wuhun",
+                            SkillKind.Wuhun => WuhunSkillId,
+                            SkillKind.Quhu => WuhunSkillId,
                             _ => "standard:none"
                         },
                         "wei",
@@ -639,7 +711,7 @@ internal static class PublicMarkerChecks
                             ? ["wuhun-marker:quhu"]
                             : null));
                     builder.AddGeneral(new ContentGeneralDefinition(
-                        OwnerId, "武魂测试者", "shen-guan-yu", "wuhun-marker:wuhun", "god", BaseHp: ownerHp));
+                        OwnerId, "武魂测试者", "shen-guan-yu", WuhunSkillId, "god", BaseHp: ownerHp));
                     builder.AddGeneral(new ContentGeneralDefinition(
                         BystanderOneId, "旁观者一", "liu_bei", "standard:none", "shu", BaseHp: 4));
                     builder.AddGeneral(new ContentGeneralDefinition(

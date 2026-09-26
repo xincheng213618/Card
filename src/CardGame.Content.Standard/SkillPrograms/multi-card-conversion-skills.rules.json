@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 35,
+  "skills": [
+    {
+      "id": "classic:fuhun",
+      "revision": 1,
+      "minimumRulesVersion": 140,
+      "viewAs": [
+        {
+          "id": "two-hand-cards-as-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "condition": { "kind": "always" }
+        }
+      ],
+      "activations": [
+        {
+          "id": "two-hand-cards-as-slash",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "useSelectedCardsAs",
+              "target": "selectedTarget",
+              "sourceBind": "two-hand-cards-as-slash",
+              "outputKind": "slash"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "grant-parent-skills",
+          "window": "afterDamageApplied",
+          "subject": "source",
+          "sourceSkillId": "classic:fuhun",
+          "sourceViewAsId": "two-hand-cards-as-slash",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "classicIdentityMode" },
+              { "kind": "cardActionPhaseIsPlay" }
+            ]
+          },
+          "effects": [
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": ["classic:wusheng", "classic:paoxiao"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

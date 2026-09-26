@@ -421,7 +421,6 @@ public sealed partial class GameEngine
                 killer: null,
                 attack: null,
                 dying: null,
-                causingDeathSkill: null,
                 causingProgramCauseDeath: continuation);
         }
         catch
@@ -602,10 +601,30 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A judgment trigger prompt lost its frame.");
             return;
         }
-        var frame = frames.Single();
+        var pending = _pendingJudgment;
+        var frame = pending is null
+            ? null
+            : frames.LastOrDefault(candidate =>
+                candidate.Judgment.JudgmentFrameId == pending.FrameId);
+        var suspendedFrames = frames.Where(candidate => !ReferenceEquals(candidate, frame)).ToArray();
+        var suspendedCauseDeaths = EnumeratePendingDeaths()
+            .Select(death => death.CausingProgramCauseDeath)
+            .Where(cause => cause is not null)
+            .ToArray();
+        if (suspendedFrames.Any(suspended =>
+                !suspendedCauseDeaths.Any(cause =>
+                    cause!.ParentFrameId == suspended.Id &&
+                    cause.Judgment.FrameId == suspended.Judgment.JudgmentFrameId)))
+            throw new InvalidOperationException("A suspended judgment trigger window lost its direct-death continuation.");
+        if (frame is null)
+        {
+            if (pending is not null &&
+                _pendingDecision?.Kind is DecisionKind.ProgramJudgmentTrigger or DecisionKind.ProgramJudgmentTarget)
+                throw new InvalidOperationException("A judgment trigger prompt belongs to no active judgment window.");
+            return;
+        }
         var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
         var judgmentFrame = frameIndex > 0 ? _resolutionStack[frameIndex - 1] as JudgmentFrame : null;
-        var pending = _pendingJudgment;
         var prompt = _pendingDecision;
         var resolvingDamage = _pendingAttack is
         {
@@ -621,6 +640,12 @@ public sealed partial class GameEngine
             frame.CandidateIndex < 0 || frame.CandidateIndex >= frame.Candidates.Count ||
             (!resolvingDamage && prompt is not null && !IsProgramJudgmentPromptValid(frame)))
             throw new InvalidOperationException("A final judgment trigger window has an invalid cursor or prompt.");
+    }
+
+    private IEnumerable<DeathResolution> EnumeratePendingDeaths()
+    {
+        for (var death = _pendingDeath; death is not null; death = death.Parent)
+            yield return death;
     }
 
     private sealed class ProgramCauseDeathResolution(

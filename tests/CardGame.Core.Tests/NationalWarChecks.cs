@@ -130,11 +130,20 @@ internal static class NationalWarChecks
 
         var damage = SkillFixture("national:wei-cao-cao", "national:wei-guo-jia", GeneralSelectionSlot.Primary, requireRed: false);
         var collect = typeof(GameEngine).GetMethod("CollectDamageTriggerCandidates", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var attackType = typeof(GameEngine).GetNestedType("AttackResolution",
+            System.Reflection.BindingFlags.NonPublic)!;
+        var attack = Activator.CreateInstance(attackType,
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
+            System.Reflection.BindingFlags.NonPublic,
+            binder: null,
+            args: [0L, 1, 0, null, 1, CardKind.Slash, false, false, null, null, null, null, false, null, null, null, null, null],
+            culture: null)!;
         string[] Candidates()
         {
             var context = new DamageSkillContext(new PlayerSkillContext(0, 3, 4, 4, TurnPhase.Play), 1, CardKind.Slash, true,
                 SourceCardId: 1, TargetSeat: 0, TargetHp: 3, TargetMaxHp: 4);
-            return ((IReadOnlyList<DamageTriggerCandidate>)collect.Invoke(damage, [context])!)
+            return ((IReadOnlyList<DamageTriggerCandidate>)collect.Invoke(damage,
+                [context, attack, SkillProgramTriggerWindow.AfterDamageApplied])!)
                 .Select(candidate => candidate.ProgramId ?? candidate.Skill.ToString())
                 .ToArray();
         }

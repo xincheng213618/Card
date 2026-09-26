@@ -1,6 +1,10 @@
-2026-09-22 整合说明：当前 rules v134／schema 29。主目录 schema 23/24 的已验收组合内核、目标策略和交互能力保留；a148 分支原 schema 23–27 顺延为 25–29，纳入状态授予、强制分支、持久牌区和主动子结算。具体能力映射与整合验收见 SKILL_MIGRATION_PLAN.md 顶部；下列各批快照数字均是历史验收记录。
+2026-09-26 最新能力：当前 rules v164／schema 54、`standard-classic-generals@1.139.0`。顾雍、李典通过目标集合、私密置底与伤害参与者等公共节点接入。伤害扣血后先执行受限标记、完成濒死，再开放收益；刚烈嵌套、程序失血及伤害时距离均有明确续接。schema 52 的疠火目标数／连续转化及此前能力继续保留。甄姬洛神、华佗急救、孙权救援以及 `MouLuMeng` 命名专属引擎分区仍保留。能力边界见 [SKILL_MIGRATION_PLAN.md](SKILL_MIGRATION_PLAN.md) 顶部和 [schema 53 契约](content/skill-composition/RUNTIME_V53.md)；下列各批数字是历史验收记录。
 
-本次整合验收：完整 Solution Release 0 警告/0 错误、Core 436/436、WPF 105/105。现有公共节点目录接入新增能力，正式陷阵继续使用 schema 24 的命名拼点结果和定向策略；未完成的 `ChooseTargetBenefit` 不开放给内容。后续执行目录统一为主目录，原始工作树修改和完整验证日志保留在 `%TEMP%\CardWorktreeMerge-20260922-213617`。
+本批 schema 54 另增精确实体牌型条件、伤害牌可领取选项与按正常摸牌计划选择／扣数，接入朱桓、界曹操、界张辽；公共 AI 评分变化统一以 rules 164 隔离。契约见 [schema 54](content/skill-composition/RUNTIME_V54.md)。
+
+上一整合 rules v134／schema 29 保留主目录 schema 23/24 的组合内核、目标策略和交互能力；a148 分支原 schema 23–27 顺延为 25–29，纳入状态授予、强制分支、持久牌区和主动子结算。
+
+上一整合验收：完整 Solution Release 0 警告/0 错误、Core 436/436、WPF 105/105。正式陷阵继续使用 schema 24 的命名拼点结果和定向策略；当时未完成的 `ChooseTargetBenefit` 草稿现已由通用 `chooseOption` 替代，没有公开该人物式收益枚举。执行目录统一为主目录，原始工作树修改和整合日志保留在 `%TEMP%\CardWorktreeMerge-20260922-213617`。
 
 # 组合式规则引擎：重新设计与迁移契约
 
@@ -8,7 +12,7 @@
 
 ## 上一批已验收能力（2026-09-22，schema 24 / rules 129）
 
-公共事件参与者、区域牌支付、用牌次数退款、拼点结果绑定、有向回合规则和声明式布尔状态已整合。节点目录共 34 个操作，通过同一 descriptor 解析、资源检查、执行与 AI 估值；普通效果可显式以 `Actor` 为目标，必须由入口提供 CardAction 上下文，不能在普通主动入口猜测出牌者。
+公共事件参与者、区域牌支付、用牌次数退款、拼点结果绑定、有向回合规则和声明式布尔状态已整合。节点目录当前共 51 个操作，通过同一 descriptor 解析、资源检查、执行与 AI 估值；普通效果可显式以 `Actor` 为目标，必须由入口提供 CardAction 上下文，不能在普通主动入口猜测出牌者。
 
 正式龙吟、拒战、陷阵已成为 `classic-card-action-skills.rules.json` 中的组合。人物专属 `GameEngine.GuanPing.cs`、`GameEngine.Juzhan.cs`、`GameEngine.GaoShun.cs` 已实际删除；Core/AI/WPF 不再以三个技能名称分派它们的执行。拼点使用公共子帧，支付使用通用私密提示，布尔状态与临时目标规则由公共 UI 投影展示。此前 `GameEngine.LiuBiao.cs` 已删除。
 
@@ -168,7 +172,7 @@ AI 补齐了目标收益与当前规则限制：动态目标补牌按候选的�
 
 - 人物运行时已从 `GameEngine` 私有 `PlayerRuntime` 抽成独立 `CharacterState`。模板提供默认属性和技能，实例保存当前体力、上限、性别覆盖和 `CharacterSkillSet`；实例变化不修改模板。
 - 技能持有集记录稳定授予身份和来源，支持来源独立移除、禁用/恢复和确定顺序。已有主动程序基础效果通过 `ISkillProgramEffectHandler` 注册，由独立 `SkillProgramExecutor` 执行；反射仅发现基础 handler，窄宿主提供受控能力。
-- 第 0 批已独立验收：当先、伏枥、称象使用同一程序运行时的阶段插入、自救、亮牌、子集选择与移动节点。`GameEngine.LiaoHua.cs` 已删除，`GameEngine.CaoChong.cs` 仅保留未迁移的仁心；三个样例的专属引擎、AI、WPF 决策与事件分支已移除。
+- 第 0 批已独立验收：当先、伏枥、称象使用同一程序运行时的阶段插入、自救、亮牌、子集选择与移动节点。`GameEngine.LiaoHua.cs` 已删除；称象当时迁移后保留的仁心也已在 rules v138／schema 33 迁入共享伤害前窗口，`GameEngine.CaoChong.cs` 随之删除。相关专属引擎、AI、WPF 决策与事件分支均已移除。
 - 任意授予来源、动态获得涅槃、国战暗置模板与独立来源并存均已独立复测。相同 `SkillId + SkillInstanceId` 的多个授予来源只形成一个候选，移除或禁用一个来源不影响其他有效来源。AI 可选触发走公共程序入口，命令回放与父流程恢复通过检查。
 - `CardSubsetSelector` 已接入加载器与宿主，候选上限 8 张、至多 256 个选项。公开牌集与私人决策分离；无合法选择可控取消；成功或取消时只清理本程序持有的临时牌。条件跳过牌集生产后不会因缺少绑定崩溃。
 - 当前能力边界在加载期约束：插入阶段要求此前没有牌集绑定，不支持把临时牌集跨越独立插入阶段；schema 11 生命周期触发支持 Game/Round/Turn/Phase 使用范围，拒绝尚无事件身份语义的 Event 范围。旧 Juzhan 独立事件限次路径不受此次限制变更影响。

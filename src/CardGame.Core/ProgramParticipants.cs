@@ -5,7 +5,10 @@ public enum ProgramParticipantRef
     Owner,
     Actor,
     EventTarget,
+    EventSource,
     SelectedTarget,
+    SelectedFirst,
+    SelectedSecond,
     ResultSource,
     ResultOpponent
 }

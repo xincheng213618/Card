@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:jujian": {
+      "name": "举荐",
+      "description": "结束阶段开始时，你可以弃置一张非基本牌并选择一名其他角色，令其选择摸两张牌、回复1点体力或复原武将牌。",
+      "optionLabels": {
+        "draw": "摸两张牌。",
+        "recover": "回复1点体力。",
+        "restore": "复原武将牌（翻至正面并解除横置）。"
+      }
+    }
+  }
+}

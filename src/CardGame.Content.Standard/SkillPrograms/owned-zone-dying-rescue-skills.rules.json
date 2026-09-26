@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 41,
+  "skills": [
+    {
+      "id": "classic:chunlao",
+      "revision": 1,
+      "minimumRulesVersion": 146,
+      "triggers": [
+        {
+          "id": "store-chun-at-turn-end",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 200,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentOwnedZoneCount", "zone": "chunlao" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 0 }
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "minimumCards": 1,
+              "maximumCards": 20,
+              "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+              "zones": ["hand"],
+              "resultBind": "stored-chun"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "stored-chun",
+              "destination": "ownerPersistentZone",
+              "destinationZone": "chunlao"
+            }
+          ]
+        },
+        {
+          "id": "spend-chun-for-dying-alcohol",
+          "window": "dyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentOwnedZoneCount", "zone": "chunlao" },
+            "operator": "greaterThan",
+            "right": { "kind": "integerConstant", "value": 0 }
+          },
+          "effects": [
+            {
+              "op": "selectSourceCard",
+              "target": "owner",
+              "cardSource": "owner",
+              "zones": ["chunlao"],
+              "resultBind": "rescue-chun"
+            },
+            {
+              "op": "useBoundCardAsDyingAlcohol",
+              "target": "owner",
+              "sourceBind": "rescue-chun"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

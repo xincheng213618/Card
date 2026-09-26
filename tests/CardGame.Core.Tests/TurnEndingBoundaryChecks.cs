@@ -42,6 +42,21 @@ internal static class TurnEndingBoundaryChecks
                     { Op: SkillProgramTriggerEffectOp.SetFaceState, FaceDown: true }
                 ],
             "Jushou must draw three then use the exact face-down state primitive, not the toggle primitive.");
+
+        Require(legacy.Skills["classic:jujian"] is { LegacyKind: SkillKind.Jujian, Program: null } &&
+                current.Skills["classic:jujian"] is
+                {
+                    LegacyKind: null,
+                    Program: { UsesCompositionKernel: true, MinimumRulesVersion: 135 } jujian
+                } &&
+                jujian.Triggers.Single() is
+                {
+                    Window: SkillProgramTriggerWindow.TurnEnding,
+                    Priority: 0,
+                    UsageScope: SkillUsageScope.Turn,
+                    UsageLimit: 1
+                },
+            "Current content must replace the historical Jujian executor with the schema-30 composition program.");
     }
 
     public static void OrdersJushouJujianBiyueAndReplays()
@@ -53,16 +68,12 @@ internal static class TurnEndingBoundaryChecks
         EndPlayAndReachSkill(game, "classic:jushou");
 
         var frame = game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single();
-        Require(frame.Items.Select(item => item.StableIdentity).SequenceEqual(
-                [
-                    frame.Items[0].StableIdentity,
-                    "legacy:classic:jujian",
-                    frame.Items[2].StableIdentity
-                ]) &&
-                frame.Items[0].Candidate?.SkillId == "classic:jushou" &&
-                frame.Items[2].Candidate?.SkillId == "classic:biyue" &&
+        Require(frame.Items.All(item => item.Kind == TurnEndingBoundaryItemKind.Program) &&
+                frame.Items.Select(item => item.Candidate?.SkillId).SequenceEqual(
+                    ["classic:jushou", "classic:jujian", "classic:biyue"]) &&
+                frame.Items.All(item => item.StableIdentity.StartsWith("program:", StringComparison.Ordinal)) &&
                 frame.Step == ResolutionFrameStep.AwaitingResponse,
-            "The frozen boundary must order Jushou, the restricted Jujian bridge, then Biyue.");
+            "The frozen boundary must order Jushou, generic Jujian, then Biyue as ordinary program items.");
         var serializedFrames = JsonSerializer.Serialize(game.ResolutionStack);
         var serializedRoundTrip = JsonSerializer.Deserialize<ResolutionFrame[]>(serializedFrames) ?? [];
         Require(serializedRoundTrip.Single() is TurnEndingBoundaryFrame serializedBoundary &&
@@ -87,12 +98,24 @@ internal static class TurnEndingBoundaryChecks
             .ToArray();
         Require(jushouDraws.Length == 3 &&
                 game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].IsFaceDown &&
-                game.PendingDecision is { Kind: DecisionKind.Jujian, PlayerSeat: HumanSeat },
+                game.PendingDecision is
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    PlayerSeat: HumanSeat,
+                    SkillPrompt.SkillId: "classic:jujian"
+                },
             "Jushou must draw exactly three and keep an already face-down owner face down before Jujian.");
 
-        var jujian = game.PendingDecision!;
-        var useDrawnCard = jujian.Choices.FirstOrDefault(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "jujian-use" &&
+        AnswerProgram(game, "activate");
+        var targetPrompt = RequireSkillPrompt(game, "classic:jujian");
+        var targetChoice = targetPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-target");
+        Answer(game, targetChoice);
+        var targetSeat = targetChoice.Targets.Single();
+
+        var paymentPrompt = RequireSkillPrompt(game, "classic:jujian");
+        var useDrawnCard = paymentPrompt.Choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
             choice.Cards.Count == 1 && jushouDraws.Contains(choice.Cards[0]));
         Require(useDrawnCard is not null,
             "Jujian must compute its costs on arrival so a card drawn by Jushou is immediately legal.");
@@ -108,8 +131,13 @@ internal static class TurnEndingBoundaryChecks
 
         AnswerProgram(game, "activate");
         AnswerProgram(replay, "activate");
-        var jujianEvent = game.Events.Select(item => item.Payload).OfType<JujianResolvedEvent>().Last();
-        Require(jujianEvent.DiscardedCardId == useDrawnCard!.Cards.Single() &&
+        var jujianChoice = game.Events.Select(item => item.Payload).OfType<ProgramOptionChosenEvent>()
+            .Last(item => item.SkillId == "classic:jujian");
+        Require(jujianChoice is { ResultBind: "benefit", OptionId: "draw" } &&
+                jujianChoice.ChooserSeat == targetSeat &&
+                game.CardMovements.Any(move =>
+                    move.CardId == useDrawnCard!.Cards.Single() && move.To == CardLocation.DiscardPile &&
+                    move.Reason.Value == "skill-program.classic:jujian.SelectAndMoveOwnedCard") &&
                 game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count == handBefore + 3 &&
                 game.CardMovements.Count(move =>
                     move.Reason.Value == "skill-program.classic:biyue.Draw" &&
@@ -123,7 +151,8 @@ internal static class TurnEndingBoundaryChecks
         var orderedEvents = game.Events.Select(item => item.Payload).ToArray();
         var jushouResolved = Array.FindIndex(orderedEvents, item =>
             item is ProgramBindingResolvedEvent { SkillId: "classic:jushou", Completed: true });
-        var jujianResolved = Array.FindIndex(orderedEvents, item => item is JujianResolvedEvent { Used: true });
+        var jujianResolved = Array.FindIndex(orderedEvents, item =>
+            item is ProgramBindingResolvedEvent { SkillId: "classic:jujian", Completed: true });
         var biyueStarted = Array.FindIndex(orderedEvents, item =>
             item is ProgramBindingStartedEvent { SkillId: "classic:biyue" });
         Require(jushouResolved >= 0 && jushouResolved < jujianResolved && jujianResolved < biyueStarted,
@@ -170,8 +199,12 @@ internal static class TurnEndingBoundaryChecks
                 game.CardMovements.Count(move =>
                     move.Reason.Value == "skill-program.classic:jushou.Draw" &&
                     move.To == CardLocation.Hand(HumanSeat)) == 3 &&
-                game.PendingDecision is { Kind: DecisionKind.Jujian },
-            "A Jushou instance lost while prompted must skip safely and advance once to the bridge.");
+                game.PendingDecision is
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    SkillPrompt.SkillId: "classic:jujian"
+                },
+            "A Jushou instance lost while prompted must skip safely and advance once to generic Jujian.");
     }
 
     public static void FreezesFactsAcrossEarlierTurnEndingEffects()

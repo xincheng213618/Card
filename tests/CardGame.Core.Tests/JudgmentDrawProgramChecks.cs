@@ -14,7 +14,7 @@ internal static class JudgmentDrawProgramChecks
         var trigger = skill.Program?.Triggers.Single();
 
         Require(GameCheckpoint.CurrentRulesVersion >= 126 &&
-                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 113, 0) &&
+                StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 107, 0) &&
                 skill is
                 {
                     LegacyKind: null,

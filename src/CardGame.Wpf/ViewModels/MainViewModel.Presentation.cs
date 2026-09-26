@@ -100,7 +100,7 @@ public sealed partial class MainViewModel
                             human.SkillRuntimeStates?.Any(state =>
                                 state.SkillId == "classic:fuhun" &&
                                 state.Usages.Any(usage =>
-                                    usage.UsageId == "parent-skills-granted" &&
+                                    usage.UsageId.StartsWith("grant-parent-skills@", StringComparison.Ordinal) &&
                                     usage.Scope == SkillUsageScope.Turn &&
                                     usage.Count > 0)) == true;
                         return new HumanSkillViewModel(
@@ -200,7 +200,7 @@ public sealed partial class MainViewModel
             return programState;
         if (runtimeState?.SkillId == "classic:fuhun" &&
             runtimeState.Usages.Any(usage =>
-                usage.UsageId == "parent-skills-granted" &&
+                usage.UsageId.StartsWith("grant-parent-skills@", StringComparison.Ordinal) &&
                 usage.Scope == SkillUsageScope.Turn &&
                 usage.Count > 0))
         {
@@ -250,25 +250,6 @@ public sealed partial class MainViewModel
                     usage.Count > 0))
             {
                 return "本回合：杀次数 +1 · 无距离限制";
-            }
-        }
-        if (runtimeState?.SkillId == "classic:qianxi")
-        {
-            var restriction = runtimeState.Usages.FirstOrDefault(usage =>
-                usage.Scope == SkillUsageScope.Turn &&
-                usage.Count > 0 &&
-                usage.UsageId.StartsWith("restriction.target-", StringComparison.Ordinal));
-            if (restriction is not null)
-            {
-                var parts = restriction.UsageId.Split('.');
-                var targetPart = parts.FirstOrDefault(part =>
-                    part.StartsWith("target-", StringComparison.Ordinal));
-                var color = parts.LastOrDefault() == "red" ? "红色" : "黑色";
-                if (targetPart is not null &&
-                    int.TryParse(targetPart["target-".Length..], out var targetSeat))
-                {
-                    return $"本回合：{targetSeat + 1:D2}号位 · {color}手牌封禁";
-                }
             }
         }
         if (runtimeState?.SkillId == "classic:zishou" &&
@@ -354,7 +335,6 @@ public sealed partial class MainViewModel
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
         _selectedActiveSkillCardIds.All(id => action.SelectableCardIds.Contains(id)) &&
         _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat)) &&
-        (action.Skill != SkillKind.Anxu || HasUnequalAnxuTargetHands()) &&
         (action.Skill != SkillKind.Luanji || Hand.Where(card => _selectedActiveSkillCardIds.Contains(card.Id))
             .Select(card => card.SuitGlyph).Distinct(StringComparer.Ordinal).Count() == 1);
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;
@@ -675,19 +655,6 @@ public sealed partial class MainViewModel
         return string.Join("、", parts);
     }
 
-    private bool HasUnequalAnxuTargetHands()
-    {
-        if (_selectedActiveSkillTargetSeats.Count != 2)
-        {
-            return false;
-        }
-
-        var selected = Seats
-            .Where(seat => _selectedActiveSkillTargetSeats.Contains(seat.Seat))
-            .ToArray();
-        return selected.Length == 2 && selected[0].HandCount != selected[1].HandCount;
-    }
-
     private string GetActiveSkillSelectionHint()
     {
         var action = HumanActiveSkillAction;
@@ -707,9 +674,7 @@ public sealed partial class MainViewModel
 
         var next = CanConfirmActiveSkill
             ? $"点击「发动{skillName}」或按 Enter 确认。"
-            : action.Skill == SkillKind.Anxu && _selectedActiveSkillTargetSeats.Count == 2
-                ? "两名目标的手牌数必须不同；Esc 取消。"
-                : "选够牌和目标后即可确认；Esc 取消。";
+            : "选够牌和目标后即可确认；Esc 取消。";
         return $"【{skillName}】{string.Join(" · ", parts)} · {next}";
     }
 

@@ -8,17 +8,29 @@ internal static class WushengResponseScenario
 
     public static GameEngine FindLongdanDodge(
         ContentRegistry? registry = null,
-        string? modeId = null)
+        string? modeId = null,
+        string? skillContentId = null)
         => FindResponse(
             CardKind.Slash,
             SkillKind.Longdan,
             DecisionKind.RespondDodge,
             registry,
-            modeId);
+            modeId,
+            skillContentId);
+
+    public static GameEngine FindClassicWushengHand(ContentRegistry registry)
+        => FindResponse(
+            CardKind.Duel,
+            SkillKind.Wusheng,
+            DecisionKind.RespondSlash,
+            registry,
+            "identity:classic-8",
+            "classic:wusheng");
 
     public static GameEngine FindQingguoDodge(
         CardKind incoming = CardKind.Slash,
-        Version? packageVersion = null)
+        Version? packageVersion = null,
+        string? skillContentId = null)
         => FindResponse(
             incoming,
             SkillKind.Qingguo,
@@ -26,7 +38,8 @@ internal static class WushengResponseScenario
             packageVersion is null
                 ? StandardContentRegistry.CreateWithClassicGenerals()
                 : StandardContentRegistry.CreateWithClassicGenerals(packageVersion),
-            "identity:classic-8");
+            "identity:classic-8",
+            skillContentId);
 
     public static GameEngine FindClassicWushengEquipmentResponse()
     {
@@ -109,7 +122,16 @@ internal static class WushengResponseScenario
                     break;
                 }
 
-                Step(game);
+                try
+                {
+                    Step(game);
+                }
+                catch (InvalidOperationException exception) when (
+                    exception.Message.StartsWith("Unknown or unsupported turn phase:", StringComparison.Ordinal))
+                {
+                    // A bare human phase boundary is not a valid autonomous response fixture.
+                    break;
+                }
             }
         }
 
@@ -121,9 +143,10 @@ internal static class WushengResponseScenario
         SkillKind responderSkill,
         DecisionKind decisionKind,
         ContentRegistry? registry = null,
-        string? modeId = null)
+        string? modeId = null,
+        string? skillContentId = null)
     {
-        for (var seed = 1; seed <= 256; seed++)
+        for (var seed = 1; seed <= (skillContentId is null ? 256 : 4_096); seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
@@ -139,8 +162,11 @@ internal static class WushengResponseScenario
                 AiPolicyVersion = 2
             }, registry ?? StandardContentRegistry.Create());
             var human = game.CreateSnapshot(0).Players[0];
-            if (human.Skill != responderSkill &&
-                human.Skills?.Any(skill => skill.Kind == responderSkill) != true)
+            var matchesSkill = skillContentId is null
+                ? human.Skill == responderSkill ||
+                  human.Skills?.Any(skill => skill.Kind == responderSkill) == true
+                : human.Skills?.Any(skill => skill.ContentId == skillContentId) == true;
+            if (!matchesSkill)
             {
                 continue;
             }
@@ -154,7 +180,16 @@ internal static class WushengResponseScenario
                         ? hand.Single(card => card.Id == choice.Cards[0]).Kind != CardKind.Dodge
                         : hand.Single(card => card.Id == choice.Cards[0]).Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)))) return game;
                 }
-                Step(game);
+                try
+                {
+                    Step(game);
+                }
+                catch (InvalidOperationException exception) when (
+                    exception.Message.StartsWith("Unknown or unsupported turn phase:", StringComparison.Ordinal))
+                {
+                    // This seed returned to a bare human phase before the requested response.
+                    break;
+                }
             }
         }
         throw new InvalidOperationException($"No bounded {responderSkill} {incoming} fixture was found.");

@@ -85,14 +85,17 @@ function Find-TestAssembly {
 
 function Invoke-TestAssembly {
     param([string] $Assembly, [string] $Scope, [string[]] $Filters, [switch] $RunFull)
+    [string[]] $testArguments = if ($Scope -eq 'WPF') {
+        @(Join-Path $ArtifactsPath 'renders')
+    } else { @() }
     if ($RunFull) {
-        return Invoke-LoggedStep "$Scope full checks" "$($Scope.ToLowerInvariant())-full.log" { & dotnet $Assembly }
+        return Invoke-LoggedStep "$Scope full checks" "$($Scope.ToLowerInvariant())-full.log" { & dotnet $Assembly @testArguments }
     }
     $failed = 0
     for ($index = 0; $index -lt $Filters.Count; $index++) {
         $filter = $Filters[$index]
         $safeName = "$($Scope.ToLowerInvariant())-filter-$($index + 1).log"
-        $code = Invoke-LoggedStep "$Scope filter: $filter" $safeName { & dotnet $Assembly "--filter=$filter" }
+        $code = Invoke-LoggedStep "$Scope filter: $filter" $safeName { & dotnet $Assembly @testArguments "--filter=$filter" }
         if ($code -ne 0) { $failed = 1 }
     }
     return $failed

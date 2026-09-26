@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 52,
+  "skills": [
+    {
+      "id": "classic:lihuo",
+      "revision": 3,
+      "minimumRulesVersion": 162,
+      "modifiers": [
+        {
+          "id": "fire-slash-extra-target",
+          "query": "cardTargetCount",
+          "operation": "add",
+          "value": 1,
+          "priority": 0,
+          "cardKinds": ["fireSlash"]
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "ordinary-slash-to-fire-slash",
+          "inputKinds": ["slash"],
+          "inputSuits": [],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowChainedInput": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "lose-hp-after-converted-fire-slash-damage",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "cardKinds": ["fireSlash"],
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardUseCausedDamage" },
+              {
+                "kind": "cardUseConversionSkillIs",
+                "conversionSkillId": "classic:lihuo"
+              }
+            ]
+          },
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

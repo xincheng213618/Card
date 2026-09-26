@@ -57,21 +57,20 @@ internal static class SkillProgramCauseDeathChecks
                 $"stack={string.Join(',', game.ResolutionStack.Select(frame => frame.Kind))}.");
         Require(prompt is
         {
-            Kind: DecisionKind.WuhunTarget,
+            Kind: DecisionKind.ProgramTrigger,
             PlayerSeat: 0,
             IsPrivate: true
         } && prompt.ValidTargetSeats.Contains(sourceSeat) &&
                 game.ResolutionStack.OfType<DeathFrame>().Any(frame => frame.VictimSeat == 0) &&
-                game.ResolutionStack.OfType<DeathSkillFrame>().Single() is
+                game.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Single() is
                 {
                     OwnerSeat: 0
-                } deathSkillFrame &&
-                deathSkillFrame.CandidateSeats.SequenceEqual(prompt.ValidTargetSeats),
+                } deathWindow,
             $"Program causeDeath must let its dead target open a nested, private death-skill choice " +
             $"(kind={prompt.Kind}, player={prompt.PlayerSeat}, private={prompt.IsPrivate}, " +
             $"targets=[{string.Join(',', prompt.ValidTargetSeats)}], expected=[{sourceSeat}], " +
             $"death=[{string.Join(',', game.ResolutionStack.OfType<DeathFrame>().Select(frame => frame.VictimSeat))}], " +
-            $"death-skills=[{string.Join(',', game.ResolutionStack.OfType<DeathSkillFrame>().Select(frame => frame.OwnerSeat))}]).");
+            $"death-windows=[{string.Join(',', game.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Select(frame => frame.OwnerSeat))}]).");
 
         var observerHandBefore = game.CreateSnapshot(0, revealAll: true).Players[observerSeat].HandCount;
         var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
@@ -88,7 +87,9 @@ internal static class SkillProgramCauseDeathChecks
         var ownerDeathIndex = Array.FindIndex(events, causeIndex + 1, item =>
             item is PlayerDiedEvent death && death.VictimSeat == 0 && death.KillerSeat is null);
         var nestedStartIndex = Array.FindIndex(events, ownerDeathIndex + 1, item =>
-            item is DeathSkillStartedEvent started && started.OwnerSeat == 0);
+            item is ProgramBindingStartedEvent started && started.OwnerSeat == 0 &&
+            started.SkillId == WuhunSkillId &&
+            started.Window == SkillProgramTriggerWindow.OwnerDied);
         var sourceDeathIndex = Array.FindIndex(events, nestedStartIndex + 1, item =>
             item is PlayerDiedEvent death && death.VictimSeat == sourceSeat && death.KillerSeat is null);
         Require(causeIndex >= 0 && ownerDeathIndex > causeIndex && nestedStartIndex > ownerDeathIndex &&
@@ -132,13 +133,21 @@ internal static class SkillProgramCauseDeathChecks
         Require(cause.SourceSeat == 0 &&
                 events.OfType<PlayerDiedEvent>().Any(item => item.VictimSeat == 0 && item.KillerSeat is null) &&
                 !events.OfType<PlayerDyingEvent>().Any(item => item.VictimSeat == 0) &&
-                !events.OfType<DeathSkillStartedEvent>().Any(item => item.OwnerSeat == 0) &&
+                !events.OfType<ProgramBindingStartedEvent>().Any(item =>
+                    item.OwnerSeat == 0 && item.SkillId == WuhunSkillId &&
+                    item.Window == SkillProgramTriggerWindow.OwnerDied) &&
                 !events.OfType<ProgramJudgmentTriggerResolvedEvent>().Any(item =>
                     item.SkillId == ObserverProgramId && item.TriggerId == ObserverTriggerId) &&
                 game.CreateSnapshot(0, revealAll: true).Players[observerSeat].HandCount == observerHandBefore &&
                 game.State is { Winner: Winner.LordAndLoyalists, Status: EngineStatus.Completed } &&
                 game.ResolutionStack.Count == 0,
-            "A terminal causeDeath must skip death skills and later trigger candidates while unwinding cleanup.");
+            $"A terminal causeDeath must skip death skills and later trigger candidates while unwinding cleanup. " +
+            $"source={cause.SourceSeat}; died={events.OfType<PlayerDiedEvent>().Any(item => item.VictimSeat == 0 && item.KillerSeat is null)}; " +
+            $"dying={events.OfType<PlayerDyingEvent>().Any(item => item.VictimSeat == 0)}; " +
+            $"wuhun={events.OfType<ProgramBindingStartedEvent>().Any(item => item.OwnerSeat == 0 && item.SkillId == WuhunSkillId && item.Window == SkillProgramTriggerWindow.OwnerDied)}; " +
+            $"observer={events.OfType<ProgramJudgmentTriggerResolvedEvent>().Any(item => item.SkillId == ObserverProgramId && item.TriggerId == ObserverTriggerId)}; " +
+            $"hand={game.CreateSnapshot(0, revealAll: true).Players[observerSeat].HandCount}/{observerHandBefore}; " +
+            $"state={game.State.Winner}/{game.State.Status}; stack={game.ResolutionStack.Count}.");
 
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
@@ -224,7 +233,8 @@ internal static class SkillProgramCauseDeathChecks
     {
         for (var step = 0; step < 64; step++)
         {
-            if (game.PendingDecision is { Kind: DecisionKind.WuhunTarget, PlayerSeat: 0 }) return;
+            if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } prompt &&
+                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "select-target")) return;
             if (game.PendingDecision is not null)
                 throw new InvalidOperationException(
                     $"Unexpected prompt {game.PendingDecision.Kind} before nested Wuhun.");
@@ -293,11 +303,16 @@ internal static class SkillProgramCauseDeathChecks
                 builder.AddSkill(new ContentSkillDefinition(id, text.Name, text.Description)
                 { Program = program });
             }
+            var wuhun = SkillProgramCatalog.Load(WuhunRules, WuhunPresentation).Programs[WuhunSkillId];
             builder.AddSkill(new ContentSkillDefinition(
                 WuhunSkillId,
                 "武魂",
-                "受到每点伤害后，伤害来源获得梦魇；死亡时令最多者判定。",
-                SkillKind.Wuhun));
+                "受到每点伤害后，伤害来源获得梦魇；死亡时令最多者判定。")
+            {
+                Program = wuhun,
+                Tags = SkillTag.Locked,
+                ExecutionForms = SkillExecutionForm.State
+            });
             builder.AddGeneral(new ContentGeneralDefinition(
                 OwnerGeneralId,
                 "直接死亡测试",
@@ -381,5 +396,21 @@ internal static class SkillProgramCauseDeathChecks
           "cause-death-test:owner":{"name":"直接死亡","description":"刚烈判定后令判定角色直接死亡。"},
           "cause-death-test:observer":{"name":"后续候选","description":"刚烈判定后摸一张牌。"}
         }}
+        """;
+
+    private const string WuhunRules = """
+        {"schemaVersion":38,"skills":[{"id":"cause-death-test:wuhun","revision":2,"minimumRulesVersion":143,
+        "modifiers":[],"viewAs":[],"activations":[],"triggers":[
+          {"id":"damage-nightmare","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
+           "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
+          {"id":"death-judgment","window":"ownerDied","subject":"owner","optional":false,"priority":0,
+           "effects":[{"op":"selectTarget","target":"owner","targetKind":"maximumAttributedMarker","marker":"nightmare"},
+                      {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.wuhun.death","resultBind":"judgment","visibility":"public"},
+                      {"op":"causeDeathUnlessBoundCardKind","target":"selectedTarget","sourceBind":"judgment","excludedCardKinds":["peach","peachGarden"]}]}
+        ],"contributions":[],"cardIdentities":[],"states":[]}]}
+        """;
+
+    private const string WuhunPresentation = """
+        {"schemaVersion":1,"skills":{"cause-death-test:wuhun":{"name":"武魂","description":"归属梦魇与死亡判定测试。"}}}
         """;
 }

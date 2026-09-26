@@ -187,14 +187,11 @@ internal static class LiaoHuaChecks
     {
         var prompt = RequirePrompt(game, DecisionKind.PlayCard);
         var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Kujin);
-        var result = game.Submit(new UseSkillCommand(
-            HumanSeat,
-            SkillKind.Kujin,
-            [],
-            [],
-            game.Revision,
-            prompt.PromptId));
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:kujin");
+        var result = game.Submit(new UseProgramSkillCommand(
+            HumanSeat, action.ProgramSkillId!, action.ProgramActivationId!, [], [],
+            game.Revision, prompt.PromptId));
         Require(result.Accepted, result.Error?.Message ?? "The Fuli setup could not use Kujin.");
     }
 

@@ -1,0 +1,19 @@
+{
+  "generalId": "classic:zhu-huan",
+  "skillId": "classic:youdi",
+  "edition": "2014 一将成名四身份版",
+  "rulesSources": [
+    "https://www.sanguosha.com/news/20140425_6336_1413",
+    "https://www.sanguosha.com/news/20160429_4284_0716"
+  ],
+  "artwork": {
+    "sourcePage": "https://www.sanguosha.com/news/20160429_4284_0716",
+    "sourceUrl": "https://www.sanguosha.com/uploads/201604/57231faba311d.jpg",
+    "sourceSha256": "D777E4709D0A1839B4E8E52E90B8616163D6FF46F88C42BAC4AEB3E6B6FB883F",
+    "asset": "src/CardGame.Wpf/Assets/official-zhu-huan.png",
+    "assetSha256": "D26A67974064FA772614614FCF5B2613492F6149798302589C6A5849693B3B9F",
+    "dimensions": "350x492",
+    "conversion": "Official JPEG decoded and saved as PNG without content changes"
+  },
+  "identityNote": "The official 2016 product page attributes this portrait to Zhu Huan of 一将成名2014. Current hero/328 describes later 奋励/平寇 and was not used for the locked rule."
+}

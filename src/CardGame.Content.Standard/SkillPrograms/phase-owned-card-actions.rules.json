@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 47,
+  "skills": [
+    {
+      "id": "classic:qingnang",
+      "revision": 2,
+      "minimumRulesVersion": 157,
+      "activations": [
+        {
+          "id": "discard-and-heal",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyWounded",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "recover", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:zhiheng",
+      "revision": 1,
+      "minimumRulesVersion": 157,
+      "activations": [
+        {
+          "id": "exchange-owned-cards",
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "captureSelectedCards", "target": "owner", "resultBind": "exchange-cards" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "exchange-cards", "destination": "discardPile" },
+            { "op": "draw", "target": "owner", "numberExpression": "boundCardCount", "sourceBind": "exchange-cards" }
+          ]
+        }
+      ]
+    }
+  ]
+}

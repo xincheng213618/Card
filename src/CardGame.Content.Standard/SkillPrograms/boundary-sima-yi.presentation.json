@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "boundary:guicai": {
+      "name": "鬼才",
+      "description": "一名角色的判定牌生效前，你可以打出一张手牌或装备区里的牌代替之。"
+    }
+  }
+}

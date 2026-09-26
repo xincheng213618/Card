@@ -1,112 +1,99 @@
-using System.Collections;
 using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
 internal static class XuShuChecks
 {
+    private const int OwnerSeat = 0;
+
     public static void JujianBenefitsAndReplay()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 78,
-            "Jujian requires the rules v78 compatibility boundary.");
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
-        var (_, ownerCheckpoint) = FindOwnerPrompt(registry);
+        Require(GameCheckpoint.CurrentRulesVersion >= 135,
+            "The program-backed Jujian requires the rules v135 compatibility boundary.");
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var ownerCheckpoint = FindOwnerPrompt(registry);
         var owner = GameReplay.Restore(ownerCheckpoint, registry);
-        var prompt = owner.PendingDecision ??
-            throw new InvalidOperationException("Xu Shu did not retain the Jujian owner prompt.");
-        Require(prompt is { Kind: DecisionKind.Jujian, PlayerSeat: 0, IsPrivate: true } &&
-                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "jujian-skip") &&
-                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "jujian-use"),
-            "Xu Shu must receive a private optional Jujian owner prompt at the end phase.");
-        var ownerView = owner.CreateSnapshot(0, revealAll: true).Players[0];
-        var ownerCards = ownerView.Hand.Concat(ownerView.Equipment).ToDictionary(card => card.Id);
-        Require(prompt.ValidCardIds.All(id =>
-                    ownerCards.TryGetValue(id, out var card) &&
-                    CardCatalog.Get(card.Kind).CategoryName != "基本牌") &&
-                prompt.ValidCardIds.Count > 0,
-            "Jujian must publish only non-basic cards from Xu Shu's hand or equipment.");
+        var prompt = RequireJujianPrompt(owner, "activate");
+        Require(prompt is { PlayerSeat: OwnerSeat, IsPrivate: true } &&
+                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip") &&
+                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"),
+            "Xu Shu must receive the ordinary private optional-program prompt at the turn-ending boundary.");
 
-        var targetSeat = prompt.ValidTargetSeats[0];
-        var draw = RunBranch(ownerCheckpoint, registry, targetSeat, "jujian-draw", _ => { });
-        Require(draw.Event is { Benefit: JujianBenefitKind.DrawTwo, DrawnCards: 2, RecoveredHp: 0 } &&
+        const int targetSeat = 1;
+        var draw = RunBranch(ownerCheckpoint, registry, targetSeat, "draw", _ => { });
+        Require(draw.Choice is { ResultBind: "benefit", OptionId: "draw", ChooserSeat: targetSeat } &&
                 draw.AfterTarget.HandCount == draw.BeforeTarget.HandCount + 2 &&
                 draw.Game.CardMovements.Count(move =>
-                    move.Reason == CardMoveReasons.JujianDraw && move.To == CardLocation.Hand(targetSeat)) == 2,
-            "The Jujian draw branch must move exactly two physical cards to the target's hand.");
+                    move.Reason.Value == "skill-program.classic:jujian.Draw" &&
+                    move.To == CardLocation.Hand(targetSeat)) == 2,
+            "The generic Jujian draw branch must move exactly two physical cards to the selected target's hand.");
         var replayedDraw = GameReplay.Restore(draw.Game.CreateCheckpoint(), registry);
-        Require(SnapshotJson.Serialize(replayedDraw.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(draw.Game.CreateSnapshot(0, revealAll: true)) &&
+        Require(SnapshotJson.Serialize(replayedDraw.CreateSnapshot(OwnerSeat, revealAll: true)) ==
+                SnapshotJson.Serialize(draw.Game.CreateSnapshot(OwnerSeat, revealAll: true)) &&
                 replayedDraw.CardMovements.SequenceEqual(draw.Game.CardMovements),
-            "A completed Jujian draw branch must restore to the same public and physical state.");
+            "A completed program-backed Jujian draw branch must restore to the same public and physical state.");
 
-        var recovery = RunBranch(ownerCheckpoint, registry, targetSeat, "jujian-recover", player =>
-            player.GetType().GetProperty("Hp")!.SetValue(player,
-                (int)player.GetType().GetProperty("MaxHp")!.GetValue(player)! - 1));
-        Require(recovery.Event is { Benefit: JujianBenefitKind.RecoverOne, DrawnCards: 0, RecoveredHp: 1 } &&
+        var recovery = RunBranch(ownerCheckpoint, registry, targetSeat, "recover", player =>
+            player.Hp = player.MaxHp - 1);
+        Require(recovery.Choice is { OptionId: "recover", ChooserSeat: targetSeat } &&
                 recovery.AfterTarget.Hp == recovery.BeforeTarget.Hp + 1 &&
+                recovery.AfterTarget.HandCount == recovery.BeforeTarget.HandCount &&
                 recovery.Game.Events.Any(envelope => envelope.Payload is RecoveryAppliedEvent
                 {
-                    SourceSeat: 0,
-                    TargetSeat: var seat,
+                    SourceSeat: OwnerSeat,
+                    TargetSeat: targetSeat,
                     Amount: 1
-                } && seat == targetSeat),
-            "The Jujian recovery branch must restore exactly one HP through the recovery event path.");
+                }),
+            "The generic Jujian recovery branch must restore exactly one HP through the ordinary recovery path.");
 
-        var restored = RunBranch(ownerCheckpoint, registry, targetSeat, "jujian-restore", player =>
+        var restored = RunBranch(ownerCheckpoint, registry, targetSeat, "restore", player =>
         {
-            player.GetType().GetProperty("IsFaceDown")!.SetValue(player, true);
-            player.GetType().GetProperty("IsChained")!.SetValue(player, true);
+            player.IsFaceDown = true;
+            player.IsChained = true;
         });
-        Require(restored.Event is
-        {
-            Benefit: JujianBenefitKind.RestoreGeneral,
-            TargetIsFaceDown: false,
-            TargetIsChained: false
-        } &&
+        Require(restored.Choice is { OptionId: "restore", ChooserSeat: targetSeat } &&
                 restored.BeforeTarget.IsFaceDown && restored.BeforeTarget.IsChained &&
                 !restored.AfterTarget.IsFaceDown && !restored.AfterTarget.IsChained &&
-                restored.Game.Events.Any(envelope => envelope.Payload is IronChainStateChangedEvent
+                restored.Game.Events.Any(envelope => envelope.Payload is ProgramChainedStateSetEvent
                 {
-                    TargetSeat: var seat,
+                    TargetSeat: targetSeat,
                     IsChained: false
-                } && seat == targetSeat),
-            "The Jujian restore branch must turn the general face up and remove chaining.");
+                }),
+            "The generic Jujian restore branch must turn the selected target face up and remove chaining.");
 
-        var repeatedRecovery = RunBranch(ownerCheckpoint, registry, targetSeat, "jujian-recover", player =>
-            player.GetType().GetProperty("Hp")!.SetValue(player,
-                (int)player.GetType().GetProperty("MaxHp")!.GetValue(player)! - 1));
-        var repeatedRestore = RunBranch(ownerCheckpoint, registry, targetSeat, "jujian-restore", player =>
+        var repeatedRecovery = RunBranch(ownerCheckpoint, registry, targetSeat, "recover", player =>
+            player.Hp = player.MaxHp - 1);
+        var repeatedRestore = RunBranch(ownerCheckpoint, registry, targetSeat, "restore", player =>
         {
-            player.GetType().GetProperty("IsFaceDown")!.SetValue(player, true);
-            player.GetType().GetProperty("IsChained")!.SetValue(player, true);
+            player.IsFaceDown = true;
+            player.IsChained = true;
         });
-        Require(SnapshotJson.Serialize(repeatedRecovery.Game.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(recovery.Game.CreateSnapshot(0, revealAll: true)) &&
-                SnapshotJson.Serialize(repeatedRestore.Game.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(restored.Game.CreateSnapshot(0, revealAll: true)),
-            "Jujian recovery and restoration must be deterministic from the same controlled boundary.");
+        Require(SnapshotJson.Serialize(repeatedRecovery.Game.CreateSnapshot(OwnerSeat, revealAll: true)) ==
+                SnapshotJson.Serialize(recovery.Game.CreateSnapshot(OwnerSeat, revealAll: true)) &&
+                SnapshotJson.Serialize(repeatedRestore.Game.CreateSnapshot(OwnerSeat, revealAll: true)) ==
+                SnapshotJson.Serialize(restored.Game.CreateSnapshot(OwnerSeat, revealAll: true)),
+            "Jujian recovery and restoration must remain deterministic from the same controlled boundary.");
 
         var skipped = GameReplay.Restore(ownerCheckpoint, registry);
-        var skippedPrompt = skipped.PendingDecision!;
-        var skip = skippedPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "jujian-skip");
+        var skippedPrompt = RequireJujianPrompt(skipped, "skip");
         var movementsBeforeSkip = skipped.CardMovements.Count;
-        Require(skipped.Submit(new AnswerPromptCommand(
-                    0, skippedPrompt.PromptId, skip.Id, skipped.Revision)).Accepted &&
-                skipped.CardMovements.Count == movementsBeforeSkip &&
-                skipped.Events.Select(envelope => envelope.Payload).OfType<JujianResolvedEvent>().Last() is
-                { Used: false, DiscardedCardId: null, TargetSeat: null },
-            "Skipping Jujian must end the optional window without moving a card.");
+        AnswerProgram(skipped, skippedPrompt, "skip");
+        Require(skipped.CardMovements.Count == movementsBeforeSkip &&
+                !skipped.Events.Select(envelope => envelope.Payload).OfType<ProgramOptionChosenEvent>()
+                    .Any(item => item.SkillId == "classic:jujian") &&
+                skipped.Events.Select(envelope => envelope.Payload).OfType<ProgramBindingResolvedEvent>().Last(item =>
+                    item.SkillId == "classic:jujian") is { Activated: false, Completed: false },
+            "Skipping Jujian must leave cards untouched and close the ordinary optional program without a result choice.");
     }
 
-    private static (GameCheckpoint PreEnd, GameCheckpoint OwnerPrompt) FindOwnerPrompt(ContentRegistry registry)
+    private static GameCheckpoint FindOwnerPrompt(ContentRegistry registry)
     {
         for (var seed = 1; seed <= 4096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
                 Seed = seed,
-                HumanSeat = 0,
+                HumanSeat = OwnerSeat,
                 HumanRole = Role.Lord,
                 PlayerCount = 5,
                 ModeId = "identity:classic-5",
@@ -116,120 +103,141 @@ internal static class XuShuChecks
                 MaxTurns = 80
             }, registry);
             if (!game.Submit(new StartGameCommand()).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } setup ||
+                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: OwnerSeat } setup ||
                 !setup.ValidContentIds.Contains("classic:xu-shu") ||
                 !game.Submit(new SelectGeneralCommand(
-                    0, "classic:xu-shu", game.Revision, setup.PromptId)).Accepted)
-            {
+                    OwnerSeat, "classic:xu-shu", game.Revision, setup.PromptId)).Accepted)
                 continue;
-            }
 
             for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
-            {
                 if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
-            }
-            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } play)
-            {
+            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard, PlayerSeat: OwnerSeat } play)
                 continue;
-            }
-            var self = game.CreateSnapshot(0, revealAll: true).Players[0];
-            if (!self.Hand.Concat(self.Equipment).Any(card =>
-                    CardCatalog.Get(card.Kind).CategoryName != "基本牌"))
-            {
+            var self = game.CreateSnapshot(OwnerSeat, revealAll: true).Players[OwnerSeat];
+            if (!self.Hand.Concat(self.Equipment).Any(card => IsNonBasic(card.Kind))) continue;
+            if (!game.Submit(new EndPlayPhaseCommand(OwnerSeat, game.Revision, play.PromptId)).Accepted)
                 continue;
-            }
 
-            var preEnd = game.CreateCheckpoint();
-            if (!game.Submit(new EndPlayPhaseCommand(0, game.Revision, play.PromptId)).Accepted)
+            for (var step = 0; step < 32; step++)
             {
-                continue;
-            }
-            for (var step = 0; step < 16 && game.PendingDecision?.Kind != DecisionKind.Jujian; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 } discard)
+                if (game.PendingDecision is
+                    {
+                        Kind: DecisionKind.ProgramTrigger,
+                        PlayerSeat: OwnerSeat,
+                        SkillPrompt.SkillId: "classic:jujian"
+                    })
+                    return game.CreateCheckpoint();
+                if (game.PendingDecision is { Kind: DecisionKind.DiscardCards, PlayerSeat: OwnerSeat } discard)
                 {
                     if (!game.Submit(new DiscardCardsCommand(
-                        0,
-                        discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray(),
-                        discard.PromptId,
-                        game.Revision)).Accepted)
-                    {
+                            OwnerSeat,
+                            discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray(),
+                            discard.PromptId,
+                            game.Revision)).Accepted)
                         break;
-                    }
                 }
                 else if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted)
                 {
                     break;
                 }
             }
-            if (game.PendingDecision is { Kind: DecisionKind.Jujian, PlayerSeat: 0 })
-            {
-                return (preEnd, game.CreateCheckpoint());
-            }
         }
 
-        throw new InvalidOperationException("No bounded Xu Shu fixture reached Jujian with a legal non-basic cost.");
+        throw new InvalidOperationException("No bounded Xu Shu fixture reached the program-backed Jujian prompt with a legal non-basic cost.");
     }
 
     private static BranchResult RunBranch(
         GameCheckpoint ownerCheckpoint,
         ContentRegistry registry,
         int targetSeat,
-        string action,
-        Action<object> prepareTarget)
+        string optionId,
+        Action<CharacterState> prepareTarget)
     {
         var game = GameReplay.Restore(ownerCheckpoint, registry);
-        var targetRuntime = GetPlayerRuntime(game, targetSeat);
-        prepareTarget(targetRuntime);
-        var beforeTarget = game.CreateSnapshot(0, revealAll: true).Players[targetSeat];
-        var ownerPrompt = game.PendingDecision!;
-        var use = ownerPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "jujian-use" &&
+        prepareTarget(Players(game)[targetSeat]);
+        var beforeTarget = game.CreateSnapshot(OwnerSeat, revealAll: true).Players[targetSeat];
+
+        var activation = RequireJujianPrompt(game, "activate");
+        AnswerProgram(game, activation, "activate");
+        var targetPrompt = RequireJujianPrompt(game, "select-target");
+        var targetChoice = targetPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
             choice.Targets.SequenceEqual([targetSeat]));
-        Require(game.Submit(new AnswerPromptCommand(
-                    0, ownerPrompt.PromptId, use.Id, game.Revision)).Accepted,
-            "Jujian owner use choice was rejected.");
+        Answer(game, targetPrompt, targetChoice);
+
+        var paymentPrompt = RequireJujianPrompt(game, "select-and-move-owned-card");
+        var payment = paymentPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card");
+        var paidCard = payment.Cards.Single();
+        var ownerView = game.CreateSnapshot(OwnerSeat, revealAll: true).Players[OwnerSeat];
+        var paidKind = ownerView.Hand.Concat(ownerView.Equipment).Single(card => card.Id == paidCard).Kind;
+        Require(IsNonBasic(paidKind),
+            "Jujian must expose only Trick or Equipment cards through the generic payment prompt.");
+        Answer(game, paymentPrompt, payment);
         Require(game.CardMovements.Any(move =>
-                    move.CardId == use.Cards[0] &&
-                    move.To == CardLocation.DiscardPile &&
-                    move.Reason == CardMoveReasons.JujianDiscard),
-            "Jujian must discard the exact published non-basic cost.");
-        var targetPrompt = game.CreateSnapshot(targetSeat, revealAll: false).PendingDecision ??
-            throw new InvalidOperationException(
-                $"Jujian did not publish a target benefit prompt to its responder (status={game.State.Status}, " +
-                $"current={game.State.CurrentSeat}, lastEvent={game.Events.LastOrDefault()?.Payload.GetType().Name ?? "none"}).");
-        Require(targetPrompt is { Kind: DecisionKind.Jujian, PlayerSeat: var responder } &&
-                responder == targetSeat && targetPrompt.IsPrivate,
-            "Jujian must transfer a private benefit choice to the selected target.");
-        var benefit = targetPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == action);
-        Require(game.Submit(new AnswerPromptCommand(
-                    targetSeat, targetPrompt.PromptId, benefit.Id, game.Revision)).Accepted,
-            $"Jujian target choice {action} was rejected.");
-        var afterTarget = game.CreateSnapshot(0, revealAll: true).Players[targetSeat];
-        var resolved = game.Events.Select(envelope => envelope.Payload)
-            .OfType<JujianResolvedEvent>()
-            .Last(item => item.Used);
-        Require(resolved.OwnerSeat == 0 && resolved.TargetSeat == targetSeat &&
-                resolved.DiscardedCardId == use.Cards[0] &&
-                resolved.DiscardedCardKind is not null,
-            "Jujian must publish its owner, target, exact discarded card and selected benefit.");
-        return new BranchResult(game, beforeTarget, afterTarget, resolved);
+                move.CardId == paidCard && move.To == CardLocation.DiscardPile &&
+                move.Reason.Value == "skill-program.classic:jujian.SelectAndMoveOwnedCard"),
+            "Jujian must discard the exact selected non-basic physical card through the generic payment operation.");
+
+        var optionPrompt = RequireJujianPrompt(game, "choose-option", targetSeat);
+        Require(optionPrompt.PlayerSeat == targetSeat && optionPrompt.IsPrivate &&
+                optionPrompt.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("result-bind") == "benefit"),
+            "Jujian must transfer the private generic benefit choice to the selected target.");
+        var option = optionPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("option-id") == optionId);
+        Answer(game, optionPrompt, option);
+
+        var afterTarget = game.CreateSnapshot(OwnerSeat, revealAll: true).Players[targetSeat];
+        var chosen = game.Events.Select(envelope => envelope.Payload)
+            .OfType<ProgramOptionChosenEvent>()
+            .Last(item => item.SkillId == "classic:jujian");
+        Require(chosen.OwnerSeat == OwnerSeat && chosen.ChooserSeat == targetSeat &&
+                chosen.ResultBind == "benefit" && chosen.OptionId == optionId,
+            "Jujian must publish its owner, selected responder and generic named-choice result.");
+        return new BranchResult(game, beforeTarget, afterTarget, chosen);
     }
 
-    private static object GetPlayerRuntime(GameEngine game, int seat)
+    private static PendingDecision RequireJujianPrompt(
+        GameEngine game,
+        string action,
+        int? viewerSeat = null) =>
+        (viewerSeat is { } seat
+            ? game.CreateSnapshot(seat, revealAll: false).PendingDecision
+            : game.PendingDecision) is
+        {
+            Kind: DecisionKind.ProgramTrigger,
+            SkillPrompt.SkillId: "classic:jujian"
+        } prompt && prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == action)
+            ? prompt
+            : throw new InvalidOperationException(
+                $"Expected generic Jujian action '{action}' for viewer {viewerSeat?.ToString() ?? "human"}.");
+
+    private static void AnswerProgram(GameEngine game, PendingDecision prompt, string action) =>
+        Answer(game, prompt, prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == action));
+
+    private static void Answer(GameEngine game, PendingDecision prompt, PromptChoice choice)
     {
-        var players = ((IEnumerable)typeof(GameEngine)
-            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .GetValue(game)!).Cast<object>().ToArray();
-        return players[seat];
+        var result = game.Submit(new AnswerPromptCommand(
+            prompt.PlayerSeat, prompt.PromptId, choice.Id, game.Revision));
+        Require(result.Accepted, result.Error?.Message ?? $"The generic Jujian action '{choice.Id}' was rejected.");
     }
+
+    private static bool IsNonBasic(CardKind kind) =>
+        CardCatalog.Get(kind).CategoryName != "基本牌";
+
+    private static IReadOnlyList<CharacterState> Players(GameEngine game) =>
+        (IReadOnlyList<CharacterState>)(typeof(GameEngine)
+            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .GetValue(game) ?? throw new InvalidOperationException("The Xu Shu players are unavailable."));
 
     private sealed record BranchResult(
         GameEngine Game,
         PlayerSnapshot BeforeTarget,
         PlayerSnapshot AfterTarget,
-        JujianResolvedEvent Event);
+        ProgramOptionChosenEvent Choice);
 
     private static void Require(bool condition, string message)
     {

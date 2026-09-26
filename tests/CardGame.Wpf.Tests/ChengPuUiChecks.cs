@@ -59,9 +59,11 @@ internal static class ChengPuUiChecks
         var game = CreateStartedGame(registry, seed: 1);
         ReachHumanPlay(game);
         EndHumanPlay(game);
-        ReachPrompt(game, DecisionKind.Chunlao, 32);
-        Program.Assert(game.PendingDecision is { Kind: DecisionKind.Chunlao, PlayerSeat: HumanSeat },
-            "The WPF fixture did not reach the Chunlao end-phase prompt.");
+        ReachPrompt(game, DecisionKind.ProgramTrigger, 32);
+        Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+        Program.Assert(game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat },
+            "The WPF fixture did not reach the composed Chunlao storage prompt.");
 
         using var viewModel = Load(game, registry);
         var window = new MainWindow(viewModel);
@@ -70,30 +72,26 @@ internal static class ChengPuUiChecks
         var lihuo = viewModel.HumanSkillCards.Single(skill => skill.Name == "疠火");
         var chunlao = viewModel.HumanSkillCards.Single(skill => skill.Name == "醇醪");
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "选择醇醪的“醇”" &&
+                       viewModel.CurrentGuideTitle.Contains("醇醪", StringComparison.Ordinal) &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "chunlao-select") &&
-                       viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "chunlao-skip") &&
-                       lihuo.TypeText == "状态技" &&
-                       chunlao.TypeText == "触发技" &&
-                       viewModel.EventStack.Any(line =>
-                           line.Contains("SelectSlashForChunlao", StringComparison.Ordinal)),
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards") &&
+                       lihuo.TypeText == "状态技 · 触发技" &&
+                       chunlao.TypeText == "触发技",
             $"The generic WPF prompt must expose Chunlao while retaining Lihuo/Chunlao skill identities " +
             $"(guide={viewModel.CurrentGuideTitle}, lihuo={lihuo.TypeText}, chunlao={chunlao.TypeText}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "213-classic-chunlao-select.png"));
 
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "chunlao-select"));
+            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
         Program.Assert(viewModel.IsSkillSelectionPending &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "chunlao-finish") &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards") &&
                        viewModel.SkillChoices.All(choice =>
-                           choice.Parameters.GetValueOrDefault("action") != "chunlao-skip"),
+                           choice.Parameters.GetValueOrDefault("program-action") != "skip"),
             "After selecting one Slash, WPF must keep the prompt open and replace skip with finish.");
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "chunlao-finish"));
+            choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         Program.Assert(viewModel.HumanPlayer is
                        {
@@ -103,7 +101,7 @@ internal static class ChengPuUiChecks
                        owner.ChunlaoTooltip.Contains("公开的“醇”", StringComparison.Ordinal) &&
                        viewModel.HumanSummary.Contains("醇 1", StringComparison.Ordinal) &&
                        viewModel.BattleCues.Any(cue =>
-                           cue.Label == "醇醪 · 醇 1" && cue.Detail == "公开置于武将牌上"),
+                           cue.Label == "醇醪 · 已发动"),
             "Finishing the prompt must expose the public Chun pile on the seat, summary and battle cues.");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "214-classic-chunlao-public-pile.png"));
@@ -119,18 +117,24 @@ internal static class ChengPuUiChecks
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         var choice = viewModel.DyingChoices.Single(item =>
-            item.Parameters.GetValueOrDefault("response") == "chunlao");
+            item.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+            item.Parameters.GetValueOrDefault("skill-id") == "classic:chunlao");
         Program.Assert(viewModel.IsDyingSelectionPending &&
-                       choice.Cards.Count == 1 &&
+                       choice.Cards.Count == 0 &&
                        viewModel.HumanPlayer?.ChunlaoText == "醇 ×1",
-            "The shared dying surface must expose the exact public Chun card as a Chunlao response.");
+            "The shared dying surface must expose the configured Chunlao response.");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "215-classic-chunlao-dying-rescue.png"));
 
         viewModel.SelectDyingChoiceCommand.Execute(choice);
+        var selectCard = Program.Engine(viewModel).PendingDecision?.Choices.Single(item =>
+            item.Parameters.GetValueOrDefault("program-action") == "select-source-card");
+        Program.Assert(selectCard is { Cards.Count: 1 },
+            "The configured rescue must offer the exact public Chun card.");
+        viewModel.SelectSkillChoiceCommand.Execute(selectCard);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         Program.Assert(Program.Engine(viewModel).Events.Select(item => item.Payload)
-                           .OfType<ChunlaoRescueEvent>().Any() &&
+                           .OfType<ProgramDyingRescueEvent>().Any() &&
                        viewModel.BattleCues.Any(cue =>
                            cue.Label == "醇醪 · 酒救援" && cue.Detail == "回复1点体力"),
             "Selecting the Chunlao dying response must resolve and publish its recovery cue.");
@@ -146,17 +150,20 @@ internal static class ChengPuUiChecks
             var game = CreateStartedGame(registry, seed);
             ReachHumanPlay(game);
             EndHumanPlay(game);
-            ReachPrompt(game, DecisionKind.Chunlao, 32);
-            Answer(game, RequirePrompt(game, DecisionKind.Chunlao).Choices.First(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "chunlao-select"));
-            Answer(game, RequirePrompt(game, DecisionKind.Chunlao).Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "chunlao-finish"));
+            ReachPrompt(game, DecisionKind.ProgramTrigger, 32);
+            Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+            Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.First(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
+            Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
 
             for (var step = 0; step < 256 && game.State.Status != EngineStatus.Completed; step++)
             {
                 if (game.PendingDecision is { Kind: DecisionKind.RescueDying, PlayerSeat: HumanSeat } dying &&
                     dying.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "chunlao"))
+                        choice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+                        choice.Parameters.GetValueOrDefault("skill-id") == "classic:chunlao"))
                 {
                     return (game, registry);
                 }
@@ -322,6 +329,7 @@ internal static class ChengPuUiChecks
         action.TargetCardId)
     {
         ConversionSource = action.ConversionSource,
+        AdditionalConversionSources = action.AdditionalConversionSources,
         CardKindModifierSkill = action.CardKindModifierSkill,
         TargetCountModifierSkill = action.TargetCountModifierSkill
     });

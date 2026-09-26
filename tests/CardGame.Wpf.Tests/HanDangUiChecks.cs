@@ -56,8 +56,11 @@ internal static class HanDangUiChecks
         var game = CreateStartedGame(registry);
         ReachHumanPlay(game);
         var cost = Player(game, HumanSeat).Hand.First(card => EquipmentCatalog.IsEquipment(card.Kind));
-        var used = game.Submit(new UseSkillCommand(
-            HumanSeat, SkillKind.Gongqi, [cost.Id], [], game.Revision, game.PendingDecision!.PromptId));
+        var action = game.GetHumanLegalActions().Single(candidate =>
+            candidate.ProgramSkillId == "classic:gongqi");
+        var used = game.Submit(new UseProgramSkillCommand(
+            HumanSeat, action.ProgramSkillId!, action.ProgramActivationId!, [cost.Id], [],
+            game.Revision, game.PendingDecision!.PromptId));
         Program.Assert(used.Accepted, used.Error?.Message ?? "The WPF fixture could not activate Gongqi.");
 
         using var viewModel = Load(game, registry);
@@ -67,15 +70,16 @@ internal static class HanDangUiChecks
         var gongqi = viewModel.HumanSkillCards.Single(skill => skill.Name == "弓骑");
         var jiefan = viewModel.HumanSkillCards.Single(skill => skill.Name == "解烦");
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "处理弓骑的装备牌追加效果" &&
+                       viewModel.CurrentGuideTitle == "弓骑 · 选择其他角色的牌" &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "gongqi-discard-hand" &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-discard" &&
                            choice.Cards.Count == 0) &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "gongqi-skip") &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-decline") &&
                        gongqi.TypeText == "主动技 · 状态技" &&
                        jiefan.TypeText == "主动技 · 限定技" &&
-                       viewModel.EventStack.Any(line => line.Contains("ActiveSkill(Gongqi)", StringComparison.Ordinal)),
+                       viewModel.EventStack.Any(line =>
+                           line.Contains("Skill(弓骑, id: classic:gongqi)", StringComparison.Ordinal)),
             $"The generic skill surface must preserve Gongqi privacy and both Han Dang metadata axes " +
             $"(guide={viewModel.CurrentGuideTitle}, gongqi={gongqi.TypeText}, jiefan={jiefan.TypeText}).");
         Program.Render(root, 1120, 740,
@@ -97,18 +101,25 @@ internal static class HanDangUiChecks
                 HumanSeat, equip.CardId!.Value, equip.TargetSeats, game.Revision, game.PendingDecision!.PromptId)).Accepted,
             "The WPF Jiefan fixture could not equip its weapon.");
         ReachHumanPlay(game);
-        Program.Assert(game.Submit(new UseSkillCommand(
-                HumanSeat, SkillKind.Gongqi, [equipmentCards[1].Id], [], game.Revision, game.PendingDecision!.PromptId)).Accepted,
+        var gongqi = game.GetHumanLegalActions().Single(candidate =>
+            candidate.ProgramSkillId == "classic:gongqi");
+        Program.Assert(game.Submit(new UseProgramSkillCommand(
+                HumanSeat, gongqi.ProgramSkillId!, gongqi.ProgramActivationId!, [equipmentCards[1].Id], [],
+                game.Revision, game.PendingDecision!.PromptId)).Accepted,
             "The WPF Jiefan fixture could not activate Gongqi.");
-        Answer(game, RequirePrompt(game, DecisionKind.Gongqi).Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "gongqi-skip"));
+        Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-decline"));
         ReachHumanPlay(game);
         var targetSeat = game.CreateSnapshot(HumanSeat, revealAll: true).Players
             .Where(player => player.IsAlive && player.Seat != HumanSeat)
             .OrderByDescending(player => game.GetCombatDistance(HumanSeat, player.Seat))
             .First().Seat;
-        Program.Assert(game.Submit(new UseSkillCommand(
-                HumanSeat, SkillKind.Jiefan, [], [targetSeat], game.Revision, game.PendingDecision!.PromptId)).Accepted,
+        var jiefan = game.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:jiefan");
+        Program.Assert(game.Submit(new UseProgramSkillCommand(
+                HumanSeat, jiefan.ProgramSkillId!, jiefan.ProgramActivationId!, [], [targetSeat],
+                game.Revision, game.PendingDecision!.PromptId)).Accepted,
             "The WPF fixture could not activate Jiefan.");
 
         using var viewModel = Load(game, registry);
@@ -116,13 +127,17 @@ internal static class HanDangUiChecks
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "响应解烦" &&
+                       viewModel.CurrentGuideTitle == "解烦 · 响应方式" &&
                        viewModel.CurrentDecisionContext is { TargetSeat: var contextTarget } && contextTarget == targetSeat &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "jiefan-discard-weapon") &&
+                           choice.Parameters.GetValueOrDefault("program-action") ==
+                           "attack-range-aid-discard-weapon") &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "jiefan-draw") &&
-                       viewModel.EventStack.Any(line => line.Contains("ActiveSkill(Jiefan)", StringComparison.Ordinal)),
+                           choice.Parameters.GetValueOrDefault("program-action") == "attack-range-aid-draw") &&
+                       viewModel.EventStack.Any(line =>
+                           line.Contains("Skill(解烦, id: classic:jiefan)", StringComparison.Ordinal)) &&
+                       viewModel.EventStack.Any(line =>
+                           line.Contains("AskForActivation(ProgramTrigger)", StringComparison.Ordinal)),
             $"The generic skill surface must present the exact mandatory Jiefan branches and target context " +
             $"(guide={viewModel.CurrentGuideTitle}, choices={viewModel.SkillChoices.Count}).");
         Program.Render(root, 1120, 740,

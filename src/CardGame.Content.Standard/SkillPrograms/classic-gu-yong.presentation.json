@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:shenxing": {
+      "name": "慎行",
+      "description": "出牌阶段，你可以弃置两张牌（包括装备区里的牌），然后摸一张牌。每阶段可多次发动。"
+    },
+    "classic:bingyi": {
+      "name": "秉壹",
+      "description": "结束阶段开始时，你可以选择至多X名角色（X为你的手牌数）并展示所有手牌；若这些手牌颜色均相同，所选角色各摸一张牌。"
+    }
+  }
+}

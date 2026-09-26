@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 34,
+  "skills": [
+    {
+      "id": "classic:junxing",
+      "revision": 1,
+      "minimumRulesVersion": 139,
+      "activations": [
+        {
+          "id": "category-punishment",
+          "minCards": 1,
+          "maxCards": 64,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "captureSelectedCards",
+              "target": "owner",
+              "resultBind": "cost-cards"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "cost-cards",
+              "destination": "discardPile"
+            },
+            {
+              "op": "chooseDifferentCategoryDiscard",
+              "target": "owner",
+              "chooserRef": { "kind": "selectedTarget" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand"],
+              "sourceBind": "cost-cards",
+              "resultBind": "response"
+            },
+            {
+              "op": "turnOver",
+              "target": "selectedTarget",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "response",
+                "optionId": "declined"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "numberExpression": "boundCardCount",
+              "sourceBind": "cost-cards",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "response",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:yuce",
+      "revision": 1,
+      "minimumRulesVersion": 139,
+      "triggers": [
+        {
+          "id": "reveal-and-challenge-source",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "classicIdentityMode" },
+              {
+                "kind": "compare",
+                "left": { "kind": "currentHandCount" },
+                "operator": "greaterThanOrEqual",
+                "right": { "kind": "integerConstant", "value": 1 }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "amount": 1,
+              "zones": ["hand"],
+              "resultBind": "revealed-card"
+            },
+            {
+              "op": "revealBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed-card"
+            },
+            {
+              "op": "chooseDifferentCategoryDiscard",
+              "target": "owner",
+              "chooserRef": { "kind": "eventSource" },
+              "cardOwnerRef": { "kind": "eventSource" },
+              "zones": ["hand"],
+              "sourceBind": "revealed-card",
+              "resultBind": "source-response"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "source-response",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

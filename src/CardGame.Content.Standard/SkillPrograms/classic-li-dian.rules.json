@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 53,
+  "skills": [
+    {
+      "id": "classic:xunxun",
+      "revision": 1,
+      "minimumRulesVersion": 163,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "replace-draw-with-top-four",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 95,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "amount": 4,
+              "resultBind": "viewed",
+              "visibility": "private"
+            },
+            {
+              "op": "selectCardSubset",
+              "target": "owner",
+              "sourceBind": "viewed",
+              "resultBind": "gained",
+              "minimumCards": 2,
+              "maximumCards": 2,
+              "allowFewerWhenInsufficient": true,
+              "maximumRankSum": 208,
+              "aiOrder": "mostCardsThenRankSum"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "gained",
+              "destination": "ownerHand"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "viewed",
+              "exceptBind": "gained",
+              "destination": "drawPileBottom"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:wangxi",
+      "revision": 1,
+      "minimumRulesVersion": 163,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "after-taking-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventSource"
+              },
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "after-dealing-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamagePoint",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventTarget"
+              },
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

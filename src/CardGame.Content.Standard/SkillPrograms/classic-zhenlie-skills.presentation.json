@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:zhenlie": {
+      "name": "贞烈",
+      "description": "当你成为其他角色使用【杀】或普通锦囊牌的目标后，你可以失去1点体力，令此牌对你无效，然后你弃置其一张牌。"
+    }
+  }
+}

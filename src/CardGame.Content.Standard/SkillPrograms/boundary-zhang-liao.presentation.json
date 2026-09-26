@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "boundary:tuxi": {
+      "name": "突袭",
+      "description": "摸牌阶段，你可以少摸任意张牌并获得等量手牌数大于或等于你的其他角色的各一张手牌。"
+    }
+  }
+}

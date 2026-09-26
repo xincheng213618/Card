@@ -10,12 +10,13 @@ internal static class XunYouChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 87, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 120, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 119, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 86, 0));
         Require(current.Packages.Any(package =>
                 package.Id == "standard-classic-generals" &&
-                package.Version == new Version(1, 87, 0)),
-            "The current registry must load classic-general package 1.87.0.");
+                package.Version == new Version(1, 120, 0)),
+            "The current registry must load classic-general package 1.120.0.");
 
         var general = current.Generals[GeneralId];
         Require(general.FactionId == "wei" && general.BaseHp == 3 &&
@@ -25,22 +26,39 @@ internal static class XunYouChecks
             $"gender={general.Gender}, portrait={general.PortraitKey}, skills={string.Join(',', general.SkillIds)}.");
 
         var qice = current.Skills[QiceSkillId];
-        Require(qice.LegacyKind == SkillKind.Qice && qice.Tags == SkillTag.None &&
+        Require(qice.LegacyKind is null && qice.Tags == SkillTag.None &&
                 qice.ExecutionForms == SkillExecutionForm.None &&
-                qice.ActionForms == SkillActionForm.Active,
+                qice.ActionForms == SkillActionForm.Active &&
+                qice.Program is
+                {
+                    RuntimeVersion: "skill-program-v36",
+                    MinimumRulesVersion: 141,
+                    Activations.Count: 1
+                } && qice.Program.Activations.Single().Effects.Single().Op ==
+                    SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick,
             $"Qice metadata drifted: kind={qice.LegacyKind}, tags={qice.Tags}, " +
             $"execution={qice.ExecutionForms}, actions={qice.ActionForms}.");
         var zhiyu = current.Skills[ZhiyuSkillId];
-        Require(zhiyu.LegacyKind == SkillKind.Zhiyu && zhiyu.Tags == SkillTag.None &&
+        Require(zhiyu.LegacyKind is null && zhiyu.Tags == SkillTag.None &&
                 zhiyu.ExecutionForms == SkillExecutionForm.Trigger &&
-                zhiyu.ActionForms == SkillActionForm.None,
+                zhiyu.ActionForms == SkillActionForm.None &&
+                zhiyu.Program is
+                {
+                    RuntimeVersion: "skill-program-v36",
+                    MinimumRulesVersion: 141,
+                    Triggers.Count: 1
+                },
             $"Zhiyu metadata drifted: kind={zhiyu.LegacyKind}, tags={zhiyu.Tags}, " +
             $"execution={zhiyu.ExecutionForms}, actions={zhiyu.ActionForms}.");
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
+        Require(historical.Skills[QiceSkillId].LegacyKind == SkillKind.Qice &&
+                historical.Skills[ZhiyuSkillId].LegacyKind == SkillKind.Zhiyu &&
+                historical.Skills[QiceSkillId].Program is null &&
+                historical.Skills[ZhiyuSkillId].Program is null &&
+                !previous.Generals.ContainsKey(GeneralId) &&
                 !previous.Skills.ContainsKey(QiceSkillId) &&
                 !previous.Skills.ContainsKey(ZhiyuSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.87.0 must add Xun You without mutating the 1.86.0 registry boundary.");
+                current.ContentHash != historical.ContentHash && historical.ContentHash != previous.ContentHash,
+            "Package 1.120.0 must migrate Xun You without mutating its 1.119.0 legacy or 1.86.0 content boundaries.");
 
     }
 
@@ -53,7 +71,9 @@ internal static class XunYouChecks
 
         var play = RequirePrompt(game, DecisionKind.PlayCard);
         var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qice);
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == QiceSkillId &&
+            candidate.ProgramActivationId == "all-hand-as-ordinary-trick");
         var handIds = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand
             .Select(card => card.Id).Order().ToArray();
         Require(handIds.Length > 1 && action.SelectableCardIds.Order().SequenceEqual(handIds) &&
@@ -62,9 +82,10 @@ internal static class XunYouChecks
 
         var beforeForgery = SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true));
         var revision = game.Revision;
-        var forged = game.Submit(new UseSkillCommand(
+        var forged = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Qice,
+            QiceSkillId,
+            "all-hand-as-ordinary-trick",
             handIds.Take(handIds.Length - 1).ToArray(),
             [],
             revision,
@@ -73,15 +94,16 @@ internal static class XunYouChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)) == beforeForgery,
             "A Qice subset must be rejected without consuming usage or moving cards.");
 
-        var accepted = game.Submit(new UseSkillCommand(
+        var accepted = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Qice,
+            QiceSkillId,
+            "all-hand-as-ordinary-trick",
             handIds,
             [],
             game.Revision,
             play.PromptId));
         Require(accepted.Accepted, accepted.Error?.Message ?? "Qice rejected the exact complete hand.");
-        var qice = RequirePrompt(game, DecisionKind.Qice);
+        var qice = RequireProgramPrompt(game, QiceSkillId);
         var offeredKinds = qice.Choices
             .Select(choice => choice.Parameters.GetValueOrDefault("card-kind"))
             .ToHashSet(StringComparer.Ordinal);
@@ -98,7 +120,9 @@ internal static class XunYouChecks
             $"(offered={string.Join(',', offeredKinds.Order())}).");
 
         var pausedReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        Require(pausedReplay.PendingDecision is { Kind: DecisionKind.Qice, PlayerSeat: HumanSeat, IsPrivate: true } &&
+        Require(pausedReplay.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat, IsPrivate: true,
+                    SkillPrompt.SkillId: QiceSkillId } &&
                 SnapshotJson.Serialize(pausedReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
             "A paused Qice ordinary-trick choice must replay exactly.");
@@ -109,8 +133,9 @@ internal static class XunYouChecks
             move.To == CardLocation.Hand(HumanSeat) && move.Reason == CardMoveReasons.Draw);
         Answer(game, drawTwo);
         ReachHumanPlay(game, skipZhiyu: true);
-        var converted = game.Events.Select(item => item.Payload).OfType<QiceConvertedEvent>().Single();
-        Require(converted.SourceSeat == HumanSeat && converted.EffectiveCardKind == CardKind.DrawTwo &&
+        var converted = game.Events.Select(item => item.Payload).OfType<ProgramViewAsConvertedEvent>()
+            .Single(item => item.SkillId == QiceSkillId);
+        Require(converted.OwnerSeat == HumanSeat && converted.OutputKind == CardKind.DrawTwo &&
                 converted.PhysicalCardIds.Order().SequenceEqual(handIds) &&
                 game.CardMovements.Count(move => handIds.Contains(move.CardId) &&
                     move.From == CardLocation.Hand(HumanSeat) && move.To == CardLocation.Processing &&
@@ -119,7 +144,7 @@ internal static class XunYouChecks
                     move.To == CardLocation.DiscardPile) == handIds.Length &&
                 game.CardMovements.Count(move => move.To == CardLocation.Hand(HumanSeat) &&
                     move.Reason == CardMoveReasons.Draw) - priorRuleDraws == 2 &&
-                game.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Qice),
+                game.GetHumanLegalActions().All(candidate => candidate.ProgramSkillId != QiceSkillId),
             "Qice Draw Two must consume every physical hand card, draw exactly two and remain once per play phase.");
 
         var completedReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
@@ -133,29 +158,33 @@ internal static class XunYouChecks
         var fixture = FindZhiyuFixture();
         var game = fixture.Game;
         var registry = fixture.Registry;
-        var prompt = RequirePrompt(game, DecisionKind.Zhiyu);
+        var prompt = RequireProgramPrompt(game, ZhiyuSkillId);
         var sourceSeat = prompt.SourceSeat ?? throw new InvalidOperationException("Zhiyu did not identify its damage source.");
         var ownerBefore = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
         var sourceBefore = game.CreateSnapshot(HumanSeat, revealAll: true).Players[sourceSeat];
         Require(prompt.IsPrivate &&
-                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
-                    .Order(StringComparer.Ordinal).SequenceEqual(["zhiyu-skip", "zhiyu-use"]),
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
+                    .Order(StringComparer.Ordinal).SequenceEqual(["activate", "skip"]),
             "After damage, Xun You must receive one optional private Zhiyu trigger choice.");
 
         var paused = RoundTrip(game.CreateCheckpoint());
         var skipped = GameReplay.Restore(paused, registry);
-        Answer(skipped, DecisionKind.Zhiyu, "zhiyu-skip");
-        Require(skipped.Events.Select(item => item.Payload).OfType<ZhiyuResolvedEvent>().Last() is
-                { OwnerSeat: HumanSeat, Used: false, DrawnCardId: null, RevealedCards.Count: 0,
-                    AllSameColor: false, DiscardedCardId: null },
+        AnswerProgram(skipped, ZhiyuSkillId, "skip");
+        Require(skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Last(item =>
+                    item.SkillId == ZhiyuSkillId) is
+                { OwnerSeat: HumanSeat, Activated: false, Completed: false } &&
+                skipped.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
+                    .All(item => item.SkillId != ZhiyuSkillId),
             "Skipping Zhiyu must neither draw nor reveal nor force a discard.");
 
-        Answer(game, DecisionKind.Zhiyu, "zhiyu-use");
+        AnswerProgram(game, ZhiyuSkillId, "activate");
         Require(game.PendingDecision is null,
             "An AI source's private Zhiyu discard prompt must not leak into the human view.");
         var discard = game.CreateSnapshot(sourceSeat, revealAll: true).PendingDecision ??
                       throw new InvalidOperationException("Zhiyu did not publish the source's private discard prompt.");
-        Require(discard is { Kind: DecisionKind.Zhiyu, PlayerSeat: var discardSeat, IsPrivate: true } &&
+        Require(discard is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: var discardSeat, IsPrivate: true,
+                    SkillPrompt.SkillId: ZhiyuSkillId } &&
                 discardSeat == sourceSeat && discard.ValidCardIds.Count == sourceBefore.HandCount &&
                 discard.Choices.All(choice => choice.Cards.Count == 1 &&
                     discard.ValidCardIds.Contains(choice.Cards[0])),
@@ -164,18 +193,23 @@ internal static class XunYouChecks
         var discardReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         AdvanceAiPrompt(game, sourceSeat);
         AdvanceAiPrompt(discardReplay, sourceSeat);
-        var result = game.Events.Select(item => item.Payload).OfType<ZhiyuResolvedEvent>().Last();
-        Require(result is { OwnerSeat: HumanSeat, Used: true, DrawnCardId: not null,
-                    AllSameColor: true, DiscardedCardId: not null } &&
-                result.SourceSeat == sourceSeat && result.RevealedCards.Count == ownerBefore.HandCount + 1 &&
-                result.RevealedCards.All(card => card.Suit is Suit.Heart or Suit.Diamond) &&
+        var revealed = game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
+            .Last(item => item.SkillId == ZhiyuSkillId);
+        var binding = game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+            .Last(item => item.SkillId == ZhiyuSkillId);
+        var zhiyuDraw = game.CardMovements.Last(move =>
+            move.To == CardLocation.Hand(HumanSeat) &&
+            move.Reason.Value == "skill-program.classic:zhiyu.Draw");
+        var zhiyuDiscard = game.CardMovements.Last(move =>
+            move.From == CardLocation.Hand(sourceSeat) && move.To == CardLocation.DiscardPile &&
+            move.Reason.Value == "skill-program.classic:zhiyu.SelectAndMoveOwnedCard");
+        Require(binding is { OwnerSeat: HumanSeat, Activated: true, Completed: true } &&
+                revealed.Cards.Count == ownerBefore.HandCount + 1 &&
+                revealed.Cards.All(card => card.Suit is Suit.Heart or Suit.Diamond) &&
                 game.CreateSnapshot(HumanSeat, revealAll: true).Players[sourceSeat].HandCount ==
                     sourceBefore.HandCount - 1 &&
-                game.CardMovements.Any(move => move.CardId == result.DrawnCardId &&
-                    move.To == CardLocation.Hand(HumanSeat) && move.Reason == CardMoveReasons.ZhiyuDraw) &&
-                game.CardMovements.Any(move => move.CardId == result.DiscardedCardId &&
-                    move.From == CardLocation.Hand(sourceSeat) && move.To == CardLocation.DiscardPile &&
-                    move.Reason == CardMoveReasons.ZhiyuDiscard),
+                revealed.Cards.Any(card => card.Id == zhiyuDraw.CardId) &&
+                discard.ValidCardIds.Contains(zhiyuDiscard.CardId),
             "Zhiyu must draw, reveal the full same-color hand and discard the source's selected physical card.");
         Require(SnapshotJson.Serialize(discardReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
@@ -185,21 +219,48 @@ internal static class XunYouChecks
         Require(SnapshotJson.Serialize(completedReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
             "A completed Zhiyu command prefix must replay exactly.");
+
+        var emptySourceFixture = FindZhiyuFixture(requireSourceCards: false);
+        var emptySourceGame = emptySourceFixture.Game;
+        var emptySourcePrompt = RequireProgramPrompt(emptySourceGame, ZhiyuSkillId);
+        var emptySourceSeat = emptySourcePrompt.SourceSeat ??
+                              throw new InvalidOperationException("The empty-source Zhiyu fixture lost its source.");
+        Require(emptySourceGame.CreateSnapshot(HumanSeat, revealAll: true).Players[emptySourceSeat].HandCount == 0,
+            "The empty-source Zhiyu fixture must start its trigger with no source hand cards.");
+        AnswerProgram(emptySourceGame, ZhiyuSkillId, "activate");
+        var emptySourceResult = emptySourceGame.Events.Select(item => item.Payload)
+            .OfType<ProgramBindingResolvedEvent>().Last(item => item.SkillId == ZhiyuSkillId);
+        Require(emptySourceResult is { Activated: true, Completed: true } &&
+                emptySourceGame.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
+                    .Any(item => item.SkillId == ZhiyuSkillId && item.Cards.Count > 0) &&
+                emptySourceGame.CardMovements.All(move =>
+                    move.Reason.Value != "skill-program.classic:zhiyu.SelectAndMoveOwnedCard"),
+            "Zhiyu must reveal and complete without opening a discard when the source has no hand cards.");
+        var emptySourceReplay = GameReplay.Restore(RoundTrip(emptySourceGame.CreateCheckpoint()),
+            emptySourceFixture.Registry);
+        Require(SnapshotJson.Serialize(emptySourceReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
+                SnapshotJson.Serialize(emptySourceGame.CreateSnapshot(HumanSeat, revealAll: true)),
+            "Zhiyu's empty-source skip must replay exactly.");
     }
 
-    private static Fixture FindZhiyuFixture()
+    private static Fixture FindZhiyuFixture(bool requireSourceCards = true)
     {
         var registry = CreateRegistry();
         for (var seed = 1; seed <= 2_048; seed++)
         {
-            var game = CreateGame(registry, seed);
+            var game = CreateGame(
+                registry,
+                seed,
+                modeId: requireSourceCards ? ScenarioPackage.ModeId : ScenarioPackage.EmptySourceModeId);
             StartAndSelect(game);
             for (var step = 0; step < 1_024; step++)
             {
                 if (game.PendingDecision is
-                    { Kind: DecisionKind.Zhiyu, PlayerSeat: HumanSeat, SourceSeat: var sourceSeat } &&
+                    { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat,
+                        SkillPrompt.SkillId: ZhiyuSkillId, SourceSeat: var sourceSeat } &&
                     sourceSeat is { } source &&
-                    game.CreateSnapshot(HumanSeat, revealAll: true).Players[source].HandCount > 0)
+                    (game.CreateSnapshot(HumanSeat, revealAll: true).Players[source].HandCount > 0) ==
+                    requireSourceCards)
                 {
                     return new Fixture(game, registry, seed);
                 }
@@ -216,10 +277,12 @@ internal static class XunYouChecks
         for (var step = 0; step < 2_048; step++)
         {
             if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat }) return;
-            if (game.PendingDecision is { Kind: DecisionKind.Zhiyu, PlayerSeat: HumanSeat })
+            if (game.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat,
+                    SkillPrompt.SkillId: ZhiyuSkillId })
             {
                 Require(skipZhiyu, "Unexpected Zhiyu prompt while reaching play.");
-                Answer(game, DecisionKind.Zhiyu, "zhiyu-skip");
+                AnswerProgram(game, ZhiyuSkillId, "skip");
                 continue;
             }
             Require(game.PendingDecision?.PlayerSeat != HumanSeat,
@@ -245,17 +308,18 @@ internal static class XunYouChecks
     {
         var prompt = game.CreateSnapshot(sourceSeat, revealAll: true).PendingDecision ??
                      throw new InvalidOperationException("There is no AI Zhiyu prompt.");
-        Require(prompt.PlayerSeat == sourceSeat && prompt.Kind == DecisionKind.Zhiyu,
+        Require(prompt.PlayerSeat == sourceSeat && prompt.Kind == DecisionKind.ProgramTrigger &&
+                prompt.SkillPrompt?.SkillId == ZhiyuSkillId,
             $"Expected AI Zhiyu discard, found {prompt.Kind} at seat {prompt.PlayerSeat}.");
         var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
         Require(result.Accepted, result.Error?.Message ?? "The AI Zhiyu discard could not advance.");
     }
 
-    private static void Answer(GameEngine game, DecisionKind kind, string action)
+    private static void AnswerProgram(GameEngine game, string skillId, string action)
     {
-        var prompt = RequirePrompt(game, kind);
+        var prompt = RequireProgramPrompt(game, skillId);
         var choice = prompt.Choices.Single(candidate =>
-            candidate.Parameters.GetValueOrDefault("action") == action);
+            candidate.Parameters.GetValueOrDefault("program-action") == action);
         Answer(game, choice);
     }
 
@@ -276,13 +340,27 @@ internal static class XunYouChecks
             : throw new InvalidOperationException(
                 $"Expected human {kind}, found {game.PendingDecision?.Kind.ToString() ?? "no prompt"}.");
 
-    private static GameEngine CreateGame(ContentRegistry registry, int seed, int rulesVersion = GameCheckpoint.CurrentRulesVersion)
+    private static PendingDecision RequireProgramPrompt(GameEngine game, string skillId) =>
+        game.PendingDecision is
+            { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat, SkillPrompt: { } skillPrompt } prompt &&
+        skillPrompt.SkillId == skillId
+            ? prompt
+            : throw new InvalidOperationException(
+                $"Expected human program prompt for {skillId}, found " +
+                $"{game.PendingDecision?.Kind.ToString() ?? "no prompt"}/" +
+                $"{game.PendingDecision?.SkillPrompt?.SkillId ?? "no skill"}.");
+
+    private static GameEngine CreateGame(
+        ContentRegistry registry,
+        int seed,
+        int rulesVersion = GameCheckpoint.CurrentRulesVersion,
+        string modeId = ScenarioPackage.ModeId)
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = seed,
             PlayerCount = 4,
-            ModeId = ScenarioPackage.ModeId,
+            ModeId = modeId,
             HumanSeat = HumanSeat,
             HumanRole = Role.Rebel,
             UseInteractiveSetup = true,
@@ -316,7 +394,9 @@ internal static class XunYouChecks
     private sealed class ScenarioPackage : IGameContentPackage
     {
         public const string ModeId = "identity:classic-xun-you-test-4";
+        public const string EmptySourceModeId = "identity:classic-xun-you-empty-source-test-4";
         private const string DeckId = "fixture:xun-you-red-slash-deck";
+        private const string EmptySourceDeckId = "fixture:xun-you-empty-source-red-slash-deck";
         private static readonly string[] BlankGeneralIds =
         [
             "fixture:xun-you-lord",
@@ -327,7 +407,7 @@ internal static class XunYouChecks
         public PackageManifest Manifest { get; } = new(
             "xun-you-test",
             new Version(1, 0, 0),
-            [new PackageDependency("standard-classic-generals", new Version(1, 87, 0))]);
+            [new PackageDependency("standard-classic-generals", new Version(1, 120, 0))]);
 
         public void Register(IContentRegistryBuilder builder)
         {
@@ -353,6 +433,17 @@ internal static class XunYouChecks
                     .Select(index => new ContentDeckPhysicalCard("standard:slash", Suit.Heart, index % 13 + 1))
                     .ToArray()
             });
+            builder.AddDeck(new ContentDeckRecipe(
+                EmptySourceDeckId,
+                "荀攸智愚空来源测试牌堆",
+                InitialHandSize: 0,
+                DrawPerTurn: 1,
+                Cards: [])
+            {
+                PhysicalCards = Enumerable.Range(0, 192)
+                    .Select(index => new ContentDeckPhysicalCard("standard:slash", Suit.Heart, index % 13 + 1))
+                    .ToArray()
+            });
             builder.AddMode(new ContentModeDefinition(
                 ModeId,
                 "荀攸奇策智愚测试",
@@ -366,6 +457,21 @@ internal static class XunYouChecks
                     [nameof(Role.Renegade)] = 1
                 },
                 DeckId,
+                GeneralCandidateCount: 4,
+                GeneralPoolIds: [GeneralId, .. BlankGeneralIds]));
+            builder.AddMode(new ContentModeDefinition(
+                EmptySourceModeId,
+                "荀攸智愚空来源测试",
+                4,
+                4,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 1,
+                    [nameof(Role.Renegade)] = 1
+                },
+                EmptySourceDeckId,
                 GeneralCandidateCount: 4,
                 GeneralPoolIds: [GeneralId, .. BlankGeneralIds]));
         }

@@ -18,11 +18,41 @@ public sealed record ProgramSkillWindowContext(
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
 
+/// <summary>Private draft: no cards move until selection completes and a later node consumes the binding.</summary>
+public sealed record ProgramOwnedCardSelection(
+    int CardOwnerSeat,
+    string ResultBind,
+    int RequiredCount,
+    IReadOnlyList<int> CandidateCardIds,
+    IReadOnlyList<CardLocation> CandidateLocations,
+    IReadOnlyList<int> SelectedCardIds,
+    int MinimumCount = 0);
+
+/// <summary>
+/// Private, committed distribution progress. A decline is legal only before the first transfer;
+/// after that, the frozen required count is an all-or-nothing continuation.
+/// </summary>
+public sealed record ProgramOwnedCardDistribution(
+    int CardOwnerSeat,
+    string SourceBind,
+    int RequiredCount,
+    IReadOnlyList<CardZoneKind> Zones,
+    SkillProgramTargetKind TargetKind,
+    bool AllowDeclineBeforeFirst,
+    IReadOnlyList<int> GivenCardIds,
+    IReadOnlyList<int> TargetSeats);
+
+/// <summary>Frozen sequential responders for one attack-range aid instruction.</summary>
+public sealed record ProgramAttackRangeAid(
+    int TargetSeat,
+    IReadOnlyList<int> ResponderSeats,
+    int ResponderIndex);
+
 public sealed record ProgramChoiceResultBinding(string Name, string OptionId, int ChooserSeat);
 
 public sealed record ProgramOptionChosenEvent(
     long FrameId, string SkillId, string BindingId, int OwnerSeat,
-    string ResultBind, string OptionId, int ChooserSeat) : IGameEvent;
+    string ResultBind, string OptionId, int ChooserSeat, string OptionLabel = "") : IGameEvent;
 
 public sealed record ProgramPindianResultBinding(
     string Name,
@@ -46,6 +76,34 @@ public sealed record ProgramBoundCardGivenEvent(
     int OwnerSeat,
     int TargetSeat,
     int CardId) : IGameEvent;
+
+public sealed record ProgramOwnedCardDistributedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int TargetSeat,
+    int CardId,
+    int DistributionIndex,
+    int RequiredCount) : IGameEvent;
+
+public sealed record ProgramAttackRangeAidStartedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int TargetSeat,
+    IReadOnlyList<int> ResponderSeats) : IGameEvent;
+
+public sealed record ProgramAttackRangeAidChoiceResolvedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int ResponderSeat,
+    int TargetSeat,
+    int? DiscardedWeaponCardId,
+    IReadOnlyList<int> DrawnCardIds) : IGameEvent;
 
 public sealed record ProgramDamageCardsClaimedEvent(
     long FrameId,
@@ -88,6 +146,43 @@ public sealed record ProgramTriggerCandidate(
     int Priority,
     int OccurrenceIndex = 0);
 
+public sealed record BeforeDamageProgramCandidate(
+    ProgramTriggerCandidate Candidate,
+    SkillProgramTriggerFacts Facts);
+
+public enum BeforeDamageProgramContinuation
+{
+    Attack,
+    Ganglie
+}
+
+/// <summary>
+/// Frozen, ordered program opportunities before one pending damage application.
+/// The continuation names engine mechanisms rather than any character or skill.
+/// </summary>
+public sealed record BeforeDamageProgramWindowFrame(
+    long Id,
+    long ParentFrameId,
+    int SourceSeat,
+    int TargetSeat,
+    int Amount,
+    DamageNature Nature,
+    BeforeDamageProgramContinuation Continuation,
+    IReadOnlyList<BeforeDamageProgramCandidate> Candidates,
+    int CandidateIndex = 0,
+    bool Prevented = false,
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    : ResolutionFrame(Id, ResolutionFrameKind.BeforeDamageProgramWindow, Step);
+
+public sealed record ProgramDamagePreventedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int SourceSeat,
+    int TargetSeat,
+    int Amount) : IGameEvent;
+
 /// <summary>
 /// A detached program continuation while a freely interactive phase runs.
 /// Keeping it outside ResolutionStack preserves the existing clean phase boundary.
@@ -100,7 +195,7 @@ public sealed record ProgramPhaseSchedule(
 
 public enum ProgramLifecycleContinuation { NormalTurnStart, CompleteDrawPhase, CompletePlayPhase }
 
-public enum TurnEndingBoundaryItemKind { Program, LegacyJujian }
+public enum TurnEndingBoundaryItemKind { Program }
 
 /// <summary>One frozen, ordered item in the end-of-turn coordinator.</summary>
 public sealed record TurnEndingBoundaryItem(
@@ -110,8 +205,8 @@ public sealed record TurnEndingBoundaryItem(
     ProgramTriggerCandidate? Candidate = null);
 
 /// <summary>
-/// Serializable end-of-turn cursor. Program bindings and the restricted legacy
-/// Jujian bridge resume this one frame without replaying earlier boundaries.
+/// Serializable end-of-turn cursor. Program bindings resume this one frame
+/// without replaying earlier boundaries.
 /// </summary>
 public sealed record TurnEndingBoundaryFrame(
     long Id,
@@ -135,7 +230,27 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
     int NormalDrawAdjustment = 0,
     int CandidateIndex = 0,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
-    : ResolutionFrame(Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow, Step)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? FrozenBaseDrawCount { get; init; }
+}
+
+/// <summary>
+/// Frozen ordered program opportunities owned by a character who has just died.
+/// The killer is retained only as public event context so target policies can
+/// exclude that seat without naming any concrete skill.
+/// </summary>
+public sealed record ProgramDeathTriggerWindowFrame(
+    long Id,
+    long DeathFrameId,
+    int OwnerSeat,
+    int? KillerSeat,
+    IReadOnlyList<ProgramTriggerCandidate> Candidates,
+    SkillProgramTriggerFacts Facts,
+    int CandidateIndex = 0,
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    : ResolutionFrame(Id, ResolutionFrameKind.ProgramDeathTriggerWindow, Step);
 
 public sealed record ProgramBindingStartedEvent(
     long FrameId,
@@ -159,8 +274,35 @@ public sealed record ProgramCardsRevealedEvent(
     long FrameId,
     string SkillId,
     string BindingId,
+    int OwnerSeat,
     string Bind,
     IReadOnlyList<CardSnapshot> Cards) : IGameEvent;
+
+public sealed record ProgramCategoryDiscardResolvedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int ChooserSeat,
+    string SourceBind,
+    string ResultBind,
+    int? DiscardedCardId) : IGameEvent;
+
+public sealed record ProgramTurnSkillsGrantedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    IReadOnlyList<string> GrantedSkillIds) : IGameEvent;
+
+public sealed record ProgramCardEffectNullifiedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int SourceSeat,
+    long CardUseFrameId,
+    CardKind CardKind) : IGameEvent;
 
 public sealed record ProgramCardSubsetSelectedEvent(
     long FrameId,

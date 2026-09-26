@@ -10,13 +10,19 @@ internal static class CaoChongChecks
     public static void ContentAndPackageBoundary()
     {
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 93, 0));
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 94, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 116, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 117, 0));
         Require(!previous.Generals.ContainsKey(GeneralId) &&
                 !previous.Skills.ContainsKey("classic:chengxiang") &&
                 !previous.Skills.ContainsKey("classic:renxin"),
             "Package 1.93.0 must retain the pre-Cao-Chong content boundary.");
-        Require(current.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
-                    new Version(1, 94, 0) &&
+        Require(historical.Skills["classic:renxin"] is
+                {
+                    LegacyKind: SkillKind.Renxin,
+                    Program: null
+                } &&
+                current.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
+                    new Version(1, 117, 0) &&
                 current.Generals[GeneralId] is
                 {
                     BaseHp: 3,
@@ -34,12 +40,17 @@ internal static class CaoChongChecks
                 } &&
                 current.Skills["classic:renxin"] is
                 {
-                    LegacyKind: SkillKind.Renxin,
+                    LegacyKind: null,
+                    Program:
+                    {
+                        MinimumRulesVersion: 138,
+                        Triggers.Count: 1
+                    },
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Package 1.94.0 must publish complete classic Cao Chong and both optional triggers.");
+            "Package 1.117.0 must migrate Renxin to schema 33 while 1.116.0 retains historical metadata only.");
     }
 
     public static void ChengxiangRevealsLegalSubsetAndReplays()
@@ -118,44 +129,65 @@ internal static class CaoChongChecks
 
     public static void RenxinDiscardsEquipmentTurnsOverPreventsAndReplays()
     {
-        var fixture = FindHumanPrompt(DecisionKind.Renxin);
+        var fixture = FindHumanPrompt(DecisionKind.ProgramTrigger, "classic:renxin");
         var game = fixture.Game;
         var registry = fixture.Registry;
-        var prompt = RequirePrompt(game, DecisionKind.Renxin);
-        var targetSeat = prompt.TargetSeat ?? throw new InvalidOperationException("Renxin did not identify its target.");
+        var offer = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        var targetSeat = offer.TargetSeat ?? throw new InvalidOperationException("Renxin did not identify its target.");
         var before = game.CreateSnapshot(HumanSeat, revealAll: true);
         var ownerBefore = before.Players[HumanSeat];
         var targetBefore = before.Players[targetSeat];
-        var use = prompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "renxin-use");
+        Require(offer.IsPrivate && offer.SkillPrompt?.SkillId == "classic:renxin" &&
+                targetSeat != HumanSeat && targetBefore.Hp == 1 &&
+                offer.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
+                    .Order(StringComparer.Ordinal).SequenceEqual(["activate", "skip"]),
+            "Renxin must use the shared optional trigger prompt for another 1-HP target.");
+
+        var offerPaused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        AnswerProgramAction(game, "activate");
+        AnswerProgramAction(offerPaused, "activate");
+        var payment = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        var use = payment.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card");
         var costId = use.Cards.Single();
-        Require(prompt.IsPrivate && targetSeat != HumanSeat && targetBefore.Hp == 1 &&
-                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "renxin-skip") &&
+        Require(payment.IsPrivate && payment.SkillPrompt?.SkillId == "classic:renxin" &&
+                payment.Choices.All(choice => choice.Cards.Count == 1 &&
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card") &&
                 ownerBefore.Hand.Concat(ownerBefore.Equipment)
                     .Any(card => card.Id == costId && EquipmentCatalog.IsEquipment(card.Kind)),
-            "Renxin must be offered only for another 1-HP target and name exact owned equipment-category costs.");
+            "Renxin payment must expose only exact owned equipment-category cards through the shared selector.");
 
-        var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        var revision = game.Revision;
+        var forged = game.Submit(new AnswerPromptCommand(
+            HumanSeat, payment.PromptId, new ChoiceId("renxin.forged-cost"), revision));
+        Require(!forged.Accepted && game.Revision == revision,
+            "An unpublished Renxin payment must be rejected atomically.");
+
+        var paymentPaused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Answer(game, use);
-        Answer(paused, RequirePrompt(paused, DecisionKind.Renxin).Choices.Single(choice => choice.Id == use.Id));
+        Answer(offerPaused, RequirePrompt(offerPaused, DecisionKind.ProgramTrigger).Choices.Single(choice => choice.Id == use.Id));
+        Answer(paymentPaused, RequirePrompt(paymentPaused, DecisionKind.ProgramTrigger).Choices.Single(choice => choice.Id == use.Id));
         var after = game.CreateSnapshot(HumanSeat, revealAll: true);
-        var resolved = game.Events.Select(item => item.Payload).OfType<RenxinResolvedEvent>().Last();
-        Require(resolved is
+        var prevented = game.Events.Select(item => item.Payload).OfType<ProgramDamagePreventedEvent>().Last();
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+            .Last(item => item.SkillId == "classic:renxin" && item.Activated);
+        Require(prevented is
                 {
                     OwnerSeat: HumanSeat,
-                    Used: true,
-                    PreventedAmount: > 0,
-                    DiscardedCardId: not null
+                    SkillId: "classic:renxin",
+                    Amount: > 0
                 } &&
-                resolved.TargetSeat == targetSeat && resolved.DiscardedCardId == costId &&
+                prevented.TargetSeat == targetSeat &&
+                resolved is { Window: SkillProgramTriggerWindow.BeforeDamageApplied, Completed: true } &&
                 after.Players[targetSeat].Hp == targetBefore.Hp &&
                 after.Players[HumanSeat].IsFaceDown != ownerBefore.IsFaceDown &&
                 game.CardMovements.Any(move => move.CardId == costId &&
-                    move.Reason == CardMoveReasons.RenxinDiscard &&
+                    move.Reason.Value == "skill-program.classic:renxin.SelectAndMoveOwnedCard" &&
                     move.To == CardLocation.DiscardPile),
             "Renxin must discard the selected equipment card, toggle the owner and prevent all pending damage.");
-        Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
-            "A paused Renxin prevention must replay exactly.");
+        Require(State(offerPaused) == State(game) && Events(offerPaused).SequenceEqual(Events(game)) &&
+                State(paymentPaused) == State(game) && Events(paymentPaused).SequenceEqual(Events(game)),
+            "Both paused Renxin program stages must replay exactly.");
     }
 
     private static Fixture FindHumanPrompt(DecisionKind sought, string? programSkillId = null)
@@ -191,12 +223,6 @@ internal static class CaoChongChecks
                     if (prompt.Kind == DecisionKind.ProgramTrigger)
                     {
                         AnswerProgramAction(game, "skip");
-                        continue;
-                    }
-
-                    if (prompt.Kind == DecisionKind.Renxin)
-                    {
-                        AnswerAction(game, "renxin-skip");
                         continue;
                     }
 

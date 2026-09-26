@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 49,
+  "skills": [
+    {
+      "id": "classic:miji",
+      "revision": 1,
+      "minimumRulesVersion": 159,
+      "triggers": [
+        {
+          "id": "miji-at-turn-end",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 180,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHp" },
+            "operator": "lessThan",
+            "right": { "kind": "currentMaxHp" }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "ownerLostHp",
+              "resultBind": "drawn"
+            },
+            {
+              "op": "distributeOwnedCards",
+              "target": "owner",
+              "zones": ["hand"],
+              "numberExpression": "boundCardCount",
+              "sourceBind": "drawn",
+              "targetKind": "otherLiving",
+              "allowDeclineBeforeFirst": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

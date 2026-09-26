@@ -139,23 +139,21 @@ internal static class ClassicShenGuanYuChecks
             var events = game.Events.Select(item => item.Payload).ToArray();
             var marker = events.OfType<PlayerMarkerChangedEvent>().FirstOrDefault(item =>
                 item.SkillOwnerSeat == ownerSeat && item.Delta == 1);
-            var started = events.OfType<DeathSkillStartedEvent>().FirstOrDefault(item =>
-                item.OwnerSeat == ownerSeat);
-            var selected = events.OfType<DeathSkillTargetSelectedEvent>().FirstOrDefault(item =>
-                item.OwnerSeat == ownerSeat);
+            var started = events.OfType<ProgramBindingStartedEvent>().FirstOrDefault(item =>
+                item.OwnerSeat == ownerSeat && item.SkillId == "classic:wuhun" &&
+                item.Window == SkillProgramTriggerWindow.OwnerDied);
             var judgment = events.OfType<JudgmentResolvedEvent>().FirstOrDefault(item =>
-                item.Reason == JudgmentReasons.Wuhun && item.TargetSeat == selected?.TargetSeat);
-            var directDeath = events.OfType<DirectDeathDeclaredEvent>().FirstOrDefault(item =>
-                item.SourceSeat == ownerSeat && item.Skill == SkillKind.Wuhun);
+                item.Reason == JudgmentReasons.Wuhun);
+            var directDeath = events.OfType<ProgramSkillCauseDeathDeclaredEvent>().FirstOrDefault(item =>
+                item.SourceSeat == ownerSeat && item.SkillId == "classic:wuhun");
             var cleared = events.OfType<PlayerMarkerChangedEvent>().FirstOrDefault(item =>
                 item.SkillOwnerSeat == ownerSeat && item.Delta < 0 &&
-                item.Reason == "skill.wuhun.death-clear");
-            if (marker is null || started is null || selected is null || judgment is null ||
+                item.Reason == "program.attributed-marker.death-clear");
+            if (marker is null || started is null || judgment is null ||
                 directDeath is null || cleared is null)
                 continue;
 
-            Require(started.CandidateSeats.Contains(selected.TargetSeat) &&
-                    directDeath.TargetSeat == selected.TargetSeat &&
+            Require(directDeath.TargetSeat == judgment.TargetSeat &&
                     !events.OfType<PlayerDyingEvent>().Any(item =>
                         item.VictimSeat == directDeath.TargetSeat &&
                         events.ToList().IndexOf(item) > Array.IndexOf(events, directDeath)),

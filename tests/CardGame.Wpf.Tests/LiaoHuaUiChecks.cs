@@ -198,14 +198,11 @@ internal static class LiaoHuaUiChecks
     {
         var prompt = RequirePrompt(game, DecisionKind.PlayCard);
         var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Kujin);
-        var result = game.Submit(new UseSkillCommand(
-            HumanSeat,
-            action.Skill!.Value,
-            [],
-            [],
-            game.Revision,
-            prompt.PromptId));
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:kujin");
+        var result = game.Submit(new UseProgramSkillCommand(
+            HumanSeat, action.ProgramSkillId!, action.ProgramActivationId!, [], [],
+            game.Revision, prompt.PromptId));
         Program.Assert(result.Accepted, result.Error?.Message ?? "The Fuli WPF fixture could not use Kujin.");
     }
 

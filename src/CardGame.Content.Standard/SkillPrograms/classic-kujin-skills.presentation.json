@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:kujin": {
+      "name": "苦肉",
+      "description": "出牌阶段，你可以失去 1 点体力，然后摸两张牌。"
+    }
+  }
+}

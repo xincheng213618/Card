@@ -1,0 +1,200 @@
+<UserControl x:Class="CardGame.Wpf.Controls.HomeLobby"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             AutomationProperties.Name="群雄逐鹿首页" Focusable="False">
+    <UserControl.Resources>
+        <Style x:Key="LobbyButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Foreground" Value="#F7DEAA" />
+            <Setter Property="Background" Value="#77362B24" />
+            <Setter Property="BorderBrush" Value="#A48A5C" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Frame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="#FFE2A2" /></Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="#FFFFD1" /><Setter TargetName="Frame" Property="BorderThickness" Value="3" /></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Frame" Property="Opacity" Value="0.78" /></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Frame" Property="Opacity" Value="0.4" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ModeCard" TargetType="Button" BasedOn="{StaticResource LobbyButton}">
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="Background" Value="#DE251D19" />
+            <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#211710" BlurRadius="18" ShadowDepth="5" Opacity="0.5" /></Setter.Value></Setter>
+        </Style>
+        <Style x:Key="UtilityButton" TargetType="Button" BasedOn="{StaticResource LobbyButton}">
+            <Setter Property="Width" Value="76" />
+            <Setter Property="Margin" Value="3,0" />
+            <Setter Property="Padding" Value="5,8" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style x:Key="UtilityIcon" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="25" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#EACA8B" />
+            <Setter Property="Margin" Value="0,0,0,7" />
+        </Style>
+        <Style x:Key="UtilityLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#F4E2BD" />
+        </Style>
+        <Style x:Key="CardTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="KaiTi" />
+            <Setter Property="FontSize" Value="36" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#FFE0A0" />
+            <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#1B0B05" BlurRadius="5" ShadowDepth="2" Opacity="0.9" /></Setter.Value></Setter>
+        </Style>
+        <Style x:Key="CardCaption" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E9D7B3" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="2,10,0,0" />
+        </Style>
+        <LinearGradientBrush x:Key="CardShade" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#EA231812" Offset="0" /><GradientStop Color="#A02F1C15" Offset="0.44" /><GradientStop Color="#002F1C15" Offset="1" />
+        </LinearGradientBrush>
+    </UserControl.Resources>
+    <Grid ClipToBounds="True">
+        <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/lobby-river-city.png" Stretch="UniformToFill" /></Grid.Background>
+        <Border Background="#16EDC899" IsHitTestVisible="False" />
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="46" /><RowDefinition Height="*" /><RowDefinition Height="78" /></Grid.RowDefinitions>
+            <!-- A quiet announcement strip and the local player replace online economy chrome. -->
+            <Border Grid.Row="0" Background="#DD292420" BorderBrush="#8E7957" BorderThickness="0,0,0,1">
+                <Grid Margin="24,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="190" /><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions>
+                    <TextBlock Text="群雄逐鹿" FontFamily="KaiTi" FontSize="26" FontWeight="Bold" Foreground="#F6D494" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE767;" FontFamily="Segoe MDL2 Assets" Foreground="#D9BD83" FontSize="16" Margin="0,0,12,0" />
+                        <TextBlock Text="运筹帷幄，落子三国。欢迎来到群雄逐鹿。" Foreground="#D5CAB4" FontSize="12" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="本地玩家  /  单机对战" Foreground="#E5CEA2" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="100" /><ColumnDefinition Width="*" /><ColumnDefinition Width="40" /></Grid.ColumnDefinitions>
+                <Border Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="#A6322822" BorderBrush="#7AAA8A58" BorderThickness="0,1,1,1" Padding="2,12">
+                <StackPanel>
+                    <Button Style="{StaticResource UtilityButton}" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="all" ToolTip="查看所有可用对局" AutomationProperties.Name="全部战场" Margin="3,0,3,18">
+                        <StackPanel><TextBlock Text="&#xE80F;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="战场" Style="{StaticResource UtilityLabel}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource UtilityButton}" Command="{Binding OpenGeneralGalleryCommand}" ToolTip="浏览武将与技能" AutomationProperties.Name="武将图鉴" Margin="3,0,3,18">
+                        <StackPanel><TextBlock Text="&#xE77B;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="武将" Style="{StaticResource UtilityLabel}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource UtilityButton}" Command="{Binding OpenHistoryCommand}" ToolTip="查看历史对局" AutomationProperties.Name="历史战绩" Margin="3,0,3,18">
+                        <StackPanel><TextBlock Text="&#xE81C;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="战绩" Style="{StaticResource UtilityLabel}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource UtilityButton}" Command="{Binding OpenContextGuideCommand}" ToolTip="规则与操作指南（F1）" AutomationProperties.Name="战局指南">
+                        <StackPanel><TextBlock Text="&#xE8A5;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="指南" Style="{StaticResource UtilityLabel}" /></StackPanel>
+                    </Button>
+                </StackPanel>
+                </Border>
+                <Grid Grid.Column="1" MaxWidth="1220" Margin="16,14,16,0">
+                    <Grid.RowDefinitions><RowDefinition Height="0.30*" /><RowDefinition Height="0.70*" /><RowDefinition Height="68" /></Grid.RowDefinitions>
+                    <Button Grid.Row="0" Style="{StaticResource LobbyButton}" Command="{Binding OpenGeneralGalleryCommand}" Background="Transparent" BorderBrush="Transparent" Margin="0,0,0,20" AutomationProperties.Name="群雄集结，查看武将图鉴">
+                        <Grid ClipToBounds="True">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="280" /></Grid.ColumnDefinitions>
+                            <Border Grid.Column="1" Margin="0,-20,14,-70" Opacity="0.88">
+                                <Border.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-da-qiao.png" Stretch="UniformToFill" AlignmentY="Top" /></Border.Background>
+                                <Border.OpacityMask><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#00FFFFFF" Offset="0" /><GradientStop Color="White" Offset="0.4" /><GradientStop Color="#00FFFFFF" Offset="1" /></LinearGradientBrush></Border.OpacityMask>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center" Margin="32,0,0,0">
+                                <TextBlock Text="三 国 风 云  ·  英 雄 辈 出" Foreground="#634E33" FontSize="12" Margin="4,0,0,9" />
+                                <TextBlock Text="群雄集结" FontFamily="KaiTi" FontSize="52" FontWeight="Bold" Foreground="#4D3223" />
+                                <TextBlock Text="寻访三国名将，纵横乱世风云" Foreground="#6D5137" FontFamily="KaiTi" FontSize="20" Margin="4,6,0,0" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="武将图鉴  ›" Foreground="#5E442B" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,12,3" />
+                        </Grid>
+                    </Button>
+                    <!-- Two horizontal cards flank one full-height featured battle entry. -->
+                    <Grid Grid.Row="1" MaxHeight="510" VerticalAlignment="Stretch">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="20" /><ColumnDefinition Width="1.06*" /><ColumnDefinition Width="20" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="20" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <Button x:Name="ClassicBattleButton" Grid.Column="0" Grid.Row="0" Style="{StaticResource ModeCard}" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="identity" AutomationProperties.Name="经典场，选择身份对局">
+                            <Grid ClipToBounds="True">
+                                <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-sun-shangxiang.png" Viewbox="0,0,1,0.60" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
+                                <Border Background="{StaticResource CardShade}" />
+                                <Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
+                                <StackPanel VerticalAlignment="Center" Margin="20,8,8,8"><TextBlock Text="经典场" Style="{StaticResource CardTitle}" /><TextBlock Text="身份博弈 · 五人 / 八人" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <TextBlock Text="身 份" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
+                            </Grid>
+                        </Button>
+                        <Button x:Name="TeamBattleButton" Grid.Column="0" Grid.Row="2" Style="{StaticResource ModeCard}" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="team" AutomationProperties.Name="演武场，选择二对二阵营对局">
+                            <Grid ClipToBounds="True">
+                                <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-taishi-ci.png" Viewbox="0,0,1,0.6" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
+                                <Border Background="{StaticResource CardShade}" /><Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
+                                <StackPanel VerticalAlignment="Center" Margin="20,8,8,8"><TextBlock Text="演武场" Style="{StaticResource CardTitle}" /><TextBlock Text="2v2 阵营 · 并肩作战" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <TextBlock Text="协 作" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
+                            </Grid>
+                        </Button>
+                        <Button x:Name="EnterBattleButton" Grid.Column="2" Grid.RowSpan="3" Style="{StaticResource ModeCard}" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="all" BorderBrush="#E4BC6B" AutomationProperties.Name="进入战场，选择模式与开局设置">
+                            <Grid ClipToBounds="True">
+                                <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/lobby-featured-general.png" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
+                                <Border><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#001B1010" Offset="0.3" /><GradientStop Color="#631B1010" Offset="0.6" /><GradientStop Color="#FA1B1010" Offset="1" /></LinearGradientBrush></Border.Background></Border>
+                                <Border BorderBrush="#9CDDAB62" BorderThickness="1" Margin="5" />
+                                <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="#CC64271E" BorderBrush="#C6A367" BorderThickness="0,0,1,1" Padding="12,7"><TextBlock Text="群 雄 逐 鹿" Foreground="#FFE2AA" FontSize="12" /></Border>
+                                <StackPanel VerticalAlignment="Bottom" Margin="18,0,18,24">
+                                    <TextBlock Text="一局定乾坤" FontFamily="KaiTi" Foreground="#F0D7A0" FontSize="22" HorizontalAlignment="Center" Margin="0,0,0,5" />
+                                    <TextBlock Text="进入战场" Style="{StaticResource CardTitle}" FontSize="42" HorizontalAlignment="Center" />
+                                    <TextBlock Text="选择模式 · 运筹帷幄" Foreground="#D0B895" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,17" />
+                                    <Border Background="#D7793021" BorderBrush="#BD8B4F" BorderThickness="1" Padding="12,10"><TextBlock Text="开 局 布 阵   ›" Foreground="#FFE2AA" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center" /></Border>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="NationalBattleButton" Grid.Column="4" Grid.Row="0" Style="{StaticResource ModeCard}" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="national" AutomationProperties.Name="国战场，选择双将试验模式">
+                            <Grid ClipToBounds="True">
+                                <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-yuan-shao.png" Viewbox="0,0,1,0.6" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
+                                <Border Background="{StaticResource CardShade}" /><Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
+                                <StackPanel VerticalAlignment="Center" Margin="20,8,8,8"><TextBlock Text="国战场" Style="{StaticResource CardTitle}" /><TextBlock Text="双将暗置 · 魏蜀争锋" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <TextBlock Text="试 验 模 式" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
+                            </Grid>
+                        </Button>
+                        <Button x:Name="StartTutorialButton" Grid.Column="4" Grid.Row="2" Style="{StaticResource ModeCard}" Command="{Binding StartTutorialCommand}" AutomationProperties.Name="新手演练，学习四步基础操作">
+                            <Grid ClipToBounds="True">
+                                <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-lu-xun.png" Viewbox="0,0,1,0.6" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
+                                <Border Background="{StaticResource CardShade}" /><Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
+                                <StackPanel VerticalAlignment="Center" Margin="20,8,8,8"><TextBlock Text="新手演练" Style="{StaticResource CardTitle}" FontSize="32" /><TextBlock Text="四步入门 · 从容上阵" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <TextBlock Text="初 入 三 国" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
+                            </Grid>
+                        </Button>
+                    </Grid>
+                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="以智谋会群雄，以卡牌定胜负" Foreground="#F1DEC0" FontFamily="KaiTi" FontSize="18" HorizontalAlignment="Center"><TextBlock.Effect><DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.8" /></TextBlock.Effect></TextBlock>
+                        <TextBlock Text="{Binding TutorialEntryError}" Visibility="{Binding HasTutorialEntryError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" Margin="0,5,0,0" />
+                        <TextBlock Text="{Binding SessionSaveStatus}" Visibility="{Binding HasSaveError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+            <Border Grid.Row="2" Background="#EA292420" BorderBrush="#927957" BorderThickness="0,1,0,0">
+                <Grid Margin="24,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource LobbyButton}" Command="{Binding CancelNewGameSetupCommand}" Padding="20,11" Background="#9B613622" BorderBrush="#B7975A" AutomationProperties.Name="返回当前牌桌"><TextBlock Text="返 回 牌 桌" FontFamily="KaiTi" FontSize="19" /></Button>
+                        <Button x:Name="ContinueSavedGameButton" Style="{StaticResource LobbyButton}" Command="{Binding ContinueGameCommand}" Padding="16,11" Margin="12,0,0,0" Visibility="{Binding HasAutomaticSave, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding AutomaticSaveText}" AutomationProperties.Name="继续上次对局"><TextBlock Text="继续上次对局" FontSize="13" /></Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource UtilityButton}" Command="{Binding OpenGeneralGalleryCommand}" AutomationProperties.Name="武将图鉴"><StackPanel><TextBlock Text="&#xE77B;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="武将" Style="{StaticResource UtilityLabel}" /></StackPanel></Button>
+                        <Button x:Name="SetupHistoryButton" Style="{StaticResource UtilityButton}" Command="{Binding OpenHistoryCommand}" AutomationProperties.Name="历史战绩"><StackPanel><TextBlock Text="&#xE9D9;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="战绩" Style="{StaticResource UtilityLabel}" /></StackPanel></Button>
+                        <Button Style="{StaticResource UtilityButton}" Command="{Binding LoadManualGameCommand}" ToolTip="{Binding ManualSaveText}" AutomationProperties.Name="读取手动存档"><StackPanel><TextBlock Text="&#xE8F1;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="存档" Style="{StaticResource UtilityLabel}" /></StackPanel></Button>
+                        <Button Style="{StaticResource UtilityButton}" Command="{Binding OpenContextGuideCommand}" AutomationProperties.Name="游戏指南"><StackPanel><TextBlock Text="&#xE897;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="指南" Style="{StaticResource UtilityLabel}" /></StackPanel></Button>
+                        <Button x:Name="LobbySettingsButton" Style="{StaticResource UtilityButton}" Command="{Binding OpenSettingsCommand}" AutomationProperties.Name="游戏设置"><StackPanel><TextBlock Text="&#xE713;" Style="{StaticResource UtilityIcon}" /><TextBlock Text="设置" Style="{StaticResource UtilityLabel}" /></StackPanel></Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

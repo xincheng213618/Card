@@ -69,7 +69,9 @@ internal static class GuanXingZhangBaoUiChecks
         var engine = Program.Engine(viewModel);
         var fuhun = viewModel.HumanSkillCards.Single(skill => skill.Name == "父魂");
         var action = viewModel.HumanActiveSkillActions.Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Fuhun);
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:fuhun" &&
+            candidate.ProgramActivationId == "two-hand-cards-as-slash");
         var targetSeat = action.SelectableTargetSeats.First();
         var costIds = action.SelectableCardIds.Take(2).ToArray();
 
@@ -80,7 +82,7 @@ internal static class GuanXingZhangBaoUiChecks
 
         Program.Assert(fuhun is
                        {
-                           TypeText: "主动技 · 状态技",
+                           TypeText: "主动技 · 状态技 · 触发技",
                            StateText: "当前可发动",
                            IsAvailable: true
                        } &&
@@ -99,11 +101,13 @@ internal static class GuanXingZhangBaoUiChecks
             "The central Fuhun draft did not explain its exact two-card and one-target contract.");
 
         viewModel.ConfirmSelectedCommand.Execute(null);
-        var command = engine.AcceptedCommands.OfType<UseSkillCommand>().LastOrDefault();
-        Program.Assert(command is not null && command.Skill == SkillKind.Fuhun &&
+        var command = engine.AcceptedCommands.OfType<UseProgramSkillCommand>().LastOrDefault();
+        Program.Assert(command is not null && command.SkillId == "classic:fuhun" &&
+                       command.ActivationId == "two-hand-cards-as-slash" &&
                        command.CardIds.SequenceEqual(costIds.Order()) &&
                        command.TargetSeats.SequenceEqual([targetSeat]) &&
-                       engine.Events.Select(item => item.Payload).OfType<FuhunConvertedEvent>().Any(item => item.IsUse),
+                       engine.Events.Select(item => item.Payload).OfType<ProgramViewAsConvertedEvent>()
+                           .Any(item => item.IsUse && item.SkillId == "classic:fuhun"),
             "The WPF Fuhun draft did not commit the typed skill command and both physical costs.");
         window.Content = null;
         window.Close();
@@ -116,10 +120,13 @@ internal static class GuanXingZhangBaoUiChecks
         StartAndSelect(game);
         ReachHumanPlay(game);
         var prompt = RequirePrompt(game, DecisionKind.PlayCard);
-        var action = game.GetHumanLegalActions().Single(candidate => candidate.Skill == SkillKind.Fuhun);
-        var result = game.Submit(new UseSkillCommand(
+        var action = game.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:fuhun");
+        var result = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Fuhun,
+            "classic:fuhun",
+            "two-hand-cards-as-slash",
             action.SelectableCardIds.Take(2).ToArray(),
             [action.SelectableTargetSeats.First()],
             game.Revision,
@@ -140,7 +147,7 @@ internal static class GuanXingZhangBaoUiChecks
         Program.Assert(fuhun.StateText == "本回合已获得武圣／咆哮" &&
                        wusheng.SourceText.EndsWith("父魂获得", StringComparison.Ordinal) &&
                        paoxiao.SourceText.EndsWith("父魂获得", StringComparison.Ordinal) &&
-                       projectedCues.Any(cue => cue.Label == "父魂 · 两牌化杀") &&
+                       projectedCues.Any(cue => cue.Label == "父魂 · 2牌化杀") &&
                        projectedCues.Any(cue => cue.Label == "父魂 · 获得武圣／咆哮"),
             $"The skill rail and public cues must show the turn-scoped Fuhun grant " +
             $"(state={fuhun.StateText}, wusheng={wusheng.SourceText}, paoxiao={paoxiao.SourceText}).");
@@ -249,7 +256,7 @@ internal static class GuanXingZhangBaoUiChecks
         public PackageManifest Manifest { get; } = new(
             "guan-xing-zhang-bao-wpf-test",
             new Version(1, 0, 0),
-            [new PackageDependency("standard-classic-generals", new Version(1, 89, 0))]);
+            [new PackageDependency("standard-classic-generals", new Version(1, 119, 0))]);
 
         public void Register(IContentRegistryBuilder builder)
         {

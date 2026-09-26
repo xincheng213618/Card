@@ -2,6 +2,19 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private bool HasProgramPersistentZone(CharacterState owner, CardZoneKind zone) =>
+        EnabledSkillPrograms(owner).Any(program =>
+            program.Activations.SelectMany(activation => activation.Effects).Any(effect =>
+                effect.Destination == SkillProgramCardDestination.OwnerPersistentZone &&
+                effect.DestinationZone == zone) ||
+            program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect =>
+                effect.Destination == SkillProgramCardDestination.OwnerPersistentZone &&
+                effect.DestinationZone == zone));
+
+    private bool IsRuntimeAcquiredSkill(CharacterState player, string skillId) =>
+        player.AcquiredSkillIds.Contains(skillId) ||
+        player.TurnGrantedSkillIds.Contains(skillId, StringComparer.Ordinal);
+
     private SkillRuntimeStateSnapshot CreateProgramAwareSkillStateSnapshot(CharacterState owner, string skillId)
     {
         var snapshot = _skillRuntimeState.CreateSnapshot(owner.Seat, skillId,

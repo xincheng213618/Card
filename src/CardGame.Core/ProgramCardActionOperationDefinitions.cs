@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "resultBind", "cardCategories", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "skipIfNoCards", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -21,8 +21,11 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: must contain hand, equipment, or judgment.");
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
-        if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: must be ownerHand or discardPile.");
+        if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
+                SkillProgramCardDestination.SelectedTargetHand))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
+        if ((destination == SkillProgramCardDestination.SelectedTargetHand) != r.Has("targetRef"))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargetHand requires targetRef only.");
         var chooserRef = r.RequiredParticipantReference("chooserRef");
         var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
         var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");
@@ -30,15 +33,20 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: must not be empty when specified.");
         if (cardCategories is not null && chooserRef != cardOwnerRef)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: category filtering requires chooserRef and cardOwnerRef to name the same participant.");
+        var skipIfNoCards = r.Has("skipIfNoCards") && r.RequiredBool("skipIfNoCards");
         var effect = new SkillProgramEffect(Op, target, count, r.Condition(), zones: zones,
             destination: destination, resultBind: r.OptionalIdentifier("resultBind"),
-            chooserRef: chooserRef, cardOwnerRef: cardOwnerRef, cardCategories: cardCategories);
-        RequireAlways(effect, r.Path);
+            chooserRef: chooserRef, cardOwnerRef: cardOwnerRef, cardCategories: cardCategories,
+            targetReference: r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null,
+            skipIfNoCards: skipIfNoCards);
+        if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");
         return effect;
     }
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        ParticipantResources(effect.ChooserRef, effect.CardOwnerRef)
+        ParticipantResources(effect.ChooserRef, effect.CardOwnerRef, effect.TargetReference)
             .Concat(effect.ResultBind is { } bind
                 ? new ProgramResourceOperation[] { new CreateCardSet(bind, 1, false) }
                 : Array.Empty<ProgramResourceOperation>()).ToArray();
@@ -62,4 +70,32 @@ internal sealed class RefundCardUseDebitProgramOperationDescriptor : ProgramOper
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+}
+
+internal sealed class ChooseOtherOwnedCardDiscardProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseOtherOwnedCardDiscard;
+    public override ISkillProgramEffectHandler Handler { get; } = new ChooseOtherOwnedCardDiscardSkillProgramEffectHandler();
+    public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(
+        ProgramOperationAiSemantic.ChooseOtherOwnedCardDiscard,
+        static (effect, context) => context.ChooseOtherOwnedCardDiscard(effect));
+
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "chooserRef", "zones", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target != SkillProgramEffectTarget.Owner)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
+        var zones = r.RequiredEnumArray<CardZoneKind>("zones");
+        if (zones.Count == 0 || zones.Any(zone => zone is not
+                (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.zones: must contain hand, equipment, or judgment.");
+        return new SkillProgramEffect(Op, target, 1, r.Condition(), zones: zones,
+            chooserRef: r.RequiredParticipantReference("chooserRef"));
+    }
+
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        ParticipantResources(effect.ChooserRef);
 }

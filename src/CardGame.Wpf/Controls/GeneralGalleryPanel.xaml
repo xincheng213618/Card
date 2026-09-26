@@ -1,0 +1,157 @@
+<UserControl x:Class="CardGame.Wpf.Controls.GeneralGalleryPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="Panel_Loaded" Unloaded="Panel_Unloaded" DataContextChanged="Panel_DataContextChanged"
+             KeyboardNavigation.TabNavigation="Cycle" Focusable="False">
+    <UserControl.Resources>
+        <Style x:Key="GalleryTab" TargetType="Button" BasedOn="{StaticResource SelectedFilterButton}">
+            <Setter Property="Foreground" Value="#D2C5A4" /><Setter Property="Background" Value="#302E29" />
+            <Setter Property="BorderBrush" Value="#64583F" /><Setter Property="FontFamily" Value="KaiTi" />
+            <Setter Property="FontSize" Value="19" /><Setter Property="MinWidth" Value="78" />
+            <Setter Property="Margin" Value="0,0,3,0" /><Setter Property="Padding" Value="16,10" />
+            <Style.Triggers><DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True"><Setter Property="Background" Value="#79633F" /><Setter Property="Foreground" Value="#FFF0CA" /><Setter Property="BorderBrush" Value="#C6A86B" /></DataTrigger></Style.Triggers>
+        </Style>
+        <Style x:Key="GallerySubtab" TargetType="Button" BasedOn="{StaticResource SelectedFilterButton}">
+            <Setter Property="Foreground" Value="#C2B798" /><Setter Property="Padding" Value="12,6" />
+            <Setter Property="Margin" Value="0,0,5,0" />
+            <Style.Triggers><DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True"><Setter Property="Background" Value="#594C34" /><Setter Property="Foreground" Value="#FFE4A3" /><Setter Property="BorderBrush" Value="#BDA16B" /></DataTrigger></Style.Triggers>
+        </Style>
+        <Style x:Key="GeneralPortraitCard" TargetType="Button">
+            <Setter Property="Width" Value="136" /><Setter Property="Height" Value="192" />
+            <Setter Property="Margin" Value="8,8,10,12" /><Setter Property="Padding" Value="3" />
+            <Setter Property="Cursor" Value="Hand" /><Setter Property="Background" Value="#322B25" />
+            <Setter Property="BorderBrush" Value="#A78559" /><Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+                <Border x:Name="Frame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                    <ContentPresenter />
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="#FFE3A0" /></Trigger>
+                    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="#FFFFDF" /><Setter TargetName="Frame" Property="BorderThickness" Value="3" /></Trigger>
+                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="#FFE09C" /><Setter TargetName="Frame" Property="BorderThickness" Value="3" /></DataTrigger>
+                    <Trigger Property="IsPressed" Value="True"><Setter TargetName="Frame" Property="Opacity" Value="0.75" /></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <DataTemplate x:Key="GalleryCardTemplate">
+            <Button Style="{StaticResource GeneralPortraitCard}" Command="{Binding DataContext.SelectGeneralGalleryEntryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding AccessibilityText}" ToolTip="{Binding SkillDescription}">
+                <Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="GeneralId" /><Binding Path="DataContext.SelectedGeneralGalleryEntry.GeneralId" RelativeSource="{RelativeSource AncestorType=UserControl}" /></MultiBinding></Button.Tag>
+                <Grid ClipToBounds="True" Background="{Binding PortraitBrush}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="26,0,0,0">
+                        <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasPortrait}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                        <TextBlock Text="将" FontFamily="KaiTi" FontSize="48" Foreground="#766346" TextAlignment="Center" />
+                        <TextBlock Text="暂无立绘" Foreground="#A49376" FontSize="11" TextAlignment="Center" Margin="0,8,0,0" />
+                    </StackPanel>
+                    <Border><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#B5161717" Offset="0" /><GradientStop Color="#00161717" Offset="0.6" /></LinearGradientBrush></Border.Background></Border>
+                    <Border Height="27" VerticalAlignment="Top" Background="#AD17191A">
+                        <Grid Margin="7,0"><TextBlock Text="{Binding Kingdom}" Foreground="{Binding FactionBrush}" FontFamily="KaiTi" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" /><TextBlock Text="{Binding HealthText}" Foreground="#EFE3B9" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid>
+                    </Border>
+                    <TextBlock Text="{Binding VerticalName}" FontFamily="KaiTi" FontWeight="Bold" FontSize="21" LineHeight="23" Foreground="#FFF4D9" Margin="8,36,0,24" VerticalAlignment="Top"><TextBlock.Effect><DropShadowEffect BlurRadius="3" ShadowDepth="1" Color="Black" Opacity="1" /></TextBlock.Effect></TextBlock>
+                    <Border Background="#DC24201B" VerticalAlignment="Bottom" Padding="4,4"><TextBlock Text="{Binding SkillName}" FontSize="10" Foreground="#E0C89F" TextTrimming="CharacterEllipsis" TextAlignment="Center" /></Border>
+                </Grid>
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Border MaxWidth="1560" MaxHeight="1020" Margin="24" Padding="18,14" Background="#F52B2A28" BorderBrush="#A28C62" BorderThickness="2">
+        <Border BorderBrush="#655B45" BorderThickness="1" Padding="14,6,14,10">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="58" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="64" /></Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <TextBlock Text="武 将 图 鉴" FontFamily="KaiTi" FontSize="30" FontWeight="Bold" Foreground="#EAD9AC" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    <TextBlock Text="群 雄 逐 鹿" FontFamily="KaiTi" FontSize="15" Foreground="#A7946E" VerticalAlignment="Center" Margin="4,0,0,0" />
+                    <Button x:Name="CloseGeneralGalleryButton" Content="关闭  ×" Command="{Binding CloseGeneralGalleryCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="14,8" AutomationProperties.Name="关闭武将图鉴" />
+                </Grid>
+                <Grid Grid.Row="1" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /><ColumnDefinition Width="30" /></Grid.ColumnDefinitions>
+                    <Button Content="‹" Click="SeriesPrevious_Click" Style="{StaticResource QuietButton}" FontSize="26" Margin="0" Padding="0" AutomationProperties.Name="向前浏览武将系列" />
+                    <ScrollViewer x:Name="SeriesScroller" Grid.Column="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" PreviewMouseWheel="SeriesScroller_PreviewMouseWheel" Focusable="False">
+                        <ItemsControl x:Name="SeriesTabs" ItemsSource="{Binding GeneralGallerySeries}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate><DataTemplate>
+                                <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGallerySeriesCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" ToolTip="{Binding Description}" Style="{StaticResource GalleryTab}" GotKeyboardFocus="SeriesTab_GotKeyboardFocus">
+                                    <Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedGeneralGallerySeries" RelativeSource="{RelativeSource AncestorType=UserControl}" /></MultiBinding></Button.Tag>
+                                </Button>
+                            </DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <Button Grid.Column="2" Content="›" Click="SeriesNext_Click" Style="{StaticResource QuietButton}" FontSize="26" Margin="0" Padding="0" AutomationProperties.Name="向后浏览武将系列" />
+                </Grid>
+                <DockPanel Grid.Row="2" Margin="8,0,8,10">
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding GeneralGallerySeriesDescription}" Foreground="#AD9C78" FontSize="11" VerticalAlignment="Center" Margin="14,0,0,0" />
+                    <ItemsControl ItemsSource="{Binding GeneralGallerySubgroups}" Visibility="{Binding HasGeneralGallerySubgroups, Converter={StaticResource BoolToVisibility}}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate><DataTemplate>
+                            <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGalleryGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Style="{StaticResource GallerySubtab}">
+                                <Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedGeneralGalleryGroup" RelativeSource="{RelativeSource AncestorType=UserControl}" /></MultiBinding></Button.Tag>
+                            </Button>
+                        </DataTemplate></ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DockPanel>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <Border Background="#6E161718" BorderBrush="#554D3D" BorderThickness="1">
+                        <Grid>
+                            <ScrollViewer x:Name="GalleryScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="8,0,0,10">
+                                <ItemsControl x:Name="GeneralGalleryCards" ItemsSource="{Binding GeneralGalleryGroups}">
+                                    <ItemsControl.ItemTemplate><DataTemplate>
+                                        <StackPanel Margin="0,8,0,8">
+                                            <Grid Margin="8,7,18,10">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <Border Height="1" Background="#706043" VerticalAlignment="Center" Margin="0,0,20,0" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Title}" Foreground="#ECD3A0" FontFamily="KaiTi" FontSize="24" />
+                                                <Grid Grid.Column="2"><Border Height="1" Background="#706043" VerticalAlignment="Center" Margin="20,0,100,0" /><TextBlock Text="{Binding CountText}" Foreground="#B89C64" HorizontalAlignment="Right" FontSize="11" VerticalAlignment="Center" /></Grid>
+                                            </Grid>
+                                            <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource GalleryCardTemplate}">
+                                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                            <TextBlock Text="{Binding EmptyMessage}" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" Foreground="#938772" FontSize="12" Margin="0,12,0,24" />
+                                        </StackPanel>
+                                    </DataTemplate></ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding HasNoGeneralGalleryResults, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="没有符合筛选条件的武将" FontFamily="KaiTi" FontSize="24" Foreground="#D7C7A4" />
+                                <Button Content="清除搜索与势力筛选" Command="{Binding ClearGeneralGalleryFiltersCommand}" Style="{StaticResource ToolbarButton}" Margin="0,18,0,0" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border x:Name="GeneralDetailsPanel" Grid.Column="1" Width="270" Margin="12,0,0,0" Background="#E41B1D1D" BorderBrush="#826D49" BorderThickness="1" Visibility="{Binding HasGeneralGallerySelection, Converter={StaticResource BoolToVisibility}}">
+                        <DockPanel Margin="16">
+                            <Button DockPanel.Dock="Bottom" x:Name="CloseGeneralDetailsButton" Content="收起详情" Command="{Binding CloseGeneralGalleryDetailsCommand}" Style="{StaticResource ToolbarButton}" Margin="0,12,0,0" />
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel DataContext="{Binding SelectedGeneralGalleryEntry}">
+                                    <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="30" Foreground="#F0D396" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding GroupName}" Foreground="#A79778" FontSize="12" Margin="0,8,0,0" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,18"><TextBlock Text="{Binding Kingdom}" Foreground="{Binding FactionBrush}" /><TextBlock Text="{Binding HealthText}" Foreground="#CEBE99" Margin="15,0,0,0" /></StackPanel>
+                                    <Border Height="1" Background="#62543C" Margin="0,0,0,18" />
+                                    <TextBlock Text="{Binding SkillName}" FontWeight="Bold" Foreground="#E6C17A" FontSize="15" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding SkillDescription}" Foreground="#C4C3B3" FontSize="13" LineHeight="23" TextWrapping="Wrap" Margin="0,14,0,0" />
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+                <Grid Grid.Row="4" Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <ItemsControl ItemsSource="{Binding GeneralGalleryFactions}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate><DataTemplate>
+                                <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGalleryFactionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Style="{StaticResource GallerySubtab}">
+                                    <Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedGeneralGalleryFaction" RelativeSource="{RelativeSource AncestorType=UserControl}" /></MultiBinding></Button.Tag>
+                                </Button>
+                            </DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="点击武将查看技能 · 滚轮浏览" Foreground="#97896E" FontSize="10" Margin="10,5,0,0" />
+                    </StackPanel>
+                    <Grid Grid.Column="1" VerticalAlignment="Center">
+                        <TextBox x:Name="GeneralGallerySearchBox" Text="{Binding GeneralGallerySearchText, UpdateSourceTrigger=PropertyChanged}" Background="#191B1C" Foreground="#E9D9B5" BorderBrush="#827152" Padding="10,8,30,8" VerticalContentAlignment="Center" AutomationProperties.Name="搜索武将或技能" ToolTip="输入武将名、技能名或技能说明" />
+                        <TextBlock Text="搜索武将 / 技能" Foreground="#8C836E" Margin="12,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding GeneralGallerySearchText}" Value=""><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#B6A174" IsHitTestVisible="False" />
+                    </Grid>
+                    <TextBlock Grid.Column="2" Text="{Binding GeneralGalleryCountText}" Foreground="#C7AF78" FontSize="12" VerticalAlignment="Center" Margin="20,0,5,0" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Border>
+</UserControl>

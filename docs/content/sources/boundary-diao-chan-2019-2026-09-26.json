@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "contentId": "boundary:diao-chan",
+  "productLine": "三国杀 OL",
+  "edition": "2019 界限调整",
+  "retrievedAt": "2026-09-26T14:41:55.0030953+08:00",
+  "rulesSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20190927_2957_2315",
+      "observedGeneralName": "界貂蝉",
+      "use": "2019 版离间的一牌费用、两名男性目标和阶段限次；闭月在结束阶段按手牌状态摸一或二张。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/445",
+      "observedGeneralName": "界貂蝉",
+      "use": "官网英雄页检索缓存确认离间的决斗不能被无懈可击抵消；直接打开该页时请求超时。"
+    }
+  ],
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.139.0",
+    "minimumRulesVersion": 163,
+    "programSchemaVersion": 53,
+    "modeIds": [
+      "identity:classic-5",
+      "identity:classic-8",
+      "identity:classic-boundary-5",
+      "identity:classic-boundary-8"
+    ],
+    "skillRuntimes": {
+      "boundary:lijian": "existing SkillKind.Lijian under an independent skill ID",
+      "boundary:biyue": "turnEnding optional skill program"
+    }
+  },
+  "artwork": {
+    "localFilename": "src/CardGame.Wpf/Assets/official-boundary-diao-chan.png",
+    "origin": "official 三国杀 OL hero artwork",
+    "url": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/activity/shequshow/xingxiang/44501.png",
+    "sha256": "256FCE6263E8014F7DE149D7D9957E254E5A6B3590ED6B6DE5CE70AE33AC0638",
+    "pixelWidth": 950,
+    "pixelHeight": 750
+  }
+}

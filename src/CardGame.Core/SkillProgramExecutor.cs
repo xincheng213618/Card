@@ -33,9 +33,14 @@ public interface ISkillProgramExecutionHost
 /// <summary>Primitive rules operations exposed to reusable effect handlers.</summary>
 public interface ISkillProgramEffectHost
 {
+    int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference);
     void Draw(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? resultBind,
         SkillProgramCardSetVisibility visibility, CardMoveReason reason);
+    void DrawSelectedTargets(long frameId, int amount, CardMoveReason reason);
+    void DrawBoundCardCount(long frameId, int ownerSeat, int targetSeat, string sourceBind,
+        string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
+        throw new InvalidOperationException("The host does not provide bound-card-count draws.");
     void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? sourceBind);
     SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount);
@@ -66,8 +71,39 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome ChooseOption(ProgramSkillFrame frame, int chooserSeat,
         string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
         throw new InvalidOperationException("The host does not provide named program choices.");
+    SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
+        int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
+        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds) =>
+        throw new InvalidOperationException("The host does not provide private owned-card set selection.");
+    void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
+        throw new InvalidOperationException("The host does not provide activation-card capture.");
+    void RevealBoundCards(ProgramSkillFrame frame, string sourceBind) =>
+        throw new InvalidOperationException("The host does not provide bound-card reveal.");
+    void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
+        throw new InvalidOperationException("The host does not provide persistent-zone dying rescue.");
+    SkillProgramStepOutcome ChooseDifferentCategoryDiscard(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        ProgramParticipantReference cardOwner,
+        IReadOnlyList<CardZoneKind> zones,
+        string sourceBind,
+        string resultBind,
+        CardMoveReason reason) =>
+        throw new InvalidOperationException("The host does not provide category-discard choices.");
     void ChangeMaximumHp(ProgramSkillFrame frame, int amount);
     void GrantSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds);
+    void GrantTurnSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
+        throw new InvalidOperationException("The host does not provide turn-scoped skill grants.");
+    SkillProgramStepOutcome UseSelectedCardsAs(
+        ProgramSkillFrame frame,
+        int targetSeat,
+        string viewAsId,
+        CardKind outputKind) =>
+        throw new InvalidOperationException("The host does not provide selected-card uses.");
+    SkillProgramStepOutcome UseAllHandCardsAsOrdinaryTrick(
+        ProgramSkillFrame frame,
+        string viewAsId) =>
+        throw new InvalidOperationException("The host does not provide all-hand ordinary-trick uses.");
     void TurnOver(long frameId, int ownerSeat, int targetSeat);
     void SetFaceState(long frameId, int ownerSeat, int targetSeat, bool faceDown);
     SkillProgramStepOutcome StartJudgment(
@@ -87,7 +123,8 @@ public interface ISkillProgramEffectHost
         long frameId,
         string sourceBind,
         string resultBind,
-        IReadOnlyList<Suit> suits);
+        IReadOnlyList<Suit> suits,
+        ProgramParticipantReference? effectiveSuitFor = null);
     SkillProgramStepOutcome SelectCardSubset(
         long frameId,
         int ownerSeat,
@@ -96,8 +133,9 @@ public interface ISkillProgramEffectHost
         int minimumCards,
         int maximumCards,
         int maximumRankSum,
-        SkillProgramSubsetAiOrder aiOrder);
-    void MoveBoundCards(
+        SkillProgramSubsetAiOrder aiOrder,
+        bool allowFewerWhenInsufficient);
+    SkillProgramStepOutcome MoveBoundCards(
         long frameId,
         int ownerSeat,
         string sourceBind,
@@ -110,12 +148,30 @@ public interface ISkillProgramEffectHost
         int ownerSeat,
         SkillProgramTargetKind targetKind,
         IReadOnlyList<CardZoneKind> zones);
+    SkillProgramStepOutcome SelectTarget(
+        long frameId,
+        int ownerSeat,
+        SkillProgramTargetKind targetKind,
+        IReadOnlyList<CardZoneKind> zones,
+        PlayerMarkerKind? marker) => SelectTarget(frameId, ownerSeat, targetKind, zones);
+    void ChangeAttributedMarker(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference target,
+        PlayerMarkerKind marker,
+        int amount) =>
+        throw new InvalidOperationException("The host does not provide attributed marker mutation.");
+    SkillProgramStepOutcome CauseDeathUnlessBoundCardKind(
+        ProgramSkillFrame frame,
+        string sourceBind,
+        IReadOnlyList<CardKind> excludedCardKinds) =>
+        throw new InvalidOperationException("The host does not provide configured direct death.");
     SkillProgramStepOutcome SelectTargets(
         long frameId,
         int ownerSeat,
         SkillProgramTargetKind targetKind,
         int minimumTargets,
         int maximumTargets,
+        SkillProgramNumberExpression? numberExpression,
         SkillProgramTargetAiOrder aiOrder);
     SkillProgramStepOutcome SelectSourceCard(
         long frameId,
@@ -129,6 +185,18 @@ public interface ISkillProgramEffectHost
         string sourceBind,
         SkillProgramTargetKind targetKind,
         CardMoveReason reason);
+    SkillProgramStepOutcome DistributeOwnedCards(
+        ProgramSkillFrame frame,
+        IReadOnlyList<CardZoneKind> zones,
+        string sourceBind,
+        SkillProgramTargetKind targetKind,
+        bool allowDeclineBeforeFirst,
+        CardMoveReason reason) =>
+        throw new InvalidOperationException("The host does not provide owned-card distribution.");
+    SkillProgramStepOutcome RequestAttackRangeAid(
+        ProgramSkillFrame frame,
+        CardMoveReason reason) =>
+        throw new InvalidOperationException("The host does not provide attack-range aid responses.");
     void ClaimDamageCards(long frameId, int ownerSeat, CardMoveReason reason);
     void TakeRandomHandCardFromSelectedTargets(
         long frameId,
@@ -144,6 +212,15 @@ public interface ISkillProgramEffectHost
         ProgramSkillFrame frame,
         IReadOnlyList<CardKind> cardKinds,
         IReadOnlyList<CardActionType> actionTypes);
+    void GrantTurnHandColorRestriction(
+        ProgramSkillFrame frame,
+        string sourceBind,
+        int targetSeat) =>
+        throw new InvalidOperationException("The host does not provide hand-color turn restrictions.");
+    void PreventCurrentDamage(ProgramSkillFrame frame) =>
+        throw new InvalidOperationException("The host does not provide damage prevention.");
+    void NullifyCurrentCardEffect(ProgramSkillFrame frame) =>
+        throw new InvalidOperationException("The host does not provide current card-effect nullification.");
     void GrantTurnRuleModifier(
         ProgramSkillFrame frame,
         SkillRuleQuery query,
@@ -164,10 +241,18 @@ public interface ISkillProgramEffectHost
         ProgramParticipantReference cardOwner,
         IReadOnlyList<CardZoneKind> zones,
         SkillProgramCardDestination destination,
+        ProgramParticipantReference? destinationRef,
         string? resultBind,
         CardMoveReason reason,
-        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null) =>
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
+        bool skipIfNoCards = false) =>
         throw new InvalidOperationException("The host does not provide card-action payments.");
+    SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        IReadOnlyList<CardZoneKind> zones,
+        CardMoveReason reason) =>
+        throw new InvalidOperationException("The host does not provide optional other-player card discards.");
     void RefundCardUseDebit(ProgramSkillFrame frame) =>
         throw new InvalidOperationException("The host does not provide card-use debit refunds.");
     SkillProgramStepOutcome StartPindian(
@@ -206,8 +291,24 @@ public sealed class DrawSkillProgramEffectHandler : ISkillProgramEffectHandler
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        host.Draw(frame.Id, frame.OwnerSeat, targetSeat, effect.Amount,
-            effect.NumberExpression, effect.ResultBind, effect.Visibility, Reason(frame, effect));
+        if (effect.Target == SkillProgramEffectTarget.SelectedTargets)
+        {
+            host.DrawSelectedTargets(frame.Id, effect.Amount, Reason(frame, effect));
+            return SkillProgramStepOutcome.Continue;
+        }
+        if (effect.TargetReference is { } targetReference)
+            targetSeat = host.ResolveParticipant(frame, targetReference);
+        if (effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount)
+        {
+            host.DrawBoundCardCount(frame.Id, frame.OwnerSeat, targetSeat,
+                effect.SourceBind ?? throw new InvalidOperationException("boundCardCount draw has no source binding."),
+                effect.ResultBind, effect.Visibility, Reason(frame, effect));
+        }
+        else
+        {
+            host.Draw(frame.Id, frame.OwnerSeat, targetSeat, effect.Amount,
+                effect.NumberExpression, effect.ResultBind, effect.Visibility, Reason(frame, effect));
+        }
         return SkillProgramStepOutcome.Continue;
     }
 
@@ -228,7 +329,8 @@ public sealed class SelectTargetSkillProgramEffectHandler : ISkillProgramEffectH
             frame.Id,
             frame.OwnerSeat,
             effect.TargetKind ?? throw new InvalidOperationException("selectTarget has no target kind."),
-            effect.Zones);
+            effect.Zones,
+            effect.Marker);
 }
 
 public sealed class SelectTargetsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -246,6 +348,7 @@ public sealed class SelectTargetsSkillProgramEffectHandler : ISkillProgramEffect
             effect.TargetKind ?? throw new InvalidOperationException("selectTargets has no target kind."),
             effect.MinimumTargets,
             effect.MaximumTargets,
+            effect.NumberExpression,
             effect.TargetAiOrder ?? throw new InvalidOperationException("selectTargets has no AI order."));
 }
 
@@ -348,6 +451,38 @@ public sealed class LoseHpSkillProgramEffectHandler : ISkillProgramEffectHandler
         host.LoseHp(frame.Id, frame.SkillId, targetSeat, effect.Amount);
 }
 
+public sealed class DistributeOwnedCardsSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.DistributeOwnedCards;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host) =>
+        host.DistributeOwnedCards(
+            frame,
+            effect.Zones,
+            effect.SourceBind ?? throw new InvalidOperationException("distributeOwnedCards has no source bind."),
+            effect.TargetKind ?? throw new InvalidOperationException("distributeOwnedCards has no target kind."),
+            effect.AllowDeclineBeforeFirst,
+            new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+}
+
+public sealed class RequestAttackRangeAidSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.RequestAttackRangeAid;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host) =>
+        host.RequestAttackRangeAid(
+            frame,
+            new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+}
+
 public sealed class DamageSkillProgramEffectHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.Damage;
@@ -382,6 +517,40 @@ public sealed class GrantSkillsSkillProgramEffectHandler : ISkillProgramEffectHa
         host.GrantSkills(frame, effect.SkillIds);
         return SkillProgramStepOutcome.Continue;
     }
+}
+
+public sealed class GrantTurnSkillsSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnSkills;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        host.GrantTurnSkills(frame, effect.SkillIds);
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
+public sealed class UseSelectedCardsAsSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.UseSelectedCardsAs;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) =>
+        host.UseSelectedCardsAs(
+            frame,
+            targetSeat,
+            effect.SourceBind ?? throw new InvalidOperationException("A selected-card use lost its view-as binding."),
+            effect.OutputKind ?? throw new InvalidOperationException("A selected-card use lost its output kind."));
+}
+
+public sealed class UseAllHandCardsAsOrdinaryTrickSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) =>
+        host.UseAllHandCardsAsOrdinaryTrick(
+            frame,
+            effect.SourceBind ?? throw new InvalidOperationException(
+                "An all-hand ordinary-trick use lost its view-as identity."));
 }
 
 public sealed class GiveSelectedSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -560,7 +729,8 @@ public sealed class FilterBoundCardsSkillProgramEffectHandler : ISkillProgramEff
             frame.Id,
             effect.SourceBind ?? throw new InvalidOperationException("filterBoundCards has no source bind."),
             effect.ResultBind ?? throw new InvalidOperationException("filterBoundCards has no result bind."),
-            effect.Suits);
+            effect.Suits,
+            effect.TargetReference);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -574,7 +744,8 @@ public sealed class SelectCardSubsetSkillProgramEffectHandler : ISkillProgramEff
             effect.SourceBind ?? throw new InvalidOperationException("selectCardSubset has no source bind."),
             effect.ResultBind ?? throw new InvalidOperationException("selectCardSubset has no result bind."),
             effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum,
-            effect.AiOrder ?? throw new InvalidOperationException("selectCardSubset has no AI order."));
+            effect.AiOrder ?? throw new InvalidOperationException("selectCardSubset has no AI order."),
+            effect.AllowFewerWhenInsufficient);
 }
 
 public sealed class MoveBoundCardsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -583,13 +754,12 @@ public sealed class MoveBoundCardsSkillProgramEffectHandler : ISkillProgramEffec
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        host.MoveBoundCards(frame.Id, frame.OwnerSeat,
+        return host.MoveBoundCards(frame.Id, frame.OwnerSeat,
             effect.SourceBind ?? throw new InvalidOperationException("moveBoundCards has no source bind."),
             effect.ExceptBind,
             effect.Destination ?? throw new InvalidOperationException("moveBoundCards has no destination."),
             effect.DestinationZone,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
-        return SkillProgramStepOutcome.Continue;
     }
 }
 
@@ -603,7 +773,9 @@ public sealed class AdjustNormalDrawSkillProgramEffectHandler : ISkillProgramEff
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        host.AdjustNormalDraw(frame, effect.Amount);
+        var amount = effect.NumberExpression == SkillProgramNumberExpression.SelectedTargetCount
+            ? -frame.SelectedTargetSeats.Count : effect.Amount;
+        host.AdjustNormalDraw(frame, amount);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -634,6 +806,24 @@ public sealed class GrantTurnCardActionProhibitionSkillProgramEffectHandler : IS
         ISkillProgramEffectHost host)
     {
         host.GrantTurnCardActionProhibition(frame, effect.CardKinds, effect.ActionTypes);
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
+public sealed class GrantTurnHandColorRestrictionSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnHandColorRestriction;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host)
+    {
+        host.GrantTurnHandColorRestriction(
+            frame,
+            effect.SourceBind ?? throw new InvalidOperationException("A hand-color restriction lost its source bind."),
+            targetSeat);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -695,6 +885,21 @@ public sealed class GrantTurnCardConversionSkillProgramEffectHandler : ISkillPro
     }
 }
 
+public sealed class PreventCurrentDamageSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.PreventCurrentDamage;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host)
+    {
+        host.PreventCurrentDamage(frame);
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
 public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectAndMoveOwnedCard;
@@ -705,8 +910,25 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
         effect.CardOwnerRef ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no cardOwnerRef."),
         effect.Zones,
         effect.Destination ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no destination."),
+        effect.TargetReference,
         effect.ResultBind,
-        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories);
+        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
+        effect.SkipIfNoCards);
+}
+
+public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseOtherOwnedCardDiscard;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host) => host.ChooseOtherOwnedCardDiscard(
+        frame,
+        effect.ChooserRef ?? throw new InvalidOperationException("chooseOtherOwnedCardDiscard has no chooserRef."),
+        effect.Zones,
+        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
 }
 
 public sealed class ChooseOptionSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -867,11 +1089,14 @@ public sealed class SkillProgramExecutor
                 throw new InvalidOperationException(
                     $"Running skill program '{frame.SkillId}' has an invalid instruction cursor.");
 
-            if (!actor.IsAlive || state.IsGameOver || frame.InstructionIndex >= instructions.Count)
+            var allowsDeadOwner = frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied;
+            if ((!actor.IsAlive && !allowsDeadOwner) || state.IsGameOver ||
+                frame.InstructionIndex >= instructions.Count)
             {
                 state.Complete(
                     frame,
-                    completed: actor.IsAlive && frame.InstructionIndex >= instructions.Count);
+                    completed: (actor.IsAlive || allowsDeadOwner) &&
+                        frame.InstructionIndex >= instructions.Count);
                 return;
             }
 
@@ -893,6 +1118,7 @@ public sealed class SkillProgramExecutor
                     throw new InvalidOperationException(
                         $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
                 SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
+                SkillProgramEffectTarget.SelectedTargets => frame.OwnerSeat,
                 _ => throw new InvalidOperationException(
                     $"Skill program '{frame.SkillId}' uses unsupported target '{effect.Target}'.")
             };
@@ -908,7 +1134,16 @@ public sealed class SkillProgramExecutor
                     "所选牌或接收者在结算中已失效，技能剩余步骤取消。");
                 return;
             }
-            if (!target.IsAlive) continue;
+            if (!target.IsAlive && !(allowsDeadOwner && effect.Op is
+                    (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets)))
+            {
+                if (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.SelectOwnedCards)
+                {
+                    state.Complete(frame, completed: false, reason: "选择者已死亡，技能剩余步骤取消。");
+                    return;
+                }
+                continue;
+            }
 
             var outcome = handler.Execute(effect, frame, targetSeat, effects);
             if (outcome is SkillProgramStepOutcome.AwaitChild or SkillProgramStepOutcome.AwaitChoice) return;

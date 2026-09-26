@@ -50,6 +50,11 @@ public partial class MainWindow : Window
         {
             if (NewGameSetupPanel.IsVisible)
             {
+                if (DataContext is MainViewModel { IsLobbyConfigurationOpen: false })
+                {
+                    LobbyHome.FocusPrimary();
+                    return;
+                }
                 if (TableModeChoices.ItemContainerGenerator.ContainerFromItem(TableModeChoices.SelectedItem) is UIElement choice)
                     choice.Focus();
                 else
@@ -65,6 +70,12 @@ public partial class MainWindow : Window
     private void Window_Loaded(object sender, RoutedEventArgs e) =>
         NewGameSetupPanel_IsVisibleChanged(NewGameSetupPanel, default);
 
+    private void FocusLobby()
+    {
+        if (DataContext is MainViewModel { IsLobbyConfigurationOpen: true }) TableModeChoices.Focus();
+        else LobbyHome.FocusPrimary();
+    }
+
     private void PlayerGuideOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (!IsLoaded) return;
@@ -73,7 +84,7 @@ public partial class MainWindow : Window
         {
             if (PlayerGuideOverlay.IsVisible) PlayerGuide.FocusGuide();
             else if (_focusBeforeGuide is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
-            else if (NewGameSetupPanel.IsVisible) TableModeChoices.Focus();
+            else if (NewGameSetupPanel.IsVisible) FocusLobby();
             else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }));
     }
@@ -107,7 +118,8 @@ public partial class MainWindow : Window
         if (viewModel.IsGeneralGalleryOpen)
         {
             if (key != Key.Escape) return false;
-            viewModel.IsGeneralGalleryOpen = false;
+            if (viewModel.HasGeneralGallerySelection) viewModel.CloseGeneralGalleryDetailsCommand.Execute(null);
+            else viewModel.IsGeneralGalleryOpen = false;
             return true;
         }
         if (viewModel.IsSettingsOpen && !(key == Key.M && modifiers == ModifierKeys.Control))
@@ -135,6 +147,7 @@ public partial class MainWindow : Window
         if (key == Key.Escape)
         {
             if (viewModel.IsHelpOpen) viewModel.IsHelpOpen = false;
+            else if (viewModel.IsNewGameSetupOpen && viewModel.IsLobbyConfigurationOpen) viewModel.BackToLobbyCommand.Execute(null);
             else if (viewModel.IsNewGameSetupOpen) viewModel.IsNewGameSetupOpen = false;
             else if (viewModel.IsLogOpen) viewModel.IsLogOpen = false;
             else viewModel.ClearSelectionCommand.Execute(null);
@@ -194,6 +207,7 @@ public partial class MainWindow : Window
         {
             if (HistoryOverlay.IsVisible) HistoryPanel.FocusHistory();
             else if (_focusBeforeHistory is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
+            else if (NewGameSetupPanel.IsVisible) FocusLobby();
             else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }));
     }
@@ -204,8 +218,9 @@ public partial class MainWindow : Window
         if (GeneralGalleryOverlay.IsVisible) _focusBeforeGeneralGallery = Keyboard.FocusedElement;
         Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
         {
-            if (GeneralGalleryOverlay.IsVisible) GeneralGallerySearchBox.Focus();
+            if (GeneralGalleryOverlay.IsVisible) GeneralGallery.FocusSearch();
             else if (_focusBeforeGeneralGallery is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
+            else if (NewGameSetupPanel.IsVisible) FocusLobby();
             else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }));
     }
@@ -230,6 +245,7 @@ public partial class MainWindow : Window
         {
             if (SettingsOverlay.IsVisible) SettingsSoundToggle.Focus();
             else if (_focusBeforeSettings is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
+            else if (NewGameSetupPanel.IsVisible) FocusLobby();
             else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }));
     }

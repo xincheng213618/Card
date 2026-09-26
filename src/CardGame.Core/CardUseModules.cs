@@ -82,6 +82,16 @@ public sealed record TurnCardActionProhibition(
     IReadOnlyList<CardKind> CardKinds,
     IReadOnlyList<CardActionType> ActionTypes);
 
+public sealed record TurnHandCardColorRestriction(
+    long GrantSequence,
+    int TurnNumber,
+    int TurnSeat,
+    long ParentFrameId,
+    int EffectIndex,
+    CardUseEffectSource Source,
+    int AffectedSeat,
+    bool IsRed);
+
 public sealed record TurnRuleModifier(
     long GrantSequence,
     int TurnNumber,
@@ -121,6 +131,7 @@ public sealed record CardUseProhibitionGrantedEvent(TurnCardUseProhibition Prohi
 
 public sealed record CardDamageModifierGrantedEvent(TurnCardDamageModifier Modifier) : IGameEvent;
 public sealed record CardActionProhibitionGrantedEvent(TurnCardActionProhibition Prohibition) : IGameEvent;
+public sealed record HandCardColorRestrictionGrantedEvent(TurnHandCardColorRestriction Restriction) : IGameEvent;
 public sealed record TurnRuleModifierGrantedEvent(TurnRuleModifier Modifier) : IGameEvent;
 public sealed record CardTargetRestrictionGrantedEvent(TurnCardTargetRestriction Restriction) : IGameEvent;
 public sealed record CardConversionGrantedEvent(TurnCardConversion Conversion) : IGameEvent;
@@ -174,6 +185,7 @@ internal sealed class TurnCardUseEffectStore
     private readonly List<TurnCardUseProhibition> _prohibitions = [];
     private readonly List<TurnCardDamageModifier> _damageModifiers = [];
     private readonly List<TurnCardActionProhibition> _actionProhibitions = [];
+    private readonly List<TurnHandCardColorRestriction> _handColorRestrictions = [];
     private readonly List<TurnRuleModifier> _ruleModifiers = [];
     private readonly List<TurnCardTargetRestriction> _targetRestrictions = [];
     private readonly List<TurnCardConversion> _conversions = [];
@@ -183,6 +195,7 @@ internal sealed class TurnCardUseEffectStore
     internal IReadOnlyList<TurnCardUseProhibition> Prohibitions => _prohibitions;
     internal IReadOnlyList<TurnCardDamageModifier> DamageModifiers => _damageModifiers;
     internal IReadOnlyList<TurnCardActionProhibition> ActionProhibitions => _actionProhibitions;
+    internal IReadOnlyList<TurnHandCardColorRestriction> HandColorRestrictions => _handColorRestrictions;
     internal IReadOnlyList<TurnRuleModifier> RuleModifiers => _ruleModifiers;
     internal IReadOnlyList<TurnCardTargetRestriction> TargetRestrictions => _targetRestrictions;
     internal IReadOnlyList<TurnCardConversion> Conversions => _conversions;
@@ -351,6 +364,31 @@ internal sealed class TurnCardUseEffectStore
         return granted;
     }
 
+    internal TurnHandCardColorRestriction GrantHandColorRestriction(
+        int turnNumber,
+        int turnSeat,
+        long parentFrameId,
+        int effectIndex,
+        CardUseEffectSource source,
+        int affectedSeat,
+        bool isRed)
+    {
+        var existing = _handColorRestrictions.SingleOrDefault(item =>
+            item.ParentFrameId == parentFrameId && item.EffectIndex == effectIndex);
+        if (existing is not null)
+        {
+            if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
+                existing.Source != source || existing.AffectedSeat != affectedSeat || existing.IsRed != isRed)
+                throw new InvalidOperationException("A hand-color restriction grant key changed its meaning.");
+            return existing;
+        }
+
+        var granted = new TurnHandCardColorRestriction(
+            ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source, affectedSeat, isRed);
+        _handColorRestrictions.Add(granted);
+        return granted;
+    }
+
     internal TurnCardTargetRestriction GrantTargetRestriction(
         int turnNumber,
         int turnSeat,
@@ -427,6 +465,15 @@ internal sealed class TurnCardUseEffectStore
                 item.CardKinds.Contains(effectiveKind) &&
                 item.ActionTypes.Contains(actionType));
     }
+
+    internal bool IsHandColorRestricted(
+        int turnNumber,
+        int turnSeat,
+        int affectedSeat,
+        bool isRed) =>
+        _handColorRestrictions.Any(item =>
+            item.TurnNumber == turnNumber && item.TurnSeat == turnSeat &&
+            item.AffectedSeat == affectedSeat && item.IsRed == isRed);
 
     internal IReadOnlyList<TurnRuleModifier> GetRuleModifiers(
         int turnNumber,
@@ -522,6 +569,9 @@ internal sealed class TurnCardUseEffectStore
             .Concat(_actionProhibitions
                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
                 .Select(item => item.GrantSequence))
+            .Concat(_handColorRestrictions
+                .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
+                .Select(item => item.GrantSequence))
             .Concat(_ruleModifiers
                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
                 .Select(item => item.GrantSequence))
@@ -539,6 +589,7 @@ internal sealed class TurnCardUseEffectStore
         _prohibitions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _damageModifiers.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _actionProhibitions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
+        _handColorRestrictions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _ruleModifiers.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _targetRestrictions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _conversions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
@@ -551,6 +602,7 @@ internal sealed class TurnCardUseEffectStore
             .Concat(_prohibitions.Select(item => item.GrantSequence))
             .Concat(_damageModifiers.Select(item => item.GrantSequence))
             .Concat(_actionProhibitions.Select(item => item.GrantSequence))
+            .Concat(_handColorRestrictions.Select(item => item.GrantSequence))
             .Concat(_ruleModifiers.Select(item => item.GrantSequence))
             .Concat(_targetRestrictions.Select(item => item.GrantSequence))
             .Concat(_conversions.Select(item => item.GrantSequence)).ToArray();
@@ -564,12 +616,16 @@ internal sealed class TurnCardUseEffectStore
             _actionProhibitions.Any(item => item.CardKinds.Count == 0 || item.ActionTypes.Count == 0 ||
                 item.CardKinds.Distinct().Count() != item.CardKinds.Count ||
                 item.ActionTypes.Distinct().Count() != item.ActionTypes.Count) ||
+            _handColorRestrictions.Any(item => item.AffectedSeat < 0) ||
             _ruleModifiers.Any(item =>
                 item.Query == SkillRuleQuery.SlashLimit &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount <= 0) ||
                 item.Query == SkillRuleQuery.SlashDistanceLimit &&
                     item.Operation != SkillRuleOperation.Unlimited ||
-                item.Query is not (SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit)) ||
+                item.Query == SkillRuleQuery.AttackRange &&
+                    item.Operation != SkillRuleOperation.Unlimited ||
+                item.Query is not (SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit or
+                    SkillRuleQuery.AttackRange)) ||
             _targetRestrictions.Any(item => item.Restriction == SkillProgramCardTargetRestriction.SelfOnly
                 ? item.TargetSeat is not null
                 : item.TargetSeat is null or < 0) ||

@@ -324,7 +324,6 @@ public enum DecisionKind
     ProgramJudgmentTrigger,
     ProgramJudgmentReplacement,
     ProgramJudgmentTarget,
-    WuhunTarget,
     SelectFaction,
     Jiangchi,
     Qianxi,
@@ -336,8 +335,6 @@ public enum DecisionKind
     Zili,
     Qice,
     Zhiyu,
-    Anxu,
-    ZhuiyiTarget,
     Chunlao,
     Gongqi,
     Jiefan,
@@ -923,6 +920,13 @@ public sealed record LegalAction
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
+
+    /// <summary>
+    /// Ordered public conversions applied after <see cref="ConversionSource"/>.
+    /// A chained view-as keeps every source visible to replay and trigger facts.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardConversionSource>? AdditionalConversionSources { get; init; }
 
     /// <summary>
     /// Identifies a rule modifier that changes the effective card kind after an

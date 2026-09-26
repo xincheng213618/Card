@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "contentId": "boundary:zhang-liao",
+  "productLine": "三国杀 OL",
+  "edition": "2018 界限突破版",
+  "retrievedAt": "2026-09-26T15:11:35.3032165+08:00",
+  "rulesSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20180315_9391_1716",
+      "use": "少摸任意张牌，从等量且手牌不少于自己的其他角色各取得一张手牌；魏 4 体力。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20170220_6126_1618",
+      "use": "官网攻略 FAQ：额外普通摸牌增加可选上限，兵粮跳过摸牌阶段则不能发动。"
+    }
+  ],
+  "artwork": {
+    "page": "https://www.sanguosha.com/hero/314",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31400.png",
+    "localFilename": "src/CardGame.Wpf/Assets/official-boundary-zhang-liao.png",
+    "sha256": "C521B8BCF53AE2218788FC7CF888CB86EF1B699F138BA673084AC7994D5DB313",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "implementation": {
+    "packageId": "standard-classic-generals",
+    "packageVersion": "1.139.0",
+    "minimumRulesVersion": 164,
+    "programSchemaVersion": 54,
+    "modeIds": ["identity:classic-5", "identity:classic-8"]
+  }
+}

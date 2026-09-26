@@ -1,0 +1,13 @@
+{
+  "generalId": "boundary:sima-yi",
+  "edition": "2014 界限突破身份版（2016 官方文案核对）",
+  "rulesSources": [
+    "https://www.sanguosha.com/news/20140808_3146_3213",
+    "https://www.sanguosha.com/news/20160725_8246_3815"
+  ],
+  "rulesNotes": "反馈每受到1点伤害后各可发动一次，不能套用普通司马懿的每次伤害。鬼才可从手牌或装备区打出任意花色牌替换任意角色的判定；旧判定牌进弃牌堆。两篇官方身份版文章一致，未采用国战或现行同名改版。",
+  "artPage": "https://www.sanguosha.com/hero/312",
+  "artUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31200.png",
+  "artSha256": "086CA443F0078C933E5FF0B6CF456C4DF000207BE0F892042976C36D6B8BCF02",
+  "artDimensions": "750x950"
+}

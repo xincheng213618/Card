@@ -126,9 +126,9 @@ internal static class ClassicGeneralChecks
                 "standard@1.14.0",
                 "standard-active-skills@1.1.0",
                 "standard-rescue-skills@1.0.0",
-                "standard-classic-generals@1.113.0"]),
+                $"standard-classic-generals@{StandardClassicGeneralPackage.CurrentVersion}"]),
             "The classic package signature must be explicit and dependency ordered.");
-        var expectedCurrentRoster = new[]
+        var previousRoster = new[]
         {
             // Original standard 25.
             "classic:cao-cao", "classic:sima-yi", "classic:xiahou-dun", "classic:zhang-liao",
@@ -151,10 +151,17 @@ internal static class ClassicGeneralChecks
             "classic:cheng-pu", "classic:han-dang", "classic:cao-chong", "classic:guo-huai",
             "classic:man-chong", "classic:guan-ping"
         };
-        Require(classic.Modes["identity:classic-5"].GeneralPoolIds!
-                .Order(StringComparer.Ordinal)
-                .SequenceEqual(expectedCurrentRoster.Order(StringComparer.Ordinal)),
-            "The current classic package must contain the complete original standard roster plus its explicit expansion representatives.");
+        var previousPool = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 138, 0))
+            .Modes["identity:classic-5"].GeneralPoolIds!;
+        var currentPool = classic.Modes["identity:classic-5"].GeneralPoolIds!;
+        Require(previousPool.Order(StringComparer.Ordinal)
+                    .SequenceEqual(previousRoster.Order(StringComparer.Ordinal)) &&
+                previousRoster.All(currentPool.Contains) &&
+                currentPool.Contains("classic:gu-yong") && currentPool.Contains("classic:li-dian") &&
+                currentPool.Contains("boundary:sima-yi") &&
+                currentPool.Distinct(StringComparer.Ordinal).Count() == currentPool.Count &&
+                currentPool.All(classic.Generals.ContainsKey),
+            "The 1.138.0 roster must remain exact; current identity pool must retain it and register the later generals without duplicates or unresolved ids.");
         Require(classic.Generals["classic:zhang-jiao"] is
         { BaseHp: 3, FactionId: "qun" } zhangJiao &&
                 zhangJiao.SkillIds.SequenceEqual(["classic:guidao", "classic:leiji", "classic:huangtian"]) &&
@@ -259,7 +266,8 @@ internal static class ClassicGeneralChecks
         { BaseHp: 3, FactionId: "shu", Gender: GeneralGender.Male } xuShu &&
                 xuShu.SkillIds.SequenceEqual(["classic:wuyan", "classic:jujian"]) &&
                 classic.Skills["classic:wuyan"].LegacyKind == SkillKind.Wuyan &&
-                classic.Skills["classic:jujian"].LegacyKind == SkillKind.Jujian &&
+                classic.Skills["classic:jujian"].LegacyKind is null &&
+                classic.Skills["classic:jujian"].Program is { MinimumRulesVersion: 135, UsesCompositionKernel: true } &&
                 wuyanClassic.Skills.ContainsKey("classic:wuyan") &&
                 !wuyanClassic.Skills.ContainsKey("classic:jujian") &&
                 !wuyanClassic.Generals.ContainsKey("classic:xu-shu") &&
@@ -1694,7 +1702,8 @@ internal static class ClassicGeneralChecks
                       target.Equipment.Count == 0 &&
                       target.Skills?.All(skill => skill.Kind is not
                           (SkillKind.Yizhong or SkillKind.Zhenlie or SkillKind.Liuli or SkillKind.Renxin or
-                           SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Bazhen or SkillKind.Hujia)) != false);
+                           SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Bazhen or SkillKind.Hujia) &&
+                          skill.ContentId is not ("classic:qingguo" or "classic:longdan")) != false);
         var slashTargetSeat = slashAction.TargetSeat!.Value;
         var slashPlayed = slashGame.Submit(new PlayCardCommand(
             0,
@@ -1723,7 +1732,8 @@ internal static class ClassicGeneralChecks
             LegalActionKind.Duel,
             target =>
                 target.Hand.All(card => card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) &&
-                target.Skills?.All(skill => skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan or SkillKind.Jijiang)) != false,
+                target.Skills?.All(skill => skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan or SkillKind.Jijiang) &&
+                    skill.ContentId is not ("classic:wusheng" or "classic:longdan")) != false,
             requireNoNullification: true);
         var duelTargetSeat = duelAction.TargetSeat!.Value;
         var duelPlayed = duelGame.Submit(new PlayCardCommand(
@@ -1858,7 +1868,8 @@ internal static class ClassicGeneralChecks
                       target.Equipment.Count == 0 &&
                       target.Skills?.All(skill => skill.Kind is not
                           (SkillKind.Yizhong or SkillKind.Zhenlie or SkillKind.Liuli or SkillKind.Renxin or
-                           SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Bazhen or SkillKind.Hujia)) != false);
+                           SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Bazhen or SkillKind.Hujia) &&
+                          skill.ContentId is not ("classic:qingguo" or "classic:longdan")) != false);
         var slashTargetSeat = slashAction.TargetSeat!.Value;
         var slashPlayed = slashGame.Submit(new PlayCardCommand(
             0,
@@ -3066,6 +3077,439 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
                 EventSignatures(responseReplay).SequenceEqual(EventSignatures(responseGame)),
             "An in-flight formal Longdan Slash-to-Dodge response must replay exactly.");
+    }
+
+    public static void ConfiguredKujinFlow()
+    {
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 128, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(previous.Skills["classic:kujin"] is { LegacyKind: SkillKind.Kujin, Program: null } &&
+                current.Skills["classic:kujin"] is
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 153 } program } &&
+                program.Activations.Single() is
+                { Id: "lose-hp-and-draw", UsesPerTurn: null } &&
+                previous.ContentHash != current.ContentHash,
+            "Package 1.129.0 must configure repeatable Kujin without changing 1.128.0.");
+
+        var game = SelectGeneral(current, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion);
+        Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
+            "Configured Kujin could not reach the human play phase.");
+        var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        for (var use = 0; use < 2; use++)
+        {
+            var action = game.GetHumanLegalActions().Single(candidate =>
+                candidate.Kind == LegalActionKind.UseProgramSkill &&
+                candidate.ProgramSkillId == "classic:kujin" &&
+                candidate.ProgramActivationId == "lose-hp-and-draw");
+            var result = game.Submit(new UseProgramSkillCommand(
+                0, action.ProgramSkillId!, action.ProgramActivationId!, [], [],
+                game.Revision, game.PendingDecision!.PromptId));
+            Require(result.Accepted, result.Error?.Message ?? "Configured Kujin was rejected.");
+            Require(TryReturnToHumanPlay(game), "Configured Kujin did not return to human play.");
+        }
+        var after = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        var events = game.Events.Select(item => item.Payload).ToArray();
+        Require(after.Hp == before.Hp - 2 && after.HandCount == before.HandCount + 4 &&
+                events.OfType<ProgramSkillHpLostEvent>().Count(item =>
+                    item.SkillId == "classic:kujin" && item.Amount == 1) == 2 &&
+                events.OfType<ProgramSkillResolvedEvent>().Count(item =>
+                    item.SkillId == "classic:kujin" && item.Completed) == 2 &&
+                events.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Kujin }),
+            "Two configured Kujin activations must each lose one HP and draw two cards without legacy execution.");
+        var replay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), current);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replay).SequenceEqual(EventSignatures(game)),
+            "Repeated configured Kujin must replay exactly.");
+    }
+
+    public static void ConfiguredKujinDyingContinuation()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = SelectGeneral(registry, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion);
+        Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
+            "Configured Kujin dying fixture could not reach play.");
+        for (var use = 0; use < 4; use++)
+        {
+            Activate();
+            Require(TryReturnToHumanPlay(game), "Configured Kujin did not return from a nonlethal use.");
+        }
+        var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(before.Hp == 1, "Four Kujin uses must leave the five-HP Lord at one HP.");
+        Activate();
+        var suspended = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
+        Require(suspended.Hp == 0 && suspended.HandCount == before.HandCount &&
+                game.PendingDecision is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 } &&
+                game.Events.Select(item => item.Payload).OfType<ProgramSkillHpLostEvent>().Last() is
+                { SkillId: "classic:kujin", Amount: 1, RemainingHp: 0 } &&
+                game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+                    .Count(item => item.SkillId == "classic:kujin" && item.Completed) == 4,
+            "Lethal configured Kujin must pause before its two-card draw.");
+        var replay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replay).SequenceEqual(EventSignatures(game)),
+            "Configured Kujin dying prompt must replay exactly.");
+        foreach (var branch in new[] { game, replay })
+        {
+            var prompt = branch.PendingDecision ??
+                throw new InvalidOperationException("Configured Kujin lost its dying prompt.");
+            var decline = prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "let-die");
+            var answered = branch.Submit(new AnswerPromptCommand(
+                0, prompt.PromptId, decline.Id, branch.Revision));
+            Require(answered.Accepted, answered.Error?.Message ?? "Configured Kujin dying answer failed.");
+        }
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replay).SequenceEqual(EventSignatures(game)),
+            "Configured Kujin dying continuation must remain deterministic.");
+
+        void Activate()
+        {
+            var action = game.GetHumanLegalActions().Single(candidate =>
+                candidate.Kind == LegalActionKind.UseProgramSkill &&
+                candidate.ProgramSkillId == "classic:kujin");
+            var result = game.Submit(new UseProgramSkillCommand(
+                0, action.ProgramSkillId!, action.ProgramActivationId!, [], [],
+                game.Revision, game.PendingDecision!.PromptId));
+            Require(result.Accepted, result.Error?.Message ?? "Configured Kujin activation failed.");
+        }
+    }
+
+    public static void ConfiguredLongdanFlow()
+    {
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 127, 0));
+        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 128, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var skill = introduced.Skills["classic:longdan"];
+        Require(previous.Skills["classic:longdan"] is { LegacyKind: SkillKind.Longdan, Program: null } &&
+                skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 152 } program } &&
+                program.ViewAs.Select(rule => rule.Id).Order(StringComparer.Ordinal)
+                    .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
+                current.Skills["classic:longdan"].Program?.GameplayHash == program.GameplayHash &&
+                previous.ContentHash != current.ContentHash,
+            "Package 1.128.0 must configure classic Longdan without mutating package 1.127.0.");
+
+        var (game, action) = FindZhaoYunLongdanFixture(current);
+        var source = action.ConversionSource;
+        Require(action.PlayedCardKind == CardKind.Slash &&
+                source is { SkillId: "classic:longdan", BindingId: "dodge-to-slash", OwnerSeat: 0 },
+            "Current classic Zhao Yun must expose exactly attributed Dodge-to-Slash actions.");
+        ArgumentNullException.ThrowIfNull(source);
+        var before = game.CreateCheckpoint();
+        var forged = game.Submit(new PlayCardCommand(
+            0, action.CardId!.Value, action.TargetSeats, game.Revision,
+            game.PendingDecision!.PromptId, action.PlayedCardKind)
+        {
+            ConversionSource = source with { BindingId = "forged" }
+        });
+        Require(!forged.Accepted && game.Revision == before.Revision,
+            "A forged Longdan conversion binding must be rejected without advancing the match.");
+        var start = game.Events.Count;
+        var used = game.Submit(new PlayCardCommand(
+            0, action.CardId.Value, action.TargetSeats, game.Revision,
+            game.PendingDecision!.PromptId, action.PlayedCardKind)
+        {
+            ConversionSource = source
+        });
+        Require(used.Accepted, used.Error?.Message ?? "The configured Longdan Slash was rejected.");
+        Require(TryReturnToHumanPlay(game), "The configured Longdan Slash did not finish.");
+        var events = game.Events.Skip(start).Select(item => item.Payload).ToArray();
+        Require(events.OfType<CardActionAcceptedEvent>().Any(item =>
+                    item.Action.Type == CardActionType.Use &&
+                    item.Action.EffectiveKind == CardKind.Slash &&
+                    item.Action.ConversionChain.SequenceEqual([source])) &&
+                events.OfType<CardUsedEvent>().Any(item =>
+                    item.CardId == action.CardId && item.CardKind == CardKind.Slash),
+            "The configured Longdan Slash must keep its physical card and exact source.");
+        var replay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), current);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replay).SequenceEqual(EventSignatures(game)),
+            "The configured Longdan Slash must replay exactly.");
+
+        var responseGame = WushengResponseScenario.FindLongdanDodge(
+            current, "identity:classic-8", "classic:longdan");
+        var prompt = responseGame.PendingDecision ??
+            throw new InvalidOperationException("The configured Longdan response lost its prompt.");
+        var choice = prompt.Choices.First(candidate =>
+            candidate.Parameters.GetValueOrDefault("response") == "dodge" &&
+            candidate.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:longdan" &&
+            candidate.Parameters.GetValueOrDefault("conversion-binding-id") == "slash-to-dodge");
+        var responseStart = responseGame.Events.Count;
+        var response = responseGame.Submit(new AnswerPromptCommand(
+            0, prompt.PromptId, choice.Id, responseGame.Revision));
+        Require(response.Accepted, response.Error?.Message ?? "The configured Longdan Dodge was rejected.");
+        var responseEvents = responseGame.Events.Skip(responseStart).Select(item => item.Payload).ToArray();
+        Require(responseEvents.OfType<CardActionAcceptedEvent>().Any(item =>
+                    item.Action.Type == CardActionType.Response &&
+                    item.Action.EffectiveKind == CardKind.Dodge &&
+                    item.Action.ConversionChain.SingleOrDefault() is
+                    { SkillId: "classic:longdan", BindingId: "slash-to-dodge", OwnerSeat: 0 }) &&
+                responseEvents.OfType<CardRespondedEvent>().Any(item =>
+                    item.EffectiveCardKind == CardKind.Dodge && item.ResponderSeat == 0),
+            "The configured Longdan Dodge must retain its exact conversion source.");
+        var responseReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(responseGame.CreateCheckpoint())), current);
+        Require(SnapshotJson.Serialize(responseReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(responseReplay).SequenceEqual(EventSignatures(responseGame)),
+            "The configured Longdan Dodge must replay exactly.");
+    }
+
+    public static void ConfiguredQingguoResponses()
+    {
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 129, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var skill = current.Skills["classic:qingguo"];
+        Require(previous.Skills["classic:qingguo"] is { LegacyKind: SkillKind.Qingguo, Program: null } &&
+                skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 154 } program } &&
+                program.ViewAs.Single() is { Id: "black-hand-as-dodge", ForPlay: false, ForResponse: true } rule &&
+                rule.InputSuits.Order().SequenceEqual(new[] { Suit.Spade, Suit.Club }.Order()) &&
+                previous.ContentHash != current.ContentHash,
+            "Package 1.130.0 must configure Qingguo without changing package 1.129.0.");
+
+        foreach (var incoming in new[] { CardKind.Slash, CardKind.ArrowBarrage })
+        {
+            var game = WushengResponseScenario.FindQingguoDodge(
+                incoming, skillContentId: "classic:qingguo");
+            var prompt = game.PendingDecision ??
+                throw new InvalidOperationException("Configured Qingguo response fixture lost its prompt.");
+            var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
+            var choice = prompt.Choices.First(candidate =>
+                candidate.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:qingguo" &&
+                candidate.Parameters.GetValueOrDefault("conversion-binding-id") == "black-hand-as-dodge");
+            var physical = owner.Hand.Single(card => card.Id == choice.Cards.Single());
+            Require(physical.Suit is Suit.Spade or Suit.Club && physical.Kind != CardKind.Dodge &&
+                    prompt.Choices.Where(candidate =>
+                            candidate.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:qingguo")
+                        .All(candidate => owner.Hand.Single(card => card.Id == candidate.Cards.Single()).Suit is
+                            Suit.Spade or Suit.Club),
+                $"Configured Qingguo must offer only black non-Dodge hand cards against {incoming}.");
+
+            var paused = GameReplay.Restore(
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), current);
+            Require(SnapshotJson.Serialize(paused.CreateSnapshot(0, revealAll: true)) ==
+                    SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                    EventSignatures(paused).SequenceEqual(EventSignatures(game)),
+                "A configured Qingguo response prompt must replay exactly.");
+            var start = game.Events.Count;
+            var result = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision));
+            Require(result.Accepted, result.Error?.Message ?? "Configured Qingguo response was rejected.");
+            var events = game.Events.Skip(start).Select(item => item.Payload).ToArray();
+            Require(events.OfType<CardActionAcceptedEvent>().Any(item =>
+                        item.Action.Type == CardActionType.Response &&
+                        item.Action.EffectiveKind == CardKind.Dodge &&
+                        item.Action.ConversionChain.SingleOrDefault() is
+                        { SkillId: "classic:qingguo", BindingId: "black-hand-as-dodge", OwnerSeat: 0 }) &&
+                    events.OfType<CardRespondedEvent>().Any(item =>
+                        item.CardId == physical.Id && item.EffectiveCardKind == CardKind.Dodge) &&
+                    game.CardMovements.Any(move => move.CardId == physical.Id &&
+                        move.CardKind == physical.Kind && move.From == CardLocation.Hand(0) &&
+                        move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Respond),
+                "Configured Qingguo must retain the physical card and attribute its Dodge response.");
+            var completed = GameReplay.Restore(
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), current);
+            Require(SnapshotJson.Serialize(completed.CreateSnapshot(0, revealAll: true)) ==
+                    SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                    EventSignatures(completed).SequenceEqual(EventSignatures(game)),
+                "The configured Qingguo response must replay exactly after completion.");
+        }
+    }
+
+    public static void ConfiguredWushengSources()
+    {
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 130, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var skill = current.Skills["classic:wusheng"];
+        Require(previous.Skills["classic:wusheng"] is { LegacyKind: SkillKind.Wusheng, Program: null } &&
+                skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v46", MinimumRulesVersion: 155 } program } &&
+                program.ViewAs.Single() is { Id: "red-owned-as-slash", ForPlay: true, ForResponse: true } rule &&
+                rule.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
+                rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()) &&
+                previous.ContentHash != current.ContentHash,
+            "Package 1.131.0 must configure both owned Wusheng source zones without changing 1.130.0.");
+
+        var handGame = WushengResponseScenario.FindClassicWushengHand(current);
+        var handPrompt = handGame.PendingDecision ??
+            throw new InvalidOperationException("Configured Wusheng hand response lost its prompt.");
+        var handOwner = handGame.CreateSnapshot(0, revealAll: true).Players[0];
+        var handChoice = handPrompt.Choices.First(candidate =>
+            candidate.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:wusheng" &&
+            candidate.Parameters.GetValueOrDefault("conversion-binding-id") == "red-owned-as-slash" &&
+            handOwner.Hand.Any(card => card.Id == candidate.Cards.Single() &&
+                card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)));
+        var handCard = handOwner.Hand.Single(card => card.Id == handChoice.Cards.Single());
+        Require(handCard.Suit is Suit.Heart or Suit.Diamond &&
+                handCard.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash),
+            "Configured Wusheng must only convert a red non-Slash hand card.");
+        var handCheckpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(handGame.CreateCheckpoint()));
+        var pausedHand = GameReplay.Restore(handCheckpoint, current);
+        Require(SnapshotJson.Serialize(pausedHand.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(handGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(pausedHand).SequenceEqual(EventSignatures(handGame)),
+            "A configured Wusheng hand response must restore at the prompt.");
+        var handStart = handGame.Events.Count;
+        var handResult = handGame.Submit(new AnswerPromptCommand(
+            0, handPrompt.PromptId, handChoice.Id, handGame.Revision));
+        Require(handResult.Accepted, handResult.Error?.Message ?? "Configured Wusheng hand response failed.");
+        Require(handGame.Events.Skip(handStart).Select(item => item.Payload)
+                    .OfType<CardActionAcceptedEvent>().Any(item =>
+                        item.Action.Type == CardActionType.Response &&
+                        item.Action.EffectiveKind == CardKind.Slash &&
+                        item.Action.ConversionChain.SingleOrDefault() is
+                        { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 }) &&
+                handGame.CardMovements.Any(move =>
+                    move.CardId == handCard.Id && move.From == CardLocation.Hand(0) &&
+                    move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Respond),
+            "Configured Wusheng hand response must preserve exact physical cost and source.");
+
+        var equipmentFixture = FindGuanYuWushengEquipmentFixture(current);
+        var action = equipmentFixture.ActiveAction;
+        Require(action.ConversionSource is
+                { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 },
+            "Configured Wusheng must publish an attributed equipped-Slash play action.");
+        var activeGame = equipmentFixture.ActiveGame;
+        var forged = activeGame.Submit(new PlayCardCommand(
+            0, action.CardId!.Value, action.TargetSeats, activeGame.Revision,
+            activeGame.PendingDecision!.PromptId, action.PlayedCardKind)
+        {
+            ConversionSource = action.ConversionSource! with { BindingId = "forged" }
+        });
+        Require(!forged.Accepted, "A forged equipped Wusheng source must be rejected.");
+        var used = SubmitPlayAction(activeGame, action);
+        Require(used.Accepted, used.Error?.Message ?? "Configured equipped Wusheng play failed.");
+        Require(activeGame.CardMovements.Any(move =>
+                    move.CardId == equipmentFixture.EquipmentCardId &&
+                    move.From == CardLocation.Equipment(0) &&
+                    move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Use) &&
+                activeGame.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>().Any(item =>
+                    item.Action.Type == CardActionType.Use &&
+                    item.Action.ConversionChain.SingleOrDefault() is
+                    { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 }),
+            "Configured Wusheng must pay equipment and freeze its program source.");
+
+        var responseGame = equipmentFixture.ResponseGame;
+        var responsePrompt = responseGame.PendingDecision ??
+            throw new InvalidOperationException("Configured equipped Wusheng response lost its prompt.");
+        var responseChoice = responsePrompt.Choices.Single(candidate =>
+            candidate.Cards.SequenceEqual([equipmentFixture.EquipmentCardId]) &&
+            candidate.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:wusheng" &&
+            candidate.Parameters.GetValueOrDefault("conversion-binding-id") == "red-owned-as-slash");
+        var pausedEquipment = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(responseGame.CreateCheckpoint())), current);
+        Require(SnapshotJson.Serialize(pausedEquipment.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(pausedEquipment).SequenceEqual(EventSignatures(responseGame)),
+            "A configured equipped Wusheng response prompt must replay exactly.");
+        var responseStart = responseGame.Events.Count;
+        var answered = responseGame.Submit(new AnswerPromptCommand(
+            0, responsePrompt.PromptId, responseChoice.Id, responseGame.Revision));
+        Require(answered.Accepted, answered.Error?.Message ?? "Configured equipped Wusheng response failed.");
+        Require(responseGame.Events.Skip(responseStart).Select(item => item.Payload)
+                    .OfType<CardActionAcceptedEvent>().Any(item =>
+                        item.Action.Type == CardActionType.Response &&
+                        item.Action.ConversionChain.SingleOrDefault() is
+                        { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 }) &&
+                responseGame.CardMovements.Any(move =>
+                    move.CardId == equipmentFixture.EquipmentCardId &&
+                    move.From == CardLocation.Equipment(0) &&
+                    move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Respond),
+            "Configured Wusheng must preserve equipped response cost and source.");
+    }
+
+    public static void ConfiguredQingnangHealing()
+    {
+        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 131, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(previous.Skills["classic:qingnang"] is { LegacyKind: SkillKind.Qingnang, Program: null } &&
+                current.Skills["classic:qingnang"] is
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v47", MinimumRulesVersion: 157 } program } &&
+                program.Activations.Single() is
+                { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
+                    MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 } &&
+                previous.ContentHash != current.ContentHash,
+            "Current Qingnang must use the phase allowance while package 1.131.0 keeps its legacy definition.");
+
+        GameEngine? selected = null;
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var candidate = StartClassicGeneralAtPlay(
+                current, seed, "classic:hua-tuo", GameCheckpoint.CurrentRulesVersion);
+            if (candidate is null) continue;
+            var slash = candidate.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Slash && action.CardId is not null &&
+                action.TargetSeats.Count == 1);
+            if (slash is null) continue;
+            var played = SubmitPlayAction(candidate, slash);
+            if (!played.Accepted) continue;
+            try
+            {
+                if (!TryReturnToHumanPlay(candidate)) continue;
+            }
+            catch (InvalidOperationException exception) when (
+                exception.Message.StartsWith("Unknown or unsupported turn phase:", StringComparison.Ordinal))
+            {
+                continue;
+            }
+            if (candidate.CreateSnapshot(0, revealAll: true).Players.Any(player =>
+                    player.IsAlive && player.Hp < player.MaxHp) &&
+                candidate.GetHumanLegalActions().Any(action =>
+                    action.Kind == LegalActionKind.UseProgramSkill &&
+                    action.ProgramSkillId == "classic:qingnang"))
+            {
+                selected = candidate;
+                break;
+            }
+        }
+        var game = selected ??
+            throw new InvalidOperationException("No bounded current Hua Tuo Qingnang fixture was found.");
+        var before = game.CreateSnapshot(0, revealAll: true);
+        var owner = before.Players.Single(player => player.Seat == 0);
+        var target = before.Players.First(player => player.IsAlive && player.Hp < player.MaxHp);
+        var card = owner.Hand.First();
+        var playPrompt = game.PendingDecision ??
+            throw new InvalidOperationException("Current Qingnang lost its play prompt.");
+        var rejected = game.Submit(new UseProgramSkillCommand(
+            0, "classic:qingnang", "discard-and-heal", [card.Id],
+            [before.Players.First(player => player.Hp == player.MaxHp).Seat],
+            game.Revision, playPrompt.PromptId));
+        Require(!rejected.Accepted, "Configured Qingnang must reject an unwounded target atomically.");
+        var start = game.Events.Count;
+        var result = game.Submit(new UseProgramSkillCommand(
+            0, "classic:qingnang", "discard-and-heal", [card.Id], [target.Seat],
+            game.Revision, playPrompt.PromptId));
+        Require(result.Accepted, result.Error?.Message ?? "Configured Qingnang was rejected.");
+        Require(TryReturnToHumanPlay(game), "Configured Qingnang did not finish at human play.");
+        var after = game.CreateSnapshot(0, revealAll: true);
+        Require(after.Players.Single(player => player.Seat == target.Seat).Hp == target.Hp + 1,
+            "Configured Qingnang did not heal its selected wounded target.");
+        Require(after.Players[0].HandCount == owner.HandCount - 1,
+            "Configured Qingnang did not spend exactly one hand card.");
+        Require(game.CardMovements.Any(move =>
+                    move.CardId == card.Id && move.From == CardLocation.Hand(0) &&
+                    move.To == CardLocation.DiscardPile &&
+                    move.Reason.Value == "skill-program.classic:qingnang.DiscardSelected"),
+            "Configured Qingnang did not expose its exact physical discard movement: " +
+            string.Join(", ", game.CardMovements.Where(move => move.CardId == card.Id)
+                .Select(move => $"{move.From}->{move.To}:{move.Reason.Value}")));
+        Require(game.Events.Skip(start).Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+                    .Any(item => item.SkillId == "classic:qingnang" && item.Completed),
+            "Configured Qingnang did not publish a completed program event.");
+        Require(game.GetHumanLegalActions().All(action =>
+                    action.Kind != LegalActionKind.UseProgramSkill ||
+                    action.ProgramSkillId != "classic:qingnang"),
+            "Configured Qingnang must exhaust its once-per-phase use.");
+        var replay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), current);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(replay).SequenceEqual(EventSignatures(game)),
+            "A completed configured Qingnang use must replay exactly.");
     }
 
     public static void FormalWushengEquipmentFlow()

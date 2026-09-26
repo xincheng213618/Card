@@ -6,6 +6,9 @@ internal static class ChengPuLihuoChecks
 {
     private const int HumanSeat = 0;
     private const string OwnerGeneralId = "fixture:lihuo-owner";
+    private const string LowHpOwnerGeneralId = "fixture:lihuo-low-hp-owner";
+    private const string ChainedOwnerGeneralId = "fixture:lihuo-chained-owner";
+    private const string PreWoundSkillId = "fixture:lihuo-pre-wound";
     private const string LihuoSkillId = "classic:lihuo";
     private const string ChunlaoSkillId = "classic:chunlao";
 
@@ -29,6 +32,34 @@ internal static class ChengPuLihuoChecks
 
     }
 
+    public static void CompletionPenaltyProgramContentBoundary()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var latest = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 127, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 125, 0));
+        var penaltyOnly = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 126, 0));
+        var skill = latest.Skills[LihuoSkillId];
+        Require(current.Skills[LihuoSkillId].Program is
+                { RuntimeVersion: "skill-program-v52", MinimumRulesVersion: 162 } currentProgram &&
+                currentProgram.Modifiers.Single() is
+                { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } &&
+                currentProgram.Modifiers.Single().CardKinds.SequenceEqual([CardKind.FireSlash]) &&
+                currentProgram.ViewAs.Single() is { AllowChainedInput: true } &&
+                skill.Program is { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 150 } &&
+                skill.Program.Triggers.Single() is
+                { Window: SkillProgramTriggerWindow.CardUseCompleted, Optional: false } &&
+                skill.Program.ViewAs.Single() is
+                { OutputKind: CardKind.FireSlash, ForPlay: true, ForResponse: false } &&
+                skill.LegacyKind is null &&
+                skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
+                penaltyOnly.Skills[LihuoSkillId].Program is
+                { RuntimeVersion: "skill-program-v44", ViewAs.Count: 0 } &&
+                historical.Skills[LihuoSkillId].Program is null &&
+                historical.Skills[LihuoSkillId].LegacyKind == SkillKind.Lihuo &&
+                historical.ContentHash != latest.ContentHash,
+            "Package 1.138.0 must add public target-count and chained-viewAs rules while preserving the 1.127.0, 1.126.0 and 1.125.0 definitions.");
+    }
+
     public static void ConvertedFireSlashAddsTargetAndLosesHpOnce()
     {
         var game = CreateGame(ScenarioPackage.SlashModeId, seed: 1);
@@ -42,12 +73,14 @@ internal static class ChengPuLihuoChecks
             action.TargetCountModifierSkill is null);
         var convertedSingle = actions.FirstOrDefault(action =>
             action.PlayedCardKind == CardKind.FireSlash &&
-            action.CardKindModifierSkill == SkillKind.Lihuo &&
+            action.ConversionSource?.SkillId == LihuoSkillId &&
+            action.CardKindModifierSkill is null &&
             action.TargetCountModifierSkill is null);
         var convertedMulti = actions.FirstOrDefault(action =>
             action.PlayedCardKind == CardKind.FireSlash &&
-            action.CardKindModifierSkill == SkillKind.Lihuo &&
-            action.TargetCountModifierSkill == SkillKind.Lihuo &&
+            action.ConversionSource?.SkillId == LihuoSkillId &&
+            action.CardKindModifierSkill is null &&
+            action.TargetCountModifierSkill is null &&
             action.TargetSeats.Count == 2);
         Require(ordinary is not null && convertedSingle is not null && convertedMulti is not null,
             "Lihuo must preserve ordinary Slash while publishing separate converted one/two-target Fire Slash actions.");
@@ -55,17 +88,20 @@ internal static class ChengPuLihuoChecks
         ArgumentNullException.ThrowIfNull(convertedMulti);
 
         var before = game.CreateCheckpoint();
-        var missingCardKindModifier = game.Submit(new PlayCardCommand(
+        var forgedConversionSource = game.Submit(new PlayCardCommand(
             HumanSeat,
             convertedSingle.CardId!.Value,
             convertedSingle.TargetSeats,
             game.Revision,
             game.PendingDecision!.PromptId,
-            convertedSingle.PlayedCardKind));
-        Require(!missingCardKindModifier.Accepted && State(game) == State(GameReplay.Restore(before, Registry())),
-            "A forged Fire Slash command without its Lihuo card-kind modifier must be rejected atomically.");
+            convertedSingle.PlayedCardKind)
+        {
+            ConversionSource = new CardConversionSource("fixture:forged", "forged", HumanSeat, "forged")
+        });
+        Require(!forgedConversionSource.Accepted && State(game) == State(GameReplay.Restore(before, Registry())),
+            "A forged Fire Slash command with an invalid conversion source must be rejected atomically.");
 
-        var missingTargetModifier = game.Submit(new PlayCardCommand(
+        var forgedAdditionalConversion = game.Submit(new PlayCardCommand(
             HumanSeat,
             convertedMulti.CardId!.Value,
             convertedMulti.TargetSeats,
@@ -73,26 +109,31 @@ internal static class ChengPuLihuoChecks
             game.PendingDecision!.PromptId,
             convertedMulti.PlayedCardKind)
         {
-            CardKindModifierSkill = SkillKind.Lihuo
+            ConversionSource = convertedMulti.ConversionSource,
+            AdditionalConversionSources =
+            [new CardConversionSource("fixture:forged", "forged", HumanSeat, "forged")]
         });
-        Require(!missingTargetModifier.Accepted && State(game) == State(GameReplay.Restore(before, Registry())),
-            "A forged multi-target Lihuo command without its target modifier must be rejected atomically.");
+        Require(!forgedAdditionalConversion.Accepted && State(game) == State(GameReplay.Restore(before, Registry())),
+            "A forged multi-target Lihuo command with an undeclared chained conversion must be rejected atomically.");
 
         var ownerHpBefore = Player(game, HumanSeat).Hp;
         var eventStart = game.Events.Count;
         var used = Play(game, convertedMulti);
         Require(used.Accepted, used.Error?.Message ?? "The exact converted Lihuo Fire Slash was rejected.");
         var events = game.Events.Skip(eventStart).Select(item => item.Payload).ToArray();
-        var lihuo = events.OfType<LihuoSlashUsedEvent>().Single();
-        var hpLoss = events.OfType<SkillHpLostEvent>().Single(item => item.Skill == SkillKind.Lihuo);
+        var targetRule = events.OfType<ProgramCardTargetCountAppliedEvent>().Single();
+        var hpLoss = events.OfType<ProgramSkillHpLostEvent>().Single(item => item.SkillId == LihuoSkillId);
         var finishedIndex = Array.FindIndex(events, item => item is CardUseFinishedEvent);
-        var hpLossIndex = Array.FindIndex(events, item => item is SkillHpLostEvent lost && lost.Skill == SkillKind.Lihuo);
-        Require(lihuo.ConvertedFromOrdinarySlash && lihuo.AddedTarget &&
-                lihuo.TargetSeats.SequenceEqual(convertedMulti.TargetSeats) &&
+        var hpLossIndex = Array.FindIndex(events, item => item is ProgramSkillHpLostEvent lost && lost.SkillId == LihuoSkillId);
+        Require(targetRule.EffectiveCardKind == CardKind.FireSlash &&
+                targetRule.TargetSeats.SequenceEqual(convertedMulti.TargetSeats) &&
+                targetRule.ContributionSourceIds.Count == 1 &&
                 events.OfType<CardUsedEvent>().Count() == 1 &&
                 events.OfType<DamageAppliedEvent>().Count() >= 2 &&
                 Player(game, HumanSeat).Hp == ownerHpBefore - 1 &&
                 hpLoss.Amount == 1 &&
+                events.OfType<ProgramBindingResolvedEvent>().Single(item => item.SkillId == LihuoSkillId)
+                    is { Window: SkillProgramTriggerWindow.CardUseCompleted, Completed: true } &&
                 finishedIndex >= 0 && hpLossIndex > finishedIndex,
             "One converted multi-target Fire Slash must resolve every target, finish once, then lose exactly one HP.");
 
@@ -108,16 +149,17 @@ internal static class ChengPuLihuoChecks
         var nativeFire = native.GetHumanLegalActions().First(action =>
             action.Kind == LegalActionKind.Slash &&
             action.TargetSeats.Count == 2 &&
-            action.TargetCountModifierSkill == SkillKind.Lihuo &&
+            action.TargetCountModifierSkill is null &&
             action.CardKindModifierSkill is null);
         var nativeHp = Player(native, HumanSeat).Hp;
         var nativeStart = native.Events.Count;
         Require(Play(native, nativeFire).Accepted, "The native Fire Slash Lihuo target extension was rejected.");
         var nativeEvents = native.Events.Skip(nativeStart).Select(item => item.Payload).ToArray();
-        Require(nativeEvents.OfType<LihuoSlashUsedEvent>().Single() is
-                    { ConvertedFromOrdinarySlash: false, AddedTarget: true } &&
+        Require(nativeEvents.OfType<ProgramCardTargetCountAppliedEvent>().Single() is
+                    { EffectiveCardKind: CardKind.FireSlash } &&
                 nativeEvents.OfType<DamageAppliedEvent>().Count() >= 2 &&
-                nativeEvents.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Lihuo }) &&
+                nativeEvents.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Lihuo } &&
+                    item is not ProgramSkillHpLostEvent { SkillId: LihuoSkillId }) &&
                 Player(native, HumanSeat).Hp == nativeHp,
             "A native Fire Slash may add one Lihuo target but must not pay the conversion penalty.");
 
@@ -133,18 +175,22 @@ internal static class ChengPuLihuoChecks
         var zhuqueAction = zhuque.GetHumanLegalActions().First(action =>
             action.Kind == LegalActionKind.Slash &&
             action.PlayedCardKind == CardKind.FireSlash &&
+            action.ConversionSource is null &&
             action.CardKindModifierSkill is null &&
-            action.TargetCountModifierSkill == SkillKind.Lihuo &&
+            action.TargetCountModifierSkill is null &&
             action.TargetSeats.Count == 2);
         var zhuqueHp = Player(zhuque, HumanSeat).Hp;
         var zhuqueStart = zhuque.Events.Count;
-        Require(Play(zhuque, zhuqueAction).Accepted,
+        var zhuqueUsed = Play(zhuque, zhuqueAction);
+        Require(zhuqueUsed.Accepted,
+            zhuqueUsed.Error?.Message ??
             "The Zhuque-converted Fire Slash with a Lihuo extra target was rejected.");
         var zhuqueEvents = zhuque.Events.Skip(zhuqueStart).Select(item => item.Payload).ToArray();
         Require(zhuqueEvents.OfType<ZhuqueFanConvertedEvent>().Count() == 1 &&
-                zhuqueEvents.OfType<LihuoSlashUsedEvent>().Single() is
-                    { ConvertedFromOrdinarySlash: false, AddedTarget: true } &&
-                zhuqueEvents.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Lihuo }) &&
+                zhuqueEvents.OfType<ProgramCardTargetCountAppliedEvent>().Single() is
+                    { EffectiveCardKind: CardKind.FireSlash } &&
+                zhuqueEvents.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Lihuo } &&
+                    item is not ProgramSkillHpLostEvent { SkillId: LihuoSkillId }) &&
                 Player(zhuque, HumanSeat).Hp == zhuqueHp,
             "Zhuque Fan supplies the Fire conversion, so Lihuo's extra target must not cause HP loss.");
     }
@@ -160,7 +206,7 @@ internal static class ChengPuLihuoChecks
             var revealed = candidate.CreateSnapshot(HumanSeat, revealAll: true);
             selectedAction = candidate.GetHumanLegalActions().FirstOrDefault(action =>
                 action.Kind == LegalActionKind.Slash &&
-                action.CardKindModifierSkill == SkillKind.Lihuo &&
+                action.ConversionSource?.SkillId == LihuoSkillId &&
                 action.TargetCountModifierSkill is null &&
                 action.TargetSeats.Count == 1 &&
                 revealed.Players[action.TargetSeats[0]].Role == Role.Rebel &&
@@ -178,13 +224,129 @@ internal static class ChengPuLihuoChecks
         var events = selected.Events.Skip(start).Select(item => item.Payload).ToArray();
         Require(events.OfType<CardRespondedEvent>().Any(item => item.EffectiveCardKind == CardKind.Dodge) &&
                 events.All(item => item is not DamageAppliedEvent) &&
-                events.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Lihuo }) &&
+                events.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Lihuo } &&
+                    item is not ProgramSkillHpLostEvent { SkillId: LihuoSkillId }) &&
                 Player(selected, HumanSeat).Hp == ownerHp,
             "A converted Fire Slash canceled by Dodge must not make the Lihuo owner lose HP.");
     }
 
+    public static void CompletedPenaltyCanEnterDyingAndReplay()
+    {
+        var registry = Registry();
+        var game = CreateGame(ScenarioPackage.LethalPenaltyModeId, seed: 1,
+            ownerGeneralId: LowHpOwnerGeneralId);
+        ReachHumanPlay(game);
+        Require(Player(game, HumanSeat).Hp == 1,
+            "The Lihuo penalty fixture must pre-wound its owner to one HP.");
+        var action = game.GetHumanLegalActions().First(candidate =>
+            candidate.Kind == LegalActionKind.Slash &&
+            candidate.ConversionSource?.SkillId == LihuoSkillId &&
+            candidate.TargetCountModifierSkill is null);
+        Require(Play(game, action).Accepted,
+            "The one-HP Lihuo owner could not use a converted Fire Slash.");
+        var events = game.Events.Select(item => item.Payload).ToArray();
+        Require(events.OfType<DamageAppliedEvent>().Any() &&
+                events.OfType<ProgramSkillHpLostEvent>().Single(item =>
+                    item.SkillId == LihuoSkillId) is { Amount: 1, RemainingHp: 0 } &&
+                events.OfType<PlayerDyingEvent>().Any(item => item.VictimSeat == HumanSeat) &&
+                game.PendingDecision is { Kind: DecisionKind.RescueDying, PlayerSeat: HumanSeat },
+            $"A lethal configured Lihuo penalty must suspend the completed card use into dying: " +
+            $"status={game.State.Status}, pending={game.PendingDecision?.Kind}, " +
+            $"damage={events.OfType<DamageAppliedEvent>().Count()}, " +
+            $"loss={events.OfType<ProgramSkillHpLostEvent>().Count(item => item.SkillId == LihuoSkillId)}, " +
+            $"dying={events.OfType<PlayerDyingEvent>().Count(item => item.VictimSeat == HumanSeat)}.");
+
+        var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
+            "The configured Lihuo dying prompt must restore exactly.");
+        foreach (var branch in new[] { game, paused })
+        {
+            var decision = RequirePrompt(branch, DecisionKind.RescueDying);
+            Answer(branch, decision.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("response") == "let-die"));
+        }
+        Require(game.State.Status == EngineStatus.Completed &&
+                State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
+            "The Lihuo penalty dying continuation must finish once and replay deterministically.");
+    }
+
+    public static void ChainedWushengLihuoConversionKeepsBothSources()
+    {
+        var registry = Registry();
+        GameEngine? game = null;
+        LegalAction? action = null;
+        for (var seed = 1; seed <= 128 && action is null; seed++)
+        {
+            var candidate = CreateGame(ScenarioPackage.ChainedConversionModeId, seed,
+                ownerGeneralId: ChainedOwnerGeneralId);
+            ReachHumanPlay(candidate);
+            action = candidate.GetHumanLegalActions().FirstOrDefault(item =>
+                item.Kind == LegalActionKind.Slash &&
+                item.PlayedCardKind == CardKind.FireSlash &&
+                item.ConversionSource?.SkillId == "classic:wusheng" &&
+                item.AdditionalConversionSources?.Single().SkillId == LihuoSkillId &&
+                item.CardKindModifierSkill is null &&
+                item.TargetCountModifierSkill is null);
+            if (action is not null) game = candidate;
+        }
+        Require(game is not null && action is not null,
+            "No bounded red Peach exposed the Wusheng then Lihuo action.");
+        ArgumentNullException.ThrowIfNull(game);
+        ArgumentNullException.ThrowIfNull(action);
+        var hpBefore = Player(game, HumanSeat).Hp;
+        var used = Play(game, action);
+        Require(used.Accepted, used.Error?.Message ??
+            "The Wusheng-to-Lihuo chained conversion was rejected.");
+        var events = game.Events.Select(item => item.Payload).ToArray();
+        var cardAction = events.OfType<CardActionAcceptedEvent>().Single(item =>
+            item.Action.EffectiveKind == CardKind.FireSlash &&
+            item.Action.ConversionChain.Any(source => source.SkillId == "classic:wusheng"));
+        Require(cardAction.Action.ConversionChain.Select(source => source.SkillId)
+                    .SequenceEqual(["classic:wusheng", LihuoSkillId]) &&
+                events.All(item => item is not LihuoSlashUsedEvent) &&
+                events.OfType<ProgramSkillHpLostEvent>().Single(item => item.SkillId == LihuoSkillId)
+                    is { Amount: 1 } &&
+                Player(game, HumanSeat).Hp == hpBefore - 1 &&
+                events.All(item => item is not ZhuqueFanConvertedEvent),
+            "The chained Fire Slash must retain both conversion sources and pay the penalty once.");
+        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Require(State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
+            "The Wusheng-to-Lihuo chain must replay exactly.");
+    }
+
+    public static void HistoricalLihuoPackagesDoNotReactivateRetiredExecutionRoutes()
+    {
+        foreach (var version in new[]
+                 {
+                     new Version(1, 125, 0),
+                     new Version(1, 126, 0),
+                     new Version(1, 137, 0)
+                 })
+        {
+            var game = CreateGame(ScenarioPackage.SlashModeId, seed: 1, classicVersion: version);
+            ReachHumanPlay(game);
+            var slash = Player(game, HumanSeat).Hand.First(card => card.Kind == CardKind.Slash);
+            var actions = game.GetHumanLegalActions().Where(candidate =>
+                candidate.Kind == LegalActionKind.Slash &&
+                candidate.CardId == slash.Id).ToArray();
+            Require(actions.All(candidate =>
+                    candidate.CardKindModifierSkill is null &&
+                    candidate.TargetCountModifierSkill is null &&
+                    candidate.TargetSeats.Count == 1) &&
+                (version.Minor < 127
+                    ? actions.All(candidate => candidate.PlayedCardKind != CardKind.FireSlash)
+                    : actions.Any(candidate =>
+                        candidate.PlayedCardKind == CardKind.FireSlash &&
+                        candidate.ConversionSource?.SkillId == LihuoSkillId)),
+                $"Historical Lihuo package {version} reactivated a retired specialized route.");
+        }
+    }
+
     public static void ChunlaoContentAndRulesBoundary()
     {
+        var latest = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 125, 0));
+        var storageHistorical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 124, 0));
+        var legacyHistorical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 123, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 92, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 91, 0));
         var general = current.Generals["classic:cheng-pu"];
@@ -208,6 +370,44 @@ internal static class ChengPuLihuoChecks
                 !previous.Skills.ContainsKey(ChunlaoSkillId) &&
                 current.ContentHash != previous.ContentHash,
             "Package 1.92.0 must publish complete Cheng Pu without mutating package 1.91.0.");
+        Require(latest.Skills[ChunlaoSkillId] is
+                { LegacyKind: null, Program.Triggers.Count: 2 } &&
+                latest.Skills[ChunlaoSkillId].Program!.Triggers[0] is
+                { Id: "store-chun-at-turn-end", Window: SkillProgramTriggerWindow.TurnEnding, Optional: true } &&
+                latest.Skills[ChunlaoSkillId].Program!.Triggers[1] is
+                { Id: "spend-chun-for-dying-alcohol", Window: SkillProgramTriggerWindow.DyingResponse, Optional: true } &&
+                latest.Skills[ChunlaoSkillId].Program!.Triggers[0].Effects[0] is
+                { MinimumCards: 1, MaximumCards: 20, CardKinds.Count: 3 } &&
+                storageHistorical.Skills[ChunlaoSkillId].Program?.Triggers.Count == 1 &&
+                legacyHistorical.Skills[ChunlaoSkillId].Program is null &&
+                legacyHistorical.Skills[ChunlaoSkillId].LegacyKind == SkillKind.Chunlao &&
+                latest.ContentHash != storageHistorical.ContentHash,
+            "Package 1.125.0 must compose Chunlao rescue without changing the 1.124.0 storage boundary.");
+        var rules = ReadResource("CardGame.Content.Standard.SkillPrograms.owned-zone-storage-skills.rules.json");
+        var presentation = ReadResource("CardGame.Content.Standard.SkillPrograms.owned-zone-storage-skills.presentation.json");
+        try
+        {
+            SkillProgramCatalog.Load(
+                rules.Replace("\"schemaVersion\": 40", "\"schemaVersion\": 39", StringComparison.Ordinal),
+                presentation);
+            throw new InvalidOperationException("Schema 39 incorrectly accepted variable owned-card selection.");
+        }
+        catch (InvalidOperationException error) when (error.Message.Contains("require schema version 40", StringComparison.Ordinal))
+        {
+        }
+
+        var rescueRules = ReadResource(
+            "CardGame.Content.Standard.SkillPrograms.owned-zone-dying-rescue-skills.rules.json");
+        try
+        {
+            SkillProgramCatalog.Load(
+                rescueRules.Replace("\"schemaVersion\": 41", "\"schemaVersion\": 40", StringComparison.Ordinal),
+                presentation);
+            throw new InvalidOperationException("Schema 40 incorrectly accepted cross-seat dying response.");
+        }
+        catch (InvalidOperationException error) when (error.Message.Contains("dyingResponse requires schema version 41", StringComparison.Ordinal))
+        {
+        }
 
     }
 
@@ -218,25 +418,32 @@ internal static class ChengPuLihuoChecks
         ReachHumanPlay(game);
         var handBefore = Player(game, HumanSeat).HandCount;
         EndHumanPlay(game);
-        var firstPrompt = RequirePrompt(game, DecisionKind.Chunlao);
-        Require(firstPrompt.IsPrivate && firstPrompt.ValidCardIds.Count == handBefore &&
-                firstPrompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "chunlao-skip") &&
-                firstPrompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("action") != "chunlao-finish"),
-            "An empty Chun pile must open a private optional Slash selection at the owner's end phase.");
+        var activation = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        Require(activation.IsPrivate && activation.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
+                activation.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip"),
+            "An empty Chun pile must offer a generic optional turn-ending binding.");
         Require(game.CreateSnapshot(1).PendingDecision is null,
             "Other players must not receive the owner's private Chunlao hand candidates.");
+        Answer(game, activation.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+        var firstPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        Require(firstPrompt.ValidCardIds.Count == handBefore &&
+                firstPrompt.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"),
+            "The composed storage prompt must expose only the owner's Slash cards.");
 
         var first = firstPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "chunlao-select");
+            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
         Answer(game, first);
-        var secondPrompt = RequirePrompt(game, DecisionKind.Chunlao);
+        var secondPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(secondPrompt.ValidCardIds.All(id => id != first.Cards.Single()) &&
+                game.CardMovements.All(move => move.To != CardLocation.Chunlao(HumanSeat)) &&
                 secondPrompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "chunlao-finish") &&
+                    choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards") &&
                 secondPrompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("action") != "chunlao-skip"),
+                    choice.Parameters.GetValueOrDefault("program-action") != "skip"),
             "After one selection Chunlao must preserve the exact card and expose finish instead of skip.");
 
         var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
@@ -244,30 +451,46 @@ internal static class ChengPuLihuoChecks
             "A paused multi-step Chunlao selection must replay exactly.");
 
         var second = secondPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "chunlao-select");
+            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
         var selectedIds = new[] { first.Cards.Single(), second.Cards.Single() };
         Answer(game, second);
-        Answer(paused, RequirePrompt(paused, DecisionKind.Chunlao).Choices.Single(choice =>
+        Answer(paused, RequirePrompt(paused, DecisionKind.ProgramTrigger).Choices.Single(choice =>
             choice.Cards.SequenceEqual(second.Cards)));
-        Answer(game, RequirePrompt(game, DecisionKind.Chunlao).Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "chunlao-finish"));
-        Answer(paused, RequirePrompt(paused, DecisionKind.Chunlao).Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "chunlao-finish"));
+        Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
+        Answer(paused, RequirePrompt(paused, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
 
         var owner = Player(game, HumanSeat);
-        var stored = game.Events.Select(item => item.Payload).OfType<ChunlaoStoredEvent>().Single();
-        Require(stored.OwnerSeat == HumanSeat && stored.CardIds.SequenceEqual(selectedIds) &&
-                owner.HandCount == handBefore - selectedIds.Length &&
+        Require(owner.HandCount == handBefore - selectedIds.Length &&
                 owner.ChunlaoCount == selectedIds.Length &&
                 owner.ChunlaoCards?.Select(card => card.Id).SequenceEqual(selectedIds) == true &&
                 game.CardMovements.Count(move =>
                     selectedIds.Contains(move.CardId) &&
                     move.From == CardLocation.Hand(HumanSeat) &&
                     move.To == CardLocation.Chunlao(HumanSeat) &&
-                    move.Reason == CardMoveReasons.ChunlaoStore) == selectedIds.Length,
+                    move.Reason.Value == "skill-program.classic:chunlao.MoveBoundCards") == selectedIds.Length &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.SkillId == ChunlaoSkillId && item.OwnerSeat == HumanSeat && item.Completed),
             "Finishing Chunlao must atomically move the exact selected Slash cards into a public owner pile.");
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The completed Chunlao storage branch must replay exactly.");
+    }
+
+    public static void HistoricalChunlaoDefinitionDoesNotReactivateRetiredExecutor()
+    {
+        var game = CreateGame(
+            ScenarioPackage.SlashModeId,
+            seed: 1,
+            classicVersion: new Version(1, 123, 0));
+        ReachHumanPlay(game);
+        EndHumanPlay(game);
+
+        Require(game.PendingDecision?.Kind != DecisionKind.Chunlao &&
+                game.CardMovements.All(move => move.To != CardLocation.Chunlao(HumanSeat)) &&
+                game.Events.Select(item => item.Payload).All(payload =>
+                    payload is not ChunlaoStoredEvent and not ChunlaoRescueEvent),
+            "A historical Chunlao definition must preserve its identity without reactivating the retired executor.");
     }
 
     public static void ChunlaoRescuesWithVirtualAlcoholAndReplays()
@@ -276,14 +499,15 @@ internal static class ChengPuLihuoChecks
         var game = fixture.Game;
         var prompt = RequirePrompt(game, DecisionKind.RescueDying);
         var choice = prompt.Choices.Single(candidate =>
-            candidate.Parameters.GetValueOrDefault("response") == "chunlao");
+            candidate.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+            candidate.Parameters.GetValueOrDefault("skill-id") == ChunlaoSkillId);
         var victimSeat = int.Parse(choice.Parameters["target-seat"],
             System.Globalization.CultureInfo.InvariantCulture);
         var victimBefore = Player(game, victimSeat);
-        var chunCardId = choice.Cards.Single();
+        var chunCardId = Player(game, HumanSeat).ChunlaoCards!.Single().Id;
         Require(victimBefore.Hp <= 0 &&
                 Player(game, HumanSeat).ChunlaoCards?.Any(card => card.Id == chunCardId) == true,
-            "The dying prompt must expose one exact public Chun card owned by Cheng Pu.");
+            "The dying prompt must expose a configured rescue over Cheng Pu's public Chun pile.");
 
         var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(State(paused) == State(game),
@@ -291,16 +515,25 @@ internal static class ChengPuLihuoChecks
         var eventStart = game.Events.Count;
         Answer(game, choice);
         Answer(paused, RequirePrompt(paused, DecisionKind.RescueDying).Choices.Single(candidate =>
-            candidate.Parameters.GetValueOrDefault("response") == "chunlao" &&
+            candidate.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+            candidate.Parameters.GetValueOrDefault("skill-id") == ChunlaoSkillId));
+        Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
+            "The activated Chunlao rescue must replay at its source-card prompt.");
+        Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(candidate =>
+            candidate.Parameters.GetValueOrDefault("program-action") == "select-source-card" &&
+            candidate.Cards.SequenceEqual([chunCardId])));
+        Answer(paused, RequirePrompt(paused, DecisionKind.ProgramTrigger).Choices.Single(candidate =>
+            candidate.Parameters.GetValueOrDefault("program-action") == "select-source-card" &&
             candidate.Cards.SequenceEqual([chunCardId])));
 
         var events = game.Events.Skip(eventStart).Select(item => item.Payload).ToArray();
-        var rescued = events.OfType<ChunlaoRescueEvent>().Single();
+        var rescued = events.OfType<ProgramDyingRescueEvent>().Single();
         var declared = events.OfType<CardUseDeclaredEvent>().Single(item => item.CardId == chunCardId);
         var targets = events.OfType<TargetsConfirmedEvent>().Single(item =>
             item.ResolutionId == declared.ResolutionId);
         Require(rescued.OwnerSeat == HumanSeat && rescued.VictimSeat == victimSeat &&
-                rescued.ChunCardId == chunCardId && rescued.RecoveredHp == 1 &&
+                rescued.CardId == chunCardId && rescued.SkillId == ChunlaoSkillId &&
+                rescued.RecoveredHp == 1 &&
                 rescued.VictimHp == Math.Min(victimBefore.MaxHp, victimBefore.Hp + 1) &&
                 declared.CardKind == CardKind.Alcohol && declared.SourceSeat == victimSeat &&
                 targets.TargetSeats.SequenceEqual([victimSeat]) &&
@@ -310,12 +543,12 @@ internal static class ChengPuLihuoChecks
                     move.CardId == chunCardId &&
                     move.From == CardLocation.Chunlao(HumanSeat) &&
                     move.To == CardLocation.Processing &&
-                    move.Reason == CardMoveReasons.ChunlaoRescue) &&
+                    move.Reason.Value == "skill-program.classic:chunlao.UseBoundCardAsDyingAlcohol") &&
                 game.CardMovements.Any(move =>
                     move.CardId == chunCardId &&
                     move.From == CardLocation.Processing &&
                     move.To == CardLocation.DiscardPile &&
-                    move.Reason == CardMoveReasons.ChunlaoRescue),
+                    move.Reason.Value == "skill-program.classic:chunlao.UseBoundCardAsDyingAlcohol"),
             "Chunlao must pay one public Chun and make the victim use a replayable virtual Alcohol on itself.");
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The completed Chunlao dying response must replay exactly.");
@@ -342,16 +575,18 @@ internal static class ChengPuLihuoChecks
 
         for (var step = 0; step < 256; step++)
         {
-            var stored = game.Events.Select(item => item.Payload).OfType<ChunlaoStoredEvent>().FirstOrDefault();
+            var stored = game.CardMovements.FirstOrDefault(move =>
+                move.To.Zone == CardZoneKind.Chunlao &&
+                move.Reason.Value == "skill-program.classic:chunlao.MoveBoundCards");
             if (stored is not null)
             {
-                Require(stored.CardIds.Count == 1 &&
-                        game.CreateSnapshot(stored.OwnerSeat, revealAll: true).Players[stored.OwnerSeat].ChunlaoCount == 1 &&
+                var ownerSeat = stored.To.OwnerSeat!.Value;
+                Require(game.CreateSnapshot(ownerSeat, revealAll: true).Players[ownerSeat].ChunlaoCount == 1 &&
                         game.AiThoughts.Any(thought =>
-                            thought.ActorSeat == stored.OwnerSeat &&
+                            thought.ActorSeat == ownerSeat &&
                             thought.Decision.Contains("醇醪", StringComparison.Ordinal) &&
                             thought.Candidates.Any(candidate =>
-                                candidate.Action.Description == "不发动醇醪")),
+                                candidate.Action.Description == "跳过【醇醪】")),
                     "Chunlao AI must keep exactly one public reserve and explain both use and skip candidates.");
                 return;
             }
@@ -371,17 +606,20 @@ internal static class ChengPuLihuoChecks
             var game = CreateGame(ScenarioPackage.ChunlaoModeId, seed);
             ReachHumanPlay(game);
             EndHumanPlay(game);
-            var prompt = RequirePrompt(game, DecisionKind.Chunlao);
-            Answer(game, prompt.Choices.First(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "chunlao-select"));
-            Answer(game, RequirePrompt(game, DecisionKind.Chunlao).Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "chunlao-finish"));
+            var activation = RequirePrompt(game, DecisionKind.ProgramTrigger);
+            Answer(game, activation.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+            Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.First(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
+            Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
 
             for (var step = 0; step < 256 && game.State.Status != EngineStatus.Completed; step++)
             {
                 if (game.PendingDecision is { Kind: DecisionKind.RescueDying, PlayerSeat: HumanSeat } dying &&
                     dying.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "chunlao"))
+                        choice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
+                        choice.Parameters.GetValueOrDefault("skill-id") == ChunlaoSkillId))
                 {
                     return (game, registry);
                 }
@@ -478,13 +716,15 @@ internal static class ChengPuLihuoChecks
         action.TargetCardId)
     {
         ConversionSource = action.ConversionSource,
+        AdditionalConversionSources = action.AdditionalConversionSources,
         CardKindModifierSkill = action.CardKindModifierSkill,
         TargetCountModifierSkill = action.TargetCountModifierSkill
     });
 
-    private static GameEngine CreateGame(string modeId, int seed, int rulesVersion = GameCheckpoint.CurrentRulesVersion)
+    private static GameEngine CreateGame(string modeId, int seed, int rulesVersion = GameCheckpoint.CurrentRulesVersion,
+        string ownerGeneralId = OwnerGeneralId, Version? classicVersion = null)
     {
-        var registry = Registry();
+        var registry = Registry(classicVersion);
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = seed,
@@ -504,11 +744,11 @@ internal static class ChengPuLihuoChecks
         }
         Require(game.Submit(new StartGameCommand()).Accepted, "The Lihuo fixture failed to start.");
         var prompt = game.PendingDecision ?? throw new InvalidOperationException("The Lihuo fixture has no setup prompt.");
-        Require(prompt.Kind == DecisionKind.SelectGeneral && prompt.ValidContentIds.Contains(OwnerGeneralId),
+        Require(prompt.Kind == DecisionKind.SelectGeneral && prompt.ValidContentIds.Contains(ownerGeneralId),
             "The Lihuo fixture did not offer its owner general.");
         var selected = game.Submit(new SelectGeneralCommand(
             HumanSeat,
-            OwnerGeneralId,
+            ownerGeneralId,
             game.Revision,
             prompt.PromptId));
         Require(selected.Accepted, selected.Error?.Message ?? "The Lihuo fixture could not select its owner.");
@@ -528,12 +768,20 @@ internal static class ChengPuLihuoChecks
         throw new InvalidOperationException("The Lihuo fixture did not reach human Play.");
     }
 
-    private static ContentRegistry Registry() => ContentRegistry.Build(
+    private static ContentRegistry Registry(Version? classicVersion = null) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        classicVersion is null ? new StandardClassicGeneralPackage() : new StandardClassicGeneralPackage(classicVersion),
         new ScenarioPackage());
+
+    private static string ReadResource(string name)
+    {
+        using var stream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream(name) ??
+            throw new InvalidOperationException($"Missing embedded rules resource {name}.");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
 
     private static PlayerSnapshot Player(GameEngine game, int seat) =>
         game.CreateSnapshot(HumanSeat, revealAll: true).Players.Single(player => player.Seat == seat);
@@ -559,12 +807,16 @@ internal static class ChengPuLihuoChecks
         public const string FireModeId = "identity:classic-lihuo-fire-test-4";
         public const string ZhuqueModeId = "identity:classic-lihuo-zhuque-test-4";
         public const string DodgeModeId = "identity:classic-lihuo-dodge-test-4";
+        public const string LethalPenaltyModeId = "identity:classic-lihuo-lethal-penalty-test-4";
+        public const string ChainedConversionModeId = "identity:classic-lihuo-chained-conversion-test-4";
         public const string ChunlaoModeId = "identity:classic-chunlao-rescue-test-4";
         public const string ChunlaoAiModeId = "identity:classic-chunlao-ai-test-4";
         private const string SlashDeckId = "fixture:lihuo-slash-deck";
         private const string FireDeckId = "fixture:lihuo-fire-deck";
         private const string ZhuqueDeckId = "fixture:lihuo-zhuque-deck";
         private const string DodgeDeckId = "fixture:lihuo-dodge-deck";
+        private const string LethalPenaltyDeckId = "fixture:lihuo-lethal-penalty-deck";
+        private const string ChainedConversionDeckId = "fixture:lihuo-chained-conversion-deck";
         private const string ChunlaoDeckId = "fixture:chunlao-slash-deck";
         private static readonly string[] ChunlaoTargetIds =
             ["fixture:chunlao-target-1", "fixture:chunlao-target-2", "fixture:chunlao-target-3"];
@@ -578,6 +830,22 @@ internal static class ChengPuLihuoChecks
 
         public void Register(IContentRegistryBuilder builder)
         {
+            const string woundRules = """
+                {"schemaVersion":44,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
+                  "minimumRulesVersion":149,"triggers":[{"id":"pre-wound",
+                    "window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,
+                    "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}
+                """;
+            const string woundPresentation = """
+                {"schemaVersion":1,"skills":{"fixture:lihuo-pre-wound":{
+                  "name":"预伤","description":"测试开始时失去一点体力。"}}}
+                """;
+            var woundCatalog = SkillProgramCatalog.Load(woundRules, woundPresentation);
+            builder.AddSkill(new ContentSkillDefinition(PreWoundSkillId, "预伤", "测试开始时失去一点体力。")
+            {
+                Program = woundCatalog.Programs[PreWoundSkillId],
+                ProgramPresentation = woundCatalog.Presentations[PreWoundSkillId]
+            });
             builder.AddGeneral(new ContentGeneralDefinition(
                 OwnerGeneralId,
                 "疠火测试",
@@ -586,6 +854,22 @@ internal static class ChengPuLihuoChecks
                 "wu",
                 BaseHp: 4,
                 AdditionalSkillIds: [ChunlaoSkillId]));
+            builder.AddGeneral(new ContentGeneralDefinition(
+                LowHpOwnerGeneralId,
+                "疠火失血测试",
+                "lihuo_fixture",
+                LihuoSkillId,
+                "wu",
+                BaseHp: 1,
+                AdditionalSkillIds: [PreWoundSkillId]));
+            builder.AddGeneral(new ContentGeneralDefinition(
+                ChainedOwnerGeneralId,
+                "疠火连续转化测试",
+                "lihuo_fixture",
+                LihuoSkillId,
+                "wu",
+                BaseHp: 4,
+                AdditionalSkillIds: ["classic:wusheng"]));
             foreach (var id in ChunlaoTargetIds)
             {
                 builder.AddGeneral(new ContentGeneralDefinition(
@@ -612,11 +896,19 @@ internal static class ChengPuLihuoChecks
                 [new("classic:zhuque-fan", 16), new("standard:slash", 32)]);
             AddDeck(builder, DodgeDeckId, "疠火闪避牌堆",
                 [new("standard:slash", 8), new("standard:dodge", 56)]);
+            AddDeck(builder, LethalPenaltyDeckId, "疠火失血濒死牌堆",
+                [new("standard:slash", 32), new("standard:peach", 16)]);
+            AddDeck(builder, ChainedConversionDeckId, "疠火连续转化牌堆",
+                [new("standard:peach", 48)]);
             AddDeck(builder, ChunlaoDeckId, "醇醪濒死测试牌堆", [new("standard:slash", 96)]);
             AddMode(builder, SlashModeId, SlashDeckId);
             AddMode(builder, FireModeId, FireDeckId);
             AddMode(builder, ZhuqueModeId, ZhuqueDeckId);
             AddMode(builder, DodgeModeId, DodgeDeckId);
+            AddMode(builder, LethalPenaltyModeId, LethalPenaltyDeckId,
+                [LowHpOwnerGeneralId, "classic:sun-quan", "classic:huang-gai", "classic:gan-ning"]);
+            AddMode(builder, ChainedConversionModeId, ChainedConversionDeckId,
+                [ChainedOwnerGeneralId, "classic:sun-quan", "classic:huang-gai", "classic:gan-ning"]);
             AddMode(builder, ChunlaoModeId, ChunlaoDeckId, [OwnerGeneralId, .. ChunlaoTargetIds]);
             AddMode(builder, ChunlaoAiModeId, ChunlaoDeckId, ChunlaoAiOwnerIds);
         }

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:gongqi": {
+      "name": "弓骑",
+      "description": "出牌阶段限一次，你可以弃置一张牌使你本回合的攻击范围无限。若弃置的是装备牌，你可以弃置一名其他角色的一张牌。"
+    }
+  }
+}

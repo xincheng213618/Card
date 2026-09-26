@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:qingnang": {
+      "name": "青囊",
+      "description": "出牌阶段限一次，你可以弃置一张手牌并选择一名已受伤的角色，令其回复 1 点体力。"
+    },
+    "classic:zhiheng": {
+      "name": "制衡",
+      "description": "出牌阶段限一次，你可以弃置任意张手牌或装备区里的牌，然后摸等量张牌。"
+    }
+  }
+}

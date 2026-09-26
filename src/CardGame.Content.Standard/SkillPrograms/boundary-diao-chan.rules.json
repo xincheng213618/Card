@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 53,
+  "skills": [
+    {
+      "id": "boundary:biyue",
+      "revision": 1,
+      "minimumRulesVersion": 163,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "turn-ending-draw-by-hand",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": -100,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": { "kind": "handCountAtLeast", "value": 1 }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "not",
+                "children": [{ "kind": "handCountAtLeast", "value": 1 }]
+              }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

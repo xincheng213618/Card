@@ -22,7 +22,55 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("boundary Cao Cao Duel damage claims physical card and replays", BoundaryCaoCaoIntegrationChecks.DuelDamageClaimsPhysicalCardAndReplays),
+    ("boundary Cao Cao Zhangba two physical cards claim all or remaining", BoundaryCaoCaoIntegrationChecks.ZhangbaTwoPhysicalCardsClaimAllOrRemainingOnly),
+    ("classic Zhu Huan schema-54 bound kinds and formal content", ZhuHuanChecks.DefinitionAndReusableKindCondition),
+    ("classic Zhu Huan Youdi distinguishes all Slash kinds and transfers non-Slash with replay", ZhuHuanChecks.SlashVariantsStopReturnAndNonSlashTransfersWithReplay),
+    ("classic Zhu Huan Youdi equipment empty zones and decline", ZhuHuanChecks.EquipmentEmptySourceAndWholeSkillDecline),
+    ("bound card kind condition runs for another skill with public AI and replay", ZhuHuanChecks.BoundKindConditionExecutesForAnotherSkillAndAiUsesPublicEstimate),
+    ("existing Juzhan transfer AI uses public target facts", ZhuHuanChecks.ExistingJuzhanTransferAiUsesOnlyPublicTargetState),
+    ("2014 boundary Cao Cao content and claimable condition schema gates", BoundaryCaoCaoChecks.ContentAndSchemaBoundary),
+    ("2014 boundary Cao Cao physical damage chooses draw or claim and replays", BoundaryCaoCaoChecks.PhysicalDamageDrawClaimAndReplay),
+    ("2014 boundary Cao Cao cardless three-point Lightning offers draw once", BoundaryCaoCaoChecks.LightningDamageOnlyOffersDrawOnce),
+    ("2014 boundary Cao Cao Hujia requires lord and uses Wei response", BoundaryCaoCaoChecks.HujiaRequiresLordAndUsesSharedResponse),
+    ("2014 boundary Cao Cao actual two-point damage offers one benefit", BoundaryCaoCaoChecks.TwoPointDamageOffersOneChoice),
+    ("after-damage preflight defers non-choice bound-card claim condition", BoundaryCaoCaoChecks.AfterDamagePreflightDefersFrameBoundClaimCondition),
+    ("2018 boundary Zhang Liao definition and schema 54 boundary", BoundaryZhangLiaoChecks.DefinitionAndSchemaBoundary),
+    ("2018 boundary Zhang Liao dynamic draw plan selection and replay", BoundaryZhangLiaoChecks.DrawPlanSelectionAndReplay),
+    ("2018 boundary Zhang Liao respects public hand threshold and prior replacement", BoundaryZhangLiaoChecks.HandThresholdAndPriorReplacement),
+    ("2018 boundary Zhang Liao cannot Tuxi after Supply Shortage skips Draw", BoundaryZhangLiaoChecks.SupplyShortageSkipsTheDrawWindow),
+    ("boundary Sima Yi Feedback takes source cards per damage point", BoundarySimaYiChecks.FeedbackPerPointAndSourceZones),
+    ("boundary Sima Yi Guicai replaces another judgment from hand or equipment", BoundarySimaYiChecks.GuicaiHandEquipmentJudgmentAndReplay),
+    ("2019 boundary Guo Jia registers independent Tiandu and immediate Yiji", BoundaryGuoJiaChecks.ContentAndRegistration),
+    ("2019 boundary Guo Jia Yiji gives zero one or two current hand cards and replays", BoundaryGuoJiaChecks.YijiGivesZeroOneOrTwoCurrentHandCardsAndReplays),
+    ("2019 boundary Guo Jia Tiandu claims own judgment and three-point Yiji replays", BoundaryGuoJiaChecks.TianduClaimsOwnJudgmentAndThreePointYijiReplays),
+    ("2019 boundary Guo Jia Yiji handles exhausted draw source without phantom cards", BoundaryGuoJiaChecks.YijiHandlesExhaustedDrawSource),
+    ("2019 boundary Diao Chan Lijian validates targets costs and uncounterable Duel", BoundaryDiaoChanChecks.DefinitionAndLijianCommands),
+    ("2019 boundary Diao Chan Biyue draws by ending hand state and can be declined", BoundaryDiaoChanChecks.BiyueEmptyNonemptyAndDecline),
+    ("classic Li Dian private Xunxun replacement and bottom-order replay", LiDianChecks.ClassicDefinitionAndPrivateReplacementReplay),
+    ("classic Li Dian Xunxun takes available card from depleted deck", LiDianChecks.XunxunTakesOnlyAvailableCardFromDepletedDeck),
+    ("classic Li Dian Wangxi deals damage and replays", LiDianChecks.WangxiDamageCanBeAcceptedOrDeclinedAndReplayed),
+    ("classic Li Dian Wangxi two-point damage gives independent choices", LiDianChecks.WangxiTwoPointDamageOffersTwoIndependentChoices),
+    ("classic Li Dian Wangxi taken damage gives private replayable choice", LiDianChecks.WangxiTakenDamageOffersPrivateChoice),
+    ("rescued lethal damage offers Wangxi only after dying and replays", DamageAfterDyingChecks.RescuedLethalDamageOffersWangxiAfterRescue),
+    ("Kuanggu uses lethal damage distance after target death", DamageAfterDyingChecks.KuangguUsesDistanceAtLethalDamage),
+    ("phase exchange definitions and historical boundary", ProgramActivationLimitChecks.DefinitionsAndHistoricalBoundary),
+    ("phase exchange mixed zones atomicity and replay", ProgramActivationLimitChecks.MixedZonesAtomicityAndReplay),
+    ("phase exchange extra phase and large selection", ProgramActivationLimitChecks.ExtraPhaseAndLargeSelection),
+    ("phase exchange equipment loss trigger and replay", ProgramActivationLimitChecks.EquipmentLossTriggerAndReplay),
+    ("phase exchange Qingnang heals once in each play phase", ProgramActivationLimitChecks.HealingRenewsOnlyAtNextPhase),
+    ("owned-card set definitions and public AI", ProgramOwnedCardsChecks.DefinitionsAndPublicAi),
+    ("owned-card set private draft movement and replay", ProgramOwnedCardsChecks.PrivateDraftBatchMovementAndReplay),
+    ("owned-card set shortfall empty sources and invalidation", ProgramOwnedCardsChecks.ShortfallEmptyAndInvalidatedDraft),
+    ("Program choice definitions validate choices, payments and presentation hashes", ProgramChoiceChecks.DefinitionsValidateChoicesPaymentsAndPresentationHash),
+    ("Program choice selected target conditional effects and replay", ProgramChoiceChecks.SelectedTargetChoosesConditionalEffectsAndReplays),
+    ("Program choice AI predicts one branch from public state", ProgramChoiceAiChecks.PublicStatePredictsExactlyOneOption),
+    ("Program choice revalidates options and exact skill instance", ProgramChoiceChecks.RevalidatesChoiceAndExactInstanceBeforeResolving),
     ("composition kernel descriptor contracts", ProgramCompositionDefinitionChecks.CatalogDiscoversCompleteOperations),
+    ("completed Slash program window follows finished card use and replays", CardUseCompletedChecks.FinishedSlashOpensReplayableProgramWindow),
+    ("completed Slash freezes actual damage for conditional programs", CardUseCompletedChecks.CompletedUseFreezesActualDamageFact),
+    ("completed Slash filters frozen conversion provenance", CardUseCompletedChecks.CompletedUseFiltersFrozenConversionSource),
+    ("configured Slash converts to Fire Slash without Zhuque Fan", CardUseCompletedChecks.ConfiguredSlashCanBecomeFireSlashWithoutZhuqueFan),
     ("composition kernel current formal content", ProgramCompositionDefinitionChecks.CurrentExecutableContentUsesCompositionKernel),
     ("composition AI activates target benefits in a real match", ProgramCompositionAiIntegrationChecks.JiemingAiActivatesAndDrawsForFriendlyTarget),
     ("composition AI respects previously granted target restrictions", ProgramCompositionAiIntegrationChecks.ZishouSelfOnlyPreventsWastefulJiangchiAssault),
@@ -130,6 +178,7 @@ var tests = new (string Name, Action Body)[]
     ("skill program causeDeath resumes nested death skills and replay", SkillProgramCauseDeathChecks.NestedDeathSkillAndReplay),
     ("skill program causeDeath short-circuits after terminal death", SkillProgramCauseDeathChecks.TerminalShortCircuit),
     ("skill program v10 card identities and action modifiers validate and freeze", SkillProgramCardIdentityChecks.Definitions),
+    ("schema-46 viewAs source zones validate and isolate hand from equipment", SkillProgramViewAsZoneChecks.DefinitionAndZoneIsolation),
     ("mandatory card identity suppresses native use, ignores Slash distance and replays", SkillProgramCardIdentityChecks.MandatoryIdentityDistanceAndReplay),
     ("phase modules share private prompts replay and continuation", PhaseSkillModuleChecks.IndependentModulesSharePromptReplayAndContinuation),
     ("phase modules use the same AI choices", PhaseSkillModuleChecks.AiUsesTheSameModuleDecisions),
@@ -170,12 +219,12 @@ var tests = new (string Name, Action Body)[]
     ("losing Xianzhen blocks Slash use only", GaoShunChecks.XianzhenLossBlocksSlashOnly),
     ("formal Liu Biao versions Zishou and Zongshi with a private draw choice", LiuBiaoChecks.ContentPromptAndRulesBoundary),
     ("Zishou restricts card targets while Zongshi follows living factions", LiuBiaoChecks.ZishouTargetsAndZongshiHandLimit),
-    ("formal Wang Yi versions optional Zhenlie and Miji triggers", WangYiChecks.ContentPromptAndRulesBoundary),
-    ("Zhenlie nullifies Slash while Miji draws and distributes exactly", WangYiChecks.ZhenlieSlashAndMijiDistributionReplay),
-    ("Zhenlie nullifies only Wang Yi during a group trick", WangYiChecks.ZhenlieNullifiesOnlyItsGroupEffect),
+    ("formal Wang Yi versions public Zhenlie and Miji programs", WangYiChecks.ContentPromptAndRulesBoundary),
+    ("public Zhenlie nullifies Slash while Miji draws and distributes exactly", WangYiChecks.ZhenlieSlashAndMijiDistributionReplay),
+    ("public Zhenlie nullifies only Wang Yi during a group trick", WangYiChecks.ZhenlieNullifiesOnlyItsGroupEffect),
     ("formal Zhong Hui versions Quanji Zili and Paiyi", ZhongHuiChecks.ContentQuanjiAndBoundary),
     ("Quanji awakens Zili and acquired Paiyi replays", ZhongHuiChecks.ZiliAndPaiyiReplay),
-    ("schema-26 Zili state awakening validates and preserves package 1.109", ZhongHuiChecks.ZiliProgramValidationAndHistoricalBoundary),
+    ("schema-26 Zili validates; retired Quanji Zili Paiyi routes stay inactive", ZhongHuiChecks.ZiliProgramValidationAndHistoricalBoundary),
     ("formal Xun You versions active Qice and optional Zhiyu", XunYouChecks.ContentAndRulesBoundary),
     ("Qice converts every hand card once and replays", XunYouChecks.QiceUsesAllHandCardsAndReplays),
     ("Zhiyu draws reveals and makes the source discard", XunYouChecks.ZhiyuDrawRevealDiscardAndReplay),
@@ -189,19 +238,31 @@ var tests = new (string Name, Action Body)[]
     ("Anxu lets the lower-hand receiver choose an opaque card and applies effective suit", BuLianShiChecks.AnxuUsesOpaqueReceiverChoiceAndEffectiveSuit),
     ("Zhuiyi excludes the killer and may benefit a full-health target", BuLianShiChecks.ZhuiyiExcludesKillerAndAllowsFullHealthTarget),
     ("formal Cheng Pu Lihuo is a versioned state rule without publishing an incomplete general", ChengPuLihuoChecks.ContentAndRulesBoundary),
+    ("formal Lihuo versions its completed-use penalty program", ChengPuLihuoChecks.CompletionPenaltyProgramContentBoundary),
     ("Lihuo converts Slash adds one target and loses HP once after the use", ChengPuLihuoChecks.ConvertedFireSlashAddsTargetAndLosesHpOnce),
     ("native and Zhuque Fire Slash use Lihuo target extension without conversion penalty", ChengPuLihuoChecks.NativeAndZhuqueFireSlashDoNotPayConversionPenalty),
     ("a fully dodged Lihuo conversion does not lose HP", ChengPuLihuoChecks.FullyDodgedConversionDoesNotLoseHp),
+    ("configured Lihuo penalty enters dying and replays", ChengPuLihuoChecks.CompletedPenaltyCanEnterDyingAndReplay),
+    ("Wusheng to Lihuo chained conversion preserves both sources", ChengPuLihuoChecks.ChainedWushengLihuoConversionKeepsBothSources),
+    ("historical Lihuo packages do not reactivate retired routes", ChengPuLihuoChecks.HistoricalLihuoPackagesDoNotReactivateRetiredExecutionRoutes),
     ("formal Cheng Pu publishes Chunlao behind its package boundary", ChengPuLihuoChecks.ChunlaoContentAndRulesBoundary),
+    ("historical Chunlao definitions do not reactivate the retired executor", ChengPuLihuoChecks.HistoricalChunlaoDefinitionDoesNotReactivateRetiredExecutor),
     ("Chunlao stores exact Slash cards publicly and replays a paused selection", ChengPuLihuoChecks.ChunlaoStoresExactSlashesAndReplays),
     ("Chunlao spends one public Chun as virtual Alcohol in a dying response", ChengPuLihuoChecks.ChunlaoRescuesWithVirtualAlcoholAndReplays),
     ("Chunlao AI stores one explained reserve instead of its whole Slash hand", ChengPuLihuoChecks.ChunlaoAiStoresOneExplainedReserve),
-    ("formal Han Dang publishes Gongqi and limited Jiefan behind package 1.93", HanDangChecks.ContentAndPackageBoundary),
+    ("formal Han Dang migrates Gongqi and limited Jiefan through package 1.136", HanDangChecks.ContentAndPackageBoundary),
+    ("historical Gongqi definitions do not reactivate the retired executor", HanDangChecks.HistoricalGongqiDefinitionDoesNotReactivateRetiredExecutor),
+    ("historical Jiefan definitions do not reactivate the retired executor", HanDangChecks.HistoricalJiefanDefinitionDoesNotReactivateRetiredExecutor),
     ("Gongqi equipment cost grants unlimited range and uses opaque optional discard", HanDangChecks.GongqiEquipmentCostAndOpaqueDiscardReplay),
     ("Jiefan freezes attackers consumes its limited use and replays", HanDangChecks.JiefanFreezesRespondersConsumesLimitedUseAndReplays),
     ("formal Cao Chong publishes Chengxiang and Renxin behind package 1.94", CaoChongChecks.ContentAndPackageBoundary),
     ("Chengxiang reveals four cards selects a legal subset and replays", CaoChongChecks.ChengxiangRevealsLegalSubsetAndReplays),
     ("Renxin discards equipment turns over prevents damage and replays", CaoChongChecks.RenxinDiscardsEquipmentTurnsOverPreventsAndReplays),
+    ("Gu Yong registers original Shenxing Bingyi and reusable target-set capability", GuYongChecks.ContentAndCapability),
+    ("Shenxing repeats with hand and equipment and rejects shortfall", GuYongChecks.ShenxingRepeatsWithEquipmentAndRejectsShortfall),
+    ("Bingyi reveals then shares to self and multiple targets with replay", GuYongChecks.BingyiRevealsThenSharesAndReplays),
+    ("Bingyi mixed or empty hand draws nothing", GuYongChecks.BingyiMixedOrEmptyDrawsNothing),
+    ("Bingyi caps target sets uses public AI and rejects stale seats", GuYongChecks.BingyiCapsTargetsAndRejectsStaleChoice),
     ("formal Guo Huai migrates Jingce at package 1.99", GuoHuaiChecks.ContentAndPackageBoundary),
     ("Jingce counts turn card uses draws two cards and replays", GuoHuaiChecks.JingceCountsTurnUsesDrawsAndReplays),
     ("Jingce requires card uses at least current HP", GuoHuaiChecks.JingceRequiresUseCountAtLeastCurrentHp),
@@ -212,7 +273,7 @@ var tests = new (string Name, Action Body)[]
     ("turn-ending boundary orders Jushou Jujian Biyue and replays", TurnEndingBoundaryChecks.OrdersJushouJujianBiyueAndReplays),
     ("turn-ending programs deduplicate sources and recheck ownership", TurnEndingBoundaryChecks.DeduplicatesSourcesAndRechecksOwnership),
     ("turn-ending boundary freezes facts across earlier effects", TurnEndingBoundaryChecks.FreezesFactsAcrossEarlierTurnEndingEffects),
-    ("formal Man Chong publishes active Junxing and optional Yuce behind package 1.96", ManChongChecks.ContentAndPackageBoundary),
+    ("formal Man Chong migrates Junxing and Yuce at package 1.118", ManChongChecks.ContentAndPackageBoundary),
     ("Junxing enforces exact card categories and replays both target branches", ManChongChecks.JunxingUsesExactCategoriesAndReplaysBothBranches),
     ("Yuce reveals one card challenges the source recovers and replays", ManChongChecks.YuceRevealsChallengesRecoversAndReplays),
     ("formal Guan Ping publishes optional Longyin behind package 1.97", GuanPingChecks.ContentAndPackageBoundary),
@@ -286,6 +347,8 @@ var tests = new (string Name, Action Body)[]
     ("classic identity applies base HP, multiple skills and legacy replay boundaries", ClassicGeneralChecks.SetupHealthAndReplay),
     ("classic Liu Bei repeats formal Rende with cumulative self-recovery and replay", ClassicGeneralChecks.FormalRendeFlow),
     ("classic Huang Gai repeats formal Kujin and replays", ClassicGeneralChecks.FormalKujinFlow),
+    ("current classic Huang Gai repeats configured Kujin and replays", ClassicGeneralChecks.ConfiguredKujinFlow),
+    ("configured Huang Gai Kujin suspends at dying and replays", ClassicGeneralChecks.ConfiguredKujinDyingContinuation),
     ("classic Gan Ning converts black hand and equipped cards through formal Qixi", ClassicGeneralChecks.FormalQixiFlow),
     ("classic Lu Meng optionally skips discard through formal Keji", ClassicGeneralChecks.FormalKejiFlow),
     ("classic Zhang Liao replaces drawing through formal Tuxi", ClassicGeneralChecks.FormalTuxiFlow),
@@ -300,6 +363,10 @@ var tests = new (string Name, Action Body)[]
     ("classic Lu Bu requires sequential Wushuang responses", ClassicGeneralChecks.FormalWushuangFlow),
     ("classic Zhang Fei uses multiple Slashes through formal Paoxiao", ClassicGeneralChecks.FormalPaoxiaoFlow),
     ("classic Zhao Yun converts Slash and Dodge through formal Longdan", ClassicGeneralChecks.FormalLongdanFlow),
+    ("current classic Zhao Yun uses configured Longdan with historical replay boundary", ClassicGeneralChecks.ConfiguredLongdanFlow),
+    ("current classic Zhen Ji uses configured Qingguo responses with historical boundary", ClassicGeneralChecks.ConfiguredQingguoResponses),
+    ("current classic Guan Yu uses configured Wusheng from hand and equipment", ClassicGeneralChecks.ConfiguredWushengSources),
+    ("current classic Hua Tuo heals with configured Qingnang once per play phase", ClassicGeneralChecks.ConfiguredQingnangHealing),
     ("classic Guan Yu converts red equipment through formal Wusheng", ClassicGeneralChecks.FormalWushengEquipmentFlow),
     ("classic Da Qiao converts diamonds through Guose and redirects Slash through Liuli", ClassicGeneralChecks.FormalGuoseAndLiuliFlow),
     ("classic Diao Chan starts a virtual Duel through Lijian and draws through Biyue", ClassicGeneralChecks.FormalLijianAndBiyueFlow),
@@ -639,6 +706,13 @@ if (args.FirstOrDefault() == "--only-checkpoint-restore")
         test.Name == "command checkpoints restore a paused private prompt deterministically").ToArray();
 }
 
+if (args.FirstOrDefault() == "--only-wuhun")
+{
+    tests = tests.Where(test =>
+        test.Name.Contains("Wuhun", StringComparison.Ordinal) ||
+        test.Name.Contains("causeDeath", StringComparison.Ordinal)).ToArray();
+}
+
 var passed = 0;
 var failed = 0;
 const int skipped = 0;
@@ -655,6 +729,7 @@ foreach (var (name, body) in tests)
         failed++;
         Console.WriteLine($"[FAIL] {name}");
         Console.WriteLine($"       {exception.GetType().Name}: {exception.Message}");
+        if (args.Contains("--verbose", StringComparer.OrdinalIgnoreCase)) Console.WriteLine(exception);
     }
 }
 
@@ -1979,7 +2054,6 @@ static void DamageTriggerWindowFlow()
 static void LethalDamageTriggerWindowFlow()
 {
     GameEngine? selectedGame = null;
-    PendingDecision? selectedPrompt = null;
     DamageFrame? selectedDamageFrame = null;
     for (var seed = 1; seed <= 8_192 && selectedGame is null; seed++)
     {
@@ -2002,32 +2076,20 @@ static void LethalDamageTriggerWindowFlow()
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 4_000)
         {
-            if (result.Status == EngineStatus.AwaitingHumanResponse &&
-                result.PendingDecision?.Kind == DecisionKind.Feedback)
+            if (game.ResolutionStack.LastOrDefault() is DyingFrame dying &&
+                dying.VictimSeat == 0)
             {
-                var feedbackFrame = game.ResolutionStack
-                    .OfType<DamageSkillFrame>()
-                    .SingleOrDefault(frame => frame.OwnerSeat == 0 && frame.Skill == SkillKind.Feedback);
                 var damageFrame = game.ResolutionStack
                     .OfType<DamageFrame>()
-                    .SingleOrDefault(frame => frame.Id == feedbackFrame?.ParentFrameId ||
-                                               game.ResolutionStack.OfType<DamageTriggerWindowFrame>()
-                                                   .Any(window => window.ParentFrameId == frame.Id &&
-                                                                  window.Candidates.Any(candidate =>
-                                                                      candidate.OwnerSeat == 0 &&
-                                                                      candidate.Skill == SkillKind.Feedback)));
+                    .SingleOrDefault(frame => frame.Id == dying.ParentFrameId);
                 var target = game.CreateSnapshot(0).Players.Single(player => player.Seat == 0);
-                if (feedbackFrame is not null &&
-                    damageFrame is not null &&
+                if (damageFrame is not null &&
                     damageFrame.TargetSeat == 0 &&
                     target.Hp == 0 &&
                     target.IsAlive &&
-                    game.ResolutionStack[^3] is DamageFrame &&
-                    game.ResolutionStack[^2] is DamageTriggerWindowFrame &&
-                    game.ResolutionStack[^1] is DamageSkillFrame)
+                    game.ResolutionStack[^2] is DamageFrame)
                 {
                     selectedGame = game;
-                    selectedPrompt = result.PendingDecision;
                     selectedDamageFrame = damageFrame;
                     break;
                 }
@@ -2052,52 +2114,33 @@ static void LethalDamageTriggerWindowFlow()
         }
     }
 
-    if (selectedGame is null || selectedPrompt is null || selectedDamageFrame is null)
+    if (selectedGame is null || selectedDamageFrame is null)
     {
-        throw new InvalidOperationException("No deterministic lethal Feedback trigger window was found.");
+        throw new InvalidOperationException("No deterministic lethal Feedback dying window was found.");
     }
 
     var gameWithLethalTrigger = selectedGame!;
-    var prompt = selectedPrompt!;
     var damageFrameAtBoundary = selectedDamageFrame!;
-    Equal(DecisionKind.Feedback, prompt.Kind);
-    Equal(0, prompt.PlayerSeat);
     TrueWithMessage(
-        gameWithLethalTrigger.ResolutionStack[^3] is DamageFrame,
-        "lethal trigger retains its damage frame");
+        gameWithLethalTrigger.ResolutionStack[^2] is DamageFrame,
+        "lethal damage retains its damage frame during dying");
     TrueWithMessage(
-        gameWithLethalTrigger.ResolutionStack[^2] is DamageTriggerWindowFrame,
-        "lethal trigger retains its trigger window");
-    TrueWithMessage(
-        gameWithLethalTrigger.ResolutionStack[^1] is DamageSkillFrame,
-        "lethal trigger retains its skill frame");
+        gameWithLethalTrigger.ResolutionStack[^1] is DyingFrame,
+        "lethal damage opens dying before after-damage triggers");
+    FalseWithMessage(gameWithLethalTrigger.ResolutionStack.Any(frame => frame is DamageTriggerWindowFrame),
+        "lethal damage has no after-damage window before dying resolves");
     Equal<PendingDecision?>(null, gameWithLethalTrigger.CreateSnapshot(1).PendingDecision);
 
-    var useChoice = prompt.Choices.Single(choice =>
-        choice.Parameters.GetValueOrDefault("response") == "feedback");
-    var accepted = gameWithLethalTrigger.HumanRespondFeedback(
-        useFeedback: true,
-        advanceToHumanBoundary: false);
-    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "lethal Feedback choice accepted");
-    TrueWithMessage(gameWithLethalTrigger.Events.Any(eventItem =>
-        eventItem.Payload is DamageSkillResolvedEvent resolved &&
-        resolved.ResolutionId != 0 &&
-        resolved.OwnerSeat == 0 &&
-        resolved.Skill == SkillKind.Feedback &&
-        resolved.Used), "lethal Feedback resolution event");
-    TrueWithMessage(gameWithLethalTrigger.ResolutionStack.Any(frame => frame is DyingFrame),
-        "lethal Feedback continues into a Dying frame");
-    FalseWithMessage(gameWithLethalTrigger.ResolutionStack.Any(frame => frame is DamageSkillFrame),
-        "lethal Feedback skill frame completed before dying");
-    TrueWithMessage(gameWithLethalTrigger.CardMovements.Any(movement =>
-        movement.CardId == useChoice.Cards.Single() &&
-        movement.To == CardLocation.Hand(0) &&
-        movement.Reason == CardMoveReasons.FeedbackClaim),
-        "lethal Feedback claim movement");
-    TrueWithMessage(gameWithLethalTrigger.Events.Any(eventItem =>
-        eventItem.Payload is PlayerDyingEvent dying &&
-        dying.VictimSeat == damageFrameAtBoundary.TargetSeat),
-        "lethal trigger eventually opens the dying window");
+    var events = gameWithLethalTrigger.Events.Select(item => item.Payload).ToArray();
+    var appliedIndex = Array.FindIndex(events, item =>
+        item is DamageAppliedEvent applied && applied.TargetSeat == damageFrameAtBoundary.TargetSeat &&
+        applied.RemainingHp == 0);
+    var dyingIndex = Array.FindIndex(events, item =>
+        item is PlayerDyingEvent dying && dying.VictimSeat == damageFrameAtBoundary.TargetSeat);
+    TrueWithMessage(appliedIndex >= 0 && dyingIndex > appliedIndex,
+        "lethal damage enters dying after HP is reduced");
+    FalseWithMessage(events.Any(item => item is DamageTriggerWindowOpenedEvent),
+        "lethal after-damage triggers wait for dying resolution");
 }
 
 static void AiPublicEvidence()

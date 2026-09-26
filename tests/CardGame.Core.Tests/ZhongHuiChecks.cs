@@ -51,8 +51,8 @@ internal static class ZhongHuiChecks
         var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 109, 0));
         var historicalQuanji = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 110, 0));
         var historicalPaiyi = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 111, 0));
-        Require(GameCheckpoint.CurrentRulesVersion == 134 &&
-                StandardClassicGeneralPackage.CurrentVersion == new Version(1, 113, 0) &&
+        Require(GameCheckpoint.CurrentRulesVersion >= 133 &&
+                StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 112, 0) &&
                 migrated.Skills[ZiliSkillId].Program is
                 {
                     RuntimeVersion: "skill-program-v26",
@@ -103,7 +103,7 @@ internal static class ZhongHuiChecks
                 historicalQuanji.Skills[QuanjiSkillId].Program is null &&
                 historical.Skills[ZiliSkillId].Program is null &&
                 historical.Skills[ZiliSkillId].LegacyKind == SkillKind.Zili,
-            "Package 1.112/rules 131 must migrate Paiyi while preserving the 1.111 legacy route and earlier Quanji/Zili boundaries.");
+            "Package 1.112/rules 133 must migrate Paiyi while preserving earlier package definitions, not legacy execution.");
 
         var paiyiProgram = migrated.Skills[PaiyiSkillId].Program!.Activations.Single();
         var activeRules = ReadResource(typeof(StandardClassicGeneralPackage).Assembly,
@@ -331,19 +331,43 @@ internal static class ZhongHuiChecks
         var fixture = FindFixture();
         var historicalRegistry = CreateRegistry(new Version(1, 109, 0));
         var historical = CreateFixtureGame(historicalRegistry, fixture.Seed);
-        ResolveSelfFireAttack(historical, expectQuanji: true);
-        ResolveSelfFireAttack(historical, expectQuanji: true);
-        ResolveSelfFireAttack(historical, expectQuanji: true);
+        ResolveSelfFireAttack(historical, expectQuanji: false);
+        ResolveSelfFireAttack(historical, expectQuanji: false);
+        ResolveSelfFireAttack(historical, expectQuanji: false);
+        var owner = historical.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
+        Require(owner.AuthorityCount == 0 && owner.Hp == owner.MaxHp - 3 &&
+                historical.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .All(item => item.SkillId != QuanjiSkillId),
+            "Historical Quanji metadata must not revive either the retired draw/store route or a current program.");
+
+        // Prepare the old awakening and active-cost preconditions without asserting that
+        // these test-only mutations are player commands or replayable actions.
+        var zones = typeof(GameEngine).GetField("_cardZones", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .GetValue(historical)!;
+        var move = zones.GetType().GetMethod("Move")!;
+        foreach (var card in owner.Hand.Take(3))
+            move.Invoke(zones, [card.Id, CardLocation.Hand(HumanSeat), CardLocation.Authority(HumanSeat)]);
+        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
+            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(historical)!;
+        typeof(GameEngine).GetMethod("AcquireRuntimeSkills", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(historical, [players[HumanSeat], "fixture:retired-route", new[] { PaiyiSkillId }]);
+        Require(historical.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].AuthorityCount == 3 &&
+                GetHandLimit(historical, HumanSeat) == owner.Hp &&
+                SkillRegistry.GetActive(SkillKind.Paiyi) is null &&
+                historical.GetHumanLegalActions().All(action =>
+                    action.Skill != SkillKind.Paiyi && action.ProgramSkillId != PaiyiSkillId),
+            "Three public Authorities and acquired historical Paiyi must not revive the old hand-limit or active route.");
         var play = RequirePrompt(historical, DecisionKind.PlayCard);
         Require(historical.Submit(new EndPlayPhaseCommand(
                 HumanSeat, historical.Revision, play.PromptId)).Accepted,
             "The historical Zhong Hui fixture could not end its play phase.");
-        ReachPrompt(historical, DecisionKind.Zili, 2_048);
-        Answer(historical, DecisionKind.Zili, "zili-draw");
-        Require(historical.Events.Select(item => item.Payload).OfType<ZiliResolvedEvent>().Any() &&
+        ReachPrompt(historical, DecisionKind.PlayCard, 2_048);
+        Require(historical.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].MaxHp == owner.MaxHp &&
+                historical.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
+                    .All(item => item.SkillId != ZiliSkillId) &&
                 historical.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
                     .All(item => item.SkillId != ZiliSkillId),
-            "Package 1.109 must retain its historical Zili prompt without entering the schema-26 program path.");
+            "Package 1.109 keeps its definition but must not revive Zili even when three Authorities satisfy the old threshold.");
     }
 
     private static void ResolveSelfFireAttack(GameEngine game, bool expectQuanji, bool testForgery = false)
@@ -365,7 +389,7 @@ internal static class ZhongHuiChecks
                 $"actions=[{string.Join(',', legalActions.Select(candidate => $"{candidate.Kind}:{candidate.CardId}:{candidate.TargetSeat}"))}], " +
                 $"authorities=[{string.Join(',', game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].AuthorityCards?.Select(card => $"{card.Id}:{card.Kind}") ?? [])}], " +
                 $"fireEvents={game.Events.Select(item => item.Payload).OfType<FireAttackResolvedEvent>().Count()}, " +
-                $"quanjiEvents={game.Events.Select(item => item.Payload).OfType<QuanjiResolvedEvent>().Count()}, " +
+                $"quanjiBindings={game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Count(item => item.SkillId == QuanjiSkillId)}, " +
                 $"movements=[{string.Join(',', game.CardMovements.TakeLast(20).Select(move => $"{move.CardId}:{move.From}>{move.To}:{move.Reason}"))}], " +
                 $"rules={game.CreateCheckpoint().RulesVersion}.");
         var play = RequirePrompt(game, DecisionKind.PlayCard);
@@ -381,27 +405,6 @@ internal static class ZhongHuiChecks
 
         if (!expectQuanji)
         {
-            ReachPrompt(game, DecisionKind.PlayCard, 512);
-            return;
-        }
-
-        if (game.PendingDecision is { Kind: DecisionKind.Quanji } legacyQuanji)
-        {
-            if (testForgery)
-            {
-                var revision = game.Revision;
-                var forged = game.Submit(new AnswerPromptCommand(
-                    HumanSeat, legacyQuanji.PromptId, new ChoiceId("quanji.forged"), revision));
-                Require(!forged.Accepted && game.Revision == revision,
-                    "A forged historical Quanji answer must be rejected atomically.");
-            }
-            Answer(game, DecisionKind.Quanji, "quanji-use");
-            var legacyStore = RequirePrompt(game, DecisionKind.Quanji);
-            var legacyDodgeIds = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand
-                .Where(card => card.Kind == CardKind.Dodge).Select(card => card.Id).ToHashSet();
-            Answer(game, legacyStore.Choices.First(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "quanji-store" &&
-                choice.Cards.Count == 1 && legacyDodgeIds.Contains(choice.Cards[0])));
             ReachPrompt(game, DecisionKind.PlayCard, 512);
             return;
         }

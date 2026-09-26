@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 54,
+  "skills": [
+    {
+      "id": "boundary:tuxi",
+      "revision": 1,
+      "minimumRulesVersion": 164,
+      "triggers": [
+        {
+          "id": "reduce-normal-draw-and-take-hands",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": -100,
+          "drawPhaseMode": "additive",
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingHandAtLeastOwner",
+              "minimumTargets": 1,
+              "maximumTargets": 8,
+              "numberExpression": "plannedNormalDrawCount",
+              "targetAiOrder": "hostileThenHandCount"
+            },
+            {
+              "op": "adjustNormalDraw",
+              "target": "owner",
+              "numberExpression": "selectedTargetCount"
+            },
+            {
+              "op": "takeRandomHandCardFromSelectedTargets",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

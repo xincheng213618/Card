@@ -1,5 +1,7 @@
 # 结构化技能元数据 v1：标签、执行形态与运行状态
 
+当前引擎边界为 rules v162／schema 52；当前经典包是 `standard-classic-generals@1.138.0`。疠火保持 `State + Trigger` 元数据，以按有效牌型过滤的目标数规则、显式连续 `viewAs` 和完成后失去体力触发执行，不再通过旧 `SkillKind.Lihuo` 动作分派。贞烈目标无效、解烦响应链、秘计分配与此前主动技能额度继续保留；暗手牌仅公开不透明牌位。
+
 D5a 在 `standard-classic-generals@1.68.0`／rules v96 建立首个可执行边界。它不是新的 skill-program schema；现有 schema 1～10、程序规范化 JSON 和旧内容指纹保持不变。
 
 规则语义以 [BWIKI 技能概念介绍](https://wiki.biligame.com/sgs/%E6%8A%80%E8%83%BD%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D) revision 78953（页面更新日期 2026-07-11）为当前资料快照：
@@ -172,7 +174,7 @@ rules v102 不启用该消费者，经典包 1.80.0 不注册曹彰；Checkpoint
 
 rules v104／`standard-classic-generals@1.82.0` 注册当前官网经典 `classic:ma-dai`。马术继续复用 `classic:mashu` 的 `Locked + State` 距离查询；潜袭需要在准备阶段确认发动、私有弃牌并选择目标，因此包含 `Trigger`，弃牌颜色又持续限制目标直至回合结束，因此同时包含 `State`，没有出牌阶段主动入口。
 
-潜袭按官方顺序拆成三个可暂停点：发动后先摸一张，再从自己的手牌或装备区精确弃置一张，最后以弃置时的有效颜色从实时距离为 1 的其他存活角色中选择一名。`classic:qianxi` 以 `restriction.target-{seat}.{red|black}` 的 `Turn` 用途记录结果；同色手牌从杀／闪响应、无懈可击、濒死桃、杀转换及丈八双牌候选中统一移除，异色手牌和非手牌区域不受影响，下一名角色开始回合时统一清除。
+潜袭按官方顺序拆成三个可暂停点：发动后先摸一张，再从自己的手牌或装备区精确弃置一张，最后从实时距离为 1 的其他存活角色中选择一名。当前 `standard-classic-generals@1.116.0`／rules v137 由 schema 32 程序组合这些步骤，并以通用 `TurnHandCardColorRestriction` 保存目标与弃牌的有效红／黑颜色；同色手牌从杀／闪响应、无懈可击、濒死桃、杀转换及丈八双牌候选中统一移除，异色手牌和非手牌区域不受影响，回合结束统一清除。原 `restriction.target-{seat}.{red|black}` 人物用途字符串只属于早期实现，当前执行不再消费。
 
 三段私有 Choice、红／黑两种过滤、异色保留、回合过期、暂停响应和完成状态均由已接受命令前缀确定性重建。rules v103 不启用消费者，经典包 1.81.0 不注册马岱；Checkpoint schema 与玩家资料不新增字段。当前摸弃版、判定历史版、减体力上限旧版以及界／国战增量的边界见 `docs/content/sources/ma-dai-a55-2026-09-21.json`。
 
@@ -196,7 +198,7 @@ rules v106／`standard-classic-generals@1.84.0` 注册当前官网经典 `classi
 
 rules v107／`standard-classic-generals@1.85.0` 注册当前官网经典 `classic:wang-yi`。贞烈和秘计都有明确的发动／跳过入口，且都不提供出牌阶段主动按钮，因此按用户指定的技能概念页分别标为可选 `Trigger`，不误标为 `Active`。
 
-贞烈在王异成为其他角色使用的杀或普通锦囊目标后创建私有 Choice。发动时先失去 1 点体力，必要时接入既有濒死流程；存活后从使用者的手牌或装备区弃置一张牌，并将王异座位加入当前 `CardUseFrame.IneffectiveTargetSeats`。后续结算统一跳过该座位，而群体牌的其他目标仍继续结算。未知手牌只暴露槽位，公开装备保留实体牌信息。
+贞烈在王异成为其他角色使用的杀或普通锦囊目标后创建私有公共程序 Choice。schema 51 的第一条指令将王异座位加入当前 `CardUseFrame.IneffectiveTargetSeats` 并发布类型化无效事件，随后失去 1 点体力，必要时接入既有濒死流程；存活后再从使用者的手牌或装备区弃置一张牌。后续结算统一跳过该座位，而群体牌的其他目标仍继续结算。未知手牌只暴露槽位，公开装备保留实体牌信息；1.136.0 及更早只保留历史身份，不重新绑定已删除的王异专属执行器。
 
 秘计在受伤王异的结束阶段创建私有 Choice；发动后按已损失体力摸 X 张牌，随后可整体跳过分配，或选择其他角色并交给其共 X 张手牌。分配一旦开始就要求精确数量，允许使用摸牌前已有手牌，且允许全部交给同一角色。各 Choice、无效目标集合、摸牌和交付结果均由已接受命令前缀确定性重建。rules v106 即使加载 1.85.0 Registry 也不启用两项消费者；经典包 1.84.0 不注册王异。Checkpoint schema 与玩家资料不新增字段。规则、素材、异版排除和验收见 `docs/content/sources/wang-yi-a58-2026-09-21.json`。
 
@@ -210,11 +212,19 @@ rules v108／`standard-classic-generals@1.86.0` 注册 BWIKI 经典版本 `class
 
 ## 全手牌普通锦囊转化与公开展示消费者
 
-rules v109／`standard-classic-generals@1.87.0` 注册官网与 BWIKI 经典版本 `classic:xun-you`。奇策是出牌阶段由玩家直接发起的操作入口，以应用的 `ActionForms.Active` 表示；它没有独立的状态生效区间或触发时点，不误标为 `State`／`Trigger`。智愚在每次受到伤害后由拥有者明确决定发动或跳过，以可选 `Trigger` 表示；经典文本不含锁定标签，不误标为 `Locked`。
+rules v109／`standard-classic-generals@1.87.0` 注册官网与 BWIKI 经典版本 `classic:xun-you`；rules v141／包 1.120.0 将两项技能迁入 schema 36。奇策是出牌阶段由玩家直接发起的操作入口，以应用的 `ActionForms.Active` 表示；它没有独立的状态生效区间或触发时点，不误标为 `State`／`Trigger`。智愚在每次受到伤害后由拥有者明确决定发动或跳过，以可选 `Trigger` 表示；经典文本不含锁定标签，不误标为 `Locked`。
 
-奇策的通用主动草稿要求当前全部手牌且至少一张，伪造子集在命令边界原子拒绝。第一段确认后，第二段私有 Choice 根据当前牌桌生成合法普通锦囊用法：无中生有、决斗、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、铁索连环和借刀杀人；目标座位、目标牌及借刀的有序双目标均冻结在选项中。所有实体手牌共同进入 `Processing` 并记录在一个 `CardUseFrame.PhysicalCardIds` 中，继续复用集智、无懈、响应、伤害、装备与结算后清理，不为荀攸复制一套锦囊效果。
+奇策的 schema 36 通用主动草稿动态要求当前全部未受限手牌且至少一张，伪造子集在命令边界原子拒绝。第一段确认后，`useAllHandCardsAsOrdinaryTrick` 的第二段私有 Choice 根据当前牌桌生成合法普通锦囊用法：无中生有、决斗、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、铁索连环和借刀杀人；目标座位、目标牌及借刀的有序双目标均冻结在选项中。所有实体手牌共同进入 `Processing` 并记录在一个 `CardUseFrame.PhysicalCardIds` 中，继续复用集智、无懈、响应、伤害、装备与结算后清理，不为荀攸复制一套锦囊效果。
 
-智愚沿统一伤害后技能窗口暂停。发动后摸一张并以公开 `CardsRevealedEvent` 展示此时全部手牌，牌仍留在原手牌区；若所有牌同为红色或同为黑色且伤害来源仍存活并有手牌，则只向来源的私有视图发布一张精确手牌的强制弃置 Choice。真人视图不会看到 AI 来源的候选牌。奇策的全部实体代价和锦囊选项、智愚发动／跳过及来源弃牌均由已接受命令前缀确定性重建。rules v108 即使加载 1.87.0 Registry 也不启用消费者；经典包 1.86.0 不注册荀攸。Checkpoint schema 与玩家资料不新增字段。规则、素材、异版排除和验收见 `docs/content/sources/xun-you-a60-2026-09-21.json`。
+智愚沿统一伤害后程序窗口暂停。发动后摸一张，以 `allOwnedZoneCards` 自动绑定此时全部手牌并发布通用 `ProgramCardsRevealedEvent`，实体牌仍留在原手牌区；`boundCardsSameColor` 成立时由冻结 `eventSource` 的私有视图选择一张手牌弃置，来源无手牌则由 `skipIfNoCards` 跳过该操作并正常完成。真人视图不会看到 AI 来源的候选牌。奇策的全部实体代价和锦囊选项、智愚发动／跳过及来源弃牌均由已接受命令前缀确定性重建。1.119.0 及更早包保留历史定义但不自动绑定 schema 36 程序；经典包 1.86.0 不注册荀攸。Checkpoint schema 与玩家资料不新增字段。规则、素材、异版排除和验收见 `docs/content/sources/xun-you-a60-2026-09-21.json`。
+
+## 拥有者死亡触发与排除杀死者目标消费者
+
+rules v112／`standard-classic-generals@1.90.0` 注册经典步练师及 `classic:zhuiyi`；rules v142／包 1.121.0 将追忆迁入 schema 37。追忆在拥有者死亡时由已死亡拥有者明确决定发动或跳过，因此仍以可选 `Trigger` 表示；安恤仍是独立 `Active`，本轮不改变它的执行路径或元数据。
+
+通用 `OwnerDied` 窗口冻结死亡父帧、实际杀死者、候选绑定、触发事实和游标。发动后，`OtherLivingExceptSource` 只允许选择拥有者以外、仍存活且不是冻结杀死者的角色；目标先摸三张牌，再回复 1 点体力，满体力时摸牌仍生效。已死亡拥有者只在该窗口获准继续执行程序，普通程序不会因此放宽存活校验。发动提示、目标选择、完成事件及暂停恢复都由通用程序身份重建。1.120.0 及更早包保留历史 `SkillKind.Zhuiyi` 身份，不自动绑定 schema 37；rules v144 将安恤迁入 schema 39 后，步练师命名分区已删除。
+
+schema 39 的 `OtherLivingUnequalHandPair` 必须精确选择两人，选择时按较少手牌的接收者、较多手牌的给牌者冻结为 `SelectedFirst`／`SelectedSecond`。接收者只能看到给牌者暗手牌的不透明牌位，并由 `SelectedTargetHand` 移入自身手牌；转移牌公开展示后，按接收者的 `EffectiveSuit` 判断是否非黑桃，进而让技能拥有者摸一张。AI 排序只使用公开关系与手牌数，暂停选择与命令回放沿用通用程序帧。1.122.0 保留安恤历史身份与指纹，不自动绑定 schema 39 程序。
 
 ## 回合开始前额外阶段与限定濒死消费者
 
@@ -226,11 +236,11 @@ rules v110／`standard-classic-generals@1.88.0` 注册官网与 BWIKI 经典版�
 
 ## 双手牌转杀与回合内技能获得消费者
 
-rules v111／`standard-classic-generals@1.89.0` 注册官网与 BWIKI 经典版本 `classic:guan-xing-zhang-bao`。父魂持续为两张手牌提供杀的牌身份，因此包含 `State`；玩家也能在出牌阶段直接发起该转换，因此同时包含应用的 `ActionForms.Active`。它没有独立的发动／跳过询问：转换杀造成伤害后的技能获得是原效果的强制后续，不另标可选 `Trigger`。
+rules v111／`standard-classic-generals@1.89.0` 注册官网与 BWIKI 经典版本 `classic:guan-xing-zhang-bao`；rules v140／包 1.119.0 将其迁入 schema 35。父魂持续为两张手牌提供杀的牌身份，因此包含 `State`；玩家也能在出牌阶段直接发起该转换，因此包含 `ActionForms.Active`；转换杀造成伤害后的强制后续由程序触发入口承载，因此当前同时标记 `Trigger`，但不会产生可选发动／跳过询问。
 
-主动草稿冻结两张互异且仍在拥有者手牌区的实体牌及一个合法杀目标，两张牌共同进入同一 `CardUseFrame.PhysicalCardIds`，并以父魂转换来源复用杀次数、距离、响应、防具、伤害和处理区清理。决斗、南蛮入侵、借刀杀人及激将提供者窗口也接受同一精确双牌成本；响应虽然发布父魂转换事件，但不满足“出牌阶段内以此法使用的杀造成伤害”，不会错误获得父辈技能。
+主动草稿冻结两张互异且仍在拥有者手牌区的实体牌及一个合法杀目标，两张牌通过 `useSelectedCardsAs` 共同进入同一 `CardUseFrame.PhysicalCardIds`，并以通用 `CardConversionSource` 复用杀次数、距离、响应、防具、伤害和处理区清理。决斗、南蛮入侵、借刀杀人及激将提供者窗口也接受同一精确双牌成本；响应发布 `ProgramViewAsConvertedEvent`，但不满足“出牌阶段内以此法使用的杀造成伤害”，不会错误获得父辈技能。
 
-父魂杀在任一出牌阶段由拥有者实际使用并造成伤害后，以 `classic:fuhun`／`parent-skills-granted` 的 `Turn` 用途记录本回合状态；借刀杀人的持刀者仍是杀的使用者，激将提供者则只是替主公打出实体牌。运行时技能集合随即投影既有经典 `classic:wusheng` 与 `classic:paoxiao`，因此后续红牌转杀和不限出杀次数直接复用原正式消费者；两个技能显示为“关兴张苞 · 父魂获得”，回合边界统一过期，不写入玩家资料。rules v110 即使加载 1.89.0 Registry 也不启用父魂；经典包 1.88.0 不注册关兴张苞。Checkpoint schema 不变，双牌成本、伤害与临时技能由已接受命令前缀确定性重建。来源、素材和验收见 `docs/content/sources/guan-xing-zhang-bao-a62-2026-09-21.json`。
+父魂杀在任一出牌阶段由拥有者实际使用并造成伤害后，以 `classic:fuhun`／`grant-parent-skills@<instance>` 的 `Turn` 用途记录本回合状态，并发布 `ProgramTurnSkillsGrantedEvent`；借刀杀人的持刀者仍是杀的使用者，激将提供者则只是替主公打出实体牌。运行时技能集合随即投影既有经典 `classic:wusheng` 与 `classic:paoxiao`，因此后续红牌转杀和不限出杀次数直接复用原正式消费者；两个技能显示为“关兴张苞 · 父魂获得”，回合边界统一过期，不写入玩家资料。1.118.0 及更早包保留历史元数据但不自动绑定 schema 35 程序；经典包 1.88.0 不注册关兴张苞。Checkpoint schema 不变，双牌成本、伤害与临时技能由已接受命令前缀确定性重建。来源、素材和验收见 `docs/content/sources/guan-xing-zhang-bao-a62-2026-09-21.json`。
 
 ## 后续边界
 

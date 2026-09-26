@@ -808,18 +808,36 @@
                         <DataTrigger Binding="{Binding IsHelpOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
                         <DataTrigger Binding="{Binding IsHistoryOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
                         <DataTrigger Binding="{Binding IsGeneralGalleryOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
+                        <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
+            <Grid>
+                <controls:HomeLobby x:Name="LobbyHome">
+                    <controls:HomeLobby.Style>
+                        <Style TargetType="controls:HomeLobby">
+                            <Style.Triggers><DataTrigger Binding="{Binding IsLobbyConfigurationOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger></Style.Triggers>
+                        </Style>
+                    </controls:HomeLobby.Style>
+                </controls:HomeLobby>
+                <Border x:Name="LobbyConfigurationOverlay" Background="#D9191818" Visibility="{Binding IsLobbyConfigurationOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="NewGameSetupPanel_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
             <Border Width="790" Background="#1A282D" BorderBrush="#A28750" BorderThickness="1" Padding="30" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="返回大厅" Command="{Binding BackToLobbyCommand}" Style="{StaticResource ToolbarButton}" MinWidth="130" />
+                            <Button x:Name="StartNewGameButton" Content="开 始 对 局" Command="{Binding StartNewGameFromLobbyCommand}" Style="{StaticResource PrimaryButton}" MinWidth="170" />
+                        </StackPanel>
+                        <TextBlock Text="开始新对局会替换当前对局；返回大厅可保留当前进度。" Foreground="#778E80" FontSize="10" HorizontalAlignment="Center" Margin="0,13,0,0" />
+                    </StackPanel>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
                     <StackPanel>
                         <TextBlock Text="开 局 布 阵" FontFamily="KaiTi" FontSize="34" Foreground="#F1D298" HorizontalAlignment="Center" />
                         <TextBlock Text="选择战场与身份或阵营，开启一场新的较量" Foreground="#9BAC9F" FontSize="12" HorizontalAlignment="Center" Margin="0,9,0,16" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
-                            <Button x:Name="StartTutorialButton" Content="四步新手演练" Command="{Binding StartTutorialCommand}" Style="{StaticResource PrimaryButton}" Padding="17,9" />
+                            <Button x:Name="SetupTutorialButton" Content="四步新手演练" Command="{Binding StartTutorialCommand}" Style="{StaticResource PrimaryButton}" Padding="17,9" />
                             <Button Content="先看战局指南" Command="{Binding OpenContextGuideCommand}" Style="{StaticResource QuietButton}" Padding="14,9" />
-                            <Button x:Name="SetupHistoryButton" Content="历史战绩" Command="{Binding OpenHistoryCommand}" Style="{StaticResource QuietButton}" Padding="14,9" />
+                            <Button x:Name="ConfigurationHistoryButton" Content="历史战绩" Command="{Binding OpenHistoryCommand}" Style="{StaticResource QuietButton}" Padding="14,9" />
                         </StackPanel>
                         <TextBlock Text="{Binding TutorialEntryError}" Visibility="{Binding HasTutorialEntryError, Converter={StaticResource BoolToVisibility}}" Foreground="#E5A396" HorizontalAlignment="Center" Margin="0,0,0,12" />
                         <Border Visibility="{Binding HasAnySave, Converter={StaticResource BoolToVisibility}}" Background="#142227" BorderBrush="#53624E" BorderThickness="1" Padding="12,9" Margin="4,0,4,18">
@@ -931,91 +949,19 @@
                             <Button DockPanel.Dock="Right" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Style="{StaticResource QuietButton}" Padding="10,4" />
                             <TextBlock Text="{Binding PreferencesStatus}" Foreground="#D5AA85" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                            <Button Content="返回牌桌" Command="{Binding CancelNewGameSetupCommand}" Style="{StaticResource ToolbarButton}" MinWidth="130" />
-                            <Button x:Name="StartNewGameButton" Content="开 始 对 局" Command="{Binding StartNewGameFromLobbyCommand}" Style="{StaticResource PrimaryButton}" MinWidth="170" />
-                        </StackPanel>
-                        <TextBlock Text="开始新对局会替换当前对局；返回牌桌可以继续。" Foreground="#778E80" FontSize="10" HorizontalAlignment="Center" Margin="0,13,0,0" />
                     </StackPanel>
                 </ScrollViewer>
+                </DockPanel>
             </Border>
+                </Border>
+            </Grid>
         </Border>
         <Border x:Name="PlayerGuideOverlay" Background="#ED0B151A" Visibility="{Binding IsHelpOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="PlayerGuideOverlay_IsVisibleChanged">
             <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding IsHistoryOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger><DataTrigger Binding="{Binding IsGeneralGalleryOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger></Style.Triggers></Style></Border.Style>
             <controls:PlayerGuidePanel x:Name="PlayerGuide" />
         </Border>
-        <Border x:Name="GeneralGalleryOverlay" Background="#F20B151A" Visibility="{Binding IsGeneralGalleryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="GeneralGalleryOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
-            <Border Width="1010" MaxHeight="720" Margin="28" Padding="26,22" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#18272C" BorderBrush="#A28750" BorderThickness="1" CornerRadius="5">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="武 将 图 鉴" FontFamily="KaiTi" FontSize="31" Foreground="#F1D298" />
-                            <TextBlock Text="已注册武将 · 按系列、势力与技能检索" Foreground="#91A99B" FontSize="11" Margin="1,5,0,0" />
-                        </StackPanel>
-                        <Button x:Name="CloseGeneralGalleryButton" Grid.Column="1" Content="返回牌桌" Command="{Binding CloseGeneralGalleryCommand}" Style="{StaticResource ToolbarButton}" Padding="15,8" VerticalAlignment="Center" />
-                    </Grid>
-                    <Grid Grid.Row="1" Margin="0,16,0,15">
-                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="240" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="系列" Foreground="#718A7E" FontSize="10" VerticalAlignment="Center" Margin="0,0,8,0" />
-                            <ItemsControl ItemsSource="{Binding GeneralGallerySeries}">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGallerySeriesCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" ToolTip="{Binding Description}" Style="{StaticResource SelectedFilterButton}" MinWidth="72" Padding="10,6"><Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedGeneralGallerySeries" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag></Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="{Binding GeneralGallerySeriesDescription}" Foreground="#7F9588" FontSize="10" VerticalAlignment="Center" Margin="10,0,0,0" />
-                        </StackPanel>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding GeneralGalleryFactions}" Margin="0,9,0,0">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Content="{Binding Name}" Command="{Binding DataContext.SelectGeneralGalleryFactionCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Style="{StaticResource SelectedFilterButton}" MinWidth="55" Padding="11,7"><Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Id" /><Binding Path="DataContext.SelectedGeneralGalleryFaction" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag></Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBox x:Name="GeneralGallerySearchBox" Grid.Row="1" Grid.Column="1" Margin="0,9,0,0" Text="{Binding GeneralGallerySearchText, UpdateSourceTrigger=PropertyChanged}" Background="#101D22" Foreground="#E9D9B5" BorderBrush="#596B60" Padding="10,7" VerticalContentAlignment="Center" AutomationProperties.Name="搜索武将或技能" ToolTip="输入武将名、技能名或技能说明" />
-                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding GeneralGalleryCountText}" Foreground="#879C8D" FontSize="11" VerticalAlignment="Center" Margin="15,9,0,0" />
-                    </Grid>
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl x:Name="GeneralGalleryCards" ItemsSource="{Binding GeneralGalleryEntries}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Width="302" MinHeight="196" Margin="5" Padding="10" Background="#111D22" BorderBrush="#53624E" BorderThickness="1" CornerRadius="4">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions><ColumnDefinition Width="86" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                            <Border Width="76" Height="106" VerticalAlignment="Top" Background="{Binding PortraitBrush}" CornerRadius="3" BorderBrush="#88734D" BorderThickness="1" />
-                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                                <DockPanel>
-                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding HealthText}" Foreground="#C99880" FontSize="11" VerticalAlignment="Center" />
-                                                    <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="24" Foreground="#E8C98E" />
-                                                </DockPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
-                                                    <TextBlock Text="{Binding Kingdom, StringFormat={}{0}势力}" Foreground="#8EAA9A" FontSize="11" />
-                                                    <TextBlock Text=" · " Foreground="#586C61" FontSize="11" />
-                                                    <TextBlock Text="{Binding SeriesName}" Foreground="#7F9588" FontSize="11" />
-                                                </StackPanel>
-                                                <TextBlock Text="{Binding SkillName}" Foreground="#D5B875" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap" />
-                                                <TextBlock Text="{Binding SkillDescription}" Foreground="#AEB9AF" FontSize="10" LineHeight="16" TextWrapping="Wrap" Margin="0,7,0,0" />
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
+        <Border x:Name="GeneralGalleryOverlay" Background="#D10B1114" Visibility="{Binding IsGeneralGalleryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="GeneralGalleryOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
+            <controls:GeneralGalleryPanel x:Name="GeneralGallery" />
         </Border>
         <Border x:Name="HistoryOverlay" Background="#ED0B151A" Visibility="{Binding IsHistoryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="HistoryOverlay_IsVisibleChanged">
             <controls:MatchHistoryPanel x:Name="HistoryPanel" />

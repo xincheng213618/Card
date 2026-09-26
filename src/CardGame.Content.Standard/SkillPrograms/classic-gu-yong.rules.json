@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 53,
+  "skills": [
+    {
+      "id": "classic:shenxing",
+      "revision": 1,
+      "minimumRulesVersion": 163,
+      "activations": [
+        {
+          "id": "discard-two-draw-one",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 2 },
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:bingyi",
+      "revision": 1,
+      "minimumRulesVersion": 163,
+      "triggers": [
+        {
+          "id": "ending-reveal-and-share",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "compare", "left": { "kind": "currentHandCount" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 1 } },
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "selectTargets", "target": "owner", "targetKind": "anyLiving",
+              "minimumTargets": 1, "maximumTargets": 8,
+              "numberExpression": "currentHandCount", "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "selectOwnedCards", "target": "owner",
+              "numberExpression": "allOwnedZoneCards", "zones": ["hand"],
+              "resultBind": "shown-hand"
+            },
+            { "op": "revealBoundCards", "target": "owner", "sourceBind": "shown-hand" },
+            {
+              "op": "draw", "target": "selectedTargets", "amount": 1,
+              "condition": { "kind": "boundCardsSameColor", "sourceBind": "shown-hand" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -7,6 +7,7 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private bool _isNewGameSetupOpen;
+    private bool _isLobbyConfigurationOpen;
     private bool _isIdentityRevealOpen;
     private bool _manualDiscardEnabled = true;
     private StartingRoleOption _selectedStartingRole = new("主公", Role.Lord, "率领忠臣，平定叛乱");
@@ -100,8 +101,21 @@ public sealed partial class MainViewModel
     public bool IsNewGameSetupOpen
     {
         get => _isNewGameSetupOpen;
-        set { if (SetProperty(ref _isNewGameSetupOpen, value)) RefreshPlayerGuide(); }
+        set
+        {
+            if (!SetProperty(ref _isNewGameSetupOpen, value)) return;
+            IsLobbyConfigurationOpen = false;
+            RaisePropertyChanged(nameof(WindowTitle));
+            RefreshPlayerGuide();
+        }
     }
+    public bool IsLobbyConfigurationOpen
+    {
+        get => _isLobbyConfigurationOpen;
+        private set => SetProperty(ref _isLobbyConfigurationOpen, value);
+    }
+    public ICommand OpenLobbyCategoryCommand { get; private set; } = null!;
+    public ICommand BackToLobbyCommand { get; private set; } = null!;
     public bool IsIdentityRevealOpen { get => _isIdentityRevealOpen; private set => SetProperty(ref _isIdentityRevealOpen, value); }
     public string IdentityRevealTitle => IsNationalSnapshot ? "势 力 揭 示" : IsTeamSnapshot ? "阵 营 揭 示" : "身 份 揭 示";
     public string IdentityRevealRole => HumanPlayer?.RoleLabel ?? "未知";
@@ -118,7 +132,7 @@ public sealed partial class MainViewModel
         : IsTeamSnapshot
             ? "2v2公开阵营 · 本地对战"
             : $"{(_snapshot?.Players.Count == 5 ? "五人" : "八人")}身份 · 本地对战";
-    public string WindowTitle => IsTutorialActive
+    public string WindowTitle => IsNewGameSetupOpen ? "群雄逐鹿 · 游戏大厅" : IsTutorialActive
         ? $"群雄逐鹿 · 新手演练 {TutorialProgress}"
         : IsNationalSnapshot ? $"群雄逐鹿 · {NationalModeDisplayName}"
         : IsTeamSnapshot
@@ -164,6 +178,16 @@ public sealed partial class MainViewModel
         StartNewGameCommand = new RelayCommand(() => StartConfiguredGame(showOpeningDeal: false), () => !IsTutorialActive);
         StartNewGameFromLobbyCommand = new RelayCommand(() => StartConfiguredGame(showOpeningDeal: true), () => !IsTutorialActive);
         CancelNewGameSetupCommand = new RelayCommand(() => IsNewGameSetupOpen = false);
+        OpenLobbyCategoryCommand = new RelayCommand<string>(categoryId =>
+        {
+            var category = ModeCategories.FirstOrDefault(item => item.Id == categoryId);
+            if (category is null || !TableModes.Any(mode => categoryId == "all" ||
+                mode.ModeId.StartsWith(categoryId + ":", StringComparison.Ordinal))) return;
+            SelectedModeCategory = category;
+            IsLobbyConfigurationOpen = true;
+        }, categoryId => !IsTutorialActive && TableModes.Any(mode => categoryId == "all" ||
+            mode.ModeId.StartsWith(categoryId + ":", StringComparison.Ordinal)));
+        BackToLobbyCommand = new RelayCommand(() => IsLobbyConfigurationOpen = false);
     }
 
     private void StartConfiguredGame(bool showOpeningDeal)

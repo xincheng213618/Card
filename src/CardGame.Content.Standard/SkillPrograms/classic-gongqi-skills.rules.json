@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 48,
+  "skills": [
+    {
+      "id": "classic:gongqi",
+      "revision": 1,
+      "minimumRulesVersion": 158,
+      "activations": [
+        {
+          "id": "discard-for-unlimited-range",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "captureSelectedCards", "target": "owner", "resultBind": "cost-card" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "cost-card", "destination": "discardPile" },
+            { "op": "grantTurnRuleModifier", "target": "owner", "ruleQuery": "attackRange", "ruleOperation": "unlimited" },
+            {
+              "op": "chooseOtherOwnedCardDiscard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "condition": {
+                "kind": "boundCardsMatchCategories",
+                "sourceBind": "cost-card",
+                "cardCategories": ["equipment"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

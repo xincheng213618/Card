@@ -10,7 +10,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A named program choice cannot be answered twice.");
         var chooser = _players[chooserSeat];
         var context = CreateSkillContext(chooser);
-        var choices = options.Where(option => option.Condition.Evaluate(context)).Select(option =>
+        var choices = options.Where(option => option.Condition.EvaluateOption(context,
+            () => GetClaimableProgramDamageCards(active).Length > 0)).Select(option =>
             new PromptChoice(new ChoiceId($"program-option.frame-{frame.Id}.{resultBind}.{option.Id}"),
                 option.Label, [], [], new Dictionary<string, string>
                 {
@@ -55,8 +56,12 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The choice does not match its suspended instruction.");
         var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id")) ??
             throw new InvalidOperationException("The selected program option is unavailable.");
+        var stillAvailable = option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
+            () => GetClaimableProgramDamageCards(frame).Length > 0);
+        if (!stillAvailable && option.Condition.ContainsHasClaimableDamageCards())
+            throw new InvalidOperationException("The damage cards are no longer available for this choice.");
         ClearPendingDecision();
-        if (!_players[chooserSeat].IsAlive || !option.Condition.Evaluate(CreateSkillContext(_players[chooserSeat])) ||
+        if (!_players[chooserSeat].IsAlive || !stillAvailable ||
             !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
         {
             CancelProgramBindingAndCleanup(frame, "效果选项或技能实例已失效，技能剩余步骤取消。");
@@ -68,8 +73,24 @@ public sealed partial class GameEngine
                 new ProgramChoiceResultBinding(effect.ResultBind!, option.Id, chooserSeat)).ToArray())
         };
         QueueGameEvent(new ProgramOptionChosenEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame),
-            frame.OwnerSeat, effect.ResultBind!, option.Id, chooserSeat));
+            frame.OwnerSeat, effect.ResultBind!, option.Id, chooserSeat, option.Label));
         ContinueProgramSkill(frame.Id);
+    }
+
+    private bool IsClaimableProgramOptionStillAvailable(PromptChoice selected)
+    {
+        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame)
+            return true;
+        var effect = ProgramInstructionResolver.Default.Resolve(frame,
+            _contentRegistry!.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
+        if (effect.Op != SkillProgramEffectOp.ChooseOption)
+            return true;
+        var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id"));
+        if (option is null) return true;
+        if (!option.Condition.ContainsHasClaimableDamageCards()) return true;
+        var chooserSeat = ResolveProgramEffectTarget(frame, effect.Target);
+        return option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
+            () => GetClaimableProgramDamageCards(frame).Length > 0);
     }
 
     private static int ResolveProgramEffectTarget(ProgramSkillFrame frame, SkillProgramEffectTarget target) => target switch
@@ -85,27 +106,23 @@ public sealed partial class GameEngine
     {
         var program = _contentRegistry!.GetSkill(frame.SkillId).Program!;
         var plan = ProgramInstructionResolver.Default.Resolve(frame, program);
-        var chooser = _players[decision.PlayerSeat];
-        var host = new ProgramSkillHost(this);
+        var effect = plan.GetPausedInstruction(frame.InstructionIndex).Effect;
+        var owner = CreateSkillContext(_players[frame.OwnerSeat]);
+        var chooser = CreateSkillContext(_players[decision.PlayerSeat]);
+        var context = CreateProgramAiPublicContext(_players[frame.OwnerSeat]) with
+        {
+            SelectedTarget = frame.SelectedTargetSeats.Count == 1 ? CreateSkillContext(_players[frame.SelectedTargetSeats[0]]) : null,
+            Actor = frame.WindowContext?.CardUse is { } card ? CreateSkillContext(_players[card.ActorSeat]) : null,
+            BooleanState = stateId => GetProgramBooleanState(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId),
+            PindianWon = bind => frame.PindianResultBindings.SingleOrDefault(item => item.Name == bind)?.SourceWon ?? false,
+            HasClaimableDamageCards = effect.Options.Any(option => option.Condition.ContainsHasClaimableDamageCards()) &&
+                GetClaimableProgramDamageCards(frame).Length > 0
+        };
         return decision.Choices.Select(choice =>
         {
-            var answered = frame with { ChoiceBindings = Array.AsReadOnly(frame.ChoiceBindings.Append(
-                new ProgramChoiceResultBinding(choice.Parameters["result-bind"], choice.Parameters["option-id"], chooser.Seat)).ToArray()) };
-            var score = 0d;
-            foreach (var effect in plan.Instructions.Skip(frame.InstructionIndex))
-            {
-                if (!host.EvaluateCondition(answered, effect.Condition, CreateSkillContext(_players[frame.OwnerSeat])) ||
-                    ResolveProgramEffectTarget(answered, effect.Target) != chooser.Seat) continue;
-                score += effect.Op switch
-                {
-                    SkillProgramEffectOp.Draw => effect.Amount * 8d,
-                    SkillProgramEffectOp.Recover => Math.Min(effect.Amount, chooser.MaxHp - chooser.Hp) * (chooser.Hp <= 1 ? 100d : 18d),
-                    SkillProgramEffectOp.SetFaceState when effect.FaceDown != chooser.IsFaceDown => effect.FaceDown == false ? 24d : -24d,
-                    SkillProgramEffectOp.SetChainedState when effect.Chained != chooser.IsChained => effect.Chained == false ? 4d : -4d,
-                    SkillProgramEffectOp.LoseHp or SkillProgramEffectOp.Damage => -effect.Amount * 22d,
-                    _ => 0d
-                };
-            }
+            var facts = context with { ChoiceResult = bind => bind == choice.Parameters["result-bind"]
+                ? choice.Parameters["option-id"] : frame.ChoiceBindings.SingleOrDefault(item => item.Name == bind)?.OptionId };
+            var score = ProgramChoiceAi.Score(plan.Instructions.Skip(frame.InstructionIndex), owner, chooser, facts);
             return (Choice: choice, Score: score);
         }).OrderByDescending(item => item.Score).ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).First().Choice;
     }

@@ -316,9 +316,10 @@ public sealed partial class GameEngine
         {
             var attack = pending.Attack ??
                 throw new InvalidOperationException("The Yingbo attack gift lost its card continuation.");
-            if (FinishAttack(attack, allowYingboGift: false))
-                throw new InvalidOperationException("A completed Yingbo gift cannot open another Yingbo gift.");
-            CompleteAttackAfterCardResolution(attack);
+            if (!FinishAttack(attack, allowYingboGift: false))
+            {
+                CompleteAttackAfterCardResolution(attack);
+            }
         }
         else
         {

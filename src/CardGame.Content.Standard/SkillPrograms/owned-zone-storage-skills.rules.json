@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 40,
+  "skills": [
+    {
+      "id": "classic:chunlao",
+      "revision": 1,
+      "minimumRulesVersion": 145,
+      "triggers": [
+        {
+          "id": "store-chun-at-turn-end",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 200,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentOwnedZoneCount", "zone": "chunlao" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 0 }
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "minimumCards": 1,
+              "maximumCards": 20,
+              "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+              "zones": ["hand"],
+              "resultBind": "stored-chun"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "stored-chun",
+              "destination": "ownerPersistentZone",
+              "destinationZone": "chunlao"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

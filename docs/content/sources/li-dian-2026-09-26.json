@@ -1,0 +1,12 @@
+{
+  "generalId": "classic:li-dian",
+  "sourcePage": "https://www.sanguosha.com/hero/317",
+  "artworkUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31700.png",
+  "sha256": "E347388774ECFC95E762F4BB2146266A6831E1EEE4E8D1C03478F4F4FCC8D2D0",
+  "sourceNote": "Official Li Dian hero illustration; this page now describes revised skills. Classic 2014 rules sourced separately.",
+  "rulesSources": [
+    "https://www.sanguosha.com/news/20141017_5727_5513",
+    "https://www.sanguosha.com/news/20150630_3682_0315",
+    "https://www.sanguosha.com/news/20140325_4775_0432"
+  ]
+}

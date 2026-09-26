@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "skills": {
+    "classic:yinghun": {
+      "name": "英魂",
+      "description": "准备阶段开始时，若你已受伤，你可以令一名其他角色摸X张牌并弃置一张牌，或摸一张牌并弃置X张牌（X为你已损失的体力值）。",
+      "triggerChoices": {
+        "draw-many": "摸X张，弃一张",
+        "discard-many": "摸一张，弃X张"
+      }
+    }
+  }
+}

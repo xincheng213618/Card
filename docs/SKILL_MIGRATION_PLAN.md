@@ -1,4 +1,252 @@
-## 2026-09-22 工作树整合
+## 2026-09-26 三路公共能力与新武将（rules 164 / schema 54 / 经典包 1.139.0）
+
+朱桓2014、界曹操2014选择版、界张辽2018已进入正式五／八人身份池与图鉴。公共能力为精确实体牌型条件、当前伤害可领取牌选项、正常摸牌计划上限与所选人数扣数；条件、目标集合、上下文资源分别校验，不使用人物配方白名单。护驾保留通用SkillKind。公共AI修正也改变拒战及经典突袭的选择，因此升rules164；包1.139和Checkpoint3保持。见 [schema54契约](content/skill-composition/RUNTIME_V54.md)。
+
+冻结整合副本Release零警告／错误，Core **503/503**、WPF **113/113**，首次Full **135.449秒**。45文件于15:51:33按哈希与备份保护写回；保留并行立绘任务的新GeneralArt实现，只追加三人映射。该对话随后完成新皮肤服务结合验证：Release零警告／错误，14项相关WPF定向检查通过，不把旧副本Full当成新UI全量验收。worker分别17分15秒／28分11秒／21分45秒，派发到写回49分34秒，详见[第三批实测](benchmarks/2026-09-26-capability-generals.md)。
+
+## 2026-09-26 三路 Sol 内容扩展（rules 163 / schema 53 / 经典包 1.139.0 不变）
+
+新增界司马懿、2019 即时分牌版界郭嘉和 2019 界貂蝉，均进入正式五／八人身份池、界限突破图鉴与独立官方立绘。反馈逐点触发、鬼才手牌／装备改判、遗计从当前全手牌中可选交出至多两张、闭月按结束阶段手牌数量摸一／二张，均组合现有程序节点；天妒和离间仍复用通用 `SkillKind`，不称为全 JSON 迁移。界张角专用试验模式的名单保持原范围。
+
+父审将注册门槛固定为首次接入版本 1.139.0，避免未来 `CurrentVersion` 升级时破坏显式旧包；全部新增 bundle 复用公共加载器。没有新增 Core 能力、规则或 schema。并行测试工具把 WPF 渲染目录放到各自 ArtifactsPath 下，避免三路写入同一个临时目录。
+
+最终 Release 全解构建 0 警告／0 错误，Core **486/486**、WPF **111/111**；首次整批检查通过，用时 **139.126 秒**。验证含定向命令、隐私、无效输入、牌区移动、Checkpoint/Replay 和离屏渲染，不等同于实机、多 DPI 试玩。三路独立开发约 12～14 分钟，准备与父审整合单列，见[三路实测](benchmarks/2026-09-26-three-generals.md)。
+
+## 2026-09-26 顾雍、李典与公共伤害时序（rules 163 / schema 53 / 经典包 1.139.0）
+
+新增一将成名四原版顾雍及 2014 身份版李典。慎行复用主动支付，秉壹使用按手牌数限制的存活目标集合、公开整手牌和同色收益；恂恂私密观看四张、选择两张及有序置底，忘隙通过双向伤害参与者和逐点机会执行。WPF 势力标签直接读取注册表，避免新增人物继续维护手工名单。完整定义与边界见 [schema 53 契约](content/skill-composition/RUNTIME_V53.md)。
+
+父审发现旧引擎在濒死前执行伤害后收益，可能使忘隙提前摸到救援牌。本批区分仅允许强制归属标记的 `DamageAppliedBeforeDying` 与救援／死亡后才开放的 `AfterDamageApplied`；武魂采用独立 v53 资源，旧资源保持原文。狂骨冻结伤害时距离。刚烈嵌套伤害、内部技能／判定及公共程序失去体力导致的濒死均维持精确帧父子关系，不能仅放宽不变量绕过续接。
+
+最终 Release 全解构建 0 警告／0 错误，Core **478/478**、WPF **109/109**。完整检查用时 **126.656 秒**；前两次全量失败及相应修复保留在实测记录。群体牌测试保留存活领取→程序失血→死亡清牌→后续目标→一次收束及回放，武魂 WPF 夹具对齐当前前置标记时点。结论覆盖自动化行为和离屏渲染，不等同于实机、多 DPI 或人工完整试玩。本批未提交或推送；[两名 Sol 的时间分解](benchmarks/2026-09-26-new-generals.md)区分独立实现与父审整合。
+
+## 2026-09-26 疠火公共目标数／连续转化迁移与程普专属分区退役（rules 162 / schema 52 / 经典包 1.138.0）
+
+schema 52 增加按有效牌型过滤的 `cardTargetCount` 规则修正与显式 `allowChainedInput` 连续转化。当前【疠火】用前者为所有【火杀】增加一个目标，用后者把武圣等既有转化后的普通【杀】继续转为【火杀】；动作、命令、卡牌事实和回放均保留有序的完整转化来源链。目标数扩展发布 `ProgramCardTargetCountAppliedEvent`，不再使用 `SkillKind.Lihuo` 动作标记。醇醪公开牌区的投影与死亡清理由公共持久牌区能力负责；`GameEngine.ChengPu.cs` 已删除，历史包只保留定义与指纹，不复活专用执行路线。
+
+本批已验证：Release 全解 0 警告／0 错误；程普疠火 Core 定向 8/8；包含 schema 52 定义边界的 Core 全量 466/466；程普 WPF 定向 1/1。当前代码未在最终选择器修复后重跑 WPF 全量或实机／多 DPI 验收。
+
+## 2026-09-26 贞烈公共目标无效迁移与王异专属分区退役（rules 161 / schema 51 / 经典包 1.137.0，历史验收）
+
+schema 51 增加 `cardActionActorIsOwner` 冻结事实与 `nullifyCurrentCardEffect` 公共操作。后者只允许在带 CardAction 能力的目标结算前窗口中作用于技能拥有者，并以类型化事件记录技能、绑定、来源、父用牌帧和有效牌型。普通锦囊现在与杀共用 `CardUseBeforeTargetEffects` 适配：父帧冻结效果实体牌和后续集智／无懈继续点；单目标无效只写入当前 `CardUseFrame.IneffectiveTargetSeats`，群体锦囊的其他目标继续结算。
+
+当前 `classic:zhenlie` 由“来源不是自己 → 当前牌效仅对本人无效 → 失去 1 点体力 → 若存活则从来源手牌／装备区弃一张牌”组合执行。失去体力仍复用公共濒死救援并在拥有者死亡时取消剩余指令；暗手牌 Choice 只公开不透明槽位。专属 `DecisionKind.Zhenlie` 提交、AI、WPF 指南、濒死续接、杀／普通锦囊分支以及 `GameEngine.WangYi.cs` 均已退出当前路径；历史枚举、事件和移动原因只保留数据身份，1.136.0 及更早定义不会重新绑定退役执行器。当前仅余 `ChengPu`、`MouLuMeng` 两个命名专属引擎分区。
+
+定向 Core 验证为 **3 passed / 0 failed / 0 skipped**，覆盖包边界、旧包隔离、杀目标无效、失去体力、暗牌支付、暂停／完成 Replay、群体锦囊仅跳过王异及当前秘计分配；定向 WPF 验证为 **1 passed**，离屏图确认通用发动／支付标题、两项发动 Choice 和不透明来源手牌槽位，无裁切。完整 Solution Release 构建为 0 warning / 0 error，完整 Core **466 passed / 0 failed / 0 skipped**，完整 WPF **108 passed**，`git diff --check` 通过。该结果不表述为实机、多 DPI 或远程客户端验收；本轮没有提交或推送。
+
+## 2026-09-26 解烦公共响应链迁移与韩当专属分区退役（rules 160 / schema 50 / 经典包 1.136.0）
+
+schema 50 为主动程序增加 `usesPerGame` 整局额度，并增加 `requestAttackRangeAid` 公共操作。该操作在发动时按当前公开距离和攻击范围冻结所有能攻击到受益者的存活角色（排除受益者），按技能拥有者相对座位顺序逐人发布私有 `ProgramTrigger`：响应者可以弃置一张当前装备的武器，否则令受益者摸一张牌。冻结目标、响应者列表、游标及每步精确 Choice 均保存在公共程序帧中；通用 AI 只读取公开阵营关系、目标和装备成本。
+
+当前 `classic:jiefan` 以一次整局额度和上述响应节点执行；专属 `UseSkillCommand` 发动、`DecisionKind.Jiefan` Prompt、可变续接对象、AI 分派、WPF 决策分支与 `GameEngine.HanDang.cs` 已删除。历史 `SkillKind.Jiefan`、`DecisionKind.Jiefan`、旧事件和移动原因继续保留数据身份；1.135.0 及更早定义不会重新绑定退役执行器，负例锁定该边界。韩当分区至此整体退出，当前剩余专属分区为 `ChengPu`、`MouLuMeng`、`WangYi` 三个；王异分区仍承担【贞烈】，疠火连续转化编排和额外目标仍部分走专用规则。
+
+定向 Core 验证为 **5 passed / 0 failed / 0 skipped**，覆盖包边界、历史负例、弓骑联动后的冻结响应者、整局限次、武器支付、无武器摸牌和暂停／完成 Replay；定向 WPF 验证为 **1 passed**，覆盖通用技能标题、Choice 和事件栈投影。完整 Solution Release 构建为 0 warning / 0 error，完整 Core **466 passed / 0 failed / 0 skipped**，完整 WPF **108 passed**，`git diff --check` 通过。离屏图 `218-classic-jiefan-response.png` 已复核标题、目标、两项响应和技能状态，无裁切；该结果不表述为实机、多 DPI 或远程客户端验收。本轮没有提交或推送。
+
+## 2026-09-26 秘计公共分配迁移与旧执行器退役（rules 159 / schema 49 / 经典包 1.135.0）
+
+schema 49 增加 `distributeOwnedCards` 公共操作。分配数量只能读取一个更早的实体牌绑定，本轮秘计以实际摸到的 `drawn` 牌数为准，而不是在分配时重新读取已损失体力；候选来自拥有者当前手牌，因此既可交出刚摸到的牌，也可交出原有手牌。私有程序帧保存冻结数量、已交牌和接收目标：第一张移动前可整体放弃，交出第一张后不再发布放弃选项，必须逐张完成冻结数量。每张牌经 Processing 移入目标手牌并发布通用类型化事件，暂停选择与完成结果均由命令前缀精确重放。
+
+当前 `classic:miji` 在公共 `TurnEnding` 窗口先以冻结阶段事实执行 `ownerLostHp` 摸牌并绑定结果，再执行上述分配节点；专属发动／分配 Prompt、续接状态、提交分派、AI 路由、WPF 决策分支和回合结束前钩子均已删除。历史 `SkillKind.Miji`、`DecisionKind.Miji`、`MijiResolvedEvent` 和移动原因继续保留数据身份；1.134.0 及更早定义不会重新绑定已退役执行器，负例锁定该边界。王异分区仍承担【贞烈】，因此当前四个剩余专属分区仍为 `ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`，不能表述为王异整个人物迁移完成。
+
+## 2026-09-26 弓骑公共能力迁移与旧执行器退役（rules 158 / schema 48 / 经典包 1.134.0）
+
+schema 48 增加按绑定牌类别判断的 `boundCardsMatchCategories`，以及可选的 `chooseOtherOwnedCardDiscard` 公共操作；后者只公布其他角色手牌的不透明牌位，装备区和判定区仍按公开实体牌选择。回合规则修正器同时开放 `AttackRange + Unlimited`，由统一攻击范围查询消费。当前【弓骑】以“捕获一张手牌／装备区牌 → 弃置 → 本回合攻击范围无限 → 若该牌为装备牌则可弃置其他角色一张牌”的程序组合执行，阶段额度保证每个出牌阶段限一次。
+
+本轮删除弓骑专属发动、目标牌提示、续接状态、AI、攻击范围钩子和 WPF 决策路由；历史 `SkillKind`、`DecisionKind`、事件和移动原因继续保留数据身份。1.133.0 及更早的旧定义不会重新绑定已退役执行器，新增负例锁定该边界。韩当分区仍承担限定技【解烦】，因此当前四个剩余专属分区 `ChengPu`、`HanDang`、`MouLuMeng`、`WangYi` 的总数不变，不能把本轮表述为韩当整个人物迁移完成。
+
+本轮 Core/WPF Release 构建均为 0 warning / 0 error；完整 Core **465 passed / 0 failed / 0 skipped**，完整 WPF **108 passed**，`git diff --check` 通过。弓骑的暗手牌不透明选择、公开装备选择、可跳过分支、阶段限次、攻击范围查询以及暂停点 Checkpoint/Replay 均由公共执行面验证；没有新增实机、多 DPI 或远程客户端验收，也没有提交或推送。
+
+## 2026-09-26 醇醪旧执行器退役（rules 157 / schema 47 / 经典包 1.133.0）
+
+当前【醇醪】的结束阶段存牌与跨角色濒死救援已分别由 schema 40/41 的公共程序执行，本轮删除仍残留的专属结束阶段选择、濒死牌分支、续接状态、AI 决策和 WPF `DecisionKind.Chunlao` 路由。通用程序继续发布私密候选、移动公开“醇”牌区、执行虚拟【酒】并由命令前缀确定性重建；公开牌区快照与拥有者死亡弃置仍是共享区域职责，不随旧执行器删除。
+
+历史 `SkillKind`、`DecisionKind`、事件和移动原因保留数值／数据身份，旧包内容定义及指纹不改写，但不再自动绑定已退役执行器。新增负例验证 1.123.0 的历史定义不会重新打开专属提示、移动“醇”或产生旧专属事件。程普分区仍保留疠火连续转化、额外目标以及更早包的结算后失血兼容；因此当前四个剩余专属分区 `ChengPu`、`HanDang`、`MouLuMeng`、`WangYi` 的总数不变，不能把本轮表述为程普整个人物迁移完成。
+
+本轮 Core/WPF Release 构建均为 0 warning / 0 error；完整 Core **464 passed / 0 failed / 0 skipped**，完整 WPF **108 passed**，`git diff --check` 通过。WPF 的当前醇醪存牌和救援场景继续通过通用 `ProgramTrigger` 表面完成；本轮没有新增实机、多 DPI 或远程客户端验收，也没有提交或推送。
+
+## 2026-09-26 阶段限次与自有牌主动技能（rules 157 / schema 47 / 经典包 1.133.0）
+
+本批继续按公共能力迁移：`usesPerPhase` 为主动程序增加独立的出牌阶段额度，与 `usesPerTurn` 可同时约束；每次真实进入出牌阶段只重置阶段额度，额外阶段不重置回合额度。`maxCards: null` 表示可选到声明来源区的全部现有牌，合法动作公布实际候选数量，不向 UI 暴露内部上限；此前 schema 的固定 0–64 数值约束保持不变。
+
+孙权制衡切换为 `captureSelectedCards → moveBoundCards(discardPile) → draw(boundCardCount)`，支持混选手牌／装备、空选及伪造选牌原子拒绝、70 张完整换牌、当先额外阶段和装备移动触发。华佗青囊复用阶段额度，修正 1.132.0 程序把“出牌阶段限一次”实现成“每回合限一次”的差异；旧 1.132.0 资源未改。两项当前定义共用 `phase-owned-card-actions` bundle，没有新增人物引擎或 WPF 分支；孙权救援、华佗急救仍走原路径，不计为整个人物迁完。
+
+主动程序 AI 对已由选牌评分计价的输入牌不再在节点估值里重复扣费，保留实际摸牌收益；自动选牌仍使用现有最小合法数量策略，本批不声称已有最优多牌换牌策略。规则 epoch 提升到 157，当前 Checkpoint schema 仍是 3，旧开发期存档按精确匹配政策拒绝。独立输出目录为 `%TEMP%\Card-Iteration-0926`，功能和暂停回放定向验证已通过，整体验证结果随本批收口记录。
+
+## 2026-09-26 十轮续迭代：五位既有武将的技能（rules 156 / 经典包 1.132.0）
+
+本组十轮按独立功能与验证边界计数，不表示迁移十名武将，也未增加可选武将池人数：①经典赵云 `longdan` 双向程序转化（1.128.0）；②经典黄盖 `kujin` 可重复主动程序与濒死续接（1.129.0）；③甄姬 `qingguo` 黑色手牌当【闪】（1.130.0）；④schema 46 将单牌程序转化的来源牌区限定为手牌／装备区；⑤关羽 `wusheng` 红色手牌或装备区牌当【杀】出牌／响应（1.131.0）；⑥华佗 `qingnang` 弃一手牌、回复受伤目标、每回合限一次（1.132.0）；⑦旧包定义、精确来源和伪造来源的兼容回归；⑧schema 46 的牌区隔离及非法定义拒绝；⑨黄盖真实 WPF 技能入口；⑩完整构建、Core／WPF 回归与文档收口。
+
+这五项当前技能不再使用 `LegacyKind`，各首次绑定版本之前的定义和历史执行保留。龙胆、苦肉、武圣是对应既有武将的本轮完整目标技能；甄姬的洛神、华佗的急救仍沿原执行路径，不能称两个人物整体迁完。程序 `viewAs` 的装备区能力目前只用于单牌来源，不泛化到多牌转换或锦囊牌转换。程普、韩当、谋吕蒙、王异四个专属引擎分区仍在；既有迁移也不代表截图中的整库文件已经清零。
+
+## 2026-09-23 疠火连续转化与历史执行边界（rules 151 / 经典包 1.127.0）
+
+武圣将红色非【杀】牌视为【杀】后，再由疠火改为【火杀】时，当前包以疠火程序 `viewAs` 元数据决定第二段转化是否可用；用牌动作和冻结上下文保留“武圣→疠火”的有序来源链，伤害后只结算一次程序失血。动作上的 `CardKindModifierSkill` 仍是兼容旧命令形状的标记，整条链并未迁成纯通用流水线。`1.125.0` 仍以旧技能路径失血，`1.126.0` 仍以程序失血但用旧转化入口；两个历史包分别通过实际双目标伤害、事件类型和 Checkpoint/Replay 回归。本组十轮收口时完整 Solution Release 构建为 0 警告／0 错误，Core 451/451、WPF 107/107，`git diff --check` 通过；这不是整库技能迁移完成或实机验收。
+
+## 2026-09-23 疠火物理杀转化迁移（经典包 1.127.0）
+
+当前 `classic:lihuo` 在 schema 45 程序中同时声明单张物理【杀】→【火杀】的自愿 `viewAs` 与结算后强制失血；合法动作保留普通【杀】、疠火转化单目标和叠加额外目标。转化来源进入冻结的用牌上下文，正式失血触发可按来源与实际伤害筛选；疠火用牌事件仍报告正确的“普通杀转化”。没有明确转化来源的朱雀羽扇选择不得暗中拾取唯一的程序转化来源，以免错误失血。`1.126.0` 只绑定失血程序，`1.125.0` 保留全专用规则，两份历史内容资源均不修改。
+
+“先把其他牌当【杀】，再由疠火改为【火杀】”的动作编排及【火杀】额外目标，仍部分走专用规则；程普分区尚不能删除。
+
+## 2026-09-23 自愿普通杀改火杀的通用转化入口（schema 45 / rules 150）
+
+程序 `viewAs` 在 schema 45 开放单张实体【杀】于出牌阶段改为【火杀】；保留同一实体牌的普通【杀】选项，完整验证合法动作、精确转化来源、火属性用牌及 Checkpoint/Replay。该来源不会被误记作朱雀羽扇转化。当前只开放物理【杀】的单牌出牌转化，不表示任意转化链或响应窗口均已支持。正式疠火包仍为 `1.126.0`，尚未改用这一通用转化；对已有“先当【杀】再改【火杀】”链路继续由旧规则处理。
+
+## 2026-09-23 疠火结算后失血迁移（经典包 1.126.0）
+
+当前 `classic:lihuo` 使用 schema 44 的强制 `CardUseCompleted` 程序：有效牌名为【火杀】、整张牌实际造成过伤害，且冻结的转化链包含 `classic:lihuo` 时，结算后通过通用 `loseHp` 节点失去 1 点体力。原生【火杀】和朱雀羽扇转化的【火杀】即使借疠火增加目标，也不承担这项失血；完全闪避的疠火转化同样不失血。`1.125.0` 及更早经典包继续走旧结算路线、内容指纹不变。疠火的【杀】改【火杀】与额外目标目前仍由专用状态规则生成和校验，所以程普分区尚不能删除。
+
+## 2026-09-23 使用完成窗口的转化来源（schema 44 / rules 149）
+
+通用触发条件新增 `cardUseConversionSkillIs`，以冻结的 `CardActionContext.ConversionChain` 判断本次【杀】是否经过指定技能转化。只有 schema 44 的 `CardUseCompleted` 可读取；旧 schema 和使用前窗口拒绝。实际转化【闪】为【杀】与原生【杀】分别验证了命中和不命中，转化后的响应流程结束再打开完成窗口，并支持提示处 Checkpoint/Replay。该条件使后续疠火失血能够同时限定“实际造成伤害”和“确由疠火转化”，但当前经典内容仍未绑定；疠火的转化与额外目标仍在旧执行路径。
+
+## 2026-09-23 使用完成窗口的实际伤害结果（schema 43 / rules 148）
+
+`CardUseCompleted` 新增冻结的 `cardUseCausedDamage` 条件，取整张【杀】使用过程中是否实际造成过伤害；多目标【杀】汇总各目标结果，完全被【闪】等阻止的使用为假。只允许 schema 43 的使用完成窗口读取，schema 42 或较早卡牌窗口会在加载时拒绝。条件在候选发布时冻结，提示中 Checkpoint/Replay 不重新推断伤害。旧疠火失血仍由专用路径处理，经典包继续为 `standard-classic-generals@1.125.0`／schema 41；还未把疠火绑定到通用窗口。
+
+## 2026-09-23 卡牌使用完成窗口基础（schema 42 / rules 147）
+
+通用程序新增 `CardUseCompleted` 窗口，当前只接在实体或转化【杀】的整张牌结算尾部。实体牌先离开处理区、发出 `CardUseFinishedEvent`，然后才按冻结的卡牌使用上下文发布触发候选；在程序提示处可 Checkpoint/Replay。执行中保留已完成的 CardUse 父帧，程序结束后再清理父帧并继续既有结算后流程，避免把“造成伤害时”误当成“整张牌结算后”。schema 41 拒绝新窗口，schema 42 当前只接受三种【杀】牌名。
+
+这是迁移疠火“转化火杀造成过伤害，结算结束后失去体力”的前置能力；目前尚未加入伤害结果条件，也未把疠火绑定到新窗口。当前经典内容仍为 `standard-classic-generals@1.125.0`／schema 41，程普分区和剩余 4 个命名分区不变。本轮完整 Release 构建 0 警告／0 错误，Core **444 passed / 0 failed / 0 skipped**，WPF **107 passed**，`git diff --check` 通过。
+
+## 2026-09-23 跨角色濒死响应与醇醪救援迁移（schema 41 / rules 146）
+
+当前经典包为 `standard-classic-generals@1.125.0`。schema 41 增加面向当前濒死响应者与濒死目标的通用 `DyingResponse` 窗口；`selectSourceCard` 能从拥有者公开牌区绑定一张确切实体牌，`useBoundCardAsDyingAlcohol` 将其作为濒死目标自用的虚拟【酒】结算，并经过处理区进入弃牌堆。发动者可以救其他角色，程序暂停在选牌提示时可按同一实体牌恢复。每名响应者在该次濒死响应序列中仅有一次行动机会，AI 按公开关系决定是否发动。
+
+正式 `classic:chunlao` 在新 `owned-zone-dying-rescue-skills` 中组合存牌与救援两个触发器。`1.124.0` 的存牌专用规则包保持原样；当前包只走程序救援，旧专用救援保留供历史内容兼容。WPF 使用通用技能提示及程序救援事件显示“醇醪 · 酒救援”。疠火及程普其他历史执行路线仍在 `GameEngine.ChengPu.cs`；余下命名分区仍是 `ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`，不能据此宣称整个人物已迁完。
+
+本轮完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107；最后的提示文案微调后再次通过醇醪定向 Core 4/4、WPF 1/1，`git diff --check` 通过。覆盖 schema 40 拒绝新窗口、旧包边界、跨角色救援、公开实体牌的精确扣除、两次提示间的 Checkpoint/Replay 以及虚拟酒事件。`215-classic-chunlao-dying-rescue.png` 已离屏目检，救援选项无遮挡；未做实机或多 DPI 验收。
+
+## 2026-09-23 可变数量私有选牌与醇醪存牌迁移（schema 40 / rules 145）
+
+当前开发规则 epoch 为 145，经典包为 `standard-classic-generals@1.124.0`。schema 40 扩展共享 `selectOwnedCards`：可对指定牌名集合设置至少／最多选牌数，在私有草稿中逐张选择并于达到下限后明确完成；完成前不移动实体牌，暂停／恢复保留已选集合。可复用的发动资格检查只在首个无条件选牌节点执行前检查真实候选，避免没有合法费用牌却发布空技能入口。
+
+正式 `classic:chunlao` 的结束阶段存牌已改由 `owned-zone-storage-skills` 程序组合：要求本人公开“醇”牌区为空，从手牌中选择至少一张三种【杀】，一次性移入公开“醇”牌区。旧包 `1.123.0` 保留历史技能身份与指纹，不绑定新程序。程普的疠火转化／额外目标／伤害后失血，以及“醇”濒死当【酒】救援，仍在专用引擎路线；本轮只完成醇醪存牌，`GameEngine.ChengPu.cs` 不能删除。剩余角色／专属技能引擎分区仍为 4 个：`ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`。
+
+本轮完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107；程普定向 Core 8/8、WPF 1/1，`git diff --check` 通过。验证覆盖旧包边界、schema 39 拒绝新选牌契约、两张杀的私有选牌／完成、确认前零移动、暂停 Checkpoint/Replay、公开牌区、AI 只存一张和既有濒死救援。`213-classic-chunlao-select.png` 与 `214-classic-chunlao-public-pile.png` 已离屏目检，无裁切；未做实机或多 DPI 验收。
+
+## 2026-09-23 有序双目标、暗手牌转移与安恤迁移（schema 39 / rules 144）
+
+当前开发规则 epoch 为 144，经典包为 `standard-classic-generals@1.123.0`。schema 39 为共享程序加入“手牌数不同的两名其他存活角色”的目标集合，选择时按手牌少者／多者冻结为第一／第二参与者；后续移动不会重新解释两人的顺序。`selectAndMoveOwnedCard` 可由第一参与者私密选择第二参与者的不透明手牌位，经处理区移入第一参与者手牌；展示后 `filterBoundCards` 可按指定参与者的有效花色筛选，因而红颜等改色仍由统一规则查询决定。
+
+正式 `classic:anxu` 使用 `unequal-hand-transfer-skills` 的五个通用节点：选双目标、暗牌转移、公开展示、非黑桃过滤和按绑定张数摸牌。AI 对合法有序组合只按公开关系与手牌数评分，不读取牌面。原 `GameEngine.BuLianShi.cs`、安恤／追忆的专属决策及事件、AI／WPF 按技能名路由已删除；追忆继续使用 schema 37 的通用拥有者死亡窗口。`1.122.0` 保留安恤历史内容身份与指纹，但不绑定当前程序。
+
+本轮完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107；步练师定向 Core 3/3、WPF 1/1。覆盖 schema 38 拒绝新节点、错误目标排序定义拒绝、有序双目标、接收者私有不透明牌位、红颜有效花色、一次限用、拥有者死亡追忆和两个暂停点的 Checkpoint/Replay。`210-classic-anxu-target-pair.png` 已离屏目检，无裁切；未做实机或多 DPI 验收。
+
+当前剩余角色／专属技能引擎分区为 4 个：`ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`。以下各批次数字为当时验收记录，不代表当前清单。
+
+## 2026-09-23 来源标记、直接死亡与武魂迁移（schema 38 / rules 143）
+
+当前开发规则 epoch 为 143，经典包为 `standard-classic-generals@1.122.0`。schema 38 在共享程序目录加入 `changeAttributedMarker`、`maximumAttributedMarker` 和 `causeDeathUnlessBoundCardKind`：伤害后程序可以把公开标记按技能拥有者来源记账；死亡程序只从存活且来源计数为正的最大值角色中选择；判定结果以公开绑定牌继续，排除【桃】／【桃园结义】后进入不经过 Damage／濒死／killer／奖惩的共享死亡流程。
+
+正式 `classic:wuhun` 由 `nightmare-death-skills.rules.json` 的两个强制绑定组成：每点实际伤害后给事件来源增加一枚归属梦魇；拥有者死亡且胜负未定时选择最大梦魇持有者，复用普通判定／改判链，再按最终牌名决定是否直接死亡。嵌套直接死亡会保存外层程序与判定窗口，内层死亡完成后只恢复一次；每层死亡结束只清理该死亡拥有者归属的标记。`standard-classic-generals@1.121.0` 仍保留 `SkillKind.Wuhun` 定义与指纹，但当前运行时不会进入历史路线。
+
+本轮实际删除 `GameEngine.Wuhun.cs`、`DecisionKind.WuhunTarget`、武魂专属直接死亡事件、主引擎路由和 WPF 指南／事件栈分支；Core、AI 与 WPF 只消费普通 `ProgramTrigger`、程序绑定事件、共享判定和死亡帧。完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107；武魂／`causeDeath` 定向 Core 11/11、WPF 1/1。离屏产物 `162-wuhun-death-target.png` 与 `163-wuhun-death-guide.png` 已目检，无裁切；不表述为实机或多 DPI 验收。
+
+剩余角色／专属技能引擎分区为 5 个：`BuLianShi`、`ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`。这些分区仍需按实际职责迁移；本轮完成武魂，不代表全库迁移完成。
+
+## 2026-09-23 拥有者死亡窗口与追忆迁移（schema 37 / rules 142）
+
+当前开发规则 epoch 为 142，经典包为 `standard-classic-generals@1.121.0`。schema 37 新增 `OwnerDied` 触发窗口和 `OtherLivingExceptSource` 目标类型：死亡父流程冻结拥有者、实际杀死者、候选绑定、触发事实和游标；已死亡的技能拥有者只在该窗口获准继续执行程序，其他程序仍要求拥有者存活。窗口可序列化，并与已有死亡技能按稳定候选顺序续接，不把人物或技能 ID 写入共享宿主。
+
+正式追忆由 `death-benefit-skills.rules.json` 组合为死亡时可选发动、从除实际杀死者外的其他存活角色中选择一人、令其摸三张牌并回复 1 点体力。当前 Core、AI 与 WPF 均只消费普通 `ProgramTrigger`、共享目标选择和 `ProgramBindingResolvedEvent`；暂停在目标选择时可精确 Checkpoint/Replay。`standard-classic-generals@1.120.0` 及更早仍保留旧 `SkillKind.Zhuiyi` 执行边界，不自动绑定 schema 37 程序。
+
+本轮验收：完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107，追忆定向 Core 3/3、WPF 1/1。离屏产物 `211-classic-zhuiyi-target-choice.png` 已目检，死亡拥有者、排除杀死者后的目标、技能标题和选择提示均无裁切；离屏渲染不表述为实机或多 DPI 验收。
+
+剩余角色／专属技能引擎分区仍为 6 个：`BuLianShi`、`ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`、`Wuhun`。本轮只迁移当前追忆；`BuLianShi` 仍承载安恤和历史追忆兼容，不能据此删除。通用死亡窗口已为后续武魂迁移提供基础，但不冒充武魂已完成。
+
+## 2026-09-23 全手牌锦囊与荀攸迁移（schema 36 / rules 141）
+
+当前开发规则 epoch 为 141，经典包为 `standard-classic-generals@1.120.0`。schema 36 新增完整拥有区域牌数量表达式 `allOwnedZoneCards`、绑定牌同色条件 `boundCardsSameColor`、空来源跳过策略 `skipIfNoCards`，以及主动入口 `useAllHandCardsAsOrdinaryTrick`。这些能力均以冻结绑定、确切技能实例和普通程序帧执行，不读取人物名或专属决策类型。
+
+正式奇策由 `all-hand-trick-skills.rules.json` 组合为“当前全部手牌当一种合法普通锦囊使用”：共享主动草稿动态要求精确全部手牌，第二段普通 `ProgramTrigger` 选择冻结牌型、目标及目标牌，并复用既有集智、无懈、响应、伤害和结算清理。正式智愚由同一 bundle 组合为伤害后可选摸一张、自动捕获并公开全部手牌、同色时让冻结伤害来源弃置一张手牌；来源无手牌时只跳过该操作并继续完成技能。专属 Core／AI／WPF 命令、事件、移动 reason 和指南分支已移除，`GameEngine.XunYou.cs` 已删除；`SkillKind.Qice`／`SkillKind.Zhiyu` 只保留 1.119.0 及更早历史定义的身份。
+
+专项验证覆盖 schema 35 对四项新契约的加载期拒绝、全手牌伪造防护、全部普通锦囊候选、同色与异色展示、来源空手、私密提示、Checkpoint/Replay、通用 AI 和 WPF 共享草稿／事件投影。完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107；离屏产物 `200-classic-xun-you-card.png`、`201-classic-xun-you-qice-choice.png`、`202-classic-xun-you-zhiyu-choice.png` 已目检，无裁切。离屏渲染不表述为实机或多 DPI 验收。
+
+剩余角色／专属技能引擎分区为 6 个：`BuLianShi`、`ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`、`Wuhun`。这些文件及主引擎中的专属分支继续按公共能力组迁移；本轮完成荀攸，不代表全库迁移完成。
+
+## 2026-09-23 多牌转化与父魂迁移（schema 35 / rules 140）
+
+当前开发规则 epoch 为 140，经典包为 `standard-classic-generals@1.119.0`。schema 35 为既有 `viewAs` 增加精确 `inputCount`，并新增 `useSelectedCardsAs`、伤害后 `source` 主体及转化来源过滤、`grantTurnSkills`。多张实体牌继续进入同一 `CardActionContext`，使用与响应均保留技能、绑定和确切技能实例来源；伤害后触发只读取冻结的转换链与出牌阶段事实，不按人物名或旧攻击标志判断。
+
+正式父魂由 `multi-card-conversion-skills.rules.json` 组合为“两张手牌当杀使用或打出”；主动入口使用普通 `UseProgramSkill` 草稿，决斗、南蛮、借刀和激将复用通用多牌转化候选。仅父魂转化杀在出牌阶段造成伤害后，以强制的来源主体触发器授予本回合武圣与咆哮。专属 Core／AI／WPF 命令和事件已移除，`GameEngine.GuanXingZhangBao.cs` 已删除；`SkillKind.Fuhun` 只保留 1.118.0 及更早历史定义的身份。
+
+专项验证覆盖 schema 34 对 `inputCount` 和新操作的加载期拒绝、主动精确两牌、响应不授予、转换来源审计、回合技能授予与过期、Checkpoint/Replay、通用 AI 估值和 WPF 共享草稿／事件投影。完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107，`git diff --check` 通过；离屏产物 `207-classic-fuhun-active-draft.png` 与 `208-classic-fuhun-parent-skills.png` 已目检，无裁切。离屏渲染不表述为实机或多 DPI 验收。
+
+剩余角色／专属技能引擎分区为 7 个：`BuLianShi`、`ChengPu`、`HanDang`、`MouLuMeng`、`WangYi`、`Wuhun`、`XunYou`。这些文件及主引擎中的专属分支继续按公共能力组迁移；本轮完成父魂，不代表全库迁移完成。
+
+## 2026-09-23 类别挑战与满宠迁移（schema 34 / rules 139）
+
+当前开发规则 epoch 为 139，经典包为 `standard-classic-generals@1.118.0`。schema 34 新增主动入口精确牌集合捕获、绑定牌公开、不同类别弃牌选择、伤害事件来源参与者和按绑定牌数量摸牌。主动入口允许在声明上下界内选择可变数量牌，但必须由 `captureSelectedCards` 立即冻结为资源图中的集合；`eventSource` 只允许用于 `AfterDamageApplied`，类别响应仅公开合法选项，不泄漏响应者其他手牌。
+
+正式峻刑由 `category-challenge-skills.rules.json` 组合为：每个出牌阶段限一次，捕获至少一张手牌并移入弃牌堆，选定目标可弃置一张与全部费用牌类别均不同的手牌；若无合法牌或选择不弃置，则翻面并按费用牌数摸牌。正式御策在每次受到伤害后可选发动，使用公共区域牌选择器冻结并公开一张仍位于手牌区的实体牌，由冻结的伤害来源作不同类别响应；不弃置时拥有者回复 1 点体力。两项技能的专属 Core／AI／WPF 路由、移动 reason 和结果事件均已移除，`GameEngine.ManChong.cs` 已删除；`SkillKind`／`DecisionKind` 数值身份只保留历史序列化边界。
+
+专项验证覆盖 schema 33 拒绝新节点、可变主动成本资源图、类别过滤、无合法牌自动分支、御策发动／选牌／来源响应三段暂停、公开牌投影、AI 选择和完整 Checkpoint/Replay。完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107，`git diff --check` 通过；WPF 产物位于 `%TEMP%\CardManChong139-WpfFull`，已目检 `225-classic-junxing-selection.png` 与 `226-classic-yuce-reveal-choice.png`，未见裁切。离屏渲染不表述为实机或多 DPI 验收。
+
+剩余角色／专属技能引擎分区为 8 个：`BuLianShi`、`ChengPu`、`GuanXingZhangBao`、`HanDang`、`MouLuMeng`、`WangYi`、`Wuhun`、`XunYou`。这些文件及主引擎中的专属分支继续按公共能力组迁移；本轮完成满宠，不代表全库迁移完成。
+
+## 2026-09-23 伤害前防止窗口与仁心迁移（schema 33 / rules 138）
+
+当前开发规则 epoch 为 138，经典包为 `standard-classic-generals@1.117.0`。schema 33 新增公共 `BeforeDamageApplied` 生命周期窗口、冻结的 `eventTargetHp` 条件事实和 `preventCurrentDamage` 操作。普通杀伤害与刚烈反伤在真正扣减体力前统一进入可序列化候选窗口；候选按优先级、从受伤目标起算的相对座次、技能／实例／绑定稳定排序，并在每次回答前复验拥有关系、目标存活和程序定义。防止成功只终止当前这一次待结算伤害，再按类型化续接恢复攻击或刚烈父帧。
+
+正式仁心由 `damage-prevention-skills.rules.json` 组合为：其他角色即将受到伤害且冻结体力为 1 时可选发动，从自己的手牌／装备区精确弃置一张装备类别牌，翻面并防止本次伤害。支付继续使用公共区域牌集合与移动原因，界面只消费普通 `ProgramTrigger` 和共享支付面板；已删除 `GameEngine.CaoChong.cs`、专属仁心决策消费、AI／不变量／伤害入口、移动 reason、结果事件及 WPF 指南／表现分支。`SkillKind.Renxin` 与 `DecisionKind.Renxin` 的数值身份只为历史内容／序列化保留，不再有当前产品消费者。`1.116.0` 及更早包保留历史元数据和指纹，但不会自动绑定 schema 33 程序。
+
+专项验证覆盖共享发动／跳过、精确装备支付、伪造回答原子拒绝、发动与支付暂停点 Replay、普通攻击与刚烈续接、目标体力事实、翻面和通用防止事件。完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107，`git diff --check` 通过。WPF 产物位于 `%TEMP%\CardCaoChong138-WpfFull`，已目检 `221-classic-renxin-prevention.png` 的技能标题、支付候选与受保护目标上下文，无裁切；这是离屏自动化，不表述为实机手动验收。产品、Core 测试与 WPF 测试加载的 DLL 哈希一致：Core `478EC07C0987845EB67F7F6BB093DC5FCF1540A95DC3F18444B68620FE4A2FE7`，Content `D80ACCA1157C9D1AAB3F78B53FFD5C3D48FF44F51C8AC7C715EB2D1A91588AE9`。不提交、不推送。
+
+剩余角色／专属技能引擎分区为 9 个：`BuLianShi`、`ChengPu`、`GuanXingZhangBao`、`HanDang`、`ManChong`、`MouLuMeng`、`WangYi`、`Wuhun`、`XunYou`。这些文件及主引擎中的专属分支继续按公共能力组迁移；本轮完成仁心，不代表全库迁移完成。
+
+## 2026-09-23 手牌颜色限制与潜袭迁移（schema 32 / rules 137）
+
+当前开发规则 epoch 为 137，经典包为 `standard-classic-generals@1.116.0`。schema 32 新增公共 `otherLivingAtDistanceOne` 目标和 `grantTurnHandColorRestriction`：前者按当前共享距离查询选择一名距离恰为 1 的其他存活角色；后者读取一张冻结位置仍有效的牌集合绑定，以该牌在技能拥有者侧的有效颜色，为选定角色写入 `TurnHandCardColorRestriction`。限制只检查该角色手牌区的有效红／黑颜色，装备区、其他区域及异色牌不受影响；所有授予与其他公共回合用牌效果使用同一幂等键、到期事件和回合清理。
+
+正式潜袭由 `hand-color-restriction-skills.rules.json` 组合为准备阶段可选摸一张、从自己手牌／装备区选择并弃置一张、选择实时距离 1 目标、授予同色手牌限制四步。已删除 `GameEngine.MaDai.cs`、专属 `DecisionKind.Qianxi` 消费、AI／不变量／准备阶段桥接、运行时用途字符串、专属移动 reason、结果事件和 WPF 指南／状态分支；枚举数值身份只作为历史序列化标识保留。所有杀／闪／桃／无懈、转换牌和丈八候选统一读取角色无关的 `IsTurnHandCardRestricted` 查询。`1.115.0` 及更早包保留历史定义和指纹，但不会复活已删除的潜袭提示或自动绑定当前程序。
+
+专项验证覆盖通用触发／支付／目标提示、伪造回答原子拒绝、三段暂停、红黑两支响应过滤、Duel 响应暂停回放、回合到期和旧包无退役路线。完整 Solution Release 构建 0 警告／0 错误，Core 443/443、WPF 107/107，`git diff --check` 通过。WPF 产物位于 `%TEMP%\CardQianxi137-WpfFull`，已目检 `184`–`186` 的武将卡、公共支付面板和结算后界面，无裁切；这是离屏自动化，不表述为实机手动验收。Core 与 WPF 测试加载的产品 DLL 哈希一致：Core `424AFC63BD3848CA9E6CE08369800FC87F394A8D71144849CA2751F75B7AAD01`，Content `3616FFA0C9A2ABE1165B977CA5709875503C78206082450050EF79C1DDA44C0A`。不提交、不推送。
+
+剩余角色／专属技能引擎分区为 10 个：`BuLianShi`、`CaoChong`、`ChengPu`、`GuanXingZhangBao`、`HanDang`、`ManChong`、`MouLuMeng`、`WangYi`、`Wuhun`、`XunYou`。这些文件及主引擎中的专属分支继续按公共能力组迁移；本轮完成潜袭，不代表全库迁移完成。
+
+## 2026-09-22 私密区域牌集合与英魂迁移（schema 31 / rules 136）
+
+当前开发规则 epoch 为 136，经典包为 `standard-classic-generals@1.115.0`。schema 31 新增公共 `selectOwnedCards`：由 Owner / SelectedTarget / Actor 私下从自己手牌、装备区或判定区选择固定数量或拥有者已损失体力值数量的牌，结果写入私密牌集合绑定，再由既有 `moveBoundCards` 消费。候选实体和原始牌位在草稿创建时冻结；逐张选择阶段不移动牌，数量不足时只选择全部现有牌，空来源直接生成空绑定。确切技能实例、参与者存活或任一来源牌位失效时整段取消，不产生部分支付。暂停草稿、已选 ID 和原始牌位均为类型化可序列化状态。
+
+正式英魂已改为 `owned-card-exchange-skills.rules.json` 的两个准备阶段互斥分支：目标摸 X 后弃 1，或目标摸 1 后弃 X，其中 X 为发动窗口冻结的孙坚已损失体力值。目标用私有公共选牌面板选择自己的手牌/装备，完成后才一次性进入普通移动批次，因此失去装备仍能触发枭姬等共享后续窗口。已删除 `GameEngine.Yinghun.cs`、主引擎专属准备阶段桥接、AI/不变量分派、专属移动 reason 和结果事件；旧文件可从 Git 历史恢复。`1.114.0` 及更早包仍保留历史定义和指纹，但运行时负例证明不会复活旧英魂提示，也不会自动绑定当前程序。
+
+公共 AI 只按可见手牌数和公开区域牌估计集合规模，并把支付损失归给实际牌主；不会读取暗牌身份。WPF 复用既有 `SkillChoices` 和 `AnswerPromptCommand`，离屏检查分别渲染首次和第二次私密选择，确认首选不移动、已选牌不再出现、第二选后精确两牌只提交一次，不新增英魂人物界面分支。
+
+本轮验收：完整 Solution Release 构建 0 警告/0 错误，Core 443/443、WPF 107/107，`git diff --check` 通过。WPF 产物位于 `%TEMP%\CardYinghun136-WpfFull`，已目检 `231-program-owned-card-set-first.png` 与 `232-program-owned-card-set-second.png` 的候选、剩余数量和布局；这是离屏自动化，不表述为实机手动验收。Core 与 WPF 测试加载的产品 DLL 哈希一致：Core `F789FE64D07A8E734A60AEA105ECFBC99104B12903DB1E9D3BE4767853745653`，Content `889FB4B36072FA06C54749652B8A78A4BC4BB734B42C5F914BA968C984F98813`。不提交、不推送。
+
+剩余角色/专属技能引擎分区为 11 个：`BuLianShi`、`CaoChong`、`ChengPu`、`GuanXingZhangBao`、`HanDang`、`MaDai`、`ManChong`、`MouLuMeng`、`WangYi`、`Wuhun`、`XunYou`。这些文件及主引擎中的专属分支继续按公共能力组迁移；本轮完成英魂，不代表全库迁移完成。
+
+## 2026-09-22 持久牌区与觉醒旧执行链清理（rules 135）
+
+正式权计、自立、排异与单骑已经分别使用公共牌区、生命周期、技能授予和主动子伤害能力。本轮删除 `GameEngine.ZhongHui.cs`（521 行）及散落于主引擎、查询、AI、WPF 的专属提示、支付、伤害续接、手牌上限和结果事件分派；同时删除生命周期宿主中的旧单骑觉醒。`GetAuthority` 只保留为共享牌区访问器，公开快照中的空 Authority 区统一投影为空集合，不再由人物包开关控制。怒斩尚未迁移，其转换规则仍留在卡牌转换分区，未冒充完成。
+
+历史包内容定义和指纹不改写，历史 SkillKind、DecisionKind 和效果枚举保留数值身份；这些身份不再启动被删除的执行器。旧定义不自动绑定当前程序。专项保留当前组合的权计精确存牌与上限、自立双分支及暂停回放、排异支付与致死子伤害后恢复，并增加旧包负例：连续三次伤害不走旧权计；测试准备三张 Authority 和已获得旧排异后，也不会恢复旧上限、主动动作或自立觉醒。单骑旧包不再扣上限或授予技能。测试准备的反射状态不表述为玩家命令或可回放操作。本文后面的“历史专属执行边界”是早期实施记录，以本段的退役边界为准。
+
+该批未增加规则节点或更改当时正式配方，使用 schema 30 / rules 135 / classic 1.114.0。定向权计/自立/排异 3/3、单骑 1/1 通过；完整 Solution Release 0 警告/0 错误，Core 440/440，WPF 106/106，`git diff --check` 通过。最终日志位于 `%TEMP%\CardLegacyRoutes135-20260922` 的 `build.log`、`core.log`、`wpf.log`；两组测试产物哈希一致：Core `0C608162B62B4CE3D200AE27C4B9BDA67E52977755653FD5CDFB1B805CA1F526`，Content `1F497E5B564128E25B7A530AD13DE9F156EE2FB938935B9913C102B311CD3114`。已检查 `ui\198-classic-zhong-hui-quanji-choice.png` 的公共选项区域，WPF 测试还通过既有命令验证选牌、Authority 展示、自立与获得排异；不声称实机手动验收。不提交、不推送。
+
+该批结束时剩余角色/专属技能引擎分区为 12 个：`BuLianShi`、`CaoChong`、`ChengPu`、`GuanXingZhangBao`、`HanDang`、`MaDai`、`ManChong`、`MouLuMeng`、`WangYi`、`Wuhun`、`XunYou`、`Yinghun`。当前清单以本文顶部为准。
+
+## 2026-09-22 公共命名选项与区域牌类别支付（schema 30 / rules 135）
+
+当前开发规则 epoch 为 135，经典包为 1.114.0。本轮新增 `chooseOption`：指定 Owner / SelectedTarget / Actor 作为响应者，将选择写入命名结果，后续普通节点用 `choiceIs(sourceBind, optionId)` 条件分支。选项可用性只读取响应者的公开体力、手牌数、翻面和横置状态；同一程序内结果名字不可重复、不得提前引用或引用未声明选项。规则与展示分离，presentation 3 的 `optionLabels` 不进入 gameplay hash。不引入人物收益枚举或专属执行器。
+
+`selectAndMoveOwnedCard` 支持可选的 Basic / Trick / Equipment 类别过滤；只有选择者与牌主为同一参与者时才允许过滤，避免通过他人的暗手牌候选泄露牌类别。源牌位与实体身份仍复验，技能确切实例或支付参与者失效时不支付。选项回答前重验确切技能实例、响应者存活和选项条件；失效则取消剩余步骤，父窗口只恢复一次。
+
+正式举荐由 `support-choice-skills.rules.json` 中的选人、非基本手牌/装备支付、目标选项及普通摸牌/回复/状态设置组合定义。已删除 `GameEngine.Jujian.cs`、结束阶段 LegacyJujian 桥接、专属 AI/界面分发和旧结果事件。历史 SkillKind / DecisionKind 数值标识保留，当前执行不再产生旧 Jujian 决策；没有新增历史执行器。旧文件可从 Git 历史恢复。
+
+AI 共用公开上下文估值：预测每个命名选项的一条分支，选项局部前瞻止于下一个选择，不枚举指数级选择树；翻面/解链收益归所选目标，由敌友评分计算，不算作拥有者收益。这个有界启发式不声称完整最优策略。
+
+### 仍未清空的迁移清单
+
+截至该批，仍有 13 个带武将或专属技能名的引擎分区：`BuLianShi`、`CaoChong`、`ChengPu`、`GuanXingZhangBao`、`HanDang`、`MaDai`、`ManChong`、`MouLuMeng`、`WangYi`、`Wuhun`、`XunYou`、`Yinghun`、`ZhongHui`。其中已有正式程序定义的旧分支也必须继续清理；`GameEngine.cs` 和 AI/UI 内散落专用路由同样计入欠账。文件清单只是入口清点，不代表每个文件都能整块删除；当前清单以本文顶部为准。
+
+后续按公共能力组继续：先清理已迁程序的残留，再处理私密支付/强制弃牌与信息公开、用牌转化及父结算恢复、伤害/死亡参与者与标记等缺口。同类机制成批补定义和差异回归，不按每名角色再造框架。`CardActions`、`Pindian`、`RuleQueries` 等真实公共分区应保留；移动文件或改名不算迁移完成。
+
+本轮验收：完整 Solution Release 0 警告/0 错误，Core 440/440，WPF 106/106，`git diff --check` 通过。最终日志为 `%TEMP%\CardNamedChoice135-20260922-final\build.log`、`core-final.log`、`wpf-final.log`；公共选项界面渲染位于 `ui-final\230-program-named-choice.png`，已检查离屏布局与既有 WPF 命令提交，不声称实机手动验收。Core 与 WPF 测试加载的产品 DLL 哈希一致：Core `3F7CFD20D221A5C9E78EFBA0BEE630DC7FD4A52930BFBB14065BA77C1BE4974A`，Content `8B97413D9C5C0F1DF0C53FD3B13123ADC3C045CF5042171147330DA0DA236FC2`。最终 AI 估值还验证了已提交选项不得被后续预测重选。全库迁移仍未完成，持续迭代 goal 保持进行中。
+
+## 2026-09-22 工作树整合（上一检查点）
 
 主目录的 schema 23/24（组合内核、公共交互与目标策略）保留原语义。a148 工作树从旧基线并行扩展时占用了相同编号，整合后其状态授予、准备阶段强制分支、持久牌区、主动子伤害和主动拼点依次改用 schema 25–29／最低 rules 130–134；当前开发规则 epoch 为 134，经典包为 1.113.0。旧开发存档仍只接受当前 epoch，不新增历史执行器。
 

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 50,
+  "skills": [
+    {
+      "id": "classic:jiefan",
+      "revision": 1,
+      "minimumRulesVersion": 160,
+      "activations": [
+        {
+          "id": "aid-by-attack-range",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            { "op": "requestAttackRangeAid", "target": "selectedTarget" }
+          ]
+        }
+      ]
+    }
+  ]
+}

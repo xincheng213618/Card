@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "boundary:biyue": {
+      "name": "闭月",
+      "description": "结束阶段，你可以摸一张牌。若你没有手牌，则改为摸两张牌。"
+    }
+  }
+}

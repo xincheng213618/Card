@@ -139,7 +139,8 @@ internal static class DrawPhaseProgramValidator
                 {
                     RequireAlways(effect, nodePath);
                     if (effect.SourceBind is null || effect.Destination is not
-                            (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile))
+                            (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
+                             SkillProgramCardDestination.DrawPileBottom))
                         throw Error(nodePath, "moveBoundCards requires a source and ownerHand or discardPile destination");
                     var source = GetBinding(bindings, effect.SourceBind, nodePath, "move source");
                     var selectedMask = source.SuitMask;

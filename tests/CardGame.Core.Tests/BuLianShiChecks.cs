@@ -11,7 +11,9 @@ internal static class BuLianShiChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 90, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 123, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 122, 0));
+        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 90, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 89, 0));
         var general = current.Generals[GeneralId];
         var anxu = current.Skills[AnxuSkillId];
@@ -26,21 +28,55 @@ internal static class BuLianShiChecks
                     Gender: GeneralGender.Female
                 } && general.SkillIds.SequenceEqual([AnxuSkillId, ZhuiyiSkillId]),
             "Classic Bu Lian Shi metadata drifted.");
-        Require(anxu.LegacyKind == SkillKind.Anxu &&
+        Require(anxu.LegacyKind is null && anxu.Program?.Activations.Single() is
+                { Id: "unequal-hand-transfer", Effects.Count: 5 } &&
                 anxu.Tags == SkillTag.None &&
                 anxu.ActionForms == SkillActionForm.Active &&
                 anxu.ExecutionForms == SkillExecutionForm.None,
-            "Anxu must remain an untagged active action instead of an automatic trigger.");
-        Require(zhuiyi.LegacyKind == SkillKind.Zhuiyi &&
+            "Current Anxu must be an untagged composed active action.");
+        Require(zhuiyi.LegacyKind is null &&
                 zhuiyi.Tags == SkillTag.None &&
                 zhuiyi.ActionForms == SkillActionForm.None &&
-                zhuiyi.ExecutionForms == SkillExecutionForm.Trigger,
-            "Zhuiyi must remain an optional trigger instead of a locked state effect.");
+                zhuiyi.ExecutionForms == SkillExecutionForm.Trigger &&
+                zhuiyi.Program?.Triggers.Single() is
+                {
+                    Window: SkillProgramTriggerWindow.OwnerDied,
+                    Optional: true,
+                    UsesSharedExecutor: true
+                } &&
+                historical.Skills[AnxuSkillId].Program is null &&
+                historical.Skills[AnxuSkillId].LegacyKind == SkillKind.Anxu,
+            "Current Zhuiyi and Anxu must use programs while 1.122.0 retains historical Anxu identity.");
         Require(!previous.Generals.ContainsKey(GeneralId) &&
                 !previous.Skills.ContainsKey(AnxuSkillId) &&
                 !previous.Skills.ContainsKey(ZhuiyiSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.90.0 must add Bu Lian Shi without mutating package 1.89.0.");
+                introduced.Generals.ContainsKey(GeneralId) &&
+                current.ContentHash != historical.ContentHash &&
+                historical.ContentHash != introduced.ContentHash &&
+                introduced.ContentHash != previous.ContentHash,
+            "Package 1.123.0 must migrate Anxu without mutating historical content boundaries.");
+
+        var rules = ReadResource(
+            "CardGame.Content.Standard.SkillPrograms.death-benefit-skills.rules.json");
+        var presentation = ReadResource(
+            "CardGame.Content.Standard.SkillPrograms.death-benefit-skills.presentation.json");
+        RequireLoadFailure(
+            rules.Replace("\"schemaVersion\": 37", "\"schemaVersion\": 36", StringComparison.Ordinal),
+            presentation,
+            "requires schema version 37");
+        var transferRules = ReadResource(
+            "CardGame.Content.Standard.SkillPrograms.unequal-hand-transfer-skills.rules.json");
+        var transferPresentation = ReadResource(
+            "CardGame.Content.Standard.SkillPrograms.unequal-hand-transfer-skills.presentation.json");
+        RequireLoadFailure(
+            transferRules.Replace("\"schemaVersion\": 39", "\"schemaVersion\": 38", StringComparison.Ordinal),
+            transferPresentation,
+            "require schema version 39");
+        RequireLoadFailure(
+            transferRules.Replace("\"targetKind\": \"otherLivingUnequalHandPair\"",
+                "\"targetKind\": \"otherLivingWithHand\"", StringComparison.Ordinal),
+            transferPresentation,
+            "requires an unequal-hand pair");
 
     }
 
@@ -50,26 +86,49 @@ internal static class BuLianShiChecks
         var game = FindAnxuGame();
         var ownerBefore = Player(game, HumanSeat);
         var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Anxu);
-        var pair = FindUnequalPair(game, action.SelectableTargetSeats);
+            candidate.Kind == LegalActionKind.UseProgramSkill && candidate.ProgramSkillId == AnxuSkillId);
+        Require(action is { MinTargetCount: 0, MaxTargetCount: 0, ProgramActivationId: "unequal-hand-transfer" } &&
+                game.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Anxu),
+            "Current Anxu must publish only its composed active entry.");
+        var prompt = RequirePrompt(game, DecisionKind.PlayCard);
+        var started = game.Submit(new UseProgramSkillCommand(
+            HumanSeat, AnxuSkillId, "unequal-hand-transfer", [], [], game.Revision, prompt.PromptId));
+        Require(started.Accepted, started.Error?.Message ?? "The composed Anxu entry was rejected.");
+
+        var targetPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        var (aiChoiceId, aiThought) = new SimpleAiBrain(HumanSeat, 17)
+            .ChooseSupportFirstTransferTargets(game.CreateSnapshot(HumanSeat), targetPrompt.Choices, 1);
+        Require(targetPrompt.Choices.Any(choice => choice.Id == aiChoiceId) &&
+                aiThought.Candidates.Count == targetPrompt.Choices.Count &&
+                aiThought.Candidates[0].Action.TargetSeats.SequenceEqual(
+                    targetPrompt.Choices.Single(choice => choice.Id == aiChoiceId).Targets),
+            "The generic transfer AI must rank only published ordered target pairs.");
+        var pairChoice = targetPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-targets");
+        var pair = (ReceiverSeat: pairChoice.Targets[0], DonorSeat: pairChoice.Targets[1]);
         var receiverBefore = Player(game, pair.ReceiverSeat);
         var donorBefore = Player(game, pair.DonorSeat);
-        var prompt = RequirePrompt(game, DecisionKind.PlayCard);
-
-        var started = game.Submit(new UseSkillCommand(
-            HumanSeat,
-            SkillKind.Anxu,
-            [],
-            [pair.ReceiverSeat, pair.DonorSeat],
-            game.Revision,
-            prompt.PromptId));
-        Require(started.Accepted, started.Error?.Message ?? "The exact Anxu pair was rejected.");
+        Require(receiverBefore.HandCount < donorBefore.HandCount &&
+                targetPrompt.Choices.All(choice => choice.Targets.Count == 2 &&
+                    Player(game, choice.Targets[0]).HandCount < Player(game, choice.Targets[1]).HandCount),
+            "The target-set prompt must expose only ordered unequal-hand pairs.");
+        var pausedTargets = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        var selectedPair = game.Submit(new AnswerPromptCommand(
+            HumanSeat, targetPrompt.PromptId, pairChoice.Id, game.Revision));
+        Require(selectedPair.Accepted, selectedPair.Error?.Message ?? "The unequal-hand pair was rejected.");
+        var restoredTargets = RequirePrompt(pausedTargets, DecisionKind.ProgramTrigger);
+        var restoredPair = restoredTargets.Choices.Single(choice => choice.Targets.SequenceEqual(pairChoice.Targets));
+        Require(pausedTargets.Submit(new AnswerPromptCommand(HumanSeat, restoredTargets.PromptId,
+            restoredPair.Id, pausedTargets.Revision)).Accepted,
+            "The restored target selection was rejected.");
+        Require(State(pausedTargets) == State(game) && Events(pausedTargets).SequenceEqual(Events(game)),
+            "The selected target set must replay exactly.");
 
         var selection = game.CreateSnapshot(pair.ReceiverSeat).PendingDecision ??
             throw new InvalidOperationException("Anxu did not publish the receiver's card choice.");
         Require(selection is
                 {
-                    Kind: DecisionKind.Anxu,
+                    Kind: DecisionKind.ProgramTrigger,
                     PlayerSeat: var responder,
                     IsPrivate: true,
                     TargetSeat: var donor
@@ -79,12 +138,11 @@ internal static class BuLianShiChecks
                 selection.Choices.Count == donorBefore.HandCount &&
                 selection.Choices.All(choice =>
                     choice.Cards.Count == 0 &&
-                    choice.Targets.SequenceEqual([pair.DonorSeat]) &&
-                    choice.Parameters.GetValueOrDefault("action") == "anxu-hand-slot"),
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"),
             "Anxu must let the lower-hand receiver choose only opaque donor-hand slots.");
         Require(game.CreateSnapshot(HumanSeat).PendingDecision is null &&
                 game.CreateSnapshot(pair.DonorSeat).PendingDecision is null &&
-                game.CreateSnapshot(pair.ReceiverSeat).PendingDecision?.Kind == DecisionKind.Anxu,
+                game.CreateSnapshot(pair.ReceiverSeat).PendingDecision?.Kind == DecisionKind.ProgramTrigger,
             "Anxu's hidden-card candidates must be visible only to the receiving player.");
 
         var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
@@ -93,23 +151,20 @@ internal static class BuLianShiChecks
         AdvanceOne(game);
         AdvanceOne(paused);
 
-        var resolved = game.Events.Select(item => item.Payload).OfType<AnxuResolvedEvent>().Single();
-        Require(resolved.OwnerSeat == HumanSeat &&
-                resolved.ReceiverSeat == pair.ReceiverSeat &&
-                resolved.DonorSeat == pair.DonorSeat &&
-                resolved.EffectiveSuit == Suit.Heart &&
-                resolved.OwnerDrewCard &&
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+            .Single(item => item.SkillId == AnxuSkillId);
+        var revealed = game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
+            .Single(item => item.SkillId == AnxuSkillId);
+        Require(resolved is { OwnerSeat: HumanSeat, Completed: true } &&
+                revealed.Cards is [var transferred] && transferred.Suit == Suit.Spade &&
                 Player(game, pair.ReceiverSeat).HandCount == receiverBefore.HandCount + 1 &&
                 Player(game, pair.DonorSeat).HandCount == donorBefore.HandCount - 1 &&
                 Player(game, HumanSeat).HandCount == ownerBefore.HandCount + 1 &&
                 game.CardMovements.Count(move =>
-                    move.CardId == resolved.CardId &&
-                    move.Reason == CardMoveReasons.AnxuTransfer) == 2 &&
-                game.Events.Select(item => item.Payload).OfType<CardsRevealedEvent>()
-                    .Any(reveal => reveal.ResolutionId == resolved.ResolutionId &&
-                                   reveal.Cards.Single().Id == resolved.CardId) &&
-                game.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Anxu),
-            "Anxu must transfer then reveal one card, apply Hongyan to the receiver's Spade, draw once and consume its phase limit.");
+                    move.CardId == transferred.Id &&
+                    move.Reason.Value == "skill-program.classic:anxu.SelectAndMoveOwnedCard") == 2 &&
+                game.GetHumanLegalActions().All(candidate => candidate.ProgramSkillId != AnxuSkillId),
+            "Anxu must transfer then reveal a Spade, apply the receiver's Hongyan, draw once and consume its turn limit.");
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The completed Anxu branch must replay exactly.");
     }
@@ -120,9 +175,9 @@ internal static class BuLianShiChecks
         var game = FindZhuiyiPrompt();
         var death = game.Events.Select(item => item.Payload).OfType<PlayerDiedEvent>()
             .Last(item => item.VictimSeat == HumanSeat);
-        var prompt = RequirePrompt(game, DecisionKind.ZhuiyiTarget);
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
         var fullHealthChoice = prompt.Choices.FirstOrDefault(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "zhuiyi-target" &&
+            choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
             choice.Targets.Count == 1 &&
             Player(game, choice.Targets[0]).Hp == Player(game, choice.Targets[0]).MaxHp) ??
             throw new InvalidOperationException("The Zhuiyi fixture exposed no full-health legal target.");
@@ -132,15 +187,17 @@ internal static class BuLianShiChecks
         Require(death.KillerSeat is { } killerSeat &&
                 !prompt.ValidTargetSeats.Contains(killerSeat) &&
                 prompt.ValidTargetSeats.All(seat => seat != HumanSeat) &&
-                prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "zhuiyi-skip") &&
-                game.ResolutionStack.OfType<DeathSkillFrame>().Last() is
+                game.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Last() is
                 {
-                    Skill: SkillKind.Zhuiyi,
                     OwnerSeat: HumanSeat,
-                    Step: ResolutionFrameStep.AwaitingResponse
+                    CandidateIndex: 0
+                } &&
+                game.ResolutionStack.OfType<ProgramSkillFrame>().Last() is
+                {
+                    SkillId: ZhuiyiSkillId,
+                    TriggerId: "owner-death-benefit"
                 },
-            "Zhuiyi must be optional and exclude the actual killer from its frozen living targets.");
+            "The generic Zhuiyi target selector must exclude the actual killer from its living targets.");
 
         var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(State(paused) == State(game),
@@ -152,7 +209,7 @@ internal static class BuLianShiChecks
             game.Revision));
         Require(used.Accepted, used.Error?.Message ?? "The full-health Zhuiyi target was rejected.");
 
-        var pausedPrompt = RequirePrompt(paused, DecisionKind.ZhuiyiTarget);
+        var pausedPrompt = RequirePrompt(paused, DecisionKind.ProgramTrigger);
         var replayChoice = pausedPrompt.Choices.Single(choice => choice.Targets.SequenceEqual([targetSeat]));
         var replayUsed = paused.Submit(new AnswerPromptCommand(
             HumanSeat,
@@ -161,21 +218,18 @@ internal static class BuLianShiChecks
             paused.Revision));
         Require(replayUsed.Accepted, replayUsed.Error?.Message ?? "The restored Zhuiyi target was rejected.");
 
-        var resolved = game.Events.Select(item => item.Payload).OfType<ZhuiyiResolvedEvent>().Single(item =>
-            item.OwnerSeat == HumanSeat);
-        Require(resolved.TargetSeat == targetSeat &&
-                resolved.DrawnCardCount == 3 &&
-                resolved.RecoveredHp == 0 &&
-                Player(game, targetSeat).HandCount == targetBefore.HandCount + 3 &&
+        Require(Player(game, targetSeat).HandCount == targetBefore.HandCount + 3 &&
                 Player(game, targetSeat).Hp == targetBefore.Hp &&
                 game.CardMovements.Count(move =>
                     move.To == CardLocation.Hand(targetSeat) &&
-                    move.Reason == CardMoveReasons.ZhuiyiDraw) == 3 &&
-                game.Events.Select(item => item.Payload).OfType<DeathSkillResolvedEvent>().Any(item =>
+                    move.Reason.Value == "skill-program.classic:zhuiyi.Draw") == 3 &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
                     item.OwnerSeat == HumanSeat &&
-                    item.Skill == SkillKind.Zhuiyi &&
-                    item.TargetSeat == targetSeat),
-            "Zhuiyi must allow a full-health non-killer to draw three cards without fabricating recovery.");
+                    item.SkillId == ZhuiyiSkillId &&
+                    item.BindingId == "owner-death-benefit" &&
+                    item.Window == SkillProgramTriggerWindow.OwnerDied &&
+                    item is { Activated: true, Completed: true }),
+            "Composed Zhuiyi must let a full-health non-killer draw three cards without fabricating recovery.");
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The completed Zhuiyi death branch must replay exactly.");
     }
@@ -193,20 +247,7 @@ internal static class BuLianShiChecks
                 GeneralId,
                 rulesVersion);
             ReachHumanPlay(game);
-            var hasUnequalPair = FindAction(game, SkillKind.Anxu) is not null;
-            if (rulesVersion < 112)
-            {
-                var targetCounts = game.CreateSnapshot(HumanSeat, revealAll: true).Players
-                    .Where(player => player.IsAlive && player.Seat != HumanSeat)
-                    .Select(player => player.HandCount)
-                    .Distinct()
-                    .Count();
-                if (targetCounts > 1) return game;
-            }
-            else if (hasUnequalPair)
-            {
-                return game;
-            }
+            if (game.GetHumanLegalActions().Any(action => action.ProgramSkillId == AnxuSkillId)) return game;
         }
         throw new InvalidOperationException("No bounded unequal-hand Anxu fixture was found.");
     }
@@ -224,16 +265,31 @@ internal static class BuLianShiChecks
                 ScenarioPackage.ZhuiyiOwnerId);
             for (var step = 0; step < 1_024 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ZhuiyiTarget, PlayerSeat: HumanSeat } prompt &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat } prompt &&
                     prompt.Choices.Any(choice =>
-                        choice.Targets.Count == 1 &&
-                        Player(game, choice.Targets[0]).Hp == Player(game, choice.Targets[0]).MaxHp))
+                        choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
+                        choice.Targets.Count == 1))
                 {
                     return game;
                 }
 
                 if (game.PendingDecision is { PlayerSeat: HumanSeat } human)
                 {
+                    if (human.Kind == DecisionKind.ProgramTrigger &&
+                        human.Choices.FirstOrDefault(choice =>
+                            choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
+                            choice.Parameters.GetValueOrDefault("skill-id") == ZhuiyiSkillId) is { } activate)
+                    {
+                        var activated = game.Submit(new AnswerPromptCommand(
+                            HumanSeat,
+                            human.PromptId,
+                            activate.Id,
+                            game.Revision));
+                        Require(activated.Accepted,
+                            activated.Error?.Message ?? "The Zhuiyi fixture could not activate its owner-death program.");
+                        continue;
+                    }
+
                     if (human.Kind == DecisionKind.PlayCard)
                     {
                         var ended = game.Submit(new EndPlayPhaseCommand(
@@ -260,28 +316,6 @@ internal static class BuLianShiChecks
             }
         }
         throw new InvalidOperationException("No bounded human Zhuiyi death prompt was found.");
-    }
-
-    private static LegalAction? FindAction(GameEngine game, SkillKind skill) =>
-        game.GetHumanLegalActions().FirstOrDefault(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == skill);
-
-    private static (int ReceiverSeat, int DonorSeat) FindUnequalPair(
-        GameEngine game,
-        IReadOnlyList<int> selectableSeats)
-    {
-        var players = selectableSeats.Select(seat => Player(game, seat)).ToArray();
-        for (var first = 0; first < players.Length; first++)
-        {
-            for (var second = first + 1; second < players.Length; second++)
-            {
-                if (players[first].HandCount == players[second].HandCount) continue;
-                return players[first].HandCount < players[second].HandCount
-                    ? (players[first].Seat, players[second].Seat)
-                    : (players[second].Seat, players[first].Seat);
-            }
-        }
-        throw new InvalidOperationException("Anxu published no unequal-hand pair.");
     }
 
     private static void ReachHumanPlay(GameEngine game)
@@ -331,7 +365,7 @@ internal static class BuLianShiChecks
         Require(game.Submit(new StartGameCommand()).Accepted, "The Bu Lian Shi fixture failed to start.");
         var prompt = RequirePrompt(game, DecisionKind.SelectGeneral);
         Require(prompt.ValidContentIds.Contains(generalId, StringComparer.Ordinal),
-            $"The fixture did not offer {generalId}.");
+            $"The fixture did not offer {generalId}; candidates=[{string.Join(',', prompt.ValidContentIds)}].");
         var selected = game.Submit(new SelectGeneralCommand(
             HumanSeat,
             generalId,
@@ -367,6 +401,27 @@ internal static class BuLianShiChecks
         .Select(item => $"{item.Sequence}|{item.Payload.GetType().Name}|{JsonSerializer.Serialize(item.Payload, item.Payload.GetType())}")
         .ToArray();
 
+    private static string ReadResource(string resourceName)
+    {
+        using var stream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream(resourceName) ??
+            throw new InvalidOperationException($"Missing embedded resource '{resourceName}'.");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
+    private static void RequireLoadFailure(string rules, string presentation, string expectedMessage)
+    {
+        try
+        {
+            _ = SkillProgramCatalog.Load(rules, presentation);
+            throw new InvalidOperationException("The invalid owner-death program unexpectedly loaded.");
+        }
+        catch (InvalidOperationException exception) when (
+            exception.Message.Contains(expectedMessage, StringComparison.OrdinalIgnoreCase))
+        {
+        }
+    }
+
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
@@ -391,6 +446,11 @@ internal static class BuLianShiChecks
 
         public void Register(IContentRegistryBuilder builder)
         {
+            builder.AddSkill(new ContentSkillDefinition(
+                "fixture:zhuiyi-ai-decoy",
+                "追忆测试诱饵技能",
+                "仅用于令非玩家座位稳定选择测试目标。",
+                SkillKind.Yingzi));
             foreach (var id in AnxuTargets)
             {
                 builder.AddGeneral(new ContentGeneralDefinition(
@@ -417,7 +477,7 @@ internal static class BuLianShiChecks
                     id,
                     "追忆测试目标",
                     "supporter",
-                    "standard:none",
+                    "fixture:zhuiyi-ai-decoy",
                     "wei",
                     BaseHp: 4));
             }

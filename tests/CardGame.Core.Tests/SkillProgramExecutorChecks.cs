@@ -200,6 +200,9 @@ internal static class SkillProgramExecutorChecks
 
     private sealed class FakeRuntime : ISkillProgramExecutionHost, ISkillProgramEffectHost
     {
+        public int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference) =>
+            reference.Kind == ProgramParticipantRef.Owner ? frame.OwnerSeat : 1;
+
         private readonly SkillProgram _program;
         private readonly Dictionary<int, SkillProgramActorState> _actors = new()
         {
@@ -262,6 +265,9 @@ internal static class SkillProgramExecutorChecks
             SkillProgramNumberExpression? numberExpression, string? resultBind,
             SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
             Calls.Add($"draw:{ownerSeat}:{targetSeat}:{amount}:{numberExpression}:{resultBind}:{visibility}:{reason.Value}");
+
+        public void DrawSelectedTargets(long frameId, int amount, CardMoveReason reason) =>
+            Calls.Add($"draw-selected-targets:{frameId}:{amount}:{reason.Value}");
 
         public void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
             SkillProgramNumberExpression? numberExpression, string? sourceBind) =>
@@ -359,7 +365,7 @@ internal static class SkillProgramExecutorChecks
             Calls.Add($"reveal:{ownerSeat}:{amount}:{numberExpression}:{resultBind}:{visibility}");
 
         public void FilterBoundCards(long frameId, string sourceBind, string resultBind,
-            IReadOnlyList<Suit> suits) =>
+            IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null) =>
             Calls.Add($"filter-bound:{sourceBind}:{resultBind}:{string.Join(',', suits)}");
 
         public SkillProgramStepOutcome SelectCardSubset(
@@ -370,21 +376,25 @@ internal static class SkillProgramExecutorChecks
             int minimumCards,
             int maximumCards,
             int maximumRankSum,
-            SkillProgramSubsetAiOrder aiOrder)
+            SkillProgramSubsetAiOrder aiOrder,
+            bool allowFewerWhenInsufficient)
         {
             Calls.Add($"select-subset:{ownerSeat}:{sourceBind}:{resultBind}:{minimumCards}:{maximumCards}:{maximumRankSum}:{aiOrder}");
             return SkillProgramStepOutcome.AwaitChoice;
         }
 
-        public void MoveBoundCards(
+        public SkillProgramStepOutcome MoveBoundCards(
             long frameId,
             int ownerSeat,
             string sourceBind,
             string? exceptBind,
             SkillProgramCardDestination destination,
             CardZoneKind? destinationZone,
-            CardMoveReason reason) =>
+            CardMoveReason reason)
+        {
             Calls.Add($"move-bound:{ownerSeat}:{sourceBind}:{exceptBind}:{destination}:{destinationZone}:{reason.Value}");
+            return SkillProgramStepOutcome.Continue;
+        }
 
         public SkillProgramStepOutcome SelectTarget(
             long frameId,
@@ -402,6 +412,7 @@ internal static class SkillProgramExecutorChecks
             SkillProgramTargetKind targetKind,
             int minimumTargets,
             int maximumTargets,
+            SkillProgramNumberExpression? numberExpression,
             SkillProgramTargetAiOrder aiOrder)
         {
             Calls.Add($"select-targets:{ownerSeat}:{targetKind}:{minimumTargets}:{maximumTargets}:{aiOrder}");

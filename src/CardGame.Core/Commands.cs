@@ -125,6 +125,9 @@ public sealed record PlayCardCommand(
     public CardConversionSource? ConversionSource { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardConversionSource>? AdditionalConversionSources { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SkillKind? CardKindModifierSkill { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 54,
+  "skills": [
+    {
+      "id": "boundary:jianxiong",
+      "revision": 1,
+      "minimumRulesVersion": 164,
+      "triggers": [
+        {
+          "id": "choose-draw-or-claim-per-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "chooseOption", "target": "owner", "resultBind": "benefit",
+              "options": [
+                { "id": "draw", "condition": { "kind": "always" } },
+                { "id": "claim", "condition": { "kind": "hasClaimableDamageCards" } }
+              ]
+            },
+            { "op": "draw", "target": "owner", "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "draw" } },
+            { "op": "claimDamageCards", "target": "owner",
+              "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "claim" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

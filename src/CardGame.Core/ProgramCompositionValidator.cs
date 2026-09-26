@@ -35,6 +35,10 @@ internal static class ProgramCompositionValidator
                     (!choiceResults.TryGetValue(condition.SourceBind!, out var options) ||
                      !options.Contains(condition.OptionId!, StringComparer.Ordinal)))
                     Fail($"unknown choice result or option '{condition.SourceBind}/{condition.OptionId}'");
+                if (condition.Kind is SkillProgramConditionKind.BoundCardsSameColor or
+                    SkillProgramConditionKind.BoundCardsMatchCategories or
+                    SkillProgramConditionKind.BoundCardsMatchKinds)
+                    _ = Get(condition.SourceBind!);
             }
             if ((capabilities & descriptor.RequiredCapabilities) != descriptor.RequiredCapabilities)
                 throw Error(nodePath, $"operation requires context {descriptor.RequiredCapabilities}, supplied {capabilities}");
@@ -56,9 +60,19 @@ internal static class ProgramCompositionValidator
                     }
                     case CaptureSourceCard sourceCard:
                     {
-                        var root = new Root(sourceCard.Name, false, false);
+                        var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand);
                         roots.Add(root);
-                        Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), 1));
+                        Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), sourceCard.MaximumCount));
+                        break;
+                    }
+                    case CaptureActivationCards activationCards:
+                    {
+                        if (cardsConsumed || selectedCardCount <= 0)
+                            Fail("activation input cards must be captured exactly once after selecting at least one card");
+                        var root = new Root(activationCards.Name, true, true);
+                        roots.Add(root);
+                        Add(activationCards.Name, new(root, root.Atoms.Keys.ToHashSet(), selectedCardCount));
+                        cardsConsumed = true;
                         break;
                     }
                     case ReadSingleCardSet single:
@@ -120,6 +134,11 @@ internal static class ProgramCompositionValidator
                     case MoveCardSet move:
                     {
                         var source = Get(move.Source);
+                        if (move.Destination == SkillProgramCardDestination.DrawPileBottom &&
+                            (window != SkillProgramTriggerWindow.DrawPhaseStarting ||
+                             source.Root.OwnerHeld || !source.Root.NeedsCleanup ||
+                             source.MaximumCount > 4))
+                            Fail("drawPileBottom requires at most four temporary revealed cards in drawPhaseStarting");
                         if (source.Root.OwnerHeld && move.Destination == SkillProgramCardDestination.OwnerHand)
                             Fail("cards already held by the owner cannot be moved to the same hand zone");
                         var atoms = source.Atoms.ToHashSet();
@@ -146,7 +165,8 @@ internal static class ProgramCompositionValidator
                         break;
                     }
                     case ConsumeSelectedCards consume:
-                        if (cardsConsumed || consume.Count != selectedCardCount || consume.Count <= 0)
+                        if (cardsConsumed || selectedCardCount <= 0 ||
+                            consume.Count != 0 && consume.Count != selectedCardCount)
                             Fail("activation input cards must be consumed exactly once with their declared count");
                         cardsConsumed = true;
                         break;
@@ -167,6 +187,12 @@ internal static class ProgramCompositionValidator
                         break;
                     case ReadSelectedTarget:
                         if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
+                        break;
+                    case ReadTargetSet read:
+                        if (!targetSetAvailable || effects.Take(index)
+                                .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets) is not
+                                { } selection || selection.MinimumTargets < read.Minimum)
+                            Fail("the required selected target set must be produced before it is read");
                         break;
                     case RequireContext required:
                         if ((capabilities & required.Capability) != required.Capability)

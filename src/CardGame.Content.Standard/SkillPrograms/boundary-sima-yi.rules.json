@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 8,
+  "skills": [
+    {
+      "id": "boundary:guicai",
+      "revision": 1,
+      "minimumRulesVersion": 88,
+      "triggers": [
+        {
+          "id": "replace-judgment",
+          "window": "judgmentReplacing",
+          "subject": "any",
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "replaceJudgment",
+              "target": "owner",
+              "zones": ["hand", "equipment"],
+              "suits": ["spade", "club", "heart", "diamond"],
+              "oldCardDestination": "discardPile"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -33,12 +33,13 @@ public enum ResolutionFrameKind
     ProgramSkill,
     ProgramCardTriggerWindow,
     ProgramJudgmentTriggerWindow,
-    DeathSkill,
     PhaseSkill,
     Pindian,
     ProgramLifecycleTriggerWindow,
     TurnEndingBoundary,
-    CardsMovedTriggerWindow
+    CardsMovedTriggerWindow,
+    BeforeDamageProgramWindow,
+    ProgramDeathTriggerWindow
 }
 
 public enum ResolutionFrameStep
@@ -60,7 +61,7 @@ public enum DamageSkillEffectKind
     TakeSourceCard,
     RecoverDamageSource,
     BenefitDamageSource,
-    StoreAuthority,
+    StoreAuthority, // Reserved serialized value; persistent-zone effects use program bindings.
     RevealHandAndPunishSource,
     SelectRevealedCardsByRank,
     RevealCardAndChallengeSource
@@ -87,12 +88,13 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
 [JsonDerivedType(typeof(ProgramCardTriggerWindowFrame), "program-card-trigger-window")]
 [JsonDerivedType(typeof(ProgramJudgmentTriggerWindowFrame), "program-judgment-trigger-window")]
-[JsonDerivedType(typeof(DeathSkillFrame), "death-skill")]
 [JsonDerivedType(typeof(PhaseSkillFrame), "phase-skill")]
 [JsonDerivedType(typeof(PindianFrame), "pindian")]
 [JsonDerivedType(typeof(ProgramLifecycleTriggerWindowFrame), "program-lifecycle-trigger-window")]
 [JsonDerivedType(typeof(TurnEndingBoundaryFrame), "turn-ending-boundary")]
+[JsonDerivedType(typeof(ProgramDeathTriggerWindowFrame), "program-death-trigger-window")]
 [JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
+[JsonDerivedType(typeof(BeforeDamageProgramWindowFrame), "before-damage-program-window")]
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
@@ -125,6 +127,15 @@ public sealed record ProgramSkillFrame(
     public IReadOnlyList<ProgramChoiceResultBinding> ChoiceBindings { get; init; } = [];
     public IReadOnlyList<ProgramSkillCardSetBinding> CardSetBindings { get; init; } = [];
     public IReadOnlyList<ProgramPindianResultBinding> PindianResultBindings { get; init; } = [];
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramOwnedCardSelection? OwnedCardSelection { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramOwnedCardDistribution? OwnedCardDistribution { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramAttackRangeAid? AttackRangeAid { get; init; }
 }
 
 public sealed record CardUseFrame(
@@ -244,20 +255,6 @@ public sealed record DeathFrame(
     int? KillerSeat,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.Death, Step);
-
-/// <summary>
-/// A serializable death-time skill cursor. Candidate seats are public rule
-/// state; the selected target remains null until the dead owner answers.
-/// </summary>
-public sealed record DeathSkillFrame(
-    long Id,
-    long ParentFrameId,
-    int OwnerSeat,
-    SkillKind Skill,
-    IReadOnlyList<int> CandidateSeats,
-    int? TargetSeat = null,
-    ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
-    : ResolutionFrame(Id, ResolutionFrameKind.DeathSkill, Step);
 
 /// <summary>
 /// A public trick-effect response cursor. It records only public card/use

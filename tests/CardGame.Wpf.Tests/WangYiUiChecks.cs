@@ -10,6 +10,7 @@ internal static class WangYiUiChecks
 {
     private const int HumanSeat = 0;
     private const string GeneralId = "classic:wang-yi";
+    private const string ZhenlieSkillId = "classic:zhenlie";
 
     public static void CardAndPrivatePrompts(string output)
     {
@@ -84,8 +85,8 @@ internal static class WangYiUiChecks
                        miji is not null &&
                        viewModel.IsSkillSelectionPending &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "zhenlie-use") &&
-                       viewModel.CurrentGuideTitle == "决定是否发动贞烈" &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
+                       viewModel.CurrentGuideTitle == "贞烈 · 是否发动" &&
                        zhenlie?.TypeText == "触发技" &&
                        zhenlie.StateText == "等待触发时机" &&
                        miji?.TypeText == "触发技" &&
@@ -98,12 +99,13 @@ internal static class WangYiUiChecks
             Path.Combine(output, "194-classic-wang-yi-zhenlie-choice.png"));
 
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "zhenlie-use"));
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "选择贞烈弃牌" &&
+                       viewModel.CurrentGuideTitle == "贞烈 · 选择支付牌" &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "zhenlie-discard-hand" &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+                           choice.Parameters.GetValueOrDefault("source-zone") == CardZoneKind.Hand.ToString() &&
                            choice.Cards.Count == 0) &&
                        Program.Engine(viewModel).CreateSnapshot(HumanSeat, revealAll: true)
                            .Players[HumanSeat].Hp == 3,
@@ -112,7 +114,8 @@ internal static class WangYiUiChecks
             Path.Combine(output, "195-classic-wang-yi-zhenlie-discard.png"));
 
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "zhenlie-discard-hand"));
+            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+            choice.Parameters.GetValueOrDefault("source-zone") == CardZoneKind.Hand.ToString()));
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         Program.Assert(Program.Engine(viewModel).PendingDecision is
             { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat },
@@ -122,18 +125,41 @@ internal static class WangYiUiChecks
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         Program.Assert(Program.Engine(viewModel).PendingDecision is
                        {
-                           Kind: DecisionKind.Miji,
+                           Kind: DecisionKind.ProgramTrigger,
                            PlayerSeat: HumanSeat,
-                           IsPrivate: true
+                           IsPrivate: true,
+                           SkillPrompt.SkillId: "classic:miji"
                        } &&
                        viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动秘计" &&
+                       viewModel.CurrentGuideTitle == "秘计 · 是否发动" &&
                        viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "miji-use"),
+                           choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
+                       viewModel.EventStack.Any(line => line.Contains("Skill(秘计", StringComparison.Ordinal)),
             $"The injured end-phase WPF state must render Miji's optional private choice " +
             $"(pending={Program.Engine(viewModel).PendingDecision?.Kind}, guide={viewModel.CurrentGuideTitle}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "196-classic-wang-yi-miji-choice.png"));
+
+        viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+        root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
+        Program.Assert(Program.Engine(viewModel).PendingDecision is
+                       {
+                           Kind: DecisionKind.ProgramTrigger,
+                           PlayerSeat: HumanSeat,
+                           IsPrivate: true,
+                           SkillPrompt.SkillId: "classic:miji"
+                       } &&
+                       viewModel.CurrentGuideTitle == "秘计 · 分配卡牌" &&
+                       viewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("program-action") ==
+                           "decline-owned-card-distribution") &&
+                       viewModel.SkillChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("program-action") == "distribute-owned-card" &&
+                           choice.Cards.Count == 1 && choice.Targets.Count == 1),
+            "After generic Miji draws, WPF must render the private all-or-nothing distribution choices.");
+        Program.Render(root, 1120, 740,
+            Path.Combine(output, "197-classic-wang-yi-miji-distribution.png"));
         window.Content = null;
         window.Close();
     }
@@ -211,7 +237,12 @@ internal static class WangYiUiChecks
             }
             for (var step = 0; step < 512; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.Zhenlie, PlayerSeat: HumanSeat })
+                if (game.PendingDecision is
+                    {
+                        Kind: DecisionKind.ProgramTrigger,
+                        PlayerSeat: HumanSeat,
+                        SkillPrompt.SkillId: ZhenlieSkillId
+                    })
                 {
                     return new Fixture(game, registry);
                 }

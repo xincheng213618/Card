@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:zhuiyi": {
+      "name": "追忆",
+      "description": "当你死亡时，你可以令除杀死你的角色外的一名其他角色摸三张牌，然后其回复1点体力。"
+    }
+  }
+}

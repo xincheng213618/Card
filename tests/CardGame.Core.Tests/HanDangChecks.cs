@@ -10,31 +10,75 @@ internal static class HanDangChecks
     public static void ContentAndPackageBoundary()
     {
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 92, 0));
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 93, 0));
+        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 93, 0));
+        var preGongqiMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 133, 0));
+        var preJiefanMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 135, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(!previous.Generals.ContainsKey(HanDangId) &&
                 !previous.Skills.ContainsKey("classic:gongqi") &&
                 !previous.Skills.ContainsKey("classic:jiefan"),
             "Package 1.92.0 must retain the pre-Han-Dang content boundary.");
-        Require(current.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
+        Require(introduced.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
                     new Version(1, 93, 0) &&
-                current.Generals[HanDangId] is { BaseHp: 4, FactionId: "wu", Gender: GeneralGender.Male } hanDang &&
+                introduced.Generals[HanDangId] is { BaseHp: 4, FactionId: "wu", Gender: GeneralGender.Male } hanDang &&
                 hanDang.SkillIds.SequenceEqual(["classic:gongqi", "classic:jiefan"]) &&
-                current.Skills["classic:gongqi"] is
+                introduced.Skills["classic:gongqi"] is
                 {
                     LegacyKind: SkillKind.Gongqi,
                     ActionForms: SkillActionForm.Active,
                     ExecutionForms: SkillExecutionForm.State,
                     Tags: SkillTag.None
                 } &&
-                current.Skills["classic:jiefan"] is
+                introduced.Skills["classic:jiefan"] is
                 {
                     LegacyKind: SkillKind.Jiefan,
                     ActionForms: SkillActionForm.Active,
                     ExecutionForms: SkillExecutionForm.None,
                     Tags: SkillTag.Limited
                 } &&
-                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(HanDangId),
+                introduced.Modes["identity:classic-5"].GeneralPoolIds!.Contains(HanDangId),
             "Package 1.93.0 must publish complete classic Han Dang with active/state and limited metadata.");
+        Require(preGongqiMigration.Skills["classic:gongqi"] is { LegacyKind: SkillKind.Gongqi, Program: null } &&
+                preJiefanMigration.Skills["classic:jiefan"] is
+                {
+                    LegacyKind: SkillKind.Jiefan,
+                    Program: null,
+                    Tags: SkillTag.Limited
+                } &&
+                current.Skills["classic:gongqi"] is
+                {
+                    LegacyKind: null,
+                    Program: { RuntimeVersion: "skill-program-v48", MinimumRulesVersion: 158 } program,
+                    ActionForms: SkillActionForm.Active,
+                    ExecutionForms: SkillExecutionForm.State
+                } &&
+                program.Activations.Single() is
+                {
+                    Id: "discard-for-unlimited-range",
+                    MinCards: 1,
+                    MaxCards: 1,
+                    UsesPerTurn: null,
+                    UsesPerPhase: 1
+                } activation &&
+                activation.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
+                current.Skills["classic:jiefan"] is
+                {
+                    LegacyKind: null,
+                    Program: { RuntimeVersion: "skill-program-v50", MinimumRulesVersion: 160 } jiefanProgram,
+                    ActionForms: SkillActionForm.Active,
+                    Tags: SkillTag.Limited
+                } &&
+                jiefanProgram.Activations.Single() is
+                {
+                    Id: "aid-by-attack-range",
+                    MinCards: 0,
+                    MaxCards: 0,
+                    MinTargets: 1,
+                    MaxTargets: 1,
+                    UsesPerGame: 1,
+                    Effects: [{ Op: SkillProgramEffectOp.RequestAttackRangeAid }]
+                },
+            "Package 1.134.0 must migrate Gongqi and package 1.136.0 must migrate Jiefan to schema 50.");
     }
 
     public static void GongqiEquipmentCostAndOpaqueDiscardReplay()
@@ -44,24 +88,27 @@ internal static class HanDangChecks
         var cost = Player(game, HumanSeat).Hand.First(card => EquipmentCatalog.IsEquipment(card.Kind));
         var beforeRange = game.GetAttackRange(HumanSeat);
         var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Gongqi);
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:gongqi" &&
+            candidate.ProgramActivationId == "discard-for-unlimited-range");
         Require(action.SelectableCardIds.Contains(cost.Id),
             "Gongqi must publish equipment cards held in hand as exact legal costs.");
 
-        var used = game.Submit(new UseSkillCommand(
+        var used = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Gongqi,
+            action.ProgramSkillId!,
+            action.ProgramActivationId!,
             [cost.Id],
             [],
             game.Revision,
             game.PendingDecision!.PromptId));
         Require(used.Accepted, used.Error?.Message ?? "Gongqi equipment cost was rejected.");
-        var prompt = RequirePrompt(game, DecisionKind.Gongqi);
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(prompt.IsPrivate && prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "gongqi-discard-hand" &&
+                    choice.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-discard" &&
                     choice.Cards.Count == 0 && choice.Targets.Count == 1) &&
                 prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "gongqi-skip"),
+                    choice.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-decline"),
             "Gongqi must expose other hands only as private opaque slots and retain the optional skip.");
         Require(game.GetAttackRange(HumanSeat) == int.MaxValue && beforeRange < int.MaxValue,
             "Gongqi must establish unlimited attack range immediately after paying its cost.");
@@ -70,26 +117,58 @@ internal static class HanDangChecks
         Require(State(paused) == State(game),
             "A paused Gongqi target-card selection must replay exactly.");
         var selected = prompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "gongqi-discard-hand");
+            choice.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-discard" &&
+            choice.Cards.Count == 0);
         Answer(game, selected);
-        Answer(paused, RequirePrompt(paused, DecisionKind.Gongqi).Choices.Single(choice => choice.Id == selected.Id));
+        Answer(paused, RequirePrompt(paused, DecisionKind.ProgramTrigger).Choices.Single(choice => choice.Id == selected.Id));
         ReachHumanPlay(game);
         ReachHumanPlay(paused);
 
-        var resolved = game.Events.Select(item => item.Payload).OfType<GongqiResolvedEvent>().Single();
-        Require(resolved.OwnerSeat == HumanSeat && resolved.CostCardId == cost.Id &&
-                resolved.EquipmentCost && resolved.TargetSeat == selected.Targets.Single() &&
-                resolved.DiscardedCardId is not null &&
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+            .Single(item => item.SkillId == "classic:gongqi");
+        var targetDiscard = game.CardMovements.Last(move =>
+            move.Reason == new CardMoveReason("skill-program.classic:gongqi.ChooseOtherOwnedCardDiscard"));
+        Require(resolved.OwnerSeat == HumanSeat && resolved.Completed &&
                 game.CardMovements.Any(move => move.CardId == cost.Id &&
-                    move.Reason == CardMoveReasons.GongqiCost &&
+                    move.Reason == new CardMoveReason("skill-program.classic:gongqi.MoveBoundCards") &&
                     move.To == CardLocation.DiscardPile) &&
-                game.CardMovements.Any(move => move.CardId == resolved.DiscardedCardId &&
-                    move.Reason == CardMoveReasons.GongqiDiscard &&
-                    move.To == CardLocation.DiscardPile),
+                targetDiscard.To == CardLocation.DiscardPile &&
+                targetDiscard.From.OwnerSeat == selected.Targets.Single(),
             "Gongqi must audit both the equipment-category cost and exact optional target discard.");
-        Require(game.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Gongqi) &&
+        Require(game.GetHumanLegalActions().All(candidate => candidate.ProgramSkillId != "classic:gongqi") &&
                 State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "Gongqi must be once per play phase and complete identically after replay.");
+    }
+
+    public static void HistoricalGongqiDefinitionDoesNotReactivateRetiredExecutor()
+    {
+        var game = CreateGame(new Version(1, 133, 0));
+        ReachHumanPlay(game);
+
+        Require(game.GetHumanLegalActions().All(action =>
+                    action.Skill != SkillKind.Gongqi &&
+                    action.ProgramSkillId != "classic:gongqi") &&
+                game.PendingDecision?.Kind != DecisionKind.Gongqi &&
+                game.CardMovements.All(move =>
+                    move.Reason != CardMoveReasons.GongqiCost &&
+                    move.Reason != CardMoveReasons.GongqiDiscard) &&
+                game.Events.Select(item => item.Payload).All(payload => payload is not GongqiResolvedEvent),
+            "A historical Gongqi definition must preserve its identity without reactivating the retired executor.");
+    }
+
+    public static void HistoricalJiefanDefinitionDoesNotReactivateRetiredExecutor()
+    {
+        var game = CreateGame(new Version(1, 135, 0));
+        ReachHumanPlay(game);
+
+        Require(game.GetHumanLegalActions().All(action =>
+                    action.Skill != SkillKind.Jiefan &&
+                    action.ProgramSkillId != "classic:jiefan") &&
+                game.PendingDecision?.Kind != DecisionKind.Jiefan &&
+                game.Events.Select(item => item.Payload).All(payload =>
+                    payload is not JiefanStartedEvent &&
+                    payload is not JiefanChoiceResolvedEvent),
+            "A historical Jiefan definition must preserve its identity without reactivating the retired executor.");
     }
 
     public static void JiefanFreezesRespondersConsumesLimitedUseAndReplays()
@@ -112,16 +191,19 @@ internal static class HanDangChecks
         Require(equipped.Accepted, equipped.Error?.Message ?? "The Jiefan fixture could not equip its weapon.");
         ReachHumanPlay(game);
 
-        var gongqi = game.Submit(new UseSkillCommand(
+        var gongqiAction = game.GetHumanLegalActions().Single(candidate =>
+            candidate.ProgramSkillId == "classic:gongqi");
+        var gongqi = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Gongqi,
+            gongqiAction.ProgramSkillId!,
+            gongqiAction.ProgramActivationId!,
             [equipmentCards[1].Id],
             [],
             game.Revision,
             game.PendingDecision!.PromptId));
         Require(gongqi.Accepted, gongqi.Error?.Message ?? "The Jiefan fixture could not establish Gongqi range.");
-        Answer(game, RequirePrompt(game, DecisionKind.Gongqi).Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "gongqi-skip"));
+        Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-decline"));
         ReachHumanPlay(game);
 
         var targetSeat = game.CreateSnapshot(HumanSeat, revealAll: true).Players
@@ -130,49 +212,61 @@ internal static class HanDangChecks
             .First().Seat;
         Require(game.GetCombatDistance(HumanSeat, targetSeat) > 1 && game.GetAttackRange(HumanSeat) == int.MaxValue,
             "The Jiefan fixture must prove Gongqi adds Han Dang to a formerly out-of-range responder set.");
-        var used = game.Submit(new UseSkillCommand(
+        var jiefanAction = game.GetHumanLegalActions().Single(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:jiefan" &&
+            candidate.ProgramActivationId == "aid-by-attack-range");
+        var used = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Jiefan,
+            jiefanAction.ProgramSkillId!,
+            jiefanAction.ProgramActivationId!,
             [],
             [targetSeat],
             game.Revision,
             game.PendingDecision!.PromptId));
         Require(used.Accepted, used.Error?.Message ?? "Jiefan activation was rejected.");
-        var started = game.Events.Select(item => item.Payload).OfType<JiefanStartedEvent>().Single();
-        var prompt = RequirePrompt(game, DecisionKind.Jiefan);
-        Require(started.TargetSeat == targetSeat && started.ResponderSeats.Contains(HumanSeat) &&
+        var started = game.Events.Select(item => item.Payload).OfType<ProgramAttackRangeAidStartedEvent>().Single();
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        Require(started.SkillId == "classic:jiefan" && started.BindingId == "aid-by-attack-range" &&
+                started.TargetSeat == targetSeat && started.ResponderSeats.Contains(HumanSeat) &&
                 started.ResponderSeats.All(seat => seat != targetSeat) &&
                 prompt.PlayerSeat == HumanSeat && prompt.TargetSeat == targetSeat && prompt.IsPrivate &&
-                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "jiefan-discard-weapon") &&
-                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "jiefan-draw"),
+                prompt.SkillPrompt is { SkillId: "classic:jiefan", Title: "解烦 · 响应方式" } &&
+                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") ==
+                                             "attack-range-aid-discard-weapon") &&
+                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") ==
+                                             "attack-range-aid-draw"),
             "Jiefan must freeze every current attacker except the beneficiary and publish both legal owner branches.");
 
         var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), Registry());
         Require(State(paused) == State(game), "A paused Jiefan responder prompt must replay exactly.");
         var discard = prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "jiefan-discard-weapon");
+            choice.Parameters.GetValueOrDefault("program-action") == "attack-range-aid-discard-weapon");
         Answer(game, discard);
-        Answer(paused, RequirePrompt(paused, DecisionKind.Jiefan).Choices.Single(choice => choice.Id == discard.Id));
-        DrainAiJiefan(game);
-        DrainAiJiefan(paused);
+        Answer(paused, RequirePrompt(paused, DecisionKind.ProgramTrigger).Choices.Single(choice => choice.Id == discard.Id));
+        DrainAiAttackRangeAid(game);
+        DrainAiAttackRangeAid(paused);
 
-        var choices = game.Events.Select(item => item.Payload).OfType<JiefanChoiceResolvedEvent>().ToArray();
+        var choices = game.Events.Select(item => item.Payload).OfType<ProgramAttackRangeAidChoiceResolvedEvent>().ToArray();
+        var usage = game.Events.Select(item => item.Payload).OfType<SkillUsageConsumedEvent>()
+            .Single(item => item.SkillId == "classic:jiefan");
         Require(choices.Length == started.ResponderSeats.Count &&
                 choices[0].ResponderSeat == HumanSeat &&
                 choices[0].DiscardedWeaponCardId == discard.Cards.Single() &&
                 choices.Skip(1).All(choice => choice.DiscardedWeaponCardId is null && choice.DrawnCardIds.Count == 1) &&
                 game.CardMovements.Any(move => move.CardId == discard.Cards.Single() &&
-                    move.Reason == CardMoveReasons.JiefanWeaponDiscard &&
+                    move.Reason == new CardMoveReason("skill-program.classic:jiefan.RequestAttackRangeAid") &&
                     move.To == CardLocation.DiscardPile) &&
-                game.GetHumanLegalActions().All(action => action.Skill != SkillKind.Jiefan),
+                usage is { UsageId: "aid-by-attack-range", Scope: SkillUsageScope.Game, Count: 1 } &&
+                game.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:jiefan"),
             "Jiefan must resolve the frozen mandatory sequence, pay a weapon exactly, draw for weaponless responders and stay consumed.");
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The completed Jiefan response chain must replay exactly.");
     }
 
-    private static void DrainAiJiefan(GameEngine game)
+    private static void DrainAiAttackRangeAid(GameEngine game)
     {
-        for (var step = 0; step < 16 && game.PendingDecision?.Kind == DecisionKind.Jiefan; step++)
+        for (var step = 0; step < 16 && game.PendingDecision?.Kind == DecisionKind.ProgramTrigger; step++)
         {
             Require(game.PendingDecision.PlayerSeat != HumanSeat,
                 "The bounded Jiefan fixture unexpectedly returned to the human responder.");
@@ -184,9 +278,9 @@ internal static class HanDangChecks
             "Jiefan must return to the owner's play prompt after every frozen responder resolves.");
     }
 
-    private static GameEngine CreateGame()
+    private static GameEngine CreateGame(Version? classicVersion = null)
     {
-        var registry = Registry();
+        var registry = Registry(classicVersion);
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 17,
@@ -242,11 +336,11 @@ internal static class HanDangChecks
             : throw new InvalidOperationException(
                 $"Expected {kind}, found {game.PendingDecision?.Kind.ToString() ?? "no prompt"}.");
 
-    private static ContentRegistry Registry() => ContentRegistry.Build(
+    private static ContentRegistry Registry(Version? classicVersion = null) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        classicVersion is null ? new StandardClassicGeneralPackage() : new StandardClassicGeneralPackage(classicVersion),
         new ScenarioPackage());
 
     private static PlayerSnapshot Player(GameEngine game, int seat) =>

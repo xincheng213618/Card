@@ -1,0 +1,12 @@
+{
+  "generalId": "boundary:guo-jia",
+  "edition": "2019 三国杀 OL 经典服界限调整版，即时交牌",
+  "rulesSource": "https://www.sanguosha.com/news/20190927_2957_2315",
+  "rulesPage": "https://www.sanguosha.com/hero/316",
+  "rulesNote": "天妒取得自己生效的判定牌；遗计每受到1点伤害后可摸2张，再可将共计至多2张当前手牌即时交给1至2名其他角色。2014/2016扣置至目标下次摸牌阶段的旧版不在本定义中。",
+  "artPage": "https://www.sanguosha.com/hero/316",
+  "artUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31600.png",
+  "artSha256": "B8649B73C7FC13D04CDD676D3FDBCBD37A4CFADB51C124786617EE44A288E0E2",
+  "artDimensions": "750x950",
+  "artNote": "The official hero/316 HTML links directly to 31600.png; downloaded without transformation."
+}

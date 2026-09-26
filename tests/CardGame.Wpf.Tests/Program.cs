@@ -123,7 +123,7 @@ internal static class Program
             }
             if (args.Contains("--only-wang-yi", StringComparer.Ordinal))
             {
-                Check("formal Wang Yi renders official art and private Zhenlie/Miji prompts",
+                Check("formal Wang Yi renders official art and public-program Zhenlie/Miji prompts",
                     () => WangYiUiChecks.CardAndPrivatePrompts(output));
                 Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
                 Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
@@ -245,7 +245,7 @@ internal static class Program
             Check("formal Ma Dai renders official art and staged Qianxi", () => ClassicGeneralUiChecks.MaDaiQianxiCard(output));
             Check("formal Gao Shun renders official art and exact Xianzhen state", () => ClassicGeneralUiChecks.GaoShunXianzhenCard(output));
             Check("formal Liu Biao renders official art and exact Zishou state", () => ClassicGeneralUiChecks.LiuBiaoZishouCard(output));
-            Check("formal Wang Yi renders official art and private Zhenlie/Miji prompts", () => WangYiUiChecks.CardAndPrivatePrompts(output));
+            Check("formal Wang Yi renders official art and public-program Zhenlie/Miji prompts", () => WangYiUiChecks.CardAndPrivatePrompts(output));
             Check("formal Zhong Hui renders official art, Authority and acquired Paiyi", () => ZhongHuiUiChecks.CardPromptsAuthorityAndPaiyi(output));
             Check("formal Xun You renders official art and private Qice/Zhiyu interactions", () => XunYouUiChecks.CardAndPrivatePrompts(output));
             Check("formal Liao Hua renders official art, Dangxian and the private Fuli choice", () => LiaoHuaUiChecks.CardExtraPhaseAndFuli(output));
@@ -255,11 +255,19 @@ internal static class Program
             Check("formal Han Dang renders official art, Gongqi and Jiefan prompts", () => HanDangUiChecks.CardGongqiAndJiefan(output));
             Check("formal Cao Chong renders official art, Chengxiang and Renxin prompts", () => CaoChongUiChecks.CardAndDamagePrompts(output));
             Check("formal Guo Huai renders official art and Jingce prompt", () => GuoHuaiUiChecks.CardAndJingcePrompt(output));
+            Check("Gu Yong official portrait and fame-4 gallery", GuYongUiChecks.PortraitAndGallery);
+            Check("2019 boundary Guo Jia official portrait gallery and Wei battle seat", BoundaryGuoJiaUiChecks.PortraitGalleryAndBattleSeat);
+            Check("2014 boundary Cao Cao official portrait gallery and Wei battle seat", BoundaryCaoCaoUiChecks.PortraitGalleryAndBattleSeat);
+            Check("2019 boundary Diao Chan renders its card and resolves Biyue", () => BoundaryDiaoChanUiChecks.BoundaryCardAndBiyuePrompt(output));
+            Check("2018 boundary Zhang Liao renders private dynamic Tuxi targets", () => BoundaryZhangLiaoUiChecks.PortraitAndPrivateDrawPlan(output));
             Check("formal Diao Chan renders and resolves the metadata-driven Biyue prompt", () => DiaoChanUiChecks.BiyuePromptAndContinuation(output));
             Check("Zongshi module renders shared Pindian choices and resumes Play", () => ZongshiModuleUiChecks.GenericClaimPromptAndContinuation(output));
+            Check("Program named choice renders shared labels and resumes parent", () => ProgramChoiceUiChecks.NamedChoiceUsesSharedSurfaceAndCommand(output));
+            Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
             Check("formal Man Chong renders official art, Junxing selection and Yuce prompt", () => ManChongUiChecks.CardActiveSelectionAndYucePrompt(output));
             Check("formal Guan Ping renders official art and the private Longyin prompt", () => GuanPingUiChecks.CardAndLongyinPrompt(output));
             Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
+            Check("current Huang Gai submits configured Kujin from the WPF skill rail", () => ClassicGeneralUiChecks.CurrentConfiguredKujinAction(output));
             Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
             Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));
             Check("classic Guanxing restores and orders private cards through the WPF choice surface", () => ClassicGeneralUiChecks.GuanxingChoiceAndRestore(output));
@@ -413,13 +421,17 @@ internal static class Program
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
         Assert(vm.IsGeneralGalleryOpen && vm.GeneralGalleryEntries.Count == Engine(vm).ContentRegistry!.Generals.Count,
             "Gallery did not expose every registered general exactly once.");
-        Assert(vm.GeneralGallerySeries.Select(option => option.Id).SequenceEqual(new[] { "all", "classic", "boundary", "standard", "national" }),
-            "Gallery series do not match the registered content families.");
+        Assert(vm.GeneralGallerySeries.Take(6).Select(option => option.Id).SequenceEqual(new[] { "all", "standard", "myth", "fame", "boundary", "boundary-fame" }),
+            "Gallery series do not match the requested player-facing expansion order.");
+        GeneralGalleryChecks.ClassificationAndLayout(vm, window, root, output);
         Assert(!((FrameworkElement)window.FindName("TableSurface")).IsEnabled, "Gallery must block table input.");
         var revisionBeforeFilters = Engine(vm).Revision;
         vm.SelectGeneralGallerySeriesCommand.Execute("boundary");
-        Assert(vm.GeneralGalleryEntries is [{ GeneralId: "boundary:zhang-jiao", Name: "界张角" }],
-            "Boundary series must expose only the independently registered boundary Zhang Jiao.");
+        var boundaryIds = vm.GeneralGalleryEntries.Select(entry => entry.GeneralId)
+            .ToHashSet(StringComparer.Ordinal);
+        Assert(new[] { "boundary:zhang-jiao", "classic:li-dian", "boundary:sima-yi", "boundary:guo-jia", "boundary:cao-cao", "boundary:diao-chan" }
+                .All(boundaryIds.Contains) && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "boundary"),
+            "Boundary series must expose its registered variants without leaking another series.");
         vm.SelectGeneralGallerySeriesCommand.Execute("national");
         Assert(vm.GeneralGalleryEntries.Count == 14 && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "national") &&
                vm.GeneralGalleryEntries.Count(entry => entry.FactionId == "qun") == 2,
@@ -429,9 +441,9 @@ internal static class Program
         vm.SelectGeneralGalleryFactionCommand.Execute("wei");
         Assert(vm.GeneralGalleryEntries.Count == 6 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "national"),
             "Series and faction filters did not compose.");
-        vm.SelectGeneralGallerySeriesCommand.Execute("classic");
-        Assert(vm.GeneralGalleryEntries.Count > 0 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "classic"),
-            "Classic series retained national entries.");
+        vm.SelectGeneralGallerySeriesCommand.Execute("standard");
+        Assert(vm.GeneralGalleryEntries.Count > 0 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "standard"),
+            "Standard series retained national entries.");
         vm.SelectGeneralGallerySeriesCommand.Execute("all");
         vm.SelectGeneralGalleryFactionCommand.Execute("all");
         vm.GeneralGallerySearchText = "连营";
@@ -715,6 +727,27 @@ internal static class Program
         Assert(vm.VisibleTableModes.Count == 11 && vm.SelectedModeCategory.Id == "all" &&
                vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 5,
             "The expanded mode lobby did not expose all registered entry families.");
+        Render(root, 1440, 880, Path.Combine(output, "134-home-lobby.png"));
+        Render(root, 1120, 740, Path.Combine(output, "134-home-lobby-compact.png"));
+        Assert(!vm.IsLobbyConfigurationOpen && ((HomeLobby)window.FindName("LobbyHome")).IsEnabled,
+            "Startup must show the home lobby before the detailed setup.");
+        var home = (HomeLobby)window.FindName("LobbyHome");
+        foreach (var (buttonName, categoryId) in new[]
+        {
+            ("ClassicBattleButton", "identity"), ("TeamBattleButton", "team"),
+            ("NationalBattleButton", "national"), ("EnterBattleButton", "all")
+        })
+        {
+            var entry = (Button)home.FindName(buttonName);
+            Assert(entry.ActualWidth > 150 && entry.ActualHeight > 100 && entry.Command!.CanExecute(entry.CommandParameter),
+                $"Home entry {buttonName} is not accessible at the minimum layout size.");
+            entry.Command!.Execute(entry.CommandParameter);
+            root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            Assert(vm.IsLobbyConfigurationOpen && vm.SelectedModeCategory.Id == categoryId && !home.IsEnabled,
+                "A home entry did not open its real category or isolate the modal input.");
+            vm.BackToLobbyCommand.Execute(null);
+        }
+        vm.OpenLobbyCategoryCommand.Execute("all");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
         Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 11 &&
@@ -735,6 +768,19 @@ internal static class Program
             "Identity category did not expose its seven actual modes including both boundary rosters.");
         Assert(Engine(vm).Revision == revision && vm.IsNewGameSetupOpen,
             "Browsing the mode lobby changed or replaced the suspended match.");
+        var shortcut = typeof(MainWindow).GetMethod("HandleShortcut", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        shortcut.Invoke(window, [Key.Escape, ModifierKeys.None]);
+        Assert(!vm.IsLobbyConfigurationOpen && vm.IsNewGameSetupOpen,
+            "Escape from setup must return to the lobby without entering the suspended game.");
+        vm.OpenSettingsCommand.Execute(null);
+        root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Assert(!((Border)window.FindName("NewGameSetupPanel")).IsEnabled,
+            "Settings must isolate home lobby input.");
+        shortcut.Invoke(window, [Key.Escape, ModifierKeys.None]);
+        Assert(!vm.IsSettingsOpen && vm.IsNewGameSetupOpen, "Closing settings must preserve the lobby.");
+        vm.CancelNewGameSetupCommand.Execute(null);
+        vm.NewGameCommand.Execute(null);
+        Assert(!vm.IsLobbyConfigurationOpen, "Reopening the lobby must not retain a stale configuration overlay.");
         Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
         window.Content = null;
         window.Close();
@@ -746,6 +792,7 @@ internal static class Program
         {
             IsMotionEnabled = true
         };
+        vm.OpenLobbyCategoryCommand.Execute("all");
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
@@ -1054,6 +1101,7 @@ internal static class Program
                 if (mode.ModeId == "team:standard-2v2" && !teamSetupRendered)
                 {
                     vm.NewGameCommand.Execute(null);
+                    vm.OpenLobbyCategoryCommand.Execute("team");
                     root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
                     Render(root, 1120, 740, Path.Combine(output, "07-team-setup.png"));
                     Assert(((ListBox)window.FindName("RoleChoices")).Visibility == Visibility.Collapsed,

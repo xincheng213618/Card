@@ -68,43 +68,6 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 title = $"{Name(source)} · {card} · 轮到你选牌";
                 targetLabel = "正在选牌";
                 break;
-            case DecisionKind.Anxu:
-                target ??= prompt.ValidTargetSeats.SingleOrDefault(-1);
-                title = $"安恤 · {Name(prompt.PlayerSeat)}选择暗手牌";
-                targetLabel = "手牌较多者";
-                break;
-            case DecisionKind.Junxing:
-                target = prompt.PlayerSeat;
-                title = $"峻刑 · {Name(prompt.PlayerSeat)}选择弃牌或翻面摸牌";
-                targetLabel = "技能目标";
-                break;
-            case DecisionKind.ZhuiyiTarget:
-                target = prompt.PlayerSeat;
-                title = "追忆 · 选择受益角色或跳过";
-                targetLabel = "技能拥有者";
-                break;
-            case DecisionKind.Gongqi:
-                target ??= prompt.ValidTargetSeats.FirstOrDefault(-1);
-                title = "弓骑 · 选择弃置一张牌或跳过";
-                targetLabel = "可弃牌角色";
-                break;
-            case DecisionKind.Jiefan:
-                target ??= prompt.ValidTargetSeats.SingleOrDefault(-1);
-                title = $"解烦 · {Name(prompt.PlayerSeat)}选择响应方式";
-                targetLabel = "受益角色";
-                break;
-            case DecisionKind.Renxin:
-                title = $"仁心 · 防止 {Name(target)} 受到伤害";
-                targetLabel = "受保护角色";
-                break;
-            case DecisionKind.Yuce:
-                target = prompt.TargetSeat ?? prompt.PlayerSeat;
-                title = prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "yuce-use")
-                    ? "御策 · 选择展示一张手牌或跳过"
-                    : "御策 · 伤害来源选择弃牌或令其回复";
-                targetLabel = "技能拥有者";
-                break;
             default:
                 title = $"当前技能选择 · {Name(prompt.PlayerSeat)}";
                 break;

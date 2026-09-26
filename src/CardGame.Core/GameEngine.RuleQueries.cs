@@ -51,9 +51,11 @@ public sealed partial class GameEngine
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
-        if (HasGongqiUnlimitedRange(player))
-            contributions.Add(new UnlimitedRuleQueryContribution(
-                $"state:{player.Seat}:{GongqiSkillId}:{GongqiRangeUsageId}"));
+        contributions.AddRange(_turnCardUseEffects
+            .GetRuleModifiers(_turnNumber, _currentSeat, player.Seat, SkillRuleQuery.AttackRange)
+            .Where(item => item.Operation == SkillRuleOperation.Unlimited)
+            .Select(item => new UnlimitedRuleQueryContribution(
+                $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}")));
         return RuleQueryService.Evaluate(
             SkillRuleQuery.AttackRange,
             new RuleQueryBounds(1, int.MaxValue),
@@ -130,10 +132,6 @@ public sealed partial class GameEngine
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.HandLimit).ToList();
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
-        AddFiniteContribution(contributions, $"state:{player.Seat}:classic:quanji:authority",
-            UsesFormalZhongHui && HasLegacyRuntimeSkill(player, QuanjiSkillId)
-                ? GetAuthority(player).Count
-                : 0);
         return RuleQueryService.Evaluate(
             SkillRuleQuery.HandLimit,
             new RuleQueryBounds(0, int.MaxValue),
@@ -141,14 +139,28 @@ public sealed partial class GameEngine
             contributions);
     }
 
+    private RuleQueryEvaluation EvaluateCardTargetCount(
+        CharacterState player,
+        CardKind effectiveCardKind) =>
+        RuleQueryService.Evaluate(
+            SkillRuleQuery.CardTargetCount,
+            new RuleQueryBounds(1, int.MaxValue),
+            [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-target-count", 1)],
+            CollectNumericRuleContributions(
+                player,
+                SkillRuleQuery.CardTargetCount,
+                effectiveCardKind));
+
     private IReadOnlyList<RuleQueryContribution> CollectNumericRuleContributions(
         CharacterState player,
-        SkillRuleQuery query)
+        SkillRuleQuery query,
+        CardKind? effectiveCardKind = null)
     {
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),
-            zone => _cardZones.Count(new CardLocation(zone, player.Seat)));
+            zone => _cardZones.Count(new CardLocation(zone, player.Seat)),
+            effectiveCardKind);
         var programContributions = SkillProgramRules.CollectIndexedContributions(
             query,
             context,

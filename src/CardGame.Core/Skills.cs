@@ -34,10 +34,9 @@ public enum ActiveSkillEffectKind
     PindianAndDamage,
     PindianForSlashBonus,
     StartArrowBarrage,
-    RemoveAuthorityDrawAndDamage,
+    RemoveAuthorityDrawAndDamage, // Reserved serialized value; the specialized executor was retired.
     ChooseOrdinaryTrick,
     UseTwoHandCardsAsSlash,
-    TransferHandBetweenUnequalTargets,
     DiscardForUnlimitedRange,
     AidByAttackRange,
     DiscardHandForCategoryChoice
@@ -240,8 +239,8 @@ public sealed class NoSkill : IPassiveSkill
 }
 
 /// <summary>
-/// The rule object identifies Wuhun ownership only. Public Nightmare mutation
-/// is committed by GameEngine after actual damage, before dying begins.
+/// Historical package identity only. Current Wuhun execution is a schema-38
+/// program and does not dispatch through this passive object.
 /// </summary>
 public sealed class WuhunSkill : IPassiveSkill
 {
@@ -969,21 +968,11 @@ public sealed class MijiSkill : IPassiveSkill
     public string Name => "秘计";
 }
 
+// Historical name/kind metadata only. Current behavior is defined by skill programs.
 public sealed class QuanjiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Quanji;
     public string Name => "权计";
-
-    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
-        context.Amount > 0 && context.TargetSeat == context.Owner.Seat;
-
-    public bool OffersDamageCardChoice(DamageSkillContext context) =>
-        CanTriggerAfterDamage(context);
-
-    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        CanTriggerAfterDamage(context)
-            ? DamageSkillEffectKind.StoreAuthority
-            : DamageSkillEffectKind.None;
 }
 
 public sealed class ZiliSkill : IPassiveSkill
@@ -992,24 +981,10 @@ public sealed class ZiliSkill : IPassiveSkill
     public string Name => "自立";
 }
 
-public sealed class PaiyiSkill : IPassiveSkill, IActiveSkill
+public sealed class PaiyiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Paiyi;
     public string Name => "排异";
-
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.AdditionalSelectableCardCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
-
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.RemoveAuthorityDrawAndDamage,
-            DrawCount: 2,
-            MinCardCount: 1,
-            MaxCardCount: 1,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
 }
 
 public sealed class QiceSkill : IPassiveSkill, IActiveSkill
@@ -1059,43 +1034,16 @@ public sealed class JingceSkill : IPassiveSkill
     public string Name => "精策";
 }
 
-public sealed class JunxingSkill : IPassiveSkill, IActiveSkill
+public sealed class JunxingSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Junxing;
     public string Name => "峻刑";
-
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
-
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.DiscardHandForCategoryChoice,
-            MinCardCount: 1,
-            MaxCardCount: Math.Max(0, context.Owner.HandCount),
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
 }
 
 public sealed class YuceSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Yuce;
     public string Name => "御策";
-
-    public bool CanTriggerAfterDamage(DamageSkillContext context) =>
-        context.Amount > 0 &&
-        context.TargetSeat == context.Owner.Seat &&
-        context.Owner.HandCount > 0;
-
-    public bool OffersDamageCardChoice(DamageSkillContext context) =>
-        CanTriggerAfterDamage(context);
-
-    public DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        CanTriggerAfterDamage(context)
-            ? DamageSkillEffectKind.RevealCardAndChallengeSource
-            : DamageSkillEffectKind.None;
 }
 
 public sealed class FuhunSkill : IPassiveSkill, IActiveSkill
@@ -1115,20 +1063,11 @@ public sealed class FuhunSkill : IPassiveSkill, IActiveSkill
             MaxTargetCount: 1);
 }
 
-public sealed class AnxuSkill : IPassiveSkill, IActiveSkill
+/// <summary>Historical package identity; current Anxu is a composed program.</summary>
+public sealed class AnxuSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Anxu;
     public string Name => "安恤";
-
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
-
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.TransferHandBetweenUnequalTargets,
-            MinTargetCount: 2,
-            MaxTargetCount: 2);
 }
 
 public sealed class ZhuiyiSkill : IPassiveSkill
@@ -1149,22 +1088,10 @@ public sealed class ChunlaoSkill : IPassiveSkill
     public string Name => "醇醪";
 }
 
-public sealed class GongqiSkill : IPassiveSkill, IActiveSkill
+public sealed class GongqiSkill : IPassiveSkill
 {
     public SkillKind Kind => SkillKind.Gongqi;
     public string Name => "弓骑";
-
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount + context.AdditionalSelectableCardCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
-
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.DiscardForUnlimitedRange,
-            MinCardCount: 1,
-            MaxCardCount: 1);
 }
 
 public sealed class JiefanSkill : IPassiveSkill, IActiveSkill
@@ -1437,9 +1364,6 @@ public static class SkillRegistry
 
 public static class GameRules
 {
-    public static bool WuhunJudgmentCausesDeath(CardKind? cardKind) =>
-        cardKind is not null and not (CardKind.Peach or CardKind.PeachGarden);
-
     /// <summary>
     /// Returns every living player tied at the greatest positive marker count.
     /// Zero-only tables deliberately produce no candidate.

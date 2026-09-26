@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 45,
+  "skills": [
+    {
+      "id": "classic:kujin",
+      "revision": 1,
+      "minimumRulesVersion": 153,
+      "activations": [
+        {
+          "id": "lose-hp-and-draw",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "condition": { "kind": "hpAtLeast", "value": 1 },
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 },
+            { "op": "draw", "target": "owner", "amount": 2 }
+          ]
+        }
+      ]
+    }
+  ]
+}

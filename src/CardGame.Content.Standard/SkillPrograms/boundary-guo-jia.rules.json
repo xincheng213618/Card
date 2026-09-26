@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 53,
+  "skills": [
+    {
+      "id": "boundary:yiji",
+      "revision": 1,
+      "minimumRulesVersion": 163,
+      "triggers": [
+        {
+          "id": "draw-and-give-up-to-two-per-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 2 },
+            {
+              "op": "selectOwnedCards", "target": "owner",
+              "numberExpression": "allOwnedZoneCards", "zones": ["hand"],
+              "resultBind": "available"
+            },
+            {
+              "op": "giveBoundCard", "target": "owner",
+              "sourceBind": "available", "targetKind": "otherLiving"
+            },
+            {
+              "op": "giveBoundCard", "target": "owner",
+              "sourceBind": "available", "targetKind": "otherLiving"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

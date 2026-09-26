@@ -22,7 +22,7 @@ public sealed record GameCheckpoint(
     // so checkpoints from any other rules version are rejected instead of
     // migrated. Adding content is versioned by its package and content hash.
     // 102-114 were retired development epochs; do not reuse one for new semantics.
-    public const int CurrentRulesVersion = 135;
+    public const int CurrentRulesVersion = 164;
 
     public int RulesVersion { get; init; }
 }

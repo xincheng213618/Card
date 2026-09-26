@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed record SkillProgramRuleContext(
     PlayerSkillContext Owner,
     int LivingFactionCount,
-    Func<CardZoneKind, int>? OwnedZoneCount = null);
+    Func<CardZoneKind, int>? OwnedZoneCount = null,
+    CardKind? EffectiveCardKind = null);
 
 public sealed record SkillProgramRuleSource(
     string SkillId,
@@ -18,8 +19,10 @@ public sealed class SkillProgramRules : IPassiveSkill
 {
     private readonly IReadOnlyList<SkillProgram> _programs;
     private readonly IReadOnlySet<int> _handCardIds;
+    private readonly IReadOnlySet<int> _equipmentCardIds;
 
-    public SkillProgramRules(IReadOnlyList<SkillProgram> programs, IReadOnlySet<int> handCardIds)
+    public SkillProgramRules(IReadOnlyList<SkillProgram> programs, IReadOnlySet<int> handCardIds,
+        IReadOnlySet<int>? equipmentCardIds = null)
     {
         ArgumentNullException.ThrowIfNull(programs);
         ArgumentNullException.ThrowIfNull(handCardIds);
@@ -30,6 +33,9 @@ public sealed class SkillProgramRules : IPassiveSkill
 
         _programs = Array.AsReadOnly(programs.OrderBy(program => program.Id, StringComparer.Ordinal).ToArray());
         _handCardIds = new HashSet<int>(handCardIds);
+        _equipmentCardIds = equipmentCardIds is null
+            ? new HashSet<int>()
+            : new HashSet<int>(equipmentCardIds);
     }
 
     public SkillKind Kind => SkillKind.None;
@@ -128,7 +134,9 @@ public sealed class SkillProgramRules : IPassiveSkill
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.SkillInstanceId, StringComparer.Ordinal)
             .SelectMany(source => source.Program.Modifiers
-                .Where(modifier => modifier.Query == query && modifier.Condition.Evaluate(context.Owner))
+                .Where(modifier => modifier.Query == query &&
+                                   MatchesEffectiveCardKind(modifier, context) &&
+                                   modifier.Condition.Evaluate(context.Owner))
                 .Select(modifier => ToContribution(
                     context.Owner.Seat,
                     source,
@@ -157,7 +165,8 @@ public sealed class SkillProgramRules : IPassiveSkill
                 throw new ArgumentException(
                     $"Indexed modifier '{binding.Source.SkillId}/{binding.Modifier.Id}' belongs to " +
                     $"{binding.Modifier.Query}, not {query}.", nameof(bindings));
-            if (!binding.Modifier.Condition.Evaluate(context.Owner)) continue;
+            if (!MatchesEffectiveCardKind(binding.Modifier, context) ||
+                !binding.Modifier.Condition.Evaluate(context.Owner)) continue;
             contributions.Add(ToContribution(
                 context.Owner.Seat,
                 binding.Source,
@@ -166,6 +175,12 @@ public sealed class SkillProgramRules : IPassiveSkill
         }
         return Array.AsReadOnly(contributions.ToArray());
     }
+
+    private static bool MatchesEffectiveCardKind(
+        SkillProgramModifier modifier,
+        SkillProgramRuleContext context) =>
+        modifier.CardKinds.Count == 0 ||
+        context.EffectiveCardKind is { } effectiveKind && modifier.CardKinds.Contains(effectiveKind);
 
     public static void ValidateSetModifierConflicts(IEnumerable<SkillProgram> programs)
     {
@@ -247,11 +262,14 @@ public sealed class SkillProgramRules : IPassiveSkill
 
     private bool MatchesViewAs(PlayerSkillContext owner, Card card, CardKind outputKind, bool forResponse)
     {
-        if (!_handCardIds.Contains(card.Id) || card.Kind == outputKind)
+        if ((!_handCardIds.Contains(card.Id) && !_equipmentCardIds.Contains(card.Id)) ||
+            card.Kind == outputKind)
             return false;
 
         return _programs.SelectMany(program => program.ViewAs).Any(rule =>
             rule.OutputKind == outputKind &&
+            (rule.SourceZones.Contains(CardZoneKind.Hand) && _handCardIds.Contains(card.Id) ||
+             rule.SourceZones.Contains(CardZoneKind.Equipment) && _equipmentCardIds.Contains(card.Id)) &&
             (forResponse ? rule.ForResponse : rule.ForPlay) &&
             rule.Condition.Evaluate(owner) &&
             (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&

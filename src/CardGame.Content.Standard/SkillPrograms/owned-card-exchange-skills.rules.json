@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 31,
+  "skills": [
+    {
+      "id": "classic:yinghun",
+      "revision": 1,
+      "minimumRulesVersion": 136,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-many",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "choiceGroup": "card-exchange",
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "classicIdentityMode"
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "lessThan",
+                "right": {
+                  "kind": "currentMaxHp"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "numberExpression": "ownerLostHp"
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "amount": 1,
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "exchange-cards"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "exchange-cards",
+              "destination": "discardPile"
+            }
+          ]
+        },
+        {
+          "id": "discard-many",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "choiceGroup": "card-exchange",
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "classicIdentityMode"
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "lessThan",
+                "right": {
+                  "kind": "currentMaxHp"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "numberExpression": "ownerLostHp",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "exchange-cards"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "exchange-cards",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

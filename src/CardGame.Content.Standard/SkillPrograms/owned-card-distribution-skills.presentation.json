@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:miji": {
+      "name": "秘计",
+      "description": "结束阶段，若你已受伤，你可以摸X张牌（X为你已损失的体力值）。若如此做，你可以将等量的手牌交给其他角色。"
+    }
+  }
+}

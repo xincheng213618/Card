@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 38,
+  "skills": [
+    {
+      "id": "classic:wuhun",
+      "revision": 2,
+      "minimumRulesVersion": 143,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "damage-nightmare",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": { "kind": "eventSource" },
+              "marker": "nightmare",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "death-judgment",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "maximumAttributedMarker",
+              "marker": "nightmare"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "skill.wuhun.death",
+              "resultBind": "judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "causeDeathUnlessBoundCardKind",
+              "target": "selectedTarget",
+              "sourceBind": "judgment",
+              "excludedCardKinds": ["peach", "peachGarden"]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

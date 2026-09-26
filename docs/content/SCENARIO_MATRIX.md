@@ -2,6 +2,28 @@
 
 场景 ID 作为内容测试契约；正式 Content/Scenario 测试项目在对应核心入口开放后承载这些场景。当前已实现的基础牌、命令和 Registry 场景由 `tests/CardGame.Core.Tests/Program.cs` 的 Console 自测覆盖。K1 的完整移动契约见 [`CARD_MOVEMENT_CONTRACT.md`](./CARD_MOVEMENT_CONTRACT.md)。
 
+rules 143 / schema 38 新增：`program.attributed_marker` 覆盖伤害事件来源、逐点发生、公开总数与按技能拥有者来源分桶；`program.maximum_attributed_marker` 覆盖存活、正数最大值、并列冻结、回答前复验和已死拥有者私密选择；`program.bound_judgment_direct_death` 覆盖选定目标公开判定、普通改判、排除桃／桃园、无 Damage／濒死／killer 的直接死亡、终局短路、标记清理及嵌套程序／判定窗口恢复。`classic.wuhun.composed` 覆盖完整正式内容与 Checkpoint/Replay；`classic.wuhun.legacy_121` 验证 1.121.0 只保留历史身份而不绑定当前程序。WPF 只消费普通 `SkillPrompt`、`ProgramTrigger` 和共享事件。
+
+rules 142 / schema 37 新增：`program.owner_died` 覆盖死亡拥有者继续资格、冻结杀死者、稳定候选游标、发动／目标两段暂停、死亡父流程续接和 Checkpoint/Replay；`program.other_living_except_source` 覆盖只排除拥有者及冻结来源的存活目标，并在回答前复验。`classic.zhuiyi.composed` 覆盖发动／跳过、杀死者排除、目标摸三张、满体力仍摸牌、回复和通用完成事件；`classic.zhuiyi.legacy_120` 验证 1.120.0 仍使用历史路线而不绑定当前程序。WPF 只消费普通 `SkillPrompt` 和共享目标选择，不新增追忆人物界面分支。
+
+rules 141 / schema 36 新增：`program.all_hand_ordinary_trick` 覆盖动态精确全手牌、未受限牌检查、普通锦囊合法选项、目标／目标牌冻结、实体牌统一进入 Processing、转换来源审计和 Checkpoint/Replay；`program.complete_owned_zone_capture` 覆盖完整拥有区域牌自动绑定、公开展示、绑定牌同色条件和无候选跳过。`classic.qice.composed` 覆盖无中生有、单／多目标及目标牌锦囊的共享结算；`classic.zhiyu.composed` 覆盖发动／跳过、摸牌后全手牌展示、同／异色、来源有牌／空手和私密弃牌。schema 35 对新节点保持加载期拒绝；WPF 只消费普通程序主动草稿、`SkillPrompt` 与通用转换／公开事件。
+
+rules 140 / schema 35 新增：`program.multi_card_view_as` 覆盖精确 `inputCount`、选定牌主动用牌、普通响应、借刀／激将链路、转换来源与实体成本审计；`program.damage_source_conversion_trigger` 覆盖伤害来源主体、技能／viewAs 过滤、出牌阶段冻结事实、回合限次和通用技能授予。`classic.fuhun.composed` 覆盖主动伤害授予、响应不授予、回合内武圣／咆哮消费及到期、Checkpoint/Replay；schema 34 对新字段和操作保持加载期拒绝。WPF 只消费普通程序草稿与通用转换／授予事件，不新增父魂命令分支。
+
+rules 139 / schema 34 新增：`program.category_challenge` 覆盖可变主动牌集合捕获、资源图消费、公开绑定牌、不同类别候选、无候选自动拒绝、事件来源参与者和绑定数量摸牌；schema 33 对新节点保持加载期拒绝。`classic.junxing.composed` 覆盖异类别弃牌与翻面摸牌两支、阶段限次及主动前置／响应暂停 Replay；`classic.yuce.composed` 覆盖可选发动、精确展示牌、伤害来源响应、无反制回复和三段暂停 Replay。WPF 只消费普通主动程序草稿、`SkillPrompt` 与共享区域牌选择面板，不新增满宠界面分支。
+
+rules 138 / schema 33 新增：`program.before_damage_prevention` 覆盖伤害前候选稳定排序、冻结 `eventTargetHp`、发动／支付暂停、类型化父流程续接和 `preventCurrentDamage` 单次防止。`classic.renxin.composed` 覆盖普通攻击与刚烈反伤、公共发动／跳过、手牌或装备区的精确装备类别支付、伪造回答原子拒绝、翻面、通用防止事件及两个暂停点 Replay；`classic.renxin.historical_route_absent` 验证 1.116.0 旧包保留元数据但不自动绑定当前程序。WPF 只消费普通 `SkillPrompt`、共享支付面板和通用防止事件，不新增仁心界面分支。
+
+rules 137 / schema 32 新增：`program.hand_color_restriction` 覆盖冻结单牌绑定、指定角色、红／黑有效颜色、手牌区限定、幂等授予和统一到期；`program.distance_one_target` 覆盖实时共享距离查询、目标选择及回答前复验。`classic.qianxi.composed` 覆盖公共发动／支付／目标面板、伪造回答、三段暂停、红黑响应过滤、Duel 响应暂停 Replay 和回合清理；`classic.qianxi.historical_route_absent` 验证 1.115.0 旧包不产生退役的 Qianxi 决策或自动绑定当前程序。WPF 只消费普通 `SkillPrompt` 和通用授予事件，不新增潜袭界面分支。
+
+rules 136 / schema 31 新增：`program.owned_card_set` 覆盖固定数量和已损失体力数量、手牌/装备/判定区来源、短缺收缩、空来源、重复绑定和重复消费拒绝；`program.owned_card_set.private_resume` 覆盖错误响应者、伪造 ID、首选不移动、候选去重、私密投影、部分草稿 Checkpoint 恢复、确切技能实例及冻结牌位失效时原子取消；`program.owned_card_set.ai` 覆盖公开数量估值与实际牌主成本归属。WPF `ProgramOwnedCardsUiChecks` 使用非正式技能 ID 的真实 schema 31 程序，离屏渲染两段公共选择面板并经既有命令完成精确集合，不新增人物 UI 分支。
+
+`classic.yinghun.composed` 覆盖孙坚受伤后的两个准备阶段互斥分支、私密目标选牌、手牌/装备精确弃置、完成与中间暂停回放、跳过、失去装备后的共享枭姬窗口；`classic.yinghun.historical_route_absent` 以测试准备体力状态验证 `1.114.0` 旧包不会产生退役的 Yinghun 决策或自动绑定当前程序。测试准备状态只隔离版本边界，不表述为玩家命令。
+
+rules 135 / schema 30 新增：`program.named_choice` 覆盖命名结果、选项可用性、加载期拒绝前向/错误引用、展示标签不改规则 hash、同参与者非基本牌支付、私密响应者与伪造回答原子拒绝；`program.named_choice.resume` 覆盖选择暂停回放、实例失效/回复选项过期取消、一次父窗口完成；`program.named_choice.ai` 覆盖公开状态下只评估一个分支、目标复原收益归属；`classic.jujian.composed` 覆盖三种收益、精确弃牌、跳过，以及据守新抽牌立即可支付和据守→举荐→闭月的单次结束顺序。WPF `ProgramChoiceUiChecks` 使用非正式技能 ID 的真实程序，离屏渲染公共选择面板并经既有命令提交选项，不新增人物 UI 分支；不将离屏测试表述为实机手动验收。
+
+rules 135 退役路线回归：权计/自立/排异/单骑的当前公共执行、精确支付、觉醒双分支、暂停和完成回放继续覆盖。旧包满足三张 Authority、获得旧排异或单骑手牌阈值时，不恢复旧手牌上限、专属主动动作、准备阶段提示或技能授予；旧内容定义不自动升级为当前程序。负例中的手工状态只用于准备前置条件。
+
 当前新增场景：`k5.events.lethal-damage-trigger-window` 验证规则版本 5 在目标降至 0 点体力时仍先完成类型化伤害后触发窗口、保持私有 Prompt 边界并继续进入濒死结算。
 
 M1 新增场景：`mode.team_2v2.public_teams` 验证公开阵营分配、普通视图脱敏、AI 固定 seed 终局、队伍胜负和 Checkpoint/Replay 一致性；WPF 离屏场景同时验证 2v2 新局设置隐藏身份选择并显示阵营说明。

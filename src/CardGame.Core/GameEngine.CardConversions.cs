@@ -3,6 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string SpGuanYuWushengSkillId = "sp:guan-yu-wusheng";
+    private const string NuzhanSkillId = "sp:nuzhan";
 
     private bool IgnoresSpGuanYuWushengDistance(CharacterState player, Card card) =>
         SupportsRuntimeSkillAcquisition &&
@@ -104,6 +105,14 @@ public sealed partial class GameEngine
                 "杀",
                 CardKind.Slash,
                 source);
+            AddProgramTargetCountSlashActions(
+                actions,
+                actor,
+                converted,
+                targets,
+                "杀",
+                CardKind.Slash,
+                source);
         }
     }
 
@@ -117,8 +126,14 @@ public sealed partial class GameEngine
         SkillProgramCardIdentity Identity,
         CardConversionSource Source);
 
+    private sealed record ProgramMultiCardViewAsSelection(
+        IReadOnlyList<Card> Cards,
+        CardConversionSource Source,
+        CardKind OutputKind);
+
     private CardConversionSource? _selectedResponseConversion;
     private CardConversionSource? _selectedUseConversion;
+    private bool _selectedSlashConversionChoice;
 
     private string DescribeConversion(CardConversionSource? source, string description) =>
         source is null ? description : $"【{_contentRegistry!.Skills[source.SkillId].Name}】{description}";
@@ -192,16 +207,23 @@ public sealed partial class GameEngine
         bool forResponse)
     {
         if (_rulesVersion < 80 || card.Kind == outputKind ||
-            HasProgramCardIdentity(owner, card) ||
-            _cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat))
+            HasProgramCardIdentity(owner, card))
         {
             return [];
         }
 
+        var location = _cardZones.GetLocation(card.Id);
+        var zone = location == CardLocation.Hand(owner.Seat)
+            ? CardZoneKind.Hand
+            : location == CardLocation.Equipment(owner.Seat)
+                ? CardZoneKind.Equipment
+                : (CardZoneKind?)null;
+        if (zone is null) return [];
         var context = CreateSkillContext(owner);
         var configured = EnabledViewAsPrograms(owner)
             .SelectMany(program => program.ViewAs
                 .Where(rule => rule.OutputKind == outputKind &&
+                               rule.SourceZones.Contains(zone.Value) &&
                                (forResponse ? rule.ForResponse : rule.ForPlay) &&
                                rule.Condition.Evaluate(context) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
@@ -212,7 +234,7 @@ public sealed partial class GameEngine
                     owner.Seat,
                     $"seat-{owner.Seat}:{program.Id}")))
             .ToArray();
-        var turnScoped = forResponse
+        var turnScoped = forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()
             : _turnCardUseEffects.GetConversions(
                     _turnNumber,
@@ -232,6 +254,229 @@ public sealed partial class GameEngine
             .ThenBy(source => source.BindingId, StringComparer.Ordinal)
             .ThenBy(source => source.SkillInstanceId, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private bool IsDirectProgramFireSlashConversion(
+        CharacterState owner, Card card, CardConversionSource? source) =>
+        source is not null && GetProgramViewAsConversions(
+            owner, card, CardKind.FireSlash, forResponse: false).Contains(source);
+
+    private IReadOnlyList<ProgramMultiCardViewAsSelection> GetProgramMultiCardViewAsSelections(
+        CharacterState owner,
+        CardKind outputKind,
+        bool forResponse)
+    {
+        if (_rulesVersion < 140 || !owner.IsAlive ||
+            IsCardUseForbidden(owner.Seat, outputKind,
+                forResponse ? CardActionType.Response : CardActionType.Use))
+            return [];
+
+        var context = CreateSkillContext(owner);
+        var eligibleHand = GetHand(owner)
+            .Where(card => !IsTurnHandCardRestricted(owner, card) && !HasProgramCardIdentity(owner, card))
+            .OrderBy(card => card.Id)
+            .ToArray();
+        var selections = new List<ProgramMultiCardViewAsSelection>();
+        foreach (var instance in GetSkillBindingShard(owner)?.ProgramInstances.Where(instance =>
+                     instance.Program.ViewAs.Count != 0) ?? [])
+        foreach (var rule in instance.Program.ViewAs.Where(rule =>
+                     rule.InputCount > 1 &&
+                     rule.OutputKind == outputKind &&
+                     (forResponse ? rule.ForResponse : rule.ForPlay) &&
+                     rule.Condition.Evaluate(context)))
+        {
+            var candidates = eligibleHand.Where(card =>
+                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
+                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit))).ToArray();
+            if (candidates.Length < rule.InputCount) continue;
+            var source = new CardConversionSource(
+                instance.SkillId,
+                rule.Id,
+                owner.Seat,
+                instance.SkillInstanceId);
+            foreach (var cards in EnumerateCardCombinations(candidates, rule.InputCount))
+                selections.Add(new(cards, source, outputKind));
+        }
+        return selections
+            .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
+            .ThenBy(item => item.Source.BindingId, StringComparer.Ordinal)
+            .ThenBy(item => string.Join(',', item.Cards.Select(card => card.Id)), StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<IReadOnlyList<Card>> EnumerateCardCombinations(
+        IReadOnlyList<Card> cards,
+        int count)
+    {
+        var result = new List<IReadOnlyList<Card>>();
+        var selected = new Card[count];
+        void Visit(int sourceIndex, int selectedIndex)
+        {
+            if (selectedIndex == count)
+            {
+                result.Add(Array.AsReadOnly(selected.ToArray()));
+                return;
+            }
+            for (var index = sourceIndex; index <= cards.Count - (count - selectedIndex); index++)
+            {
+                selected[selectedIndex] = cards[index];
+                Visit(index + 1, selectedIndex + 1);
+            }
+        }
+        Visit(0, 0);
+        return result;
+    }
+
+    private ProgramMultiCardViewAsSelection? FindProgramMultiCardViewAsSelection(
+        CharacterState owner,
+        IReadOnlyList<int> cardIds,
+        CardKind outputKind,
+        bool forResponse,
+        CardConversionSource? source = null)
+    {
+        if (cardIds.Count < 2 || cardIds.Distinct().Count() != cardIds.Count) return null;
+        var ordered = cardIds.Order().ToArray();
+        return GetProgramMultiCardViewAsSelections(owner, outputKind, forResponse)
+            .FirstOrDefault(candidate =>
+                (source is null || candidate.Source == source) &&
+                candidate.Cards.Select(card => card.Id).Order().SequenceEqual(ordered));
+    }
+
+    private string ProgramConversionName(CardConversionSource source) =>
+        _contentRegistry?.Skills.GetValueOrDefault(source.SkillId)?.Name ?? source.SkillId;
+
+    private void ResolveProgramMultiCardSlash(
+        CharacterState source,
+        CharacterState target,
+        ProgramMultiCardViewAsSelection selection,
+        BorrowedSwordResolution? borrowedSword = null,
+        bool enforceOwnTurnSlashLimit = true)
+    {
+        var current = FindProgramMultiCardViewAsSelection(
+            source,
+            selection.Cards.Select(card => card.Id).ToArray(),
+            CardKind.Slash,
+            forResponse: false,
+            selection.Source);
+        if (current is null || !(borrowedSword is null
+                ? CanUseVirtualSlashTarget(source, target)
+                : IsLegalBorrowedSwordSlashTarget(source, target)))
+            throw new InvalidOperationException("The configured multi-card Slash is no longer legal.");
+
+        ResolveSlashCore(
+            source,
+            target,
+            current.Cards[0],
+            CardKind.Slash,
+            source.Seat,
+            borrowedSword: borrowedSword,
+            physicalCards: current.Cards,
+            countsTowardSlashLimit: enforceOwnTurnSlashLimit,
+            conversionSource: current.Source);
+    }
+
+    private void MoveProgramMultiCardResponse(
+        CharacterState responder,
+        ProgramMultiCardViewAsSelection selection,
+        long resolutionId,
+        int responseTargetSeat,
+        int? actorSeat = null)
+    {
+        var current = FindProgramMultiCardViewAsSelection(
+            responder,
+            selection.Cards.Select(card => card.Id).ToArray(),
+            selection.OutputKind,
+            forResponse: true,
+            selection.Source) ?? throw new InvalidOperationException(
+                "The configured multi-card response is no longer legal.");
+        var costs = current.Cards.Select(card => new CardActionCost(
+            card.Id,
+            card.Kind,
+            CardLocation.Hand(responder.Seat))).ToArray();
+        foreach (var card in current.Cards)
+        {
+            MoveCard(card, CardLocation.Hand(responder.Seat), CardLocation.Processing, CardMoveReasons.Respond);
+            QueueGameEvent(new CardRespondedEvent(
+                card.Id,
+                responder.Seat,
+                responseTargetSeat,
+                selection.OutputKind));
+        }
+        var actionActorSeat = actorSeat ?? responder.Seat;
+        var parent = _resolutionStack.OfType<CardUseFrame>()
+            .LastOrDefault(frame => frame.Id == resolutionId);
+        var action = new CardActionContext(
+            ++_cardActionSequence,
+            parent?.Action?.ActionId,
+            CardActionType.Response,
+            actionActorSeat,
+            responder.Seat,
+            actionActorSeat == responder.Seat ? null : actionActorSeat,
+            responder.Seat,
+            responseTargetSeat,
+            selection.OutputKind,
+            [],
+            costs,
+            [selection.Source]);
+        QueueGameEvent(new CardActionAcceptedEvent(action));
+        QueueGameEvent(new ProgramViewAsConvertedEvent(
+            resolutionId,
+            selection.Source.SkillId,
+            selection.Source.BindingId,
+            responder.Seat,
+            Array.AsReadOnly(current.Cards.Select(card => card.Id).ToArray()),
+            selection.OutputKind,
+            IsUse: false,
+            [responseTargetSeat]));
+    }
+
+    private void FinishProgramMultiCardResponse(ProgramMultiCardViewAsSelection selection)
+    {
+        foreach (var card in selection.Cards)
+            MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.ResponseFinished);
+    }
+
+    private void ResolveDuelProgramMultiCardResponse(
+        DuelResolution duel,
+        CharacterState responder,
+        ProgramMultiCardViewAsSelection selection)
+    {
+        if (!ReferenceEquals(_pendingDuel, duel) || responder.Seat != duel.ResponderSeat)
+            throw new InvalidOperationException("The configured Duel response is not current.");
+        MoveProgramMultiCardResponse(responder, selection, duel.ResolutionId, duel.OpponentSeat);
+        AddLog("CardResponded",
+            $"{responder.Name} 发动【{ProgramConversionName(selection.Source)}】，将 {selection.Cards.Count} 张手牌当【杀】应战【决斗】。",
+            responder.Seat, duel.OpponentSeat);
+        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(responder.Seat, CardKind.Slash);
+        QueueGameEvent(new DuelResponseEvent(
+            duel.ResolutionId, responder.Seat, UsedSlash: true,
+            SlashCardId: selection.Cards[0].Id, ResponseCardKind: CardKind.Slash));
+        FinishProgramMultiCardResponse(selection);
+        ContinueDuelAfterSuccessfulSlash(duel, responder.Seat);
+    }
+
+    private void ResolveGroupProgramMultiCardResponse(
+        GroupCardResolution group,
+        CharacterState responder,
+        ProgramMultiCardViewAsSelection selection)
+    {
+        if (!ReferenceEquals(_pendingGroupCard, group) ||
+            group.Effect != GroupCardEffect.ResponseAttack ||
+            group.RequiredCardKind != selection.OutputKind ||
+            group.CurrentAttack is not { } attack ||
+            responder.Seat != attack.TargetSeat)
+            throw new InvalidOperationException("The configured group response is not current.");
+        MoveProgramMultiCardResponse(responder, selection, group.ResolutionId, group.SourceSeat);
+        AddLog("CardResponded",
+            $"{responder.Name} 发动【{ProgramConversionName(selection.Source)}】，将 {selection.Cards.Count} 张手牌当【杀】响应【{group.Card.DisplayName}】。",
+            responder.Seat, group.SourceSeat);
+        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(responder.Seat, CardKind.Slash);
+        QueueGameEvent(new GroupResponseEvent(
+            group.ResolutionId, group.Card.Kind, CardKind.Slash, responder.Seat,
+            UsedResponse: true, ResponseCardId: selection.Cards[0].Id,
+            ResponseCardKind: CardKind.Slash));
+        FinishProgramMultiCardResponse(selection);
+        CompleteAttack(attack);
     }
 
     private bool HasLegacyViewAsConversion(
@@ -282,7 +527,7 @@ public sealed partial class GameEngine
         if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
         {
-            if (IsQianxiHandCardRestricted(owner, card)) return false;
+            if (IsTurnHandCardRestricted(owner, card)) return false;
             var identities = GetProgramCardIdentityMatches(owner, card);
             return identities.Count != 0
                 ? identities.Any(match => match.Identity.OutputKind == CardKind.Slash)
@@ -379,6 +624,11 @@ public sealed partial class GameEngine
         return true;
     }
 
+    private static CardConversionSource RequireConversionSource(PromptChoice choice) =>
+        TryReadConversionSource(choice.Parameters, out var source) && source is not null
+            ? source
+            : throw new InvalidOperationException("The configured conversion choice lost its source identity.");
+
     private void CaptureSelectedResponseConversion(PromptChoice choice)
     {
         if (TryReadConversionSource(choice.Parameters, out var source))
@@ -420,8 +670,11 @@ public sealed partial class GameEngine
         return candidates.FirstOrDefault();
     }
 
-    private void SelectUseConversion(LegalAction action) =>
+    private void SelectUseConversion(LegalAction action)
+    {
         _selectedUseConversion = action.ConversionSource;
+        _selectedSlashConversionChoice = action.Kind == LegalActionKind.Slash;
+    }
 
     private CardConversionSource? GetSelectedUseConversion(
         CharacterState provider,
@@ -438,8 +691,10 @@ public sealed partial class GameEngine
                 .Distinct()
                 .ToArray();
         var selected = _selectedUseConversion ?? _selectedResponseConversion;
+        var selectedSlashChoice = _selectedSlashConversionChoice;
         _selectedUseConversion = null;
         _selectedResponseConversion = null;
+        _selectedSlashConversionChoice = false;
         if (selected is not null)
         {
             return candidates.Contains(selected)
@@ -447,6 +702,6 @@ public sealed partial class GameEngine
                 : throw new InvalidOperationException("The selected use conversion is no longer legal.");
         }
 
-        return candidates.FirstOrDefault();
+        return selectedSlashChoice ? null : candidates.FirstOrDefault();
     }
 }

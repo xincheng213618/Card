@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:renxin": {
+      "name": "仁心",
+      "description": "当一名其他角色于体力值为1时即将受到伤害，你可以弃置一张装备牌并翻面，防止此伤害。"
+    }
+  }
+}

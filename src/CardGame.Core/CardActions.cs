@@ -11,8 +11,15 @@ public enum CardActionType { Use, Response }
 
 public enum ProgramCardContinuation
 {
-    Slash, BeforeTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, HujiaDodge, JijiangDuelSlash, JijiangGroupResponse, DelayedCard
+    Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, HujiaDodge, JijiangDuelSlash, JijiangGroupResponse, DelayedCard, CompletedSlash
 }
+
+/// <summary>Replay-safe ordinary-trick state retained while a public before-target-effects window is suspended.</summary>
+public sealed record ProgramTrickContinuation(
+    int EffectCardId,
+    LegalActionKind ActionKind,
+    int? TargetCardId = null,
+    CardKind? RequiredCardKind = null);
 
 /// <summary>A paid physical card and its original location, retained by the trusted rules host.</summary>
 public sealed record CardActionCost(int CardId, CardKind CardKind, CardLocation From);
@@ -59,6 +66,19 @@ public sealed class CardActionContext
 /// <summary>Trusted-host audit event; not a player-facing notification.</summary>
 public sealed record CardActionAcceptedEvent(CardActionContext Action) : IGameEvent;
 
+public sealed record ProgramViewAsConvertedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    IReadOnlyList<int> PhysicalCardIds,
+    CardKind OutputKind,
+    bool IsUse,
+    IReadOnlyList<int> TargetSeats) : IGameEvent
+{
+    public int OpponentSeat => TargetSeats.FirstOrDefault(-1);
+}
+
 public sealed record ProgramCardTriggerCandidate(
     int OwnerSeat, int OpponentSeat, string SkillId, string TriggerId, string GameplayHash,
     string SkillInstanceId = "", bool UsesSharedExecutor = false, int Priority = 0,
@@ -68,7 +88,8 @@ public sealed record ProgramCardTriggerWindowFrame(
     long Id, long ParentFrameId, CardActionContext Action,
     ProgramCardContinuation Continuation, IReadOnlyList<ProgramCardTriggerCandidate> Candidates,
     int CandidateIndex = 0, int InstructionIndex = 0, bool Activated = false,
-    int? SelectedTargetSeat = null)
+    int? SelectedTargetSeat = null,
+    ProgramTrickContinuation? TrickContinuation = null)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramCardTriggerWindow, ResolutionFrameStep.ResolvingEffect);
 
 public sealed record ProgramCardTriggerResolvedEvent(

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 33,
+  "skills": [
+    {
+      "id": "classic:renxin",
+      "revision": 1,
+      "minimumRulesVersion": 138,
+      "triggers": [
+        {
+          "id": "protect-one-hp-other",
+          "window": "beforeDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "classicIdentityMode" },
+              {
+                "kind": "compare",
+                "left": { "kind": "eventTargetHp" },
+                "operator": "equal",
+                "right": { "kind": "integerConstant", "value": 1 }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "cardCategories": ["equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "resultBind": "discarded-equipment"
+            },
+            { "op": "turnOver", "target": "owner" },
+            { "op": "preventCurrentDamage", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

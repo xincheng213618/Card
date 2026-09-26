@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jianxiong": {
+      "name": "奸雄",
+      "description": "当你受到伤害后，你可以选择一项：摸一张牌；或获得对你造成伤害的牌。",
+      "optionLabels": {
+        "draw": "摸一张牌。",
+        "claim": "获得对你造成伤害的牌。"
+      }
+    }
+  }
+}

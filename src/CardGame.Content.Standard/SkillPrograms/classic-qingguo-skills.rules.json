@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 45,
+  "skills": [
+    {
+      "id": "classic:qingguo",
+      "revision": 1,
+      "minimumRulesVersion": 154,
+      "viewAs": [
+        {
+          "id": "black-hand-as-dodge",
+          "inputKinds": [],
+          "inputSuits": ["spade", "club"],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ]
+    }
+  ]
+}

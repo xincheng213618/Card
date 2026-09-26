@@ -2,6 +2,16 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private bool IsTurnHandCardRestricted(CharacterState player, Card card)
+    {
+        if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
+        return _turnCardUseEffects.IsHandColorRestricted(
+            _turnNumber,
+            _currentSeat,
+            player.Seat,
+            IsRedSuit(EffectiveSuit(player, card)));
+    }
+
     private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType) =>
         _turnCardUseEffects.IsCardUseForbidden(
             _turnNumber,
@@ -123,6 +133,31 @@ public sealed partial class GameEngine
         QueueGameEvent(new CardActionProhibitionGrantedEvent(granted));
     }
 
+    private void GrantProgramTurnHandColorRestriction(
+        ProgramSkillFrame frame,
+        string sourceBind,
+        int targetSeat)
+    {
+        ValidateProgramTurnEffectGrant(frame);
+        if (!IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat || !_players[targetSeat].IsAlive)
+            throw new InvalidOperationException("A hand-color restriction requires one living other character.");
+        var binding = GetProgramCardSet(frame, sourceBind);
+        if (binding.CardIds.Count != 1 || binding.SourceLocations.Count != 1 ||
+            _cardZones.GetLocation(binding.CardIds[0]) != binding.SourceLocations[0])
+            throw new InvalidOperationException("A hand-color restriction requires one stable bound card.");
+        var card = _cardZones.CardsAt(binding.SourceLocations[0])
+            .Single(item => item.Id == binding.CardIds[0]);
+        var granted = _turnCardUseEffects.GrantHandColorRestriction(
+            _turnNumber,
+            _currentSeat,
+            frame.Id,
+            frame.InstructionIndex - 1,
+            CreateProgramTurnEffectSource(frame),
+            targetSeat,
+            IsRedSuit(EffectiveSuit(_players[frame.OwnerSeat], card)));
+        QueueGameEvent(new HandCardColorRestrictionGrantedEvent(granted));
+    }
+
     private void GrantProgramTurnRuleModifier(
         ProgramSkillFrame frame,
         SkillRuleQuery query,
@@ -131,7 +166,8 @@ public sealed partial class GameEngine
     {
         ValidateProgramTurnEffectGrant(frame);
         var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && amount > 0 ||
-                    query == SkillRuleQuery.SlashDistanceLimit && operation == SkillRuleOperation.Unlimited && amount == 0;
+                    (query is SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&
+                    operation == SkillRuleOperation.Unlimited && amount == 0;
         if (!valid) throw new InvalidOperationException("The turn rule modifier is unsupported.");
         var granted = _turnCardUseEffects.GrantRuleModifier(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,

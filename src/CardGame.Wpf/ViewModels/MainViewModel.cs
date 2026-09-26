@@ -651,7 +651,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             { SkillPrompt: { } presentation } => $"{presentation.Name} · 公开牌",
             { Kind: DecisionKind.FireAttackDiscard } => "火攻 · 公开牌",
-            { Kind: DecisionKind.Yuce } => "御策 · 展示牌",
             { Kind: DecisionKind.SelectHarvestCard } => "五谷丰登 · 公开牌",
             _ => "公开牌"
         };
@@ -682,21 +681,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Leiji or
                     DecisionKind.Jiangchi or
                     DecisionKind.Zishou or
-                    DecisionKind.Zhenlie or
-                    DecisionKind.Miji or
-                    DecisionKind.Quanji or
-                    DecisionKind.Zili or
-                    DecisionKind.Qice or
-                    DecisionKind.Zhiyu or
-                    DecisionKind.Yuce or
-                    DecisionKind.Anxu or
-                    DecisionKind.Junxing or
-                    DecisionKind.ZhuiyiTarget or
-                    DecisionKind.Chunlao or
-                    DecisionKind.Gongqi or
-                    DecisionKind.Jiefan or
-                    DecisionKind.Renxin or
-                    DecisionKind.Qianxi or
                     DecisionKind.Tiandu or
                     DecisionKind.Fanjian or
                     DecisionKind.Guanxing or
@@ -718,12 +702,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.QuhuPindian or
                     DecisionKind.QuhuDamageTarget or
                     DecisionKind.TianyiPindian or
-                    DecisionKind.Jujian or
                     DecisionKind.ProgramCardTrigger or
                     DecisionKind.ProgramJudgmentTrigger or
                     DecisionKind.ProgramJudgmentReplacement or
                     DecisionKind.ProgramJudgmentTarget or
-                    DecisionKind.WuhunTarget or
                     DecisionKind.ZhuqueFan
             } skillPrompt)
         {
@@ -745,21 +727,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Leiji or
             DecisionKind.Jiangchi or
             DecisionKind.Zishou or
-            DecisionKind.Zhenlie or
-            DecisionKind.Miji or
-            DecisionKind.Quanji or
-            DecisionKind.Zili or
-            DecisionKind.Qice or
-            DecisionKind.Zhiyu or
-            DecisionKind.Yuce or
-            DecisionKind.Anxu or
-            DecisionKind.Junxing or
-            DecisionKind.ZhuiyiTarget or
-            DecisionKind.Chunlao or
-            DecisionKind.Gongqi or
-            DecisionKind.Jiefan or
-            DecisionKind.Renxin or
-            DecisionKind.Qianxi or
             DecisionKind.Tiandu or
             DecisionKind.Fanjian or
             DecisionKind.Guanxing or
@@ -781,12 +748,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.QuhuPindian or
             DecisionKind.QuhuDamageTarget or
             DecisionKind.TianyiPindian or
-            DecisionKind.Jujian or
             DecisionKind.ProgramCardTrigger or
             DecisionKind.ProgramJudgmentTrigger or
             DecisionKind.ProgramJudgmentReplacement or
             DecisionKind.ProgramJudgmentTarget or
-            DecisionKind.WuhunTarget or
             DecisionKind.ZhuqueFan;
         RaisePropertyChanged(nameof(HasPinnedPublicModuleChoices));
 
@@ -1542,6 +1507,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             candidate.TargetSeat == choice.Targets[0] &&
             candidate.TargetCardId == targetCardId &&
             ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
+            AdditionalConversionSourcesMatchChoice(candidate.AdditionalConversionSources, choice.Parameters) &&
             ModifierSkillsMatchChoice(candidate, choice.Parameters));
         if (action is null)
         {
@@ -1563,6 +1529,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 targetCardId)
             {
                 ConversionSource = action.ConversionSource,
+                AdditionalConversionSources = action.AdditionalConversionSources,
                 CardKindModifierSkill = action.CardKindModifierSkill,
                 TargetCountModifierSkill = action.TargetCountModifierSkill
             });
@@ -1596,6 +1563,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             candidate.CardId == selectedCardId &&
             candidate.TargetSeats.SequenceEqual(choice.Targets) &&
             ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
+            AdditionalConversionSourcesMatchChoice(candidate.AdditionalConversionSources, choice.Parameters) &&
             ModifierSkillsMatchChoice(candidate, choice.Parameters));
         if (action is null)
         {
@@ -1617,6 +1585,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 action.TargetCardId)
             {
                 ConversionSource = action.ConversionSource,
+                AdditionalConversionSources = action.AdditionalConversionSources,
                 CardKindModifierSkill = action.CardKindModifierSkill,
                 TargetCountModifierSkill = action.TargetCountModifierSkill
             });
@@ -1785,6 +1754,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             action.PlayedCardKind, action.TargetCardId)
         {
             ConversionSource = action.ConversionSource,
+            AdditionalConversionSources = action.AdditionalConversionSources,
             CardKindModifierSkill = action.CardKindModifierSkill,
             TargetCountModifierSkill = action.TargetCountModifierSkill
         };
@@ -1795,6 +1765,36 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         TryReadConversionSource(parameters, out var choiceSource)
             ? source == choiceSource
             : true;
+
+    private static bool AdditionalConversionSourcesMatchChoice(
+        IReadOnlyList<CardConversionSource>? sources,
+        IReadOnlyDictionary<string, string> parameters)
+    {
+        if (!parameters.TryGetValue("additional-conversion-count", out var countText))
+        {
+            return sources is null || sources.Count == 0;
+        }
+        if (!int.TryParse(countText, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out var count) ||
+            sources is null || sources.Count != count)
+        {
+            return false;
+        }
+        for (var index = 0; index < count; index++)
+        {
+            if (!parameters.TryGetValue($"additional-conversion-{index}-skill-id", out var skillId) ||
+                !parameters.TryGetValue($"additional-conversion-{index}-binding-id", out var bindingId) ||
+                !parameters.TryGetValue($"additional-conversion-{index}-owner-seat", out var ownerSeatText) ||
+                !int.TryParse(ownerSeatText, System.Globalization.NumberStyles.Integer,
+                    System.Globalization.CultureInfo.InvariantCulture, out var ownerSeat) ||
+                !parameters.TryGetValue($"additional-conversion-{index}-instance-id", out var instanceId) ||
+                sources[index] != new CardConversionSource(skillId, bindingId, ownerSeat, instanceId))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private static bool ModifierSkillsMatchChoice(
         LegalAction action,
@@ -2090,84 +2090,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      Phase(Draw)");
                 EventStack.Add("        AskForSkill(Zishou)");
             }
-            else if (pending.Kind == DecisionKind.Zhenlie)
-            {
-                EventStack.Add("      ConfirmTarget(Slash/OrdinaryTrick)");
-                EventStack.Add("        AskForSkill(Zhenlie)");
-            }
-            else if (pending.Kind == DecisionKind.Miji)
-            {
-                EventStack.Add("      Phase(Finished)");
-                EventStack.Add("        AskForSkill(Miji)");
-            }
-            else if (pending.Kind == DecisionKind.Quanji)
-            {
-                EventStack.Add("      DamageResolved");
-                EventStack.Add("        AskForSkill(Quanji)");
-            }
-            else if (pending.Kind == DecisionKind.Zili)
-            {
-                EventStack.Add("      Phase(Preparation)");
-                EventStack.Add("        AskForSkill(Zili)");
-            }
-            else if (pending.Kind == DecisionKind.Qice)
-            {
-                EventStack.Add("      Phase(Play)");
-                EventStack.Add("        ChooseOrdinaryTrick(Qice)");
-            }
-            else if (pending.Kind == DecisionKind.Zhiyu)
-            {
-                EventStack.Add("      DamageResolved");
-                EventStack.Add("        AskForSkill(Zhiyu)");
-            }
-            else if (pending.Kind == DecisionKind.Yuce)
-            {
-                EventStack.Add("      DamageResolved");
-                EventStack.Add(pending.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "yuce-use")
-                    ? "        RevealOneHandCardOrSkip(Yuce)"
-                    : "        DiscardDifferentCategoryOrRecover(Yuce)");
-            }
-            else if (pending.Kind == DecisionKind.Anxu)
-            {
-                EventStack.Add("      ActiveSkill(Anxu)");
-                EventStack.Add("        SelectOpaqueDonorHandSlot()");
-            }
-            else if (pending.Kind == DecisionKind.Junxing)
-            {
-                EventStack.Add("      ActiveSkill(Junxing)");
-                EventStack.Add("        DiscardDifferentCategoryOrTurnAndDraw()");
-            }
-            else if (pending.Kind == DecisionKind.ZhuiyiTarget)
-            {
-                EventStack.Add("      DeathSkill(Zhuiyi)");
-                EventStack.Add("        SelectNonKillerTargetOrSkip()");
-            }
-            else if (pending.Kind == DecisionKind.Chunlao)
-            {
-                EventStack.Add("      Phase(Finished)");
-                EventStack.Add("        SelectSlashForChunlao()");
-            }
-            else if (pending.Kind == DecisionKind.Gongqi)
-            {
-                EventStack.Add("      ActiveSkill(Gongqi)");
-                EventStack.Add("        SelectOpaqueHandOrEquipmentOrSkip()");
-            }
-            else if (pending.Kind == DecisionKind.Jiefan)
-            {
-                EventStack.Add("      ActiveSkill(Jiefan)");
-                EventStack.Add("        DiscardWeaponOrLetTargetDraw()");
-            }
-            else if (pending.Kind == DecisionKind.Renxin)
-            {
-                EventStack.Add("      BeforeDamage");
-                EventStack.Add("        DiscardEquipmentAndTurnOver(Renxin)");
-            }
-            else if (pending.Kind == DecisionKind.Qianxi)
-            {
-                EventStack.Add("      Phase(Preparation)");
-                EventStack.Add("        AskForSkill(Qianxi)");
-            }
             else if (pending.Kind == DecisionKind.Shuangxiong)
             {
                 EventStack.Add("      Phase(Draw)");
@@ -2242,11 +2164,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Jijiang(Slash)");
                 EventStack.Add("        AskForEquipment(ZhuqueFan)");
-            }
-            else if (pending.Kind == DecisionKind.WuhunTarget)
-            {
-                EventStack.Add("      DeathSkill(Wuhun)");
-                EventStack.Add("        SelectMaximumNightmareTarget()");
             }
             else if (pending.Kind is
                 DecisionKind.Yuanhu or
@@ -2475,7 +2392,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         };
     }
 
-    private static string GetKingdom(string generalId) => generalId switch
+    private string GetKingdom(string generalId) =>
+        _contentRegistry.Generals.TryGetValue(generalId, out var general)
+            ? general.FactionId == "god" ? "神" : FactionName(general.FactionId)
+            : GetLegacyKingdom(generalId);
+
+    private static string GetLegacyKingdom(string generalId) => generalId switch
     {
         _ when generalId.StartsWith("classic:", StringComparison.Ordinal) => generalId switch
         {

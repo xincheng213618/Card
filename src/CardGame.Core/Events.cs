@@ -197,6 +197,13 @@ public sealed record LihuoSlashUsedEvent(
     bool ConvertedFromOrdinarySlash,
     bool AddedTarget) : IGameEvent;
 
+public sealed record ProgramCardTargetCountAppliedEvent(
+    long ResolutionId,
+    int OwnerSeat,
+    CardKind EffectiveCardKind,
+    IReadOnlyList<int> TargetSeats,
+    IReadOnlyList<string> ContributionSourceIds) : IGameEvent;
+
 /// <summary>
 /// Trusted-host result for cards drawn by an active skill. Physical card ids
 /// stay out of ordinary player snapshots and are retained only in this host
@@ -387,14 +394,6 @@ public sealed record JiangchiResolvedEvent(
     JiangchiMode Mode,
     int DrawCount) : IGameEvent;
 
-/// <summary>Public result of Ma Dai's preparation-phase Qianxi choice.</summary>
-public sealed record QianxiResolvedEvent(
-    int PlayerSeat,
-    bool Used,
-    int? DiscardedCardId,
-    int? TargetSeat,
-    CardColor? RestrictedColor) : IGameEvent;
-
 /// <summary>Public resolution of Yingbo's optional post-resolution card transfer.</summary>
 public sealed record YingboGiftResolvedEvent(
     long ResolutionId,
@@ -501,27 +500,6 @@ public sealed record WuyanDamagePreventedEvent(
     CardKind TrickCard,
     int PreventedAmount,
     int SkillOwnerSeat) : IGameEvent;
-
-public enum JujianBenefitKind
-{
-    DrawTwo,
-    RecoverOne,
-    RestoreGeneral
-}
-
-/// <summary>Public result for Xu Shu's end-phase Jujian support choice.</summary>
-public sealed record JujianResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    bool Used,
-    int? DiscardedCardId,
-    CardKind? DiscardedCardKind,
-    int? TargetSeat,
-    JujianBenefitKind? Benefit,
-    int DrawnCards,
-    int RecoveredHp,
-    bool? TargetIsFaceDown,
-    bool? TargetIsChained) : IGameEvent;
 
 public sealed record ResponseRequestedEvent(
     int SourceSeat,
@@ -800,87 +778,6 @@ public sealed record MijiResolvedEvent(
     IReadOnlyList<int> GivenCardIds,
     IReadOnlyList<int> TargetSeats) : IGameEvent;
 
-/// <summary>One independent per-damage-point result of classic Zhong Hui's Quanji.</summary>
-public sealed record QuanjiResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int DamagePoint,
-    bool Used,
-    int? DrawnCardId,
-    int? AuthorityCardId,
-    int AuthorityCount) : IGameEvent;
-
-/// <summary>Public awakening choice and acquired-skill result of classic Zili.</summary>
-public sealed record ZiliResolvedEvent(
-    int OwnerSeat,
-    bool Recovered,
-    IReadOnlyList<int> DrawnCardIds,
-    int RemainingHp,
-    int MaximumHp,
-    IReadOnlyList<string> AcquiredSkillIds) : IGameEvent;
-
-/// <summary>Public card, draw and conditional-damage branch of classic Paiyi.</summary>
-public sealed record PaiyiResolvedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    int TargetSeat,
-    int AuthorityCardId,
-    IReadOnlyList<int> DrawnCardIds,
-    bool DamageTriggered) : IGameEvent;
-
-/// <summary>Classic Xun You converted every current hand card into one ordinary trick.</summary>
-public sealed record QiceConvertedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    IReadOnlyList<int> PhysicalCardIds,
-    CardKind EffectiveCardKind,
-    IReadOnlyList<int> TargetSeats) : IGameEvent;
-
-/// <summary>The public hand reveal and optional source discard produced by classic Zhiyu.</summary>
-public sealed record ZhiyuResolvedEvent(
-    long DamageFrameId,
-    int OwnerSeat,
-    int SourceSeat,
-    bool Used,
-    int? DrawnCardId,
-    IReadOnlyList<CardSnapshot> RevealedCards,
-    bool AllSameColor,
-    int? DiscardedCardId) : IGameEvent;
-
-/// <summary>Classic Cao Chong discarded equipment and turned over to prevent damage to another 1-HP character.</summary>
-public sealed record RenxinResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int SourceSeat,
-    int TargetSeat,
-    bool Used,
-    int PreventedAmount,
-    int? DiscardedCardId,
-    bool IsFaceDown) : IGameEvent;
-
-/// <summary>Classic Man Chong paid an exact hand-card cost and the target chose one legal branch.</summary>
-public sealed record JunxingResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int TargetSeat,
-    IReadOnlyList<int> CostCardIds,
-    IReadOnlyList<string> CostCategories,
-    int? DiscardedCardId,
-    bool TurnedOver,
-    IReadOnlyList<int> DrawnCardIds,
-    bool TargetIsFaceDown) : IGameEvent;
-
-/// <summary>Classic Man Chong revealed one hand card and the damage source answered the category challenge.</summary>
-public sealed record YuceResolvedEvent(
-    long DamageFrameId,
-    int OwnerSeat,
-    int SourceSeat,
-    bool Used,
-    int? RevealedCardId,
-    string? RevealedCategory,
-    int? DiscardedCardId,
-    int RecoveredHp) : IGameEvent;
-
 /// <summary>Classic Guan Ping paid one exact card after a Play-phase Slash was declared.</summary>
 public sealed record LongyinResolvedEvent(
     long ResolutionId,
@@ -963,53 +860,6 @@ public sealed record RecoveryAppliedEvent(
 
 public sealed record PlayerDiedEvent(int VictimSeat, int? KillerSeat) : IGameEvent;
 
-/// <summary>
-/// A death-time skill has passed its winner/eligibility checks and frozen its
-/// public target candidates. The dead owner remains the prompt responder.
-/// </summary>
-public sealed record DeathSkillStartedEvent(
-    long ResolutionId,
-    long DeathFrameId,
-    int OwnerSeat,
-    SkillKind Skill,
-    IReadOnlyList<int> CandidateSeats) : IGameEvent;
-
-public sealed record DeathSkillTargetSelectedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    SkillKind Skill,
-    int TargetSeat) : IGameEvent;
-
-public sealed record DeathSkillResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    SkillKind Skill,
-    int? TargetSeat) : IGameEvent;
-
-public sealed record DirectDeathDeclaredEvent(
-    long ResolutionId,
-    int SourceSeat,
-    SkillKind Skill,
-    int TargetSeat) : IGameEvent;
-
-public sealed record AnxuResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int ReceiverSeat,
-    int DonorSeat,
-    int CardId,
-    CardKind CardKind,
-    Suit EffectiveSuit,
-    bool OwnerDrewCard) : IGameEvent;
-
-public sealed record ZhuiyiResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int TargetSeat,
-    int DrawnCardCount,
-    int RecoveredHp,
-    int TargetHp) : IGameEvent;
-
 public sealed record PlayerDyingEvent(
     long ResolutionId,
     int VictimSeat,
@@ -1058,6 +908,16 @@ public sealed record ChunlaoRescueEvent(
     int OwnerSeat,
     int VictimSeat,
     int ChunCardId,
+    int RecoveredHp,
+    int VictimHp) : IGameEvent;
+
+/// <summary>A configured owner-pile card paid to make the dying victim use virtual Alcohol.</summary>
+public sealed record ProgramDyingRescueEvent(
+    long DyingFrameId,
+    string SkillId,
+    int OwnerSeat,
+    int VictimSeat,
+    int CardId,
     int RecoveredHp,
     int VictimHp) : IGameEvent;
 
@@ -1300,23 +1160,6 @@ public sealed record ZhuqueFanConvertedEvent(
     IReadOnlyList<int> PhysicalCardIds,
     IReadOnlyList<int> TargetSeats) : IGameEvent;
 
-/// <summary>
-/// Public audit record for Guan Xing &amp; Zhang Bao converting exactly two
-/// hand cards into one Slash. The physical cards remain independently tracked.
-/// </summary>
-public sealed record FuhunConvertedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    IReadOnlyList<int> PhysicalCardIds,
-    bool IsUse,
-    int ResponseTargetSeat) : IGameEvent;
-
-/// <summary>Public turn-scoped grant produced after a Fuhun Slash deals damage.</summary>
-public sealed record FuhunSkillsGrantedEvent(
-    long DamageFrameId,
-    int OwnerSeat,
-    IReadOnlyList<string> SkillIds) : IGameEvent;
-
 public sealed record HujiaRequestedEvent(
     long ResolutionId,
     int OwnerSeat,
@@ -1346,13 +1189,6 @@ public sealed record HuangtianCardGivenEvent(
     int LordSeat,
     int CardId,
     CardKind CardKind) : IGameEvent;
-
-public sealed record YinghunResolvedEvent(
-    int OwnerSeat,
-    int TargetSeat,
-    int LostHp,
-    int DrawCount,
-    IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
 
 public sealed record HuoshouAttributedEvent(long ResolutionId, int CardUserSeat, int DamageSourceSeat) : IGameEvent;
 

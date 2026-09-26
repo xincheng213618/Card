@@ -72,6 +72,12 @@ public static class GeneralArt
             ["zhang-jiao"] = "wiki-zhang-jiao-classic.png",
             // Project-original asset history: docs/content/sources/boundary-zhang-jiao-2026-09-20.json.
             ["boundary-zhang-jiao"] = "general-zhang-jiao.png",
+            // Official hero artwork URL and hash: docs/content/sources/boundary-sima-yi-2026-09-26.json.
+            ["boundary-sima-yi"] = "official-boundary-sima-yi.png",
+            // Official hero artwork and SHA-256: docs/content/sources/boundary-diao-chan-2019-2026-09-26.json.
+            ["boundary-diao-chan"] = "official-boundary-diao-chan.png",
+            // Official hero artwork URL and hash: docs/content/sources/boundary-zhang-liao-2018-2026-09-26.json.
+            ["boundary-zhang-liao"] = "official-boundary-zhang-liao.png",
             ["shen-guan-yu"] = "wiki-shen-guan-yu-classic.png",
             ["sp-zhao-yun"] = "wiki-sp-zhao-yun-classic.png",
             // Official artwork URL and hash: docs/content/sources/sp-guan-yu-c23-2026-09-21.json.
@@ -112,6 +118,16 @@ public static class GeneralArt
             ["man-chong"] = "official-man-chong.png",
             // Official artwork URL and hash: docs/content/sources/guan-ping-a69-2026-09-21.json.
             ["guan-ping"] = "official-guan-ping.png",
+            // Official source and hash: docs/content/sources/gu-yong-2026-09-26.json.
+            ["gu-yong"] = "official-gu-yong.png",
+            // Official 2016 一将成名2014 portrait and SHA-256: docs/content/sources/zhu-huan-2014-2026-09-26.json.
+            ["zhu-huan"] = "official-zhu-huan.png",
+            // Official hero artwork URL and hash: docs/content/sources/li-dian-2026-09-26.json.
+            ["li-dian"] = "official-li-dian.png",
+            // Official hero artwork URL and hash: docs/content/sources/boundary-guo-jia-2026-09-26.json.
+            ["boundary-guo-jia"] = "official-boundary-guo-jia.png",
+            // Official hero artwork URL and hash: docs/content/sources/boundary-cao-cao-2026-09-26.json.
+            ["boundary-cao-cao"] = "official-boundary-cao-cao.png",
             ["sun-jian"] = "general-sun-jian.png",
             ["meng-huo"] = "general-meng-huo.png",
             ["zhu-rong"] = "general-zhu-rong.png",

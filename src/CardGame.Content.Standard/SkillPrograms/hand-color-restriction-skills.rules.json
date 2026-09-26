@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 32,
+  "skills": [
+    {
+      "id": "classic:qianxi",
+      "revision": 1,
+      "minimumRulesVersion": 137,
+      "triggers": [
+        {
+          "id": "preparation-hand-color-restriction",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 },
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"], "count": 1,
+              "destination": "discardPile", "resultBind": "discarded"
+            },
+            {
+              "op": "selectTarget", "target": "owner",
+              "targetKind": "otherLivingAtDistanceOne"
+            },
+            {
+              "op": "grantTurnHandColorRestriction", "target": "selectedTarget",
+              "sourceBind": "discarded"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

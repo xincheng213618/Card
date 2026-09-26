@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -9,11 +10,12 @@ internal static class MaDaiChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 82, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 116, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 115, 0));
+        var beforeRoster = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 82, 0)) &&
+                    package.Version == new Version(1, 116, 0)) &&
                 current.Generals[GeneralId] is
                 {
                     FactionId: "shu",
@@ -26,24 +28,34 @@ internal static class MaDaiChecks
                     LegacyKind: null,
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
+                    ActionForms: SkillActionForm.None,
+                    Program.RuntimeVersion: "skill-program-v32",
+                    Program.MinimumRulesVersion: 137
                 } skill &&
+                skill.Program.Triggers.Single() is
+                {
+                    Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+                    Optional: true,
+                    UsesSharedExecutor: true
+                } &&
                 skill.Description ==
                 "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。" &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(SkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.82.0 must add current classic Ma Dai and Qianxi without mutating 1.81.0.");
+                historical.Skills[SkillId].Program is null &&
+                !beforeRoster.Generals.ContainsKey(GeneralId) &&
+                !beforeRoster.Skills.ContainsKey(SkillId) &&
+                current.ContentHash != historical.ContentHash,
+            "Package 1.116.0 must migrate current Qianxi to schema 32 without rewriting 1.115.0 metadata.");
 
-        var fixture = FindFixture(CardColor.Red, stopAfterDiscardPrompt: false);
+        var fixture = FindFixture(CardColor.Red, stopAfterPaymentPrompt: false);
         var game = fixture.Game;
-        var prompt = RequirePrompt(game, DecisionKind.Qianxi);
+        var prompt = RequireQianxiPrompt(game);
         Require(prompt.IsPrivate &&
                 prompt.Choices.Count == 2 &&
-                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
                     .Order(StringComparer.Ordinal)
-                    .SequenceEqual(new[] { "qianxi-skip", "qianxi-use" }),
-            "Qianxi must begin with one private use-or-skip preparation prompt.");
+                    .SequenceEqual(new[] { "activate", "skip" }) &&
+                prompt.SkillPrompt is { SkillId: SkillId, Title: "潜袭 · 是否发动" },
+            "Qianxi must begin on the shared private program-trigger surface.");
 
         var beforeRevision = game.Revision;
         var beforeState = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
@@ -55,23 +67,28 @@ internal static class MaDaiChecks
         Require(!forged.Accepted &&
                 game.Revision == beforeRevision &&
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeState,
-            "A forged Qianxi branch must be rejected atomically.");
+            "A forged Qianxi program branch must be rejected atomically.");
 
-        var restoredPrompt = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-        Require(SnapshotJson.Serialize(restoredPrompt.CreateSnapshot(0, revealAll: true)) == beforeState &&
-                restoredPrompt.PendingDecision is { Kind: DecisionKind.Qianxi, IsPrivate: true },
-            "A paused Qianxi offer must replay exactly.");
+        var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) == beforeState &&
+                IsQianxiPrompt(restored.PendingDecision),
+            "A paused Qianxi program offer must replay exactly.");
 
         var handBefore = game.CreateSnapshot(0, revealAll: true).Players[0].HandCount;
-        AnswerAction(game, "qianxi-skip");
+        AnswerProgramAction(game, "skip");
         ReachHumanPlay(game);
         Require(game.CreateSnapshot(0, revealAll: true).Players[0].HandCount == handBefore + 2 &&
-                game.Events.Select(item => item.Payload).OfType<QianxiResolvedEvent>()
-                    .Any(item => item is
-                        { PlayerSeat: 0, Used: false, DiscardedCardId: null, TargetSeat: null }) &&
-                QianxiUsages(game).Count == 0,
-            "Skipping Qianxi must continue with the normal draw and create no turn restriction.");
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == SkillId && !item.Activated && !item.Completed) &&
+                ActiveQianxiRestrictions(game).Count == 0,
+            "Skipping Qianxi must continue with normal drawing and create no turn restriction.");
 
+        var historicalGame = CreateGame(CreateRegistry(new Version(1, 115, 0)), fixture.Seed);
+        StartAndSelect(historicalGame);
+        Require(historicalGame.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } &&
+                historicalGame.Events.Select(item => item.Payload)
+                    .OfType<ProgramBindingStartedEvent>().All(item => item.SkillId != SkillId),
+            "Package 1.115.0 must remain metadata-only after the dedicated Qianxi executor is removed.");
     }
 
     public static void RedRestrictionFiltersHandResponsesAndReplays() =>
@@ -82,37 +99,42 @@ internal static class MaDaiChecks
 
     private static void VerifyColorRestriction(CardColor restrictedColor)
     {
-        var fixture = FindFixture(restrictedColor, stopAfterDiscardPrompt: true);
+        var fixture = FindFixture(restrictedColor, stopAfterPaymentPrompt: true);
         var game = fixture.Game;
         var before = game.CreateSnapshot(0, revealAll: true);
         var ownerHandBefore = before.Players[0].HandCount;
         var discard = before.Players[0].Hand.First(card =>
             GetColor(card.Suit) == restrictedColor && card.Kind != CardKind.Duel);
-        var discardPrompt = RequirePrompt(game, DecisionKind.Qianxi);
+        var discardPrompt = RequireQianxiPrompt(game);
+        Require(discardPrompt.SkillPrompt?.Title == "潜袭 · 选择支付牌" &&
+                discardPrompt.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"),
+            "Qianxi must use the shared owned-card payment prompt.");
         AnswerChoice(game, discardPrompt.Choices.Single(choice =>
             choice.Cards.Count == 1 && choice.Cards[0] == discard.Id));
 
-        var targetPrompt = RequirePrompt(game, DecisionKind.Qianxi);
+        var targetPrompt = RequireQianxiPrompt(game);
+        Require(targetPrompt.Choices.All(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
+                choice.Parameters.GetValueOrDefault("target-kind") ==
+                    SkillProgramTargetKind.OtherLivingAtDistanceOne.ToString()),
+            "Qianxi must expose only shared distance-one target choices.");
         var targetChoice = targetPrompt.Choices.Single(choice =>
             choice.Targets.Count == 1 && choice.Targets[0] == fixture.TargetSeat);
         AnswerChoice(game, targetChoice);
         ReachHumanPlay(game);
 
         var afterQianxi = game.CreateSnapshot(0, revealAll: true);
-        var expectedUsage = $"restriction.target-{fixture.TargetSeat}.{restrictedColor.ToString().ToLowerInvariant()}";
+        var grant = game.Events.Select(item => item.Payload)
+            .OfType<HandCardColorRestrictionGrantedEvent>()
+            .Single(item => item.Restriction.Source.SkillId == SkillId);
         Require(afterQianxi.Players[0].HandCount == ownerHandBefore + 1 &&
-                QianxiUsages(game).SingleOrDefault() is
-                { UsageId: var usageId, Scope: SkillUsageScope.Turn, Count: 1 } &&
-                usageId == expectedUsage &&
-                game.Events.Select(item => item.Payload).OfType<QianxiResolvedEvent>()
-                    .Any(item => item is
-                    {
-                        PlayerSeat: 0,
-                        Used: true,
-                        TargetSeat: var targetSeat,
-                        RestrictedColor: var color
-                    } && targetSeat == fixture.TargetSeat && color == restrictedColor),
-            "Qianxi must draw one, discard one, then publish one exact target-and-color turn state before normal drawing.");
+                grant.Restriction.AffectedSeat == fixture.TargetSeat &&
+                grant.Restriction.IsRed == (restrictedColor == CardColor.Red) &&
+                ActiveQianxiRestrictions(game).SingleOrDefault()?.GrantSequence == grant.Restriction.GrantSequence &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == SkillId && item.Activated && item.Completed),
+            "Qianxi must draw, discard, target and grant one generic target-and-color turn effect before normal drawing.");
 
         var duel = game.GetHumanLegalActions().FirstOrDefault(action =>
             action.Kind == LegalActionKind.Duel &&
@@ -156,8 +178,9 @@ internal static class MaDaiChecks
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
                 replayResponse?.Choices.SelectMany(choice => choice.Cards).Order()
-                    .SequenceEqual(response.Choices.SelectMany(choice => choice.Cards).Order()) == true,
-            "A paused Qianxi color-filtered response must replay exactly.");
+                    .SequenceEqual(response.Choices.SelectMany(choice => choice.Cards).Order()) == true &&
+                ActiveQianxiRestrictions(replay).SingleOrDefault()?.GrantSequence == grant.Restriction.GrantSequence,
+            "A paused generic Qianxi color-filtered response must replay exactly.");
 
         if (restrictedColor == CardColor.Black)
         {
@@ -175,37 +198,35 @@ internal static class MaDaiChecks
                 game.Revision,
                 RequirePrompt(game, DecisionKind.PlayCard).PromptId));
             Require(ended.Accepted, ended.Error?.Message ?? "The Qianxi turn could not end.");
-            for (var step = 0; step < 256 && QianxiUsages(game).Count != 0; step++)
+            for (var step = 0; step < 256 && ActiveQianxiRestrictions(game).Count != 0; step++)
             {
                 var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
                 Require(advanced.Accepted, advanced.Error?.Message ?? "The Qianxi expiry fixture could not advance.");
             }
-            Require(QianxiUsages(game).Count == 0,
-                "Qianxi's hand-color restriction must clear when Ma Dai's turn ends.");
+            Require(ActiveQianxiRestrictions(game).Count == 0 &&
+                    game.Events.Select(item => item.Payload).OfType<TurnCardUseEffectsExpiredEvent>()
+                        .Any(item => item.GrantSequences.Contains(grant.Restriction.GrantSequence)),
+                "Qianxi's generic hand-color restriction must clear when Ma Dai's turn ends.");
         }
     }
 
-    private static Fixture FindFixture(CardColor color, bool stopAfterDiscardPrompt)
+    private static Fixture FindFixture(CardColor color, bool stopAfterPaymentPrompt)
     {
         var registry = CreateRegistry();
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var game = CreateGame(registry, seed);
             StartAndSelect(game);
-            if (game.PendingDecision?.Kind != DecisionKind.Qianxi) continue;
-            if (!stopAfterDiscardPrompt)
-            {
+            if (!IsQianxiPrompt(game.PendingDecision)) continue;
+            if (!stopAfterPaymentPrompt)
                 return new Fixture(game, registry, seed, TargetSeat: 1);
-            }
 
-            AnswerAction(game, "qianxi-use");
+            AnswerProgramAction(game, "activate");
             var snapshot = game.CreateSnapshot(0, revealAll: true);
             if (!snapshot.Players[0].Hand.Any(card =>
                     GetColor(card.Suit) == color && card.Kind != CardKind.Duel) ||
                 !snapshot.Players[0].Hand.Any(card => card.Kind == CardKind.Duel))
-            {
                 continue;
-            }
 
             var target = snapshot.Players
                 .Where(player => player.Seat != 0 && game.GetCombatDistance(0, player.Seat) == 1)
@@ -213,9 +234,7 @@ internal static class MaDaiChecks
                     player.Hand.Any(card => IsSlash(card.Kind) && GetColor(card.Suit) == color) &&
                     player.Hand.Any(card => IsSlash(card.Kind) && GetColor(card.Suit) != color));
             if (target is not null)
-            {
                 return new Fixture(game, registry, seed, target.Seat);
-            }
         }
         throw new InvalidOperationException($"No bounded Ma Dai fixture exposed both Slash colors for {color} Qianxi.");
     }
@@ -234,10 +253,9 @@ internal static class MaDaiChecks
             "The Ma Dai fixture could not select its formal general.");
         for (var step = 0; step < 256; step++)
         {
-            if (game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.Qianxi or DecisionKind.PlayCard })
-            {
+            if (IsQianxiPrompt(game.PendingDecision) ||
+                game.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.PlayCard })
                 return;
-            }
             Require(game.PendingDecision?.PlayerSeat != 0,
                 $"Unexpected human prompt {game.PendingDecision?.Kind} before Ma Dai's preparation stage.");
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
@@ -259,11 +277,21 @@ internal static class MaDaiChecks
         throw new InvalidOperationException("The Ma Dai fixture did not return to play in bounded steps.");
     }
 
-    private static void AnswerAction(GameEngine game, string action)
+    private static bool IsQianxiPrompt(PendingDecision? prompt) =>
+        prompt is { PlayerSeat: 0, Kind: DecisionKind.ProgramTrigger } &&
+        prompt.SkillPrompt?.SkillId == SkillId;
+
+    private static PendingDecision RequireQianxiPrompt(GameEngine game) =>
+        IsQianxiPrompt(game.PendingDecision)
+            ? game.PendingDecision!
+            : throw new InvalidOperationException(
+                $"Expected a shared Qianxi prompt, found {game.PendingDecision?.Kind.ToString() ?? "no prompt"}.");
+
+    private static void AnswerProgramAction(GameEngine game, string action)
     {
-        var prompt = RequirePrompt(game, DecisionKind.Qianxi);
+        var prompt = RequireQianxiPrompt(game);
         AnswerChoice(game, prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == action));
+            choice.Parameters.GetValueOrDefault("program-action") == action));
     }
 
     private static void AnswerChoice(GameEngine game, PromptChoice choice)
@@ -271,7 +299,7 @@ internal static class MaDaiChecks
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("There is no human prompt to answer.");
         var result = game.Submit(new AnswerPromptCommand(
-            0,
+            prompt.PlayerSeat,
             prompt.PromptId,
             choice.Id,
             game.Revision));
@@ -284,9 +312,22 @@ internal static class MaDaiChecks
             : throw new InvalidOperationException(
                 $"Expected human {kind}, found {game.PendingDecision?.Kind.ToString() ?? "no prompt"}.");
 
-    private static IReadOnlyList<SkillUsageStateSnapshot> QianxiUsages(GameEngine game) =>
-        game.CreateSnapshot(0, revealAll: true).Players[0].SkillRuntimeStates!
-            .Single(state => state.SkillId == SkillId).Usages;
+    private static IReadOnlyList<TurnHandCardColorRestriction> ActiveQianxiRestrictions(GameEngine game)
+    {
+        var field = typeof(GameEngine).GetField(
+            "_turnCardUseEffects",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine turn-effect store was not found.");
+        var store = field.GetValue(game) ??
+            throw new InvalidOperationException("The engine turn-effect store is unavailable.");
+        var property = store.GetType().GetProperty(
+            "HandColorRestrictions",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The hand-color restriction view was not found.");
+        return ((IEnumerable)property.GetValue(store)!).Cast<TurnHandCardColorRestriction>()
+            .Where(item => item.Source.SkillId == SkillId)
+            .ToArray();
+    }
 
     private static CardColor GetColor(Suit suit) =>
         suit is Suit.Heart or Suit.Diamond ? CardColor.Red : CardColor.Black;
@@ -294,12 +335,9 @@ internal static class MaDaiChecks
     private static bool IsSlash(CardKind kind) =>
         kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
 
-    private static GameEngine CreateGame(
-        ContentRegistry registry,
-        int seed,
-        int rulesVersion = GameCheckpoint.CurrentRulesVersion)
+    private static GameEngine CreateGame(ContentRegistry registry, int seed)
     {
-        var game = GameEngine.CreateStandard(new GameOptions
+        return GameEngine.CreateStandard(new GameOptions
         {
             Seed = seed,
             PlayerCount = 4,
@@ -312,16 +350,15 @@ internal static class MaDaiChecks
             AiPolicyVersion = 2,
             MaxTurns = 40
         }, registry);
-        return rulesVersion == GameCheckpoint.CurrentRulesVersion
-            ? game
-            : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
     }
 
-    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry(Version? classicVersion = null) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        classicVersion is null
+            ? new StandardClassicGeneralPackage()
+            : new StandardClassicGeneralPackage(classicVersion),
         new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
@@ -348,13 +385,13 @@ internal static class MaDaiChecks
             "_players",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine player store was not found.");
-        var players = (System.Collections.IList)playersField.GetValue(game)!;
+        var players = (IList)playersField.GetValue(game)!;
         var responder = players[responderSeat]!;
         var getHand = typeof(GameEngine).GetMethod(
             "GetHand",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine hand accessor was not found.");
-        var slash = ((System.Collections.IEnumerable)getHand.Invoke(game, [responder])!)
+        var slash = ((IEnumerable)getHand.Invoke(game, [responder])!)
             .Cast<Card>()
             .Single(card => card.Id == slashCardId);
         var resolutionId = game.ResolutionStack.OfType<CardUseFrame>()

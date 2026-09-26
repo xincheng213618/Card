@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:youdi": {
+      "name": "诱敌",
+      "description": "结束阶段开始时，你可以令一名其他角色弃置你的一张牌。若其以此法弃置的牌不为【杀】，你获得其一张牌。"
+    }
+  }
+}

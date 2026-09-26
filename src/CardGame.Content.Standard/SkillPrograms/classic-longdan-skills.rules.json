@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 45,
+  "skills": [
+    {
+      "id": "classic:longdan",
+      "revision": 1,
+      "minimumRulesVersion": 152,
+      "viewAs": [
+        {
+          "id": "dodge-to-slash",
+          "inputKinds": ["dodge"],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true
+        },
+        {
+          "id": "slash-to-dodge",
+          "inputKinds": ["slash", "fireSlash", "thunderSlash"],
+          "inputSuits": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ]
+    }
+  ]
+}

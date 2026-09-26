@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 30,
+  "skills": [
+    {
+      "id": "classic:jujian",
+      "revision": 1,
+      "minimumRulesVersion": 135,
+      "triggers": [
+        {
+          "id": "turn-ending-support-choice",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "classicIdentityMode" },
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"], "cardCategories": ["trick", "equipment"],
+              "count": 1, "destination": "discardPile"
+            },
+            {
+              "op": "chooseOption", "target": "selectedTarget", "resultBind": "benefit",
+              "options": [
+                { "id": "draw", "condition": { "kind": "always" } },
+                { "id": "recover", "condition": { "kind": "wounded" } },
+                { "id": "restore", "condition": { "kind": "any", "children": [
+                  { "kind": "faceDown" }, { "kind": "chained" }
+                ] } }
+              ]
+            },
+            { "op": "draw", "target": "selectedTarget", "amount": 2,
+              "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "draw" } },
+            { "op": "recover", "target": "selectedTarget", "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "recover" } },
+            { "op": "setFaceState", "target": "selectedTarget", "faceDown": false,
+              "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "restore" } },
+            { "op": "setChainedState", "target": "selectedTarget", "chained": false,
+              "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "restore" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

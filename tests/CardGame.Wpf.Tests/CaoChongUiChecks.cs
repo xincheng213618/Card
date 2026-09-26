@@ -95,25 +95,25 @@ internal static class CaoChongUiChecks
 
     private static void RenderRenxinPrompt(string output)
     {
-        var fixture = FindPrompt(DecisionKind.Renxin);
+        var fixture = FindPrompt(DecisionKind.ProgramTrigger, "classic:renxin");
+        AnswerAction(fixture.Game, "activate", "program-action");
         using var viewModel = Load(fixture.Game, fixture.Registry);
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         var targetSeat = fixture.Game.PendingDecision?.TargetSeat;
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动仁心" &&
+                       viewModel.CurrentGuideTitle == "仁心 · 选择支付牌" &&
                        viewModel.CurrentDecisionContext is { TargetSeat: var contextTarget } &&
                        contextTarget == targetSeat &&
-                       viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "renxin-use" &&
-                           choice.Cards.Count == 1) &&
-                       viewModel.SkillChoices.Any(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "renxin-skip") &&
+                       viewModel.SkillChoices.Count > 0 &&
+                       viewModel.SkillChoices.All(choice =>
+                            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+                            choice.Cards.Count == 1) &&
                        viewModel.EventStack.Any(line =>
-                           line.Contains("DiscardEquipmentAndTurnOver(Renxin)", StringComparison.Ordinal)),
+                            line.Contains("Skill(仁心", StringComparison.Ordinal)),
             $"The generic WPF surface must show exact Renxin equipment costs and its protected target " +
-            $"(guide={viewModel.CurrentGuideTitle}, choices={viewModel.SkillChoices.Count}).");
+            $"(guide={viewModel.CurrentGuideTitle}, choices={viewModel.SkillChoices.Count}, target={targetSeat}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "221-classic-renxin-prevention.png"));
         window.Content = null;
@@ -145,11 +145,6 @@ internal static class CaoChongUiChecks
                     if (prompt.Kind == DecisionKind.ProgramTrigger)
                     {
                         AnswerAction(game, "skip", "program-action");
-                        continue;
-                    }
-                    if (prompt.Kind == DecisionKind.Renxin)
-                    {
-                        AnswerAction(game, "renxin-skip");
                         continue;
                     }
                     if (prompt.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.RescueDying)

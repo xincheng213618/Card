@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 46,
+  "skills": [
+    {
+      "id": "classic:wusheng",
+      "revision": 1,
+      "minimumRulesVersion": 155,
+      "viewAs": [
+        {
+          "id": "red-owned-as-slash",
+          "sourceZones": ["hand", "equipment"],
+          "inputKinds": [],
+          "inputSuits": ["heart", "diamond"],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true
+        }
+      ]
+    }
+  ]
+}

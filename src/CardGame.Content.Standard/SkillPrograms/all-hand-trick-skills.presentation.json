@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:qice": {
+      "name": "奇策",
+      "description": "出牌阶段限一次，你可以将所有手牌（至少一张）当任意一张普通锦囊牌使用。",
+      "triggerChoices": {},
+      "booleanStates": {},
+      "optionLabels": {}
+    },
+    "classic:zhiyu": {
+      "name": "智愚",
+      "description": "每当你受到伤害后，你可以摸一张牌，然后展示所有手牌；若颜色均相同，伤害来源弃置一张手牌。",
+      "triggerChoices": {},
+      "booleanStates": {},
+      "optionLabels": {}
+    }
+  }
+}

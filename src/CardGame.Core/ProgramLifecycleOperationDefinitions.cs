@@ -133,23 +133,39 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         static (effect, context) => context.SelectTargets(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "targetKind", "minimumTargets", "maximumTargets", "targetAiOrder", "condition");
+        r.AllowOnly("op", "target", "targetKind", "minimumTargets", "maximumTargets", "numberExpression", "targetAiOrder", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var kind = r.RequiredEnum<SkillProgramTargetKind>("targetKind");
-        if (kind != SkillProgramTargetKind.OtherLivingWithHand)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetKind: selectTargets requires otherLivingWithHand.");
+        if (kind is not (SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
+            SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLivingHandAtLeastOwner))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetKind: unsupported target set.");
         var minimum = r.RequiredInt("minimumTargets");
         var maximum = r.RequiredInt("maximumTargets");
-        if (minimum < 1 || maximum < minimum || maximum > 2)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds must satisfy 1 <= minimumTargets <= maximumTargets <= 2.");
-        var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), targetKind: kind,
+        var numberExpression = r.Has("numberExpression")
+            ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
+        if (numberExpression is not null and not (SkillProgramNumberExpression.CurrentHandCount or
+            SkillProgramNumberExpression.PlannedNormalDrawCount))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
+        if (minimum < 1 || maximum < minimum || maximum > (kind is SkillProgramTargetKind.AnyLiving or
+            SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds exceed the supported participant count.");
+        if (kind == SkillProgramTargetKind.OtherLivingUnequalHandPair && (minimum != 2 || maximum != 2))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: unequal-hand pairs require exactly two targets.");
+        var aiOrder = r.RequiredEnum<SkillProgramTargetAiOrder>("targetAiOrder");
+        if (aiOrder == SkillProgramTargetAiOrder.SupportFirstThenOpposeSecond &&
+            (kind != SkillProgramTargetKind.OtherLivingUnequalHandPair || minimum != 2 || maximum != 2))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: support-first transfer order requires an unequal-hand pair.");
+        var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), numberExpression: numberExpression, targetKind: kind,
             minimumTargets: minimum, maximumTargets: maximum,
-            targetAiOrder: r.RequiredEnum<SkillProgramTargetAiOrder>("targetAiOrder"));
+            targetAiOrder: aiOrder);
         RequireAlways(effect, r.Path);
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)];
+        effect.NumberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount
+            ? [new RequireContext(ProgramContextCapability.DrawPlan),
+                new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)]
+            : [new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)];
 }
 
 internal sealed class SelectSourceCardProgramOperationDescriptor : ProgramOperationDescriptorBase
@@ -166,8 +182,12 @@ internal sealed class SelectSourceCardProgramOperationDescriptor : ProgramOperat
             ? r.RequiredEnum<SkillProgramCardSource>("cardSource")
             : SkillProgramCardSource.DamageSource;
         var zones = r.RequiredEnumArray<CardZoneKind>("zones");
-        if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: requires hand and/or equipment.");
+        if (zones.Count == 0 || zones.Any(zone => zone is not
+            (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain or
+             CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao)) ||
+            cardSource != SkillProgramCardSource.Owner && zones.Any(zone => zone is not
+                (CardZoneKind.Hand or CardZoneKind.Equipment)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: requires hand/equipment or an owned persistent pile.");
         var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0,
             r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), zones: zones,
             cardSource: cardSource);
@@ -224,13 +244,21 @@ internal sealed class AdjustNormalDrawProgramOperationDescriptor : ProgramOperat
         static (effect, context) => context.AdjustNormalDraw(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "condition");
-        var amount = r.RequiredInt("amount");
-        if (amount is < -20 or > 20 || amount == 0)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.amount: must be a non-zero value from -20 through 20.");
-        return new(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), amount, r.Condition());
+        r.AllowOnly("op", "target", "amount", "numberExpression", "condition");
+        var expression = r.Has("numberExpression")
+            ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
+        if (expression is not null and not SkillProgramNumberExpression.SelectedTargetCount)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.numberExpression: only selectedTargetCount is supported.");
+        var amount = r.Has("amount") ? r.RequiredInt("amount") : 0;
+        if (expression is null && amount is < -20 or > 20 || expression is null && amount == 0 ||
+            expression is not null && (r.Has("amount") || amount != 0))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: specify a non-zero fixed amount or selectedTargetCount without amount.");
+        return new(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), amount, r.Condition(),
+            numberExpression: expression);
     }
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        effect.NumberExpression == SkillProgramNumberExpression.SelectedTargetCount
+            ? [new ReadTargetSet(1)] : [];
 }
 
 internal abstract class TurnEffectProgramOperationDescriptorBase : ProgramOperationDescriptorBase
@@ -280,6 +308,45 @@ internal sealed class GrantTurnCardActionProhibitionProgramOperationDescriptor :
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }
 
+internal sealed class GrantTurnHandColorRestrictionProgramOperationDescriptor : TurnEffectProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnHandColorRestriction;
+    public override ISkillProgramEffectHandler Handler { get; } = new GrantTurnHandColorRestrictionSkillProgramEffectHandler();
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GrantTurnHandColorRestriction,
+        static (effect, context) => context.GrantTurnHandColorRestriction(effect));
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "sourceBind", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target != SkillProgramEffectTarget.SelectedTarget)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.target: hand-color restriction requires selectedTarget.");
+        var effect = new SkillProgramEffect(Op, target, 0, r.Condition(),
+            sourceBind: r.RequiredIdentifier("sourceBind"));
+        RequireAlways(effect, r.Path);
+        return effect;
+    }
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        WithSelectedTarget(effect, [new ReadSingleCardSet(effect.SourceBind!)]);
+}
+
+internal sealed class PreventCurrentDamageProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.PreventCurrentDamage;
+    public override ISkillProgramEffectHandler Handler { get; } = new PreventCurrentDamageSkillProgramEffectHandler();
+    public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.Damage;
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.PreventCurrentDamage,
+        static (effect, context) => context.PreventCurrentDamage(effect));
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "condition");
+        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
+        RequireAlways(effect, r.Path);
+        return effect;
+    }
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+}
+
 internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffectProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnRuleModifier;
@@ -297,8 +364,10 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
                 ruleQuery: query, ruleOperation: operation);
         }
         r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "condition");
-        if (query != SkillRuleQuery.SlashDistanceLimit || operation != SkillRuleOperation.Unlimited)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: supports slashLimit add or slashDistanceLimit unlimited.");
+        if (query is not (SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) ||
+            operation != SkillRuleOperation.Unlimited)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: supports slashLimit add, slashDistanceLimit unlimited or attackRange unlimited.");
         return new(Op, Owner(r), 0, r.Condition(), ruleQuery: query, ruleOperation: operation);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
@@ -338,14 +407,20 @@ internal sealed class StartJudgmentProgramOperationDescriptor : ProgramOperation
         var visibility = r.RequiredEnum<SkillProgramCardSetVisibility>("visibility");
         if (visibility != SkillProgramCardSetVisibility.Public)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.visibility: judgment results must remain public.");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0,
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.target: judgments support owner or selectedTarget.");
+        var effect = new SkillProgramEffect(Op, target, 0,
             r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), visibility: visibility,
             judgmentReason: r.RequiredIdentifier("judgmentReason"));
         RequireAlways(effect, r.Path);
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new CreateCardSet(effect.ResultBind!, 1, true)];
+        Array.AsReadOnly((effect.Target == SkillProgramEffectTarget.SelectedTarget
+            ? new ProgramResourceOperation[] { new ReadSelectedTarget(), new CreateCardSet(effect.ResultBind!, 1, true) }
+            : [new CreateCardSet(effect.ResultBind!, 1, true)]));
 }
 
 internal sealed class GrantTurnCardConversionProgramOperationDescriptor : TurnEffectProgramOperationDescriptorBase

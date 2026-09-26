@@ -66,7 +66,10 @@ internal static class XunYouUiChecks
         var root = (FrameworkElement)window.Content;
         var qice = viewModel.HumanSkillCards.SingleOrDefault(skill => skill.Name == "奇策");
         var zhiyu = viewModel.HumanSkillCards.SingleOrDefault(skill => skill.Name == "智愚");
-        var action = viewModel.HumanActiveSkillActions.Single(candidate => candidate.Skill == SkillKind.Qice);
+        var action = viewModel.HumanActiveSkillActions.Single(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == "classic:qice" &&
+            candidate.ProgramActivationId == "all-hand-as-ordinary-trick");
         Program.Assert(qice is { TypeText: "主动技", StateText: "当前可发动", IsAvailable: true } &&
                        zhiyu is { TypeText: "触发技", StateText: "等待触发时机" } &&
                        action.MinCardCount == viewModel.Hand.Count && action.MaxCardCount == viewModel.Hand.Count,
@@ -82,7 +85,7 @@ internal static class XunYouUiChecks
         viewModel.ConfirmSelectedCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "为奇策选择普通锦囊" &&
+                       viewModel.CurrentGuideTitle == "奇策 · 选择普通锦囊" &&
                        viewModel.SkillChoices.Any(choice =>
                            choice.Parameters.GetValueOrDefault("card-kind") == nameof(CardKind.DrawTwo)) &&
                        viewModel.SkillChoices.Any(choice =>
@@ -95,8 +98,12 @@ internal static class XunYouUiChecks
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.Single(choice =>
             choice.Parameters.GetValueOrDefault("card-kind") == nameof(CardKind.DrawTwo)));
         Program.Assert(viewModel.BattleCues.Any(cue =>
-                           cue.Kind == BattleCueKind.Response && cue.Label == "奇策 · 无中生有") &&
-                       Program.Engine(viewModel).Events.Select(item => item.Payload).OfType<QiceConvertedEvent>().Any(),
+                           cue.Kind == BattleCueKind.Response &&
+                           cue.Label.StartsWith("奇策 · ", StringComparison.Ordinal) &&
+                           cue.Label.Contains("无中生有", StringComparison.Ordinal)) &&
+                       Program.Engine(viewModel).Events.Select(item => item.Payload)
+                           .OfType<ProgramViewAsConvertedEvent>()
+                           .Any(item => item.SkillId == "classic:qice" && item.IsUse),
             "Confirming Qice as Draw Two must publish the typed conversion and public battle cue.");
         window.Content = null;
         window.Close();
@@ -110,21 +117,26 @@ internal static class XunYouUiChecks
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
         Program.Assert(viewModel.IsSkillSelectionPending &&
-                       viewModel.CurrentGuideTitle == "决定是否发动智愚" &&
-                       viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
-                           .Order(StringComparer.Ordinal).SequenceEqual(["zhiyu-skip", "zhiyu-use"]),
+                       viewModel.CurrentGuideTitle == "智愚 · 是否发动" &&
+                       viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
+                           .Order(StringComparer.Ordinal).SequenceEqual(["activate", "skip"]),
             $"The WPF must render the optional private Zhiyu trigger without flattening it into an active button " +
             $"(guide={viewModel.CurrentGuideTitle}, choices={viewModel.SkillChoices.Count}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "202-classic-xun-you-zhiyu-choice.png"));
 
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "zhiyu-use"));
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
         Program.Assert(!viewModel.IsSkillSelectionPending && viewModel.CanStepAi,
             "The AI source's exact Zhiyu discard prompt must remain hidden while the host can advance it.");
         viewModel.StepAiCommand.Execute(null);
-        Program.Assert(Program.Engine(viewModel).Events.Select(item => item.Payload).OfType<ZhiyuResolvedEvent>()
-                           .Any(result => result is { Used: true, AllSameColor: true, DiscardedCardId: not null }) &&
+        Program.Assert(Program.Engine(viewModel).Events.Select(item => item.Payload)
+                           .OfType<ProgramCardsRevealedEvent>()
+                           .Any(result => result.SkillId == "classic:zhiyu" && result.Cards.Count > 0) &&
+                       Program.Engine(viewModel).Events.Select(item => item.Payload)
+                           .OfType<ProgramBindingResolvedEvent>()
+                           .Any(result => result.SkillId == "classic:zhiyu" &&
+                                          result is { Activated: true, Completed: true }) &&
                        viewModel.BattleCues.Any(cue =>
                            cue.Kind == BattleCueKind.Response && cue.Label.StartsWith("智愚 · 展示", StringComparison.Ordinal)),
             "Resolving the hidden source discard must produce the public Zhiyu result and battle cue.");
@@ -184,7 +196,12 @@ internal static class XunYouUiChecks
             for (var step = 0; step < 1_024; step++)
             {
                 if (game.PendingDecision is
-                    { Kind: DecisionKind.Zhiyu, PlayerSeat: HumanSeat, SourceSeat: var sourceSeat } &&
+                    {
+                        Kind: DecisionKind.ProgramTrigger,
+                        PlayerSeat: HumanSeat,
+                        SourceSeat: var sourceSeat,
+                        SkillPrompt.SkillId: "classic:zhiyu"
+                    } &&
                     sourceSeat is { } source &&
                     game.CreateSnapshot(HumanSeat, revealAll: true).Players[source].HandCount > 0)
                 {
@@ -262,7 +279,7 @@ internal static class XunYouUiChecks
         public PackageManifest Manifest { get; } = new(
             "xun-you-wpf-test",
             new Version(1, 0, 0),
-            [new PackageDependency("standard-classic-generals", new Version(1, 87, 0))]);
+            [new PackageDependency("standard-classic-generals", new Version(1, 120, 0))]);
 
         public void Register(IContentRegistryBuilder builder)
         {

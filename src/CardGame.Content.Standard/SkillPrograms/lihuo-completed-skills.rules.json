@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 44,
+  "skills": [
+    {
+      "id": "classic:lihuo",
+      "revision": 1,
+      "minimumRulesVersion": 149,
+      "triggers": [
+        {
+          "id": "lose-hp-after-converted-fire-slash-damage",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "cardKinds": ["fireSlash"],
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardUseCausedDamage" },
+              {
+                "kind": "cardUseConversionSkillIs",
+                "conversionSkillId": "classic:lihuo"
+              }
+            ]
+          },
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 36,
+  "skills": [
+    {
+      "id": "classic:qice",
+      "revision": 1,
+      "minimumRulesVersion": 141,
+      "activations": [
+        {
+          "id": "all-hand-as-ordinary-trick",
+          "minCards": 1,
+          "maxCards": 64,
+          "sourceZones": ["hand"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "useAllHandCardsAsOrdinaryTrick",
+              "target": "owner",
+              "viewAsId": "all-hand-as-ordinary-trick",
+              "condition": { "kind": "always" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:zhiyu",
+      "revision": 1,
+      "minimumRulesVersion": 141,
+      "triggers": [
+        {
+          "id": "draw-reveal-and-punish-source",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "allOwnedZoneCards",
+              "zones": ["hand"],
+              "resultBind": "revealed-hand"
+            },
+            {
+              "op": "revealBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed-hand"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "eventSource" },
+              "cardOwnerRef": { "kind": "eventSource" },
+              "zones": ["hand"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "condition": {
+                "kind": "boundCardsSameColor",
+                "sourceBind": "revealed-hand"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

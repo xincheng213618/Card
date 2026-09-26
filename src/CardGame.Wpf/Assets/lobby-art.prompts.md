@@ -1,0 +1,11 @@
+# Lobby artwork
+
+Generated with the built-in image_gen tool on 2026-09-26. Original artwork; no text or controls are baked into the images. Existing general portraits are reused for the four side entrances and the gallery banner.
+
+## lobby-river-city.png
+
+Use case: historical-scene. Asset type: full-window background illustration for a Three Kingdoms strategy card game desktop lobby. Create a premium painterly Chinese historical fantasy environment, wide landscape 16:9, high resolution. Warm dusk sky in parchment ivory, muted dusty peach, pale gold and taupe, atmospheric mountain ranges across the horizon. Ancient fortified river city with elegant Chinese watchtowers at bottom left and bottom right, distant banners and tiny sailboats, hazy river reflecting sunset. The CENTER and UPPER TWO THIRDS must be spacious, softly lit and low-detail to sit behind UI. Architecture concentrated at bottom and far edges. Sophisticated illustrated game art with ink-wash atmosphere and delicate realistic details, nostalgic Chinese PC card-game lobby mood. No people, no text, no lettering, no logos, no UI, no borders, no watermarks. This is original background art, not a UI screenshot.
+
+## lobby-featured-general.png
+
+Use case: stylized-concept. Asset type: tall portrait hero card artwork for a Three Kingdoms strategy card game lobby. Original charismatic young Chinese general in ornate black iron and antique-gold lamellar armor, deep crimson silk cloak, long dark hair tied in a high warrior knot, elegant gold helmet crest. Confident focused expression, handsome face. Three-quarter upper-body pose, one hand gripping a long spear that runs diagonally toward upper left. Lively wind-blown red ribbons. Character head at upper quarter, torso centered, leave bottom quarter dark and quieter for UI text overlay. Background an atmospheric ancient palace doorway, muted burgundy and bronze, warm rim light and subtle embers. Premium hand-painted Chinese historical fantasy collectible card illustration, rich material details, sophisticated semi-realistic painting, dramatic but restrained. Vertical 2:3 composition, full-bleed art. No text, no lettering, no logos, no UI, no frames, no watermarks.

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "boundary:yiji": {
+      "name": "遗计",
+      "description": "当你受到1点伤害后，你可以摸两张牌，然后可以将至多两张手牌交给一至两名其他角色。"
+    }
+  }
+}

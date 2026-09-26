@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 37,
+  "skills": [
+    {
+      "id": "classic:zhuiyi",
+      "revision": 2,
+      "minimumRulesVersion": 142,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "owner-death-benefit",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingExceptSource"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 3
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

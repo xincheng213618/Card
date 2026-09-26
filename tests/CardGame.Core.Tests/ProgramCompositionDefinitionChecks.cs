@@ -62,6 +62,19 @@ internal static class ProgramCompositionDefinitionChecks
         Require(ownerActor.Hint is { OwnerDraw: 2, TargetDraw: 0 } &&
                 otherActor.Hint is { OwnerDraw: 0, TargetDraw: 2 },
             "Actor-target AI must count an owner actor exactly once and retain a distinct external actor target.");
+        var nullify = Parse(ProgramOperationCatalog.Default,
+            """{"op":"nullifyCurrentCardEffect","target":"owner"}""");
+        var loseOneHp = Parse(ProgramOperationCatalog.Default,
+            """{"op":"loseHp","target":"owner","amount":1}""");
+        var harmfulNullify = ProgramCompositionAi.Estimate([nullify, loseOneHp], player,
+            publicContext: new ProgramAiPublicContext(0, CardUseEffectiveKind: CardKind.Slash));
+        var harmlessNullify = ProgramCompositionAi.Estimate([nullify, loseOneHp], player,
+            publicContext: new ProgramAiPublicContext(0, CardUseEffectiveKind: CardKind.DrawTwo));
+        var lethalNullify = ProgramCompositionAi.Estimate([nullify, loseOneHp],
+            player with { Hp = 1 },
+            publicContext: new ProgramAiPublicContext(0, CardUseEffectiveKind: CardKind.Slash));
+        Require(harmfulNullify.Score > 0 && harmlessNullify.Score < 0 && lethalNullify.IsSelfLethal,
+            "Card-effect nullification AI must pay HP only for harmful effects and retain the shared self-lethal guard.");
     }
 
     public static void CatalogDiscoversCompleteOperations()
@@ -76,6 +89,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.SelectCardSubset] = """{"op":"selectCardSubset","target":"owner","sourceBind":"shown","resultBind":"picked","minimumCards":0,"maximumCards":2,"maximumRankSum":13,"aiOrder":"mostCardsThenRankSum"}""",
             [SkillProgramEffectOp.MoveBoundCards] = """{"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile"}""",
             [SkillProgramEffectOp.GiveBoundCard] = """{"op":"giveBoundCard","target":"owner","sourceBind":"drawn","targetKind":"otherLiving"}""",
+            [SkillProgramEffectOp.DistributeOwnedCards] = """{"op":"distributeOwnedCards","target":"owner","zones":["hand"],"numberExpression":"boundCardCount","sourceBind":"drawn","targetKind":"otherLiving","allowDeclineBeforeFirst":true}""",
+            [SkillProgramEffectOp.RequestAttackRangeAid] = """{"op":"requestAttackRangeAid","target":"selectedTarget"}""",
             [SkillProgramEffectOp.SelectTarget] = """{"op":"selectTarget","target":"owner","targetKind":"otherLiving"}""",
             [SkillProgramEffectOp.TurnOver] = """{"op":"turnOver","target":"owner"}""",
             [SkillProgramEffectOp.SetFaceState] = """{"op":"setFaceState","target":"owner","faceDown":true}""",
@@ -105,7 +120,22 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.Damage] = """{"op":"damage","target":"selectedTarget","amount":1}""",
             [SkillProgramEffectOp.Pindian] = """{"op":"pindian","target":"selectedTarget","amount":1}""",
             [SkillProgramEffectOp.ChangeMaximumHp] = """{"op":"changeMaximumHp","target":"owner","amount":-1}""",
-            [SkillProgramEffectOp.GrantSkills] = """{"op":"grantSkills","target":"owner","skillIds":["classic:paiyi"]}"""
+            [SkillProgramEffectOp.GrantSkills] = """{"op":"grantSkills","target":"owner","skillIds":["classic:paiyi"]}""",
+            [SkillProgramEffectOp.ChooseOption] = """{"op":"chooseOption","target":"owner","resultBind":"answer","options":[{"id":"yes","condition":{"kind":"always"}}]}""",
+            [SkillProgramEffectOp.SelectOwnedCards] = """{"op":"selectOwnedCards","target":"owner","amount":2,"zones":["hand","equipment"],"resultBind":"selected"}""",
+            [SkillProgramEffectOp.GrantTurnHandColorRestriction] = """{"op":"grantTurnHandColorRestriction","target":"selectedTarget","sourceBind":"selected"}""",
+            [SkillProgramEffectOp.PreventCurrentDamage] = """{"op":"preventCurrentDamage","target":"owner"}""",
+            [SkillProgramEffectOp.CaptureSelectedCards] = """{"op":"captureSelectedCards","target":"owner","resultBind":"captured"}""",
+            [SkillProgramEffectOp.RevealBoundCards] = """{"op":"revealBoundCards","target":"owner","sourceBind":"captured"}""",
+            [SkillProgramEffectOp.ChooseDifferentCategoryDiscard] = """{"op":"chooseDifferentCategoryDiscard","target":"owner","chooserRef":{"kind":"selectedTarget"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["hand"],"sourceBind":"captured","resultBind":"response"}""",
+            [SkillProgramEffectOp.UseSelectedCardsAs] = """{"op":"useSelectedCardsAs","target":"selectedTarget","sourceBind":"two-as-slash","outputKind":"slash"}""",
+            [SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick] = """{"op":"useAllHandCardsAsOrdinaryTrick","target":"owner","viewAsId":"all-hand-trick"}""",
+            [SkillProgramEffectOp.GrantTurnSkills] = """{"op":"grantTurnSkills","target":"owner","skillIds":["classic:wusheng","classic:paoxiao"]}""",
+            [SkillProgramEffectOp.ChangeAttributedMarker] = """{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}""",
+            [SkillProgramEffectOp.CauseDeathUnlessBoundCardKind] = """{"op":"causeDeathUnlessBoundCardKind","target":"selectedTarget","sourceBind":"judgment","excludedCardKinds":["peach","peachGarden"]}""",
+            [SkillProgramEffectOp.UseBoundCardAsDyingAlcohol] = """{"op":"useBoundCardAsDyingAlcohol","target":"owner","sourceBind":"rescue-card"}""",
+            [SkillProgramEffectOp.ChooseOtherOwnedCardDiscard] = """{"op":"chooseOtherOwnedCardDiscard","target":"owner","chooserRef":{"kind":"owner"},"zones":["hand","equipment","judgment"],"condition":{"kind":"always"}}""",
+            [SkillProgramEffectOp.NullifyCurrentCardEffect] = """{"op":"nullifyCurrentCardEffect","target":"owner"}"""
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");
@@ -306,6 +336,268 @@ internal static class ProgramCompositionDefinitionChecks
         Reject(() => Parse(ProgramOperationCatalog.Default,
             """{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"resultSource"},"cardOwnerRef":{"kind":"actor"},"zones":["hand"],"count":1,"destination":"discardPile"}"""),
             "resultBind");
+
+        const string restrictionEffects = """
+        [{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"owner"},"zones":["hand"],"count":1,"destination":"discardPile","resultBind":"discarded"},
+         {"op":"selectTarget","target":"owner","targetKind":"otherLivingAtDistanceOne"},
+         {"op":"grantTurnHandColorRestriction","target":"selectedTarget","sourceBind":"discarded"}]
+        """;
+        var restrictionTrigger = $$"""
+        {"id":"restriction","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,
+         "effects":{{restrictionEffects}}}
+        """;
+        Reject(() => Load("fixture:restriction31", Rules("fixture:restriction31", restrictionEffects,
+            $"\"activations\":[],\"triggers\":[{restrictionTrigger}]", schema: 31, minimumRules: 136)),
+            "schema version 32");
+        var restrictionProgram = Load("fixture:restriction32", Rules("fixture:restriction32", restrictionEffects,
+            $"\"activations\":[],\"triggers\":[{restrictionTrigger}]", schema: 32, minimumRules: 137));
+        Require(restrictionProgram.RuntimeVersion == "skill-program-v32" &&
+                restrictionProgram.MinimumRulesVersion == 137,
+            "Schema 32 hand-color restriction programs must retain their exact runtime boundary.");
+
+        const string preventionEffects = """[{"op":"preventCurrentDamage","target":"owner"}]""";
+        var preventionTrigger = $$$"""
+        {"id":"prevention","window":"beforeDamageApplied","subject":"owner","optional":true,
+         "condition":{"kind":"compare","left":{"kind":"eventTargetHp"},"operator":"equal","right":{"kind":"integerConstant","value":1}},
+         "effects":{{{preventionEffects}}}}
+        """;
+        Reject(() => Load("fixture:prevention32", Rules("fixture:prevention32", preventionEffects,
+            $"\"activations\":[],\"triggers\":[{preventionTrigger}]", schema: 32, minimumRules: 137)),
+            "schema version 33");
+        var preventionProgram = Load("fixture:prevention33", Rules("fixture:prevention33", preventionEffects,
+            $"\"activations\":[],\"triggers\":[{preventionTrigger}]", schema: 33, minimumRules: 138));
+        Require(preventionProgram.RuntimeVersion == "skill-program-v33" &&
+                preventionProgram.MinimumRulesVersion == 138 &&
+                preventionProgram.Triggers.Single().Window == SkillProgramTriggerWindow.BeforeDamageApplied,
+            "Schema 33 before-damage prevention programs must retain their exact runtime boundary.");
+
+        const string categoryEffects = """
+        [{"op":"captureSelectedCards","target":"owner","resultBind":"cost"},
+         {"op":"moveBoundCards","target":"owner","sourceBind":"cost","destination":"discardPile"},
+         {"op":"chooseDifferentCategoryDiscard","target":"owner","chooserRef":{"kind":"selectedTarget"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["hand"],"sourceBind":"cost","resultBind":"response"},
+         {"op":"turnOver","target":"selectedTarget","condition":{"kind":"choiceIs","sourceBind":"response","optionId":"declined"}},
+         {"op":"draw","target":"selectedTarget","numberExpression":"boundCardCount","sourceBind":"cost","condition":{"kind":"choiceIs","sourceBind":"response","optionId":"declined"}}]
+        """;
+        var categoryActivation = $$"""
+        {"id":"category","minCards":1,"maxCards":3,"sourceZones":["hand"],"minTargets":1,"maxTargets":1,
+         "targetKind":"otherLiving","usesPerTurn":1,"condition":{"kind":"always"},"effects":{{categoryEffects}}}
+        """;
+        Reject(() => Load("fixture:category33", Rules("fixture:category33", categoryEffects,
+            $"\"activations\":[{categoryActivation}],\"triggers\":[]", schema: 33, minimumRules: 138)),
+            "schema version 34");
+        var categoryProgram = Load("fixture:category34", Rules("fixture:category34", categoryEffects,
+            $"\"activations\":[{categoryActivation}],\"triggers\":[]", schema: 34, minimumRules: 139));
+        Require(categoryProgram.RuntimeVersion == "skill-program-v34" &&
+                categoryProgram.MinimumRulesVersion == 139 &&
+                categoryProgram.Activations.Single() is { MinCards: 1, MaxCards: 3 } activation &&
+                activation.Effects.Select(effect => effect.Op).SequenceEqual([
+                    SkillProgramEffectOp.CaptureSelectedCards,
+                    SkillProgramEffectOp.MoveBoundCards,
+                    SkillProgramEffectOp.ChooseDifferentCategoryDiscard,
+                    SkillProgramEffectOp.TurnOver,
+                    SkillProgramEffectOp.Draw]),
+            "Schema 34 category challenges must retain variable activation cards, exact choice binding and bound-card draws.");
+
+        static string MultiCardRules(int schema, int minimumRules) => $$$"""
+        {"schemaVersion":{{{schema}}},"skills":[{"id":"fixture:multi-card","revision":1,
+         "minimumRulesVersion":{{{minimumRules}}},"modifiers":[],
+         "viewAs":[{"id":"two-as-slash","inputKinds":[],"inputSuits":[],"inputCount":2,
+          "outputKind":"slash","forPlay":true,"forResponse":true,"condition":{"kind":"always"}}],
+         "activations":[{"id":"two-as-slash","minCards":2,"maxCards":2,"sourceZones":["hand"],
+          "minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,
+          "condition":{"kind":"always"},"effects":[{"op":"useSelectedCardsAs","target":"selectedTarget",
+          "sourceBind":"two-as-slash","outputKind":"slash"}]}],
+         "triggers":[{"id":"grant","window":"afterDamageApplied","subject":"source",
+          "sourceSkillId":"fixture:multi-card","sourceViewAsId":"two-as-slash","damageOccurrence":"perDamage",
+          "optional":false,"priority":0,"usageScope":"turn","usageLimit":1,"condition":{"kind":"always"},
+          "effects":[{"op":"grantTurnSkills","target":"owner","skillIds":["classic:wusheng","classic:paoxiao"]}]}],
+         "contributions":[],"cardIdentities":[]}]}
+        """;
+        Reject(() => Load("fixture:multi-card", MultiCardRules(34, 139)), "inputCount");
+        Reject(() => Load("fixture:multi-card", MultiCardRules(34, 139)
+            .Replace("\"inputCount\":2,", string.Empty, StringComparison.Ordinal)), "schema version 35");
+        var multiCardProgram = Load("fixture:multi-card", MultiCardRules(35, 140));
+        Require(multiCardProgram.RuntimeVersion == "skill-program-v35" &&
+                multiCardProgram.MinimumRulesVersion == 140 &&
+                multiCardProgram.ViewAs.Single() is { Id: "two-as-slash", InputCount: 2 } &&
+                multiCardProgram.Activations.Single().Effects.Single().Op ==
+                    SkillProgramEffectOp.UseSelectedCardsAs &&
+                multiCardProgram.Triggers.Single() is
+                {
+                    Subject: SkillProgramTriggerSubject.Source,
+                    SourceSkillId: "fixture:multi-card",
+                    SourceViewAsId: "two-as-slash"
+                } sourceTrigger &&
+                sourceTrigger.Effects.Single().Op == SkillProgramTriggerEffectOp.GrantTurnSkills,
+            "Schema 35 must own multi-card view-as, selected-card use, damage-source filtering and turn grants.");
+
+        const string allHandEffects =
+            """[{"op":"useAllHandCardsAsOrdinaryTrick","target":"owner","viewAsId":"all-hand-trick","condition":{"kind":"always"}}]""";
+        var allHandActivation = $$"""
+        {"id":"all-hand-trick","minCards":1,"maxCards":64,"sourceZones":["hand"],
+         "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
+         "condition":{"kind":"always"},"effects":{{allHandEffects}}}
+        """;
+        Reject(() => Load("fixture:all-hand-trick", Rules("fixture:all-hand-trick", allHandEffects,
+            $"\"activations\":[{allHandActivation}],\"triggers\":[]", schema: 35, minimumRules: 140)),
+            "schema version 36");
+        var allHandProgram = Load("fixture:all-hand-trick", Rules("fixture:all-hand-trick", allHandEffects,
+            $"\"activations\":[{allHandActivation}],\"triggers\":[]", schema: 36, minimumRules: 141));
+        Require(allHandProgram.RuntimeVersion == "skill-program-v36" &&
+                allHandProgram.MinimumRulesVersion == 141 &&
+                allHandProgram.Activations.Single().Effects.Single() is
+                {
+                    Op: SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick,
+                    SourceBind: "all-hand-trick"
+                },
+            "Schema 36 must own the all-hand ordinary-trick activation contract.");
+
+        const string completeZoneEffects = """
+        [{"op":"selectOwnedCards","target":"owner","numberExpression":"allOwnedZoneCards","zones":["hand"],"resultBind":"revealed"},
+         {"op":"revealBoundCards","target":"owner","sourceBind":"revealed"},
+         {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"eventSource"},"cardOwnerRef":{"kind":"eventSource"},
+          "zones":["hand"],"count":1,"destination":"discardPile","skipIfNoCards":true,
+          "condition":{"kind":"boundCardsSameColor","sourceBind":"revealed"}}]
+        """;
+        var completeZoneTrigger = $$"""
+        {"id":"reveal","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage",
+         "optional":true,"priority":0,"condition":{"kind":"always"},"effects":{{completeZoneEffects}}}
+        """;
+        Reject(() => Load("fixture:complete-zone", Rules("fixture:complete-zone", completeZoneEffects,
+            $"\"activations\":[],\"triggers\":[{completeZoneTrigger}]", schema: 35, minimumRules: 140)),
+            "schema version 36");
+        var completeZoneProgram = Load("fixture:complete-zone", Rules("fixture:complete-zone", completeZoneEffects,
+            $"\"activations\":[],\"triggers\":[{completeZoneTrigger}]", schema: 36, minimumRules: 141));
+        var completeZoneProgramEffects = completeZoneProgram.Triggers.Single().Effects;
+        Require(completeZoneProgram.RuntimeVersion == "skill-program-v36" &&
+                completeZoneProgramEffects[0].NumberExpression == SkillProgramNumberExpression.AllOwnedZoneCards &&
+                completeZoneProgramEffects[2].Condition.Kind == SkillProgramConditionKind.BoundCardsSameColor &&
+                completeZoneProgramEffects[2].SkipIfNoCards,
+            "Schema 36 must own complete-zone capture, bound-card color tests and empty-card skipping.");
+
+        const string attackRangeEffects =
+            """[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"attackRange","ruleOperation":"unlimited"}]""";
+        Reject(() => Load("fixture:attack-range47", Rules("fixture:attack-range47", attackRangeEffects,
+            Entries(attackRangeEffects, includeTriggers: false), schema: 47, minimumRules: 157)),
+            "schema version 48");
+        var attackRangeProgram = Load("fixture:attack-range48", Rules("fixture:attack-range48", attackRangeEffects,
+            Entries(attackRangeEffects, includeTriggers: false), schema: 48, minimumRules: 158));
+        Require(attackRangeProgram.RuntimeVersion == "skill-program-v48" &&
+                attackRangeProgram.MinimumRulesVersion == 158 &&
+                attackRangeProgram.Activations.Single().Effects.Single() is
+                {
+                    RuleQuery: SkillRuleQuery.AttackRange,
+                    RuleOperation: SkillRuleOperation.Unlimited
+                },
+            "Schema 48 must own unlimited attack-range turn modifiers without widening older schemas.");
+
+        const string distributionEffects =
+            """[{"op":"draw","target":"owner","amount":2,"resultBind":"drawn"},{"op":"distributeOwnedCards","target":"owner","zones":["hand"],"numberExpression":"boundCardCount","sourceBind":"drawn","targetKind":"otherLiving","allowDeclineBeforeFirst":true}]""";
+        Reject(() => Load("fixture:distribution48", Rules("fixture:distribution48", distributionEffects,
+            Entries(distributionEffects, includeTriggers: false), schema: 48, minimumRules: 158)),
+            "schema version 49");
+        var distributionProgram = Load("fixture:distribution49", Rules("fixture:distribution49", distributionEffects,
+            Entries(distributionEffects, includeTriggers: false), schema: 49, minimumRules: 159));
+        Require(distributionProgram.RuntimeVersion == "skill-program-v49" &&
+                distributionProgram.MinimumRulesVersion == 159 &&
+                distributionProgram.Activations.Single().Effects[1] is
+                {
+                    Op: SkillProgramEffectOp.DistributeOwnedCards,
+                    NumberExpression: SkillProgramNumberExpression.BoundCardCount,
+                    SourceBind: "drawn",
+                    TargetKind: SkillProgramTargetKind.OtherLiving,
+                    AllowDeclineBeforeFirst: true
+                } distribution && distribution.Zones.SequenceEqual([CardZoneKind.Hand]),
+            "Schema 49 must own all-or-nothing owned-card distribution without widening older schemas.");
+
+        const string attackRangeAidEffects =
+            """[{"op":"requestAttackRangeAid","target":"selectedTarget"}]""";
+        const string attackRangeAidActivation =
+            """{"id":"aid","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerGame":1,"effects":[{"op":"requestAttackRangeAid","target":"selectedTarget"}]}""";
+        Reject(() => Load("fixture:attack-range-aid49", Rules("fixture:attack-range-aid49", attackRangeAidEffects,
+            $"\"activations\":[{attackRangeAidActivation.Replace("\"usesPerGame\":1,", string.Empty, StringComparison.Ordinal)}],\"triggers\":[]", schema: 49, minimumRules: 159)),
+            "schema version 50");
+        Reject(() => Load("fixture:game-limit49", Rules("fixture:game-limit49", """[{"op":"draw","target":"owner","amount":1}]""",
+            $"\"activations\":[{attackRangeAidActivation.Replace("{\"op\":\"requestAttackRangeAid\",\"target\":\"selectedTarget\"}", "{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}", StringComparison.Ordinal)}],\"triggers\":[]", schema: 49, minimumRules: 159)),
+            "usesPerGame");
+        var attackRangeAidProgram = Load("fixture:attack-range-aid50", Rules("fixture:attack-range-aid50", attackRangeAidEffects,
+            $"\"activations\":[{attackRangeAidActivation}],\"triggers\":[]", schema: 50, minimumRules: 160));
+        Require(attackRangeAidProgram.RuntimeVersion == "skill-program-v50" &&
+                attackRangeAidProgram.MinimumRulesVersion == 160 &&
+                attackRangeAidProgram.Activations.Single() is
+                {
+                    UsesPerGame: 1,
+                    Effects: [{ Op: SkillProgramEffectOp.RequestAttackRangeAid }]
+                },
+            "Schema 50 must own game-limited activations and attack-range aid without widening older schemas.");
+
+        const string nullifyCardEffect =
+            """[{"op":"nullifyCurrentCardEffect","target":"owner"}]""";
+        const string nullifyCondition =
+            """{"kind":"not","children":[{"kind":"cardActionActorIsOwner"}]}""";
+        string NullifyTrigger(string condition, string cardKinds = "\"slash\"") => $$"""
+        {"id":"nullify","window":"cardUseBeforeTargetEffects","ownerRelation":"target",
+         "cardKinds":[{{cardKinds}}],"optional":true,"condition":{{condition}},
+         "effects":{{nullifyCardEffect}}}
+        """;
+        Reject(() => Load("fixture:nullify50", Rules("fixture:nullify50", nullifyCardEffect,
+            $"\"activations\":[],\"triggers\":[{NullifyTrigger("{\"kind\":\"always\"}")}]", schema: 50, minimumRules: 160)),
+            "schema version 51");
+        const string oneDraw = """[{"op":"draw","target":"owner","amount":1}]""";
+        Reject(() => Load("fixture:actor-owner50", Rules("fixture:actor-owner50", oneDraw,
+            $"\"activations\":[],\"triggers\":[{NullifyTrigger(nullifyCondition).Replace(nullifyCardEffect, oneDraw, StringComparison.Ordinal)}]", schema: 50, minimumRules: 160)),
+            "schema 51 card-action trigger");
+        var wrongWindowTrigger = $$"""
+        {"id":"nullify","window":"turnEnding","subject":"owner","optional":true,
+         "condition":{{nullifyCondition}},"effects":{{nullifyCardEffect}}}
+        """;
+        Reject(() => Load("fixture:nullify-wrong-window", Rules("fixture:nullify-wrong-window", nullifyCardEffect,
+            $"\"activations\":[],\"triggers\":[{wrongWindowTrigger}]", schema: 51, minimumRules: 161)),
+            "card-action trigger");
+        Reject(() => Load("fixture:nullify-actor", Rules("fixture:nullify-actor", nullifyCardEffect,
+            $"\"activations\":[],\"triggers\":[{NullifyTrigger(nullifyCondition).Replace("\"target\":\"owner\"", "\"target\":\"actor\"", StringComparison.Ordinal)}]", schema: 51, minimumRules: 161)),
+            "must be owner");
+        var nullifyProgram = Load("fixture:nullify51", Rules("fixture:nullify51", nullifyCardEffect,
+            $"\"activations\":[],\"triggers\":[{NullifyTrigger(nullifyCondition, "\"slash\",\"duel\"")}]", schema: 51, minimumRules: 161));
+        Require(nullifyProgram.RuntimeVersion == "skill-program-v51" &&
+                nullifyProgram.MinimumRulesVersion == 161 &&
+                nullifyProgram.Triggers.Single() is
+                {
+                    Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
+                    OwnerRelation: SkillProgramCardActionOwnerRelation.Target,
+                    Condition.Kind: SkillProgramTriggerConditionKind.Not,
+                    Effects: [{ Op: SkillProgramTriggerEffectOp.NullifyCurrentCardEffect }]
+                } nullifyTrigger &&
+                nullifyTrigger.CardKinds.Contains(CardKind.Duel) &&
+                nullifyTrigger.Condition.Children.Single().Kind ==
+                    SkillProgramTriggerConditionKind.CardActionActorIsOwner,
+            "Schema 51 must own per-target card-effect nullification and actor/owner identity facts without widening older schemas.");
+
+        const string targetCountModifier =
+            """{"id":"fire-extra","query":"cardTargetCount","operation":"add","value":1,"priority":0,"cardKinds":["fireSlash"]}""";
+        const string chainedViewAs =
+            """{"id":"slash-to-fire","inputKinds":["slash"],"inputSuits":[],"inputCount":1,"sourceZones":["hand"],"outputKind":"fireSlash","forPlay":true,"forResponse":false,"allowChainedInput":true}""";
+        var schema51TargetCount = Rules("fixture:target-count51", oneDraw,
+                Entries(oneDraw, includeTriggers: false), schema: 51, minimumRules: 161)
+            .Replace("\"modifiers\":[]", $"\"modifiers\":[{targetCountModifier.Replace(",\"cardKinds\":[\"fireSlash\"]", string.Empty, StringComparison.Ordinal)}]", StringComparison.Ordinal);
+        Reject(() => Load("fixture:target-count51", schema51TargetCount), "schema version 52");
+        var schema52Rules = Rules("fixture:target-count52", oneDraw,
+                Entries(oneDraw, includeTriggers: false), schema: 52, minimumRules: 162)
+            .Replace("\"modifiers\":[]", $"\"modifiers\":[{targetCountModifier}]", StringComparison.Ordinal)
+            .Replace("\"viewAs\":[]", $"\"viewAs\":[{chainedViewAs}]", StringComparison.Ordinal);
+        var schema52Program = Load("fixture:target-count52", schema52Rules);
+        Require(schema52Program.RuntimeVersion == "skill-program-v52" &&
+                schema52Program.MinimumRulesVersion == 162 &&
+                schema52Program.Modifiers.Single() is
+                { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } targetCount &&
+                targetCount.CardKinds.SequenceEqual([CardKind.FireSlash]) &&
+                schema52Program.ViewAs.Single() is
+                { OutputKind: CardKind.FireSlash, AllowChainedInput: true },
+            "Schema 52 must own card-kind-filtered target counts and explicit chained viewAs input.");
+        Reject(() => Load("fixture:target-count-empty52",
+                schema52Rules.Replace("\"cardKinds\":[\"fireSlash\"]", "\"cardKinds\":[]", StringComparison.Ordinal)
+                    .Replace("fixture:target-count52", "fixture:target-count-empty52", StringComparison.Ordinal)),
+            "at least one effective card kind");
     }
 
     private static SkillProgramEffect Parse(ProgramOperationCatalog catalog, string json)

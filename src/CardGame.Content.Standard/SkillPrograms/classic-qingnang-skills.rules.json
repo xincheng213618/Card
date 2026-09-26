@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 45,
+  "skills": [
+    {
+      "id": "classic:qingnang",
+      "revision": 1,
+      "minimumRulesVersion": 156,
+      "activations": [
+        {
+          "id": "discard-and-heal",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyWounded",
+          "usesPerTurn": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "recover", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

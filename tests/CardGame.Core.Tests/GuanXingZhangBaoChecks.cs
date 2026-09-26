@@ -10,7 +10,8 @@ internal static class GuanXingZhangBaoChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 89, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 119, 0));
+        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 118, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 88, 0));
         var general = current.Generals[GeneralId];
         var fuhun = current.Skills[FuhunSkillId];
@@ -24,16 +25,31 @@ internal static class GuanXingZhangBaoChecks
                     Gender: GeneralGender.Male
                 } && general.SkillIds.SequenceEqual([FuhunSkillId]),
             "Classic Guan Xing & Zhang Bao metadata drifted.");
-        Require(fuhun.LegacyKind == SkillKind.Fuhun &&
+        Require(fuhun.LegacyKind is null &&
                 fuhun.Tags == SkillTag.None &&
-                fuhun.ExecutionForms == SkillExecutionForm.State &&
-                fuhun.ActionForms == SkillActionForm.Active,
+                fuhun.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
+                fuhun.ActionForms == SkillActionForm.Active &&
+                fuhun.Program is
+                {
+                    RuntimeVersion: "skill-program-v35",
+                    MinimumRulesVersion: 140,
+                    ViewAs.Count: 1,
+                    Activations.Count: 1,
+                    Triggers.Count: 1
+                } program &&
+                program.ViewAs.Single().InputCount == 2,
             $"Fuhun metadata drifted: kind={fuhun.LegacyKind}, tags={fuhun.Tags}, " +
             $"execution={fuhun.ExecutionForms}, actions={fuhun.ActionForms}.");
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
+        Require(historical.Skills[FuhunSkillId] is
+                {
+                    LegacyKind: SkillKind.Fuhun,
+                    Program: null
+                } &&
+                !previous.Generals.ContainsKey(GeneralId) &&
                 !previous.Skills.ContainsKey(FuhunSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.89.0 must add Guan Xing & Zhang Bao without mutating package 1.88.0.");
+                current.ContentHash != historical.ContentHash &&
+                historical.ContentHash != previous.ContentHash,
+            "Package 1.119.0 must migrate Fuhun without mutating its 1.118.0 legacy or 1.88.0 content boundaries.");
 
     }
 
@@ -46,7 +62,9 @@ internal static class GuanXingZhangBaoChecks
 
         var prompt = RequirePrompt(game, DecisionKind.PlayCard);
         var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Fuhun);
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == FuhunSkillId &&
+            candidate.ProgramActivationId == "two-hand-cards-as-slash");
         var costIds = action.SelectableCardIds.Take(2).ToArray();
         var targetSeat = action.SelectableTargetSeats.First();
         var targetHp = Player(game, targetSeat).Hp;
@@ -54,9 +72,10 @@ internal static class GuanXingZhangBaoChecks
                 action.SelectableCardIds.Order().SequenceEqual(Player(game, HumanSeat).Hand.Select(card => card.Id).Order()),
             "Fuhun must publish exactly two hand cards and one legal Slash target.");
 
-        var used = game.Submit(new UseSkillCommand(
+        var used = game.Submit(new UseProgramSkillCommand(
             HumanSeat,
-            SkillKind.Fuhun,
+            FuhunSkillId,
+            "two-hand-cards-as-slash",
             costIds,
             [targetSeat],
             game.Revision,
@@ -65,9 +84,9 @@ internal static class GuanXingZhangBaoChecks
         ReachHumanPlay(game);
 
         var converted = game.Events.Select(item => item.Payload)
-            .OfType<FuhunConvertedEvent>().Single(item => item.IsUse);
+            .OfType<ProgramViewAsConvertedEvent>().Single(item => item.IsUse && item.SkillId == FuhunSkillId);
         var granted = game.Events.Select(item => item.Payload)
-            .OfType<FuhunSkillsGrantedEvent>().Single();
+            .OfType<ProgramTurnSkillsGrantedEvent>().Single(item => item.SkillId == FuhunSkillId);
         var owner = Player(game, HumanSeat);
         var ownerSkills = owner.Skills ?? throw new InvalidOperationException("Fuhun owner skills are hidden.");
         var ownerRuntimeStates = owner.SkillRuntimeStates ??
@@ -78,13 +97,14 @@ internal static class GuanXingZhangBaoChecks
         Require(converted.PhysicalCardIds.SequenceEqual(costIds) &&
                 actionAudit.Action.PhysicalCards.Select(card => card.CardId).SequenceEqual(costIds) &&
                 Player(game, targetSeat).Hp == targetHp - 1 &&
-                granted.SkillIds.SequenceEqual(["classic:wusheng", "classic:paoxiao"]) &&
+                granted.GrantedSkillIds.SequenceEqual(["classic:wusheng", "classic:paoxiao"]) &&
                 ownerSkills.Select(skill => skill.ContentId).Contains("classic:wusheng") &&
                 ownerSkills.Select(skill => skill.ContentId).Contains("classic:paoxiao") &&
                 ownerRuntimeStates.Single(state => state.SkillId == "classic:wusheng").IsAcquired &&
                 ownerRuntimeStates.Single(state => state.SkillId == "classic:paoxiao").IsAcquired &&
                 ownerRuntimeStates.Single(state => state.SkillId == FuhunSkillId).Usages
-                    .Single(usage => usage.Scope == SkillUsageScope.Turn).Count == 1,
+                    .Single(usage => usage.Scope == SkillUsageScope.Turn &&
+                                     usage.UsageId.StartsWith("grant-parent-skills@", StringComparison.Ordinal)).Count == 1,
             "A damaging Fuhun Slash must audit both costs and grant acquired Wusheng/Paoxiao for this turn.");
 
         for (var use = 0; use < 2; use++)
@@ -138,7 +158,8 @@ internal static class GuanXingZhangBaoChecks
                 if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: HumanSeat } response &&
                     response.IncomingCard == CardKind.BarbarianAssault &&
                     response.Choices.FirstOrDefault(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "fuhun-slash") is { } choice)
+                        choice.Parameters.GetValueOrDefault("response") == "program-view-as-slash" &&
+                        choice.Parameters.GetValueOrDefault("conversion-skill-id") == FuhunSkillId) is { } choice)
                 {
                     var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
                     Require(State(paused) == State(game),
@@ -151,7 +172,7 @@ internal static class GuanXingZhangBaoChecks
                     Require(answered.Accepted, answered.Error?.Message ?? "The Fuhun response was rejected.");
 
                     var converted = game.Events.Select(item => item.Payload)
-                        .OfType<FuhunConvertedEvent>().Last();
+                        .OfType<ProgramViewAsConvertedEvent>().Last(item => item.SkillId == FuhunSkillId);
                     var owner = Player(game, HumanSeat);
                     Require(!converted.IsUse && converted.PhysicalCardIds.SequenceEqual(choice.Cards) &&
                             choice.Cards.All(cardId => game.CardMovements.Any(move =>
@@ -159,7 +180,8 @@ internal static class GuanXingZhangBaoChecks
                                 move.From == CardLocation.Hand(HumanSeat) &&
                                 move.To == CardLocation.Processing &&
                                 move.Reason == CardMoveReasons.Respond)) &&
-                            game.Events.Select(item => item.Payload).OfType<FuhunSkillsGrantedEvent>().Count() == 0 &&
+                            game.Events.Select(item => item.Payload).OfType<ProgramTurnSkillsGrantedEvent>()
+                                .All(item => item.SkillId != FuhunSkillId) &&
                             owner.Skills!.All(skill => skill.ContentId is not ("classic:wusheng" or "classic:paoxiao")),
                         "A response Fuhun must pay both exact hand cards without granting parent skills.");
 
@@ -300,7 +322,7 @@ internal static class GuanXingZhangBaoChecks
         public PackageManifest Manifest { get; } = new(
             "guan-xing-zhang-bao-test",
             new Version(1, 0, 0),
-            [new PackageDependency("standard-classic-generals", new Version(1, 89, 0))]);
+            [new PackageDependency("standard-classic-generals", new Version(1, 119, 0))]);
 
         public void Register(IContentRegistryBuilder builder)
         {

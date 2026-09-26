@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:wusheng": {
+      "name": "武圣",
+      "description": "你可以将一张红色牌当【杀】使用或打出。"
+    }
+  }
+}

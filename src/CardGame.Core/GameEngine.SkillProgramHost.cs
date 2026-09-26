@@ -9,6 +9,9 @@ public sealed partial class GameEngine
     private sealed class ProgramSkillHost(GameEngine engine) :
         ISkillProgramExecutionHost, ISkillProgramEffectHost
     {
+        public int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference) =>
+            engine.ResolveProgramParticipant(frame, reference);
+
         public ProgramSkillFrame? GetActiveFrame(long frameId) =>
             engine._resolutionStack.LastOrDefault() is ProgramSkillFrame frame && frame.Id == frameId
                 ? frame : null;
@@ -47,7 +50,10 @@ public sealed partial class GameEngine
                 bind => frame.PindianResultBindings.Single(item => item.Name == bind).SourceWon,
                 stateId => engine.GetProgramBooleanState(frame, stateId),
                 frame.WindowContext?.CardUse?.IsPublicRed,
-                bind => frame.ChoiceBindings.Single(item => item.Name == bind).OptionId);
+                bind => frame.ChoiceBindings.Single(item => item.Name == bind).OptionId,
+                bind => engine.AreProgramBoundCardsSameColor(frame, bind),
+                (bind, categories) => engine.DoProgramBoundCardsMatchCategories(frame, bind, categories),
+                (bind, kinds) => engine.DoProgramBoundCardsMatchKinds(frame, bind, kinds));
         }
 
         public void UpdateFrame(ProgramSkillFrame frame)
@@ -68,6 +74,16 @@ public sealed partial class GameEngine
             SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
             engine.DrawProgramCards(
                 frameId, targetSeat, amount, numberExpression, resultBind, visibility, reason);
+
+        public void DrawSelectedTargets(long frameId, int amount, CardMoveReason reason) =>
+            engine.DrawProgramSelectedTargets(frameId, amount, reason);
+
+        public void DrawBoundCardCount(long frameId, int ownerSeat, int targetSeat, string sourceBind,
+            string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason)
+        {
+            var count = engine.GetProgramCardSet(engine.GetActiveProgramFrame(frameId), sourceBind).CardIds.Count;
+            engine.DrawProgramCards(frameId, targetSeat, count, null, resultBind, visibility, reason);
+        }
 
         public void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
             SkillProgramNumberExpression? numberExpression, string? sourceBind)
@@ -148,11 +164,52 @@ public sealed partial class GameEngine
             string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
             engine.ChooseProgramOption(frame, chooserSeat, resultBind, options);
 
+        public SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
+            int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
+            int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds) =>
+            engine.SelectProgramOwnedCards(frame, cardOwnerSeat, amount, expression, zones, resultBind,
+                minimumCards, maximumCards, cardKinds);
+
+        public void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
+            engine.CaptureProgramSelectedCards(frame, resultBind);
+
+        public void RevealBoundCards(ProgramSkillFrame frame, string sourceBind) =>
+            engine.RevealProgramBoundCards(frame, sourceBind);
+
+        public void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
+            engine.UseProgramBoundCardAsDyingAlcohol(frame, sourceBind, reason);
+
+        public SkillProgramStepOutcome ChooseDifferentCategoryDiscard(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference chooser,
+            ProgramParticipantReference cardOwner,
+            IReadOnlyList<CardZoneKind> zones,
+            string sourceBind,
+            string resultBind,
+            CardMoveReason reason) =>
+            engine.ChooseProgramDifferentCategoryDiscard(
+                frame, chooser, cardOwner, zones, sourceBind, resultBind, reason);
+
         public void ChangeMaximumHp(ProgramSkillFrame frame, int amount) =>
             engine.ChangeProgramMaximumHp(frame, amount);
 
         public void GrantSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
             engine.GrantProgramSkills(frame, skillIds);
+
+        public void GrantTurnSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
+            engine.GrantProgramTurnSkills(frame, skillIds);
+
+        public SkillProgramStepOutcome UseSelectedCardsAs(
+            ProgramSkillFrame frame,
+            int targetSeat,
+            string viewAsId,
+            CardKind outputKind) =>
+            engine.UseProgramSelectedCardsAs(frame, targetSeat, viewAsId, outputKind);
+
+        public SkillProgramStepOutcome UseAllHandCardsAsOrdinaryTrick(
+            ProgramSkillFrame frame,
+            string viewAsId) =>
+            engine.UseProgramAllHandCardsAsOrdinaryTrick(frame, viewAsId);
 
         public void TurnOver(long frameId, int ownerSeat, int targetSeat) =>
             engine.TurnOverProgramTarget(frameId, ownerSeat, targetSeat);
@@ -175,16 +232,16 @@ public sealed partial class GameEngine
                 frameId, ownerSeat, amount, numberExpression, resultBind, visibility);
 
         public void FilterBoundCards(long frameId, string sourceBind, string resultBind,
-            IReadOnlyList<Suit> suits) =>
-            engine.FilterProgramBoundCards(frameId, sourceBind, resultBind, suits);
+            IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null) =>
+            engine.FilterProgramBoundCards(frameId, sourceBind, resultBind, suits, effectiveSuitFor);
 
         public SkillProgramStepOutcome SelectCardSubset(long frameId, int ownerSeat, string sourceBind,
             string resultBind, int minimumCards, int maximumCards, int maximumRankSum,
-            SkillProgramSubsetAiOrder aiOrder) =>
+            SkillProgramSubsetAiOrder aiOrder, bool allowFewerWhenInsufficient) =>
             engine.SelectProgramCardSubset(frameId, ownerSeat, sourceBind, resultBind, minimumCards,
-                maximumCards, maximumRankSum, aiOrder);
+                maximumCards, maximumRankSum, aiOrder, allowFewerWhenInsufficient);
 
-        public void MoveBoundCards(long frameId, int ownerSeat, string sourceBind, string? exceptBind,
+        public SkillProgramStepOutcome MoveBoundCards(long frameId, int ownerSeat, string sourceBind, string? exceptBind,
             SkillProgramCardDestination destination, CardZoneKind? destinationZone, CardMoveReason reason) =>
             engine.MoveProgramBoundCards(frameId, ownerSeat, sourceBind, exceptBind, destination,
                 destinationZone, reason);
@@ -194,7 +251,28 @@ public sealed partial class GameEngine
             int ownerSeat,
             SkillProgramTargetKind targetKind,
             IReadOnlyList<CardZoneKind> zones) =>
-            engine.SelectProgramTarget(frameId, ownerSeat, targetKind, zones);
+            engine.SelectProgramTarget(frameId, ownerSeat, targetKind, zones, marker: null);
+
+        public SkillProgramStepOutcome SelectTarget(
+            long frameId,
+            int ownerSeat,
+            SkillProgramTargetKind targetKind,
+            IReadOnlyList<CardZoneKind> zones,
+            PlayerMarkerKind? marker) =>
+            engine.SelectProgramTarget(frameId, ownerSeat, targetKind, zones, marker);
+
+        public void ChangeAttributedMarker(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference target,
+            PlayerMarkerKind marker,
+            int amount) =>
+            engine.ChangeProgramAttributedMarker(frame, target, marker, amount);
+
+        public SkillProgramStepOutcome CauseDeathUnlessBoundCardKind(
+            ProgramSkillFrame frame,
+            string sourceBind,
+            IReadOnlyList<CardKind> excludedCardKinds) =>
+            engine.CauseProgramDeathUnlessBoundCardKind(frame, sourceBind, excludedCardKinds);
 
         public SkillProgramStepOutcome SelectTargets(
             long frameId,
@@ -202,9 +280,10 @@ public sealed partial class GameEngine
             SkillProgramTargetKind targetKind,
             int minimumTargets,
             int maximumTargets,
+            SkillProgramNumberExpression? numberExpression,
             SkillProgramTargetAiOrder aiOrder) =>
             engine.SelectProgramTargets(
-                frameId, ownerSeat, targetKind, minimumTargets, maximumTargets, aiOrder);
+                frameId, ownerSeat, targetKind, minimumTargets, maximumTargets, numberExpression, aiOrder);
 
         public SkillProgramStepOutcome SelectSourceCard(
             long frameId,
@@ -221,6 +300,21 @@ public sealed partial class GameEngine
             SkillProgramTargetKind targetKind,
             CardMoveReason reason) =>
             engine.GiveProgramBoundCard(frameId, ownerSeat, sourceBind, targetKind, reason);
+
+        public SkillProgramStepOutcome DistributeOwnedCards(
+            ProgramSkillFrame frame,
+            IReadOnlyList<CardZoneKind> zones,
+            string sourceBind,
+            SkillProgramTargetKind targetKind,
+            bool allowDeclineBeforeFirst,
+            CardMoveReason reason) =>
+            engine.DistributeProgramOwnedCards(
+                frame, zones, sourceBind, targetKind, allowDeclineBeforeFirst, reason);
+
+        public SkillProgramStepOutcome RequestAttackRangeAid(
+            ProgramSkillFrame frame,
+            CardMoveReason reason) =>
+            engine.RequestProgramAttackRangeAid(frame, reason);
 
         public void ClaimDamageCards(long frameId, int ownerSeat, CardMoveReason reason) =>
             engine.ClaimProgramDamageCards(frameId, ownerSeat, reason);
@@ -247,6 +341,18 @@ public sealed partial class GameEngine
             IReadOnlyList<CardKind> cardKinds,
             IReadOnlyList<CardActionType> actionTypes) =>
             engine.GrantProgramTurnCardActionProhibition(frame, cardKinds, actionTypes);
+
+        public void GrantTurnHandColorRestriction(
+            ProgramSkillFrame frame,
+            string sourceBind,
+            int targetSeat) =>
+            engine.GrantProgramTurnHandColorRestriction(frame, sourceBind, targetSeat);
+
+        public void PreventCurrentDamage(ProgramSkillFrame frame) =>
+            engine.PreventProgramCurrentDamage(frame);
+
+        public void NullifyCurrentCardEffect(ProgramSkillFrame frame) =>
+            engine.NullifyCurrentProgramCardEffect(frame);
 
         public void GrantTurnRuleModifier(
             ProgramSkillFrame frame,
@@ -278,9 +384,19 @@ public sealed partial class GameEngine
             ProgramParticipantReference cardOwner,
             IReadOnlyList<CardZoneKind> zones,
             SkillProgramCardDestination destination,
+            ProgramParticipantReference? destinationRef,
             string? resultBind,
-            CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null) =>
-            engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, resultBind, reason, cardCategories);
+            CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
+            bool skipIfNoCards = false) =>
+            engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, destinationRef, resultBind,
+                reason, cardCategories, skipIfNoCards);
+
+        public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference chooser,
+            IReadOnlyList<CardZoneKind> zones,
+            CardMoveReason reason) =>
+            engine.ChooseProgramOtherOwnedCardDiscard(frame, chooser, zones, reason);
 
         public void RefundCardUseDebit(ProgramSkillFrame frame) =>
             engine.RefundProgramCardUseDebit(frame);

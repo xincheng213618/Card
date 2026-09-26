@@ -15,4 +15,5 @@ public sealed record SkillProgramAiHint(
     bool DiscardsSelected)
 {
     public double ValueAdjustment { get; init; }
+    public double TargetValueAdjustment { get; init; }
 }

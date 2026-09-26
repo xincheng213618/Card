@@ -10,12 +10,15 @@ internal static class WangYiChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 85, 0));
+        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 85, 0));
         var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 84, 0));
-        Require(current.Packages.Any(package =>
+        var preMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 134, 0));
+        var beforeZhenlieMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 136, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(introduced.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
                     package.Version == new Version(1, 85, 0)) &&
-                current.Generals[GeneralId] is
+                introduced.Generals[GeneralId] is
                 {
                     FactionId: "wei",
                     BaseHp: 3,
@@ -23,14 +26,14 @@ internal static class WangYiChecks
                     PortraitKey: "wang_yi",
                     SkillIds: var skillIds
                 } && skillIds.SequenceEqual([ZhenlieSkillId, MijiSkillId]) &&
-                current.Skills[ZhenlieSkillId] is
+                introduced.Skills[ZhenlieSkillId] is
                 {
                     LegacyKind: SkillKind.Zhenlie,
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } &&
-                current.Skills[MijiSkillId] is
+                introduced.Skills[MijiSkillId] is
                 {
                     LegacyKind: SkillKind.Miji,
                     Tags: SkillTag.None,
@@ -40,31 +43,120 @@ internal static class WangYiChecks
                 !previous.Generals.ContainsKey(GeneralId) &&
                 !previous.Skills.ContainsKey(ZhenlieSkillId) &&
                 !previous.Skills.ContainsKey(MijiSkillId) &&
-                current.ContentHash != previous.ContentHash,
+                introduced.ContentHash != previous.ContentHash,
             "Package 1.85.0 must add exact Wang Yi content without mutating 1.84.0.");
+
+        Require(preMigration.Skills[MijiSkillId] is
+                {
+                    LegacyKind: SkillKind.Miji,
+                    Program: null,
+                    ExecutionForms: SkillExecutionForm.Trigger
+                } &&
+                current.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" &&
+                    package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
+                beforeZhenlieMigration.Skills[ZhenlieSkillId] is
+                {
+                    LegacyKind: SkillKind.Zhenlie,
+                    Program: null,
+                    ExecutionForms: SkillExecutionForm.Trigger
+                } &&
+                current.Skills[ZhenlieSkillId] is
+                {
+                    LegacyKind: null,
+                    Program:
+                    {
+                        RuntimeVersion: "skill-program-v51",
+                        MinimumRulesVersion: 161,
+                        Triggers.Count: 1
+                    } zhenlieProgram,
+                    ExecutionForms: SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None
+                } &&
+                current.Skills[MijiSkillId] is
+                {
+                    LegacyKind: null,
+                    Program:
+                    {
+                        RuntimeVersion: "skill-program-v49",
+                        MinimumRulesVersion: 159,
+                        Triggers.Count: 1
+                    } program,
+                    ExecutionForms: SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None
+                } &&
+                zhenlieProgram.Triggers.Single() is
+                {
+                    Id: "nullify-other-card-target",
+                    Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
+                    OwnerRelation: SkillProgramCardActionOwnerRelation.Target,
+                    Optional: true,
+                    UsesSharedExecutor: true,
+                    Effects.Count: 3
+                } zhenlieTrigger &&
+                zhenlieTrigger.Condition is
+                {
+                    Kind: SkillProgramTriggerConditionKind.Not,
+                    Children: [{ Kind: SkillProgramTriggerConditionKind.CardActionActorIsOwner }]
+                } &&
+                zhenlieTrigger.Effects[0].Op == SkillProgramTriggerEffectOp.NullifyCurrentCardEffect &&
+                zhenlieTrigger.Effects[1] is
+                {
+                    Op: SkillProgramTriggerEffectOp.LoseHp,
+                    Target: SkillProgramTriggerEffectTarget.Owner,
+                    Amount: 1
+                } &&
+                zhenlieTrigger.Effects[2] is
+                {
+                    Op: SkillProgramTriggerEffectOp.SelectAndMoveOwnedCard,
+                    Destination: SkillProgramCardDestination.DiscardPile,
+                    SkipIfNoCards: true
+                } &&
+                program.Triggers.Single() is
+                {
+                    Id: "miji-at-turn-end",
+                    Window: SkillProgramTriggerWindow.TurnEnding,
+                    Optional: true,
+                    UsesSharedExecutor: true,
+                    Effects.Count: 2
+                } trigger &&
+                trigger.Effects[0] is
+                {
+                    Op: SkillProgramTriggerEffectOp.Draw,
+                    NumberExpression: SkillProgramNumberExpression.OwnerLostHp,
+                    ResultBind: "drawn"
+                } &&
+                trigger.Effects[1] is
+                {
+                    Op: SkillProgramTriggerEffectOp.DistributeOwnedCards,
+                    NumberExpression: SkillProgramNumberExpression.BoundCardCount,
+                    SourceBind: "drawn",
+                    TargetKind: SkillProgramTargetKind.OtherLiving,
+                    AllowDeclineBeforeFirst: true
+                },
+            "Current package must preserve schema-51 Zhenlie and schema-49 Miji while versioning the newer Cheng Pu program independently.");
 
         var fixture = FindFixture(ScenarioPackage.SlashModeId);
         var game = fixture.Game;
-        var prompt = RequirePrompt(game, DecisionKind.Zhenlie);
+        var prompt = RequireProgramPrompt(game, ZhenlieSkillId);
         Require(prompt.IsPrivate &&
                 prompt.PlayerSeat == HumanSeat &&
                 prompt.SourceSeat is >= 0 &&
-                prompt.IncomingCard == CardKind.Slash &&
                 prompt.Choices.Count == 2 &&
-                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
                     .Order(StringComparer.Ordinal)
-                    .SequenceEqual(["zhenlie-skip", "zhenlie-use"]),
-            "Zhenlie must publish one private use/skip choice after another player's Slash targets Wang Yi.");
+                    .SequenceEqual(["activate", "skip"]),
+            "Zhenlie must publish one private public-program activation choice after another player's Slash targets Wang Yi.");
 
         var before = SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true));
         var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(SnapshotJson.Serialize(restored.CreateSnapshot(HumanSeat, revealAll: true)) == before &&
                 restored.PendingDecision is
                 {
-                    Kind: DecisionKind.Zhenlie,
+                    Kind: DecisionKind.ProgramTrigger,
                     PlayerSeat: HumanSeat,
                     IsPrivate: true,
-                    IncomingCard: CardKind.Slash
+                    SkillPrompt.SkillId: ZhenlieSkillId
                 },
             "A paused Zhenlie activation choice must replay exactly.");
 
@@ -78,60 +170,81 @@ internal static class WangYiChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)) == before,
             "A forged Zhenlie answer must be rejected atomically.");
 
+        HistoricalZhenlieDefinitionDoesNotReactivateRetiredExecutor(fixture.Seed);
     }
 
     public static void ZhenlieSlashAndMijiDistributionReplay()
     {
         var fixture = FindFixture(ScenarioPackage.SlashModeId);
         var game = fixture.Game;
-        var activation = RequirePrompt(game, DecisionKind.Zhenlie);
+        var activation = RequireProgramPrompt(game, ZhenlieSkillId);
         var sourceSeat = activation.SourceSeat ??
             throw new InvalidOperationException("The Zhenlie fixture did not identify the Slash source.");
         var sourceHandBeforeDiscard = game.CreateSnapshot(HumanSeat, revealAll: true)
             .Players[sourceSeat].HandCount;
 
-        Answer(game, DecisionKind.Zhenlie, "zhenlie-use");
-        var discard = RequirePrompt(game, DecisionKind.Zhenlie);
+        AnswerProgram(game, ZhenlieSkillId, "activate");
+        var discard = RequireProgramPrompt(game, ZhenlieSkillId);
         var pausedAfterCost = game.CreateSnapshot(HumanSeat, revealAll: true);
         Require(pausedAfterCost.Players[HumanSeat].Hp == 2 &&
                 game.ResolutionStack.OfType<CardUseFrame>().Single().IneffectiveTargetSeats?.SequenceEqual([HumanSeat]) == true &&
                 discard.IsPrivate &&
-                discard.TargetSeat == sourceSeat &&
+                discard.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("card-owner-seat") == sourceSeat.ToString()) &&
                 discard.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "zhenlie-discard-hand" &&
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+                    choice.Parameters.GetValueOrDefault("source-zone") == CardZoneKind.Hand.ToString() &&
                     choice.Cards.Count == 0) &&
-                game.Events.Select(item => item.Payload).OfType<SkillHpLostEvent>().Any(item =>
-                    item is { SourceSeat: HumanSeat, Skill: SkillKind.Zhenlie, Amount: 1, RemainingHp: 2 }),
-            "Using Zhenlie must pay HP first, mark only Wang Yi ineffective and keep source hand identities opaque.");
+                game.Events.Select(item => item.Payload).OfType<ProgramCardEffectNullifiedEvent>().Any(item =>
+                    item is { SkillId: ZhenlieSkillId, OwnerSeat: HumanSeat, CardKind: CardKind.Slash } &&
+                    item.SourceSeat == sourceSeat) &&
+                game.Events.Select(item => item.Payload).OfType<ProgramSkillHpLostEvent>().Any(item =>
+                    item is { SkillId: ZhenlieSkillId, TargetSeat: HumanSeat, Amount: 1, RemainingHp: 2 }),
+            "Using public-program Zhenlie must nullify only Wang Yi, pay HP, and keep source hand identities opaque.");
 
         var pausedReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(SnapshotJson.Serialize(pausedReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(pausedAfterCost) &&
                 pausedReplay.PendingDecision is
                 {
-                    Kind: DecisionKind.Zhenlie,
+                    Kind: DecisionKind.ProgramTrigger,
                     PlayerSeat: HumanSeat,
-                    IsPrivate: true
+                    IsPrivate: true,
+                    SkillPrompt.SkillId: ZhenlieSkillId
                 } replayDiscard &&
                 replayDiscard.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "zhenlie-discard-hand" &&
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+                    choice.Parameters.GetValueOrDefault("source-zone") == CardZoneKind.Hand.ToString() &&
                     choice.Cards.Count == 0),
             "A paused post-cost Zhenlie discard must replay without exposing source hand card ids.");
 
-        Answer(game, DecisionKind.Zhenlie, "zhenlie-discard-hand");
-        var resolved = game.Events.Select(item => item.Payload).OfType<ZhenlieResolvedEvent>().Last();
-        Require(resolved is
+        Answer(game, discard.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+            choice.Parameters.GetValueOrDefault("source-zone") == CardZoneKind.Hand.ToString()));
+        var nullified = game.Events.Select(item => item.Payload).OfType<ProgramCardEffectNullifiedEvent>().Last();
+        Require(nullified is
                 {
                     OwnerSeat: HumanSeat,
                     SourceSeat: var resolvedSource,
-                    CardKind: CardKind.Slash,
-                    Used: true,
-                    RemainingHp: 2,
-                    DiscardedCardId: not null,
-                    DiscardedFromZone: CardZoneKind.Hand
+                    SkillId: ZhenlieSkillId,
+                    BindingId: "nullify-other-card-target",
+                    CardKind: CardKind.Slash
                 } && resolvedSource == sourceSeat &&
                 game.CreateSnapshot(HumanSeat, revealAll: true).Players[sourceSeat].HandCount ==
                     sourceHandBeforeDiscard - 1 &&
+                game.CardMovements.Any(item =>
+                    item.From == CardLocation.Hand(sourceSeat) &&
+                    item.To == CardLocation.DiscardPile &&
+                    item.Reason.Value == "skill-program.classic:zhenlie.SelectAndMoveOwnedCard") &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item is
+                    {
+                        SkillId: ZhenlieSkillId,
+                        BindingId: "nullify-other-card-target",
+                        OwnerSeat: HumanSeat,
+                        Activated: true,
+                        Completed: true
+                    }) &&
                 game.Events.Select(item => item.Payload).OfType<CardEffectSkippedEvent>().Any(item =>
                     item.TargetSeat == HumanSeat &&
                     item.CardKind == CardKind.Slash &&
@@ -139,7 +252,7 @@ internal static class WangYiChecks
                 game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
                     .All(item => item.TargetSeat != HumanSeat),
             $"Zhenlie must discard one source card and finish the ineffective Slash without damage " +
-            $"(resolved={resolved}, sourceHand={sourceHandBeforeDiscard}->" +
+            $"(nullified={nullified}, sourceHand={sourceHandBeforeDiscard}->" +
             $"{game.CreateSnapshot(HumanSeat, revealAll: true).Players[sourceSeat].HandCount}, " +
             $"skips={game.Events.Select(item => item.Payload).OfType<CardEffectSkippedEvent>().Count()}, " +
             $"damage=[{string.Join(',', game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Select(item => item.TargetSeat))}]).");
@@ -157,84 +270,102 @@ internal static class WangYiChecks
                 play.PromptId)).Accepted,
             "The Wang Yi fixture could not end its play phase.");
         ReachMiji(game);
-        var miji = RequirePrompt(game, DecisionKind.Miji);
+        var miji = RequireMijiPrompt(game);
         Require(miji.IsPrivate &&
-                miji.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                miji.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
                     .Order(StringComparer.Ordinal)
-                    .SequenceEqual(["miji-skip", "miji-use"]),
-            "An injured Wang Yi must receive one private Miji use/skip choice at the end phase.");
+                    .SequenceEqual(["activate", "skip"]),
+            "An injured Wang Yi must receive one private generic Miji activation choice at the end phase.");
 
         var mijiPausedReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(mijiPausedReplay.PendingDecision is
-                { Kind: DecisionKind.Miji, PlayerSeat: HumanSeat, IsPrivate: true } &&
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat, IsPrivate: true,
+                    SkillPrompt.SkillId: MijiSkillId } &&
                 SnapshotJson.Serialize(mijiPausedReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
             "A paused Miji activation choice must replay exactly.");
 
-        Answer(game, DecisionKind.Miji, "miji-use");
-        var gift = RequirePrompt(game, DecisionKind.Miji);
+        var handBeforeMiji = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].HandCount;
+        AnswerProgram(game, MijiSkillId, "activate");
+        var gift = RequireMijiPrompt(game);
         Require(gift.IsPrivate &&
                 gift.ValidCardIds.Count > 0 &&
                 gift.ValidTargetSeats.All(targetSeat => targetSeat != HumanSeat) &&
                 gift.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "miji-skip-gift") &&
+                    choice.Parameters.GetValueOrDefault("program-action") == "decline-owned-card-distribution") &&
                 gift.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "miji-give" &&
+                    choice.Parameters.GetValueOrDefault("program-action") == "distribute-owned-card" &&
                     choice.Cards.Count == 1 &&
                     choice.Targets.Count == 1),
             "After drawing one card, Miji must allow either no distribution or an exact hand-card recipient pair.");
 
         var optionalBranch = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-        Answer(optionalBranch, DecisionKind.Miji, "miji-skip-gift");
-        Require(optionalBranch.Events.Select(item => item.Payload).OfType<MijiResolvedEvent>().Last() is
-                {
-                    OwnerSeat: HumanSeat,
-                    Used: true,
-                    LostHp: 1,
-                    DrawnCardIds.Count: 1,
-                    GivenCardIds.Count: 0,
-                    TargetSeats.Count: 0
-                },
-            "Miji distribution must remain wholly optional after the draw.");
+        AnswerProgram(optionalBranch, MijiSkillId, "decline-owned-card-distribution");
+        var optionalHandCount = optionalBranch.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].HandCount;
+        var optionalBindings = optionalBranch.Events.Select(item => item.Payload)
+            .OfType<ProgramBindingResolvedEvent>().Where(item => item.SkillId == MijiSkillId).ToArray();
+        var optionalDistributions = optionalBranch.Events.Select(item => item.Payload)
+            .OfType<ProgramOwnedCardDistributedEvent>().Where(item => item.SkillId == MijiSkillId).ToArray();
+        Require(optionalHandCount ==
+                    handBeforeMiji + 1 &&
+                optionalBindings.Any(item =>
+                    item is { SkillId: MijiSkillId, BindingId: "miji-at-turn-end", Activated: true, Completed: true }) &&
+                optionalDistributions.Length == 0,
+            $"Miji distribution must remain wholly optional after the draw " +
+            $"(hand={handBeforeMiji}->{optionalHandCount}, " +
+            $"bindings=[{string.Join(';', optionalBindings.Select(item => $"{item.BindingId}:{item.Activated}:{item.Completed}"))}], " +
+            $"distributed={optionalDistributions.Length}).");
 
         var selectedGift = gift.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "miji-give");
+            choice.Parameters.GetValueOrDefault("program-action") == "distribute-owned-card");
         Answer(game, selectedGift);
-        var mijiResolved = game.Events.Select(item => item.Payload).OfType<MijiResolvedEvent>().Last();
-        Require(mijiResolved is
+        var distributed = game.Events.Select(item => item.Payload).OfType<ProgramOwnedCardDistributedEvent>().Last();
+        Require(distributed is
                 {
                     OwnerSeat: HumanSeat,
-                    Used: true,
-                    LostHp: 1,
-                    DrawnCardIds.Count: 1,
-                    GivenCardIds.Count: 1,
-                    TargetSeats.Count: 1
+                    SkillId: MijiSkillId,
+                    DistributionIndex: 1,
+                    RequiredCount: 1
                 } &&
-                mijiResolved.TargetSeats[0] == selectedGift.Targets[0] &&
-                mijiResolved.GivenCardIds[0] == selectedGift.Cards[0],
+                distributed.TargetSeat == selectedGift.Targets[0] &&
+                distributed.CardId == selectedGift.Cards[0] &&
+                game.CardMovements.Count(item =>
+                    item.CardId == distributed.CardId &&
+                    item.Reason.Value == "skill-program.classic:miji.DistributeOwnedCards") == 2 &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item is { SkillId: MijiSkillId, BindingId: "miji-at-turn-end", Activated: true, Completed: true }),
             "Once Miji distribution starts, it must give the exact drawn count to another living character.");
 
         var completedReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
         Require(SnapshotJson.Serialize(completedReplay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
             "The completed Zhenlie and Miji command prefix must replay exactly.");
+
+        HistoricalMijiDefinitionDoesNotReactivateRetiredExecutor();
     }
 
     public static void ZhenlieNullifiesOnlyItsGroupEffect()
     {
         var fixture = FindFixture(ScenarioPackage.ArrowModeId);
         var game = fixture.Game;
-        var prompt = RequirePrompt(game, DecisionKind.Zhenlie);
-        Require(prompt.IncomingCard == CardKind.ArrowBarrage,
-            "The group-effect fixture must pause on Arrow Barrage.");
+        var prompt = RequireProgramPrompt(game, ZhenlieSkillId);
+        Require(prompt.SourceSeat is >= 0,
+            "The group-effect fixture must retain the Arrow Barrage source.");
         var resolutionId = game.ResolutionStack.OfType<CardUseFrame>().Single().Id;
 
-        Answer(game, DecisionKind.Zhenlie, "zhenlie-use");
-        Answer(game, DecisionKind.Zhenlie, "zhenlie-discard-hand");
+        AnswerProgram(game, ZhenlieSkillId, "activate");
+        var discard = RequireProgramPrompt(game, ZhenlieSkillId);
+        Answer(game, discard.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+            choice.Parameters.GetValueOrDefault("source-zone") == CardZoneKind.Hand.ToString()));
         AdvanceUntilCardUseFinished(game, resolutionId);
 
         var damage = game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().ToArray();
-        Require(game.Events.Select(item => item.Payload).OfType<CardEffectSkippedEvent>().Any(item =>
+        Require(game.Events.Select(item => item.Payload).OfType<ProgramCardEffectNullifiedEvent>().Any(item =>
+                    item.OwnerSeat == HumanSeat &&
+                    item.SkillId == ZhenlieSkillId &&
+                    item.CardKind == CardKind.ArrowBarrage) &&
+                game.Events.Select(item => item.Payload).OfType<CardEffectSkippedEvent>().Any(item =>
                     item.TargetSeat == HumanSeat &&
                     item.CardKind == CardKind.ArrowBarrage &&
                     item.Reason == CardEffectSkipReason.SkillNullified) &&
@@ -262,15 +393,20 @@ internal static class WangYiChecks
         throw new InvalidOperationException("The active group trick did not finish in bounded steps.");
     }
 
-    private static Fixture FindFixture(string modeId)
+    private static Fixture FindFixture(string modeId, Version? classicVersion = null)
     {
-        var registry = CreateRegistry();
+        var registry = CreateRegistry(classicVersion);
         for (var seed = 1; seed <= 2_048; seed++)
         {
             var game = CreateGame(registry, seed, modeId);
             if (!TryStartAndSelect(game)) continue;
             if (game.PendingDecision is not
-                { Kind: DecisionKind.Zhenlie, PlayerSeat: HumanSeat, SourceSeat: var sourceSeat })
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    PlayerSeat: HumanSeat,
+                    SourceSeat: >= 0,
+                    SkillPrompt.SkillId: ZhenlieSkillId
+                })
             {
                 continue;
             }
@@ -296,7 +432,9 @@ internal static class WangYiChecks
         for (var step = 0; step < 512; step++)
         {
             if (game.PendingDecision is
-                { PlayerSeat: HumanSeat, Kind: DecisionKind.Zhenlie or DecisionKind.PlayCard })
+                { PlayerSeat: HumanSeat, Kind: DecisionKind.PlayCard } or
+                { PlayerSeat: HumanSeat, Kind: DecisionKind.ProgramTrigger,
+                    SkillPrompt.SkillId: ZhenlieSkillId })
             {
                 return true;
             }
@@ -313,11 +451,13 @@ internal static class WangYiChecks
         for (var step = 0; step < 1_024; step++)
         {
             if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat }) return;
-            if (game.PendingDecision is { Kind: DecisionKind.Zhenlie, PlayerSeat: HumanSeat })
+            if (game.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat,
+                    SkillPrompt.SkillId: ZhenlieSkillId })
             {
                 Require(skipAdditionalZhenlie,
                     "The fixture unexpectedly exposed an additional Zhenlie prompt.");
-                Answer(game, DecisionKind.Zhenlie, "zhenlie-skip");
+                AnswerProgram(game, ZhenlieSkillId, "skip");
                 continue;
             }
             Require(game.PendingDecision?.PlayerSeat != HumanSeat,
@@ -332,7 +472,8 @@ internal static class WangYiChecks
     {
         for (var step = 0; step < 256; step++)
         {
-            if (game.PendingDecision is { Kind: DecisionKind.Miji, PlayerSeat: HumanSeat }) return;
+            if (game.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat, SkillPrompt.SkillId: MijiSkillId }) return;
             Require(game.PendingDecision?.PlayerSeat != HumanSeat,
                 $"Unexpected human prompt {game.PendingDecision?.Kind} before Miji.");
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
@@ -340,6 +481,68 @@ internal static class WangYiChecks
         }
         throw new InvalidOperationException("The Wang Yi fixture did not reach Miji in bounded steps.");
     }
+
+    private static void HistoricalZhenlieDefinitionDoesNotReactivateRetiredExecutor(int seed)
+    {
+        var registry = CreateRegistry(new Version(1, 136, 0));
+        var game = CreateGame(registry, seed, ScenarioPackage.SlashModeId);
+        Require(TryStartAndSelect(game) &&
+                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } &&
+                game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
+                    item.TargetSeat == HumanSeat) &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>().All(item =>
+                    item.SkillId != ZhenlieSkillId) &&
+                game.Events.Select(item => item.Payload).OfType<ZhenlieResolvedEvent>().Count() == 0,
+            "Package 1.136.0 must retain Zhenlie identity data without executing a retired specialized or current program path.");
+    }
+
+    private static void HistoricalMijiDefinitionDoesNotReactivateRetiredExecutor()
+    {
+        var current = FindFixture(ScenarioPackage.SlashModeId);
+        var registry = CreateRegistry(new Version(1, 134, 0));
+        var game = CreateGame(registry, current.Seed, ScenarioPackage.SlashModeId);
+        Require(TryStartAndSelect(game) &&
+                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } &&
+                game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp < 3,
+            "The historical Wang Yi fixture must reach an injured human play phase without a retired Zhenlie executor.");
+        var play = RequirePrompt(game, DecisionKind.PlayCard);
+        Require(game.Submit(new EndPlayPhaseCommand(HumanSeat, game.Revision, play.PromptId)).Accepted,
+            "The historical Wang Yi fixture could not end its play phase.");
+        for (var step = 0; step < 64 && game.State.CurrentSeat == HumanSeat; step++)
+        {
+            Require(game.PendingDecision is not { Kind: DecisionKind.Miji, PlayerSeat: HumanSeat } &&
+                    game.PendingDecision is not
+                        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: MijiSkillId },
+                "A historical Miji definition reactivated a retired specialized or current program executor.");
+            Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                "The historical Wang Yi fixture could not leave its turn.");
+        }
+        Require(game.State.CurrentSeat != HumanSeat &&
+                !game.Events.Select(item => item.Payload).OfType<MijiResolvedEvent>().Any() &&
+                game.CardMovements.All(item => item.Reason != CardMoveReasons.MijiDraw &&
+                    item.Reason != CardMoveReasons.MijiGive),
+            "Package 1.134.0 must retain Miji identity data without executing the retired Miji state machine.");
+    }
+
+    private static void AnswerProgram(GameEngine game, string skillId, string action)
+    {
+        var prompt = RequireProgramPrompt(game, skillId);
+        Answer(game, prompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == action));
+    }
+
+    private static PendingDecision RequireMijiPrompt(GameEngine game) =>
+        RequireProgramPrompt(game, MijiSkillId);
+
+    private static PendingDecision RequireProgramPrompt(GameEngine game, string skillId) =>
+        game.PendingDecision is
+            { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat, SkillPrompt: { } skillPrompt } prompt &&
+        skillPrompt.SkillId == skillId
+            ? prompt
+            : throw new InvalidOperationException(
+                $"Expected human generic {skillId} prompt, found " +
+                $"{game.PendingDecision?.Kind.ToString() ?? "no prompt"}/" +
+                $"{game.PendingDecision?.SkillPrompt?.SkillId ?? "no skill"}.");
 
     private static void Answer(GameEngine game, DecisionKind kind, string action)
     {
@@ -391,11 +594,13 @@ internal static class WangYiChecks
             : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
     }
 
-    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry(Version? classicVersion = null) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(),
+        classicVersion is null
+            ? new StandardClassicGeneralPackage()
+            : new StandardClassicGeneralPackage(classicVersion),
         new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

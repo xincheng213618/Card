@@ -8,6 +8,35 @@ using CardGame.Wpf.ViewModels;
 
 internal static class ClassicGeneralUiChecks
 {
+    public static void CurrentConfiguredKujinAction(string output)
+    {
+        using var viewModel = FindGeneralChoice("classic:huang-gai");
+        var choice = viewModel.GeneralChoices.Single(item => item.GeneralId == "classic:huang-gai");
+        Program.Assert(choice.SkillDescription.Contains("失去 1 点体力", StringComparison.Ordinal),
+            "Current Huang Gai must render the configured Kujin presentation.");
+        viewModel.SelectGeneralChoiceCommand.Execute(choice);
+        Program.AdvanceToDecision(viewModel);
+        var engine = Program.Engine(viewModel);
+        var action = viewModel.HumanActiveSkillActions.Single(item =>
+            item.Kind == LegalActionKind.UseProgramSkill &&
+            item.ProgramSkillId == "classic:kujin" &&
+            item.ProgramActivationId == "lose-hp-and-draw");
+        var before = engine.CreateSnapshot(0, revealAll: true).Players[0];
+        var window = new MainWindow(viewModel);
+        window.ApplyTemplate();
+        Program.Render((FrameworkElement)window.Content, 1120, 740,
+            Path.Combine(output, "216-classic-current-kujin-action.png"));
+        viewModel.SelectActiveSkillCommand.Execute(action);
+        Program.AdvanceToDecision(viewModel);
+        var after = engine.CreateSnapshot(0, revealAll: true).Players[0];
+        Program.Assert(after.Hp == before.Hp - 1 && after.HandCount == before.HandCount + 2 &&
+                       engine.Events.Any(item => item.Payload is ProgramSkillResolvedEvent
+                           { SkillId: "classic:kujin", Completed: true }),
+            "The current WPF skill rail must submit configured Kujin and resume the human play boundary.");
+        window.Content = null;
+        window.Close();
+    }
+
     public static void SelectableDeckExpansion(string output)
     {
         using var viewModel = new MainViewModel(
@@ -25,6 +54,7 @@ internal static class ClassicGeneralUiChecks
                        viewModel.SelectedDeck?.DeckId == "classic:standard-deck",
             "Expanded classic setup must default to military 160 and expose standard 108 as an explicit alternative.");
 
+        viewModel.OpenLobbyCategoryCommand.Execute("identity");
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
         Program.Render(
@@ -506,11 +536,12 @@ internal static class ClassicGeneralUiChecks
         var qianxi = viewModel.HumanSkillCards.Single(skill => skill.Name == "潜袭");
         Program.Assert(engine.PendingDecision is
                        {
-                           Kind: DecisionKind.Qianxi,
+                           Kind: DecisionKind.ProgramTrigger,
                            IsPrivate: true,
-                           Choices.Count: 2
+                           Choices.Count: 2,
+                           SkillPrompt.SkillId: "classic:qianxi"
                        } &&
-                       viewModel.CurrentGuideTitle == "处理潜袭" &&
+                       viewModel.CurrentGuideTitle == "潜袭 · 是否发动" &&
                        mashu.TypeText == "状态技 · 锁定技" &&
                        qianxi.TypeText == "状态技 · 触发技" &&
                        qianxi.StateText == "等待触发时机",
@@ -518,18 +549,19 @@ internal static class ClassicGeneralUiChecks
             $"(pending={engine.PendingDecision?.Kind}, mashu={mashu.TypeText}, qianxi={qianxi.TypeText}).");
 
         var use = viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "qianxi-use");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         viewModel.SelectSkillChoiceCommand.Execute(use);
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         Program.Assert(engine.PendingDecision is
                        {
-                           Kind: DecisionKind.Qianxi,
+                           Kind: DecisionKind.ProgramTrigger,
                            IsPrivate: true,
-                           Choices.Count: > 0
+                           Choices.Count: > 0,
+                           SkillPrompt.SkillId: "classic:qianxi"
                        } discardPrompt &&
                        discardPrompt.Choices.All(choice =>
-                           choice.Parameters.GetValueOrDefault("action") == "qianxi-discard" &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
                            choice.Cards.Count == 1),
             "The WPF Qianxi flow must expose exact private discard choices after drawing.");
         Program.Render(root, 1120, 740,
@@ -539,7 +571,9 @@ internal static class ClassicGeneralUiChecks
         if (viewModel.CanStepAi) viewModel.RunToHumanCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         var target = viewModel.SkillChoices[0];
-        Program.Assert(target.Parameters.GetValueOrDefault("action") == "qianxi-target" &&
+        Program.Assert(target.Parameters.GetValueOrDefault("program-action") == "select-target" &&
+                       target.Parameters.GetValueOrDefault("target-kind") ==
+                           SkillProgramTargetKind.OtherLivingAtDistanceOne.ToString() &&
                        target.Targets.Count == 1,
             "The WPF Qianxi flow must expose one distance-1 target per exact choice.");
         viewModel.SelectSkillChoiceCommand.Execute(target);
@@ -547,10 +581,12 @@ internal static class ClassicGeneralUiChecks
         root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.DataBind);
         qianxi = viewModel.HumanSkillCards.Single(skill => skill.Name == "潜袭");
         Program.Assert(engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                       qianxi.StateText.Contains("手牌封禁", StringComparison.Ordinal) &&
-                       engine.Events.Select(item => item.Payload).OfType<QianxiResolvedEvent>()
-                           .Any(item => item is { PlayerSeat: 0, Used: true }),
-            $"Resolving Qianxi must update its live target-and-color state " +
+                       qianxi.StateText == "等待触发时机" &&
+                       engine.Events.Select(item => item.Payload).OfType<HandCardColorRestrictionGrantedEvent>()
+                           .Any(item => item.Restriction.Source.SkillId == "classic:qianxi") &&
+                       engine.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                           .Any(item => item.SkillId == "classic:qianxi" && item.Activated && item.Completed),
+            $"Resolving Qianxi must return to the common trigger state and publish its generic turn effect " +
             $"(pending={engine.PendingDecision?.Kind}, state={qianxi.StateText}).");
         Program.Render(root, 1120, 740,
             Path.Combine(output, "186-classic-ma-dai-qianxi-state.png"));
@@ -860,7 +896,7 @@ internal static class ClassicGeneralUiChecks
             choice.GeneralId == "classic:sun-quan");
         Program.Assert(sunQuan.SkillName == "制衡 / 救援" &&
                        sunQuan.SkillDescription.Contains("限一次", StringComparison.Ordinal) &&
-                       sunQuan.SkillDescription.Contains("任意张牌", StringComparison.Ordinal) &&
+                       sunQuan.SkillDescription.Contains("任意张手牌或装备区里的牌", StringComparison.Ordinal) &&
                        sunQuan.SkillDescription.Contains("其他吴势力角色", StringComparison.Ordinal) &&
                        sunQuan.HealthText == "体力上限 5" &&
                        GeneralArt.HasPortrait(sunQuan.GeneralId),
@@ -2215,7 +2251,7 @@ internal static class ClassicGeneralUiChecks
             "The WPF Zhiheng fixture did not equip its selectable public card.");
 
         var zhihengAction = zhihengViewModel.HumanActiveSkillActions.Single(action =>
-            action.Skill == SkillKind.Zhiheng);
+            action.Kind == LegalActionKind.UseProgramSkill && action.ProgramSkillId == "classic:zhiheng");
         zhihengViewModel.SelectActiveSkillCommand.Execute(zhihengAction);
         var equipmentChoice = zhihengViewModel.ActiveSkillEquipmentChoices.Single(choice =>
             choice.Cards.SequenceEqual([equipmentCard.Id]));
