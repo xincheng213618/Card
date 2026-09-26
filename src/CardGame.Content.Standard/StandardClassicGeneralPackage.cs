@@ -59,7 +59,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
     private readonly Version _version;
 
-    public static Version CurrentVersion { get; } = new(1, 139, 0);
+    public static Version CurrentVersion { get; } = new(1, 140, 0);
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
         : this(legacyRoster ? new Version(1, 0, 0) : CurrentVersion)
@@ -1481,6 +1481,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-gu-yong", "classic:bingyi"));
         }
 
+        if (_version >= new Version(1, 140, 0))
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-zhu-zhi", "classic:anguo"));
+
         if (_version >= new Version(1, 139, 0))
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-li-dian", "classic:xunxun"));
@@ -1509,6 +1512,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithOptionalTriggerMetadata(
                 EmbeddedSkillProgramCatalog.Definition("boundary-zhang-liao", "boundary:tuxi")));
         }
+        if (_version >= new Version(1, 140, 0))
+        {
+            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
+                "boundary:qixi", "奇袭", "你可以将一张黑色牌当【过河拆桥】使用。", SkillKind.Qixi)));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-gan-ning", "boundary:fenwei") with
+            {
+                Tags = SkillTag.Limited,
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
+        }
+
+        if (_version >= new Version(1, 140, 0))
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-xu-chu", "boundary:luoyi"));
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -2159,6 +2175,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:bingyi"]));
         }
 
+        if (_version >= new Version(1, 140, 0))
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhu-zhi", "朱治", "zhu_zhi",
+                "classic:anguo", "wu", BaseHp: 4));
+
         if (_version >= new Version(1, 139, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
@@ -2188,9 +2209,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "boundary:zhang-liao", "界张辽", "boundary_zhang_liao",
                 "boundary:tuxi", "wei", BaseHp: 4));
         }
+        if (_version >= new Version(1, 140, 0))
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:xu-chu", "界许褚", "boundary_xu_chu",
+                "boundary:luoyi", "wei", BaseHp: 4));
+        if (_version >= new Version(1, 140, 0))
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:gan-ning", "界甘宁", "boundary_gan_ning",
+                "boundary:qixi", "wu", BaseHp: 4,
+                AdditionalSkillIds: ["boundary:fenwei"]));
 
         var generalPoolIds = _version switch
         {
+            { Major: 1, Minor: >= 140 } => ExpandedClassic140GeneralIds,
             { Major: 1, Minor: >= 139 } => SharedExpansionClassicGeneralIds,
             { Major: 1, Minor: >= 97 } => GuanPingClassicGeneralIds,
             { Major: 1, Minor: 96 } => ManChongClassicGeneralIds,
@@ -2792,6 +2823,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "boundary:cao-cao",
         "boundary:diao-chan",
         "boundary:zhang-liao"
+    ];
+
+    internal static IReadOnlyList<string> ExpandedClassic140GeneralIds { get; } =
+    [
+        .. SharedExpansionClassicGeneralIds,
+        "classic:zhu-zhi",
+        "boundary:xu-chu",
+        "boundary:gan-ning"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

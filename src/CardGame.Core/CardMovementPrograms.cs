@@ -10,7 +10,8 @@ public sealed record CardMovementBatchContext(
     long? ParentBatchId,
     int TurnNumber,
     IReadOnlyList<CardMovementRecord> Movements,
-    IReadOnlyList<CardMovementSourceCount> SourceCounts);
+    IReadOnlyList<CardMovementSourceCount> SourceCounts,
+    long? AwaitingProgramFrameId = null);
 
 public sealed record CardMovementSourceCount(
     CardLocation Location,

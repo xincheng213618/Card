@@ -125,8 +125,9 @@ public sealed partial class SimpleAiBrain
                 }
                 case SkillProgramTriggerEffectOp.FilterBoundCards:
                     bindings.Add(effect.ResultBind!, bindings[effect.SourceBind!]
-                        .Where(pair => effect.Suits.Contains(pair.Key))
-                        .ToDictionary(pair => pair.Key, pair => pair.Value));
+                        .ToDictionary(pair => pair.Key, pair => pair.Value *
+                            ProgramCardSetFilter.PriorForSuit(pair.Key, effect.Suits,
+                                effect.CardCategories, effect.EquipmentSlots, effect.CardKinds)));
                     break;
                 case SkillProgramTriggerEffectOp.MoveBoundCards:
                     if (effect.Destination == SkillProgramCardDestination.OwnerHand)

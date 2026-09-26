@@ -20,13 +20,17 @@ internal static class ProgramCompositionValidator
         var targetSetConsumed = false;
         var pindianResults = new HashSet<string>(StringComparer.Ordinal);
         var choiceResults = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        var typedCardAtoms = effects.Any(effect => effect.Op == SkillProgramEffectOp.FilterBoundCards &&
+            (effect.CardCategories.Count > 0 || effect.EquipmentSlots.Count > 0 || effect.CardKinds.Count > 0));
+        var coverageResults = new HashSet<string>(StringComparer.Ordinal);
         var capabilities = ProgramEntryCapabilities.For(window);
         for (var index = 0; index < effects.Count; index++)
         {
             var effect = effects[index];
             var nodePath = $"{path}.effects[{index}]";
             var descriptor = ProgramOperationCatalog.Default.Resolve(effect.Op);
-            foreach (var condition in Conditions(effect.Condition))
+            foreach (var condition in Conditions(effect.Condition)
+                         .Concat(effect.Options.SelectMany(option => Conditions(option.Condition))))
             {
                 if (condition.Kind is (SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon) &&
                     !pindianResults.Contains(condition.SourceBind!))
@@ -39,6 +43,9 @@ internal static class ProgramCompositionValidator
                     SkillProgramConditionKind.BoundCardsMatchCategories or
                     SkillProgramConditionKind.BoundCardsMatchKinds)
                     _ = Get(condition.SourceBind!);
+                if (condition.Kind == SkillProgramConditionKind.AttackRangeCoverageDecreased &&
+                    !coverageResults.Contains(condition.SourceBind!))
+                    Fail($"unknown attack-range coverage result binding '{condition.SourceBind}'");
             }
             if ((capabilities & descriptor.RequiredCapabilities) != descriptor.RequiredCapabilities)
                 throw Error(nodePath, $"operation requires context {descriptor.RequiredCapabilities}, supplied {capabilities}");
@@ -53,14 +60,14 @@ internal static class ProgramCompositionValidator
                 {
                     case CreateCardSet create:
                     {
-                        var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup);
+                        var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup, typedCardAtoms);
                         roots.Add(root);
                         Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount));
                         break;
                     }
                     case CaptureSourceCard sourceCard:
                     {
-                        var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand);
+                        var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand, typedCardAtoms);
                         roots.Add(root);
                         Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), sourceCard.MaximumCount));
                         break;
@@ -69,7 +76,7 @@ internal static class ProgramCompositionValidator
                     {
                         if (cardsConsumed || selectedCardCount <= 0)
                             Fail("activation input cards must be captured exactly once after selecting at least one card");
-                        var root = new Root(activationCards.Name, true, true);
+                        var root = new Root(activationCards.Name, true, true, typedCardAtoms);
                         roots.Add(root);
                         Add(activationCards.Name, new(root, root.Atoms.Keys.ToHashSet(), selectedCardCount));
                         cardsConsumed = true;
@@ -111,7 +118,11 @@ internal static class ProgramCompositionValidator
                         }
                         else
                         {
-                            atoms = source.Atoms.Where(atom => derive.Suits.Contains(source.Root.Atoms[atom]))
+                            atoms = source.Atoms.Where(atom =>
+                                    ProgramCardSetFilter.Matches(source.Root.Atoms[atom].Kind,
+                                        source.Root.Atoms[atom].Suit, derive.Suits,
+                                        derive.Categories ?? [], derive.EquipmentSlots ?? [],
+                                        derive.CardKinds ?? []))
                                 .ToHashSet();
                         }
                         if (source.Root.Atoms.Count > 4096)
@@ -173,7 +184,8 @@ internal static class ProgramCompositionValidator
                     case CreatePindianResult result:
                         if (roots.Any(root => root.NeedsCleanup && !root.Consumed.SetEquals(root.Atoms.Keys)))
                             Fail("pindian cannot start while an earlier revealed card binding still needs cleanup");
-                        if (!pindianResults.Add(result.Name) || bindings.ContainsKey(result.Name) || choiceResults.ContainsKey(result.Name))
+                        if (!pindianResults.Add(result.Name) || bindings.ContainsKey(result.Name) ||
+                            choiceResults.ContainsKey(result.Name) || coverageResults.Contains(result.Name))
                             Fail($"duplicate result binding '{result.Name}'");
                         break;
                     case ReadPindianResult result:
@@ -182,8 +194,14 @@ internal static class ProgramCompositionValidator
                         break;
                     case CreateChoiceResult choice:
                         if (!choiceResults.TryAdd(choice.Name, choice.Options) ||
-                            bindings.ContainsKey(choice.Name) || pindianResults.Contains(choice.Name))
+                            bindings.ContainsKey(choice.Name) || pindianResults.Contains(choice.Name) ||
+                            coverageResults.Contains(choice.Name))
                             Fail($"duplicate result binding '{choice.Name}'");
+                        break;
+                    case CreateCoverageResult coverage:
+                        if (!coverageResults.Add(coverage.Name) || bindings.ContainsKey(coverage.Name) ||
+                            choiceResults.ContainsKey(coverage.Name) || pindianResults.Contains(coverage.Name))
+                            Fail($"duplicate result binding '{coverage.Name}'");
                         break;
                     case ReadSelectedTarget:
                         if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
@@ -221,7 +239,8 @@ internal static class ProgramCompositionValidator
                 ? value : throw Error(nodePath, $"unknown card binding '{name}'");
             void Add(string name, Binding value)
             {
-                if (!bindings.TryAdd(name, value) || choiceResults.ContainsKey(name) || pindianResults.Contains(name))
+                if (!bindings.TryAdd(name, value) || choiceResults.ContainsKey(name) ||
+                    pindianResults.Contains(name) || coverageResults.Contains(name))
                     Fail($"duplicate card binding '{name}'");
             }
             void Fail(string message) => throw Error(nodePath, message);
@@ -244,16 +263,20 @@ internal static class ProgramCompositionValidator
     private static InvalidOperationException Error(string path, string message) =>
         new($"Invalid skill program at {path}: {message}.");
 
-    private sealed class Root(string name, bool needsCleanup, bool ownerHeld)
+    private sealed class Root(string name, bool needsCleanup, bool ownerHeld, bool typedCardAtoms)
     {
         internal string Name { get; } = name;
         internal bool NeedsCleanup { get; } = needsCleanup;
         internal bool OwnerHeld { get; } = ownerHeld;
-        internal Dictionary<int, Suit> Atoms { get; } = new()
-        {
-            [0] = Suit.Spade, [1] = Suit.Heart, [2] = Suit.Club, [3] = Suit.Diamond
-        };
-        internal int NextAtom { get; set; } = 4;
+        internal Dictionary<int, (CardKind Kind, Suit Suit)> Atoms { get; } =
+            (typedCardAtoms
+                ? Enum.GetValues<CardKind>()
+                    .SelectMany(kind => Enum.GetValues<Suit>().Select(suit => (kind, suit)))
+                : Enum.GetValues<Suit>().Select(suit => (CardKind.Slash, suit)))
+            .Select((value, index) => (value, index))
+            .ToDictionary(item => item.index, item => (item.value.Item1, item.value.Item2));
+        internal int NextAtom { get; set; } = typedCardAtoms
+            ? Enum.GetValues<CardKind>().Length * Enum.GetValues<Suit>().Length : 4;
         internal HashSet<int> Consumed { get; } = [];
         internal HashSet<int> PossiblyGifted { get; } = [];
     }

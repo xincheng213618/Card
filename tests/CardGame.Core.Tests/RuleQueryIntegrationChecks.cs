@@ -127,8 +127,16 @@ internal static class RuleQueryIntegrationChecks
             player.SkillGrants.RemoveGrant(grant.GrantId);
     }
 
-    private static RuleQueryEvaluation Evaluate(GameEngine game, string methodName, params CharacterState[] players) =>
-        (RuleQueryEvaluation)typeof(GameEngine).GetMethod(methodName, PrivateInstance)!.Invoke(game, players)!;
+    private static RuleQueryEvaluation Evaluate(GameEngine game, string methodName, params CharacterState[] players)
+    {
+        var method = typeof(GameEngine).GetMethod(methodName, PrivateInstance)!;
+        var arguments = players.Cast<object?>().ToList();
+        var parameters = method.GetParameters();
+        if (parameters.Length == arguments.Count + 1 && parameters[^1].IsOptional &&
+            parameters[^1].ParameterType == typeof(int?))
+            arguments.Add(null);
+        return (RuleQueryEvaluation)method.Invoke(game, arguments.ToArray())!;
+    }
 
     private static FiniteRuleQueryValue Finite(RuleQueryEvaluation evaluation) =>
         evaluation.Value as FiniteRuleQueryValue ??

@@ -59,8 +59,8 @@ public sealed record TurnCardUseProhibition(
     CardUseCategories Categories);
 
 /// <summary>
-/// A turn-scoped modifier for damage caused by a card the owner actually used.
-/// Source and card user must remain the owner, and propagated chain damage never matches.
+/// A card-damage modifier with explicit expiry and source matching. Omitted settings
+/// preserve the original owner-used/current-turn contract; chain propagation never matches.
 /// </summary>
 public sealed record TurnCardDamageModifier(
     long GrantSequence,
@@ -70,7 +70,9 @@ public sealed record TurnCardDamageModifier(
     int EffectIndex,
     CardUseEffectSource Source,
     IReadOnlyList<CardKind> CardKinds,
-    int Amount);
+    int Amount,
+    SkillProgramDamageModifierExpiration Expiration = SkillProgramDamageModifierExpiration.CurrentTurnEnd,
+    SkillProgramDamageModifierSourceScope SourceScope = SkillProgramDamageModifierSourceScope.OwnerUsed);
 
 public sealed record TurnCardActionProhibition(
     long GrantSequence,
@@ -278,7 +280,9 @@ internal sealed class TurnCardUseEffectStore
         int effectIndex,
         CardUseEffectSource source,
         IReadOnlyList<CardKind> cardKinds,
-        int amount)
+        int amount,
+        SkillProgramDamageModifierExpiration expiration = SkillProgramDamageModifierExpiration.CurrentTurnEnd,
+        SkillProgramDamageModifierSourceScope sourceScope = SkillProgramDamageModifierSourceScope.OwnerUsed)
     {
         var frozenKinds = Array.AsReadOnly(cardKinds.Distinct().Order().ToArray());
         var existing = _damageModifiers.SingleOrDefault(item =>
@@ -287,7 +291,8 @@ internal sealed class TurnCardUseEffectStore
         {
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
                 existing.Source != source || !existing.CardKinds.SequenceEqual(frozenKinds) ||
-                existing.Amount != amount)
+                existing.Amount != amount || existing.Expiration != expiration ||
+                existing.SourceScope != sourceScope)
             {
                 throw new InvalidOperationException("A card-damage modifier grant key changed its meaning.");
             }
@@ -302,7 +307,9 @@ internal sealed class TurnCardUseEffectStore
             effectIndex,
             source,
             frozenKinds,
-            amount);
+            amount,
+            expiration,
+            sourceScope);
         _damageModifiers.Add(granted);
         return granted;
     }
@@ -536,12 +543,14 @@ internal sealed class TurnCardUseEffectStore
         CardKind effectiveKind,
         bool isChainPropagation)
     {
-        if (isChainPropagation || sourceSeat != cardUserSeat) return [];
+        if (isChainPropagation) return [];
         return _damageModifiers
             .Where(item =>
-                item.TurnNumber == turnNumber &&
-                item.TurnSeat == turnSeat &&
+                (item.Expiration == SkillProgramDamageModifierExpiration.NextOwnerTurnStart ||
+                 item.TurnNumber == turnNumber && item.TurnSeat == turnSeat) &&
                 item.Source.OwnerSeat == sourceSeat &&
+                (item.SourceScope == SkillProgramDamageModifierSourceScope.DamageSource ||
+                 sourceSeat == cardUserSeat) &&
                 item.CardKinds.Contains(effectiveKind))
             .OrderBy(item => item.GrantSequence)
             .ToArray();
@@ -564,7 +573,8 @@ internal sealed class TurnCardUseEffectStore
                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
                 .Select(item => item.GrantSequence))
             .Concat(_damageModifiers
-                .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
+                .Where(item => item.Expiration == SkillProgramDamageModifierExpiration.CurrentTurnEnd &&
+                               item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
                 .Select(item => item.GrantSequence))
             .Concat(_actionProhibitions
                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
@@ -596,6 +606,24 @@ internal sealed class TurnCardUseEffectStore
         return expired;
     }
 
+    internal IReadOnlyList<long> ExpireDamageModifiersAtOwnerTurnStart(int ownerSeat, int turnNumber) =>
+        ExpireDamageModifiers(item =>
+            item.Expiration == SkillProgramDamageModifierExpiration.NextOwnerTurnStart &&
+            item.Source.OwnerSeat == ownerSeat && item.TurnNumber < turnNumber);
+
+    internal IReadOnlyList<long> ExpireDamageModifiersOnDeath(int ownerSeat) =>
+        ExpireDamageModifiers(item =>
+            item.Expiration == SkillProgramDamageModifierExpiration.NextOwnerTurnStart &&
+            item.Source.OwnerSeat == ownerSeat);
+
+    private IReadOnlyList<long> ExpireDamageModifiers(Func<TurnCardDamageModifier, bool> predicate)
+    {
+        var expired = _damageModifiers.Where(predicate).Select(item => item.GrantSequence).Order().ToArray();
+        if (expired.Length > 0)
+            _damageModifiers.RemoveAll(item => predicate(item));
+        return expired;
+    }
+
     internal void AssertInvariants()
     {
         var all = _targetAdjustments.Select(item => item.GrantSequence)
@@ -612,7 +640,9 @@ internal sealed class TurnCardUseEffectStore
                 item.MinimumTargets < 1 || !item.AllowAdd && !item.AllowRemove) ||
             _prohibitions.Any(item => !CardUseCategoryCatalog.IsValid(item.Categories)) ||
             _damageModifiers.Any(item => item.Amount <= 0 || item.CardKinds.Count == 0 ||
-                item.CardKinds.Distinct().Count() != item.CardKinds.Count) ||
+                item.CardKinds.Distinct().Count() != item.CardKinds.Count ||
+                !Enum.IsDefined(item.Expiration) || !Enum.IsDefined(item.SourceScope) ||
+                item.TurnNumber <= 0 || item.Source.OwnerSeat < 0) ||
             _actionProhibitions.Any(item => item.CardKinds.Count == 0 || item.ActionTypes.Count == 0 ||
                 item.CardKinds.Distinct().Count() != item.CardKinds.Count ||
                 item.ActionTypes.Distinct().Count() != item.ActionTypes.Count) ||

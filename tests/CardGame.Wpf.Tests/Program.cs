@@ -259,8 +259,10 @@ internal static class Program
             Check("Gu Yong official portrait and fame-4 gallery", GuYongUiChecks.PortraitAndGallery);
             Check("2019 boundary Guo Jia official portrait gallery and Wei battle seat", BoundaryGuoJiaUiChecks.PortraitGalleryAndBattleSeat);
             Check("2014 boundary Cao Cao official portrait gallery and Wei battle seat", BoundaryCaoCaoUiChecks.PortraitGalleryAndBattleSeat);
+            Check("2014 boundary Xu Chu gallery and Wei battle seat", BoundaryXuChuUiChecks.GalleryAndBattleSeat);
             Check("2019 boundary Diao Chan renders its card and resolves Biyue", () => BoundaryDiaoChanUiChecks.BoundaryCardAndBiyuePrompt(output));
             Check("2018 boundary Zhang Liao renders private dynamic Tuxi targets", () => BoundaryZhangLiaoUiChecks.PortraitAndPrivateDrawPlan(output));
+            Check("2014 boundary Gan Ning renders private Fenwei target subsets", () => BoundaryGanNingUiChecks.PrivateFenweiSubsetPrompt(output));
             Check("formal Diao Chan renders and resolves the metadata-driven Biyue prompt", () => DiaoChanUiChecks.BiyuePromptAndContinuation(output));
             Check("Zongshi module renders shared Pindian choices and resumes Play", () => ZongshiModuleUiChecks.GenericClaimPromptAndContinuation(output));
             Check("Program named choice renders shared labels and resumes parent", () => ProgramChoiceUiChecks.NamedChoiceUsesSharedSurfaceAndCommand(output));

@@ -21,7 +21,7 @@ internal static class ZhuHuanChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: "skill-program-v54", MinimumRulesVersion: GameCheckpoint.CurrentRulesVersion,
+                skill.Program is { RuntimeVersion: "skill-program-v54", MinimumRulesVersion: 164,
                     UsesCompositionKernel: true } &&
                 skill.Program.Triggers.Single().Window == SkillProgramTriggerWindow.TurnEnding &&
                 (int)SkillProgramConditionKind.BoundCardsMatchKinds == 20,

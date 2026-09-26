@@ -1969,6 +1969,45 @@ public sealed partial class SimpleAiBrain
         return (selected.Choice.Id, thought);
     }
 
+    /// <summary>Public utility of preventing one target's current trick effect.</summary>
+    public double ScoreCardEffectIntervention(GameSnapshot view, CardKind kind, int targetSeat)
+    {
+        var selfRole = view.Players.Single(player => player.Seat == Seat).Role ?? Role.Renegade;
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        var hostility = Math.Clamp(GetHostility(view, selfRole, target), -100d, 100d);
+        return kind switch
+        {
+            CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.Duel or
+                CardKind.FireAttack or CardKind.Dismantlement or CardKind.Snatch =>
+                -hostility * 0.32d + (hostility < 0 && target.Hp <= 1 ? 15d : 0d),
+            CardKind.PeachGarden => target.Hp < target.MaxHp ? hostility * 0.28d : 0d,
+            CardKind.FiveGrains => hostility * 0.25d,
+            // Chain changes are situational; do not spend a limited intervention on an unknown payoff.
+            _ => 0d
+        };
+    }
+
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseCardEffectInterventionTargets(
+        GameSnapshot view, CardKind kind, IReadOnlyList<PromptChoice> choices, int thoughtSequence)
+    {
+        if (choices.Count == 0 || choices.Any(choice => choice.Targets.Count == 0))
+            throw new InvalidOperationException("AI received an invalid card-effect intervention prompt.");
+        var scored = choices.Select(choice =>
+        {
+            var score = choice.Targets.Sum(seat => ScoreCardEffectIntervention(view, kind, seat));
+            return (Choice: choice, Candidate: new AiCandidateScore(
+                new LegalAction(LegalActionKind.UseProgramSkill, null, choice.Targets[0],
+                    choice.Description, TargetSeats: choice.Targets), Math.Round(score, 3),
+                "仅按公开牌种、体力和关系估计各指定目标的效果。"));
+        }).ToArray();
+        var selected = scored.OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).First();
+        return (selected.Choice.Id, new AiThoughtRecord(thoughtSequence, view.TurnNumber, Seat,
+            selected.Choice.Description, scored.Select(item => item.Candidate)
+                .OrderByDescending(candidate => candidate.Score).ToArray(),
+            "按同一公开效果收益选择需要阻止的目标子集。"));
+    }
+
     /// <summary>
     /// Decides whether a configured draw replacement is worth giving up the
     /// ordinary two-card draw. Inputs are public seats and hand counts only.

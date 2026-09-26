@@ -11,7 +11,7 @@
 | `standard@1.14.0` | 无 | 基础牌、装备、技能、武将、演示牌堆和标准身份模式；保留 rules v117 的 schema 12 咆哮与 rules v120 的 schema 15 伤害程序，并在 rules v121 以 schema 16 `DrawPhaseStarting` 迁移强制标准英姿；1.13.0 定义与指纹保留但不复活旧被动执行路线 | implemented-registry |
 | `standard-active-skills@1.1.0` | `standard@1.11.0` | `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将、`identity:active-skills-8/5`；马术使用 schema 12 距离修正，1.0.0 定义与指纹保留 | implemented-registry；可选扩展 |
 | `standard-rescue-skills@1.0.0` | `standard-active-skills@1.0.0` | `standard:jijiu`、`standard:demo-jijiu`；扩展模式中的急救红牌濒死救援 | implemented-registry；可选扩展 |
-| `standard-classic-generals@1.139.0` | `standard-rescue-skills@1.0.0` | 当前经典身份层；rules v164／schema 54，在顾雍、李典及界司马懿／界郭嘉／界貂蝉之后接入朱桓、界曹操、界张辽；新增实体牌型条件、可领取伤害牌选项及动态摸牌目标集合，公共 AI 评分统一修正；护驾、天妒、离间仍复用通用 SkillKind；此前私密置底、伤害参与者和武魂独立 v53 资源保持 | implemented-registry；可选扩展 |
+| `standard-classic-generals@1.140.0` | `standard-rescue-skills@1.0.0` | 当前经典身份层；rules165/schema55，增加朱治2015、界甘宁2014、界许褚2014首发；移动局部续接、指定目标子集无效、类型过滤及跨回合伤害期限；奇袭等既有通用SkillKind继续保留 | implemented-registry；可选扩展 |
 | `standard-classic-generals@1.138.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；rules v162／schema 52，疠火通过有效牌型目标数规则、显式连续转化和完成后触发执行；程普专属执行器退役，旧版本定义与指纹保留但不重新绑定 | implemented-registry；历史构造 |
 | `standard-classic-generals@1.136.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；rules v160／schema 50，解烦通过整局额度和发动时冻结的攻击范围响应链逐人执行；旧韩当专属执行器退役，贞烈仍为历史定义但不重新绑定已退役执行器 | implemented-registry；历史构造 |
 | `standard-classic-generals@1.135.0` | `standard-rescue-skills@1.0.0` | 历史经典身份层；rules v159／schema 49，秘计通过公共结束阶段窗口、实际摸牌绑定和全有或全无的逐张自有手牌分配执行；旧秘计执行器退役，解烦仍为历史定义但不重新绑定已退役执行器 | implemented-registry；历史构造 |

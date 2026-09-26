@@ -23,7 +23,9 @@ internal sealed record ProgramAiPublicContext(
     // Active action scoring prices these exact input cards separately from effects.
     int? ActivationCardCount = null,
     bool HasClaimableDamageCards = false,
-    int? EligibleTargetCount = null);
+    int? EligibleTargetCount = null,
+    Func<string, bool>? AttackRangeCoverageDecreased = null,
+    double CardEffectInterventionScore = 0d);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -63,7 +65,8 @@ internal static class ProgramCompositionAi
                 var chooser = ProgramChoiceAi.Target(effect.Target, player, facts);
                 if (chooser is null) continue;
                 var selected = effect.Options.Where(option => option.Condition.EvaluateOption(chooser,
-                        () => supplied.HasClaimableDamageCards))
+                        () => supplied.HasClaimableDamageCards,
+                        facts.AttackRangeCoverageDecreased))
                     .OrderByDescending(option => ProgramChoiceAi.Score(instructions.Skip(index + 1),
                         player, chooser, facts with { ChoiceResult = name => name == effect.ResultBind ? option.Id : facts.ChoiceResult!(name) }))
                     .ThenBy(option => option.Id, StringComparer.Ordinal).FirstOrDefault();
@@ -82,7 +85,8 @@ internal static class ProgramCompositionAi
         if (condition.Kind == SkillProgramConditionKind.BooleanState && context?.BooleanState is null) return false;
         return condition.Evaluate(player, context?.SelectedTarget,
             context?.PindianWon ?? (_ => false), context?.BooleanState ?? (_ => false),
-            context?.CardUseIsRed, context?.ChoiceResult);
+            context?.CardUseIsRed, context?.ChoiceResult,
+            attackRangeCoverageDecreased: context?.AttackRangeCoverageDecreased);
     }
 }
 
@@ -188,7 +192,10 @@ internal sealed class ProgramAiEstimateContext
     {
         var source = Binding(effect.SourceBind);
         var suits = new double[4];
-        foreach (var suit in effect.Suits) suits[(int)suit] = source.Suits[(int)suit];
+        foreach (var suit in Enum.GetValues<Suit>())
+            suits[(int)suit] = source.Suits[(int)suit] *
+                ProgramCardSetFilter.PriorForSuit(suit, effect.Suits, effect.CardCategories,
+                    effect.EquipmentSlots, effect.CardKinds);
         _bindings[effect.ResultBind!] = new CardSetEstimate(suits.Sum(), suits, source.OwnerHeld, source.TargetHeld,
             source.ActivationInput);
     }
@@ -324,7 +331,8 @@ internal sealed class ProgramAiEstimateContext
             ? -(_estimatedSelectedTargetCount ?? 1) : effect.Amount;
 
     internal void GrantTurnCardDamageModifier(SkillProgramEffect effect) =>
-        _otherAdjustment += effect.Amount * 6d;
+        _otherAdjustment += effect.Amount *
+            (effect.DamageModifierExpiration == SkillProgramDamageModifierExpiration.NextOwnerTurnStart ? 11d : 6d);
 
     internal void GrantTurnCardActionProhibition(SkillProgramEffect effect)
     {
@@ -349,6 +357,9 @@ internal sealed class ProgramAiEstimateContext
             CardKind.BorrowedSword)
             _otherAdjustment += 32d;
     }
+
+    internal void NullifySelectedCardEffects() =>
+        _otherAdjustment += _publicContext.CardEffectInterventionScore;
 
     internal void GrantTurnRuleModifier(SkillProgramEffect effect)
     {

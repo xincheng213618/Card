@@ -20,7 +20,7 @@ internal enum ProgramOperationAiSemantic
     GrantTurnHandColorRestriction, PreventCurrentDamage, CaptureSelectedCards,
     RevealBoundCards, ChooseDifferentCategoryDiscard, UseSelectedCardsAs, GrantTurnSkills,
     ChangeAttributedMarker, CauseDeath, DyingRescue, ChooseOtherOwnedCardDiscard,
-    DistributeOwnedCards, RequestAttackRangeAid, NullifyCurrentCardEffect
+    DistributeOwnedCards, RequestAttackRangeAid, NullifyCurrentCardEffect, NullifySelectedCardEffects
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -34,7 +34,10 @@ internal sealed record ReadSingleCardSet(string Name) : ProgramResourceOperation
 internal sealed record SelectTargetSet(int Minimum, int Maximum) : ProgramResourceOperation;
 internal sealed record ConsumeTargetSet : ProgramResourceOperation;
 internal sealed record DeriveCardSet(
-    string Source, string Result, IReadOnlyList<Suit> Suits, int? SelectionMaximum = null) : ProgramResourceOperation;
+    string Source, string Result, IReadOnlyList<Suit> Suits, int? SelectionMaximum = null,
+    IReadOnlyList<SkillProgramCardCategory>? Categories = null,
+    IReadOnlyList<EquipmentSlot>? EquipmentSlots = null,
+    IReadOnlyList<CardKind>? CardKinds = null) : ProgramResourceOperation;
 internal sealed record ReadCardSet(string Name) : ProgramResourceOperation;
 internal sealed record MoveCardSet(string Source, string? Except, SkillProgramCardDestination Destination) : ProgramResourceOperation;
 internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
@@ -46,6 +49,7 @@ internal sealed record ConsumeSelectedCards(int Count) : ProgramResourceOperatio
 internal sealed record CreatePindianResult(string Name) : ProgramResourceOperation;
 internal sealed record ReadPindianResult(string Name) : ProgramResourceOperation;
 internal sealed record CreateChoiceResult(string Name, IReadOnlyList<string> Options) : ProgramResourceOperation;
+internal sealed record CreateCoverageResult(string Name) : ProgramResourceOperation;
 
 internal interface IProgramOperationDescriptor
 {
@@ -464,20 +468,31 @@ internal sealed class FilterBoundCardsProgramOperationDescriptor : ProgramOperat
         static (effect, context) => context.Filter(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "sourceBind", "resultBind", "suits", "effectiveSuitForRef", "condition");
+        r.AllowOnly("op", "target", "sourceBind", "resultBind", "suits", "categories", "equipmentSlots", "cardKinds", "effectiveSuitForRef", "condition");
         var target = Owner(r);
         var source = r.RequiredIdentifier("sourceBind"); var result = r.RequiredIdentifier("resultBind");
         if (source == result) throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind and resultBind must differ.");
-        var suits = r.RequiredEnumArray<Suit>("suits");
-        if (suits.Count == 0) throw new InvalidOperationException($"Invalid skill program at {r.Path}.suits: must not be empty.");
+        var suits = r.OptionalEnumArray<Suit>("suits") ?? [];
+        var categories = r.OptionalEnumArray<SkillProgramCardCategory>("categories") ?? [];
+        var equipmentSlots = r.OptionalEnumArray<EquipmentSlot>("equipmentSlots") ?? [];
+        var cardKinds = r.OptionalEnumArray<CardKind>("cardKinds") ?? [];
+        if (suits.Count + categories.Count + equipmentSlots.Count + cardKinds.Count == 0 ||
+            r.Has("suits") && suits.Count == 0 || r.Has("categories") && categories.Count == 0 ||
+            r.Has("equipmentSlots") && equipmentSlots.Count == 0 || r.Has("cardKinds") && cardKinds.Count == 0)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: filter arrays must be nonempty and at least one selector is required.");
+        if ((categories.Count + equipmentSlots.Count + cardKinds.Count) > 0 && r.Has("effectiveSuitForRef"))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: effectiveSuitForRef cannot be mixed with card-class filters.");
         var effectiveSuitForRef = r.Has("effectiveSuitForRef")
             ? r.RequiredParticipantReference("effectiveSuitForRef") : null;
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source, resultBind: result,
-            suits: suits, targetReference: effectiveSuitForRef);
+            suits: suits, cardCategories: categories, equipmentSlots: equipmentSlots,
+            cardKinds: cardKinds, targetReference: effectiveSuitForRef);
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new DeriveCardSet(effect.SourceBind!, effect.ResultBind!, effect.Suits),
+        [new DeriveCardSet(effect.SourceBind!, effect.ResultBind!, effect.Suits,
+            Categories: effect.CardCategories, EquipmentSlots: effect.EquipmentSlots,
+            CardKinds: effect.CardKinds),
             ..ParticipantResources(effect.TargetReference)];
     internal static SkillProgramEffectTarget Owner(ProgramOperationNodeReader r)
     {

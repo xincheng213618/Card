@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "boundary:fenwei": {
+      "name": "奋威",
+      "description": "限定技，当一张锦囊牌指定至少两名角色为目标时，你可以令此牌对其中任意名目标无效。"
+    }
+  }
+}

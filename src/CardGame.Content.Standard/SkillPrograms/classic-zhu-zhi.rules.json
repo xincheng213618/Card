@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 55,
+  "skills": [
+    {
+      "id": "classic:anguo",
+      "revision": 1,
+      "minimumRulesVersion": 165,
+      "activations": [
+        {
+          "id": "return-equipment",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving", "zones": ["equipment"] },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["equipment"],
+              "count": 1,
+              "destination": "selectedTargetHand",
+              "targetRef": { "kind": "selectedTarget" },
+              "allowSameOwnerHandReturn": true,
+              "coverageResultBind": "range-change",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": { "kind": "attackRangeCoverageDecreased", "sourceBind": "range-change" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

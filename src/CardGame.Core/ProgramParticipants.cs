@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CardGame.Core;
 
 public enum ProgramParticipantRef
@@ -58,4 +60,6 @@ public sealed record ProgramCardUseContext(
     Suit? PublicSuit,
     bool? IsPublicRed,
     bool WasUsageDebited,
-    CardUseDebitIdentity? DebitIdentity);
+    CardUseDebitIdentity? DebitIdentity,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<int>? DesignatedTargetSeats = null);

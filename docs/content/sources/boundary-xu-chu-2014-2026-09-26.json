@@ -1,0 +1,11 @@
+{
+  "generalId": "boundary:xu-chu",
+  "skillId": "boundary:luoyi",
+  "edition": "2014-06-13 first boundary release; identity game",
+  "officialRulesUrl": "https://www.sanguosha.com/news/20140613_9531_3717",
+  "ruleNote": "Choose to skip the draw phase before revealing the top three; gain all Basic, Weapon and Duel cards. If chosen, damage as source from Slash or Duel gains one until the owner's next turn starts. Current hero/315 reverses the decision order and is excluded.",
+  "officialPortraitPage": "https://www.sanguosha.com/hero/315",
+  "portraitUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31500.png",
+  "portraitFile": "src/CardGame.Wpf/Assets/official-boundary-xu-chu.png",
+  "portraitSha256": "D682BA6339584F15B5E4A8009DDEC409C34DB2C701C7B60AA28EA1337045D227"
+}

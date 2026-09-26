@@ -365,7 +365,10 @@ internal static class SkillProgramExecutorChecks
             Calls.Add($"reveal:{ownerSeat}:{amount}:{numberExpression}:{resultBind}:{visibility}");
 
         public void FilterBoundCards(long frameId, string sourceBind, string resultBind,
-            IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null) =>
+            IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null,
+            IReadOnlyList<SkillProgramCardCategory>? categories = null,
+            IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
+            IReadOnlyList<CardKind>? cardKinds = null) =>
             Calls.Add($"filter-bound:{sourceBind}:{resultBind}:{string.Join(',', suits)}");
 
         public SkillProgramStepOutcome SelectCardSubset(
@@ -457,7 +460,9 @@ internal static class SkillProgramExecutorChecks
         public void GrantTurnCardDamageModifier(
             ProgramSkillFrame frame,
             IReadOnlyList<CardKind> cardKinds,
-            int amount) =>
+            int amount,
+            SkillProgramDamageModifierExpiration expiration,
+            SkillProgramDamageModifierSourceScope sourceScope) =>
             Calls.Add($"grant-turn-card-damage:{frame.OwnerSeat}:{string.Join(',', cardKinds)}:{amount}");
 
         public void GrantTurnCardActionProhibition(

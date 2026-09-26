@@ -2,6 +2,45 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private void NullifySelectedProgramCardEffects(ProgramSkillFrame frame)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.WindowContext is not
+            { Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
+              CardUse: { } cardUse } context || active.SelectedTargetSeats.Count == 0 ||
+            active.SelectedTargetSeats.Distinct().Count() != active.SelectedTargetSeats.Count)
+            throw new InvalidOperationException("Selected card-effect nullification requires a frozen nonempty target set.");
+        if (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is not { } window ||
+            window.Id != context.ParentFrameId || window.Action.ActionId != cardUse.CardActionId ||
+            window.ParentFrameId != cardUse.ParentCardUseFrameId ||
+            window.Action.Type != CardActionType.Use ||
+            _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(item => item.Id == window.ParentFrameId) is not { } parent ||
+            parent.Action?.ActionId != cardUse.CardActionId ||
+            parent.Action.EffectiveKind != cardUse.EffectiveKind ||
+            parent.Action.ActorSeat != cardUse.ActorSeat)
+            throw new InvalidOperationException("Selected card-effect nullification lost its frozen parent card action.");
+
+        var designated = (cardUse.DesignatedTargetSeats ?? parent.Action.EffectiveDesignatedTargetSeats).ToHashSet();
+        if (active.SelectedTargetSeats.Any(seat => !designated.Contains(seat)))
+            throw new InvalidOperationException("A selected seat was never a target of the current card use.");
+        var newlyNullified = active.SelectedTargetSeats.Where(seat => _players[seat].IsAlive &&
+            parent.IneffectiveTargetSeats?.Contains(seat) != true).ToArray();
+        foreach (var seat in newlyNullified)
+            MarkCardEffectIneffective(parent.Id, seat);
+        if (newlyNullified.Length == 0) return;
+        QueueGameEvent(new ProgramSelectedCardEffectsNullifiedEvent(active.Id, active.SkillId,
+            GetProgramBindingId(active), active.OwnerSeat, cardUse.ActorSeat,
+            parent.Id, cardUse.EffectiveKind, newlyNullified));
+        foreach (var seat in newlyNullified)
+            QueueGameEvent(new CardEffectSkippedEvent(parent.Id, cardUse.ActorSeat, seat,
+                cardUse.EffectiveKind, CardEffectSkipReason.SkillNullified));
+        AddLog("SkillTriggered",
+            $"{_players[active.OwnerSeat].Name} 发动【{_contentRegistry!.GetSkill(active.SkillId).Name}】，" +
+            $"令【{CardCatalog.Get(cardUse.EffectiveKind).DisplayName}】对" +
+            $"{string.Join("、", newlyNullified.Select(seat => _players[seat].Name))}无效。",
+            active.OwnerSeat, cardUse.ActorSeat);
+    }
+
     private void NullifyCurrentProgramCardEffect(ProgramSkillFrame frame)
     {
         var active = GetActiveProgramFrame(frame.Id);

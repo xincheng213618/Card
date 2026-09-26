@@ -1,3 +1,5 @@
+2026-09-26 当前边界：rules165 / schema55 / standard-classic-generals@1.140.0 / Checkpoint3。新增朱治2015、界甘宁2014、界许褚2014首发；移动局部续接、真实指定目标子集、类型牌过滤和跨回合伤害期限均为公共能力。契约见 [schema55](content/skill-composition/RUNTIME_V55.md)，实测及父审返工见 [第四批记录](benchmarks/2026-09-26-movement-and-target-generals.md)。下方旧版本段落保留为历史记录。
+
 # 开发门禁边界
 
 本项目把“内容指纹”和“引擎回放语义”分开管理，避免新增武将、技能或表现资源时反复抬高全局 `RulesVersion` 或内容包版本。

@@ -25,6 +25,7 @@ internal static class GeneralGalleryChecks
             ("classic:xu-huang", "myth-forest"), ("classic:yan-yan", "myth-yin"),
             ("classic:yu-jin", "fame-1"), ("classic:cheng-pu", "fame-2"),
             ("classic:cao-chong", "fame-3"), ("classic:zhu-huan", "fame-4"),
+            ("classic:zhu-zhi", "fame-5"),
             ("classic:shen-guan-yu", "god"),
             ("classic:gongsun-zan", "sp"), ("sp:guan-yu", "sp"),
             ("mou:lu-meng", "mou"), ("boundary:zhang-jiao", "boundary"),
@@ -44,6 +45,10 @@ internal static class GeneralGalleryChecks
                        zhuHuan.SkillDescription.Contains("结束阶段") &&
                        GeneralArt.HasPortrait(zhuHuan.GeneralId),
             "2014 Zhu Huan needs his Wu/Fame IV gallery text and official portrait.");
+        var zhuZhi = vm.GeneralGalleryEntries.Single(entry => entry.GeneralId == "classic:zhu-zhi");
+        Program.Assert(zhuZhi.Kingdom == "吴" && zhuZhi.SkillDescription.Contains("安国") &&
+                       zhuZhi.SkillDescription.Contains("攻击范围") && zhuZhi.GroupId == "fame-5",
+            "2015 Zhu Zhi needs the Wu/Fame V gallery group and Anguo text.");
 
         Program.Render(root, 1440, 880, Path.Combine(output, "140-gallery-all.png"));
         var panel = (GeneralGalleryPanel)window.FindName("GeneralGallery");

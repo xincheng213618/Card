@@ -420,11 +420,13 @@ public sealed partial class GameEngine
         string sourceBind,
         string resultBind,
         IReadOnlyList<Suit> suits,
-        ProgramParticipantReference? effectiveSuitFor)
+        ProgramParticipantReference? effectiveSuitFor,
+        IReadOnlyList<SkillProgramCardCategory> categories,
+        IReadOnlyList<EquipmentSlot> equipmentSlots,
+        IReadOnlyList<CardKind> cardKinds)
     {
         var frame = GetActiveProgramFrame(frameId);
         var source = GetProgramCardSet(frame, sourceBind);
-        var acceptedSuits = suits.ToHashSet();
         var effectiveSuitSeat = effectiveSuitFor is null ? (int?)null : ResolveProgramParticipant(frame, effectiveSuitFor);
         var selected = source.CardIds.Select((cardId, index) =>
             {
@@ -435,8 +437,9 @@ public sealed partial class GameEngine
                 var card = _cardZones.CardsAt(location).Single(current => current.Id == cardId);
                 return (Card: card, Location: location);
             })
-            .Where(item => acceptedSuits.Contains(effectiveSuitSeat is { } seat
-                ? EffectiveSuit(_players[seat], item.Card) : item.Card.Suit))
+            .Where(item => ProgramCardSetFilter.Matches(item.Card.Kind,
+                effectiveSuitSeat is { } seat ? EffectiveSuit(_players[seat], item.Card) : item.Card.Suit,
+                suits, categories, equipmentSlots, cardKinds))
             .ToArray();
         SetProgramCardSet(
             frameId,
@@ -519,6 +522,23 @@ public sealed partial class GameEngine
                     .Where(seat => seat >= 0).Distinct().ToArray();
             return frozenTargets.Distinct().Where(seat => _players[seat].IsAlive).Order().ToArray();
         }
+        if (targetKind == SkillProgramTargetKind.CurrentCardUseTargets)
+        {
+            if (windowContext is not
+                { Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
+                  CardUse: { } cardUse } ||
+                _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is not { } window ||
+                window.Id != windowContext.ParentFrameId ||
+                window.Action.ActionId != cardUse.CardActionId ||
+                window.ParentFrameId != cardUse.ParentCardUseFrameId ||
+                window.Action.Type != CardActionType.Use ||
+                _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(item => item.Id == window.ParentFrameId) is not { } parent ||
+                parent.Action?.ActionId != cardUse.CardActionId)
+                throw new InvalidOperationException("Current card-use targets require their frozen active card action.");
+            return (cardUse.DesignatedTargetSeats ?? window.Action.EffectiveDesignatedTargetSeats)
+                .Distinct().Where(seat => _players[seat].IsAlive &&
+                    parent.IneffectiveTargetSeats?.Contains(seat) != true).ToArray();
+        }
         if (targetKind == SkillProgramTargetKind.MaximumAttributedMarker)
         {
             if (marker is not { } markerKind)
@@ -583,7 +603,7 @@ public sealed partial class GameEngine
         SkillProgramTargetAiOrder aiOrder)
     {
         var frame = GetActiveProgramFrame(frameId);
-        var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind);
+        var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext);
         var expressionMaximum = numberExpression switch
         {
             SkillProgramNumberExpression.CurrentHandCount => GetHand(_players[ownerSeat]).Count,
@@ -648,13 +668,15 @@ public sealed partial class GameEngine
                     ["frame-id"] = frameId.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     ["target-kind"] = targetKind.ToString(),
                     ["minimum-targets"] = minimumTargets.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                    ["maximum-targets"] = (numberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount
+                    ["maximum-targets"] = (numberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount ||
+                        targetKind == SkillProgramTargetKind.CurrentCardUseTargets
                         ? cappedMaximum : maximumTargets).ToString(System.Globalization.CultureInfo.InvariantCulture),
                     ["target-ai-order"] = aiOrder.ToString()
                 });
         }).ToArray();
         var presentation = _contentRegistry!.GetSkill(frame.SkillId);
-        var displayedMaximum = numberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount
+        var displayedMaximum = numberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount ||
+            targetKind == SkillProgramTargetKind.CurrentCardUseTargets
             ? cappedMaximum : maximumTargets;
         var targetCountText = minimumTargets == displayedMaximum
             ? minimumTargets.ToString(System.Globalization.CultureInfo.InvariantCulture)
@@ -1428,6 +1450,11 @@ public sealed partial class GameEngine
                     _ => false
                 }))))
             return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTargets &&
+            effect.TargetKind == SkillProgramTargetKind.CurrentCardUseTargets &&
+            GetProgramTargetSeats(owner.Seat, SkillProgramTargetKind.CurrentCardUseTargets, context).Count <
+                effect.MinimumTargets))
+            return false;
         return context.Window switch
         {
             SkillProgramTriggerWindow.TurnStartBeforeNormalFlow =>
@@ -1628,6 +1655,9 @@ public sealed partial class GameEngine
             CardActionActorIsCurrentTurn = action.ActorSeat == _currentSeat,
             CardActionActorIsOwner = action.ActorSeat == owner.Seat,
             CardActionPhaseIsPlay = _phase == TurnPhase.Play,
+            CardUseDesignatedTargetCount = action.Type == CardActionType.Use
+                ? action.EffectiveDesignatedTargetSeats.Distinct().Count()
+                : 0,
             CardUseConversionSkillIds = Array.AsReadOnly(action.ConversionChain
                 .Select(source => source.SkillId).Distinct(StringComparer.Ordinal).ToArray())
         };
@@ -2322,7 +2352,7 @@ public sealed partial class GameEngine
                      selected.Targets.Count > GetHand(_players[frame.OwnerSeat]).Count) ||
                     selected.Targets.Distinct().Count() != selected.Targets.Count)
                     throw new InvalidOperationException("The selected targets do not match the suspended instruction.");
-                var legalTargets = GetProgramTargetSeats(frame.OwnerSeat, targetKind);
+                var legalTargets = GetProgramTargetSeats(frame.OwnerSeat, targetKind, frame.WindowContext);
                 if (selected.Targets.Any(targetSeat => !legalTargets.Contains(targetSeat)))
                     throw new InvalidOperationException("A selected program target is no longer legal.");
                 if (targetKind == SkillProgramTargetKind.OtherLivingUnequalHandPair &&
@@ -2625,6 +2655,11 @@ public sealed partial class GameEngine
                     SelectAiProgramTargets(decision, targetAiOrder),
                 SkillProgramEffectOp.SelectTarget when _contentRegistry!.GetSkill(frame.SkillId).Program!.UsesCompositionKernel =>
                     SelectAiCompositionTarget(decision, frame),
+                SkillProgramEffectOp.SelectAndMoveOwnedCard when paused.CoverageResultBind is not null =>
+                    decision.Choices.OrderByDescending(choice => choice.Cards.Count == 1 &&
+                        WouldEquipmentRemovalReduceCoverage(
+                            ResolveProgramParticipant(frame, paused.CardOwnerRef!), choice.Cards[0]))
+                        .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectAndMoveOwnedCard or
                     SkillProgramEffectOp.GiveBoundCard => decision.Choices[0],
                 SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick => decision.Choices
@@ -2863,6 +2898,16 @@ public sealed partial class GameEngine
                 Actor = CreateSkillContext(_players[parent.Action.ActorSeat]),
                 CardActionActorIsOwner = parent.Action.ActorSeat == ownerSeat,
                 CardUseEffectiveKind = parent.Action.EffectiveKind,
+                CardEffectInterventionScore = parent.Action.Type == CardActionType.Use &&
+                    trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.NullifySelectedCardEffects)
+                    ? parent.Action.EffectiveDesignatedTargetSeats.Distinct()
+                        .Where(seat => _players[seat].IsAlive &&
+                            _resolutionStack.OfType<CardUseFrame>()
+                                .Single(item => item.Id == parent.ParentFrameId)
+                                .IneffectiveTargetSeats?.Contains(seat) != true)
+                        .Sum(seat => Math.Max(0d, _aiBrains[ownerSeat].ScoreCardEffectIntervention(
+                            CreateSnapshot(ownerSeat), parent.Action.EffectiveKind, seat)))
+                    : 0d,
                 CardUseDebitActive = IsCardUseDebitActive(parent.Action.ActionId)
             };
         }
@@ -2887,7 +2932,10 @@ public sealed partial class GameEngine
         new(GetLivingFactionCount(), CanUseSlashOnOther:
             !HasTurnCardTargetRestriction(owner.Seat, SkillProgramCardTargetRestriction.SelfOnly) &&
             new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash }
-                .Any(kind => !IsCardUseForbidden(owner.Seat, kind, CardActionType.Use)));
+                .Any(kind => !IsCardUseForbidden(owner.Seat, kind, CardActionType.Use)),
+            AttackRangeCoverageDecreased: _ => _players.Where(player => player.IsAlive && player.Seat != owner.Seat)
+                .Any(player => GetEquipment(player).Any(card =>
+                    WouldEquipmentRemovalReduceCoverage(player.Seat, card.Id))));
 
     private ProgramAiPublicContext WithProgramConditionFacts(ProgramAiPublicContext context,
         CharacterState owner, string skillId, string skillInstanceId)
@@ -2922,7 +2970,12 @@ public sealed partial class GameEngine
         return targets.Select(targetSeat =>
             {
                 var estimate = ProgramCompositionAi.Estimate(effects, context, owner.IsFaceDown,
-                    publicContext with { SelectedTarget = CreateSkillContext(_players[targetSeat]) });
+                    publicContext with
+                    {
+                        SelectedTarget = CreateSkillContext(_players[targetSeat]),
+                        AttackRangeCoverageDecreased = _ => GetEquipment(_players[targetSeat])
+                            .Any(card => WouldEquipmentRemovalReduceCoverage(targetSeat, card.Id))
+                    });
                 var targetValue = _aiBrains[owner.Seat].ScoreProgramTarget(snapshot, targetSeat, estimate.Hint);
                 return (Estimate: estimate with { Score = estimate.Score + targetValue }, TargetSeat: (int?)targetSeat);
             })
@@ -2991,6 +3044,11 @@ public sealed partial class GameEngine
             SkillProgramTargetAiOrder.SupportDraw =>
                 _aiBrains[decision.PlayerSeat].ChooseSupportDrawTargets(
                     CreateSnapshot(decision.PlayerSeat), decision.Choices, _thoughtSequence++),
+            SkillProgramTargetAiOrder.CardEffectIntervention =>
+                _aiBrains[decision.PlayerSeat].ChooseCardEffectInterventionTargets(
+                    CreateSnapshot(decision.PlayerSeat),
+                    _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Last().Action.EffectiveKind,
+                    decision.Choices, _thoughtSequence++),
             _ => throw new InvalidOperationException("Unsupported configured target AI order.")
         };
         AddThought(thought);

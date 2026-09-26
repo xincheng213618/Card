@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 55,
+  "skills": [
+    {
+      "id": "boundary:fenwei",
+      "revision": 1,
+      "minimumRulesVersion": 165,
+      "triggers": [
+        {
+          "id": "intervene-in-multi-target-trick",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "observer",
+          "cardCategories": ["trick"],
+          "optional": true,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "cardUseDesignatedTargetCount" },
+            "operator": "greaterThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 2 }
+          },
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "currentCardUseTargets",
+              "minimumTargets": 1,
+              "maximumTargets": 64,
+              "targetAiOrder": "cardEffectIntervention"
+            },
+            { "op": "nullifySelectedCardEffects", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

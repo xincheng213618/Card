@@ -7,12 +7,14 @@ public sealed partial class GameEngine
         long id,
         long? parentFrameId,
         long? parentBatchId,
+        long? awaitingProgramFrameId,
         int turnNumber,
         IReadOnlyDictionary<CardLocation, int> sourceCountsBefore)
     {
         public long Id { get; } = id;
         public long? ParentFrameId { get; } = parentFrameId;
         public long? ParentBatchId { get; } = parentBatchId;
+        public long? AwaitingProgramFrameId { get; } = awaitingProgramFrameId;
         public int TurnNumber { get; } = turnNumber;
         public IReadOnlyDictionary<CardLocation, int> SourceCountsBefore { get; } = sourceCountsBefore;
     }
@@ -26,6 +28,8 @@ public sealed partial class GameEngine
             ++_resolutionSequence,
             _resolutionStack.LastOrDefault()?.Id,
             _activeCardMovementBatchIds.TryPeek(out var parentBatchId) ? parentBatchId : null,
+            _resolutionStack.OfType<ProgramSkillFrame>()
+                .LastOrDefault(frame => frame.PendingMovementContinuation is not null)?.Id,
             _turnNumber,
             sources);
         _activeCardMovementBatchIds.Push(batch.Id);
@@ -56,7 +60,8 @@ public sealed partial class GameEngine
             batch.ParentBatchId,
             batch.TurnNumber,
             Array.AsReadOnly(movements.ToArray()),
-            Array.AsReadOnly(sourceCounts)));
+            Array.AsReadOnly(sourceCounts),
+            batch.AwaitingProgramFrameId));
     }
 
     private bool HasCardsMovedProgramBoundaryFrame()
@@ -74,13 +79,21 @@ public sealed partial class GameEngine
 
     private bool TryBeginCardsMovedProgramWindow()
     {
-        if (_pendingDecision is not null || _resolutionStack.Count != 0 ||
+        var awaitingFrame = _resolutionStack.LastOrDefault() is ProgramSkillFrame
+            { PendingMovementContinuation: not null } program ? program : null;
+        if (_pendingDecision is not null ||
+            (_resolutionStack.Count != 0 && awaitingFrame is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
-        while (_pendingCardsMovedBatches.Count > 0)
+        while (_pendingCardsMovedBatches.Any(batch => awaitingFrame is null
+                   ? batch.AwaitingProgramFrameId is null
+                   : batch.AwaitingProgramFrameId == awaitingFrame.Id))
         {
             var batch = _pendingCardsMovedBatches
+                .Where(item => awaitingFrame is null
+                    ? item.AwaitingProgramFrameId is null
+                    : item.AwaitingProgramFrameId == awaitingFrame.Id)
                 .OrderBy(item => item.Id)
                 .First();
             _pendingCardsMovedBatches.Remove(batch);
@@ -191,7 +204,10 @@ public sealed partial class GameEngine
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
-                TryBeginCardsMovedProgramWindow();
+                if (!TryBeginCardsMovedProgramWindow() &&
+                    _resolutionStack.LastOrDefault() is ProgramSkillFrame
+                        { PendingMovementContinuation: not null } awaited)
+                    CompleteAwaitedProgramMovement(awaited.Id);
                 return;
             }
             var candidate = frame.Candidates[frame.CandidateIndex];

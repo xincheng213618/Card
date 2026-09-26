@@ -137,7 +137,8 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var kind = r.RequiredEnum<SkillProgramTargetKind>("targetKind");
         if (kind is not (SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
-            SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLivingHandAtLeastOwner))
+            SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLivingHandAtLeastOwner or
+            SkillProgramTargetKind.CurrentCardUseTargets))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetKind: unsupported target set.");
         var minimum = r.RequiredInt("minimumTargets");
         var maximum = r.RequiredInt("maximumTargets");
@@ -146,12 +147,15 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         if (numberExpression is not null and not (SkillProgramNumberExpression.CurrentHandCount or
             SkillProgramNumberExpression.PlannedNormalDrawCount))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
-        if (minimum < 1 || maximum < minimum || maximum > (kind is SkillProgramTargetKind.AnyLiving or
-            SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
+        if (minimum < 1 || maximum < minimum || maximum > (kind == SkillProgramTargetKind.CurrentCardUseTargets
+            ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds exceed the supported participant count.");
         if (kind == SkillProgramTargetKind.OtherLivingUnequalHandPair && (minimum != 2 || maximum != 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unequal-hand pairs require exactly two targets.");
         var aiOrder = r.RequiredEnum<SkillProgramTargetAiOrder>("targetAiOrder");
+        if (aiOrder == SkillProgramTargetAiOrder.CardEffectIntervention &&
+            kind != SkillProgramTargetKind.CurrentCardUseTargets)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: card-effect intervention requires current card-use targets.");
         if (aiOrder == SkillProgramTargetAiOrder.SupportFirstThenOpposeSecond &&
             (kind != SkillProgramTargetKind.OtherLivingUnequalHandPair || minimum != 2 || maximum != 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: support-first transfer order requires an unequal-hand pair.");
@@ -162,7 +166,10 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        effect.NumberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount
+        effect.TargetKind == SkillProgramTargetKind.CurrentCardUseTargets
+            ? [new RequireContext(ProgramContextCapability.CardAction),
+                new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)]
+            : effect.NumberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount
             ? [new RequireContext(ProgramContextCapability.DrawPlan),
                 new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)]
             : [new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)];
@@ -276,14 +283,20 @@ internal sealed class GrantTurnCardDamageModifierProgramOperationDescriptor : Tu
         static (effect, context) => context.GrantTurnCardDamageModifier(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "cardKinds", "condition");
+        r.AllowOnly("op", "target", "amount", "cardKinds", "expires", "sourceScope", "condition");
         var amount = DrawProgramOperationDescriptor.Amount(r, 20);
         var kinds = r.RequiredEnumArray<CardKind>("cardKinds");
         if (kinds.Count == 0 || kinds.Any(kind => kind is not
                 (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or
                  CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardKinds: contains a kind that cannot directly cause card-use damage.");
-        return new(Op, Owner(r), amount, r.Condition(), cardKinds: kinds);
+        return new(Op, Owner(r), amount, r.Condition(), cardKinds: kinds,
+            damageModifierExpiration: r.Has("expires")
+                ? r.RequiredEnum<SkillProgramDamageModifierExpiration>("expires")
+                : SkillProgramDamageModifierExpiration.CurrentTurnEnd,
+            damageModifierSourceScope: r.Has("sourceScope")
+                ? r.RequiredEnum<SkillProgramDamageModifierSourceScope>("sourceScope")
+                : SkillProgramDamageModifierSourceScope.OwnerUsed);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }

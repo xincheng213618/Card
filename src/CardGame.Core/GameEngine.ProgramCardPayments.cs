@@ -31,14 +31,18 @@ public sealed partial class GameEngine
         string? resultBind,
         CardMoveReason reason,
         IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
-        bool skipIfNoCards = false)
+        bool skipIfNoCards = false,
+        bool allowSameOwnerHandReturn = false,
+        string? coverageResultBind = null,
+        bool awaitMovementTriggers = false)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var chooserSeat = ResolveProgramParticipant(active, chooser);
         var cardOwnerSeat = ResolveProgramParticipant(active, cardOwner);
         var destinationSeat = destinationRef is null ? (int?)null : ResolveProgramParticipant(active, destinationRef);
         if (destination == SkillProgramCardDestination.SelectedTargetHand &&
-            (destinationSeat is not { } seat || !_players[seat].IsAlive || seat == cardOwnerSeat))
+            (destinationSeat is not { } seat || !_players[seat].IsAlive ||
+             seat == cardOwnerSeat && !allowSameOwnerHandReturn))
             throw new InvalidOperationException("A selected-target transfer requires a distinct living recipient.");
         var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories);
         if (choices.Count == 0)
@@ -167,7 +171,24 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(frame, "受牌角色已失效，技能结算已取消。");
             return;
         }
+        if (destination == CardLocation.Hand(ownerSeat) && source == CardLocation.Hand(ownerSeat))
+            throw new InvalidOperationException("A same-hand card movement is not a payment.");
+        if (destination == CardLocation.Hand(ownerSeat) &&
+            effect.Destination == SkillProgramCardDestination.SelectedTargetHand &&
+            (!effect.AllowSameOwnerHandReturn || zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)))
+            throw new InvalidOperationException("A same-owner hand return requires an authorized public source zone.");
+        if (effect.CoverageResultBind is not null && zone != CardZoneKind.Equipment)
+            throw new InvalidOperationException("Attack-range coverage requires a public equipment movement.");
         ClearPendingDecision();
+        var beforeCoverage = effect.CoverageResultBind is null ? 0 : CountLivingInAttackRange(ownerSeat);
+        if (effect.AwaitMovementTriggers)
+        {
+            _resolutionStack[^1] = frame with
+            {
+                PendingMovementContinuation = new ProgramMovementContinuation(
+                    ownerSeat, beforeCoverage, effect.CoverageResultBind)
+            };
+        }
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
         if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
         {
@@ -177,7 +198,73 @@ public sealed partial class GameEngine
         else MoveCard(card, source, destination, reason);
         if (effect.ResultBind is { } bind)
             SetProgramCardSet(frame.Id, bind, [card.Id], SkillProgramCardSetVisibility.Private, [destination]);
+        if (effect.AwaitMovementTriggers)
+        {
+            if (!TryBeginCardsMovedProgramWindow())
+                CompleteAwaitedProgramMovement(frame.Id);
+            return;
+        }
+        if (effect.CoverageResultBind is { } coverageBind)
+            SetProgramAttackRangeCoverage(frame.Id, coverageBind, ownerSeat, beforeCoverage,
+                CountLivingInAttackRange(ownerSeat));
         ContinueProgramSkill(frame.Id);
+    }
+
+    private int CountLivingInAttackRange(int subjectSeat)
+    {
+        if (!_players[subjectSeat].IsAlive) return 0;
+        var range = GetAttackRange(subjectSeat);
+        return _players.Count(player => player.IsAlive && player.Seat != subjectSeat &&
+            GetCombatDistance(subjectSeat, player.Seat) <= range);
+    }
+
+    private bool WouldEquipmentRemovalReduceCoverage(int subjectSeat, int equipmentCardId)
+    {
+        if (!_players[subjectSeat].IsAlive || !GetEquipment(_players[subjectSeat])
+                .Any(card => card.Id == equipmentCardId)) return false;
+        var subject = _players[subjectSeat];
+        var projectedRange = ToLegacyRuleValue(EvaluateAttackRange(subject, equipmentCardId));
+        var projectedCount = _players.Count(player => player.IsAlive && player.Seat != subjectSeat &&
+            ToLegacyRuleValue(EvaluateDistance(subject, player, equipmentCardId)) <= projectedRange);
+        return projectedCount < CountLivingInAttackRange(subjectSeat);
+    }
+
+    private void SetProgramAttackRangeCoverage(long frameId, string name, int subjectSeat,
+        int beforeCount, int afterCount)
+    {
+        var frame = GetActiveProgramFrame(frameId);
+        if (frame.AttackRangeCoverageBindings.Any(item => item.Name == name))
+            throw new InvalidOperationException("The attack-range coverage result was already produced.");
+        _resolutionStack[^1] = frame with
+        {
+            AttackRangeCoverageBindings = Array.AsReadOnly(frame.AttackRangeCoverageBindings
+                .Append(new ProgramAttackRangeCoverageBinding(name, subjectSeat, beforeCount, afterCount)).ToArray())
+        };
+    }
+
+    private static bool IsProgramAttackRangeCoverageDecreased(ProgramSkillFrame frame, string bind)
+    {
+        var result = frame.AttackRangeCoverageBindings.Single(item => item.Name == bind);
+        return result.AfterCount < result.BeforeCount;
+    }
+
+    private void CompleteAwaitedProgramMovement(long frameId)
+    {
+        var frame = GetActiveProgramFrame(frameId);
+        var pending = frame.PendingMovementContinuation ??
+            throw new InvalidOperationException("The movement continuation is missing.");
+        _resolutionStack[^1] = frame with { PendingMovementContinuation = null };
+        if (!_players[frame.OwnerSeat].IsAlive || !_players[pending.SubjectSeat].IsAlive ||
+            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
+        {
+            CancelProgramBindingAndCleanup(GetActiveProgramFrame(frameId),
+                "移动响应后技能持有人、装备持有人或技能实例已失效。");
+            return;
+        }
+        if (pending.CoverageResultBind is { } bind)
+            SetProgramAttackRangeCoverage(frameId, bind, pending.SubjectSeat, pending.BeforeCount,
+                CountLivingInAttackRange(pending.SubjectSeat));
+        ContinueProgramSkill(frameId);
     }
 
     private static bool MatchesProgramCardCategory(

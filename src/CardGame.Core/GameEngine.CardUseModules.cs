@@ -95,13 +95,30 @@ public sealed partial class GameEngine
         QueueGameEvent(new TurnCardUseEffectsExpiredEvent(turnNumber, turnSeat, expired));
     }
 
+    private void ExpireOwnerTurnStartDamageModifiers(int ownerSeat)
+    {
+        var expired = _turnCardUseEffects.ExpireDamageModifiersAtOwnerTurnStart(ownerSeat, _turnNumber);
+        if (expired.Count > 0)
+            QueueGameEvent(new TurnCardUseEffectsExpiredEvent(_turnNumber, ownerSeat, expired));
+    }
+
+    private void ExpireDeadOwnerDamageModifiers(int ownerSeat)
+    {
+        var expired = _turnCardUseEffects.ExpireDamageModifiersOnDeath(ownerSeat);
+        if (expired.Count > 0)
+            QueueGameEvent(new TurnCardUseEffectsExpiredEvent(_turnNumber, _currentSeat, expired));
+    }
+
     private void GrantProgramTurnCardDamageModifier(
         ProgramSkillFrame frame,
         IReadOnlyList<CardKind> cardKinds,
-        int amount)
+        int amount,
+        SkillProgramDamageModifierExpiration expiration,
+        SkillProgramDamageModifierSourceScope sourceScope)
     {
         ValidateProgramTurnEffectGrant(frame);
-        if (amount <= 0 || cardKinds.Count == 0)
+        if (amount <= 0 || cardKinds.Count == 0 ||
+            !Enum.IsDefined(expiration) || !Enum.IsDefined(sourceScope))
         {
             throw new InvalidOperationException(
                 "A turn card-damage modifier requires positive damage and card kinds.");
@@ -115,7 +132,9 @@ public sealed partial class GameEngine
             frame.InstructionIndex - 1,
             source,
             cardKinds,
-            amount);
+            amount,
+            expiration,
+            sourceScope);
         QueueGameEvent(new CardDamageModifierGrantedEvent(granted));
     }
 

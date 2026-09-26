@@ -136,6 +136,12 @@ public sealed partial class GameEngine
                 selectedCardUse is not null && multiCardUses.Length == 0 ||
                 allHandTrickUse is not null &&
                 (cards.Length == 0 || BuildProgramOrdinaryTrickUseOptions(owner).Count == 0)) continue;
+            if (activation.Effects.FirstOrDefault() is { Op: SkillProgramEffectOp.SelectTarget,
+                    TargetKind: { } dynamicKind } dynamicSelection &&
+                !GetProgramTargetSeats(owner.Seat, dynamicKind, marker: dynamicSelection.Marker)
+                    .Any(seat => IsProgramTargetEligible(owner.Seat, dynamicKind,
+                        dynamicSelection.Zones, seat, dynamicSelection.Marker)))
+                continue;
             var minCardCount = allHandTrickUse is null ? activation.MinCards : cards.Length;
             var maxCardCount = allHandTrickUse is not null || activation.MaxCards == int.MaxValue
                 ? cards.Length : activation.MaxCards;
@@ -508,8 +514,31 @@ public sealed partial class GameEngine
                     binding.CardIds.Count != binding.SourceLocations.Count ||
                     binding.CardIds.Distinct().Count() != binding.CardIds.Count) ||
                 frame.PindianResultBindings.Select(binding => binding.Name)
-                    .Distinct(StringComparer.Ordinal).Count() != frame.PindianResultBindings.Count)
+                    .Distinct(StringComparer.Ordinal).Count() != frame.PindianResultBindings.Count ||
+                frame.AttackRangeCoverageBindings.Select(binding => binding.Name)
+                    .Distinct(StringComparer.Ordinal).Count() != frame.AttackRangeCoverageBindings.Count ||
+                frame.AttackRangeCoverageBindings.Any(binding =>
+                    !IsValidPlayerSeat(binding.SubjectSeat) || binding.BeforeCount < 0 ||
+                    binding.AfterCount < 0 || binding.BeforeCount >= _players.Count ||
+                    binding.AfterCount >= _players.Count) ||
+                frame.PendingMovementContinuation is { } movement &&
+                    (!IsValidPlayerSeat(movement.SubjectSeat) || movement.BeforeCount < 0 ||
+                     movement.BeforeCount >= _players.Count))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+            if (frame.PendingMovementContinuation is { } pendingMovement &&
+                (plan.Instructions[frame.InstructionIndex - 1] is not
+                    { Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
+                      AwaitMovementTriggers: true } awaitedEffect ||
+                 awaitedEffect.CoverageResultBind != pendingMovement.CoverageResultBind))
+                throw new InvalidOperationException("A movement continuation lost its paid instruction.");
+            foreach (var coverage in frame.AttackRangeCoverageBindings)
+            {
+                if (plan.Instructions.Take(frame.InstructionIndex).Count(effect =>
+                        effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard &&
+                        effect.CoverageResultBind == coverage.Name) != 1 ||
+                    frame.PendingMovementContinuation?.CoverageResultBind == coverage.Name)
+                    throw new InvalidOperationException("An attack-range coverage result has no completed producer.");
+            }
 
             var executedSelection = plan.Instructions.Take(frame.InstructionIndex)
                 .LastOrDefault(effect => effect.Op is
@@ -615,6 +644,23 @@ public sealed partial class GameEngine
                 (frame.SelectedTargetSeats.Count < activation.MinTargets ||
                  frame.SelectedTargetSeats.Count > activation.MaxTargets))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+        }
+        foreach (var scopeId in _pendingCardsMovedBatches
+                     .Select(batch => batch.AwaitingProgramFrameId)
+                     .Concat(_resolutionStack.OfType<CardsMovedTriggerWindowFrame>()
+                         .Select(window => window.Batch.AwaitingProgramFrameId))
+                     .OfType<long>())
+        {
+            if (frames.Count(frame => frame.Id == scopeId && frame.PendingMovementContinuation is not null) != 1)
+                throw new InvalidOperationException("A scoped card-movement batch lost its waiting program frame.");
+        }
+        for (var index = 0; index < _resolutionStack.Count; index++)
+        {
+            if (_resolutionStack[index] is not CardsMovedTriggerWindowFrame
+                { Batch.AwaitingProgramFrameId: { } scopeId }) continue;
+            if (!_resolutionStack.Take(index).OfType<ProgramSkillFrame>().Any(frame =>
+                    frame.Id == scopeId && frame.PendingMovementContinuation is not null))
+                throw new InvalidOperationException("A scoped movement window lost its waiting ancestor.");
         }
 
         if (_pendingDying is { ResumesProgramSkill: true } dying)

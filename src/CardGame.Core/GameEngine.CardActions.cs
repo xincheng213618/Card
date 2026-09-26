@@ -49,7 +49,8 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targets, CardKind effectiveKind, IReadOnlyList<int> physicalIds,
         CardConversionSource? explicitConversion = null,
         IReadOnlyList<CardConversionSource>? additionalConversions = null,
-        SkillKind? cardKindModifierSkill = null)
+        SkillKind? cardKindModifierSkill = null,
+        IReadOnlyList<int>? designatedTargetSeats = null)
     {
         if (_rulesVersion < 80) return null;
         var costs = physicalIds.Select(id => new CardActionCost(id,
@@ -90,7 +91,8 @@ public sealed partial class GameEngine
         return new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
-            null, null, effectiveKind, targets, costs, conversionChain);
+            null, null, effectiveKind, targets, costs, conversionChain,
+            _rulesVersion >= 165 ? designatedTargetSeats ?? targets : null);
     }
 
     private bool TryBeginCardResponsePrograms(AttackResolution attack, CharacterState actor,
@@ -136,7 +138,8 @@ public sealed partial class GameEngine
         _acceptedProgramUses.Add(attack.ResolutionId);
         var finalized = new CardActionContext(captured.ActionId, captured.ParentActionId, captured.Type,
             captured.ActorSeat, captured.ProviderSeat, captured.RequesterSeat, captured.ResponderSeat,
-            captured.OpponentSeat, captured.EffectiveKind, frame.TargetSeats, captured.PhysicalCards, captured.ConversionChain);
+            captured.OpponentSeat, captured.EffectiveKind, frame.TargetSeats, captured.PhysicalCards, captured.ConversionChain,
+            _rulesVersion >= 165 ? frame.TargetSeats.Where(seat => _players[seat].IsAlive).Distinct().ToArray() : null);
         var index = _resolutionStack.FindLastIndex(item => item.Id == frame.Id);
         _resolutionStack[index] = frame with { Action = finalized };
         QueueGameEvent(new CardActionAcceptedEvent(finalized));
@@ -223,12 +226,12 @@ public sealed partial class GameEngine
             ProgramCardContinuation.BeforeTargetEffects);
     }
 
-    /// <summary>Called before Jizhi/Nullification and the first ordinary-trick target effect.</summary>
+    /// <summary>Called before Jizhi/Nullification and the first trick target effect.</summary>
     private bool TryBeginProgramCardUseBeforeTargetEffects(JizhiResolution pending)
     {
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == pending.ResolutionId);
         var action = frame.Action ?? throw new InvalidOperationException(
-            "An ordinary-trick before-target-effects program window requires the frozen card action.");
+            "A trick before-target-effects program window requires the frozen card action.");
         return TryBeginProgramCardWindow(
             null,
             action,
@@ -253,7 +256,9 @@ public sealed partial class GameEngine
         {
             var trigger = binding.Trigger;
             if (!binding.Program.UsesCompositionKernel || trigger.OwnerRelation is not { } relation ||
-                trigger.CardKinds.Count > 0 && !trigger.CardKinds.Contains(action.EffectiveKind)) continue;
+                trigger.CardKinds.Count > 0 && !trigger.CardKinds.Contains(action.EffectiveKind) ||
+                trigger.CardCategories.Count > 0 && (action.Type != CardActionType.Use ||
+                    !MatchesProgramCardCategory(action.EffectiveKind, trigger.CardCategories))) continue;
             var matches = relation switch
             {
                 SkillProgramCardActionOwnerRelation.Actor => owner.Seat == action.ActorSeat,
@@ -303,7 +308,8 @@ public sealed partial class GameEngine
             TargetSeat: eventTargetSeat >= 0 ? eventTargetSeat : null, Facts: facts,
             CardUse: new(action.ActionId, parentFrameId, action.ActorSeat,
                 eventTargetSeat >= 0 ? eventTargetSeat : null,
-                action.EffectiveKind, publicSuit, isRed, debit is not null, debit));
+                action.EffectiveKind, publicSuit, isRed, debit is not null, debit,
+                action.DesignatedTargetSeats));
     }
 
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
@@ -371,7 +377,7 @@ public sealed partial class GameEngine
                     ContinueSlashAfterProgramTargetEffects(attack ??
                         throw new InvalidOperationException("A before-target-effects trigger lost its attack continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.BeforeTrickTargetEffects)
-                    ContinueOrdinaryTrickAfterProgramTargetEffects(frame);
+                    ContinueTrickAfterProgramTargetEffects(frame);
                 else if (frame.Continuation == ProgramCardContinuation.Slash)
                     ContinueSlashAfterFinalizedTargets(attack ??
                         throw new InvalidOperationException("A Slash card trigger lost its attack continuation."));
@@ -532,14 +538,15 @@ public sealed partial class GameEngine
             playedCardKind: action.EffectiveKind);
     }
 
-    private void ContinueOrdinaryTrickAfterProgramTargetEffects(ProgramCardTriggerWindowFrame frame)
+    private void ContinueTrickAfterProgramTargetEffects(ProgramCardTriggerWindowFrame frame)
     {
         var continuation = frame.TrickContinuation ??
-            throw new InvalidOperationException("An ordinary-trick program window lost its frozen continuation.");
+            throw new InvalidOperationException("A trick program window lost its frozen continuation.");
         var action = frame.Action;
-        if (action.Type != CardActionType.Use || !IsOrdinaryTrick(action.EffectiveKind) ||
+        if (action.Type != CardActionType.Use ||
+            CardCatalog.Get(action.EffectiveKind).CategoryName != "锦囊牌" ||
             action.PhysicalCards.All(cost => cost.CardId != continuation.EffectCardId))
-            throw new InvalidOperationException("The ordinary-trick trigger continuation does not match its card action.");
+            throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
         var card = _cardZones.CardsAt(CardLocation.Processing)
             .Single(item => item.Id == continuation.EffectCardId);
         ContinueJizhiOrNullificationAfterTargetTriggers(new JizhiResolution(

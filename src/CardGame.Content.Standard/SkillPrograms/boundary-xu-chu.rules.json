@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 55,
+  "skills": [
+    {
+      "id": "boundary:luoyi",
+      "revision": 1,
+      "minimumRulesVersion": 165,
+      "triggers": [
+        {
+          "id": "skip-draw-reveal-three",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 80,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            { "op": "revealTopCards", "target": "owner", "amount": 3,
+              "resultBind": "revealed", "visibility": "public" },
+            { "op": "filterBoundCards", "target": "owner", "sourceBind": "revealed",
+              "resultBind": "gained", "categories": ["basic"],
+              "equipmentSlots": ["weapon"], "cardKinds": ["duel"] },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "gained",
+              "destination": "ownerHand" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "revealed",
+              "exceptBind": "gained", "destination": "discardPile" },
+            { "op": "grantTurnCardDamageModifier", "target": "owner", "amount": 1,
+              "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel"],
+              "expires": "nextOwnerTurnStart", "sourceScope": "damageSource" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -11,7 +11,8 @@ public sealed partial class GameEngine
         var chooser = _players[chooserSeat];
         var context = CreateSkillContext(chooser);
         var choices = options.Where(option => option.Condition.EvaluateOption(context,
-            () => GetClaimableProgramDamageCards(active).Length > 0)).Select(option =>
+            () => GetClaimableProgramDamageCards(active).Length > 0,
+            bind => IsProgramAttackRangeCoverageDecreased(active, bind))).Select(option =>
             new PromptChoice(new ChoiceId($"program-option.frame-{frame.Id}.{resultBind}.{option.Id}"),
                 option.Label, [], [], new Dictionary<string, string>
                 {
@@ -57,7 +58,8 @@ public sealed partial class GameEngine
         var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id")) ??
             throw new InvalidOperationException("The selected program option is unavailable.");
         var stillAvailable = option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
-            () => GetClaimableProgramDamageCards(frame).Length > 0);
+            () => GetClaimableProgramDamageCards(frame).Length > 0,
+            bind => IsProgramAttackRangeCoverageDecreased(frame, bind));
         if (!stillAvailable && option.Condition.ContainsHasClaimableDamageCards())
             throw new InvalidOperationException("The damage cards are no longer available for this choice.");
         ClearPendingDecision();
@@ -90,7 +92,8 @@ public sealed partial class GameEngine
         if (!option.Condition.ContainsHasClaimableDamageCards()) return true;
         var chooserSeat = ResolveProgramEffectTarget(frame, effect.Target);
         return option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
-            () => GetClaimableProgramDamageCards(frame).Length > 0);
+            () => GetClaimableProgramDamageCards(frame).Length > 0,
+            bind => IsProgramAttackRangeCoverageDecreased(frame, bind));
     }
 
     private static int ResolveProgramEffectTarget(ProgramSkillFrame frame, SkillProgramEffectTarget target) => target switch

@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "skipIfNoCards", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -34,19 +34,37 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         if (cardCategories is not null && chooserRef != cardOwnerRef)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: category filtering requires chooserRef and cardOwnerRef to name the same participant.");
         var skipIfNoCards = r.Has("skipIfNoCards") && r.RequiredBool("skipIfNoCards");
+        var allowSameOwnerHandReturn = r.Has("allowSameOwnerHandReturn") && r.RequiredBool("allowSameOwnerHandReturn");
+        var coverageResultBind = r.Has("coverageResultBind") ? r.OptionalIdentifier("coverageResultBind") : null;
+        var awaitMovementTriggers = r.Has("awaitMovementTriggers") && r.RequiredBool("awaitMovementTriggers");
+        if (allowSameOwnerHandReturn && (destination != SkillProgramCardDestination.SelectedTargetHand ||
+            zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)) ||
+            r.RequiredParticipantReference("targetRef") != cardOwnerRef))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: same-owner hand returns require matching cardOwnerRef/targetRef and public non-hand source zones.");
+        if (coverageResultBind is not null && (zones.Count != 1 || zones[0] != CardZoneKind.Equipment ||
+            destination is not (SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.DiscardPile)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: coverageResultBind requires equipment movement to hand or discard.");
         var effect = new SkillProgramEffect(Op, target, count, r.Condition(), zones: zones,
             destination: destination, resultBind: r.OptionalIdentifier("resultBind"),
             chooserRef: chooserRef, cardOwnerRef: cardOwnerRef, cardCategories: cardCategories,
             targetReference: r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null,
-            skipIfNoCards: skipIfNoCards);
+            skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
+            coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers);
         if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");
+        if (effect.CoverageResultBind is not null &&
+            (effect.Condition.Kind != SkillProgramConditionKind.Always || effect.SkipIfNoCards))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: coverageResultBind requires an unconditional non-skipping movement.");
         return effect;
     }
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         ParticipantResources(effect.ChooserRef, effect.CardOwnerRef, effect.TargetReference)
+            .Concat(effect.CoverageResultBind is { } coverage
+                ? new ProgramResourceOperation[] { new CreateCoverageResult(coverage) }
+                : Array.Empty<ProgramResourceOperation>())
             .Concat(effect.ResultBind is { } bind
                 ? new ProgramResourceOperation[] { new CreateCardSet(bind, 1, false) }
                 : Array.Empty<ProgramResourceOperation>()).ToArray();

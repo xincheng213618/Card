@@ -10,16 +10,17 @@ public sealed partial class GameEngine
             .Distinct(StringComparer.Ordinal)
             .Count();
 
-    private RuleQueryEvaluation EvaluateDistance(CharacterState source, CharacterState target)
+    private RuleQueryEvaluation EvaluateDistance(CharacterState source, CharacterState target,
+        int? excludedEquipmentId = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>
         {
             new($"mode:{_modeDefinition.Id}:alive-seat-distance", GetAliveSeatDistance(source.Seat, target.Seat))
         };
-        baseTerms.AddRange(GetEquipment(source).Select(card => new RuleQueryBaseTerm(
+        baseTerms.AddRange(GetEquipment(source).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
             $"equipment:{card.Id}:outgoing-distance",
             EquipmentCatalog.Get(card.Kind).OutgoingDistanceModifier)));
-        baseTerms.AddRange(GetEquipment(target).Select(card => new RuleQueryBaseTerm(
+        baseTerms.AddRange(GetEquipment(target).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
             $"equipment:{card.Id}:incoming-distance",
             EquipmentCatalog.Get(card.Kind).IncomingDistanceModifier)));
 
@@ -28,12 +29,12 @@ public sealed partial class GameEngine
         return RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming);
     }
 
-    private RuleQueryEvaluation EvaluateAttackRange(CharacterState player)
+    private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>();
         if (_rulesVersion >= 13)
         {
-            var weapon = GetEquipment(player)
+            var weapon = GetEquipment(player).Where(card => card.Id != excludedEquipmentId)
                 .SingleOrDefault(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon);
             baseTerms.Add(weapon is null
                 ? new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:attack-range", 1)
@@ -44,7 +45,7 @@ public sealed partial class GameEngine
         else
         {
             baseTerms.Add(new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:attack-range", 1));
-            baseTerms.AddRange(GetEquipment(player).Select(card => new RuleQueryBaseTerm(
+            baseTerms.AddRange(GetEquipment(player).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
                 $"equipment:{card.Id}:attack-range-bonus",
                 EquipmentCatalog.Get(card.Kind).AttackRangeBonus)));
         }

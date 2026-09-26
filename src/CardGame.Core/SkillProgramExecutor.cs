@@ -124,7 +124,10 @@ public interface ISkillProgramEffectHost
         string sourceBind,
         string resultBind,
         IReadOnlyList<Suit> suits,
-        ProgramParticipantReference? effectiveSuitFor = null);
+        ProgramParticipantReference? effectiveSuitFor = null,
+        IReadOnlyList<SkillProgramCardCategory>? categories = null,
+        IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
+        IReadOnlyList<CardKind>? cardKinds = null);
     SkillProgramStepOutcome SelectCardSubset(
         long frameId,
         int ownerSeat,
@@ -207,7 +210,9 @@ public interface ISkillProgramEffectHost
     void GrantTurnCardDamageModifier(
         ProgramSkillFrame frame,
         IReadOnlyList<CardKind> cardKinds,
-        int amount);
+        int amount,
+        SkillProgramDamageModifierExpiration expiration,
+        SkillProgramDamageModifierSourceScope sourceScope);
     void GrantTurnCardActionProhibition(
         ProgramSkillFrame frame,
         IReadOnlyList<CardKind> cardKinds,
@@ -221,6 +226,8 @@ public interface ISkillProgramEffectHost
         throw new InvalidOperationException("The host does not provide damage prevention.");
     void NullifyCurrentCardEffect(ProgramSkillFrame frame) =>
         throw new InvalidOperationException("The host does not provide current card-effect nullification.");
+    void NullifySelectedCardEffects(ProgramSkillFrame frame) =>
+        throw new InvalidOperationException("The host does not provide selected card-effect nullification.");
     void GrantTurnRuleModifier(
         ProgramSkillFrame frame,
         SkillRuleQuery query,
@@ -245,7 +252,10 @@ public interface ISkillProgramEffectHost
         string? resultBind,
         CardMoveReason reason,
         IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
-        bool skipIfNoCards = false) =>
+        bool skipIfNoCards = false,
+        bool allowSameOwnerHandReturn = false,
+        string? coverageResultBind = null,
+        bool awaitMovementTriggers = false) =>
         throw new InvalidOperationException("The host does not provide card-action payments.");
     SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
         ProgramSkillFrame frame,
@@ -730,7 +740,10 @@ public sealed class FilterBoundCardsSkillProgramEffectHandler : ISkillProgramEff
             effect.SourceBind ?? throw new InvalidOperationException("filterBoundCards has no source bind."),
             effect.ResultBind ?? throw new InvalidOperationException("filterBoundCards has no result bind."),
             effect.Suits,
-            effect.TargetReference);
+            effect.TargetReference,
+            effect.CardCategories,
+            effect.EquipmentSlots,
+            effect.CardKinds);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -790,7 +803,8 @@ public sealed class GrantTurnCardDamageModifierSkillProgramEffectHandler : ISkil
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        host.GrantTurnCardDamageModifier(frame, effect.CardKinds, effect.Amount);
+        host.GrantTurnCardDamageModifier(frame, effect.CardKinds, effect.Amount,
+            effect.DamageModifierExpiration, effect.DamageModifierSourceScope);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -913,7 +927,8 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
         effect.TargetReference,
         effect.ResultBind,
         new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
-        effect.SkipIfNoCards);
+        effect.SkipIfNoCards, effect.AllowSameOwnerHandReturn,
+        effect.CoverageResultBind, effect.AwaitMovementTriggers);
 }
 
 public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler

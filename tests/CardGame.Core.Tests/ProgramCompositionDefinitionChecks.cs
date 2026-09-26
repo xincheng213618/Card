@@ -135,7 +135,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.CauseDeathUnlessBoundCardKind] = """{"op":"causeDeathUnlessBoundCardKind","target":"selectedTarget","sourceBind":"judgment","excludedCardKinds":["peach","peachGarden"]}""",
             [SkillProgramEffectOp.UseBoundCardAsDyingAlcohol] = """{"op":"useBoundCardAsDyingAlcohol","target":"owner","sourceBind":"rescue-card"}""",
             [SkillProgramEffectOp.ChooseOtherOwnedCardDiscard] = """{"op":"chooseOtherOwnedCardDiscard","target":"owner","chooserRef":{"kind":"owner"},"zones":["hand","equipment","judgment"],"condition":{"kind":"always"}}""",
-            [SkillProgramEffectOp.NullifyCurrentCardEffect] = """{"op":"nullifyCurrentCardEffect","target":"owner"}"""
+            [SkillProgramEffectOp.NullifyCurrentCardEffect] = """{"op":"nullifyCurrentCardEffect","target":"owner"}""",
+            [SkillProgramEffectOp.NullifySelectedCardEffects] = """{"op":"nullifySelectedCardEffects","target":"owner"}"""
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");

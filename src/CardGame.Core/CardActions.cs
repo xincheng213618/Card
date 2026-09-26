@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CardGame.Core;
 
 /// <summary>The exact, owner-scoped conversion selected from a legal action.</summary>
@@ -33,7 +35,8 @@ public sealed class CardActionContext
     public CardActionContext(long actionId, long? parentActionId, CardActionType type,
         int actorSeat, int providerSeat, int? requesterSeat, int? responderSeat,
         int? opponentSeat, CardKind effectiveKind, IReadOnlyList<int> targetSeats,
-        IReadOnlyList<CardActionCost> physicalCards, IReadOnlyList<CardConversionSource> conversionChain)
+        IReadOnlyList<CardActionCost> physicalCards, IReadOnlyList<CardConversionSource> conversionChain,
+        IReadOnlyList<int>? designatedTargetSeats = null)
     {
         ActionId = actionId;
         ParentActionId = parentActionId;
@@ -45,6 +48,7 @@ public sealed class CardActionContext
         OpponentSeat = opponentSeat;
         EffectiveKind = effectiveKind;
         TargetSeats = Array.AsReadOnly(targetSeats.ToArray());
+        DesignatedTargetSeats = designatedTargetSeats is null ? null : Array.AsReadOnly(designatedTargetSeats.ToArray());
         PhysicalCards = Array.AsReadOnly(physicalCards.ToArray());
         ConversionChain = Array.AsReadOnly(conversionChain.ToArray());
     }
@@ -59,6 +63,10 @@ public sealed class CardActionContext
     public int? OpponentSeat { get; }
     public CardKind EffectiveKind { get; }
     public IReadOnlyList<int> TargetSeats { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? DesignatedTargetSeats { get; }
+    [JsonIgnore]
+    public IReadOnlyList<int> EffectiveDesignatedTargetSeats => DesignatedTargetSeats ?? TargetSeats;
     public IReadOnlyList<CardActionCost> PhysicalCards { get; }
     public IReadOnlyList<CardConversionSource> ConversionChain { get; }
 }

@@ -5068,6 +5068,7 @@ public sealed partial class GameEngine
 
         BeginRoundForTurn(current);
         _turnNumber++;
+        ExpireOwnerTurnStartDamageModifiers(current.Seat);
         _slashCountThisTurn = 0;
         ResetCardUseDebitPhase();
         _usedOrPlayedSlashDuringPlayPhase = false;
@@ -8692,7 +8693,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Borrowed Sword became illegal before resolution.");
         }
 
-        var resolutionId = BeginCardUse(borrowedSword, source.Seat, targets);
+        var resolutionId = BeginCardUse(borrowedSword, source.Seat, targets,
+            designatedTargetSeats: [targets[0]]);
         MoveCard(
             borrowedSword,
             FindOwnedCardLocation(source, borrowedSword),
@@ -18721,10 +18723,16 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? physicalCardIds = null,
         CardConversionSource? conversionSource = null,
         IReadOnlyList<CardConversionSource>? additionalConversionSources = null,
-        SkillKind? cardKindModifierSkill = null)
+        SkillKind? cardKindModifierSkill = null,
+        IReadOnlyList<int>? designatedTargetSeats = null)
     {
         var resolutionId = ++_resolutionSequence;
         var targets = Array.AsReadOnly(targetSeats.ToArray());
+        var designated = _rulesVersion >= 165
+            ? Array.AsReadOnly((designatedTargetSeats ?? targets)
+                .Where(seat => IsValidPlayerSeat(seat) && _players[seat].IsAlive)
+                .Distinct().ToArray())
+            : null;
         var effectiveCardKind = playedCardKind ?? card.Kind;
         var physicalIds = Array.AsReadOnly((physicalCardIds ?? [card.Id]).ToArray());
         var actionContext = CaptureCardUseAction(
@@ -18735,7 +18743,8 @@ public sealed partial class GameEngine
             physicalIds,
             conversionSource,
             additionalConversionSources,
-            cardKindModifierSkill);
+            cardKindModifierSkill,
+            designated);
         _resolutionStack.Add(new CardUseFrame(
             resolutionId,
             sourceSeat,
@@ -21442,6 +21451,7 @@ public sealed partial class GameEngine
         {
             victim.Hp = 0;
             victim.IsAlive = false;
+            ExpireDeadOwnerDamageModifiers(victim.Seat);
             if (victim.IsChained)
             {
                 victim.IsChained = false;

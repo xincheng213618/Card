@@ -17,6 +17,8 @@ public sealed record ProgramSkillWindowContext(
     ProgramCardUseContext? CardUse = null);
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
+public sealed record ProgramAttackRangeCoverageBinding(string Name, int SubjectSeat, int BeforeCount, int AfterCount);
+public sealed record ProgramMovementContinuation(int SubjectSeat, int BeforeCount, string? CoverageResultBind);
 
 /// <summary>Private draft: no cards move until selection completes and a later node consumes the binding.</summary>
 public sealed record ProgramOwnedCardSelection(
@@ -303,6 +305,10 @@ public sealed record ProgramCardEffectNullifiedEvent(
     int SourceSeat,
     long CardUseFrameId,
     CardKind CardKind) : IGameEvent;
+
+public sealed record ProgramSelectedCardEffectsNullifiedEvent(
+    long FrameId, string SkillId, string BindingId, int OwnerSeat, int SourceSeat,
+    long CardUseFrameId, CardKind CardKind, IReadOnlyList<int> TargetSeats) : IGameEvent;
 
 public sealed record ProgramCardSubsetSelectedEvent(
     long FrameId,

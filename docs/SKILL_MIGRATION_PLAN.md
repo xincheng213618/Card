@@ -1,3 +1,5 @@
+2026-09-26 当前边界：rules165 / schema55 / standard-classic-generals@1.140.0 / Checkpoint3。新增朱治2015、界甘宁2014、界许褚2014首发；移动局部续接、真实指定目标子集、类型牌过滤和跨回合伤害期限均为公共能力。契约见 [schema55](content/skill-composition/RUNTIME_V55.md)，实测及父审返工见 [第四批记录](benchmarks/2026-09-26-movement-and-target-generals.md)。下方旧版本段落保留为历史记录。
+
 ## 2026-09-26 三路公共能力与新武将（rules 164 / schema 54 / 经典包 1.139.0）
 
 朱桓2014、界曹操2014选择版、界张辽2018已进入正式五／八人身份池与图鉴。公共能力为精确实体牌型条件、当前伤害可领取牌选项、正常摸牌计划上限与所选人数扣数；条件、目标集合、上下文资源分别校验，不使用人物配方白名单。护驾保留通用SkillKind。公共AI修正也改变拒战及经典突袭的选择，因此升rules164；包1.139和Checkpoint3保持。见 [schema54契约](content/skill-composition/RUNTIME_V54.md)。

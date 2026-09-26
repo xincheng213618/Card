@@ -53,7 +53,8 @@ public sealed partial class GameEngine
                 bind => frame.ChoiceBindings.Single(item => item.Name == bind).OptionId,
                 bind => engine.AreProgramBoundCardsSameColor(frame, bind),
                 (bind, categories) => engine.DoProgramBoundCardsMatchCategories(frame, bind, categories),
-                (bind, kinds) => engine.DoProgramBoundCardsMatchKinds(frame, bind, kinds));
+                (bind, kinds) => engine.DoProgramBoundCardsMatchKinds(frame, bind, kinds),
+                bind => IsProgramAttackRangeCoverageDecreased(frame, bind));
         }
 
         public void UpdateFrame(ProgramSkillFrame frame)
@@ -232,8 +233,12 @@ public sealed partial class GameEngine
                 frameId, ownerSeat, amount, numberExpression, resultBind, visibility);
 
         public void FilterBoundCards(long frameId, string sourceBind, string resultBind,
-            IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null) =>
-            engine.FilterProgramBoundCards(frameId, sourceBind, resultBind, suits, effectiveSuitFor);
+            IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null,
+            IReadOnlyList<SkillProgramCardCategory>? categories = null,
+            IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
+            IReadOnlyList<CardKind>? cardKinds = null) =>
+            engine.FilterProgramBoundCards(frameId, sourceBind, resultBind, suits, effectiveSuitFor,
+                categories ?? [], equipmentSlots ?? [], cardKinds ?? []);
 
         public SkillProgramStepOutcome SelectCardSubset(long frameId, int ownerSeat, string sourceBind,
             string resultBind, int minimumCards, int maximumCards, int maximumRankSum,
@@ -333,8 +338,10 @@ public sealed partial class GameEngine
         public void GrantTurnCardDamageModifier(
             ProgramSkillFrame frame,
             IReadOnlyList<CardKind> cardKinds,
-            int amount) =>
-            engine.GrantProgramTurnCardDamageModifier(frame, cardKinds, amount);
+            int amount,
+            SkillProgramDamageModifierExpiration expiration,
+            SkillProgramDamageModifierSourceScope sourceScope) =>
+            engine.GrantProgramTurnCardDamageModifier(frame, cardKinds, amount, expiration, sourceScope);
 
         public void GrantTurnCardActionProhibition(
             ProgramSkillFrame frame,
@@ -353,6 +360,8 @@ public sealed partial class GameEngine
 
         public void NullifyCurrentCardEffect(ProgramSkillFrame frame) =>
             engine.NullifyCurrentProgramCardEffect(frame);
+        public void NullifySelectedCardEffects(ProgramSkillFrame frame) =>
+            engine.NullifySelectedProgramCardEffects(frame);
 
         public void GrantTurnRuleModifier(
             ProgramSkillFrame frame,
@@ -387,9 +396,11 @@ public sealed partial class GameEngine
             ProgramParticipantReference? destinationRef,
             string? resultBind,
             CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
-            bool skipIfNoCards = false) =>
+            bool skipIfNoCards = false, bool allowSameOwnerHandReturn = false,
+            string? coverageResultBind = null, bool awaitMovementTriggers = false) =>
             engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, destinationRef, resultBind,
-                reason, cardCategories, skipIfNoCards);
+                reason, cardCategories, skipIfNoCards, allowSameOwnerHandReturn,
+                coverageResultBind, awaitMovementTriggers);
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
             ProgramSkillFrame frame,
