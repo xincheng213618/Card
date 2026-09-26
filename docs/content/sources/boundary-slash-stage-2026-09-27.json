@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀 OL",
+  "retrievedAt": "2026-09-27",
+  "contentIds": ["boundary:zhang-fei", "boundary:huang-zhong", "boundary:xiahou-yuan"],
+  "rulesSources": [
+    {
+      "contentId": "boundary:zhang-fei",
+      "url": "https://www.sanguosha.com/news/20140626_1587_3018",
+      "edition": "2014 界限突破",
+      "use": "蜀4体力；咆哮不限杀次数；限定技替身在准备阶段回复至上回合结束体力，按实际回复值摸牌。"
+    },
+    {
+      "contentId": "boundary:huang-zhong",
+      "url": "https://www.sanguosha.com/news/20161026_7095_5710",
+      "edition": "2016 官方发布的新版烈弓攻略；当前界限突破身份",
+      "use": "蜀4体力；杀点数允许覆盖对应距离；指定目标后可选，目标手牌不多于自己时禁闪，目标体力不低于自己时此杀伤害加一；官方FAQ指出回合外使用杀也可发动。"
+    },
+    {
+      "contentId": "boundary:xiahou-yuan",
+      "url": "https://www.sanguosha.com/hero/453",
+      "edition": "现行官网界夏侯渊",
+      "use": "魏4体力；神速可跳判摸、弃装备跳出牌、跳弃牌并翻面，每选择一项视为无距离杀；设变在翻面时可移动场上一张装备。"
+    }
+  ],
+  "versionBoundary": "不混用经典夏侯渊两段神速或旧黄忠烈弓；尚缺的公共能力在本批实现或显式记录，不能以部分技能声称完整。"
+}

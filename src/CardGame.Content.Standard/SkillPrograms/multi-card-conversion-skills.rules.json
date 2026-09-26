@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:fuhun",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "viewAs": [
         {
           "id": "two-hand-cards-as-slash",

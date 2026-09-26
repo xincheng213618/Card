@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jijiang": {
+      "name": "激将",
+      "description": "主公技，每当你需要使用或打出【杀】时，你可以令其他蜀势力角色选择是否打出一张【杀】，视为由你使用或打出。"
+    },
+    "boundary:jijiu": {
+      "name": "急救",
+      "description": "你的回合外，你可以将一张红色手牌或装备牌当【桃】使用。"
+    },
+    "boundary:jizhi": {
+      "name": "集智",
+      "description": "当你使用一张锦囊牌时，你可以摸一张牌。若此牌为基本牌，你可以弃置之，令本回合手牌上限+1。",
+      "optionLabels": {
+        "keep": "保留所摸的牌。",
+        "discard": "弃置本次摸得的基本牌，本回合手牌上限+1。"
+      }
+    },
+    "boundary:qicai": {
+      "name": "奇才",
+      "description": "锁定技，你使用锦囊牌无距离限制；其他角色不能弃置你装备区里的防具牌或宝物牌。"
+    }
+  }
+}

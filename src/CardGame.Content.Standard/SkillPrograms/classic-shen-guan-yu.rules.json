@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:wushen",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [
         {
           "id": "wushen-slash-distance",

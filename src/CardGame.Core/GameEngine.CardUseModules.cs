@@ -185,7 +185,8 @@ public sealed partial class GameEngine
         IReadOnlyList<CardKind> cardKinds)
     {
         ValidateProgramTurnEffectGrant(frame);
-        var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && amount > 0 ||
+        var valid = query is (SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit) &&
+                    operation == SkillRuleOperation.Add && amount > 0 ||
                     (query is SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&
                     operation == SkillRuleOperation.Unlimited && amount == 0 ||
                     query == SkillRuleQuery.CardTargetCount && operation == SkillRuleOperation.Add &&

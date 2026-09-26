@@ -17,7 +17,9 @@ public sealed partial class GameEngine
             boundCardCount: bind => CountChooserProgramBoundCards(active, bind, chooserSeat),
             activationCardCount: active.SelectedCardIds.Count,
             boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
-                DoesProgramFrozenSuitMatchChoice(active, cardBind, choiceBind))).Select(option =>
+                DoesProgramFrozenSuitMatchChoice(active, cardBind, choiceBind),
+            boundCardsMatchCategories: (bind, categories) =>
+                DoProgramBoundCardsMatchCategories(active, bind, categories))).Select(option =>
             new PromptChoice(new ChoiceId($"program-option.frame-{frame.Id}.{resultBind}.{option.Id}"),
                 option.Label, [], [], new Dictionary<string, string>
                 {
@@ -71,9 +73,12 @@ public sealed partial class GameEngine
             boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
             activationCardCount: frame.SelectedCardIds.Count,
             boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
-                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind));
+                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
+            boundCardsMatchCategories: (bind, categories) =>
+                DoProgramBoundCardsMatchCategories(frame, bind, categories));
         if (!stillAvailable && (option.Condition.ContainsHasClaimableDamageCards() ||
-            option.Condition.ContainsBoundCardCountAtLeast() || option.Condition.ContainsHasOwnedCardCategory()))
+            option.Condition.ContainsBoundCardCountAtLeast() || option.Condition.ContainsHasOwnedCardCategory() ||
+            option.Condition.ContainsBoundCardsMatchCategories()))
             throw new InvalidOperationException("The selected option's required cards are no longer available.");
         ClearPendingDecision();
         if (!_players[chooserSeat].IsAlive || !stillAvailable ||
@@ -103,7 +108,8 @@ public sealed partial class GameEngine
         var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id"));
         if (option is null) return true;
         if (!option.Condition.ContainsHasClaimableDamageCards() &&
-            !option.Condition.ContainsBoundCardCountAtLeast() && !option.Condition.ContainsHasOwnedCardCategory()) return true;
+            !option.Condition.ContainsBoundCardCountAtLeast() && !option.Condition.ContainsHasOwnedCardCategory() &&
+            !option.Condition.ContainsBoundCardsMatchCategories()) return true;
         var chooserSeat = effect.ChooserRef is { } chooser
             ? ResolveProgramParticipant(frame, chooser)
             : ResolveProgramEffectTarget(frame, effect.Target);
@@ -114,7 +120,9 @@ public sealed partial class GameEngine
             boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
             activationCardCount: frame.SelectedCardIds.Count,
             boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
-                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind));
+                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
+            boundCardsMatchCategories: (bind, categories) =>
+                DoProgramBoundCardsMatchCategories(frame, bind, categories));
     }
 
     private int CountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)

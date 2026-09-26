@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:jiefan",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "aid-by-attack-range",

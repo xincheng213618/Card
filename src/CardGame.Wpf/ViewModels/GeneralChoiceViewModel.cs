@@ -29,6 +29,8 @@ public sealed class GeneralGalleryEntryViewModel
     private GeneralPortraitViewModel? _portrait;
     public GeneralPortraitViewModel Portrait { get => _portrait ??= new(GeneralId); init => _portrait = value; }
     public IReadOnlyList<GeneralGallerySkill> Skills { get; init; } = [];
+    public bool IsPlayable { get; init; } = true;
+    public string AvailabilityText => IsPlayable ? "技能完整" : "技能完善中 · 暂未加入对局";
     public IReadOnlyList<GeneralSkin> Skins => GeneralArt.GetSkins(GeneralId);
     public required string GeneralId { get; init; }
     public required string SeriesId { get; init; }

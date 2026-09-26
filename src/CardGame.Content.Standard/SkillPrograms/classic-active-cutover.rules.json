@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:rende",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "give-and-heal-after-two",
@@ -25,7 +25,7 @@
     {
       "id": "classic:jieyin",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "discard-two-heal-pair",
@@ -45,7 +45,7 @@
     {
       "id": "classic:qiangxi",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "lose-hp-and-damage",
@@ -81,7 +81,7 @@
     {
       "id": "classic:lijian",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "discard-and-start-duel",
@@ -101,7 +101,7 @@
     {
       "id": "boundary:lijian",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "discard-and-start-duel",
@@ -121,7 +121,7 @@
     {
       "id": "classic:luanji",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "viewAs": [
         {
           "id": "same-suit-pair-as-arrow-barrage",
@@ -153,7 +153,7 @@
       "id": "classic:jijiang",
       "cardPolicies": [{"id":"allied-slash","kind":"factionResponseRequest","requiredCardKinds":["slash"],"factionId":"shu","ownerRole":"lord"}],
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "request-shu-slash",
@@ -172,7 +172,7 @@
     {
       "id": "classic:fanjian",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "guess-suit-and-take-gift",

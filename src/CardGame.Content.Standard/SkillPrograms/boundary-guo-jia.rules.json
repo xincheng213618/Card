@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "boundary:yiji",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "triggers": [
         {
           "id": "draw-and-give-up-to-two-per-damage-point",

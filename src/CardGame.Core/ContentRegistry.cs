@@ -64,11 +64,15 @@ public sealed record ContentCardDefinition(
     CardKind? LegacyKind = null,
     IReadOnlyDictionary<string, string>? AiTags = null);
 
+public enum SkillImplementationStatus { Complete, Partial, Planned }
+
 public sealed record ContentSkillDefinition(
     string Id,
     string Name,
     string Description)
 {
+    public SkillImplementationStatus ImplementationStatus { get; init; } = SkillImplementationStatus.Complete;
+    public string? PendingImplementation { get; init; }
     public SkillProgram? Program { get; init; }
     public SkillPresentation? ProgramPresentation { get; init; }
     public SkillTag Tags { get; init; }
@@ -88,6 +92,10 @@ public sealed record ContentGeneralDefinition(
     IReadOnlyList<string>? AdditionalSkillIds = null,
     GeneralGender Gender = GeneralGender.Male)
 {
+    /// <summary>Person, edition and selected rules module are separate catalogue identities.</summary>
+    public string? CharacterId { get; init; }
+    public string? VariantId { get; init; }
+    public string? RulesetId { get; init; }
     /// <summary>
     /// Complete ordered skill identities used by the current runtime.
     /// </summary>
@@ -192,6 +200,9 @@ public sealed class ContentRegistry
         _skills.TryGetValue(id, out var definition)
             ? definition
             : throw new KeyNotFoundException($"Unknown skill content id '{id}'.");
+
+    public bool IsGeneralPlayable(string id) => _generals.TryGetValue(id, out var general) &&
+        general.SkillIds.All(skillId => _skills[skillId].ImplementationStatus == SkillImplementationStatus.Complete);
 
     public ContentDeckRecipe GetDeck(string id) =>
         _decks.TryGetValue(id, out var definition)
@@ -305,7 +316,7 @@ public sealed class ContentRegistry
         // One canonical representation of current content. No nested historical hash layouts.
         var canonical = JsonSerializer.Serialize(new
         {
-            HashSchema = 13,
+            HashSchema = 14,
             Packages = packages.OrderBy(package => package.Id, StringComparer.Ordinal).Select(package => new
             {
                 package.Id,
@@ -324,6 +335,7 @@ public sealed class ContentRegistry
             Skills = skills.Values.OrderBy(skill => skill.Id, StringComparer.Ordinal).Select(skill => new
             {
                 skill.Id,
+                ImplementationStatus = skill.ImplementationStatus.ToString(),
                 // Program presentation has its own hash and does not change gameplay identity.
                 Name = skill.Program is null ? skill.Name : string.Empty,
                 Description = skill.Program is null ? skill.Description : string.Empty,
@@ -340,6 +352,7 @@ public sealed class ContentRegistry
             }).ToArray(),
             Generals = generals.Values.OrderBy(general => general.Id, StringComparer.Ordinal).Select(general => new
             {
+                general.CharacterId, general.VariantId, general.RulesetId,
                 general.Id, general.Name, general.PortraitKey, general.FactionId, general.BaseHp,
                 Gender = general.Gender.ToString(),
                 Skills = general.SkillIds.ToArray()
@@ -654,6 +667,10 @@ public sealed class ContentRegistry
                             throw new InvalidOperationException(
                                 $"Mode '{mode.Id}' references unknown general '{generalId}'.");
                         }
+                        if (_generals[generalId].SkillIds.Any(skillId =>
+                                _skills[skillId].ImplementationStatus != SkillImplementationStatus.Complete))
+                            throw new InvalidOperationException(
+                                $"Mode '{mode.Id}' includes unfinished general '{generalId}'.");
                     }
 
                     if (mode.ModeKind == ContentModeKind.NationalWarLite)
@@ -721,6 +738,13 @@ public sealed class ContentRegistry
         private static ContentSkillDefinition NormalizeSkill(ContentSkillDefinition definition)
         {
             ArgumentNullException.ThrowIfNull(definition);
+            if (!Enum.IsDefined(definition.ImplementationStatus))
+                throw new InvalidOperationException($"Skill '{definition.Id}' has an invalid implementation status.");
+            if (definition.ImplementationStatus != SkillImplementationStatus.Complete &&
+                string.IsNullOrWhiteSpace(definition.PendingImplementation))
+                throw new InvalidOperationException($"Unfinished skill '{definition.Id}' must describe its missing behavior.");
+            if (definition.ImplementationStatus == SkillImplementationStatus.Planned && definition.Program is not null)
+                throw new InvalidOperationException($"Planned skill '{definition.Id}' cannot expose an executable program.");
             const SkillTag allTags = SkillTag.Lord | SkillTag.Locked | SkillTag.Limited |
                                      SkillTag.Awakening | SkillTag.Conversion;
             const SkillExecutionForm allForms = SkillExecutionForm.State | SkillExecutionForm.Trigger;

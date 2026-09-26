@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:longyin",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -48,7 +48,7 @@
     {
       "id": "classic:juzhan",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "states": [
         {
           "id": "yin",
@@ -122,7 +122,7 @@
     {
       "id": "classic:xianzhen",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [

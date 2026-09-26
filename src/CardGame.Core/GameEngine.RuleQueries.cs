@@ -44,6 +44,8 @@ public sealed partial class GameEngine
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
+        AddFiniteContribution(contributions, $"turn:{player.Seat}:hand-limit",
+            GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.HandLimit));
         contributions.AddRange(_turnCardUseEffects
             .GetRuleModifiers(_turnNumber, _currentSeat, player.Seat, SkillRuleQuery.AttackRange)
             .Where(item => item.Operation == SkillRuleOperation.Unlimited)

@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:tianyi",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [
@@ -90,7 +90,7 @@
     {
       "id": "classic:lieren",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -162,7 +162,7 @@
     {
       "id": "classic:quhu",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [

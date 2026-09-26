@@ -153,6 +153,7 @@ public sealed partial class MainViewModel
             _allGeneralGalleryEntries.Add(new GeneralGalleryEntryViewModel
             {
                 GeneralId = general.Id,
+                IsPlayable = _contentRegistry.IsGeneralPlayable(general.Id),
                 Portrait = GetGeneralPortrait(general.Id),
                 Skills = skills.Select(skill => new GeneralGallerySkill(skill.Name, GetVisibleSkillDescription(skill), general.Id)).ToArray(),
                 SeriesId = group.SeriesId,

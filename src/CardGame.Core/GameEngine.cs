@@ -1325,7 +1325,8 @@ public sealed partial class GameEngine
                 requestedPeachCardId: null,
                 useAlcohol: true,
                 requestedAlcoholCardId: selected.Cards[0],
-                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
+                advanceToHumanBoundary: _options.AdvanceAfterHumanCommands,
+                alcoholConversionSource: peachConversionSource)),
             "program-trigger" when selected.Cards.Count == 0 => Accept(() =>
                 HumanDyingProgramTriggerCore(selected, _options.AdvanceAfterHumanCommands)),
             "let-die" when selected.Cards.Count == 0 => Accept(() => HumanDyingResponseCore(
@@ -2022,7 +2023,8 @@ public sealed partial class GameEngine
         bool useAlcohol,
         int? requestedAlcoholCardId,
         bool advanceToHumanBoundary,
-        CardConversionSource? peachConversionSource = null)
+        CardConversionSource? peachConversionSource = null,
+        CardConversionSource? alcoholConversionSource = null)
     {
         RequireHumanDecision(DecisionKind.RescueDying);
         var pending = _pendingDying ??
@@ -2061,13 +2063,13 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException("Alcohol can only rescue its dying holder.");
             }
-            var alcohol = GetHand(responder).FirstOrDefault(card =>
-                card.Kind == CardKind.Alcohol &&
+            var alcohol = GetDyingAlcohols(responder, pending.VictimSeat).FirstOrDefault(card =>
                 (!requestedAlcoholCardId.HasValue || card.Id == requestedAlcoholCardId.Value));
             if (alcohol is null)
             {
                 throw new InvalidOperationException("The responding player has no requested Alcohol card.");
             }
+            ValidateAlcoholConversion(responder, alcohol, alcoholConversionSource, forResponse: true);
         }
 
         ClearPendingDecision();
@@ -2077,7 +2079,8 @@ public sealed partial class GameEngine
             requestedPeachCardId,
             useAlcohol,
             requestedAlcoholCardId,
-            peachConversionSource);
+            peachConversionSource,
+            alcoholConversionSource);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -2949,6 +2952,7 @@ public sealed partial class GameEngine
         ContentModeDefinition mode)
     {
         var ids = mode.GeneralPoolIds ?? contentRegistry.Generals.Keys
+            .Where(contentRegistry.IsGeneralPlayable)
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToArray();
         return ids.Select(id =>
@@ -4112,7 +4116,7 @@ public sealed partial class GameEngine
                 ResolveDrawTwo(actor, card);
                 break;
             case LegalActionKind.Alcohol:
-                ResolveAlcohol(actor, card);
+                ResolveAlcohol(actor, card, action.ConversionSource);
                 break;
             case LegalActionKind.Equip:
                 ResolveEquip(actor, card);
@@ -5270,18 +5274,21 @@ public sealed partial class GameEngine
             LegalActionKind.DrawTwo);
     }
 
-    private void ResolveAlcohol(CharacterState source, Card alcohol)
+    private void ResolveAlcohol(CharacterState source, Card alcohol, CardConversionSource? conversionSource = null)
     {
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == LegalActionKind.Alcohol &&
             action.CardId == alcohol.Id &&
+            action.ConversionSource == conversionSource &&
             action.TargetSeat is null);
         if (!stillLegal)
         {
             throw new InvalidOperationException("Alcohol became illegal before resolution.");
         }
 
-        var resolutionId = BeginCardUse(alcohol, source.Seat, []);
+        ValidateAlcoholConversion(source, alcohol, conversionSource, forResponse: false);
+        var resolutionId = BeginCardUse(alcohol, source.Seat, [],
+            playedCardKind: CardKind.Alcohol, conversionSource: conversionSource);
         MoveCard(
             alcohol,
             FindOwnedCardLocation(source, alcohol),
@@ -12177,9 +12184,12 @@ public sealed partial class GameEngine
 
     private Card[] GetDyingAlcohols(CharacterState responder, int victimSeat) =>
         responder.Seat == victimSeat
-            ? GetHand(responder)
-                .Where(card => card.Kind == CardKind.Alcohol &&
-                               !HasProgramCardIdentity(responder, card))
+            ? GetHand(responder).Concat(GetEquipment(responder))
+                .Where(card => !IsTurnHandCardRestricted(responder, card) &&
+                    !IsCardUseForbidden(responder.Seat, CardKind.Alcohol, CardActionType.Use) &&
+                    !HasProgramCardIdentity(responder, card) &&
+                    (card.Kind == CardKind.Alcohol || GetProgramViewAsConversions(
+                        responder, card, CardKind.Alcohol, forResponse: true).Count > 0))
                 .ToArray()
             : [];
 
@@ -12257,13 +12267,19 @@ public sealed partial class GameEngine
                 .SelectMany(card => GetDyingPeachConversionSources(responder, card))
                 .FirstOrDefault()
             : null;
+        var aiAlcoholConversion = useAlcohol && alcoholCardId is { } selectedAlcoholId
+            ? alcohols.Where(card => card.Id == selectedAlcoholId && card.Kind != CardKind.Alcohol)
+                .SelectMany(card => GetProgramViewAsConversions(responder, card, CardKind.Alcohol, forResponse: true))
+                .FirstOrDefault()
+            : null;
         ApplyDyingResponse(
             responder,
             usePeach,
             peachCardId,
             useAlcohol,
             alcoholCardId,
-            aiPeachConversion);
+            aiPeachConversion,
+            aiAlcoholConversion);
         PublishState();
     }
 
@@ -12322,14 +12338,10 @@ public sealed partial class GameEngine
                     [peach.Id], [], parameters);
             });
         }).ToList();
-        choices.AddRange(alcohols.Select(alcohol => new PromptChoice(
-            new ChoiceId($"dying.alcohol.card-{alcohol.Id}"),
-            responder.Seat == victim.Seat
-                ? $"使用【酒】自救，使 {victim.Name} 回复 1 点体力。"
-                : $"使用【酒】救援 {victim.Name}，使其回复 1 点体力。",
-            [alcohol.Id],
-            [],
-            new Dictionary<string, string>
+        choices.AddRange(alcohols.SelectMany(alcohol => CreateConversionChoiceVariants(
+            responder, alcohol, CardKind.Alcohol, forResponse: true,
+            $"dying.alcohol.card-{alcohol.Id}", $"将【{alcohol.DisplayName}】作为【酒】自救，回复 1 点体力。",
+            [alcohol.Id], [], new Dictionary<string, string>
             {
                 ["response"] = "alcohol",
                 ["target-seat"] = victim.Seat.ToString(System.Globalization.CultureInfo.InvariantCulture)
@@ -12396,7 +12408,8 @@ public sealed partial class GameEngine
         int? peachCardId,
         bool useAlcohol,
         int? alcoholCardId,
-        CardConversionSource? peachConversionSource = null)
+        CardConversionSource? peachConversionSource = null,
+        CardConversionSource? alcoholConversionSource = null)
     {
         var dying = _pendingDying ??
             throw new InvalidOperationException("There is no dying response to apply.");
@@ -12440,16 +12453,15 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException("Alcohol can only rescue its dying holder.");
             }
-            var alcohol = GetHand(responder).FirstOrDefault(card =>
-                card.Kind == CardKind.Alcohol &&
-                !HasProgramCardIdentity(responder, card) &&
+            var alcohol = GetDyingAlcohols(responder, victim.Seat).FirstOrDefault(card =>
                 (!alcoholCardId.HasValue || card.Id == alcoholCardId.Value));
             if (alcohol is null)
             {
                 throw new InvalidOperationException("The requested Alcohol is not in the responder's hand.");
             }
+            ValidateAlcoholConversion(responder, alcohol, alcoholConversionSource, forResponse: true);
             usedAlcoholCardId = alcohol.Id;
-            ResolveDyingAlcohol(responder, victim, alcohol);
+            ResolveDyingAlcohol(responder, victim, alcohol, alcoholConversionSource);
         }
         QueueGameEvent(new DyingResponseEvent(
             dying.FrameId,
@@ -12988,7 +13000,8 @@ public sealed partial class GameEngine
     private void ResolveDyingAlcohol(
         CharacterState source,
         CharacterState target,
-        Card alcohol)
+        Card alcohol,
+        CardConversionSource? conversionSource = null)
     {
         if ((source.Seat != target.Seat) ||
             target.Hp > 0 ||
@@ -12997,7 +13010,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Alcohol can only rescue a living dying player.");
         }
 
-        ResolveRecoveryCard(source, target, alcohol, "酒");
+        ResolveRecoveryCard(source, target, alcohol, "酒", playedCardKind: CardKind.Alcohol,
+            conversionSource: conversionSource);
     }
 
     private void ResolveRecoveryCard(
@@ -14036,6 +14050,11 @@ public sealed partial class GameEngine
                     null,
                     "使用【酒】，本回合下一张杀伤害+1"));
             }
+            foreach (var card in playableCards.Concat(GetEquipment(actor)).DistinctBy(card => card.Id))
+            foreach (var conversion in GetProgramViewAsConversions(actor, card, CardKind.Alcohol, forResponse: false))
+                actions.Add(new LegalAction(LegalActionKind.Alcohol, card.Id, null,
+                    DescribeConversion(conversion, $"将【{card.DisplayName}】当作【酒】使用"),
+                    PlayedCardKind: CardKind.Alcohol) { ConversionSource = conversion });
         }
 
         foreach (var equipment in playableCards.Where(card => EquipmentCatalog.IsEquipment(card.Kind)))

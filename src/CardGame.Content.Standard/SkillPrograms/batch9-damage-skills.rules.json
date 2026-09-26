@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:kurou", "revision": 1, "minimumRulesVersion": 172,
+      "activations": [{
+        "id": "discard-one-and-lose-hp", "minCards": 1, "maxCards": 1,
+        "sourceZones": ["hand", "equipment"],
+        "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving",
+        "usesPerTurn": 1,
+        "effects": [
+          { "op": "discardSelected", "target": "owner", "amount": 1 },
+          { "op": "loseHp", "target": "owner", "amount": 1 }
+        ]
+      }]
+    },
+    {
+      "id": "boundary:kuanggu", "revision": 1, "minimumRulesVersion": 172,
+      "triggers": [{
+        "id": "nearby-damage-choice", "window": "afterDamageApplied",
+        "subject": "damageSource", "damageOccurrence": "perDamagePoint",
+        "optional": true, "priority": 100,
+        "condition": { "kind": "compare",
+          "left": { "kind": "sourceToTargetDistanceAtDamage" },
+          "operator": "lessThanOrEqual",
+          "right": { "kind": "integerConstant", "value": 1 } },
+        "effects": [
+          { "op": "chooseOption", "target": "owner", "resultBind": "benefit",
+            "options": [
+              { "id": "recover", "condition": { "kind": "wounded" } },
+              { "id": "draw", "condition": { "kind": "always" } }
+            ] },
+          { "op": "recover", "target": "owner", "amount": 1,
+            "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "recover" } },
+          { "op": "draw", "target": "owner", "amount": 1,
+            "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "draw" } }
+        ]
+      }]
+    }
+  ]
+}

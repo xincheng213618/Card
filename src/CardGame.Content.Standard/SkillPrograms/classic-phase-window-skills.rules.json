@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:jingce",
       "revision": 2,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -44,7 +44,7 @@
     {
       "id": "classic:jushou",
       "revision": 2,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -77,7 +77,7 @@
     {
       "id": "classic:biyue",
       "revision": 2,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

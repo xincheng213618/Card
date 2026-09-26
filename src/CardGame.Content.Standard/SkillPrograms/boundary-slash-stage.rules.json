@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:paoxiao", "revision": 1, "minimumRulesVersion": 172,
+      "modifiers": [
+        { "id": "unlimited-slash-uses", "query": "slashLimit",
+          "operation": "unlimited", "value": 0, "priority": 0 }
+      ]
+    },
+    {
+      "id": "boundary:shensu", "revision": 1, "minimumRulesVersion": 172,
+      "triggers": [
+        {
+          "id": "skip-judgment-and-draw", "window": "turnStartBeforeNormalFlow",
+          "subject": "owner", "optional": true, "priority": 10,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["judgment", "draw"] },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash",
+              "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        },
+        {
+          "id": "skip-play-after-draw", "window": "afterNormalDraw",
+          "subject": "owner", "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["equipment"], "count": 1, "destination": "discardPile",
+              "awaitMovementTriggers": true },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["play"] },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash",
+              "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        }
+      ]
+    }
+  ]
+}

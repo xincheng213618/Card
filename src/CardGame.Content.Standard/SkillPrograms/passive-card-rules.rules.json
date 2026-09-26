@@ -1,36 +1,36 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
-    {"id":"classic:wushuang","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:wushuang","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"slash-two-dodges","kind":"minimumResponseCount","cardKinds":["slash","fireSlash","thunderSlash"],"requiredCardKinds":["dodge"],"value":2},
       {"id":"duel-two-slashes","kind":"minimumResponseCount","cardKinds":["duel"],"requiredCardKinds":["slash"],"value":2}]},
-    {"id":"classic:keji","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:keji","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"unused-slash-discard-choice","kind":"offerSkipDiscard","condition":{"kind":"ownTurn"}}]},
-    {"id":"classic:kongcheng","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:kongcheng","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"empty-hand-slash-and-duel-immunity","kind":"prohibitTarget","cardKinds":["slash","fireSlash","thunderSlash","duel"],"condition":{"kind":"not","children":[{"kind":"handCountAtLeast","value":1}]}}]},
-    {"id":"standard:kongcheng","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"standard:kongcheng","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"empty-hand-slash-immunity","kind":"prohibitTarget","cardKinds":["slash","fireSlash","thunderSlash"],"condition":{"kind":"not","children":[{"kind":"handCountAtLeast","value":1}]}}]},
-    {"id":"classic:qianxun","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:qianxun","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"snatch-and-indulgence-immunity","kind":"prohibitTarget","cardKinds":["snatch","indulgence"]}]},
-    {"id":"classic:qicai","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:qicai","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"tricks-ignore-distance","kind":"ignoreUseDistance","cardKinds":["duel","drawTwo","barbarianAssault","arrowBarrage","peachGarden","fiveGrains","dismantlement","snatch","fireAttack","nullification","ironChain","indulgence","supplyShortage","lightning"]}]},
-    {"id":"standard:qicai","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"standard:qicai","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"tricks-ignore-distance","kind":"ignoreUseDistance","cardKinds":["duel","drawTwo","barbarianAssault","arrowBarrage","peachGarden","fiveGrains","dismantlement","snatch","fireAttack","nullification","ironChain","indulgence","supplyShortage","lightning"]}]},
-    {"id":"classic:huoshou","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:huoshou","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"barbarian-target-immunity","kind":"excludeGlobalTarget","cardKinds":["barbarianAssault"]},
       {"id":"barbarian-damage-attribution","kind":"attributeGlobalDamage","cardKinds":["barbarianAssault"]}]},
-    {"id":"classic:juxiang","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:juxiang","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"barbarian-target-immunity","kind":"excludeGlobalTarget","cardKinds":["barbarianAssault"]},
       {"id":"claim-resolved-barbarian","kind":"claimResolvedGlobalCard","cardKinds":["barbarianAssault"]}]},
-    {"id":"classic:hongyan","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:hongyan","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"spade-becomes-heart","kind":"rewriteSuit","inputSuit":"spade","outputSuit":"heart"}]},
-    {"id":"classic:wuyan","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:wuyan","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"ordinary-trick-damage-immunity","kind":"preventTrickDamage","cardKinds":["duel","drawTwo","barbarianAssault","arrowBarrage","peachGarden","fiveGrains","dismantlement","snatch","fireAttack","nullification","ironChain","borrowedSword"]}]},
-    {"id":"classic:yizhong","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:yizhong","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"unarmored-black-slash-immunity","kind":"nullifyBlackSlashWithoutArmor","cardKinds":["slash","fireSlash","thunderSlash"]}]},
-    {"id":"classic:xueyi","revision":1,"minimumRulesVersion":171,"cardPolicies":[
+    {"id":"classic:xueyi","revision":1,"minimumRulesVersion": 172,"cardPolicies":[
       {"id":"other-qun-hand-limit","kind":"factionHandLimitBonus","factionId":"qun","ownerRole":"lord","value":2}]},
-    {"id":"classic:jizhi","revision":1,"minimumRulesVersion":171,"triggers":[
+    {"id":"classic:jizhi","revision":1,"minimumRulesVersion": 172,"triggers":[
       {"id":"ordinary-trick-used","window":"cardUseBeforeTargetEffects","ownerRelation":"actor","cardKinds":["duel","drawTwo","barbarianAssault","arrowBarrage","peachGarden","fiveGrains","dismantlement","snatch","fireAttack","ironChain","borrowedSword"],"optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]},
       {"id":"nullification-responded","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["nullification"],"optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
   ]

@@ -47,6 +47,14 @@ internal static class ProgramCompositionValidator
                     SkillProgramConditionKind.BoundCardsMatchKinds or
                     SkillProgramConditionKind.BoundCardsMatchSuits)
                     _ = Get(condition.SourceBind!);
+                if (condition.Kind == SkillProgramConditionKind.BoundCardsMatchCategories &&
+                    effect.Op == SkillProgramEffectOp.ChooseOption)
+                {
+                    var bound = Get(condition.SourceBind!);
+                    if (effect.Target != SkillProgramEffectTarget.Owner ||
+                        effect.ChooserRef is not null || !bound.Root.OwnerHeld || bound.Root.AlreadyMoved)
+                        Fail("bound-card category option must read the owner's stable held cards");
+                }
                 if (condition.Kind == SkillProgramConditionKind.BoundCardCountAtLeast)
                 {
                     var bound = Get(condition.SourceBind!);

@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
-      "id": "standard:guicai", "revision": 1, "minimumRulesVersion": 171,
+      "id": "standard:guicai", "revision": 1, "minimumRulesVersion": 172,
       "triggers": [{
         "id": "replace-judgment", "window": "judgmentReplacing", "subject": "any",
         "excludedReasons": [], "optional": true,
@@ -11,7 +11,7 @@
       }]
     },
     {
-      "id": "classic:guicai", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:guicai", "revision": 1, "minimumRulesVersion": 172,
       "triggers": [{
         "id": "replace-judgment", "window": "judgmentReplacing", "subject": "any",
         "excludedReasons": [], "optional": true,
@@ -20,7 +20,7 @@
       }]
     },
     {
-      "id": "classic:tiandu", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:tiandu", "revision": 1, "minimumRulesVersion": 172,
       "triggers": [{
         "id": "claim-own-judgment", "window": "judgmentFinalized", "subject": "owner",
         "suits": ["spade", "club", "heart", "diamond"], "minimumRank": 1, "maximumRank": 13,
@@ -29,7 +29,7 @@
       }]
     },
     {
-      "id": "boundary:tiandu", "revision": 1, "minimumRulesVersion": 171,
+      "id": "boundary:tiandu", "revision": 1, "minimumRulesVersion": 172,
       "triggers": [{
         "id": "claim-own-judgment", "window": "judgmentFinalized", "subject": "owner",
         "suits": ["spade", "club", "heart", "diamond"], "minimumRank": 1, "maximumRank": 13,
@@ -38,7 +38,7 @@
       }]
     },
     {
-      "id": "classic:guanxing", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:guanxing", "revision": 1, "minimumRulesVersion": 172,
       "triggers": [{
         "id": "reorder-before-turn", "window": "turnStartBeforeNormalFlow", "subject": "owner",
         "optional": true, "priority": 20,
@@ -47,7 +47,7 @@
       }]
     },
     {
-      "id": "classic:luoshen", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:luoshen", "revision": 1, "minimumRulesVersion": 172,
       "triggers": [{
         "id": "repeat-black-judgment", "window": "turnStartBeforeNormalFlow", "subject": "owner",
         "optional": true, "priority": 30,
@@ -57,7 +57,7 @@
       }]
     },
     {
-      "id": "classic:shensu", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:shensu", "revision": 1, "minimumRulesVersion": 172,
       "triggers": [
         {
           "id": "skip-judgment-and-draw", "window": "turnStartBeforeNormalFlow",

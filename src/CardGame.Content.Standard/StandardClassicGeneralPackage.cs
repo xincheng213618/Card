@@ -55,7 +55,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 142, 0);
+    public static Version CurrentVersion { get; } = new(1, 143, 0);
 
     public StandardClassicGeneralPackage()
     {

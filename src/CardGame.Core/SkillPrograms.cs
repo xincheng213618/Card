@@ -294,11 +294,14 @@ public sealed class SkillProgramCondition
         Func<string, int>? boundCardCount = null,
         Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, bool>? hasOwnedCardCategory = null,
         int? activationCardCount = null,
-        Func<string, string, bool>? boundCardSuitMatchesChoice = null) => Kind switch
+        Func<string, string, bool>? boundCardSuitMatchesChoice = null,
+        Func<string, IReadOnlyList<SkillProgramCardCategory>, bool>? boundCardsMatchCategories = null) => Kind switch
     {
         SkillProgramConditionKind.ActivationCardCountAtLeast => activationCardCount >= Value,
         SkillProgramConditionKind.BoundCardSuitMatchesChoice =>
             boundCardSuitMatchesChoice?.Invoke(SourceBind!, ChoiceBind!) == ExpectedValue,
+        SkillProgramConditionKind.BoundCardsMatchCategories =>
+            boundCardsMatchCategories?.Invoke(SourceBind!, CardCategories) == true,
         SkillProgramConditionKind.HasClaimableDamageCards => hasClaimableDamageCards(),
         SkillProgramConditionKind.BoundCardCountAtLeast => boundCardCount?.Invoke(SourceBind!) >= Value,
         SkillProgramConditionKind.AttackRangeCoverageDecreased =>
@@ -308,15 +311,18 @@ public sealed class SkillProgramCondition
         SkillProgramConditionKind.All => Children.All(child => child.EvaluateOption(context, hasClaimableDamageCards,
             attackRangeCoverageDecreased, boundCardCount: boundCardCount, hasOwnedCardCategory: hasOwnedCardCategory,
             activationCardCount: activationCardCount,
-            boundCardSuitMatchesChoice: boundCardSuitMatchesChoice)),
+            boundCardSuitMatchesChoice: boundCardSuitMatchesChoice,
+            boundCardsMatchCategories: boundCardsMatchCategories)),
         SkillProgramConditionKind.Any => Children.Any(child => child.EvaluateOption(context, hasClaimableDamageCards,
             attackRangeCoverageDecreased, boundCardCount: boundCardCount, hasOwnedCardCategory: hasOwnedCardCategory,
             activationCardCount: activationCardCount,
-            boundCardSuitMatchesChoice: boundCardSuitMatchesChoice)),
+            boundCardSuitMatchesChoice: boundCardSuitMatchesChoice,
+            boundCardsMatchCategories: boundCardsMatchCategories)),
         SkillProgramConditionKind.Not => !Children[0].EvaluateOption(context, hasClaimableDamageCards,
             attackRangeCoverageDecreased, boundCardCount: boundCardCount, hasOwnedCardCategory: hasOwnedCardCategory,
             activationCardCount: activationCardCount,
-            boundCardSuitMatchesChoice: boundCardSuitMatchesChoice),
+            boundCardSuitMatchesChoice: boundCardSuitMatchesChoice,
+            boundCardsMatchCategories: boundCardsMatchCategories),
         _ => Evaluate(context)
     };
 
@@ -328,6 +334,9 @@ public sealed class SkillProgramCondition
 
     internal bool ContainsHasOwnedCardCategory() => Kind == SkillProgramConditionKind.HasOwnedCardCategory ||
         Children.Any(child => child.ContainsHasOwnedCardCategory());
+
+    internal bool ContainsBoundCardsMatchCategories() => Kind == SkillProgramConditionKind.BoundCardsMatchCategories ||
+        Children.Any(child => child.ContainsBoundCardsMatchCategories());
 
     internal bool CanEvaluateWithoutProgramFrame() => Kind switch
     {
@@ -981,9 +990,9 @@ public sealed record ProgramBooleanStatePresentation(string TrueText, string Fal
 
 public sealed class SkillProgramCatalog
 {
-    public const int RulesSchemaVersion = 61;
+    public const int RulesSchemaVersion = 62;
     public const int PresentationSchemaVersion = 3;
-    public const string RuntimeVersion = "skill-program-v61";
+    public const string RuntimeVersion = "skill-program-v62";
     private const int MaximumDepth = 16;
     private const int MaximumItems = 256;
     private static readonly SkillProgramCondition Always = new(
@@ -1486,7 +1495,7 @@ public sealed class SkillProgramCatalog
         if (output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or
                 CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
                 CardKind.IronChain or CardKind.FireAttack or CardKind.Nullification or CardKind.Peach or
-                CardKind.ArrowBarrage))
+                CardKind.ArrowBarrage or CardKind.Alcohol))
             Fail(path + ".outputKind", "this card kind has no configured viewAs use or response path");
         var forPlay = RequiredBool(node, "forPlay", path);
         var forResponse = RequiredBool(node, "forResponse", path);

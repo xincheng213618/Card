@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
-      "id": "classic:yaowu", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:yaowu", "revision": 1, "minimumRulesVersion": 172,
       "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
       "triggers": [{
         "id": "red-slash-source-benefit", "window": "afterDamageApplied", "subject": "owner",
@@ -22,7 +22,7 @@
       }]
     },
     {
-      "id": "classic:kuanggu", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:kuanggu", "revision": 1, "minimumRulesVersion": 172,
       "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
       "triggers": [{
         "id": "nearby-damage-recover", "window": "afterDamageApplied", "subject": "damageSource",
@@ -34,7 +34,7 @@
       }]
     },
     {
-      "id": "standard:yuanhu", "revision": 1, "minimumRulesVersion": 171,
+      "id": "standard:yuanhu", "revision": 1, "minimumRulesVersion": 172,
       "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
       "triggers": [{
         "id": "aid-other-injured", "window": "afterDamageApplied", "subject": "any",
@@ -57,7 +57,7 @@
       }]
     },
     {
-      "id": "standard:ganglie", "revision": 1, "minimumRulesVersion": 171,
+      "id": "standard:ganglie", "revision": 1, "minimumRulesVersion": 172,
       "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
       "triggers": [{
         "id": "red-judgment-punishment", "window": "afterDamageApplied", "subject": "owner",
@@ -87,7 +87,7 @@
       }]
     },
     {
-      "id": "classic:ganglie", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:ganglie", "revision": 1, "minimumRulesVersion": 172,
       "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
       "triggers": [{
         "id": "non-heart-judgment-punishment", "window": "afterDamageApplied", "subject": "owner",
@@ -117,7 +117,7 @@
       }]
     },
     {
-      "id": "classic:buqu", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:buqu", "revision": 1, "minimumRulesVersion": 172,
       "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
       "triggers": [{
         "id": "unique-rank-dying-rescue", "window": "selfDyingResponse",
@@ -127,7 +127,7 @@
       }]
     },
     {
-      "id": "classic:tianxiang", "revision": 1, "minimumRulesVersion": 171,
+      "id": "classic:tianxiang", "revision": 1, "minimumRulesVersion": 172,
       "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
       "triggers": [{
         "id": "transfer-damage", "window": "beforeDamageApplied",

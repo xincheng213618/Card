@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:kurou": {
+      "name": "苦肉",
+      "description": "出牌阶段限一次，你可以弃置一张牌，然后失去1点体力。"
+    },
+    "boundary:kuanggu": {
+      "name": "狂骨",
+      "description": "当你对距离1以内的一名角色造成1点伤害后，你可以回复1点体力或摸一张牌。",
+      "optionLabels": { "recover": "回复1点体力", "draw": "摸一张牌" }
+    }
+  }
+}

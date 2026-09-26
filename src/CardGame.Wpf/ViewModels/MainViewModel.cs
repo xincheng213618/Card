@@ -2211,7 +2211,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _ => phase.ToString()
     };
 
-    private static string GetVisibleSkillDescription(ContentSkillDefinition skill) => skill.Description;
+    private static string GetVisibleSkillDescription(ContentSkillDefinition skill) =>
+        skill.ImplementationStatus == SkillImplementationStatus.Complete
+            ? skill.Description
+            : $"{skill.Description}\n\n【{(skill.ImplementationStatus == SkillImplementationStatus.Partial ? "部分已实现" : "待实现")}】{skill.PendingImplementation}";
 
     private string GetKingdom(string generalId) =>
         _contentRegistry.Generals.TryGetValue(generalId, out var general)

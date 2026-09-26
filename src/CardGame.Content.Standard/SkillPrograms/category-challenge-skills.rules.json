@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 61,
+  "schemaVersion": 62,
   "skills": [
     {
       "id": "classic:junxing",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "activations": [
         {
           "id": "category-punishment",
@@ -64,7 +64,7 @@
     {
       "id": "classic:yuce",
       "revision": 1,
-      "minimumRulesVersion": 171,
+      "minimumRulesVersion": 172,
       "triggers": [
         {
           "id": "reveal-and-challenge-source",

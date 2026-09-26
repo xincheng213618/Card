@@ -414,7 +414,8 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
             return new(Op, Owner(r), DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
                 cardKinds: kinds, ruleQuery: query, ruleOperation: operation);
         }
-        if (query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add)
+        if (query is (SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit) &&
+            operation == SkillRuleOperation.Add)
         {
             r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "condition");
             return new(Op, Owner(r), DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
@@ -424,7 +425,7 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
         if (query is not (SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) ||
             operation != SkillRuleOperation.Unlimited)
             throw new InvalidOperationException(
-                $"Invalid skill program at {r.Path}: supports slashLimit add, slashDistanceLimit unlimited or attackRange unlimited.");
+                $"Invalid skill program at {r.Path}: supports slashLimit/handLimit add, slashDistanceLimit unlimited or attackRange unlimited.");
         return new(Op, Owner(r), 0, r.Condition(), ruleQuery: query, ruleOperation: operation);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];

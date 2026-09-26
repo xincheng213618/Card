@@ -38,6 +38,7 @@ internal sealed class ChooseOptionProgramOperationDescriptor : ProgramOperationD
             SkillProgramConditionKind.FaceDown or SkillProgramConditionKind.Chained or
             SkillProgramConditionKind.HasClaimableDamageCards or SkillProgramConditionKind.HasOwnedCardCategory or
             SkillProgramConditionKind.BoundCardCountAtLeast or
+            SkillProgramConditionKind.BoundCardsMatchCategories or
             SkillProgramConditionKind.All or SkillProgramConditionKind.Any or SkillProgramConditionKind.Not))
             throw new InvalidOperationException($"Invalid skill program at {path}: option conditions require public chooser state.");
         foreach (var child in condition.Children) ValidateOptionCondition(child, path);
