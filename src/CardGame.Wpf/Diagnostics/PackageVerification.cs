@@ -27,6 +27,24 @@ internal static class PackageVerification
             {
                 if (GeneralArt.GetPortrait("cao-cao") is not ImageBrush { ImageSource: BitmapSource { PixelWidth: > 0 } })
                     throw new InvalidDataException("Embedded general artwork did not load.");
+                using var artStream = typeof(GeneralArt).Assembly.GetManifestResourceStream("CardGame.GeneralArtCatalog.json")
+                    ?? throw new InvalidDataException("General artwork catalog did not ship.");
+                using var artCatalog = JsonDocument.Parse(artStream);
+                var skinFiles = artCatalog.RootElement.GetProperty("entries").EnumerateArray()
+                    .SelectMany(entry => entry.GetProperty("skins").EnumerateArray())
+                    .Select(skin => skin.GetProperty("localPath").GetString()!)
+                    .Where(path => path.StartsWith("src/CardGame.Wpf/Assets/Skins/", StringComparison.Ordinal))
+                    .Distinct().ToArray();
+                foreach (var localPath in skinFiles)
+                {
+                    var path = Path.Combine(AppContext.BaseDirectory, localPath["src/CardGame.Wpf/".Length..]);
+                    using var reader = new BinaryReader(File.OpenRead(path));
+                    if (!reader.ReadBytes(8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }))
+                        throw new InvalidDataException($"Missing or invalid skin: {localPath}");
+                }
+                var optionalSkin = GeneralArt.GetSkins("classic:ma-dai").First(skin => skin.LocalPath.Contains("/Skins/", StringComparison.Ordinal));
+                if (GeneralArt.GetPortrait("classic:ma-dai", optionalSkin.Id) is not ImageBrush { ImageSource: BitmapSource { PixelWidth: > 100 } })
+                    throw new InvalidDataException("External skin artwork did not load from the package.");
                 var sounds = Enum.GetValues<GameSound>();
                 foreach (var sound in sounds)
                 {
@@ -58,6 +76,7 @@ internal static class PackageVerification
                     Architecture = RuntimeInformation.ProcessArchitecture.ToString(),
                     BaseDirectory = AppContext.BaseDirectory,
                     AudioAssets = sounds.Length,
+                    SkinAssets = skinFiles.Length,
                     Screenshot = screenshot,
                     VisibleWindowOpened = false,
                     PlayerSavesAccessed = false

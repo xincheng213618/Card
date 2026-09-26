@@ -42,7 +42,7 @@
 - 可暂停的模式化开局、私有武将候选、共享池去重、AI 选将和逐轮发牌；旧构造式 Demo 仍可用作兼容路径。
 - 杀/火杀/雷杀/闪/桃/酒/决斗/无中生有/南蛮入侵/万箭齐发/桃园结义/五谷丰登/过河拆桥/顺手牵羊/火攻/伤害链路的可序列化 `ResolutionFrame` 栈、交替响应、群体逐目标响应、无目标即时摸牌、酒的一次性杀伤害修正、规则 v12 酒仅自救与 v3–v11 跨座位兼容回放、规则 v20 出牌阶段酒每回合限一次与 v1–v19 旧合法动作兼容、可暂停多目标恢复、公开牌 draft、隐藏目标牌的不透明牌位选择、公开装备/判定区牌目标选择、规则 v19 火攻自选目标及“公开但仍在手牌”的展示状态、v1–v18 历史移动兼容、装备生命周期和基础濒死求桃及提交后的类型化结算事件；伤害事件携带 `DamageNature` 与实际金额，规则版本 5 起致命伤害也会先完成独立的伤害后触发候选游标和暂停/恢复边界，再进入 `DyingFrame`，遗计与节命分别覆盖跨手牌分配和补牌至上限，援护覆盖一次明确的跨座位弃牌恢复效果。
 
-界面采用本地武将肖像与 WPF 文字牌面，素材随程序内嵌，可离线运行。原创生成图集和提示词位于 `src/CardGame.Wpf/Assets/`；张角已使用 BWIKI 经典形象，另备有神关羽、SP 赵云的独立图像资源。外部图像的文件页、原图地址和哈希见 [`bwiki-portraits.json`](docs/content/bwiki-portraits.json)，不属于项目原创素材。
+界面采用本地武将立绘与 WPF 文字牌面，可离线运行。武将图鉴支持大图详情和皮肤切换，图鉴、选将与对局同步使用本机保存的外观；默认立绘内嵌，皮肤随 `Assets/Skins/` 一起打包。官方与 BWIKI 图像的来源、尺寸和哈希见 [`general-art-catalog.json`](docs/content/general-art-catalog.json)，从网页游戏资源图集提取的详情素材见 [`gallery-ui-assets.json`](docs/content/gallery-ui-assets.json)。这些外部素材不属于项目原创图像；旧 AI 图集保留作历史资料，不再绑定正式武将。
 - 经典司马懿的反馈在伤害后发布私有来源牌选择：暗手牌只暴露不透明槽位，公开装备按实体牌选择；发动后通过 `DamageSkillCardTakenEvent` 与 `skill.feedback.take-source-card` 精确转移一张牌。旧演示包中的反馈仍取得处理区伤害牌，并保留 `DamageCardClaimedEvent` 与历史回放顺序。
 - 郭嘉的遗计在受伤后由 `DamageSkillFrame` 记录两张私有摸牌，AI 或人类从合法的牌/目标组合中选择一张交给其他存活角色；`DamageSkillCardsDrawnEvent`、`DamageSkillCardGivenEvent` 和 `skill.yiji.*` 移动原因只属于可信宿主，普通观察者不会看到候选牌面。
 - 规则 v22 的经典郭嘉在自己的公开判定牌生效后获得私有天妒发动/跳过选择；发动时同一实体牌按 `Judgment(owner) → Hand(owner)` 与 `skill.tiandu.claim-judgment` 移动，`JudgmentCardClaimedEvent` 记录结果，答复后继续原八卦、延时牌或刚烈结算。v1–v21 与旧 `standard-classic-generals@1.0.0` 存档保持原自动弃置路径。

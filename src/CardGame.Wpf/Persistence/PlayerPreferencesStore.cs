@@ -8,7 +8,10 @@ public sealed record PlayerPreferences(
     [property: JsonRequired] int FormatVersion,
     [property: JsonRequired] bool SoundEnabled,
     [property: JsonRequired] double SoundVolume,
-    [property: JsonRequired] bool MotionEnabled);
+    [property: JsonRequired] bool MotionEnabled)
+{
+    public Dictionary<string, string>? GeneralSkins { get; init; }
+}
 
 public interface IPlayerPreferencesStore
 {
@@ -33,7 +36,7 @@ public sealed class FilePlayerPreferencesStore : IPlayerPreferencesStore
     {
         if (!File.Exists(_path)) return null;
         using var stream = File.OpenRead(_path);
-        if (stream.Length > 4096) throw new InvalidDataException("偏好文件过大。");
+        if (stream.Length > 65536) throw new InvalidDataException("偏好文件过大。");
         var preferences = JsonSerializer.Deserialize<PlayerPreferences>(stream) ?? throw new InvalidDataException("偏好为空。");
         Validate(preferences);
         return preferences;
@@ -62,5 +65,8 @@ public sealed class FilePlayerPreferencesStore : IPlayerPreferencesStore
     {
         if (preferences.FormatVersion != 1 || !double.IsFinite(preferences.SoundVolume) || preferences.SoundVolume is < 0 or > 1)
             throw new InvalidDataException("偏好格式无效或版本不受支持。");
+        if (preferences.GeneralSkins is { } skins &&
+            (skins.Count > 512 || skins.Any(pair => pair.Key.Length is 0 or > 100 || string.IsNullOrWhiteSpace(pair.Value) || pair.Value.Length > 100)))
+            throw new InvalidDataException("武将皮肤偏好无效。");
     }
 }

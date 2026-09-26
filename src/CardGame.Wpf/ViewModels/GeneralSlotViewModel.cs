@@ -11,10 +11,12 @@ public sealed record GeneralSlotViewModel(string SlotLabel, string GeneralId, st
     public string SlotState => $"{SlotLabel} · {StateText}";
     public string DetailText => $"{SlotLabel}将 · {Name} · {StateText}\n{SkillDescription}\n{SkillStateText}";
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
-    public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);
+    public GeneralPortraitViewModel Portrait { get; init; } = new(GeneralId);
+    public Brush PortraitBrush => Portrait.Brush;
     public Brush StateBrush => IsRevealed ? new SolidColorBrush(Color.FromRgb(158, 197, 161)) : new SolidColorBrush(Color.FromRgb(184, 165, 134));
 
-    public static GeneralSlotViewModel FromPlayer(PlayerSnapshot player, bool secondary, int rulesVersion)
+    public static GeneralSlotViewModel FromPlayer(PlayerSnapshot player, bool secondary, int rulesVersion,
+        Func<string, GeneralPortraitViewModel>? portrait = null)
     {
         var revealed = secondary ? player.IsSecondaryGeneralPublic : player.IsGeneralPublic;
         // Guard visibility even when a host supplies a trusted/debug snapshot.
@@ -36,6 +38,9 @@ public sealed record GeneralSlotViewModel(string SlotLabel, string GeneralId, st
         var state = !known ? "武将尚未公开" : !hasSkill ? "此将没有技能" : rulesVersion < 7
             ? secondary ? "旧规则：副将技能未启用" : "旧规则：主将技能生效"
             : enabled ? "技能已启用" : "暗置中，技能未启用";
-        return new(secondary ? "副" : "主", id, name, skillName, description, revealed, known, enabled, state);
+        return new(secondary ? "副" : "主", id, name, skillName, description, revealed, known, enabled, state)
+        {
+            Portrait = portrait?.Invoke(id) ?? new(id)
+        };
     }
 }

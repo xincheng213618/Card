@@ -9,6 +9,7 @@ namespace CardGame.Wpf.Controls;
 public partial class GeneralGalleryPanel : UserControl
 {
     private MainViewModel? _observedViewModel;
+    private IInputElement? _detailsReturnFocus;
 
     public GeneralGalleryPanel() => InitializeComponent();
 
@@ -30,6 +31,21 @@ public partial class GeneralGalleryPanel : UserControl
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(MainViewModel.SelectedGeneralGalleryEntry))
+        {
+            GeneralSkillsScroller.ScrollToTop();
+            GeneralSkinsScroller.ScrollToTop();
+            if (_observedViewModel?.HasGeneralGallerySelection == true)
+            {
+                _detailsReturnFocus ??= Keyboard.FocusedElement;
+                Dispatcher.BeginInvoke(() => CloseGeneralDetailsButton.Focus());
+            }
+            else
+            {
+                if (_detailsReturnFocus is not null) Keyboard.Focus(_detailsReturnFocus);
+                _detailsReturnFocus = null;
+            }
+        }
         if (e.PropertyName is nameof(MainViewModel.SelectedGeneralGallerySeries) or
             nameof(MainViewModel.SelectedGeneralGalleryGroup) or nameof(MainViewModel.SelectedGeneralGalleryFaction) or
             nameof(MainViewModel.GeneralGallerySearchText)) GalleryScroller.ScrollToTop();

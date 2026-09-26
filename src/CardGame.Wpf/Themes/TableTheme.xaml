@@ -168,7 +168,7 @@
     </Style>
     <DataTemplate x:Key="NationalGeneralSlotTemplate">
         <Grid ClipToBounds="True" ToolTip="{Binding DetailText}" ToolTipService.InitialShowDelay="300">
-            <Rectangle Fill="{Binding PortraitBrush}" />
+            <Rectangle Fill="{Binding Portrait.Brush}" />
             <TextBlock x:Name="HiddenSlotGlyph" Text="暗" Foreground="#817556" FontSize="26" FontFamily="KaiTi" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,45" />
             <Rectangle Fill="{StaticResource PortraitShade}" />
             <StackPanel VerticalAlignment="Bottom" Margin="3,0,3,52" Background="#BD102022">
@@ -191,7 +191,7 @@
                         <RowDefinition Height="24" />
                     </Grid.RowDefinitions>
                     <Grid ClipToBounds="True">
-                        <Rectangle x:Name="SinglePortrait" Fill="{Binding PortraitBrush}" />
+                        <Rectangle x:Name="SinglePortrait" Fill="{Binding Portrait.Brush}" />
                         <TextBlock x:Name="UnknownGeneral" Text="候&#xA;将" TextAlignment="Center" FontSize="34" FontFamily="KaiTi" Foreground="#817556" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <Rectangle Fill="{StaticResource PortraitShade}" />
                         <Grid x:Name="DualPortraits" Visibility="Collapsed">
@@ -374,7 +374,7 @@
                         <RowDefinition Height="226" />
                     </Grid.RowDefinitions>
                     <Grid>
-                        <Rectangle Fill="{Binding PortraitBrush}" />
+                        <Rectangle Fill="{Binding Portrait.Brush}" />
                         <Rectangle Fill="{StaticResource PortraitShade}" />
                         <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="#C43C4541" Padding="9,5">
                             <TextBlock Text="{Binding Kingdom}" FontSize="13" Foreground="#F2E4C3" />

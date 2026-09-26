@@ -57,6 +57,7 @@ public sealed partial class MainViewModel
             IsSoundEnabled = preferences.SoundEnabled;
             SoundVolume = preferences.SoundVolume;
             IsMotionEnabled = preferences.MotionEnabled;
+            ApplyGeneralSkinPreferences(preferences.GeneralSkins);
         }
         finally { _applyingPreferences = false; }
     }
@@ -89,7 +90,10 @@ public sealed partial class MainViewModel
         _preferencesTimer?.Stop();
         try
         {
-            _preferencesStore.Write(new(1, IsSoundEnabled, SoundVolume, IsMotionEnabled));
+            _preferencesStore.Write(new(1, IsSoundEnabled, SoundVolume, IsMotionEnabled)
+            {
+                GeneralSkins = _generalSkinPreferences.Count == 0 ? null : new(_generalSkinPreferences, StringComparer.Ordinal)
+            });
             _preferencesPending = false;
             HasPreferencesError = false;
             PreferencesStatus = "声音与动画已保存在本机，重新开局或读档后保持当前设置。";

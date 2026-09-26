@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <Resource Include="Assets\*.png" />
+    <Content Include="Assets\Skins\**\*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <EmbeddedResource Include="..\..\docs\content\general-art-catalog.json" LogicalName="CardGame.GeneralArtCatalog.json" />
     <Content Include="Assets\Audio\*.wav" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <ProjectReference Include="..\CardGame.Core\CardGame.Core.csproj" />
     <ProjectReference Include="..\CardGame.Content.Standard\CardGame.Content.Standard.csproj" />

@@ -104,6 +104,7 @@ public sealed partial class MainViewModel
 
     private void InitializeGeneralGallery()
     {
+        InitializeGeneralSkins();
         OpenGeneralGalleryCommand = new RelayCommand(() =>
         {
             IsHelpOpen = false;
@@ -125,7 +126,11 @@ public sealed partial class MainViewModel
         });
         SelectGeneralGalleryEntryCommand = new RelayCommand<GeneralGalleryEntryViewModel>(entry =>
         {
-            if (GeneralGalleryEntries.Contains(entry)) SelectedGeneralGalleryEntry = entry;
+            if (GeneralGalleryEntries.Contains(entry))
+            {
+                GeneralDetailsTab = "skills";
+                SelectedGeneralGalleryEntry = entry;
+            }
         });
         CloseGeneralGalleryDetailsCommand = new RelayCommand(() => SelectedGeneralGalleryEntry = null);
         ClearGeneralGalleryFiltersCommand = new RelayCommand(() =>
@@ -145,6 +150,8 @@ public sealed partial class MainViewModel
             _allGeneralGalleryEntries.Add(new GeneralGalleryEntryViewModel
             {
                 GeneralId = general.Id,
+                Portrait = GetGeneralPortrait(general.Id),
+                Skills = skills.Select(skill => new GeneralGallerySkill(skill.Name, GetVisibleSkillDescription(skill))).ToArray(),
                 SeriesId = group.SeriesId,
                 SeriesName = GeneralGallerySeries.First(option => option.Id == group.SeriesId).Name,
                 GroupId = group.Id,
@@ -153,6 +160,7 @@ public sealed partial class MainViewModel
                 FactionId = factionId,
                 Kingdom = factionId == "god" ? "神" : FactionName(general.FactionId),
                 HealthText = $"{general.BaseHp} 体力",
+                HealthImages = Enumerable.Repeat($"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-hp-{(factionId is "wei" or "shu" or "wu" ? factionId : "qun")}.png", Math.Clamp(general.BaseHp, 0, 12)).ToArray(),
                 SkillName = string.Join(" / ", skills.Select(skill => skill.Name)),
                 SkillDescription = string.Join("\n\n", skills.Select(skill => $"{skill.Name}：{GetVisibleSkillDescription(skill)}"))
             });

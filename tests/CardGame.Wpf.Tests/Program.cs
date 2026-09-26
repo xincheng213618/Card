@@ -219,6 +219,7 @@ internal static class Program
             }
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
+            Check("general portraits share selected skins across gallery, choices and battle and persist locally", () => GeneralPortraitChecks.SelectionAndPersistence(output));
             Check("general gallery combines registered series, faction and text filters without changing the match", () => CheckGeneralGallery(output));
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));

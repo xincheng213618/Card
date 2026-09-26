@@ -32,7 +32,9 @@ public sealed class SeatViewModel : ObservableObject
     public bool HasChunlao => ChunlaoText.Length > 0;
     public bool HasAlcoholEffect { get; init; }
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
-    public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);
+    private GeneralPortraitViewModel? _portrait;
+    public GeneralPortraitViewModel Portrait { get => _portrait ??= new(GeneralId); init => _portrait = value; }
+    public Brush PortraitBrush => Portrait.Brush;
     public string? TeamId { get; init; }
     public bool IsTeammate { get; init; }
     public string DecisionRoleLabel { get; init; } = string.Empty;

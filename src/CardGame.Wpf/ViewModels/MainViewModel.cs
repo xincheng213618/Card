@@ -586,6 +586,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 GeneralChoices.Add(new GeneralChoiceViewModel
                 {
                     GeneralId = choice.ContentIds[0],
+                    Portrait = GetGeneralPortrait(choice.ContentIds[0]),
                     ChoiceId = choice.Id,
                     Text = choice.Description,
                     Name = general.Name,
@@ -787,10 +788,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 Seat = player.Seat,
                 GeneralId = player.GeneralId,
+                Portrait = GetGeneralPortrait(player.GeneralId),
                 GeneralName = player.GeneralName,
                 IsNationalSeat = IsNationalSnapshot,
-                PrimaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, false, _game.RulesVersion) : null,
-                SecondaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, true, _game.RulesVersion) : null,
+                PrimaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, false, _game.RulesVersion, GetGeneralPortrait) : null,
+                SecondaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, true, _game.RulesVersion, GetGeneralPortrait) : null,
                 RelationshipLabel = IsNationalSnapshot ? NationalRelationship(player) : string.Empty,
                 SecondaryGeneralText = IsNationalSnapshot ? $"副将：{player.SecondaryGeneralName ?? (player.IsHuman ? "待选" : "暗将")}" +
                     (player.IsHuman && player.SecondaryGeneralName is not null && !player.IsSecondaryGeneralPublic ? "·暗" : "") : string.Empty,

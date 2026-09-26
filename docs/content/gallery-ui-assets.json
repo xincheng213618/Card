@@ -1,0 +1,575 @@
+{
+  "description": "Original game UI pixels; atlas frame coordinates are in texture pixels. Where an atlas sprite is trimmed, transparent padding is restored to sourceSize at spriteSourceSize x/y. No scaling or repainting is performed. sha256 is the SHA-256 of each output PNG.",
+  "sourceDiscovery": "4399iw2.com game resource URLs in Chrome Default/Cache/Cache_Data/data_4; public CDN copies saved to .artifacts/portrait-refresh/cache-extracted.",
+  "items": [
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-detail-background.png",
+      "width": 1002,
+      "height": 748,
+      "sha256": "07b374c6b901f13b313d36cc1fb41de382c5673c97c74f8634f412f84afbf642",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalinfoBg.webp?v=12946231637",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalinfoBg.atlas?v=9239552217",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalinfoBg.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalinfoBg.atlas",
+      "frameKey": "GeneralInfoLifeBg.png",
+      "frame": {
+        "idx": 0,
+        "x": 4,
+        "y": 436,
+        "w": 1002,
+        "h": 748
+      },
+      "sourceSize": {
+        "w": 1002,
+        "h": 748
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 1002,
+        "h": 748
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-skill-background.png",
+      "width": 1004,
+      "height": 424,
+      "sha256": "30642a5146192d6dd923df92df68d7eeeec62d26b38458c7279485682d3e89c3",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalinfoBg.webp?v=12946231637",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalinfoBg.atlas?v=9239552217",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalinfoBg.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalinfoBg.atlas",
+      "frameKey": "GeneralInfo_skill_bg.png",
+      "frame": {
+        "idx": 0,
+        "x": 4,
+        "y": 4,
+        "w": 1004,
+        "h": 424
+      },
+      "sourceSize": {
+        "w": 1004,
+        "h": 424
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 1004,
+        "h": 424
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-skill-title.png",
+      "width": 192,
+      "height": 26,
+      "sha256": "f85664e356b51303c9a4fab75808d9b5c78cd3a62d32fd991bce419ac11359af",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalinfoBg.webp?v=12946231637",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalinfoBg.atlas?v=9239552217",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalinfoBg.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalinfoBg.atlas",
+      "frameKey": "GeneralInfo_skill_title.png",
+      "frame": {
+        "idx": 0,
+        "x": 180,
+        "y": 1192,
+        "w": 192,
+        "h": 26
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 26
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 26
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-skin-title.png",
+      "width": 674,
+      "height": 60,
+      "sha256": "772fe80927f02645fa2cfe8e767c824c90b610f50c6619b2797763232b2a5095",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalInfo.webp?v=17376085897",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generalInfo.atlas?v=7669219857",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalInfo.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generalInfo.atlas",
+      "frameKey": "GeneralInfo_skin_titile.png",
+      "frame": {
+        "idx": 0,
+        "x": 4,
+        "y": 114,
+        "w": 674,
+        "h": 60
+      },
+      "sourceSize": {
+        "w": 674,
+        "h": 60
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 674,
+        "h": 60
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-tab-normal.png",
+      "width": 354,
+      "height": 66,
+      "sha256": "0e5bbda59a8f2ff0f34bca4e06ee709d88caa87b03dd39312f650940ca69133a",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.webp?v=-4321015377",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.atlas?v=-16547105947",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.atlas",
+      "frameKey": "general_tab_bg.png",
+      "frame": {
+        "idx": 0,
+        "x": 1636,
+        "y": 636,
+        "w": 354,
+        "h": 66
+      },
+      "sourceSize": {
+        "w": 354,
+        "h": 66
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 354,
+        "h": 66
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-tab-selected.png",
+      "width": 144,
+      "height": 48,
+      "sha256": "461ed5bc580a39872dbf22f6bec1f116df12f6d64bf407764bc894a5e5d4f072",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.webp?v=-4321015377",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.atlas?v=-16547105947",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.atlas",
+      "frameKey": "general_tabBtn_selected.png",
+      "frame": {
+        "idx": 0,
+        "x": 4,
+        "y": 1764,
+        "w": 144,
+        "h": 48
+      },
+      "sourceSize": {
+        "w": 144,
+        "h": 48
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 144,
+        "h": 48
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-close-normal.png",
+      "width": 30,
+      "height": 30,
+      "sha256": "a4b687378b43a3413be5259a43df635f87ebecdb76e873288944c8bbfdcebb53",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.webp?v=-4321015377",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.atlas?v=-16547105947",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.atlas",
+      "frameKey": "general_closeBtn_up.png",
+      "frame": {
+        "idx": 0,
+        "x": 1978,
+        "y": 986,
+        "w": 30,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 30,
+        "h": 30
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-close-hover.png",
+      "width": 30,
+      "height": 30,
+      "sha256": "9a73d39cd7c01a24f6a2ac065f162be1b974a424bcec2e9850c62a0015ee21ec",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.webp?v=-4321015377",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/window/generals.atlas?v=-16547105947",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/window/generals.atlas",
+      "frameKey": "general_closeBtn_over.png",
+      "frame": {
+        "idx": 0,
+        "x": 1978,
+        "y": 948,
+        "w": 30,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 30,
+        "h": 30
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-faction-wei.png",
+      "width": 156,
+      "height": 164,
+      "sha256": "5878f686a401295ea10654000a00e2ee3064b4db252a93630b64f2c06e389409",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_icon_wei.png",
+      "frame": {
+        "idx": 0,
+        "x": 168,
+        "y": 592,
+        "w": 156,
+        "h": 164
+      },
+      "sourceSize": {
+        "w": 156,
+        "h": 164
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 156,
+        "h": 164
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-faction-shu.png",
+      "width": 156,
+      "height": 164,
+      "sha256": "688d8204a957ca422ff57bcae08b20b6dc4cb3574bb96e7cb433398ce166cd0f",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_icon_shu.png",
+      "frame": {
+        "idx": 0,
+        "x": 332,
+        "y": 482,
+        "w": 156,
+        "h": 164
+      },
+      "sourceSize": {
+        "w": 156,
+        "h": 164
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 156,
+        "h": 164
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-faction-wu.png",
+      "width": 156,
+      "height": 164,
+      "sha256": "9836886d15f0467aa7cfa82f3197197e9ec83d07a77a5fdca32df36afc345d18",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_icon_wu.png",
+      "frame": {
+        "idx": 0,
+        "x": 4,
+        "y": 826,
+        "w": 156,
+        "h": 164
+      },
+      "sourceSize": {
+        "w": 156,
+        "h": 164
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 156,
+        "h": 164
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-faction-qun.png",
+      "width": 156,
+      "height": 164,
+      "sha256": "245e04a91075b9e8675ee8e91665f9f0d1e4ed09a49d2c9a9f2b01ca638c0e0c",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_icon_qun.png",
+      "frame": {
+        "idx": 0,
+        "x": 332,
+        "y": 310,
+        "w": 156,
+        "h": 164
+      },
+      "sourceSize": {
+        "w": 156,
+        "h": 164
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 156,
+        "h": 164
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-faction-shen.png",
+      "width": 156,
+      "height": 164,
+      "sha256": "56464b7b7a5ea684bff07a6a82ec92ef039083b1802c33b4d2f9dacfd0e65622",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_icon_shen.png",
+      "frame": {
+        "idx": 0,
+        "x": 168,
+        "y": 420,
+        "w": 156,
+        "h": 164
+      },
+      "sourceSize": {
+        "w": 156,
+        "h": 164
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 156,
+        "h": 164
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-faction-jin.png",
+      "width": 156,
+      "height": 164,
+      "sha256": "6b1535c8fd0ed1ec666f2544010fb695209f771ae75dd661fe69e6069ee5b49f",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_icon_jin.png",
+      "frame": {
+        "idx": 0,
+        "x": 4,
+        "y": 248,
+        "w": 156,
+        "h": 164
+      },
+      "sourceSize": {
+        "w": 156,
+        "h": 164
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 156,
+        "h": 164
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-hp-empty.png",
+      "width": 54,
+      "height": 54,
+      "sha256": "05bd24bd9b5e2eb7217e03aeddfd4ee1fac4a6bba2c6199999006af953b173e8",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_blood_empty_hp.png",
+      "frame": {
+        "idx": 0,
+        "x": 420,
+        "y": 4,
+        "w": 54,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 54
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 54,
+        "h": 54
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-hp-wei.png",
+      "width": 54,
+      "height": 54,
+      "sha256": "f4541d69d7de77530d2e01c328d4503647f626b350d397c2a4a776c101c03f3a",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_wei_hp.png",
+      "frame": {
+        "idx": 0,
+        "x": 404,
+        "y": 190,
+        "w": 54,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 54
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 54,
+        "h": 54
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-hp-shu.png",
+      "width": 54,
+      "height": 54,
+      "sha256": "80d94c616798dd55c4f93e79eafc92cd7e8ba07c7a1da6a769323f0d4dae3f94",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_shu_hp.png",
+      "frame": {
+        "idx": 0,
+        "x": 404,
+        "y": 128,
+        "w": 54,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 54
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 54,
+        "h": 54
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-hp-wu.png",
+      "width": 54,
+      "height": 54,
+      "sha256": "c6be4d2a238c3974598e78307d732326e3d056ff442239f31ffc2fa268bddfef",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_wu_hp.png",
+      "frame": {
+        "idx": 0,
+        "x": 332,
+        "y": 248,
+        "w": 54,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 54
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 54,
+        "h": 54
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-hp-qun.png",
+      "width": 54,
+      "height": 54,
+      "sha256": "9e871bf055560b78de56430224394e1ab4e7463dd480f3f48a291a062b6e19e5",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_qun_hp.png",
+      "frame": {
+        "idx": 0,
+        "x": 420,
+        "y": 66,
+        "w": 54,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 54
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 54,
+        "h": 54
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-hp-jin.png",
+      "width": 52,
+      "height": 54,
+      "sha256": "a6f9985124c34f1d0fb88fbbc2757e2622c5843ff7a5e277e4da0747f1d51da7",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.webp?v=-13325342087",
+      "sourceAtlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin.atlas?v=-20110378407",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.webp",
+      "sourceAtlasFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin.atlas",
+      "frameKey": "bigSkin_jin_hp.png",
+      "frame": {
+        "idx": 0,
+        "x": 66,
+        "y": 764,
+        "w": 52,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 52,
+        "h": 54
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 52,
+        "h": 54
+      }
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/gallery-portrait-frame.png",
+      "width": 714,
+      "height": 970,
+      "sha256": "1db1b85a1abacb3d2c015c235c95d9e2ec6ba7edcaac63cd972ca01ad649613a",
+      "sourceTextureUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigSkin/bigSkin_frame_level3.png",
+      "sourceTextureFile": ".artifacts/portrait-refresh/cache-extracted/assets/bigSkin/bigSkin_frame_level3.png",
+      "copy": "Byte-for-byte copy of the standalone transparent PNG; no atlas frame."
+    }
+  ]
+}

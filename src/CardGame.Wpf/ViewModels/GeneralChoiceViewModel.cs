@@ -18,12 +18,18 @@ public sealed class GeneralChoiceViewModel : ObservableObject
     public string HealthText { get; init; } = string.Empty;
     public string HealthDescription { get; init; } = string.Empty;
     public bool HasHealthPreview => HealthText.Length > 0;
-    public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);
+    private GeneralPortraitViewModel? _portrait;
+    public GeneralPortraitViewModel Portrait { get => _portrait ??= new(GeneralId); init => _portrait = value; }
+    public Brush PortraitBrush => Portrait.Brush;
     public bool IsPreviewSelected { get => _isPreviewSelected; set => SetProperty(ref _isPreviewSelected, value); }
 }
 
 public sealed class GeneralGalleryEntryViewModel
 {
+    private GeneralPortraitViewModel? _portrait;
+    public GeneralPortraitViewModel Portrait { get => _portrait ??= new(GeneralId); init => _portrait = value; }
+    public IReadOnlyList<GeneralGallerySkill> Skills { get; init; } = [];
+    public IReadOnlyList<GeneralSkin> Skins => GeneralArt.GetSkins(GeneralId);
     public required string GeneralId { get; init; }
     public required string SeriesId { get; init; }
     public required string SeriesName { get; init; }
@@ -37,6 +43,8 @@ public sealed class GeneralGalleryEntryViewModel
     public required string SkillDescription { get; init; }
     public string VerticalName => string.Join("\n", Name.Replace("SP", string.Empty, StringComparison.Ordinal).Trim().ToCharArray());
     public string AccessibilityText => $"{Name}，{Kingdom}，{GroupName}，{HealthText}，{SkillName}";
+    public string FactionImage => $"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-faction-{(FactionId == "god" ? "shen" : FactionId is "wei" or "shu" or "wu" ? FactionId : "qun")}.png";
+    public IReadOnlyList<string> HealthImages { get; init; } = [];
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
     public Brush FactionBrush => FactionId switch
     {
@@ -46,7 +54,7 @@ public sealed class GeneralGalleryEntryViewModel
         "god" => Brushes.Gold,
         _ => Brushes.Wheat
     };
-    public Brush PortraitBrush => GeneralArt.GetPortrait(GeneralId);
+    public Brush PortraitBrush => Portrait.Brush;
 }
 
 public sealed record GeneralGalleryFactionOption(string Id, string Name);
