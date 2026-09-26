@@ -73,11 +73,12 @@ public static class GeneralGalleryCatalog
         Add("myth-forest", "xu-huang sun-jian meng-huo zhu-rong");
         Add("fame-1", "yu-jin xu-shu gao-shun");
         Add("fame-2", "cao-zhang wang-yi xun-you zhong-hui ma-dai liao-hua guan-xing-zhang-bao bu-lian-shi cheng-pu han-dang liu-biao");
-        Add("fame-3", "cao-chong guo-huai man-chong guan-ping");
+        Add("fame-3", "cao-chong guo-huai man-chong guan-ping pan-zhang-ma-zhong");
         Add("fame-4", "gu-yong zhu-huan");
         Add("fame-5", "zhu-zhi");
         Add("god", "shen-guan-yu");
         Add("sp", "gongsun-zan");
+        groups.Add("sp:le-jin", "sp");
         Add("myth-yin", "yan-yan");
         groups.Add("boundary:zhang-jiao", "boundary");
         groups.Add("boundary:sima-yi", "boundary");
@@ -88,6 +89,7 @@ public static class GeneralGalleryCatalog
         groups.Add("boundary:zhang-liao", "boundary");
         groups.Add("boundary:gan-ning", "boundary");
         groups.Add("boundary:xu-chu", "boundary");
+        groups.Add("boundary:zhou-yu", "boundary");
         return groups;
 
         void Add(string group, string ids)

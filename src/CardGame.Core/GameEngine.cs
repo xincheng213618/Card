@@ -18786,7 +18786,7 @@ public sealed partial class GameEngine
     {
         var index = _resolutionStack.FindLastIndex(frame => frame.Id == frameId);
         if (index < 0 || _resolutionStack[index] is not
-            (CardUseFrame or ActiveSkillFrame or JudgmentFrame or ProgramJudgmentTriggerWindowFrame))
+            (CardUseFrame or ActiveSkillFrame or ProgramSkillFrame or JudgmentFrame or ProgramJudgmentTriggerWindowFrame))
         {
             throw new InvalidOperationException(
                 $"Resolution frame {frameId} cannot own a response window.");
@@ -20642,7 +20642,7 @@ public sealed partial class GameEngine
         }
 
         var baseAmount = attack.DamageAmount;
-        var programDamageModifiers = attack.EffectiveCardKind is { } effectiveKind
+        var turnDamageModifiers = attack.EffectiveCardKind is { } effectiveKind
             ? _turnCardUseEffects.GetDamageModifiers(
                 _turnNumber,
                 _currentSeat,
@@ -20651,6 +20651,10 @@ public sealed partial class GameEngine
                 effectiveKind,
                 attack.IsChainPropagation)
             : [];
+        var programDamageModifiers = turnDamageModifiers
+            .Select(modifier => (modifier.Source, modifier.Amount))
+            .Concat(GetPassiveProgramDamageModifiers(attack))
+            .ToArray();
         var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount);
         var receivesGudingBladeBonus = UsesFormalGudingBlade &&
             !attack.IsChainPropagation &&
@@ -20754,6 +20758,34 @@ public sealed partial class GameEngine
         }
 
         return attack.DamageAmount;
+    }
+
+    private IReadOnlyList<(CardUseEffectSource Source, int Amount)> GetPassiveProgramDamageModifiers(
+        AttackResolution attack)
+    {
+        if (_rulesVersion < 166 || _contentRegistry is null || attack.IsChainPropagation ||
+            attack.IsActiveSkillDamage || attack.IsDelayedJudgmentDamage || attack.IsLeijiDamage ||
+            attack.IsProgramJudgmentDamage || attack.CardUserSeat != attack.SourceSeat ||
+            attack.EffectiveCardKind is not { } effectiveKind ||
+            !IsValidPlayerSeat(attack.SourceSeat) || !IsValidPlayerSeat(attack.TargetSeat) ||
+            !_players[attack.SourceSeat].IsAlive || !_players[attack.TargetSeat].IsAlive)
+            return [];
+
+        return (GetSkillBindingShard(_players[attack.SourceSeat])?.ProgramInstances ?? [])
+            .SelectMany(instance => instance.Program.DamageModifiers.Select(modifier =>
+                (instance, modifier)))
+            .Where(item => item.modifier.CardKinds.Contains(effectiveKind) &&
+                (item.modifier.Condition switch
+                {
+                    SkillProgramDamageModifierCondition.Always => true,
+                    SkillProgramDamageModifierCondition.SourceOutsideTargetAttackRange =>
+                        GetCombatDistance(attack.TargetSeat, attack.SourceSeat) >
+                        GetAttackRange(attack.TargetSeat),
+                    _ => false
+                }))
+            .Select(item => (new CardUseEffectSource(item.instance.SkillId, item.modifier.Id,
+                attack.SourceSeat, item.instance.SkillInstanceId), item.modifier.Amount))
+            .ToArray();
     }
 
     private static string GetSuitName(Suit suit) => suit switch

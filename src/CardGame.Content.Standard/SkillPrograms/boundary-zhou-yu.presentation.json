@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:yingzi": {
+      "name": "英姿",
+      "description": "锁定技，摸牌阶段你额外摸一张牌；你的手牌上限不会因体力值减少而降低。"
+    },
+    "boundary:fanjian": {
+      "name": "反间",
+      "description": "出牌阶段限一次，你可以展示一张手牌并将之交给一名其他角色，然后该角色选择：展示所有手牌并弃置与所给牌花色相同的所有手牌和装备牌；或失去1点体力。",
+      "optionLabels": {
+        "discard": "展示所有手牌，弃置与所给牌同花色的手牌和装备牌。",
+        "lose-hp": "失去1点体力。"
+      }
+    }
+  }
+}

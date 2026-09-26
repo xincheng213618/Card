@@ -20,6 +20,7 @@ internal static class ProgramCompositionValidator
         var targetSetConsumed = false;
         var pindianResults = new HashSet<string>(StringComparer.Ordinal);
         var choiceResults = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        var frozenSuitBindings = new HashSet<string>(StringComparer.Ordinal);
         var typedCardAtoms = effects.Any(effect => effect.Op == SkillProgramEffectOp.FilterBoundCards &&
             (effect.CardCategories.Count > 0 || effect.EquipmentSlots.Count > 0 || effect.CardKinds.Count > 0));
         var coverageResults = new HashSet<string>(StringComparer.Ordinal);
@@ -43,6 +44,13 @@ internal static class ProgramCompositionValidator
                     SkillProgramConditionKind.BoundCardsMatchCategories or
                     SkillProgramConditionKind.BoundCardsMatchKinds)
                     _ = Get(condition.SourceBind!);
+                if (condition.Kind == SkillProgramConditionKind.BoundCardCountAtLeast)
+                {
+                    var bound = Get(condition.SourceBind!);
+                    if (effect.Op != SkillProgramEffectOp.ChooseOption ||
+                        bound.CardOwner != effect.Target || bound.Root.AlreadyMoved)
+                        Fail("bound-card count option must read the chooser's own stable cards");
+                }
                 if (condition.Kind == SkillProgramConditionKind.AttackRangeCoverageDecreased &&
                     !coverageResults.Contains(condition.SourceBind!))
                     Fail($"unknown attack-range coverage result binding '{condition.SourceBind}'");
@@ -60,16 +68,24 @@ internal static class ProgramCompositionValidator
                 {
                     case CreateCardSet create:
                     {
-                        var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup, typedCardAtoms);
+                        var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup,
+                            typedCardAtoms, create.AlreadyMoved);
                         roots.Add(root);
-                        Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount));
+                        Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount, create.CardOwner));
+                        if (create.AlreadyMoved)
+                        {
+                            root.Consumed.UnionWith(root.Atoms.Keys);
+                            if (!frozenSuitBindings.Add(create.Name) || create.MaxCount != 1)
+                                Fail("revealed transfer needs a unique single-card metadata binding");
+                        }
                         break;
                     }
                     case CaptureSourceCard sourceCard:
                     {
                         var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand, typedCardAtoms);
                         roots.Add(root);
-                        Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), sourceCard.MaximumCount));
+                        Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), sourceCard.MaximumCount,
+                            sourceCard.CardOwner));
                         break;
                     }
                     case CaptureActivationCards activationCards:
@@ -92,6 +108,8 @@ internal static class ProgramCompositionValidator
                     }
                     case DeriveCardSet derive:
                     {
+                        if (derive.MatchSuitOfBind is { } frozen && !frozenSuitBindings.Contains(frozen))
+                            Fail($"unknown public frozen suit binding '{frozen}'");
                         var source = Get(derive.Source);
                         if (source.Atoms.Overlaps(source.Root.Consumed) || source.Atoms.Overlaps(source.Root.PossiblyGifted))
                             Fail("a derived set reads cards that may already have moved");
@@ -119,6 +137,7 @@ internal static class ProgramCompositionValidator
                         else
                         {
                             atoms = source.Atoms.Where(atom =>
+                                    derive.MatchSuitOfBind is not null ||
                                     ProgramCardSetFilter.Matches(source.Root.Atoms[atom].Kind,
                                         source.Root.Atoms[atom].Suit, derive.Suits,
                                         derive.Categories ?? [], derive.EquipmentSlots ?? [],
@@ -127,7 +146,7 @@ internal static class ProgramCompositionValidator
                         }
                         if (source.Root.Atoms.Count > 4096)
                             Fail("symbolic card partitions exceed the bounded composition limit");
-                        Add(derive.Result, new(source.Root, atoms, maximum));
+                        Add(derive.Result, new(source.Root, atoms, maximum, source.CardOwner));
                         if (derive.SelectionMaximum is not null)
                         {
                             try
@@ -263,11 +282,13 @@ internal static class ProgramCompositionValidator
     private static InvalidOperationException Error(string path, string message) =>
         new($"Invalid skill program at {path}: {message}.");
 
-    private sealed class Root(string name, bool needsCleanup, bool ownerHeld, bool typedCardAtoms)
+    private sealed class Root(string name, bool needsCleanup, bool ownerHeld, bool typedCardAtoms,
+        bool alreadyMoved = false)
     {
         internal string Name { get; } = name;
         internal bool NeedsCleanup { get; } = needsCleanup;
         internal bool OwnerHeld { get; } = ownerHeld;
+        internal bool AlreadyMoved { get; } = alreadyMoved;
         internal Dictionary<int, (CardKind Kind, Suit Suit)> Atoms { get; } =
             (typedCardAtoms
                 ? Enum.GetValues<CardKind>()
@@ -281,5 +302,6 @@ internal static class ProgramCompositionValidator
         internal HashSet<int> PossiblyGifted { get; } = [];
     }
 
-    private sealed record Binding(Root Root, HashSet<int> Atoms, int MaximumCount);
+    private sealed record Binding(Root Root, HashSet<int> Atoms, int MaximumCount,
+        SkillProgramEffectTarget? CardOwner = null);
 }

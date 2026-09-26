@@ -100,6 +100,7 @@ internal static class GeneralGalleryChecks
                            .SequenceEqual(Enumerable.Range(1, 7).Select(index => $"fame-{index}")),
             "Fame must keep all seven numbered groups, including currently empty groups.");
         vm.SelectGeneralGalleryGroupCommand.Execute("fame-3");
+        var fullFameThreeIds = vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet();
         vm.SelectGeneralGalleryFactionCommand.Execute("wei");
         Program.Assert(vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
                            .SetEquals(["classic:cao-chong", "classic:guo-huai", "classic:man-chong"]),
@@ -108,7 +109,8 @@ internal static class GeneralGalleryChecks
         Program.Assert(vm.HasNoGeneralGalleryResults, "No-match search needs a visible empty state.");
         vm.ClearGeneralGalleryFiltersCommand.Execute(null);
         Program.Assert(vm.SelectedGeneralGallerySeries == "fame" && vm.SelectedGeneralGalleryGroup == "fame-3" &&
-                       vm.GeneralGalleryEntries.Count == 4, "Clearing search should preserve the active series and pack.");
+                       vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet().SetEquals(fullFameThreeIds),
+            "Clearing search should preserve the active series and pack and restore every member.");
         vm.SelectGeneralGalleryGroupCommand.Execute("fame-7");
         Program.Render(root, 1120, 740, Path.Combine(output, "145-gallery-fame-seven.png"));
         Program.Assert(vm.GeneralGalleryGroups is [{ IsEmpty: true, Id: "fame-7" }] && vm.GeneralGalleryEntries.Count == 0,

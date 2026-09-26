@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 56,
+  "skills": [
+    {
+      "id": "classic:duodao",
+      "revision": 1,
+      "minimumRulesVersion": 166,
+      "triggers": [
+        {
+          "id": "discard-and-take-weapon",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "damageCardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"], "count": 1,
+              "destination": "discardPile", "awaitMovementTriggers": true
+            },
+            {
+              "op": "selectSourceCard", "target": "owner", "cardSource": "damageSource",
+              "zones": ["equipment"], "equipmentSlots": ["weapon"],
+              "resultBind": "weapon", "skipIfNoCards": true, "allowSameSource": true
+            },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "weapon", "destination": "ownerHand" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:anjian",
+      "revision": 1,
+      "minimumRulesVersion": 166,
+      "damageModifiers": [
+        {
+          "id": "outside-target-range",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "amount": 1,
+          "condition": "sourceOutsideTargetAttackRange"
+        }
+      ]
+    }
+  ]
+}

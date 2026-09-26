@@ -1,0 +1,17 @@
+{
+  "generalId": "classic:pan-zhang-ma-zhong",
+  "skillIds": ["classic:duodao", "classic:anjian"],
+  "versionDecision": "Fame III, using the 2015 OL announcement wording. The current hero page has a narrower Duodao condition and is not substituted for the selected historical text.",
+  "skillSource": "https://www.sanguosha.com/news/20151019_8991_0814",
+  "seriesSource": "https://www.sanguosha.com/news/20150928_5653_3409",
+  "heroPage": "https://www.sanguosha.com/hero/180",
+  "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/131601.png",
+  "localPath": "src/CardGame.Wpf/Assets/official-pan-zhang-ma-zhong.png",
+  "sha256": "01bbec80c39eaf1477f248a77ddc0d29e1e18b65b89d3dd92e96294e36647501",
+  "pixelWidth": 574,
+  "pixelHeight": 761,
+  "sourceLimitations": [
+    "The readable 2015 official announcement verifies skill wording and Fame III membership, but does not explicitly state four HP; four HP was corroborated in secondary material and is not presented as a quote from that announcement.",
+    "No contemporaneous FAQ was obtained for a cost-triggered movement removing the source weapon. Implementation reuses the existing nested movement ordering and re-reads the source equipment afterwards."
+  ]
+}

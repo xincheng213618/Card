@@ -184,7 +184,8 @@ internal sealed class SelectSourceCardProgramOperationDescriptor : ProgramOperat
         static (effect, context) => context.SelectSourceCard(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "cardSource", "zones", "resultBind", "condition");
+        r.AllowOnly("op", "target", "cardSource", "zones", "resultBind", "condition",
+            "equipmentSlots", "skipIfNoCards", "allowSameSource");
         var cardSource = r.Has("cardSource")
             ? r.RequiredEnum<SkillProgramCardSource>("cardSource")
             : SkillProgramCardSource.DamageSource;
@@ -195,9 +196,18 @@ internal sealed class SelectSourceCardProgramOperationDescriptor : ProgramOperat
             cardSource != SkillProgramCardSource.Owner && zones.Any(zone => zone is not
                 (CardZoneKind.Hand or CardZoneKind.Equipment)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: requires hand/equipment or an owned persistent pile.");
+        var equipmentSlots = r.Has("equipmentSlots")
+            ? r.RequiredEnumArray<EquipmentSlot>("equipmentSlots") : [];
+        if (r.Has("equipmentSlots") && (equipmentSlots.Count == 0 ||
+            equipmentSlots.Distinct().Count() != equipmentSlots.Count ||
+            !zones.Contains(CardZoneKind.Equipment)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.equipmentSlots: requires distinct slots and an equipment zone.");
+        var skipIfNoCards = r.Has("skipIfNoCards") && r.RequiredBool("skipIfNoCards");
+        var allowSameSource = r.Has("allowSameSource") && r.RequiredBool("allowSameSource");
         var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0,
             r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), zones: zones,
-            cardSource: cardSource);
+            cardSource: cardSource, equipmentSlots: equipmentSlots,
+            skipIfNoCards: skipIfNoCards, allowSameSource: allowSameSource);
         RequireAlways(effect, r.Path);
         return effect;
     }

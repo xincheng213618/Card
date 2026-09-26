@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "sp:xiaoguo": {
+      "name": "骁果",
+      "description": "其他角色的结束阶段开始时，你可以弃置一张基本牌，令其选择一项：弃置一张装备牌（可以是手牌或装备区里的牌），然后你摸一张牌；或受到你造成的1点伤害。",
+      "optionLabels": {
+        "discard-equipment": "弃置一张装备牌，令乐进摸一张牌。",
+        "take-damage": "受到乐进造成的1点伤害。"
+      }
+    }
+  }
+}

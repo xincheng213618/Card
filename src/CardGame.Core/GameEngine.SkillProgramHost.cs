@@ -54,7 +54,8 @@ public sealed partial class GameEngine
                 bind => engine.AreProgramBoundCardsSameColor(frame, bind),
                 (bind, categories) => engine.DoProgramBoundCardsMatchCategories(frame, bind, categories),
                 (bind, kinds) => engine.DoProgramBoundCardsMatchKinds(frame, bind, kinds),
-                bind => IsProgramAttackRangeCoverageDecreased(frame, bind));
+                bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
+                bind => engine.CountChooserProgramBoundCards(frame, bind, context.Seat));
         }
 
         public void UpdateFrame(ProgramSkillFrame frame)
@@ -236,9 +237,9 @@ public sealed partial class GameEngine
             IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null,
             IReadOnlyList<SkillProgramCardCategory>? categories = null,
             IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
-            IReadOnlyList<CardKind>? cardKinds = null) =>
+            IReadOnlyList<CardKind>? cardKinds = null, string? matchSuitOfBind = null) =>
             engine.FilterProgramBoundCards(frameId, sourceBind, resultBind, suits, effectiveSuitFor,
-                categories ?? [], equipmentSlots ?? [], cardKinds ?? []);
+                categories ?? [], equipmentSlots ?? [], cardKinds ?? [], matchSuitOfBind);
 
         public SkillProgramStepOutcome SelectCardSubset(long frameId, int ownerSeat, string sourceBind,
             string resultBind, int minimumCards, int maximumCards, int maximumRankSum,
@@ -295,8 +296,12 @@ public sealed partial class GameEngine
             int ownerSeat,
             SkillProgramCardSource cardSource,
             IReadOnlyList<CardZoneKind> zones,
-            string resultBind) =>
-            engine.SelectProgramSourceCard(frameId, ownerSeat, cardSource, zones, resultBind);
+            string resultBind,
+            IReadOnlyList<EquipmentSlot> equipmentSlots,
+            bool skipIfNoCards,
+            bool allowSameSource) =>
+            engine.SelectProgramSourceCard(frameId, ownerSeat, cardSource, zones, resultBind,
+                equipmentSlots, skipIfNoCards, allowSameSource);
 
         public SkillProgramStepOutcome GiveBoundCard(
             long frameId,
@@ -397,10 +402,11 @@ public sealed partial class GameEngine
             string? resultBind,
             CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
             bool skipIfNoCards = false, bool allowSameOwnerHandReturn = false,
-            string? coverageResultBind = null, bool awaitMovementTriggers = false) =>
+            string? coverageResultBind = null, bool awaitMovementTriggers = false,
+            bool revealBeforeMove = false) =>
             engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, destinationRef, resultBind,
                 reason, cardCategories, skipIfNoCards, allowSameOwnerHandReturn,
-                coverageResultBind, awaitMovementTriggers);
+                coverageResultBind, awaitMovementTriggers, revealBeforeMove);
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
             ProgramSkillFrame frame,

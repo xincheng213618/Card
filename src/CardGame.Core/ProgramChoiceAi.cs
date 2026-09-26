@@ -13,7 +13,8 @@ internal static class ProgramChoiceAi
     };
 
     internal static double Score(IEnumerable<SkillProgramEffect> effects, PlayerSkillContext owner,
-        PlayerSkillContext chooser, ProgramAiPublicContext context)
+        PlayerSkillContext chooser, ProgramAiPublicContext context,
+        Func<string, int?>? chooserOwnedBoundCardCount = null)
     {
         var score = 0d;
         var hp = chooser.Hp;
@@ -21,8 +22,24 @@ internal static class ProgramChoiceAi
         var chained = chooser.IsChained;
         foreach (var effect in effects.TakeWhile(effect => effect.Op != SkillProgramEffectOp.ChooseOption))
         {
-            if (!ProgramCompositionAi.EvaluateCondition(effect.Condition, owner, context) ||
-                Target(effect.Target, owner, context)?.Seat != chooser.Seat) continue;
+            if (!ProgramCompositionAi.EvaluateCondition(effect.Condition, owner, context)) continue;
+            if (effect.Op == SkillProgramEffectOp.MoveBoundCards &&
+                effect.Destination == SkillProgramCardDestination.DiscardPile &&
+                effect.SourceBind is { } bind && chooserOwnedBoundCardCount?.Invoke(bind) is { } cardCount)
+            {
+                score -= cardCount * 8d;
+                continue;
+            }
+            if (effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard &&
+                effect.CardOwnerRef?.Kind == ProgramParticipantRef.SelectedTarget &&
+                context.SelectedTarget?.Seat == chooser.Seat)
+            {
+                // The chooser knows its own card cost; its exact hidden card identity is not
+                // needed to compare a generic one-card payment with a visible damage effect.
+                score -= effect.CardCategories.Contains(SkillProgramCardCategory.Equipment) ? 10d : 8d;
+                continue;
+            }
+            if (Target(effect.Target, owner, context)?.Seat != chooser.Seat) continue;
             switch (effect.Op)
             {
                 case SkillProgramEffectOp.Draw:

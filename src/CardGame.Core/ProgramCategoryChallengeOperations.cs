@@ -36,7 +36,8 @@ internal sealed class RevealBoundCardsProgramOperationDescriptor : ProgramOperat
         var effect = new SkillProgramEffect(Op,
             FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0, reader.Condition(),
             sourceBind: reader.RequiredIdentifier("sourceBind"));
-        RequireAlways(effect, reader.Path);
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: reveal requires an unconditional or named-choice branch.");
         return effect;
     }
 

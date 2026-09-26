@@ -59,7 +59,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
     private readonly Version _version;
 
-    public static Version CurrentVersion { get; } = new(1, 140, 0);
+    public static Version CurrentVersion { get; } = new(1, 141, 0);
 
     public StandardClassicGeneralPackage(bool legacyRoster = false)
         : this(legacyRoster ? new Version(1, 0, 0) : CurrentVersion)
@@ -1484,6 +1484,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         if (_version >= new Version(1, 140, 0))
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-zhu-zhi", "classic:anguo"));
 
+        if (_version >= new Version(1, 141, 0))
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("sp-le-jin", "sp:xiaoguo"));
+
         if (_version >= new Version(1, 139, 0))
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-li-dian", "classic:xunxun"));
@@ -1525,6 +1528,24 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         if (_version >= new Version(1, 140, 0))
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-xu-chu", "boundary:luoyi"));
+
+        if (_version >= new Version(1, 141, 0))
+        {
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-zhou-yu", "boundary:yingzi"));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-zhou-yu", "boundary:fanjian"));
+        }
+
+        if (_version >= new Version(1, 141, 0))
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(
+                EmbeddedSkillProgramCatalog.Definition("classic-pan-zhang-ma-zhong", "classic:duodao")));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
+                "classic-pan-zhang-ma-zhong", "classic:anjian") with
+            {
+                Tags = SkillTag.Locked,
+                ExecutionForms = SkillExecutionForm.State
+            });
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -2180,6 +2201,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:zhu-zhi", "朱治", "zhu_zhi",
                 "classic:anguo", "wu", BaseHp: 4));
 
+        if (_version >= new Version(1, 141, 0))
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "sp:le-jin", "SP乐进", "sp_le_jin",
+                "sp:xiaoguo", "wei", BaseHp: 4));
+
         if (_version >= new Version(1, 139, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
@@ -2218,10 +2244,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "boundary:gan-ning", "界甘宁", "boundary_gan_ning",
                 "boundary:qixi", "wu", BaseHp: 4,
                 AdditionalSkillIds: ["boundary:fenwei"]));
+        if (_version >= new Version(1, 141, 0))
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:zhou-yu", "界周瑜", "boundary_zhou_yu",
+                "boundary:yingzi", "wu", BaseHp: 3,
+                AdditionalSkillIds: ["boundary:fanjian"]));
+        if (_version >= new Version(1, 141, 0))
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:pan-zhang-ma-zhong", "潘璋马忠", "pan_zhang_ma_zhong",
+                "classic:duodao", "wu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:anjian"]));
 
         var generalPoolIds = _version switch
         {
-            { Major: 1, Minor: >= 140 } => ExpandedClassic140GeneralIds,
+            { Major: 1, Minor: >= 141 } => ExpandedClassic141GeneralIds,
+            { Major: 1, Minor: 140 } => ExpandedClassic140GeneralIds,
             { Major: 1, Minor: >= 139 } => SharedExpansionClassicGeneralIds,
             { Major: 1, Minor: >= 97 } => GuanPingClassicGeneralIds,
             { Major: 1, Minor: 96 } => ManChongClassicGeneralIds,
@@ -2831,6 +2868,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhu-zhi",
         "boundary:xu-chu",
         "boundary:gan-ning"
+    ];
+
+    internal static IReadOnlyList<string> ExpandedClassic141GeneralIds { get; } =
+    [
+        .. ExpandedClassic140GeneralIds,
+        "boundary:zhou-yu",
+        "classic:pan-zhang-ma-zhong",
+        "sp:le-jin"
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

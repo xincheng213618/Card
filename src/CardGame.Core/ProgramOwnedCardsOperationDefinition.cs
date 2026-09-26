@@ -47,7 +47,8 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
         WithSelectedTarget(effect, [new CaptureSourceCard(effect.ResultBind!,
             effect.MaximumCards > 0 ? effect.MaximumCards :
                 effect.NumberExpression is null ? effect.Amount : int.MaxValue,
-            effect.Target == SkillProgramEffectTarget.Owner && effect.Zones.SequenceEqual([CardZoneKind.Hand]))]);
+            effect.Target == SkillProgramEffectTarget.Owner && effect.Zones.SequenceEqual([CardZoneKind.Hand]),
+            effect.Target)]);
 }
 
 public sealed class SelectOwnedCardsSkillProgramEffectHandler : ISkillProgramEffectHandler

@@ -12,7 +12,9 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(chooser);
         var choices = options.Where(option => option.Condition.EvaluateOption(context,
             () => GetClaimableProgramDamageCards(active).Length > 0,
-            bind => IsProgramAttackRangeCoverageDecreased(active, bind))).Select(option =>
+            bind => IsProgramAttackRangeCoverageDecreased(active, bind),
+            hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
+            boundCardCount: bind => CountChooserProgramBoundCards(active, bind, chooserSeat))).Select(option =>
             new PromptChoice(new ChoiceId($"program-option.frame-{frame.Id}.{resultBind}.{option.Id}"),
                 option.Label, [], [], new Dictionary<string, string>
                 {
@@ -59,9 +61,12 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The selected program option is unavailable.");
         var stillAvailable = option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
             () => GetClaimableProgramDamageCards(frame).Length > 0,
-            bind => IsProgramAttackRangeCoverageDecreased(frame, bind));
-        if (!stillAvailable && option.Condition.ContainsHasClaimableDamageCards())
-            throw new InvalidOperationException("The damage cards are no longer available for this choice.");
+            bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
+            hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
+            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat));
+        if (!stillAvailable && (option.Condition.ContainsHasClaimableDamageCards() ||
+            option.Condition.ContainsBoundCardCountAtLeast() || option.Condition.ContainsHasOwnedCardCategory()))
+            throw new InvalidOperationException("The selected option's required cards are no longer available.");
         ClearPendingDecision();
         if (!_players[chooserSeat].IsAlive || !stillAvailable ||
             !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
@@ -89,11 +94,25 @@ public sealed partial class GameEngine
             return true;
         var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id"));
         if (option is null) return true;
-        if (!option.Condition.ContainsHasClaimableDamageCards()) return true;
+        if (!option.Condition.ContainsHasClaimableDamageCards() &&
+            !option.Condition.ContainsBoundCardCountAtLeast() && !option.Condition.ContainsHasOwnedCardCategory()) return true;
         var chooserSeat = ResolveProgramEffectTarget(frame, effect.Target);
         return option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
             () => GetClaimableProgramDamageCards(frame).Length > 0,
-            bind => IsProgramAttackRangeCoverageDecreased(frame, bind));
+            bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
+            hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
+            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat));
+    }
+
+    private int CountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)
+    {
+        var cards = GetProgramCardSet(frame, bind);
+        if (cards.CardIds.Count != cards.SourceLocations.Count ||
+            cards.SourceLocations.Any(location => location.OwnerSeat != chooserSeat ||
+                location.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
+            throw new InvalidOperationException("A chooser cannot inspect another player's private card set.");
+        return cards.CardIds.Select((id, index) => (id, index))
+            .Count(item => _cardZones.GetLocation(item.id) == cards.SourceLocations[item.index]);
     }
 
     private static int ResolveProgramEffectTarget(ProgramSkillFrame frame, SkillProgramEffectTarget target) => target switch
@@ -119,14 +138,30 @@ public sealed partial class GameEngine
             BooleanState = stateId => GetProgramBooleanState(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId),
             PindianWon = bind => frame.PindianResultBindings.SingleOrDefault(item => item.Name == bind)?.SourceWon ?? false,
             HasClaimableDamageCards = effect.Options.Any(option => option.Condition.ContainsHasClaimableDamageCards()) &&
-                GetClaimableProgramDamageCards(frame).Length > 0
+                GetClaimableProgramDamageCards(frame).Length > 0,
+            HasOwnedCardCategory = (zones, categories) =>
+                (zones.Contains(CardZoneKind.Equipment) &&
+                 GetEquipment(_players[decision.PlayerSeat]).Any(card =>
+                     MatchesProgramCardCategory(card.Kind, categories))) ||
+                (zones.Contains(CardZoneKind.Hand) &&
+                 GetHand(_players[decision.PlayerSeat]).Any(card =>
+                     MatchesProgramCardCategory(card.Kind, categories)))
         };
         return decision.Choices.Select(choice =>
         {
             var facts = context with { ChoiceResult = bind => bind == choice.Parameters["result-bind"]
                 ? choice.Parameters["option-id"] : frame.ChoiceBindings.SingleOrDefault(item => item.Name == bind)?.OptionId };
-            var score = ProgramChoiceAi.Score(plan.Instructions.Skip(frame.InstructionIndex), owner, chooser, facts);
+            var score = ProgramChoiceAi.Score(plan.Instructions.Skip(frame.InstructionIndex + 1), owner, chooser,
+                facts, bind => TryCountChooserProgramBoundCards(frame, bind, decision.PlayerSeat));
             return (Choice: choice, Score: score);
         }).OrderByDescending(item => item.Score).ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).First().Choice;
+    }
+
+    private int? TryCountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)
+    {
+        var cards = frame.CardSetBindings.SingleOrDefault(item => item.Name == bind);
+        return cards is not null && cards.SourceLocations.All(location => location.OwnerSeat == chooserSeat &&
+            location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment)
+            ? CountChooserProgramBoundCards(frame, bind, chooserSeat) : null;
     }
 }

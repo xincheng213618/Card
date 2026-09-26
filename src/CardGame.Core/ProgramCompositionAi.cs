@@ -25,6 +25,7 @@ internal sealed record ProgramAiPublicContext(
     bool HasClaimableDamageCards = false,
     int? EligibleTargetCount = null,
     Func<string, bool>? AttackRangeCoverageDecreased = null,
+    Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, bool>? HasOwnedCardCategory = null,
     double CardEffectInterventionScore = 0d);
 
 /// <summary>
@@ -66,7 +67,8 @@ internal static class ProgramCompositionAi
                 if (chooser is null) continue;
                 var selected = effect.Options.Where(option => option.Condition.EvaluateOption(chooser,
                         () => supplied.HasClaimableDamageCards,
-                        facts.AttackRangeCoverageDecreased))
+                        facts.AttackRangeCoverageDecreased,
+                        hasOwnedCardCategory: facts.HasOwnedCardCategory))
                     .OrderByDescending(option => ProgramChoiceAi.Score(instructions.Skip(index + 1),
                         player, chooser, facts with { ChoiceResult = name => name == effect.ResultBind ? option.Id : facts.ChoiceResult!(name) }))
                     .ThenBy(option => option.Id, StringComparer.Ordinal).FirstOrDefault();

@@ -127,7 +127,8 @@ public interface ISkillProgramEffectHost
         ProgramParticipantReference? effectiveSuitFor = null,
         IReadOnlyList<SkillProgramCardCategory>? categories = null,
         IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
-        IReadOnlyList<CardKind>? cardKinds = null);
+        IReadOnlyList<CardKind>? cardKinds = null,
+        string? matchSuitOfBind = null);
     SkillProgramStepOutcome SelectCardSubset(
         long frameId,
         int ownerSeat,
@@ -181,7 +182,10 @@ public interface ISkillProgramEffectHost
         int ownerSeat,
         SkillProgramCardSource cardSource,
         IReadOnlyList<CardZoneKind> zones,
-        string resultBind);
+        string resultBind,
+        IReadOnlyList<EquipmentSlot> equipmentSlots,
+        bool skipIfNoCards,
+        bool allowSameSource);
     SkillProgramStepOutcome GiveBoundCard(
         long frameId,
         int ownerSeat,
@@ -255,7 +259,7 @@ public interface ISkillProgramEffectHost
         bool skipIfNoCards = false,
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
-        bool awaitMovementTriggers = false) =>
+        bool awaitMovementTriggers = false, bool revealBeforeMove = false) =>
         throw new InvalidOperationException("The host does not provide card-action payments.");
     SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
         ProgramSkillFrame frame,
@@ -395,7 +399,8 @@ public sealed class SelectSourceCardSkillProgramEffectHandler : ISkillProgramEff
             frame.OwnerSeat,
             effect.CardSource,
             effect.Zones,
-            effect.ResultBind ?? throw new InvalidOperationException("selectSourceCard has no result bind."));
+            effect.ResultBind ?? throw new InvalidOperationException("selectSourceCard has no result bind."),
+            effect.EquipmentSlots, effect.SkipIfNoCards, effect.AllowSameSource);
 }
 
 public sealed class GiveBoundCardSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -743,7 +748,7 @@ public sealed class FilterBoundCardsSkillProgramEffectHandler : ISkillProgramEff
             effect.TargetReference,
             effect.CardCategories,
             effect.EquipmentSlots,
-            effect.CardKinds);
+            effect.CardKinds, effect.MatchSuitOfBind);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -928,7 +933,7 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
         effect.ResultBind,
         new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
         effect.SkipIfNoCards, effect.AllowSameOwnerHandReturn,
-        effect.CoverageResultBind, effect.AwaitMovementTriggers);
+        effect.CoverageResultBind, effect.AwaitMovementTriggers, effect.RevealBeforeMove);
 }
 
 public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler

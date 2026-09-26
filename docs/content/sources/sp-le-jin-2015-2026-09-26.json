@@ -1,0 +1,12 @@
+{
+  "generalId": "sp:le-jin",
+  "skillId": "sp:xiaoguo",
+  "versionDecision": "2015-08-11 official SP Le Jin Xiaoguo; Wei four HP corroborated by later official hero material, not used to replace the 2015 skill text.",
+  "skillSource": "https://www.sanguosha.com/news/20150811_9880_0709",
+  "heroPage": "https://www.sanguosha.com/hero/121",
+  "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/12100.png",
+  "localPath": "src/CardGame.Wpf/Assets/official-sp-le-jin.png",
+  "sha256": "a9bd56eb8c819798bde278c642adf565d71fc7e57bfa4ecbfaf28747f1257b7f",
+  "pixelWidth": 750,
+  "pixelHeight": 950
+}

@@ -259,9 +259,12 @@ internal static class Program
             Check("formal Cao Chong renders official art, Chengxiang and Renxin prompts", () => CaoChongUiChecks.CardAndDamagePrompts(output));
             Check("formal Guo Huai renders official art and Jingce prompt", () => GuoHuaiUiChecks.CardAndJingcePrompt(output));
             Check("Gu Yong official portrait and fame-4 gallery", GuYongUiChecks.PortraitAndGallery);
+            Check("2015 SP Le Jin official portrait gallery and Wei battle seat", SpLeJinUiChecks.PortraitGalleryAndBattleSeat);
             Check("2019 boundary Guo Jia official portrait gallery and Wei battle seat", BoundaryGuoJiaUiChecks.PortraitGalleryAndBattleSeat);
             Check("2014 boundary Cao Cao official portrait gallery and Wei battle seat", BoundaryCaoCaoUiChecks.PortraitGalleryAndBattleSeat);
             Check("2014 boundary Xu Chu gallery and Wei battle seat", BoundaryXuChuUiChecks.GalleryAndBattleSeat);
+            Check("2014 boundary Zhou Yu official portrait gallery and Wu battle seat", BoundaryZhouYuUiChecks.GalleryPortraitAndBattleSeat);
+            Check("2013 Pan Zhang Ma Zhong official portrait gallery and Wu battle seat", PanZhangMaZhongUiChecks.PortraitGalleryAndWuBattleSeat);
             Check("2019 boundary Diao Chan renders its card and resolves Biyue", () => BoundaryDiaoChanUiChecks.BoundaryCardAndBiyuePrompt(output));
             Check("2018 boundary Zhang Liao renders private dynamic Tuxi targets", () => BoundaryZhangLiaoUiChecks.PortraitAndPrivateDrawPlan(output));
             Check("2014 boundary Gan Ning renders private Fenwei target subsets", () => BoundaryGanNingUiChecks.PrivateFenweiSubsetPrompt(output));

@@ -69,7 +69,11 @@ public sealed record ProgramSkillCardSetBinding(
     string Name,
     IReadOnlyList<int> CardIds,
     SkillProgramCardSetVisibility Visibility,
-    IReadOnlyList<CardLocation> SourceLocations);
+    IReadOnlyList<CardLocation> SourceLocations)
+{
+    /// <summary>Public suit frozen before a single-card transfer; remains readable if the card moves again.</summary>
+    public Suit? FrozenRevealedSuit { get; init; }
+}
 
 public sealed record ProgramBoundCardGivenEvent(
     long FrameId,
@@ -204,7 +208,8 @@ public sealed record TurnEndingBoundaryItem(
     TurnEndingBoundaryItemKind Kind,
     int Priority,
     string StableIdentity,
-    ProgramTriggerCandidate? Candidate = null);
+    ProgramTriggerCandidate? Candidate = null,
+    SkillProgramTriggerFacts? Facts = null);
 
 /// <summary>
 /// Serializable end-of-turn cursor. Program bindings resume this one frame

@@ -27,8 +27,10 @@ internal sealed record ProgramOperationAiPolicy(
     Action<SkillProgramEffect, ProgramAiEstimateContext> Apply);
 
 internal abstract record ProgramResourceOperation;
-internal sealed record CreateCardSet(string Name, int MaxCount, bool NeedsCleanup) : ProgramResourceOperation;
-internal sealed record CaptureSourceCard(string Name, int MaximumCount = 1, bool OwnerHand = false) : ProgramResourceOperation;
+internal sealed record CreateCardSet(string Name, int MaxCount, bool NeedsCleanup,
+    bool AlreadyMoved = false, SkillProgramEffectTarget? CardOwner = null) : ProgramResourceOperation;
+internal sealed record CaptureSourceCard(string Name, int MaximumCount = 1, bool OwnerHand = false,
+    SkillProgramEffectTarget? CardOwner = null) : ProgramResourceOperation;
 internal sealed record CaptureActivationCards(string Name) : ProgramResourceOperation;
 internal sealed record ReadSingleCardSet(string Name) : ProgramResourceOperation;
 internal sealed record SelectTargetSet(int Minimum, int Maximum) : ProgramResourceOperation;
@@ -37,7 +39,7 @@ internal sealed record DeriveCardSet(
     string Source, string Result, IReadOnlyList<Suit> Suits, int? SelectionMaximum = null,
     IReadOnlyList<SkillProgramCardCategory>? Categories = null,
     IReadOnlyList<EquipmentSlot>? EquipmentSlots = null,
-    IReadOnlyList<CardKind>? CardKinds = null) : ProgramResourceOperation;
+    IReadOnlyList<CardKind>? CardKinds = null, string? MatchSuitOfBind = null) : ProgramResourceOperation;
 internal sealed record ReadCardSet(string Name) : ProgramResourceOperation;
 internal sealed record MoveCardSet(string Source, string? Except, SkillProgramCardDestination Destination) : ProgramResourceOperation;
 internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
@@ -468,7 +470,7 @@ internal sealed class FilterBoundCardsProgramOperationDescriptor : ProgramOperat
         static (effect, context) => context.Filter(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "sourceBind", "resultBind", "suits", "categories", "equipmentSlots", "cardKinds", "effectiveSuitForRef", "condition");
+        r.AllowOnly("op", "target", "sourceBind", "resultBind", "suits", "categories", "equipmentSlots", "cardKinds", "effectiveSuitForRef", "matchSuitOfBind", "condition");
         var target = Owner(r);
         var source = r.RequiredIdentifier("sourceBind"); var result = r.RequiredIdentifier("resultBind");
         if (source == result) throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind and resultBind must differ.");
@@ -476,23 +478,27 @@ internal sealed class FilterBoundCardsProgramOperationDescriptor : ProgramOperat
         var categories = r.OptionalEnumArray<SkillProgramCardCategory>("categories") ?? [];
         var equipmentSlots = r.OptionalEnumArray<EquipmentSlot>("equipmentSlots") ?? [];
         var cardKinds = r.OptionalEnumArray<CardKind>("cardKinds") ?? [];
-        if (suits.Count + categories.Count + equipmentSlots.Count + cardKinds.Count == 0 ||
+        var matchSuitOfBind = r.Has("matchSuitOfBind") ? r.RequiredIdentifier("matchSuitOfBind") : null;
+        if (suits.Count + categories.Count + equipmentSlots.Count + cardKinds.Count == 0 && matchSuitOfBind is null ||
             r.Has("suits") && suits.Count == 0 || r.Has("categories") && categories.Count == 0 ||
             r.Has("equipmentSlots") && equipmentSlots.Count == 0 || r.Has("cardKinds") && cardKinds.Count == 0)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: filter arrays must be nonempty and at least one selector is required.");
+        if (matchSuitOfBind is not null && (r.Has("suits") || categories.Count + equipmentSlots.Count + cardKinds.Count > 0 ||
+            matchSuitOfBind == source || matchSuitOfBind == result))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: dynamic suit reference must be distinct from source/result and cannot mix with static filters.");
         if ((categories.Count + equipmentSlots.Count + cardKinds.Count) > 0 && r.Has("effectiveSuitForRef"))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: effectiveSuitForRef cannot be mixed with card-class filters.");
         var effectiveSuitForRef = r.Has("effectiveSuitForRef")
             ? r.RequiredParticipantReference("effectiveSuitForRef") : null;
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source, resultBind: result,
             suits: suits, cardCategories: categories, equipmentSlots: equipmentSlots,
-            cardKinds: cardKinds, targetReference: effectiveSuitForRef);
+            cardKinds: cardKinds, targetReference: effectiveSuitForRef, matchSuitOfBind: matchSuitOfBind);
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new DeriveCardSet(effect.SourceBind!, effect.ResultBind!, effect.Suits,
             Categories: effect.CardCategories, EquipmentSlots: effect.EquipmentSlots,
-            CardKinds: effect.CardKinds),
+            CardKinds: effect.CardKinds, MatchSuitOfBind: effect.MatchSuitOfBind),
             ..ParticipantResources(effect.TargetReference)];
     internal static SkillProgramEffectTarget Owner(ProgramOperationNodeReader r)
     {
@@ -554,7 +560,11 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
             exceptBind: except, destination: destination, destinationZone: destinationZone);
-        RequireAlways(effect, r.Path); return effect;
+        if (effect.Condition.Kind != SkillProgramConditionKind.Always &&
+            (effect.Condition.Kind != SkillProgramConditionKind.ChoiceIs ||
+             destination != SkillProgramCardDestination.DiscardPile))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: conditional card movement requires a named-choice discard branch.");
+        return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new MoveCardSet(effect.SourceBind!, effect.ExceptBind, effect.Destination!.Value)];

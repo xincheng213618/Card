@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 56,
+  "skills": [
+    {
+      "id": "boundary:yingzi",
+      "revision": 1,
+      "minimumRulesVersion": 166,
+      "modifiers": [
+        { "id": "extra-normal-draw", "query": "drawCount", "operation": "add",
+          "value": 1, "priority": 0 },
+        { "id": "lost-hp-hand-limit", "query": "handLimit", "operation": "add",
+          "valueExpression": "ownerLostHp", "priority": 0 }
+      ]
+    },
+    {
+      "id": "boundary:fanjian",
+      "revision": 1,
+      "minimumRulesVersion": 166,
+      "activations": [
+        {
+          "id": "show-and-give",
+          "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+          "targetKind": "otherLiving", "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "condition": { "kind": "handCountAtLeast", "value": 1 },
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"], "count": 1, "destination": "selectedTargetHand",
+              "targetRef": { "kind": "selectedTarget" }, "resultBind": "gift",
+              "revealBeforeMove": true, "awaitMovementTriggers": true },
+            { "op": "selectOwnedCards", "target": "selectedTarget",
+              "zones": ["hand", "equipment"], "numberExpression": "allOwnedZoneCards",
+              "resultBind": "recipient-cards" },
+            { "op": "filterBoundCards", "target": "owner", "sourceBind": "recipient-cards",
+              "resultBind": "matching", "matchSuitOfBind": "gift",
+              "effectiveSuitForRef": { "kind": "selectedTarget" } },
+            { "op": "selectOwnedCards", "target": "selectedTarget",
+              "zones": ["hand"], "numberExpression": "allOwnedZoneCards",
+              "resultBind": "recipient-hand" },
+            { "op": "chooseOption", "target": "selectedTarget", "resultBind": "penalty",
+              "options": [
+                { "id": "discard", "condition": { "kind": "boundCardCountAtLeast",
+                  "sourceBind": "matching", "value": 1 } },
+                { "id": "lose-hp", "condition": { "kind": "always" } }
+              ] },
+            { "op": "revealBoundCards", "target": "owner", "sourceBind": "recipient-hand",
+              "condition": { "kind": "choiceIs", "sourceBind": "penalty", "optionId": "discard" } },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "matching",
+              "destination": "discardPile",
+              "condition": { "kind": "choiceIs", "sourceBind": "penalty", "optionId": "discard" } },
+            { "op": "loseHp", "target": "selectedTarget", "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "penalty", "optionId": "lose-hp" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

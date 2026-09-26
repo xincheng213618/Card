@@ -34,7 +34,8 @@ public sealed partial class GameEngine
         bool skipIfNoCards = false,
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
-        bool awaitMovementTriggers = false)
+        bool awaitMovementTriggers = false,
+        bool revealBeforeMove = false)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var chooserSeat = ResolveProgramParticipant(active, chooser);
@@ -71,6 +72,11 @@ public sealed partial class GameEngine
         _status = _players[chooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         return SkillProgramStepOutcome.AwaitChoice;
     }
+
+    private bool HasOwnedProgramCardCategory(int ownerSeat,
+        IReadOnlyList<CardZoneKind> zones, IReadOnlyList<SkillProgramCardCategory> categories) =>
+        zones.Any(zone => _cardZones.CardsAt(new CardLocation(zone, ownerSeat))
+            .Any(card => MatchesProgramCardCategory(card.Kind, categories)));
 
     private IReadOnlyList<PromptChoice> BuildOwnedCardPaymentChoices(
         long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones,
@@ -190,6 +196,10 @@ public sealed partial class GameEngine
             };
         }
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
+        if (effect.RevealBeforeMove)
+            QueueGameEvent(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
+                GetProgramBindingId(frame), frame.OwnerSeat, effect.ResultBind!,
+                Array.AsReadOnly(new[] { ToSnapshot(card) })));
         if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
         {
             MoveCard(card, source, CardLocation.Processing, reason);
@@ -197,7 +207,9 @@ public sealed partial class GameEngine
         }
         else MoveCard(card, source, destination, reason);
         if (effect.ResultBind is { } bind)
-            SetProgramCardSet(frame.Id, bind, [card.Id], SkillProgramCardSetVisibility.Private, [destination]);
+            SetProgramCardSet(frame.Id, bind, [card.Id],
+                effect.RevealBeforeMove ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
+                [destination], effect.RevealBeforeMove ? card.Suit : null);
         if (effect.AwaitMovementTriggers)
         {
             if (!TryBeginCardsMovedProgramWindow())

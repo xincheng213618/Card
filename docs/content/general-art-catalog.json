@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "boundary-zhou-yu",
+      "characterName": "界周瑜",
+      "defaultSkinId": "30800",
+      "skins": [
+        {
+          "id": "30800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/308",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhou-yu.png",
+          "sha256": "046799f9736864183c5356fe5a2a1964e2f37a6a844a2eb818fbb31fac2f3469",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "boundary-cao-cao",
       "characterName": "界曹操",
       "defaultSkinId": "31100",
@@ -5118,6 +5135,23 @@
       ]
     },
     {
+      "key": "sp-le-jin",
+      "characterName": "SP乐进",
+      "defaultSkinId": "current",
+      "skins": [
+        {
+          "id": "current",
+          "name": "官网默认形象",
+          "localPath": "src/CardGame.Wpf/Assets/official-sp-le-jin.png",
+          "sourcePage": "https://www.sanguosha.com/hero/121",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/12100.png",
+          "sha256": "a9bd56eb8c819798bde278c642adf565d71fc7e57bfa4ecbfaf28747f1257b7f",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "sp-guan-yu",
       "characterName": "SP关羽",
       "defaultSkinId": "current",
@@ -8823,6 +8857,23 @@
           "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/500404.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/zhuge-liang/500404.png",
           "sha256": "5cc041a95389ec4043fd53d699f6a912d1071ad6c3c49f72c6577cdc518a4ea8",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "pan-zhang-ma-zhong",
+      "characterName": "潘璋马忠",
+      "defaultSkinId": "131601",
+      "skins": [
+        {
+          "id": "131601",
+          "name": "经典形象*潘璋马忠",
+          "sourcePage": "https://x.sanguosha.com/hero/316.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/131601.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-pan-zhang-ma-zhong.png",
+          "sha256": "01bbec80c39eaf1477f248a77ddc0d29e1e18b65b89d3dd92e96294e36647501",
           "pixelWidth": 574,
           "pixelHeight": 761
         }

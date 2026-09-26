@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "classic:duodao": {
+      "name": "夺刀",
+      "description": "当你受到【杀】造成的伤害后，你可以弃置一张牌。若如此做，你获得伤害来源装备区里的武器牌。"
+    },
+    "classic:anjian": {
+      "name": "暗箭",
+      "description": "锁定技，当你使用【杀】对目标角色造成伤害时，若你不在其攻击范围内，则此伤害+1。"
+    }
+  }
+}

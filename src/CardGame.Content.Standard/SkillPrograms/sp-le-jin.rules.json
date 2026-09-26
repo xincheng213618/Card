@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 56,
+  "skills": [
+    {
+      "id": "sp:xiaoguo",
+      "revision": 1,
+      "minimumRulesVersion": 166,
+      "triggers": [
+        {
+          "id": "other-turn-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "eventTarget" },
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"], "cardCategories": ["basic"],
+              "count": 1, "destination": "discardPile"
+            },
+            {
+              "op": "chooseOption", "target": "selectedTarget", "resultBind": "answer",
+              "options": [
+                { "id": "discard-equipment", "condition": {
+                  "kind": "hasOwnedCardCategory", "zones": ["hand", "equipment"],
+                  "cardCategories": ["equipment"]
+                } },
+                { "id": "take-damage", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "selectedTarget" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand", "equipment"], "cardCategories": ["equipment"],
+              "count": 1, "destination": "discardPile",
+              "condition": { "kind": "choiceIs", "sourceBind": "answer", "optionId": "discard-equipment" }
+            },
+            { "op": "draw", "target": "owner", "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "answer", "optionId": "discard-equipment" } },
+            { "op": "damage", "target": "selectedTarget", "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "answer", "optionId": "take-damage" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

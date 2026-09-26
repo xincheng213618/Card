@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -37,6 +37,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         var allowSameOwnerHandReturn = r.Has("allowSameOwnerHandReturn") && r.RequiredBool("allowSameOwnerHandReturn");
         var coverageResultBind = r.Has("coverageResultBind") ? r.OptionalIdentifier("coverageResultBind") : null;
         var awaitMovementTriggers = r.Has("awaitMovementTriggers") && r.RequiredBool("awaitMovementTriggers");
+        var revealBeforeMove = r.Has("revealBeforeMove") && r.RequiredBool("revealBeforeMove");
+        if (revealBeforeMove && (chooserRef.Kind != ProgramParticipantRef.Owner ||
+            cardOwnerRef.Kind != ProgramParticipantRef.Owner || zones.Count != 1 || zones[0] != CardZoneKind.Hand ||
+            destination != SkillProgramCardDestination.SelectedTargetHand || !r.Has("resultBind") ||
+            r.RequiredParticipantReference("targetRef").Kind != ProgramParticipantRef.SelectedTarget ||
+            !awaitMovementTriggers || skipIfNoCards))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: public transfer requires the owner's single hand card, a selected recipient, resultBind and movement continuation.");
         if (allowSameOwnerHandReturn && (destination != SkillProgramCardDestination.SelectedTargetHand ||
             zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)) ||
             r.RequiredParticipantReference("targetRef") != cardOwnerRef))
@@ -49,7 +56,8 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             chooserRef: chooserRef, cardOwnerRef: cardOwnerRef, cardCategories: cardCategories,
             targetReference: r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null,
             skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
-            coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers);
+            coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,
+            revealBeforeMove: revealBeforeMove);
         if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");
@@ -66,7 +74,10 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
                 ? new ProgramResourceOperation[] { new CreateCoverageResult(coverage) }
                 : Array.Empty<ProgramResourceOperation>())
             .Concat(effect.ResultBind is { } bind
-                ? new ProgramResourceOperation[] { new CreateCardSet(bind, 1, false) }
+                ? new ProgramResourceOperation[] { new CreateCardSet(bind, 1, false,
+                    AlreadyMoved: effect.RevealBeforeMove,
+                    CardOwner: effect.Destination == SkillProgramCardDestination.SelectedTargetHand
+                        ? SkillProgramEffectTarget.SelectedTarget : SkillProgramEffectTarget.Owner) }
                 : Array.Empty<ProgramResourceOperation>()).ToArray();
 }
 

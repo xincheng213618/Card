@@ -1,0 +1,12 @@
+{
+  "generalId": "boundary:zhou-yu",
+  "edition": "2014 界限突破首发版",
+  "rulesSource": "https://www.sanguosha.com/news/20140624_7195_0918",
+  "rulesConfirmation": "https://www.sanguosha.com/news/20161221_1389_2314",
+  "rulesNote": "2014 官方公告给出锁定英姿、由周瑜展示并交牌后目标二择一的反间。2016 官网转载攻略 FAQ 第1至6项明确手限仍受其他修正、所得牌参与同花色弃置、清俭移走且无同花色牌时只能失血、黑桃牌遇红颜不能弃、装备同花色须弃而木牛流马下的牌不属于目标区域；网页正文已直接核对，并非仅搜索摘要。",
+  "artPage": "https://www.sanguosha.com/hero/308",
+  "artUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30800.png",
+  "artSha256": "046799f9736864183c5356fe5a2a1964e2f37a6a844a2eb818fbb31fac2f3469",
+  "artDimensions": "750x950",
+  "artNote": "Official hero/308 HTML links directly to 30800.png; downloaded without transformation."
+}

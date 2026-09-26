@@ -368,7 +368,8 @@ internal static class SkillProgramExecutorChecks
             IReadOnlyList<Suit> suits, ProgramParticipantReference? effectiveSuitFor = null,
             IReadOnlyList<SkillProgramCardCategory>? categories = null,
             IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
-            IReadOnlyList<CardKind>? cardKinds = null) =>
+            IReadOnlyList<CardKind>? cardKinds = null,
+            string? matchSuitOfBind = null) =>
             Calls.Add($"filter-bound:{sourceBind}:{resultBind}:{string.Join(',', suits)}");
 
         public SkillProgramStepOutcome SelectCardSubset(
@@ -427,7 +428,10 @@ internal static class SkillProgramExecutorChecks
             int ownerSeat,
             SkillProgramCardSource cardSource,
             IReadOnlyList<CardZoneKind> zones,
-            string resultBind)
+            string resultBind,
+            IReadOnlyList<EquipmentSlot> equipmentSlots,
+            bool skipIfNoCards,
+            bool allowSameSource)
         {
             Calls.Add($"select-source-card:{ownerSeat}:{string.Join(',', zones)}:{resultBind}");
             return SkillProgramStepOutcome.AwaitChoice;

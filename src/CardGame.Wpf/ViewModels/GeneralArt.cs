@@ -53,6 +53,8 @@ public static class GeneralArt
             ["sp-zhao-yun"] = "wiki-sp-zhao-yun-classic.png",
             // Official artwork URL and hash: docs/content/sources/sp-guan-yu-c23-2026-09-21.json.
             ["sp-guan-yu"] = "official-sp-guan-yu.png",
+            // Official hero artwork URL and hash: docs/content/sources/sp-le-jin-2015-2026-09-26.json.
+            ["sp-le-jin"] = "official-sp-le-jin.png",
             // Official artwork URL and hash: docs/content/sources/yan-yan-c24-2026-09-21.json.
             ["yan-yan"] = "official-yan-yan.png",
             // Official artwork URL and hash: docs/content/sources/mou-lu-meng-c22-2026-09-21.json.
