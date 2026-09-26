@@ -57,7 +57,8 @@ internal static class NationalSeatChecks
             ],
             SecondarySkills =
             [
-                new GeneralSkillDefinition(SkillKind.Qingnang, "青囊", "弃置手牌令受伤角色回复。"),
+                new GeneralSkillDefinition(SkillKind.None, "青囊", "弃置手牌令受伤角色回复。")
+                { ContentId = "classic:qingnang", ActionForms = SkillActionForm.Active },
                 new GeneralSkillDefinition(SkillKind.Jijiu, "急救", "回合外红色牌可当桃。")
             ],
             IsSecondaryGeneralPublic = true

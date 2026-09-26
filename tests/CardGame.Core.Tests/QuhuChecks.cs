@@ -82,12 +82,14 @@ internal static class QuhuChecks
             "Completed winning Quhu must replay exactly.");
 
         var loss = QuhuScenario.Find(sourceWins: false);
+        CompleteQuhuAfterPindian(loss);
         var lossState = loss.Game.CreateSnapshot(loss.SourceSeat, revealAll: true);
         var lossPindian = loss.Game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
             .Last(item => item.SkillId == "classic:quhu").Result;
         Require(!lossPindian.SourceWon &&
                 lossPindian.SourceRank <= lossPindian.OpponentRank &&
-                loss.Game.PendingDecision?.Kind != DecisionKind.ProgramTrigger &&
+                loss.Game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+                    .Any(item => item.SkillId == "classic:quhu") &&
                 loss.Game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
                     item.SourceSeat == loss.OpponentSeat && item.TargetSeat == loss.SourceSeat) &&
                 lossState.Players[loss.SourceSeat].Hp == loss.SourceHpBefore - 1,
@@ -96,6 +98,7 @@ internal static class QuhuChecks
             $"pending={loss.Game.PendingDecision?.Kind}; damage={string.Join(',', loss.Game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Select(item => $"{item.SourceSeat}>{item.TargetSeat}"))}.");
 
         var tie = QuhuScenario.FindTie();
+        CompleteQuhuAfterPindian(tie);
         var tiePindian = tie.Game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
             .Last(item => item.SkillId == "classic:quhu").Result;
         Require(!tiePindian.SourceWon &&
@@ -104,6 +107,22 @@ internal static class QuhuChecks
                     item.SourceSeat == tie.OpponentSeat && item.TargetSeat == tie.SourceSeat),
             "A tied Pindian must count as Xun Yu not winning and damage Xun Yu from the opponent.");
 
+    }
+
+    private static void CompleteQuhuAfterPindian(QuhuBoundary boundary)
+    {
+        var game = boundary.Game;
+        for (var step = 0; step < 32 &&
+             !game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+                 .Any(item => item.SkillId == "classic:quhu"); step++)
+        {
+            var prompt = game.PendingDecision;
+            var command = prompt is { PlayerSeat: var seat } && seat == boundary.SourceSeat
+                ? (GameCommand)new AnswerPromptCommand(
+                    seat, prompt.PromptId, prompt.Choices.Last().Id, game.Revision)
+                : new AdvanceOneStepCommand(game.Revision);
+            Require(game.Submit(command).Accepted, "Quhu did not finish after its Pindian result.");
+        }
     }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

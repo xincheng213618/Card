@@ -30,7 +30,7 @@ internal static class CaoChongChecks
                     LegacyKind: null,
                     Program:
                     {
-                        MinimumRulesVersion: 169,
+                        MinimumRulesVersion: 170,
                         Triggers.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -242,7 +242,7 @@ internal static class CaoChongChecks
             PlayerCount = 6,
             ModeId = ScenarioPackage.ModeId,
             HumanSeat = HumanSeat,
-            HumanRole = Role.Rebel,
+            HumanRole = Role.Lord,
             UseInteractiveSetup = true,
             UseInteractiveDiscard = false,
             AdvanceAfterHumanCommands = false,

@@ -27,11 +27,10 @@ internal static class SkillInteractionChecks
         }
         else Program.AdvanceToDecision(vm);
         var engine = Program.Engine(vm);
-        var action = engine.GetHumanLegalActions().Single(action => action.Kind == LegalActionKind.UseSkill);
-        var prompt = engine.PendingDecision!;
-        var validCards = prompt.ActiveSkillValidCardIds ?? throw new InvalidOperationException("Skill has no selectable costs.");
+        var action = engine.GetHumanLegalActions().Single(action => action.Kind == LegalActionKind.UseProgramSkill);
+        var validCards = action.SelectableCardIds;
         var cards = validCards.Take(cardCount).ToArray();
-        var targets = (prompt.ActiveSkillValidTargetSeats ?? []).Take(action.MinTargetCount).ToArray();
+        var targets = action.SelectableTargetSeats.Take(action.MinTargetCount).ToArray();
         var before = State(vm);
         var window = new MainWindow(vm);
         var root = (FrameworkElement)window.Content;
@@ -105,8 +104,9 @@ internal static class SkillInteractionChecks
         var revision = engine.Revision;
         if (skillName == "回春") confirm.Command.Execute(null);
         else Require(Shortcut(window, Key.Enter), "Enter did not confirm the complete skill draft.");
-        Require(engine.Revision == revision + 1 && engine.AcceptedCommands.Last() is UseSkillCommand command &&
-            command.Skill == action.Skill && command.CardIds.Order().SequenceEqual(cards.Order()) && command.TargetSeats.Order().SequenceEqual(targets.Order()),
+        Require(engine.Revision == revision + 1 && engine.AcceptedCommands.Last() is UseProgramSkillCommand command &&
+            command.SkillId == action.ProgramSkillId && command.ActivationId == action.ProgramActivationId &&
+            command.CardIds.Order().SequenceEqual(cards.Order()) && command.TargetSeats.Order().SequenceEqual(targets.Order()),
             "Primary confirmation did not submit exactly one typed skill command with the chosen cost and targets.");
         Require(!vm.IsActiveSkillSelectionPending && !vm.HasSelection, "Committed skill retained the old draft.");
         var after = State(vm);

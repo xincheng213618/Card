@@ -16,8 +16,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private int? _selectedCardId;
     private CardConversionSource? _selectedConversionSource;
     private readonly HashSet<int> _selectedActiveSkillCardIds = [];
-    private readonly HashSet<int> _selectedActiveSkillTargetSeats = [];
-    private SkillKind? _selectedActiveSkillKind;
+    private readonly List<int> _selectedActiveSkillTargetSeats = [];
     private CardKind? _selectedEquipmentEffectKind;
     private string? _selectedProgramSkillId;
     private string? _selectedProgramActivationId;
@@ -418,7 +417,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedConversionSource = null;
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
-        _selectedActiveSkillKind = null;
         _selectedEquipmentEffectKind = null;
         _selectedProgramSkillId = null;
         _selectedProgramActivationId = null;
@@ -495,7 +493,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
-            _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
@@ -511,7 +508,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
-            _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
@@ -522,7 +518,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         var action = HumanActiveSkillAction;
         _selectedActiveSkillCardIds.IntersectWith(action?.SelectableCardIds ?? []);
-        _selectedActiveSkillTargetSeats.IntersectWith(action?.SelectableTargetSeats ?? []);
+        _selectedActiveSkillTargetSeats.RemoveAll(seat => action?.SelectableTargetSeats.Contains(seat) != true);
     }
 
     private void Refresh(GameSnapshot snapshot)
@@ -684,7 +680,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Jiangchi or
                     DecisionKind.Zishou or
                     DecisionKind.Tiandu or
-                    DecisionKind.Fanjian or
                     DecisionKind.Guanxing or
                     DecisionKind.Keji or
                     DecisionKind.Luoshen or
@@ -727,7 +722,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Jiangchi or
             DecisionKind.Zishou or
             DecisionKind.Tiandu or
-            DecisionKind.Fanjian or
             DecisionKind.Guanxing or
             DecisionKind.Keji or
             DecisionKind.Luoshen or
@@ -1822,8 +1816,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             return;
         }
-
-        _selectedActiveSkillKind = action.Skill;
         _selectedEquipmentEffectKind = action.EquipmentKind;
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
@@ -1874,7 +1866,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ExecuteSafely(() =>
         {
             var selectedCards = _selectedActiveSkillCardIds.Order().ToArray();
-            var selectedTargets = _selectedActiveSkillTargetSeats.Order().ToArray();
+            var selectedTargets = _selectedActiveSkillTargetSeats.ToArray();
             var result = action.Kind == LegalActionKind.UseEquipmentEffect &&
                          action.EquipmentKind is { } equipment
                 ? SubmitCommand(new UseEquipmentEffectCommand(
@@ -1898,15 +1890,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     {
                         SkillOwnerSeat = action.ProgramSkillOwnerSeat
                     })
-                : action.Skill is { } skill
-                    ? SubmitCommand(new UseSkillCommand(
-                        _snapshot.HumanSeat,
-                        skill,
-                        selectedCards,
-                        selectedTargets,
-                        _snapshot.Revision,
-                        prompt.PromptId))
-                    : throw new InvalidOperationException("The selected special action has no command identity.");
+                : throw new InvalidOperationException("The selected special action has no command identity.");
             if (!result.Accepted)
             {
                 PromptText = $"主动技能未执行：{result.Error?.Message}";
@@ -1917,7 +1901,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _isSelectingActiveSkillCards = false;
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
-            _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
@@ -1932,14 +1915,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void UseActiveSkill(LegalAction action)
     {
-        if (action.Kind is not (LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill) ||
-            action.Skill is null && action.EquipmentKind is null &&
+        if (action.Kind is not (LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill) ||
+            action.EquipmentKind is null &&
             (action.ProgramSkillId is null || action.ProgramActivationId is null))
         {
             return;
         }
-
-        _selectedActiveSkillKind = action.Skill;
         _selectedEquipmentEffectKind = action.EquipmentKind;
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
@@ -1956,7 +1937,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedCardTargetSeats.Clear();
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
-            _selectedActiveSkillKind = null;
             _selectedEquipmentEffectKind = null;
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
@@ -2167,7 +2147,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DecisionKind.Guidao or
                 DecisionKind.Leiji or
                 DecisionKind.Tiandu or
-                DecisionKind.Fanjian or
                 DecisionKind.Guanxing)
             {
                 EventStack.Add($"      DamageSkill({pending.Kind}, target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
@@ -2370,11 +2349,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             SkillKind.Kongcheng =>
                 "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",                        SkillKind.Jianxiong =>
-                "当你受到伤害后，你可以获得造成此伤害的牌。",                        SkillKind.Zhiheng =>
-                "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",                        SkillKind.Yingzi =>
+                "当你受到伤害后，你可以获得造成此伤害的牌。",                        SkillKind.Yingzi =>
                 "摸牌阶段，你可以多摸一张牌。",                        SkillKind.Hujia =>
-                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",                        SkillKind.Jijiang =>
-                "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",                        SkillKind.Jiuyuan =>
+                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",                        SkillKind.Jiuyuan =>
                 "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",                        _ => skill.Description
         };
     }

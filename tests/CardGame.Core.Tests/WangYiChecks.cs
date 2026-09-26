@@ -29,8 +29,8 @@ internal static class WangYiChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v59",
-                        MinimumRulesVersion: 169,
+                        RuntimeVersion: "skill-program-v60",
+                        MinimumRulesVersion: 170,
                         Triggers.Count: 1
                     } zhenlieProgram,
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -41,8 +41,8 @@ internal static class WangYiChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v59",
-                        MinimumRulesVersion: 169,
+                        RuntimeVersion: "skill-program-v60",
+                        MinimumRulesVersion: 170,
                         Triggers.Count: 1
                     } program,
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -601,7 +601,7 @@ internal static class WangYiChecks
                         [nameof(Role.Renegade)] = 1
                     },
                     deckId,
-                    GeneralCandidateCount: 4,
+                    GeneralCandidateCount: 1,
                     GeneralPoolIds: [GeneralId, .. BlankGeneralIds]));
 
             static ContentDeckPhysicalCard Physical(string cardId, int index) =>

@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 59,
+  "schemaVersion": 60,
   "skills": [
     {
       "id": "classic:xiaoji",
       "revision": 2,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -32,7 +32,7 @@
     {
       "id": "classic:lianying",
       "revision": 2,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

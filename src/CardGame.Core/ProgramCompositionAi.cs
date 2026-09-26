@@ -26,7 +26,8 @@ internal sealed record ProgramAiPublicContext(
     int? EligibleTargetCount = null,
     Func<string, bool>? AttackRangeCoverageDecreased = null,
     Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, bool>? HasOwnedCardCategory = null,
-    double CardEffectInterventionScore = 0d);
+    double CardEffectInterventionScore = 0d,
+    Func<string, int>? PhaseUsageCount = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -51,6 +52,14 @@ internal static class ProgramCompositionAi
         {
             var effect = instructions[index];
             if (!EvaluateCondition(effect.Condition, player, facts)) continue;
+            if (effect.Op == SkillProgramEffectOp.AccumulateSelectedCardCount)
+            {
+                var before = supplied.PhaseUsageCount?.Invoke(effect.StateId!) ?? 0;
+                var after = before + Math.Max(0, supplied.ActivationCardCount ?? 0);
+                choices[effect.ResultBind!] = before < effect.Amount && after >= effect.Amount
+                    ? "crossed" : "not-crossed";
+                continue;
+            }
             if (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard)
             {
                 if (supplied.ChoiceResult?.Invoke(effect.ResultBind!) is { } committed)
@@ -68,7 +77,9 @@ internal static class ProgramCompositionAi
                 var selected = effect.Options.Where(option => option.Condition.EvaluateOption(chooser,
                         () => supplied.HasClaimableDamageCards,
                         facts.AttackRangeCoverageDecreased,
-                        hasOwnedCardCategory: facts.HasOwnedCardCategory))
+                        hasOwnedCardCategory: facts.HasOwnedCardCategory,
+                        activationCardCount: facts.ActivationCardCount,
+                        boundCardSuitMatchesChoice: (_, _) => false))
                     .OrderByDescending(option => ProgramChoiceAi.Score(instructions.Skip(index + 1),
                         player, chooser, facts with { ChoiceResult = name => name == effect.ResultBind ? option.Id : facts.ChoiceResult!(name) }))
                     .ThenBy(option => option.Id, StringComparer.Ordinal).FirstOrDefault();
@@ -88,7 +99,9 @@ internal static class ProgramCompositionAi
         return condition.Evaluate(player, context?.SelectedTarget,
             context?.PindianWon ?? (_ => false), context?.BooleanState ?? (_ => false),
             context?.CardUseIsRed, context?.ChoiceResult,
-            attackRangeCoverageDecreased: context?.AttackRangeCoverageDecreased);
+            attackRangeCoverageDecreased: context?.AttackRangeCoverageDecreased,
+            activationCardCount: context?.ActivationCardCount,
+            boundCardSuitMatchesChoice: (_, _) => false);
     }
 }
 
@@ -168,7 +181,8 @@ internal sealed class ProgramAiEstimateContext
             _ownerRecovery += actual;
             _estimatedHp += actual;
         }
-        else _targetRecovery += Rounded(amount);
+        else _targetRecovery += Rounded(amount * (effect.Target == SkillProgramEffectTarget.SelectedTargets
+            ? _estimatedSelectedTargetCount ?? 2 : 1));
     }
 
     internal void LoseHp(SkillProgramEffect effect)
@@ -249,6 +263,16 @@ internal sealed class ProgramAiEstimateContext
     {
         _ = Binding(effect.SourceBind); // The owner may keep the card, so the choice has no forced cost.
     }
+
+    internal void TransferRandomOwnedCard(SkillProgramEffect effect)
+    {
+        _ownerDraw -= 1d;
+        _estimatedHandCount = Math.Max(0d, _estimatedHandCount - 1d);
+        _targetDraw += 1d;
+        _bindings[effect.ResultBind!] = UnknownCards(1d, ownerHeld: false) with { TargetHeld = true };
+    }
+
+    internal void AccumulateSelectedCardCount(SkillProgramEffect effect) { }
 
     internal void SelectTarget(SkillProgramEffect effect) { }
 
@@ -476,7 +500,9 @@ internal sealed class ProgramAiEstimateContext
         _discardsSelected = true;
     }
 
-    internal void Damage(SkillProgramEffect effect) => _targetHpLoss += effect.Amount;
+    internal void Damage(SkillProgramEffect effect) => _targetHpLoss +=
+        effect.Condition.Kind == SkillProgramConditionKind.BoundCardSuitMatchesChoice
+            ? effect.Amount * 0.75d : effect.Amount;
     internal void Pindian(SkillProgramEffect effect) => _otherAdjustment += 4d;
     internal void ChangeMaximumHp(SkillProgramEffect effect) =>
         _otherAdjustment += effect.Amount * 18d;
@@ -485,7 +511,12 @@ internal sealed class ProgramAiEstimateContext
     internal void GrantTurnSkills(SkillProgramEffect effect) =>
         _otherAdjustment += effect.SkillIds.Count * 8d;
     internal void UseSelectedCardsAs(SkillProgramEffect effect) =>
-        _targetHpLoss += effect.OutputKind == CardKind.Slash ? 1d : 0d;
+        _targetHpLoss += effect.OutputKind switch
+        {
+            CardKind.Slash => 1d,
+            CardKind.ArrowBarrage => Math.Max(1d, _publicContext.EligibleTargetCount ?? 2),
+            _ => 0d
+        };
     internal ProgramAiEstimate Build()
     {
         var ownerDraw = Rounded(Math.Max(0, _ownerDraw));

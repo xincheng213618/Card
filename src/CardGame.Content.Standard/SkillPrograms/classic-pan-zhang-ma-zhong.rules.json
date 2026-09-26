@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 59,
+  "schemaVersion": 60,
   "skills": [
     {
       "id": "classic:duodao",
       "revision": 1,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "triggers": [
         {
           "id": "discard-and-take-weapon",
@@ -34,7 +34,7 @@
     {
       "id": "classic:anjian",
       "revision": 1,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "damageModifiers": [
         {
           "id": "outside-target-range",

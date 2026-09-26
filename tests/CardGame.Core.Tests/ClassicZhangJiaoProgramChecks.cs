@@ -129,8 +129,7 @@ internal static class ClassicZhangJiaoProgramChecks
                 item.ProgramActivationId == "contribute" &&
                 item.ProgramSkillOwnerSeat == lord.Seat);
             if (action is null || action.SelectableCardIds.Count == 0) continue;
-            Require(game.GetHumanLegalActions().All(item =>
-                    item.Kind != LegalActionKind.UseSkill || item.Skill != SkillKind.Huangtian) &&
+            Require(action.Kind == LegalActionKind.UseProgramSkill &&
                     action.SelectableTargetSeats.SequenceEqual([lord.Seat]) &&
                     action.MinCardCount == 1 && action.MaxCardCount == 1,
                 "Current Huangtian must publish only its Program contribution with one exact Lord target and card.");
@@ -181,17 +180,21 @@ internal static class ClassicZhangJiaoProgramChecks
         throw new InvalidOperationException("No bounded formal classic Huangtian provider reached its play phase.");
     }
 
-    private static GameEngine FindLeijiActivation(ContentRegistry registry)
+    internal static GameEngine FindLeijiActivation(
+        ContentRegistry registry,
+        Role humanRole = Role.Lord,
+        string modeId = LeijiModeId,
+        int playerCount = 5)
     {
         for (var seed = 1; seed <= 512; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
                 Seed = seed,
-                PlayerCount = 5,
-                ModeId = LeijiModeId,
+                PlayerCount = playerCount,
+                ModeId = modeId,
                 HumanSeat = 0,
-                HumanRole = Role.Lord,
+                HumanRole = humanRole,
                 UseInteractiveSetup = true,
                 UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false,
@@ -286,7 +289,7 @@ internal static class ClassicZhangJiaoProgramChecks
             "Formal classic Leiji and Guidao must replay exactly once.");
     }
 
-    private static ContentRegistry CreateLeijiRegistry() =>
+    internal static ContentRegistry CreateLeijiRegistry() =>
         ContentRegistry.Build(
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(),

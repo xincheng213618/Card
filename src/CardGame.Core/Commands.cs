@@ -91,7 +91,6 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonDerivedType(typeof(SelectGeneralCommand), "select-general")]
 [JsonDerivedType(typeof(RevealGeneralCommand), "reveal-general")]
 [JsonDerivedType(typeof(AnswerPromptCommand), "answer-prompt")]
-[JsonDerivedType(typeof(UseSkillCommand), "use-skill")]
 [JsonDerivedType(typeof(UseEquipmentEffectCommand), "use-equipment-effect")]
 [JsonDerivedType(typeof(UseProgramSkillCommand), "use-program-skill")]
 public abstract record GameCommand(int ActorSeat, long ExpectedRevision);
@@ -140,19 +139,6 @@ public sealed record RecastCardCommand(int ActorSeat, int CardId, long ExpectedR
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
 }
-
-/// <summary>
-/// Uses the actor's currently available active skill. CardIds and TargetSeats
-/// are exact private selections when the skill's published action requires
-/// them; cardless skills keep both lists empty.
-/// </summary>
-public sealed record UseSkillCommand(
-    int ActorSeat,
-    SkillKind Skill,
-    IReadOnlyList<int> CardIds,
-    IReadOnlyList<int> TargetSeats,
-    long ExpectedRevision,
-    PromptId? PromptId = null) : GameCommand(ActorSeat, ExpectedRevision);
 
 /// <summary>Invokes one published activation from a compiled skill program.</summary>
 public sealed record UseProgramSkillCommand(

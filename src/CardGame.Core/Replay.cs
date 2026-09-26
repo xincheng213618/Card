@@ -22,7 +22,7 @@ public sealed record GameCheckpoint(
     // so checkpoints from any other rules version are rejected instead of
     // migrated. Adding content is versioned by its package and content hash.
     // 102-114 were retired development epochs; do not reuse one for new semantics.
-    public const int CurrentRulesVersion = 169;
+    public const int CurrentRulesVersion = 170;
 
     public int RulesVersion { get; init; }
 }
@@ -82,7 +82,6 @@ public static class GameReplay
                     EndPlayPhaseCommand endPlay => endPlay.PromptId,
                     DiscardCardsCommand discard => discard.PromptId,
                     SelectGeneralCommand selectGeneral => selectGeneral.PromptId,
-                    UseSkillCommand useSkill => useSkill.PromptId,
                     UseProgramSkillCommand program => program.PromptId,
                     UseEquipmentEffectCommand equipment => equipment.PromptId,
                     _ => (PromptId?)null

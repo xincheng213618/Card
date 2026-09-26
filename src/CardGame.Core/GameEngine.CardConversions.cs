@@ -292,7 +292,8 @@ public sealed partial class GameEngine
                 owner.Seat,
                 instance.SkillInstanceId);
             foreach (var cards in EnumerateCardCombinations(candidates, rule.InputCount))
-                selections.Add(new(cards, source, outputKind));
+                if (!rule.SameSuit || cards.Select(card => card.Suit).Distinct().Count() == 1)
+                    selections.Add(new(cards, source, outputKind));
         }
         return selections
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
@@ -493,14 +494,14 @@ public sealed partial class GameEngine
         return cards.DistinctBy(card => card.Id).ToArray();
     }
 
-    private static bool IsJijiangUse(JijiangResolution pending) =>
-        pending.IsActiveUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
+    private static bool IsJijiangUse(FactionCardRequestResolution pending) =>
+        pending.IsProgramSkillUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
 
-    private IReadOnlyList<Card> GetJijiangSlashCards(JijiangResolution pending, CharacterState provider) =>
+    private IReadOnlyList<Card> GetJijiangSlashCards(FactionCardRequestResolution pending, CharacterState provider) =>
         IsJijiangUse(pending) ? GetSlashUseCards(provider) : GetResponseCards(provider, CardKind.Slash);
 
     private CardKind GetJijiangEffectiveSlashKind(
-        JijiangResolution pending,
+        FactionCardRequestResolution pending,
         CharacterState provider,
         Card card)
     {

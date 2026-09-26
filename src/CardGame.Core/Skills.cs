@@ -6,48 +6,10 @@ public sealed record PlayerSkillContext(
     int MaxHp,
     int HandCount,
     TurnPhase Phase,
-    IReadOnlySet<SkillKind>? UsedActiveSkillKinds = null,
     bool IsOwnTurn = false,
     bool IsFaceDown = false,
-    bool IsChained = false);
-
-public sealed record ActiveSkillContext(
-    PlayerSkillContext Owner,
-    int SelectedCardCount = 0,
-    int SelectedTargetCount = 0,
-    int AdditionalSelectableCardCount = 0,
-    bool EnforceOncePerTurn = false);
-
-public enum ActiveSkillEffectKind
-{
-    None,
-    LoseHpAndDraw,
-    DiscardAndDraw,
-    GiveCardsAndRecover,
-    DiscardAndRecover,
-    DiscardAndRecoverTargets,
-    RevealGiftAndDamage,
-    RequestSlash,
-    PayHpOrDiscardWeaponAndDamage,
-    DiscardAndStartDuel,
-    DiscardAndRecoverSelfAndTarget,
-    StartArrowBarrage,
-    ChooseOrdinaryTrick,
-    UseTwoHandCardsAsSlash,
-    DiscardForUnlimitedRange,
-    AidByAttackRange,
-    DiscardHandForCategoryChoice
-}
-
-public sealed record ActiveSkillEffect(
-    ActiveSkillEffectKind Kind,
-    int HpCost = 0,
-    int DrawCount = 0,
-    int MinCardCount = 0,
-    int MaxCardCount = 0,
-    int MinTargetCount = 0,
-    int MaxTargetCount = 0,
-    int RecoveryAmount = 0);
+    bool IsChained = false,
+    bool IsClassicIdentityMode = false);
 
 public sealed record DamageSkillContext(
     PlayerSkillContext Owner,
@@ -132,15 +94,6 @@ public sealed class HujiaSkill : ISkillRuleIdentity
     public string Name => "护驾";
 }
 
-public sealed class JijiangSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Jijiang;
-    public string Name => "激将";
-
-
-
-
-}
 
 public sealed class JiuyuanSkill : ISkillRuleIdentity
 {
@@ -254,15 +207,6 @@ public sealed class LuoyiSkill : ISkillRuleIdentity
     public string Name => "裸衣";
 }
 
-public sealed class QiangxiSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Qiangxi;
-    public string Name => "强袭";
-
-
-
-
-}
 
 public sealed class FeedbackSkill : ISkillRuleIdentity, IDamageSkillRule
 {
@@ -490,15 +434,6 @@ public sealed class LiuliSkill : ISkillRuleIdentity
     public string Name => "流离";
 }
 
-public sealed class LijianSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Lijian;
-    public string Name => "离间";
-
-
-
-
-}
 
 public sealed class BiyueSkill : ISkillRuleIdentity
 {
@@ -530,15 +465,6 @@ public sealed class BuquSkill : ISkillRuleIdentity
     public string Name => "不屈";
 }
 
-public sealed class LuanjiSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Luanji;
-    public string Name => "乱击";
-
-
-
-
-}
 
 public sealed class XueyiSkill : ISkillRuleIdentity
 {
@@ -546,15 +472,6 @@ public sealed class XueyiSkill : ISkillRuleIdentity
     public string Name => "血裔";
 }
 
-public sealed class JieyinSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Jieyin;
-    public string Name => "结姻";
-
-
-
-
-}
 
 public sealed class XiaojiSkill : ISkillRuleIdentity
 {
@@ -822,60 +739,9 @@ public sealed class JiefanSkill : ISkillRuleIdentity
 
 }
 
-public sealed class KujinSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Kujin;
-    public string Name => "苦肉";
-
-    /// <summary>
-    /// The owner may pay the one-point cost even at one HP. In that case the
-    /// engine pauses this active-skill frame in the shared dying window before
-    /// completing the draw effect.
-    /// </summary>
 
 
 
-}
-
-public sealed class ZhihengSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Zhiheng;
-    public string Name => "制衡";
-
-    /// <summary>
-    /// The engine supplies equipment as additional selectable cards only for
-    /// the versioned classic rules. Historical/demo contexts remain hand-only.
-    /// The engine owns the two-step movement through Processing.
-    /// </summary>
-
-
-
-}
-
-public sealed class RendeSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Rende;
-    public string Name => "仁德";
-
-    /// <summary>
-    /// Gives one or more hand cards to one other living character. The engine
-    /// supplies the versioned phase ledger and cumulative self-recovery rule;
-    /// EnforceOncePerTurn retains the earlier showcase and replay behavior.
-    /// </summary>
-
-
-
-}
-
-public sealed class FanjianSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Fanjian;
-    public string Name => "反间";
-
-
-
-
-}
 
 public sealed class GuanxingSkill : ISkillRuleIdentity
 {
@@ -883,36 +749,7 @@ public sealed class GuanxingSkill : ISkillRuleIdentity
     public string Name => "观星";
 }
 
-public sealed class QingnangSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Qingnang;
-    public string Name => "青囊";
 
-    /// <summary>
-    /// Qingnang is a once-per-turn discard-and-recover effect. Target legality
-    /// is supplied by the engine from public living HP, while this rule object
-    /// only exposes the phase, cost and effect contract.
-    /// </summary>
-
-
-
-}
-
-public sealed class HuichunSkill : ISkillRuleIdentity
-{
-    public SkillKind Kind => SkillKind.Huichun;
-    public string Name => "回春";
-
-    /// <summary>
-    /// The bounded multi-target slice discards exactly two private hand cards
-    /// and recovers two or three living wounded characters once per turn. The
-    /// engine supplies the public target candidates and owns each recovery
-    /// frame, so the rule object remains a deterministic contract only.
-    /// </summary>
-
-
-
-}
 
 public static class SkillRegistry
 {
@@ -943,32 +780,22 @@ public static class SkillRegistry
             [SkillKind.Yizhong] = new YizhongSkill(),
             [SkillKind.Wuyan] = new WuyanSkill(),
             [SkillKind.Tiandu] = new TianduSkill(),
-            [SkillKind.Fanjian] = new FanjianSkill(),
             [SkillKind.Guanxing] = new GuanxingSkill(),
-            [SkillKind.Kujin] = new KujinSkill(),
-            [SkillKind.Zhiheng] = new ZhihengSkill(),
-            [SkillKind.Rende] = new RendeSkill(),
-            [SkillKind.Qingnang] = new QingnangSkill(),
-            [SkillKind.Huichun] = new HuichunSkill(),
             [SkillKind.Mashu] = new MashuSkill(),
             [SkillKind.Qicai] = new QicaiSkill(),
             [SkillKind.Jijiu] = new JijiuSkill(),
             [SkillKind.Hujia] = new HujiaSkill(),
-            [SkillKind.Jijiang] = new JijiangSkill(),
             [SkillKind.Jiuyuan] = new JiuyuanSkill(),
             [SkillKind.Qixi] = new QixiSkill(),
             [SkillKind.Keji] = new KejiSkill(),
             [SkillKind.Tuxi] = new TuxiSkill(),
             [SkillKind.Luoyi] = new LuoyiSkill(),
-            [SkillKind.Qiangxi] = new QiangxiSkill(),
             [SkillKind.Duanliang] = new DuanliangSkill(),
             [SkillKind.Luoshen] = new LuoshenSkill(),
             [SkillKind.Qingguo] = new QingguoSkill(),
             [SkillKind.Guose] = new GuoseSkill(),
             [SkillKind.Liuli] = new LiuliSkill(),
-            [SkillKind.Lijian] = new LijianSkill(),
             [SkillKind.Biyue] = new BiyueSkill(),
-            [SkillKind.Jieyin] = new JieyinSkill(),
             [SkillKind.Xiaoji] = new XiaojiSkill(),
             [SkillKind.Qianxun] = new QianxunSkill(),
             [SkillKind.Lianying] = new LianyingSkill(),
@@ -1000,7 +827,6 @@ public static class SkillRegistry
             [SkillKind.Hongyan] = new HongyanSkill(),
             [SkillKind.Tianxiang] = new TianxiangSkill(),
             [SkillKind.Buqu] = new BuquSkill(),
-            [SkillKind.Luanji] = new LuanjiSkill(),
             [SkillKind.Xueyi] = new XueyiSkill(),
             [SkillKind.Shensu] = new ShensuSkill(),
             [SkillKind.Yaowu] = new YaowuSkill(),

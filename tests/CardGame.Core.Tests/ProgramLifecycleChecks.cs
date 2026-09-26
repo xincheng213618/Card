@@ -351,16 +351,16 @@ internal static class ProgramLifecycleChecks
     {
         var occurrence = window == "afterDamageApplied" ? "\"damageOccurrence\":\"perDamagePoint\"," : "";
         return $$"""
-        {"schemaVersion":59,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
-        "minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],
+        {"schemaVersion":60,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
+        "minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],
         "triggers":[{"id":"binding","window":"{{window}}","subject":"owner","optional":{{optional.ToString().ToLowerInvariant()}},
         {{occurrence}}"priority":0,"effects":[{{effects}}]}],"contributions":[],"cardIdentities":[]}]}
         """;
     }
 
     private static string Rules13(string condition, string window) => $$"""
-        {"schemaVersion":59,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
-        "minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],
+        {"schemaVersion":60,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
+        "minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],
         "triggers":[{"id":"binding","window":"{{window}}","subject":"owner","optional":true,
         "condition":{{condition}},"priority":0,"effects":[{"op":"draw","target":"owner","amount":1}]}],
         "contributions":[],"cardIdentities":[]}]}

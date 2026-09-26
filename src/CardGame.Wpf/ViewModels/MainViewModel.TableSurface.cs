@@ -20,14 +20,13 @@ public sealed partial class MainViewModel
             var skills = HumanSkillCards;
             var actions = HumanActiveSkillActions;
             return actions.Where(action => !skills.Any(skill => MatchesSkill(action, skill)) ||
-                actions.Count(other => other.Skill == action.Skill && other.ProgramSkillId == action.ProgramSkillId &&
+                actions.Count(other => other.ProgramSkillId == action.ProgramSkillId &&
                     other.EquipmentKind == action.EquipmentKind) > 1).ToArray();
         }
     }
 
     private static bool MatchesSkill(LegalAction action, HumanSkillViewModel skill) =>
-        (skill.ContentId is not null && action.ProgramSkillId == skill.ContentId) ||
-        (action.ProgramSkillId is null && skill.LegacyKind is not null && action.Skill == skill.LegacyKind);
+        skill.ContentId is not null && action.ProgramSkillId == skill.ContentId;
 
     public IReadOnlyList<EquipmentSlotViewModel> HumanEquipmentSlots => Enum.GetValues<EquipmentSlot>()
         .Select(slot => new EquipmentSlotViewModel(slot, _snapshot?.Players.SingleOrDefault(player => player.IsHuman)?

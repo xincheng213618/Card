@@ -55,7 +55,9 @@ public sealed partial class GameEngine
                 (bind, categories) => engine.DoProgramBoundCardsMatchCategories(frame, bind, categories),
                 (bind, kinds) => engine.DoProgramBoundCardsMatchKinds(frame, bind, kinds),
                 bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
-                bind => engine.CountChooserProgramBoundCards(frame, bind, context.Seat));
+                bind => engine.CountChooserProgramBoundCards(frame, bind, context.Seat),
+                frame.SelectedCardIds.Count,
+                (cardBind, choiceBind) => engine.DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind));
         }
 
         public void UpdateFrame(ProgramSkillFrame frame)
@@ -115,6 +117,14 @@ public sealed partial class GameEngine
             }
         }
 
+        public void RecoverSelectedTargets(long frameId, int ownerSeat, int amount)
+        {
+            var frame = engine.GetActiveProgramFrame(frameId);
+            foreach (var seat in frame.SelectedTargetSeats)
+                if (engine._players[seat].IsAlive)
+                    Recover(frameId, ownerSeat, seat, amount, null, null);
+        }
+
         public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount)
         {
             var target = engine._players[targetSeat];
@@ -136,7 +146,7 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat) =>
             engine.BeginProgramSkillPindian(frame, targetSeat);
 
-        public void MoveSelected(ProgramSkillFrame frame, int targetSeat, IReadOnlyList<int> cardIds,
+        public SkillProgramStepOutcome MoveSelected(ProgramSkillFrame frame, int targetSeat, IReadOnlyList<int> cardIds,
             bool toDiscard, CardMoveReason reason)
         {
             var program = GetProgram(frame.SkillId);
@@ -152,9 +162,19 @@ public sealed partial class GameEngine
                 return (Card: engine._cardZones.CardsAt(locations[0]).Single(card => card.Id == id),
                     Location: locations[0]);
             }).ToArray();
+            var active = engine.GetActiveProgramFrame(frame.Id);
+            if (active.PendingMovementContinuation is not null)
+                throw new InvalidOperationException("A selected-card movement is already awaiting its trigger window.");
+            engine._resolutionStack[^1] = active with
+            {
+                PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
+            };
             var destination = toDiscard ? CardLocation.DiscardPile : CardLocation.Hand(targetSeat);
             foreach (var group in selected.GroupBy(item => item.Location))
                 engine.MoveCards(group.Select(item => item.Card).ToArray(), group.Key, destination, reason);
+            if (!engine.TryBeginCardsMovedProgramWindow())
+                engine.CompleteAwaitedProgramMovement(frame.Id);
+            return SkillProgramStepOutcome.AwaitChild;
         }
 
         public SkillProgramStepOutcome InsertPhase(ProgramSkillFrame frame, TurnPhase phase,
@@ -224,6 +244,24 @@ public sealed partial class GameEngine
             ProgramSkillFrame frame,
             string viewAsId) =>
             engine.UseProgramAllHandCardsAsOrdinaryTrick(frame, viewAsId);
+
+        public SkillProgramStepOutcome StartVirtualDuel(ProgramSkillFrame frame) =>
+            engine.BeginProgramVirtualDuel(frame);
+
+        public SkillProgramStepOutcome RequestFactionCard(ProgramSkillFrame frame, int targetSeat,
+            string providerFactionId, CardKind requiredKind)
+        {
+            engine.BeginProgramFactionCardRequest(frame.Id, frame.OwnerSeat, targetSeat,
+                providerFactionId, requiredKind);
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public SkillProgramStepOutcome TransferRandomOwnedCard(ProgramSkillFrame frame, int targetSeat, string resultBind) =>
+            engine.TransferProgramRandomOwnedCard(frame, targetSeat, resultBind);
+
+        public void AccumulateSelectedCardCount(ProgramSkillFrame frame, string usageId,
+            int threshold, string resultBind) =>
+            engine.AccumulateProgramSelectedCardCount(frame, usageId, threshold, resultBind);
 
         public void TurnOver(long frameId, int ownerSeat, int targetSeat) =>
             engine.TurnOverProgramTarget(frameId, ownerSeat, targetSeat);

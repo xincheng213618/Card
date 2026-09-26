@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 60,
+  "skills": [
+    {
+      "id": "standard:kujin",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "lose-hp-and-draw",
+          "minCards": 0, "maxCards": 0,
+          "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "condition": { "kind": "hpAtLeast", "value": 1 },
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 },
+            { "op": "draw", "target": "owner", "amount": 2 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "standard:zhiheng",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "discard-and-draw",
+          "minCards": 1, "maxCards": null,
+          "sourceZones": ["hand"],
+          "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving",
+          "usesPerTurn": 1,
+          "effects": [
+            { "op": "captureSelectedCards", "target": "owner", "resultBind": "cost" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "cost", "destination": "discardPile" },
+            { "op": "draw", "target": "owner", "numberExpression": "boundCardCount", "sourceBind": "cost" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "standard:qingnang",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "discard-and-heal",
+          "minCards": 1, "maxCards": 1,
+          "sourceZones": ["hand"],
+          "minTargets": 1, "maxTargets": 1, "targetKind": "anyWounded",
+          "usesPerTurn": 1,
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "recover", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "standard:rende",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "give-and-heal-recipient",
+          "usesPerTurn": null,
+          "minCards": 1, "maxCards": null,
+          "sourceZones": ["hand"],
+          "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving",
+          "effects": [
+            { "op": "giveSelected", "target": "selectedTarget" },
+            { "op": "recover", "target": "selectedTarget", "amount": 1,
+              "condition": { "kind": "activationCardCountAtLeast", "value": 2 } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "standard:huichun",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "discard-two-heal-many",
+          "minCards": 2, "maxCards": 2,
+          "sourceZones": ["hand"],
+          "minTargets": 2, "maxTargets": 3, "targetKind": "anyWounded",
+          "usesPerTurn": 1,
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 2 },
+            { "op": "recover", "target": "selectedTargets", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

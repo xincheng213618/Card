@@ -9,7 +9,7 @@ internal static class SkillProgramStartedJudgmentChecks
         var program = catalog.Programs[ProgramId];
         var dodge = program.Triggers.Single(trigger => trigger.Id == DodgeTriggerId);
         var lightning = program.Triggers.Single(trigger => trigger.Id == LightningTriggerId);
-        Require(program.MinimumRulesVersion == 169 &&
+        Require(program.MinimumRulesVersion == 170 &&
                 dodge is
                 {
                     Window: SkillProgramTriggerWindow.CardResponseAccepted,
@@ -28,8 +28,8 @@ internal static class SkillProgramStartedJudgmentChecks
                 lightning.CardKinds.SequenceEqual([CardKind.Lightning]),
             "Card-action triggers must keep direct effective-card filters separate from conversion sources.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 59");
+        AssertReject(Rules.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "expected 60");
         AssertReject(Rules.Replace("\"cardKinds\":[\"dodge\"]",
                 "\"sourceSkillId\":\"started-judgment-test:source\",\"cardKinds\":[\"dodge\"]",
                 StringComparison.Ordinal),
@@ -332,8 +332,8 @@ internal static class SkillProgramStartedJudgmentChecks
     private const string JudgmentReason = "skill.started-judgment-test";
 
     private const string Rules = """
-        {"schemaVersion":59,"skills":[
-          {"id":"started-judgment-test:skill","revision":1,"minimumRulesVersion":169,"triggers":[
+        {"schemaVersion":60,"skills":[
+          {"id":"started-judgment-test:skill","revision":1,"minimumRulesVersion":170,"triggers":[
             {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[
               {"op":"startJudgment","target":"owner","judgmentReason":"skill.started-judgment-test","resultBind":"judgment-card","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judgment-card","destination":"discardPile"}

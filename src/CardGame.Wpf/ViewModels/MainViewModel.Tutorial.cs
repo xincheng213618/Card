@@ -59,7 +59,14 @@ public sealed partial class MainViewModel
         }
         _suspendedMatch = new SuspendedMatch(_game, IsAutoAdvance, IsNewGameSetupOpen, IsLogOpen,
             IsDeveloperView, _selectedCardId, _selectedTargetSeat, _discardCardIds.ToArray(), Hand.Select(card => card.Id).ToArray(), SelectedCardText,
-            _isSelectingActiveSkillCards, _activeSkillPromptId, _selectedActiveSkillCardIds.ToArray(), _selectedActiveSkillTargetSeats.ToArray(), _selectedCardTargetSeats.ToArray());
+            _isSelectingActiveSkillCards, _activeSkillPromptId, _selectedActiveSkillCardIds.ToArray(), _selectedActiveSkillTargetSeats.ToArray(), _selectedCardTargetSeats.ToArray())
+        {
+            ConversionSource = _selectedConversionSource,
+            EquipmentEffectKind = _selectedEquipmentEffectKind,
+            ProgramSkillId = _selectedProgramSkillId,
+            ProgramActivationId = _selectedProgramActivationId,
+            ProgramSkillOwnerSeat = _selectedProgramSkillOwnerSeat
+        };
         _saveTimer?.Stop();
         _isDeveloperView = false;
         RaisePropertyChanged(nameof(IsDeveloperView));
@@ -117,13 +124,18 @@ public sealed partial class MainViewModel
             if (card is not null) Hand.Move(Hand.IndexOf(card), index);
         }
         _selectedCardId = original.CardId;
+        _selectedConversionSource = original.ConversionSource;
         _selectedTargetSeat = original.TargetSeat;
         _selectedCardTargetSeats.UnionWith(original.CardTargets);
         _discardCardIds.UnionWith(original.DiscardIds);
         _isSelectingActiveSkillCards = original.SelectingActiveSkill;
         _activeSkillPromptId = original.ActiveSkillPromptId;
+        _selectedEquipmentEffectKind = original.EquipmentEffectKind;
+        _selectedProgramSkillId = original.ProgramSkillId;
+        _selectedProgramActivationId = original.ProgramActivationId;
+        _selectedProgramSkillOwnerSeat = original.ProgramSkillOwnerSeat;
         _selectedActiveSkillCardIds.UnionWith(original.ActiveSkillCardIds);
-        _selectedActiveSkillTargetSeats.UnionWith(original.ActiveSkillTargets);
+        _selectedActiveSkillTargetSeats.AddRange(original.ActiveSkillTargets.Distinct());
         SelectedCardText = original.SelectedCardText;
         RefreshCurrentView();
         IsNewGameSetupOpen = original.SetupOpen;
@@ -217,5 +229,12 @@ public sealed partial class MainViewModel
 
     private sealed record SuspendedMatch(GameEngine Game, bool AutoAdvance, bool SetupOpen, bool LogOpen, bool DeveloperView,
         int? CardId, int? TargetSeat, int[] DiscardIds, int[] HandOrder, string SelectedCardText,
-        bool SelectingActiveSkill, PromptId? ActiveSkillPromptId, int[] ActiveSkillCardIds, int[] ActiveSkillTargets, int[] CardTargets);
+        bool SelectingActiveSkill, PromptId? ActiveSkillPromptId, int[] ActiveSkillCardIds, int[] ActiveSkillTargets, int[] CardTargets)
+    {
+        public CardConversionSource? ConversionSource { get; init; }
+        public CardKind? EquipmentEffectKind { get; init; }
+        public string? ProgramSkillId { get; init; }
+        public string? ProgramActivationId { get; init; }
+        public int? ProgramSkillOwnerSeat { get; init; }
+    }
 }

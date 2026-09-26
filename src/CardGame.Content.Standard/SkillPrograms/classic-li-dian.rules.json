@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 59,
+  "schemaVersion": 60,
   "skills": [
     {
       "id": "classic:xunxun",
       "revision": 1,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -57,7 +57,7 @@
     {
       "id": "classic:wangxi",
       "revision": 1,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

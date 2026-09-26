@@ -173,22 +173,6 @@ public sealed record CardUseFinishedEvent(
     int CardId,
     CardKind CardKind) : IGameEvent;
 
-public sealed record ActiveSkillRequestedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    SkillKind Skill,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyList<int>? CardIds = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyList<int>? TargetSeats = null) : IGameEvent;
-
-public sealed record SkillHpLostEvent(
-    long ResolutionId,
-    int SourceSeat,
-    SkillKind Skill,
-    int Amount,
-    int RemainingHp) : IGameEvent;
-
 public sealed record LihuoSlashUsedEvent(
     long ResolutionId,
     int OwnerSeat,
@@ -203,56 +187,6 @@ public sealed record ProgramCardTargetCountAppliedEvent(
     CardKind EffectiveCardKind,
     IReadOnlyList<int> TargetSeats,
     IReadOnlyList<string> ContributionSourceIds) : IGameEvent;
-
-/// <summary>
-/// Trusted-host result for cards drawn by an active skill. Physical card ids
-/// stay out of ordinary player snapshots and are retained only in this host
-/// event and the movement ledger.
-/// </summary>
-public sealed record SkillCardsDrawnEvent(
-    long ResolutionId,
-    int SourceSeat,
-    SkillKind Skill,
-    IReadOnlyList<int> CardIds) : IGameEvent;
-
-/// <summary>
-/// Trusted-host result for cards discarded by an active skill. Hand card ids
-/// are private to the owner and are therefore kept out of ordinary snapshots.
-/// </summary>
-public sealed record SkillCardsDiscardedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    SkillKind Skill,
-    IReadOnlyList<int> CardIds) : IGameEvent;
-
-/// <summary>
-/// Trusted-host result for cards transferred by a target-selecting active
-/// skill. The card ids are private to the source and target players and must
-/// not be copied into an ordinary player snapshot.
-/// </summary>
-public sealed record SkillCardsGivenEvent(
-    long ResolutionId,
-    int SourceSeat,
-    int TargetSeat,
-    SkillKind Skill,
-    IReadOnlyList<int> CardIds) : IGameEvent;
-
-/// <summary>Public reveal and branch result of the classic Fanjian skill.</summary>
-public sealed record FanjianCardRevealedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    int TargetSeat,
-    Suit ChosenSuit,
-    int CardId,
-    CardKind CardKind,
-    Suit CardSuit,
-    bool DamageTriggered) : IGameEvent;
-
-public sealed record ActiveSkillResolvedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    SkillKind Skill,
-    ActiveSkillEffectKind Effect) : IGameEvent;
 
 /// <summary>Public result of an optional draw-phase skill decision.</summary>
 public sealed record DrawSkillResolvedEvent(

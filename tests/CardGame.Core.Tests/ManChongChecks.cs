@@ -23,8 +23,8 @@ internal static class ManChongChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v59",
-                        MinimumRulesVersion: 169,
+                        RuntimeVersion: "skill-program-v60",
+                        MinimumRulesVersion: 170,
                         Activations.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.None,
@@ -35,8 +35,8 @@ internal static class ManChongChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v59",
-                        MinimumRulesVersion: 169,
+                        RuntimeVersion: "skill-program-v60",
+                        MinimumRulesVersion: 170,
                         Triggers.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.Trigger,

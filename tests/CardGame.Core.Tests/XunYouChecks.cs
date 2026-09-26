@@ -25,8 +25,8 @@ internal static class XunYouChecks
                 qice.ActionForms == SkillActionForm.Active &&
                 qice.Program is
                 {
-                    RuntimeVersion: "skill-program-v59",
-                    MinimumRulesVersion: 169,
+                    RuntimeVersion: "skill-program-v60",
+                    MinimumRulesVersion: 170,
                     Activations.Count: 1
                 } && qice.Program.Activations.Single().Effects.Single().Op ==
                     SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick,
@@ -38,8 +38,8 @@ internal static class XunYouChecks
                 zhiyu.ActionForms == SkillActionForm.None &&
                 zhiyu.Program is
                 {
-                    RuntimeVersion: "skill-program-v59",
-                    MinimumRulesVersion: 169,
+                    RuntimeVersion: "skill-program-v60",
+                    MinimumRulesVersion: 170,
                     Triggers.Count: 1
                 },
             $"Zhiyu metadata drifted: kind={zhiyu.LegacyKind}, tags={zhiyu.Tags}, " +
@@ -240,6 +240,7 @@ internal static class XunYouChecks
             StartAndSelect(game);
             for (var step = 0; step < 1_024; step++)
             {
+                if (game.State.Status == EngineStatus.Completed) break;
                 if (game.PendingDecision is
                     { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat,
                         SkillPrompt.SkillId: ZhiyuSkillId, SourceSeat: var sourceSeat } &&
@@ -249,7 +250,23 @@ internal static class XunYouChecks
                 {
                     return new Fixture(game, registry, seed);
                 }
-                if (game.PendingDecision is { PlayerSeat: HumanSeat }) break;
+                if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } play)
+                {
+                    var ended = game.Submit(new EndPlayPhaseCommand(HumanSeat,
+                        game.Revision, play.PromptId));
+                    Require(ended.Accepted, ended.Error?.Message ?? "Xun You could not end Play.");
+                    continue;
+                }
+                if (game.PendingDecision is { PlayerSeat: HumanSeat } human)
+                {
+                    var decline = human.Choices.FirstOrDefault(choice => choice.Cards.Count == 0);
+                    if (decline is null) break;
+                    var answered = game.Submit(new AnswerPromptCommand(HumanSeat,
+                        human.PromptId, decline.Id, game.Revision));
+                    Require(answered.Accepted, answered.Error?.Message ??
+                        "Xun You could not decline an unrelated human response.");
+                    continue;
+                }
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
                     "The Xun You damage fixture could not advance.");
             }
@@ -347,7 +364,7 @@ internal static class XunYouChecks
             PlayerCount = 4,
             ModeId = modeId,
             HumanSeat = HumanSeat,
-            HumanRole = Role.Rebel,
+            HumanRole = Role.Lord,
             UseInteractiveSetup = true,
             UseInteractiveDiscard = false,
             AdvanceAfterHumanCommands = false,

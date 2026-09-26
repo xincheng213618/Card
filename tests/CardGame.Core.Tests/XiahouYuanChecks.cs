@@ -52,7 +52,7 @@ internal static class XiahouYuanChecks
                     move.Reason == CardMoveReasons.ShensuDiscard),
             "Shensu option two must discard the exact equipped card and resolve another virtual Slash.");
 
-        var chained = FindEquippedFixture(registry);
+        var (chained, chainedRegistry) = FindEquippedFixture();
         var firstPrompt = chained.PendingDecision!;
         var firstUse = firstPrompt.Choices.First(choice =>
             choice.Parameters.GetValueOrDefault("action") == "shensu-use");
@@ -62,7 +62,7 @@ internal static class XiahouYuanChecks
         var secondPrompt = chained.PendingDecision!;
         Require(secondPrompt.Kind == DecisionKind.Shensu && chained.ResolutionStack.Count == 0,
             "Finishing the first Shensu Slash must preserve the newly created second-stage prompt.");
-        var resumed = GameReplay.Restore(chained.CreateCheckpoint(), registry);
+        var resumed = GameReplay.Restore(chained.CreateCheckpoint(), chainedRegistry);
         Require(SnapshotJson.Serialize(resumed.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(chained.CreateSnapshot(0, revealAll: true)),
             "The consecutive Shensu continuation must replay with its second prompt intact.");
@@ -83,9 +83,37 @@ internal static class XiahouYuanChecks
 
     }
 
-    private static GameEngine FindEquippedFixture(ContentRegistry registry)
+    private static (GameEngine Game, ContentRegistry Registry) FindEquippedFixture()
     {
-        var game = FindFixture(registry);
+        const string modeId = "identity:classic-shensu-equipment-5";
+        var registry = ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(),
+            new SyntheticPackage("shensu-equipment-fixture", builder =>
+            {
+                builder.AddDeck(new ContentDeckRecipe(
+                    "fixture:shensu-equipment-deck", "神速连续发动牌堆", 4, 2,
+                    [new ContentDeckCardCount("standard:crossbow", 80),
+                     new ContentDeckCardCount("standard:peach", 80)]));
+                builder.AddMode(new ContentModeDefinition(
+                    modeId, "神速连续发动身份局", 5, 5,
+                    new Dictionary<string, int>
+                    {
+                        [nameof(Role.Lord)] = 1,
+                        [nameof(Role.Loyalist)] = 1,
+                        [nameof(Role.Rebel)] = 2,
+                        [nameof(Role.Renegade)] = 1
+                    },
+                    "fixture:shensu-equipment-deck", GeneralCandidateCount: 5,
+                    GeneralPoolIds:
+                    [
+                        "classic:xiahou-yuan", "classic:liu-bei", "classic:sun-quan",
+                        "classic:hua-tuo", "classic:cao-cao"
+                    ]));
+            }));
+        var game = FindFixture(registry, modeId);
         var prompt = game.PendingDecision!;
         var skip = prompt.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("action") == "shensu-skip");
@@ -100,7 +128,7 @@ internal static class XiahouYuanChecks
             if (game.PendingDecision is { Kind: DecisionKind.Shensu, PlayerSeat: 0 } next &&
                 next.Choices.Any(choice => choice.Parameters.GetValueOrDefault("stage") == "1") &&
                 game.CreateSnapshot(0).Players[0].Equipment.Count > 0)
-                return game;
+                return (game, registry);
             if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } play &&
                 game.CreateSnapshot(0).Players[0].Equipment.Count == 0 &&
                 game.CreateSnapshot(0, revealAll: true).Players[0].Hand.FirstOrDefault(card =>
@@ -119,14 +147,14 @@ internal static class XiahouYuanChecks
             $"hp={game.CreateSnapshot(0).Players[0].Hp}, equipment={game.CreateSnapshot(0).Players[0].Equipment.Count}.");
     }
 
-    private static GameEngine FindFixture(ContentRegistry registry)
+    private static GameEngine FindFixture(ContentRegistry registry, string modeId = "identity:classic-5")
     {
         for (var seed = 1; seed <= 4096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
                 Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
-                ModeId = "identity:classic-5", UseInteractiveSetup = true,
+                ModeId = modeId, UseInteractiveSetup = true,
                 UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 100
             }, registry);
             if (!game.Submit(new StartGameCommand()).Accepted ||

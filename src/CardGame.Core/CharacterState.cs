@@ -51,11 +51,9 @@ public sealed class CharacterState
     public bool IsAlive { get; set; } = true;
     public bool HasAlcoholEffect { get; set; }
     public bool UsedPlayPhaseAlcoholThisTurn { get; set; }
-    public bool AiJijiangFailedThisTurn { get; set; }
     public bool IsChained { get; set; }
     public Dictionary<PlayerMarkerKind, int> Markers { get; } = [];
     public Dictionary<(PlayerMarkerKind Marker, int SkillOwnerSeat), int> MarkerSourceCounts { get; } = [];
-    public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
     public CharacterSkillSet SkillGrants { get; } = new();
     public IReadOnlyList<string> AcquiredSkillIds => SkillGrants.Grants
         .Where(grant => grant.IsEnabled && grant.SourceId.StartsWith("acquired:", StringComparison.Ordinal))

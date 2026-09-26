@@ -176,24 +176,16 @@ public enum SkillKind
     Leiji,
     Huangtian,
     Tiandu,
-    Fanjian,
     Guanxing,
-    Kujin,
-    Zhiheng,
-    Rende,
-    Qingnang,
-    Huichun,
     Mashu,
     Qicai,
     Jijiu,
     Hujia,
-    Jijiang,
     Jiuyuan,
     Qixi,
     Keji,
     Tuxi,
     Luoyi,
-    Qiangxi,
     Duanliang,
     Luoshen,
     Qingguo,
@@ -204,9 +196,7 @@ public enum SkillKind
     Wushuang,
     Guose,
     Liuli,
-    Lijian,
     Biyue,
-    Jieyin,
     Xiaoji,
     Qianxun,
     Lianying,
@@ -223,7 +213,6 @@ public enum SkillKind
     Hongyan,
     Tianxiang,
     Buqu,
-    Luanji,
     Xueyi,
     Shensu,
     Yaowu,
@@ -286,7 +275,6 @@ public enum DecisionKind
     Leiji,
     Yingzi,
     Tiandu,
-    Fanjian,
     Guanxing,
     DiscardCards,
     SelectTargetCard,
@@ -430,7 +418,7 @@ public enum LegalActionKind
     SkipTuxi,
     Luoyi,
     SkipLuoyi,
-    UseSkill,
+    SkillChoice,
     RevealGeneral,
     Recast,
     BorrowedSword,
@@ -761,31 +749,6 @@ public sealed partial record PendingDecision
     /// </summary>
     public CardKind? RequiredCardKind { get; init; }
 
-    /// <summary>
-    /// Optional card/target selection contract for a PlayCard prompt whose
-    /// active-skill choice is not a finite card/target combination list.
-    /// These values are copied only into the requesting player's snapshot.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public SkillKind? ActiveSkillKind { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IReadOnlyList<int>? ActiveSkillValidCardIds { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IReadOnlyList<int>? ActiveSkillValidTargetSeats { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int ActiveSkillMinCardCount { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int ActiveSkillMaxCardCount { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int ActiveSkillMinTargetCount { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int ActiveSkillMaxTargetCount { get; init; }
 }
 
 public sealed record LegalAction
@@ -798,7 +761,6 @@ public sealed record LegalAction
         CardKind? PlayedCardKind = null,
         int? TargetCardId = null,
         IReadOnlyList<int>? TargetSeats = null,
-        SkillKind? Skill = null,
         int MinCardCount = 0,
         int MaxCardCount = 0,
         int MinTargetCount = 0,
@@ -811,7 +773,6 @@ public sealed record LegalAction
         this.Description = Description;
         this.PlayedCardKind = PlayedCardKind;
         this.TargetCardId = TargetCardId;
-        this.Skill = Skill;
         this.MinCardCount = MinCardCount;
         this.MaxCardCount = MaxCardCount;
         this.MinTargetCount = MinTargetCount;
@@ -831,8 +792,8 @@ public sealed record LegalAction
     public CardKind? PlayedCardKind { get; init; }
     public int? TargetCardId { get; init; }
 
-    /// <summary>Identifies the active skill for a cardless skill action.</summary>
-    public SkillKind? Skill { get; init; }
+    /// <summary>Selected activation cards must all share one printed suit.</summary>
+    public bool SelectedCardsSameSuit { get; init; }
 
     /// <summary>Identifies the equipment whose active conversion creates this action.</summary>
     public CardKind? EquipmentKind { get; init; }

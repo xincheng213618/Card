@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 59,
+  "schemaVersion": 60,
   "skills": [
     {
       "id": "classic:youdi",
       "revision": 1,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "triggers": [
         {
           "id": "ending-opponent-discards-and-owner-takes",

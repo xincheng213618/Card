@@ -55,7 +55,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 141, 0);
+    public static Version CurrentVersion { get; } = new(1, 141, 1);
 
     public StandardClassicGeneralPackage()
     {
@@ -360,11 +360,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
 
         {
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "classic:rende",
-                "仁德",
-                "出牌阶段，你可以将任意张手牌交给其他角色，然后你本阶段以此法给出第二张牌或更多时，你回复 1 点体力。",
-                SkillKind.Rende)));
+            builder.AddSkill(WithActiveActionMetadata(
+                EmbeddedSkillProgramCatalog.Definition("classic-active-cutover", "classic:rende")));
             builder.AddSkill(WithActiveActionMetadata(EmbeddedSkillProgramCatalog.Definition("phase-owned-card-actions", "classic:zhiheng")));
             builder.AddSkill(WithActiveActionMetadata(EmbeddedSkillProgramCatalog.Definition("phase-owned-card-actions", "classic:qingnang")));
             builder.AddSkill(WithActiveActionMetadata(EmbeddedSkillProgramCatalog.Definition("classic-kujin-skills", "classic:kujin")));
@@ -582,11 +579,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillKind.Tiandu)));
         }
         {
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "classic:fanjian",
-                "反间",
-                "出牌阶段限一次，你可以令一名其他角色选择一种花色，令其获得并展示你的一张随机手牌；若花色不同，你对其造成1点伤害。",
-                SkillKind.Fanjian)));
+            builder.AddSkill(WithActiveActionMetadata(
+                EmbeddedSkillProgramCatalog.Definition("classic-active-cutover", "classic:fanjian")));
         }
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -604,11 +598,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         {
             builder.AddSkill(WithActiveActionMetadata(
-                WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:jijiang",
-                    "激将",
-                    "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
-                    SkillKind.Jijiang), SkillTag.Lord, SkillExecutionForm.Trigger)));
+                WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition(
+                    "classic-active-cutover", "classic:jijiang"),
+                    SkillTag.Lord, SkillExecutionForm.Trigger)));
         }
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
@@ -635,11 +627,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(DrawAdjustmentSkillPrograms.Definition("classic:luoyi"));
         }
         {
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "classic:qiangxi",
-                "强袭",
-                "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，并选择你攻击范围内的一名其他角色，对其造成1点伤害。",
-                SkillKind.Qiangxi)));
+            builder.AddSkill(WithActiveActionMetadata(
+                EmbeddedSkillProgramCatalog.Definition("classic-active-cutover", "classic:qiangxi")));
         }
         {
             builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
@@ -710,20 +699,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillKind.Liuli)));
         }
         {
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "classic:lijian",
-                "离间",
-                "出牌阶段限一次，你可以弃置一张牌并选择两名男性角色，视为其中一名角色对另一名角色使用一张不能被无懈可击响应的【决斗】。",
-                SkillKind.Lijian)));
+            builder.AddSkill(WithActiveActionMetadata(
+                EmbeddedSkillProgramCatalog.Definition("classic-active-cutover", "classic:lijian")));
             builder.AddSkill(WithOptionalTriggerMetadata(
                 ClassicPhaseWindowSkillPrograms.Definition("classic:biyue")));
         }
         {
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "classic:jieyin",
-                "结姻",
-                "出牌阶段限一次，你可以弃置两张手牌并选择一名已受伤的男性角色，令你与其各回复1点体力。",
-                SkillKind.Jieyin)));
+            builder.AddSkill(WithActiveActionMetadata(
+                EmbeddedSkillProgramCatalog.Definition("classic-active-cutover", "classic:jieyin")));
             builder.AddSkill(WithOptionalTriggerMetadata(
                 ClassicCardMovementSkillPrograms.Definition("classic:xiaoji")));
         }
@@ -781,8 +764,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         {
             builder.AddSkill(WithActiveActionMetadata(
-                WithContinuousStateMetadata(new ContentSkillDefinition("classic:luanji", "乱击",
-                    "你可以将两张花色相同的手牌当【万箭齐发】使用。", SkillKind.Luanji))));
+                WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
+                    "classic-active-cutover", "classic:luanji"))));
             builder.AddSkill(WithStructuredSkillMetadata(
                 new ContentSkillDefinition("classic:xueyi", "血裔",
                     "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi),
@@ -973,10 +956,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(DamageSkillPrograms.Definition("boundary:feedback"));
             builder.AddSkill(WithOptionalTriggerMetadata(
                 EmbeddedSkillProgramCatalog.Definition("boundary-sima-yi", "boundary:guicai")));
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "boundary:lijian", "离间",
-                "出牌阶段限一次，你可以弃置一张手牌或装备牌，令一名男性角色视为对另一名男性角色使用一张不能被【无懈可击】抵消的【决斗】。",
-                SkillKind.Lijian)));
+            builder.AddSkill(WithActiveActionMetadata(
+                EmbeddedSkillProgramCatalog.Definition("classic-active-cutover", "boundary:lijian")));
             builder.AddSkill(WithOptionalTriggerMetadata(
                 EmbeddedSkillProgramCatalog.Definition("boundary-diao-chan", "boundary:biyue")));
             builder.AddSkill(WithOptionalTriggerMetadata(

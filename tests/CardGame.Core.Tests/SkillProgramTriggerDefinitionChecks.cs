@@ -11,8 +11,8 @@ internal static class SkillProgramTriggerDefinitionChecks
 
     private static void RejectsRetiredSchemas()
     {
-        foreach (var version in Enumerable.Range(1, 58).Append(60))
-            AssertReject(CurrentRules.Replace("\"schemaVersion\":59", $"\"schemaVersion\":{version}", StringComparison.Ordinal),
+        foreach (var version in Enumerable.Range(1, 59))
+            AssertReject(CurrentRules.Replace("\"schemaVersion\":60", $"\"schemaVersion\":{version}", StringComparison.Ordinal),
                 Presentation, "schemaVersion");
     }
 
@@ -20,7 +20,7 @@ internal static class SkillProgramTriggerDefinitionChecks
     {
         var program = SkillProgramCatalog.Load(CurrentRules, Presentation).Programs["test:trigger"];
         var trigger = program.Triggers.Single();
-        Require(program.RuntimeVersion == "skill-program-v59" && program.MinimumRulesVersion == 169 &&
+        Require(program.RuntimeVersion == "skill-program-v60" && program.MinimumRulesVersion == 170 &&
                 program.Modifiers.Count == 0 && program.ViewAs.Count == 0 && program.Activations.Count == 0,
             "Current schema must support a trigger-only program.");
         Require(trigger.Window == SkillProgramTriggerWindow.CardResponseAccepted &&
@@ -67,9 +67,9 @@ internal static class SkillProgramTriggerDefinitionChecks
         """;
 
     private const string CurrentRules = """
-        {"schemaVersion":59,"skills":[
-          {"id":"test:source","revision":1,"minimumRulesVersion":169,"viewAs":[{"id":"respond","inputKinds":[],"inputSuits":[],"sourceZones":["hand"],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
-          {"id":"test:trigger","revision":1,"minimumRulesVersion":169,"triggers":[{"id":"after-response","window":"cardResponseAccepted","ownerRelation":"conversionSource","sourceSkillId":"test:source","sourceViewAsId":"respond","optional":true,"effects":[
+        {"schemaVersion":60,"skills":[
+          {"id":"test:source","revision":1,"minimumRulesVersion":170,"viewAs":[{"id":"respond","inputKinds":[],"inputSuits":[],"sourceZones":["hand"],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
+          {"id":"test:trigger","revision":1,"minimumRulesVersion":170,"triggers":[{"id":"after-response","window":"cardResponseAccepted","ownerRelation":"conversionSource","sourceSkillId":"test:source","sourceViewAsId":"respond","optional":true,"effects":[
             {"op":"draw","target":"owner","amount":2,"condition":{"kind":"wounded"}},
             {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand"}
           ]}]}

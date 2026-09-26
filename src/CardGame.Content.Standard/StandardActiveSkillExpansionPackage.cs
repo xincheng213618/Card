@@ -11,7 +11,7 @@ public sealed class StandardActiveSkillExpansionPackage : IGameContentPackage
 {
     private readonly bool _includeJijiu;
 
-    public static Version CurrentVersion { get; } = new(1, 1, 0);
+    public static Version CurrentVersion { get; } = new(1, 1, 1);
 
     public StandardActiveSkillExpansionPackage(bool includeJijiu = false)
     {
@@ -28,31 +28,11 @@ public sealed class StandardActiveSkillExpansionPackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:kujin",
-            "苦肉",
-            "出牌阶段可在体力大于 0 时失去 1 点体力；若进入濒死，救援结算后再摸两张牌。",
-            SkillKind.Kujin));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:zhiheng",
-            "制衡",
-            "出牌阶段弃置至少一张手牌，然后摸等量牌。",
-            SkillKind.Zhiheng));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:rende",
-            "仁德",
-            "出牌阶段将一至若干张手牌交给一名其他角色；一次交给至少两张时回复 1 点体力。",
-            SkillKind.Rende));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:qingnang",
-            "青囊",
-            "出牌阶段每回合弃置一张手牌，令一名受伤角色回复 1 点体力。",
-            SkillKind.Qingnang));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:huichun",
-            "回春",
-            "出牌阶段每回合弃置两张手牌，令至少两名受伤角色各回复 1 点体力。",
-            SkillKind.Huichun));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:kujin"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:zhiheng"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:rende"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:qingnang"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:huichun"));
         builder.AddSkill(RuleQuerySkillPrograms.Definition("standard:mashu") with
             {
                 Tags = SkillTag.Locked,

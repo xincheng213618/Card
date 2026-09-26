@@ -132,8 +132,8 @@ internal static class MatchSkillBindingIndexChecks
     {
         const string rich = "fixture:index-rich", plain = "fixture:index-plain", lord = "fixture:index-lord";
         var catalog = SkillProgramCatalog.Load("""
-            {"schemaVersion":59,"skills":[
-              {"id":"fixture:index-rich","revision":1,"minimumRulesVersion":169,
+            {"schemaVersion":60,"skills":[
+              {"id":"fixture:index-rich","revision":1,"minimumRulesVersion":170,
                "modifiers":[
                  {"id":"attack","query":"attackRange","operation":"add","value":1,"priority":0},
                  {"id":"draw","query":"drawCount","operation":"add","value":1,"priority":0}],

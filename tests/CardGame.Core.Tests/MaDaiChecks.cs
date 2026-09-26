@@ -27,8 +27,8 @@ internal static class MaDaiChecks
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None,
-                    Program.RuntimeVersion: "skill-program-v59",
-                    Program.MinimumRulesVersion: 169
+                    Program.RuntimeVersion: "skill-program-v60",
+                    Program.MinimumRulesVersion: 170
                 } skill &&
                 skill.Program.Triggers.Single() is
                 {

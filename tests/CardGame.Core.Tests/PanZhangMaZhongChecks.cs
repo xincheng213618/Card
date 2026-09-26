@@ -27,8 +27,8 @@ internal static class PanZhangMaZhongChecks
             "The two skills must use effective Slash kinds and the generic reverse-range modifier.");
 
         var generic = """
-            {"schemaVersion":59,"skills":[{"id":"fixture:generic","revision":1,
-            "minimumRulesVersion":169,
+            {"schemaVersion":60,"skills":[{"id":"fixture:generic","revision":1,
+            "minimumRulesVersion":170,
             "damageModifiers":[{"id":"distance","cardKinds":["duel"],"amount":2,
             "condition":"always"}],
             "triggers":[{"id":"take-armor","window":"afterDamageApplied","subject":"owner",
@@ -261,7 +261,7 @@ internal static class PanZhangMaZhongChecks
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
-                Seed = seed, PlayerCount = 5, HumanSeat = 2, HumanRole = Role.Rebel,
+                Seed = seed, PlayerCount = 5, HumanSeat = 2, HumanRole = Role.Lord,
                 ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false, MaxTurns = 12
             }, registry);
@@ -427,8 +427,8 @@ internal static class PanZhangMaZhongChecks
             if (armorSynthetic)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":59,"skills":[{"id":"fixture:take-source-armor","revision":1,
-                    "minimumRulesVersion":169,"triggers":[{"id":"take","window":"afterDamageApplied",
+                    {"schemaVersion":60,"skills":[{"id":"fixture:take-source-armor","revision":1,
+                    "minimumRulesVersion":170,"triggers":[{"id":"take","window":"afterDamageApplied",
                     "subject":"owner","damageOccurrence":"perDamage","damageCardKinds":["slash"],
                     "optional":false,"effects":[{"op":"selectSourceCard","target":"owner",
                     "zones":["equipment"],"equipmentSlots":["armor"],"skipIfNoCards":true,
@@ -459,8 +459,8 @@ internal static class PanZhangMaZhongChecks
                 new Dictionary<string, int>
                 {
                     [nameof(Role.Lord)] = 1,
-                    [nameof(Role.Loyalist)] = tianxiang ? 3 : 1,
-                    [nameof(Role.Rebel)] = tianxiang ? 1 : 2,
+                    [nameof(Role.Loyalist)] = tianxiang ? 0 : 1,
+                    [nameof(Role.Rebel)] = tianxiang ? 4 : 2,
                     [nameof(Role.Renegade)] = tianxiang ? 0 : 1
                 }, "fixture:pan-zhang-deck", GeneralCandidateCount: 5,
                 GeneralPoolIds: [tianxiang ? "classic:xiao-qiao" : General, .. targets]));

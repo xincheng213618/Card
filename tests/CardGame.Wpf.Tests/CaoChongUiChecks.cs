@@ -286,7 +286,7 @@ internal static class CaoChongUiChecks
                     [nameof(Role.Rebel)] = 3,
                     [nameof(Role.Renegade)] = 1
                 },
-                DeckId, 6, [GeneralId, .. TargetIds]));
+                DeckId, 1, [GeneralId, .. TargetIds]));
         }
     }
 }

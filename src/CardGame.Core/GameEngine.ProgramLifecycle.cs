@@ -362,21 +362,8 @@ public sealed partial class GameEngine
         string resultBind,
         SkillProgramCardSetVisibility visibility)
     {
-        var context = frame.WindowContext;
-        var cardActionCanStartJudgment = context?.CardUse is not null &&
-            (ProgramEntryCapabilities.For(context.Window) & ProgramContextCapability.Judgment) != 0;
-        var validTarget = frame.WindowContext?.Window switch
-        {
-            SkillProgramTriggerWindow.OwnerDied =>
-                frame.SelectedTargetSeats is [var selectedSeat] && selectedSeat == targetSeat,
-            _ when cardActionCanStartJudgment =>
-                frame.OwnerSeat == targetSeat ||
-                frame.SelectedTargetSeats is [var selectedCardTarget] && selectedCardTarget == targetSeat,
-            _ => frame.OwnerSeat == targetSeat
-        };
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
-            !validTarget || string.IsNullOrWhiteSpace(reason) ||
-            string.IsNullOrWhiteSpace(resultBind) || visibility != SkillProgramCardSetVisibility.Public)
+            !MatchesProgramJudgmentInstruction(frame, targetSeat, reason, resultBind, visibility))
         {
             throw new InvalidOperationException(
                 "A program judgment requires an active program target and public result.");
@@ -394,6 +381,41 @@ public sealed partial class GameEngine
             programResultBind: resultBind,
             programResultVisibility: visibility);
         return SkillProgramStepOutcome.AwaitChild;
+    }
+
+    private bool IsValidProgramJudgmentContinuation(JudgmentResolution pending,
+        ProgramSkillFrame? frame)
+    {
+        if (pending.Continuation != JudgmentContinuationKind.ProgramSkill || frame is null ||
+            pending.ParentFrameId != frame.Id || pending.SourceSeat != frame.OwnerSeat ||
+            pending.ProgramResultBind is not { } bind ||
+            pending.ProgramResultVisibility is not { } visibility)
+            return false;
+        return MatchesProgramJudgmentInstruction(frame, pending.TargetSeat, pending.Reason,
+            bind, visibility);
+    }
+
+    private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
+        string reason, string resultBind, SkillProgramCardSetVisibility visibility)
+    {
+        if (visibility != SkillProgramCardSetVisibility.Public || string.IsNullOrWhiteSpace(reason) ||
+            string.IsNullOrWhiteSpace(resultBind) ||
+            (ProgramEntryCapabilities.For(frame.WindowContext?.Window) & ProgramContextCapability.Judgment) == 0 ||
+            !_contentRegistry.Skills.TryGetValue(frame.SkillId, out var definition) ||
+            definition.Program is not { } program || program.GameplayHash != frame.GameplayHash)
+            return false;
+        var instructions = ProgramInstructionResolver.Default.Resolve(frame, program).Instructions;
+        if (frame.InstructionIndex < 1 || frame.InstructionIndex > instructions.Count ||
+            instructions[frame.InstructionIndex - 1] is not { Op: SkillProgramEffectOp.StartJudgment } effect ||
+            reason != effect.JudgmentReason || resultBind != effect.ResultBind)
+            return false;
+        return effect.Target switch
+        {
+            SkillProgramEffectTarget.Owner => targetSeat == frame.OwnerSeat,
+            SkillProgramEffectTarget.SelectedTarget =>
+                frame.SelectedTargetSeats is [var selectedSeat] && targetSeat == selectedSeat,
+            _ => false
+        };
     }
 
     private void RevealProgramTopCards(
@@ -600,6 +622,16 @@ public sealed partial class GameEngine
             .Where(target => target.IsAlive && targetKind switch
             {
                 SkillProgramTargetKind.OtherLiving => target.Seat != ownerSeat,
+                SkillProgramTargetKind.OtherLivingMale =>
+                    target.Seat != ownerSeat && target.Gender == GeneralGender.Male,
+                SkillProgramTargetKind.OtherWoundedMale =>
+                    target.Seat != ownerSeat && target.Gender == GeneralGender.Male &&
+                    target.Hp < target.MaxHp,
+                SkillProgramTargetKind.OtherLivingInAttackRange =>
+                    target.Seat != ownerSeat &&
+                    GetCombatDistance(ownerSeat, target.Seat) <= GetAttackRange(ownerSeat),
+                SkillProgramTargetKind.OtherLivingSlashable =>
+                    CanUseProvidedSlashTarget(_players[ownerSeat], target),
                 SkillProgramTargetKind.OtherLivingWithHand =>
                     target.Seat != ownerSeat && GetHand(target).Count > 0,
 SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
@@ -686,6 +718,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                         GetHand(_players[left]).Count.CompareTo(GetHand(_players[right]).Count));
                 }
                 selections.Add(Array.AsReadOnly(seats));
+                if (targetKind == SkillProgramTargetKind.OtherLivingMale)
+                    selections.Add(Array.AsReadOnly(new[] { seats[1], seats[0] }));
             }
             if (current.Count == cappedMaximum) return;
             for (var index = next; index < targetSeats.Count; index++)
@@ -3289,7 +3323,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _players[damage.Attack.SourceSeat].IsAlive &&
                 _players[damage.Attack.TargetSeat].IsAlive,
             DirectCardUseDamage = !damage.Attack.IsChainPropagation &&
-                damage.Attack.SourceSkill is null && damage.Attack.Card is not null &&
+                damage.Attack.Card is not null &&
                 damage.Attack.CardUserSeat == damage.Attack.SourceSeat
         };
         return new(

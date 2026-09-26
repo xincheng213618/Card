@@ -5,6 +5,7 @@ using CardGame.Core;
 internal static class BoundaryDiaoChanChecks
 {
     private const string GeneralId = "boundary:diao-chan";
+    private const string XiaojiOwnerId = "fixture:diao-xiaoji";
     private const string BiyueId = "boundary:biyue";
 
     public static void DefinitionAndLijianCommands()
@@ -14,7 +15,7 @@ internal static class BoundaryDiaoChanChecks
         Require(general.Name == "界貂蝉" && general.BaseHp == 3 && general.FactionId == "qun" &&
                 general.Gender == GeneralGender.Female &&
                 general.SkillIds.SequenceEqual(["boundary:lijian", BiyueId]) &&
-                registry.Skills["boundary:lijian"].LegacyKind == SkillKind.Lijian &&
+                registry.Skills["boundary:lijian"] is { LegacyKind: null, Program: not null } &&
                 registry.Skills[BiyueId].Program is not null &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId),
@@ -22,6 +23,63 @@ internal static class BoundaryDiaoChanChecks
 
         CheckLijianCost(registry, equipCost: false);
         CheckLijianCost(registry, equipCost: true);
+    }
+
+    public static void LijianEquipmentLossTriggerPrecedesDuel()
+    {
+        var registry = Registry(allCrossbows: true, ownerXiaoji: true);
+        var game = StartAtPlay(registry, seed: 1, generalId: XiaojiOwnerId);
+        var weapon = game.CreateSnapshot(0, true).Players[0].Hand.First(card =>
+            card.Kind == CardKind.Crossbow);
+        Play(game, game.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.Equip && action.CardId == weapon.Id));
+        if (game.PendingDecision?.Kind != DecisionKind.PlayCard) Advance(game);
+        var action = game.GetHumanLegalActions().Single(item =>
+            item.Kind == LegalActionKind.UseProgramSkill &&
+            item.ProgramSkillId == "boundary:lijian");
+        var pair = action.SelectableTargetSeats.Take(2).ToArray();
+        var handBefore = game.CreateSnapshot(0, true).Players[0].HandCount;
+        UseLijian(game, weapon.Id, pair[0], pair[1]);
+        var xiaoji = game.PendingDecision ??
+            throw new InvalidOperationException("Lijian did not wait for the equipment-loss trigger.");
+        Require(xiaoji is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                SkillPrompt.SkillId: "classic:xiaoji" } &&
+                game.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame =>
+                    frame.SkillId == "boundary:lijian") &&
+                game.ResolutionStack.All(frame => frame is not ResponseWindowFrame) &&
+                game.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>()
+                    .All(item => item.SourceCard is not null),
+            "Lijian must suspend its virtual Duel until Xiaoji resolves the lost weapon.");
+        var paused = GameReplay.Restore(GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+        foreach (var branch in new[] { game, paused })
+        {
+            var prompt = branch.PendingDecision!;
+            var activate = prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "activate");
+            var answered = branch.Submit(new AnswerPromptCommand(0, prompt.PromptId,
+                activate.Id, branch.Revision));
+            Require(answered.Accepted, answered.Error?.Message ?? "Xiaoji activation was rejected.");
+            var xiaojiResolved = branch.Events.Single(item => item.Payload is ProgramBindingResolvedEvent
+                { SkillId: "classic:xiaoji", Completed: true });
+            var lijianResolved = branch.Events.LastOrDefault(item => item.Payload is ProgramSkillResolvedEvent
+                { SkillId: "boundary:lijian", Completed: true });
+            var duelDamage = branch.Events.FirstOrDefault(item => item.Payload is DamageRequestedEvent);
+            Require(branch.CreateSnapshot(0, true).Players[0].HandCount == handBefore + 2 &&
+                    (branch.ResolutionStack.LastOrDefault() is ResponseWindowFrame
+                        { IncomingCard: CardKind.Duel, RequiredCardKind: CardKind.Slash } ||
+                     lijianResolved is not null) &&
+                    (duelDamage is null || xiaojiResolved.Sequence < duelDamage.Sequence) &&
+                    (lijianResolved is null || xiaojiResolved.Sequence < lijianResolved.Sequence),
+                $"Xiaoji must draw two cards before the suspended Lijian Duel opens its response window " +
+                $"(hand={branch.CreateSnapshot(0, true).Players[0].HandCount}, expected={handBefore + 2}, " +
+                $"pending={branch.PendingDecision?.Kind}, top={branch.ResolutionStack.LastOrDefault()?.Kind}, " +
+                $"frames={string.Join(',', branch.ResolutionStack.Select(frame => frame.Kind))}, " +
+                $"xiaojiSeq={xiaojiResolved.Sequence}, duelDamageSeq={duelDamage?.Sequence}, " +
+                $"lijianSeq={lijianResolved?.Sequence}).");
+        }
+        Require(State(game) == State(paused) && Events(game).SequenceEqual(Events(paused)),
+            "The equipment-loss trigger and resumed virtual Duel must replay exactly.");
     }
 
     private static void CheckLijianCost(ContentRegistry registry, bool equipCost)
@@ -41,7 +99,8 @@ internal static class BoundaryDiaoChanChecks
             }
 
             var lijian = game.GetHumanLegalActions().SingleOrDefault(action =>
-                action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Lijian);
+                action.Kind == LegalActionKind.UseProgramSkill &&
+                action.ProgramSkillId == "boundary:lijian");
             if (lijian is null) continue;
             var full = game.CreateSnapshot(0, true);
             var femaleSeat = full.Players.Single(player =>
@@ -58,11 +117,13 @@ internal static class BoundaryDiaoChanChecks
             if (cost == 0 || !lijian.SelectableCardIds.Contains(cost)) continue;
 
             var beforeRevision = game.Revision;
-            var invalid = game.Submit(new UseSkillCommand(0, SkillKind.Lijian, [cost],
+            var invalid = game.Submit(new UseProgramSkillCommand(0, "boundary:lijian",
+                "discard-and-start-duel", [cost],
                 [source, femaleSeat], game.Revision, game.PendingDecision!.PromptId));
             Require(!invalid.Accepted && game.Revision == beforeRevision,
                 "A female Lijian target must be rejected without state mutation.");
-            var duplicate = game.Submit(new UseSkillCommand(0, SkillKind.Lijian, [cost],
+            var duplicate = game.Submit(new UseProgramSkillCommand(0, "boundary:lijian",
+                "discard-and-start-duel", [cost],
                 [source, source], game.Revision, game.PendingDecision!.PromptId));
             Require(!duplicate.Accepted && game.Revision == beforeRevision,
                 "Lijian must reject duplicate male targets.");
@@ -72,14 +133,16 @@ internal static class BoundaryDiaoChanChecks
             UseLijian(game, cost, source, responder);
             UseLijian(replay, cost, source, responder);
             var expectedFrom = equipCost ? CardLocation.Equipment(0) : CardLocation.Hand(0);
-            Require(game.CardMovements.Any(move => move.CardId == cost &&
-                    move.From == expectedFrom && move.To == CardLocation.Processing &&
-                    move.Reason == CardMoveReasons.LijianDiscard) &&
-                    game.CardMovements.Any(move => move.CardId == cost &&
-                        move.From == CardLocation.Processing && move.To == CardLocation.DiscardPile &&
-                        move.Reason == CardMoveReasons.LijianDiscard) &&
-                    game.ResolutionStack.OfType<ActiveSkillFrame>().Any(frame =>
-                        frame.Skill == SkillKind.Lijian && frame.Effect == ActiveSkillEffectKind.DiscardAndStartDuel) &&
+            Require(game.CardMovements.Count(move => move.CardId == cost &&
+                    move.From == expectedFrom && move.To == CardLocation.DiscardPile &&
+                    move.Reason.Value == "skill-program.boundary:lijian.DiscardSelected") == 1 &&
+                    game.CreateCardZoneDiagnostics().Single(zone => zone.CardId == cost).Location ==
+                        CardLocation.DiscardPile &&
+                    !game.CardMovements.Any(move => move.CardId == cost &&
+                        move.To == CardLocation.Processing &&
+                        move.Reason.Value.Contains("boundary:lijian", StringComparison.Ordinal)) &&
+                    game.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame =>
+                        frame.SkillId == "boundary:lijian") &&
                     game.ResolutionStack.LastOrDefault() is ResponseWindowFrame
                     {
                         IncomingCard: CardKind.Duel, RequiredCardKind: CardKind.Slash
@@ -98,7 +161,8 @@ internal static class BoundaryDiaoChanChecks
             }
             Require(game.ResolutionStack.Count == 0 &&
                     !game.GetHumanLegalActions().Any(action =>
-                        action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Lijian) &&
+                        action.Kind == LegalActionKind.UseProgramSkill &&
+                        action.ProgramSkillId == "boundary:lijian") &&
                     State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
                 "Lijian must finish once per Play phase and replay its Duel exactly.");
             return;
@@ -159,12 +223,13 @@ internal static class BoundaryDiaoChanChecks
 
     private static void UseLijian(GameEngine game, int cost, int source, int responder)
     {
-        var result = game.Submit(new UseSkillCommand(0, SkillKind.Lijian, [cost],
+        var result = game.Submit(new UseProgramSkillCommand(0, "boundary:lijian",
+            "discard-and-start-duel", [cost],
             [source, responder], game.Revision, game.PendingDecision!.PromptId));
         Require(result.Accepted, result.Error?.Message ?? "Boundary Lijian was rejected.");
     }
 
-    private static GameEngine StartAtPlay(ContentRegistry registry, int seed)
+    private static GameEngine StartAtPlay(ContentRegistry registry, int seed, string generalId = GeneralId)
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
@@ -174,8 +239,8 @@ internal static class BoundaryDiaoChanChecks
         }, registry);
         Require(game.Submit(new StartGameCommand()).Accepted, "Boundary Diao Chan fixture start failed.");
         var selection = game.PendingDecision!;
-        Require(selection.ValidContentIds.Contains(GeneralId), "Boundary Diao Chan was not offered.");
-        Require(game.Submit(new SelectGeneralCommand(0, GeneralId, game.Revision,
+        Require(selection.ValidContentIds.Contains(generalId), "Boundary Diao Chan fixture was not offered.");
+        Require(game.Submit(new SelectGeneralCommand(0, generalId, game.Revision,
             selection.PromptId)).Accepted, "Boundary Diao Chan selection failed.");
         for (var step = 0; step < 40 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
             Advance(game);
@@ -183,12 +248,12 @@ internal static class BoundaryDiaoChanChecks
         return game;
     }
 
-    private static ContentRegistry Registry(bool allCrossbows) => ContentRegistry.Build(
+    private static ContentRegistry Registry(bool allCrossbows, bool ownerXiaoji = false) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
         new StandardClassicGeneralPackage(),
-        new Scenario(allCrossbows));
+        new Scenario(allCrossbows, ownerXiaoji));
 
     private static void Play(GameEngine game, LegalAction action)
     {
@@ -220,7 +285,7 @@ internal static class BoundaryDiaoChanChecks
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private sealed class Scenario(bool allCrossbows) : IGameContentPackage
+    private sealed class Scenario(bool allCrossbows, bool ownerXiaoji) : IGameContentPackage
     {
         public const string ModeId = "identity:classic-boundary-diao-chan-check-5";
         public PackageManifest Manifest { get; } = new("boundary-diao-chan-check", new Version(1, 0, 0),
@@ -246,13 +311,17 @@ internal static class BoundaryDiaoChanChecks
                 "standard:none", "wu", BaseHp: 4));
             builder.AddGeneral(new ContentGeneralDefinition("fixture:diao-female", "女性目标", "supporter",
                 "standard:none", "qun", BaseHp: 4, Gender: GeneralGender.Female));
+            if (ownerXiaoji)
+                builder.AddGeneral(new ContentGeneralDefinition(XiaojiOwnerId, "离间枭姬组合", "supporter",
+                    "boundary:lijian", "qun", BaseHp: 3, Gender: GeneralGender.Female,
+                    AdditionalSkillIds: ["classic:xiaoji"]));
             builder.AddMode(new ContentModeDefinition(ModeId, "界貂蝉测试", 5, 5,
                 new Dictionary<string, int>
                 {
                     [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
                     [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1
                 }, "fixture:boundary-diao-chan-deck", GeneralCandidateCount: 5,
-                GeneralPoolIds: [GeneralId, "fixture:diao-male-1", "fixture:diao-male-2",
+                GeneralPoolIds: [ownerXiaoji ? XiaojiOwnerId : GeneralId, "fixture:diao-male-1", "fixture:diao-male-2",
                     "fixture:diao-male-3", "fixture:diao-female"]));
         }
     }

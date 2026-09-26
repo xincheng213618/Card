@@ -191,9 +191,10 @@ internal static class XunYouUiChecks
         var registry = CreateRegistry();
         for (var seed = 1; seed <= 2_048; seed++)
         {
-            var game = CreateGame(registry, seed, Role.Rebel);
+            // Select the subject before AI seats can claim it; the fixture tests damage, not draft scoring.
+            var game = CreateGame(registry, seed, Role.Lord);
             StartAndSelect(game);
-            for (var step = 0; step < 1_024; step++)
+            for (var step = 0; step < 1_024 && game.State.Status != EngineStatus.Completed; step++)
             {
                 if (game.PendingDecision is
                     {
@@ -207,9 +208,16 @@ internal static class XunYouUiChecks
                 {
                     return new Fixture(game, registry);
                 }
+                if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } play)
+                {
+                    Program.Assert(game.Submit(new EndPlayPhaseCommand(HumanSeat, game.Revision, play.PromptId)).Accepted,
+                        "The Zhiyu fixture could not finish the subject's play phase.");
+                    continue;
+                }
                 if (game.PendingDecision is { PlayerSeat: HumanSeat }) break;
-                Program.Assert(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                    "The Xun You WPF damage fixture could not advance.");
+                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                Program.Assert(advanced.Accepted,
+                    advanced.Error?.Message ?? "The Xun You WPF damage fixture could not advance.");
             }
         }
         throw new InvalidOperationException("No bounded Xun You WPF fixture reached Zhiyu.");

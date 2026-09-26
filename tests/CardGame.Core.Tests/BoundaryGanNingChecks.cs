@@ -530,8 +530,8 @@ internal static class BoundaryGanNingChecks
             if (preEffectDeath)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":59,"skills":[{"id":"fixture:before-effect-death","revision":1,
-                    "minimumRulesVersion":169,"triggers":[{"id":"die-first",
+                    {"schemaVersion":60,"skills":[{"id":"fixture:before-effect-death","revision":1,
+                    "minimumRulesVersion":170,"triggers":[{"id":"die-first",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"target",
                     "cardKinds":["barbarianAssault"],"optional":false,"priority":100,
                     "effects":[{"op":"loseHp","target":"owner","amount":4}]}]}]}
@@ -544,8 +544,8 @@ internal static class BoundaryGanNingChecks
             if (delayedTrickObserver)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":59,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
-                    "minimumRulesVersion":169,"triggers":[{"id":"observe-delayed",
+                    {"schemaVersion":60,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
+                    "minimumRulesVersion":170,"triggers":[{"id":"observe-delayed",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"observer",
                     "cardKinds":["indulgence"],"cardCategories":["trick"],"optional":false,
                     "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}

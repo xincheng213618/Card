@@ -12,13 +12,15 @@ internal sealed class UseSelectedCardsAsProgramOperationDescriptor : ProgramOper
     {
         r.AllowOnly("op", "target", "sourceBind", "outputKind", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
-        if (target != SkillProgramEffectTarget.SelectedTarget)
+        if (target != SkillProgramEffectTarget.SelectedTarget && target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException(
-                $"Invalid skill program at {r.Path}.target: useSelectedCardsAs requires selectedTarget.");
+                $"Invalid skill program at {r.Path}.target: useSelectedCardsAs requires selectedTarget or owner.");
         var output = r.RequiredEnum<CardKind>("outputKind");
-        if (output != CardKind.Slash)
+        if (output != CardKind.Slash && output != CardKind.ArrowBarrage ||
+            output == CardKind.Slash && target != SkillProgramEffectTarget.SelectedTarget ||
+            output == CardKind.ArrowBarrage && target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException(
-                $"Invalid skill program at {r.Path}.outputKind: the initial selected-card use supports slash only.");
+                $"Invalid skill program at {r.Path}.outputKind: Slash needs one target; Arrow Barrage targets all other players.");
         var effect = new SkillProgramEffect(
             Op,
             target,
@@ -31,7 +33,9 @@ internal sealed class UseSelectedCardsAsProgramOperationDescriptor : ProgramOper
     }
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new ReadSelectedTarget(), new ConsumeSelectedCards(0)];
+        effect.Target == SkillProgramEffectTarget.SelectedTarget
+            ? [new ReadSelectedTarget(), new ConsumeSelectedCards(0)]
+            : [new ConsumeSelectedCards(0)];
 }
 
 internal sealed class GrantTurnSkillsProgramOperationDescriptor : ProgramOperationDescriptorBase

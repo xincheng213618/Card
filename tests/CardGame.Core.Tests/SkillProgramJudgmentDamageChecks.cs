@@ -1,5 +1,6 @@
 using CardGame.Content.Standard;
 using CardGame.Core;
+using System.Reflection;
 
 internal static class SkillProgramJudgmentDamageChecks
 {
@@ -11,7 +12,7 @@ internal static class SkillProgramJudgmentDamageChecks
         var strike = program.Triggers.Single(trigger => trigger.Id == StrikeTriggerId);
         var selection = strike.Effects[0];
         var damage = strike.Effects[1];
-        Require(program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
+        Require(program is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } &&
                 recovery is { Optional: false } &&
                 recovery.Effects.Single() is
                 {
@@ -36,7 +37,7 @@ internal static class SkillProgramJudgmentDamageChecks
                 },
             "The shared executor must keep mandatory recovery separate from optional thunder damage.");
 
-        AssertReject(ValidV5.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV5.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV5.Replace("\"targetKind\":\"anyLiving\"", "\"targetKind\":\"missing\"", StringComparison.Ordinal),
             "targetKind");
@@ -83,7 +84,8 @@ internal static class SkillProgramJudgmentDamageChecks
             PlayerSeat: 0,
             IsPrivate: true
         } &&
-                boundary.ResolutionStack.OfType<ProgramSkillFrame>().Single() is
+                boundary.ResolutionStack.OfType<ProgramSkillFrame>().Single(item =>
+                    item.WindowContext?.Window == SkillProgramTriggerWindow.JudgmentFinalized) is
                 { InstructionIndex: 1,
                   WindowContext: { Window: SkillProgramTriggerWindow.JudgmentFinalized } } &&
                 targetPrompt.ValidTargetSeats.Contains(damageTargetSeat) &&
@@ -96,6 +98,32 @@ internal static class SkillProgramJudgmentDamageChecks
                 restoredPrompt.PromptId == targetPrompt.PromptId &&
                 restoredPrompt.ValidTargetSeats.SequenceEqual(targetPrompt.ValidTargetSeats),
             "A paused selected-target judgment effect must restore its exact private prompt.");
+
+        var invalidParent = GameReplay.Restore(paused, registry);
+        var stack = (List<ResolutionFrame>)typeof(GameEngine)
+            .GetField("_resolutionStack", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(invalidParent)!;
+        var parentIndex = stack.FindIndex(item => item is ProgramSkillFrame
+            { TriggerId: "opening-judgment" });
+        Require(parentIndex >= 0 && stack[parentIndex] is ProgramSkillFrame
+            { InstructionIndex: >= 2 },
+            "The opening judgment must retain its committed parent instruction.");
+        var parent = (ProgramSkillFrame)stack[parentIndex];
+        stack[parentIndex] = parent with { InstructionIndex = 1 };
+        var rejectedParent = false;
+        try
+        {
+            typeof(GameEngine).GetMethod("AssertCoreInvariants",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(invalidParent, null);
+        }
+        catch (TargetInvocationException exception) when (exception.InnerException is
+            InvalidOperationException { Message: var message } &&
+            message.Contains("judgment continuation", StringComparison.OrdinalIgnoreCase))
+        {
+            rejectedParent = true;
+        }
+        Require(rejectedParent,
+            "A judgment continuation with a different paid parent instruction must be rejected.");
 
         var invalidBefore = SnapshotJson.Serialize(boundary.CreateSnapshot(0, revealAll: true));
         var invalid = boundary.Submit(new AnswerPromptCommand(
@@ -158,6 +186,11 @@ internal static class SkillProgramJudgmentDamageChecks
 
     private static (GameEngine Game, int DamageTargetSeat) FindBoundary(ContentRegistry registry)
     {
+        var setupReached = 0;
+        var selectedOwner = 0;
+        var judgmentsStarted = 0;
+        string? lastRejection = null;
+        string? candidateSample = null;
         for (var seed = 1; seed <= 512; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -166,7 +199,7 @@ internal static class SkillProgramJudgmentDamageChecks
                 PlayerCount = 5,
                 ModeId = FixturePackage.ModeId,
                 HumanSeat = 0,
-                HumanRole = Role.Rebel,
+                HumanRole = Role.Lord,
                 UseInteractiveSetup = true,
                 UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false,
@@ -174,10 +207,18 @@ internal static class SkillProgramJudgmentDamageChecks
                 MaxTurns = 30
             }, registry);
             if (!game.Submit(new StartGameCommand()).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral } setup ||
-                !game.Submit(new SelectGeneralCommand(
-                    0, FixturePackage.OwnerGeneralId, game.Revision, setup.PromptId)).Accepted)
+                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral } setup)
                 continue;
+            setupReached++;
+            candidateSample ??= string.Join(',', setup.Choices.SelectMany(choice => choice.ContentIds));
+            var selected = game.Submit(new SelectGeneralCommand(
+                0, FixturePackage.OwnerGeneralId, game.Revision, setup.PromptId));
+            if (!selected.Accepted)
+            {
+                lastRejection = selected.Error?.Message;
+                continue;
+            }
+            selectedOwner++;
 
             for (var step = 0; step < 1_200 && game.State.Status != EngineStatus.Completed; step++)
             {
@@ -189,13 +230,11 @@ internal static class SkillProgramJudgmentDamageChecks
                     game.ResolutionStack.OfType<ProgramJudgmentTriggerWindowFrame>().Single() is { } frame &&
                     frame.Candidates[frame.CandidateIndex].TriggerId == StrikeTriggerId)
                 {
-                    var damage = game.Events.Select(item => item.Payload)
-                        .OfType<DamageAppliedEvent>()
-                        .LastOrDefault(item => item.TargetSeat == 0 && item.SourceSeat != 0);
-                    if (damage is not null &&
-                        game.CreateSnapshot(0, revealAll: true).Players[damage.SourceSeat] is
-                        { IsAlive: true, Role: not Role.Lord })
-                        return (game, damage.SourceSeat);
+                    var target = game.CreateSnapshot(0, revealAll: true).Players
+                        .FirstOrDefault(player => player.Seat != 0 && player is
+                            { IsAlive: true, Role: not Role.Lord });
+                    if (target is not null)
+                        return (game, target.Seat);
                     Answer(game, game.PendingDecision.Choices.Single(choice =>
                         choice.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-skip"));
                     continue;
@@ -216,10 +255,14 @@ internal static class SkillProgramJudgmentDamageChecks
                             0, pending.PromptId, pending.Choices.Last().Id, game.Revision)
                     }
                     : new AdvanceOneStepCommand(game.Revision);
-                if (!game.Submit(command).Accepted) break;
+                var result = game.Submit(command);
+                if (!result.Accepted) { lastRejection = result.Error?.Message; break; }
             }
+            judgmentsStarted += game.Events.Select(item => item.Payload)
+                .OfType<JudgmentRequestedEvent>().Count();
         }
-        throw new InvalidOperationException("No bounded selected-target judgment damage boundary was found.");
+        throw new InvalidOperationException(
+            $"No bounded selected-target judgment damage boundary was found: setup={setupReached}, selected={selectedOwner}, judgments={judgmentsStarted}, candidates={candidateSample}, rejection={lastRejection}.");
     }
 
     private static AnswerPromptCommand AnswerCommand(
@@ -329,8 +372,14 @@ internal static class SkillProgramJudgmentDamageChecks
     private const string StrikeTriggerId = "b-club-strike";
 
     private const string ValidV5 = """
-        {"schemaVersion":59,"skills":[
+        {"schemaVersion":60,"skills":[
           {"id":"judgment-damage-test:effects","revision":1,"triggers":[
+            {"id":"opening-judgment","window":"turnStartBeforeNormalFlow","subject":"owner",
+             "optional":false,"effects":[
+              {"op":"loseHp","target":"owner","amount":1},
+              {"op":"startJudgment","target":"owner","judgmentReason":"judgment-damage-test.opening","resultBind":"opening","visibility":"public"},
+              {"op":"moveBoundCards","target":"owner","sourceBind":"opening","destination":"discardPile"}
+             ]},
             {"id":"a-club-recover","window":"judgmentFinalized","subject":"owner",
              "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":[],
              "optional":false,"effects":[

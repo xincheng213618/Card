@@ -22,19 +22,19 @@ internal static class ZhongHuiChecks
         var quanji = current.Skills[QuanjiSkillId].Program;
         var zili = current.Skills[ZiliSkillId].Program;
         var paiyi = current.Skills[PaiyiSkillId].Program;
-        Require(quanji is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169,
+        Require(quanji is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170,
                             Triggers.Count: 1, Modifiers.Count: 1 } &&
                 quanji.Triggers.Single().Effects.Select(effect => effect.Op).SequenceEqual([
                     SkillProgramEffectOp.Draw,
                     SkillProgramEffectOp.SelectSourceCard,
                     SkillProgramEffectOp.MoveBoundCards
                 ]) &&
-                zili is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169,
+                zili is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170,
                            Triggers.Count: 2 } &&
                 zili.Triggers.All(trigger => trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
                     trigger.ChoiceGroup == "awakening-benefit" && !trigger.Optional &&
                     trigger.UsageScope == SkillUsageScope.Game && trigger.UsageLimit == 1) &&
-                paiyi is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169,
+                paiyi is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170,
                             Activations.Count: 1 } &&
                 paiyi.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Authority]) &&
                 paiyi.Activations.Single().Effects.Select(effect => effect.Op).SequenceEqual([

@@ -11,7 +11,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         var discard = program.Triggers.Single(trigger => trigger.Id == DiscardTriggerId);
         var replacement = exchange.Effects[0];
         var followUp = exchange.Effects[1];
-        Require(program.RuntimeVersion == "skill-program-v59" && program.MinimumRulesVersion == 169 &&
+        Require(program.RuntimeVersion == "skill-program-v60" && program.MinimumRulesVersion == 170 &&
                 exchange.Window == SkillProgramTriggerWindow.JudgmentReplacing &&
                 exchange.Subject == SkillProgramTriggerSubject.Any && exchange.Optional &&
                 exchange.ExcludedReasons.SequenceEqual([JudgmentReasons.Leiji]) &&
@@ -46,7 +46,7 @@ internal static class SkillProgramJudgmentReplacementChecks
             currentActorSeat: 0,
             playerCount: 1));
 
-        AssertReject(ValidV4.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV4.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV4.Replace("\"zones\":[\"hand\",\"equipment\"]", "\"zones\":[]", StringComparison.Ordinal),
             "replacement requires hand or equipment");
@@ -80,7 +80,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         })
         {
             var activeRules = $$"""
-                {"schemaVersion":59,"skills":[{"id":"judgment-replace-test:both","revision":1,
+                {"schemaVersion":60,"skills":[{"id":"judgment-replace-test:both","revision":1,
                   "activations":[{"id":"activate","minCards":0,"maxCards":0,"minTargets":0,
                   "maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{{effect}}]}]}]}
                 """;
@@ -617,7 +617,7 @@ internal static class SkillProgramJudgmentReplacementChecks
     private const string DiscardTriggerId = "b-discard";
 
     private const string ValidV4 = """
-        {"schemaVersion":59,"skills":[
+        {"schemaVersion":60,"skills":[
           {"id":"judgment-replace-test:both","revision":1,"triggers":[
             {"id":"a-exchange","window":"judgmentReplacing","subject":"any",
              "excludedReasons":["skill.leiji"],"optional":true,"effects":[
@@ -636,7 +636,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string InvalidOrderV4 = """
-        {"schemaVersion":59,"skills":[{"id":"invalid:order","revision":1,"triggers":[{
+        {"schemaVersion":60,"skills":[{"id":"invalid:order","revision":1,"triggers":[{
           "id":"replace","window":"judgmentReplacing","subject":"owner","excludedReasons":[],
           "optional":true,"effects":[
             {"op":"draw","target":"owner","amount":1,"replacementSuits":["spade"],
@@ -647,7 +647,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string InvalidFollowUpV4 = """
-        {"schemaVersion":59,"skills":[{"id":"invalid:follow-up","revision":1,"triggers":[{
+        {"schemaVersion":60,"skills":[{"id":"invalid:follow-up","revision":1,"triggers":[{
           "id":"replace","window":"judgmentReplacing","subject":"owner","excludedReasons":[],
           "optional":true,"effects":[
             {"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade"],
@@ -665,7 +665,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string BaguaRules = """
-        {"schemaVersion":59,"skills":[
+        {"schemaVersion":60,"skills":[
           {"id":"program-guidao-bagua:guidao","revision":1,"triggers":[
             {"id":"replace","window":"judgmentReplacing","subject":"any","excludedReasons":[],
              "optional":true,"effects":[

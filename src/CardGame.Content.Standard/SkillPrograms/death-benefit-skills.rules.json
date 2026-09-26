@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 59,
+  "schemaVersion": 60,
   "skills": [
     {
       "id": "classic:zhuiyi",
       "revision": 2,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

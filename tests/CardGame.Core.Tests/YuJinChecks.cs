@@ -39,7 +39,7 @@ internal static class YuJinChecks
                     "Yizhong must nullify a black Slash before Yu Jin is asked for Dodge or takes damage.");
 
                 var restored = GameReplay.Restore(before, registry);
-                Require(restored.Submit(new AdvanceOneStepCommand(restored.Revision)).Accepted &&
+                Require(AdvanceWithoutArmor(restored) &&
                         SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
                         SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
                     "A Yizhong boundary must replay deterministically from its preceding checkpoint.");

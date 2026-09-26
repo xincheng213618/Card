@@ -263,8 +263,8 @@ internal static class BoundaryZhouYuChecks
         var before = game.CreateSnapshot(0, true).Players[0];
         Require(ReadHandLimit(game, 0) == before.MaxHp,
             "An unwounded Yingzi owner must have the ordinary maximum-HP hand limit.");
-        Accept(game.Submit(new UseSkillCommand(0, SkillKind.Kujin, [], [], game.Revision,
-            game.PendingDecision!.PromptId)));
+        Accept(game.Submit(new UseProgramSkillCommand(0, "standard:kujin", "lose-hp-and-draw",
+            [], [], game.Revision, game.PendingDecision!.PromptId)));
         var after = game.CreateSnapshot(0, true).Players[0];
         Require(after.Hp == before.Hp - 1 && ReadHandLimit(game, 0) == before.MaxHp,
             "After a real skill loses one HP, Yingzi must add exactly the missing HP to the hand limit.");

@@ -197,6 +197,7 @@ internal static class BuLianShiUiChecks
         for (var seed = 1; seed <= 128; seed++)
         {
             var game = CreateGame(registry, ScenarioPackage.AnxuModeId, seed, Role.Loyalist, GeneralId);
+            if (game is null) continue;
             ReachHumanPlay(game);
             if (game.GetHumanLegalActions().Any(action => action.ProgramSkillId == "classic:anxu"))
             {
@@ -217,6 +218,7 @@ internal static class BuLianShiUiChecks
                 seed,
                 Role.Rebel,
                 ScenarioPackage.ZhuiyiOwnerId);
+            if (game is null) continue;
             for (var step = 0; step < 1_024 && game.State.Status != EngineStatus.Completed; step++)
             {
                 if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat } prompt &&
@@ -326,7 +328,7 @@ internal static class BuLianShiUiChecks
         Program.Assert(result.Accepted, result.Error?.Message ?? "The WPF Bu Lian Shi fixture could not advance.");
     }
 
-    private static GameEngine CreateGame(
+    private static GameEngine? CreateGame(
         ContentRegistry registry,
         string modeId,
         int seed,
@@ -350,9 +352,8 @@ internal static class BuLianShiUiChecks
             "The WPF Bu Lian Shi fixture failed to start.");
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("The WPF fixture has no general selection.");
-        Program.Assert(prompt.Kind == DecisionKind.SelectGeneral &&
-                       prompt.ValidContentIds.Contains(generalId, StringComparer.Ordinal),
-            $"The WPF fixture did not offer {generalId}.");
+        Program.Assert(prompt.Kind == DecisionKind.SelectGeneral, "The WPF fixture did not reach general selection.");
+        if (!prompt.ValidContentIds.Contains(generalId, StringComparer.Ordinal)) return null;
         var selected = game.Submit(new SelectGeneralCommand(
             HumanSeat,
             generalId,
@@ -477,7 +478,7 @@ internal static class BuLianShiUiChecks
                     [nameof(Role.Renegade)] = 1
                 },
                 deckId,
-                GeneralCandidateCount: 4,
+                GeneralCandidateCount: modeId == AnxuModeId ? 1 : 4,
                 GeneralPoolIds: generalIds));
     }
 }

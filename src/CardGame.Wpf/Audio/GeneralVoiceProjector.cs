@@ -17,7 +17,6 @@ public static class GeneralVoiceProjector
         {
             var (seat, kind, skillId, death) = envelope.Payload switch
             {
-                ActiveSkillResolvedEvent e => (e.SourceSeat, (SkillKind?)e.Skill, (string?)null, false),
                 DrawSkillResolvedEvent { Used: true } e => (e.SourceSeat, (SkillKind?)e.Skill, (string?)null, false),
                 PhaseSkillResolvedEvent { Used: true } e => (e.SourceSeat, (SkillKind?)e.Skill, (string?)null, false),
                 DamageSkillResolvedEvent { Used: true } e => (e.OwnerSeat, (SkillKind?)e.Skill, (string?)null, false),

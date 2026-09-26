@@ -15,6 +15,10 @@ $violations = [Collections.Generic.List[object]]::new()
 $checks = @(
     @{ Name = 'retired passive contract'; Pattern = '\bIPassiveSkill\b'; Scope = 'all' },
     @{ Name = 'retired active contract'; Pattern = '\bIActiveSkill\b'; Scope = 'all' },
+    @{ Name = 'retired active execution chain'; Pattern = '\b(?:ActiveActionCatalog|ActiveActionExecutor|IActiveActionEffectHost|ActiveActionRule|ActiveActionSelection|ActiveSkillEffect|ActiveSkillEffectKind|ActiveSkillFrame|UseSkillCommand)\b'; Scope = 'all' },
+    @{ Name = 'retired active command kind'; Pattern = '\bLegalActionKind\.UseSkill\b'; Scope = 'all' },
+    @{ Name = 'retired active identity enum'; Pattern = '\bSkillKind\.(?:Jijiang|Qiangxi|Lijian|Luanji|Jieyin|Kujin|Zhiheng|Rende|Fanjian|Qingnang|Huichun)\b|\bDecisionKind\.Fanjian\b'; Scope = 'all' },
+    @{ Name = 'retired active scoring mode'; Pattern = '\b(?:UsesFormalRende|usesFormalRende|_usesFormalRende)\b'; Scope = 'all' },
     @{ Name = 'retired numeric and conversion contracts'; Pattern = '\b(?:INumericSkillRule|ICardConversionSkillRule)\b'; Scope = 'all' },
     @{ Name = 'retired numeric and conversion adapters'; Pattern = '\b(?:CollectLegacyNumericRuleContributions|EnabledLegacyNumericSkills|GetLegacyViewAsConversions|HasLegacyViewAsConversion|HasLegacyRuntimeSkill)\b'; Scope = 'core' },
     @{ Name = 'optional engine content registry'; Pattern = '\bContentRegistry\s*\?'; Scope = 'engine' },

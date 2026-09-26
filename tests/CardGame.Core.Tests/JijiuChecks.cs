@@ -16,7 +16,7 @@ internal static class JijiuChecks
         Require(rescue.Packages.Select(package => $"{package.Id}@{package.Version}")
             .SequenceEqual([
                 "standard@1.14.0",
-                "standard-active-skills@1.1.0",
+                "standard-active-skills@1.1.1",
                 "standard-rescue-skills@1.0.0"]),
             "The rescue package signature must be explicit and dependency ordered.");
         Require(rescue.Skills.TryGetValue("standard:jijiu", out var contentSkill) &&

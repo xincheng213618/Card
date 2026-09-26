@@ -181,9 +181,9 @@ internal static class CardConversionUiChecks
         }
 
         private const string Rules = """
-            {"schemaVersion":59,"skills":[
+            {"schemaVersion":60,"skills":[
               {"id":"ui-trigger:source","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-              {"id":"ui-trigger:obtain","revision":1,"minimumRulesVersion":169,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"ui-trigger:source","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
+              {"id":"ui-trigger:obtain","revision":1,"minimumRulesVersion":170,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"ui-trigger:source","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
             ]}
             """;
         private const string Presentation = """

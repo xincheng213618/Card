@@ -34,7 +34,7 @@ internal static class SkillOwnershipChecks
         ReachHumanPlay(current);
         var currentActions = current.GetHumanLegalActions();
         Require(Human(current).Role != Role.Lord &&
-                currentActions.All(action => action.Skill != SkillKind.Zhiheng) &&
+                Human(current).Skills?.Count == 0 &&
                 currentActions.All(action => action.ProgramSkillId != LordTaggedActiveFixture.ProgramSkillId) &&
                 currentActions.All(action => action.ConversionSource?.SkillId != LordTaggedActiveFixture.LongdanSkillId),
             "Current rules must remove Lord-tagged printed skills before passive, program and conversion discovery.");
@@ -122,7 +122,7 @@ internal static class SkillOwnershipChecks
         public const string ModeId = "team:lord-tagged-active-2v2";
         public const string ProgramSkillId = "fixture:lord-program";
         public const string LongdanSkillId = "fixture:lord-longdan";
-        private const string SkillId = "fixture:lord-zhiheng";
+        private const string SkillId = "fixture:lord-hujia";
         private const string DeckId = "fixture:lord-skills-deck";
         private static readonly string[] GeneralIds = Enumerable.Range(0, 4)
             .Select(index => $"fixture:lord-active-{index}")
@@ -138,9 +138,9 @@ internal static class SkillOwnershipChecks
             var programs = SkillProgramCatalog.Load(ProgramRules, ProgramPresentation);
             builder.AddSkill(new ContentSkillDefinition(
                 SkillId,
-                "主公制衡",
+                "主公护驾",
                 "仅用于验证主公技标签的通用拥有资格。",
-                SkillKind.Zhiheng)
+                SkillKind.Hujia)
             {
                 Tags = SkillTag.Lord,
                 ExecutionForms = SkillExecutionForm.Trigger
@@ -157,9 +157,9 @@ internal static class SkillOwnershipChecks
             builder.AddSkill(new ContentSkillDefinition(
                 LongdanSkillId,
                 "主公龙胆",
-                "仅用于验证旧式转化来源的主公技拥有资格。",
-                SkillKind.Longdan)
+                "仅用于验证转化来源的主公技拥有资格。")
             {
+                Program = programs.Programs[LongdanSkillId],
                 Tags = SkillTag.Lord,
                 ExecutionForms = SkillExecutionForm.Trigger
             });
@@ -199,15 +199,19 @@ internal static class SkillOwnershipChecks
         }
 
         private const string ProgramRules = """
-            {"schemaVersion":59,"skills":[{"id":"fixture:lord-program","revision":1,
+            {"schemaVersion":60,"skills":[{"id":"fixture:lord-program","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"prepare","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
-            "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
+            "effects":[{"op":"draw","target":"owner","amount":1}]}]},
+            {"id":"fixture:lord-longdan","revision":1,"viewAs":[
+            {"id":"dodge-as-slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash",
+            "forPlay":true,"forResponse":true}]}]}
             """;
 
         private const string ProgramPresentation = """
             {"schemaVersion":3,"skills":{"fixture:lord-program":{"name":"主公整备",
-            "description":"仅用于验证配置程序的主公技拥有资格。"}}}
+            "description":"仅用于验证配置程序的主公技拥有资格。"},
+            "fixture:lord-longdan":{"name":"主公龙胆","description":"主公技转化资格。"}}}
             """;
     }
 }

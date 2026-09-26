@@ -42,13 +42,14 @@ public interface ISkillProgramEffectHost
         string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason);
     void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? sourceBind);
+    void RecoverSelectedTargets(long frameId, int ownerSeat, int amount);
     SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount);
     SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
         ProgramParticipantReference? sourceReference = null,
         DamageNature? nature = null);
     void ReplaceJudgment(ProgramSkillFrame frame, SkillProgramEffect effect);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
-    void MoveSelected(
+    SkillProgramStepOutcome MoveSelected(
         ProgramSkillFrame frame,
         int targetSeat,
         IReadOnlyList<int> cardIds,
@@ -97,6 +98,12 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome UseAllHandCardsAsOrdinaryTrick(
         ProgramSkillFrame frame,
         string viewAsId);
+    SkillProgramStepOutcome StartVirtualDuel(ProgramSkillFrame frame);
+    SkillProgramStepOutcome RequestFactionCard(ProgramSkillFrame frame, int targetSeat,
+        string providerFactionId, CardKind requiredKind);
+    SkillProgramStepOutcome TransferRandomOwnedCard(ProgramSkillFrame frame, int targetSeat, string resultBind);
+    void AccumulateSelectedCardCount(ProgramSkillFrame frame, string usageId,
+        int threshold, string resultBind);
     void TurnOver(long frameId, int ownerSeat, int targetSeat);
     void SetFaceState(long frameId, int ownerSeat, int targetSeat, bool faceDown);
     SkillProgramStepOutcome StartJudgment(
@@ -435,8 +442,11 @@ public sealed class RecoverSkillProgramEffectHandler : ISkillProgramEffectHandle
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        host.Recover(frame.Id, frame.OwnerSeat, targetSeat, effect.Amount,
-            effect.NumberExpression, effect.SourceBind);
+        if (effect.Target == SkillProgramEffectTarget.SelectedTargets)
+            host.RecoverSelectedTargets(frame.Id, frame.OwnerSeat, effect.Amount);
+        else
+            host.Recover(frame.Id, frame.OwnerSeat, targetSeat, effect.Amount,
+                effect.NumberExpression, effect.SourceBind);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -577,13 +587,12 @@ public sealed class GiveSelectedSkillProgramEffectHandler : ISkillProgramEffectH
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        host.MoveSelected(
+        return host.MoveSelected(
             frame,
             targetSeat,
             frame.SelectedCardIds,
             toDiscard: false,
             Reason(frame, effect));
-        return SkillProgramStepOutcome.Continue;
     }
 
     private static CardMoveReason Reason(ProgramSkillFrame frame, SkillProgramEffect effect) =>
@@ -600,13 +609,12 @@ public sealed class DiscardSelectedSkillProgramEffectHandler : ISkillProgramEffe
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        host.MoveSelected(
+        return host.MoveSelected(
             frame,
             targetSeat,
             frame.SelectedCardIds,
             toDiscard: true,
             Reason(frame, effect));
-        return SkillProgramStepOutcome.Continue;
     }
 
     private static CardMoveReason Reason(ProgramSkillFrame frame, SkillProgramEffect effect) =>
@@ -1074,6 +1082,40 @@ public sealed class SkillProgramEffectCatalog
 /// Stateless instruction runner. It owns validation and cursor semantics while
 /// the narrow hosts own rules state, primitive mutations and parent resumption.
 /// </summary>
+public sealed class StartVirtualDuelSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.StartVirtualDuel;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.StartVirtualDuel(frame);
+}
+
+public sealed class RequestFactionCardSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.RequestFactionCard;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.RequestFactionCard(frame, targetSeat,
+        effect.ProviderFactionId!, effect.OutputKind!.Value);
+}
+
+public sealed class TransferRandomOwnedCardSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.TransferRandomOwnedCard;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+        => host.TransferRandomOwnedCard(frame, targetSeat, effect.ResultBind!);
+}
+
+public sealed class AccumulateSelectedCardCountSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.AccumulateSelectedCardCount;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        host.AccumulateSelectedCardCount(frame, effect.StateId!, effect.Amount, effect.ResultBind!);
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
 public sealed class SkillProgramExecutor
 {
     private readonly SkillProgramEffectCatalog? _effects;

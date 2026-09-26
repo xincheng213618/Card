@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 60,
+  "skills": [
+    {
+      "id": "classic:rende",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "give-and-heal-after-two",
+          "usesPerTurn": null,
+          "minCards": 1, "maxCards": null,
+          "sourceZones": ["hand"],
+          "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving",
+          "effects": [
+            { "op": "giveSelected", "target": "selectedTarget" },
+            { "op": "accumulateSelectedCardCount", "target": "owner",
+              "usageId": "cards-given", "threshold": 2, "resultBind": "gift-threshold" },
+            { "op": "recover", "target": "owner", "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "gift-threshold", "optionId": "crossed" } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:jieyin",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "discard-two-heal-pair",
+          "minCards": 2, "maxCards": 2,
+          "sourceZones": ["hand"],
+          "minTargets": 1, "maxTargets": 1, "targetKind": "otherWoundedMale",
+          "usesPerTurn": 1,
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 2 },
+            { "op": "recover", "target": "owner", "amount": 1 },
+            { "op": "recover", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:qiangxi",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "lose-hp-and-damage",
+          "usageGroup": "qiangxi", "usesPerTurn": 1,
+          "minCards": 0, "maxCards": 0,
+          "minTargets": 1, "maxTargets": 1,
+          "targetKind": "otherLivingInAttackRange",
+          "condition": { "kind": "all", "children": [
+            { "kind": "classicIdentityMode" },
+            { "kind": "hpAtLeast", "value": 1 }
+          ] },
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 },
+            { "op": "damage", "target": "selectedTarget", "amount": 1 }
+          ]
+        },
+        {
+          "id": "discard-weapon-and-damage",
+          "usageGroup": "qiangxi", "usesPerTurn": 1,
+          "minCards": 1, "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "equipmentSlots": ["weapon"],
+          "minTargets": 1, "maxTargets": 1,
+          "targetKind": "otherLivingInAttackRange",
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "damage", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:lijian",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "discard-and-start-duel",
+          "minCards": 1, "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 2, "maxTargets": 2,
+          "targetKind": "otherLivingMale",
+          "usesPerTurn": 1,
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "startVirtualDuel", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:lijian",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "discard-and-start-duel",
+          "minCards": 1, "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 2, "maxTargets": 2,
+          "targetKind": "otherLivingMale",
+          "usesPerTurn": 1,
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "startVirtualDuel", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:luanji",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "viewAs": [
+        {
+          "id": "same-suit-pair-as-arrow-barrage",
+          "inputKinds": [], "inputSuits": [], "inputCount": 2,
+          "sameSuit": true,
+          "outputKind": "arrowBarrage",
+          "forPlay": true, "forResponse": false,
+          "condition": { "kind": "classicIdentityMode" }
+        }
+      ],
+      "activations": [
+        {
+          "id": "same-suit-pair-as-arrow-barrage",
+          "usesPerTurn": null,
+          "minCards": 2, "maxCards": 2,
+          "sourceZones": ["hand"], "selectedCardsSameSuit": true,
+          "minTargets": 0, "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "useSelectedCardsAs", "target": "owner",
+              "sourceBind": "same-suit-pair-as-arrow-barrage",
+              "outputKind": "arrowBarrage" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:jijiang",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "request-shu-slash",
+          "usesPerTurn": 1,
+          "minCards": 0, "maxCards": 0,
+          "minTargets": 1, "maxTargets": 1,
+          "targetKind": "otherLivingSlashable",
+          "condition": { "kind": "classicIdentityMode" },
+          "effects": [
+            { "op": "requestFactionCard", "target": "selectedTarget",
+              "providerFactionId": "shu", "requiredKind": "slash" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:fanjian",
+      "revision": 1,
+      "minimumRulesVersion": 170,
+      "activations": [
+        {
+          "id": "guess-suit-and-take-gift",
+          "minCards": 0, "maxCards": 0,
+          "minTargets": 1, "maxTargets": 1,
+          "targetKind": "otherLiving", "usesPerTurn": 1,
+          "condition": { "kind": "all", "children": [
+            { "kind": "classicIdentityMode" },
+            { "kind": "handCountAtLeast", "value": 1 }
+          ] },
+          "effects": [
+            { "op": "chooseOption", "target": "selectedTarget", "resultBind": "guess",
+              "options": [
+                { "id": "spade", "condition": { "kind": "always" } },
+                { "id": "heart", "condition": { "kind": "always" } },
+                { "id": "club", "condition": { "kind": "always" } },
+                { "id": "diamond", "condition": { "kind": "always" } }
+              ] },
+            { "op": "transferRandomOwnedCard", "target": "selectedTarget", "resultBind": "shown" },
+            { "op": "damage", "target": "selectedTarget", "amount": 1,
+              "condition": { "kind": "boundCardSuitMatchesChoice", "sourceBind": "shown",
+                "choiceBind": "guess", "expectedValue": false } }
+          ]
+        }
+      ]
+    }
+  ]
+}

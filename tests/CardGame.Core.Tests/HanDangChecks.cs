@@ -17,7 +17,7 @@ internal static class HanDangChecks
         Require(current.Skills["classic:gongqi"] is
                 {
                     LegacyKind: null,
-                    Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program,
+                    Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } program,
                     ActionForms: SkillActionForm.Active,
                     ExecutionForms: SkillExecutionForm.State
                 } &&
@@ -33,7 +33,7 @@ internal static class HanDangChecks
                 current.Skills["classic:jiefan"] is
                 {
                     LegacyKind: null,
-                    Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } jiefanProgram,
+                    Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } jiefanProgram,
                     ActionForms: SkillActionForm.Active,
                     Tags: SkillTag.Limited
                 } &&

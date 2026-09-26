@@ -3,36 +3,69 @@ using CardGame.Core;
 
 internal static class ZhuRongChecks
 {
-    private const string LeijiFixtureMode = "identity:classic-leiji-gameover-5";
+    private const string TerminalLeijiMode = "identity:classic-leiji-terminal-4";
 
     public static void LeijiWinningDamageCleansParentSlash()
     {
         var registry = ContentRegistry.Build(
             new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardActiveSkillExpansionPackage(),
             new StandardRescueSkillExpansionPackage(),
             new StandardClassicGeneralPackage(),
-            new LeijiFixtureModePackage());
-        var game = Create(296, registry, LeijiFixtureMode);
-        Require(SelectZhuRong(game), "The fixed Leiji cleanup fixture could not select Zhu Rong.");
-        for (var step = 0; step < 900 && game.State.Winner == Winner.None; step++)
-        {
-            var checkpoint = game.CreateCheckpoint();
-            Require(AdvanceAggressively(game), $"Leiji cleanup fixture stopped at step {step}.");
-            if (game.State.Winner == Winner.None) continue;
-            var replayed = GameReplay.Restore(checkpoint, registry);
-            Require(AdvanceAggressively(replayed) &&
-                    SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
-                    SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
-                "Winning Leiji command must replay the same terminal state.");
-        }
-        Require(game.State.Winner == Winner.Rebels &&
+            new TerminalLeijiPackage());
+        var game = ClassicZhangJiaoProgramChecks.FindLeijiActivation(
+            registry, modeId: TerminalLeijiMode, playerCount: 4);
+        var rebelSeat = game.CreateSnapshot(0, revealAll: true).Players.Single(item => item.Role == Role.Rebel).Seat;
+        var parentSlash = game.ResolutionStack.OfType<CardUseFrame>().Last(item =>
+            item.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+            item.TargetSeats.Contains(0));
+        Require(game.CreateCardZoneDiagnostics().Any(item =>
+                item.CardId == parentSlash.CardId && item.Location == CardLocation.Processing),
+            "The Slash which Zhang Jiao dodged must remain in Processing during the Leiji choice.");
+        var before = game.CreateCheckpoint();
+        var replayed = GameReplay.Restore(before, registry);
+        ResolveTerminalLeiji(game, rebelSeat);
+        ResolveTerminalLeiji(replayed, rebelSeat);
+        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                replayed.Events.Select(item => item.Payload.GetType().Name)
+                    .SequenceEqual(game.Events.Select(item => item.Payload.GetType().Name)),
+            "Winning Leiji must replay from its preceding Dodge-trigger choice.");
+        var terminalDamage = game.Events.Select(item => item.Payload)
+            .OfType<ProgramJudgmentDamageRequestedEvent>()
+            .LastOrDefault(item => item.SkillId == "classic:leiji" && item.TargetSeat == rebelSeat);
+        Require(game.State.Winner == Winner.LordAndLoyalists &&
+                terminalDamage is { SourceSeat: 0, Amount: 2, Nature: DamageNature.Thunder } &&
                 game.ResolutionStack.Count == 0 &&
                 game.CreateCardZoneDiagnostics().All(item => item.Location != CardLocation.Processing) &&
                 game.Events.Select(item => item.Payload).OfType<GameEndedEvent>().Count() == 1 &&
-                game.CardMovements.Count(item => item.CardId == 128 &&
+                game.CardMovements.Count(item => item.CardId == parentSlash.CardId &&
                     item.From == CardLocation.Processing && item.Reason == CardMoveReasons.UseFinished) == 1,
-            "A winning Leiji damage must release its interrupted Slash and all Processing cards.");
+            "A winning configured Leiji must finish its interrupted physical Slash once and release all frames and Processing cards.");
+    }
+
+    private static void ResolveTerminalLeiji(GameEngine game, int rebelSeat)
+    {
+        var activation = game.PendingDecision ?? throw new InvalidOperationException("Leiji activation was lost.");
+        var activate = activation.Choices.Single(item =>
+            item.Parameters.GetValueOrDefault("program-action") == "activate");
+        Require(game.Submit(new AnswerPromptCommand(0, activation.PromptId, activate.Id, game.Revision)).Accepted,
+            "Could not activate winning Leiji.");
+        var target = game.PendingDecision ?? throw new InvalidOperationException("Leiji target choice was lost.");
+        var rebel = target.Choices.Single(item => item.Targets.SequenceEqual([rebelSeat]));
+        Require(game.Submit(new AnswerPromptCommand(0, target.PromptId, rebel.Id, game.Revision)).Accepted,
+            "Could not select the last Rebel for winning Leiji.");
+        for (var step = 0; step < 128 && game.State.Winner == Winner.None; step++)
+        {
+            var prompt = game.PendingDecision;
+            var choice = prompt?.Choices.FirstOrDefault(item =>
+                item.Parameters.GetValueOrDefault("action") == "program-judgment-replace-skip" ||
+                item.Parameters.GetValueOrDefault("response") == "let-die") ?? prompt?.Choices.LastOrDefault();
+            var command = prompt is { PlayerSeat: 0 } && choice is not null
+                ? (GameCommand)new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision)
+                : new AdvanceOneStepCommand(game.Revision);
+            Require(game.Submit(command).Accepted, "Winning Leiji did not complete its judgment and dying continuation.");
+        }
     }
 
     public static void JuxiangAndLierenReplay()
@@ -173,34 +206,35 @@ internal static class ZhuRongChecks
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private sealed class LeijiFixtureModePackage : IGameContentPackage
+    private sealed class TerminalLeijiPackage : IGameContentPackage
     {
-        public PackageManifest Manifest { get; } = new("leiji-gameover-fixture", new Version(1, 0, 0));
+        public PackageManifest Manifest { get; } = new("terminal-leiji-fixture", new Version(1, 0, 0));
 
-        public void Register(IContentRegistryBuilder builder) => builder.AddMode(new ContentModeDefinition(
-            LeijiFixtureMode, "Leiji terminal Slash fixture", 5, 5,
-            new Dictionary<string, int>
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var others = Enumerable.Range(1, 3).Select(index => $"fixture:terminal-leiji-{index}").ToArray();
+            foreach (var id in others)
+                builder.AddGeneral(new ContentGeneralDefinition(
+                    id, "雷击目标", "supporter", "standard:none", "qun", BaseHp: 1));
+            builder.AddDeck(new ContentDeckRecipe("fixture:terminal-leiji-deck", "终局雷击牌堆", 4, 2, [])
             {
-                [nameof(Role.Lord)] = 1,
-                [nameof(Role.Loyalist)] = 1,
-                [nameof(Role.Rebel)] = 2,
-                [nameof(Role.Renegade)] = 1
-            },
-            "classic:standard-deck", GeneralCandidateCount: 3,
-            GeneralPoolIds:
-            [
-                "classic:liu-bei", "classic:sun-quan", "classic:sima-yi", "classic:xiahou-dun",
-                "classic:hua-tuo", "classic:cao-cao", "classic:zhang-liao", "classic:xu-chu",
-                "classic:dian-wei", "classic:xu-huang", "classic:zhen-ji", "classic:huang-yueying",
-                "classic:ma-chao", "classic:huang-zhong", "classic:wei-yan", "classic:lu-bu",
-                "classic:huang-gai", "classic:gan-ning", "classic:lu-meng", "classic:zhang-fei",
-                "classic:zhou-yu", "classic:zhuge-liang", "classic:guan-yu", "classic:zhao-yun",
-                "classic:guo-jia", "classic:da-qiao", "classic:diao-chan", "classic:sun-shangxiang",
-                "classic:lu-xun", "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou",
-                "classic:wolong-zhuge-liang", "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren",
-                "classic:xiao-qiao", "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan",
-                "classic:hua-xiong", "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian",
-                "classic:meng-huo", "classic:zhu-rong"
-            ]));
+                PhysicalCards = Enumerable.Range(0, 80).SelectMany(_ => new[]
+                {
+                    new ContentDeckPhysicalCard("standard:slash", Suit.Spade, 7),
+                    new ContentDeckPhysicalCard("standard:dodge", Suit.Spade, 2)
+                }).ToArray()
+            });
+            builder.AddMode(new ContentModeDefinition(
+                TerminalLeijiMode, "终局雷击身份局", 4, 4,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 2,
+                    [nameof(Role.Rebel)] = 1
+                },
+                "fixture:terminal-leiji-deck", GeneralCandidateCount: 4,
+                GeneralPoolIds: ["classic:zhang-jiao", .. others]));
+        }
     }
+
 }

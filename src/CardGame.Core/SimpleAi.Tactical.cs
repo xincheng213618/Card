@@ -41,8 +41,6 @@ public sealed partial class SimpleAiBrain
                 SkillKind.Jianxiong or SkillKind.Feedback or SkillKind.Yiji or
                     SkillKind.Jieming or SkillKind.Yuanhu or SkillKind.Ganglie
                     when wounded => 31d,
-                SkillKind.Qingnang or SkillKind.Huichun when wounded => 28d,
-                SkillKind.Kujin or SkillKind.Zhiheng when self.HandCount >= 2 => 24d,
                 SkillKind.Mashu or SkillKind.Qicai => 20d,
                 SkillKind.Yingzi => 18d,
                 SkillKind.Guicai or SkillKind.Jijiu => 16d,
@@ -94,104 +92,6 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view, PlayerSnapshot self, Role role, LegalAction action,
         IReadOnlyList<LegalAction> legalActions)
     {
-        if (action.Kind == LegalActionKind.UseSkill)
-        {
-            var activeEffectKind = GetActiveActionEffectKind(self, action);
-            if (activeEffectKind == ActiveSkillEffectKind.RevealGiftAndDamage)
-            {
-                var target = view.Players
-                    .Where(player => player.IsAlive && player.Seat != Seat)
-                    .OrderByDescending(player => GetHostility(view, role, player))
-                    .ThenBy(player => player.Hp)
-                    .ThenBy(player => player.Seat)
-                    .FirstOrDefault();
-                if (target is null)
-                    return (-100d, "没有其他存活角色，不能发动反间。");
-
-                var hostility = GetHostility(view, role, target);
-                return hostility > 0
-                    ? (22d + hostility * .45d + (target.Hp <= 1 ? 14d : 0d),
-                        $"对公开判断中最敌对的座位 {target.Seat + 1} 发动反间；花色选择前不读取自己的随机交付牌。")
-                    : (-100d, "公开阵营信息中没有敌对目标，不向友方发动反间。");
-            }
-
-            if (activeEffectKind == ActiveSkillEffectKind.GiveCardsAndRecover)
-            {
-                var target = view.Players
-                    .Where(player => player.IsAlive && player.Seat != Seat)
-                    .OrderByDescending(player => GetTacticalSupport(view, role, player))
-                    .ThenBy(player => player.Hp)
-                    .ThenBy(player => player.Seat)
-                    .FirstOrDefault();
-                if (target is null)
-                    return (-100d, "没有其他存活角色，不能发动仁德。 ");
-
-                var support = GetTacticalSupport(view, role, target);
-                var recoveryTarget = _usesFormalRende ? self : target;
-                var recoveryBonus = self.HandCount >= 2 && recoveryTarget.Hp < recoveryTarget.MaxHp ? 18d : 0d;
-                return (
-                    16d + support * 18d + Math.Min(self.HandCount, 5) * 1.4d + recoveryBonus,
-                    $"向公开上最值得支持的目标 {target.Seat + 1} 交给手牌；支持收益 {support:0.#}，不读取目标暗牌。 ");
-            }
-
-            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndRecover)
-            {
-                var target = view.Players
-                    .Where(player => player.IsAlive && player.Hp < player.MaxHp)
-                    .OrderByDescending(player => GetTacticalSupport(view, role, player))
-                    .ThenBy(player => player.Hp)
-                    .ThenBy(player => player.Seat)
-                    .FirstOrDefault();
-                if (target is null)
-                    return (-100d, "没有受伤的存活角色，不能发动青囊。 ");
-
-                var support = GetTacticalSupport(view, role, target);
-                return (
-                    22d + support * 20d + (target.Hp <= 1 ? 10d : 0d),
-                    $"弃置一张低保留价值手牌令公开受伤目标 {target.Seat + 1} 回复 1 点；支持收益 {support:0.#}，不读取暗牌。 ");
-            }
-
-            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndRecoverTargets)
-            {
-                var targets = view.Players
-                    .Where(player => player.IsAlive && player.Hp < player.MaxHp)
-                    .OrderByDescending(player => GetTacticalSupport(view, role, player))
-                    .ThenBy(player => player.Hp)
-                    .ThenBy(player => player.Seat)
-                    .Take(action.MinTargetCount)
-                    .ToArray();
-                if (targets.Length < action.MinTargetCount)
-                    return (-100d, "受伤存活角色不足，不能发动回春。 ");
-
-                var support = targets.Sum(target => GetTacticalSupport(view, role, target));
-                var criticalTargets = targets.Count(target => target.Hp <= 1);
-                return (
-                    30d + support * 18d + criticalTargets * 12d,
-                    $"弃置两张低保留价值手牌令 {targets.Length} 名公开受伤目标各回复 1 点；综合支持收益 {support:0.#}，不读取暗牌。 ");
-            }
-
-            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndDraw)
-            {
-                var selectableCards = GetActiveSkillSelectableCards(self, action);
-                var discardCandidate = selectableCards
-                    .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
-                    .ThenBy(card => card.Id)
-                    .FirstOrDefault();
-                var candidateName = discardCandidate is null
-                    ? "没有可弃置牌"
-                    : $"优先弃置【{discardCandidate.DisplayName}】";
-                return (
-                    12d + Math.Min(selectableCards.Count, 6) * 0.7d,
-                    $"发动{action.Description}，弃置一张低保留价值牌并摸一张；{candidateName}，只使用自己的过滤视图。 ");
-            }
-
-            var handPressure = Math.Min(self.HandCount, 6) * 1.2d;
-            var missingHp = Math.Max(0, self.MaxHp - self.Hp);
-            return (
-                28d + missingHp * 8d - handPressure,
-                $"发动{action.Description}，以公开体力换取两张牌；当前体力 {self.Hp}/{self.MaxHp}，不读取暗牌。 ");
-        }
-
         if (action.Kind == LegalActionKind.EndPlay) return (0, "保留没有正收益的牌，结束出牌。");
 
         if (action.Kind is LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage)

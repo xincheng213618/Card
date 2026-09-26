@@ -64,7 +64,7 @@ internal static class ProgramExecutionPlanChecks
 
     private static SkillProgram Load() => SkillProgramCatalog.Load(
         """
-        {"schemaVersion":59,"skills":[{"id":"fixture:plan","revision":1,"minimumRulesVersion":169,
+        {"schemaVersion":60,"skills":[{"id":"fixture:plan","revision":1,"minimumRulesVersion":170,
           "activations":[{"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,
             "targetKind":"otherLiving","usesPerTurn":1,"effects":[
               {"op":"draw","target":"owner","amount":1},

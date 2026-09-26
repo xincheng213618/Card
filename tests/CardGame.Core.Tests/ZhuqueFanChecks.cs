@@ -143,7 +143,8 @@ internal static class ZhuqueFanChecks
                     "Jijiang Zhuque fixture did not resume play after equipping.");
             }
             var jijiang = game.GetHumanLegalActions().Single(action =>
-                action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Jijiang);
+                action.Kind == LegalActionKind.UseProgramSkill &&
+                action.ProgramSkillId == "classic:jijiang");
             var full = game.CreateSnapshot(0, revealAll: true);
             var rebel = jijiang.SelectableTargetSeats.FirstOrDefault(seat =>
                 full.Players[seat].Role == Role.Rebel, -1);
@@ -152,9 +153,10 @@ internal static class ZhuqueFanChecks
                 continue;
             }
 
-            var requested = game.Submit(new UseSkillCommand(
+            var requested = game.Submit(new UseProgramSkillCommand(
                 0,
-                SkillKind.Jijiang,
+                "classic:jijiang",
+                jijiang.ProgramActivationId!,
                 [],
                 [rebel],
                 game.Revision,
@@ -210,19 +212,21 @@ internal static class ZhuqueFanChecks
                 "The post-Jijiang Fire Slash did not settle.");
         }
 
-        var resolved = selected.Events.Select(item => item.Payload)
-            .OfType<JijiangResolvedEvent>()
-            .Last(item => item is { IsActiveUse: true, Succeeded: true });
         var converted = selected.Events.Select(item => item.Payload)
             .OfType<ZhuqueFanConvertedEvent>()
             .Last(item => item.SourceSeat == 0);
         var damage = selected.Events.Select(item => item.Payload)
             .OfType<DamageRequestedEvent>()
             .Last(item => item.SourceSeat == 0 && item.TargetSeat == targetSeat);
-        Require(resolved.EffectiveSlashKind == CardKind.FireSlash &&
-                resolved.ProviderSeat is not null &&
-                resolved.SlashCardId is { } slashCardId &&
-                converted.PhysicalCardIds.Contains(slashCardId) &&
+        var slashCardId = converted.PhysicalCardIds.Single();
+        Require(selected.Events.Select(item => item.Payload).OfType<ProgramSkillStartedEvent>()
+                    .Any(item => item.OwnerSeat == 0 && item.SkillId == "classic:jijiang") &&
+                selected.Events.Select(item => item.Payload).OfType<CardUsedEvent>()
+                    .Any(item => item.CardId == slashCardId && item.SourceSeat == 0 &&
+                        item.TargetSeat == targetSeat && item.CardKind == CardKind.FireSlash) &&
+                selected.CardMovements.Any(item => item.CardId == slashCardId &&
+                    item.From.Zone == CardZoneKind.Hand && item.From.OwnerSeat != 0 &&
+                    item.To == CardLocation.Processing && item.Reason == CardMoveReasons.Use) &&
                 damage.Nature == DamageNature.Fire,
             "Jijiang must let Liu Bei convert the provider's ordinary Slash into one Fire Slash after provision.");
     }

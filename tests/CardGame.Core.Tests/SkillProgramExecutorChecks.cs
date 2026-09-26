@@ -132,6 +132,109 @@ internal static class SkillProgramExecutorChecks
             null);
     }
 
+    public static void ActiveActivationContractsRejectInvalidDefinitionsAndPreserveOrder()
+    {
+        const string orderedPair =
+            """{"id":"pair","minCards":0,"maxCards":0,"minTargets":2,"maxTargets":2,"targetKind":"otherLivingMale","usesPerTurn":1,"effects":[{"op":"startVirtualDuel","target":"owner"}]}""";
+        var pair = ProgramWithActivations(orderedPair);
+        Require(pair.Activations.Single().MinTargets == 2 &&
+                pair.Activations.Single().TargetKind == SkillProgramTargetKind.OtherLivingMale,
+            "An ordered pair must be represented directly by the activation contract.");
+        var runtime = Runtime(pair, selectedTargets: [2, 1], activationId: "pair");
+        new SkillProgramExecutor().Run(runtime.Frame!.Id, runtime, runtime);
+        Require(runtime.Calls.SequenceEqual(["virtual-duel:0:2,1"]) &&
+                runtime.Frame is { InstructionIndex: 1 } && runtime.Completed is null,
+            "The shared executor must pass both selected targets in command order and suspend once.");
+
+        Throws<InvalidOperationException>(() => ProgramWithActivations(
+            orderedPair.Replace("\"maxTargets\":2", "\"maxTargets\":17", StringComparison.Ordinal)),
+            "bounded player selection limit");
+        Throws<InvalidOperationException>(() => ProgramWithActivations(
+            orderedPair.Replace("\"minTargets\":2", "\"minTargets\":1", StringComparison.Ordinal)),
+            "selected target set");
+        Throws<InvalidOperationException>(() => ProgramWithActivations(
+            orderedPair.Replace("\"maxTargets\":2", "\"maxTargets\":3", StringComparison.Ordinal)),
+            "selected target set");
+
+        const string variableTargets =
+            """{"id":"wounded","minCards":0,"maxCards":0,"minTargets":2,"maxTargets":3,"targetKind":"anyWounded","usesPerTurn":1,"effects":[{"op":"recover","target":"selectedTargets","amount":1}]}""";
+        var wounded = ProgramWithActivations(variableTargets).Activations.Single();
+        Require(wounded.MinTargets == 2 && wounded.MaxTargets == 3 &&
+                wounded.TargetKind == SkillProgramTargetKind.AnyWounded,
+            "A bounded target range must remain a direct activation selection.");
+
+        const string suited =
+            """{"id":"suited","minCards":2,"maxCards":2,"selectedCardsSameSuit":true,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":2},{"op":"draw","target":"owner","amount":1}]}""";
+        Require(ProgramWithActivations(suited).Activations.Single().SelectedCardsSameSuit,
+            "Same-suit selection must survive definition loading for published action and submit validation.");
+        Throws<InvalidOperationException>(() => ProgramWithActivations(
+            suited.Replace("\"minCards\":2,\"maxCards\":2", "\"minCards\":1,\"maxCards\":1", StringComparison.Ordinal)),
+            "exact selection of at least two");
+        Throws<InvalidOperationException>(() => ProgramWithActivations(
+            suited.Replace("\"maxCards\":2", "\"maxCards\":3", StringComparison.Ordinal)),
+            "exact selection of at least two");
+
+        const string first =
+            """{"id":"first","usageGroup":"shared","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"draw","target":"owner","amount":1}]}""";
+        var second = first.Replace("\"id\":\"first\"", "\"id\":\"second\"", StringComparison.Ordinal);
+        var grouped = ProgramWithActivations(first + "," + second).Activations;
+        Require(grouped.Count == 2 && grouped.All(item => item.UsageGroup == "shared" && item.UsesPerTurn == 1),
+            "Distinct activations must retain the same shared usage key and limit.");
+        Throws<InvalidOperationException>(() => ProgramWithActivations(first + "," +
+            second.Replace("\"usesPerTurn\":1", "\"usesPerTurn\":2", StringComparison.Ordinal)),
+            "usageGroup");
+    }
+
+    public static void ActivePrimitiveHandlersUseTheExplicitSharedHost()
+    {
+        var variableGift = ProgramWithActivations(
+            """{"id":"gift","minCards":1,"maxCards":null,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"giveSelected","target":"selectedTarget"}]}""");
+        var giftRuntime = Runtime(variableGift, selectedCards: [10, 11], selectedTargets: [1], activationId: "gift");
+        new SkillProgramExecutor().Run(giftRuntime.Frame!.Id, giftRuntime, giftRuntime);
+        Require(giftRuntime.Calls.SequenceEqual([
+                "move:0:1:10,11:give:skill-program.fixture:executor.GiveSelected"
+            ]) && giftRuntime.Completed is { Completed: true },
+            "A variable-size selected gift must consume the complete frozen selection once.");
+
+        var random = ProgramWithActivations(
+            """{"id":"random","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"transferRandomOwnedCard","target":"selectedTarget","resultBind":"publicGift"}]}""");
+        var randomRuntime = Runtime(random, selectedTargets: [1], activationId: "random");
+        new SkillProgramExecutor().Run(randomRuntime.Frame!.Id, randomRuntime, randomRuntime);
+        Require(randomRuntime.Calls.SequenceEqual(["random-transfer:0:1:publicGift"]) &&
+                randomRuntime.Frame is { InstructionIndex: 1 },
+            "Random transfer must dispatch through the explicit host and retain its awaiting frame.");
+
+        var faction = ProgramWithActivations(
+            """{"id":"request","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLivingSlashable","usesPerTurn":1,"effects":[{"op":"requestFactionCard","target":"selectedTarget","providerFactionId":"shu","requiredKind":"slash"}]}""");
+        var factionRuntime = Runtime(faction, selectedTargets: [1], activationId: "request");
+        new SkillProgramExecutor().Run(factionRuntime.Frame!.Id, factionRuntime, factionRuntime);
+        Require(factionRuntime.Calls.SequenceEqual(["faction-card:0:1:shu:Slash"]) &&
+                factionRuntime.Frame is { InstructionIndex: 1 },
+            "Faction request must carry its selected target, faction and card kind to the shared host.");
+
+        var count = ProgramWithActivations(
+            """{"id":"count","minCards":1,"maxCards":1,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1},{"op":"accumulateSelectedCardCount","target":"owner","usageId":"phase-gifts","threshold":2,"resultBind":"thresholdResult"}]}""");
+        var countRuntime = Runtime(count, selectedCards: [10], activationId: "count");
+        new SkillProgramExecutor().Run(countRuntime.Frame!.Id, countRuntime, countRuntime);
+        Require(countRuntime.Calls.SequenceEqual([
+                "move:0:0:10:discard:skill-program.fixture:executor.DiscardSelected",
+                "accumulate-selected:0:phase-gifts:2:thresholdResult"
+            ]) &&
+                countRuntime.Completed is { Completed: true },
+            "The phase counter must dispatch to the explicit host and finish exactly once.");
+    }
+
+    private static SkillProgram ProgramWithActivations(string activations)
+    {
+        var rules = $$"""
+            {"schemaVersion":60,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,
+            "modifiers":[],"viewAs":[],"activations":[{{activations}}]}]}
+            """;
+        const string presentation =
+            """{"schemaVersion":3,"skills":{"fixture:executor":{"name":"Executor","description":"Fixture"}}}""";
+        return SkillProgramCatalog.Load(rules, presentation).Programs["fixture:executor"];
+    }
+
     private static SkillProgram Program(
         string effects,
         int minCards = 0,
@@ -140,7 +243,7 @@ internal static class SkillProgramExecutorChecks
         int maxTargets = 0)
     {
         var rules = $$"""
-            {"schemaVersion":59,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":169,"modifiers":[],"viewAs":[],
+            {"schemaVersion":60,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],
             "activations":[{"id":"run","minCards":{{minCards}},"maxCards":{{maxCards}},
             "minTargets":{{minTargets}},"maxTargets":{{maxTargets}},"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{{effects}}]}]}]}
@@ -153,13 +256,14 @@ internal static class SkillProgramExecutorChecks
     private static FakeRuntime Runtime(
         SkillProgram program,
         IReadOnlyList<int>? selectedCards = null,
-        IReadOnlyList<int>? selectedTargets = null)
+        IReadOnlyList<int>? selectedTargets = null,
+        string activationId = "run")
     {
         var frame = new ProgramSkillFrame(
             41,
             0,
             program.Id,
-            "run",
+            activationId,
             program.GameplayHash,
             0,
             selectedCards ?? [],
@@ -265,6 +369,33 @@ internal static class SkillProgramExecutorChecks
                 ? $"recover:{ownerSeat}:{targetSeat}:{amount}"
                 : $"recover:{ownerSeat}:{targetSeat}:{amount}:{numberExpression}:{sourceBind}");
 
+        public void RecoverSelectedTargets(long frameId, int ownerSeat, int amount) =>
+            Calls.Add($"recover-selected-targets:{frameId}:{ownerSeat}:{amount}");
+
+        public SkillProgramStepOutcome StartVirtualDuel(ProgramSkillFrame frame)
+        {
+            Calls.Add($"virtual-duel:{frame.OwnerSeat}:{string.Join(',', frame.SelectedTargetSeats)}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public SkillProgramStepOutcome RequestFactionCard(ProgramSkillFrame frame, int targetSeat,
+            string providerFactionId, CardKind requiredKind)
+        {
+            Calls.Add($"faction-card:{frame.OwnerSeat}:{targetSeat}:{providerFactionId}:{requiredKind}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public SkillProgramStepOutcome TransferRandomOwnedCard(ProgramSkillFrame frame, int targetSeat,
+            string resultBind)
+        {
+            Calls.Add($"random-transfer:{frame.OwnerSeat}:{targetSeat}:{resultBind}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public void AccumulateSelectedCardCount(ProgramSkillFrame frame, string usageId,
+            int threshold, string resultBind) =>
+            Calls.Add($"accumulate-selected:{frame.OwnerSeat}:{usageId}:{threshold}:{resultBind}");
+
         public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount)
         {
             Calls.Add($"lose-hp:{targetSeat}:{amount}");
@@ -287,7 +418,7 @@ internal static class SkillProgramExecutorChecks
             return SkillProgramStepOutcome.AwaitChild;
         }
 
-        public void MoveSelected(
+        public SkillProgramStepOutcome MoveSelected(
             ProgramSkillFrame frame,
             int targetSeat,
             IReadOnlyList<int> cardIds,
@@ -297,6 +428,7 @@ internal static class SkillProgramExecutorChecks
             foreach (var cardId in cardIds) HandCards.Remove(cardId);
             Calls.Add($"move:{frame.OwnerSeat}:{targetSeat}:{string.Join(',', cardIds)}:" +
                        $"{(toDiscard ? "discard" : "give")}:{reason.Value}");
+            return SkillProgramStepOutcome.Continue;
         }
 
         public SkillProgramStepOutcome InsertPhase(

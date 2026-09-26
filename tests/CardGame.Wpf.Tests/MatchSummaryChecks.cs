@@ -26,7 +26,7 @@ internal static class MatchSummaryChecks
             Event(new DamageAppliedEvent(0, 1, 2, 0)),
             Event(new DamageAppliedEvent(0, 2, 1, 2)),
             Event(new DamageAppliedEvent(-1, 0, 1, 3)),
-            Event(new SkillHpLostEvent(2, 0, SkillKind.Kujin, 2, 1)),
+            Event(new ProgramSkillHpLostEvent(2, "classic:kujin", 0, 2, 1)),
             Event(new RecoveryAppliedEvent(0, 0, 1, 2)),
             Event(new RecoveryAppliedEvent(0, 2, 2, 4)),
             Event(new DyingResponseEvent(3, 0, true, 111) { UsedPeachPhysicalCardKind = CardKind.Dodge }),

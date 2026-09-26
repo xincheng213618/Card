@@ -29,10 +29,6 @@ public sealed partial class MainViewModel
             if (_snapshot is null || _snapshot.Players.SingleOrDefault(player => player.IsHuman) is not { } human)
                 return [];
 
-            var available = HumanActiveSkillActions
-                .Where(action => action.Skill is not null)
-                .Select(action => action.Skill!.Value)
-                .ToHashSet();
             var availablePrograms = HumanActiveSkillActions
                 .Where(action => action.ProgramSkillId is not null)
                 .Select(action => action.ProgramSkillId!)
@@ -58,10 +54,8 @@ public sealed partial class MainViewModel
                             {
                                 var enabled = (slot.Revealed );
                                 var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
-                                             skill.Program?.Activations.Count > 0 ||
-                                             skill.LegacyKind is { } kind && ActiveActionCatalog.Find(kind) is not null;
-                                var isAvailable = availablePrograms.Contains(skill.Id) ||
-                                                  skill.LegacyKind is { } legacyKind && available.Contains(legacyKind);
+                                             skill.Program?.Activations.Count > 0;
+                                var isAvailable = availablePrograms.Contains(skill.Id);
                                 return new HumanSkillViewModel(
                                     skill.Name,
                                     GetVisibleSkillDescription(skill),
@@ -93,10 +87,8 @@ public sealed partial class MainViewModel
                         var runtimeState = human.SkillRuntimeStates?
                             .SingleOrDefault(state => state.SkillId == skill.Id);
                         var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
-                                     skill.Program?.Activations.Count > 0 ||
-                                     skill.LegacyKind is { } kind && ActiveActionCatalog.Find(kind) is not null;
-                        var isAvailable = availablePrograms.Contains(skill.Id) ||
-                                          skill.LegacyKind is { } legacyKind && available.Contains(legacyKind);
+                                     skill.Program?.Activations.Count > 0;
+                        var isAvailable = availablePrograms.Contains(skill.Id);
                         var isFuhunGranted = runtimeState?.IsAcquired == true &&
                             human.SkillRuntimeStates?.Any(state =>
                                 state.SkillId == "classic:fuhun" &&
@@ -130,18 +122,19 @@ public sealed partial class MainViewModel
                 .Where(skill => skill.Kind != SkillKind.None)
                 .Select(skill =>
                 {
-                    var active = ActiveActionCatalog.Find(skill.Kind) is not null;
+                    var active = skill.ActionForms.HasFlag(SkillActionForm.Active);
+                    var available = skill.ContentId is { } id && availablePrograms.Contains(id);
                     return new HumanSkillViewModel(
                         skill.Name,
                         skill.Description,
                         GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
                         GetSkillStateText(
                             active,
-                            available.Contains(skill.Kind),
+                            available,
                             skill.ExecutionForms,
                             "规则自动生效"),
                         human.GeneralName,
-                        available.Contains(skill.Kind),
+                        available,
                         false) { ContentId = skill.ContentId, LegacyKind = skill.Kind };
                 })
                  .ToArray();
@@ -297,18 +290,31 @@ public sealed partial class MainViewModel
         : IsActiveSkillSelectionPending ? $"发动{HumanActiveSkillName}"
         : !CanPlaySelected && CanPlaySelectedAsSlash ? AlternatePlayText
         : Hand.FirstOrDefault(card => card.IsSelected) is { } card ? $"使用 {card.Name}" : "出 牌";
-    public IReadOnlyList<LegalAction> HumanActiveSkillActions => _snapshot is not null &&
-        _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard
-            ? _game.GetHumanLegalActions().Where(action =>
-                action.Kind is LegalActionKind.UseSkill or LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill).ToArray()
-            : [];
+    public IReadOnlyList<LegalAction> HumanActiveSkillActions
+    {
+        get
+        {
+            if (_snapshot?.PendingDecision?.Kind != DecisionKind.PlayCard) return [];
+            var skillIds = _snapshot.Players.Single(player => player.IsHuman).Skills?
+                .Select(skill => skill.ContentId).ToArray() ?? [];
+            return _game.GetHumanLegalActions().Where(action =>
+                    action.Kind is LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill)
+                .OrderBy(action =>
+                {
+                    var index = Array.IndexOf(skillIds, action.ProgramSkillId);
+                    return index < 0 ? int.MaxValue : index;
+                }).ToArray();
+        }
+    }
     public IReadOnlyList<LegalAction> AdditionalActiveSkillActions => HumanActiveSkillActions.Skip(1).ToArray();
-    private LegalAction? HumanActiveSkillAction => HumanActiveSkillActions.FirstOrDefault(action =>
-        action.Skill == _selectedActiveSkillKind &&
-        action.EquipmentKind == _selectedEquipmentEffectKind &&
-        action.ProgramSkillId == _selectedProgramSkillId &&
-        action.ProgramActivationId == _selectedProgramActivationId &&
-        action.ProgramSkillOwnerSeat == _selectedProgramSkillOwnerSeat) ?? HumanActiveSkillActions.FirstOrDefault();
+    private LegalAction? HumanActiveSkillAction =>
+        _selectedEquipmentEffectKind is not null || _selectedProgramSkillId is not null
+            ? HumanActiveSkillActions.FirstOrDefault(action =>
+                action.EquipmentKind == _selectedEquipmentEffectKind &&
+                action.ProgramSkillId == _selectedProgramSkillId &&
+                action.ProgramActivationId == _selectedProgramActivationId &&
+                action.ProgramSkillOwnerSeat == _selectedProgramSkillOwnerSeat)
+            : HumanActiveSkillActions.FirstOrDefault();
     private bool IsActiveSkillCardSelectionPending =>
         _isSelectingActiveSkillCards &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
@@ -326,9 +332,7 @@ public sealed partial class MainViewModel
     private string ActiveSkillName(LegalAction action) => action.ProgramSkillId is { } programSkillId &&
                                                           _contentRegistry.Skills.TryGetValue(programSkillId, out var programSkill)
         ? programSkill.Name
-        : action.Skill is { } skill
-            ? SkillRegistry.Get(skill).Name
-            : action.EquipmentKind is { } equipment
+        : action.EquipmentKind is { } equipment
                 ? EquipmentCatalog.Get(equipment).DisplayName
                 : "技能";
     public bool CanConfirmActiveSkill => IsActiveSkillSelectionPending && HumanActiveSkillAction is { } action &&
@@ -336,7 +340,7 @@ public sealed partial class MainViewModel
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
         _selectedActiveSkillCardIds.All(id => action.SelectableCardIds.Contains(id)) &&
         _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat)) &&
-        (action.Skill != SkillKind.Luanji || Hand.Where(card => _selectedActiveSkillCardIds.Contains(card.Id))
+        (!action.SelectedCardsSameSuit || Hand.Where(card => _selectedActiveSkillCardIds.Contains(card.Id))
             .Select(card => card.SuitGlyph).Distinct(StringComparer.Ordinal).Count() == 1);
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;
     public string ActiveSkillButtonText
@@ -607,7 +611,6 @@ public sealed partial class MainViewModel
         _discardCardIds.Clear();
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
-        _selectedActiveSkillKind = null;
         _selectedEquipmentEffectKind = null;
         _selectedProgramSkillId = null;
         _selectedProgramActivationId = null;

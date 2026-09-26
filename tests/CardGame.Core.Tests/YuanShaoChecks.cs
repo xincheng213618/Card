@@ -25,8 +25,9 @@ internal static class YuanShaoChecks
         var beforeInvalid = game.SerializeState();
         var acceptedCommandsBeforeInvalid = game.AcceptedCommands.Count;
         var eventsBeforeInvalid = game.Events.Count;
-        var rejected = game.Submit(new UseSkillCommand(
-            0, SkillKind.Luanji, differentSuitPair.Select(card => card.Id).ToArray(), [],
+        var rejected = game.Submit(new UseProgramSkillCommand(
+            0, "classic:luanji", "same-suit-pair-as-arrow-barrage",
+            differentSuitPair.Select(card => card.Id).ToArray(), [],
             game.Revision, prompt.PromptId));
         Require(!rejected.Accepted && rejected.Error is not null &&
                 game.SerializeState() == beforeInvalid &&
@@ -34,22 +35,35 @@ internal static class YuanShaoChecks
                 game.Events.Count == eventsBeforeInvalid,
             "An off-suit Luanji pair must be rejected atomically.");
 
-        var used = game.Submit(new UseSkillCommand(
-            0, SkillKind.Luanji, pair.Select(card => card.Id).ToArray(), [], game.Revision, prompt.PromptId));
+        var used = game.Submit(new UseProgramSkillCommand(
+            0, "classic:luanji", "same-suit-pair-as-arrow-barrage",
+            pair.Select(card => card.Id).ToArray(), [], game.Revision, prompt.PromptId));
         Require(used.Accepted, used.Error?.Message ?? "The legal Luanji pair was rejected.");
+        var paused = GameReplay.Restore(GameCheckpointJson.Deserialize(
+            GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+        Require(paused.ResolutionStack.Count > 0 &&
+                pair.All(card => paused.CreateCardZoneDiagnostics()
+                    .Single(zone => zone.CardId == card.Id).Location.Zone == CardZoneKind.Processing),
+            "Luanji must pause with both physical source cards in Processing.");
         DriveUntilLuanjiFinishes(game);
+        DriveUntilLuanjiFinishes(paused);
 
-        var converted = game.Events.Select(item => item.Payload).OfType<LuanjiConvertedEvent>().Single();
-        Require(converted.PhysicalCardIds.Order().SequenceEqual(pair.Select(card => card.Id).Order()) &&
-                converted.Suit == pair[0].Suit &&
-                pair.All(card => game.CreateCardZoneDiagnostics().Single(zone => zone.CardId == card.Id).Location.Zone !=
-                    CardZoneKind.Processing) &&
+        Require(game.Events.Select(item => item.Payload).OfType<ProgramSkillStartedEvent>()
+                    .Any(item => item.SkillId == "classic:luanji" &&
+                        item.ActivationId == "same-suit-pair-as-arrow-barrage") &&
+                pair.All(card => game.CreateCardZoneDiagnostics().Single(zone => zone.CardId == card.Id).Location ==
+                    CardLocation.DiscardPile) &&
                 pair.All(card => game.CardMovements.Any(move => move.CardId == card.Id &&
-                    move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing &&
-                    move.Reason == CardMoveReasons.Use)) &&
+                    move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing)) &&
+                pair.All(card => game.CardMovements.Any(move => move.CardId == card.Id &&
+                    move.From == CardLocation.Processing && move.To == CardLocation.DiscardPile)) &&
                 game.Events.Select(item => item.Payload).OfType<GroupCardUsedEvent>()
-                    .Any(item => item.CardKind == CardKind.ArrowBarrage),
-            "Luanji must consume the exact same-suit pair as one Arrow Barrage through the group response chain.");
+                    .Any(item => item.CardKind == CardKind.ArrowBarrage && item.TargetSeats.Count >= 2),
+            "Luanji must resolve multiple target windows and discard both exact source cards once.");
+        Require(SnapshotJson.Serialize(paused.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                paused.CreateCardZoneDiagnostics().SequenceEqual(game.CreateCardZoneDiagnostics()),
+            "The suspended Arrow Barrage must resume all targets and both physical cards identically.");
 
         var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
@@ -76,7 +90,8 @@ internal static class YuanShaoChecks
             for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
                 if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
             if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } &&
-                game.GetHumanLegalActions().Any(action => action is { Kind: LegalActionKind.UseSkill, Skill: SkillKind.Luanji }) &&
+                game.GetHumanLegalActions().Any(action => action is
+                    { Kind: LegalActionKind.UseProgramSkill, ProgramSkillId: "classic:luanji" }) &&
                 game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Select(card => card.Suit).Distinct().Count() >= 2)
                 return game;
         }

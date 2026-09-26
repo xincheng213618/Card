@@ -148,7 +148,7 @@ internal static class NationalWarChecks
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
             System.Reflection.BindingFlags.NonPublic,
             binder: null,
-            args: [0L, 1, 0, null, 1, CardKind.Slash, false, false, null, null, null, null, false, null, null, null, null, null],
+            args: [0L, 1, 0, null, 1, CardKind.Slash, false, false, null, null, null, false, null, null, null, null, null, null],
             culture: null)!;
         string[] Candidates()
         {
@@ -183,7 +183,7 @@ internal static class NationalWarChecks
                 {
                     var catalog = SkillProgramCatalog.Load(
                         """
-                        {"schemaVersion":59,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":169,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
+                        {"schemaVersion":60,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":170,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
                         """,
                         """
                         {"schemaVersion":3,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}

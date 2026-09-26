@@ -44,7 +44,7 @@ internal sealed record ReadCardSet(string Name) : ProgramResourceOperation;
 internal sealed record MoveCardSet(string Source, string? Except, SkillProgramCardDestination Destination) : ProgramResourceOperation;
 internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
 internal sealed record ReadSelectedTarget : ProgramResourceOperation;
-internal sealed record ReadTargetSet(int Minimum) : ProgramResourceOperation;
+internal sealed record ReadTargetSet(int Minimum, int? Maximum = null) : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
 internal sealed record RequireAnyContext(ProgramContextCapability Capabilities) : ProgramResourceOperation;
 internal sealed record SelectSingleTarget : ProgramResourceOperation;
@@ -418,6 +418,9 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
             replacementSuits.Count > 0 && (minimumReplacementRank > maximumReplacementRank || maximumReplacementRank > 13))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: replacement suits and valid rank bounds must appear together.");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target == SkillProgramEffectTarget.SelectedTargets &&
+            (r.Has("numberExpression") || r.Has("sourceBind")))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargets recovery requires a fixed amount.");
         if (!r.Has("numberExpression"))
         {
             if (r.Has("sourceBind"))
@@ -750,7 +753,11 @@ internal sealed class GiveSelectedProgramOperationDescriptor : ProgramOperationD
         r.AllowOnly("op", "target", "amount", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.SelectedTarget) throw new InvalidOperationException($"Invalid skill program at {r.Path}: giveSelected requires selectedTarget.");
-        var effect = new SkillProgramEffect(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition());
+        // Zero is the established resource-contract sentinel for all selected cards.
+        // The runtime already moves the complete frozen selection; an explicit amount
+        // retains the old exact-count definition for fixed-size activations.
+        var amount = r.Has("amount") ? DrawProgramOperationDescriptor.Amount(r, 20) : 0;
+        var effect = new SkillProgramEffect(Op, target, amount, r.Condition());
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>

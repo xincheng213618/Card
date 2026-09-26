@@ -19,7 +19,7 @@ internal static class TurnEndingBoundaryChecks
         {
             var migrated = current.Skills[skillId];
             Require(migrated.LegacyKind is null &&
-                    migrated.Program is { MinimumRulesVersion: 169 } program &&
+                    migrated.Program is { MinimumRulesVersion: 170 } program &&
                     program.Triggers.Single() is
                     {
                         Window: SkillProgramTriggerWindow.TurnEnding,
@@ -41,7 +41,7 @@ internal static class TurnEndingBoundaryChecks
         Require(current.Skills["classic:jujian"] is
                 {
                     LegacyKind: null,
-                    Program: { MinimumRulesVersion: 169 } jujian
+                    Program: { MinimumRulesVersion: 170 } jujian
                 } &&
                 jujian.Triggers.Single() is
                 {
@@ -230,8 +230,8 @@ internal static class TurnEndingBoundaryChecks
     private static ContentRegistry FrozenFactsRegistry()
     {
         const string rules = """
-            {"schemaVersion":59,"skills":[{"id":"fixture:turn-ending-facts","revision":1,
-            "minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
+            {"schemaVersion":60,"skills":[{"id":"fixture:turn-ending-facts","revision":1,
+            "minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
             {"id":"first-lose-hp","window":"turnEnding","subject":"owner","optional":false,"priority":100,
             "effects":[{"op":"loseHp","target":"owner","amount":1}]},
             {"id":"second-frozen-check","window":"turnEnding","subject":"owner","optional":true,"priority":-100,

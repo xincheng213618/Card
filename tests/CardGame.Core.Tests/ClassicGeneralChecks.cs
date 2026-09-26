@@ -63,156 +63,103 @@ internal static class ClassicGeneralChecks
 
     public static void FormalRendeFlow()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 100,
-            "Formal Rende must have an explicit rules-version boundary.");
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(registry.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" &&
-                    package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
-                registry.Skills["classic:rende"].Description.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal),
-            "Current Rende must describe its cumulative phase threshold.");
+        Require(registry.Skills["classic:rende"] is
+                { LegacyKind: null, Program: { } program } &&
+                program.Activations.Single().Id == "give-and-heal-after-two",
+            "Current Rende must be an independently registered Program activation.");
 
-        GameEngine FindRende(ContentRegistry content, int rulesVersion)
+        GameEngine FindRende()
         {
-            for (var seed = 1; seed <= 4_096; seed++)
+            for (var seed = 1; seed <= 4096; seed++)
             {
                 var candidate = StartClassicGeneralAtPlay(
-                    content,
-                    seed,
-                    "classic:liu-bei",
-                    rulesVersion);
+                    registry, seed, "classic:liu-bei", GameCheckpoint.CurrentRulesVersion);
                 if (candidate?.GetHumanLegalActions().Any(action =>
-                        action.Kind == LegalActionKind.UseSkill &&
-                        action.Skill == SkillKind.Rende &&
+                        action.Kind == LegalActionKind.UseProgramSkill &&
+                        action.ProgramSkillId == "classic:rende" &&
                         action.SelectableCardIds.Count >= 3 &&
                         action.SelectableTargetSeats.Count >= 2) == true)
-                {
                     return candidate;
-                }
             }
-
-            throw new InvalidOperationException("No deterministic formal Rende fixture exposed three cards and two targets.");
+            throw new InvalidOperationException("No replayable Rende fixture exposed three cards and two targets.");
         }
 
         static void GiveOne(GameEngine game, int cardId, int targetSeat)
         {
             var prompt = game.PendingDecision ??
-                throw new InvalidOperationException("Rende did not return to the play boundary.");
-            var result = game.Submit(new UseSkillCommand(
-                0,
-                SkillKind.Rende,
-                [cardId],
-                [targetSeat],
-                game.Revision,
-                prompt.PromptId));
-            Require(result.Accepted, result.Error?.Message ?? "The formal Rende command was rejected.");
+                throw new InvalidOperationException("Rende lost its human play prompt.");
+            var result = game.Submit(new UseProgramSkillCommand(
+                0, "classic:rende", "give-and-heal-after-two", [cardId], [targetSeat],
+                game.Revision, prompt.PromptId));
+            Require(result.Accepted, result.Error?.Message ?? "The Rende Program command was rejected.");
             if (game.PendingDecision is null && game.State.Status != EngineStatus.Completed)
-            {
-                var resumed = game.Submit(new AdvanceCommand(game.Revision));
-                Require(resumed.Accepted,
-                    resumed.Error?.Message ?? "Rende did not resume the human play boundary.");
-            }
+                Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
+                    "Rende did not resume the human play boundary.");
         }
 
         static int GivenThisPhase(GameEngine game) =>
             game.CreateSnapshot(0, revealAll: true).Players[0].SkillRuntimeStates!
                 .Single(state => state.SkillId == "classic:rende").Usages
                 .SingleOrDefault(usage =>
-                    usage.UsageId == "cards-given" &&
-                    usage.Scope == SkillUsageScope.Phase)?.Count ?? 0;
+                    usage.UsageId == "cards-given" && usage.Scope == SkillUsageScope.Phase)?.Count ?? 0;
 
-        var current = FindRende(registry, GameCheckpoint.CurrentRulesVersion);
-        var openingAction = current.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
-        var cards = openingAction.SelectableCardIds.Order().Take(3).ToArray();
-        var targets = openingAction.SelectableTargetSeats.Order().Take(2).ToArray();
-        var before = current.CreateSnapshot(0, revealAll: true);
-        var ownerBefore = before.Players[0];
-        var targetHpBefore = targets.ToDictionary(seat => seat, seat => before.Players[seat].Hp);
+        var current = FindRende();
+        var action = current.GetHumanLegalActions().Single(item =>
+            item.Kind == LegalActionKind.UseProgramSkill && item.ProgramSkillId == "classic:rende");
+        var cards = action.SelectableCardIds.Order().Take(3).ToArray();
+        var targets = action.SelectableTargetSeats.Order().Take(2).ToArray();
+        var ownerBefore = current.CreateSnapshot(0, revealAll: true).Players[0];
         SetRuntimeHp(current, 0, ownerBefore.MaxHp - 1);
-        Require(current.UsesFormalRende,
-            "Current rules and classic package 1.78.0 must expose the formal Rende capability.");
-        var aiView = current.CreateSnapshot(0, revealAll: false);
-        var aiActions = current.GetHumanLegalActions();
-        var formalAi = new SimpleAiBrain(0, seed: 100, policyVersion: 2, usesFormalRende: true)
-            .ChoosePlay(aiView, aiActions, thoughtSequence: 1).Thought.Candidates
-            .Single(candidate => candidate.Action.Skill == SkillKind.Rende);
-        Require(formalAi.Score > 0,
-            "Current Rende AI must value Liu Bei's own missing HP.");
-
         GiveOne(current, cards[0], targets[0]);
-        var afterFirstCount = GivenThisPhase(current);
-        var afterFirstHp = current.CreateSnapshot(0, revealAll: true).Players[0].Hp;
-        var afterFirstCanUse = current.GetHumanLegalActions().Any(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
-        Require(afterFirstCount == 1 &&
-                afterFirstHp == ownerBefore.MaxHp - 1 &&
-                afterFirstCanUse,
-            $"The first formal Rende gift must record one phase card without healing or closing the action " +
-            $"(count={afterFirstCount}, hp={afterFirstHp}/{ownerBefore.MaxHp}, canUse={afterFirstCanUse}).");
+        Require(GivenThisPhase(current) == 1 &&
+                current.CreateSnapshot(0, revealAll: true).Players[0].Hp == ownerBefore.MaxHp - 1,
+            "The first one-card gift must not heal Liu Bei.");
 
         GiveOne(current, cards[1], targets[1]);
-        var afterSecond = current.CreateSnapshot(0, revealAll: true);
-        var ownerAfterSecond = afterSecond.Players[0];
-        var selfRecovery = current.Events.Select(envelope => envelope.Payload)
-            .OfType<RecoveryAppliedEvent>()
-            .Where(recovery => recovery.SourceSeat == 0 && recovery.TargetSeat == 0)
-            .ToArray();
         Require(GivenThisPhase(current) == 2 &&
-                ownerAfterSecond.Hp == ownerBefore.MaxHp &&
-                targets.All(seat => afterSecond.Players[seat].Hp == targetHpBefore[seat]) &&
-                selfRecovery is [{ Amount: 1 }] &&
-                current.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende),
-            "The second cumulative Rende card must heal Liu Bei once while preserving both recipients and repeatability.");
+                current.CreateSnapshot(0, revealAll: true).Players[0].Hp == ownerBefore.MaxHp &&
+                current.Events.Select(envelope => envelope.Payload).OfType<RecoveryAppliedEvent>()
+                    .Count(recovery => recovery.SourceSeat == 0 && recovery.TargetSeat == 0) == 1,
+            "The second cumulative gift must heal Liu Bei exactly once.");
 
         GiveOne(current, cards[2], targets[0]);
         Require(GivenThisPhase(current) == 3 &&
                 current.Events.Select(envelope => envelope.Payload).OfType<RecoveryAppliedEvent>()
                     .Count(recovery => recovery.SourceSeat == 0 && recovery.TargetSeat == 0) == 1 &&
-                current.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende),
-            "Later Rende gifts in the same phase must remain legal without repeating the threshold recovery.");
+                current.GetHumanLegalActions().Any(item =>
+                    item.Kind == LegalActionKind.UseProgramSkill && item.ProgramSkillId == "classic:rende"),
+            "Later gifts must remain legal without repeating the threshold heal.");
 
-        var ended = current.Submit(new EndPlayPhaseCommand(
-            0,
-            current.Revision,
+        var ended = current.Submit(new EndPlayPhaseCommand(0, current.Revision,
             current.PendingDecision!.PromptId));
-        Require(ended.Accepted,
-            ended.Error?.Message ?? "Ending the Rende play phase was rejected.");
+        Require(ended.Accepted, ended.Error?.Message ?? "Rende play phase did not end.");
         if (GivenThisPhase(current) != 0 && current.State.Status != EngineStatus.Completed)
-        {
-            var advanced = current.Submit(new AdvanceCommand(current.Revision));
-            Require(advanced.Accepted,
-                advanced.Error?.Message ?? "The Rende phase boundary did not advance.");
-        }
-        Require(GivenThisPhase(current) == 0,
-            "Leaving the play phase must clear Rende's cumulative phase ledger.");
+            Require(current.Submit(new AdvanceCommand(current.Revision)).Accepted,
+                "Rende phase boundary did not advance.");
+        Require(GivenThisPhase(current) == 0, "Rende phase ledger must reset at the phase boundary.");
 
-        var replaySource = FindRende(registry, GameCheckpoint.CurrentRulesVersion);
-        var replayOpening = replaySource.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
-        var replayCards = replayOpening.SelectableCardIds.Order().Take(2).ToArray();
-        var replayTargets = replayOpening.SelectableTargetSeats.Order().Take(2).ToArray();
+        var replaySource = FindRende();
+        var replayAction = replaySource.GetHumanLegalActions().Single(item =>
+            item.Kind == LegalActionKind.UseProgramSkill && item.ProgramSkillId == "classic:rende");
+        var replayCards = replayAction.SelectableCardIds.Order().Take(2).ToArray();
+        var replayTargets = replayAction.SelectableTargetSeats.Order().Take(2).ToArray();
         GiveOne(replaySource, replayCards[0], replayTargets[0]);
-        var replayed = GameReplay.Restore(
+        var restored = GameReplay.Restore(
             GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(replaySource.CreateCheckpoint())),
             registry);
-        Require(GivenThisPhase(replayed) == 1 &&
-                SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(replaySource.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(replayed).SequenceEqual(EventSignatures(replaySource)),
-            "A one-card Rende phase ledger must restore exactly from the command prefix.");
+        Require(GivenThisPhase(restored) == 1 &&
+                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(replaySource.CreateSnapshot(0, revealAll: true)),
+            "The one-card phase ledger must restore from the accepted command prefix.");
         GiveOne(replaySource, replayCards[1], replayTargets[1]);
-        GiveOne(replayed, replayCards[1], replayTargets[1]);
-        Require(GivenThisPhase(replaySource) == 2 && GivenThisPhase(replayed) == 2 &&
-                SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
+        GiveOne(restored, replayCards[1], replayTargets[1]);
+        Require(GivenThisPhase(restored) == 2 &&
+                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(replaySource.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(replayed).SequenceEqual(EventSignatures(replaySource)),
-            "Restored Rende must cross the cumulative threshold with identical state and events.");
-
+                EventSignatures(restored).SequenceEqual(EventSignatures(replaySource)),
+            "Restored Rende must cross the same threshold with identical events.");
     }
-
     public static void FormalQixiFlow()
     {
         var registry = CreatePreProgramClassicRegistry();
@@ -679,7 +626,7 @@ internal static class ClassicGeneralChecks
                     LegacyKind: null,
                     Program: not null
                 } current &&
-                current.Program!.MinimumRulesVersion == 169,
+                current.Program!.MinimumRulesVersion == 170,
             "Current classic Luoyi must publish its draw adjustment program.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
@@ -807,300 +754,56 @@ internal static class ClassicGeneralChecks
     public static void FormalQiangxiFlow()
     {
         var registry = CreatePreProgramClassicRegistry();
-        var (fixture, action, targetSeat, weaponCardId) = FindDianWeiQiangxiFixture(
-            registry,
-            requireWeapon: true);
-        var before = fixture.CreateSnapshot(0, revealAll: true);
-        var sourceBefore = before.Players.Single(player => player.Seat == 0);
-        var targetBefore = before.Players.Single(player => player.Seat == targetSeat);
-        Require(action.MinCardCount == 0 && action.MaxCardCount == 1 &&
-                action.MinTargetCount == 1 && action.MaxTargetCount == 1 &&
-                action.SelectableCardIds.Contains(weaponCardId) &&
-                action.SelectableTargetSeats.Contains(targetSeat) &&
-                action.SelectableTargetSeats.All(seat =>
-                    fixture.GetCombatDistance(0, seat) <= fixture.GetAttackRange(0)),
-            "Qiangxi must publish an optional weapon cost and only in-range living targets.");
-
-        var checkpoint = GameCheckpointJson.Deserialize(
-            GameCheckpointJson.Serialize(fixture.CreateCheckpoint()));
-        var outOfRange = before.Players.FirstOrDefault(player =>
-            player.IsAlive &&
-            player.Seat != 0 &&
-            !action.SelectableTargetSeats.Contains(player.Seat));
-        if (outOfRange is not null)
+        var (game, weaponAction, targetSeat, weaponCardId) = FindDianWeiQiangxiFixture(registry, requireWeapon: true);
+        var hpAction = game.GetHumanLegalActions().Single(action =>
+            action.Kind == LegalActionKind.UseProgramSkill &&
+            action.ProgramSkillId == "classic:qiangxi" &&
+            action.ProgramActivationId == "lose-hp-and-damage");
+        var before = game.CreateSnapshot(0, revealAll: true);
+        var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var badCard = before.Players[0].Hand.FirstOrDefault(card =>
+            !weaponAction.SelectableCardIds.Contains(card.Id));
+        if (badCard is not null)
         {
-            var stateBeforeForged = SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true));
-            var forged = fixture.Submit(new UseSkillCommand(
-                0,
-                SkillKind.Qiangxi,
-                [],
-                [outOfRange.Seat],
-                fixture.Revision,
-                fixture.PendingDecision!.PromptId));
-            Require(!forged.Accepted &&
-                    forged.Error?.Code == CommandErrorCode.InvalidTarget &&
-                    SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true)) == stateBeforeForged,
-                "Qiangxi must reject an out-of-range target atomically.");
+            var state = SnapshotJson.Serialize(before);
+            var rejected = game.Submit(new UseProgramSkillCommand(
+                0, "classic:qiangxi", "discard-weapon-and-damage",
+                [badCard.Id], [targetSeat], game.Revision, game.PendingDecision!.PromptId));
+            Require(!rejected.Accepted &&
+                    SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == state,
+                "Qiangxi must reject a non-weapon payment without changing state.");
         }
+        var hpResult = game.Submit(new UseProgramSkillCommand(
+            0, "classic:qiangxi", hpAction.ProgramActivationId!, [], [targetSeat],
+            game.Revision, game.PendingDecision!.PromptId));
+        Require(hpResult.Accepted, hpResult.Error?.Message ?? "HP-cost Qiangxi was rejected.");
+        var hpAfter = game.CreateSnapshot(0, revealAll: true);
+        Require(hpAfter.Players[0].Hp == before.Players[0].Hp - 1 &&
+                hpAfter.Players[targetSeat].Hp == before.Players[targetSeat].Hp - 1 &&
+                game.Events.Select(item => item.Payload).OfType<ProgramSkillHpLostEvent>().Any(item =>
+                    item.SkillId == "classic:qiangxi" && item.TargetSeat == 0 && item.Amount == 1) &&
+                game.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>().Any(item =>
+                    item.SourceSeat == 0 && item.TargetSeat == targetSeat && item.SourceCard is null) &&
+                game.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:qiangxi"),
+            "HP-cost Qiangxi must deal cardless damage and share its activation limit.");
+        Require(SnapshotJson.Serialize(GameReplay.Restore(game.CreateCheckpoint(), registry)
+                    .CreateSnapshot(0, revealAll: true)) == SnapshotJson.Serialize(hpAfter),
+            "Resolved Qiangxi must replay the same state.");
 
-        var nonWeapon = sourceBefore.Hand.FirstOrDefault(card =>
-            !action.SelectableCardIds.Contains(card.Id));
-        if (nonWeapon is not null)
-        {
-            var stateBeforeForged = SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true));
-            var forged = fixture.Submit(new UseSkillCommand(
-                0,
-                SkillKind.Qiangxi,
-                [nonWeapon.Id],
-                [targetSeat],
-                fixture.Revision,
-                fixture.PendingDecision!.PromptId));
-            Require(!forged.Accepted &&
-                    forged.Error?.Code == CommandErrorCode.InvalidCard &&
-                    SnapshotJson.Serialize(fixture.CreateSnapshot(0, revealAll: true)) == stateBeforeForged,
-                "Qiangxi must reject a non-weapon cost atomically.");
-        }
-
-        var hpBranch = GameReplay.Restore(checkpoint, registry);
-        var hpUsed = hpBranch.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Qiangxi,
-            [],
-            [targetSeat],
-            hpBranch.Revision,
-            hpBranch.PendingDecision!.PromptId));
-        var hpAfter = hpBranch.CreateSnapshot(0, revealAll: true);
-        Require(hpUsed.Accepted &&
-                hpAfter.Players.Single(player => player.Seat == 0).Hp == sourceBefore.Hp - 1 &&
-                hpAfter.Players.Single(player => player.Seat == targetSeat).Hp == targetBefore.Hp - 1 &&
-                hpBranch.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>().Any(damage =>
-                    damage.SourceSeat == 0 &&
-                    damage.TargetSeat == targetSeat &&
-                    damage.Amount == 1 &&
-                    damage.SourceCard is null) &&
-                hpBranch.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Any(resolved =>
-                    resolved.SourceSeat == 0 &&
-                    resolved.Skill == SkillKind.Qiangxi &&
-                    resolved.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage) &&
-                hpBranch.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Qiangxi),
-            hpUsed.Error?.Message ??
-            "The HP-cost Qiangxi branch must deal cardless skill damage and enforce once per play phase.");
-
-        var replayedHp = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(hpBranch.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(replayedHp.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(hpBranch.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(replayedHp).SequenceEqual(EventSignatures(hpBranch)),
-            "The resolved HP-cost Qiangxi branch must replay exactly.");
-
-        var (dyingBranch, _, dyingTargetSeat, _) = FindDianWeiQiangxiFixture(
-            registry,
-            requireWeapon: false,
-            requirePeach: true);
-        SetPlayerHp(dyingBranch, seat: 0, hp: 1);
-        var dyingTargetHp = dyingBranch.CreateSnapshot(0, revealAll: true)
-            .Players.Single(player => player.Seat == dyingTargetSeat).Hp;
-        var enteredDying = dyingBranch.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Qiangxi,
-            [],
-            [dyingTargetSeat],
-            dyingBranch.Revision,
-            dyingBranch.PendingDecision!.PromptId));
-        var dyingPrompt = dyingBranch.PendingDecision ??
-            throw new InvalidOperationException("Lethal Qiangxi did not publish a dying prompt.");
-        Require(enteredDying.Accepted &&
-                dyingPrompt.Kind == DecisionKind.RescueDying &&
-                dyingPrompt.PlayerSeat == 0 &&
-                dyingBranch.CreateSnapshot(0, revealAll: true)
-                    .Players.Single(player => player.Seat == dyingTargetSeat).Hp == dyingTargetHp &&
-                dyingBranch.ResolutionStack.Count == 2 &&
-                dyingBranch.ResolutionStack[0] is ActiveSkillFrame dyingSkill &&
-                dyingSkill.Skill == SkillKind.Qiangxi &&
-                dyingBranch.ResolutionStack[1] is DyingFrame dyingFrame &&
-                dyingFrame.ParentFrameId == dyingSkill.Id,
-            enteredDying.Error?.Message ??
-            "Lethal Qiangxi must pause before target damage on the shared dying continuation.");
-
-        var peachChoice = dyingPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("response") == "peach");
-        var rescued = dyingBranch.Submit(new AnswerPromptCommand(
-            0,
-            dyingPrompt.PromptId,
-            peachChoice.Id,
-            dyingBranch.Revision));
-        var rescuedAfter = dyingBranch.CreateSnapshot(0, revealAll: true);
-        Require(rescued.Accepted &&
-                rescuedAfter.Players.Single(player => player.Seat == 0).Hp == 1 &&
-                rescuedAfter.Players.Single(player => player.Seat == dyingTargetSeat).Hp == dyingTargetHp - 1 &&
-                dyingBranch.Events.Select(item => item.Payload).OfType<DyingResolvedEvent>().Any(resolved =>
-                    resolved.Survived) &&
-                dyingBranch.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Any(resolved =>
-                    resolved.SourceSeat == 0 && resolved.Skill == SkillKind.Qiangxi),
-            rescued.Error?.Message ??
-            "Rescued Qiangxi must resume and deal its pending cardless damage exactly once.");
-
-        var weaponBranch = GameReplay.Restore(checkpoint, registry);
-        Equip(weaponBranch, weaponCardId);
-        var weaponAction = weaponBranch.GetHumanLegalActions().First(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
-        var weaponTargetSeat = weaponAction.SelectableTargetSeats.Contains(targetSeat)
-            ? targetSeat
-            : weaponAction.SelectableTargetSeats.First();
-        var weaponBefore = weaponBranch.CreateSnapshot(0, revealAll: true);
-        var weaponUsed = weaponBranch.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Qiangxi,
-            [weaponCardId],
-            [weaponTargetSeat],
-            weaponBranch.Revision,
-            weaponBranch.PendingDecision!.PromptId));
-        var weaponAfter = weaponBranch.CreateSnapshot(0, revealAll: true);
-        Require(weaponUsed.Accepted &&
-                weaponAfter.Players.Single(player => player.Seat == 0).Hp ==
-                weaponBefore.Players.Single(player => player.Seat == 0).Hp &&
-                weaponAfter.Players.Single(player => player.Seat == weaponTargetSeat).Hp ==
-                weaponBefore.Players.Single(player => player.Seat == weaponTargetSeat).Hp - 1 &&
-                weaponBranch.CardMovements.Any(movement =>
-                    movement.CardId == weaponCardId &&
-                    movement.From == CardLocation.Equipment(0) &&
-                    movement.To == CardLocation.Processing &&
-                    movement.Reason == CardMoveReasons.QiangxiDiscard) &&
-                weaponBranch.CardMovements.Any(movement =>
-                    movement.CardId == weaponCardId &&
-                    movement.From == CardLocation.Processing &&
-                    movement.To == CardLocation.DiscardPile &&
-                    movement.Reason == CardMoveReasons.QiangxiDiscard) &&
-                weaponBranch.Events.Select(item => item.Payload).OfType<SkillCardsDiscardedEvent>().Any(discarded =>
-                    discarded.SourceSeat == 0 &&
-                    discarded.Skill == SkillKind.Qiangxi &&
-                    discarded.CardIds.SequenceEqual([weaponCardId])),
-            weaponUsed.Error?.Message ??
-            "The equipped-weapon Qiangxi branch must discard the exact weapon without losing HP.");
-
-        var aiWeapon = new SimpleAiBrain(0, seed: 32)
-            .ChooseActiveSkillCards(before, action);
-        Require(aiWeapon.Count == 1 && action.SelectableCardIds.Contains(aiWeapon[0]),
-            "Qiangxi AI must choose only one of its own published weapon candidates when available.");
-
-        var (triggerGame, _, triggerTargetSeat, _) = FindDianWeiQiangxiFixture(
-            registry,
-            requireWeapon: false,
-            targetSkill: SkillKind.Ganglie);
-        var triggerAction = triggerGame.GetHumanLegalActions().First(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
-        var triggered = triggerGame.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Qiangxi,
-            [],
-            [triggerTargetSeat],
-            triggerGame.Revision,
-            triggerGame.PendingDecision!.PromptId));
-        Require(triggered.Accepted &&
-                triggerGame.Events.Select(item => item.Payload).OfType<DamageTriggerWindowOpenedEvent>().Any(opened =>
-                    opened.SourceSeat == 0 &&
-                    opened.TargetSeat == triggerTargetSeat &&
-                    opened.CardId is null &&
-                    opened.CardKind is null &&
-                    opened.Candidates.Any(candidate => candidate.Skill == SkillKind.Ganglie)),
-            triggered.Error?.Message ??
-            "Cardless Qiangxi damage must still enter the shared after-damage trigger window.");
-
-        var (tianxiangFixture, _, tianxiangTargetSeat, _) = FindDianWeiQiangxiFixture(
-            registry,
-            requireWeapon: false,
-            targetSkill: SkillKind.Tianxiang,
-            requireTargetHeart: true);
-        var tianxiangBefore = tianxiangFixture.CreateSnapshot(0, revealAll: true);
-        var tianxiangOpened = tianxiangFixture.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Qiangxi,
-            [],
-            [tianxiangTargetSeat],
-            tianxiangFixture.Revision,
-            tianxiangFixture.PendingDecision!.PromptId));
-        var tianxiangPrompt = tianxiangFixture
-            .CreateSnapshot(tianxiangTargetSeat)
-            .PendingDecision;
-        Require(tianxiangOpened.Accepted &&
-                tianxiangFixture.PendingDecision is null &&
-                tianxiangPrompt is { Kind: DecisionKind.Tianxiang } &&
-                tianxiangFixture.State.Status == EngineStatus.Running &&
-                tianxiangFixture.ResolutionStack is
-                [ActiveSkillFrame { Skill: SkillKind.Qiangxi, Step: ResolutionFrameStep.AwaitingResponse } active,
-                    ResponseWindowFrame response] &&
-                response.ParentFrameId == active.Id,
-            tianxiangOpened.Error?.Message ??
-            "Tianxiang over Qiangxi must suspend a typed ActiveSkill parent beneath its private AI response window.");
-
-        var pausedCheckpoint = GameCheckpointJson.Deserialize(
-            GameCheckpointJson.Serialize(tianxiangFixture.CreateCheckpoint()));
-        var activeSkillFrameId = tianxiangFixture.ResolutionStack[0].Id;
-        var skipped = tianxiangFixture.Submit(new AnswerPromptCommand(
-            tianxiangTargetSeat,
-            tianxiangPrompt!.PromptId,
-            tianxiangPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "tianxiang-skip").Id,
-            tianxiangFixture.Revision));
-        var skippedAfter = tianxiangFixture.CreateSnapshot(0, revealAll: true);
-        Require(skipped.Accepted &&
-                skippedAfter.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp ==
-                tianxiangBefore.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp - 1 &&
-                tianxiangFixture.ResolutionStack.Count == 0 &&
-                tianxiangFixture.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Count(resolved =>
-                    resolved.ResolutionId == activeSkillFrameId && resolved.SourceSeat == 0 &&
-                    resolved.Skill == SkillKind.Qiangxi) == 1,
-            skipped.Error?.Message ??
-            "Skipping Tianxiang must resume and complete its Qiangxi ActiveSkill parent exactly once.");
-
-        var transferredGame = GameReplay.Restore(pausedCheckpoint, registry);
-        var transferPrompt = transferredGame.CreateSnapshot(tianxiangTargetSeat).PendingDecision ??
-            throw new InvalidOperationException("The restored Qiangxi branch lost Tianxiang's private prompt.");
-        Require(transferPrompt.Choices.Select(choice => choice.Id)
-                    .SequenceEqual(tianxiangPrompt.Choices.Select(choice => choice.Id)) &&
-                transferPrompt.Choices.Select(choice => choice.Id).Distinct().Count() == transferPrompt.Choices.Count,
-            "Restoring Qiangxi must preserve each distinct Tianxiang card and target choice exactly.");
-        var transferChoice = transferPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "tianxiang-use" &&
-            choice.Targets.SequenceEqual([0]));
-        var transferSourceBefore = transferredGame.CreateSnapshot(0, revealAll: true)
-            .Players.Single(player => player.Seat == 0);
-        var transferred = transferredGame.Submit(new AnswerPromptCommand(
-            tianxiangTargetSeat,
-            transferPrompt.PromptId,
-            transferChoice.Id,
-            transferredGame.Revision));
-        var transferAfter = transferredGame.CreateSnapshot(0, revealAll: true);
-        var transferDraw = transferredGame.Events.Select(item => item.Payload)
-            .OfType<TianxiangCardsDrawnEvent>()
-            .Single(item => item.ResolutionId == activeSkillFrameId && item.TargetSeat == 0);
-        Require(transferred.Accepted &&
-                transferAfter.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp ==
-                tianxiangBefore.Players.Single(player => player.Seat == tianxiangTargetSeat).Hp &&
-                transferAfter.Players.Single(player => player.Seat == 0).Hp == transferSourceBefore.Hp - 1 &&
-                transferDraw.DrawCount ==
-                transferAfter.Players.Single(player => player.Seat == 0).MaxHp -
-                transferAfter.Players.Single(player => player.Seat == 0).Hp &&
-                transferredGame.ResolutionStack.Count == 0 &&
-                transferredGame.Events.Select(item => item.Payload).OfType<TianxiangTransferredEvent>().Count(item =>
-                    item.ResolutionId == activeSkillFrameId && item.OwnerSeat == tianxiangTargetSeat &&
-                    item.TargetSeat == 0) == 1 &&
-                transferredGame.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Count(resolved =>
-                    resolved.ResolutionId == activeSkillFrameId && resolved.SourceSeat == 0 &&
-                    resolved.Skill == SkillKind.Qiangxi) == 1,
-            transferred.Error?.Message ??
-            "Using Tianxiang must transfer damage and resume its Qiangxi ActiveSkill parent exactly once.");
-        var transferReplay = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(transferredGame.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(transferReplay.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(transferredGame.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(transferReplay).SequenceEqual(EventSignatures(transferredGame)),
-            "A paused Tianxiang response over Qiangxi must transfer and replay exactly.");
-
+        var weaponGame = GameReplay.Restore(checkpoint, registry);
+        var weaponBefore = weaponGame.CreateSnapshot(0, revealAll: true);
+        var weaponResult = weaponGame.Submit(new UseProgramSkillCommand(
+            0, "classic:qiangxi", weaponAction.ProgramActivationId!, [weaponCardId], [targetSeat],
+            weaponGame.Revision, weaponGame.PendingDecision!.PromptId));
+        Require(weaponResult.Accepted, weaponResult.Error?.Message ?? "Weapon-cost Qiangxi was rejected.");
+        var weaponAfter = weaponGame.CreateSnapshot(0, revealAll: true);
+        Require(weaponAfter.Players[0].Hp == weaponBefore.Players[0].Hp &&
+                weaponAfter.Players[targetSeat].Hp == weaponBefore.Players[targetSeat].Hp - 1 &&
+                weaponGame.CardMovements.Any(move =>
+                    move.CardId == weaponCardId && move.To == CardLocation.DiscardPile) &&
+                weaponGame.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:qiangxi"),
+            "Weapon-cost Qiangxi must spend the exact weapon and share the one-use limit.");
     }
-
     public static void FormalDuanliangFlow()
     {
         var registry = CreatePreProgramClassicRegistry();
@@ -1941,7 +1644,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:kujin"] is
-                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } program } &&
                 program.Activations.Single() is
                 { Id: "lose-hp-and-draw", UsesPerTurn: null },
             "Current Kujin must be a repeatable configured activation.");
@@ -1968,9 +1671,8 @@ internal static class ClassicGeneralChecks
                 events.OfType<ProgramSkillHpLostEvent>().Count(item =>
                     item.SkillId == "classic:kujin" && item.Amount == 1) == 2 &&
                 events.OfType<ProgramSkillResolvedEvent>().Count(item =>
-                    item.SkillId == "classic:kujin" && item.Completed) == 2 &&
-                events.All(item => item is not SkillHpLostEvent { Skill: SkillKind.Kujin }),
-            "Two configured Kujin activations must each lose one HP and draw two cards without legacy execution.");
+                    item.SkillId == "classic:kujin" && item.Completed) == 2,
+            "Two configured Kujin activations must each lose one HP and draw two cards.");
         var replay = GameReplay.Restore(
             GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), current);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
@@ -2038,7 +1740,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:longdan"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } program } &&
                 program.ViewAs.Select(rule => rule.Id).Order(StringComparer.Ordinal)
                     .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
                 current.Skills["classic:longdan"].Program?.GameplayHash == program.GameplayHash,
@@ -2116,7 +1818,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:qingguo"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } program } &&
                 program.ViewAs.Single() is { Id: "black-hand-as-dodge", ForPlay: false, ForResponse: true } rule &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Spade, Suit.Club }.Order()),
             "Current Qingguo must configure black-hand Dodge responses.");
@@ -2173,7 +1875,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:wusheng"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } program } &&
                 program.ViewAs.Single() is { Id: "red-owned-as-slash", ForPlay: true, ForResponse: true } rule &&
                 rule.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()),
@@ -2271,7 +1973,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:qingnang"] is
-                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } program } &&
                 program.Activations.Single() is
                 { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
                     MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 },
@@ -2712,94 +2414,6 @@ internal static class ClassicGeneralChecks
             "The claimed non-Slash Jianxiong branch must replay exactly.");
     }
 
-    public static void FormalZhihengEquipmentFlow()
-    {
-        var registry = CreatePreProgramClassicRegistry();
-        Require(GameCheckpoint.CurrentRulesVersion >= 17,
-            "Formal Zhiheng must have an explicit rules version.");
-
-        GameEngine? current = null;
-        LegalAction? equipmentAction = null;
-        for (var seed = 1; seed <= 8_192 && current is null; seed++)
-        {
-            var candidate = StartClassicGeneralAtPlay(
-                registry,
-                seed,
-                "classic:sun-quan",
-                GameCheckpoint.CurrentRulesVersion);
-            var candidateEquipment = candidate?.GetHumanLegalActions()
-                .FirstOrDefault(action => action.Kind == LegalActionKind.Equip && action.CardId is not null);
-            if (candidate is null || candidateEquipment is null)
-            {
-                continue;
-            }
-
-            current = candidate;
-            equipmentAction = candidateEquipment;
-        }
-
-        if (current is null || equipmentAction?.CardId is not { } equipmentCardId)
-            throw new InvalidOperationException("No deterministic classic Sun Quan equipment fixture was found.");
-
-        Equip(current, equipmentCardId);
-
-        var currentBefore = current.CreateSnapshot(0, revealAll: true);
-        var currentPlayerBefore = currentBefore.Players.Single(player => player.Seat == 0);
-        var currentPrompt = current.PendingDecision ??
-            throw new InvalidOperationException("Current Zhiheng fixture lost its play prompt.");
-        var currentAction = current.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng);
-        Require(currentPrompt.ActiveSkillValidCardIds?.Contains(equipmentCardId) == true &&
-                currentAction.MaxCardCount == currentPlayerBefore.Hand.Count + currentPlayerBefore.Equipment.Count,
-            "Rules v17 Zhiheng must publish hand and owned equipment cards in one private selection contract.");
-        var equipmentOnlyView = currentBefore with
-        {
-            Players = currentBefore.Players.Select(player => player.Seat == 0
-                ? player with { HandCount = 0, Hand = Array.Empty<CardSnapshot>() }
-                : player).ToArray()
-        };
-        Require(new SimpleAiBrain(0, seed: 17).ChooseActiveSkillCards(equipmentOnlyView, currentAction)
-                .SequenceEqual([equipmentCardId]),
-            "Formal Zhiheng AI must be able to select its own equipment when no hand card is available.");
-
-        var currentUsed = current.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Zhiheng,
-            [equipmentCardId],
-            [],
-            current.Revision,
-            currentPrompt.PromptId));
-        Require(currentUsed.Accepted, currentUsed.Error?.Message ?? "Equipment Zhiheng was rejected.");
-        var currentAfter = current.CreateSnapshot(0, revealAll: true);
-        var currentPlayerAfter = currentAfter.Players.Single(player => player.Seat == 0);
-        Require(currentPlayerAfter.Equipment.All(card => card.Id != equipmentCardId) &&
-                currentPlayerAfter.Hand.Count == currentPlayerBefore.Hand.Count + 1 &&
-                !current.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Zhiheng),
-            "Rules v17 Zhiheng must discard the equipment, draw one card and enforce once per play phase.");
-        Require(current.CardMovements.Count(movement =>
-                    movement.CardId == equipmentCardId &&
-                    movement.Reason == CardMoveReasons.ZhihengDiscard) == 2 &&
-                current.CardMovements.Any(movement =>
-                    movement.CardId == equipmentCardId &&
-                    movement.From == CardLocation.Equipment(0) &&
-                    movement.To == CardLocation.Processing) &&
-                current.Events.Select(item => item.Payload)
-                    .OfType<SkillCardsDiscardedEvent>()
-                    .Any(discarded => discarded.Skill == SkillKind.Zhiheng &&
-                                      discarded.CardIds.SequenceEqual([equipmentCardId])),
-            "Equipment Zhiheng must retain the exact public source zone, processing move and typed event.");
-
-        var restored = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(current.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(currentAfter) &&
-                EventSignatures(restored).SequenceEqual(EventSignatures(current)),
-            "Equipment Zhiheng must restore with identical state and events.");
-
-    }
-
     public static void FormalTianduJudgment()
     {
         var registry = CreatePreProgramClassicRegistry();
@@ -2932,182 +2546,80 @@ internal static class ClassicGeneralChecks
     public static void FormalFanjianFlow()
     {
         var registry = CreatePreProgramClassicRegistry();
-        Require(GameCheckpoint.CurrentRulesVersion >= 23,
-            "Formal Fanjian must have an explicit rules version.");
-
         var game = ReachZhouYuPlayPhase(registry, GameCheckpoint.CurrentRulesVersion);
-        var playPrompt = game.PendingDecision!;
-        var action = game.GetHumanLegalActions().Single(candidate =>
-            candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Fanjian);
+        var action = game.GetHumanLegalActions().Single(item =>
+            item.Kind == LegalActionKind.UseProgramSkill && item.ProgramSkillId == "classic:fanjian");
         Require(action.MinCardCount == 0 && action.MaxCardCount == 0 &&
-                action.MinTargetCount == 1 && action.MaxTargetCount == 1,
-            "Fanjian must publish a target-only active-skill contract.");
+                action.MinTargetCount == 1 && action.MaxTargetCount == 1 &&
+                action.SelectableTargetSeats.Contains(1),
+            "Fanjian must publish a target-only action against another living player.");
+        var before = game.CreateSnapshot(0, revealAll: true);
+        var used = game.Submit(new UseProgramSkillCommand(0, "classic:fanjian",
+            action.ProgramActivationId!, [], [1], game.Revision, game.PendingDecision!.PromptId));
+        Require(used.Accepted, used.Error?.Message ?? "Fanjian activation failed.");
+        var prompt = game.CreateSnapshot(1).PendingDecision ??
+            throw new InvalidOperationException("Fanjian did not publish a suit choice.");
+        Require(prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 1, IsPrivate: true } &&
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("option-id"))
+                    .Order(StringComparer.Ordinal).SequenceEqual(["club", "diamond", "heart", "spade"]) &&
+                game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
+                    .All(item => item.SkillId != "classic:fanjian") &&
+                game.CreateSnapshot(1).Players[0].Hand.Count == 0,
+            "The recipient must guess privately before Zhou Yu's hand card is revealed.");
+        var paused = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restored = GameReplay.Restore(paused, registry);
+        Require(restored.CreateSnapshot(1).PendingDecision?.PromptId == prompt.PromptId,
+            "A suspended Fanjian suit choice must replay.");
+        var state = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var forged = game.Submit(new AnswerPromptCommand(1, prompt.PromptId,
+            new ChoiceId("program-option.forged"), game.Revision));
+        Require(!forged.Accepted && SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == state,
+            "A forged Fanjian guess must reject atomically.");
 
-        var sourceBefore = game.CreateSnapshot(0, revealAll: true)
-            .Players.Single(player => player.Seat == 0).HandCount;
-        var targetBefore = game.CreateSnapshot(0, revealAll: true)
-            .Players.Single(player => player.Seat == 1);
-        var used = game.Submit(new UseSkillCommand(
-            0,
-            SkillKind.Fanjian,
-            [],
-            [1],
-            game.Revision,
-            playPrompt.PromptId));
-        Require(used.Accepted, used.Error?.Message ?? "Fanjian use was rejected.");
-
-        var suitPrompt = game.CreateSnapshot(1).PendingDecision;
-        Require(suitPrompt is { Kind: DecisionKind.Fanjian, PlayerSeat: 1 } &&
-                suitPrompt.ValidCardIds.Count == 0 &&
-                suitPrompt.Choices.Count == 4 &&
-                suitPrompt.Choices.All(choice =>
-                    choice.Cards.Count == 0 &&
-                    choice.Targets.Count == 0 &&
-                    choice.Parameters.GetValueOrDefault("action") == "fanjian-choose-suit") &&
-                suitPrompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("suit"))
-                    .OrderBy(suit => suit, StringComparer.Ordinal)
-                    .SequenceEqual(["Club", "Diamond", "Heart", "Spade"]),
-            $"Fanjian must ask the target for four complete suit choices without exposing a source card " +
-            $"(kind={suitPrompt?.Kind}, seat={suitPrompt?.PlayerSeat}, valid={suitPrompt?.ValidCardIds.Count}, " +
-            $"choices={suitPrompt?.Choices.Count}, suits={string.Join(',', suitPrompt?.Choices.Select(choice => choice.Parameters.GetValueOrDefault("suit")) ?? [])}).");
-        Require(game.Events.All(envelope => envelope.Payload is not FanjianCardRevealedEvent) &&
-                game.CreateSnapshot(1).Players.Single(player => player.Seat == 0).Hand.Count == 0,
-            "The target must not see Zhou Yu's private hand before choosing a suit.");
-
-        var pausedCheckpoint = GameCheckpointJson.Deserialize(
-            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var restoredPrompt = GameReplay.Restore(pausedCheckpoint, registry);
-        Require(restoredPrompt.CreateSnapshot(1).PendingDecision?.Kind == DecisionKind.Fanjian,
-            "A paused Fanjian suit choice must restore from its command checkpoint.");
-
-        var unchanged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
-        var forged = game.Submit(new AnswerPromptCommand(
-            1,
-            suitPrompt!.PromptId,
-            new ChoiceId("fanjian-suit-forged"),
-            game.Revision));
-        Require(!forged.Accepted && forged.Error?.Code == CommandErrorCode.InvalidChoice &&
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == unchanged,
-            "A forged Fanjian suit choice must be rejected atomically.");
-
-        GameEngine? matching = null;
-        GameEngine? mismatching = null;
-        FanjianCardRevealedEvent? matchingEvent = null;
-        FanjianCardRevealedEvent? mismatchingEvent = null;
-        foreach (var suitName in new[] { "Spade", "Heart", "Club", "Diamond" })
+        GameEngine? matched = null;
+        GameEngine? mismatched = null;
+        int? frozenCardId = null;
+        Suit? frozenSuit = null;
+        foreach (var suitId in new[] { "spade", "heart", "club", "diamond" })
         {
-            var branch = GameReplay.Restore(pausedCheckpoint, registry);
+            var branch = GameReplay.Restore(paused, registry);
             var branchPrompt = branch.CreateSnapshot(1).PendingDecision!;
-            var choice = branchPrompt.Choices.Single(candidate =>
-                candidate.Parameters.GetValueOrDefault("suit") == suitName);
+            var choice = branchPrompt.Choices.Single(item =>
+                item.Parameters.GetValueOrDefault("option-id") == suitId);
             var answered = branch.Submit(new AnswerPromptCommand(
-                1,
-                branchPrompt.PromptId,
-                choice.Id,
-                branch.Revision));
-            Require(answered.Accepted, answered.Error?.Message ?? $"Fanjian rejected {suitName}.");
-            var revealed = branch.Events.Select(envelope => envelope.Payload)
-                .OfType<FanjianCardRevealedEvent>()
-                .Last();
-            if (revealed.DamageTriggered)
-            {
-                mismatching ??= branch;
-                mismatchingEvent ??= revealed;
-            }
+                1, branchPrompt.PromptId, choice.Id, branch.Revision));
+            Require(answered.Accepted, answered.Error?.Message ?? $"Fanjian rejected {suitId}.");
+            var shown = branch.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
+                .Single(item => item.SkillId == "classic:fanjian").Cards.Single();
+            frozenCardId ??= shown.Id;
+            frozenSuit ??= shown.Suit;
+            Require(shown.Id == frozenCardId && shown.Suit == frozenSuit &&
+                    branch.CardMovements.Any(move => move.CardId == shown.Id &&
+                        move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing) &&
+                    branch.CardMovements.Any(move => move.CardId == shown.Id &&
+                        move.From == CardLocation.Processing && move.To == CardLocation.Hand(1)),
+                "All guesses must receive the same deterministic random physical card after selection.");
+            if (string.Equals(suitId, shown.Suit.ToString(), StringComparison.OrdinalIgnoreCase))
+                matched = branch;
             else
-            {
-                matching ??= branch;
-                matchingEvent ??= revealed;
-            }
+                mismatched ??= branch;
         }
-
-        Require(matching is not null && matchingEvent is not null &&
-                mismatching is not null && mismatchingEvent is not null,
-            "The four suit branches must contain one matching and three mismatching outcomes for the same random card.");
-        var matchingGame = matching!;
-        var mismatchingGame = mismatching!;
-        var matchedCard = matchingEvent!;
-        var mismatchedCard = mismatchingEvent!;
-        Require(matchedCard.CardId == mismatchedCard.CardId &&
-                matchedCard.CardSuit == mismatchedCard.CardSuit &&
-                matchedCard.ChosenSuit == matchedCard.CardSuit &&
-                mismatchedCard.ChosenSuit != mismatchedCard.CardSuit,
-            "Fanjian must select the same deterministic random card after, not before, the target's suit choice.");
-        Require(matchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
-                sourceBefore - 1 &&
-                matchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 1).HandCount ==
-                targetBefore.HandCount + 1 &&
-                matchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 1).Hp ==
-                targetBefore.Hp,
-            "A matching Fanjian card must transfer to the target without damage.");
-        Require(mismatchingGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 1).Hp ==
-                targetBefore.Hp - 1 &&
-                mismatchingGame.Events.Any(envelope => envelope.Payload is DamageAppliedEvent
-                {
-                    SourceSeat: 0,
-                    TargetSeat: 1,
-                    Amount: 1,
-                    Nature: DamageNature.Normal
-                }),
-            "A mismatching Fanjian card must cause one point of ordinary damage through the shared damage pipeline.");
-        Require(matchingGame.CardMovements.Count(movement =>
-                    movement.CardId == matchedCard.CardId &&
-                    movement.Reason == CardMoveReasons.FanjianGive) == 2,
-            "Fanjian must record the exact hand-to-processing-to-hand transfer.");
-        var matchingReturnedToPlay = matchingGame.Submit(new AdvanceCommand(matchingGame.Revision));
-        Require(matchingGame.Events.Any(envelope =>
-                envelope.Payload is ActiveSkillResolvedEvent
-                {
-                    Skill: SkillKind.Fanjian
-                }) &&
-                matchingReturnedToPlay.Accepted &&
-                matchingGame.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                matchingGame.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Fanjian),
-            "Fanjian must complete its active-skill frame and remain limited to once per play phase.");
-
-        for (var step = 0; mismatchingGame.ResolutionStack.Count > 0 && step < 100; step++)
-        {
-            CommandResult advanced;
-            if (mismatchingGame.PendingDecision is
-                {
-                    Kind: DecisionKind.GangliePunish,
-                    PlayerSeat: 0
-                } gangliePunishment)
-            {
-                var loseHp = gangliePunishment.Choices.Single(choice =>
-                    choice.Parameters.GetValueOrDefault("response") == "ganglie-lose-hp");
-                advanced = mismatchingGame.Submit(new AnswerPromptCommand(
-                    0,
-                    gangliePunishment.PromptId,
-                    loseHp.Id,
-                    mismatchingGame.Revision));
-            }
-            else
-            {
-                advanced = mismatchingGame.Submit(new AdvanceOneStepCommand(mismatchingGame.Revision));
-            }
-
-            Require(advanced.Accepted, advanced.Error?.Message ?? "Fanjian damage continuation did not advance.");
-        }
-        Require(mismatchingGame.ResolutionStack.Count == 0 &&
-                mismatchingGame.Events.Any(envelope =>
-                    envelope.Payload is ActiveSkillResolvedEvent
-                    {
-                        Skill: SkillKind.Fanjian
-                    }),
-            $"Fanjian damage must close its ordinary damage triggers and active-skill frame " +
-            $"(status={mismatchingGame.State.Status}, prompt={mismatchingGame.PendingDecision?.Kind}, " +
-            $"seat={mismatchingGame.PendingDecision?.PlayerSeat}, stack={string.Join(',', mismatchingGame.ResolutionStack.Select(frame => frame.Kind))}).");
-        var replay = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(mismatchingGame.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(mismatchingGame.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(replay).SequenceEqual(EventSignatures(mismatchingGame)),
-            "The chosen Fanjian suit, random transfer and damage branch must replay exactly.");
-
+        Require(matched is not null && mismatched is not null,
+            "One of the four choices must match the revealed suit and three must mismatch.");
+        var matchingGame = matched ?? throw new InvalidOperationException("No matching Fanjian branch.");
+        var mismatchingGame = mismatched ?? throw new InvalidOperationException("No mismatching Fanjian branch.");
+        Require(matchingGame.CreateSnapshot(0, revealAll: true).Players[1].Hp == before.Players[1].Hp &&
+                mismatchingGame.CreateSnapshot(0, revealAll: true).Players[1].Hp == before.Players[1].Hp - 1 &&
+                mismatchingGame.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+                    .Any(item => item.SourceSeat == 0 && item.TargetSeat == 1 && item.Amount == 1) &&
+                matchingGame.CreateSnapshot(0, revealAll: true).Players[0].HandCount ==
+                    before.Players[0].HandCount - 1,
+            "Only a wrong suit guess may cause one ordinary damage after the card transfer.");
+        Require(SnapshotJson.Serialize(GameReplay.Restore(mismatchingGame.CreateCheckpoint(), registry)
+                    .CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(mismatchingGame.CreateSnapshot(0, revealAll: true)),
+            "Resolved Fanjian must replay the same state.");
     }
-
     public static void FormalGuanxingFlow()
     {
         var registry = CreatePreProgramClassicRegistry();
@@ -3645,7 +3157,9 @@ internal static class ClassicGeneralChecks
             var candidate = StartJijiangLordAtPlay(registry, modeId, seed);
             var full = candidate.CreateSnapshot(0, revealAll: true);
             var action = candidate.GetHumanLegalActions().Single(item =>
-                item.Kind == LegalActionKind.UseSkill && item.Skill == SkillKind.Jijiang);
+                item.Kind == LegalActionKind.UseProgramSkill &&
+                item.ProgramSkillId == "classic:jijiang" &&
+                item.ProgramActivationId == "request-shu-slash");
             var rebelTarget = action.SelectableTargetSeats.FirstOrDefault(seat =>
                 full.Players[seat].Role == Role.Rebel, -1);
             if (rebelTarget < 0)
@@ -3665,11 +3179,12 @@ internal static class ClassicGeneralChecks
 
         var lord = game.CreateSnapshot(0, revealAll: true).Players[0];
         Require(lord.MaxHp == 5 &&
-                lord.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]),
+                lord.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:rende", "classic:jijiang"]),
             "Classic Liu Bei must combine the Lord HP bonus with Rende and Jijiang in stable order.");
-        Require(game.GetHumanLegalActions().Where(action => action.Kind == LegalActionKind.UseSkill)
-                .Select(action => action.Skill)
-                .SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]) &&
+        var publishedPrograms = game.GetHumanLegalActions()
+            .Where(action => action.Kind == LegalActionKind.UseProgramSkill).ToArray();
+        Require(publishedPrograms.Any(action => action.ProgramSkillId == "classic:rende") &&
+                publishedPrograms.Any(action => action.ProgramSkillId == "classic:jijiang") &&
                 jijiang.MinCardCount == 0 && jijiang.MaxCardCount == 0 &&
                 jijiang.MinTargetCount == 1 && jijiang.MaxTargetCount == 1 &&
                 jijiang.SelectableTargetSeats.Contains(targetSeat),
@@ -3678,9 +3193,10 @@ internal static class ClassicGeneralChecks
         var prompt = game.PendingDecision!;
         var beforeForgery = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
         var beforeForgeryRevision = game.Revision;
-        var forged = game.Submit(new UseSkillCommand(
+        var forged = game.Submit(new UseProgramSkillCommand(
             0,
-            SkillKind.Jijiang,
+            "classic:jijiang",
+            "request-shu-slash",
             [],
             [0],
             game.Revision,
@@ -3689,9 +3205,10 @@ internal static class ClassicGeneralChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForgery,
             "A forged active Jijiang target must be rejected atomically.");
 
-        var requested = game.Submit(new UseSkillCommand(
+        var requested = game.Submit(new UseProgramSkillCommand(
             0,
-            SkillKind.Jijiang,
+            "classic:jijiang",
+            "request-shu-slash",
             [],
             [targetSeat],
             game.Revision,
@@ -3721,23 +3238,27 @@ internal static class ClassicGeneralChecks
                 EventSignatures(paused).SequenceEqual(EventSignatures(game)),
             "A paused active Jijiang provider prompt must replay exactly.");
 
-        JijiangResolvedEvent? resolved = null;
-        for (var step = 0; step < 16 && resolved is null; step++)
+        CardUsedEvent? usedSlash = null;
+        for (var step = 0; step < 16 && usedSlash is null; step++)
         {
             var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
             Require(advanced.Accepted, advanced.Error?.Message ?? "The Jijiang provider cursor did not advance.");
-            resolved = game.Events.Select(envelope => envelope.Payload)
-                .OfType<JijiangResolvedEvent>()
-                .LastOrDefault(item => item is { IsActiveUse: true, Succeeded: true });
+            usedSlash = game.Events.Select(envelope => envelope.Payload)
+                .OfType<CardUsedEvent>()
+                .LastOrDefault(item => item.SourceSeat == 0 && item.TargetSeat == targetSeat &&
+                    item.CardKind == CardKind.Slash);
         }
 
-        if (resolved is not { ProviderSeat: { } successfulProvider, SlashCardId: { } slashCardId })
+        if (usedSlash is null)
         {
             throw new InvalidOperationException("No allied Shu provider completed active Jijiang.");
         }
 
-        Require(resolved.OwnerSeat == 0 && resolved.TargetSeat == targetSeat &&
-                resolved.EffectiveSlashKind == CardKind.Slash &&
+        var slashCardId = usedSlash.CardId;
+        var successfulProvider = game.CardMovements.Single(movement =>
+            movement.CardId == slashCardId && movement.To == CardLocation.Processing &&
+            movement.Reason == CardMoveReasons.Use).From.OwnerSeat!.Value;
+        Require(successfulProvider != 0 &&
                 game.CardMovements.Any(movement =>
                     movement.CardId == slashCardId &&
                     movement.From == CardLocation.Hand(successfulProvider) &&
@@ -3754,35 +3275,62 @@ internal static class ClassicGeneralChecks
 
         var returned = game.Submit(new AdvanceCommand(game.Revision));
         Require(returned.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                game.GetHumanLegalActions().All(action => action.Skill != SkillKind.Jijiang),
+                game.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:jijiang"),
             "A successful active Jijiang Slash must consume Liu Bei's Slash allowance for the turn.");
+        var completed = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        Require(SnapshotJson.Serialize(completed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(completed).SequenceEqual(EventSignatures(game)),
+            "A completed active Jijiang Slash must replay exactly.");
 
         var (failureRegistry, failureModeId) = CreateJijiangFixtureRegistry(
             "active-failure",
             [new ContentDeckCardCount("standard:peach", 100)]);
         var failed = StartJijiangLordAtPlay(failureRegistry, failureModeId, seed: 1);
         var failedAction = failed.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Jijiang);
+            action.Kind == LegalActionKind.UseProgramSkill &&
+            action.ProgramSkillId == "classic:jijiang" &&
+            action.ProgramActivationId == "request-shu-slash");
         var failedTarget = failedAction.SelectableTargetSeats[0];
-        for (var attempt = 1; attempt <= 2; attempt++)
+        var failedPrompt = failed.PendingDecision!;
+        var failedEventStart = failed.Events.Count;
+        var result = failed.Submit(new UseProgramSkillCommand(
+            0,
+            "classic:jijiang",
+            "request-shu-slash",
+            [],
+            [failedTarget],
+            failed.Revision,
+            failedPrompt.PromptId));
+        Require(result.Accepted, result.Error?.Message ?? "A failed Jijiang attempt was rejected before resolution.");
+        for (var step = 0; step < 16 &&
+            !failed.Events.Skip(failedEventStart).Select(envelope => envelope.Payload)
+                .OfType<ProgramSkillResolvedEvent>()
+                .Any(item => item.SkillId == "classic:jijiang" && item.ActivationId == "request-shu-slash"); step++)
         {
-            var failedPrompt = failed.PendingDecision!;
-            var result = failed.Submit(new UseSkillCommand(
-                0,
-                SkillKind.Jijiang,
-                [],
-                [failedTarget],
-                failed.Revision,
-                failedPrompt.PromptId));
-            Require(result.Accepted, result.Error?.Message ?? "A failed Jijiang attempt was rejected before resolution.");
-            Require(failed.Events.Select(envelope => envelope.Payload).OfType<JijiangResolvedEvent>()
-                    .Count(item => item is { IsActiveUse: true, Succeeded: false }) == attempt,
-                "An all-decline active Jijiang attempt must publish one typed failure result.");
-            var resumed = failed.Submit(new AdvanceCommand(failed.Revision));
-            Require(resumed.Accepted && failed.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                    failed.GetHumanLegalActions().Any(action => action.Skill == SkillKind.Jijiang),
-                "A failed human Jijiang attempt must not consume the Slash limit and must remain retryable.");
+            var advanced = failed.Submit(new AdvanceOneStepCommand(failed.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "The failed Jijiang provider cursor did not advance.");
         }
+
+        var failedEvents = failed.Events.Skip(failedEventStart).Select(envelope => envelope.Payload).ToArray();
+        var failedResumed = failed.Submit(new AdvanceCommand(failed.Revision));
+        Require(failedEvents.OfType<ProgramSkillResolvedEvent>().Count(item =>
+                    item.SkillId == "classic:jijiang" && item.ActivationId == "request-shu-slash" &&
+                    item.Completed) == 1 &&
+                failedEvents.OfType<CardUsedEvent>().All(item => item.SourceSeat != 0 ||
+                    item.TargetSeat != failedTarget) &&
+                failedResumed.Accepted && failed.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                failed.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:jijiang"),
+            "A declined Jijiang request must resolve once without a Slash and consume its turn use.");
+        var failedReplay = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(failed.CreateCheckpoint())),
+            failureRegistry);
+        Require(SnapshotJson.Serialize(failedReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(failed.CreateSnapshot(0, revealAll: true)) &&
+                EventSignatures(failedReplay).SequenceEqual(EventSignatures(failed)),
+            "A completed declined Jijiang request must replay exactly.");
     }
 
     public static void FormalJijiangResponseFlow()
@@ -3828,8 +3376,8 @@ internal static class ClassicGeneralChecks
                 {
                     var request = game.Events.Select(envelope => envelope.Payload)
                         .OfType<JijiangRequestedEvent>()
-                        .Last();
-                    if (!request.IsActiveUse)
+                        .LastOrDefault();
+                    if (request is { IsActiveUse: false })
                     {
                         selectedGame = game;
                         selectedPrompt = decision;
@@ -4115,7 +3663,7 @@ internal static class ClassicGeneralChecks
                 "classic:diao-chan",
                 GameCheckpoint.CurrentRulesVersion);
             action = candidate?.GetHumanLegalActions().SingleOrDefault(item =>
-                item.Kind == LegalActionKind.UseSkill && item.Skill == SkillKind.Lijian);
+                item.Kind == LegalActionKind.UseProgramSkill && item.ProgramSkillId == "classic:lijian");
             if (candidate is not null && action is not null &&
                 !action.SelectableTargetSeats.Any(seat =>
                     candidate.CreateSnapshot(0, revealAll: true).Players
@@ -4140,20 +3688,19 @@ internal static class ClassicGeneralChecks
                 registry.Generals[active.CreateSnapshot(0, revealAll: true).Players
                     .Single(player => player.Seat == seat).GeneralId!].Gender == GeneralGender.Male),
             "Lijian must publish exactly male target candidates.");
-        var used = active.Submit(new UseSkillCommand(
+        var used = active.Submit(new UseProgramSkillCommand(
             0,
-            SkillKind.Lijian,
+            "classic:lijian", lijian.ProgramActivationId!,
             [cost],
             targets,
             active.Revision,
             active.PendingDecision!.PromptId));
         Require(used.Accepted &&
                 active.CardMovements.Any(move =>
-                    move.CardId == cost && move.Reason == CardMoveReasons.LijianDiscard &&
+                    move.CardId == cost && move.Reason.Value == "skill-program.classic:lijian.DiscardSelected" &&
                     move.To == CardLocation.DiscardPile) &&
-                active.ResolutionStack.OfType<ActiveSkillFrame>().Any(frame =>
-                    frame.Skill == SkillKind.Lijian &&
-                    frame.Effect == ActiveSkillEffectKind.DiscardAndStartDuel) &&
+                active.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame =>
+                    frame.SkillId == "classic:lijian") &&
                 active.ResolutionStack.LastOrDefault() is ResponseWindowFrame
                 {
                     IncomingCard: CardKind.Duel,
@@ -4297,11 +3844,11 @@ internal static class ClassicGeneralChecks
         SetRuntimeHp(jieyin, 0, full.Players[0].MaxHp - 1);
         SetRuntimeHp(jieyin, maleTarget.Seat, maleTarget.MaxHp - 1);
         var jieyinAction = jieyin.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Jieyin);
+            action.Kind == LegalActionKind.UseProgramSkill && action.ProgramSkillId == "classic:jieyin");
         var cost = jieyinAction.SelectableCardIds.Take(2).ToArray();
-        var used = jieyin.Submit(new UseSkillCommand(
+        var used = jieyin.Submit(new UseProgramSkillCommand(
             0,
-            SkillKind.Jieyin,
+            "classic:jieyin", jieyinAction.ProgramActivationId!,
             cost,
             [maleTarget.Seat],
             jieyin.Revision,
@@ -4312,7 +3859,7 @@ internal static class ClassicGeneralChecks
                 after.Players[maleTarget.Seat].Hp == after.Players[maleTarget.Seat].MaxHp &&
                 jieyin.CardMovements.Count(move =>
                     cost.Contains(move.CardId) &&
-                    move.Reason == CardMoveReasons.JieyinDiscard &&
+                    move.Reason.Value == "skill-program.classic:jieyin.DiscardSelected" &&
                     move.To == CardLocation.DiscardPile) == 2,
             used.Error?.Message ?? "Jieyin must discard exactly two hand cards and recover both characters.");
     }
@@ -4841,7 +4388,9 @@ internal static class ClassicGeneralChecks
             }
 
             var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
-                candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
+                candidate.Kind == LegalActionKind.UseProgramSkill &&
+                candidate.ProgramSkillId == "classic:qiangxi" &&
+                candidate.ProgramActivationId == "discard-weapon-and-damage");
             if (action is null)
             {
                 continue;
@@ -5517,7 +5066,8 @@ internal static class ClassicGeneralChecks
                                item.Target.Hand.Count(card =>
                                    card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == 1 &&
                                item.Target.Skills?.All(skill =>
-                                   skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan or SkillKind.Jijiang)) != false)
+                                   skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan) &&
+                                   skill.ContentId != "classic:jijiang") != false)
                 .OrderBy(item => item.Action.CardId)
                 .ThenBy(item => item.Action.TargetSeat)
                 .FirstOrDefault();

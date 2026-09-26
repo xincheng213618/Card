@@ -299,6 +299,7 @@ internal static class Program
             Check("classic Guanxing restores and orders private cards through the WPF choice surface", () => ClassicGeneralUiChecks.GuanxingChoiceAndRestore(output));
             Check("classic Hujia restores and requests Wei responses through the WPF choice surface", () => ClassicGeneralUiChecks.HujiaChoiceAndRestore(output));
             Check("classic Rende remains repeatable before Jijiang opens its separate target draft", () => ClassicGeneralUiChecks.JijiangActiveAction(output));
+            Check("program skill target order survives tutorial restoration and submission", ClassicGeneralUiChecks.OrderedProgramTargets);
             Check("classic shared skills render their distinct trigger and state identities", () => ClassicGeneralUiChecks.SharedSkillIdentityMetadata(output));
             Check("skill drafts confirm through Enter and resume intact after guides and tutorials", () => SkillInteractionChecks.ConfirmAndResume(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));

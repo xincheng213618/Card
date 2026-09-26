@@ -28,7 +28,6 @@ public enum ResolutionFrameKind
     Dying,
     Death,
     NullificationWindow,
-    ActiveSkill,
     TargetCardSelection,
     ProgramSkill,
     ProgramCardTriggerWindow,
@@ -81,7 +80,6 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(DeathFrame), "death")]
 [JsonDerivedType(typeof(DamageSkillFrame), "damage-skill")]
 [JsonDerivedType(typeof(NullificationWindowFrame), "nullification-window")]
-[JsonDerivedType(typeof(ActiveSkillFrame), "active-skill")]
 [JsonDerivedType(typeof(TargetCardSelectionFrame), "target-card-selection")]
 [JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
 [JsonDerivedType(typeof(ProgramCardTriggerWindowFrame), "program-card-trigger-window")]
@@ -295,18 +293,3 @@ public sealed record TargetCardSelectionFrame(
     IReadOnlyList<int> CandidateSlots,
     ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
     : ResolutionFrame(Id, ResolutionFrameKind.TargetCardSelection, Step);
-
-public sealed record ActiveSkillFrame(
-    long Id,
-    int SourceSeat,
-    SkillKind Skill,
-    ActiveSkillEffectKind Effect,
-    int HpCost,
-    int DrawCount,
-    ResolutionFrameStep Step = ResolutionFrameStep.Declared,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyList<int>? CardIds = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyList<int>? TargetSeats = null,
-    int RecoveryAmount = 0)
-    : ResolutionFrame(Id, ResolutionFrameKind.ActiveSkill, Step);

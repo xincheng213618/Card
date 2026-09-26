@@ -25,8 +25,7 @@ public sealed partial class MainViewModel
         CurrentPlayAdvice = PlayAdvisor.Recommend(
             view,
             _game.GetHumanLegalActions(),
-            recastIds,
-            usesFormalRende: _game.UsesFormalRende);
+            recastIds);
         _adviceGame = _game;
         SelectedGuideSection = GuideSections[0];
         IsHelpOpen = true;

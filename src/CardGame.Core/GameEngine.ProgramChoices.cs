@@ -14,7 +14,10 @@ public sealed partial class GameEngine
             () => GetClaimableProgramDamageCards(active).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(active, bind),
             hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
-            boundCardCount: bind => CountChooserProgramBoundCards(active, bind, chooserSeat))).Select(option =>
+            boundCardCount: bind => CountChooserProgramBoundCards(active, bind, chooserSeat),
+            activationCardCount: active.SelectedCardIds.Count,
+            boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
+                DoesProgramFrozenSuitMatchChoice(active, cardBind, choiceBind))).Select(option =>
             new PromptChoice(new ChoiceId($"program-option.frame-{frame.Id}.{resultBind}.{option.Id}"),
                 option.Label, [], [], new Dictionary<string, string>
                 {
@@ -63,7 +66,10 @@ public sealed partial class GameEngine
             () => GetClaimableProgramDamageCards(frame).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
             hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
-            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat));
+            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
+            activationCardCount: frame.SelectedCardIds.Count,
+            boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
+                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind));
         if (!stillAvailable && (option.Condition.ContainsHasClaimableDamageCards() ||
             option.Condition.ContainsBoundCardCountAtLeast() || option.Condition.ContainsHasOwnedCardCategory()))
             throw new InvalidOperationException("The selected option's required cards are no longer available.");
@@ -101,7 +107,10 @@ public sealed partial class GameEngine
             () => GetClaimableProgramDamageCards(frame).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
             hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
-            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat));
+            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
+            activationCardCount: frame.SelectedCardIds.Count,
+            boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
+                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind));
     }
 
     private int CountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)

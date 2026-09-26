@@ -8,7 +8,7 @@ internal static class SkillProgramJudgmentTriggerChecks
         var catalog = SkillProgramCatalog.Load(ValidV3, Presentation);
         var program = catalog.Programs["judgment-test:reward"];
         var trigger = program.Triggers.Single();
-        Require(program.RuntimeVersion == "skill-program-v59" && program.MinimumRulesVersion == 169 &&
+        Require(program.RuntimeVersion == "skill-program-v60" && program.MinimumRulesVersion == 170 &&
                 trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
                 trigger.SourceSkillId is null && trigger.SourceViewAsId is null &&
                 trigger.Subject == SkillProgramTriggerSubject.Owner && trigger.Optional &&
@@ -23,7 +23,7 @@ internal static class SkillProgramJudgmentTriggerChecks
         RequireThrows<NotSupportedException>(() =>
             ((ICollection<string>)trigger.ExcludedReasons).Clear());
 
-        AssertReject(ValidV3.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV3.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV3.Replace("\"suits\":[\"club\"]", "\"suits\":[]", StringComparison.Ordinal),
             "at least one final suit");
@@ -299,7 +299,7 @@ internal static class SkillProgramJudgmentTriggerChecks
     }
 
     private const string ValidV3 = """
-        {"schemaVersion":59,"skills":[
+        {"schemaVersion":60,"skills":[
           {"id":"judgment-test:reward","revision":1,"triggers":[{
             "id":"after-club-judgment","window":"judgmentFinalized","subject":"owner",
             "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":["skill.leiji"],

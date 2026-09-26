@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 59,
+  "schemaVersion": 60,
   "skills": [
     {
       "id": "classic:renxin",
       "revision": 1,
-      "minimumRulesVersion": 169,
+      "minimumRulesVersion": 170,
       "triggers": [
         {
           "id": "protect-one-hp-other",

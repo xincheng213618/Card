@@ -180,7 +180,7 @@ internal static class SkillMetadataChecks
                     ExecutionForms: SkillExecutionForm.State
                 } definition && definition.LegacyKind == kind &&
                 (skillId != "classic:mashu" ||
-                 definition.Program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 }),
+                 definition.Program is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 }),
                 $"Current classic content did not give {skillId} its locked-state identity.");
             Require(!previous.Skills.ContainsKey(skillId),
                 $"Package 1.71.0 unexpectedly contains {skillId}.");
@@ -210,7 +210,7 @@ internal static class SkillMetadataChecks
                     LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v59"
+                    Program.RuntimeVersion: "skill-program-v60"
                 } &&
                 current.Skills["standard:qicai"].Tags == SkillTag.None,
             "The classic identity migration and current rule-query package must retain independent metadata.");
@@ -340,195 +340,6 @@ internal static class SkillMetadataChecks
                     package.Id == "standard-classic-generals" && package.Version == new Version(1, 73, 0)) &&
                 migrated.ContentHash != previous.ContentHash,
             "The continuous-conversion migration must be isolated to package 1.74.0 and fingerprinted.");
-    }
-
-    public static void ClassicPureActiveActionMetadataIsVersioned()
-    {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-        string[] activeSkillIds =
-        [
-            "classic:fanjian",
-            "classic:qiangxi",
-            "classic:lijian",
-            "classic:jieyin"
-        ];
-
-        foreach (var skillId in activeSkillIds)
-        {
-            Require(migrated.Skills[skillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None,
-                    ActionForms: SkillActionForm.Active
-                } definition &&
-                    definition.LegacyKind is { } kind &&
-                    ActiveActionCatalog.Find(kind) is not null,
-                $"Current classic content did not classify {skillId} as a backed active action.");
-            Require(previous.Skills[skillId].ActionForms == SkillActionForm.None,
-                $"Package 1.74.0 unexpectedly gained the action metadata for {skillId}.");
-        }
-
-        Require(migrated.Skills["classic:jijiang"] is
-                {
-                    Tags: SkillTag.Lord,
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
-                } &&
-                migrated.Skills["classic:luanji"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State,
-                    ActionForms: SkillActionForm.None
-                } &&
-                migrated.Skills["classic:tianyi"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None,
-                    ActionForms: SkillActionForm.None
-                },
-            "The pure-active migration must leave Jijiang, Luanji and Tianyi for compound classification.");
-        Require(migrated.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 75, 0)) &&
-                previous.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 74, 0)) &&
-                migrated.ContentHash != previous.ContentHash,
-            "The pure-active migration must be isolated to package 1.75.0 and fingerprinted.");
-    }
-
-    public static void ClassicCompoundSkillMetadataIsVersioned()
-    {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-
-        Require(migrated.Skills["classic:jijiang"] is
-                {
-                    Tags: SkillTag.Lord,
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.Active,
-                    LegacyKind: SkillKind.Jijiang
-                } &&
-                ActiveActionCatalog.Find(SkillKind.Jijiang) is not null,
-            "Current Jijiang metadata did not preserve its Lord trigger and active action parts.");
-        Require(migrated.Skills["classic:luanji"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State,
-                    ActionForms: SkillActionForm.Active,
-                    LegacyKind: SkillKind.Luanji
-                } &&
-                ActiveActionCatalog.Find(SkillKind.Luanji) is not null,
-            "Current Luanji metadata did not combine its continuous conversion and active action parts.");
-        Require(migrated.Skills["classic:tianyi"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State,
-                    ActionForms: SkillActionForm.Active,
-                    LegacyKind: SkillKind.Tianyi
-                } &&
-                ActiveActionCatalog.Find(SkillKind.Tianyi) is null,
-            "Tianyi must not retain a second legacy active executor after its Program migration.");
-        Require(migrated.Skills["classic:shuangxiong"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None,
-                    LegacyKind: SkillKind.Shuangxiong
-                } &&
-                ActiveActionCatalog.Find(SkillKind.Shuangxiong) is null,
-            "Current Shuangxiong metadata did not combine its draw trigger and turn-state parts.");
-
-        Require(previous.Skills["classic:jijiang"] is
-                {
-                    Tags: SkillTag.Lord,
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
-                } &&
-                previous.Skills["classic:luanji"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State,
-                    ActionForms: SkillActionForm.None
-                } &&
-                previous.Skills["classic:tianyi"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None,
-                    ActionForms: SkillActionForm.None
-                } &&
-                previous.Skills["classic:shuangxiong"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None,
-                    ActionForms: SkillActionForm.None
-                },
-            "Package 1.75.0 unexpectedly gained compound skill metadata.");
-        Require(migrated.Skills["classic:fanjian"].ActionForms == SkillActionForm.Active &&
-                migrated.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 76, 0)) &&
-                previous.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 75, 0)) &&
-                migrated.ContentHash != previous.ContentHash,
-            "The compound migration must preserve pure actions and be isolated to package 1.76.0.");
-    }
-
-    public static void ClassicSharedActiveSkillsReceiveDistinctIdentities()
-    {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-        var stable = StandardContentRegistry.CreateWithActiveSkills();
-        (string ClassicId, string StandardId, SkillKind Kind)[] skills =
-        [
-            ("classic:rende", "standard:rende", SkillKind.Rende),
-            ("classic:zhiheng", "standard:zhiheng", SkillKind.Zhiheng),
-            ("classic:qingnang", "standard:qingnang", SkillKind.Qingnang),
-            ("classic:kujin", "standard:kujin", SkillKind.Kujin)
-        ];
-
-        foreach (var (classicId, standardId, kind) in skills)
-        {
-            Require(migrated.Skills[classicId] is
-                    {
-                        Tags: SkillTag.None,
-                        ExecutionForms: SkillExecutionForm.None,
-                        ActionForms: SkillActionForm.Active,
-                        LegacyKind: var projectedKind
-                    } &&
-                    projectedKind == kind &&
-                    ActiveActionCatalog.Find(kind) is not null,
-                $"Current classic content did not register {classicId} as a backed active action.");
-            Require(!previous.Skills.ContainsKey(classicId) &&
-                    previous.Skills[standardId].ActionForms == SkillActionForm.None,
-                $"Package 1.76.0 unexpectedly gained the distinct identity {classicId}.");
-            Require(stable.Skills[standardId].ActionForms == SkillActionForm.None &&
-                    !stable.Skills.ContainsKey(classicId),
-                $"The stable active-skill package was mutated while migrating {classicId}.");
-        }
-
-        Require(migrated.Generals["classic:liu-bei"].SkillIds
-                    .SequenceEqual(["classic:rende", "classic:jijiang"]) &&
-                migrated.Generals["classic:sun-quan"].SkillIds
-                    .SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) &&
-                migrated.Generals["classic:hua-tuo"].SkillIds
-                    .SequenceEqual(["classic:qingnang", "standard:jijiu"]) &&
-                migrated.Generals["classic:huang-gai"].SkillIds
-                    .SequenceEqual(["classic:kujin"]),
-            "Current classic generals did not switch to all four distinct active-skill identities.");
-        Require(previous.Generals["classic:liu-bei"].SkillIds
-                    .SequenceEqual(["standard:rende", "classic:jijiang"]) &&
-                previous.Generals["classic:sun-quan"].SkillIds
-                    .SequenceEqual(["standard:zhiheng", "classic:jiuyuan"]) &&
-                previous.Generals["classic:hua-tuo"].SkillIds
-                    .SequenceEqual(["standard:qingnang", "standard:jijiu"]) &&
-                previous.Generals["classic:huang-gai"].SkillIds
-                    .SequenceEqual(["standard:kujin"]),
-            "Package 1.76.0 did not preserve the historical shared active-skill references.");
-        Require(migrated.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 77, 0)) &&
-                previous.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 76, 0)) &&
-                migrated.ContentHash != previous.ContentHash,
-            "The shared active-skill identity migration must be isolated to package 1.77.0.");
     }
 
     public static void ClassicRemainingSharedSkillsReceiveDistinctIdentities()
@@ -793,7 +604,7 @@ internal static class SkillMetadataChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":59,"skills":[{"id":"fixture:lose-hp","revision":1,
+            {"schemaVersion":60,"skills":[{"id":"fixture:lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}

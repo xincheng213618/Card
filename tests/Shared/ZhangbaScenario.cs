@@ -147,7 +147,7 @@ internal static class ZhangbaScenario
                 choice.ContentIds.Count == 1 &&
                 registry.Generals[choice.ContentIds[0]].SkillIds
                     .Select(registry.GetSkill)
-                    .All(skill => skill.LegacyKind is not (SkillKind.Hujia or SkillKind.Jijiang)));
+                    .All(skill => skill.LegacyKind != SkillKind.Hujia && skill.Id != "classic:jijiang"));
             if (generalChoice is null)
             {
                 continue;

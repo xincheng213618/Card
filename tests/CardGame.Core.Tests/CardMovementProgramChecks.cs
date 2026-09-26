@@ -12,7 +12,7 @@ internal static class CardMovementProgramChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ScenarioPackage.SkillId];
         var perCard = program.Triggers.Single(trigger => trigger.Id == "per-card");
         var emptyBatch = program.Triggers.Single(trigger => trigger.Id == "empty-batch");
-        Require(program.RuntimeVersion == "skill-program-v59" && program.MinimumRulesVersion == 169 &&
+        Require(program.RuntimeVersion == "skill-program-v60" && program.MinimumRulesVersion == 170 &&
                 perCard is
                 {
                     Window: SkillProgramTriggerWindow.CardsMoved,
@@ -39,8 +39,8 @@ internal static class CardMovementProgramChecks
             "Current movement triggers must use the common effect catalog.");
 
         const string wrongWindow = """
-            {"schemaVersion":59,"skills":[{"id":"fixture:wrong-window","revision":1,
-            "minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
+            {"schemaVersion":60,"skills":[{"id":"fixture:wrong-window","revision":1,
+            "minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
             {"id":"binding","window":"turnEnding","subject":"owner","optional":true,"priority":0,
             "condition":{"kind":"compare","left":{"kind":"movedCardCount"},"operator":"greaterThan",
             "right":{"kind":"integerConstant","value":0}},
@@ -55,7 +55,7 @@ internal static class CardMovementProgramChecks
         foreach (var skillId in new[] { "classic:xiaoji", "classic:lianying" })
         {
             Require(current.Skills[skillId].Program is
-                    { MinimumRulesVersion: 169 } migrated &&
+                    { MinimumRulesVersion: 170 } migrated &&
                     migrated.Triggers.Single().Window == SkillProgramTriggerWindow.CardsMoved,
                 $"Package 1.100 must publish {skillId} through the schema-14 card-movement window.");
         }
@@ -99,7 +99,7 @@ internal static class CardMovementProgramChecks
 
         var serialized = JsonSerializer.Serialize(game.ResolutionStack);
         var roundTrip = JsonSerializer.Deserialize<ResolutionFrame[]>(serialized) ?? [];
-        var restoredFrame = roundTrip.Single() as CardsMovedTriggerWindowFrame ??
+        var restoredFrame = roundTrip.OfType<CardsMovedTriggerWindowFrame>().SingleOrDefault() ??
             throw new InvalidOperationException("The cards-moved frame lost its concrete type after serialization.");
         Require(restoredFrame.Id == frame.Id && restoredFrame.CandidateIndex == frame.CandidateIndex &&
                 restoredFrame.Step == frame.Step && restoredFrame.Batch.Id == frame.Batch.Id &&
@@ -324,8 +324,8 @@ internal static class CardMovementProgramChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":59,"skills":[{"id":"fixture:card-movement","revision":1,
-        "minimumRulesVersion":169,"modifiers":[],"viewAs":[],
+        {"schemaVersion":60,"skills":[{"id":"fixture:card-movement","revision":1,
+        "minimumRulesVersion":170,"modifiers":[],"viewAs":[],
         "activations":[{"id":"discard-two","minCards":2,"maxCards":2,"minTargets":0,
         "maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
         "effects":[{"op":"discardSelected","target":"owner","amount":2}]}],

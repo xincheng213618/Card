@@ -10,13 +10,15 @@ internal static class ProgramCompositionValidator
     internal static void Validate(string path, IReadOnlyList<SkillProgramEffect> effects,
         bool initialSelectedTarget = false, int selectedCardCount = 0,
         SkillProgramTriggerWindow? window = null,
-        SkillProgramDrawPhaseMode drawPhaseMode = SkillProgramDrawPhaseMode.Additive)
+        SkillProgramDrawPhaseMode drawPhaseMode = SkillProgramDrawPhaseMode.Additive,
+        int initialTargetSetCount = 0,
+        int initialTargetSetMaximum = 0)
     {
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
         var roots = new List<Root>();
         var selectedTarget = initialSelectedTarget;
         var cardsConsumed = false;
-        var targetSetAvailable = false;
+        var targetSetAvailable = initialTargetSetCount > 0;
         var targetSetConsumed = false;
         var pindianResults = new HashSet<string>(StringComparer.Ordinal);
         var choiceResults = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
@@ -51,10 +53,23 @@ internal static class ProgramCompositionValidator
                         bound.CardOwner != effect.Target || bound.Root.AlreadyMoved)
                         Fail("bound-card count option must read the chooser's own stable cards");
                 }
+                if (condition.Kind == SkillProgramConditionKind.ActivationCardCountAtLeast &&
+                    (window is not null || selectedCardCount < condition.Value))
+                    Fail("activation card count requires a selectable activation with enough card capacity");
+                if (condition.Kind == SkillProgramConditionKind.BoundCardSuitMatchesChoice &&
+                    (!frozenSuitBindings.Contains(condition.SourceBind!) ||
+                     !choiceResults.TryGetValue(condition.ChoiceBind!, out var suitChoices) ||
+                     suitChoices.Count != 4 ||
+                     !suitChoices.Order(StringComparer.Ordinal).SequenceEqual(
+                         new[] { "club", "diamond", "heart", "spade" })))
+                    Fail("suit comparison requires a prior public one-card transfer and four-suit choice");
                 if (condition.Kind == SkillProgramConditionKind.AttackRangeCoverageDecreased &&
                     !coverageResults.Contains(condition.SourceBind!))
                     Fail($"unknown attack-range coverage result binding '{condition.SourceBind}'");
             }
+            if (effect.Op == SkillProgramEffectOp.AccumulateSelectedCardCount &&
+                (window is not null || selectedCardCount < 1))
+                Fail("selected-card accumulation requires an activation with selectable cards");
             if ((capabilities & descriptor.RequiredCapabilities) != descriptor.RequiredCapabilities)
                 throw Error(nodePath, $"operation requires context {descriptor.RequiredCapabilities}, supplied {capabilities}");
             if (effect.ReplacementSuits.Count > 0 &&
@@ -229,11 +244,16 @@ internal static class ProgramCompositionValidator
                         if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
                         break;
                     case ReadTargetSet read:
-                        if (!targetSetAvailable || effects.Take(index)
-                                .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets) is not
-                                { } selection || selection.MinimumTargets < read.Minimum)
+                    {
+                        var selection = effects.Take(index)
+                            .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets);
+                        var minimum = selection?.MinimumTargets ?? initialTargetSetCount;
+                        var maximum = selection?.MaximumTargets ?? initialTargetSetMaximum;
+                        if (!targetSetAvailable || minimum < read.Minimum ||
+                            read.Maximum is { } exactMaximum && maximum > exactMaximum)
                             Fail("the required selected target set must be produced before it is read");
                         break;
+                    }
                     case RequireContext required:
                         if ((capabilities & required.Capability) != required.Capability)
                             Fail($"operation requires context {required.Capability}, supplied {capabilities}");

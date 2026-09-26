@@ -54,7 +54,7 @@ internal static class BuLianShiChecks
             transferRules.Replace("\"targetKind\": \"otherLivingUnequalHandPair\"",
                 "\"targetKind\": \"otherLivingWithHand\"", StringComparison.Ordinal),
             transferPresentation,
-            "requires an unequal-hand pair");
+            "support-first order requires an eligible pair");
 
     }
 
@@ -65,8 +65,7 @@ internal static class BuLianShiChecks
         var ownerBefore = Player(game, HumanSeat);
         var action = game.GetHumanLegalActions().Single(candidate =>
             candidate.Kind == LegalActionKind.UseProgramSkill && candidate.ProgramSkillId == AnxuSkillId);
-        Require(action is { MinTargetCount: 0, MaxTargetCount: 0, ProgramActivationId: "unequal-hand-transfer" } &&
-                game.GetHumanLegalActions().All(candidate => candidate.Skill != SkillKind.Anxu),
+        Require(action is { MinTargetCount: 0, MaxTargetCount: 0, ProgramActivationId: "unequal-hand-transfer" },
             "Current Anxu must publish only its composed active entry.");
         var prompt = RequirePrompt(game, DecisionKind.PlayCard);
         var started = game.Submit(new UseProgramSkillCommand(
@@ -224,6 +223,7 @@ internal static class BuLianShiChecks
                 Role.Loyalist,
                 GeneralId,
                 rulesVersion);
+            if (game is null) continue;
             ReachHumanPlay(game);
             if (game.GetHumanLegalActions().Any(action => action.ProgramSkillId == AnxuSkillId)) return game;
         }
@@ -241,6 +241,7 @@ internal static class BuLianShiChecks
                 seed,
                 Role.Rebel,
                 ScenarioPackage.ZhuiyiOwnerId);
+            if (game is null) continue;
             for (var step = 0; step < 1_024 && game.State.Status != EngineStatus.Completed; step++)
             {
                 if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: HumanSeat } prompt &&
@@ -314,7 +315,7 @@ internal static class BuLianShiChecks
         Require(result.Accepted, result.Error?.Message ?? "The Bu Lian Shi fixture could not advance.");
     }
 
-    private static GameEngine CreateGame(
+    private static GameEngine? CreateGame(
         ContentRegistry registry,
         string modeId,
         int seed,
@@ -342,8 +343,7 @@ internal static class BuLianShiChecks
 
         Require(game.Submit(new StartGameCommand()).Accepted, "The Bu Lian Shi fixture failed to start.");
         var prompt = RequirePrompt(game, DecisionKind.SelectGeneral);
-        Require(prompt.ValidContentIds.Contains(generalId, StringComparer.Ordinal),
-            $"The fixture did not offer {generalId}; candidates=[{string.Join(',', prompt.ValidContentIds)}].");
+        if (!prompt.ValidContentIds.Contains(generalId, StringComparer.Ordinal)) return null;
         var selected = game.Submit(new SelectGeneralCommand(
             HumanSeat,
             generalId,
@@ -510,7 +510,7 @@ internal static class BuLianShiChecks
                     [nameof(Role.Renegade)] = 1
                 },
                 deckId,
-                GeneralCandidateCount: 4,
+                GeneralCandidateCount: modeId == AnxuModeId ? 1 : 4,
                 GeneralPoolIds: generalIds));
     }
 }

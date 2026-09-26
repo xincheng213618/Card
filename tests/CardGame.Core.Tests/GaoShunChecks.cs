@@ -30,7 +30,7 @@ internal static class GaoShunChecks
                     Id: "alcohol-hand-as-slash",
                     OutputKind: CardKind.Slash
                 } &&
-                jinjiu.Program!.MinimumRulesVersion == 169 &&
+                jinjiu.Program!.MinimumRulesVersion == 170 &&
                 identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
                 identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
                 current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId),
@@ -171,7 +171,7 @@ internal static class GaoShunChecks
                 prohibition.CardKinds.SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
                 actions.All(action => action.Kind != LegalActionKind.Slash) &&
                 actions.Any(action => action.Kind == LegalActionKind.Snatch) &&
-                actions.All(action => action.Skill != SkillKind.Xianzhen),
+                actions.All(action => action.ProgramSkillId != XianzhenSkillId),
             "Losing or tying Xianzhen must prohibit only Slash use and keep the once-per-phase active entry consumed.");
     }
 

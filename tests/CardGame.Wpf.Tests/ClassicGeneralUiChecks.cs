@@ -1167,7 +1167,8 @@ internal static class ClassicGeneralUiChecks
         Program.AdvanceToDecision(qiangxiViewModel);
         var qiangxiEngine = Program.Engine(qiangxiViewModel);
         var qiangxiAction = qiangxiEngine.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Qiangxi);
+            action.Kind == LegalActionKind.UseProgramSkill && action.ProgramSkillId == "classic:qiangxi" &&
+            action.MinCardCount == 0 && action.MaxCardCount == 0);
         var qiangxiBefore = qiangxiEngine.CreateSnapshot(0, revealAll: true);
         var damageTriggerSkills = new HashSet<SkillKind>
         {
@@ -1187,7 +1188,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(qiangxiViewModel.CanUseActiveSkill &&
                        qiangxiViewModel.ActiveSkillEntryText.Contains("强袭", StringComparison.Ordinal),
             "Classic Dian Wei must expose Qiangxi at the WPF play boundary.");
-        qiangxiViewModel.UseActiveSkillCommand.Execute(null);
+        qiangxiViewModel.SelectActiveSkillCommand.Execute(qiangxiAction);
         var qiangxiTarget = qiangxiViewModel.Seats.Single(seat => seat.Seat == qiangxiTargetSeat);
         qiangxiViewModel.SelectTargetCommand.Execute(qiangxiTarget);
         Program.Assert(qiangxiViewModel.IsActiveSkillSelectionPending &&
@@ -2191,7 +2192,8 @@ internal static class ClassicGeneralUiChecks
             choice.GeneralId == "classic:zhou-yu");
         Program.Assert(zhouYu.SkillName == "英姿 / 反间" &&
                        zhouYu.SkillDescription.Contains("可以多摸一张牌", StringComparison.Ordinal) &&
-                       zhouYu.SkillDescription.Contains("选择一种花色", StringComparison.Ordinal),
+                       zhouYu.SkillDescription.Contains("先猜一种花色", StringComparison.Ordinal) &&
+                       zhouYu.SkillDescription.Contains("随机手牌", StringComparison.Ordinal),
             "The current classic selection card must describe optional Yingzi and formal Fanjian.");
         yingziViewModel.SelectGeneralChoiceCommand.Execute(zhouYu);
         Program.AdvanceToDecision(yingziViewModel);
@@ -2444,15 +2446,16 @@ internal static class ClassicGeneralUiChecks
         var engine = Program.Engine(viewModel);
         Program.Assert(!viewModel.HasSaveError &&
                        viewModel.IsSkillSelectionPending &&
-                       engine.PendingDecision?.Kind == DecisionKind.Fanjian &&
+                       engine.PendingDecision?.SkillPrompt?.SkillId == "classic:fanjian" &&
                        viewModel.SkillChoices.Count == 4 &&
                        viewModel.SkillChoices.All(choice =>
                            choice.Cards.Count == 0 &&
-                           choice.Parameters.GetValueOrDefault("action") == "fanjian-choose-suit"),
+                           choice.Parameters.GetValueOrDefault("program-action") == "choose-option"),
             viewModel.SaveStatus);
-        Program.Assert(viewModel.CurrentGuideTitle == "为反间选择一种花色" &&
+        Program.Assert(viewModel.CurrentGuideTitle == "反间 · 选择效果" &&
                        viewModel.CurrentGuideSteps.Any(step =>
-                           step.Text.Contains("尚未公开", StringComparison.Ordinal)),
+                           step.Text.Contains("先猜一种花色", StringComparison.Ordinal) &&
+                           step.Text.Contains("再令其获得并展示", StringComparison.Ordinal)),
             "The player guide must explain that Fanjian chooses a suit before the random reveal.");
 
         var window = new MainWindow(viewModel);
@@ -2460,14 +2463,16 @@ internal static class ClassicGeneralUiChecks
         Program.Render((FrameworkElement)window.Content, 1120, 740,
             Path.Combine(output, "74-classic-fanjian-choice.png"));
         var chosen = viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("suit") == "Diamond");
+            choice.Parameters.GetValueOrDefault("option-id") == "diamond");
         viewModel.SelectSkillChoiceCommand.Execute(chosen);
         var reveal = engine.Events.Select(item => item.Payload)
-            .OfType<FanjianCardRevealedEvent>()
-            .LastOrDefault();
-        Program.Assert(reveal is { TargetSeat: 0, ChosenSuit: Suit.Diamond } &&
+            .OfType<ProgramCardsRevealedEvent>()
+            .LastOrDefault(item => item.SkillId == "classic:fanjian");
+        Program.Assert(reveal is { Cards.Count: 1 } &&
+                       engine.Events.Any(item => item.Payload is ProgramOptionChosenEvent
+                           { SkillId: "classic:fanjian", ChooserSeat: 0, OptionId: "diamond" }) &&
                        engine.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
-                           .Hand.Any(card => card.Id == reveal.CardId),
+                           .Hand.Any(card => card.Id == reveal.Cards[0].Id),
             "The WPF Fanjian suit button must receive and reveal the exact transferred card.");
         window.Content = null;
         window.Close();
@@ -2618,9 +2623,9 @@ internal static class ClassicGeneralUiChecks
         using var viewModel = FindJijiangViewModel();
         var engine = Program.Engine(viewModel);
         var actions = viewModel.HumanActiveSkillActions;
-        Program.Assert(actions.Select(action => action.Skill)
-                           .SequenceEqual([SkillKind.Rende, SkillKind.Jijiang]) &&
-                       viewModel.AdditionalActiveSkillActions is [{ Skill: SkillKind.Jijiang }] &&
+        Program.Assert(actions.Select(action => action.ProgramSkillId)
+                           .SequenceEqual(["classic:rende", "classic:jijiang"]) &&
+                       viewModel.AdditionalActiveSkillActions is [{ ProgramSkillId: "classic:jijiang" }] &&
                        viewModel.HumanSkillCards.Any(skill =>
                            skill.Name == "仁德" &&
                            skill.TypeText == "主动技") &&
@@ -2628,7 +2633,7 @@ internal static class ClassicGeneralUiChecks
                            skill.Name == "激将" &&
                            skill.TypeText == "主动技 · 触发技 · 主公技"),
             "Classic Liu Bei must publish separate Rende and compound Jijiang metadata in stable order.");
-        var jijiang = actions.Single(action => action.Skill == SkillKind.Jijiang);
+        var jijiang = actions.Single(action => action.ProgramSkillId == "classic:jijiang");
         Program.Assert(jijiang.SelectableCardIds.Count == 0 &&
                        jijiang.SelectableTargetSeats.Count > 0 &&
                        jijiang is { MinTargetCount: 1, MaxTargetCount: 1 },
@@ -2647,7 +2652,7 @@ internal static class ClassicGeneralUiChecks
                        visibleSkillButtons.Contains("激将", StringComparer.Ordinal),
             "The skill rail must keep both of Liu Bei's active skills directly visible.");
 
-        var rende = actions.Single(action => action.Skill == SkillKind.Rende);
+        var rende = actions.Single(action => action.ProgramSkillId == "classic:rende");
         var beforeRende = engine.CreateSnapshot(0, revealAll: true);
         var rendeButton = Program.Find<System.Windows.Controls.Button>(root).Single(button => button.DataContext is HumanSkillViewModel { Name: "仁德" });
         rendeButton.Command!.Execute(rendeButton.CommandParameter);
@@ -2659,13 +2664,13 @@ internal static class ClassicGeneralUiChecks
         viewModel.ConfirmSelectedCommand.Execute(null);
         var afterRende = engine.CreateSnapshot(0, revealAll: true);
         Program.AdvanceToDecision(viewModel);
-        var hasRepeatedRende = viewModel.HumanActiveSkillActions.Any(action => action.Skill == SkillKind.Rende);
-        var currentJijiang = viewModel.HumanActiveSkillActions.Single(action => action.Skill == SkillKind.Jijiang);
+        var hasRepeatedRende = viewModel.HumanActiveSkillActions.Any(action => action.ProgramSkillId == "classic:rende");
+        var currentJijiang = viewModel.HumanActiveSkillActions.Single(action => action.ProgramSkillId == "classic:jijiang");
         var hasFormalDescription = viewModel.HumanSkillCards.Any(skill =>
             skill.Name == "仁德" &&
             skill.Description.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal));
         Program.Assert(engine.AcceptedCommands.Any(command =>
-                           command is UseSkillCommand { Skill: SkillKind.Rende } &&
+                           command is UseProgramSkillCommand { SkillId: "classic:rende" } &&
                            command.ExpectedRevision == rendeRevision) &&
                        afterRende.Players[0].HandCount == beforeRende.Players[0].HandCount - 1 &&
                        afterRende.Players[rendeTarget.Seat].HandCount ==
@@ -2694,26 +2699,62 @@ internal static class ClassicGeneralUiChecks
             "Selecting one Jijiang target must enable the shared primary confirmation.");
         Program.Render(root, 1120, 740, Path.Combine(output, "79-classic-jijiang-target.png"));
 
+        viewModel.StartTutorialCommand.Execute(null);
+        viewModel.ExitTutorialCommand.Execute(null);
+        Program.Assert(ReferenceEquals(Program.Engine(viewModel), engine) &&
+                       viewModel.CanConfirmActiveSkill && viewModel.PlayButtonText == "发动激将",
+            "Returning from practice must restore Jijiang's exact activation, not Liu Bei's first active skill.");
+
         var revision = engine.Revision;
+        var ownerHandCount = engine.CreateSnapshot(0).Players.Single(player => player.Seat == 0).HandCount;
         viewModel.ConfirmSelectedCommand.Execute(null);
         Program.Assert(engine.Revision == revision + 1 &&
-                       engine.AcceptedCommands.Last() is UseSkillCommand
+                       engine.AcceptedCommands.Last() is UseProgramSkillCommand
                        {
-                           Skill: SkillKind.Jijiang,
+                           SkillId: "classic:jijiang",
                            CardIds.Count: 0,
                            TargetSeats.Count: 1
                        } command &&
                        command.TargetSeats[0] == target.Seat &&
-                       engine.Events.Any(item => item.Payload is JijiangRequestedEvent
+                       engine.Events.Count(item => item.Payload is ProgramSkillStartedEvent
                        {
                            OwnerSeat: 0,
-                           IsActiveUse: true,
-                           CandidateSeats.Count: > 0
-                       }) &&
+                           SkillId: "classic:jijiang"
+                       }) == 1 &&
+                       engine.CreateSnapshot(0).Players.Single(player => player.Seat == 0).HandCount == ownerHandCount &&
                        !viewModel.IsActiveSkillSelectionPending,
             "The Jijiang target draft must submit exactly one typed request without paying a Liu Bei hand card.");
         window.Content = null;
         window.Close();
+    }
+
+    public static void OrderedProgramTargets()
+    {
+        using var viewModel = FindGeneralChoice("classic:diao-chan");
+        viewModel.SelectGeneralChoiceCommand.Execute(viewModel.GeneralChoices.Single(choice => choice.GeneralId == "classic:diao-chan"));
+        Program.AdvanceToDecision(viewModel);
+        var engine = Program.Engine(viewModel);
+        var action = viewModel.HumanActiveSkillActions.Single(item => item.ProgramSkillId == "classic:lijian");
+        var cardId = action.SelectableCardIds.First(id => viewModel.Hand.Any(card => card.Id == id));
+        var targets = action.SelectableTargetSeats.OrderDescending().Take(2).ToArray();
+        Program.Assert(targets.Length == 2, "Lijian needs two published male targets.");
+        viewModel.SelectActiveSkillCommand.Execute(action);
+        viewModel.SelectCardCommand.Execute(viewModel.Hand.Single(card => card.Id == cardId));
+        foreach (var target in targets)
+            viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == target));
+        Program.Assert(viewModel.CanConfirmActiveSkill, "The ordered two-target draft is not confirmable.");
+
+        viewModel.StartTutorialCommand.Execute(null);
+        viewModel.ExitTutorialCommand.Execute(null);
+        Program.Assert(ReferenceEquals(Program.Engine(viewModel), engine) && viewModel.CanConfirmActiveSkill,
+            "Leaving practice must restore the original ordered skill draft.");
+        var revision = engine.Revision;
+        viewModel.ConfirmSelectedCommand.Execute(null);
+        Program.Assert(engine.Revision == revision + 1 &&
+            engine.AcceptedCommands.Last() is UseProgramSkillCommand command &&
+            command.SkillId == action.ProgramSkillId && command.ActivationId == action.ProgramActivationId &&
+            command.CardIds.SequenceEqual([cardId]) && command.TargetSeats.SequenceEqual(targets),
+            "The command must preserve the two selected participants' order through tutorial restoration.");
     }
 
     public static void SharedSkillIdentityMetadata(string output)
@@ -2874,7 +2915,7 @@ internal static class ClassicGeneralUiChecks
                 candidate.SelectGeneralChoiceCommand.Execute(liuBei);
                 Program.AdvanceToDecision(candidate);
                 if (candidate.HumanActiveSkillActions.Any(action =>
-                        action.Skill == SkillKind.Jijiang && action.SelectableTargetSeats.Count > 0))
+                        action.ProgramSkillId == "classic:jijiang" && action.SelectableTargetSeats.Count > 0))
                 {
                     return candidate;
                 }
@@ -3301,7 +3342,7 @@ internal static class ClassicGeneralUiChecks
 
             for (var step = 0; step < 1_200 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision?.Kind == DecisionKind.Fanjian)
+                if (game.PendingDecision?.SkillPrompt?.SkillId == "classic:fanjian")
                 {
                     return game;
                 }

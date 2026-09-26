@@ -185,9 +185,9 @@ public sealed partial class MainViewModel
             var activeSkillName = ActiveSkillName(skillAction);
             CurrentGuideTitle = CanConfirmActiveSkill ? $"确认发动【{activeSkillName}】" : $"选择【{activeSkillName}】的牌和目标";
             CurrentGuideBody = $"{VisibleSkillDescriptions(human?.Skills)}\n{GetActiveSkillSelectionHint()}";
-            var selectedNames = Seats.Where(seat => _selectedActiveSkillTargetSeats.Contains(seat.Seat))
+            var selectedNames = _selectedActiveSkillTargetSeats.Select(selected => Seats.Single(seat => seat.Seat == selected))
                 .Select(seat => seat.IsHuman ? $"你（{seat.GeneralName}）" : $"{seat.Seat + 1} 号位 {seat.GeneralName}").ToArray();
-            steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}。再次点击已选牌或目标可以取消。",
+            steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}，目标按点击顺序记录。再次点击已选牌或目标可以取消。",
                 selectedNames.Length == 0 ? "尚未选择目标；不要求目标的技能只需选牌。" : $"已选目标：{string.Join("、", selectedNames)}。",
                 "点击「确定」或按 Enter 才会支付代价并提交技能；Esc 取消整次选择。关闭指南会保留已选牌和目标。"];
         }
@@ -255,7 +255,6 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
                 DecisionKind.Jiangchi => ("选择将驰方式", new[] { "多摸一张会令你直到回合结束都不能使用或打出杀，包括转化杀、丈八蛇矛和激将。", "少摸一张会令本回合出牌阶段的杀无距离限制且次数上限 +1；也可以不发动并正常摸牌。" }),
                 DecisionKind.Zishou => ("决定是否自守", new[] { "发动后按现存势力数额外摸牌，现存势力由仍存活角色的实际势力去重计算。", "代价持续到本回合结束：牌只能指定自己为目标；南蛮入侵和万箭齐发不可使用，桃园结义、五谷丰登仅对自己结算。" }),
                 DecisionKind.Tiandu => ("决定是否发动天妒", new[] { "判定结果已经生效；发动后，公开判定牌会进入你的手牌。", "也可以跳过，让判定牌按通常流程进入弃牌堆。" }),
-                DecisionKind.Fanjian => ("为反间选择一种花色", new[] { "先选择黑桃、红桃、梅花或方块；此时周瑜的随机手牌尚未公开。", "你会获得并展示那张牌；若它与所选花色不同，周瑜对你造成 1 点普通伤害。" }),
                 DecisionKind.Guanxing => ("排列观星看到的牌", new[] { "先决定是否发动；发动后依次选择牌堆顶顺序，第一张会最先被摸取或用于判定。", "结束牌堆顶排序后，再从最底层开始排列其余牌；牌面只对观星者可见。" }),
                 DecisionKind.Keji => ("决定是否发动克己", new[] { "本回合出牌阶段没有使用或打出过杀，因此可以跳过弃牌阶段。", "发动后保留全部手牌并结束回合；跳过则按当前体力上限弃牌。" }),
                 DecisionKind.Luoshen => ("决定是否发动洛神", new[] { "发动后进行一次公开判定；黑色判定牌会进入你的手牌。", "每次黑色判定后都可继续或停止；出现红色结果时自动停止并继续准备阶段。" }),

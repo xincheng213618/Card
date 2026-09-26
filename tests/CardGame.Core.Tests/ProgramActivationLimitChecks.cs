@@ -9,7 +9,7 @@ internal static class ProgramActivationLimitChecks
     private const string GeneralId = "fixture:phase-exchange-owner";
     private const string ModeId = "identity:classic-phase-exchange";
     private const string Rules = """
-        {"schemaVersion":59,"skills":[{"id":"fixture:turn-draw","revision":1,
+        {"schemaVersion":60,"skills":[{"id":"fixture:turn-draw","revision":1,
         "activations":[{"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,
         "targetKind":"anyLiving","usesPerTurn":1,"usesPerPhase":1,
         "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
@@ -21,8 +21,8 @@ internal static class ProgramActivationLimitChecks
     public static void DefinitionsAndCurrentBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59",
-                    MinimumRulesVersion: 169 } program } &&
+        Require(current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v60",
+                    MinimumRulesVersion: 170 } program } &&
                 program.Activations.Single() is { MaxCards: int.MaxValue, UsesPerPhase: 1, UsesPerTurn: null } &&
                 program.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]),
             "The current exchange must use shared nodes with phase limits.");
@@ -75,9 +75,8 @@ internal static class ProgramActivationLimitChecks
                 moves.Single(move => move.CardId == equipmentId).From == CardLocation.Equipment(0),
             "One shared exchange must discard the exact hand/equipment set and draw the same count.");
         Require(game.GetHumanLegalActions().All(item => item.ProgramSkillId != SkillId) &&
-                game.Events.Any(item => item.Payload is ProgramSkillResolvedEvent { SkillId: SkillId, Completed: true }) &&
-                !game.Events.Any(item => item.Payload is SkillCardsDiscardedEvent { Skill: SkillKind.Zhiheng }),
-            "The allowance must be consumed once without falling back to the dedicated skill.");
+                game.Events.Count(item => item.Payload is ProgramSkillResolvedEvent { SkillId: SkillId, Completed: true }) == 1,
+            "The allowance must be consumed once with one completed Program activation.");
         RejectUse(game, [after.Hand[0].Id], []);
         AssertReplay(game, registry);
     }
