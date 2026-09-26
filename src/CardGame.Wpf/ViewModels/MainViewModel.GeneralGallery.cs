@@ -142,7 +142,7 @@ public sealed partial class MainViewModel
             RefreshGeneralGallery();
         });
 
-        foreach (var general in _contentRegistry.Generals.Values)
+        foreach (var general in _contentRegistry.Generals.Values.Where(general => GeneralGalleryCatalog.IsVisible(general.Id)))
         {
             var skills = general.SkillIds.Select(_contentRegistry.GetSkill).ToArray();
             var group = GeneralGalleryCatalog.Classify(general.Id);

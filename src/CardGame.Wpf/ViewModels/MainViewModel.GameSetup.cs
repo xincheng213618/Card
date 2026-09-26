@@ -29,6 +29,7 @@ public sealed partial class MainViewModel
         get => _selectedModeCategory;
         set
         {
+            if (value is null || !TableModes.Any(mode => MatchesModeCategory(mode, value.Id))) return;
             if (!SetProperty(ref _selectedModeCategory, value)) return;
             RefreshVisibleTableModes();
             RaisePropertyChanged(nameof(ModeLobbySummary));
@@ -75,6 +76,9 @@ public sealed partial class MainViewModel
         get => _selectedTableMode;
         set
         {
+            // WPF clears SelectedItem while its ItemsSource is being refreshed.
+            // Keep a valid setup mode until the replacement list is ready.
+            if (value is null) return;
             if (!SetProperty(ref _selectedTableMode, value)) return;
             RaisePropertyChanged(nameof(IsTeamModeSelection));
             RaisePropertyChanged(nameof(IsIdentityModeSelection));
@@ -204,18 +208,18 @@ public sealed partial class MainViewModel
     private void RefreshVisibleTableModes()
     {
         if (TableModes is null || SelectedModeCategory is null) return;
-        var modes = TableModes.Where(mode => SelectedModeCategory.Id switch
-        {
-            "identity" => mode.ModeId.StartsWith("identity:", StringComparison.Ordinal),
-            "team" => mode.ModeId.StartsWith("team:", StringComparison.Ordinal),
-            "national" => mode.ModeId.StartsWith("national:", StringComparison.Ordinal),
-            _ => true
-        }).ToArray();
+        var modes = TableModes.Where(mode => MatchesModeCategory(mode, SelectedModeCategory.Id)).ToArray();
+        var selection = modes.Contains(SelectedTableMode) ? SelectedTableMode : modes.First();
         VisibleTableModes.Clear();
         foreach (var mode in modes) VisibleTableModes.Add(mode);
-        if (!modes.Contains(SelectedTableMode)) SelectedTableMode = modes.First();
+        SelectedTableMode = selection;
+        // Reapply the selection even when the retained mode did not change.
+        RaisePropertyChanged(nameof(SelectedTableMode));
         RaisePropertyChanged(nameof(ModeLobbySummary));
     }
+
+    private static bool MatchesModeCategory(TableModeOption mode, string categoryId) =>
+        categoryId == "all" || mode.ModeId.StartsWith(categoryId + ":", StringComparison.Ordinal);
 
     private void OpenGameSetup()
     {

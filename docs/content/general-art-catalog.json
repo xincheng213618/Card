@@ -186,6 +186,83 @@
       ]
     },
     {
+      "key": "boundary-gan-ning",
+      "characterName": "界甘宁",
+      "defaultSkinId": "30500",
+      "skins": [
+        {
+          "id": "30500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/305",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-gan-ning.png",
+          "sha256": "fa57b9d52c3b325dfec6024ebe6645015de48747ba79f520f5918a04a052d272",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        },
+        {
+          "id": "30501",
+          "name": "官方皮肤 30501（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/305",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30501.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-gan-ning/30501.png",
+          "sha256": "32d7f0d8e561cefe0ba89099c673016133ab2ef29e7c64ec57567be488d2c2fb",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        },
+        {
+          "id": "30502",
+          "name": "官方皮肤 30502（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/305",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30502.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-gan-ning/30502.png",
+          "sha256": "2922b25f2ee3887528911fe783172319e6526b8c05c10a8e69b99347b466c367",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        },
+        {
+          "id": "30503",
+          "name": "官方皮肤 30503（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/305",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30503.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-gan-ning/30503.png",
+          "sha256": "0589c572a73e23c793c8dd1748eb3a32d6a1163603132b3675026d517a1f0660",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        },
+        {
+          "id": "30504",
+          "name": "官方皮肤 30504（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/305",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30504.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-gan-ning/30504.png",
+          "sha256": "fc14f46a5e2a04f6c67e5e269fef03f7a7139c95119ac6b2ecb55b85b88957df",
+          "pixelWidth": 950,
+          "pixelHeight": 750
+        },
+        {
+          "id": "30505",
+          "name": "官方皮肤 30505（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/305",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30505.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-gan-ning/30505.png",
+          "sha256": "6e5d4b92ffdeb1b38b534b70d17c78a87254e5cf6ba4ff8e95f4d3372b41b23b",
+          "pixelWidth": 1334,
+          "pixelHeight": 750
+        },
+        {
+          "id": "30506",
+          "name": "官方皮肤 30506（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/305",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30506.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-gan-ning/30506.png",
+          "sha256": "6fa8c1e3dbab413bd880baefc020fab6f598431a4d26b9037db1697b68a7c8a4",
+          "pixelWidth": 950,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
       "key": "boundary-guo-jia",
       "characterName": "界郭嘉",
       "defaultSkinId": "31600",
@@ -384,6 +461,103 @@
           "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31209.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-sima-yi/31209.png",
           "sha256": "98c4c0e3827d7c8c06392a18cb6c5c133138cd34269aed616ff11a989886ecef",
+          "pixelWidth": 1334,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "boundary-xu-chu",
+      "characterName": "界许褚",
+      "defaultSkinId": "31500",
+      "skins": [
+        {
+          "id": "31500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-xu-chu.png",
+          "sha256": "d682ba6339584f15b5e4a8009ddec409c34db2c701c7b60aa28ea1337045d227",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        },
+        {
+          "id": "31501",
+          "name": "官方皮肤 31501（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31501.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31501.png",
+          "sha256": "3595c59e986c2ac0c1bbab67eec740f26f787b66c1eed2bfbd532a322aad555e",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        },
+        {
+          "id": "31502",
+          "name": "官方皮肤 31502（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31502.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31502.png",
+          "sha256": "2215fe4bd6d4dc0cd9170e79e29289223714fd38a34966d25206dd915ca37694",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        },
+        {
+          "id": "31503",
+          "name": "官方皮肤 31503（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31503.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31503.png",
+          "sha256": "1d5fbf75de79a3aec6f42742c0d16ece7936e968c6ce3e0712bfbdcbe24e09f8",
+          "pixelWidth": 950,
+          "pixelHeight": 750
+        },
+        {
+          "id": "31504",
+          "name": "官方皮肤 31504（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31504.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31504.png",
+          "sha256": "806159aad4756105bacc5aaa57dcbfe711dc3a93af979cde1b9ff34872c9f8d4",
+          "pixelWidth": 950,
+          "pixelHeight": 750
+        },
+        {
+          "id": "31505",
+          "name": "官方皮肤 31505（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31505.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31505.png",
+          "sha256": "5d0a9755e6196d89e3dff187441e10285e6a842e3855f483dffb3a1f7ce736f1",
+          "pixelWidth": 1334,
+          "pixelHeight": 750
+        },
+        {
+          "id": "31506",
+          "name": "官方皮肤 31506（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31506.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31506.png",
+          "sha256": "4d5b1f5133be35e5dc331a64f6b3a363c3dc112c9a3f139f06e25b2b279c8534",
+          "pixelWidth": 1334,
+          "pixelHeight": 750
+        },
+        {
+          "id": "31507",
+          "name": "官方皮肤 31507（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31507.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31507.png",
+          "sha256": "e875b94a41a4d4c2efce8c6474d00f52ef185abf2da3ceca071dde1c7a867b9b",
+          "pixelWidth": 950,
+          "pixelHeight": 750
+        },
+        {
+          "id": "31508",
+          "name": "官方皮肤 31508（官网未标原名）",
+          "sourcePage": "https://www.sanguosha.com/hero/315",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31508.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/boundary-xu-chu/31508.png",
+          "sha256": "1a292b6756d92dc4ea86e6cfc55dd69c00c9b7ee2b3d2b6430f93d1e32628321",
           "pixelWidth": 1334,
           "pixelHeight": 750
         }
@@ -8455,6 +8629,83 @@
           "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/604701.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/zhu-rong/604701.png",
           "sha256": "08abf3950dc791d57e7018f42e2c830f4cb0be2cf87a2e136f585c44d254e233",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "zhu-zhi",
+      "characterName": "朱治",
+      "defaultSkinId": "133901",
+      "skins": [
+        {
+          "id": "133901",
+          "name": "经典形象*朱治",
+          "sourcePage": "https://x.sanguosha.com/hero/339.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/133901.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhu-zhi.png",
+          "sha256": "6126362bf40a1a70713fc30c25aa20bfc9aa2653c876253dae1f969a8c7b473c",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "233901",
+          "name": "气冲斗牛*朱治",
+          "sourcePage": "https://x.sanguosha.com/hero/339.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/233901.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhu-zhi/233901.png",
+          "sha256": "8aa4e24e933368930696f0fbf8e6cb729a6d9f70acacbf228c15acadf412e410",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "333901",
+          "name": "安国将军*朱治",
+          "sourcePage": "https://x.sanguosha.com/hero/339.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/333901.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhu-zhi/333901.png",
+          "sha256": "ee6746531ceee4d66e3254bade268115d2bc01a4be02b3bc8bea2e5dc79142eb",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "433901",
+          "name": "攻守自如*朱治",
+          "sourcePage": "https://x.sanguosha.com/hero/339.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/433901.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhu-zhi/433901.png",
+          "sha256": "8f63526159b981bc026556535db3a63d1c82cedd843451ca469bf607d6c33061",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "433902",
+          "name": "形影不离*朱治",
+          "sourcePage": "https://x.sanguosha.com/hero/339.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/433902.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhu-zhi/433902.png",
+          "sha256": "cf7f2994d65d30343d589fb4846c65ffad3ad841d98cf2d55ee14adad57ceb48",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "533901",
+          "name": "固阵之磐*朱治",
+          "sourcePage": "https://x.sanguosha.com/hero/339.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/533901.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhu-zhi/533901.png",
+          "sha256": "0fea3f9b03ab6a716a6fc87f48430ef7ea448eb8b2f7794cea6b7f5b95f376e9",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "1141101",
+          "name": "界限突破*朱治",
+          "sourcePage": "https://x.sanguosha.com/hero/339.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1141101.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhu-zhi/1141101.png",
+          "sha256": "0c6d2c8ee87784ba49331c72fdbcfc69e9a2c461a096ec1fa56ea81fcea6b54d",
           "pixelWidth": 574,
           "pixelHeight": 761
         }

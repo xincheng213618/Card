@@ -15,9 +15,7 @@ public static class GeneralGalleryCatalog
         new("god", "神武将", "神将专属图鉴"),
         new("sp", "SP", "SP 武将"),
         new("mou", "谋", "谋系列武将"),
-        new("other", "其他扩展", "其他扩展武将"),
-        new("demo", "机制演示", "基础规则与技能演示版本"),
-        new("national", "国战试验", "国战模式的独立武将版本")
+        new("other", "其他扩展", "其他扩展武将")
     ];
 
     public static IReadOnlyList<GalleryGroup> Groups { get; } =
@@ -41,12 +39,15 @@ public static class GeneralGalleryCatalog
         new("god", "god", "神武将", "神武将"),
         new("sp", "sp", "SP", "SP 武将"),
         new("mou", "mou", "谋", "谋系列"),
-        new("other", "other", "其他", "其他扩展"),
-        new("demo", "demo", "机制演示", "机制演示"),
-        new("national", "national", "国战试验", "国战试验")
+        new("other", "other", "其他", "其他扩展")
     ];
 
     private static readonly IReadOnlyDictionary<string, string> GeneralGroups = BuildGeneralGroups();
+
+    public static bool IsVisible(string generalId) =>
+        !generalId.StartsWith("standard:", StringComparison.Ordinal) &&
+        !generalId.StartsWith("composed:", StringComparison.Ordinal) &&
+        !generalId.StartsWith("national:", StringComparison.Ordinal);
 
     public static GalleryGroup Classify(string generalId)
     {
@@ -54,8 +55,6 @@ public static class GeneralGalleryCatalog
         {
             groupId = generalId.Split(':', 2)[0] switch
             {
-                "standard" => "demo",
-                "national" => "national",
                 "sp" => "sp",
                 "mou" => "mou",
                 // New formal variants need an explicit assignment; never guess from a shared name.
@@ -76,6 +75,7 @@ public static class GeneralGalleryCatalog
         Add("fame-2", "cao-zhang wang-yi xun-you zhong-hui ma-dai liao-hua guan-xing-zhang-bao bu-lian-shi cheng-pu han-dang liu-biao");
         Add("fame-3", "cao-chong guo-huai man-chong guan-ping");
         Add("fame-4", "gu-yong zhu-huan");
+        Add("fame-5", "zhu-zhi");
         Add("god", "shen-guan-yu");
         Add("sp", "gongsun-zan");
         Add("myth-yin", "yan-yan");
@@ -86,6 +86,8 @@ public static class GeneralGalleryCatalog
         groups.Add("boundary:guo-jia", "boundary");
         groups.Add("boundary:cao-cao", "boundary");
         groups.Add("boundary:zhang-liao", "boundary");
+        groups.Add("boundary:gan-ning", "boundary");
+        groups.Add("boundary:xu-chu", "boundary");
         return groups;
 
         void Add(string group, string ids)

@@ -8,6 +8,7 @@ From the repository root, run these phases in order:
 
 Run --phase verify at any time to check the catalog and local PNGs offline.
 Existing portraits and default selections are preserved on repeat runs.
+Use repeated --key KEY options to sync only selected keys in a phase.
 """
 
 from __future__ import annotations
@@ -52,6 +53,7 @@ CLASSIC_HEROES = {
     "ma-dai": 301,
     "wolong-zhuge-liang": 38, "pang-de": 40,
     "yan-liang-wen-chou": 41,
+    "zhu-zhi": 339,
 }
 
 # These variants have independent GeneralArt IDs and independent official pages.
@@ -75,7 +77,11 @@ OL_HEROES = {
     "boundary-zhang-jiao": (448, "张角"),
     "boundary-cao-cao": (311, "曹操"),
     "boundary-zhang-liao": (314, "张辽"),
+    "boundary-gan-ning": (305, "甘宁"),
+    "boundary-xu-chu": (315, "许褚"),
 }
+
+NEW_OL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu"}
 
 EXISTING_SOURCES = {
     "gu-yong": ("https://www.sanguosha.com/hero/329", "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/32900.png"),
@@ -162,9 +168,14 @@ def page_skins(gid: int) -> list[dict]:
     return skins
 
 
-def ol_page_skins(gid: int) -> list[dict]:
+def ol_page_skins(gid: int, expected_name: str | None = None) -> list[dict]:
     page = f"https://www.sanguosha.com/hero/{gid}"
     soup = BeautifulSoup(get(page).decode("utf-8"), "html.parser")
+    actual_name = soup.select_one(".hero-card-name")
+    if expected_name is not None and (
+        actual_name is None or actual_name.get_text(strip=True) != expected_name
+    ):
+        raise ValueError(f"Unexpected hero identity at {page}: {actual_name.get_text(strip=True) if actual_name else '(missing)'}")
     images = [soup.select_one(".hero-detail-card img")]
     images += soup.select(".hero-detail-nav img[data-url]")
     skins = []
@@ -176,7 +187,7 @@ def ol_page_skins(gid: int) -> list[dict]:
         if not re.fullmatch(r"\d+", resource_id):
             continue
         skins.append({"id": resource_id,
-                      "name": "经典形象" if index == 0 else f"官方皮肤 {resource_id}",
+                      "name": "经典形象" if index == 0 else f"官方皮肤 {resource_id}（官网未标原名）",
                       "sourcePage": page, "imageUrl": url})
     if not skins:
         raise ValueError(f"No official skin images: {page}")
@@ -232,9 +243,11 @@ def verify_catalog(catalog: dict) -> None:
     print(f"Verified {len(entry_keys)} generals and {image_count} PNG records offline.")
 
 
-def finalize(entries: dict[str, dict]) -> None:
+def finalize(entries: dict[str, dict], only_keys: set[str] | None = None) -> None:
     wiki = {item["portraitKey"]: item for item in json.loads((ROOT / "docs/content/bwiki-portraits.json").read_text(encoding="utf-8"))}
     for key, entry in entries.items():
+        if only_keys is not None and key not in only_keys:
+            continue
         official = ASSETS / f"official-{key}.png"
         if not official.exists():
             continue
@@ -254,6 +267,8 @@ def finalize(entries: dict[str, dict]) -> None:
             raise ValueError(f"Cannot verify existing default source for {key}")
 
     for key in ("sp-zhao-yun", "shen-guan-yu"):
+        if only_keys is not None and key not in only_keys:
+            continue
         item = wiki[key]
         art = item["artwork"]
         path = ASSETS / art["localFilename"]
@@ -269,14 +284,24 @@ def finalize(entries: dict[str, dict]) -> None:
         entry["defaultSkinId"] = "current"
 
     for key in OL_HEROES:
+        if only_keys is not None and key not in only_keys:
+            continue
         if key not in entries:
             raise ValueError(f"Missing OL portrait {key}; run --phase ol")
         entries[key]["characterName"] = "界" + OL_HEROES[key][1]
+        if key in NEW_OL_DEFAULTS:
+            for skin in entries[key]["skins"]:
+                if skin["name"].startswith("官方皮肤 ") and "官网未标原名" not in skin["name"]:
+                    skin["name"] += "（官网未标原名）"
     for key, name in {"sp-zhao-yun": "SP赵云", "sp-guan-yu": "SP关羽", "mou-lu-meng": "谋吕蒙"}.items():
+        if only_keys is not None and key not in only_keys:
+            continue
         if key in entries:
             entries[key]["characterName"] = name
 
-    for entry in entries.values():
+    for key, entry in entries.items():
+        if only_keys is not None and key not in only_keys:
+            continue
         seen = set()
         ordered = sorted(entry["skins"], key=lambda skin: skin["id"] != entry["defaultSkinId"])
         unique = []
@@ -291,14 +316,23 @@ def finalize(entries: dict[str, dict]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--phase", choices=("classic", "skins", "ol", "finalize", "verify"), required=True)
+    parser.add_argument("--key", action="append", dest="keys", metavar="KEY",
+                        help="Only sync this general key; repeat to select more")
     args = parser.parse_args()
+    only_keys = set(args.keys) if args.keys else None
+    if args.phase == "verify" and only_keys is not None:
+        parser.error("--phase verify always checks the entire catalog")
     catalog = json.loads(CATALOG.read_text(encoding="utf-8")) if CATALOG.exists() else {"schemaVersion": 1, "entries": []}
     if args.phase == "verify":
         verify_catalog(catalog)
         return
     entries = {entry["key"]: entry for entry in catalog["entries"]}
     if args.phase == "finalize":
-        finalize(entries)
+        if only_keys is not None:
+            missing = only_keys - entries.keys()
+            if missing:
+                parser.error(f"Unknown catalog keys: {sorted(missing)}")
+        finalize(entries, only_keys)
         catalog["entries"] = [entries[k] for k in sorted(entries)]
         CATALOG.write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         return
@@ -308,9 +342,14 @@ def main() -> None:
         targets.update({key: gid for key, gid in OTHER_HEROES.items() if gid is not None})
     if args.phase == "ol":
         targets = {key: gid for key, (gid, _) in OL_HEROES.items()}
+    if only_keys is not None:
+        missing = only_keys - targets.keys()
+        if missing:
+            parser.error(f"Keys unavailable in {args.phase} phase: {sorted(missing)}")
+        targets = {key: gid for key, gid in targets.items() if key in only_keys}
     def process(target: tuple[str, int]) -> tuple[str, dict, list[dict]]:
         key, gid = target
-        page_items = ol_page_skins(gid) if args.phase == "ol" else page_skins(gid)
+        page_items = ol_page_skins(gid, "界" + OL_HEROES[key][1]) if args.phase == "ol" else page_skins(gid)
         canonical = next((x for x in page_items if x["name"].startswith("经典形象")), page_items[0])
         character_name = OL_HEROES[key][1] if args.phase == "ol" else heroes[gid]["name"]
         entry = entries.get(key, {"key": key, "characterName": character_name, "defaultSkinId": canonical["id"], "skins": []})
@@ -319,7 +358,7 @@ def main() -> None:
         selected = [canonical] if args.phase == "classic" else page_items
         for skin in selected:
             existing_default = ASSETS / f"official-{key}.png"
-            if args.phase == "classic" or (skin["id"] == entry["defaultSkinId"] and (key in CLASSIC_HEROES or key == "boundary-zhang-jiao")):
+            if args.phase == "classic" or (skin["id"] == entry["defaultSkinId"] and (key in CLASSIC_HEROES or key == "boundary-zhang-jiao" or key in NEW_OL_DEFAULTS)):
                 path = existing_default
             else:
                 path = ASSETS / "Skins" / key / f"{skin['id']}.png"

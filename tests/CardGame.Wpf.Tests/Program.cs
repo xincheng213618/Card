@@ -420,8 +420,18 @@ internal static class Program
         var root = (FrameworkElement)window.Content;
         vm.OpenGeneralGalleryCommand.Execute(null);
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
-        Assert(vm.IsGeneralGalleryOpen && vm.GeneralGalleryEntries.Count == Engine(vm).ContentRegistry!.Generals.Count,
-            "Gallery did not expose every registered general exactly once.");
+        var registry = Engine(vm).ContentRegistry!;
+        var excludedIds = registry.Generals.Keys.Where(id => id.StartsWith("standard:", StringComparison.Ordinal) ||
+            id.StartsWith("composed:", StringComparison.Ordinal) || id.StartsWith("national:", StringComparison.Ordinal)).ToHashSet();
+        Assert(excludedIds.Count > 0 && vm.IsGeneralGalleryOpen && vm.GeneralGalleryEntries.Select(entry => entry.GeneralId)
+                .ToHashSet().SetEquals(registry.Generals.Keys.Except(excludedIds)),
+            "Gallery must show formal generals exactly once and omit demo, composed and national trial entries.");
+        Assert(vm.GeneralGalleryCountText == $"{vm.GeneralGalleryEntries.Count} / {vm.GeneralGalleryEntries.Count} 名武将" &&
+               vm.GeneralGallerySeries.All(series => series.Id is not ("demo" or "national")),
+            "Removed trial content still appears in the tabs or gallery total.");
+        Assert(registry.Modes.Values.Where(mode => mode.Id.StartsWith("identity:classic-", StringComparison.Ordinal))
+                .All(mode => mode.GeneralPoolIds is { Count: > 0 } && !mode.GeneralPoolIds.Any(excludedIds.Contains)),
+            "Classic general selection contains demo or trial generals.");
         Assert(vm.GeneralGallerySeries.Take(6).Select(option => option.Id).SequenceEqual(new[] { "all", "standard", "myth", "fame", "boundary", "boundary-fame" }),
             "Gallery series do not match the requested player-facing expansion order.");
         GeneralGalleryChecks.ClassificationAndLayout(vm, window, root, output);
@@ -434,19 +444,19 @@ internal static class Program
                 .All(boundaryIds.Contains) && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "boundary"),
             "Boundary series must expose its registered variants without leaking another series.");
         vm.SelectGeneralGallerySeriesCommand.Execute("national");
-        Assert(vm.GeneralGalleryEntries.Count == 14 && vm.GeneralGalleryEntries.All(entry => entry.SeriesId == "national") &&
-               vm.GeneralGalleryEntries.Count(entry => entry.FactionId == "qun") == 2,
-            "National series leaked another content family or omitted a registered trial general.");
-        vm.SelectGeneralGalleryFactionCommand.Execute("wu");
-        Assert(vm.GeneralGalleryEntries.Count == 0, "Combined national/Wu filters should reflect the current Wei/Shu/ambitious trial pool.");
+        vm.SelectGeneralGallerySeriesCommand.Execute("demo");
+        Assert(vm.SelectedGeneralGallerySeries == "boundary" && vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet().SetEquals(boundaryIds),
+            "A removed series can still be opened through its old command ID.");
         vm.SelectGeneralGalleryFactionCommand.Execute("wei");
-        Assert(vm.GeneralGalleryEntries.Count == 6 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "national"),
+        Assert(vm.GeneralGalleryEntries.Count > 0 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "boundary"),
             "Series and faction filters did not compose.");
         vm.SelectGeneralGallerySeriesCommand.Execute("standard");
         Assert(vm.GeneralGalleryEntries.Count > 0 && vm.GeneralGalleryEntries.All(entry => entry.FactionId == "wei" && entry.SeriesId == "standard"),
-            "Standard series retained national entries.");
+            "Standard series retained another series' entries.");
         vm.SelectGeneralGallerySeriesCommand.Execute("all");
         vm.SelectGeneralGalleryFactionCommand.Execute("all");
+        vm.GeneralGallerySearchText = "化杀者";
+        Assert(vm.HasNoGeneralGalleryResults, "A removed composed general remains searchable.");
         vm.GeneralGallerySearchText = "连营";
         Assert(vm.GeneralGalleryEntries.Count == 1 && vm.GeneralGalleryEntries[0].Name == "陆逊", "Skill search did not find Lu Xun.");
         Assert(Engine(vm).Revision == revisionBeforeFilters, "Browsing gallery filters changed the match.");
@@ -754,6 +764,7 @@ internal static class Program
         Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 11 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
             "Mode cards or category controls are inaccessible.");
+        ModeSelectionChecks.RefreshBoundSelection(vm, lobby);
 
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "national");
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
