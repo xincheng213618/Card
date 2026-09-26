@@ -66,7 +66,7 @@ internal static class SkillProgramTargetOrderChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":60,"skills":[
+                {"schemaVersion":61,"skills":[
                   {"id":"target-order:swap","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
                   {"id":"target-order:draw","revision":1,"minimumRulesVersion":170,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","ownerRelation":"conversionSource","sourceSkillId":"target-order:swap","sourceViewAsId":"slash","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
                 ]}
@@ -81,7 +81,7 @@ internal static class SkillProgramTargetOrderChecks
                 var text = catalog.Presentations[program.Id];
                 builder.AddSkill(new ContentSkillDefinition(program.Id, text.Name, text.Description) { Program = program });
             }
-            builder.AddSkill(new ContentSkillDefinition("target-order:liuli", "流离", "测试流离", SkillKind.Liuli));
+            builder.AddSkill(new ContentSkillDefinition("target-order:liuli", "流离", "测试流离"));
             var generals = Enumerable.Range(0, 5).Select(index => $"target-order:general-{index}").ToArray();
             foreach (var id in generals)
                 builder.AddGeneral(new ContentGeneralDefinition(id, "测试", "zhao_yun", "target-order:swap",

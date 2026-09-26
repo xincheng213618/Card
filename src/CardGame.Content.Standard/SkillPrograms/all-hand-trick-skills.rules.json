@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 60,
+  "schemaVersion": 61,
   "skills": [
     {
       "id": "classic:qice",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "activations": [
         {
           "id": "all-hand-as-ordinary-trick",
@@ -30,7 +30,7 @@
     {
       "id": "classic:zhiyu",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "triggers": [
         {
           "id": "draw-reveal-and-punish-source",

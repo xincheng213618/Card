@@ -146,8 +146,8 @@ public sealed partial class GameEngine
                 .Select(player => player.Seat)
                 .ToArray();
             var barbarianTargets = otherSeats.Where(seat =>
-                    !(UsesFormalMengHuo && HasRuntimeSkill(_players[seat], SkillKind.Huoshou)) &&
-                    !(UsesFormalZhuRong && HasRuntimeSkill(_players[seat], SkillKind.Juxiang)))
+                    !HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ExcludeGlobalTarget,
+                        CardKind.BarbarianAssault))
                 .ToArray();
             if (CanUseGlobalCard(source, CardKind.BarbarianAssault))
                 Add(CardKind.BarbarianAssault, LegalActionKind.BarbarianAssault,
@@ -187,6 +187,8 @@ public sealed partial class GameEngine
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
                      (HasCardDistanceExemption(source, player, CardKind.Snatch) ||
+                      HasCardPolicy(source, SkillProgramCardPolicyKind.IgnoreUseDistance,
+                          CardKind.Snatch) ||
                       GetCombatDistance(source.Seat, player.Seat) == 1) &&
                      HasTargetCard(player) && !IsCardTargetProhibited(player, CardKind.Snatch) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Snatch)))

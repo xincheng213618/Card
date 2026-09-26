@@ -17,7 +17,7 @@ internal static class ChengPuLihuoChecks
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills[LihuoSkillId];
 
-        Require(skill.LegacyKind is null && skill.Program is not null &&
+        Require(skill.Program is not null &&
                 skill.Tags == SkillTag.None &&
                 skill.ActionForms == SkillActionForm.None &&
                 skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger),
@@ -32,7 +32,7 @@ internal static class ChengPuLihuoChecks
         var latest = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = latest.Skills[LihuoSkillId];
         Require(skill.Program is
-                { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } currentProgram &&
+                { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } currentProgram &&
                 currentProgram.Modifiers.Single() is
                 { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } &&
                 currentProgram.Modifiers.Single().CardKinds.SequenceEqual([CardKind.FireSlash]) &&
@@ -41,7 +41,6 @@ internal static class ChengPuLihuoChecks
                 { Window: SkillProgramTriggerWindow.CardUseCompleted, Optional: false } &&
                 skill.Program.ViewAs.Single() is
                 { OutputKind: CardKind.FireSlash, ForPlay: true, ForResponse: false } &&
-                skill.LegacyKind is null &&
                 skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger),
             "Current Lihuo must expose target-count, chained conversion and completed-use penalty rules.");
     }
@@ -54,19 +53,13 @@ internal static class ChengPuLihuoChecks
         var actions = game.GetHumanLegalActions().Where(action =>
             action.Kind == LegalActionKind.Slash && action.CardId == slash.Id).ToArray();
         var ordinary = actions.FirstOrDefault(action =>
-            action.PlayedCardKind is null &&
-            action.CardKindModifierSkill is null &&
-            action.TargetCountModifierSkill is null);
+            action.PlayedCardKind is null);
         var convertedSingle = actions.FirstOrDefault(action =>
             action.PlayedCardKind == CardKind.FireSlash &&
-            action.ConversionSource?.SkillId == LihuoSkillId &&
-            action.CardKindModifierSkill is null &&
-            action.TargetCountModifierSkill is null);
+            action.ConversionSource?.SkillId == LihuoSkillId);
         var convertedMulti = actions.FirstOrDefault(action =>
             action.PlayedCardKind == CardKind.FireSlash &&
             action.ConversionSource?.SkillId == LihuoSkillId &&
-            action.CardKindModifierSkill is null &&
-            action.TargetCountModifierSkill is null &&
             action.TargetSeats.Count == 2);
         Require(ordinary is not null && convertedSingle is not null && convertedMulti is not null,
             "Lihuo must preserve ordinary Slash while publishing separate converted one/two-target Fire Slash actions.");
@@ -134,9 +127,7 @@ internal static class ChengPuLihuoChecks
         ReachHumanPlay(native);
         var nativeFire = native.GetHumanLegalActions().First(action =>
             action.Kind == LegalActionKind.Slash &&
-            action.TargetSeats.Count == 2 &&
-            action.TargetCountModifierSkill is null &&
-            action.CardKindModifierSkill is null);
+            action.TargetSeats.Count == 2);
         var nativeHp = Player(native, HumanSeat).Hp;
         var nativeStart = native.Events.Count;
         Require(Play(native, nativeFire).Accepted, "The native Fire Slash Lihuo target extension was rejected.");
@@ -161,8 +152,6 @@ internal static class ChengPuLihuoChecks
             action.Kind == LegalActionKind.Slash &&
             action.PlayedCardKind == CardKind.FireSlash &&
             action.ConversionSource is null &&
-            action.CardKindModifierSkill is null &&
-            action.TargetCountModifierSkill is null &&
             action.TargetSeats.Count == 2);
         var zhuqueHp = Player(zhuque, HumanSeat).Hp;
         var zhuqueStart = zhuque.Events.Count;
@@ -191,7 +180,6 @@ internal static class ChengPuLihuoChecks
             selectedAction = candidate.GetHumanLegalActions().FirstOrDefault(action =>
                 action.Kind == LegalActionKind.Slash &&
                 action.ConversionSource?.SkillId == LihuoSkillId &&
-                action.TargetCountModifierSkill is null &&
                 action.TargetSeats.Count == 1 &&
                 revealed.Players[action.TargetSeats[0]].Role == Role.Rebel &&
                 revealed.Players[action.TargetSeats[0]].Hand.Any(card => card.Kind == CardKind.Dodge));
@@ -223,8 +211,7 @@ internal static class ChengPuLihuoChecks
             "The Lihuo penalty fixture must pre-wound its owner to one HP.");
         var action = game.GetHumanLegalActions().First(candidate =>
             candidate.Kind == LegalActionKind.Slash &&
-            candidate.ConversionSource?.SkillId == LihuoSkillId &&
-            candidate.TargetCountModifierSkill is null);
+            candidate.ConversionSource?.SkillId == LihuoSkillId);
         Require(Play(game, action).Accepted,
             "The one-HP Lihuo owner could not use a converted Fire Slash.");
         var events = game.Events.Select(item => item.Payload).ToArray();
@@ -267,9 +254,7 @@ internal static class ChengPuLihuoChecks
                 item.Kind == LegalActionKind.Slash &&
                 item.PlayedCardKind == CardKind.FireSlash &&
                 item.ConversionSource?.SkillId == "classic:wusheng" &&
-                item.AdditionalConversionSources?.Single().SkillId == LihuoSkillId &&
-                item.CardKindModifierSkill is null &&
-                item.TargetCountModifierSkill is null);
+                item.AdditionalConversionSources?.Single().SkillId == LihuoSkillId);
             if (action is not null) game = candidate;
         }
         Require(game is not null && action is not null,
@@ -312,8 +297,7 @@ internal static class ChengPuLihuoChecks
                     Gender: GeneralGender.Male
                 } && general.SkillIds.SequenceEqual([LihuoSkillId, ChunlaoSkillId]),
             "Classic Cheng Pu metadata drifted.");
-        Require(chunlao.LegacyKind is null &&
-                chunlao.Tags == SkillTag.None &&
+        Require(chunlao.Tags == SkillTag.None &&
                 chunlao.ActionForms == SkillActionForm.None &&
                 chunlao.ExecutionForms == SkillExecutionForm.Trigger,
             "Chunlao must remain an optional trigger rather than an active play-phase action.");
@@ -330,7 +314,7 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rules.Replace("\"schemaVersion\": 60", "\"schemaVersion\": 57", StringComparison.Ordinal),
+                rules.Replace("\"schemaVersion\": 61", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
             throw new InvalidOperationException("Unsupported schema 57 accepted variable owned-card selection.");
         }
@@ -343,7 +327,7 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rescueRules.Replace("\"schemaVersion\": 60", "\"schemaVersion\": 57", StringComparison.Ordinal),
+                rescueRules.Replace("\"schemaVersion\": 61", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
             throw new InvalidOperationException("Unsupported schema 57 accepted cross-seat dying response.");
         }
@@ -643,8 +627,6 @@ internal static class ChengPuLihuoChecks
     {
         ConversionSource = action.ConversionSource,
         AdditionalConversionSources = action.AdditionalConversionSources,
-        CardKindModifierSkill = action.CardKindModifierSkill,
-        TargetCountModifierSkill = action.TargetCountModifierSkill
     });
 
     private static GameEngine CreateGame(string modeId, int seed, int rulesVersion = GameCheckpoint.CurrentRulesVersion,
@@ -757,7 +739,7 @@ internal static class ChengPuLihuoChecks
         public void Register(IContentRegistryBuilder builder)
         {
             const string woundRules = """
-                {"schemaVersion":60,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
+                {"schemaVersion":61,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
                   "minimumRulesVersion":170,"triggers":[{"id":"pre-wound",
                     "window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,
                     "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}

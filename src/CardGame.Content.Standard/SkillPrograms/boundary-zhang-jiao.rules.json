@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 60,
+  "schemaVersion": 61,
   "skills": [
     {
       "id": "boundary:guidao",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "triggers": [
         {
           "id": "replace-judgment",
@@ -35,7 +35,7 @@
     {
       "id": "boundary:leiji",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "triggers": [
         {
           "id": "after-dodge-response",
@@ -149,7 +149,7 @@
     {
       "id": "boundary:huangtian",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "contributions": [
         {
           "id": "contribute",

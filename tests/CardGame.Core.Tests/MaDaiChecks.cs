@@ -23,12 +23,11 @@ internal static class MaDaiChecks
                 } && skillIds.SequenceEqual(["classic:mashu", SkillId]) &&
                 current.Skills[SkillId] is
                 {
-                    LegacyKind: null,
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None,
-                    Program.RuntimeVersion: "skill-program-v60",
-                    Program.MinimumRulesVersion: 170
+                    Program.RuntimeVersion: "skill-program-v61",
+                    Program.MinimumRulesVersion: 171
                 } skill &&
                 skill.Program.Triggers.Single() is
                 {

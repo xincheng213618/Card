@@ -20,24 +20,23 @@ internal static class RuleQueryIntegrationChecks
                     package.Id == expected.Key && package.Version == expected.Value)),
             "The current registry must publish the configured package bundle.");
 
-        var expectedLegacyKinds = new Dictionary<string, SkillKind>(StringComparer.Ordinal)
+        var expectedLegacyKinds = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["standard:paoxiao"] = SkillKind.Paoxiao,
-            ["standard:mashu"] = SkillKind.Mashu,
-            ["classic:paoxiao"] = SkillKind.Paoxiao,
-            ["classic:mashu"] = SkillKind.Mashu,
-            ["sp:guan-yu-mashu"] = SkillKind.Mashu,
-            ["classic:yicong"] = SkillKind.Yicong,
-            ["classic:zongshi"] = SkillKind.Zongshi
+            ["standard:paoxiao"] = "classic:paoxiao",
+            ["standard:mashu"] = "classic:mashu",
+            ["classic:paoxiao"] = "classic:paoxiao",
+            ["classic:mashu"] = "classic:mashu",
+            ["sp:guan-yu-mashu"] = "classic:mashu",
+            ["classic:yicong"] = "classic:yicong",
+            ["classic:zongshi"] = "classic:zongshi"
         };
         foreach (var expected in expectedLegacyKinds)
         {
             var currentSkill = current.Skills[expected.Key];
-            Require(currentSkill.LegacyKind is null &&
-                    currentSkill.Program is
+            Require(currentSkill.Program is
                     {
-                        MinimumRulesVersion: 170,
-                        RuntimeVersion: "skill-program-v60"
+                        MinimumRulesVersion: 171,
+                        RuntimeVersion: "skill-program-v61"
                     } program &&
                     program.Id == expected.Key &&
                     program.Modifiers.Count > 0,
@@ -137,7 +136,7 @@ internal static class RuleQueryIntegrationChecks
     {
         private static readonly SkillProgram Program = SkillProgramCatalog.Load(
             """
-            {"schemaVersion":60,"skills":[{"id":"fixture:engine-rule-query","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:engine-rule-query","revision":1,
               "minimumRulesVersion":170,"modifiers":[
                 {"id":"range-plus-two","query":"attackRange","operation":"add","value":2,"priority":0},
                 {"id":"distance-minus-one","query":"outgoingDistance","operation":"add","value":-1,"priority":0}],

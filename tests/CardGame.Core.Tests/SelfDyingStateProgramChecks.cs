@@ -15,11 +15,10 @@ internal static class SelfDyingStateProgramChecks
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 108, 0) &&
                 skill is
                 {
-                    LegacyKind: null,
                     Tags: SkillTag.Limited,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     Program: not null,
-                    Program.MinimumRulesVersion: 170
+                    Program.MinimumRulesVersion: 171
                 } &&
                 trigger is
                 {
@@ -307,7 +306,7 @@ internal static class SelfDyingStateProgramChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:schema-22-lose-hp","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:schema-22-lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}
@@ -320,7 +319,7 @@ internal static class SelfDyingStateProgramChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":60,"skills":[{"id":"classic:niepan","revision":1,"minimumRulesVersion":170,
+        {"schemaVersion":61,"skills":[{"id":"classic:niepan","revision":1,"minimumRulesVersion":170,
         "modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"activation",
         "window":"selfDyingResponse","subject":"owner","optional":true,"priority":0,
         "usageScope":"game","usageLimit":1,"effects":[

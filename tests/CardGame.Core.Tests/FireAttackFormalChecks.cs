@@ -27,7 +27,7 @@ internal static class FireAttackFormalChecks
         {
             var game = CreateStartedGame(seed, registry, GameCheckpoint.CurrentRulesVersion);
             var human = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (human.Skills?.Any(skill => skill.Kind == SkillKind.None) != true)
+            if (human.Skills?.Any(skill => skill.ContentId == "standard:none") != true)
                 continue;
 
             var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>

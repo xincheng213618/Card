@@ -29,7 +29,9 @@ internal static class EmbeddedSkillProgramCatalog
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
             Program = program,
-            ProgramPresentation = presentation
+            ProgramPresentation = presentation,
+            SelectionWeights = SkillSelectionPreferences.For(skillId),
+            RevealWeights = SkillSelectionPreferences.RevealFor(skillId)
         };
     }
 

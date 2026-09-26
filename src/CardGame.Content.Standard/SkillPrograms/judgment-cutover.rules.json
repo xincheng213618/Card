@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 61,
+  "skills": [
+    {
+      "id": "standard:guicai", "revision": 1, "minimumRulesVersion": 171,
+      "triggers": [{
+        "id": "replace-judgment", "window": "judgmentReplacing", "subject": "any",
+        "excludedReasons": [], "optional": true,
+        "effects": [{ "op": "replaceJudgment", "target": "owner", "zones": ["hand"],
+          "suits": ["spade", "club", "heart", "diamond"], "oldCardDestination": "discardPile" }]
+      }]
+    },
+    {
+      "id": "classic:guicai", "revision": 1, "minimumRulesVersion": 171,
+      "triggers": [{
+        "id": "replace-judgment", "window": "judgmentReplacing", "subject": "any",
+        "excludedReasons": [], "optional": true,
+        "effects": [{ "op": "replaceJudgment", "target": "owner", "zones": ["hand"],
+          "suits": ["spade", "club", "heart", "diamond"], "oldCardDestination": "discardPile" }]
+      }]
+    },
+    {
+      "id": "classic:tiandu", "revision": 1, "minimumRulesVersion": 171,
+      "triggers": [{
+        "id": "claim-own-judgment", "window": "judgmentFinalized", "subject": "owner",
+        "suits": ["spade", "club", "heart", "diamond"], "minimumRank": 1, "maximumRank": 13,
+        "excludedReasons": ["skill.luoshen"], "optional": true,
+        "effects": [{ "op": "claimJudgmentCard", "target": "owner" }]
+      }]
+    },
+    {
+      "id": "boundary:tiandu", "revision": 1, "minimumRulesVersion": 171,
+      "triggers": [{
+        "id": "claim-own-judgment", "window": "judgmentFinalized", "subject": "owner",
+        "suits": ["spade", "club", "heart", "diamond"], "minimumRank": 1, "maximumRank": 13,
+        "excludedReasons": ["skill.luoshen"], "optional": true,
+        "effects": [{ "op": "claimJudgmentCard", "target": "owner" }]
+      }]
+    },
+    {
+      "id": "classic:guanxing", "revision": 1, "minimumRulesVersion": 171,
+      "triggers": [{
+        "id": "reorder-before-turn", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+        "optional": true, "priority": 20,
+        "effects": [{ "op": "reorderTopCards", "target": "owner", "amount": 5,
+          "numberExpression": "livingPlayerCount" }]
+      }]
+    },
+    {
+      "id": "classic:luoshen", "revision": 1, "minimumRulesVersion": 171,
+      "triggers": [{
+        "id": "repeat-black-judgment", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+        "optional": true, "priority": 30,
+        "effects": [{ "op": "repeatJudgment", "target": "owner",
+          "judgmentReason": "skill.luoshen", "resultBind": "repeated-judgment",
+          "suits": ["spade", "club"] }]
+      }]
+    },
+    {
+      "id": "classic:shensu", "revision": 1, "minimumRulesVersion": 171,
+      "triggers": [
+        {
+          "id": "skip-judgment-and-draw", "window": "turnStartBeforeNormalFlow",
+          "subject": "owner", "optional": true, "priority": 10,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["judgment", "draw"] },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash",
+              "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        },
+        {
+          "id": "skip-play-after-draw", "window": "afterNormalDraw",
+          "subject": "owner", "optional": true, "priority": 0,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["equipment"], "count": 1, "destination": "discardPile",
+              "awaitMovementTriggers": true },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["play"] },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash",
+              "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        }
+      ]
+    }
+  ]
+}

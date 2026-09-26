@@ -23,7 +23,6 @@ public enum ResolutionFrameKind
     Judgment,
     Damage,
     DamageTriggerWindow,
-    DamageSkill,
     Recovery,
     Dying,
     Death,
@@ -48,22 +47,6 @@ public enum ResolutionFrameStep
     Completed
 }
 
-public enum DamageSkillEffectKind
-{
-    None,
-    ClaimDamageCard,
-    GiftDrawnCard,
-    DrawToMaxHand,
-    RecoverDamageTarget,
-    GanglieJudgment,
-    TakeSourceCard,
-    RecoverDamageSource,
-    BenefitDamageSource,
-    RevealHandAndPunishSource,
-    SelectRevealedCardsByRank,
-    RevealCardAndChallengeSource
-}
-
 /// <summary>
 /// Serializable data describing one in-flight rules operation. Frames contain
 /// no delegates, WPF objects, or mutable content instances, so a trusted host
@@ -78,7 +61,6 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(RecoveryFrame), "recovery")]
 [JsonDerivedType(typeof(DyingFrame), "dying")]
 [JsonDerivedType(typeof(DeathFrame), "death")]
-[JsonDerivedType(typeof(DamageSkillFrame), "damage-skill")]
 [JsonDerivedType(typeof(NullificationWindowFrame), "nullification-window")]
 [JsonDerivedType(typeof(TargetCardSelectionFrame), "target-card-selection")]
 [JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
@@ -134,6 +116,12 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramAttackRangeAid? AttackRangeAid { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramTopReorder? TopReorder { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRepeatedJudgment? RepeatedJudgment { get; init; }
 }
 
 public sealed record CardUseFrame(
@@ -211,21 +199,6 @@ public sealed record DamageTriggerWindowFrame(
     int CandidateIndex = 0,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.DamageTriggerWindow, Step);
-
-public sealed record DamageSkillFrame(
-    long Id,
-    long ParentFrameId,
-    int OwnerSeat,
-    int SourceSeat,
-    int? CardId,
-    CardKind? CardKind,
-    SkillKind Skill,
-    ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse,
-    string CandidateId = "",
-    int Priority = 0,
-    DamageSkillEffectKind Effect = DamageSkillEffectKind.None,
-    IReadOnlyList<int>? EffectCardIds = null)
-    : ResolutionFrame(Id, ResolutionFrameKind.DamageSkill, Step);
 
 public sealed record RecoveryFrame(
     long Id,

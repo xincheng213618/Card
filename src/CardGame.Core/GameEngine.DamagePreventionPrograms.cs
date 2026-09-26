@@ -17,17 +17,6 @@ public sealed partial class GameEngine
             BeforeDamageProgramContinuation.Attack);
     }
 
-    private bool TryBeginBeforeDamageProgramWindowForGanglie(DamageSkillResolution ganglie)
-    {
-        if (ganglie.BeforeDamageProgramsResolved) return false;
-        return TryBeginBeforeDamageProgramWindow(
-            ganglie.OwnerSeat,
-            ganglie.SourceSeat,
-            amount: 1,
-            DamageNature.Normal,
-            BeforeDamageProgramContinuation.Ganglie);
-    }
-
     private bool TryBeginBeforeDamageProgramWindow(
         int sourceSeat,
         int targetSeat,
@@ -42,11 +31,20 @@ public sealed partial class GameEngine
 
         var target = _players[targetSeat];
         var candidates = _players
-            .Where(owner => owner.IsAlive && owner.Seat != targetSeat)
+            .Where(owner => owner.IsAlive)
             .SelectMany(owner =>
             {
                 var facts = CaptureProgramTriggerFacts(owner) with { EventTargetHp = target.Hp };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
+                    .Where(candidate => GetProgramTrigger(candidate).Subject switch
+                    {
+                        SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&
+                            (_pendingAttack?.DamageRedirected != true ||
+                             !GetProgramTrigger(candidate).Effects.Any(effect =>
+                                 effect.Op == SkillProgramEffectOp.RedirectCurrentDamage)),
+                        SkillProgramTriggerSubject.Owner => owner.Seat != targetSeat,
+                        _ => false
+                    })
                     .Where(candidate => GetProgramTrigger(candidate).Condition.Evaluate(
                         facts, candidate.SkillId, candidate.SkillInstanceId))
                     .Select(candidate => new BeforeDamageProgramCandidate(candidate, facts));
@@ -92,7 +90,8 @@ public sealed partial class GameEngine
     {
         while (_resolutionStack.LastOrDefault() is BeforeDamageProgramWindowFrame frame)
         {
-            if (frame.Prevented || frame.CandidateIndex >= frame.Candidates.Count)
+            if (frame.Prevented || frame.RedirectedTargetSeat is not null ||
+                frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.BeforeDamageProgramWindow);
                 ResumeAfterBeforeDamageProgramWindow(frame);
@@ -179,26 +178,16 @@ public sealed partial class GameEngine
             {
                 var attack = _pendingAttack ??
                     throw new InvalidOperationException("The before-damage attack continuation is unavailable.");
-                if (attack.SourceSeat != frame.SourceSeat || attack.TargetSeat != frame.TargetSeat)
+                if (attack.SourceSeat != frame.SourceSeat || attack.TargetSeat !=
+                    (frame.RedirectedTargetSeat ?? frame.TargetSeat))
                     throw new InvalidOperationException("The before-damage attack participants changed.");
-                attack.MarkBeforeDamageProgramsResolved();
+                if (frame.RedirectedTargetSeat is null) attack.MarkBeforeDamageProgramsResolved();
                 if (frame.Prevented)
                 {
                     CompleteAttack(attack);
                     return;
                 }
                 if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
-                return;
-            }
-            case BeforeDamageProgramContinuation.Ganglie:
-            {
-                var ganglie = _pendingDamageSkill ??
-                    throw new InvalidOperationException("The before-damage Ganglie continuation is unavailable.");
-                if (ganglie.OwnerSeat != frame.SourceSeat || ganglie.SourceSeat != frame.TargetSeat)
-                    throw new InvalidOperationException("The before-damage Ganglie participants changed.");
-                ganglie.BeforeDamageProgramsResolved = true;
-                if (frame.Prevented) CompleteGangliePunishment(ganglie);
-                else ApplyGangliePunishmentDamage(ganglie);
                 return;
             }
             default:

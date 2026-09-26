@@ -22,12 +22,11 @@ internal static class CaoZhangChecks
                 } && skillIds.SequenceEqual([SkillId]) &&
                 current.Skills[SkillId] is
                 {
-                    LegacyKind: null,
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } skill &&
-                skill.Program is { MinimumRulesVersion: 170 },
+                skill.Program is { MinimumRulesVersion: 171 },
             "Current Cao Zhang must publish grouped Jiangchi through its program.");
 
         var fixture = FindFixture();

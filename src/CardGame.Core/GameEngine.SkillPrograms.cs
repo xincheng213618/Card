@@ -386,7 +386,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             DyingContinuation.ProgramSkill);
         QueueGameEvent(new PlayerDyingEvent(id, victim.Seat, null));
         _status = EngineStatus.Running;
-        if (!TryResolveBuqu(_pendingDying)) ExposeHumanDyingPrompt();
+        if (!TryBeginMandatorySelfDyingProgram(_pendingDying!)) ExposeHumanDyingPrompt();
     }
 
     private SkillProgramStepOutcome BeginProgramSkillDamage(
@@ -400,7 +400,9 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             _pendingJudgment is { } pendingJudgment &&
             pendingJudgment.FrameId == frozenJudgment.JudgmentFrameId &&
             ReferenceEquals(_pendingAttack, pendingJudgment.Attack);
-        if (_pendingAttack is not null && !judgmentNested || _pendingDying is not null ||
+        var damageWindowNested = frame.WindowContext?.Window ==
+            SkillProgramTriggerWindow.AfterDamageApplied && _pendingDamageTrigger is not null;
+        if (_pendingAttack is not null && !judgmentNested && !damageWindowNested || _pendingDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
@@ -429,6 +431,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 $"{_players[attack.SourceSeat].Name} 的【{_contentRegistry!.Skills[frame.SkillId].Name}】将对 {_players[targetSeat].Name} 造成 {amount} 点{GetDamageNatureLabel(nature ?? DamageNature.Normal)}伤害。",
                 attack.SourceSeat, targetSeat);
         }
+        if (damageWindowNested && !TrySuspendProgramDamageParent(frame, attack))
+            throw new InvalidOperationException("A nested program damage lost its parent damage window.");
         _pendingAttack = attack;
         if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
         return SkillProgramStepOutcome.AwaitChild;
@@ -578,11 +582,20 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     pendingMovement.CoverageResultBind is null &&
                     frame.SelectedTargetSeats.Count == 1 &&
                     pendingMovement.SubjectSeat == frame.SelectedTargetSeats[0];
+                var awaitsJudgmentClaim = paidEffect?.Op == SkillProgramEffectOp.ClaimJudgmentCard &&
+                    frame.WindowContext?.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
+                    pendingMovement.CoverageResultBind is null &&
+                    pendingMovement.SubjectSeat == frame.OwnerSeat;
+                var awaitsRepeatedJudgment = paidEffect?.Op == SkillProgramEffectOp.RepeatJudgment &&
+                    frame.RepeatedJudgment is { LastMatched: not null } &&
+                    pendingMovement.CoverageResultBind is null &&
+                    pendingMovement.SubjectSeat == frame.OwnerSeat;
                 var awaitsOwnedMovement = paidEffect is
                     { Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
                       AwaitMovementTriggers: true } &&
                     paidEffect.CoverageResultBind == pendingMovement.CoverageResultBind;
-                if (!awaitsSelectedMovement && !awaitsRandomTransfer && !awaitsOwnedMovement)
+                if (!awaitsSelectedMovement && !awaitsRandomTransfer &&
+                    !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement)
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
             }
             foreach (var coverage in frame.AttackRangeCoverageBindings)

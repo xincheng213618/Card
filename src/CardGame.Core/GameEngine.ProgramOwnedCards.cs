@@ -13,7 +13,7 @@ public sealed partial class GameEngine
 
     private SkillProgramStepOutcome SelectProgramOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
         int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
-        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds)
+        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.OwnedCardSelection is not null || active.CardSetBindings.Any(binding => binding.Name == resultBind))
@@ -23,6 +23,7 @@ public sealed partial class GameEngine
             var location = new CardLocation(zone, cardOwnerSeat);
             return _cardZones.CardsAt(location)
                 .Where(card => cardKinds.Count == 0 || cardKinds.Contains(card.Kind))
+                .Where(card => suits.Count == 0 || suits.Contains(GetProgramEffectiveSuit(_players[cardOwnerSeat], card)))
                 .Select(card => (card.Id, Location: location));
         }).ToArray();
         var requested = minimumCards > 0 ? maximumCards : expression switch

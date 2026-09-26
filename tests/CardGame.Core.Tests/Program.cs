@@ -83,7 +83,7 @@ var tests = new (string Name, Action Body)[]
     ("2014 boundary Cao Cao content and claimable condition schema gates", BoundaryCaoCaoChecks.ContentAndSchemaBoundary),
     ("2014 boundary Cao Cao physical damage chooses draw or claim and replays", BoundaryCaoCaoChecks.PhysicalDamageDrawClaimAndReplay),
     ("2014 boundary Cao Cao cardless three-point Lightning offers draw once", BoundaryCaoCaoChecks.LightningDamageOnlyOffersDrawOnce),
-    ("2014 boundary Cao Cao Hujia requires lord and uses Wei response", BoundaryCaoCaoChecks.HujiaRequiresLordAndUsesSharedResponse),
+    ("2014 boundary Cao Cao FactionDefense requires lord and uses Wei response", BoundaryCaoCaoChecks.FactionDefenseRequiresLordAndUsesSharedResponse),
     ("2014 boundary Cao Cao actual two-point damage offers one benefit", BoundaryCaoCaoChecks.TwoPointDamageOffersOneChoice),
     ("after-damage preflight defers non-choice bound-card claim condition", BoundaryCaoCaoChecks.AfterDamagePreflightDefersFrameBoundClaimCondition),
     ("2018 boundary Zhang Liao definition and schema 54 boundary", BoundaryZhangLiaoChecks.DefinitionAndSchemaBoundary),
@@ -397,7 +397,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Sun Shangxiang recovers through Jieyin and draws through Xiaoji", ClassicGeneralChecks.FormalJieyinAndXiaojiFlow),
     ("classic Lu Xun rejects key trick targets and draws through Lianying", ClassicGeneralChecks.FormalQianxunAndLianyingFlow),
     ("classic Borrowed Sword transfers weapons or nests a real Slash and replays", BorrowedSwordChecks.TransferSlashAndReplay),
-    ("classic Borrowed Sword lets Jijiang provide its nested Slash", BorrowedSwordChecks.JijiangProvidesForcedSlash),
+    ("classic Borrowed Sword lets FactionSlash provide its nested Slash", BorrowedSwordChecks.FactionSlashProvidesForcedSlash),
     ("classic Stone Axe pays an exact two-card cost and resumes Slash damage", StoneAxeChecks.ExactCostDamageAndReplay),
     ("AI Stone Axe decisions use private published choices and replay", StoneAxeChecks.AiUsesPrivatePublishedChoices),
     ("classic Zhangba converts exactly two hand cards into one replayable Slash", ZhangbaChecks.ActiveUseAndReplay),
@@ -405,7 +405,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Cixiong stages private opposite-gender choices and replays", CixiongDoubleSwordsChecks.StagedChoiceAndReplay),
     ("Cixiong AI chooses relation-aware discard and draw branches", CixiongDoubleSwordsChecks.AiRelationBranches),
     ("classic Qinglong opens a same-target follow-up Slash and replays", QinglongCrescentBladeChecks.SameTargetFollowupAndReplay),
-    ("classic Qinglong can request Jijiang for its same-target follow-up", QinglongCrescentBladeChecks.JijiangProviderOpensFollowupSlash),
+    ("classic Qinglong can request FactionSlash for its same-target follow-up", QinglongCrescentBladeChecks.FactionSlashProviderOpensFollowupSlash),
     ("Qinglong AI uses private exact Slash choices and replays", QinglongCrescentBladeChecks.AiUsesPrivatePublishedChoice),
     ("classic Ice Sword sequentially discards target cards and prevents Slash damage", IceSwordChecks.SequentialDiscardPreventsDamageAndReplays),
     ("Ice Sword AI uses private opaque target-card choices and replays", IceSwordChecks.AiUsesPrivateOpaqueChoices),
@@ -432,17 +432,17 @@ var tests = new (string Name, Action Body)[]
     ("classic Xu Shu discards a non-basic card for all Jujian benefits", XuShuChecks.JujianBenefitsAndReplay),
     ("classic Fangtian Halberd resolves exact last-hand Slash targets and replays", FangtianHalberdChecks.LastHandTargetsResolveSequentiallyAndReplay),
     ("classic Guding Blade increases direct Slash damage against empty hands", GudingBladeChecks.EmptyHandDamageAndLegacyBoundary),
-    ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainJijiangAndLegacyBoundary),
+    ("classic Zhuque Fan converts ordinary Slash to Fire Slash and preserves owner choice", ZhuqueFanChecks.FireConversionChainFactionSlashAndLegacyBoundary),
     ("classic Tengjia makes ordinary Slash ineffective before response", TengjiaChecks.OrdinarySlashImmunityAndLegacyBoundary),
     ("classic Silver Lion caps damage and recovers after leaving equipment", SilverLionChecks.DamageCapRemovalRecoveryAndLegacyBoundary),
     ("classic Wooden Ox stores private playable grain and replays", WoodenOxChecks.StoresPrivatePlayableGrainAndReplays),
     ("classic Tiandu can claim a resolved judgment and preserves legacy rules", ClassicGeneralChecks.FormalTianduJudgment),
     ("classic Fanjian transfers a random card after a private suit choice and replays", ClassicGeneralChecks.FormalFanjianFlow),
     ("classic Guanxing privately orders the draw-pile top and preserves legacy rules", ClassicGeneralChecks.FormalGuanxingFlow),
-    ("classic Hujia privately asks Wei allies for an exact Dodge and replays", ClassicGeneralChecks.FormalHujiaFlow),
-    ("classic Hujia lets a Wei ally use Bagua and continues after a failed judgment", ClassicGeneralChecks.FormalHujiaBaguaFallback),
-    ("classic Jijiang uses a Shu ally's exact Slash and consumes a failed request", ClassicGeneralChecks.FormalJijiangActiveFlow),
-    ("classic Jijiang privately supplies Duel and Barbarian Slash responses and replays", ClassicGeneralChecks.FormalJijiangResponseFlow),
+    ("classic FactionDefense privately asks Wei allies for an exact Dodge and replays", ClassicGeneralChecks.FormalFactionDefenseFlow),
+    ("classic FactionDefense lets a Wei ally use Bagua and continues after a failed judgment", ClassicGeneralChecks.FormalFactionDefenseBaguaFallback),
+    ("classic FactionSlash uses a Shu ally's exact Slash and consumes a failed request", ClassicGeneralChecks.FormalFactionSlashActiveFlow),
+    ("classic FactionSlash privately supplies Duel and Barbarian Slash responses and replays", ClassicGeneralChecks.FormalFactionSlashResponseFlow),
     ("classic Jiuyuan doubles another Wu character's dying Peach and preserves legacy rules", ClassicGeneralChecks.FormalJiuyuanRecoveryBonus),
     ("public-team mode preserves privacy and registered distribution", TeamModeChecks.ContentAndPrivacy),
     ("public-team AI matches terminate and replay deterministically", TeamModeChecks.AiMatchIsDeterministic),
@@ -468,7 +468,6 @@ var tests = new (string Name, Action Body)[]
     ("tactical AI changes camp inference only after public evidence", TacticalAiChecks.PublicEvidence),
     ("national AI updates hidden-faction hostility only from public attacks", TacticalAiChecks.NationalPublicEvidence),
     ("tactical AI resolves hidden endgames and avoids canceling beneficial effects", TacticalAiChecks.EndgameAndNullification),
-    ("tactical support skills avoid healing and supplying enemies", TacticalAiChecks.SupportSkills),
     ("Guicai scores formal judgment suits for allies, enemies and legacy rules", TacticalAiChecks.GuicaiJudgments),
     ("AI policy versions validate and replay deterministically", TacticalAiChecks.PolicyReplay),
     ("targeted tricks finish when the target spends its last card on Nullification", TargetLossChecks.LastNullification),
@@ -519,7 +518,6 @@ var tests = new (string Name, Action Body)[]
     ("Ganglie opens a public judgment and a private source punishment", GanglieFlow),
     ("Guicai privately replaces a public judgment with a hand card", GuicaiFlow),
     ("Guidao privately replaces judgments with exact black hand or equipment cards", GuidaoChecks.BlackHandAndEquipmentReplacement),
-    ("Leiji follows each effective Dodge with a replayable suit-specific judgment", LeijiChecks.DodgeJudgmentDamageAndReplay),
     ("Indulgence delays a target play phase through public judgment", IndulgenceFlow),
     ("SupplyShortage delays a target draw phase through public judgment", SupplyShortageFlow),
     ("formal SupplyShortage uses distance and preserves legacy empty-hand behavior", SupplyShortageChecks.TargetingAndResolution),
@@ -887,8 +885,7 @@ static void CommandPlayUsesExactChoice()
         var started = game.Submit(new StartGameCommand());
         var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
             candidate.CardId is not null && candidate.TargetSeats.Count == 1 &&
-            candidate.ConversionSource is null && candidate.AdditionalConversionSources is null &&
-            candidate.CardKindModifierSkill is null && candidate.TargetCountModifierSkill is null);
+            candidate.ConversionSource is null && candidate.AdditionalConversionSources is null);
         var choice = action is null ? null : started.PendingDecision?.Choices.FirstOrDefault(candidate =>
             candidate.Cards.SequenceEqual([action.CardId!.Value]) &&
             candidate.Targets.SequenceEqual(action.TargetSeats) &&
@@ -1229,21 +1226,21 @@ static void StandardContentRegistryBuilds()
     Equal("standard:wusheng", registry.Generals["standard:guan-yu"].SkillId);
     Equal("standard:longdan", registry.Generals["standard:zhao-yun"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:yingzi") is
-        { LegacyKind: null, Program: not null },
+        { Program: not null },
         "current Yingzi uses the shared composition kernel");
     TrueWithMessage(registry.GetSkill("standard:yiji") is
-        { LegacyKind: null, Program: not null },
+        { Program: not null },
         "current Yiji uses the shared composition kernel");
     Equal("standard:yiji", registry.Generals["standard:guo-jia"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:jieming") is
-        { LegacyKind: null, Program: not null },
+        { Program: not null },
         "current Jieming uses the shared composition kernel");
     Equal("standard:jieming", registry.Generals["standard:xun-yu"].SkillId);
-    Equal(SkillKind.Yuanhu, registry.GetSkill("standard:yuanhu").LegacyKind);
+    Equal("standard:yuanhu", registry.GetSkill("standard:yuanhu").Id);
     Equal("standard:yuanhu", registry.Generals["standard:demo-yuanhu"].SkillId);
-    Equal(SkillKind.Ganglie, registry.GetSkill("standard:ganglie").LegacyKind);
+    Equal("standard:ganglie", registry.GetSkill("standard:ganglie").Id);
     Equal("standard:ganglie", registry.Generals["standard:demo-ganglie"].SkillId);
-    Equal(SkillKind.Guicai, registry.GetSkill("standard:guicai").LegacyKind);
+    Equal("standard:guicai", registry.GetSkill("standard:guicai").Id);
     Equal("standard:guicai", registry.Generals["standard:demo-guicai"].SkillId);
     Equal(18, registry.GetDeck("standard:basic-demo").Cards.Single(card =>
         card.CardDefinitionId == "standard:slash").Count);
@@ -1762,7 +1759,7 @@ static void AiCardContentPolicy()
     var redVirtualSlash = new CardSnapshot(23, CardKind.Peach, Suit.Heart, 10, "桃", "10");
     var wushengSelf = self with
     {
-        Skills = [new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌可当作杀使用。")],
+        Skills = [new GeneralSkillDefinition("武圣", "红色牌可当作杀使用。")],
         HandCount = 1,
         Hand = [redVirtualSlash]
     };
@@ -1784,109 +1781,22 @@ static void AiCardContentPolicy()
     True(wushengThought.Candidates.Single(candidate =>
         candidate.Action.CardId == redVirtualSlash.Id).Reason.Contains("当作杀", StringComparison.Ordinal));
 
-    var yuanhuSelf = self with
-    {
-        Skills = [new GeneralSkillDefinition(SkillKind.Yuanhu, "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。")],
-        HandCount = 1,
-        Hand = [redVirtualSlash]
-    };
-    var yuanhuTarget = target with
-    {
-        Role = Role.Loyalist,
-        IsRoleRevealed = true,
-        Hp = 3,
-        MaxHp = 4,
-        HandCount = 3,
-        Hand = []
-    };
-    var yuanhuView = view with { Players = [yuanhuSelf, yuanhuTarget] };
-    var (yuanhuCardId, yuanhuThought) = new SimpleAiBrain(seat: 0, seed: 5)
-        .ChooseYuanhuCard(yuanhuView, [redVirtualSlash.Id], targetSeat: 1, thoughtSequence: 8);
-    Equal<int?>(redVirtualSlash.Id, yuanhuCardId);
-    True(yuanhuThought.Candidates.Any(candidate =>
-        candidate.Action.Kind == LegalActionKind.Yuanhu &&
-        candidate.Action.TargetSeat == 1));
-    True(yuanhuThought.Candidates.All(candidate =>
-        candidate.Action.Kind != LegalActionKind.Yuanhu ||
-        candidate.Reason.Contains("不读取目标手牌", StringComparison.Ordinal)));
 }
 
 static void PassiveSkills()
 {
-    var fullHand = new PlayerSkillContext(0, 4, 4, 3, TurnPhase.Draw);
-    var emptyHand = fullHand with { HandCount = 0 };
-
     var currentContent = StandardContentRegistry.CreateWithActiveSkills();
     True(currentContent.Skills["standard:paoxiao"].Program!.Modifiers.Single().Operation ==
          SkillRuleOperation.Unlimited);
-    True(SkillRegistry.Get(SkillKind.Kongcheng).CardUse!.ProhibitsSlashTarget(emptyHand));
-    var yijiContext = new DamageSkillContext(
-        fullHand,
-        1,
-        CardKind.Slash,
-        true,
-        Amount: 1,
-        SourceCardId: 21,
-        TargetSeat: 0);
-    Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Jianxiong).Damage!.GetDamageSkillEffect(yijiContext));
-    Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Feedback).Damage!.GetDamageSkillEffect(yijiContext));
-    Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Yiji).Damage!.GetDamageSkillEffect(yijiContext));
-    Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Jieming).Damage!.GetDamageSkillEffect(yijiContext));
-
-    var yuanhuContext = yijiContext with
-    {
-        Owner = fullHand,
-        TargetSeat = 1,
-        TargetHp = 3,
-        TargetMaxHp = 4
-    };
-    Equal(
-        DamageTriggerScope.OtherLivingPlayer,
-        SkillRegistry.Get(SkillKind.Yuanhu).Damage!.AfterDamageTriggerScope);
-    True(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(yuanhuContext));
-    True(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.OffersDamageCardChoice(yuanhuContext));
-    Equal(
-        DamageSkillEffectKind.RecoverDamageTarget,
-        SkillRegistry.Get(SkillKind.Yuanhu).Damage!.GetDamageSkillEffect(yuanhuContext));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(
-        yuanhuContext with { TargetSeat = fullHand.Seat }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(
-        yuanhuContext with { TargetSeat = null }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(
-        yuanhuContext with { Amount = 0 }));
-    IDamageSkillRule anyScope = new AnyScopeProbeSkill();
-    True(anyScope.CanTriggerAfterDamage(yuanhuContext));
-    True(anyScope.CanTriggerAfterDamage(
-        yuanhuContext with { TargetSeat = fullHand.Seat }));
-    False(anyScope.CanTriggerAfterDamage(
-        yuanhuContext with { TargetSeat = null }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.OffersDamageCardChoice(
-        yuanhuContext with { Owner = emptyHand }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.OffersDamageCardChoice(
-        yuanhuContext with { TargetHp = 4 }));
-
-    var ganglieContext = yijiContext with
-    {
-        Owner = fullHand,
-        TargetSeat = fullHand.Seat,
-        SourceSeat = 1,
-        Amount = 1
-    };
-    True(SkillRegistry.Get(SkillKind.Ganglie).Damage!.CanTriggerAfterDamage(ganglieContext));
-    True(SkillRegistry.Get(SkillKind.Ganglie).Damage!.OffersDamageCardChoice(ganglieContext));
-    Equal(
-        DamageSkillEffectKind.GanglieJudgment,
-        SkillRegistry.Get(SkillKind.Ganglie).Damage!.GetDamageSkillEffect(ganglieContext));
-    False(SkillRegistry.Get(SkillKind.Ganglie).Damage!.CanTriggerAfterDamage(
-        ganglieContext with { TargetSeat = 1 }));
-    False(SkillRegistry.Get(SkillKind.Ganglie).Damage!.OffersDamageCardChoice(
-        ganglieContext with { SourceSeat = null }));
-    False(SkillRegistry.Get(SkillKind.Ganglie).Damage!.OffersDamageCardChoice(
-        ganglieContext with { Amount = 0 }));
+    var damageContent = StandardContentRegistry.CreateWithClassicGenerals();
+    var yuanhu = damageContent.Skills["standard:yuanhu"].Program!.Triggers.Single();
+    True(yuanhu.Window == SkillProgramTriggerWindow.AfterDamageApplied &&
+         yuanhu.Subject == SkillProgramTriggerSubject.Any && yuanhu.Optional &&
+         yuanhu.Effects.Any(effect => effect.Op == SkillProgramEffectOp.Recover));
+    var ganglie = damageContent.Skills["standard:ganglie"].Program!.Triggers.Single();
+    True(ganglie.Window == SkillProgramTriggerWindow.AfterDamageApplied &&
+         ganglie.Subject == SkillProgramTriggerSubject.Owner && ganglie.Optional &&
+         ganglie.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartJudgment));
 
     var wusheng = currentContent.Skills["standard:wusheng"].Program!.ViewAs.Single();
     True(wusheng.OutputKind == CardKind.Slash &&
@@ -1902,12 +1812,12 @@ static void DamageTriggerOrdering()
 {
     var ordered = CardGame.Core.DamageTriggerOrdering.Order(
     [
-        new DamageTriggerCandidate(3, SkillKind.Feedback, "seat3:feedback", Priority: 10),
-        new DamageTriggerCandidate(1, SkillKind.Jianxiong, "seat1:jianxiong", Priority: 10),
-        new DamageTriggerCandidate(2, SkillKind.Feedback, "feedback-b", Priority: 10),
-        new DamageTriggerCandidate(2, SkillKind.Feedback, "feedback-a", Priority: 10),
-        new DamageTriggerCandidate(2, SkillKind.Jianxiong, "seat2:jianxiong", Priority: 10),
-        new DamageTriggerCandidate(0, SkillKind.Wusheng, "wusheng", Priority: 20)
+        new DamageTriggerCandidate(3, "seat3:feedback", Priority: 10, ProgramId: "standard:feedback"),
+        new DamageTriggerCandidate(1, "seat1:jianxiong", Priority: 10, ProgramId: "standard:jianxiong"),
+        new DamageTriggerCandidate(2, "feedback-b", Priority: 10, ProgramId: "standard:feedback"),
+        new DamageTriggerCandidate(2, "feedback-a", Priority: 10, ProgramId: "standard:feedback"),
+        new DamageTriggerCandidate(2, "seat2:jianxiong", Priority: 10, ProgramId: "standard:jianxiong"),
+        new DamageTriggerCandidate(0, "wusheng", Priority: 20, ProgramId: "standard:wusheng")
     ],
     currentActorSeat: 7,
     playerCount: 8);
@@ -2188,7 +2098,7 @@ static void SlashAndDodgeProcessing()
             MaxTurns = 150
         }, StandardContentRegistry.Create());
         var result = game.DriveStart();
-        if (HasSkill(game, SkillKind.Yuanhu))
+        if (HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -2409,7 +2319,7 @@ static void ResolutionFrameStack()
             MaxTurns = 150
         }, StandardContentRegistry.Create());
         result = game.DriveStart();
-        if (HasSkill(game, SkillKind.Yuanhu))
+        if (HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -2663,7 +2573,7 @@ static void DrawTwoFlow()
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.DrawTwo);
         if (result.Status == EngineStatus.AwaitingHumanPlay &&
-            human.Skills?.Any(skill => skill.Kind == SkillKind.Wusheng) != true &&
+            human.Skills?.Any(skill => skill.ContentId == "standard:wusheng") != true &&
             action is not null &&
             game.CreateSnapshot(0, revealAll: true).Players.All(player =>
                 player.Hand.All(card => card.Kind != CardKind.Nullification)))
@@ -2953,7 +2863,7 @@ static void IronChainFlow()
         }
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
-        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true))
+        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.ContentId == "standard:yuanhu") == true))
         {
             continue;
         }
@@ -2978,7 +2888,7 @@ static void IronChainFlow()
             chainAction is null ||
             fireSlashAction is null ||
             chainChoice is null ||
-            target.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true ||
+            target.Skills?.Any(skill => skill.ContentId == "standard:longdan") == true ||
             target.Hand.Any(card => card.Kind == CardKind.Dodge))
         {
             continue;
@@ -3082,8 +2992,8 @@ static void IronChainFlow()
                  eventItem.Payload is CardUseFinishedEvent finished &&
                  finished.CardId == fireSlash.Id) &&
              !game.Events.Any(eventItem =>
-                 eventItem.Payload is DamageCardClaimedEvent claimed &&
-                 claimed.CardId == fireSlash.Id);
+                 eventItem.Payload is ProgramDamageCardsClaimedEvent claimed &&
+                 claimed.CardIds.Contains(fireSlash.Id));
              settleStep++)
         {
             if (game.PendingDecision is { PlayerSeat: 0 } settlePrompt)
@@ -3202,8 +3112,8 @@ static void IronChainFlow()
     True(fireSlashLocation == CardLocation.DiscardPile ||
          gameWithChain.Events
              .Select(eventItem => eventItem.Payload)
-             .OfType<DamageCardClaimedEvent>()
-             .Any(claim => claim.CardId == fireSlashCardId));
+             .OfType<ProgramDamageCardsClaimedEvent>()
+             .Any(claim => claim.CardIds.Contains(fireSlashCardId)));
     Equal(0, gameWithChain.ResolutionStack.Count);
     AssertCardInventory(gameWithChain);
 }
@@ -3239,7 +3149,7 @@ static void BarbarianAssaultFlow()
         }
         if (game.CreateSnapshot(0, revealAll: true).Players
             .Single(player => player.Seat == 0).Skills?
-                .Any(skill => skill.Kind == SkillKind.Yuanhu) == true)
+                .Any(skill => skill.ContentId == "standard:yuanhu") == true)
         {
             continue;
         }
@@ -3391,7 +3301,7 @@ static void ArrowBarrageFlow()
         var hasNoFeedbackTarget = currentFrame is not null && currentFrame.TargetSeats.All(targetSeat =>
             game.CreateSnapshot(targetSeat, revealAll: true).Players
                 .Single(player => player.Seat == targetSeat).Skills?
-                    .Any(skill => skill.Kind == SkillKind.Feedback) != true);
+                    .Any(skill => skill.ContentId == "standard:feedback") != true);
         if (currentFrame is not null && responseFrame is not null &&
             hasGuaranteedDamageTarget && hasNoFeedbackTarget)
         {
@@ -4604,7 +4514,7 @@ static void BaguaJudgmentFlow()
                             {
                                 _ = ResolveIncidentalProgramTrigger(game);
                             }
-                            else if (game.PendingDecision is { Kind: DecisionKind.Guicai or DecisionKind.Guidao })
+                            else if (game.PendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement or DecisionKind.ProgramJudgmentReplacement })
                             {
                                 _ = game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false);
                             }
@@ -5260,7 +5170,7 @@ static void FireAttackFlow()
             MaxTurns = 180
         }, StandardContentRegistry.Create());
         var result = game.DriveStart();
-        if (HasSkill(game, SkillKind.Yuanhu))
+        if (HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -5282,7 +5192,7 @@ static void FireAttackFlow()
         var targetSeat = action.TargetSeat!.Value;
         var targetSkills = game.CreateSnapshot(0, revealAll: true).Players
             .Single(player => player.Seat == targetSeat).Skills;
-        if (targetSkills?.Any(skill => skill.Kind is SkillKind.Yiji or SkillKind.Jieming or SkillKind.Yuanhu) == true)
+        if (targetSkills?.Any(skill => skill.ContentId is "standard:yiji" or "standard:jieming" or "standard:yuanhu") == true)
         {
             continue;
         }
@@ -5473,7 +5383,7 @@ static void FireAttackSkipFlow()
             MaxTurns = 180
         }, StandardContentRegistry.Create());
         var result = game.DriveStart();
-        if (HasSkill(game, SkillKind.Yuanhu))
+        if (HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -5603,7 +5513,7 @@ static void AttributeSlashFlow()
             MaxTurns = 180
         }, StandardContentRegistry.Create());
         var result = game.DriveStart();
-        if (HasSkill(game, SkillKind.Yuanhu))
+        if (HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -5628,8 +5538,8 @@ static void AttributeSlashFlow()
             var target = game.CreateSnapshot(action.TargetSeat!.Value)
                 .Players.Single(player => player.Seat == action.TargetSeat.Value);
             if (target.Hand.Any(candidate => candidate.Kind == CardKind.Dodge) ||
-                target.Skills?.Any(skill => IsDamageTriggerSkill(skill.Kind)) == true ||
-                target.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true)
+                target.Skills?.Any(skill => IsDamageTriggerSkill(skill.ContentId)) == true ||
+                target.Skills?.Any(skill => skill.ContentId == "standard:longdan") == true)
             {
                 continue;
             }
@@ -5711,7 +5621,7 @@ static void AlcoholFlow()
             MaxTurns = 180
         }, StandardContentRegistry.Create());
         var result = game.DriveStart();
-        if (HasSkill(game, SkillKind.Yuanhu))
+        if (HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -5740,8 +5650,8 @@ static void AlcoholFlow()
                 .Single(player => player.Seat == targetSeat);
             if (!IsSlashCard(candidateCard.Kind) ||
                 target.Hand.Any(card => card.Kind == CardKind.Dodge) ||
-                target.Skills?.Any(skill => IsDamageTriggerSkill(skill.Kind)) == true ||
-                target.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true)
+                target.Skills?.Any(skill => IsDamageTriggerSkill(skill.ContentId)) == true ||
+                target.Skills?.Any(skill => skill.ContentId == "standard:longdan") == true)
             {
                 continue;
             }
@@ -5831,7 +5741,7 @@ static void AlcoholFlow()
             MaxTurns = 180
         }, StandardContentRegistry.Create());
         var result = game.DriveStart();
-        if (HasSkill(game, SkillKind.Yuanhu))
+        if (HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -5923,7 +5833,7 @@ static void YuanhuCrossSeatFlow()
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
         var human = revealed.Players.Single(player => player.Seat == 0);
-        if (human.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) != true)
+        if (human.Skills?.Any(skill => skill.ContentId == "standard:yuanhu") != true)
         {
             continue;
         }
@@ -5954,7 +5864,11 @@ static void YuanhuCrossSeatFlow()
             advanceToHumanBoundary: true,
             playedCardKind: action.PlayedCardKind);
         if (result.Status == EngineStatus.AwaitingHumanResponse &&
-            result.PendingDecision?.Kind == DecisionKind.Yuanhu)
+            result.PendingDecision is
+            {
+                Kind: DecisionKind.ProgramTrigger,
+                SkillPrompt.SkillId: "standard:yuanhu"
+            })
         {
             selectedGame = game;
             selectedPrompt = result.PendingDecision;
@@ -5973,20 +5887,14 @@ static void YuanhuCrossSeatFlow()
     var targetBefore = gameWithYuanhu.CreateSnapshot(0, revealAll: true).Players
         .Single(player => player.Seat == targetSeat);
     var ownerBefore = gameWithYuanhu.CreateSnapshot(0).Players.Single(player => player.Seat == 0);
-    Equal(DecisionKind.Yuanhu, prompt.Kind);
+    Equal(DecisionKind.ProgramTrigger, prompt.Kind);
     Equal(0, prompt.PlayerSeat);
-    Equal(targetSeat, prompt.TargetSeat);
-    Equal(targetSeat, prompt.ValidTargetSeats.Single());
+    Equal("standard:yuanhu", prompt.SkillPrompt?.SkillId);
     True(prompt.IsPrivate);
-    True(prompt.ValidCardIds.Count > 0);
     True(prompt.Choices.Any(choice =>
-        choice.Parameters.GetValueOrDefault("response") == "yuanhu" &&
-        choice.Targets.SequenceEqual([targetSeat])));
+        choice.Parameters.GetValueOrDefault("program-action") == "activate"));
     True(prompt.Choices.Any(choice =>
-        choice.Parameters.GetValueOrDefault("response") == "yuanhu-skip"));
-    True(prompt.Choices.Where(choice =>
-            choice.Parameters.GetValueOrDefault("response") == "yuanhu")
-        .All(choice => choice.Cards.Count == 1 && choice.Targets.SequenceEqual([targetSeat])));
+        choice.Parameters.GetValueOrDefault("program-action") == "skip"));
     Equal<PendingDecision?>(null, gameWithYuanhu.CreateSnapshot(targetSeat).PendingDecision);
 
     var opened = gameWithYuanhu.Events
@@ -5996,7 +5904,7 @@ static void YuanhuCrossSeatFlow()
     True(opened.Candidates.Any(candidate =>
         candidate.OwnerSeat == 0 &&
         candidate.OwnerSeat != opened.TargetSeat &&
-        candidate.Skill == SkillKind.Yuanhu));
+        candidate.ProgramId == "standard:yuanhu"));
 
     var beforeInvalid = gameWithYuanhu.SerializeState();
     var invalid = gameWithYuanhu.Submit(new AnswerPromptCommand(
@@ -6008,13 +5916,19 @@ static void YuanhuCrossSeatFlow()
     Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
     Equal(beforeInvalid, gameWithYuanhu.SerializeState());
 
-    var useChoice = prompt.Choices.First(choice =>
-        choice.Parameters.GetValueOrDefault("response") == "yuanhu");
-    var discardCardId = useChoice.Cards.Single();
-    var accepted = gameWithYuanhu.DriveHumanRespondYuanhu(
-        discardCardId,
-        advanceToHumanBoundary: false);
-    TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "Yuanhu choice accepted");
+    var useChoice = prompt.Choices.Single(choice =>
+        choice.Parameters.GetValueOrDefault("program-action") == "activate");
+    var accepted = gameWithYuanhu.Submit(new AnswerPromptCommand(0, prompt.PromptId,
+        useChoice.Id, gameWithYuanhu.Revision));
+    TrueWithMessage(accepted.Accepted, "Yuanhu activation accepted");
+    var cardPrompt = gameWithYuanhu.PendingDecision!;
+    Equal("standard:yuanhu", cardPrompt.SkillPrompt?.SkillId);
+    var cardChoice = cardPrompt.Choices.First(choice =>
+        choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
+    var discardCardId = cardChoice.Cards.Single();
+    accepted = gameWithYuanhu.Submit(new AnswerPromptCommand(0, cardPrompt.PromptId,
+        cardChoice.Id, gameWithYuanhu.Revision));
+    TrueWithMessage(accepted.Accepted, "Yuanhu card payment accepted");
 
     var targetAfter = gameWithYuanhu.CreateSnapshot(0, revealAll: true).Players
         .Single(player => player.Seat == targetSeat);
@@ -6022,26 +5936,20 @@ static void YuanhuCrossSeatFlow()
     Equal(targetBefore.Hp + 1, targetAfter.Hp);
     Equal(ownerBefore.HandCount - 1, ownerAfter.HandCount);
     True(gameWithYuanhu.Events.Any(eventItem =>
-        eventItem.Payload is DamageSkillCardDiscardedEvent discarded &&
-        discarded.OwnerSeat == 0 &&
-        discarded.CardId == discardCardId &&
-        discarded.Skill == SkillKind.Yuanhu));
-    True(gameWithYuanhu.Events.Any(eventItem =>
         eventItem.Payload is RecoveryAppliedEvent recovery &&
         recovery.SourceSeat == 0 &&
         recovery.TargetSeat == targetSeat &&
         recovery.Amount == 1));
     var resolved = gameWithYuanhu.Events
         .Select(eventItem => eventItem.Payload)
-        .OfType<DamageSkillResolvedEvent>()
-        .Single(eventItem => eventItem.OwnerSeat == 0 && eventItem.Skill == SkillKind.Yuanhu);
-    True(resolved.Used);
-    Equal<int?>(targetSeat, resolved.EffectTargetSeat);
+        .OfType<ProgramBindingResolvedEvent>()
+        .Single(eventItem => eventItem.OwnerSeat == 0 && eventItem.SkillId == "standard:yuanhu");
+    True(resolved.Activated && resolved.Completed);
     True(gameWithYuanhu.CardMovements.Any(movement =>
         movement.CardId == discardCardId &&
         movement.From == CardLocation.Hand(0) &&
         movement.To == CardLocation.DiscardPile &&
-        movement.Reason == CardMoveReasons.YuanhuDiscard));
+        movement.Reason.Value == "skill-program.standard:yuanhu.MoveBoundCards"));
 
     var ordinaryViewer = Enumerable.Range(0, gameWithYuanhu.PlayerCount)
         .First(seat => seat != 0 && seat != targetSeat);
@@ -6102,7 +6010,7 @@ static void GanglieFlow()
         var target = revealed.Players.FirstOrDefault(player =>
             player.Seat != 0 &&
             player.IsAlive &&
-            player.Skills?.Any(skill => skill.Kind == SkillKind.Ganglie) == true &&
+            player.Skills?.Any(skill => skill.ContentId == "standard:ganglie") == true &&
             player.Hand.All(card => card.Kind != CardKind.Dodge));
         if (target is null)
         {
@@ -6128,14 +6036,24 @@ static void GanglieFlow()
         var humanViewBeforeTrigger = game.CreateSnapshot(0);
         var privateTrigger = ownerViewBeforeTrigger.PendingDecision;
         if (resultAfterAttack.Status != EngineStatus.Running ||
-            privateTrigger is not { Kind: DecisionKind.Ganglie })
+            privateTrigger is not
+            {
+                Kind: DecisionKind.ProgramTrigger,
+                SkillPrompt.SkillId: "standard:ganglie"
+            })
         {
             continue;
         }
 
-        var afterTrigger = game.DriveAdvanceOneStep();
-        if (afterTrigger.Status != EngineStatus.AwaitingHumanResponse ||
-            afterTrigger.PendingDecision is not { Kind: DecisionKind.GangliePunish } sourcePrompt)
+        for (var step = 0; step < 20 && game.PendingDecision?.PlayerSeat != 0; step++)
+            _ = game.DriveAdvanceOneStep();
+        if (game.PendingDecision is not
+            {
+                Kind: DecisionKind.ProgramTrigger,
+                SkillPrompt.SkillId: "standard:ganglie"
+            } sourcePrompt ||
+            !sourcePrompt.Choices.Any(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "choose-option"))
         {
             continue;
         }
@@ -6164,49 +6082,40 @@ static void GanglieFlow()
     var trigger = triggerPrompt!;
     var prompt = punishmentPrompt!;
     var usedAttackCard = attackCard!;
-    Equal(DecisionKind.Ganglie, trigger.Kind);
+    Equal(DecisionKind.ProgramTrigger, trigger.Kind);
     Equal(ganglieSeat, trigger.PlayerSeat);
     Equal(0, trigger.SourceSeat);
     Equal(ganglieSeat, trigger.TargetSeat);
     True(trigger.IsPrivate);
     True(trigger.Choices.Any(choice =>
-        choice.Parameters.GetValueOrDefault("response") == "ganglie"));
+        choice.Parameters.GetValueOrDefault("program-action") == "activate"));
     True(trigger.Choices.Any(choice =>
-        choice.Parameters.GetValueOrDefault("response") == "skip-ganglie"));
+        choice.Parameters.GetValueOrDefault("program-action") == "skip"));
     True(trigger.Choices.All(choice => choice.Cards.Count == 0 && choice.Targets.Count == 0));
-    Equal(DecisionKind.Ganglie, triggerOwnerView!.PendingDecision!.Kind);
+    Equal(DecisionKind.ProgramTrigger, triggerOwnerView!.PendingDecision!.Kind);
     Equal<PendingDecision?>(null, triggerHumanView!.PendingDecision);
-    Equal(DecisionKind.GangliePunish, gameWithGanglie.State.PendingDecision!.Kind);
+    Equal(DecisionKind.ProgramTrigger, gameWithGanglie.State.PendingDecision!.Kind);
     Equal<PendingDecision?>(null, gameWithGanglie.CreateSnapshot(ganglieSeat).PendingDecision);
     Equal<PendingDecision?>(null, gameWithGanglie.CreateSnapshot(1).PendingDecision);
 
-    Equal(DecisionKind.GangliePunish, prompt.Kind);
+    Equal(DecisionKind.ProgramTrigger, prompt.Kind);
     Equal(0, prompt.PlayerSeat);
     Equal(ganglieSeat, prompt.SourceSeat);
     Equal(0, prompt.TargetSeat);
     True(prompt.IsPrivate);
     var sourceView = gameWithGanglie.CreateSnapshot(0);
     var source = sourceView.Players.Single(player => player.Seat == 0);
-    True(prompt.ValidCardIds.SequenceEqual(source.Hand.Select(card => card.Id)));
-    var discardChoices = prompt.Choices
-        .Where(choice => choice.Parameters.GetValueOrDefault("response") == "ganglie-discard-two")
-        .ToArray();
-    Equal(source.HandCount * (source.HandCount - 1) / 2, discardChoices.Length);
-    True(discardChoices.All(choice =>
-        choice.Cards.Count == 2 &&
-        choice.Cards.Distinct().Count() == 2 &&
-        choice.Cards.All(prompt.ValidCardIds.Contains)));
-    Equal(
-        discardChoices.Length,
-        discardChoices.Select(choice => string.Join(',', choice.Cards)).Distinct().Count());
+    True(source.HandCount >= 2);
     True(prompt.Choices.Any(choice =>
-        choice.Parameters.GetValueOrDefault("response") == "ganglie-lose-hp" &&
+        choice.Parameters.GetValueOrDefault("option-id") == "damage" &&
         choice.Cards.Count == 0 &&
         choice.Targets.Count == 0));
+    var discardChoice = prompt.Choices.Single(choice =>
+        choice.Parameters.GetValueOrDefault("option-id") == "discard");
 
     var ordinaryViewer = gameWithGanglie.CreateSnapshot(1);
     Equal<PendingDecision?>(null, ordinaryViewer.PendingDecision);
-    var privateCardId = prompt.ValidCardIds.First();
+    var privateCardId = source.Hand.First().Id;
     False(SnapshotJson.Serialize(ordinaryViewer).Contains(
         $"\"Id\": {privateCardId},",
         StringComparison.Ordinal));
@@ -6221,14 +6130,24 @@ static void GanglieFlow()
     Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
     Equal(beforeInvalid, gameWithGanglie.SerializeState());
 
-    var discardChoice = discardChoices[0];
-    var discardedCardIds = discardChoice.Cards.ToArray();
     var accepted = gameWithGanglie.Submit(new AnswerPromptCommand(
         0,
         prompt.PromptId,
         discardChoice.Id,
         gameWithGanglie.Revision));
     TrueWithMessage(accepted.Accepted, "Ganglie punishment choice accepted");
+    var discardedCardIds = new List<int>();
+    for (var index = 0; index < 2; index++)
+    {
+        var payment = gameWithGanglie.PendingDecision!;
+        Equal("standard:ganglie", payment.SkillPrompt?.SkillId);
+        var pick = payment.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
+        discardedCardIds.Add(pick.Cards.Single());
+        accepted = gameWithGanglie.Submit(new AnswerPromptCommand(0, payment.PromptId,
+            pick.Id, gameWithGanglie.Revision));
+        TrueWithMessage(accepted.Accepted, "Ganglie card payment accepted");
+    }
     accepted = gameWithGanglie.Submit(new AdvanceCommand(gameWithGanglie.Revision));
     TrueWithMessage(accepted.Accepted, "Ganglie attack continuation accepted");
 
@@ -6242,39 +6161,28 @@ static void GanglieFlow()
         eventItem.Payload is JudgmentRequestedEvent requested &&
         requested.Reason == JudgmentReasons.Ganglie), "Ganglie judgment request event");
 
-    var punishment = gameWithGanglie.Events
-        .Select(eventItem => eventItem.Payload)
-        .OfType<GangliePunishmentResolvedEvent>()
-        .Single();
-    Equal(ganglieSeat, punishment.OwnerSeat);
-    Equal(0, punishment.SourceSeat);
-    Equal(GangliePunishmentKind.DiscardTwo, punishment.Punishment);
-    True(punishment.DiscardedCardIds.SequenceEqual(discardedCardIds));
-    True(punishment.SourceAlive);
-
     foreach (var cardId in discardedCardIds)
     {
         TrueWithMessage(gameWithGanglie.CardMovements.Any(movement =>
             movement.CardId == cardId &&
             movement.From == CardLocation.Hand(0) &&
             movement.To == CardLocation.DiscardPile &&
-            movement.Reason == CardMoveReasons.GanglieDiscard),
+            movement.Reason.Value == "skill-program.standard:ganglie.MoveBoundCards"),
             "Ganglie discard movement");
     }
 
     var resolved = gameWithGanglie.Events
         .Select(eventItem => eventItem.Payload)
-        .OfType<DamageSkillResolvedEvent>()
+        .OfType<ProgramBindingResolvedEvent>()
         .Single(eventItem =>
-            eventItem.Skill == SkillKind.Ganglie &&
+            eventItem.SkillId == "standard:ganglie" &&
             eventItem.OwnerSeat == ganglieSeat);
-    True(resolved.Used);
-    Equal<int?>(0, resolved.EffectTargetSeat);
+    True(resolved.Activated && resolved.Completed);
     TrueWithMessage(gameWithGanglie.Events.Any(eventItem =>
         eventItem.Payload is CardUseFinishedEvent finished &&
         finished.CardId == usedAttackCard.Id), "Ganglie source attack finished");
     TrueWithMessage(gameWithGanglie.AiThoughts.Any(thought =>
-        thought.Candidates.Any(candidate => candidate.Action.Kind == LegalActionKind.Ganglie)),
+        thought.Candidates.Any(candidate => candidate.Action.Kind == LegalActionKind.UseProgramSkill)),
         "Ganglie AI trigger thought");
     Equal(0, gameWithGanglie.ResolutionStack.Count);
     Equal(0, accepted.State.ProcessingCardCount);
@@ -6349,7 +6257,7 @@ static void GuicaiFlow()
             {
                 var prompt = game.PendingDecision ??
                     throw new InvalidOperationException("The response status has no prompt.");
-                if (prompt.Kind == DecisionKind.Guicai && prompt.PlayerSeat == 0)
+                if (prompt.Kind == DecisionKind.ProgramJudgmentReplacement && prompt.PlayerSeat == 0)
                 {
                     var frame = game.ResolutionStack.OfType<JudgmentFrame>().SingleOrDefault();
                     if (frame?.CardId is null || frame.Suit is not { } oldSuit)
@@ -6461,7 +6369,7 @@ static void GuicaiFlow()
     var publishedCardIds = validCardIds!;
     var oldCardId = finalFrame.CardId!.Value;
     var replacementCardId = replacement.Cards.Single();
-    Equal(DecisionKind.Guicai, finalPrompt.Kind);
+    Equal(DecisionKind.ProgramJudgmentReplacement, finalPrompt.Kind);
     Equal(0, finalPrompt.PlayerSeat);
     Equal(finalFrame.TargetSeat, finalPrompt.TargetSeat);
     Equal(finalFrame.TargetSeat, finalPrompt.SourceSeat);
@@ -7299,14 +7207,14 @@ static void WushengFlow()
                    card.Suit is (Suit.Heart or Suit.Diamond) &&
                    target.IsAlive &&
                    target.Hp > 1 &&
-                    target.Skills?.Any(skill => skill.Kind != SkillKind.None) != true &&
+                    target.Skills?.Any(skill => skill.ContentId != "standard:none") != true &&
                    target.Skills?.All(skill => skill.ContentId is not
                        ("standard:feedback" or "standard:jianxiong")) != false &&
                    target.Hand.All(handCard => handCard.Kind != CardKind.Dodge) &&
                    target.Equipment.All(equipment => equipment.Kind != CardKind.BaguaFormation);
         });
         if (action is not null &&
-            revealed.Players.All(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) != true))
+            revealed.Players.All(player => player.Skills?.Any(skill => skill.ContentId == "standard:yuanhu") != true))
         {
             selectedGame = game;
             selectedCard = human.Hand.Single(card => card.Id == action.CardId);
@@ -7411,7 +7319,7 @@ static void LongdanFlow()
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
         var human = revealed.Players.Single(player => player.Seat == 0);
-        if (human.Skills?.Any(skill => skill.ContentId == "standard:longdan") != true || HasSkill(game, SkillKind.Yuanhu))
+        if (human.Skills?.Any(skill => skill.ContentId == "standard:longdan") != true || HasSkill(game, "standard:yuanhu"))
         {
             continue;
         }
@@ -7431,7 +7339,7 @@ static void LongdanFlow()
             return card.Kind == CardKind.Dodge &&
                    target.IsAlive &&
                    target.Hp > 1 &&
-                    target.Skills?.Any(skill => skill.Kind != SkillKind.None) != true &&
+                    target.Skills?.Any(skill => skill.ContentId != "standard:none") != true &&
                    target.Hand.All(handCard => handCard.Kind != CardKind.Dodge);
         });
         if (action is not null)
@@ -7574,7 +7482,7 @@ static void LongdanResponseFlow()
                     DecisionKind.RespondDodge => game.DriveHumanRespond(
                         useDodge: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.Feedback => game.DriveHumanRespondFeedback(
+                    DecisionKind.ProgramTrigger => game.DriveHumanRespondFeedback(
                         useFeedback: false,
                         advanceToHumanBoundary: false),
                     _ => throw new InvalidOperationException(
@@ -8490,16 +8398,16 @@ static void SnapshotSerialization()
 static bool IsSlashCard(CardKind kind) =>
     kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
 
-static bool HasSkill(GameEngine game, SkillKind skill) =>
-    game.CreateSnapshot(0, revealAll: true).Players.Any(player => player.Skills?.Any(entry => entry.Kind == skill) == true);
+static bool HasSkill(GameEngine game, string skill) =>
+    game.CreateSnapshot(0, revealAll: true).Players.Any(player => player.Skills?.Any(entry => entry.ContentId == skill) == true);
 
-static bool IsDamageTriggerSkill(SkillKind skill) =>
-    skill is SkillKind.Jianxiong or
-        SkillKind.Feedback or
-        SkillKind.Yiji or
-        SkillKind.Jieming or
-        SkillKind.Yuanhu or
-        SkillKind.Ganglie;
+static bool IsDamageTriggerSkill(string? skill) =>
+    skill is "standard:jianxiong" or
+        "standard:feedback" or
+        "standard:yiji" or
+        "standard:jieming" or
+        "standard:yuanhu" or
+        "standard:ganglie";
 
 static void AssertCardInventory(GameEngine game)
 {
@@ -8610,8 +8518,6 @@ static EngineRunResult DrivePublishedPlayAction(GameEngine game, LegalAction act
     {
         ConversionSource = action.ConversionSource,
         AdditionalConversionSources = action.AdditionalConversionSources,
-        CardKindModifierSkill = action.CardKindModifierSkill,
-        TargetCountModifierSkill = action.TargetCountModifierSkill
     });
     TrueWithMessage(accepted.Accepted, "published exact play action accepted");
     return accepted.Result;
@@ -8753,13 +8659,6 @@ sealed class SyntheticPackage : IGameContentPackage
     public PackageManifest Manifest { get; }
 
     public void Register(IContentRegistryBuilder builder) => _register(builder);
-}
-
-sealed class AnyScopeProbeSkill : IDamageSkillRule
-{
-    public SkillKind Kind => SkillKind.None;
-    public string Name => "范围测试";
-    public DamageTriggerScope AfterDamageTriggerScope => DamageTriggerScope.AnyLivingPlayer;
 }
 
 sealed class ModifiedStandardContentPackage : IGameContentPackage

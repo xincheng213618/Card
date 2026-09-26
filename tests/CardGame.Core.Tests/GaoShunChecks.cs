@@ -20,7 +20,7 @@ internal static class GaoShunChecks
                 general.FactionId == "qun" &&
                 general.BaseHp == 4 &&
                 general.SkillIds.SequenceEqual([XianzhenSkillId, JinjiuSkillId]) &&
-                xianzhen.LegacyKind is null && xianzhen.Program is not null &&
+                xianzhen.Program is not null &&
                 xianzhen.ExecutionForms == SkillExecutionForm.State &&
                 xianzhen.ActionForms == SkillActionForm.Active &&
                 jinjiu.Tags == SkillTag.Locked &&
@@ -30,7 +30,7 @@ internal static class GaoShunChecks
                     Id: "alcohol-hand-as-slash",
                     OutputKind: CardKind.Slash
                 } &&
-                jinjiu.Program!.MinimumRulesVersion == 170 &&
+                jinjiu.Program!.MinimumRulesVersion == 171 &&
                 identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
                 identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
                 current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId),
@@ -142,9 +142,7 @@ internal static class GaoShunChecks
             game.Revision,
             RequirePrompt(game, DecisionKind.PlayCard).PromptId,
             slash.PlayedCardKind) { ConversionSource = slash.ConversionSource,
-                AdditionalConversionSources = slash.AdditionalConversionSources,
-                CardKindModifierSkill = slash.CardKindModifierSkill,
-                TargetCountModifierSkill = slash.TargetCountModifierSkill });
+                AdditionalConversionSources = slash.AdditionalConversionSources });
         Require(played.Accepted &&
                 game.Events.Select(item => item.Payload).OfType<CardUsedEvent>().Last() is
                 { SourceSeat: 0, IgnoresArmor: true },

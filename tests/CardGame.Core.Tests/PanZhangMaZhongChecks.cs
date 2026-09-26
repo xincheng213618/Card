@@ -27,7 +27,7 @@ internal static class PanZhangMaZhongChecks
             "The two skills must use effective Slash kinds and the generic reverse-range modifier.");
 
         var generic = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:generic","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:generic","revision":1,
             "minimumRulesVersion":170,
             "damageModifiers":[{"id":"distance","cardKinds":["duel"],"amount":2,
             "condition":"always"}],
@@ -275,10 +275,10 @@ internal static class PanZhangMaZhongChecks
             for (var step = 0; step < 300 && game.State.Status != EngineStatus.Completed; step++)
             {
                 var prompt = game.PendingDecision;
-                if (prompt is { Kind: DecisionKind.Tianxiang, PlayerSeat: 2 }) tianxiangPrompts++;
+                if (prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 2 }) tianxiangPrompts++;
                 modifierEvents += game.Events.Select(item => item.Payload)
                     .OfType<ProgramCardDamageModifiedEvent>().Count(item => item.Source.SkillId == Anjian);
-                if (prompt is { Kind: DecisionKind.Tianxiang, PlayerSeat: 2 } &&
+                if (prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 2 } &&
                     prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "tianxiang-use") &&
                     game.Events.Select(item => item.Payload).OfType<ProgramCardDamageModifiedEvent>()
                         .Any(item => item.Source.SkillId == Anjian && item.TargetSeat == 2 &&
@@ -291,14 +291,14 @@ internal static class PanZhangMaZhongChecks
                     Answer(game, use);
                     Answer(paused, paused.PendingDecision!.Choices.Single(choice => choice.Id == use.Id));
                     for (var follow = 0; follow < 70 &&
-                         !game.Events.Select(item => item.Payload).OfType<TianxiangTransferredEvent>()
+                         !game.Events.Select(item => item.Payload).OfType<ProgramDamageTransferredEvent>()
                              .Any(item => item.OwnerSeat == 2); follow++)
                     {
                         Advance(game);
                         Advance(paused);
                     }
                     var transfer = game.Events.Select(item => item.Payload)
-                        .OfType<TianxiangTransferredEvent>().Last(item => item.OwnerSeat == 2);
+                        .OfType<ProgramDamageTransferredEvent>().Last(item => item.OwnerSeat == 2);
                     Require(transfer.DamageAmount == 2 && transfer.TargetSeat != 2 &&
                             game.Events.Select(item => item.Payload).OfType<ProgramCardDamageModifiedEvent>()
                                 .Count(item => item.Source.SkillId == Anjian &&
@@ -427,7 +427,7 @@ internal static class PanZhangMaZhongChecks
             if (armorSynthetic)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":60,"skills":[{"id":"fixture:take-source-armor","revision":1,
+                    {"schemaVersion":61,"skills":[{"id":"fixture:take-source-armor","revision":1,
                     "minimumRulesVersion":170,"triggers":[{"id":"take","window":"afterDamageApplied",
                     "subject":"owner","damageOccurrence":"perDamage","damageCardKinds":["slash"],
                     "optional":false,"effects":[{"op":"selectSourceCard","target":"owner",

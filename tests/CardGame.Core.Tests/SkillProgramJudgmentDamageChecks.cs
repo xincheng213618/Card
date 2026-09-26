@@ -12,7 +12,7 @@ internal static class SkillProgramJudgmentDamageChecks
         var strike = program.Triggers.Single(trigger => trigger.Id == StrikeTriggerId);
         var selection = strike.Effects[0];
         var damage = strike.Effects[1];
-        Require(program is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } &&
+        Require(program is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } &&
                 recovery is { Optional: false } &&
                 recovery.Effects.Single() is
                 {
@@ -37,7 +37,7 @@ internal static class SkillProgramJudgmentDamageChecks
                 },
             "The shared executor must keep mandatory recovery separate from optional thunder damage.");
 
-        AssertReject(ValidV5.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV5.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV5.Replace("\"targetKind\":\"anyLiving\"", "\"targetKind\":\"missing\"", StringComparison.Ordinal),
             "targetKind");
@@ -245,7 +245,7 @@ internal static class SkillProgramJudgmentDamageChecks
                     {
                         DecisionKind.PlayCard =>
                             new EndPlayPhaseCommand(0, game.Revision, pending.PromptId),
-                        DecisionKind.Ganglie =>
+                        DecisionKind.ProgramTrigger =>
                             AnswerCommand(game, pending, "response", "ganglie"),
                         DecisionKind.RespondDodge =>
                             AnswerCommand(game, pending, "response", "take-damage"),
@@ -372,7 +372,7 @@ internal static class SkillProgramJudgmentDamageChecks
     private const string StrikeTriggerId = "b-club-strike";
 
     private const string ValidV5 = """
-        {"schemaVersion":60,"skills":[
+        {"schemaVersion":61,"skills":[
           {"id":"judgment-damage-test:effects","revision":1,"triggers":[
             {"id":"opening-judgment","window":"turnStartBeforeNormalFlow","subject":"owner",
              "optional":false,"effects":[

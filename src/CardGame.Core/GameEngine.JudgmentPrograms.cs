@@ -56,7 +56,9 @@ public sealed partial class GameEngine
         judgmentCard.Rank >= trigger.MinimumRank &&
         judgmentCard.Rank <= trigger.MaximumRank &&
         !trigger.ExcludedReasons.Contains(pending.Reason, StringComparer.Ordinal) &&
-        CanStartFinalJudgmentEffects(owner, trigger);
+        CanStartFinalJudgmentEffects(owner, trigger) &&
+        (!trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ClaimJudgmentCard) ||
+         _cardZones.GetLocation(judgmentCard.Id) == CardLocation.Judgment(pending.TargetSeat));
 
     private bool CanRunProgramJudgmentTrigger(
         ProgramJudgmentTriggerCandidate candidate,
@@ -74,7 +76,9 @@ public sealed partial class GameEngine
                trigger.Suits.Contains(judgment.Suit) &&
                judgment.Rank >= trigger.MinimumRank && judgment.Rank <= trigger.MaximumRank &&
                !trigger.ExcludedReasons.Contains(judgment.Reason, StringComparer.Ordinal) &&
-               CanStartFinalJudgmentEffects(owner, trigger);
+               CanStartFinalJudgmentEffects(owner, trigger) &&
+               (!trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ClaimJudgmentCard) ||
+                _cardZones.GetLocation(judgment.CardId) == CardLocation.Judgment(judgment.SubjectSeat));
     }
 
     private bool CanStartFinalJudgmentEffects(CharacterState owner, SkillProgramTrigger trigger)
@@ -170,11 +174,7 @@ public sealed partial class GameEngine
         var judgmentCard = pending.CurrentCard ??
             throw new InvalidOperationException("A terminal judgment trigger lost its card.");
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramJudgmentTriggerWindow);
-        var completed = CompleteFinalizedJudgment(
-            pending,
-            judgmentCard,
-            succeeded,
-            allowPostJudgmentSkills: false);
+        var completed = CompleteFinalizedJudgment(pending, judgmentCard, succeeded);
         if (completed is { } result)
         {
             ResumeCompletedJudgment(pending, result);

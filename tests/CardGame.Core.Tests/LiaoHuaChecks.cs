@@ -21,7 +21,7 @@ internal static class LiaoHuaChecks
             $"gender={general.Gender}, portrait={general.PortraitKey}, skills={string.Join(',', general.SkillIds)}.");
 
         var dangxian = current.Skills[DangxianSkillId];
-        Require(dangxian.LegacyKind is null && dangxian.Program is { } dangxianProgram &&
+        Require(dangxian.Program is { } dangxianProgram &&
                 dangxianProgram.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
@@ -30,10 +30,10 @@ internal static class LiaoHuaChecks
                 dangxian.Tags == SkillTag.Locked &&
                 dangxian.ExecutionForms == SkillExecutionForm.State &&
                 dangxian.ActionForms == SkillActionForm.None,
-            $"Dangxian metadata drifted: kind={dangxian.LegacyKind}, tags={dangxian.Tags}, " +
+            $"Dangxian metadata drifted: id={dangxian.Id}, tags={dangxian.Tags}, " +
             $"execution={dangxian.ExecutionForms}, actions={dangxian.ActionForms}.");
         var fuli = current.Skills[FuliSkillId];
-        Require(fuli.LegacyKind is null && fuli.Program is { } fuliProgram &&
+        Require(fuli.Program is { } fuliProgram &&
                 fuliProgram.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.SelfDyingResponse,
@@ -44,7 +44,7 @@ internal static class LiaoHuaChecks
                 fuli.Tags == SkillTag.Limited &&
                 fuli.ExecutionForms == SkillExecutionForm.Trigger &&
                 fuli.ActionForms == SkillActionForm.None,
-            $"Fuli metadata drifted: kind={fuli.LegacyKind}, tags={fuli.Tags}, " +
+            $"Fuli metadata drifted: id={fuli.Id}, tags={fuli.Tags}, " +
             $"execution={fuli.ExecutionForms}, actions={fuli.ActionForms}.");
 
     }

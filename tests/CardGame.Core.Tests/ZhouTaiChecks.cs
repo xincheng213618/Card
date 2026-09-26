@@ -10,11 +10,11 @@ internal static class ZhouTaiChecks
         var fixture = FindFirstWound(registry);
         var game = fixture.Game;
         var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
-        var resolved = game.Events.Select(item => item.Payload).OfType<BuquResolvedEvent>().Single();
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>().Single();
         Require(owner is { GeneralId: "classic:zhou-tai", Hp: 1, IsAlive: true } &&
                 owner.BuquWounds?.Count == 1 && owner.BuquWounds[0].Id == resolved.CardId &&
                 ReadHandLimit(game, 0) == 1 &&
-                resolved is { OwnerSeat: 0, RankWasUnique: true } &&
+                resolved is { OwnerSeat: 0, SkillId: "classic:buqu", RankWasUnique: true } &&
                 game.CreateCardZoneDiagnostics().Single(card => card.CardId == resolved.CardId).Location ==
                     CardLocation.BuquWound(0),
             "A first unique Buqu rank must become one public wound and restore Zhou Tai to one HP.");
@@ -22,7 +22,8 @@ internal static class ZhouTaiChecks
         var duplicate = DriveUntilDuplicate(game);
         Require(!duplicate.RankWasUnique && game.CardMovements.Any(move =>
                     move.CardId == duplicate.CardId && move.From == CardLocation.DrawPile &&
-                    move.To == CardLocation.DiscardPile && move.Reason == CardMoveReasons.BuquDuplicate),
+                    move.To == CardLocation.DiscardPile &&
+                    move.Reason.Value == "skill-program.dying-rank.duplicate"),
             "A repeated Buqu rank must enter the discard pile and leave the normal rescue/death path active.");
 
         var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
@@ -58,7 +59,7 @@ internal static class ZhouTaiChecks
                 var eventCount = game.Events.Count;
                 var result = game.Submit(command);
                 if (!result.Accepted) break;
-                if (game.Events.Skip(eventCount).Any(item => item.Payload is BuquResolvedEvent))
+                if (game.Events.Skip(eventCount).Any(item => item.Payload is ProgramUniqueRankDyingResolvedEvent))
                     return new Fixture(game);
             }
         }
@@ -76,18 +77,18 @@ internal static class ZhouTaiChecks
         return choice is null ? null : new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision);
     }
 
-    private static BuquResolvedEvent DriveUntilDuplicate(GameEngine game)
+    private static ProgramUniqueRankDyingResolvedEvent DriveUntilDuplicate(GameEngine game)
     {
         for (var step = 0; step < 5_000 && game.State.Status != EngineStatus.Completed; step++)
         {
-            var duplicate = game.Events.Select(item => item.Payload).OfType<BuquResolvedEvent>()
+            var duplicate = game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
                 .LastOrDefault(item => !item.RankWasUnique);
             if (duplicate is not null) return duplicate;
             var command = NextCommand(game) ?? throw new InvalidOperationException("Buqu duplicate fixture lost its command path.");
             var result = game.Submit(command);
             Require(result.Accepted, result.Error?.Message ?? "Could not advance to a repeated Buqu rank.");
         }
-        var finalDuplicate = game.Events.Select(item => item.Payload).OfType<BuquResolvedEvent>()
+        var finalDuplicate = game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
             .LastOrDefault(item => !item.RankWasUnique);
         return finalDuplicate ?? throw new InvalidOperationException("No repeated Buqu rank occurred before the bounded game ended.");
     }

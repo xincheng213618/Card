@@ -25,7 +25,7 @@ public sealed record GeneralSlotViewModel(string SlotLabel, string GeneralId, st
         var known = id.Length > 0;
         var name = known ? (secondary ? player.SecondaryGeneralName : player.GeneralName)! : player.IsHuman ? "待选" : "暗将";
         var skills = known ? secondary ? player.SecondarySkills : player.Skills : null;
-        var hasSkill = skills?.Any(skill => skill.Kind != SkillKind.None || skill.Name != "无") == true;
+        var hasSkill = skills?.Any(skill => skill.Name != "无") == true;
         var skillName = skills is null ? "未知技能" : skills.Count == 0 ? "无" :
             string.Join(" / ", skills.Select(skill => skill.Name));
         var description = skills is null ? "明置后可查看武将与技能。" : skills.Count == 0

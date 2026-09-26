@@ -41,7 +41,7 @@ internal static class GudingBladeScenario
                 candidate.ContentIds.Count == 1 &&
                 registry.Generals[candidate.ContentIds[0]].SkillIds
                     .Select(registry.GetSkill)
-                    .All(skill => skill.LegacyKind is not (SkillKind.Tieqi or SkillKind.Liegong)));
+                    .All(skill => skill.Id is not ("classic:tieqi" or "classic:liegong")));
             if (setup is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: sourceSeat } || general is null)
             {
                 continue;
@@ -176,7 +176,7 @@ internal static class GudingBladeScenario
                        target.Equipment.All(card =>
                            card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
                        target.Skills?.All(skill =>
-                           skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false;
+                           skill.ContentId is not ("classic:qingguo" or "classic:longdan" or "classic:hujia")) != false;
             })
             .OrderBy(candidate => candidate.TargetSeat)
             .FirstOrDefault()!;

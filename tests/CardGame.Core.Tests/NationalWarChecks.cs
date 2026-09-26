@@ -152,11 +152,9 @@ internal static class NationalWarChecks
             culture: null)!;
         string[] Candidates()
         {
-            var context = new DamageSkillContext(new PlayerSkillContext(0, 3, 4, 4, TurnPhase.Play), 1, CardKind.Slash, true,
-                SourceCardId: 1, TargetSeat: 0, TargetHp: 3, TargetMaxHp: 4);
             return ((IReadOnlyList<DamageTriggerCandidate>)collect.Invoke(damage,
-                [context, attack, SkillProgramTriggerWindow.AfterDamageApplied])!)
-                .Select(candidate => candidate.ProgramId ?? candidate.Skill.ToString())
+                [attack, SkillProgramTriggerWindow.AfterDamageApplied])!)
+                .Select(candidate => candidate.ProgramId)
                 .ToArray();
         }
         Require(Candidates().Length == 0, "Hidden generals entered a damage trigger window.");
@@ -183,7 +181,7 @@ internal static class NationalWarChecks
                 {
                     var catalog = SkillProgramCatalog.Load(
                         """
-                        {"schemaVersion":60,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":170,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
+                        {"schemaVersion":61,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":170,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
                         """,
                         """
                         {"schemaVersion":3,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}
@@ -318,16 +316,16 @@ internal static class NationalWarChecks
             throw new InvalidOperationException("No bounded seed assigned the national multi-skill fixture to the human seat.");
         }
 
-        static SkillKind[] EnabledKinds(GameEngine game)
+        static string[] EnabledKinds(GameEngine game)
         {
             var players = ((System.Collections.IEnumerable)typeof(GameEngine)
                 .GetField("_players", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
                 .GetValue(game)!).Cast<object>().ToArray();
             var enabled = (System.Collections.IEnumerable)typeof(GameEngine)
-                .GetMethod("EnabledSkillRules", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .GetMethod("EnabledContentSkillIds", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
                 .Invoke(game, [players[0]])!;
-            return enabled.Cast<SkillRuleDefinition>().Select(skill => skill.Kind)
-                .Where(kind => kind != SkillKind.None).ToArray();
+            return enabled.Cast<string>()
+                .Where(kind => kind != "standard:none").ToArray();
         }
 
         static string[] EnabledPrograms(GameEngine game)
@@ -387,8 +385,8 @@ internal static class NationalWarChecks
                     ? player with
                     {
                         Hand = [], HandCount = 0,
-                        Skills = [new GeneralSkillDefinition(SkillKind.None, "无技能", "")],
-                        SecondarySkills = [new GeneralSkillDefinition(SkillKind.Kongcheng, "空城", "")]
+                        Skills = [new GeneralSkillDefinition("无技能", "")],
+                        SecondarySkills = [new GeneralSkillDefinition("空城", "")]
                     }
                     : player)
                 .ToArray()
@@ -615,13 +613,7 @@ internal static class NationalWarChecks
             DecisionKind.RescueDying => "let-die",
             DecisionKind.FireAttackReveal => "fire-attack-reveal",
             DecisionKind.FireAttackDiscard => "fire-attack-skip",
-            DecisionKind.Feedback => "take-damage",
-            DecisionKind.Yiji => "yiji-skip",
-            DecisionKind.Jieming => "jieming-skip",
-            DecisionKind.Yuanhu => "yuanhu-skip",
-            DecisionKind.Ganglie => "skip-ganglie",
-            DecisionKind.GangliePunish => "ganglie-lose-hp",
-            DecisionKind.Guicai => "skip-guicai",
+            DecisionKind.ProgramJudgmentReplacement => "program-judgment-replacement-skip",
             DecisionKind.Nullification => "pass",
             _ => string.Empty
         };

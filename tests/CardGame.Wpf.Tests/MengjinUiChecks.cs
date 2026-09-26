@@ -37,7 +37,7 @@ internal static class MengjinUiChecks
 
         Program.Assert(!viewModel.HasSaveError &&
                        viewModel.IsSkillSelectionPending &&
-                       engine.PendingDecision is { Kind: DecisionKind.Mengjin, IsPrivate: true } &&
+                       engine.PendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } &&
                        handChoices.Length == targetBefore.Hand.Count &&
                        handChoices.All(choice => choice.Cards.Count == 0) &&
                        equipmentChoices.SelectMany(choice => choice.Cards)

@@ -15,17 +15,18 @@ public static class GeneralVoiceProjector
         GeneralVoice? result = null;
         foreach (var envelope in events)
         {
-            var (seat, kind, skillId, death) = envelope.Payload switch
+            var (seat, skillId, death) = envelope.Payload switch
             {
-                DrawSkillResolvedEvent { Used: true } e => (e.SourceSeat, (SkillKind?)e.Skill, (string?)null, false),
-                PhaseSkillResolvedEvent { Used: true } e => (e.SourceSeat, (SkillKind?)e.Skill, (string?)null, false),
-                DamageSkillResolvedEvent { Used: true } e => (e.OwnerSeat, (SkillKind?)e.Skill, (string?)null, false),
-                ProgramSkillResolvedEvent { Completed: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
-                ProgramBindingResolvedEvent { Activated: true, Completed: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
-                ProgramJudgmentTriggerResolvedEvent { Activated: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
-                ProgramJudgmentReplacementResolvedEvent { Activated: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
-                PlayerDiedEvent e => (e.VictimSeat, (SkillKind?)null, (string?)null, true),
-                _ => (-1, (SkillKind?)null, (string?)null, false)
+                ProgramSkillResolvedEvent { Completed: true } e => (e.OwnerSeat, e.SkillId, false),
+                ProgramBindingResolvedEvent { Activated: true, Completed: true } e => (e.OwnerSeat, e.SkillId, false),
+                ProgramJudgmentTriggerResolvedEvent { Activated: true } e => (e.OwnerSeat, e.SkillId, false),
+                ProgramJudgmentReplacementResolvedEvent { Activated: true } e => (e.OwnerSeat, e.SkillId, false),
+                ProgramCardPolicyResolvedEvent { Applied: true } e => (e.OwnerSeat, e.SkillId, false),
+                ProgramRecoveryPolicyAppliedEvent e => (e.OwnerSeat, e.SkillId, false),
+                FactionDefenseRequestedEvent e => (e.OwnerSeat, e.SkillId, false),
+                FactionSlashRequestedEvent e => (e.OwnerSeat, e.SkillId, false),
+                PlayerDiedEvent e => (e.VictimSeat, (string?)null, true),
+                _ => (-1, (string?)null, false)
             };
             var player = players.FirstOrDefault(player => player.Seat == seat);
             if (player is null) continue;
@@ -37,7 +38,7 @@ public static class GeneralVoiceProjector
 
             GeneralVoice? Find(string generalId, IReadOnlyList<GeneralSkillDefinition> skills)
             {
-                var skill = skills.FirstOrDefault(skill => kind is not null ? skill.Kind == kind : skill.ContentId == skillId);
+                var skill = skills.FirstOrDefault(skill => skill.ContentId == skillId);
                 if (!death && skill is null) return null;
                 var matches = GameAudioCatalog.ForSkill(generalId, skinForGeneral(generalId), skill?.Name ?? "", death ? "death" : "skill");
                 return matches.Count == 0 ? null : matches[(int)((ulong)envelope.Sequence % (ulong)matches.Count)];

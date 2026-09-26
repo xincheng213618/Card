@@ -52,7 +52,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The named choice lost its program frame.");
         var effect = ProgramInstructionResolver.Default.Resolve(frame,
             _contentRegistry!.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
-        var chooserSeat = ResolveProgramEffectTarget(frame, effect.Target);
+        var chooserSeat = effect.ChooserRef is { } chooser
+            ? ResolveProgramParticipant(frame, chooser)
+            : ResolveProgramEffectTarget(frame, effect.Target);
         if (effect.Op != SkillProgramEffectOp.ChooseOption ||
             _pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision ||
             decision.PlayerSeat != chooserSeat || selected.Cards.Count != 0 || selected.Targets.Count != 0 ||
@@ -102,7 +104,9 @@ public sealed partial class GameEngine
         if (option is null) return true;
         if (!option.Condition.ContainsHasClaimableDamageCards() &&
             !option.Condition.ContainsBoundCardCountAtLeast() && !option.Condition.ContainsHasOwnedCardCategory()) return true;
-        var chooserSeat = ResolveProgramEffectTarget(frame, effect.Target);
+        var chooserSeat = effect.ChooserRef is { } chooser
+            ? ResolveProgramParticipant(frame, chooser)
+            : ResolveProgramEffectTarget(frame, effect.Target);
         return option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
             () => GetClaimableProgramDamageCards(frame).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(frame, bind),

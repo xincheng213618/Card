@@ -62,7 +62,8 @@ internal static class DamageAfterDyingChecks
                 var events = game.Events.Skip(eventCount).Select(item => item.Payload).ToArray();
                 Require(events.OfType<PlayerDiedEvent>().Any(item => item.VictimSeat == targetSeat),
                     "Kuanggu fixture must kill its one-HP target.");
-                Require(events.OfType<KuangguRecoveredEvent>().Any() == shouldRecover &&
+                Require(events.OfType<RecoveryAppliedEvent>().Any(item =>
+                            item.SourceSeat == 0 && item.TargetSeat == 0 && item.Amount == 1) == shouldRecover &&
                         game.CreateSnapshot(0, true).Players[0].Hp ==
                         game.CreateSnapshot(0, true).Players[0].MaxHp - (shouldRecover ? 0 : 1),
                     $"Kuanggu must use distance {distance} captured when lethal damage applied.");

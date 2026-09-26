@@ -6,7 +6,7 @@ internal static class CardUseCompletedChecks
     public static void FinishedSlashOpensReplayableProgramWindow()
     {
         const string rules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:after-slash","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:after-slash","revision":1,
               "minimumRulesVersion":170,"triggers":[{"id":"draw-after-finish",
               "window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["slash"],
               "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
@@ -76,7 +76,7 @@ internal static class CardUseCompletedChecks
     public static void CompletedUseFreezesActualDamageFact()
     {
         const string rules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:after-slash","revision":2,
+            {"schemaVersion":61,"skills":[{"id":"fixture:after-slash","revision":2,
               "minimumRulesVersion":170,"triggers":[
                 {"id":"after-damage","window":"cardUseCompleted","ownerRelation":"actor",
                  "cardKinds":["slash"],"condition":{"kind":"cardUseCausedDamage"},
@@ -140,7 +140,7 @@ internal static class CardUseCompletedChecks
     public static void CompletedUseFiltersFrozenConversionSource()
     {
         const string rules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:after-slash","revision":3,
+            {"schemaVersion":61,"skills":[{"id":"fixture:after-slash","revision":3,
               "minimumRulesVersion":170,"viewAs":[{"id":"dodge-as-slash",
                 "inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash",
                 "forPlay":true,"forResponse":false}],
@@ -237,7 +237,7 @@ internal static class CardUseCompletedChecks
     public static void ConfiguredSlashCanBecomeFireSlashWithoutZhuqueFan()
     {
         const string rules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:after-slash","revision":4,
+            {"schemaVersion":61,"skills":[{"id":"fixture:after-slash","revision":4,
               "minimumRulesVersion":170,"viewAs":[{"id":"slash-as-fire-slash",
                 "inputKinds":["slash"],"inputSuits":[],"outputKind":"fireSlash",
                 "forPlay":true,"forResponse":false}]}]}

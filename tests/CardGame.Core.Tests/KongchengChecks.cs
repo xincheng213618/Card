@@ -6,19 +6,21 @@ internal static class KongchengChecks
 {
     public static void DuelTargeting()
     {
-        var rule = SkillRegistry.Get(SkillKind.Kongcheng);
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var policy = registry.GetSkill("classic:kongcheng").Program!.CardPolicies.Single(item =>
+            item.Kind == SkillProgramCardPolicyKind.ProhibitTarget);
         var empty = new PlayerSkillContext(1, 3, 3, 0, TurnPhase.Play);
         var holdingCards = empty with { HandCount = 1 };
-        Require(rule.CardUse!.ProhibitsCardTarget(empty, CardKind.Slash) &&
-                rule.CardUse!.ProhibitsCardTarget(empty, CardKind.FireSlash) &&
-                rule.CardUse!.ProhibitsCardTarget(empty, CardKind.ThunderSlash) &&
-                rule.CardUse!.ProhibitsCardTarget(empty, CardKind.Duel),
+        Require(policy.CardKinds.Contains(CardKind.Slash) &&
+                policy.CardKinds.Contains(CardKind.FireSlash) &&
+                policy.CardKinds.Contains(CardKind.ThunderSlash) &&
+                policy.CardKinds.Contains(CardKind.Duel) &&
+                policy.Condition.Evaluate(empty) &&
+                !policy.Condition.Evaluate(holdingCards),
             "Kongcheng must prohibit every Slash kind and Duel while the owner has no hand cards.");
-        Require(!rule.CardUse!.ProhibitsCardTarget(holdingCards, CardKind.Duel) &&
-                !rule.CardUse!.ProhibitsCardTarget(empty, CardKind.DrawTwo),
+        Require(!policy.CardKinds.Contains(CardKind.DrawTwo),
             "Kongcheng must not prohibit Duel with a hand card or unrelated card kinds.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var seed = FindSeedWithHumanDuel(registry);
         var current = CreateGame(registry, seed);
         ArrangeEmptyKongchengTarget(current, targetSeat: 1);
@@ -119,7 +121,7 @@ internal static class KongchengChecks
         generalProperty.SetValue(
             target,
             new GeneralDefinition("fixture:kongcheng", "诸葛亮", "zhuge_liang",
-                [new GeneralSkillDefinition(SkillKind.Kongcheng, "空城",
+                [new GeneralSkillDefinition("空城",
                     "没有手牌时不能成为【杀】或【决斗】的目标。")
                 { ContentId = "classic:kongcheng" }]));
 

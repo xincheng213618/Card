@@ -12,7 +12,7 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "numberExpression", "minimumCards", "maximumCards",
-            "cardKinds", "zones", "resultBind", "condition");
+            "cardKinds", "suits", "zones", "resultBind", "targetRef", "condition");
         var variable = r.Has("minimumCards") || r.Has("maximumCards");
         if (variable != (r.Has("minimumCards") && r.Has("maximumCards")) ||
             variable && (r.Has("amount") || r.Has("numberExpression")))
@@ -24,8 +24,11 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: owned-card bounds must satisfy 1 <= minimumCards <= maximumCards <= 20.");
         var cardKinds = r.OptionalEnumArray<CardKind>("cardKinds") ?? [];
+        var suits = r.OptionalEnumArray<Suit>("suits") ?? [];
         if (r.Has("cardKinds") && cardKinds.Count == 0)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardKinds: must not be empty.");
+        if (r.Has("suits") && suits.Count == 0)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.suits: must not be empty.");
         var expression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
         if (expression is not null && (r.Has("amount") || expression is not
@@ -35,11 +38,16 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
         var zones = r.RequiredEnumArray<CardZoneKind>("zones");
         if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: requires owned hand, equipment or judgment zones.");
-        var effect = new SkillProgramEffect(Op, r.RequiredEnum<SkillProgramEffectTarget>("target"),
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||
+            targetRef.Kind is not (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: owned-card selection requires an event participant and owner placeholder.");
+        var effect = new SkillProgramEffect(Op, target,
             variable || expression is not null ? 0 : DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
             numberExpression: expression, zones: zones, resultBind: r.RequiredIdentifier("resultBind"),
-            minimumCards: minimum, maximumCards: maximum, cardKinds: cardKinds);
-        RequireAlways(effect, r.Path);
+            minimumCards: minimum, maximumCards: maximum, cardKinds: cardKinds, suits: suits,
+            targetReference: targetRef);
         return effect;
     }
 
@@ -48,7 +56,8 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
             effect.MaximumCards > 0 ? effect.MaximumCards :
                 effect.NumberExpression is null ? effect.Amount : int.MaxValue,
             effect.Target == SkillProgramEffectTarget.Owner && effect.Zones.SequenceEqual([CardZoneKind.Hand]),
-            effect.Target)]);
+            effect.Target)])
+            .Concat(ParticipantResources(effect.TargetReference)).ToArray();
 }
 
 public sealed class SelectOwnedCardsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -56,6 +65,9 @@ public sealed class SelectOwnedCardsSkillProgramEffectHandler : ISkillProgramEff
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectOwnedCards;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        host.SelectOwnedCards(frame, targetSeat, effect.Amount, effect.NumberExpression, effect.Zones,
-            effect.ResultBind!, effect.MinimumCards, effect.MaximumCards, effect.CardKinds);
+        host.SelectOwnedCards(frame,
+            effect.TargetReference is { } reference ? host.ResolveParticipant(frame, reference) : targetSeat,
+            effect.Amount, effect.NumberExpression, effect.Zones,
+            effect.ResultBind!, effect.MinimumCards, effect.MaximumCards, effect.CardKinds,
+            effect.Suits);
 }

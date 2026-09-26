@@ -129,39 +129,39 @@ internal static class BorrowedSwordChecks
             "A completed Borrowed Sword forced-Slash branch must replay exactly.");
     }
 
-    public static void JijiangProvidesForcedSlash()
+    public static void FactionSlashProvidesForcedSlash()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = BorrowedSwordScenario.FindHumanOwnerResponse(requireJijiang: true);
+        var game = BorrowedSwordScenario.FindHumanOwnerResponse(requireFactionSlash: true);
         var prompt = game.PendingDecision ??
-            throw new InvalidOperationException("Borrowed Sword Jijiang fixture lost its owner prompt.");
+            throw new InvalidOperationException("Borrowed Sword FactionSlash fixture lost its owner prompt.");
         var targetSeat = prompt.TargetSeat ??
-            throw new InvalidOperationException("Borrowed Sword Jijiang fixture omitted its target.");
+            throw new InvalidOperationException("Borrowed Sword FactionSlash fixture omitted its target.");
         var weapon = game.CreateSnapshot(0, revealAll: true).Players[0].Equipment.Single(card =>
             EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon);
         var jijiangChoice = prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("response") == "jijiang-request");
+            choice.Parameters.GetValueOrDefault("response") == "faction-slash-request");
         var requested = game.Submit(new AnswerPromptCommand(
             0,
             prompt.PromptId,
             jijiangChoice.Id,
             game.Revision));
         Require(requested.Accepted, requested.Error?.Message ??
-            "Borrowed Sword could not request Jijiang.");
+            "Borrowed Sword could not request FactionSlash.");
         Require(game.Events.Select(item => item.Payload)
-                .OfType<JijiangRequestedEvent>()
+                .OfType<FactionSlashRequestedEvent>()
                 .Any(item => item.OwnerSeat == 0 &&
                              item.IsActiveUse &&
                              item.TargetSeat == targetSeat) &&
                 game.ResolutionStack.OfType<ResponseWindowFrame>().Any(frame =>
                     frame.IncomingCard == CardKind.BorrowedSword &&
                     frame.ResponderSeat == 0),
-            "Borrowed Sword Jijiang must retain the parent response window while providers are queried.");
+            "Borrowed Sword FactionSlash must retain the parent response window while providers are queried.");
 
         var requestedReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(State(requestedReplay) == State(game) &&
                 Events(requestedReplay).SequenceEqual(Events(game)),
-            "A pending Borrowed Sword Jijiang provider cursor must replay exactly.");
+            "A pending Borrowed Sword FactionSlash provider cursor must replay exactly.");
 
         for (var step = 0; step < 128 && !HasUsedSlashResolution(game); step++)
         {
@@ -169,7 +169,7 @@ internal static class BorrowedSwordChecks
         }
 
         var jijiang = game.Events.Select(item => item.Payload)
-            .OfType<JijiangResolvedEvent>()
+            .OfType<FactionSlashResolvedEvent>()
             .LastOrDefault(item => item.OwnerSeat == 0 && item.Succeeded && item.IsActiveUse);
         var borrowed = game.Events.Select(item => item.Payload)
             .OfType<BorrowedSwordResolvedEvent>()
@@ -188,11 +188,11 @@ internal static class BorrowedSwordChecks
             "A Shu provider must supply the exact physical Slash for Liu Bei's nested forced use.");
         Require(game.CreateSnapshot(0, revealAll: true).Players[0].Equipment
                 .Any(card => card.Id == weapon.Id),
-            "Successful Borrowed Sword Jijiang must retain Liu Bei's weapon.");
+            "Successful Borrowed Sword FactionSlash must retain Liu Bei's weapon.");
 
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
-            "A completed Borrowed Sword Jijiang branch must replay exactly.");
+            "A completed Borrowed Sword FactionSlash branch must replay exactly.");
     }
 
     private static bool HasUsedSlashResolution(GameEngine game) =>

@@ -30,9 +30,9 @@ internal static class BoundaryCaoCaoChecks
                     SkillProgramConditionKind.HasClaimableDamageCards &&
                 trigger.Effects[2].Condition.CanEvaluateWithoutProgramFrame() == false &&
                 trigger.Effects[0].Condition.CanEvaluateWithoutProgramFrame() &&
-                registry.Skills["boundary:hujia"].LegacyKind == SkillKind.Hujia &&
+                registry.Skills["boundary:hujia"].Id == "classic:hujia" &&
                 registry.Skills["boundary:hujia"].Program is null,
-            "Jianxiong must choose draw or currently claimable damage cards once per hit; Hujia must reuse the lord kind.");
+            "Jianxiong must choose draw or currently claimable damage cards once per hit; FactionDefense must reuse the lord kind.");
         var owner = new PlayerSkillContext(0, 3, 5, 2, TurnPhase.Play);
         var effects = trigger.Effects.ToArray();
         var cardlessAi = ProgramCompositionAi.Estimate(effects, owner,
@@ -186,7 +186,7 @@ internal static class BoundaryCaoCaoChecks
             "Lightning Jianxiong can be declined entirely.");
     }
 
-    public static void HujiaRequiresLordAndUsesSharedResponse()
+    public static void FactionDefenseRequiresLordAndUsesSharedResponse()
     {
         var registry = Registry(hujiaDeck: true);
         GameEngine? lord = null;
@@ -204,7 +204,7 @@ internal static class BoundaryCaoCaoChecks
                         $"{item.Seat}:{item.GeneralId}:{item.Role}"));
                 }
                 if (game.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 } prompt &&
-                    prompt.Choices.Any(item => item.Parameters.GetValueOrDefault("response") == "hujia-request"))
+                    prompt.Choices.Any(item => item.Parameters.GetValueOrDefault("response") == "faction-defense-request"))
                 {
                     lord = game;
                     break;
@@ -213,39 +213,39 @@ internal static class BoundaryCaoCaoChecks
             }
         }
         Require(lord is not null,
-            $"No bounded boundary Cao Cao Hujia request was found: seats={firstSeats}, responses={responses}.");
+            $"No bounded boundary Cao Cao FactionDefense request was found: seats={firstSeats}, responses={responses}.");
         var request = Prompt(lord!).Choices.Single(item =>
-            item.Parameters.GetValueOrDefault("response") == "hujia-request");
+            item.Parameters.GetValueOrDefault("response") == "faction-defense-request");
         var checkpoint = RoundTrip(lord!.CreateCheckpoint());
         var result = lord.Submit(new AnswerPromptCommand(0, Prompt(lord).PromptId, request.Id, lord.Revision));
-        Require(result.Accepted && lord.Events.Select(item => item.Payload).OfType<HujiaRequestedEvent>()
+        Require(result.Accepted && lord.Events.Select(item => item.Payload).OfType<FactionDefenseRequestedEvent>()
                     .Any(item => item.OwnerSeat == 0),
-            "Boundary lord Cao Cao must enter the existing Wei Hujia response flow.");
+            "Boundary lord Cao Cao must enter the existing Wei FactionDefense response flow.");
         AssertReplay(lord, registry);
         var declined = GameReplay.Restore(checkpoint, registry);
         Require(declined.PendingDecision?.Choices.Any(item =>
-                item.Parameters.GetValueOrDefault("response") == "hujia-request") == true,
-            "Hujia offer must survive checkpoint restoration.");
+                item.Parameters.GetValueOrDefault("response") == "faction-defense-request") == true,
+            "FactionDefense offer must survive checkpoint restoration.");
 
         var checkedResponse = false;
         for (var seed = 1; seed <= 128 && !checkedResponse; seed++)
         {
             var nonlord = Start(registry, seed, Role.Loyalist);
             Require(nonlord.CreateSnapshot(0, true).Players[0].Role == Role.Loyalist,
-                "Nonlord Hujia fixture must really be a loyalist.");
+                "Nonlord FactionDefense fixture must really be a loyalist.");
             for (var step = 0; step < 900 && nonlord.State.Winner == Winner.None; step++)
             {
                 if (nonlord.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 } prompt)
                 {
                     checkedResponse = true;
-                    Require(prompt.Choices.All(item => item.Parameters.GetValueOrDefault("response") != "hujia-request"),
-                        "Boundary Cao Cao cannot request lord-only Hujia as a loyalist.");
+                    Require(prompt.Choices.All(item => item.Parameters.GetValueOrDefault("response") != "faction-defense-request"),
+                        "Boundary Cao Cao cannot request lord-only FactionDefense as a loyalist.");
                     break;
                 }
                 if (!Step(nonlord)) break;
             }
         }
-        Require(checkedResponse, "No bounded nonlord Dodge response reached Hujia gating.");
+        Require(checkedResponse, "No bounded nonlord Dodge response reached FactionDefense gating.");
     }
 
     public static void TwoPointDamageOffersOneChoice()
@@ -295,7 +295,7 @@ internal static class BoundaryCaoCaoChecks
         const string generalId = "fixture:bound-claim-owner";
         const string modeId = "identity:classic-bound-claim-check-5";
         const string rules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:bound-claim","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:bound-claim","revision":1,
               "minimumRulesVersion":170,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
               "subject":"owner","damageOccurrence":"perDamage","optional":true,"priority":0,
               "effects":[{"op":"draw","target":"owner","amount":1,"resultBind":"drawn"},

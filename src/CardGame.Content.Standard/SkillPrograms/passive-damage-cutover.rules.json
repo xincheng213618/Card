@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 61,
+  "skills": [
+    {
+      "id": "classic:yaowu", "revision": 1, "minimumRulesVersion": 171,
+      "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
+      "triggers": [{
+        "id": "red-slash-source-benefit", "window": "afterDamageApplied", "subject": "owner",
+        "damageOccurrence": "perDamage", "damageCardKinds": ["slash", "fireSlash", "thunderSlash"],
+        "condition": { "kind": "damageCardIsRed" }, "optional": false, "priority": 0,
+        "effects": [
+          { "op": "chooseOption", "target": "owner", "chooserRef": { "kind": "eventSource" },
+            "resultBind": "benefit", "options": [
+              { "id": "recover", "condition": { "kind": "wounded" } },
+              { "id": "draw", "condition": { "kind": "always" } }
+            ] },
+          { "op": "recover", "target": "owner", "targetRef": { "kind": "eventSource" },
+            "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "recover" } },
+          { "op": "draw", "target": "owner", "targetRef": { "kind": "eventSource" },
+            "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "draw" } }
+        ]
+      }]
+    },
+    {
+      "id": "classic:kuanggu", "revision": 1, "minimumRulesVersion": 171,
+      "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
+      "triggers": [{
+        "id": "nearby-damage-recover", "window": "afterDamageApplied", "subject": "damageSource",
+        "damageOccurrence": "perDamagePoint", "optional": false, "priority": 100,
+        "condition": { "kind": "compare", "left": { "kind": "sourceToTargetDistanceAtDamage" },
+          "operator": "lessThanOrEqual", "right": { "kind": "integerConstant", "value": 1 } },
+        "effects": [{ "op": "recover", "target": "owner", "amount": 1,
+          "condition": { "kind": "wounded" } }]
+      }]
+    },
+    {
+      "id": "standard:yuanhu", "revision": 1, "minimumRulesVersion": 171,
+      "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
+      "triggers": [{
+        "id": "aid-other-injured", "window": "afterDamageApplied", "subject": "any",
+        "damageOccurrence": "perDamage", "optional": true, "priority": 0,
+        "condition": { "kind": "all", "children": [
+          { "kind": "damageTargetIsOther" },
+          { "kind": "compare", "left": { "kind": "currentHandCount" }, "operator": "greaterThan",
+            "right": { "kind": "integerConstant", "value": 0 } },
+          { "kind": "compare", "left": { "kind": "eventTargetHp" }, "operator": "greaterThan",
+            "right": { "kind": "integerConstant", "value": 0 } },
+          { "kind": "compare", "left": { "kind": "eventTargetHp" }, "operator": "lessThan",
+            "right": { "kind": "eventTargetMaxHp" } }
+        ] },
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "amount": 1, "zones": ["hand"],
+            "resultBind": "cost" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "cost", "destination": "discardPile" },
+          { "op": "recover", "target": "owner", "targetRef": { "kind": "eventTarget" }, "amount": 1 }
+        ]
+      }]
+    },
+    {
+      "id": "standard:ganglie", "revision": 1, "minimumRulesVersion": 171,
+      "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
+      "triggers": [{
+        "id": "red-judgment-punishment", "window": "afterDamageApplied", "subject": "owner",
+        "damageOccurrence": "perDamage", "optional": true, "priority": 0,
+        "effects": [
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "ganglie",
+            "resultBind": "judgment", "visibility": "public" },
+          { "op": "chooseOption", "target": "owner", "chooserRef": { "kind": "eventSource" },
+            "resultBind": "punishment", "condition": { "kind": "boundCardsMatchSuits",
+              "sourceBind": "judgment", "suits": ["heart", "diamond"] },
+            "options": [
+              { "id": "discard", "condition": { "kind": "handCountAtLeast", "value": 2 } },
+              { "id": "damage", "condition": { "kind": "always" } }
+            ] },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "judgment",
+            "destination": "discardPile" },
+          { "op": "selectOwnedCards", "target": "owner", "targetRef": { "kind": "eventSource" },
+            "amount": 2, "zones": ["hand"], "resultBind": "discarded",
+            "condition": { "kind": "choiceIs", "sourceBind": "punishment", "optionId": "discard" } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "discarded",
+            "destination": "discardPile",
+            "condition": { "kind": "choiceIs", "sourceBind": "punishment", "optionId": "discard" } },
+          { "op": "damage", "target": "owner", "targetRef": { "kind": "eventSource" },
+            "sourceRef": { "kind": "owner" }, "amount": 1, "nature": "normal",
+            "condition": { "kind": "choiceIs", "sourceBind": "punishment", "optionId": "damage" } }
+        ]
+      }]
+    },
+    {
+      "id": "classic:ganglie", "revision": 1, "minimumRulesVersion": 171,
+      "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
+      "triggers": [{
+        "id": "non-heart-judgment-punishment", "window": "afterDamageApplied", "subject": "owner",
+        "damageOccurrence": "perDamage", "optional": true, "priority": 0,
+        "effects": [
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "ganglie",
+            "resultBind": "judgment", "visibility": "public" },
+          { "op": "chooseOption", "target": "owner", "chooserRef": { "kind": "eventSource" },
+            "resultBind": "punishment", "condition": { "kind": "boundCardsMatchSuits",
+              "sourceBind": "judgment", "suits": ["spade", "club", "diamond"] },
+            "options": [
+              { "id": "discard", "condition": { "kind": "handCountAtLeast", "value": 2 } },
+              { "id": "damage", "condition": { "kind": "always" } }
+            ] },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "judgment",
+            "destination": "discardPile" },
+          { "op": "selectOwnedCards", "target": "owner", "targetRef": { "kind": "eventSource" },
+            "amount": 2, "zones": ["hand"], "resultBind": "discarded",
+            "condition": { "kind": "choiceIs", "sourceBind": "punishment", "optionId": "discard" } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "discarded",
+            "destination": "discardPile",
+            "condition": { "kind": "choiceIs", "sourceBind": "punishment", "optionId": "discard" } },
+          { "op": "damage", "target": "owner", "targetRef": { "kind": "eventSource" },
+            "sourceRef": { "kind": "owner" }, "amount": 1, "nature": "normal",
+            "condition": { "kind": "choiceIs", "sourceBind": "punishment", "optionId": "damage" } }
+        ]
+      }]
+    },
+    {
+      "id": "classic:buqu", "revision": 1, "minimumRulesVersion": 171,
+      "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
+      "triggers": [{
+        "id": "unique-rank-dying-rescue", "window": "selfDyingResponse",
+        "subject": "owner", "optional": false, "priority": 100,
+        "effects": [{ "op": "revealUniqueRankForDying", "target": "owner",
+          "zone": "buquWound", "rescueHp": 1 }]
+      }]
+    },
+    {
+      "id": "classic:tianxiang", "revision": 1, "minimumRulesVersion": 171,
+      "modifiers": [], "viewAs": [], "activations": [], "contributions": [], "cardIdentities": [],
+      "triggers": [{
+        "id": "transfer-damage", "window": "beforeDamageApplied",
+        "subject": "damageTarget", "optional": true, "priority": -100,
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand"],
+            "suits": ["heart"], "minimumCards": 1, "maximumCards": 1, "resultBind": "cost" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "cost",
+            "destination": "discardPile" },
+          { "op": "redirectCurrentDamage", "target": "selectedTarget", "sourceBind": "cost",
+            "drawLostHpAfterDamage": true }
+        ]
+      }]
+    }
+  ]
+}

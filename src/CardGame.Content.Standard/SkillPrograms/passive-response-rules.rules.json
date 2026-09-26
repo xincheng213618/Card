@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 61,
+  "skills": [
+    {"id":"classic:hujia","revision":1,"cardPolicies":[
+      {"id":"allied-dodge","kind":"factionResponseRequest","requiredCardKinds":["dodge"],"factionId":"wei","ownerRole":"lord"}
+    ]},
+    {"id":"boundary:hujia","revision":1,"cardPolicies":[
+      {"id":"allied-dodge","kind":"factionResponseRequest","requiredCardKinds":["dodge"],"factionId":"wei","ownerRole":"lord"}
+    ]},
+    {"id":"classic:bazhen","revision":1,"cardPolicies":[
+      {"id":"virtual-armor","kind":"virtualEquipment","cardKinds":["baguaFormation"]}
+    ]},
+    {"id":"classic:jiuyuan","revision":1,"cardPolicies":[
+      {"id":"allied-rescue","kind":"rescueRecoveryBonus","cardKinds":["peach"],"factionId":"wu","value":1,"ownerRole":"lord"}
+    ]},
+    {"id":"classic:liuli","revision":1,"minimumRulesVersion":171,"triggers":[
+      {"id":"redirect-slash","window":"slashTargetRedirecting","ownerRelation":"target","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"effects":[
+        {"op":"selectTarget","target":"owner","targetKind":"slashRedirectable"},
+        {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"owner"},"zones":["hand","equipment"],"count":1,"destination":"discardPile","awaitMovementTriggers":true},
+        {"op":"redirectCurrentAttack","target":"selectedTarget"}
+      ]}
+    ]},
+    {"id":"classic:liegong","revision":1,"minimumRulesVersion":171,"triggers":[
+      {"id":"prohibit-dodge","window":"slashBeforeResponse","ownerRelation":"actor","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"priority":1,"condition":{"kind":"all","children":[
+        {"kind":"cardActionActorIsCurrentTurn"},{"kind":"cardActionPhaseIsPlay"},
+        {"kind":"any","children":[
+          {"kind":"compare","left":{"kind":"eventTargetHandCount"},"operator":"greaterThanOrEqual","right":{"kind":"currentHp"}},
+          {"kind":"compare","left":{"kind":"eventTargetHandCount"},"operator":"lessThanOrEqual","right":{"kind":"currentAttackRange"}}
+        ]}
+      ]},"effects":[{"op":"prohibitCurrentResponse","target":"owner"}]}
+    ]},
+    {"id":"classic:tieqi","revision":1,"minimumRulesVersion":171,"triggers":[
+      {"id":"red-judgment-prohibits-dodge","window":"slashBeforeResponse","ownerRelation":"actor","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"priority":0,"effects":[
+        {"op":"startJudgment","target":"owner","judgmentReason":"skill.slash-response-judgment","resultBind":"judgment","visibility":"public"},
+        {"op":"prohibitCurrentResponse","target":"owner","condition":{"kind":"boundCardsMatchSuits","sourceBind":"judgment","suits":["heart","diamond"]}},
+        {"op":"moveBoundCards","target":"owner","sourceBind":"judgment","destination":"discardPile"}
+      ]}
+    ]},
+    {"id":"classic:mengjin","revision":1,"minimumRulesVersion":171,"triggers":[
+      {"id":"discard-after-full-dodge","window":"slashFullyDodged","ownerRelation":"actor","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"effects":[
+        {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand","equipment"],"count":1,"destination":"discardPile","awaitMovementTriggers":true}
+      ]}
+    ]}
+  ]
+}

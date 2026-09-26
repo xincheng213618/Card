@@ -301,7 +301,7 @@ internal static class RuleQueryReducerChecks
         var presentation = "{\"schemaVersion\":3,\"skills\":{" + string.Join(",", ids.Select(id =>
             $"\"{id}\":{{\"name\":\"Fixture\",\"description\":\"Fixture\"}}")) + "}}";
         var catalog = SkillProgramCatalog.Load(
-            $"{{\"schemaVersion\":60,\"skills\":[{skills}]}}",
+            $"{{\"schemaVersion\":61,\"skills\":[{skills}]}}",
             presentation);
         return catalog.Programs.Values.OrderBy(program => program.Id, StringComparer.Ordinal).ToArray();
     }

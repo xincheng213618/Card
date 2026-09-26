@@ -52,7 +52,6 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targets, CardKind effectiveKind, IReadOnlyList<int> physicalIds,
         CardConversionSource? explicitConversion = null,
         IReadOnlyList<CardConversionSource>? additionalConversions = null,
-        SkillKind? cardKindModifierSkill = null,
         IReadOnlyList<int>? designatedTargetSeats = null)
     {
         var costs = physicalIds.Select(id => new CardActionCost(id,
@@ -203,6 +202,17 @@ public sealed partial class GameEngine
             ProgramCardContinuation.BeforeTargetEffects);
     }
 
+    private bool TryBeginProgramSlashStage(AttackResolution attack,
+        SkillProgramTriggerWindow window, ProgramCardContinuation continuation)
+    {
+        if (!ReferenceEquals(_pendingAttack, attack))
+            throw new InvalidOperationException("The Slash program stage lost its active attack.");
+        var action = _resolutionStack.OfType<CardUseFrame>()
+            .Single(frame => frame.Id == attack.ResolutionId).Action ??
+            throw new InvalidOperationException("A Slash program stage requires its accepted card action.");
+        return TryBeginProgramCardWindow(attack, action, window, [attack.TargetSeat], continuation);
+    }
+
     /// <summary>Called before Jizhi/Nullification and the first trick target effect.</summary>
     private bool TryBeginProgramCardUseBeforeTargetEffects(JizhiResolution pending)
     {
@@ -258,7 +268,9 @@ public sealed partial class GameEngine
             {
                 var facts = CaptureProgramTriggerFacts(owner, action) with
                 {
-                    CardUseCausedDamage = cardUseCausedDamage
+                    CardUseCausedDamage = cardUseCausedDamage,
+                    EventTargetHandCount = eventTarget >= 0 ? GetHand(_players[eventTarget]).Count : 0,
+                    CurrentAttackRange = GetAttackRange(owner.Seat)
                 };
                 var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
                     owner.Seat, eventTarget, facts);
@@ -303,6 +315,12 @@ public sealed partial class GameEngine
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
         frame.Continuation == ProgramCardContinuation.CompletedSlash
             ? SkillProgramTriggerWindow.CardUseCompleted
+            : frame.Continuation == ProgramCardContinuation.SlashTargetRedirecting
+            ? SkillProgramTriggerWindow.SlashTargetRedirecting
+            : frame.Continuation == ProgramCardContinuation.SlashBeforeResponse
+            ? SkillProgramTriggerWindow.SlashBeforeResponse
+            : frame.Continuation == ProgramCardContinuation.SlashFullyDodged
+            ? SkillProgramTriggerWindow.SlashFullyDodged
             : frame.Continuation == ProgramCardContinuation.CommittedSlash
             ? SkillProgramTriggerWindow.CardUseCommitted
             : frame.Continuation is ProgramCardContinuation.BeforeTargetEffects or
@@ -327,6 +345,15 @@ public sealed partial class GameEngine
                 else if (frame.Continuation == ProgramCardContinuation.BeforeTargetEffects)
                     ContinueSlashAfterProgramTargetEffects(attack ??
                         throw new InvalidOperationException("A before-target-effects trigger lost its attack continuation."));
+                else if (frame.Continuation == ProgramCardContinuation.SlashTargetRedirecting)
+                    ContinueSlashAfterRedirectPrograms(attack ??
+                        throw new InvalidOperationException("A Slash redirection trigger lost its attack continuation."));
+                else if (frame.Continuation == ProgramCardContinuation.SlashBeforeResponse)
+                    ContinueSlashAfterResponsePrograms(attack ??
+                        throw new InvalidOperationException("A Slash response trigger lost its attack continuation."));
+                else if (frame.Continuation == ProgramCardContinuation.SlashFullyDodged)
+                    ContinueSlashAfterDodgePrograms(attack ??
+                        throw new InvalidOperationException("A dodged Slash trigger lost its attack continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.BeforeTrickTargetEffects)
                     ContinueTrickAfterProgramTargetEffects(frame);
                 else if (frame.Continuation == ProgramCardContinuation.Slash)
@@ -337,6 +364,9 @@ public sealed partial class GameEngine
                         throw new InvalidOperationException("A completed Slash trigger lost its attack continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.DelayedCard)
                     ContinueAcceptedDelayedCardUse(frame);
+                else if (frame.Continuation == ProgramCardContinuation.NullificationResponse)
+                    ContinueNullificationWindow(_pendingNullification ??
+                        throw new InvalidOperationException("A Nullification response lost its parent window."));
                 else ContinueAcceptedCardResponse(attack ??
                     throw new InvalidOperationException("A response card trigger lost its attack continuation."),
                     frame.Action, frame.Continuation);
@@ -424,8 +454,7 @@ public sealed partial class GameEngine
             action.TargetSeats,
             continuation.ActionKind,
             continuation.TargetCardId,
-            continuation.RequiredCardKind,
-            activeNullification: null));
+            continuation.RequiredCardKind));
     }
 
     private void ContinueCommittedSlashAfterPrograms(AttackResolution attack)
@@ -461,7 +490,8 @@ public sealed partial class GameEngine
             _pendingJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
         var attackMatches = resolvingProgramJudgmentDamage ||
             (frame.Continuation is ProgramCardContinuation.DelayedCard or
-                    ProgramCardContinuation.BeforeTrickTargetEffects
+                    ProgramCardContinuation.BeforeTrickTargetEffects or
+                    ProgramCardContinuation.NullificationResponse
                 ? _programCardAttack is null && _pendingAttack is null
                 : _programCardAttack is not null && ReferenceEquals(_programCardAttack, _pendingAttack));
         var candidateCursorValid = frame.CandidateIndex >= 0 &&
@@ -494,6 +524,8 @@ public sealed partial class GameEngine
                  frame.Continuation == ProgramCardContinuation.CompletedSlash
                      ? _cardZones.GetLocation(cost.CardId).Zone is not
                          (CardZoneKind.DiscardPile or CardZoneKind.Hand or CardZoneKind.DrawPile)
+                     : frame.Continuation == ProgramCardContinuation.NullificationResponse
+                         ? _cardZones.GetLocation(cost.CardId) != CardLocation.DiscardPile
                      : _cardZones.GetLocation(cost.CardId) != CardLocation.Processing))
             throw new InvalidOperationException("A card trigger window has an invalid cursor, prompt or paid card.");
     }

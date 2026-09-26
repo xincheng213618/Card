@@ -52,14 +52,14 @@ internal static class NationalSeatChecks
         {
             Skills =
             [
-                new GeneralSkillDefinition(SkillKind.Paoxiao, "咆哮", "出牌阶段使用杀没有次数限制。"),
-                new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌可当作杀使用。")
+                new GeneralSkillDefinition("咆哮", "出牌阶段使用杀没有次数限制。"),
+                new GeneralSkillDefinition("武圣", "红色牌可当作杀使用。")
             ],
             SecondarySkills =
             [
-                new GeneralSkillDefinition(SkillKind.None, "青囊", "弃置手牌令受伤角色回复。")
+                new GeneralSkillDefinition("青囊", "弃置手牌令受伤角色回复。")
                 { ContentId = "classic:qingnang", ActionForms = SkillActionForm.Active },
-                new GeneralSkillDefinition(SkillKind.Jijiu, "急救", "回合外红色牌可当桃。")
+                new GeneralSkillDefinition("急救", "回合外红色牌可当桃。")
             ],
             IsSecondaryGeneralPublic = true
         };

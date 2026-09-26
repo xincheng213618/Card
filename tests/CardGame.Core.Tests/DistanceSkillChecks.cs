@@ -8,7 +8,7 @@ internal static class DistanceSkillChecks
         var registry = StandardContentRegistry.CreateWithActiveSkills();
         Require(
             registry.Skills.TryGetValue("standard:mashu", out var definition) &&
-            definition is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v60" } &&
+            definition is { Program.RuntimeVersion: "skill-program-v61" } &&
             definition.Program.Modifiers.Single() is
             {
                 Query: SkillRuleQuery.OutgoingDistance,
@@ -39,15 +39,16 @@ internal static class DistanceSkillChecks
         var registry = StandardContentRegistry.CreateWithActiveSkills();
         Require(
             registry.Skills.TryGetValue("standard:qicai", out var definition) &&
-            definition.LegacyKind == SkillKind.Qicai,
-            "The Qicai content definition must retain a typed legacy projection.");
+            definition.Program is { RuntimeVersion: "skill-program-v61" },
+            "The Qicai content definition must use the current program.");
 
-        var skill = SkillRegistry.Get(SkillKind.Qicai);
-        var context = new PlayerSkillContext(0, 4, 4, 4, TurnPhase.Play);
+        var distancePolicy = (definition?.Program ?? throw new InvalidOperationException("Missing Qicai program."))
+            .CardPolicies.Single(policy =>
+            policy.Kind == SkillProgramCardPolicyKind.IgnoreUseDistance);
         Require(
-            skill.CardUse!.IgnoresTrickDistance(context, CardKind.Snatch) &&
-            skill.CardUse!.IgnoresTrickDistance(context, CardKind.SupplyShortage) &&
-            !skill.CardUse!.IgnoresTrickDistance(context, CardKind.Slash),
+            distancePolicy.CardKinds.Contains(CardKind.Snatch) &&
+            distancePolicy.CardKinds.Contains(CardKind.SupplyShortage) &&
+            !distancePolicy.CardKinds.Contains(CardKind.Slash),
             "Qicai must waive distance only for trick cards, not basic Slash cards.");
 
         var game = FindQicaiGame(registry);
@@ -130,7 +131,7 @@ internal static class DistanceSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var initial = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (initial.Skills?.Any(skill => skill.Kind == SkillKind.Qicai) != true || !initial.Hand.Any(card => card.Kind == CardKind.Snatch))
+            if (initial.Skills?.Any(skill => skill.ContentId == "standard:qicai") != true || !initial.Hand.Any(card => card.Kind == CardKind.Snatch))
             {
                 continue;
             }
@@ -168,7 +169,7 @@ internal static class DistanceSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var initial = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (initial.Skills?.Any(skill => skill.Kind == SkillKind.Qicai) != true || !initial.Hand.Any(card => card.Kind == CardKind.SupplyShortage))
+            if (initial.Skills?.Any(skill => skill.ContentId == "standard:qicai") != true || !initial.Hand.Any(card => card.Kind == CardKind.SupplyShortage))
             {
                 continue;
             }

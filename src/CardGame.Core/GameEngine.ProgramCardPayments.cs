@@ -276,7 +276,10 @@ public sealed partial class GameEngine
         if (pending.CoverageResultBind is { } bind)
             SetProgramAttackRangeCoverage(frameId, bind, pending.SubjectSeat, pending.BeforeCount,
                 CountLivingInAttackRange(pending.SubjectSeat));
-        ContinueProgramSkill(frameId);
+        if (frame.RepeatedJudgment is { LastMatched: not null })
+            ContinueProgramRepeatedJudgmentAfterMovement(frameId);
+        else
+            ContinueProgramSkill(frameId);
     }
 
     private static bool MatchesProgramCardCategory(

@@ -22,19 +22,26 @@ internal static class HuaXiongChecks
 
             for (var step = 0; step < 768; step++)
             {
-                var yaowu = game.Events.Select(item => item.Payload).OfType<YaowuResolvedEvent>().LastOrDefault();
+                var yaowu = game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .LastOrDefault(item => item.SkillId == "classic:yaowu" && item.Completed);
                 if (yaowu is not null)
                 {
-                    Require(yaowu.OwnerSeat == 0 &&
-                            (yaowu.Recovered || game.CardMovements.Count(move =>
-                                move.Reason == CardMoveReasons.YaowuDraw &&
-                                move.To == CardLocation.Hand(yaowu.SourceSeat)) == 1),
+                    var sourceSeat = game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+                        .Last(item => item.TargetSeat == yaowu.OwnerSeat).SourceSeat;
+                    Require(yaowu.OwnerSeat == 0 && yaowu.Activated &&
+                            (game.Events.Select(item => item.Payload).OfType<RecoveryAppliedEvent>()
+                                 .Any(item => item.TargetSeat == sourceSeat && item.Amount == 1) ||
+                             game.CardMovements.Any(move =>
+                                 move.Reason.Value == "skill-program.classic:yaowu.Draw" &&
+                                 move.To == CardLocation.Hand(sourceSeat))),
                         "A red-Slash source must receive exactly its chosen Yaowu benefit.");
                     var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
                     Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
                             SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                            restored.Events.Select(item => item.Payload).OfType<YaowuResolvedEvent>().Count() ==
-                            game.Events.Select(item => item.Payload).OfType<YaowuResolvedEvent>().Count(),
+                            restored.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                                .Count(item => item.SkillId == "classic:yaowu") ==
+                            game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                                .Count(item => item.SkillId == "classic:yaowu"),
                         "A resolved Yaowu benefit must replay exactly.");
                     return;
                 }

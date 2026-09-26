@@ -880,7 +880,7 @@ internal static class ClassicGeneralUiChecks
                        caoCao.SkillDescription.Contains("其他魏势力角色", StringComparison.Ordinal) &&
                        caoCao.HealthText == "体力上限 5" &&
                        GeneralArt.HasPortrait(caoCao.GeneralId),
-            "The current classic Cao Cao card must render Jianxiong, Hujia, Lord health and portrait aliasing.");
+            "The current classic Cao Cao card must render Jianxiong, FactionDefense, Lord health and portrait aliasing.");
         using var jijiangDescriptionViewModel = FindGeneralChoice("classic:liu-bei");
         var liuBei = jijiangDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:liu-bei");
@@ -890,7 +890,7 @@ internal static class ClassicGeneralUiChecks
                        liuBei.SkillDescription.Contains("其他蜀势力角色", StringComparison.Ordinal) &&
                        liuBei.HealthText == "体力上限 5" &&
                        GeneralArt.HasPortrait(liuBei.GeneralId),
-            "The current classic Liu Bei card must render Rende, Jijiang, Lord health and portrait aliasing.");
+            "The current classic Liu Bei card must render Rende, FactionSlash, Lord health and portrait aliasing.");
         using var zhihengDescriptionViewModel = FindGeneralChoice("classic:sun-quan");
         var sunQuan = zhihengDescriptionViewModel.GeneralChoices.Single(choice =>
             choice.GeneralId == "classic:sun-quan");
@@ -977,7 +977,7 @@ internal static class ClassicGeneralUiChecks
             "The Lu Meng WPF fixture must reach the human play phase.");
         kejiViewModel.EndTurnCommand.Execute(null);
         Program.Assert(kejiViewModel.IsSkillSelectionPending &&
-                       kejiEngine.PendingDecision?.Kind == DecisionKind.Keji &&
+                       kejiEngine.PendingDecision?.Kind == DecisionKind.SkipDiscardPolicy &&
                        kejiViewModel.SkillChoices.Count == 2 &&
                        kejiViewModel.SkillChoices.Any(choice =>
                            choice.Parameters.GetValueOrDefault("action") == "keji-use") &&
@@ -999,12 +999,11 @@ internal static class ClassicGeneralUiChecks
                        kejiEngine.State.Phase == TurnPhase.NotStarted &&
                        kejiEngine.CreateSnapshot(0, revealAll: true)
                            .Players.Single(player => player.Seat == 0).HandCount == handBeforeKeji &&
-                       kejiEngine.Events.Any(item => item.Payload is PhaseSkillResolvedEvent
+                       kejiEngine.Events.Any(item => item.Payload is ProgramCardPolicyResolvedEvent
                        {
-                           SourceSeat: 0,
-                           Skill: SkillKind.Keji,
-                           Phase: TurnPhase.Discard,
-                           Used: true
+                           OwnerSeat: 0,
+                           SkillId: "classic:keji",
+                           Applied: true
                        }),
             "The WPF Keji choice must retain the full hand and end the turn through the shared command boundary.");
         kejiWindow.Content = null;
@@ -1170,17 +1169,17 @@ internal static class ClassicGeneralUiChecks
             action.Kind == LegalActionKind.UseProgramSkill && action.ProgramSkillId == "classic:qiangxi" &&
             action.MinCardCount == 0 && action.MaxCardCount == 0);
         var qiangxiBefore = qiangxiEngine.CreateSnapshot(0, revealAll: true);
-        var damageTriggerSkills = new HashSet<SkillKind>
+        var damageTriggerSkills = new HashSet<string>
         {
-            SkillKind.Feedback,
-            SkillKind.Yiji,
-            SkillKind.Jieming,
-            SkillKind.Yuanhu,
-            SkillKind.Ganglie
+            "standard:feedback",
+            "classic:yiji",
+            "classic:jieming",
+            "standard:yuanhu",
+            "classic:ganglie"
         };
         var qiangxiTargetSeat = qiangxiBefore.Players
             .Where(player => qiangxiAction.SelectableTargetSeats.Contains(player.Seat))
-            .OrderByDescending(player => player.Skills?.All(skill => !damageTriggerSkills.Contains(skill.Kind)) != false)
+            .OrderByDescending(player => player.Skills?.All(skill => (skill.ContentId is null || !damageTriggerSkills.Contains(skill.ContentId))) != false)
             .First()
             .Seat;
         var qiangxiSourceHp = qiangxiBefore.Players.Single(player => player.Seat == 0).Hp;
@@ -1310,7 +1309,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(luoshenViewModel.IsSkillSelectionPending &&
                        luoshenEngine.PendingDecision is
                        {
-                           Kind: DecisionKind.Luoshen,
+                           Kind: DecisionKind.ProgramRepeatJudgment,
                            PlayerSeat: 0,
                            IsPrivate: true,
                            Choices.Count: 2
@@ -1429,7 +1428,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(jizhiViewModel.IsSkillSelectionPending &&
                        jizhiPrompt is
                        {
-                           Kind: DecisionKind.Jizhi,
+                           Kind: DecisionKind.ProgramTrigger,
                            PlayerSeat: 0,
                            IsPrivate: true,
                            Choices.Count: 2
@@ -1451,17 +1450,17 @@ internal static class ClassicGeneralUiChecks
             Path.Combine(output, "98-classic-jizhi-choice.png"));
         jizhiViewModel.SelectSkillChoiceCommand.Execute(jizhiViewModel.SkillChoices.Single(choice =>
             choice.Parameters.GetValueOrDefault("action") == "jizhi-use"));
-        Program.Assert(jizhiEngine.Events.Any(item => item.Payload is DrawSkillResolvedEvent
+        Program.Assert(jizhiEngine.Events.Any(item => item.Payload is ProgramBindingResolvedEvent
         {
-            SourceSeat: 0,
-            Skill: SkillKind.Jizhi,
-            Used: true,
-            DrawCount: 1
+            OwnerSeat: 0,
+            SkillId: "classic:jizhi",
+            Activated: true,
+            Completed: true
         }) &&
                        jizhiEngine.CardMovements.Count(movement =>
                            movement.To == CardLocation.Hand(0) &&
                            movement.Reason == CardMoveReasons.JizhiDraw) == 1 &&
-                       jizhiEngine.PendingDecision?.Kind != DecisionKind.Jizhi,
+                       jizhiEngine.PendingDecision?.Kind != DecisionKind.ProgramTrigger,
             "The WPF Jizhi choice must draw exactly one card and resume the original trick.");
         jizhiWindow.Content = null;
         jizhiWindow.Close();
@@ -1504,10 +1503,9 @@ internal static class ClassicGeneralUiChecks
                              action.TargetSeat is { } targetSeat &&
                              !HasVisibleSkill(
                                  tieqiEngine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
-                                 SkillKind.Zhenlie) &&
+                                 "classic:zhenlie") &&
                              !HasVisibleSkill(
-                                 tieqiEngine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
-                                 SkillKind.Liuli))
+                                 tieqiEngine.CreateSnapshot(0, revealAll: true).Players[targetSeat], "classic:liuli"))
             .OrderBy(action => action.CardId)
             .ThenBy(action => action.TargetSeat)
             .First();
@@ -1522,7 +1520,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(tieqiViewModel.IsSkillSelectionPending &&
                        tieqiPrompt is
                        {
-                           Kind: DecisionKind.Tieqi,
+                           Kind: DecisionKind.ProgramTrigger,
                            PlayerSeat: 0,
                            IsPrivate: true,
                            Choices.Count: 2
@@ -1602,7 +1600,7 @@ internal static class ClassicGeneralUiChecks
                        liegongViewModel.IsSkillSelectionPending &&
                        liegongPrompt is
                        {
-                           Kind: DecisionKind.Liegong,
+                           Kind: DecisionKind.ProgramTrigger,
                            PlayerSeat: 0,
                            IsPrivate: true,
                            Choices.Count: 2
@@ -2389,7 +2387,7 @@ internal static class ClassicGeneralUiChecks
 
         Program.Assert(!viewModel.HasSaveError &&
                        viewModel.IsSkillSelectionPending &&
-                       Program.Engine(viewModel).PendingDecision?.Kind == DecisionKind.Tiandu &&
+                       Program.Engine(viewModel).PendingDecision?.Kind == DecisionKind.ProgramTrigger &&
                        viewModel.SkillChoices.Count == 2,
             viewModel.SaveStatus);
         Program.Assert(viewModel.CurrentGuideTitle == "决定是否发动天妒" &&
@@ -2410,15 +2408,14 @@ internal static class ClassicGeneralUiChecks
         var claimedHandIds = claimedSnapshot.Players.Single(player => player.Seat == 0).Hand
             .Select(card => card.Id)
             .ToArray();
-        var claimedEvent = engine.Events.Select(item => item.Payload).OfType<JudgmentCardClaimedEvent>()
+        var claimedEvent = engine.Events.Select(item => item.Payload).OfType<ProgramJudgmentCardClaimedEvent>()
             .LastOrDefault();
         Program.Assert(engine.PendingDecision?.PromptId != claimedPromptId &&
                        claimedHandIds.Contains(judgmentCardId) &&
                        claimedEvent is
                        {
                            OwnerSeat: 0,
-                           Skill: SkillKind.Tiandu,
-                           Used: true
+                           SkillId: "classic:tiandu"
                        },
             $"The WPF Tiandu choice must claim the exact resolved judgment card " +
             $"(expected={judgmentCardId}, hand={string.Join(',', claimedHandIds)}, event={claimedEvent}).");
@@ -2498,7 +2495,7 @@ internal static class ClassicGeneralUiChecks
         var engine = Program.Engine(viewModel);
         Program.Assert(!viewModel.HasSaveError &&
                        viewModel.IsSkillSelectionPending &&
-                       engine.PendingDecision?.Kind == DecisionKind.Guanxing &&
+                       engine.PendingDecision?.Kind == DecisionKind.ProgramTopReorder &&
                        viewModel.SkillChoices.Count == 2 &&
                        viewModel.SkillChoices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
                            .OrderBy(action => action, StringComparer.Ordinal)
@@ -2520,7 +2517,7 @@ internal static class ClassicGeneralUiChecks
         Program.Assert(viewModel.IsSkillSelectionPending &&
                        engine.PendingDecision is
                        {
-                           Kind: DecisionKind.Guanxing,
+                           Kind: DecisionKind.ProgramTopReorder,
                            IsPrivate: true,
                            ValidCardIds.Count: 5
                        } &&
@@ -2547,7 +2544,7 @@ internal static class ClassicGeneralUiChecks
         var restoredEngine = Program.Engine(restored);
         Program.Assert(!restored.HasSaveError &&
                        restored.IsSkillSelectionPending &&
-                       restoredEngine.PendingDecision?.Kind == DecisionKind.Guanxing &&
+                       restoredEngine.PendingDecision?.Kind == DecisionKind.ProgramTopReorder &&
                        restoredEngine.PendingDecision.ValidCardIds.SequenceEqual(viewedIds) &&
                        restored.SkillChoices.Where(choice => choice.Cards.Count == 1)
                            .SelectMany(choice => choice.Cards)
@@ -2562,7 +2559,7 @@ internal static class ClassicGeneralUiChecks
         restored.SelectSkillChoiceCommand.Execute(firstTop);
         Program.Assert(restoredEngine.PendingDecision is
         {
-            Kind: DecisionKind.Guanxing,
+            Kind: DecisionKind.ProgramTopReorder,
             ValidCardIds.Count: 4
         } &&
                        restored.SkillChoices.Count == 5 &&
@@ -2572,9 +2569,9 @@ internal static class ClassicGeneralUiChecks
         orderingWindow.Close();
     }
 
-    public static void HujiaChoiceAndRestore(string output)
+    public static void FactionDefenseChoiceAndRestore(string output)
     {
-        var fixture = FindHujiaFixture();
+        var fixture = FindFactionDefenseFixture();
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual,
             new(1, DateTimeOffset.UtcNow, false, fixture.CreateCheckpoint()));
@@ -2591,7 +2588,7 @@ internal static class ClassicGeneralUiChecks
 
         var engine = Program.Engine(viewModel);
         var choice = viewModel.ResponseChoices.Single(candidate =>
-            candidate.Parameters.GetValueOrDefault("response") == "hujia-request");
+            candidate.Parameters.GetValueOrDefault("response") == "faction-defense-request");
         Program.Assert(!viewModel.HasSaveError &&
                        viewModel.IsResponseSelectionPending &&
                        engine.PendingDecision?.Kind == DecisionKind.RespondDodge &&
@@ -2604,23 +2601,23 @@ internal static class ClassicGeneralUiChecks
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
         Program.Render((FrameworkElement)window.Content, 1120, 740,
-            Path.Combine(output, "77-classic-hujia-request.png"));
+            Path.Combine(output, "77-classic-faction-defense-request.png"));
         viewModel.SelectResponseChoiceCommand.Execute(choice);
         Program.Assert(viewModel.ResponseChoices.All(candidate =>
-                           candidate.Parameters.GetValueOrDefault("response") != "hujia-request") &&
-                       engine.Events.Any(item => item.Payload is HujiaRequestedEvent
+                           candidate.Parameters.GetValueOrDefault("response") != "faction-defense-request") &&
+                       engine.Events.Any(item => item.Payload is FactionDefenseRequestedEvent
                        {
                            OwnerSeat: 0,
                            CandidateSeats: { Count: > 0 }
                        }),
-            "The WPF Hujia action must enter the ordered private Wei-response continuation.");
+            "The WPF FactionDefense action must enter the ordered private Wei-response continuation.");
         window.Content = null;
         window.Close();
     }
 
-    public static void JijiangActiveAction(string output)
+    public static void FactionSlashActiveAction(string output)
     {
-        using var viewModel = FindJijiangViewModel();
+        using var viewModel = FindFactionSlashViewModel();
         var engine = Program.Engine(viewModel);
         var actions = viewModel.HumanActiveSkillActions;
         Program.Assert(actions.Select(action => action.ProgramSkillId)
@@ -2632,17 +2629,17 @@ internal static class ClassicGeneralUiChecks
                        viewModel.HumanSkillCards.Any(skill =>
                            skill.Name == "激将" &&
                            skill.TypeText == "主动技 · 触发技 · 主公技"),
-            "Classic Liu Bei must publish separate Rende and compound Jijiang metadata in stable order.");
+            "Classic Liu Bei must publish separate Rende and compound FactionSlash metadata in stable order.");
         var jijiang = actions.Single(action => action.ProgramSkillId == "classic:jijiang");
         Program.Assert(jijiang.SelectableCardIds.Count == 0 &&
                        jijiang.SelectableTargetSeats.Count > 0 &&
                        jijiang is { MinTargetCount: 1, MaxTargetCount: 1 },
-            "The WPF Jijiang action must expose a target-only typed draft.");
+            "The WPF FactionSlash action must expose a target-only typed draft.");
 
         var window = new MainWindow(viewModel);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Program.Render(root, 1120, 740, Path.Combine(output, "78-classic-jijiang-entry.png"));
+        Program.Render(root, 1120, 740, Path.Combine(output, "78-classic-faction-slash-entry.png"));
         var visibleSkillButtons = Program.Find<System.Windows.Controls.Button>(root)
             .Where(button => button.Visibility == Visibility.Visible && button.ActualHeight > 0 && button.IsEnabled)
             .Select(button => (button.DataContext as HumanSkillViewModel)?.Name)
@@ -2665,7 +2662,7 @@ internal static class ClassicGeneralUiChecks
         var afterRende = engine.CreateSnapshot(0, revealAll: true);
         Program.AdvanceToDecision(viewModel);
         var hasRepeatedRende = viewModel.HumanActiveSkillActions.Any(action => action.ProgramSkillId == "classic:rende");
-        var currentJijiang = viewModel.HumanActiveSkillActions.Single(action => action.ProgramSkillId == "classic:jijiang");
+        var currentFactionSlash = viewModel.HumanActiveSkillActions.Single(action => action.ProgramSkillId == "classic:jijiang");
         var hasFormalDescription = viewModel.HumanSkillCards.Any(skill =>
             skill.Name == "仁德" &&
             skill.Description.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal));
@@ -2690,20 +2687,20 @@ internal static class ClassicGeneralUiChecks
                        viewModel.CurrentGuideTitle == "选择【激将】的牌和目标" &&
                        viewModel.Seats.Where(seat => seat.IsLegalTarget).Select(seat => seat.Seat)
                            .Order()
-                           .SequenceEqual(currentJijiang.SelectableTargetSeats.Order()),
-            "Choosing the Jijiang entry must switch the shared draft to Jijiang's own target set.");
+                           .SequenceEqual(currentFactionSlash.SelectableTargetSeats.Order()),
+            "Choosing the FactionSlash entry must switch the shared draft to FactionSlash's own target set.");
         var target = viewModel.Seats.First(seat => seat.IsLegalTarget);
         viewModel.SelectTargetCommand.Execute(target);
         Program.Assert(viewModel.CanConfirmActiveSkill && target.IsSelectedTarget &&
                        viewModel.ActiveSkillButtonText.Contains("1 个目标", StringComparison.Ordinal),
-            "Selecting one Jijiang target must enable the shared primary confirmation.");
-        Program.Render(root, 1120, 740, Path.Combine(output, "79-classic-jijiang-target.png"));
+            "Selecting one FactionSlash target must enable the shared primary confirmation.");
+        Program.Render(root, 1120, 740, Path.Combine(output, "79-classic-faction-slash-target.png"));
 
         viewModel.StartTutorialCommand.Execute(null);
         viewModel.ExitTutorialCommand.Execute(null);
         Program.Assert(ReferenceEquals(Program.Engine(viewModel), engine) &&
                        viewModel.CanConfirmActiveSkill && viewModel.PlayButtonText == "发动激将",
-            "Returning from practice must restore Jijiang's exact activation, not Liu Bei's first active skill.");
+            "Returning from practice must restore FactionSlash's exact activation, not Liu Bei's first active skill.");
 
         var revision = engine.Revision;
         var ownerHandCount = engine.CreateSnapshot(0).Players.Single(player => player.Seat == 0).HandCount;
@@ -2723,7 +2720,7 @@ internal static class ClassicGeneralUiChecks
                        }) == 1 &&
                        engine.CreateSnapshot(0).Players.Single(player => player.Seat == 0).HandCount == ownerHandCount &&
                        !viewModel.IsActiveSkillSelectionPending,
-            "The Jijiang target draft must submit exactly one typed request without paying a Liu Bei hand card.");
+            "The FactionSlash target draft must submit exactly one typed request without paying a Liu Bei hand card.");
         window.Content = null;
         window.Close();
     }
@@ -2895,7 +2892,7 @@ internal static class ClassicGeneralUiChecks
         throw new InvalidOperationException($"Could not find a deterministic {generalId} WPF fixture in {modeId}.");
     }
 
-    private static MainViewModel FindJijiangViewModel()
+    private static MainViewModel FindFactionSlashViewModel()
     {
         for (var seed = 1; seed <= 2_048; seed++)
         {
@@ -2924,7 +2921,7 @@ internal static class ClassicGeneralUiChecks
             candidate.Dispose();
         }
 
-        throw new InvalidOperationException("Could not find a deterministic classic Jijiang WPF fixture.");
+        throw new InvalidOperationException("Could not find a deterministic classic FactionSlash WPF fixture.");
     }
 
     private static MainViewModel FindClassicZhihengEquipmentViewModel()
@@ -3115,10 +3112,9 @@ internal static class ClassicGeneralUiChecks
                         action.TargetSeat is { } targetSeat &&
                         !HasVisibleSkill(
                             engine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
-                            SkillKind.Zhenlie) &&
+                            "classic:zhenlie") &&
                         !HasVisibleSkill(
-                            engine.CreateSnapshot(0, revealAll: true).Players[targetSeat],
-                            SkillKind.Liuli)))
+                            engine.CreateSnapshot(0, revealAll: true).Players[targetSeat], "classic:liuli")))
                 {
                     return candidate;
                 }
@@ -3130,8 +3126,8 @@ internal static class ClassicGeneralUiChecks
         throw new InvalidOperationException("Could not find a deterministic classic Tieqi WPF fixture.");
     }
 
-    private static bool HasVisibleSkill(PlayerSnapshot player, SkillKind kind) =>
-        player.Skills?.Any(skill => skill.Kind == kind) == true;
+    private static bool HasVisibleSkill(PlayerSnapshot player, string kind) =>
+        player.Skills?.Any(skill => skill.ContentId == kind) == true;
 
     private static GameEngine FindLiegongFixture()
     {
@@ -3195,7 +3191,7 @@ internal static class ClassicGeneralUiChecks
                             prompt.PromptId,
                             slash.PlayedCardKind,
                             slash.TargetCardId));
-                        if (played.Accepted && game.PendingDecision?.Kind == DecisionKind.Liegong)
+                        if (played.Accepted && game.PendingDecision?.Kind == DecisionKind.ProgramTrigger)
                         {
                             return game;
                         }
@@ -3288,7 +3284,7 @@ internal static class ClassicGeneralUiChecks
                     .LastOrDefault(item =>
                         item.TargetSeat == 0 && item.Reason == JudgmentReasons.Lightning);
                 if (judgment is { Succeeded: false, CardId: { } judgmentCardId } &&
-                    game.PendingDecision?.Kind == DecisionKind.Tiandu)
+                    game.PendingDecision?.Kind == DecisionKind.ProgramTrigger)
                 {
                     return (game, judgmentCardId);
                 }
@@ -3404,7 +3400,7 @@ internal static class ClassicGeneralUiChecks
                     game.Revision,
                     selection!.PromptId)).Accepted &&
                 game.Submit(new AdvanceCommand(game.Revision)).Accepted &&
-                game.PendingDecision?.Kind == DecisionKind.Guanxing)
+                game.PendingDecision?.Kind == DecisionKind.ProgramTopReorder)
             {
                 return game;
             }
@@ -3413,7 +3409,7 @@ internal static class ClassicGeneralUiChecks
         throw new InvalidOperationException("Could not find a deterministic WPF Guanxing fixture.");
     }
 
-    private static GameEngine FindHujiaFixture()
+    private static GameEngine FindFactionDefenseFixture()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 8_192; seed++)
@@ -3452,7 +3448,7 @@ internal static class ClassicGeneralUiChecks
                 var prompt = game.PendingDecision;
                 if (prompt is { Kind: DecisionKind.RespondDodge } &&
                     prompt.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "hujia-request"))
+                        choice.Parameters.GetValueOrDefault("response") == "faction-defense-request"))
                 {
                     return game;
                 }
@@ -3483,6 +3479,6 @@ internal static class ClassicGeneralUiChecks
             }
         }
 
-        throw new InvalidOperationException("Could not find a deterministic WPF Hujia fixture.");
+        throw new InvalidOperationException("Could not find a deterministic WPF FactionDefense fixture.");
     }
 }

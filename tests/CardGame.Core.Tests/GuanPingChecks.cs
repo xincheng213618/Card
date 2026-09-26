@@ -20,7 +20,6 @@ internal static class GuanPingChecks
                 guanPing.SkillIds.SequenceEqual(["classic:longyin"]) &&
                 current.Skills["classic:longyin"] is
                 {
-                    LegacyKind: null,
                     Program: not null,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None

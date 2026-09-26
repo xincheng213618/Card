@@ -55,7 +55,7 @@ internal static class TengjiaScenario
                         full.Players[targetSeat].Hp > 1 &&
                         full.Players[targetSeat].Hand.All(card => card.Kind != CardKind.Dodge) &&
                         full.Players[targetSeat].Skills?.All(skill =>
-                            skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false &&
+                            skill.ContentId is not ("classic:qingguo" or "classic:longdan" or "classic:hujia")) != false &&
                         full.Players[targetSeat].Equipment.Any(card => card.Kind == CardKind.Tengjia));
                     if (action is not null)
                     {

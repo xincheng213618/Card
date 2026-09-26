@@ -138,19 +138,19 @@ internal static class QinglongCrescentBladeChecks
             "An AI Qinglong match must replay exactly.");
     }
 
-    public static void JijiangProviderOpensFollowupSlash()
+    public static void FactionSlashProviderOpensFollowupSlash()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var boundary = QinglongCrescentBladeScenario.FindHumanTrigger(requireJijiang: true);
+        var boundary = QinglongCrescentBladeScenario.FindHumanTrigger(requireFactionSlash: true);
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
-            throw new InvalidOperationException("Qinglong Jijiang fixture lost its trigger prompt.");
+            throw new InvalidOperationException("Qinglong FactionSlash fixture lost its trigger prompt.");
         var jijiang = prompt.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("action") == "qinglong-jijiang");
         Require(jijiang.Cards.Count == 0 &&
                 jijiang.Targets.SequenceEqual([boundary.TargetSeat]) &&
                 game.CreateSnapshot(boundary.TargetSeat).PendingDecision is null,
-            "Qinglong Jijiang must be a private same-target option without exposing provider cards.");
+            "Qinglong FactionSlash must be a private same-target option without exposing provider cards.");
 
         var requested = game.Submit(new AnswerPromptCommand(
             0,
@@ -158,9 +158,9 @@ internal static class QinglongCrescentBladeChecks
             jijiang.Id,
             game.Revision));
         Require(requested.Accepted, requested.Error?.Message ??
-            "Qinglong Jijiang request was rejected.");
+            "Qinglong FactionSlash request was rejected.");
         var requestEvent = game.Events.Select(item => item.Payload)
-            .OfType<JijiangRequestedEvent>()
+            .OfType<FactionSlashRequestedEvent>()
             .LastOrDefault();
         var providerPrompts = requestEvent?.CandidateSeats
             .Select(seat => new { Seat = seat, Prompt = game.CreateSnapshot(seat).PendingDecision })
@@ -170,7 +170,7 @@ internal static class QinglongCrescentBladeChecks
                 requestEvent.TargetSeat == boundary.TargetSeat &&
                 providerPrompts.Length == 1 &&
                 game.PendingDecision is null,
-            "Qinglong Jijiang must open one ordered private Shu provider response.");
+            "Qinglong FactionSlash must open one ordered private Shu provider response.");
 
         var providerCheckpoint = RoundTrip(game.CreateCheckpoint());
         var restoredProvider = GameReplay.Restore(providerCheckpoint, registry);
@@ -179,7 +179,7 @@ internal static class QinglongCrescentBladeChecks
                 SnapshotJson.Serialize(restoredProvider.CreateSnapshot(providerSeat)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(providerSeat)) &&
                 Events(restoredProvider).SequenceEqual(Events(game)),
-            "An in-flight Qinglong Jijiang provider prompt must restore exactly.");
+            "An in-flight Qinglong FactionSlash provider prompt must restore exactly.");
 
         for (var step = 0; step < 16 &&
                            game.Events.Select(item => item.Payload)
@@ -188,38 +188,38 @@ internal static class QinglongCrescentBladeChecks
         {
             var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
             Require(advanced.Accepted, advanced.Error?.Message ??
-                "Qinglong Jijiang provider flow could not advance.");
+                "Qinglong FactionSlash provider flow could not advance.");
             if (game.PendingDecision is { Kind: DecisionKind.QinglongCrescentBlade })
             {
                 break;
             }
         }
 
-        var resolvedJijiang = game.Events.Select(item => item.Payload)
-            .OfType<JijiangResolvedEvent>()
+        var resolvedFactionSlash = game.Events.Select(item => item.Payload)
+            .OfType<FactionSlashResolvedEvent>()
             .LastOrDefault(item => item.ResolutionId == requestEvent!.ResolutionId);
         var resolvedQinglong = game.Events.Select(item => item.Payload)
             .OfType<QinglongCrescentBladeResolvedEvent>()
             .LastOrDefault(item => item.ResolutionId == requestEvent!.ResolutionId && item.Used);
-        Require(resolvedJijiang is { Succeeded: true, IsActiveUse: true, ProviderSeat: not null } &&
-                resolvedJijiang.TargetSeat == boundary.TargetSeat &&
+        Require(resolvedFactionSlash is { Succeeded: true, IsActiveUse: true, ProviderSeat: not null } &&
+                resolvedFactionSlash.TargetSeat == boundary.TargetSeat &&
                 resolvedQinglong is { Used: true } &&
                 resolvedQinglong.TargetSeat == boundary.TargetSeat &&
-                resolvedQinglong.SlashCardIds.Contains(resolvedJijiang.SlashCardId!.Value) &&
+                resolvedQinglong.SlashCardIds.Contains(resolvedFactionSlash.SlashCardId!.Value) &&
                 game.Events.Select(item => item.Payload).OfType<CardUsedEvent>().Any(use =>
                     use.SourceSeat == 0 &&
                     use.TargetSeat == boundary.TargetSeat &&
-                    use.CardId == resolvedJijiang.SlashCardId) &&
+                    use.CardId == resolvedFactionSlash.SlashCardId) &&
                 game.CardMovements.Any(movement =>
-                    movement.CardId == resolvedJijiang.SlashCardId &&
-                    movement.From == CardLocation.Hand(resolvedJijiang.ProviderSeat.Value) &&
+                    movement.CardId == resolvedFactionSlash.SlashCardId &&
+                    movement.From == CardLocation.Hand(resolvedFactionSlash.ProviderSeat.Value) &&
                     movement.To == CardLocation.Processing &&
                     movement.Reason == CardMoveReasons.Use),
             "A Shu provider must spend its exact Slash while Liu Bei opens the same-target Qinglong attack.");
 
         var replayed = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(State(replayed) == State(game) && Events(replayed).SequenceEqual(Events(game)),
-            "A Qinglong Jijiang follow-up Slash must replay exactly.");
+            "A Qinglong FactionSlash follow-up Slash must replay exactly.");
     }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

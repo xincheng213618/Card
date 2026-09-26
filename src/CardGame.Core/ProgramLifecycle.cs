@@ -19,6 +19,14 @@ public sealed record ProgramSkillWindowContext(
     ProgramJudgmentReplacementContext? JudgmentReplacement = null);
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
+public sealed record ProgramTopReorder(
+    IReadOnlyList<int> ViewedCardIds,
+    IReadOnlyList<int> TopCardIds,
+    IReadOnlyList<int> BottomCardIds,
+    bool ChoosingBottom);
+public sealed record ProgramRepeatedJudgment(
+    string Reason, string ResultBind, IReadOnlyList<Suit> SuccessSuits, int CompletedCount,
+    bool? LastMatched = null);
 public sealed record ProgramAttackRangeCoverageBinding(string Name, int SubjectSeat, int BeforeCount, int AfterCount);
 public sealed record ProgramMovementContinuation(int SubjectSeat, int BeforeCount, string? CoverageResultBind);
 
@@ -160,8 +168,7 @@ public sealed record BeforeDamageProgramCandidate(
 
 public enum BeforeDamageProgramContinuation
 {
-    Attack,
-    Ganglie
+    Attack
 }
 
 /// <summary>
@@ -179,6 +186,7 @@ public sealed record BeforeDamageProgramWindowFrame(
     IReadOnlyList<BeforeDamageProgramCandidate> Candidates,
     int CandidateIndex = 0,
     bool Prevented = false,
+    int? RedirectedTargetSeat = null,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.BeforeDamageProgramWindow, Step);
 
@@ -201,7 +209,7 @@ public sealed record ProgramPhaseSchedule(
     TurnPhase Phase,
     SkillProgramPhaseContinuation Continuation);
 
-public enum ProgramLifecycleContinuation { NormalTurnStart, CompleteDrawPhase, CompletePlayPhase }
+public enum ProgramLifecycleContinuation { NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw }
 
 public enum TurnEndingBoundaryItemKind { Program }
 

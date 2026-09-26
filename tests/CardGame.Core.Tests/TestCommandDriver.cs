@@ -51,12 +51,9 @@ internal static class TestCommandDriver
         return Answer(game, choice => prompt.Kind switch
         {
             DecisionKind.Nullification => choice.Parameters.GetValueOrDefault("response") == "pass",
-            DecisionKind.Ganglie => choice.Parameters.GetValueOrDefault("response") == "skip-ganglie",
-            DecisionKind.GangliePunish => choice.Parameters.GetValueOrDefault("response") == "ganglie-lose-hp",
-            DecisionKind.Guicai or DecisionKind.Guidao =>
-                choice.Parameters.GetValueOrDefault("response") == "skip-guicai",
-            DecisionKind.Leiji => choice.Parameters.GetValueOrDefault("action") == "leiji-skip",
-            DecisionKind.Yuanhu => choice.Parameters.GetValueOrDefault("response") == "yuanhu-skip",
+            DecisionKind.ProgramJudgmentReplacement => choice.Cards.Count == 0,
+            DecisionKind.ProgramTrigger => choice.Parameters.GetValueOrDefault("action") == "decline" ||
+                choice.Parameters.GetValueOrDefault("activation") == "skip",
             _ => choice.Parameters.GetValueOrDefault("response") == "take-damage"
         }, advanceToHumanBoundary);
     }

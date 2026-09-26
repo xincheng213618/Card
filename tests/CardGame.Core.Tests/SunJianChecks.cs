@@ -9,7 +9,7 @@ internal static class SunJianChecks
     public static void YinghunChoiceAndReplay()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(registry.Skills[SkillId] is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v60" },
+        Require(registry.Skills[SkillId] is { Program.RuntimeVersion: "skill-program-v61" },
             "Current Yinghun must use its configured program.");
         for (var seed = 1; seed <= 4096; seed++)
         {
@@ -108,7 +108,7 @@ internal static class SunJianChecks
         var firstTurnStarts = game.Events.Count(item => item.Payload is TurnStartedEvent { ActorSeat: 0 });
         for (var step = 0; step < 1200; step++)
         {
-            Require(game.PendingDecision is not { Kind: DecisionKind.Yinghun } &&
+            Require(game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger } &&
                     game.PendingDecision?.SkillPrompt?.SkillId != SkillId,
                 "The historical package revived the removed Yinghun execution route.");
             if (game.Events.Count(item => item.Payload is TurnStartedEvent { ActorSeat: 0 }) > firstTurnStarts &&

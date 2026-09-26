@@ -19,7 +19,7 @@ internal static class SpLeJinChecks
             general.SkillIds.SequenceEqual([SkillId]) &&
             current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
             current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-            skill.Program is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } &&
+            skill.Program is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } &&
             skill.Program.Triggers.Single().TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
             (int)SkillProgramConditionKind.HasOwnedCardCategory == 23,
             "SP Le Jin must register with its schema-56 observer trigger in the current identity roster.");
@@ -500,7 +500,7 @@ internal static class SpLeJinChecks
         public const string HumanGeneralId = "fixture:category-human";
         public const string SkillId = "fixture:owned-category-choice";
         private const string Rules = """
-        {"schemaVersion":60,"skills":[{"id":"fixture:owned-category-choice","revision":1,
+        {"schemaVersion":61,"skills":[{"id":"fixture:owned-category-choice","revision":1,
         "minimumRulesVersion":170,"triggers":[{"id":"other-ending","window":"turnEnding",
         "subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[
         {"op":"selectTarget","target":"owner","targetKind":"eventTarget"},

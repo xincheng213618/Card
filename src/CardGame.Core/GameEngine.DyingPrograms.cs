@@ -2,6 +2,35 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private void RevealProgramUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        var dying = _pendingDying ??
+            throw new InvalidOperationException("The unique-rank rescue has no dying occurrence.");
+        if (active.WindowContext is not
+            { Window: SkillProgramTriggerWindow.SelfDyingResponse } context ||
+            context.ParentFrameId != dying.FrameId || dying.VictimSeat != active.OwnerSeat ||
+            dying.ResponderSeat != active.OwnerSeat ||
+            !_players[active.OwnerSeat].IsAlive || _players[active.OwnerSeat].Hp > 0)
+            throw new InvalidOperationException("The unique-rank rescue lost its dying owner.");
+        if (!EnsureDrawPile()) return;
+
+        var owner = _players[active.OwnerSeat];
+        var location = new CardLocation(zone, owner.Seat);
+        var card = _cardZones.CardsAt(CardLocation.DrawPile)[^1];
+        var unique = _cardZones.CardsAt(location).All(existing => existing.Rank != card.Rank);
+        MoveCard(card, CardLocation.DrawPile, unique ? location : CardLocation.DiscardPile,
+            new CardMoveReason(unique ? "skill-program.dying-rank.retain" : "skill-program.dying-rank.duplicate"));
+        if (unique) owner.Hp = Math.Min(owner.MaxHp, rescueHp);
+        QueueGameEvent(new ProgramUniqueRankDyingResolvedEvent(
+            dying.FrameId, active.SkillId, owner.Seat, zone, card.Id, card.Rank, unique,
+            Array.AsReadOnly(_cardZones.CardsAt(location).Select(item => item.Id).ToArray())));
+        AddLog("SkillTriggered", unique
+            ? $"{owner.Name} 亮出点数 {card.Rank}，与已有牌不同，回复至 {owner.Hp} 点体力。"
+            : $"{owner.Name} 亮出重复点数 {card.Rank}，该牌置入弃牌堆并继续濒死结算。",
+            owner.Seat);
+    }
+
     private void UseProgramBoundCardAsDyingAlcohol(
         ProgramSkillFrame frame, string sourceBind, CardMoveReason reason)
     {

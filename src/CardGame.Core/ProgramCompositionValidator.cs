@@ -44,7 +44,8 @@ internal static class ProgramCompositionValidator
                     Fail($"unknown choice result or option '{condition.SourceBind}/{condition.OptionId}'");
                 if (condition.Kind is SkillProgramConditionKind.BoundCardsSameColor or
                     SkillProgramConditionKind.BoundCardsMatchCategories or
-                    SkillProgramConditionKind.BoundCardsMatchKinds)
+                    SkillProgramConditionKind.BoundCardsMatchKinds or
+                    SkillProgramConditionKind.BoundCardsMatchSuits)
                     _ = Get(condition.SourceBind!);
                 if (condition.Kind == SkillProgramConditionKind.BoundCardCountAtLeast)
                 {

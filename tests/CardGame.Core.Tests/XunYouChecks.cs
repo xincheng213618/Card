@@ -20,29 +20,29 @@ internal static class XunYouChecks
             $"gender={general.Gender}, portrait={general.PortraitKey}, skills={string.Join(',', general.SkillIds)}.");
 
         var qice = current.Skills[QiceSkillId];
-        Require(qice.LegacyKind is null && qice.Tags == SkillTag.None &&
+        Require(qice.Tags == SkillTag.None &&
                 qice.ExecutionForms == SkillExecutionForm.None &&
                 qice.ActionForms == SkillActionForm.Active &&
                 qice.Program is
                 {
-                    RuntimeVersion: "skill-program-v60",
-                    MinimumRulesVersion: 170,
+                    RuntimeVersion: "skill-program-v61",
+                    MinimumRulesVersion: 171,
                     Activations.Count: 1
                 } && qice.Program.Activations.Single().Effects.Single().Op ==
                     SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick,
-            $"Qice metadata drifted: kind={qice.LegacyKind}, tags={qice.Tags}, " +
+            $"Qice metadata drifted: id={qice.Id}, tags={qice.Tags}, " +
             $"execution={qice.ExecutionForms}, actions={qice.ActionForms}.");
         var zhiyu = current.Skills[ZhiyuSkillId];
-        Require(zhiyu.LegacyKind is null && zhiyu.Tags == SkillTag.None &&
+        Require(zhiyu.Tags == SkillTag.None &&
                 zhiyu.ExecutionForms == SkillExecutionForm.Trigger &&
                 zhiyu.ActionForms == SkillActionForm.None &&
                 zhiyu.Program is
                 {
-                    RuntimeVersion: "skill-program-v60",
-                    MinimumRulesVersion: 170,
+                    RuntimeVersion: "skill-program-v61",
+                    MinimumRulesVersion: 171,
                     Triggers.Count: 1
                 },
-            $"Zhiyu metadata drifted: kind={zhiyu.LegacyKind}, tags={zhiyu.Tags}, " +
+            $"Zhiyu metadata drifted: id={zhiyu.Id}, tags={zhiyu.Tags}, " +
             $"execution={zhiyu.ExecutionForms}, actions={zhiyu.ActionForms}.");
 
     }

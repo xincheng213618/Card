@@ -84,7 +84,7 @@ internal static class WuyanChecks
         var player = players[seat];
         player.GetType().GetProperty("General")!.SetValue(player, new GeneralDefinition(
             "test:xu-shu-wuyan", "徐庶", "xu_shu",
-            [new GeneralSkillDefinition(SkillKind.Wuyan, "无言",
+            [new GeneralSkillDefinition("无言",
                 "锁定技，当锦囊牌造成伤害时，若你为来源或受伤角色，防止此伤害。")
             { ContentId = "classic:wuyan" }], "shu", BaseHp: 3));
         Require(((CharacterState)player).SkillGrants.EffectiveSkillIds.Contains("classic:wuyan"),

@@ -189,30 +189,21 @@ public sealed record ProgramCardTargetCountAppliedEvent(
     IReadOnlyList<string> ContributionSourceIds) : IGameEvent;
 
 /// <summary>Public result of an optional draw-phase skill decision.</summary>
-public sealed record DrawSkillResolvedEvent(
-    int SourceSeat,
-    SkillKind Skill,
-    bool Used,
-    int DrawCount) : IGameEvent;
 
 /// <summary>Public result of an optional skill caused by one equipment leaving its owner's area.</summary>
 /// <summary>Public result of an optional phase-skip skill decision.</summary>
-public sealed record PhaseSkillResolvedEvent(
-    int SourceSeat,
-    SkillKind Skill,
-    TurnPhase Phase,
-    bool Used) : IGameEvent;
+
+/// <summary>Result of one enabled, data-defined card policy choice.</summary>
+public sealed record ProgramCardPolicyResolvedEvent(
+    int OwnerSeat,
+    string SkillId,
+    string PolicyId,
+    bool Applied) : IGameEvent;
 
 /// <summary>
 /// Public result of a draw-phase hand gain. Hidden card identities remain in
 /// the private hand snapshots and redacted movement stream.
 /// </summary>
-public sealed record HandCardsGainedBySkillEvent(
-    int SourceSeat,
-    SkillKind Skill,
-    bool Used,
-    IReadOnlyList<int> TargetSeats,
-    int CardCount) : IGameEvent;
 
 /// <summary>
 /// Public result of Guanxing. Card identities and order remain private to the
@@ -575,29 +566,11 @@ public sealed record JudgmentReplacementResolvedEvent(
     Suit? NewSuit,
     int? NewRank) : IGameEvent;
 
-public sealed record JudgmentCardClaimedEvent(
-    long JudgmentFrameId,
-    int OwnerSeat,
-    SkillKind Skill,
-    bool Used,
-    int CardId,
-    CardKind CardKind) : IGameEvent;
-
 public sealed record CardRespondedEvent(
     int CardId,
     int ResponderSeat,
     int SourceSeat,
     CardKind? EffectiveCardKind = null) : IGameEvent;
-
-/// <summary>Public audit record for a skill that changes one damage amount.</summary>
-public sealed record DamageModifiedBySkillEvent(
-    long ResolutionId,
-    int SourceSeat,
-    int TargetSeat,
-    SkillKind Skill,
-    CardKind SourceCard,
-    int BaseAmount,
-    int ModifiedAmount) : IGameEvent;
 
 public sealed record DamageAppliedEvent(
     int SourceSeat,
@@ -655,45 +628,6 @@ public sealed record DamageTriggerWindowAdvancedEvent(
     int CandidateIndex,
     bool Completed) : IGameEvent;
 
-public sealed record DamageCardClaimedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int SourceSeat,
-    int CardId,
-    CardKind CardKind,
-    SkillKind Skill) : IGameEvent;
-
-public sealed record DamageSkillRequestedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int SourceSeat,
-    int? CardId,
-    CardKind? CardKind,
-    SkillKind Skill,
-    string CandidateId = "",
-    int Priority = 0) : IGameEvent;
-
-public sealed record DamageSkillResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int SourceSeat,
-    int? CardId,
-    CardKind? CardKind,
-    SkillKind Skill,
-    bool Used,
-    string CandidateId = "",
-    int Priority = 0,
-    int? EffectTargetSeat = null) : IGameEvent;
-
-/// <summary>Public result of classic Kuanggu recovering its damage source.</summary>
-public sealed record KuangguRecoveredEvent(
-    long ResolutionId,
-    int SourceSeat,
-    int TargetSeat,
-    int DamageAmount,
-    int RecoveredAmount,
-    int RemainingHp) : IGameEvent;
-
 public sealed record ZhenlieResolvedEvent(
     long ResolutionId,
     int OwnerSeat,
@@ -724,60 +658,6 @@ public sealed record LongyinResolvedEvent(
     bool SlashWasRed,
     bool SlashCountRemoved,
     IReadOnlyList<int> DrawnCardIds) : IGameEvent;
-
-public sealed record DamageSkillCardsDrawnEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    SkillKind Skill,
-    IReadOnlyList<int> CardIds,
-    int? TargetSeat = null) : IGameEvent;
-
-/// <summary>
-/// Trusted-host cost notification for a damage-trigger skill. The card id is
-/// intentionally absent from ordinary player views; the movement ledger and
-/// this typed event are the authoritative audit trail.
-/// </summary>
-public sealed record DamageSkillCardDiscardedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int CardId,
-    CardKind CardKind,
-    SkillKind Skill) : IGameEvent;
-
-public sealed record DamageSkillCardGivenEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int TargetSeat,
-    int CardId,
-    CardKind CardKind,
-    SkillKind Skill) : IGameEvent;
-
-/// <summary>
-/// Trusted-host audit event for Feedback taking one card from the damage
-/// source. Ordinary player snapshots continue to redact other hands.
-/// </summary>
-public sealed record DamageSkillCardTakenEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int SourceSeat,
-    int CardId,
-    CardKind CardKind,
-    CardLocation From,
-    SkillKind Skill) : IGameEvent;
-
-/// <summary>
-/// Trusted-host result of the red Ganglie judgment punishment. Discarded card
-/// ids are intentionally kept out of ordinary player snapshots; the host
-/// event stream is the audit surface for this private choice.
-/// </summary>
-public sealed record GangliePunishmentResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int SourceSeat,
-    GangliePunishmentKind Punishment,
-    IReadOnlyList<int> DiscardedCardIds,
-    int SourceHp,
-    bool SourceAlive) : IGameEvent;
 
 public sealed record AlcoholAppliedEvent(
     long ResolutionId,
@@ -848,12 +728,14 @@ public sealed record ProgramDyingRescueEvent(
     int RecoveredHp,
     int VictimHp) : IGameEvent;
 
-public sealed record JiuyuanAppliedEvent(
+public sealed record ProgramRecoveryPolicyAppliedEvent(
     long ResolutionId,
     int OwnerSeat,
     int ProviderSeat,
     int PeachCardId,
-    int RecoveryAmount) : IGameEvent;
+    int RecoveryAmount,
+    string SkillId,
+    string PolicyId) : IGameEvent;
 
 public sealed record DuelResponseEvent(
     long ResolutionId,
@@ -943,8 +825,9 @@ public sealed record IceSwordResolvedEvent(
     int PreventedDamageAmount,
     IReadOnlyList<int> DiscardedCardIds) : IGameEvent;
 
-public sealed record TianxiangTransferredEvent(
+public sealed record ProgramDamageTransferredEvent(
     long ResolutionId,
+    string SkillId,
     int OwnerSeat,
     int SourceSeat,
     int TargetSeat,
@@ -952,15 +835,18 @@ public sealed record TianxiangTransferredEvent(
     int DamageAmount,
     DamageNature Nature) : IGameEvent;
 
-public sealed record TianxiangCardsDrawnEvent(
+public sealed record ProgramDamageTransferCardsDrawnEvent(
     long ResolutionId,
+    string SkillId,
     int OwnerSeat,
     int TargetSeat,
     int DrawCount) : IGameEvent;
 
-public sealed record BuquResolvedEvent(
+public sealed record ProgramUniqueRankDyingResolvedEvent(
     long DyingFrameId,
+    string SkillId,
     int OwnerSeat,
+    CardZoneKind Zone,
     int CardId,
     int Rank,
     bool RankWasUnique,
@@ -971,20 +857,6 @@ public sealed record LuanjiConvertedEvent(
     int SourceSeat,
     IReadOnlyList<int> PhysicalCardIds,
     Suit Suit) : IGameEvent;
-
-public sealed record ShensuUsedEvent(
-    long ResolutionId,
-    int SourceSeat,
-    int TargetSeat,
-    int Stage,
-    int? DiscardedEquipmentCardId) : IGameEvent;
-
-public sealed record YaowuResolvedEvent(
-    long DamageFrameId,
-    int OwnerSeat,
-    int SourceSeat,
-    bool Recovered,
-    int SourceHp) : IGameEvent;
 
 /// <summary>Public terminal result for Qilin Bow at the Slash damage timing.</summary>
 public sealed record QilinBowResolvedEvent(
@@ -1003,17 +875,6 @@ public sealed record MengjinResolvedEvent(
     int? DiscardedCardId) : IGameEvent;
 
 /// <summary>Public result after both private Pindian cards have been committed and revealed.</summary>
-public sealed record PindianResolvedEvent(
-    long ResolutionId,
-    SkillKind Skill,
-    int InitiatorSeat,
-    int OpponentSeat,
-    int InitiatorCardId,
-    int OpponentCardId,
-    int InitiatorRank,
-    int OpponentRank,
-    bool InitiatorWon) : IGameEvent;
-
 /// <summary>Public turn-state result of Gao Shun's Xianzhen Pindian.</summary>
 public sealed record XianzhenResolvedEvent(
     long ResolutionId,
@@ -1087,29 +948,19 @@ public sealed record ZhuqueFanConvertedEvent(
     IReadOnlyList<int> PhysicalCardIds,
     IReadOnlyList<int> TargetSeats) : IGameEvent;
 
-public sealed record HujiaRequestedEvent(
+public sealed record FactionDefenseRequestedEvent(
     long ResolutionId,
     int OwnerSeat,
-    IReadOnlyList<int> CandidateSeats) : IGameEvent;
+    IReadOnlyList<int> CandidateSeats,
+    string SkillId) : IGameEvent;
 
-public sealed record HujiaResolvedEvent(
+public sealed record FactionDefenseResolvedEvent(
     long ResolutionId,
     int OwnerSeat,
     bool Succeeded,
     int? ProviderSeat,
     int? ResponseCardId,
     bool UsedBagua = false) : IGameEvent;
-
-public sealed record LeijiResolvedEvent(
-    long ResolutionId,
-    int OwnerSeat,
-    int TargetSeat,
-    int? JudgmentCardId,
-    Suit? JudgmentSuit,
-    int RecoveredAmount,
-    int DamageAmount,
-    int OwnerHp,
-    int TargetHp) : IGameEvent;
 
 public sealed record HuangtianCardGivenEvent(
     int ProviderSeat,
@@ -1138,14 +989,15 @@ public sealed record LierenResolvedEvent(
     bool Won,
     int? GainedCardId) : IGameEvent;
 
-public sealed record JijiangRequestedEvent(
+public sealed record FactionSlashRequestedEvent(
     long ResolutionId,
     int OwnerSeat,
     IReadOnlyList<int> CandidateSeats,
+    string SkillId,
     bool IsActiveUse,
     int? TargetSeat = null) : IGameEvent;
 
-public sealed record JijiangResolvedEvent(
+public sealed record FactionSlashResolvedEvent(
     long ResolutionId,
     int OwnerSeat,
     bool Succeeded,

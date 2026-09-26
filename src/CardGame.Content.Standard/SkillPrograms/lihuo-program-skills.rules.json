@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 60,
+  "schemaVersion": 61,
   "skills": [
     {
       "id": "classic:lihuo",
       "revision": 3,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "modifiers": [
         {
           "id": "fire-slash-extra-target",

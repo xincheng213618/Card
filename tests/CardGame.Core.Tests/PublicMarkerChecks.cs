@@ -11,7 +11,7 @@ internal static class PublicMarkerChecks
     private const string BystanderTwoId = "wuhun-marker:bystander-2";
     private const string WuhunSkillId = "wuhun-marker:wuhun";
     private const string WuhunRules = """
-    {"schemaVersion":60,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":170,
+    {"schemaVersion":61,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":170,
     "modifiers":[],"viewAs":[],"activations":[],"triggers":[
       {"id":"damage-nightmare","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
        "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
@@ -77,11 +77,10 @@ internal static class PublicMarkerChecks
         var wuhun = current.Skills["classic:wuhun"];
         Require(wuhun is
                 {
-                    LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v60",
-                    Program.MinimumRulesVersion: 170
+                    Program.RuntimeVersion: "skill-program-v61",
+                    Program.MinimumRulesVersion: 171
                 } &&
                 wuhun.Program.Triggers.Select(trigger => trigger.Window)
                     .SequenceEqual([
@@ -93,7 +92,7 @@ internal static class PublicMarkerChecks
         try
         {
             _ = SkillProgramCatalog.Load(
-                WuhunRules.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
+                WuhunRules.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
                 WuhunPresentation);
         }
         catch (Exception exception)
@@ -288,7 +287,7 @@ internal static class PublicMarkerChecks
                 new ContentDeckCardCount("standard:slash", 58),
                 new ContentDeckCardCount("standard:peach", 2)
             ],
-            attackerSkill: SkillKind.Guicai);
+            attackerSkill: "classic:guicai");
         GameEngine? selected = null;
         for (var seed = 1; seed <= 8_192 && selected is null; seed++)
         {
@@ -310,7 +309,7 @@ internal static class PublicMarkerChecks
                 continue;
             for (var step = 0; step < 128; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.Guicai, PlayerSeat: 0 })
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement, PlayerSeat: 0 })
                 {
                     selected = game;
                     break;
@@ -373,7 +372,7 @@ internal static class PublicMarkerChecks
             ownerHp: 1,
             packageId: "wuhun-death-nested",
             deckCards: [new ContentDeckCardCount("standard:slash", 60)],
-            attackerSkill: SkillKind.Quhu);
+            attackerSkill: "classic:quhu");
         GameEngine? selected = null;
         for (var seed = 1; seed <= 8_192 && selected is null; seed++)
         {
@@ -648,7 +647,7 @@ internal static class PublicMarkerChecks
         int ownerHp,
         string packageId,
         IReadOnlyList<ContentDeckCardCount>? deckCards = null,
-        SkillKind? attackerSkill = null,
+        string? attackerSkill = null,
         IReadOnlyDictionary<string, int>? roleCounts = null) =>
         ContentRegistry.Build(
             new StandardContentPackage(),
@@ -670,15 +669,14 @@ internal static class PublicMarkerChecks
                         Tags = SkillTag.Locked,
                         ExecutionForms = SkillExecutionForm.State
                     });
-                    if (attackerSkill == SkillKind.Guicai)
+                    if (attackerSkill == "classic:guicai")
                     {
                         builder.AddSkill(new ContentSkillDefinition(
                             "wuhun-marker:guicai",
                             "鬼才",
-                            "一名角色的判定牌生效前，你可以打出一张手牌替换之。",
-                            SkillKind.Guicai));
+                            "一名角色的判定牌生效前，你可以打出一张手牌替换之。"));
                     }
-                    if (attackerSkill == SkillKind.Quhu)
+                    if (attackerSkill == "classic:quhu")
                     {
                         builder.AddSkill(StandardContentRegistry.CreateWithClassicGenerals()
                             .Skills["classic:quhu"]);
@@ -689,14 +687,14 @@ internal static class PublicMarkerChecks
                         "guan_yu",
                         attackerSkill switch
                         {
-                            SkillKind.Guicai => "wuhun-marker:guicai",
-                            SkillKind.Wuhun => WuhunSkillId,
-                            SkillKind.Quhu => WuhunSkillId,
+                            "classic:guicai" => "wuhun-marker:guicai",
+                            "classic:wuhun" => WuhunSkillId,
+                            "classic:quhu" => WuhunSkillId,
                             _ => "standard:none"
                         },
                         "wei",
                         BaseHp: 4,
-                        AdditionalSkillIds: attackerSkill == SkillKind.Quhu
+                        AdditionalSkillIds: attackerSkill == "classic:quhu"
                             ? ["classic:quhu"]
                             : null));
                     builder.AddGeneral(new ContentGeneralDefinition(

@@ -42,6 +42,24 @@ public sealed partial class GameEngine
         });
     }
 
+    private bool DoProgramBoundCardsMatchSuits(
+        ProgramSkillFrame frame,
+        string sourceBind,
+        IReadOnlyList<Suit> suits)
+    {
+        var binding = GetProgramCardSet(frame, sourceBind);
+        if (binding.Visibility == SkillProgramCardSetVisibility.Public &&
+            binding.CardIds.Count == 1 && binding.FrozenRevealedSuit is { } effectiveSuit)
+            return suits.Contains(effectiveSuit);
+        return binding.Visibility == SkillProgramCardSetVisibility.Public &&
+            binding.CardIds.Count > 0 && binding.CardIds.All(cardId =>
+            {
+                var location = _cardZones.GetLocation(cardId);
+                var card = _cardZones.CardsAt(location).Single(candidate => candidate.Id == cardId);
+                return suits.Contains(card.Suit);
+            });
+    }
+
     private void CaptureProgramSelectedCards(ProgramSkillFrame frame, string resultBind)
     {
         var active = GetActiveProgramFrame(frame.Id);

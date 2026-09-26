@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 60,
+  "schemaVersion": 61,
   "skills": [
     {
       "id": "classic:qianxi",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "triggers": [
         {
           "id": "preparation-hand-color-restriction",

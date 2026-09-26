@@ -485,8 +485,6 @@ internal static class BoundaryGanNingChecks
         {
             ConversionSource = action.ConversionSource,
             AdditionalConversionSources = action.AdditionalConversionSources,
-            CardKindModifierSkill = action.CardKindModifierSkill,
-            TargetCountModifierSkill = action.TargetCountModifierSkill
         });
         Require(result.Accepted, result.Error?.Message ?? "Fenwei fixture card use failed.");
     }
@@ -530,7 +528,7 @@ internal static class BoundaryGanNingChecks
             if (preEffectDeath)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":60,"skills":[{"id":"fixture:before-effect-death","revision":1,
+                    {"schemaVersion":61,"skills":[{"id":"fixture:before-effect-death","revision":1,
                     "minimumRulesVersion":170,"triggers":[{"id":"die-first",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"target",
                     "cardKinds":["barbarianAssault"],"optional":false,"priority":100,
@@ -544,7 +542,7 @@ internal static class BoundaryGanNingChecks
             if (delayedTrickObserver)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":60,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
+                    {"schemaVersion":61,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
                     "minimumRulesVersion":170,"triggers":[{"id":"observe-delayed",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"observer",
                     "cardKinds":["indulgence"],"cardCategories":["trick"],"optional":false,

@@ -671,35 +671,17 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         else if (_snapshot.PendingDecision is
             {
                 Kind: DecisionKind.SelectFaction or
-                    DecisionKind.Yuanhu or
-                    DecisionKind.Ganglie or
-                    DecisionKind.GangliePunish or
-                    DecisionKind.Guicai or
-                    DecisionKind.Guidao or
-                    DecisionKind.Leiji or
-                    DecisionKind.Jiangchi or
-                    DecisionKind.Zishou or
-                    DecisionKind.Tiandu or
-                    DecisionKind.Guanxing or
-                    DecisionKind.Keji or
-                    DecisionKind.Luoshen or
-                    DecisionKind.Shensu or
-                    DecisionKind.Jizhi or
-                    DecisionKind.Tieqi or
-                    DecisionKind.Liegong or
+                    DecisionKind.SkipDiscardPolicy or
                     DecisionKind.Yingbo or
                     DecisionKind.StoneAxe or
                     DecisionKind.CixiongDoubleSwords or
-                    DecisionKind.Liuli or
                     DecisionKind.QinglongCrescentBlade or
                     DecisionKind.IceSword or
                     DecisionKind.QilinBow or
-                    DecisionKind.Mengjin or
-                    DecisionKind.QuhuPindian or
-                    DecisionKind.QuhuDamageTarget or
-                    DecisionKind.TianyiPindian or
                     DecisionKind.ProgramJudgmentTrigger or
                     DecisionKind.ProgramJudgmentReplacement or
+                    DecisionKind.ProgramTopReorder or
+                    DecisionKind.ProgramRepeatJudgment or
                     DecisionKind.ZhuqueFan
             } skillPrompt)
         {
@@ -713,35 +695,17 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IsSkillSelectionPending = _snapshot.PendingDecision?.SkillPrompt is not null;
         IsSkillSelectionPending |= pendingDecisionKind is
             DecisionKind.SelectFaction or
-            DecisionKind.Yuanhu or
-            DecisionKind.Ganglie or
-            DecisionKind.GangliePunish or
-            DecisionKind.Guicai or
-            DecisionKind.Guidao or
-            DecisionKind.Leiji or
-            DecisionKind.Jiangchi or
-            DecisionKind.Zishou or
-            DecisionKind.Tiandu or
-            DecisionKind.Guanxing or
-            DecisionKind.Keji or
-            DecisionKind.Luoshen or
-            DecisionKind.Shensu or
-            DecisionKind.Jizhi or
-            DecisionKind.Tieqi or
-            DecisionKind.Liegong or
+            DecisionKind.SkipDiscardPolicy or
             DecisionKind.Yingbo or
             DecisionKind.StoneAxe or
             DecisionKind.CixiongDoubleSwords or
-            DecisionKind.Liuli or
             DecisionKind.QinglongCrescentBlade or
             DecisionKind.IceSword or
             DecisionKind.QilinBow or
-            DecisionKind.Mengjin or
-            DecisionKind.QuhuPindian or
-            DecisionKind.QuhuDamageTarget or
-            DecisionKind.TianyiPindian or
             DecisionKind.ProgramJudgmentTrigger or
             DecisionKind.ProgramJudgmentReplacement or
+                    DecisionKind.ProgramTopReorder or
+                    DecisionKind.ProgramRepeatJudgment or
             DecisionKind.ZhuqueFan;
         RaisePropertyChanged(nameof(HasPinnedPublicModuleChoices));
 
@@ -941,10 +905,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         CanDeclineResponse = _snapshot.PendingDecision?.Kind is
             DecisionKind.RespondDodge or DecisionKind.RespondSlash;
         ResponseButtonText = _snapshot.PendingDecision?.Choices.Any(choice =>
-                choice.Parameters.GetValueOrDefault("response") == "hujia-dodge") == true
+                choice.Parameters.GetValueOrDefault("response") == "faction-defense-dodge") == true
             ? "护驾出闪"
             : _snapshot.PendingDecision?.Choices.Any(choice =>
-                choice.Parameters.GetValueOrDefault("response") == "jijiang-slash") == true
+                choice.Parameters.GetValueOrDefault("response") == "faction-slash-slash") == true
                 ? "激将出杀"
             : _snapshot.PendingDecision?.Kind == DecisionKind.RespondSlash
                 ? "快速响应杀"
@@ -1498,8 +1462,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             candidate.TargetSeat == choice.Targets[0] &&
             candidate.TargetCardId == targetCardId &&
             ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
-            AdditionalConversionSourcesMatchChoice(candidate.AdditionalConversionSources, choice.Parameters) &&
-            ModifierSkillsMatchChoice(candidate, choice.Parameters));
+            AdditionalConversionSourcesMatchChoice(candidate.AdditionalConversionSources, choice.Parameters));
         if (action is null)
         {
             PromptText = "公开目标牌已不再合法，请重新选择。";
@@ -1521,8 +1484,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 ConversionSource = action.ConversionSource,
                 AdditionalConversionSources = action.AdditionalConversionSources,
-                CardKindModifierSkill = action.CardKindModifierSkill,
-                TargetCountModifierSkill = action.TargetCountModifierSkill
             });
             if (!result.Accepted)
             {
@@ -1554,8 +1515,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             candidate.CardId == selectedCardId &&
             candidate.TargetSeats.SequenceEqual(choice.Targets) &&
             ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
-            AdditionalConversionSourcesMatchChoice(candidate.AdditionalConversionSources, choice.Parameters) &&
-            ModifierSkillsMatchChoice(candidate, choice.Parameters));
+            AdditionalConversionSourcesMatchChoice(candidate.AdditionalConversionSources, choice.Parameters));
         if (action is null)
         {
             PromptText = "目标组合已不再合法，请重新选择。";
@@ -1577,8 +1537,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 ConversionSource = action.ConversionSource,
                 AdditionalConversionSources = action.AdditionalConversionSources,
-                CardKindModifierSkill = action.CardKindModifierSkill,
-                TargetCountModifierSkill = action.TargetCountModifierSkill
             });
             if (!result.Accepted)
             {
@@ -1746,8 +1704,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             ConversionSource = action.ConversionSource,
             AdditionalConversionSources = action.AdditionalConversionSources,
-            CardKindModifierSkill = action.CardKindModifierSkill,
-            TargetCountModifierSkill = action.TargetCountModifierSkill
         };
 
     private static bool ConversionSourceMatchesChoice(
@@ -1787,21 +1743,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             }
         }
         return true;
-    }
-
-    private static bool ModifierSkillsMatchChoice(
-        LegalAction action,
-        IReadOnlyDictionary<string, string> parameters)
-    {
-        var cardKindMatches = parameters.TryGetValue("card-kind-modifier-skill", out var cardKindText)
-            ? Enum.TryParse<SkillKind>(cardKindText, out var cardKindSkill) &&
-              action.CardKindModifierSkill == cardKindSkill
-            : action.CardKindModifierSkill is null;
-        var targetCountMatches = parameters.TryGetValue("target-count-modifier-skill", out var targetCountText)
-            ? Enum.TryParse<SkillKind>(targetCountText, out var targetCountSkill) &&
-              action.TargetCountModifierSkill == targetCountSkill
-            : action.TargetCountModifierSkill is null;
-        return cardKindMatches && targetCountMatches;
     }
 
     private void UseActiveSkill()
@@ -1951,14 +1892,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void RespondToSlash(bool useDodge)
     {
         if (_snapshot.PendingDecision is not { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash } prompt) return;
-        var isHujiaProvider = prompt.Choices.Any(choice =>
-            choice.Parameters.GetValueOrDefault("response") is "hujia-dodge" or "hujia-bagua");
-        var isJijiangProvider = prompt.Choices.Any(choice =>
-            choice.Parameters.GetValueOrDefault("response") == "jijiang-slash");
-        var expected = isHujiaProvider
-            ? useDodge ? "hujia-dodge" : "hujia-decline"
-            : isJijiangProvider
-                ? useDodge ? "jijiang-slash" : "jijiang-decline"
+        var isFactionDefenseProvider = prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("response") is "faction-defense-dodge" or "faction-defense-bagua");
+        var isFactionSlashProvider = prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "faction-slash-slash");
+        var expected = isFactionDefenseProvider
+            ? useDodge ? "faction-defense-dodge" : "faction-defense-decline"
+            : isFactionSlashProvider
+                ? useDodge ? "faction-slash-slash" : "faction-slash-decline"
             : useDodge ? prompt.Kind == DecisionKind.RespondSlash ? "slash" : "dodge" : "take-damage";
         var choice = prompt.Choices.FirstOrDefault(choice => choice.Parameters.TryGetValue("response", out var response) && response == expected);
         if (choice is null) return;
@@ -2007,21 +1948,21 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add($"        AskForActivation({pending.Kind})");
             }
             else if (pending.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") is "hujia-request" or "hujia-dodge" or "hujia-bagua"))
+                    choice.Parameters.GetValueOrDefault("response") is "faction-defense-request" or "faction-defense-dodge" or "faction-defense-bagua"))
             {
-                EventStack.Add("      Skill(Hujia)");
+                EventStack.Add("      Skill(FactionDefense)");
                 EventStack.Add(pending.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") == "hujia-request")
-                    ? "        AskLordForHujia()"
+                    choice.Parameters.GetValueOrDefault("response") == "faction-defense-request")
+                    ? "        AskLordForFactionDefense()"
                     : $"        AskWeiForDodge(owner: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
             }
             else if (pending.Choices.Any(choice =>
-                         choice.Parameters.GetValueOrDefault("response") is "jijiang-request" or "jijiang-slash"))
+                         choice.Parameters.GetValueOrDefault("response") is "faction-slash-request" or "faction-slash-slash"))
             {
-                EventStack.Add("      Skill(Jijiang)");
+                EventStack.Add("      Skill(FactionSlash)");
                 EventStack.Add(pending.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") == "jijiang-request")
-                    ? "        AskLordForJijiang()"
+                    choice.Parameters.GetValueOrDefault("response") == "faction-slash-request")
+                    ? "        AskLordForFactionSlash()"
                     : $"        AskShuForSlash(owner: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
             }
             else if (pending.Kind == DecisionKind.SelectHarvestCard)
@@ -2049,45 +1990,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     ? "        AskForResponse(Peach/Alcohol)"
                     : "        AskForResponse(Peach)");
             }
-            else if (pending.Kind is DecisionKind.Guicai or DecisionKind.Guidao)
-            {
-                EventStack.Add($"      Judgment(target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
-                EventStack.Add("        AskForSkill(Guicai)");
-            }
-            else if (pending.Kind == DecisionKind.Keji)
+            else if (pending.Kind == DecisionKind.SkipDiscardPolicy)
             {
                 EventStack.Add("      Phase(Discard)");
                 EventStack.Add("        AskForSkill(Keji)");
-            }
-            else if (pending.Kind == DecisionKind.Jiangchi)
-            {
-                EventStack.Add("      Phase(Draw)");
-                EventStack.Add("        AskForSkill(Jiangchi)");
-            }
-            else if (pending.Kind == DecisionKind.Zishou)
-            {
-                EventStack.Add("      Phase(Draw)");
-                EventStack.Add("        AskForSkill(Zishou)");
-            }
-            else if (pending.Kind == DecisionKind.Luoshen)
-            {
-                EventStack.Add("      Phase(Preparation)");
-                EventStack.Add("        AskForSkill(Luoshen)");
-            }
-            else if (pending.Kind == DecisionKind.Jizhi)
-            {
-                EventStack.Add("      UseCard(OrdinaryTrick)");
-                EventStack.Add("        AskForSkill(Jizhi)");
-            }
-            else if (pending.Kind == DecisionKind.Tieqi)
-            {
-                EventStack.Add("      UseCard(Slash)");
-                EventStack.Add("        AskForSkill(Tieqi)");
-            }
-            else if (pending.Kind == DecisionKind.Liegong)
-            {
-                EventStack.Add("      UseCard(Slash)");
-                EventStack.Add("        AskForSkill(Liegong)");
             }
             else if (pending.Kind == DecisionKind.Yingbo)
             {
@@ -2098,11 +2004,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      UseCard(Slash)");
                 EventStack.Add("        AskForEquipment(CixiongDoubleSwords)");
-            }
-            else if (pending.Kind == DecisionKind.Liuli)
-            {
-                EventStack.Add("      UseCard(Slash)");
-                EventStack.Add("        AskForSkill(Liuli)");
             }
             else if (pending.Kind == DecisionKind.QinglongCrescentBlade)
             {
@@ -2119,38 +2020,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      Damage(Slash)");
                 EventStack.Add("        AskForEquipment(QilinBow)");
             }
-            else if (pending.Kind == DecisionKind.Mengjin)
-            {
-                EventStack.Add("      UseCard(Slash)");
-                EventStack.Add("        AskForSkill(Mengjin)");
-            }
-            else if (pending.Kind is DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget)
-            {
-                EventStack.Add("      ActiveSkill(Quhu)");
-                EventStack.Add($"        AskForSkill({pending.Kind})");
-            }
-            else if (pending.Kind == DecisionKind.TianyiPindian)
-            {
-                EventStack.Add("      ActiveSkill(Tianyi)");
-                EventStack.Add("        AskForSkill(TianyiPindian)");
-            }
             else if (pending.Kind == DecisionKind.ZhuqueFan)
             {
-                EventStack.Add("      Jijiang(Slash)");
+                EventStack.Add("      FactionSlash(Slash)");
                 EventStack.Add("        AskForEquipment(ZhuqueFan)");
-            }
-            else if (pending.Kind is
-                DecisionKind.Yuanhu or
-                DecisionKind.Ganglie or
-                DecisionKind.GangliePunish or
-                DecisionKind.Guicai or
-                DecisionKind.Guidao or
-                DecisionKind.Leiji or
-                DecisionKind.Tiandu or
-                DecisionKind.Guanxing)
-            {
-                EventStack.Add($"      DamageSkill({pending.Kind}, target: seat {pending.TargetSeat.GetValueOrDefault() + 1})");
-                EventStack.Add($"        AskForSkill({pending.Kind})");
             }
             else if (pending.IncomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
             {
@@ -2338,23 +2211,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _ => phase.ToString()
     };
 
-    private string GetVisibleSkillDescription(ContentSkillDefinition skill)
-    {
-        if (!_game.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal))
-        {
-            return skill.Description;
-        }
-
-        return skill.LegacyKind switch
-        {
-            SkillKind.Kongcheng =>
-                "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",                        SkillKind.Jianxiong =>
-                "当你受到伤害后，你可以获得造成此伤害的牌。",                        SkillKind.Yingzi =>
-                "摸牌阶段，你可以多摸一张牌。",                        SkillKind.Hujia =>
-                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",                        SkillKind.Jiuyuan =>
-                "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",                        _ => skill.Description
-        };
-    }
+    private static string GetVisibleSkillDescription(ContentSkillDefinition skill) => skill.Description;
 
     private string GetKingdom(string generalId) =>
         _contentRegistry.Generals.TryGetValue(generalId, out var general)

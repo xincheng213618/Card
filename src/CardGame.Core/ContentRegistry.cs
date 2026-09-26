@@ -67,14 +67,15 @@ public sealed record ContentCardDefinition(
 public sealed record ContentSkillDefinition(
     string Id,
     string Name,
-    string Description,
-    SkillKind? LegacyKind = null)
+    string Description)
 {
     public SkillProgram? Program { get; init; }
     public SkillPresentation? ProgramPresentation { get; init; }
     public SkillTag Tags { get; init; }
     public SkillExecutionForm ExecutionForms { get; init; }
     public SkillActionForm ActionForms { get; init; }
+    public IReadOnlyDictionary<Role, double>? SelectionWeights { get; init; }
+    public SkillRevealWeights? RevealWeights { get; init; }
 }
 
 public sealed record ContentGeneralDefinition(
@@ -326,10 +327,12 @@ public sealed class ContentRegistry
                 // Program presentation has its own hash and does not change gameplay identity.
                 Name = skill.Program is null ? skill.Name : string.Empty,
                 Description = skill.Program is null ? skill.Description : string.Empty,
-                Kind = skill.LegacyKind?.ToString(),
                 Tags = skill.Tags.ToString(),
                 ExecutionForms = skill.ExecutionForms.ToString(),
                 ActionForms = skill.ActionForms.ToString(),
+                skill.RevealWeights,
+                SelectionWeights = skill.SelectionWeights?.OrderBy(pair => pair.Key)
+                    .Select(pair => new { Role = pair.Key.ToString(), pair.Value }).ToArray(),
                 Program = skill.Program is {} program ? new
                 {
                     program.Id, program.RuntimeVersion, program.MinimumRulesVersion, program.GameplayHash
@@ -738,9 +741,6 @@ public sealed class ContentRegistry
             if (!string.Equals(normalized.Program.Id, normalized.Id, StringComparison.Ordinal))
                 throw new InvalidOperationException(
                     $"Skill '{normalized.Id}' is bound to program '{normalized.Program.Id}'. Program ids must match their content skill ids.");
-            if (normalized.LegacyKind is not null and not SkillKind.None)
-                throw new InvalidOperationException(
-                    $"Skill '{normalized.Id}' cannot have both configured and legacy implementations.");
             return normalized;
         }
 

@@ -30,7 +30,7 @@ internal static class GuYongChecks
             "Gu Yong must use shared programs with exact payment and dynamic target bounds.");
         var rules = Resource("CardGame.Content.Standard.SkillPrograms.classic-gu-yong.rules.json");
         var presentation = Resource("CardGame.Content.Standard.SkillPrograms.classic-gu-yong.presentation.json");
-        RejectDefinition(rules.Replace("\"schemaVersion\": 60", "\"schemaVersion\": 57", StringComparison.Ordinal),
+        RejectDefinition(rules.Replace("\"schemaVersion\": 61", "\"schemaVersion\": 57", StringComparison.Ordinal),
             presentation, "expected 60");
         RejectDefinition(rules.Replace("\"op\": \"revealBoundCards\", \"target\": \"owner\"",
                 "\"op\": \"revealBoundCards\", \"target\": \"selectedTargets\"", StringComparison.Ordinal),

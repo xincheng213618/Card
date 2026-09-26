@@ -18,13 +18,14 @@ internal static class XiaoQiaoChecks
         var paused = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
         var answered = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, use.Id, game.Revision));
         Require(answered.Accepted, answered.Error?.Message ?? "Tianxiang transfer choice was rejected.");
-        for (var step = 0; step < 32 && !game.Events.Any(item => item.Payload is TianxiangCardsDrawnEvent); step++)
+        for (var step = 0; step < 32 && !game.Events.Any(item => item.Payload is ProgramDamageTransferCardsDrawnEvent); step++)
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
                 "Tianxiang transfer did not finish its damage continuation.");
-        var transfer = game.Events.Select(item => item.Payload).OfType<TianxiangTransferredEvent>().Last();
-        var draw = game.Events.Select(item => item.Payload).OfType<TianxiangCardsDrawnEvent>().Last();
+        var transfer = game.Events.Select(item => item.Payload).OfType<ProgramDamageTransferredEvent>().Last();
+        var draw = game.Events.Select(item => item.Payload).OfType<ProgramDamageTransferCardsDrawnEvent>().Last();
         var after = game.CreateSnapshot(0, revealAll: true);
-        Require(after.Players[0].Hp == ownerHp && transfer.TargetSeat == use.Targets.Single() &&
+        Require(after.Players[0].Hp == ownerHp && transfer.SkillId == "classic:tianxiang" &&
+                transfer.TargetSeat == use.Targets.Single() &&
                 transfer.DamageAmount > 0 && draw.TargetSeat == transfer.TargetSeat &&
                 game.CardMovements.Any(move => move.CardId == card.Id && move.Reason == CardMoveReasons.TianxiangDiscard),
             "Tianxiang must prevent the owner's full damage, discard the exact private card and transfer that damage.");
@@ -53,7 +54,7 @@ internal static class XiaoQiaoChecks
 
             for (var step = 0; step < 1400; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.Tianxiang, PlayerSeat: 0 } tianxiang &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } tianxiang &&
                     tianxiang.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "tianxiang-use"))
                     return game;
                 if (game.PendingDecision is { PlayerSeat: 0 } prompt)

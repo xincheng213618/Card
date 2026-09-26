@@ -15,7 +15,6 @@ internal static class BoundaryZhangLiaoChecks
         var trigger = registry.Skills[SkillId].Program!.Triggers.Single();
         Require(general.Name == "界张辽" && general.FactionId == "wei" && general.BaseHp == 4 &&
                 general.SkillIds.SequenceEqual([SkillId]) &&
-                registry.Skills[SkillId].LegacyKind is null &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
                 !registry.Modes["identity:classic-boundary-5"].GeneralPoolIds!.Contains(GeneralId) &&
@@ -46,7 +45,7 @@ internal static class BoundaryZhangLiaoChecks
             {"schemaVersion":3,"skills":{"fixture:draw-plan":{"name":"通用摸牌计划","description":"测试"}}}
             """;
         const string genericPlan = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:draw-plan","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:draw-plan","revision":1,
             "minimumRulesVersion":170,"triggers":[{"id":"plan","window":"drawPhaseStarting",
             "subject":"owner","optional":true,"drawPhaseMode":"additive","effects":[
             {"op":"selectTargets","target":"owner","targetKind":"anyLiving",
@@ -345,7 +344,7 @@ internal static class BoundaryZhangLiaoChecks
             {
                 extra.Add("fixture:draw-adjustment");
                 var catalog = SkillProgramCatalog.Load($$"""
-                    {"schemaVersion":60,"skills":[{"id":"fixture:draw-adjustment","revision":1,
+                    {"schemaVersion":61,"skills":[{"id":"fixture:draw-adjustment","revision":1,
                     "minimumRulesVersion":170,"triggers":[{"id":"adjust","window":"drawPhaseStarting",
                     "subject":"owner","optional":false,"priority":200,"effects":[{"op":"adjustNormalDraw",
                     "target":"owner","amount":{{adjustment}}}]}]}]}
@@ -359,7 +358,7 @@ internal static class BoundaryZhangLiaoChecks
             {
                 extra.Add("fixture:pre-draw");
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":60,"skills":[{"id":"fixture:pre-draw","revision":1,
+                    {"schemaVersion":61,"skills":[{"id":"fixture:pre-draw","revision":1,
                     "minimumRulesVersion":170,"triggers":[{"id":"early","window":"drawPhaseStarting",
                     "subject":"owner","optional":false,"priority":200,"effects":[
                     {"op":"draw","target":"owner","amount":1}]}]}]}

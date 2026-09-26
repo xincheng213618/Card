@@ -95,7 +95,7 @@ internal static class ProgramOwnedCardsUiChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":60,"skills":[{"id":"fixture:ui-owned-cards","revision":1,
+                {"schemaVersion":61,"skills":[{"id":"fixture:ui-owned-cards","revision":1,
                 "minimumRulesVersion":170,"activations":[{"id":"select","minCards":0,"maxCards":0,
                 "minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":1,
                 "condition":{"kind":"always"},"effects":[

@@ -23,20 +23,19 @@ internal static class GuanXingZhangBaoChecks
                     Gender: GeneralGender.Male
                 } && general.SkillIds.SequenceEqual([FuhunSkillId]),
             "Classic Guan Xing & Zhang Bao metadata drifted.");
-        Require(fuhun.LegacyKind is null &&
-                fuhun.Tags == SkillTag.None &&
+        Require(fuhun.Tags == SkillTag.None &&
                 fuhun.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
                 fuhun.ActionForms == SkillActionForm.Active &&
                 fuhun.Program is
                 {
-                    RuntimeVersion: "skill-program-v60",
-                    MinimumRulesVersion: 170,
+                    RuntimeVersion: "skill-program-v61",
+                    MinimumRulesVersion: 171,
                     ViewAs.Count: 1,
                     Activations.Count: 1,
                     Triggers.Count: 1
                 } program &&
                 program.ViewAs.Single().InputCount == 2,
-            $"Fuhun metadata drifted: kind={fuhun.LegacyKind}, tags={fuhun.Tags}, " +
+            $"Fuhun metadata drifted: id={fuhun.Id}, tags={fuhun.Tags}, " +
             $"execution={fuhun.ExecutionForms}, actions={fuhun.ActionForms}.");
 
     }

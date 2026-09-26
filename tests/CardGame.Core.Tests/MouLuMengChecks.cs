@@ -19,13 +19,11 @@ internal static class MouLuMengChecks
                 } && skillIds.SequenceEqual([HengyeSkillId, YingboSkillId]) &&
                 current.Skills[HengyeSkillId] is
                 {
-                    LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State
                 } &&
                 current.Skills[YingboSkillId] is
                 {
-                    LegacyKind: null,
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger
                 },

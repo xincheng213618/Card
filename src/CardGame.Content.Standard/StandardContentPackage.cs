@@ -8,7 +8,7 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class StandardContentPackage : IGameContentPackage
 {
-    public static Version CurrentVersion { get; } = new(1, 14, 0);
+    public static Version CurrentVersion { get; } = new(1, 15, 0);
 
     public StandardContentPackage()
     {
@@ -312,7 +312,7 @@ public sealed class StandardContentPackage : IGameContentPackage
             }));
 
         builder.AddSkill(new ContentSkillDefinition(
-            "standard:none", "无", "演示版暂未启用技能。", SkillKind.None));
+            "standard:none", "无", "演示版暂未启用技能。"));
         builder.AddSkill(DamageSkillPrograms.Definition("standard:jianxiong"));
         builder.AddSkill(DamageSkillPrograms.Definition("standard:feedback"));
         builder.AddSkill(RuleQuerySkillPrograms.Definition("standard:paoxiao") with
@@ -321,18 +321,14 @@ public sealed class StandardContentPackage : IGameContentPackage
                 ExecutionForms = SkillExecutionForm.State
             });
         builder.AddSkill(DrawPhaseSkillPrograms.Definition("standard:yingzi"));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:kongcheng", "空城", "没有手牌时不能成为杀的目标。", SkillKind.Kongcheng));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "standard:kongcheng"));
         builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:wusheng"));
         builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:longdan"));
         builder.AddSkill(DamageSkillPrograms.Definition("standard:yiji"));
         builder.AddSkill(DamageSkillPrograms.Definition("standard:jieming"));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:yuanhu", "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。", SkillKind.Yuanhu));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:ganglie", "刚烈", "受到伤害后可进行判定；若为红色，伤害来源选择弃置两张手牌或受到 1 点伤害。", SkillKind.Ganglie));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:guicai", "鬼才", "判定牌生效前，可弃置一张手牌替换之。", SkillKind.Guicai));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "standard:yuanhu"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "standard:ganglie"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "standard:guicai"));
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "standard:cao-cao", "曹操", "cao_cao", "standard:jianxiong", "wei"));

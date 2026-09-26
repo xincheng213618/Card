@@ -16,9 +16,8 @@ internal static class JudgmentDrawProgramChecks
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 107, 0) &&
                 skill is
                 {
-                    LegacyKind: null,
                     Program: not null,
-                    Program.MinimumRulesVersion: 170
+                    Program.MinimumRulesVersion: 171
                 } &&
                 skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
                 trigger is
@@ -239,7 +238,7 @@ internal static class JudgmentDrawProgramChecks
     private sealed record Fixture(GameEngine Game, ContentRegistry Registry);
 
     private const string Rules = """
-        {"schemaVersion":60,"skills":[{
+        {"schemaVersion":61,"skills":[{
           "id":"fixture:judgment-draw","revision":1,"minimumRulesVersion":170,
           "modifiers":[],"viewAs":[],"activations":[],"triggers":[{
             "id":"replace","window":"drawPhaseStarting","subject":"owner","optional":true,

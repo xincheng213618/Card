@@ -21,7 +21,7 @@ internal static class ZhuZhiChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } &&
+                skill.Program is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } &&
                 skill.Program.Activations.Single() is { UsesPerPhase: 1, MinTargets: 0, MaxTargets: 0 } &&
                 (int)SkillProgramConditionKind.AttackRangeCoverageDecreased == 22,
             "Zhu Zhi must be a formal Wu/Fame V general with phase-limited schema-55 Anguo.");
@@ -401,7 +401,7 @@ internal static class ZhuZhiChecks
             if (rangeRescueTargets)
             {
                 const string rules = """
-                {"schemaVersion":60,"skills":[{"id":"fixture:range-rescue","revision":1,
+                {"schemaVersion":61,"skills":[{"id":"fixture:range-rescue","revision":1,
                  "minimumRulesVersion":170,"triggers":[{"id":"restore-public-range",
                  "window":"cardsMoved","subject":"owner","sourceZones":["equipment"],
                  "movementOccurrence":"perBatch","optional":false,"priority":0,
@@ -419,7 +419,7 @@ internal static class ZhuZhiChecks
             if (rangePlusTwoTargets)
             {
                 const string rules = """
-                {"schemaVersion":60,"skills":[{"id":"fixture:range-plus-two","revision":1,
+                {"schemaVersion":61,"skills":[{"id":"fixture:range-plus-two","revision":1,
                  "minimumRulesVersion":170,"modifiers":[{"id":"public-plus-two",
                  "query":"attackRange","operation":"add","value":2,"priority":0}]}]}
                 """;
@@ -434,7 +434,7 @@ internal static class ZhuZhiChecks
             if (lethalLossTargets)
             {
                 const string rules = """
-                {"schemaVersion":60,"skills":[{"id":"fixture:range-lethal","revision":1,
+                {"schemaVersion":61,"skills":[{"id":"fixture:range-lethal","revision":1,
                  "minimumRulesVersion":170,"triggers":[{"id":"lose-life-on-equipment-loss",
                  "window":"cardsMoved","subject":"owner","sourceZones":["equipment"],
                  "movementOccurrence":"perBatch","optional":false,"priority":0,

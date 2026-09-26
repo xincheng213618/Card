@@ -35,7 +35,7 @@ internal static class CixiongDoubleSwordsScenario
                 registry.Generals[choice.ContentIds[0]].Gender == GeneralGender.Male &&
                 registry.Generals[choice.ContentIds[0]].SkillIds
                     .Select(registry.GetSkill)
-                    .All(skill => skill.LegacyKind is not (SkillKind.Tieqi or SkillKind.Liegong)));
+                    .All(skill => skill.Id is not ("classic:tieqi" or "classic:liegong")));
             if (generalChoice is null)
             {
                 continue;

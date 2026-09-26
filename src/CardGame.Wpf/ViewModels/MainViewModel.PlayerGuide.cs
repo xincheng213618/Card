@@ -238,13 +238,13 @@ public sealed partial class MainViewModel
                 (CurrentGuideTitle, steps) = prompt.Kind switch
                 {
                     DecisionKind.RespondDodge when prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") == "hujia-request") => ("决定是否发动护驾", new[] { "发动后，会按当前行动顺序依次询问其他存活的魏势力角色。", "若无人代出闪，你仍可使用自己的闪或八卦阵，也可以放弃响应。" }),
+                    choice.Parameters.GetValueOrDefault("response") == "faction-defense-request") => ("决定是否发动护驾", new[] { "发动后，会按当前行动顺序依次询问其他存活的魏势力角色。", "若无人代出闪，你仍可使用自己的闪或八卦阵，也可以放弃响应。" }),
                 DecisionKind.RespondDodge when prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") is "hujia-dodge" or "hujia-bagua") => ("响应曹操的护驾", new[] { "你可以打出自己的闪，或发动自己的八卦阵；成功后视为曹操打出闪。", "也可以拒绝，系统会继续询问下一名魏势力角色。" }),
+                    choice.Parameters.GetValueOrDefault("response") is "faction-defense-dodge" or "faction-defense-bagua") => ("响应曹操的护驾", new[] { "你可以打出自己的闪，或发动自己的八卦阵；成功后视为曹操打出闪。", "也可以拒绝，系统会继续询问下一名魏势力角色。" }),
                 DecisionKind.RespondSlash when prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") == "jijiang-request") => ("决定是否发动激将", new[] { "发动后，会按当前行动顺序依次询问其他存活的蜀势力角色。", "若无人代出杀，你仍可使用自己的杀或放弃响应。" }),
+                    choice.Parameters.GetValueOrDefault("response") == "faction-slash-request") => ("决定是否发动激将", new[] { "发动后，会按当前行动顺序依次询问其他存活的蜀势力角色。", "若无人代出杀，你仍可使用自己的杀或放弃响应。" }),
                 DecisionKind.RespondSlash when prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") == "jijiang-slash") => ("响应刘备的激将", new[] { "你可以打出自己的一张杀；成功后视为刘备打出杀。", "也可以拒绝，系统会继续询问下一名蜀势力角色。" }),
+                    choice.Parameters.GetValueOrDefault("response") == "faction-slash-slash") => ("响应刘备的激将", new[] { "你可以打出自己的一张杀；成功后视为刘备打出杀。", "也可以拒绝，系统会继续询问下一名蜀势力角色。" }),
                 DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪；中央会列出合法的手牌、技能或装备选项。", "点击中央候选会立即提交响应。选择不响应可能受到伤害。" }),
 DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救。庞统还可发动一次限定技涅槃。", "选择使用哪张牌、发动涅槃或不救援；按当前模式的阵营关系决定希望保护谁。" }
 )),                                DecisionKind.SelectHarvestCard => ("从公开牌中取走一张", new[] { "点击中央的一张公开牌，它会加入你的手牌。", "这是选牌，不需要再选择武将或点击出牌。" }),
@@ -252,27 +252,27 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
                 DecisionKind.Nullification => ("决定是否使用无懈可击", new[] { "看清候选写的是使锦囊失效，还是恢复已被无懈的效果。", "点击使用会消耗所选的无懈；也可跳过并保留手牌。" }),
                 DecisionKind.FireAttackReveal => ("展示一张手牌", new[] { "在中央选择要展示的牌；此时只是展示，并非主动弃牌。", "随后由火攻使用者决定是否弃置同花色牌造成伤害。" }),
                 DecisionKind.FireAttackDiscard => ("决定是否为火攻弃牌", new[] { "中央列出了可弃置的同花色手牌；点击候选将立即支付代价。", "也可以跳过，保留手牌并结束这次火攻。" }),
-                DecisionKind.Jiangchi => ("选择将驰方式", new[] { "多摸一张会令你直到回合结束都不能使用或打出杀，包括转化杀、丈八蛇矛和激将。", "少摸一张会令本回合出牌阶段的杀无距离限制且次数上限 +1；也可以不发动并正常摸牌。" }),
-                DecisionKind.Zishou => ("决定是否自守", new[] { "发动后按现存势力数额外摸牌，现存势力由仍存活角色的实际势力去重计算。", "代价持续到本回合结束：牌只能指定自己为目标；南蛮入侵和万箭齐发不可使用，桃园结义、五谷丰登仅对自己结算。" }),
-                DecisionKind.Tiandu => ("决定是否发动天妒", new[] { "判定结果已经生效；发动后，公开判定牌会进入你的手牌。", "也可以跳过，让判定牌按通常流程进入弃牌堆。" }),
-                DecisionKind.Guanxing => ("排列观星看到的牌", new[] { "先决定是否发动；发动后依次选择牌堆顶顺序，第一张会最先被摸取或用于判定。", "结束牌堆顶排序后，再从最底层开始排列其余牌；牌面只对观星者可见。" }),
-                DecisionKind.Keji => ("决定是否发动克己", new[] { "本回合出牌阶段没有使用或打出过杀，因此可以跳过弃牌阶段。", "发动后保留全部手牌并结束回合；跳过则按当前体力上限弃牌。" }),
-                DecisionKind.Luoshen => ("决定是否发动洛神", new[] { "发动后进行一次公开判定；黑色判定牌会进入你的手牌。", "每次黑色判定后都可继续或停止；出现红色结果时自动停止并继续准备阶段。" }),
-                DecisionKind.Shensu => ("决定是否发动神速", new[] { "第一项可跳过判定与摸牌阶段，视为对一名角色使用无距离限制的杀。", "第二项可弃置一张装备牌并跳过出牌阶段，再视为使用一张无距离限制的杀；两项都可选择不发动。" }),
-                DecisionKind.Jizhi => ("决定是否发动集智", new[] { "你刚使用了一张普通锦囊牌；发动集智可摸一张牌。", "选择后会从原处继续无懈可击询问或锦囊结算；其他玩家看不到你的私有选择按钮。" }),
-                DecisionKind.Tieqi => ("决定是否发动铁骑", new[] { "你刚用杀指定了一名目标；发动铁骑后进行一次可被鬼才替换的公开判定。", "红色结果令该目标不能用闪响应此杀；黑色结果或跳过则继续普通闪响应。" }),
-                DecisionKind.Liegong => ("决定是否发动烈弓", new[] { "你在出牌阶段用杀指定了满足烈弓手牌条件的目标。", "发动后该目标不能用闪响应此杀；跳过则继续普通闪响应。" }),
+
+
+
+
+                DecisionKind.SkipDiscardPolicy => ("决定是否发动克己", new[] { "本回合出牌阶段没有使用或打出过杀，因此可以跳过弃牌阶段。", "发动后保留全部手牌并结束回合；跳过则按当前体力上限弃牌。" }),
+
+
+
+
+
                 DecisionKind.Yingbo => ("决定英博交牌", new[] { "本轮首次使用的同名伤害牌不能被响应。", "这张实体牌结算后仍在处理区时，你可以将它交给一名其他角色；选择不交则正常进入弃牌堆。" }),
                 DecisionKind.StoneAxe => ("决定是否发动贯石斧", new[] { "目标已用足够的闪抵消此杀；中央每个候选都是一组精确的两牌代价。", "代价可来自你的手牌或装备区，也可包含贯石斧本身；支付后沿原杀继续造成伤害。" }),
                 DecisionKind.CixiongDoubleSwords => ("处理雌雄双股剑", new[] { "使用者以杀指定异性目标后，可选择发动雌雄双股剑。", "发动后目标从自己的手牌中精确弃一张，或令使用者摸一张牌；随后继续原杀响应。" }),
-                DecisionKind.Liuli => ("决定是否发动流离", new[] { "你成为了杀的目标；中央每个候选都包含一张精确弃牌和一名可转移目标。", "目标必须在你的攻击范围内且不能是杀的使用者；也可以跳过并继续普通闪响应。" }),
+
                 DecisionKind.QinglongCrescentBlade => ("决定是否发动青龙偃月刀", new[] { "目标已经用足够的闪抵消此杀；中央列出你当前可以使用的每一张精确杀，刘备也可选择激将。", "发动后只对同一目标开启一张新杀，不受本回合普通出杀次数和距离限制；激将提供者支付实体牌，新杀被闪抵消时仍可再次发动。" }),
                 DecisionKind.IceSword => ("选择寒冰剑弃牌", new[] { "你可以保留原伤害，或防止全部伤害并依次弃置目标至多两张手牌/装备。", "目标手牌只显示为不透明牌位；一旦发动，若第二张牌仍可弃置就必须继续选择。" }),
                 DecisionKind.QilinBow => ("决定是否发动麒麟弓", new[] { "你的杀即将对目标造成伤害；中央只列出其装备区中当前公开的坐骑。", "选择一张坐骑会先将其弃置，再继续原伤害；也可以跳过。" }),
-                DecisionKind.Mengjin => ("决定是否发动猛进", new[] { "你的杀已被目标的闪抵消；中央列出其暗手牌位与公开装备。", "选择一个牌位或装备会弃置该牌；判定区不属于猛进的范围，也可以跳过。" }),
-                DecisionKind.QuhuPindian => ("选择驱虎拼点牌", new[] { "双方各自私下选择一张手牌，提交后同时公开点数并进入弃牌堆。", "荀彧点数严格更大才算赢；平点视为荀彧未赢。" }),
-                DecisionKind.QuhuDamageTarget => ("选择驱虎伤害目标", new[] { "你已拼点获胜，必须从拼点目标攻击范围内选择另一名角色。", "这1点普通伤害由拼点目标造成，伤害来源和后续技能均按该角色结算。" }),
-                DecisionKind.TianyiPindian => ("选择天义拼点牌", new[] { "双方各自私下选择一张手牌，提交后同时公开点数并弃置。", "严格大于对方才算赢；获胜后本回合可多用一张杀、无距离限制且可多选一个目标，未赢则不能使用杀。" }),
+
+
+
+
                 DecisionKind.ZhuqueFan => ("决定是否发动朱雀羽扇", new[] { "蜀势力角色已经为激将提供普通杀；现在由实际使用者决定牌名。", "改为火杀会造成火焰伤害，并可能沿公开的连环状态传导；保持普通杀则没有属性传导。" }),
                     _ => ("处理当前技能选择", new[] { "先读中央说明，再选择发动、支付代价或跳过。", "中央的每个按钮都是完整选择，点击后立即执行。" })
                 };

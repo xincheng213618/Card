@@ -60,8 +60,8 @@ internal static class Program
             Directory.CreateDirectory(output);
             if (args.Contains("--only-classic-rende", StringComparer.Ordinal))
             {
-                Check("classic Rende remains repeatable before Jijiang opens its separate target draft",
-                    () => ClassicGeneralUiChecks.JijiangActiveAction(output));
+                Check("classic Rende remains repeatable before FactionSlash opens its separate target draft",
+                    () => ClassicGeneralUiChecks.FactionSlashActiveAction(output));
                 Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
                 Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
                 return 0;
@@ -297,8 +297,8 @@ internal static class Program
             Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
             Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));
             Check("classic Guanxing restores and orders private cards through the WPF choice surface", () => ClassicGeneralUiChecks.GuanxingChoiceAndRestore(output));
-            Check("classic Hujia restores and requests Wei responses through the WPF choice surface", () => ClassicGeneralUiChecks.HujiaChoiceAndRestore(output));
-            Check("classic Rende remains repeatable before Jijiang opens its separate target draft", () => ClassicGeneralUiChecks.JijiangActiveAction(output));
+            Check("classic FactionDefense restores and requests Wei responses through the WPF choice surface", () => ClassicGeneralUiChecks.FactionDefenseChoiceAndRestore(output));
+            Check("classic Rende remains repeatable before FactionSlash opens its separate target draft", () => ClassicGeneralUiChecks.FactionSlashActiveAction(output));
             Check("program skill target order survives tutorial restoration and submission", ClassicGeneralUiChecks.OrderedProgramTargets);
             Check("classic shared skills render their distinct trigger and state identities", () => ClassicGeneralUiChecks.SharedSkillIdentityMetadata(output));
             Check("skill drafts confirm through Enter and resume intact after guides and tutorials", () => SkillInteractionChecks.ConfirmAndResume(output));

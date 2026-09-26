@@ -58,7 +58,7 @@ internal static class JijiuChecks
             HandCount: 1,
             Hand: [new CardSnapshot(redHeart.Id, redHeart.Kind, redHeart.Suit, redHeart.Rank, redHeart.DisplayName, redHeart.RankText)])
         {
-            Skills = [new GeneralSkillDefinition(SkillKind.Jijiu, "急救", "濒死窗口可将一张红色牌当作桃使用。")]
+            Skills = [new GeneralSkillDefinition("急救", "濒死窗口可将一张红色牌当作桃使用。")]
         };
         var victim = self with
         {

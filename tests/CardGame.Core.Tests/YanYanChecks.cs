@@ -17,7 +17,6 @@ internal static class YanYanChecks
         } && skillIds.SequenceEqual([SkillId]) &&
                 current.Skills[SkillId] is
                 {
-                    LegacyKind: null,
                     Tags: SkillTag.Conversion,
                     ExecutionForms: SkillExecutionForm.Trigger
                 },

@@ -157,102 +157,6 @@ public enum TurnPhase
     Finished
 }
 
-public enum SkillKind
-{
-    None,
-    Jianxiong,
-    Paoxiao,
-    Yingzi,
-    Kongcheng,
-    Feedback,
-    Wusheng,
-    Longdan,
-    Yiji,
-    Jieming,
-    Yuanhu,
-    Ganglie,
-    Guicai,
-    Guidao,
-    Leiji,
-    Huangtian,
-    Tiandu,
-    Guanxing,
-    Mashu,
-    Qicai,
-    Jijiu,
-    Hujia,
-    Jiuyuan,
-    Qixi,
-    Keji,
-    Tuxi,
-    Luoyi,
-    Duanliang,
-    Luoshen,
-    Qingguo,
-    Jizhi,
-    Tieqi,
-    Liegong,
-    Kuanggu,
-    Wushuang,
-    Guose,
-    Liuli,
-    Biyue,
-    Xiaoji,
-    Qianxun,
-    Lianying,
-    Mengjin,
-    Quhu,
-    Shuangxiong,
-    Bazhen,
-    Huoji,
-    Kanpo,
-    Lianhuan,
-    Niepan,
-    Tianyi,
-    Jushou,
-    Hongyan,
-    Tianxiang,
-    Buqu,
-    Xueyi,
-    Shensu,
-    Yaowu,
-    Yicong,
-    Yinghun,
-    Huoshou,
-    Zaiqi,
-    Juxiang,
-    Lieren,
-    Yizhong,
-    Wuyan,
-    Jujian,
-    Wuhun,
-    Xianzhen,
-    Zishou,
-    Zongshi,
-    Zhenlie,
-    Miji,
-    Quanji,
-    Zili,
-    Paiyi,
-    Qice,
-    Zhiyu,
-    Dangxian,
-    Fuli,
-    Fuhun,
-    Anxu,
-    Zhuiyi,
-    Lihuo,
-    Chunlao,
-    Gongqi,
-    Jiefan,
-    Chengxiang,
-    Renxin,
-    Jingce,
-    Junxing,
-    Yuce,
-    Longyin
-}
-
 public enum DecisionKind
 {
     SelectGeneral,
@@ -263,31 +167,10 @@ public enum DecisionKind
     SelectHarvestCard,
     FireAttackReveal,
     FireAttackDiscard,
-    Feedback,
-    Yiji,
-    Jieming,
-    Yuanhu,
     Nullification,
-    Ganglie,
-    GangliePunish,
-    Guicai,
-    Guidao,
-    Leiji,
-    Yingzi,
-    Tiandu,
-    Guanxing,
     DiscardCards,
     SelectTargetCard,
-    Keji,
-    Liuli,
-    Biyue,
-    Tuxi,
-    Luoyi,
-    Luoshen,
-    Jizhi,
-    Tieqi,
-    Liegong,
-    Juzhan,
+    SkipDiscardPolicy,
     Yingbo,
     StoneAxe,
     CixiongDoubleSwords,
@@ -295,40 +178,11 @@ public enum DecisionKind
     IceSword,
     QilinBow,
     ZhuqueFan,
-    Mengjin,
-    QuhuPindian,
-    QuhuDamageTarget,
-    TianyiPindian,
-    Jushou,
-    Shensu,
-    Yaowu,
-    Tianxiang,
-    Yinghun,
-    Zaiqi,
-    Lieren,
-    Jujian,
     ProgramJudgmentTrigger,
     ProgramJudgmentReplacement,
+    ProgramTopReorder,
+    ProgramRepeatJudgment,
     SelectFaction,
-    Jiangchi,
-    Qianxi,
-    XianzhenPindian,
-    Zishou,
-    Zhenlie,
-    Miji,
-    Quanji,
-    Zili,
-    Qice,
-    Zhiyu,
-    Chunlao,
-    Gongqi,
-    Jiefan,
-    Chengxiang,
-    Renxin,
-    Jingce,
-    Junxing,
-    Yuce,
-    Longyin,
     SkillModule,
     ProgramTrigger
 }
@@ -346,11 +200,6 @@ public enum CardColor
     Black
 }
 
-public enum GangliePunishmentKind
-{
-    DiscardTwo,
-    LoseHp
-}
 
 public enum EngineStatus
 {
@@ -499,7 +348,6 @@ public sealed record Card(int Id, CardKind Kind, Suit Suit, int Rank)
 }
 
 public sealed partial record GeneralSkillDefinition(
-    SkillKind Kind,
     string Name,
     string Description)
 {
@@ -517,7 +365,12 @@ public sealed partial record GeneralSkillDefinition(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<SkillViewAsOpportunity>? ViewAsOpportunities { get; init; }
+    public IReadOnlyDictionary<Role, double>? SelectionWeights { get; init; }
+    public SkillRevealWeights? RevealWeights { get; init; }
 }
+
+public sealed record SkillRevealWeights(double Base = 4, double Wounded = 0,
+    double EmptyHand = 0, double RepeatedSlash = 0);
 
 public sealed record SkillViewAsOpportunity(
     CardKind OutputKind,
@@ -821,18 +674,6 @@ public sealed record LegalAction
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardConversionSource>? AdditionalConversionSources { get; init; }
 
-    /// <summary>
-    /// Identifies a rule modifier that changes the effective card kind after an
-    /// existing card identity or view-as conversion. This stays separate from
-    /// <see cref="ConversionSource"/> so compound uses such as Wusheng followed
-    /// by Lihuo retain both sources.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public SkillKind? CardKindModifierSkill { get; init; }
-
-    /// <summary>Identifies a skill that enlarges this use's exact target set.</summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public SkillKind? TargetCountModifierSkill { get; init; }
 
     /// <summary>
     /// Selection bounds for a cardless active-skill action. The prompt carries

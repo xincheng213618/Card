@@ -26,11 +26,10 @@ internal static class WangYiChecks
                     package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
                 current.Skills[ZhenlieSkillId] is
                 {
-                    LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v60",
-                        MinimumRulesVersion: 170,
+                        RuntimeVersion: "skill-program-v61",
+                        MinimumRulesVersion: 171,
                         Triggers.Count: 1
                     } zhenlieProgram,
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -38,11 +37,10 @@ internal static class WangYiChecks
                 } &&
                 current.Skills[MijiSkillId] is
                 {
-                    LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v60",
-                        MinimumRulesVersion: 170,
+                        RuntimeVersion: "skill-program-v61",
+                        MinimumRulesVersion: 171,
                         Triggers.Count: 1
                     } program,
                     ExecutionForms: SkillExecutionForm.Trigger,

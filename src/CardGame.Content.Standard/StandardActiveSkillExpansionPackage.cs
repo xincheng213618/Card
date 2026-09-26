@@ -11,7 +11,7 @@ public sealed class StandardActiveSkillExpansionPackage : IGameContentPackage
 {
     private readonly bool _includeJijiu;
 
-    public static Version CurrentVersion { get; } = new(1, 1, 1);
+    public static Version CurrentVersion { get; } = new(1, 2, 0);
 
     public StandardActiveSkillExpansionPackage(bool includeJijiu = false)
     {
@@ -38,11 +38,7 @@ public sealed class StandardActiveSkillExpansionPackage : IGameContentPackage
                 Tags = SkillTag.Locked,
                 ExecutionForms = SkillExecutionForm.State
             });
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:qicai",
-            "奇才",
-            "锁定技，你使用锦囊牌无距离限制。",
-            SkillKind.Qicai));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "standard:qicai"));
         builder.AddGeneral(new ContentGeneralDefinition(
             "standard:demo-kujin",
             "黄盖",

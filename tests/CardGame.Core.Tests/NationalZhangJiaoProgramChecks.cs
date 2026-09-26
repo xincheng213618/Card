@@ -30,16 +30,16 @@ internal static class NationalZhangJiaoProgramChecks
                 huaTuo.SkillIds.SequenceEqual(["standard:jijiu", "standard:qingnang"]),
             "The formal Qun pair must preserve standard-national vitals and ordered skills.");
 
-        Require(registry.Skills["national:leiji"] is { LegacyKind: null, Program: { } leiji } &&
-                leiji.RuntimeVersion == "skill-program-v60" &&
-                leiji.MinimumRulesVersion == 170 &&
+        Require(registry.Skills["national:leiji"] is { Program: { } leiji } &&
+                leiji.RuntimeVersion == "skill-program-v61" &&
+                leiji.MinimumRulesVersion == 171 &&
                 leiji.Triggers.Count == 2 &&
                 leiji.Triggers.Single(trigger => trigger.Id == "spade-damage").Suits
                     .SequenceEqual([Suit.Spade]) &&
                 leiji.Triggers.All(trigger => trigger.Suits.All(suit => suit != Suit.Club)) &&
-                registry.Skills["national:guidao"] is { LegacyKind: null, Program: { } guidao } &&
-                guidao.RuntimeVersion == "skill-program-v60" &&
-                guidao.MinimumRulesVersion == 170 &&
+                registry.Skills["national:guidao"] is { Program: { } guidao } &&
+                guidao.RuntimeVersion == "skill-program-v61" &&
+                guidao.MinimumRulesVersion == 171 &&
                 guidao.Triggers.Single().Effects.Single().OldCardDestination ==
                     SkillProgramOldJudgmentCardDestination.OwnerHand &&
                 !registry.Skills.ContainsKey("national:huangtian"),

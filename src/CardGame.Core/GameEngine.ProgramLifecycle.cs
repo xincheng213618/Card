@@ -47,12 +47,14 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The lifecycle boundary frame lost its owner or candidate cursor.");
         if (frame.Window == SkillProgramTriggerWindow.PlayEnding && _phase != TurnPhase.Play)
             throw new InvalidOperationException("A PlayEnding lifecycle frame must remain in its Play phase.");
-        if (frame.Window == SkillProgramTriggerWindow.DrawPhaseStarting && _phase != TurnPhase.Draw)
+        if (frame.Window is (SkillProgramTriggerWindow.DrawPhaseStarting or
+            SkillProgramTriggerWindow.AfterNormalDraw) && _phase != TurnPhase.Draw)
             throw new InvalidOperationException("A DrawPhaseStarting lifecycle frame must remain in its Draw phase.");
         if (frame.Window != SkillProgramTriggerWindow.DrawPhaseStarting && frame.NormalDrawAdjustment != 0)
             throw new InvalidOperationException("Only a DrawPhaseStarting lifecycle frame may adjust normal draws.");
         if (frame.Window is not (SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
+            SkillProgramTriggerWindow.AfterNormalDraw or
             SkillProgramTriggerWindow.PlayEnding))
             throw new InvalidOperationException("This lifecycle window cannot own a clean phase boundary.");
         return true;
@@ -376,7 +378,6 @@ public sealed partial class GameEngine
             frame.Id,
             sourceCard: frame.WindowContext?.CardUse?.EffectiveKind,
             JudgmentContinuationKind.ProgramSkill,
-            damageSkill: null,
             sourceSeat: frame.OwnerSeat,
             programResultBind: resultBind,
             programResultVisibility: visibility);
@@ -406,8 +407,13 @@ public sealed partial class GameEngine
             return false;
         var instructions = ProgramInstructionResolver.Default.Resolve(frame, program).Instructions;
         if (frame.InstructionIndex < 1 || frame.InstructionIndex > instructions.Count ||
-            instructions[frame.InstructionIndex - 1] is not { Op: SkillProgramEffectOp.StartJudgment } effect ||
+            instructions[frame.InstructionIndex - 1] is not
+                { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.RepeatJudgment } effect ||
             reason != effect.JudgmentReason || resultBind != effect.ResultBind)
+            return false;
+        if (effect.Op == SkillProgramEffectOp.RepeatJudgment &&
+            (frame.RepeatedJudgment is not { } repeated ||
+             repeated.Reason != reason || repeated.ResultBind != resultBind))
             return false;
         return effect.Target switch
         {
@@ -632,6 +638,14 @@ public sealed partial class GameEngine
                     GetCombatDistance(ownerSeat, target.Seat) <= GetAttackRange(ownerSeat),
                 SkillProgramTargetKind.OtherLivingSlashable =>
                     CanUseProvidedSlashTarget(_players[ownerSeat], target),
+                SkillProgramTargetKind.SlashRedirectable =>
+                    _pendingAttack is { } pendingSlash &&
+                    pendingSlash.TargetSeat == ownerSeat &&
+                    IsProgramSlashRedirectTarget(pendingSlash, ownerSeat, target.Seat),
+                SkillProgramTargetKind.OtherLivingVirtualSlashTarget =>
+                    target.Seat != ownerSeat &&
+                    !IsDirectedCardTargetProhibited(ownerSeat, target.Seat, CardKind.Slash) &&
+                    !IsSlashProhibited(target),
                 SkillProgramTargetKind.OtherLivingWithHand =>
                     target.Seat != ownerSeat && GetHand(target).Count > 0,
 SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
@@ -1440,8 +1454,6 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             return false;
 
         var allowedParentIds = attack.PhysicalCards.Select(card => card.Id).ToHashSet();
-        if (_pendingLeiji is { } leiji)
-            allowedParentIds.UnionWith(leiji.OriginalAttack.PhysicalCards.Select(card => card.Id));
         if (_pendingJudgment?.Attack is { } judgmentAttack)
             allowedParentIds.UnionWith(judgmentAttack.PhysicalCards.Select(card => card.Id));
         if (_pendingBorrowedSword is { } borrowedSword)
@@ -1496,16 +1508,19 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
 
     private bool HasInitialOwnedCardSelectionCandidates(CharacterState owner, SkillProgramTrigger trigger)
     {
-        if (trigger.Effects.FirstOrDefault() is not
+        if (trigger.Effects.SkipWhile(effect => effect.Op == SkillProgramEffectOp.SelectTarget)
+                .FirstOrDefault() is not
             { Op: SkillProgramEffectOp.SelectOwnedCards,
               Target: SkillProgramEffectTarget.Owner,
-              MinimumCards: > 0,
               Condition.Kind: SkillProgramConditionKind.Always } selection)
             return true;
+        var required = selection.MinimumCards > 0 ? selection.MinimumCards : selection.Amount;
+        if (required <= 0) return true;
         var available = selection.Zones.Sum(zone =>
             _cardZones.CardsAt(new CardLocation(zone, owner.Seat)).Count(card =>
-                selection.CardKinds.Count == 0 || selection.CardKinds.Contains(card.Kind)));
-        return available >= selection.MinimumCards;
+                (selection.CardKinds.Count == 0 || selection.CardKinds.Contains(card.Kind)) &&
+                (selection.Suits.Count == 0 || selection.Suits.Contains(GetProgramEffectiveSuit(owner, card)))));
+        return available >= required;
     }
 
     private bool CanRunProgramTrigger(
@@ -1570,6 +1585,9 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
                 _phase == TurnPhase.Draw && CanRunDrawPhaseProgramTrigger(owner, trigger),
+            SkillProgramTriggerWindow.AfterNormalDraw =>
+                owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
+                _phase == TurnPhase.Draw,
             SkillProgramTriggerWindow.PlayEnding =>
                 owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
                 _phase == TurnPhase.Play,
@@ -1593,7 +1611,12 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 beforeDamage.TargetSeat == context.TargetSeat &&
                 beforeDamage.SourceSeat == context.SourceSeat &&
                 beforeDamage.Amount == context.Amount &&
-                !beforeDamage.Prevented && owner.Seat != beforeDamage.TargetSeat,
+                !beforeDamage.Prevented && beforeDamage.RedirectedTargetSeat is null &&
+                (trigger.Subject == SkillProgramTriggerSubject.DamageTarget
+                    ? owner.Seat == beforeDamage.TargetSeat &&
+                      !(trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.RedirectCurrentDamage) &&
+                        _pendingAttack?.DamageRedirected == true)
+                    : owner.Seat != beforeDamage.TargetSeat),
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
                 SkillProgramTriggerWindow.AfterDamageApplied =>
                 context.Amount > 0 && trigger.Subject switch
@@ -1639,10 +1662,11 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _pendingJudgment is { } currentJudgment &&
                 currentJudgment.FrameId == context.ParentFrameId &&
                 replacement.JudgmentFrameId == currentJudgment.FrameId &&
-                currentJudgment.CurrentCandidate is { IsProgram: true } replacementCandidate &&
+                currentJudgment.CurrentCandidate is { } replacementCandidate &&
                 replacementCandidate.OwnerSeat == candidate.OwnerSeat &&
                 replacementCandidate.ProgramId == candidate.SkillId &&
                 replacementCandidate.ProgramTriggerId == candidate.BindingId &&
+                replacementCandidate.SkillInstanceId == candidate.SkillInstanceId &&
                 currentJudgment.CurrentCard?.Id == replacement.OldCardId &&
                 _resolutionStack.LastOrDefault() is JudgmentFrame replacementFrame &&
                 replacementFrame.Id == currentJudgment.FrameId,
@@ -1972,6 +1996,22 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         return true;
     }
 
+    private bool TryBeginAfterNormalDrawProgramWindow(CharacterState owner)
+    {
+        if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Draw ||
+            _pendingDecision is not null || _resolutionStack.Count != 0)
+            return false;
+        var facts = CaptureProgramTriggerFacts(owner);
+        var candidates = CollectEligibleProgramTriggerCandidates(
+            owner, SkillProgramTriggerWindow.AfterNormalDraw, facts);
+        if (candidates.Count == 0) return false;
+        _resolutionStack.Add(new ProgramLifecycleTriggerWindowFrame(
+            ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.AfterNormalDraw,
+            candidates, ProgramLifecycleContinuation.CompleteAfterNormalDraw, facts));
+        ContinueProgramLifecycleWindow();
+        return true;
+    }
+
     private bool TryBeginTurnEndingBoundary(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _pendingDecision is not null ||
@@ -2118,6 +2158,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                         break;
                     case ProgramLifecycleContinuation.CompletePlayPhase:
                         CompletePlayPhaseAfterProgramWindow();
+                        break;
+                    case ProgramLifecycleContinuation.CompleteAfterNormalDraw:
+                        CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], _pendingTurnDelayedEffects,
+                            afterNormalDrawProgramsCompleted: true);
                         break;
                     default:
                         throw new InvalidOperationException("Unsupported lifecycle continuation.");
@@ -3125,6 +3169,14 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 AdvanceProgramLifecycleCursor(lifecycle);
                 ContinueProgramLifecycleWindow();
                 break;
+            case SkillProgramTriggerWindow.AfterNormalDraw:
+                if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame afterDraw ||
+                    afterDraw.Id != context.ParentFrameId ||
+                    afterDraw.Continuation != ProgramLifecycleContinuation.CompleteAfterNormalDraw)
+                    throw new InvalidOperationException("The after-draw program lost its parent window.");
+                AdvanceProgramLifecycleCursor(afterDraw);
+                ContinueProgramLifecycleWindow();
+                break;
             case SkillProgramTriggerWindow.DrawPhaseStarting:
                 if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame drawPhase ||
                     drawPhase.Id != context.ParentFrameId ||
@@ -3265,6 +3317,20 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             dying.ResponderSeat != frame.OwnerSeat)
             throw new InvalidOperationException("The dying program returned to the wrong responder or victim.");
         var victim = _players[dying.VictimSeat];
+        if (frame.WindowContext.Window == SkillProgramTriggerWindow.SelfDyingResponse)
+        {
+            dying.AttemptedSelfDyingBindings.Add(SelfDyingBindingKey(
+                frame.SkillId, frame.TriggerId!, frame.SkillInstanceId));
+            if (victim.Hp > 0)
+                CompleteDying(dying, survived: true);
+            else if (!TryBeginMandatorySelfDyingProgram(dying))
+            {
+                SetDyingFrameStep(dying.FrameId, ResolutionFrameStep.AwaitingResponse);
+                _status = EngineStatus.Running;
+                ExposeHumanDyingPrompt();
+            }
+            return;
+        }
         if (victim.Hp > 0)
         {
             CompleteDying(dying, survived: true);
@@ -3300,10 +3366,30 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             .Where(window => window != SkillProgramTriggerWindow.SelfDyingResponse ||
                 responder.Seat == dying.VictimSeat)
             .SelectMany(window => CollectProgramTriggerCandidates(responder, window))
+                .Where(candidate => GetProgramTrigger(candidate).Window !=
+                    SkillProgramTriggerWindow.SelfDyingResponse ||
+                    !dying.AttemptedSelfDyingBindings.Contains(SelfDyingBindingKey(
+                        candidate.SkillId, candidate.BindingId, candidate.SkillInstanceId)))
                 .Where(candidate => CanRunProgramTrigger(
                     candidate,
                     CreateDyingProgramContext(dying, candidate)))
                 .ToArray();
+
+    private static string SelfDyingBindingKey(string skillId, string bindingId, string skillInstanceId) =>
+        $"{skillId}\u001f{bindingId}\u001f{skillInstanceId}";
+
+    private bool TryBeginMandatorySelfDyingProgram(DyingResolution dying)
+    {
+        if (dying.ResponderIndex >= dying.ResponderSeats.Count ||
+            dying.ResponderSeat != dying.VictimSeat) return false;
+        var victim = _players[dying.VictimSeat];
+        var candidate = GetDyingProgramCandidates(victim, dying).FirstOrDefault(item =>
+            GetProgramTrigger(item) is { Window: SkillProgramTriggerWindow.SelfDyingResponse,
+                Optional: false });
+        if (candidate is null) return false;
+        BeginDyingProgramBinding(candidate, dying);
+        return true;
+    }
 
     private void BeginDyingProgramBinding(ProgramTriggerCandidate candidate, DyingResolution dying) =>
         BeginProgramBinding(candidate, CreateDyingProgramContext(dying, candidate));
@@ -3324,7 +3410,12 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _players[damage.Attack.TargetSeat].IsAlive,
             DirectCardUseDamage = !damage.Attack.IsChainPropagation &&
                 damage.Attack.Card is not null &&
-                damage.Attack.CardUserSeat == damage.Attack.SourceSeat
+                damage.Attack.CardUserSeat == damage.Attack.SourceSeat,
+            DamageCardIsRed = damage.Attack.Card?.Suit is Suit.Heart or Suit.Diamond,
+            SourceToTargetDistanceAtDamage = damage.Attack.SourceToTargetDistanceAtDamage,
+            EventTargetHp = _players[damage.Attack.TargetSeat].Hp,
+            EventTargetMaxHp = _players[damage.Attack.TargetSeat].MaxHp,
+            DamageTargetIsOther = candidate.OwnerSeat != damage.Attack.TargetSeat
         };
         return new(
             damage.Window,

@@ -38,7 +38,7 @@ internal static class QilinBowScenario
                 choice.ContentIds.Count == 1 &&
                 registry.Generals[choice.ContentIds[0]].SkillIds
                     .Select(registry.GetSkill)
-                    .All(skill => skill.LegacyKind is not (SkillKind.Tieqi or SkillKind.Liegong)));
+                    .All(skill => skill.Id is not ("classic:tieqi" or "classic:liegong")));
             if (generalPrompt is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: sourceSeat } ||
                 generalChoice is null)
             {
@@ -250,7 +250,7 @@ internal static class QilinBowScenario
                 item.Target.Equipment.All(card =>
                     card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
                 item.Target.Skills?.All(skill =>
-                    skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false)
+                    skill.ContentId is not ("classic:qingguo" or "classic:longdan" or "classic:hujia")) != false)
             .OrderBy(item => item.Action.CardId)
             .ThenBy(item => item.Action.TargetSeat)
             .FirstOrDefault();

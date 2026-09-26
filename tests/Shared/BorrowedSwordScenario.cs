@@ -67,7 +67,7 @@ internal static class BorrowedSwordScenario
             "No bounded classic Borrowed Sword source fixture with an equipped target was found.");
     }
 
-    public static GameEngine FindHumanOwnerResponse(bool requireJijiang = false)
+    public static GameEngine FindHumanOwnerResponse(bool requireFactionSlash = false)
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
@@ -144,8 +144,8 @@ internal static class BorrowedSwordScenario
                         choice.Parameters.GetValueOrDefault("response") == "borrowed-sword-give-weapon") &&
                     response.Choices.Any(choice =>
                         choice.Parameters.GetValueOrDefault("response") == "borrowed-sword-slash") &&
-                    (!requireJijiang || response.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "jijiang-request") &&
+                    (!requireFactionSlash || response.Choices.Any(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "faction-slash-request") &&
                         HasHelpingShuProvider(game, registry)))
                 {
                     var slashTargetSeat = response.TargetSeat ??
@@ -155,10 +155,10 @@ internal static class BorrowedSwordScenario
                     var canPauseForDodge = slashTarget.Hand.Any(card =>
                                                 card.Kind == CardKind.Dodge ||
                                                 slashTarget.Skills?.Any(skill =>
-                                                    skill.Kind == SkillKind.Longdan &&
+                                                    skill.ContentId == "classic:longdan" &&
                                                     card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == true ||
                                                 slashTarget.Skills?.Any(skill =>
-                                                    skill.Kind == SkillKind.Qingguo &&
+                                                    skill.ContentId == "classic:qingguo" &&
                                                     card.Suit is Suit.Spade or Suit.Club) == true) ||
                                             slashTarget.Equipment.Any(card =>
                                                 card.Kind == CardKind.BaguaFormation);

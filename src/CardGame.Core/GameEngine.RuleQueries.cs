@@ -103,7 +103,7 @@ public sealed partial class GameEngine
 
     private RuleQueryEvaluation EvaluateHandLimit(CharacterState player)
     {
-        var woundCount = UsesFormalZhouTai && HasRuntimeSkill(player, SkillKind.Buqu)
+        var woundCount = HasProgramSkill(player, "classic:buqu")
             ? GetBuquWounds(player).Count
             : 0;
         var baseTerms = new List<RuleQueryBaseTerm>
@@ -112,16 +112,16 @@ public sealed partial class GameEngine
                 ? new RuleQueryBaseTerm($"state:{player.Seat}:classic:buqu:wounds", woundCount)
                 : new RuleQueryBaseTerm($"state:{player.Seat}:current-hp", Math.Max(0, player.Hp))
         };
-        if (UsesFormalYuanShao && player.Role == Role.Lord && HasRuntimeSkill(player, SkillKind.Xueyi))
-        {
-            baseTerms.Add(new RuleQueryBaseTerm(
-                $"state:{player.Seat}:classic:xueyi:qun-allies",
-                _players.Count(other =>
-                    other.IsAlive && other.Seat != player.Seat &&
-                    string.Equals(GetEffectiveFactionId(other), "qun", StringComparison.Ordinal)) * 2));
-        }
-
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.HandLimit).ToList();
+        foreach (var (source, policy) in CardPolicies(player,
+                     SkillProgramCardPolicyKind.FactionHandLimitBonus))
+        {
+            var allies = _players.Count(other => other.IsAlive && other.Seat != player.Seat &&
+                string.Equals(GetEffectiveFactionId(other), policy.FactionId, StringComparison.Ordinal));
+            AddFiniteContribution(contributions,
+                $"skill:{source.SkillId}:{source.SkillInstanceId}:policy:{policy.Id}",
+                checked(allies * policy.Value));
+        }
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         return RuleQueryService.Evaluate(
             SkillRuleQuery.HandLimit,

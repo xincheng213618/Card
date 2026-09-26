@@ -55,7 +55,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 141, 1);
+    public static Version CurrentVersion { get; } = new(1, 142, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -368,16 +368,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
 
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:guicai",
-                "鬼才",
-                "当一张判定牌生效前，你可以用一张手牌代替之。",
-                SkillKind.Guicai)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:ganglie",
-                "刚烈",
-                "当你受到伤害后，你可以判定，若结果不为红桃，伤害来源选择弃置两张手牌或受到 1 点伤害。",
-                SkillKind.Ganglie)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "classic:guicai")));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "classic:ganglie")));
             builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
                 "conversion-cutover", "classic:jijiu")));
             builder.AddSkill(DamageSkillPrograms.Definition("classic:yiji"));
@@ -572,29 +564,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         builder.AddSkill(DamageSkillPrograms.Definition("classic:feedback"));
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:tiandu",
-                "天妒",
-                "当你的判定牌生效后，你可以获得此牌。",
-                SkillKind.Tiandu)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "classic:tiandu")));
         }
         {
             builder.AddSkill(WithActiveActionMetadata(
                 EmbeddedSkillProgramCatalog.Definition("classic-active-cutover", "classic:fanjian")));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:guanxing",
-                "观星",
-                "准备阶段，你可以观看牌堆顶的X张牌（X为存活角色数且至多为5），然后以任意顺序置于牌堆顶或牌堆底。",
-                SkillKind.Guanxing)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "classic:guanxing")));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:hujia",
-                "护驾",
-                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
-                SkillKind.Hujia), SkillTag.Lord, SkillExecutionForm.Trigger));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "classic:hujia"), SkillTag.Lord, SkillExecutionForm.Trigger));
         }
         {
             builder.AddSkill(WithActiveActionMetadata(
@@ -603,22 +583,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     SkillTag.Lord, SkillExecutionForm.Trigger)));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:jiuyuan",
-                "救援",
-                "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",
-                SkillKind.Jiuyuan), SkillTag.Lord | SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "classic:jiuyuan"), SkillTag.Lord | SkillTag.Locked, SkillExecutionForm.State));
         }
         {
             builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
                 "conversion-cutover", "classic:qixi")));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:keji",
-                "克己",
-                "若你未于本回合出牌阶段使用或打出过【杀】，你可以跳过弃牌阶段。",
-                SkillKind.Keji)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:keji")));
         }
         {
             builder.AddSkill(DrawReplacementSkillPrograms.Definition("classic:tuxi"));
@@ -635,47 +607,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "conversion-cutover", "classic:duanliang")));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:luoshen",
-                "洛神",
-                "准备阶段开始时，你可以进行判定，若结果为黑色，你可以再次进行判定，直到出现红色的结果，然后你获得所有生效后的黑色判定牌。",
-                SkillKind.Luoshen)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "classic:luoshen")));
             builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition("classic-qingguo-skills", "classic:qingguo")));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:jizhi",
-                "集智",
-                "每当你使用普通锦囊牌时，你可以摸一张牌。",
-                SkillKind.Jizhi)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:jizhi")));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:tieqi",
-                "铁骑",
-                "每当你使用【杀】指定一名目标角色后，你可以进行判定，若结果为红色，该角色不能使用【闪】响应此【杀】。",
-                SkillKind.Tieqi)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "classic:tieqi")));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:liegong",
-                "烈弓",
-                "当你于出牌阶段内使用【杀】指定一个目标后，若该角色的手牌数不小于你的体力值或不大于你的攻击范围，则你可以令其不能使用【闪】响应此【杀】。",
-                SkillKind.Liegong)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "classic:liegong")));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:kuanggu",
-                "狂骨",
-                "锁定技，当你对距离1以内的一名角色造成1点伤害后，你回复1点体力。",
-                SkillKind.Kuanggu), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "classic:kuanggu"), SkillTag.Locked, SkillExecutionForm.State));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:wushuang",
-                "无双",
-                "锁定技，你使用的【杀】需两张【闪】才能抵消；与你【决斗】的角色每次需打出两张【杀】。",
-                SkillKind.Wushuang), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:wushuang"), SkillTag.Locked, SkillExecutionForm.State));
         }
         {
             builder.AddSkill(WithStructuredSkillMetadata(
@@ -692,11 +640,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
                 "conversion-cutover", "classic:guose")));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:liuli",
-                "流离",
-                "当你成为【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内且不是此【杀】使用者的一名其他角色。",
-                SkillKind.Liuli)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "classic:liuli")));
         }
         {
             builder.AddSkill(WithActiveActionMetadata(
@@ -711,20 +655,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 ClassicCardMovementSkillPrograms.Definition("classic:xiaoji")));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:qianxun",
-                "谦逊",
-                "锁定技，你不能被选择为【顺手牵羊】和【乐不思蜀】的目标。",
-                SkillKind.Qianxun), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:qianxun"), SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithOptionalTriggerMetadata(
                 ClassicCardMovementSkillPrograms.Definition("classic:lianying")));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:mengjin",
-                "猛进",
-                "当你使用的【杀】被目标角色使用的【闪】抵消后，你可以弃置其一张手牌或装备牌。",
-                SkillKind.Mengjin)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "classic:mengjin")));
         }
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("shared-pindian-skills", "classic:quhu"));
@@ -733,8 +669,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(JudgmentDrawSkillPrograms.Definition("classic:shuangxiong"));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:bazhen", "八阵",
-                "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。", SkillKind.Bazhen),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "classic:bazhen"),
                 SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "classic:huoji"));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "classic:kanpo"));
@@ -751,15 +686,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 ClassicPhaseWindowSkillPrograms.Definition("classic:jushou")));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:hongyan", "红颜",
-                "锁定技，你的黑桃牌均视为红桃牌。", SkillKind.Hongyan),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:hongyan"),
                 SkillTag.Locked, SkillExecutionForm.State));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:tianxiang", "天香",
-                "当你受到伤害时，你可以弃置一张红桃手牌并选择一名其他角色，防止此伤害并令其受到等量伤害，然后其摸等同于其已损失体力值的牌。", SkillKind.Tianxiang)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "classic:tianxiang")));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:buqu", "不屈",
-                "锁定技，当你处于濒死状态时，将牌堆顶一张牌置于武将牌上，称为“创”；若其点数与已有“创”均不同，你回复至1点体力，否则弃置之。若你有“创”，手牌上限等于“创”的数量。", SkillKind.Buqu),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "classic:buqu"),
                 SkillTag.Locked, SkillExecutionForm.State));
         }
         {
@@ -767,18 +699,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
                     "classic-active-cutover", "classic:luanji"))));
             builder.AddSkill(WithStructuredSkillMetadata(
-                new ContentSkillDefinition("classic:xueyi", "血裔",
-                    "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi),
+                EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:xueyi"),
                 SkillTag.Lord | SkillTag.Locked,
                 SkillExecutionForm.State));
         }
         {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:shensu", "神速",
-                "你可以选择一项：跳过判定阶段和摸牌阶段，或跳过出牌阶段并弃置一张装备牌；每如此做一次，视为你使用一张无距离限制的【杀】。", SkillKind.Shensu)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "classic:shensu")));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yaowu", "耀武",
-                "锁定技，当一名角色使用红色【杀】对你造成伤害后，其选择回复1点体力或摸一张牌。", SkillKind.Yaowu),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "classic:yaowu"),
                 SkillTag.Locked, SkillExecutionForm.State));
         }
         {
@@ -866,43 +795,31 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:juzhan"));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:kongcheng",
-                "空城",
-                "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
-                SkillKind.Kongcheng), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:kongcheng"), SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithStructuredSkillMetadata(
                 RuleQuerySkillPrograms.Definition("classic:mashu"),
                 SkillTag.Locked, SkillExecutionForm.State));
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "classic:qicai",
-                "奇才",
-                "锁定技，你使用锦囊牌无距离限制。",
-                SkillKind.Qicai), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:qicai"), SkillTag.Locked, SkillExecutionForm.State));
         }
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("owned-card-exchange-skills", "classic:yinghun"));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:huoshou", "祸首",
-                "锁定技，南蛮入侵对你无效；其他角色使用南蛮入侵造成的伤害来源改为你。", SkillKind.Huoshou),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:huoshou"),
                 SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(DrawRevealReplacementSkillPrograms.Definition("classic:zaiqi"));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:juxiang", "巨象",
-                "锁定技，南蛮入侵对你无效；其他角色使用的南蛮入侵结算完毕置入弃牌堆后，你获得之。", SkillKind.Juxiang),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:juxiang"),
                 SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("shared-pindian-skills", "classic:lieren"));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yizhong", "毅重",
-                "锁定技，若你的装备区里没有防具牌，黑色的杀对你无效。", SkillKind.Yizhong),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:yizhong"),
                 SkillTag.Locked, SkillExecutionForm.State));
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:wuyan", "无言",
-                "锁定技，当锦囊牌造成伤害时，若你为伤害来源或受伤角色，防止此伤害。", SkillKind.Wuyan),
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "classic:wuyan"),
                 SkillTag.Locked, SkillExecutionForm.State));
         }
         {
@@ -942,14 +859,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-li-dian", "classic:xunxun"));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-li-dian", "classic:wangxi"));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "boundary:tiandu", "天妒", "当你的判定牌生效后，你可以获得此牌。", SkillKind.Tiandu)));
+            builder.AddSkill(WithOptionalTriggerMetadata(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "boundary:tiandu")));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-guo-jia", "boundary:yiji"));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-cao-cao", "boundary:jianxiong"));
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "boundary:hujia", "护驾",
-                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
-                SkillKind.Hujia), SkillTag.Lord, SkillExecutionForm.Trigger));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition("passive-response-rules", "boundary:hujia"), SkillTag.Lord, SkillExecutionForm.Trigger));
         }
 
         {

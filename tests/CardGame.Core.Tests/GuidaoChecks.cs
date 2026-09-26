@@ -37,7 +37,7 @@ internal static class GuidaoChecks
 
             for (var step = 0; step < 2400 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.Guidao, PlayerSeat: 0 } prompt &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement, PlayerSeat: 0 } prompt &&
                     prompt.ValidCardIds.Contains(equipmentId))
                 {
                     Require(prompt.ValidCardIds.All(id =>
@@ -46,7 +46,7 @@ internal static class GuidaoChecks
                             .Single(card => card.Id == id).Suit is Suit.Spade or Suit.Club),
                         "Guidao must publish only black owned hand or equipment cards.");
                     var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
-                    Require(restored.PendingDecision is { Kind: DecisionKind.Guidao } restoredPrompt &&
+                    Require(restored.PendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement } restoredPrompt &&
                             restoredPrompt.ValidCardIds.Contains(equipmentId),
                         "A paused Guidao equipment choice must restore exactly.");
                     var choice = prompt.Choices.Single(item => item.Cards.SequenceEqual([equipmentId]));
@@ -83,7 +83,7 @@ internal static class GuidaoChecks
         public void Register(IContentRegistryBuilder builder)
         {
             builder.AddSkill(new ContentSkillDefinition("scenario:guidao", "鬼道",
-                "判定牌生效前，你可以打出一张黑色牌替换之。", SkillKind.Guidao));
+                "判定牌生效前，你可以打出一张黑色牌替换之。"));
             builder.AddGeneral(new ContentGeneralDefinition(GeneralId, "张角（鬼道测试）", "zhang_jiao",
                 "scenario:guidao", "qun", BaseHp: 3));
             builder.AddMode(new ContentModeDefinition(ModeId, "鬼道判定场景", 5, 5,

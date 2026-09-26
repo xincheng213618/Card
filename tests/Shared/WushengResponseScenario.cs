@@ -4,7 +4,7 @@ using CardGame.Core;
 internal static class WushengResponseScenario
 {
     public static GameEngine Find(CardKind incoming)
-        => FindResponse(incoming, SkillKind.Wusheng, DecisionKind.RespondSlash,
+        => FindResponse(incoming, "classic:wusheng", DecisionKind.RespondSlash,
             skillContentId: "standard:wusheng");
 
     public static GameEngine FindLongdanDodge(
@@ -13,7 +13,7 @@ internal static class WushengResponseScenario
         string? skillContentId = null)
         => FindResponse(
             CardKind.Slash,
-            SkillKind.Longdan,
+            "classic:longdan",
             DecisionKind.RespondDodge,
             registry,
             modeId,
@@ -22,7 +22,7 @@ internal static class WushengResponseScenario
     public static GameEngine FindClassicWushengHand(ContentRegistry registry)
         => FindResponse(
             CardKind.Duel,
-            SkillKind.Wusheng,
+            "classic:wusheng",
             DecisionKind.RespondSlash,
             registry,
             "identity:classic-8",
@@ -33,7 +33,7 @@ internal static class WushengResponseScenario
         string? skillContentId = null)
         => FindResponse(
             incoming,
-            SkillKind.Qingguo,
+            "classic:qingguo",
             DecisionKind.RespondDodge,
             StandardContentRegistry.CreateWithClassicGenerals(),
             "identity:classic-8",
@@ -138,7 +138,7 @@ internal static class WushengResponseScenario
 
     private static GameEngine FindResponse(
         CardKind incoming,
-        SkillKind responderSkill,
+        string responderSkill,
         DecisionKind decisionKind,
         ContentRegistry? registry = null,
         string? modeId = null,
@@ -161,7 +161,7 @@ internal static class WushengResponseScenario
             }, registry ?? StandardContentRegistry.Create());
             var human = game.CreateSnapshot(0).Players[0];
             var matchesSkill = skillContentId is null
-                ? human.Skills?.Any(skill => skill.Kind == responderSkill) == true
+                ? human.Skills?.Any(skill => skill.ContentId == responderSkill) == true
                 : human.Skills?.Any(skill => skill.ContentId == skillContentId) == true;
             if (!matchesSkill)
             {

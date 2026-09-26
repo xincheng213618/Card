@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:yaowu": {
+      "name": "耀武",
+      "description": "你受到红色杀造成的伤害后，伤害来源选择摸一张牌或回复1点体力。",
+      "optionLabels": { "recover": "回复1点体力", "draw": "摸一张牌" }
+    },
+    "classic:kuanggu": {
+      "name": "狂骨",
+      "description": "你对距离不大于1的角色造成伤害后，每造成1点伤害，你回复1点体力。"
+    },
+    "standard:yuanhu": {
+      "name": "援护",
+      "description": "其他角色受到伤害后，你可以弃置一张手牌，令其回复1点体力。"
+    },
+    "standard:ganglie": {
+      "name": "刚烈",
+      "description": "你受到伤害后可判定，若为红色，伤害来源选择弃置两张手牌或受到1点伤害。",
+      "optionLabels": { "discard": "弃置两张手牌", "damage": "受到1点伤害" }
+    },
+    "classic:ganglie": {
+      "name": "刚烈",
+      "description": "你受到伤害后可判定，若结果不为红桃，伤害来源选择弃置两张手牌或受到1点伤害。",
+      "optionLabels": { "discard": "弃置两张手牌", "damage": "受到1点伤害" }
+    },
+    "classic:buqu": {
+      "name": "不屈",
+      "description": "你进入濒死状态时亮出牌堆顶一张牌；若点数与已有“创”不同，将其置于“创”并回复至1点体力，否则将其弃置并继续濒死结算。"
+    },
+    "classic:tianxiang": {
+      "name": "天香",
+      "description": "当你即将受到伤害时，你可以弃置一张红桃手牌并选择另一名角色，将此伤害转移给其；其受伤后摸等同于已损失体力值的牌。"
+    }
+  }
+}

@@ -15,7 +15,7 @@ internal static class BoundaryDiaoChanChecks
         Require(general.Name == "界貂蝉" && general.BaseHp == 3 && general.FactionId == "qun" &&
                 general.Gender == GeneralGender.Female &&
                 general.SkillIds.SequenceEqual(["boundary:lijian", BiyueId]) &&
-                registry.Skills["boundary:lijian"] is { LegacyKind: null, Program: not null } &&
+                registry.Skills["boundary:lijian"] is { Program: not null } &&
                 registry.Skills[BiyueId].Program is not null &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId),

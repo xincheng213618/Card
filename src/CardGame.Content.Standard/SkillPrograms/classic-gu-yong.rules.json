@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 60,
+  "schemaVersion": 61,
   "skills": [
     {
       "id": "classic:shenxing",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "activations": [
         {
           "id": "discard-two-draw-one",
@@ -25,7 +25,7 @@
     {
       "id": "classic:bingyi",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "triggers": [
         {
           "id": "ending-reveal-and-share",

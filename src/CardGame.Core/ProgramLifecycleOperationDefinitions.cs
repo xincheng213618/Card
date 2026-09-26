@@ -15,8 +15,9 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
         var sourceRef = r.Has("sourceRef") ? r.RequiredParticipantReference("sourceRef") : null;
         var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
         if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||
-                                      targetRef.Kind != ProgramParticipantRef.EventTarget))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: event target damage requires owner placeholder.");
+                                      targetRef.Kind is not
+                                          (ProgramParticipantRef.EventTarget or ProgramParticipantRef.EventSource)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: event damage participant requires owner placeholder.");
         var nature = r.Has("nature") ? r.RequiredEnum<DamageNature>("nature") : (DamageNature?)null;
         if (sourceRef?.Kind is not null and not (ProgramParticipantRef.Owner or
             ProgramParticipantRef.ResultSource or ProgramParticipantRef.ResultOpponent))

@@ -6,7 +6,7 @@ internal static class PindianModuleChecks
 {
     private const string ProgramSkillId = "fixture:program-pindian";
     private const string ProgramRules =
-        """{"schemaVersion":60,"skills":[{"id":"fixture:program-pindian","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[{"id":"contest","minCards":1,"maxCards":1,"sourceZones":["hand"],"minTargets":1,"maxTargets":1,"targetKind":"otherLivingWithHand","usesPerTurn":1,"condition":{"kind":"always"},"effects":[{"op":"pindian","target":"selectedTarget","amount":1,"condition":{"kind":"always"}},{"op":"draw","target":"owner","amount":2,"condition":{"kind":"pindianNotWon"}}]}],"triggers":[],"contributions":[],"cardIdentities":[]}]}""";
+        """{"schemaVersion":61,"skills":[{"id":"fixture:program-pindian","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[{"id":"contest","minCards":1,"maxCards":1,"sourceZones":["hand"],"minTargets":1,"maxTargets":1,"targetKind":"otherLivingWithHand","usesPerTurn":1,"condition":{"kind":"always"},"effects":[{"op":"pindian","target":"selectedTarget","amount":1,"condition":{"kind":"always"}},{"op":"draw","target":"owner","amount":2,"condition":{"kind":"pindianNotWon"}}]}],"triggers":[],"contributions":[],"cardIdentities":[]}]}""";
     private const string ProgramPresentation =
         """{"schemaVersion":3,"skills":{"fixture:program-pindian":{"name":"程序拼点","description":"拼点未赢摸两张牌。"}}}""";
 

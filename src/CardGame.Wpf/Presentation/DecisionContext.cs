@@ -37,10 +37,10 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
             case DecisionKind.RespondSlash:
                 target ??= prompt.PlayerSeat;
                 title = prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") is "hujia-request" or "hujia-dodge" or "hujia-bagua")
+                    choice.Parameters.GetValueOrDefault("response") is "faction-defense-request" or "faction-defense-dodge" or "faction-defense-bagua")
                     ? $"响应护驾 · {Name(target)} · {card}"
                     : prompt.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") is "jijiang-request" or "jijiang-slash")
+                        choice.Parameters.GetValueOrDefault("response") is "faction-slash-request" or "faction-slash-slash")
                         ? $"响应激将 · {Name(target)} · {card}"
                     : $"{Name(source)} → {Name(target)} · {card}";
                 break;

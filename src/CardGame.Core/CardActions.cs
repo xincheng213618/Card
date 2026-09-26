@@ -13,7 +13,7 @@ public enum CardActionType { Use, Response }
 
 public enum ProgramCardContinuation
 {
-    Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, HujiaDodge, JijiangDuelSlash, JijiangGroupResponse, DelayedCard, CompletedSlash
+    Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, FactionDefenseDodge, FactionSlashDuelSlash, FactionSlashGroupResponse, DelayedCard, CompletedSlash, NullificationResponse, SlashTargetRedirecting, SlashBeforeResponse, SlashFullyDodged
 }
 
 /// <summary>Replay-safe ordinary-trick state retained while a public before-target-effects window is suspended.</summary>

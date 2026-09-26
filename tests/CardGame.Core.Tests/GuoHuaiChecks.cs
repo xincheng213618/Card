@@ -21,12 +21,11 @@ internal static class GuoHuaiChecks
                 guoHuai.SkillIds.SequenceEqual(["classic:jingce"]) &&
                 current.Skills["classic:jingce"] is
                 {
-                    LegacyKind: null,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None,
                     Program:
                     {
-                        MinimumRulesVersion: 170
+                        MinimumRulesVersion: 171
                     } program
                 } && program.Triggers.Single() is
                 {
@@ -344,8 +343,6 @@ internal static class GuoHuaiChecks
                 action.TargetCardId)
             {
                 ConversionSource = action.ConversionSource,
-                CardKindModifierSkill = action.CardKindModifierSkill,
-                TargetCountModifierSkill = action.TargetCountModifierSkill
             });
             Require(played.Accepted, played.Error?.Message ?? "The fixture could not use Crossbow.");
             ReachHumanPlay(game);

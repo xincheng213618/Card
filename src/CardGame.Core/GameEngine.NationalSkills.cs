@@ -68,7 +68,6 @@ public sealed partial class GameEngine
 
     private static GeneralSkillDefinition ToRuntimeSkillDefinition(ContentSkillDefinition skill) =>
         new GeneralSkillDefinition(
-            skill.LegacyKind ?? SkillKind.None,
             skill.Name,
             skill.Description)
         {
@@ -76,6 +75,8 @@ public sealed partial class GameEngine
             Tags = skill.Tags,
             ExecutionForms = skill.ExecutionForms,
             ActionForms = skill.ActionForms,
+            SelectionWeights = skill.SelectionWeights,
+            RevealWeights = skill.RevealWeights,
             ViewAsOpportunities = skill.Program?.ViewAs
                 .Where(rule => rule.Condition.Kind == SkillProgramConditionKind.Always &&
                                rule.InputCount == 1 &&
@@ -164,68 +165,9 @@ public sealed partial class GameEngine
     private bool HasRuntimeSkill(CharacterState player, string skillId) =>
         GetSkillBindingShard(player).HasSkill(skillId);
 
-    private bool HasRuntimeSkill(CharacterState player, SkillKind skill) =>
-        GetSkillBindingShard(player).Definitions.Values.Any(definition => definition.LegacyKind == skill);
-
-    private ContentSkillDefinition? GetEnabledContentSkill(CharacterState player, SkillKind skill) =>
-        GetSkillBindingShard(player).Definitions.Values
-            .OrderBy(definition => definition.Id, StringComparer.Ordinal)
-            .FirstOrDefault(definition => definition.LegacyKind == skill);
-
-    private IEnumerable<SkillRuleDefinition> EnabledSkillRules(CharacterState player)
-    {
-        // Older checkpoints retain their original primary-only behavior.
-        if (!IsNationalWarMode)
-        {
-            var emittedKinds = new HashSet<SkillKind>();
-            foreach (var skill in RuntimePassiveSkillDefinitions(player, player.General))
-            {
-                if (skill.Kind != SkillKind.None &&
-                    emittedKinds.Add(skill.Kind) &&
-                    (skill.Kind != SkillKind.Yicong || UsesFormalGongsunZan))
-                    yield return SkillRegistry.Get(skill.Kind);
-            }
-            yield break;
-        }
-
-        var emitted = new HashSet<SkillKind>();
-        if (player.GeneralSelected && player.GeneralRevealed)
-        {
-            foreach (var skill in RuntimePassiveSkillDefinitions(player, player.General)
-                         .Select(definition => definition.Kind)
-                         .Where(kind => kind != SkillKind.None))
-            {
-                if (emitted.Add(skill)) yield return SkillRegistry.Get(skill);
-            }
-        }
-        if (player.SecondaryGeneralSelected && player.SecondaryGeneralRevealed && player.SecondaryGeneral is { } secondary)
-        {
-            foreach (var skill in RuntimePassiveSkillDefinitions(player, secondary)
-                         .Select(definition => definition.Kind)
-                         .Where(kind => kind != SkillKind.None))
-            {
-                if (emitted.Add(skill)) yield return SkillRegistry.Get(skill);
-            }
-        }
-        // Runtime grants are independent of either hidden template slot. A
-        // dynamically granted passive remains effective even while both
-        // generals are concealed; only printed grants follow reveal state.
-        foreach (var skill in EnabledNonTemplateSkillGrants(player)
-                     .Select(grant => ToRuntimeSkillDefinition(grant.SkillId).Kind)
-                     .Where(kind => kind != SkillKind.None))
-        {
-            if (emitted.Add(skill)) yield return SkillRegistry.Get(skill);
-        }
-    }
-
-    private IEnumerable<ICardUseSkillRule> CardUseRules(CharacterState player) =>
-        EnabledSkillRules(player).Select(skill => skill.CardUse)
-            .Where(rule => rule is not null).Cast<ICardUseSkillRule>();
-
     private string EnabledSkillNames(CharacterState player)
     {
-        var names = EnabledSkillRules(player).Select(skill => skill.Name).ToList();
-        if (EnabledPassiveRulePrograms(player).Count != 0) names.Add("Configured skills");
+        var names = GetSkillBindingShard(player).Definitions.Values.Select(skill => skill.Name).Distinct().ToList();
         return names.Count == 0 ? "无" : string.Join(" / ", names);
     }
 }

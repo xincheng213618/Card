@@ -10,7 +10,6 @@ public sealed record HumanSkillViewModel(
     bool IsDisabled)
 {
     public string? ContentId { get; init; }
-    public CardGame.Core.SkillKind? LegacyKind { get; init; }
     public bool IsLocked => TypeText.Contains("锁定", StringComparison.Ordinal);
     public string ButtonArtwork => GetButtonArtwork(IsAvailable && !IsDisabled);
     public string DisabledButtonArtwork => GetButtonArtwork(false);

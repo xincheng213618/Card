@@ -15,7 +15,7 @@ internal static class SkillProgramSelectedJudgmentChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
         var start = program.Triggers.Single(trigger => trigger.Id == StartTriggerId);
         var spade = program.Triggers.Single(trigger => trigger.Id == SpadeTriggerId);
-        Require(program.MinimumRulesVersion == 170 &&
+        Require(program.MinimumRulesVersion == 171 &&
                 start.Effects is
                 [
                 {
@@ -53,7 +53,7 @@ internal static class SkillProgramSelectedJudgmentChecks
                 raisedMinimum.Programs[ProgramId].GameplayHash != program.GameplayHash,
             "Program content must hash its concrete rules floor.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(Rules.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
             "expected 60");
         AssertReject(Rules.Replace("\"minimumRulesVersion\":170", "\"minimumRulesVersion\":167",
                 StringComparison.Ordinal),
@@ -418,7 +418,7 @@ internal static class SkillProgramSelectedJudgmentChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":60,"skills":[
+        {"schemaVersion":61,"skills":[
           {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[
@@ -459,7 +459,7 @@ internal static class SkillProgramSelectedJudgmentChecks
         """;
 
     private const string OrderingRules = """
-        {"schemaVersion":60,"skills":[
+        {"schemaVersion":61,"skills":[
           {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[

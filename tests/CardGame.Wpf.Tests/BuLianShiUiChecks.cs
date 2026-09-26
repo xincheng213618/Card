@@ -397,8 +397,7 @@ internal static class BuLianShiUiChecks
             builder.AddSkill(new ContentSkillDefinition(
                 "fixture:zhuiyi-wpf-ai-decoy",
                 "追忆界面诱饵技能",
-                "仅用于令非玩家座位稳定选择界面测试目标。",
-                SkillKind.Yingzi));
+                "仅用于令非玩家座位稳定选择界面测试目标。"));
             foreach (var id in AnxuTargets)
             {
                 builder.AddGeneral(new ContentGeneralDefinition(

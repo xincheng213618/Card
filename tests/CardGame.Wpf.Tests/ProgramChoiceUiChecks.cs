@@ -87,7 +87,7 @@ internal static class ProgramChoiceUiChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":60,"skills":[{"id":"fixture:ui-choice","revision":1,
+                {"schemaVersion":61,"skills":[{"id":"fixture:ui-choice","revision":1,
                 "minimumRulesVersion":170,"triggers":[{"id":"choice","window":"turnEnding",
                 "subject":"owner","optional":false,"effects":[
                 {"op":"chooseOption","target":"owner","resultBind":"answer","options":[{"id":"draw"},{"id":"stay"}]},

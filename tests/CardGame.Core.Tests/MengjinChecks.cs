@@ -10,28 +10,15 @@ internal static class MengjinChecks
         var boundary = MengjinScenario.FindHumanTrigger();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
-            throw new InvalidOperationException("Mengjin fixture lost its private target-card prompt.");
-        var full = game.CreateSnapshot(boundary.SourceSeat, revealAll: true);
-        var target = full.Players[boundary.TargetSeat];
-        var handChoices = prompt.Choices.Where(choice =>
-            choice.Parameters.GetValueOrDefault("target-zone") == "hand").ToArray();
-        var equipmentChoices = prompt.Choices.Where(choice =>
-            choice.Parameters.GetValueOrDefault("target-zone") == "equipment").ToArray();
-
-        Require(prompt.IsPrivate &&
+            throw new InvalidOperationException("Mengjin fixture lost its private activation prompt.");
+        Require(prompt.Kind == DecisionKind.ProgramTrigger &&
+                prompt.SkillPrompt?.SkillId == "classic:mengjin" &&
+                prompt.Choices.Count == 2 &&
                 prompt.PlayerSeat == boundary.SourceSeat &&
-                prompt.SourceSeat == boundary.SourceSeat &&
                 prompt.TargetSeat == boundary.TargetSeat &&
-                prompt.ValidCardIds.SequenceEqual(target.Equipment.Select(card => card.Id)) &&
-                prompt.ValidTargetSeats.SequenceEqual([boundary.TargetSeat]) &&
-                handChoices.Length == target.Hand.Count &&
-                handChoices.All(choice => choice.Cards.Count == 0 &&
-                    choice.Targets.SequenceEqual([boundary.TargetSeat])) &&
-                equipmentChoices.SelectMany(choice => choice.Cards)
-                    .SequenceEqual(target.Equipment.Select(card => card.Id)) &&
-                target.Judgment.All(card => !prompt.ValidCardIds.Contains(card.Id)) &&
+                prompt.IsPrivate &&
                 game.CreateSnapshot(boundary.TargetSeat).PendingDecision is null,
-            "Mengjin must privately expose opaque hand slots and exact public equipment, never judgment cards.");
+            "A fully dodged Slash must privately offer Mengjin before its payment choice.");
 
         var checkpoint = RoundTrip(game.CreateCheckpoint());
         var restored = GameReplay.Restore(checkpoint, registry);
@@ -49,7 +36,7 @@ internal static class MengjinChecks
         var skipped = GameReplay.Restore(checkpoint, registry);
         var skippedPrompt = skipped.PendingDecision!;
         var skip = skippedPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "mengjin-skip");
+            choice.Parameters.GetValueOrDefault("program-action") == "skip");
         var targetBeforeSkip = skipped.CreateSnapshot(boundary.SourceSeat, revealAll: true)
             .Players[boundary.TargetSeat];
         var skippedResult = skipped.Submit(new AnswerPromptCommand(
@@ -57,8 +44,8 @@ internal static class MengjinChecks
         var targetAfterSkip = skipped.CreateSnapshot(boundary.SourceSeat, revealAll: true)
             .Players[boundary.TargetSeat];
         Require(skippedResult.Accepted &&
-                skipped.Events.Select(item => item.Payload).OfType<MengjinResolvedEvent>()
-                    .LastOrDefault() is { Used: false, DiscardedCardId: null } &&
+                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == "classic:mengjin" && !item.Activated && item.Completed) &&
                 targetAfterSkip.Hp == targetBeforeSkip.Hp &&
                 targetAfterSkip.Hand.Count == targetBeforeSkip.Hand.Count &&
                 targetAfterSkip.Equipment.Count == targetBeforeSkip.Equipment.Count,
@@ -66,23 +53,46 @@ internal static class MengjinChecks
 
         var used = GameReplay.Restore(checkpoint, registry);
         var usedPrompt = used.PendingDecision!;
-        var use = usedPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "mengjin-discard");
+        var activate = usedPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
+        var activated = used.Submit(new AnswerPromptCommand(
+            boundary.SourceSeat, usedPrompt.PromptId, activate.Id, used.Revision));
+        Require(activated.Accepted && used.PendingDecision is
+                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                  SkillPrompt.SkillId: "classic:mengjin" },
+            activated.Error?.Message ?? "Activating Mengjin must publish its card-payment choice.");
+        var payment = used.PendingDecision!;
         var before = used.CreateSnapshot(boundary.SourceSeat, revealAll: true)
             .Players[boundary.TargetSeat];
-        var expectedCardId = use.Parameters.GetValueOrDefault("target-zone") == "hand"
+        var handChoices = payment.Choices.Where(choice =>
+            choice.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)).ToArray();
+        var equipmentChoices = payment.Choices.Where(choice =>
+            choice.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment)).ToArray();
+        Require(payment.IsPrivate && payment.TargetSeat == boundary.TargetSeat &&
+                handChoices.Length == before.Hand.Count &&
+                handChoices.All(choice => choice.Cards.Count == 0) &&
+                equipmentChoices.SelectMany(choice => choice.Cards)
+                    .SequenceEqual(before.Equipment.Select(card => card.Id)) &&
+                before.Judgment.All(card => !payment.ValidCardIds.Contains(card.Id)) &&
+                used.CreateSnapshot(boundary.TargetSeat).PendingDecision is null,
+            "Mengjin payment must reveal only opaque hand slots and public equipment.");
+        var paymentCheckpoint = RoundTrip(used.CreateCheckpoint());
+        Require(State(GameReplay.Restore(paymentCheckpoint, registry)) == State(used),
+            "An in-flight Mengjin payment must restore exactly.");
+        var use = payment.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card");
+        var expectedCardId = use.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)
             ? before.Hand[int.Parse(use.Parameters["slot-index"], System.Globalization.CultureInfo.InvariantCulture)].Id
             : use.Cards.Single();
         var usedResult = used.Submit(new AnswerPromptCommand(
-            boundary.SourceSeat, usedPrompt.PromptId, use.Id, used.Revision));
-        var resolved = used.Events.Select(item => item.Payload).OfType<MengjinResolvedEvent>().LastOrDefault();
+            boundary.SourceSeat, payment.PromptId, use.Id, used.Revision));
         var movement = used.CardMovements.LastOrDefault(move =>
-            move.CardId == expectedCardId && move.Reason == CardMoveReasons.MengjinDiscard);
+            move.CardId == expectedCardId && move.Reason.Value == "skill-program.classic:mengjin.SelectAndMoveOwnedCard");
         var after = used.CreateSnapshot(boundary.SourceSeat, revealAll: true)
             .Players[boundary.TargetSeat];
         Require(usedResult.Accepted &&
-                resolved is { Used: true } &&
-                resolved.DiscardedCardId == expectedCardId &&
+                used.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == "classic:mengjin" && item.Activated && item.Completed) &&
                 movement?.To == CardLocation.DiscardPile &&
                 after.Hp == before.Hp &&
                 after.Hand.Count + after.Equipment.Count == before.Hand.Count + before.Equipment.Count - 1,

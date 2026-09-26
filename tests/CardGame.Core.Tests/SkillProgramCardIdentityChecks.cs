@@ -14,7 +14,7 @@ internal static class SkillProgramCardIdentityChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
         var identity = program.CardIdentities.Single();
         var distance = program.Modifiers.Single();
-        Require(program is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } &&
+        Require(program is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } &&
                 identity is
                 {
                     Id: IdentityId,
@@ -30,7 +30,7 @@ internal static class SkillProgramCardIdentityChecks
                 },
             "Schema 10 must keep mandatory hand identity and action-scoped Slash distance as separate bindings.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(Rules.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
             "expected 60");
         AssertReject(Rules.Replace("\"sourceCardIdentityId\":\"heart-hand-as-slash\"",
                 "\"sourceCardIdentityId\":\"missing\"", StringComparison.Ordinal),
@@ -279,7 +279,7 @@ internal static class SkillProgramCardIdentityChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":60,"skills":[
+        {"schemaVersion":61,"skills":[
           {"id":"card-identity-test:wushen","revision":1,
            "modifiers":[
              {"id":"slash-distance","priority":0,"query":"slashDistanceLimit","operation":"unlimited","value":0,

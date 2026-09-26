@@ -4,12 +4,12 @@ using CardGame.Core;
 
 internal static class ZhuqueFanChecks
 {
-    public static void FireConversionChainJijiangAndLegacyBoundary()
+    public static void FireConversionChainFactionSlashAndLegacyBoundary()
     {
         var boundary = ZhuqueFanScenario.FindHumanChainedSlash();
         VerifyPhysicalSlashConversion(boundary);
         VerifyNormalBranch(boundary);
-        VerifyJijiangOwnerChoice();
+        VerifyFactionSlashOwnerChoice();
     }
 
     private static void VerifyPhysicalSlashConversion(ZhuqueFanBoundary boundary)
@@ -119,15 +119,15 @@ internal static class ZhuqueFanChecks
 
     }
 
-    private static void VerifyJijiangOwnerChoice()
+    private static void VerifyFactionSlashOwnerChoice()
     {
-        var (registry, modeId) = CreateJijiangRegistry();
+        var (registry, modeId) = CreateFactionSlashRegistry();
         GameEngine? selected = null;
         PendingDecision? ownerPrompt = null;
         int targetSeat = -1;
         for (var seed = 1; seed <= 2_048 && selected is null; seed++)
         {
-            var game = StartJijiangGame(registry, modeId, seed);
+            var game = StartFactionSlashGame(registry, modeId, seed);
             var source = game.CreateSnapshot(0, revealAll: true).Players[0];
             var weapon = source.Hand.FirstOrDefault(card => card.Kind == CardKind.ZhuqueFan);
             if (weapon is null || game.PendingDecision is not { Kind: DecisionKind.PlayCard } play)
@@ -136,11 +136,11 @@ internal static class ZhuqueFanChecks
             }
 
             var equipped = game.Submit(new PlayCardCommand(0, weapon.Id, [], game.Revision, play.PromptId));
-            Require(equipped.Accepted, equipped.Error?.Message ?? "Jijiang Zhuque fixture could not equip its weapon.");
+            Require(equipped.Accepted, equipped.Error?.Message ?? "FactionSlash Zhuque fixture could not equip its weapon.");
             if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
             {
                 Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
-                    "Jijiang Zhuque fixture did not resume play after equipping.");
+                    "FactionSlash Zhuque fixture did not resume play after equipping.");
             }
             var jijiang = game.GetHumanLegalActions().Single(action =>
                 action.Kind == LegalActionKind.UseProgramSkill &&
@@ -161,7 +161,7 @@ internal static class ZhuqueFanChecks
                 [rebel],
                 game.Revision,
                 prompt.PromptId));
-            Require(requested.Accepted, requested.Error?.Message ?? "Jijiang Zhuque request was rejected.");
+            Require(requested.Accepted, requested.Error?.Message ?? "FactionSlash Zhuque request was rejected.");
             var providerPrompt = Enumerable.Range(1, game.PlayerCount - 1)
                 .Select(seat => game.CreateSnapshot(seat).PendingDecision)
                 .FirstOrDefault(decision => decision?.Kind == DecisionKind.RespondSlash);
@@ -172,7 +172,7 @@ internal static class ZhuqueFanChecks
             for (var step = 0; step < 24 && game.PendingDecision?.Kind != DecisionKind.ZhuqueFan; step++)
             {
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                    "The Jijiang provider cursor did not advance to Zhuque Fan.");
+                    "The FactionSlash provider cursor did not advance to Zhuque Fan.");
             }
             var privatePrompt = game.CreateSnapshot(0).PendingDecision;
             if (privatePrompt is not { Kind: DecisionKind.ZhuqueFan })
@@ -182,7 +182,7 @@ internal static class ZhuqueFanChecks
 
             Require(Enumerable.Range(1, game.PlayerCount - 1)
                     .All(seat => game.CreateSnapshot(seat).PendingDecision is null),
-                "The Zhuque Fan decision after Jijiang must be private to Liu Bei.");
+                "The Zhuque Fan decision after FactionSlash must be private to Liu Bei.");
             selected = game;
             ownerPrompt = privatePrompt;
             targetSeat = rebel;
@@ -190,12 +190,12 @@ internal static class ZhuqueFanChecks
 
         if (selected is null || ownerPrompt is null)
         {
-            throw new InvalidOperationException("No bounded Jijiang fixture reached Liu Bei's Zhuque Fan choice.");
+            throw new InvalidOperationException("No bounded FactionSlash fixture reached Liu Bei's Zhuque Fan choice.");
         }
 
         var paused = GameReplay.Restore(RoundTrip(selected.CreateCheckpoint()), registry);
         Require(State(paused) == State(selected) && Events(paused).SequenceEqual(Events(selected)),
-            "A paused post-Jijiang Zhuque Fan choice must replay exactly.");
+            "A paused post-FactionSlash Zhuque Fan choice must replay exactly.");
         var fire = ownerPrompt.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("action") == "zhuque-fan-fire");
         var answered = selected.Submit(new AnswerPromptCommand(
@@ -209,7 +209,7 @@ internal static class ZhuqueFanChecks
                      .Any(item => item.SourceSeat == 0 && item.TargetSeat == targetSeat); step++)
         {
             Require(selected.Submit(new AdvanceOneStepCommand(selected.Revision)).Accepted,
-                "The post-Jijiang Fire Slash did not settle.");
+                "The post-FactionSlash Fire Slash did not settle.");
         }
 
         var converted = selected.Events.Select(item => item.Payload)
@@ -228,22 +228,22 @@ internal static class ZhuqueFanChecks
                     item.From.Zone == CardZoneKind.Hand && item.From.OwnerSeat != 0 &&
                     item.To == CardLocation.Processing && item.Reason == CardMoveReasons.Use) &&
                 damage.Nature == DamageNature.Fire,
-            "Jijiang must let Liu Bei convert the provider's ordinary Slash into one Fire Slash after provision.");
+            "FactionSlash must let Liu Bei convert the provider's ordinary Slash into one Fire Slash after provision.");
     }
 
-    private static (ContentRegistry Registry, string ModeId) CreateJijiangRegistry()
+    private static (ContentRegistry Registry, string ModeId) CreateFactionSlashRegistry()
     {
-        const string modeId = "identity:classic-jijiang-zhuque-test";
+        const string modeId = "identity:classic-faction-slash-zhuque-test";
         var registry = ContentRegistry.Build(
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
             new StandardClassicGeneralPackage(),
-            new JijiangZhuquePackage(modeId));
+            new FactionSlashZhuquePackage(modeId));
         return (registry, modeId);
     }
 
-    private static GameEngine StartJijiangGame(ContentRegistry registry, string modeId, int seed)
+    private static GameEngine StartFactionSlashGame(ContentRegistry registry, string modeId, int seed)
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
@@ -259,31 +259,31 @@ internal static class ZhuqueFanChecks
             AiPolicyVersion = 2
         }, registry);
         Require(game.Submit(new StartGameCommand()).Accepted,
-            "Jijiang Zhuque fixture failed to start.");
+            "FactionSlash Zhuque fixture failed to start.");
         var setup = game.PendingDecision ??
-            throw new InvalidOperationException("Jijiang Zhuque fixture has no general prompt.");
+            throw new InvalidOperationException("FactionSlash Zhuque fixture has no general prompt.");
         Require(game.Submit(new SelectGeneralCommand(
             0,
             "classic:liu-bei",
             game.Revision,
             setup.PromptId)).Accepted,
-            "Jijiang Zhuque fixture could not select Liu Bei.");
+            "FactionSlash Zhuque fixture could not select Liu Bei.");
         Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
-            "Jijiang Zhuque fixture did not reach play.");
+            "FactionSlash Zhuque fixture did not reach play.");
         return game;
     }
 
-    private sealed class JijiangZhuquePackage(string modeId) : IGameContentPackage
+    private sealed class FactionSlashZhuquePackage(string modeId) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new(
-            "jijiang-zhuque-test",
+            "faction-slash-zhuque-test",
             new Version(1, 0, 0),
             [new PackageDependency("standard-classic-generals", new Version(1, 32, 0))]);
 
         public void Register(IContentRegistryBuilder builder)
         {
             builder.AddDeck(new ContentDeckRecipe(
-                "jijiang-zhuque-test:deck",
+                "faction-slash-zhuque-test:deck",
                 "激将朱雀羽扇测试牌堆",
                 InitialHandSize: 4,
                 DrawPerTurn: 0,
@@ -303,7 +303,7 @@ internal static class ZhuqueFanChecks
                     [nameof(Role.Rebel)] = 2,
                     [nameof(Role.Renegade)] = 1
                 },
-                DeckId: "jijiang-zhuque-test:deck",
+                DeckId: "faction-slash-zhuque-test:deck",
                 GeneralCandidateCount: 5,
                 GeneralPoolIds:
                 [

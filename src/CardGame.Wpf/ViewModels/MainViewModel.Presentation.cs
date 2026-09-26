@@ -49,7 +49,7 @@ public sealed partial class MainViewModel
 );
                         return FilterOwnedSkillIds(printedSkillIds, slot.Skills)
                             .Select(_contentRegistry.GetSkill)
-                            .Where(skill => skill.LegacyKind != SkillKind.None || skill.Name != "无")
+                            .Where(skill => skill.Name != "无")
                             .Select(skill =>
                             {
                                 var enabled = (slot.Revealed );
@@ -65,7 +65,7 @@ public sealed partial class MainViewModel
                                         : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用"),
                                     $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
                                     enabled && isAvailable,
-                                    !enabled) { ContentId = skill.Id, LegacyKind = skill.LegacyKind };
+                                    !enabled) { ContentId = skill.Id };
                             });
                     })
                     .ToArray();
@@ -113,13 +113,13 @@ public sealed partial class MainViewModel
                                     : $"{human.GeneralName} · 觉醒获得"
                                 : human.GeneralName,
                             isAvailable,
-                            false) { ContentId = skill.Id, LegacyKind = skill.LegacyKind };
+                            false) { ContentId = skill.Id };
                     })
                     .ToArray();
             }
 
             return (human.Skills ?? [])
-                .Where(skill => skill.Kind != SkillKind.None)
+                .Where(skill => skill.Name != "无")
                 .Select(skill =>
                 {
                     var active = skill.ActionForms.HasFlag(SkillActionForm.Active);
@@ -135,7 +135,7 @@ public sealed partial class MainViewModel
                             "规则自动生效"),
                         human.GeneralName,
                         available,
-                        false) { ContentId = skill.ContentId, LegacyKind = skill.Kind };
+                        false) { ContentId = skill.ContentId };
                 })
                  .ToArray();
         }

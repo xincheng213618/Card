@@ -16,8 +16,7 @@ internal static class HanDangChecks
             "Current identity roster must publish complete Han Dang metadata.");
         Require(current.Skills["classic:gongqi"] is
                 {
-                    LegacyKind: null,
-                    Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } program,
+                    Program: { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } program,
                     ActionForms: SkillActionForm.Active,
                     ExecutionForms: SkillExecutionForm.State
                 } &&
@@ -32,8 +31,7 @@ internal static class HanDangChecks
                 activation.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 current.Skills["classic:jiefan"] is
                 {
-                    LegacyKind: null,
-                    Program: { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 } jiefanProgram,
+                    Program: { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } jiefanProgram,
                     ActionForms: SkillActionForm.Active,
                     Tags: SkillTag.Limited
                 } &&

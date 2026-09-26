@@ -330,8 +330,6 @@ internal static class ChengPuUiChecks
     {
         ConversionSource = action.ConversionSource,
         AdditionalConversionSources = action.AdditionalConversionSources,
-        CardKindModifierSkill = action.CardKindModifierSkill,
-        TargetCountModifierSkill = action.TargetCountModifierSkill
     });
 
     private static void Answer(GameEngine game, PromptChoice choice)

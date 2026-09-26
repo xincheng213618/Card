@@ -17,7 +17,7 @@ internal static class BoundaryGuoJiaChecks
                 general.SkillIds.SequenceEqual(["boundary:tiandu", Yiji]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
             "2019 Guo Jia must be an independent Wei 3-HP identity general in the formal pool.");
-        Require(registry.Skills["boundary:tiandu"].LegacyKind == SkillKind.Tiandu &&
+        Require(registry.Skills["boundary:tiandu"].Id == "classic:tiandu" &&
                 registry.Skills["boundary:tiandu"].Program is null,
             "New Tiandu ID must reuse the shared legacy skill, without pretending it is a program.");
         var trigger = registry.Skills[Yiji].Program!.Triggers.Single();
@@ -119,14 +119,14 @@ internal static class BoundaryGuoJiaChecks
         var use = game.Submit(new PlayCardCommand(0, lightning.CardId!.Value, lightning.TargetSeats,
             game.Revision, Prompt(game).PromptId, lightning.PlayedCardKind, lightning.TargetCardId));
         Require(use.Accepted, use.Error?.Message ?? "Guo Jia could not play Lightning.");
-        for (var step = 0; step < 700 && game.PendingDecision?.Kind != DecisionKind.Tiandu; step++)
+        for (var step = 0; step < 700 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
             Require(AdvanceConservatively(game),
                 $"Could not reach Guo Jia's own effective judgment: step={step}, status={game.State.Status}, " +
                 $"winner={game.State.Winner}, prompt={game.PendingDecision?.Kind}, " +
                 $"judgments={string.Join(',', game.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>().Select(item => $"{item.TargetSeat}:{item.Reason}"))}, " +
                 $"hp={game.CreateSnapshot(0, true).Players[0].Hp}.");
         var prompt = Prompt(game);
-        Require(prompt.Kind == DecisionKind.Tiandu && prompt.PlayerSeat == 0 &&
+        Require(prompt.Kind == DecisionKind.ProgramTrigger && prompt.PlayerSeat == 0 &&
                 prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
                     .Order(StringComparer.Ordinal).SequenceEqual(["tiandu-claim", "tiandu-skip"]),
             "Boundary Tiandu must use the shared own-judgment claim prompt.");
@@ -138,8 +138,8 @@ internal static class BoundaryGuoJiaChecks
         Answer(paused, Prompt(paused).Choices.Single(choice => choice.Id == claim.Id));
         Require(game.CreateCardZoneDiagnostics().Any(item => item.CardId == judgment.CardId &&
                     item.Location == CardLocation.Hand(0)) &&
-                game.Events.Select(item => item.Payload).OfType<JudgmentCardClaimedEvent>()
-                    .Any(item => item.OwnerSeat == 0 && item.Skill == SkillKind.Tiandu && item.Used) &&
+                game.Events.Select(item => item.Payload).OfType<ProgramJudgmentCardClaimedEvent>()
+                    .Any(item => item.OwnerSeat == 0 && item.SkillId == "classic:tiandu") &&
                 State(game) == State(paused) && Events(game).SequenceEqual(Events(paused)),
             "Boundary Tiandu must claim the exact own effective card and resume from checkpoint.");
         var offers = 0;

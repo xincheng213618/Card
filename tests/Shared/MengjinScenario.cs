@@ -65,7 +65,9 @@ internal static class MengjinScenario
                              responseStep < 16 && game.State.Status != EngineStatus.Completed;
                              responseStep++)
                         {
-                            if (game.PendingDecision is { Kind: DecisionKind.Mengjin, PlayerSeat: sourceSeat })
+                            if (game.PendingDecision is
+                                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: sourceSeat,
+                                  SkillPrompt.SkillId: "classic:mengjin" })
                             {
                                 return new MengjinBoundary(
                                     game, beforeSlash, slash, sourceSeat, slash.TargetSeats.Single());

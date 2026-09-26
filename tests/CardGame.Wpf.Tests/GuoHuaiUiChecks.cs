@@ -154,8 +154,6 @@ internal static class GuoHuaiUiChecks
                 action.TargetCardId)
             {
                 ConversionSource = action.ConversionSource,
-                CardKindModifierSkill = action.CardKindModifierSkill,
-                TargetCountModifierSkill = action.TargetCountModifierSkill
             });
             Program.Assert(played.Accepted, played.Error?.Message ?? "Could not use Crossbow.");
             ReachHumanPlay(game);

@@ -34,7 +34,7 @@ internal static class OfficialAudioChecks
         var player = Engine(vm).CreateSnapshot(0).Players[0] with
         {
             GeneralId = "classic:ma-dai", GeneralName = "马岱", IsGeneralPublic = true,
-            Skills = [new GeneralSkillDefinition(SkillKind.None, "潜袭", "") { ContentId = "classic:qianxi" }]
+            Skills = [new GeneralSkillDefinition("潜袭", "") { ContentId = "classic:qianxi" }]
         };
         var trigger = new ProgramBindingResolvedEvent(1, "classic:qianxi", "test", "test-instance", player.Seat,
             SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, true, true);

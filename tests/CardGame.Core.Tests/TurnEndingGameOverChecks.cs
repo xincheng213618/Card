@@ -29,9 +29,9 @@ internal static class TurnEndingGameOverChecks
             .OfType<ProgramBindingStartedEvent>().Count(item => item.SkillId == Xiaoguo);
         Answer(game, option.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("option-id") == "take-damage"));
-        for (var i = 0; i < 40 && game.PendingDecision?.Kind != DecisionKind.Tianxiang; i++)
+        for (var i = 0; i < 40 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; i++)
             Step(game);
-        var tianxiang = RequirePrompt(game, DecisionKind.Tianxiang);
+        var tianxiang = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(tianxiang.PlayerSeat == 0 && tianxiang.Choices.Any(choice =>
             choice.Parameters.GetValueOrDefault("action") == "tianxiang-use" &&
             choice.Targets.SequenceEqual([lordSeat])),

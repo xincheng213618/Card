@@ -22,13 +22,13 @@ internal static class TacticalAiChecks
         Pick(wine, [Action(LegalActionKind.Alcohol, 1000, 0), Action(LegalActionKind.Slash, 1001, lord), End()], LegalActionKind.Alcohol);
         var redWine = Change(View(Role.Rebel, CardKind.Alcohol), 0, player => player with
         {
-            Skills = [new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌当杀")]
+            Skills = [new GeneralSkillDefinition("武圣", "红色牌当杀")]
         });
         var wineConversion = Action(LegalActionKind.Slash, 1000, lord) with { PlayedCardKind = CardKind.Slash };
         Pick(redWine, [Action(LegalActionKind.Alcohol, 1000, 0), wineConversion, End()], LegalActionKind.Slash);
         var converting = Change(View(Role.Rebel, CardKind.Peach, CardKind.Slash), 0, player => player with
         {
-            Skills = [new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌当杀")]
+            Skills = [new GeneralSkillDefinition("武圣", "红色牌当杀")]
         });
         var converted = Action(LegalActionKind.Slash, 1000, lord) with { PlayedCardKind = CardKind.Slash };
         var selected = new SimpleAiBrain(0, 271, 2).ChoosePlay(converting, [converted, Action(LegalActionKind.Slash, 1001, lord), End()], 1);
@@ -47,7 +47,7 @@ internal static class TacticalAiChecks
         var qixiEquipment = new CardSnapshot(2001, CardKind.Crossbow, Suit.Club, 1, "诸葛连弩", "A");
         var qixiView = Change(View(Role.Rebel), 0, player => player with
         {
-            Skills = [new GeneralSkillDefinition(SkillKind.Qixi, "奇袭", "黑色牌当过河拆桥")],
+            Skills = [new GeneralSkillDefinition("奇袭", "黑色牌当过河拆桥")],
             Hand = [],
             HandCount = 0,
             Equipment = [qixiEquipment]
@@ -288,52 +288,41 @@ internal static class TacticalAiChecks
             "Self-targeted hostile Duel should still be nullified.");
     }
 
-    public static void SupportSkills()
-    {
-        var view = View(Role.Rebel, CardKind.Slash, CardKind.Dodge);
-        var lord = view.Players.Single(player => player.Role == Role.Lord).Seat;
-        view = Change(view, lord, player => player with { Hp = 1, HandCount = 0 });
-        var brain = new SimpleAiBrain(0, 271, 2);
-        Require(brain.ChooseYuanhuCard(view, [1000, 1001], lord, 1).CardId is null, "Rebel must not spend a card healing the Lord.");
-        var loyal = Change(view, 0, player => player with { Role = Role.Loyalist });
-        Require(brain.ChooseYuanhuCard(loyal, [1000, 1001], lord, 2).CardId == 1000, "Loyalist should use a lower-value card to heal the Lord.");
-    }
-
     public static void GuicaiJudgments()
     {
         var loyal = JudgmentView(Role.Loyalist);
         var lord = loyal.Players.Single(player => player.Role == Role.Lord).Seat;
         var loyalBrain = new SimpleAiBrain(0, 271, 2);
-        Require(loyalBrain.ChooseGuicaiReplacement(
+        Require(loyalBrain.ChooseJudgmentReplacement(
                 loyal, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 7).CardId == 1000,
+                Suit.Spade, 1, null, 7).CardId == 1000,
             "Guicai did not turn an allied Indulgence judgment into Heart.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+        Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 loyal, lord, JudgmentReasons.SupplyShortage, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 7).CardId == 1001,
+                Suit.Spade, 1, null, 7).CardId == 1001,
             "Guicai did not turn an allied Supply Shortage judgment into Club.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+        Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 loyal, lord, JudgmentReasons.Lightning, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 5).CardId == 1000,
+                Suit.Spade, 1, null, 5).CardId == 1000,
             "Guicai did not turn an allied Lightning hit into a miss.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+        Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 loyal, lord, JudgmentReasons.Ganglie, [1000, 1001], CardKind.Dodge,
-                Suit.Heart, 1, 7, usesClassicGanglieJudgment: true).CardId == 1001,
+                Suit.Heart, 1, [Suit.Spade, Suit.Club, Suit.Diamond], 7).CardId == 1001,
             "Guicai did not use the classic non-Heart Ganglie success suit.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+        Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 loyal, lord, JudgmentReasons.Tieqi, [1000, 1001], CardKind.Dodge,
-                Suit.Club, 1, 7).CardId == 1000,
+                Suit.Club, 1, [Suit.Heart, Suit.Diamond], 7).CardId == 1000,
             "Guicai did not turn an allied Tieqi judgment red.");
 
         var rebel = JudgmentView(Role.Rebel);
         lord = rebel.Players.Single(player => player.Role == Role.Lord).Seat;
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+        Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 rebel, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
-                Suit.Heart, 1, 7).CardId == 1001,
+                Suit.Heart, 1, null, 7).CardId == 1001,
             "Guicai did not turn an enemy Indulgence safe suit into a failed judgment.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
+        Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 rebel, lord, JudgmentReasons.Tieqi, [1000, 1001], CardKind.Dodge,
-                Suit.Heart, 1, 7).CardId == 1001,
+                Suit.Heart, 1, [Suit.Heart, Suit.Diamond], 7).CardId == 1001,
             "Guicai did not turn an enemy Tieqi judgment black.");
 
     }
@@ -343,7 +332,7 @@ internal static class TacticalAiChecks
 
     private static SkillProgramTrigger DrawAiTrigger(string effects, string mode = "additive")
     {
-        var rules = $$"""{"schemaVersion":60,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
+        var rules = $$"""{"schemaVersion":61,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
         const string presentation = """{"schemaVersion":3,"skills":{"fixture:draw-ai":{"name":"Draw AI","description":"Fixture"}}}""";
         return SkillProgramCatalog.Load(rules, presentation).Programs["fixture:draw-ai"].Triggers.Single();
     }

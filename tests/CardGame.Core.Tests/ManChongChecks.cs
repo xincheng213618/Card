@@ -20,11 +20,10 @@ internal static class ManChongChecks
                 manChong.SkillIds.SequenceEqual(["classic:junxing", "classic:yuce"]) &&
                 current.Skills["classic:junxing"] is
                 {
-                    LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v60",
-                        MinimumRulesVersion: 170,
+                        RuntimeVersion: "skill-program-v61",
+                        MinimumRulesVersion: 171,
                         Activations.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.None,
@@ -32,11 +31,10 @@ internal static class ManChongChecks
                 } &&
                 current.Skills["classic:yuce"] is
                 {
-                    LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v60",
-                        MinimumRulesVersion: 170,
+                        RuntimeVersion: "skill-program-v61",
+                        MinimumRulesVersion: 171,
                         Triggers.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.Trigger,

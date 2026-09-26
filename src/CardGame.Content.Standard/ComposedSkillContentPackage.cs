@@ -30,8 +30,7 @@ public sealed class ComposedSkillContentPackage : IGameContentPackage
             builder.AddSkill(new ContentSkillDefinition(
                 id,
                 presentation.Name,
-                presentation.Description,
-                LegacyKind: null)
+                presentation.Description)
             {
                 Program = program
             });

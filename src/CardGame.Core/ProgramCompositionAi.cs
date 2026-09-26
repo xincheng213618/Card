@@ -374,6 +374,9 @@ internal sealed class ProgramAiEstimateContext
     internal void PreventCurrentDamage(SkillProgramEffect effect) =>
         _otherAdjustment += 32d;
 
+    internal void RedirectCurrentDamage(SkillProgramEffect effect) =>
+        _otherAdjustment += effect.BooleanValue == true ? 8d : 12d;
+
     internal void NullifyCurrentCardEffect()
     {
         if (_publicContext.CardUseEffectiveKind is
@@ -386,6 +389,10 @@ internal sealed class ProgramAiEstimateContext
 
     internal void NullifySelectedCardEffects() =>
         _otherAdjustment += _publicContext.CardEffectInterventionScore;
+
+    internal void ProhibitCurrentResponse() => _otherAdjustment += 20d;
+
+    internal void RedirectCurrentAttack() => _otherAdjustment += 8d;
 
     internal void GrantTurnRuleModifier(SkillProgramEffect effect)
     {

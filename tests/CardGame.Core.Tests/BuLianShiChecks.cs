@@ -25,14 +25,13 @@ internal static class BuLianShiChecks
                     Gender: GeneralGender.Female
                 } && general.SkillIds.SequenceEqual([AnxuSkillId, ZhuiyiSkillId]),
             "Classic Bu Lian Shi metadata drifted.");
-        Require(anxu.LegacyKind is null && anxu.Program?.Activations.Single() is
+        Require(anxu.Program?.Activations.Single() is
                 { Id: "unequal-hand-transfer", Effects.Count: 5 } &&
                 anxu.Tags == SkillTag.None &&
                 anxu.ActionForms == SkillActionForm.Active &&
                 anxu.ExecutionForms == SkillExecutionForm.None,
             "Current Anxu must be an untagged composed active action.");
-        Require(zhuiyi.LegacyKind is null &&
-                zhuiyi.Tags == SkillTag.None &&
+        Require(zhuiyi.Tags == SkillTag.None &&
                 zhuiyi.ActionForms == SkillActionForm.None &&
                 zhuiyi.ExecutionForms == SkillExecutionForm.Trigger &&
                 zhuiyi.Program?.Triggers.Single() is
@@ -427,8 +426,7 @@ internal static class BuLianShiChecks
             builder.AddSkill(new ContentSkillDefinition(
                 "fixture:zhuiyi-ai-decoy",
                 "追忆测试诱饵技能",
-                "仅用于令非玩家座位稳定选择测试目标。",
-                SkillKind.Yingzi));
+                "仅用于令非玩家座位稳定选择测试目标。"));
             foreach (var id in AnxuTargets)
             {
                 builder.AddGeneral(new ContentGeneralDefinition(

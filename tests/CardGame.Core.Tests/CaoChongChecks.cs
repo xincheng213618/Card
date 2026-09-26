@@ -20,17 +20,15 @@ internal static class CaoChongChecks
                 caoChong.SkillIds.SequenceEqual(["classic:chengxiang", "classic:renxin"]) &&
                 current.Skills["classic:chengxiang"] is
                 {
-                    LegacyKind: null,
                     Program: not null,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } &&
                 current.Skills["classic:renxin"] is
                 {
-                    LegacyKind: null,
                     Program:
                     {
-                        MinimumRulesVersion: 170,
+                        MinimumRulesVersion: 171,
                         Triggers.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.Trigger,

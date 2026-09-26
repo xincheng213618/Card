@@ -33,38 +33,26 @@ public sealed partial class SimpleAiBrain
                 : dodgeConversions > 0
                     ? 38d + Math.Min(dodgeConversions, 3) * 4d
                     : 4d;
-            var legacyValue = entry.Kind switch
-            {
-                SkillKind.Paoxiao when nativeSlashCount >= 2 =>
-                    42d + Math.Min(nativeSlashCount - 1, 3) * 5d,
-                SkillKind.Kongcheng when handIsEmpty => 56d,
-                SkillKind.Jianxiong or SkillKind.Feedback or SkillKind.Yiji or
-                    SkillKind.Jieming or SkillKind.Yuanhu or SkillKind.Ganglie
-                    when wounded => 31d,
-                SkillKind.Mashu or SkillKind.Qicai => 20d,
-                SkillKind.Yingzi => 18d,
-                SkillKind.Guicai or SkillKind.Jijiu => 16d,
-                _ => 4d
-            };
-            return (Kind: entry.Kind, Value: Math.Max(hasLivingOpponent ? conversionValue : 4d, legacyValue),
+            var weights = entry.RevealWeights ?? new SkillRevealWeights();
+            var configuredValue = Math.Max(weights.Base, Math.Max(wounded ? weights.Wounded : 0,
+                Math.Max(handIsEmpty ? weights.EmptyHand : 0,
+                    nativeSlashCount >= 2 && weights.RepeatedSlash > 0
+                        ? weights.RepeatedSlash + Math.Min(nativeSlashCount - 1, 3) * 5d : 0)));
+            return (Value: Math.Max(hasLivingOpponent ? conversionValue : 4d, configuredValue),
                 SlashConversions: slashConversions, DodgeConversions: dodgeConversions);
         })
             .OrderByDescending(entry => entry.Value)
-            .FirstOrDefault((Kind: SkillKind.None, Value: 4d, SlashConversions: 0, DodgeConversions: 0));
-        var skill = bestSkill.Kind;
+            .FirstOrDefault((Value: 4d, SlashConversions: 0, DodgeConversions: 0));
         var immediateValue = bestSkill.Value;
 
         var exposureCost = self.FactionId is null || self.IsFactionRevealed ? 0d : 3d;
         var score = 24d + immediateValue - exposureCost;
-        var opportunity = skill switch
+        var opportunity = true switch
         {
             _ when bestSkill.SlashConversions > 0 =>
                 $"当前有 {bestSkill.SlashConversions} 张手牌可转化为杀",
             _ when bestSkill.DodgeConversions > 0 =>
                 $"当前有 {bestSkill.DodgeConversions} 张手牌可转化为闪",
-            SkillKind.Paoxiao when nativeSlashCount >= 2 =>
-                $"当前有 {nativeSlashCount} 张杀，可突破本回合次数限制",
-            SkillKind.Kongcheng when handIsEmpty => "当前空手，可立即获得空城的防护收益",
             _ when wounded => $"当前体力 {self.Hp}/{self.MaxHp}，受伤后触发类技能已有即时价值",
             _ => "当前没有确定的即时触发机会，保留明置信息成本"
         };

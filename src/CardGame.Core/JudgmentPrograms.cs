@@ -44,6 +44,9 @@ public sealed record ProgramJudgmentTriggerResolvedEvent(
     int OwnerSeat,
     bool Activated) : IGameEvent;
 
+public sealed record ProgramJudgmentCardClaimedEvent(
+    long JudgmentFrameId, string SkillId, int OwnerSeat, int CardId, CardKind CardKind) : IGameEvent;
+
 public sealed record ProgramJudgmentReplacementResolvedEvent(
     long JudgmentFrameId,
     string SkillId,

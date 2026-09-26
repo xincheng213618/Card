@@ -37,8 +37,10 @@ public sealed partial class GameEngine
     private (SkillProgram Program, SkillProgramTrigger Trigger) GetProgramJudgmentReplacement(
         JudgmentTriggerCandidate candidate)
     {
-        if (!candidate.IsProgram || candidate.ProgramId is null || candidate.ProgramTriggerId is null ||
-            candidate.GameplayHash is null)
+        if (string.IsNullOrWhiteSpace(candidate.ProgramId) ||
+            string.IsNullOrWhiteSpace(candidate.ProgramTriggerId) ||
+            string.IsNullOrWhiteSpace(candidate.SkillInstanceId) ||
+            string.IsNullOrWhiteSpace(candidate.GameplayHash))
             throw new InvalidOperationException("The judgment replacement candidate has no configured identity.");
         var program = _contentRegistry.Skills[candidate.ProgramId].Program ??
             throw new InvalidOperationException("The judgment replacement program is unavailable.");
@@ -61,7 +63,7 @@ public sealed partial class GameEngine
         var (program, trigger) = GetProgramJudgmentReplacement(candidate);
         var owner = _players[candidate.OwnerSeat];
         var enabled = owner.IsAlive &&
-            GetSkillBindingShard(owner)!.HasProgram(program.Id, program.GameplayHash) &&
+            HasRuntimeSkillInstance(owner, program.Id, candidate.SkillInstanceId) &&
             MatchesProgramJudgmentReplacement(owner, trigger, pending.TargetSeat, pending.Reason);
         var replacementCards = enabled
             ? GetProgramJudgmentReplacementCards(
@@ -321,10 +323,18 @@ public sealed partial class GameEngine
         var owner = _players[candidate.OwnerSeat];
         var judgmentCard = pending.CurrentCard ??
             throw new InvalidOperationException("AI configured judgment replacement lost its current card.");
-        var (cardId, thought) = _aiBrains[owner.Seat].ChooseGuicaiReplacement(
+        var parent = _resolutionStack.OfType<ProgramSkillFrame>()
+            .LastOrDefault(frame => frame.Id == pending.ParentFrameId);
+        var successSuits = parent is null ? null :
+            _contentRegistry.GetSkill(parent.SkillId).Program?.Triggers
+                .SingleOrDefault(item => item.Id == parent.TriggerId)?.Effects
+                .Select(effect => effect.Condition)
+                .FirstOrDefault(condition => condition.Kind == SkillProgramConditionKind.BoundCardsMatchSuits &&
+                    condition.SourceBind == pending.ProgramResultBind)?.Suits;
+        var (cardId, thought) = _aiBrains[owner.Seat].ChooseJudgmentReplacement(
             CreateSnapshot(owner.Seat), pending.TargetSeat, pending.Reason, decision.ValidCardIds,
             judgmentCard.Kind, EffectiveSuit(_players[pending.TargetSeat], judgmentCard),
-            ++_thoughtSequence, judgmentCard.Rank, UsesClassicGanglieJudgment);
+            judgmentCard.Rank, successSuits, ++_thoughtSequence);
         AddThought(thought);
         var selected = cardId is { } id
             ? decision.Choices.Single(choice => choice.Cards.SequenceEqual([id]))

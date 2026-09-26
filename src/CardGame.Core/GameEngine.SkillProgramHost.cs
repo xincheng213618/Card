@@ -50,14 +50,15 @@ public sealed partial class GameEngine
                 bind => frame.PindianResultBindings.Single(item => item.Name == bind).SourceWon,
                 stateId => engine.GetProgramBooleanState(frame, stateId),
                 frame.WindowContext?.CardUse?.IsPublicRed,
-                bind => frame.ChoiceBindings.Single(item => item.Name == bind).OptionId,
+                bind => frame.ChoiceBindings.SingleOrDefault(item => item.Name == bind)?.OptionId,
                 bind => engine.AreProgramBoundCardsSameColor(frame, bind),
                 (bind, categories) => engine.DoProgramBoundCardsMatchCategories(frame, bind, categories),
                 (bind, kinds) => engine.DoProgramBoundCardsMatchKinds(frame, bind, kinds),
                 bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
                 bind => engine.CountChooserProgramBoundCards(frame, bind, context.Seat),
                 frame.SelectedCardIds.Count,
-                (cardBind, choiceBind) => engine.DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind));
+                (cardBind, choiceBind) => engine.DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
+                (bind, suits) => engine.DoProgramBoundCardsMatchSuits(frame, bind, suits));
         }
 
         public void UpdateFrame(ProgramSkillFrame frame)
@@ -143,6 +144,25 @@ public sealed partial class GameEngine
         public void ReplaceJudgment(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.ReplaceProgramJudgment(frame, effect);
 
+        public SkillProgramStepOutcome ClaimJudgmentCard(ProgramSkillFrame frame) =>
+            engine.ClaimProgramJudgmentCard(frame);
+
+        public SkillProgramStepOutcome ReorderTopCards(ProgramSkillFrame frame, int maximumCards,
+            SkillProgramNumberExpression? numberExpression) =>
+            engine.BeginProgramTopReorder(frame, maximumCards, numberExpression);
+
+        public SkillProgramStepOutcome RepeatJudgment(ProgramSkillFrame frame, string reason,
+            string resultBind, IReadOnlyList<Suit> successSuits) =>
+            engine.BeginProgramRepeatedJudgment(frame, reason, resultBind, successSuits);
+
+        public SkillProgramStepOutcome SkipTurnPhases(ProgramSkillFrame frame,
+            IReadOnlyList<SkillProgramTurnPhase> phases) =>
+            engine.SkipProgramTurnPhases(frame, phases);
+
+        public SkillProgramStepOutcome UseVirtualCard(ProgramSkillFrame frame, int targetSeat,
+            CardKind cardKind, bool ignoreDistance) =>
+            engine.BeginProgramVirtualCardUse(frame, targetSeat, cardKind, ignoreDistance);
+
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat) =>
             engine.BeginProgramSkillPindian(frame, targetSeat);
 
@@ -200,9 +220,9 @@ public sealed partial class GameEngine
 
         public SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
             int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
-            int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds) =>
+            int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits) =>
             engine.SelectProgramOwnedCards(frame, cardOwnerSeat, amount, expression, zones, resultBind,
-                minimumCards, maximumCards, cardKinds);
+                minimumCards, maximumCards, cardKinds, suits);
 
         public void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
             engine.CaptureProgramSelectedCards(frame, resultBind);
@@ -212,6 +232,13 @@ public sealed partial class GameEngine
 
         public void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
             engine.UseProgramBoundCardAsDyingAlcohol(frame, sourceBind, reason);
+
+        public void RevealUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp) =>
+            engine.RevealProgramUniqueRankForDying(frame, zone, rescueHp);
+
+        public void RedirectCurrentDamage(ProgramSkillFrame frame, string sourceBind,
+            bool drawLostHpAfterDamage) =>
+            engine.RedirectProgramCurrentDamage(frame, sourceBind, drawLostHpAfterDamage);
 
         public SkillProgramStepOutcome ChooseDifferentCategoryDiscard(
             ProgramSkillFrame frame,
@@ -420,6 +447,10 @@ public sealed partial class GameEngine
             engine.NullifyCurrentProgramCardEffect(frame);
         public void NullifySelectedCardEffects(ProgramSkillFrame frame) =>
             engine.NullifySelectedProgramCardEffects(frame);
+        public void ProhibitCurrentResponse(ProgramSkillFrame frame) =>
+            engine.ProhibitCurrentProgramResponse(frame);
+        public void RedirectCurrentAttack(ProgramSkillFrame frame, int targetSeat) =>
+            engine.RedirectCurrentProgramAttack(frame, targetSeat);
 
         public void GrantTurnRuleModifier(
             ProgramSkillFrame frame,

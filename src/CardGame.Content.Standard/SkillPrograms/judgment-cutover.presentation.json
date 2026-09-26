@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "standard:guicai": { "name": "鬼才", "description": "一名角色的判定牌生效前，你可以打出一张手牌代替之。" },
+    "classic:guicai": { "name": "鬼才", "description": "一名角色的判定牌生效前，你可以打出一张手牌代替之。" },
+    "classic:tiandu": { "name": "天妒", "description": "当你的判定牌生效后，你可以获得此牌。" },
+    "boundary:tiandu": { "name": "天妒", "description": "当你的判定牌生效后，你可以获得此牌。" },
+    "classic:guanxing": { "name": "观星", "description": "准备阶段开始时，你可以观看牌堆顶至多五张牌（数量不超过存活角色数），将任意张以任意顺序放回牌堆顶，其余以任意顺序放回牌堆底。" },
+    "classic:luoshen": { "name": "洛神", "description": "准备阶段开始时，你可以进行判定；若结果为黑色，你获得此牌，并可以重复此流程。" },
+    "classic:shensu": { "name": "神速", "description": "回合开始时，你可以跳过判定阶段和摸牌阶段，视为对一名角色使用一张无距离限制的杀；摸牌阶段结束后，你可以弃置一张装备牌并跳过出牌阶段，视为对一名角色使用一张无距离限制的杀。" }
+  }
+}

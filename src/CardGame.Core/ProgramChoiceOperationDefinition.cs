@@ -11,18 +11,25 @@ internal sealed class ChooseOptionProgramOperationDescriptor : ProgramOperationD
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
     {
-        reader.AllowOnly("op", "target", "resultBind", "options", "condition");
+        reader.AllowOnly("op", "target", "chooserRef", "resultBind", "options", "condition");
+        var chooserRef = reader.Has("chooserRef")
+            ? reader.RequiredParticipantReference("chooserRef") : null;
+        if (chooserRef is not null && chooserRef.Kind is not
+            (ProgramParticipantRef.Owner or ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}.chooserRef: unsupported choice participant.");
         var effect = new SkillProgramEffect(Op, reader.RequiredEnum<SkillProgramEffectTarget>("target"),
             0, reader.Condition(), resultBind: reader.RequiredIdentifier("resultBind"),
-            options: reader.ChoiceOptions());
-        RequireAlways(effect, reader.Path);
+            options: reader.ChoiceOptions(), chooserRef: chooserRef);
         foreach (var option in effect.Options)
             ValidateOptionCondition(option.Condition, reader.Path);
         return effect;
     }
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        WithSelectedTarget(effect, [new CreateChoiceResult(effect.ResultBind!, effect.Options.Select(option => option.Id).ToArray())]);
+        WithSelectedTarget(effect, [new CreateChoiceResult(effect.ResultBind!, effect.Options.Select(option => option.Id).ToArray())])
+            .Concat(effect.ChooserRef is { Kind: ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget }
+                ? [new RequireAnyContext(ProgramContextCapability.Damage)] : [])
+            .ToArray();
 
     private static void ValidateOptionCondition(SkillProgramCondition condition, string path)
     {

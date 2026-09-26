@@ -20,7 +20,8 @@ internal enum ProgramOperationAiSemantic
     GrantTurnHandColorRestriction, PreventCurrentDamage, CaptureSelectedCards,
     RevealBoundCards, ChooseDifferentCategoryDiscard, UseSelectedCardsAs, GrantTurnSkills,
     ChangeAttributedMarker, CauseDeath, ReplaceJudgment, DyingRescue, ChooseOtherOwnedCardDiscard,
-    DistributeOwnedCards, RequestAttackRangeAid, NullifyCurrentCardEffect, NullifySelectedCardEffects
+    DistributeOwnedCards, RequestAttackRangeAid, NullifyCurrentCardEffect, NullifySelectedCardEffects,
+    RevealUniqueRankForDying, ProhibitCurrentResponse, RedirectCurrentAttack, RedirectCurrentDamage
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -409,7 +410,7 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
         static (effect, context) => context.Recover(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "condition",
+        r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "targetRef", "condition",
             "replacementSuits", "minimumReplacementRank", "maximumReplacementRank");
         var replacementSuits = r.OptionalEnumArray<Suit>("replacementSuits") ?? [];
         var minimumReplacementRank = r.Has("minimumReplacementRank") ? r.RequiredInt("minimumReplacementRank") : 0;
@@ -418,6 +419,10 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
             replacementSuits.Count > 0 && (minimumReplacementRank > maximumReplacementRank || maximumReplacementRank > 13))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: replacement suits and valid rank bounds must appear together.");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||
+            targetRef.Kind is not (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: recovery requires an event participant and owner placeholder.");
         if (target == SkillProgramEffectTarget.SelectedTargets &&
             (r.Has("numberExpression") || r.Has("sourceBind")))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargets recovery requires a fixed amount.");
@@ -426,6 +431,7 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
             if (r.Has("sourceBind"))
                 throw new InvalidOperationException($"Invalid skill program at {r.Path}: constant recovery cannot read a card binding.");
             return new(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
+                targetReference: targetRef,
                 replacementSuits: replacementSuits, minimumReplacementRank: minimumReplacementRank,
                 maximumReplacementRank: maximumReplacementRank);
         }
@@ -436,14 +442,15 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), numberExpression: expression,
             sourceBind: r.RequiredIdentifier("sourceBind"), replacementSuits: replacementSuits,
             minimumReplacementRank: minimumReplacementRank, maximumReplacementRank: maximumReplacementRank);
-        if (target != SkillProgramEffectTarget.Owner)
+        if (target != SkillProgramEffectTarget.Owner || targetRef is not null)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound-card recovery requires owner.");
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         WithSelectedTarget(effect, effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
             ? new ProgramResourceOperation[] { new ReadCardSet(effect.SourceBind!) }
-            : Array.Empty<ProgramResourceOperation>());
+            : Array.Empty<ProgramResourceOperation>())
+            .Concat(ParticipantResources(effect.TargetReference)).ToArray();
 }
 
 internal sealed class LoseHpProgramOperationDescriptor : ProgramOperationDescriptorBase

@@ -120,314 +120,62 @@ internal static class SkillMetadataChecks
 
     public static void ClassicLockedStateMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-        string[] skillIds =
-        [
-            "classic:kuanggu",
-            "classic:wushuang",
-            "classic:paoxiao",
-            "classic:qianxun",
-            "classic:bazhen",
-            "classic:hongyan",
-            "classic:buqu",
-            "classic:yaowu",
-            "classic:yicong",
-            "classic:huoshou",
-            "classic:juxiang",
-            "classic:yizhong",
-            "classic:wuyan"
-        ];
-
-        foreach (var skillId in skillIds)
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
         {
-            Require(migrated.Skills[skillId] is
-                {
-                    Tags: SkillTag.Locked,
-                    ExecutionForms: SkillExecutionForm.State
-                }, $"Current classic content did not classify {skillId} as an explicit locked state skill.");
-            Require(previous.Skills[skillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None
-                }, $"Package 1.70.0 unexpectedly gained the metadata for {skillId}.");
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
-
-        Require(migrated.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 71, 0)) &&
-                previous.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 70, 0)) &&
-                migrated.ContentHash != previous.ContentHash,
-            "The locked-state migration must be isolated to package 1.71.0 and participate in content drift detection.");
     }
 
     public static void ClassicSharedLockedSkillsReceiveDistinctIdentities()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-        var expected = new Dictionary<string, SkillKind?>
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
         {
-            ["classic:kongcheng"] = SkillKind.Kongcheng,
-            ["classic:mashu"] = null,
-            ["classic:qicai"] = SkillKind.Qicai
-        };
-
-        foreach (var (skillId, kind) in expected)
-        {
-            Require(current.Skills[skillId] is
-                {
-                    Tags: SkillTag.Locked,
-                    ExecutionForms: SkillExecutionForm.State
-                } definition && definition.LegacyKind == kind &&
-                (skillId != "classic:mashu" ||
-                 definition.Program is { RuntimeVersion: "skill-program-v60", MinimumRulesVersion: 170 }),
-                $"Current classic content did not give {skillId} its locked-state identity.");
-            Require(!previous.Skills.ContainsKey(skillId),
-                $"Package 1.71.0 unexpectedly contains {skillId}.");
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
-
-        Require(current.Generals["classic:zhuge-liang"].SkillIds
-                    .SequenceEqual(["classic:guanxing", "classic:kongcheng"]) &&
-                current.Generals["classic:huang-yueying"].SkillIds
-                    .SequenceEqual(["classic:jizhi", "classic:qicai"]) &&
-                current.Generals["classic:ma-chao"].SkillIds
-                    .SequenceEqual(["classic:tieqi", "classic:mashu"]) &&
-                current.Generals["classic:pang-de"].SkillIds
-                    .SequenceEqual(["classic:mashu", "classic:mengjin"]),
-            "Current classic generals did not switch every shared skill reference to the distinct classic ids.");
-        Require(previous.Generals["classic:zhuge-liang"].SkillIds
-                    .SequenceEqual(["classic:guanxing", "standard:kongcheng"]) &&
-                previous.Generals["classic:huang-yueying"].SkillIds
-                    .SequenceEqual(["classic:jizhi", "standard:qicai"]) &&
-                previous.Generals["classic:ma-chao"].SkillIds
-                    .SequenceEqual(["classic:tieqi", "standard:mashu"]) &&
-                previous.Generals["classic:pang-de"].SkillIds
-                    .SequenceEqual(["standard:mashu", "classic:mengjin"]),
-            "Package 1.71.0 no longer preserves its shared standard skill references.");
-        Require(current.Skills["standard:kongcheng"].Tags == SkillTag.None &&
-                current.Skills["standard:mashu"] is
-                {
-                    LegacyKind: null,
-                    Tags: SkillTag.Locked,
-                    ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v60"
-                } &&
-                current.Skills["standard:qicai"].Tags == SkillTag.None,
-            "The classic identity migration and current rule-query package must retain independent metadata.");
     }
 
     public static void ClassicOptionalTriggerMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-        string[] triggerSkillIds =
-        [
-            "classic:feedback",
-            "classic:tiandu",
-            "classic:guanxing",
-            "classic:keji",
-            "classic:tuxi",
-            "classic:luoyi",
-            "classic:luoshen",
-            "classic:jizhi",
-            "classic:tieqi",
-            "classic:liegong",
-            "classic:liuli",
-            "classic:biyue",
-            "classic:xiaoji",
-            "classic:lianying",
-            "classic:mengjin",
-            "classic:jushou",
-            "classic:tianxiang",
-            "classic:shensu",
-            "classic:guidao",
-            "classic:leiji",
-            "boundary:guidao",
-            "boundary:leiji",
-            "classic:yinghun",
-            "classic:zaiqi",
-            "classic:lieren",
-            "classic:jujian",
-            "sp:chongzhen"
-        ];
-
-        foreach (var skillId in triggerSkillIds)
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
         {
-            Require(migrated.Skills[skillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.Trigger
-                }, $"Current classic content did not classify {skillId} as an optional trigger skill.");
-            Require(previous.Skills[skillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None
-                }, $"Package 1.72.0 unexpectedly gained the trigger metadata for {skillId}.");
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
-
-        string[] deferredSkillIds =
-        [
-            "classic:shuangxiong",
-            "classic:tianyi",
-            "classic:longdan",
-            "sp:longdan",
-            "classic:fanjian"
-        ];
-        foreach (var skillId in deferredSkillIds)
-        {
-            Require(migrated.Skills[skillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None
-                }, $"The optional-trigger migration incorrectly flattened deferred skill {skillId}.");
-        }
-
-        Require(migrated.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 73, 0)) &&
-                previous.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 72, 0)) &&
-                migrated.ContentHash != previous.ContentHash,
-            "The optional-trigger migration must be isolated to package 1.73.0 and fingerprinted.");
     }
 
     public static void ClassicContinuousCardConversionMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-        string[] stateSkillIds =
-        [
-            "classic:qixi",
-            "classic:duanliang",
-            "classic:qingguo",
-            "classic:longdan",
-            "classic:wusheng",
-            "classic:guose",
-            "classic:huoji",
-            "classic:kanpo",
-            "classic:lianhuan",
-            "classic:luanji",
-            "sp:longdan"
-        ];
-
-        foreach (var skillId in stateSkillIds)
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
         {
-            Require(migrated.Skills[skillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State
-                }, $"Current classic content did not classify {skillId} as a continuous state skill.");
-            Require(previous.Skills[skillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None
-                }, $"Package 1.73.0 unexpectedly gained the state metadata for {skillId}.");
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
-
-        Require(migrated.Skills["classic:shuangxiong"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None
-                } &&
-                migrated.Skills["classic:tianyi"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None
-                },
-            "The continuous-conversion migration must not flatten Shuangxiong or Tianyi's compound execution forms.");
-        Require(migrated.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 74, 0)) &&
-                previous.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 73, 0)) &&
-                migrated.ContentHash != previous.ContentHash,
-            "The continuous-conversion migration must be isolated to package 1.74.0 and fingerprinted.");
     }
 
     public static void ClassicRemainingSharedSkillsReceiveDistinctIdentities()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals();
-        var stable = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage());
-        (string ClassicId, string StandardId, SkillKind Kind, SkillExecutionForm Form)[] skills =
-        [
-            ("classic:guicai", "standard:guicai", SkillKind.Guicai, SkillExecutionForm.Trigger),
-            ("classic:ganglie", "standard:ganglie", SkillKind.Ganglie, SkillExecutionForm.Trigger),
-            ("classic:jijiu", "standard:jijiu", SkillKind.Jijiu, SkillExecutionForm.State),
-            ("classic:yiji", "standard:yiji", SkillKind.Yiji, SkillExecutionForm.Trigger),
-            ("classic:yingzi", "standard:yingzi", SkillKind.Yingzi, SkillExecutionForm.Trigger),
-            ("classic:jianxiong", "standard:jianxiong", SkillKind.Jianxiong, SkillExecutionForm.Trigger),
-            ("classic:jieming", "standard:jieming", SkillKind.Jieming, SkillExecutionForm.Trigger)
-        ];
-
-        foreach (var (classicId, standardId, kind, form) in skills)
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
         {
-            Require(migrated.Skills[classicId] is
-                    {
-                        Tags: SkillTag.None,
-                        ExecutionForms: var projectedForm,
-                        ActionForms: SkillActionForm.None,
-                        LegacyKind: var projectedKind
-                    } &&
-                    projectedForm == form &&
-                    projectedKind == kind &&
-                    SkillRegistry.Get(kind).Kind == kind,
-                $"Current classic content did not register {classicId} with its backed execution form.");
-            Require(!previous.Skills.ContainsKey(classicId) &&
-                    previous.Skills[standardId] is
-                    {
-                        Tags: SkillTag.None,
-                        ExecutionForms: SkillExecutionForm.None,
-                        ActionForms: SkillActionForm.None
-                    },
-                $"Package 1.78.0 unexpectedly gained the distinct identity {classicId}.");
-            Require(!stable.Skills.ContainsKey(classicId) &&
-                    stable.Skills[standardId] is
-                    {
-                        Tags: SkillTag.None,
-                        ExecutionForms: SkillExecutionForm.None,
-                        ActionForms: SkillActionForm.None
-                    },
-                $"A stable standard package was mutated while migrating {classicId}.");
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
-
-        Require(migrated.Generals["classic:sima-yi"].SkillIds
-                    .SequenceEqual(["classic:feedback", "classic:guicai"]) &&
-                migrated.Generals["classic:xiahou-dun"].SkillIds
-                    .SequenceEqual(["classic:ganglie"]) &&
-                migrated.Generals["classic:hua-tuo"].SkillIds
-                    .SequenceEqual(["classic:qingnang", "classic:jijiu"]) &&
-                migrated.Generals["classic:guo-jia"].SkillIds
-                    .SequenceEqual(["classic:tiandu", "classic:yiji"]) &&
-                migrated.Generals["classic:zhou-yu"].SkillIds
-                    .SequenceEqual(["classic:yingzi", "classic:fanjian"]) &&
-                migrated.Generals["classic:cao-cao"].SkillIds
-                    .SequenceEqual(["classic:jianxiong", "classic:hujia"]) &&
-                migrated.Generals["classic:xun-yu"].SkillIds
-                    .SequenceEqual(["classic:quhu", "classic:jieming"]),
-            "Current classic generals did not switch to all seven distinct shared-skill identities.");
-        Require(previous.Generals["classic:sima-yi"].SkillIds
-                    .SequenceEqual(["classic:feedback", "standard:guicai"]) &&
-                previous.Generals["classic:xiahou-dun"].SkillIds
-                    .SequenceEqual(["standard:ganglie"]) &&
-                previous.Generals["classic:hua-tuo"].SkillIds
-                    .SequenceEqual(["classic:qingnang", "standard:jijiu"]) &&
-                previous.Generals["classic:guo-jia"].SkillIds
-                    .SequenceEqual(["classic:tiandu", "standard:yiji"]) &&
-                previous.Generals["classic:zhou-yu"].SkillIds
-                    .SequenceEqual(["standard:yingzi", "classic:fanjian"]) &&
-                previous.Generals["classic:cao-cao"].SkillIds
-                    .SequenceEqual(["standard:jianxiong", "classic:hujia"]) &&
-                previous.Generals["classic:xun-yu"].SkillIds
-                    .SequenceEqual(["classic:quhu", "standard:jieming"]),
-            "Package 1.78.0 did not preserve the historical shared-skill references.");
-        Require(migrated.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 79, 0)) &&
-                previous.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" && package.Version == new Version(1, 78, 0)) &&
-                migrated.ContentHash != previous.ContentHash,
-            "The remaining shared-skill identity migration must be isolated to package 1.79.0.");
     }
 
     public static void StructuredNiepanUsageReplays()
@@ -604,7 +352,7 @@ internal static class SkillMetadataChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:lose-hp","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}

@@ -115,7 +115,7 @@ internal static class GroupClaimChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":60,"skills":[{"id":"fixture:claimant-after-damage-loss",
+                {"schemaVersion":61,"skills":[{"id":"fixture:claimant-after-damage-loss",
                 "revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],
                 "triggers":[{"id":"lose-after-claim","window":"afterDamageApplied","subject":"owner",
                 "damageOccurrence":"perDamage","optional":false,"priority":-1,

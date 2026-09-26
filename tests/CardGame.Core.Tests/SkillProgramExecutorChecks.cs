@@ -227,7 +227,7 @@ internal static class SkillProgramExecutorChecks
     private static SkillProgram ProgramWithActivations(string activations)
     {
         var rules = $$"""
-            {"schemaVersion":60,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,
+            {"schemaVersion":61,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,
             "modifiers":[],"viewAs":[],"activations":[{{activations}}]}]}
             """;
         const string presentation =
@@ -243,7 +243,7 @@ internal static class SkillProgramExecutorChecks
         int maxTargets = 0)
     {
         var rules = $$"""
-            {"schemaVersion":60,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],
+            {"schemaVersion":61,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],
             "activations":[{"id":"run","minCards":{{minCards}},"maxCards":{{maxCards}},
             "minTargets":{{minTargets}},"maxTargets":{{maxTargets}},"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{{effects}}]}]}]}
@@ -411,6 +411,40 @@ internal static class SkillProgramExecutorChecks
 
         public void ReplaceJudgment(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             Calls.Add($"replace-judgment:{frame.OwnerSeat}");
+
+        public SkillProgramStepOutcome ClaimJudgmentCard(ProgramSkillFrame frame)
+        {
+            Calls.Add($"claim-judgment:{frame.OwnerSeat}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public SkillProgramStepOutcome ReorderTopCards(ProgramSkillFrame frame, int maximumCards,
+            SkillProgramNumberExpression? numberExpression)
+        {
+            Calls.Add($"reorder-top:{frame.OwnerSeat}:{maximumCards}");
+            return SkillProgramStepOutcome.AwaitChoice;
+        }
+
+        public SkillProgramStepOutcome RepeatJudgment(ProgramSkillFrame frame, string reason,
+            string resultBind, IReadOnlyList<Suit> successSuits)
+        {
+            Calls.Add($"repeat-judgment:{frame.OwnerSeat}:{reason}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public SkillProgramStepOutcome SkipTurnPhases(ProgramSkillFrame frame,
+            IReadOnlyList<SkillProgramTurnPhase> phases)
+        {
+            Calls.Add($"skip-phases:{frame.OwnerSeat}:{string.Join(",", phases)}");
+            return SkillProgramStepOutcome.Continue;
+        }
+
+        public SkillProgramStepOutcome UseVirtualCard(ProgramSkillFrame frame, int targetSeat,
+            CardKind cardKind, bool ignoreDistance)
+        {
+            Calls.Add($"virtual-card:{frame.OwnerSeat}:{targetSeat}:{cardKind}:{ignoreDistance}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
 
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat)
         {
@@ -652,8 +686,15 @@ internal static class SkillProgramExecutorChecks
 
         public SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
         int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
-        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds) =>
+        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits) =>
             throw new NotSupportedException("The executor fixture does not exercise SelectOwnedCards.");
+
+        public void RevealUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp) =>
+            throw new NotSupportedException();
+        public void RedirectCurrentDamage(ProgramSkillFrame frame, string sourceBind, bool drawLostHpAfterDamage) =>
+            throw new NotSupportedException();
+        public void ProhibitCurrentResponse(ProgramSkillFrame frame) => throw new NotSupportedException();
+        public void RedirectCurrentAttack(ProgramSkillFrame frame, int targetSeat) => throw new NotSupportedException();
 
         public void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
             throw new NotSupportedException("The executor fixture does not exercise CaptureSelectedCards.");

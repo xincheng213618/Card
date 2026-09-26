@@ -114,8 +114,7 @@ public sealed partial class GameEngine
         string slashName,
         CardKind? playedCardKind,
         CardConversionSource? conversionSource = null,
-        IReadOnlyList<CardConversionSource>? additionalConversionSources = null,
-        SkillKind? cardKindModifierSkill = null)
+        IReadOnlyList<CardConversionSource>? additionalConversionSources = null)
     {
         var effectiveKind = playedCardKind ?? physicalCard.Kind;
         var targetCountRule = EvaluateCardTargetCount(actor, effectiveKind);
@@ -171,7 +170,6 @@ public sealed partial class GameEngine
                     {
                         ConversionSource = conversionSource,
                         AdditionalConversionSources = additionalConversionSources,
-                        CardKindModifierSkill = cardKindModifierSkill
                     });
                     return;
                 }

@@ -7,43 +7,28 @@ namespace CardGame.Core;
 /// </summary>
 public sealed record DamageTriggerCandidate(
     int OwnerSeat,
-    SkillKind Skill,
     string CandidateId,
     int Priority = 0,
     bool IsOptional = false,
-    DamageSkillEffectKind Effect = DamageSkillEffectKind.None,
-    string? ProgramId = null,
-    string? ProgramTriggerId = null,
-    string? SkillInstanceId = null,
-    string? GameplayHash = null,
+    string ProgramId = "",
+    string ProgramTriggerId = "",
+    string SkillInstanceId = "",
+    string GameplayHash = "",
     int OccurrenceIndex = 0)
 {
-    public bool IsProgram => ProgramId is not null;
-
-    public ProgramTriggerCandidate? ToProgramCandidate() =>
-        IsProgram
-            ? new ProgramTriggerCandidate(
-                OwnerSeat,
-                ProgramId!,
-                ProgramTriggerId!,
-                SkillInstanceId!,
-                GameplayHash!,
-                Priority,
-                OccurrenceIndex)
-            : null;
+    public ProgramTriggerCandidate ToProgramCandidate() =>
+        new(OwnerSeat, ProgramId, ProgramTriggerId, SkillInstanceId,
+            GameplayHash, Priority, OccurrenceIndex);
 }
 
 public sealed record JudgmentTriggerCandidate(
     int OwnerSeat,
-    SkillKind Skill,
     string CandidateId,
     int Priority = 0,
-    string? ProgramId = null,
-    string? ProgramTriggerId = null,
-    string? GameplayHash = null)
-{
-    public bool IsProgram => ProgramId is not null;
-}
+    string ProgramId = "",
+    string ProgramTriggerId = "",
+    string SkillInstanceId = "",
+    string GameplayHash = "");
 
 /// <summary>
 /// Stable ordering for damage-trigger candidates. The current slice collects
@@ -78,14 +63,10 @@ public static class DamageTriggerOrdering
         }
 
         if (materialized.Any(candidate =>
-                candidate.IsProgram !=
-                (candidate.ProgramTriggerId is not null && candidate.SkillInstanceId is not null &&
-                 candidate.GameplayHash is not null) ||
-                !candidate.IsProgram &&
-                (candidate.ProgramTriggerId is not null || candidate.SkillInstanceId is not null ||
-                 candidate.GameplayHash is not null) ||
-                candidate.IsProgram &&
-                (candidate.Skill != SkillKind.None || candidate.Effect != DamageSkillEffectKind.None)))
+                string.IsNullOrWhiteSpace(candidate.ProgramId) ||
+                string.IsNullOrWhiteSpace(candidate.ProgramTriggerId) ||
+                string.IsNullOrWhiteSpace(candidate.SkillInstanceId) ||
+                string.IsNullOrWhiteSpace(candidate.GameplayHash)))
         {
             throw new ArgumentException(
                 "A configured damage candidate must retain its program, trigger, skill instance and gameplay hash.",
@@ -94,7 +75,7 @@ public static class DamageTriggerOrdering
 
         if (materialized
             .GroupBy(candidate =>
-                (candidate.OwnerSeat, candidate.Skill, candidate.CandidateId, candidate.OccurrenceIndex))
+                (candidate.OwnerSeat, candidate.ProgramId, candidate.CandidateId, candidate.OccurrenceIndex))
             .Any(group => group.Count() > 1))
         {
             throw new ArgumentException(
@@ -108,10 +89,9 @@ public static class DamageTriggerOrdering
                 currentActorSeat,
                 candidate.OwnerSeat,
                 playerCount))
-            .ThenBy(candidate => (int)candidate.Skill)
-            .ThenBy(candidate => candidate.ProgramId ?? candidate.CandidateId, StringComparer.Ordinal)
-            .ThenBy(candidate => candidate.ProgramTriggerId ?? string.Empty, StringComparer.Ordinal)
-            .ThenBy(candidate => candidate.SkillInstanceId ?? string.Empty, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.ProgramId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.ProgramTriggerId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.OccurrenceIndex)
             .ThenBy(candidate => candidate.CandidateId, StringComparer.Ordinal)
             .ToArray();
@@ -173,11 +153,10 @@ public static class JudgmentTriggerOrdering
         }
 
         if (materialized.Any(candidate =>
-                candidate.IsProgram !=
-                (candidate.ProgramTriggerId is not null && candidate.GameplayHash is not null) ||
-                !candidate.IsProgram &&
-                (candidate.ProgramTriggerId is not null || candidate.GameplayHash is not null) ||
-                candidate.IsProgram && candidate.Skill != SkillKind.None))
+                string.IsNullOrWhiteSpace(candidate.ProgramId) ||
+                string.IsNullOrWhiteSpace(candidate.ProgramTriggerId) ||
+                string.IsNullOrWhiteSpace(candidate.SkillInstanceId) ||
+                string.IsNullOrWhiteSpace(candidate.GameplayHash)))
         {
             throw new ArgumentException(
                 "A configured judgment candidate must retain its program, trigger and gameplay hash.",
@@ -185,7 +164,8 @@ public static class JudgmentTriggerOrdering
         }
 
         if (materialized
-            .GroupBy(candidate => (candidate.OwnerSeat, candidate.Skill, candidate.CandidateId))
+            .GroupBy(candidate => (candidate.OwnerSeat, candidate.ProgramId,
+                candidate.ProgramTriggerId, candidate.SkillInstanceId, candidate.CandidateId))
             .Any(group => group.Count() > 1))
         {
             throw new ArgumentException(
@@ -199,7 +179,9 @@ public static class JudgmentTriggerOrdering
                 currentActorSeat,
                 candidate.OwnerSeat,
                 playerCount))
-            .ThenBy(candidate => (int)candidate.Skill)
+            .ThenBy(candidate => candidate.ProgramId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.ProgramTriggerId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.CandidateId, StringComparer.Ordinal)
             .ToArray();
     }

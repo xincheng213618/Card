@@ -23,7 +23,7 @@ internal static class DamageProgramChecks
                  })
         {
             Require(currentStandard.Skills[skillId].Program is
-                        { MinimumRulesVersion: 170 },
+                        { MinimumRulesVersion: 171 },
                 $"{skillId} must use the current damage program.");
         }
 
@@ -33,7 +33,7 @@ internal static class DamageProgramChecks
                  })
         {
             Require(currentClassic.Skills[skillId].Program is
-                        { MinimumRulesVersion: 170 },
+                        { MinimumRulesVersion: 171 },
                 $"{skillId} must use the current damage program.");
         }
 
@@ -85,7 +85,7 @@ internal static class DamageProgramChecks
             StringComparison.Ordinal), expectedMessage: null);
 
         const string ownerSelectionRules = """
-            {"schemaVersion":60,"skills":[{"id":"fixture:damage","revision":1,
+            {"schemaVersion":61,"skills":[{"id":"fixture:damage","revision":1,
             "minimumRulesVersion":170,"modifiers":[{"id":"authority-limit","query":"handLimit",
             "operation":"add","valueExpression":"ownedZoneCount","valueZone":"authority",
             "priority":0,"condition":{"kind":"always"}}],"viewAs":[],"activations":[],"triggers":[
@@ -140,8 +140,7 @@ internal static class DamageProgramChecks
         var damage = game.ResolutionStack.OfType<DamageTriggerWindowFrame>().Single();
         var cardId = damage.SourceCardId ??
             throw new InvalidOperationException("The Feedback fixture has no physical damage card.");
-        Require(game.ResolutionStack.All(frame => frame is not DamageSkillFrame) &&
-                game.PendingDecision is
+        Require(game.PendingDecision is
                 {
                     Kind: DecisionKind.ProgramTrigger,
                     SkillPrompt.SkillId: "standard:feedback"
@@ -200,7 +199,8 @@ internal static class DamageProgramChecks
                     move.From == expectedFrom &&
                     move.To == CardLocation.Hand(HumanSeat) &&
                     move.Reason.Value == "skill-program.classic:feedback.MoveBoundCards") &&
-                game.ResolutionStack.All(frame => frame is not DamageSkillFrame),
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == "classic:feedback"),
             "Classic Feedback did not move the exact selected source card through the generic binding.");
         Require(State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
             "A pending classic Feedback source-card choice did not replay exactly.");
@@ -469,7 +469,7 @@ internal static class DamageProgramChecks
     }
 
     private const string ValidationRules = """
-        {"schemaVersion":60,"skills":[{"id":"fixture:damage","revision":1,
+        {"schemaVersion":61,"skills":[{"id":"fixture:damage","revision":1,
         "minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
         {"id":"per-point","window":"afterDamageApplied","subject":"owner",
         "damageOccurrence":"perDamagePoint","optional":true,"priority":0,

@@ -538,10 +538,10 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
-    /// Answers Liu Bei's private Jijiang request from this seat's own cards and
+    /// Answers Liu Bei's private FactionSlash request from this seat's own cards and
     /// public identity relationship. The provider never inspects another hand.
     /// </summary>
-    public (bool UseSlash, AiThoughtRecord Thought) ChooseJijiangResponse(
+    public (bool UseSlash, AiThoughtRecord Thought) ChooseFactionSlashResponse(
         GameSnapshot view,
         int ownerSeat,
         int thoughtSequence)
@@ -551,7 +551,7 @@ public sealed partial class SimpleAiBrain
         var hasSlash = view.PendingDecision is { Kind: DecisionKind.RespondSlash } prompt &&
                        prompt.Choices.Any(choice =>
                            choice.Cards.Count == 1 &&
-                           choice.Parameters.GetValueOrDefault("response") == "jijiang-slash");
+                           choice.Parameters.GetValueOrDefault("response") == "faction-slash-slash");
         var shouldHelp = self.Role == Role.Loyalist ||
                          self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
         var slashScore = shouldHelp && hasSlash ? 85d : double.NegativeInfinity;
@@ -582,11 +582,11 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>
-    /// Answers Cao Cao's private Hujia request using only this seat's role, hand,
+    /// Answers Cao Cao's private FactionDefense request using only this seat's role, hand,
     /// public equipment and the Lord's public health. Rebels decline; loyalists
     /// protect the Lord, while the renegade does so before the final duel.
     /// </summary>
-    public (bool UseDodge, bool UseBagua, AiThoughtRecord Thought) ChooseHujiaResponse(
+    public (bool UseDodge, bool UseBagua, AiThoughtRecord Thought) ChooseFactionDefenseResponse(
         GameSnapshot view,
         int ownerSeat,
         bool hasDodge,
@@ -639,321 +639,6 @@ public sealed partial class SimpleAiBrain
     /// judgment result is deliberately not supplied here: it remains a hidden
     /// draw-pile fact until the engine commits the public judgment event.
     /// </summary>
-    public (bool UseGanglie, AiThoughtRecord Thought) ChooseGanglieTrigger(
-        GameSnapshot view,
-        int sourceSeat,
-        CardKind? incomingCard,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var source = view.Players.Single(player => player.Seat == sourceSeat);
-        var useScore = 24d + Math.Max(0, self.MaxHp - self.Hp) * 6d +
-                       (source.Role is Role.Rebel && (self.Role is Role.Lord or Role.Loyalist) ? 6d : 0d);
-        var skipScore = self.Hp >= self.MaxHp ? 7d : 2d;
-        var candidates = new[]
-        {
-            new AiCandidateScore(
-                new LegalAction(
-                    LegalActionKind.Ganglie,
-                    null,
-                    sourceSeat,
-                    "发动【刚烈】进行判定"),
-                Math.Round(useScore + _random.NextDouble() * 0.001d, 3),
-                "受伤后公开判定，优先压迫伤害来源；不读取牌堆顺序或来源手牌。"),
-            new AiCandidateScore(
-                new LegalAction(
-                    LegalActionKind.SkipGanglie,
-                    null,
-                    sourceSeat,
-                    "不发动【刚烈】"),
-                Math.Round(skipScore + _random.NextDouble() * 0.001d, 3),
-                "保留当前结算，不进行额外判定。")
-        };
-        var selected = candidates
-            .OrderByDescending(candidate => candidate.Score)
-            .ThenBy(candidate => candidate.Action.Kind)
-            .First();
-        var incomingName = incomingCard is { } cardKind
-            ? CardCatalog.Get(cardKind).DisplayName
-            : "技能";
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Action.Description,
-            candidates,
-            $"刚烈：受到{incomingName}伤害后决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
-        return (selected.Action.Kind == LegalActionKind.Ganglie, thought);
-    }
-
-    /// <summary>
-    /// Chooses the red-judgment punishment from the exact private choices
-    /// published to this seat. Card ids are read only from this seat's filtered
-    /// snapshot; no opponent hand or engine zone is consulted.
-    /// </summary>
-    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseGangliePunishment(
-        GameSnapshot view,
-        IReadOnlyList<PromptChoice> choices,
-        int ownerSeat,
-        int thoughtSequence)
-    {
-        if (choices.Count == 0)
-        {
-            throw new InvalidOperationException("AI was asked to resolve an empty Ganglie punishment prompt.");
-        }
-
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var handValues = self.Hand.ToDictionary(
-            card => card.Id,
-            card => CardCatalog.Get(card.Kind).HandKeepValue);
-        var scored = choices
-            .Select((choice, index) =>
-            {
-                var response = choice.Parameters.GetValueOrDefault("response");
-                var actionKind = response == "ganglie-discard-two"
-                    ? LegalActionKind.GanglieDiscardTwo
-                    : LegalActionKind.GanglieLoseHp;
-                var score = response == "ganglie-discard-two"
-                    ? -choice.Cards.Sum(cardId => handValues.GetValueOrDefault(cardId, 0)) +
-                      (self.Hp <= 1 ? 55d : self.HandCount > self.MaxHp ? 18d : 0d)
-                    : self.Hp <= 1 ? -90d : 24d;
-                var description = response == "ganglie-discard-two"
-                    ? $"弃置 {choice.Cards.Count} 张手牌"
-                    : "承受 1 点伤害";
-                return (
-                    Choice: choice,
-                    Index: index,
-                    Candidate: new AiCandidateScore(
-                        new LegalAction(actionKind, null, ownerSeat, description),
-                        Math.Round(score + _random.NextDouble() * 0.001d, 3),
-                        response == "ganglie-discard-two"
-                            ? "只按自己的私有手牌价值选择两张代价牌。"
-                            : "只按自己的公开体力决定是否承受伤害。"));
-            })
-            .ToArray();
-        var selected = scored
-            .OrderByDescending(item => item.Candidate.Score)
-            .ThenBy(item => item.Candidate.Action.Kind)
-            .ThenBy(item => item.Index)
-            .First();
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Candidate.Action.Description,
-            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"刚烈反制：伤害来源选择{selected.Candidate.Action.Description}（{selected.Candidate.Score:0.###} 分）。");
-        return (selected.Choice.Id, thought);
-    }
-
-    /// <summary>
-    /// Chooses a private Guicai replacement from the exact hand-card ids in the
-    /// prompt. The current judgment is public context; the AI never receives
-    /// the hidden deck or another player's hand.
-    /// </summary>
-    public (int? CardId, AiThoughtRecord Thought) ChooseGuicaiReplacement(
-        GameSnapshot view,
-        int targetSeat,
-        string reason,
-        IReadOnlyList<int> validCardIds,
-        CardKind currentJudgmentCard,
-        Suit currentSuit,
-        int thoughtSequence,
-        int currentRank,
-        bool usesClassicGanglieJudgment = false)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var cards = validCardIds
-            .Select(cardId => self.Hand.Concat(self.Equipment).Single(card => card.Id == cardId))
-            .ToArray();
-        if (cards.Length == 0)
-        {
-            throw new InvalidOperationException("AI was asked to resolve an empty Guicai card prompt.");
-        }
-
-        var target = view.Players.Single(player => player.Seat == targetSeat);
-        var tacticalSupport = GetTacticalSupport(view, self.Role ?? Role.Renegade, target);
-        var wantsSuccessfulJudgment = reason is JudgmentReasons.Lightning or JudgmentReasons.Leiji
-            ? tacticalSupport < 0
-            : tacticalSupport > 0;
-        var currentMatches = IsSuccessfulJudgment(
-            reason,
-            currentSuit,
-            currentRank,
-            usesClassicGanglieJudgment);
-        var currentIsDesirable = currentMatches == wantsSuccessfulJudgment;
-        var cardCandidates = cards
-            .Select(card =>
-            {
-                var turnsSuccessful = IsSuccessfulJudgment(
-                    reason,
-                    card.Suit,
-                    card.Rank,
-                            usesClassicGanglieJudgment);
-                var turnsDesirable = turnsSuccessful == wantsSuccessfulJudgment;
-                var score = currentIsDesirable
-                    ? -CardCatalog.Get(card.Kind).HandKeepValue
-                    : turnsDesirable
-                        ? 42d - CardCatalog.Get(card.Kind).HandKeepValue
-                        : -18d - CardCatalog.Get(card.Kind).HandKeepValue;
-                return new AiCandidateScore(
-                    new LegalAction(
-                        LegalActionKind.Guicai,
-                        card.Id,
-                        targetSeat,
-                        $"弃置【{card.DisplayName}】替换判定牌"),
-                    Math.Round(score + _random.NextDouble() * 0.001d, 3),
-                    turnsDesirable
-                        ? "这张手牌会把公开判定改成符合当前阵营取向的结果；不读取隐藏牌堆。"
-                        : "这张手牌不能把公开判定改成符合当前阵营取向的结果，保留手牌资源。");
-            })
-            .ToList();
-        cardCandidates.Add(new AiCandidateScore(
-            new LegalAction(
-                LegalActionKind.SkipGuicai,
-                null,
-                targetSeat,
-                "不发动【鬼才】"),
-            currentIsDesirable ? 30d : 1d,
-            currentIsDesirable
-                ? "当前公开判定已符合当前阵营取向，保留手牌资源。"
-                : "没有值得牺牲的手牌可把公开判定改成符合当前阵营取向的结果。"));
-
-        var selected = cardCandidates
-            .OrderByDescending(candidate => candidate.Score)
-            .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
-            .First();
-        var judgmentName = CardCatalog.Get(currentJudgmentCard).DisplayName;
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Action.Description,
-            cardCandidates,
-            $"鬼才：面对{judgmentName}（{currentSuit}，{reason}）决定{selected.Action.Description}（{selected.Score:0.###} 分）。");
-        return (
-            selected.Action.Kind == LegalActionKind.Guicai ? selected.Action.CardId : null,
-            thought);
-    }
-
-    private static bool IsSuccessfulJudgment(
-        string reason,
-        Suit suit,
-        int rank,
-        bool usesClassicGanglieJudgment) => reason switch
-        {
-            JudgmentReasons.Lightning => suit == Suit.Spade && rank is >= 2 and <= 9,
-            JudgmentReasons.Indulgence => suit == Suit.Heart,
-            JudgmentReasons.SupplyShortage => suit == Suit.Club,
-            JudgmentReasons.Luoshen => suit is Suit.Spade or Suit.Club,
-            JudgmentReasons.Tieqi => suit is Suit.Heart or Suit.Diamond,
-            JudgmentReasons.Leiji => suit is Suit.Spade or Suit.Club,
-            JudgmentReasons.Ganglie when usesClassicGanglieJudgment =>
-                suit != Suit.Heart,
-            _ => suit is Suit.Heart or Suit.Diamond
-        };
-
-    public (int? TargetSeat, AiThoughtRecord Thought) ChooseLeijiTarget(
-        GameSnapshot view,
-        IReadOnlyList<int> targetSeats,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var selfRole = self.Role ?? Role.Renegade;
-        var candidates = targetSeats
-            .Select(targetSeat => view.Players.Single(player => player.Seat == targetSeat))
-            .Where(target => target.IsAlive && target.Seat != Seat)
-            .Select(target => new AiCandidateScore(
-                new LegalAction(LegalActionKind.SkillChoice, null, target.Seat,
-                    $"对座位 {target.Seat + 1} 发动雷击"),
-                Math.Round(-GetTacticalSupport(view, selfRole, target) *
-                    (target.Hp <= 2 ? 44d : 30d) + _random.NextDouble() * 0.001d, 3),
-                "按公开阵营关系与体力选择雷击目标；不读取隐藏牌。"))
-            .ToList();
-        candidates.Add(new AiCandidateScore(
-            new LegalAction(LegalActionKind.SkillChoice, null, null, "不发动雷击"),
-            2d,
-            "没有合适目标时保留可选技能。"));
-        var selected = candidates
-            .OrderByDescending(candidate => candidate.Score)
-            .ThenBy(candidate => candidate.Action.TargetSeat ?? int.MaxValue)
-            .First();
-        return (selected.Action.TargetSeat, new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Action.Description,
-            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"雷击：从 {targetSeats.Count} 个公开合法目标中选择 {selected.Action.Description}。"));
-    }
-
-    /// <summary>
-    /// Chooses the discard cost for the cross-seat Yuanhu trigger. The target
-    /// is already fixed by the damage event; only the owner's hand and public
-    /// target HP/role data are consulted.
-    /// </summary>
-    public (int? CardId, AiThoughtRecord Thought) ChooseYuanhuCard(
-        GameSnapshot view,
-        IReadOnlyList<int> cardIds,
-        int targetSeat,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var target = view.Players.Single(player => player.Seat == targetSeat);
-        var missingHp = Math.Max(0, target.MaxHp - target.Hp);
-        var selfRole = self.Role ?? Role.Renegade;
-        var candidates = cardIds
-            .Select(cardId => self.Hand.SingleOrDefault(card => card.Id == cardId))
-            .Where(card => card is not null)
-            .Select(card =>
-            {
-                var profile = CardCatalog.Get(card!.Kind);
-                var roleBonus = target.Role switch
-                {
-                    Role.Lord when selfRole is Role.Lord or Role.Loyalist => 12d,
-                    Role.Loyalist when selfRole is Role.Lord or Role.Loyalist => 6d,
-                    Role.Rebel when selfRole == Role.Rebel => 6d,
-                    _ => 0d
-                };
-                var score = missingHp * 35d + roleBonus - profile.HandKeepValue * 0.15d;
-                if (self.HandCount > self.MaxHp)
-                {
-                    score += 8d;
-                }
-                if (_policyVersion >= 2)
-                    score = (target.Hp <= 1 ? 80 : 40) * GetTacticalSupport(view, selfRole, target) - profile.HandKeepValue * .45;
-
-                return new AiCandidateScore(
-                    new LegalAction(
-                        LegalActionKind.Yuanhu,
-                        card.Id,
-                        targetSeat,
-                        $"弃置【{profile.DisplayName}】令座位 {targetSeat + 1} 回复 1 点体力"),
-                    Math.Round(score + _random.NextDouble() * 0.001d, 3),
-                    $"目标公开缺少 {missingHp} 点体力；选择一张自己的手牌作为代价，不读取目标手牌。 ");
-            })
-            .ToList();
-        candidates.Add(new AiCandidateScore(
-            new LegalAction(LegalActionKind.SkipYuanhu, null, targetSeat, "不发动援护"),
-            self.HandCount <= self.MaxHp ? 5d : 1d,
-            "保留自己的手牌；只使用公开体力差和自己的手牌数量。"));
-
-        var selected = candidates
-            .OrderByDescending(candidate => candidate.Score)
-            .ThenBy(candidate => candidate.Action.CardId ?? int.MaxValue)
-            .First();
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Action.Description,
-            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"援护：目标公开缺少 {missingHp} 点体力，选择 {selected.Action.Description}。 ");
-        return (
-            selected.Action.Kind == LegalActionKind.Yuanhu ? selected.Action.CardId : null,
-            thought);
-    }
-
     public (bool UseSlash, AiThoughtRecord Thought) ChooseDuelResponse(
         GameSnapshot view,
         int opponentSeat,
@@ -1063,7 +748,7 @@ public sealed partial class SimpleAiBrain
         var canUseSlash = view.PendingDecision is { Kind: DecisionKind.RespondSlash } prompt &&
                           prompt.Choices.Any(choice =>
                               choice.Parameters.GetValueOrDefault("response") is
-                                  "borrowed-sword-slash" or "jijiang-request");
+                                  "borrowed-sword-slash" or "faction-slash-request");
         var targetSupport = GetTacticalSupport(view, selfRole, target);
         var sourceSupport = GetTacticalSupport(view, selfRole, source);
         var slashScore = canUseSlash
@@ -1313,13 +998,13 @@ public sealed partial class SimpleAiBrain
         {
             var action = choice.Parameters.GetValueOrDefault("action");
             var usesOwnSlash = action == "qinglong-slash";
-            var requestsJijiang = action == "qinglong-jijiang";
-            var continuesAttack = usesOwnSlash || requestsJijiang;
+            var requestsFactionSlash = action == "qinglong-jijiang";
+            var continuesAttack = usesOwnSlash || requestsFactionSlash;
             var cardCost = usesOwnSlash && choice.Cards.Count == 1 && ownedCards.TryGetValue(choice.Cards[0], out var card)
                 ? CardCatalog.Get(card.Kind).HandKeepValue
                 : 0;
             var score = continuesAttack
-                ? hostility * 1.2d + (target.Hp <= 1 ? 45d : 0d) - cardCost * .45d - (requestsJijiang ? 2d : 0d)
+                ? hostility * 1.2d + (target.Hp <= 1 ? 45d : 0d) - cardCost * .45d - (requestsFactionSlash ? 2d : 0d)
                 : 0d;
             return new AiCandidateScore(
                 new LegalAction(
@@ -1329,7 +1014,7 @@ public sealed partial class SimpleAiBrain
                     choice.Description),
                 score,
                 continuesAttack
-                    ? requestsJijiang
+                    ? requestsFactionSlash
                         ? "结合公开阵营关系评估是否请求蜀势力角色提供追杀用的杀。"
                         : "从自己的私有合法候选中评估继续追杀同一目标的收益与牌值。"
                     : "保留杀牌并接受当前杀被闪抵消。");
@@ -1476,63 +1161,6 @@ public sealed partial class SimpleAiBrain
     /// choices remain opaque slots; only public equipment receives card-value
     /// scoring.
     /// </summary>
-    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseMengjinChoice(
-        GameSnapshot view,
-        int targetSeat,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var target = view.Players.Single(player => player.Seat == targetSeat);
-        var selfRole = self.Role ?? Role.Renegade;
-        var prompt = view.PendingDecision is { Kind: DecisionKind.Mengjin } decision
-            ? decision
-            : throw new InvalidOperationException("AI has no Mengjin prompt.");
-        var hostility = GetHostility(view, selfRole, target);
-        var publicEquipment = target.Equipment.ToDictionary(card => card.Id);
-        var candidates = prompt.Choices.Select(choice =>
-        {
-            var use = choice.Parameters.GetValueOrDefault("action") == "mengjin-discard";
-            var publicCardValue = use && choice.Cards.Count == 1 &&
-                                  publicEquipment.TryGetValue(choice.Cards[0], out var equipment)
-                ? CardCatalog.Get(equipment.Kind).HandKeepValue
-                : use ? 1.5d : 0d;
-            var score = use ? hostility * 1.4d + publicCardValue * .2d : 0d;
-            return new AiCandidateScore(
-                new LegalAction(
-                    LegalActionKind.Equip,
-                    choice.Cards.Count == 1 ? choice.Cards[0] : null,
-                    use ? targetSeat : null,
-                    choice.Description),
-                score,
-                use
-                    ? choice.Cards.Count == 1
-                        ? "根据公开阵营关系与目标装备牌面价值评估猛进弃置。"
-                        : "仅把目标暗手牌视为不透明牌位，不读取其牌面。"
-                    : "保留目标现有牌，结束本次杀的结算。");
-        }).ToArray();
-        var selectedIndex = candidates
-            .Select((candidate, index) => new { Candidate = candidate, Index = index })
-            .OrderByDescending(item => item.Candidate.Score)
-            .ThenBy(item => item.Index)
-            .First().Index;
-        var selected = prompt.Choices[selectedIndex];
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Description,
-            candidates,
-            $"猛进：目标敌对度 {hostility:0.##}，选择{selected.Description}");
-        return (selected.Id, thought);
-    }
-
-    /// <summary>
-    /// Chooses whether to spend one of this seat's private Nullification cards
-    /// on the published trick-effect context. The method receives no engine
-    /// zone, draw-pile, or other-player hand access; all strategic inputs come
-    /// from the filtered snapshot and the exact legal card ids supplied by the
-    /// current response prompt.
-    /// </summary>
     public (int? CardId, AiThoughtRecord Thought) ChooseNullification(
         GameSnapshot view,
         CardKind effectCardKind,
@@ -1676,115 +1304,6 @@ public sealed partial class SimpleAiBrain
     /// Resolves the private, multi-step Guanxing prompt. The AI receives only
     /// the exact cards published to the skill owner and public judgment state;
     /// it never reads the engine draw pile outside that prompt.
-    /// </summary>
-    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseGuanxing(
-        GameSnapshot view,
-        IReadOnlyList<PromptChoice> choices,
-        int thoughtSequence)
-    {
-        if (choices.Count == 0)
-        {
-            throw new InvalidOperationException("AI was asked to resolve an empty Guanxing prompt.");
-        }
-
-        var stage = choices[0].Parameters.GetValueOrDefault("stage");
-        var scored = choices.Select((choice, index) =>
-        {
-            var action = choice.Parameters.GetValueOrDefault("action");
-            double score;
-            string reason;
-            if (action == "guanxing-use")
-            {
-                score = 80d;
-                reason = "观星没有牌或体力代价，使用后只查看并排列自己的私有牌堆顶候选。";
-            }
-            else if (action == "guanxing-skip")
-            {
-                score = 0d;
-                reason = "保留原牌堆顺序。";
-            }
-            else if (action == "guanxing-finish-top")
-            {
-                var selectedTop = int.Parse(
-                    choice.Parameters["top-selected"],
-                    System.Globalization.CultureInfo.InvariantCulture);
-                var desiredTop = int.Parse(
-                    choice.Parameters["desired-top-count"],
-                    System.Globalization.CultureInfo.InvariantCulture);
-                score = selectedTop >= desiredTop ? 90d : -90d;
-                reason = selectedTop >= desiredTop
-                    ? "已为公开判定与预计摸牌保留足够的牌，其余牌置底。"
-                    : "牌堆顶尚未覆盖公开判定与预计摸牌位置。";
-            }
-            else
-            {
-                if (choice.Cards.Count != 1 ||
-                    !Enum.TryParse<CardKind>(choice.Parameters.GetValueOrDefault("card-kind"), out var kind) ||
-                    !Enum.TryParse<Suit>(choice.Parameters.GetValueOrDefault("suit"), out var suit) ||
-                    !int.TryParse(
-                        choice.Parameters.GetValueOrDefault("rank"),
-                        System.Globalization.NumberStyles.None,
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        out var rank))
-                {
-                    throw new InvalidOperationException("A Guanxing card choice is missing its private card metadata.");
-                }
-
-                var profile = CardCatalog.Get(kind);
-                var cardValue = profile.HandKeepValue + profile.AiPlayValue * .35d;
-                var purpose = choice.Parameters.GetValueOrDefault("slot-purpose");
-                score = purpose switch
-                {
-                    $"judgment-{nameof(CardKind.Indulgence)}" => suit == Suit.Heart ? 180d : -80d,
-                    $"judgment-{nameof(CardKind.SupplyShortage)}" => suit == Suit.Club ? 180d : -80d,
-                    $"judgment-{nameof(CardKind.Lightning)}" => suit == Suit.Spade && rank is >= 2 and <= 9
-                        ? -180d
-                        : 140d,
-                    "bottom" => -cardValue,
-                    _ => cardValue
-                };
-                reason = purpose switch
-                {
-                    $"judgment-{nameof(CardKind.Indulgence)}" => "优先让公开的乐不思蜀获得红桃安全判定。",
-                    $"judgment-{nameof(CardKind.SupplyShortage)}" => "优先让公开的兵粮寸断获得梅花安全判定。",
-                    $"judgment-{nameof(CardKind.Lightning)}" => "避免把黑桃 2 至 9 放入自己的闪电判定位置。",
-                    "bottom" => "牌堆底从最深处开始排列，先放较低价值牌。",
-                    _ => $"预计摸牌价值 {cardValue:0.##}；只使用观星私有候选。"
-                };
-            }
-
-            var cardId = choice.Cards.Count == 1 ? choice.Cards[0] : (int?)null;
-            return (
-                Choice: choice,
-                Index: index,
-                Candidate: new AiCandidateScore(
-                    new LegalAction(
-                        LegalActionKind.SkillChoice,
-                        cardId,
-                        null,
-                        choice.Description),
-                    Math.Round(score, 3),
-                    reason));
-        }).ToArray();
-        var selected = scored
-            .OrderByDescending(item => item.Candidate.Score)
-            .ThenBy(item => item.Candidate.Action.CardId ?? int.MaxValue)
-            .ThenBy(item => item.Index)
-            .First();
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            selected.Choice.Description,
-            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"观星{(string.IsNullOrEmpty(stage) ? "发动" : stage == "top" ? "牌堆顶排序" : "牌堆底排序")}：{selected.Choice.Description}");
-        return (selected.Choice.Id, thought);
-    }
-
-    /// <summary>
-    /// Chooses among configured public-seat combinations that take hidden hand
-    /// cards. Scores use only visible roles/teams, public hand counts and the
-    /// bounded suspicion model; no target card identity is inspected.
     /// </summary>
     public (ChoiceId Choice, AiThoughtRecord Thought) ChooseHostileHandTargets(
         GameSnapshot view,
@@ -2359,40 +1878,8 @@ public sealed partial class SimpleAiBrain
             return (30d + (attack && role == Role.Rebel ? 7d : 0d) + (response ? 3d : 0d),
                 $"【{skill.Name}】提供公开的牌型转换能力，可扩展可用牌或响应来源。");
         }
-        var skillKind = skill.Kind;
-        var score = skillKind switch
-        {
-            SkillKind.Jianxiong => role == Role.Lord ? 42d : 26d,
-            SkillKind.Paoxiao => role == Role.Rebel ? 40d : 24d,
-            SkillKind.Yingzi => role == Role.Renegade ? 39d : 30d,
-            SkillKind.Kongcheng => role == Role.Loyalist ? 34d : 25d,
-            SkillKind.Feedback => role == Role.Lord ? 34d : 31d,
-            SkillKind.Yiji => role == Role.Loyalist ? 39d : 34d,
-            SkillKind.Jieming => role is Role.Lord or Role.Loyalist ? 40d : 35d,
-            SkillKind.Yuanhu => role is Role.Lord or Role.Loyalist ? 38d : 33d,
-            SkillKind.Ganglie => role is Role.Lord or Role.Loyalist ? 39d : 35d,
-            SkillKind.Guicai => role is Role.Lord or Role.Loyalist ? 41d : 36d,
-            SkillKind.Mashu => role is Role.Rebel or Role.Renegade ? 38d : 34d,
-            SkillKind.Qicai => role is Role.Rebel or Role.Renegade ? 37d : 33d,
-            _ => 12d
-        };
-        var reason = skillKind switch
-        {
-            SkillKind.Jianxiong => "伤害后取得牌，适合持续制造资源优势。",
-            SkillKind.Paoxiao => "不受杀次数限制，适合主动施压。",
-            SkillKind.Yingzi => "额外摸牌，稳定扩大资源。",
-            SkillKind.Kongcheng => "空手时降低被杀风险。",
-            SkillKind.Feedback => "受伤后取得伤害牌，适合在处理区中获取资源。",
-            SkillKind.Yiji => "受伤后摸牌并向其他角色分配资源，适合建立协作优势。",
-            SkillKind.Jieming => "受伤后按公开手牌数量补足一名角色，适合稳住阵营资源。",
-            SkillKind.Yuanhu => "其他角色受伤后可用自己的手牌换取公开回复，适合保护队友。",
-            SkillKind.Ganglie => "受伤后以公开判定逼迫伤害来源付出手牌或体力代价。",
-            SkillKind.Guicai => "在公开判定生效前用自己的手牌改变结果，适合保护己方结算。",
-            SkillKind.Mashu => "计算与其他角色的距离 -1，扩大杀和顺手牵羊的公开合法范围。",
-            SkillKind.Qicai => "锦囊牌无距离限制，扩大公开合法目标范围。",
-            SkillKind.Jiuyuan => "其他吴势力角色用桃救援濒死主公时额外回复一点体力，提高阵营救援效率。",
-            _ => $"【{skill.Name}】按公开技能信息作为基础候选评估。"
-        };
+        var score = skill.SelectionWeights?.GetValueOrDefault(role) ?? 12d;
+        var reason = $"【{skill.Name}】{skill.Description}";
         return (score, reason);
     }
 

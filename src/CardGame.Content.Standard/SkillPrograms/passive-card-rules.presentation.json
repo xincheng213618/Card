@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:wushuang": {"name":"无双","description":"锁定技，使用【杀】时目标需连续打出两张【闪】；【决斗】中对手每次需打出两张【杀】。"},
+    "classic:keji": {"name":"克己","description":"弃牌阶段开始时，若本回合出牌阶段未使用或打出过【杀】，你可以跳过此阶段。"},
+    "classic:kongcheng": {"name":"空城","description":"锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。"},
+    "standard:kongcheng": {"name":"空城","description":"锁定技，若你没有手牌，你不能成为【杀】的目标。"},
+    "classic:qianxun": {"name":"谦逊","description":"锁定技，你不能成为【顺手牵羊】或【乐不思蜀】的目标。"},
+    "classic:qicai": {"name":"奇才","description":"锁定技，你使用锦囊牌无距离限制。"},
+    "standard:qicai": {"name":"奇才","description":"锁定技，你使用锦囊牌无距离限制。"},
+    "classic:huoshou": {"name":"祸首","description":"锁定技，【南蛮入侵】对你无效；由此牌造成的伤害来源视为你。"},
+    "classic:juxiang": {"name":"巨象","description":"锁定技，【南蛮入侵】对你无效；结算后获得此牌。"},
+    "classic:hongyan": {"name":"红颜","description":"锁定技，你的黑桃牌视为红桃牌。"},
+    "classic:xueyi": {"name":"血裔","description":"主公技，手牌上限增加其他存活群势力角色数的两倍。"},
+    "classic:wuyan": {"name":"无言","description":"锁定技，你造成或受到的锦囊牌伤害无效。"},
+    "classic:yizhong": {"name":"毅重","description":"锁定技，若你没有防具，黑色【杀】对你无效。"},
+    "classic:jizhi": {"name":"集智","description":"当你使用普通锦囊牌时，你可以摸一张牌。"}
+  }
+}

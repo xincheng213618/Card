@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 60,
+  "schemaVersion": 61,
   "skills": [
     {
       "id": "classic:qingnang",
       "revision": 2,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "activations": [
         {
           "id": "discard-and-heal",
@@ -26,7 +26,7 @@
     {
       "id": "classic:zhiheng",
       "revision": 1,
-      "minimumRulesVersion": 170,
+      "minimumRulesVersion": 171,
       "activations": [
         {
           "id": "exchange-owned-cards",

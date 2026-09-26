@@ -10,7 +10,7 @@ internal sealed record QinglongCrescentBladeBoundary(
 
 internal static class QinglongCrescentBladeScenario
 {
-    public static QinglongCrescentBladeBoundary FindHumanTrigger(bool requireJijiang = false)
+    public static QinglongCrescentBladeBoundary FindHumanTrigger(bool requireFactionSlash = false)
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 32_768; seed++)
@@ -30,18 +30,18 @@ internal static class QinglongCrescentBladeScenario
             }, registry);
             Require(game.Submit(new StartGameCommand()).Accepted,
                 "Qinglong Crescent Blade fixture failed to start.");
-            var generalChoice = requireJijiang
+            var generalChoice = requireFactionSlash
                 ? game.PendingDecision?.Choices.FirstOrDefault(choice =>
                     choice.ContentIds.SequenceEqual(["classic:liu-bei"]))
                 : game.PendingDecision?.Choices.FirstOrDefault(choice =>
                     choice.ContentIds.Count == 1 &&
                     registry.Generals[choice.ContentIds[0]].SkillIds
                         .Select(registry.GetSkill)
-                        .All(skill => skill.LegacyKind is not (
-                            SkillKind.Tieqi or
-                            SkillKind.Liegong or
-                            SkillKind.Wusheng or
-                            SkillKind.Longdan)));
+                        .All(skill => skill.Id is not (
+                            "classic:tieqi" or
+                            "classic:liegong" or
+                            "classic:wusheng" or
+                            "classic:longdan")));
             if (generalChoice is null)
             {
                 continue;
@@ -66,7 +66,7 @@ internal static class QinglongCrescentBladeScenario
             if (weapon is null ||
                 source.Hand.Count(card =>
                     card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) <
-                    (requireJijiang ? 1 : 2))
+                    (requireFactionSlash ? 1 : 2))
             {
                 continue;
             }
@@ -110,8 +110,8 @@ internal static class QinglongCrescentBladeScenario
                     item.Target.Equipment.All(card =>
                         card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
                     item.Target.Skills?.All(skill =>
-                        skill.Kind is not (SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Hujia)) != false)
-                .Where(item => !requireJijiang || HasHelpingShuProvider(
+                        skill.ContentId is not ("classic:qingguo" or "classic:longdan" or "classic:hujia")) != false)
+                .Where(item => !requireFactionSlash || HasHelpingShuProvider(
                     full,
                     registry,
                     item.Target.Seat))
@@ -137,7 +137,7 @@ internal static class QinglongCrescentBladeScenario
             {
                 if (game.PendingDecision is { Kind: DecisionKind.QinglongCrescentBlade, PlayerSeat: 0 })
                 {
-                    if (requireJijiang && !game.PendingDecision.Choices.Any(choice =>
+                    if (requireFactionSlash && !game.PendingDecision.Choices.Any(choice =>
                             choice.Parameters.GetValueOrDefault("action") == "qinglong-jijiang"))
                     {
                         break;

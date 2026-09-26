@@ -41,7 +41,7 @@ internal static class ZhangbaScenario
                 choice.ContentIds.Count == 1 &&
                 registry.Generals[choice.ContentIds[0]].SkillIds
                     .Select(registry.GetSkill)
-                    .All(skill => skill.LegacyKind is not (SkillKind.Tieqi or SkillKind.Liegong)));
+                    .All(skill => skill.Id is not ("classic:tieqi" or "classic:liegong")));
             if (generalChoice is null)
             {
                 continue;
@@ -101,7 +101,7 @@ internal static class ZhangbaScenario
                     var target = full.Players.Single(player => player.Seat == seat);
                     return target.Hp > 1 &&
                            target.Skills?.All(skill =>
-                               skill.Kind is not (SkillKind.Jianxiong or SkillKind.Ganglie)) != false;
+                               skill.ContentId is not ("classic:jianxiong" or "classic:ganglie")) != false;
                 })
                 .Order()
                 .FirstOrDefault(-1);
@@ -147,7 +147,7 @@ internal static class ZhangbaScenario
                 choice.ContentIds.Count == 1 &&
                 registry.Generals[choice.ContentIds[0]].SkillIds
                     .Select(registry.GetSkill)
-                    .All(skill => skill.LegacyKind != SkillKind.Hujia && skill.Id != "classic:jijiang"));
+                    .All(skill => skill.Id != "classic:hujia" && skill.Id != "classic:jijiang"));
             if (generalChoice is null)
             {
                 continue;

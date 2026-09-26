@@ -48,6 +48,15 @@ public interface ISkillProgramEffectHost
         ProgramParticipantReference? sourceReference = null,
         DamageNature? nature = null);
     void ReplaceJudgment(ProgramSkillFrame frame, SkillProgramEffect effect);
+    SkillProgramStepOutcome ClaimJudgmentCard(ProgramSkillFrame frame);
+    SkillProgramStepOutcome ReorderTopCards(ProgramSkillFrame frame, int maximumCards,
+        SkillProgramNumberExpression? numberExpression);
+    SkillProgramStepOutcome RepeatJudgment(ProgramSkillFrame frame, string reason,
+        string resultBind, IReadOnlyList<Suit> successSuits);
+    SkillProgramStepOutcome SkipTurnPhases(ProgramSkillFrame frame,
+        IReadOnlyList<SkillProgramTurnPhase> phases);
+    SkillProgramStepOutcome UseVirtualCard(ProgramSkillFrame frame, int targetSeat,
+        CardKind cardKind, bool ignoreDistance);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
     SkillProgramStepOutcome MoveSelected(
         ProgramSkillFrame frame,
@@ -75,10 +84,12 @@ public interface ISkillProgramEffectHost
         string resultBind, IReadOnlyList<SkillProgramChoiceOption> options);
     SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
         int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
-        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds);
+        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits);
     void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind);
     void RevealBoundCards(ProgramSkillFrame frame, string sourceBind);
     void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason);
+    void RevealUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp);
+    void RedirectCurrentDamage(ProgramSkillFrame frame, string sourceBind, bool drawLostHpAfterDamage);
     SkillProgramStepOutcome ChooseDifferentCategoryDiscard(
         ProgramSkillFrame frame,
         ProgramParticipantReference chooser,
@@ -226,6 +237,8 @@ public interface ISkillProgramEffectHost
     void PreventCurrentDamage(ProgramSkillFrame frame);
     void NullifyCurrentCardEffect(ProgramSkillFrame frame);
     void NullifySelectedCardEffects(ProgramSkillFrame frame);
+    void ProhibitCurrentResponse(ProgramSkillFrame frame);
+    void RedirectCurrentAttack(ProgramSkillFrame frame, int targetSeat);
     void GrantTurnRuleModifier(
         ProgramSkillFrame frame,
         SkillRuleQuery query,
@@ -445,8 +458,12 @@ public sealed class RecoverSkillProgramEffectHandler : ISkillProgramEffectHandle
         if (effect.Target == SkillProgramEffectTarget.SelectedTargets)
             host.RecoverSelectedTargets(frame.Id, frame.OwnerSeat, effect.Amount);
         else
+        {
+            if (effect.TargetReference is { } targetReference)
+                targetSeat = host.ResolveParticipant(frame, targetReference);
             host.Recover(frame.Id, frame.OwnerSeat, targetSeat, effect.Amount,
                 effect.NumberExpression, effect.SourceBind);
+        }
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -500,7 +517,9 @@ public sealed class DamageSkillProgramEffectHandler : ISkillProgramEffectHandler
     public SkillProgramEffectOp Op => SkillProgramEffectOp.Damage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        host.Damage(frame, targetSeat, effect.Amount, effect.ActorReference, effect.DamageNature);
+        host.Damage(frame,
+            effect.TargetReference is { } reference ? host.ResolveParticipant(frame, reference) : targetSeat,
+            effect.Amount, effect.ActorReference, effect.DamageNature);
 }
 
 public sealed class ReplaceJudgmentSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -963,7 +982,8 @@ public sealed class ChooseOptionSkillProgramEffectHandler : ISkillProgramEffectH
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseOption;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
-        int targetSeat, ISkillProgramEffectHost host) => host.ChooseOption(frame, targetSeat,
+        int targetSeat, ISkillProgramEffectHost host) => host.ChooseOption(frame,
+        effect.ChooserRef is { } chooser ? host.ResolveParticipant(frame, chooser) : targetSeat,
         effect.ResultBind ?? throw new InvalidOperationException("chooseOption requires a result binding."),
         effect.Options);
 }
@@ -1087,6 +1107,48 @@ public sealed class StartVirtualDuelSkillProgramEffectHandler : ISkillProgramEff
     public SkillProgramEffectOp Op => SkillProgramEffectOp.StartVirtualDuel;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) => host.StartVirtualDuel(frame);
+}
+
+public sealed class ClaimJudgmentCardSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ClaimJudgmentCard;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        return host.ClaimJudgmentCard(frame);
+    }
+}
+
+public sealed class ReorderTopCardsSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ReorderTopCards;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) =>
+        host.ReorderTopCards(frame, effect.Amount, effect.NumberExpression);
+}
+
+public sealed class RepeatJudgmentSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.RepeatJudgment;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) =>
+        host.RepeatJudgment(frame, effect.JudgmentReason!, effect.ResultBind!, effect.Suits);
+}
+
+public sealed class SkipTurnPhasesSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.SkipTurnPhases;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.SkipTurnPhases(frame, effect.SkippedPhases);
+}
+
+public sealed class UseVirtualCardSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.UseVirtualCard;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.UseVirtualCard(frame, targetSeat,
+        effect.OutputKind!.Value,
+        effect.TargetRestriction == SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget);
 }
 
 public sealed class RequestFactionCardSkillProgramEffectHandler : ISkillProgramEffectHandler

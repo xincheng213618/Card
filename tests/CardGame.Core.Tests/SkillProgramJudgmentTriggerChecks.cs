@@ -8,7 +8,7 @@ internal static class SkillProgramJudgmentTriggerChecks
         var catalog = SkillProgramCatalog.Load(ValidV3, Presentation);
         var program = catalog.Programs["judgment-test:reward"];
         var trigger = program.Triggers.Single();
-        Require(program.RuntimeVersion == "skill-program-v60" && program.MinimumRulesVersion == 170 &&
+        Require(program.RuntimeVersion == "skill-program-v61" && program.MinimumRulesVersion == 171 &&
                 trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
                 trigger.SourceSkillId is null && trigger.SourceViewAsId is null &&
                 trigger.Subject == SkillProgramTriggerSubject.Owner && trigger.Optional &&
@@ -23,7 +23,7 @@ internal static class SkillProgramJudgmentTriggerChecks
         RequireThrows<NotSupportedException>(() =>
             ((ICollection<string>)trigger.ExcludedReasons).Clear());
 
-        AssertReject(ValidV3.Replace("\"schemaVersion\":60", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV3.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV3.Replace("\"suits\":[\"club\"]", "\"suits\":[]", StringComparison.Ordinal),
             "at least one final suit");
@@ -178,7 +178,7 @@ internal static class SkillProgramJudgmentTriggerChecks
                     Answer(game, "program-judgment-trigger-skip");
                     continue;
                 }
-                if (game.PendingDecision is { Kind: DecisionKind.Ganglie, PlayerSeat: 0 } ganglie)
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } ganglie)
                 {
                     var invoke = ganglie.Choices.Single(choice =>
                         choice.Parameters.GetValueOrDefault("response") == "ganglie");
@@ -187,7 +187,7 @@ internal static class SkillProgramJudgmentTriggerChecks
                     Require(accepted.Accepted, accepted.Error?.Message ?? "Ganglie judgment was rejected.");
                     continue;
                 }
-                if (game.PendingDecision is { Kind: DecisionKind.Guicai, PlayerSeat: 0 } guicai)
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement, PlayerSeat: 0 } guicai)
                 {
                     var replacement = guicai.Choices.FirstOrDefault(choice => choice.Cards.Count == 1) ??
                         throw new InvalidOperationException("The Guicai fixture has no replacement card.");
@@ -299,7 +299,7 @@ internal static class SkillProgramJudgmentTriggerChecks
     }
 
     private const string ValidV3 = """
-        {"schemaVersion":60,"skills":[
+        {"schemaVersion":61,"skills":[
           {"id":"judgment-test:reward","revision":1,"triggers":[{
             "id":"after-club-judgment","window":"judgmentFinalized","subject":"owner",
             "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":["skill.leiji"],

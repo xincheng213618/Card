@@ -135,7 +135,7 @@ internal static class LiDianChecks
             Play(candidate, slash);
             for (var step = 0; step < 80; step++)
             {
-                if (candidate.PendingDecision is { Kind: DecisionKind.GangliePunish, PlayerSeat: 0 })
+                if (candidate.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 })
                 {
                     selected = candidate;
                     ganglieSeat = xiahouDun.Seat;
@@ -196,8 +196,9 @@ internal static class LiDianChecks
                 item.Amount == 1 && item.SourceCard is null).ResolutionId;
         Require(game.Events.Select(item => item.Payload).OfType<AfterDamageEvent>()
                     .Count(item => item.ResolutionId == nestedFrameId) == 1 &&
-                game.Events.Select(item => item.Payload).OfType<GangliePunishmentResolvedEvent>()
-                    .Count(item => item.OwnerSeat == ganglieSeat && item.SourceSeat == 0) == 1 &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Count(item => item.OwnerSeat == ganglieSeat && item.SkillId == "classic:ganglie" &&
+                        item.Completed) == 1 &&
                 State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
             "Nested Ganglie damage and its outer punishment must each finish exactly once and replay.");
     }

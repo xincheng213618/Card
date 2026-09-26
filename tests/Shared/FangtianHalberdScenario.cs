@@ -39,7 +39,7 @@ internal static class FangtianHalberdScenario
                 candidate.ContentIds.Count == 1 &&
                 registry.Generals[candidate.ContentIds[0]].SkillIds
                     .Select(registry.GetSkill)
-                    .All(skill => skill.LegacyKind is not (SkillKind.Tieqi or SkillKind.Liegong)));
+                    .All(skill => skill.Id is not ("classic:tieqi" or "classic:liegong")));
             if (prompt is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } || choice is null)
             {
                 continue;

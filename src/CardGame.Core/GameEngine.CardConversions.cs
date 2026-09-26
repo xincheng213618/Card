@@ -494,20 +494,20 @@ public sealed partial class GameEngine
         return cards.DistinctBy(card => card.Id).ToArray();
     }
 
-    private static bool IsJijiangUse(FactionCardRequestResolution pending) =>
+    private static bool IsFactionSlashUse(FactionCardRequestResolution pending) =>
         pending.IsProgramSkillUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
 
-    private IReadOnlyList<Card> GetJijiangSlashCards(FactionCardRequestResolution pending, CharacterState provider) =>
-        IsJijiangUse(pending) ? GetSlashUseCards(provider) : GetResponseCards(provider, CardKind.Slash);
+    private IReadOnlyList<Card> GetFactionSlashSlashCards(FactionCardRequestResolution pending, CharacterState provider) =>
+        IsFactionSlashUse(pending) ? GetSlashUseCards(provider) : GetResponseCards(provider, CardKind.Slash);
 
-    private CardKind GetJijiangEffectiveSlashKind(
+    private CardKind GetFactionSlashEffectiveSlashKind(
         FactionCardRequestResolution pending,
         CharacterState provider,
         Card card)
     {
         var identity = GetProgramCardIdentityMatches(provider, card).FirstOrDefault();
         if (identity is not null) return identity.Identity.OutputKind;
-        return IsJijiangUse(pending)
+        return IsFactionSlashUse(pending)
             ? IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash
             : GetEffectiveResponseKind(provider, card, CardKind.Slash);
     }
@@ -593,8 +593,8 @@ public sealed partial class GameEngine
         }
 
         var startsCardAction = choice.Parameters.TryGetValue("response", out var response) &&
-                               response is "dodge" or "slash" or "hujia-dodge" or
-                                   "jijiang-slash" or "borrowed-sword-slash" ||
+                               response is "dodge" or "slash" or "faction-defense-dodge" or
+                                   "faction-slash-slash" or "borrowed-sword-slash" ||
                                choice.Parameters.GetValueOrDefault("action") == "qinglong-slash";
         if (startsCardAction && choice.Cards.Count == 1)
         {
