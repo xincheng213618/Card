@@ -366,6 +366,8 @@ public sealed class GuideCardEntry(
     string? effectiveTiming = null)
 {
     public CardKind Kind => definition.Kind;
+    public System.Windows.Media.ImageSource? Artwork => CardArt.Get(Kind);
+    public bool HasArtwork => Artwork is not null;
     public string Name => definition.DisplayName;
     public string Description => effectiveDescription ?? definition.Description;
     public string Category => definition.CategoryName;

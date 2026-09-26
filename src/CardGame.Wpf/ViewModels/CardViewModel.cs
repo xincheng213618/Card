@@ -1,4 +1,5 @@
 using System.Windows.Media;
+using CardGame.Core;
 
 namespace CardGame.Wpf.ViewModels;
 
@@ -9,8 +10,12 @@ public sealed class CardViewModel : ObservableObject
     private string _availabilityText = string.Empty;
 
     public required int Id { get; init; }
+    public CardKind? Kind { get; init; }
+    public ImageSource? Artwork => CardArt.Get(Kind);
+    public bool HasArtwork => Artwork is not null;
     public required string Name { get; init; }
     public required string KindLabel { get; init; }
+    public bool IsStoredGrain => KindLabel.StartsWith("粮 ·", StringComparison.Ordinal);
     public required string SuitGlyph { get; init; }
     public required string Rank { get; init; }
     public required string Description { get; init; }

@@ -295,23 +295,37 @@
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
+    <!-- One face for physical cards at every size. Suit and rank always come from the dealt card. -->
+    <DataTemplate x:Key="CardFaceTemplate">
+        <Viewbox Stretch="Fill" IsHitTestVisible="False">
+            <Grid Width="186" Height="260">
+                <Image x:Name="CardArtwork" Source="{Binding Artwork}" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
+                <Grid x:Name="CardTextFallback" Visibility="Collapsed" Margin="14">
+                    <TextBlock Text="{Binding VerticalName}" Foreground="{Binding AccentBrush}" FontFamily="KaiTi" FontWeight="Bold" FontSize="{Binding NameFontSize}" LineStackingStrategy="BlockLineHeight" LineHeight="{Binding NameLineHeight}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,0,0,0" />
+                    <TextBlock Text="{Binding KindLabel}" Foreground="#7A6549" FontSize="14" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
+                </Grid>
+                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="9,10,0,0">
+                    <TextBlock x:Name="CardRank" Text="{Binding Rank}" FontFamily="Georgia" FontWeight="Bold" FontSize="22" Foreground="{Binding SuitBrush}" />
+                    <TextBlock x:Name="CardSuit" Text="{Binding SuitGlyph}" FontFamily="Segoe UI Symbol" FontSize="22" Foreground="{Binding SuitBrush}" LineHeight="24" LineStackingStrategy="BlockLineHeight" />
+                </StackPanel>
+            </Grid>
+        </Viewbox>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding HasArtwork}" Value="False">
+                <Setter TargetName="CardTextFallback" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
     <DataTemplate x:Key="CardTemplate">
         <Button x:Name="CardButton" Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsPlayable}" VerticalAlignment="Bottom" Margin="0,18,0,0" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" ToolTipService.InitialShowDelay="250" AutomationProperties.Name="{Binding CardHint}">
-            <Border x:Name="CardBorder" Width="110" Height="160" Background="{StaticResource CardPaper}" CornerRadius="5" BorderBrush="#B29A6A" BorderThickness="1" Padding="5">
-                <Border BorderBrush="#6A917B57" BorderThickness="1" CornerRadius="2" Padding="5">
+            <Border x:Name="CardBorder" Width="110" Height="160" Background="{StaticResource CardPaper}" CornerRadius="5" BorderBrush="#B29A6A" BorderThickness="1">
                     <Grid>
-                        <TextBlock Text="{Binding SuitGlyph}" FontFamily="Segoe UI Symbol" FontSize="70" Foreground="{Binding AccentBrush}" Opacity="0.07" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <StackPanel HorizontalAlignment="Left">
-                            <TextBlock Text="{Binding Rank}" FontFamily="Georgia" FontWeight="Bold" FontSize="17" Foreground="{Binding SuitBrush}" />
-                            <TextBlock Text="{Binding SuitGlyph}" FontFamily="Segoe UI Symbol" FontSize="17" Foreground="{Binding SuitBrush}" />
-                        </StackPanel>
-                        <TextBlock Text="{Binding VerticalName}" Foreground="{Binding AccentBrush}" FontFamily="KaiTi" FontWeight="Bold" FontSize="{Binding NameFontSize}" LineStackingStrategy="BlockLineHeight" LineHeight="{Binding NameLineHeight}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,4,0,8" />
-                        <TextBlock Text="{Binding KindLabel}" Foreground="#7A6549" FontSize="9" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
-                        <Border x:Name="SelectedCheck" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top" Background="#9B783B" CornerRadius="8" Width="17" Height="17">
+                        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+                        <TextBlock Text="粮" Foreground="#F9EAC5" Background="#A074562A" FontSize="10" Padding="4,1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" Visibility="{Binding IsStoredGrain, Converter={StaticResource BoolToVisibility}}" />
+                        <Border x:Name="SelectedCheck" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top" Background="#9B783B" CornerRadius="8" Width="17" Height="17" Margin="3">
                             <TextBlock Text="✓" Foreground="#FFF3D2" HorizontalAlignment="Center" FontSize="11" />
                         </Border>
                     </Grid>
-                </Border>
             </Border>
         </Button>
         <DataTemplate.Triggers>
@@ -343,14 +357,10 @@
     </DataTemplate>
     <DataTemplate x:Key="RevealedCardTemplate">
         <Button Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding CardHint}">
-            <Border Width="78" Height="109" Background="{StaticResource CardPaper}" BorderBrush="#BAA375" BorderThickness="1" CornerRadius="4" Margin="4" Padding="7" ToolTip="{Binding CardHint}">
+            <Border Width="78" Height="109" Background="{StaticResource CardPaper}" BorderBrush="#BAA375" BorderThickness="1" CornerRadius="4" Margin="4" ToolTip="{Binding CardHint}">
                 <Grid>
-                    <TextBlock Foreground="{Binding SuitBrush}" FontSize="12">
-                        <Run Text="{Binding SuitGlyph}" />
-                        <Run Text="{Binding Rank}" />
-                    </TextBlock>
-                    <TextBlock Text="{Binding Name}" Foreground="{Binding AccentBrush}" FontFamily="KaiTi" FontSize="21" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding PublicCardLabel}" FontSize="9" Foreground="#816E52" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+                    <TextBlock Text="{Binding PublicCardLabel}" FontSize="9" Foreground="#48341F" Background="#E8F4E6C8" Padding="3,1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,4" />
                 </Grid>
             </Border>
         </Button>

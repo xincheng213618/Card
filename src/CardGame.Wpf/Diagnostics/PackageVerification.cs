@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using CardGame.Core;
 using CardGame.Wpf.Audio;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
@@ -47,6 +48,22 @@ internal static class PackageVerification
                 if (GeneralArt.GetPortrait("classic:ma-dai", optionalSkin.Id) is not ImageBrush { ImageSource: BitmapSource { PixelWidth: > 100 } })
                     throw new InvalidDataException("External skin artwork did not load from the package.");
                 var sounds = Enum.GetValues<GameSound>();
+                using var cardStream = typeof(CardArt).Assembly.GetManifestResourceStream("CardGame.CardArtCatalog.json")
+                    ?? throw new InvalidDataException("Card artwork catalog did not ship.");
+                using var cardCatalog = JsonDocument.Parse(cardStream);
+                var cardKinds = new HashSet<CardKind>();
+                foreach (var entry in cardCatalog.RootElement.GetProperty("cards").EnumerateArray())
+                {
+                    var kind = Enum.Parse<CardKind>(entry.GetProperty("kind").GetString()!);
+                    if (!cardKinds.Add(kind) || entry.GetProperty("file").GetString() != $"{kind}.png")
+                        throw new InvalidDataException($"Invalid card artwork mapping: {kind}");
+                    using var file = File.OpenRead(Path.Combine(AppContext.BaseDirectory, "Assets", "Cards", $"{kind}.png"));
+                    if (!Convert.ToHexString(SHA256.HashData(file)).Equals(entry.GetProperty("sha256").GetString(), StringComparison.OrdinalIgnoreCase) ||
+                        CardArt.Get(kind) is not BitmapSource { PixelWidth: 186, PixelHeight: 260 })
+                        throw new InvalidDataException($"Missing or invalid card artwork: {kind}");
+                }
+                if (!cardKinds.SetEquals(CardCatalog.ImplementedCards.Select(card => card.Kind)))
+                    throw new InvalidDataException("Card artwork does not cover the implemented card catalog.");
                 foreach (var asset in GameAudioCatalog.Assets)
                 {
                     using var file = File.OpenRead(asset.FilePath);
@@ -85,6 +102,7 @@ internal static class PackageVerification
                     AudioAssets = sounds.Length,
                     OfficialAudioAssets = GameAudioCatalog.Assets.Count,
                     SkinAssets = skinFiles.Length,
+                    CardAssets = cardKinds.Count,
                     Screenshot = screenshot,
                     VisibleWindowOpened = false,
                     PlayerSavesAccessed = false

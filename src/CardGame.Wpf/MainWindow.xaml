@@ -593,15 +593,8 @@
                                 <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Width="112" Height="154" Margin="6,0" Padding="7" Background="#D8C9A5" BorderBrush="#8B754A" BorderThickness="2" CornerRadius="5">
-                                            <Grid>
-                                                <StackPanel HorizontalAlignment="Left">
-                                                    <TextBlock Text="{Binding Rank}" Foreground="#252822" FontWeight="Bold" FontSize="16" />
-                                                    <TextBlock Text="{Binding SuitGlyph}" Foreground="{Binding SuitBrush}" FontSize="18" Margin="0,-3,0,0" />
-                                                </StackPanel>
-                                                <TextBlock Text="{Binding Name}" FontFamily="KaiTi" Foreground="#334E55" FontSize="26" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="78" />
-                                                <TextBlock Text="{Binding KindLabel}" Foreground="#675E4B" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
-                                            </Grid>
+                                        <Border Width="112" Height="154" Margin="6,0" Background="#D8C9A5" BorderBrush="#8B754A" BorderThickness="2" CornerRadius="5">
+                                            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

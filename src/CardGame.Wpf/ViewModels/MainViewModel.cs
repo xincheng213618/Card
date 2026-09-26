@@ -566,6 +566,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             PublicRevealedCards.Add(new CardViewModel
             {
                 Id = card.Id,
+                Kind = card.Kind,
                 Name = card.DisplayName,
                 KindLabel = definition.CategoryName,
                 SuitGlyph = GetSuitGlyph(card.Suit),
@@ -894,6 +895,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 Hand.Add(new CardViewModel
                 {
                     Id = card.Id,
+                    Kind = card.Kind,
                     Name = card.DisplayName,
                     KindLabel = grainIds.Contains(card.Id)
                         ? $"粮 · {CardCatalog.Get(card.Kind).CategoryName}"

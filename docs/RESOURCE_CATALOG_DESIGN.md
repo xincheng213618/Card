@@ -7,6 +7,7 @@
 | 武将与技能 | `ContentGeneralDefinition.Id` → `SkillIds` → `ContentSkillDefinition.Id`，由 `ContentRegistry` 注册 | `character`、`heromusic` 中的 CardID、skillID | 保持规则身份，导入器显式对应武将版本；外部数字 ID 单独记录 |
 | 武将与立绘 | `general-art-catalog.json` 按 key 保存默认皮肤和 skins | `skininfo` 的 skinID、皮肤名，以及公开立绘目录 | 沿用本地皮肤选择，来源不同的 ID 不直接混用 |
 | 音频文件与用途 | 原有 13 个短音效通过 `GameSound` 路由 | `sys_h5_music` 的 heromusic、cardmusic、背景音乐资源路径 | 新增 `game-audio-catalog.json`，每份文件保存哈希、路径、来源和用途 |
+| 卡牌与牌面 | `CardKind` 对应规则定义，实际牌实例保存花色与点数 | `cards.atlas` 精灵名称/坐标对应 `cards.webp` | `card-art-catalog.json` 显式记录牌种与原图，按牌种加载本地 PNG；运行时独立叠加花色点数 |
 | 配音与武将、皮肤、技能 | 原先没有台词关联 | 一条配置可有多份录音，一份录音也可被多个皮肤引用 | `assets` 保存文件，`bindings` 保存适用关系；同录音无需重复存储 |
 | 触发与播放 | Core 发布已提交事件，WPF 负责表现 | 配置表只说明资源关联，不能证明游戏全部逻辑实现 | `GeneralVoiceProjector` 从已完成技能事件和公开快照选配音，不让素材驱动规则 |
 

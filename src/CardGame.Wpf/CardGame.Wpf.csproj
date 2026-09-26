@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <Resource Include="Assets\*.png" />
+    <Content Include="Assets\Cards\*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <EmbeddedResource Include="..\..\docs\content\card-art-catalog.json" LogicalName="CardGame.CardArtCatalog.json" />
     <Content Include="Assets\Skins\**\*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <EmbeddedResource Include="..\..\docs\content\general-art-catalog.json" LogicalName="CardGame.GeneralArtCatalog.json" />
     <Content Include="Assets\Audio\*.wav" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

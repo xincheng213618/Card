@@ -1,0 +1,552 @@
+{
+  "schemaVersion": 1,
+  "description": "CardKind selects artwork only; suit, rank and effective rules remain runtime data.",
+  "source": {
+    "imageUrl": "https://web.sanguosha.com/220/h5_2/res/assets/cards/normal/cards.webp?v=-9365499887",
+    "imageSha256": "1A9AD1855ECB92339C5C0D90F2453F692D829F38F6AEC1BEE50C3671033F290B",
+    "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/cards/normal/cards.atlas?v=16974363927",
+    "atlasSha256": "083498ADD1AE02DF887C8804A8CE39C382C6BFDA95F82C45C6F4696D65A82236"
+  },
+  "cards": [
+    {
+      "kind": "Slash",
+      "frame": "Sha_png.png",
+      "file": "Slash.png",
+      "rectangle": [
+        2880,
+        910,
+        186,
+        260
+      ],
+      "sha256": "CC1E2C20E6B8A2203270D6EE2B706CCB7F4F8AF226AD9A4C1EE0C3F3BF99D226"
+    },
+    {
+      "kind": "Dodge",
+      "frame": "Shan_png.png",
+      "file": "Dodge.png",
+      "rectangle": [
+        3074,
+        910,
+        186,
+        260
+      ],
+      "sha256": "F2761925A3E901CFED162D623B51D87700E836FF749F61B618FDB339E6F0D130"
+    },
+    {
+      "kind": "Peach",
+      "frame": "Tao_png.png",
+      "file": "Peach.png",
+      "rectangle": [
+        1716,
+        1178,
+        186,
+        260
+      ],
+      "sha256": "CE563A79BD0411BC06D7162EC73C9A56A5EA09ED64C03262536D2E02025E0B3C"
+    },
+    {
+      "kind": "Duel",
+      "frame": "JueDou_png.png",
+      "file": "Duel.png",
+      "rectangle": [
+        1718,
+        642,
+        186,
+        260
+      ],
+      "sha256": "611E409D98F297C5BC4BAC1C7EA857CDF941B9CE76DB9D4B84AEB5D418991A36"
+    },
+    {
+      "kind": "DrawTwo",
+      "frame": "WuZhongShengYou_png.png",
+      "file": "DrawTwo.png",
+      "rectangle": [
+        586,
+        1814,
+        186,
+        260
+      ],
+      "sha256": "05CA3842FE1EECAF8931BF8073436C8EA9F584FA885330B7C8C16895B2ECE0D9"
+    },
+    {
+      "kind": "BarbarianAssault",
+      "frame": "NanManRuQin_png.png",
+      "file": "BarbarianAssault.png",
+      "rectangle": [
+        3790,
+        682,
+        186,
+        260
+      ],
+      "sha256": "1A15E99B4ACFFACBC762F9031A2368912039B700F743263C020AF50CEC32D707"
+    },
+    {
+      "kind": "ArrowBarrage",
+      "frame": "WanJianQiFa_png.png",
+      "file": "ArrowBarrage.png",
+      "rectangle": [
+        3268,
+        1178,
+        186,
+        260
+      ],
+      "sha256": "0A8D20952A6C2C98100C12894F502A6C9BEAF3E8AAACECC8936168F34CB44D76"
+    },
+    {
+      "kind": "PeachGarden",
+      "frame": "TaoYuanJieYi_png.png",
+      "file": "PeachGarden.png",
+      "rectangle": [
+        1910,
+        1178,
+        186,
+        260
+      ],
+      "sha256": "B13D9F9CFCB0126A4995CBEA0C4B77FF80C01E9BAA9600BC6B7F8DD530D86AF1"
+    },
+    {
+      "kind": "FiveGrains",
+      "frame": "WuGuFengDeng_png.png",
+      "file": "FiveGrains.png",
+      "rectangle": [
+        3462,
+        1178,
+        186,
+        260
+      ],
+      "sha256": "B01083C9A7B9252A19036A4B4C659A5EE93AC351A164963D9F38F2EB2B97F7F8"
+    },
+    {
+      "kind": "Dismantlement",
+      "frame": "GuoHeChaiQiao_png.png",
+      "file": "Dismantlement.png",
+      "rectangle": [
+        392,
+        1200,
+        186,
+        260
+      ],
+      "sha256": "DBC70EB326C82EB603C22C7DD3E77F25331EA43027CD8E814DC1B5BCDC5AD09C"
+    },
+    {
+      "kind": "Snatch",
+      "frame": "ShunShouQianYang_png.png",
+      "file": "Snatch.png",
+      "rectangle": [
+        1328,
+        1178,
+        186,
+        260
+      ],
+      "sha256": "1A06343C70B8B37508DD75BF4CDEC738CBE41320D3F68AC57488993FB0DE2A77"
+    },
+    {
+      "kind": "FireSlash",
+      "frame": "HuoSha_png.png",
+      "file": "FireSlash.png",
+      "rectangle": [
+        392,
+        3612,
+        186,
+        260
+      ],
+      "sha256": "172DCA8A11C266F65782FE2877EB207DD906750289998A95670CDBD8148A2160"
+    },
+    {
+      "kind": "ThunderSlash",
+      "frame": "LeiSha_png.png",
+      "file": "ThunderSlash.png",
+      "rectangle": [
+        2688,
+        642,
+        186,
+        260
+      ],
+      "sha256": "0DF1196106144F03EB3D9E581AFAAB6A9731367A0BC83728727BA1C840D0053F"
+    },
+    {
+      "kind": "Alcohol",
+      "frame": "Jiu_png.png",
+      "file": "Alcohol.png",
+      "rectangle": [
+        586,
+        1010,
+        186,
+        260
+      ],
+      "sha256": "6D06FB7B5F44E9F2EF661AD674714974B92158F16992930307BC592FF42A7D30"
+    },
+    {
+      "kind": "FireAttack",
+      "frame": "HuoGong_png.png",
+      "file": "FireAttack.png",
+      "rectangle": [
+        392,
+        3344,
+        186,
+        260
+      ],
+      "sha256": "54E3B0EF123341D0446760831DE183222A4B59AE87FDFB477F81CA8BE76305D1"
+    },
+    {
+      "kind": "Crossbow",
+      "frame": "ZhuGeLianNu_png.png",
+      "file": "Crossbow.png",
+      "rectangle": [
+        780,
+        3150,
+        186,
+        260
+      ],
+      "sha256": "346650B655D392404B7842E8B9FE28CE35A0F2CC1D7466C0850EA03AFB50CFBE"
+    },
+    {
+      "kind": "BaguaFormation",
+      "frame": "BaGuaZhen_png.png",
+      "file": "BaguaFormation.png",
+      "rectangle": [
+        4,
+        954,
+        186,
+        260
+      ],
+      "sha256": "C8C43B5EB3D83CFC791A8C0C714458901DB82A17B66B5E70188DD7566D72C233"
+    },
+    {
+      "kind": "RenwangShield",
+      "frame": "RenWangDun_png.png",
+      "file": "RenwangShield.png",
+      "rectangle": [
+        2298,
+        910,
+        186,
+        260
+      ],
+      "sha256": "AF81C502E46A371864855DA921EB17AF42793BBCE2C0E4F2215BE90B11F8D4C5"
+    },
+    {
+      "kind": "OffensiveHorse",
+      "frame": "ChiTu_png.png",
+      "file": "OffensiveHorse.png",
+      "rectangle": [
+        300,
+        4,
+        186,
+        260
+      ],
+      "sha256": "B63D43CFD1E554A5FCB9D3BD9B43523CCD7F5F788A9606CC21CFF1E044983614"
+    },
+    {
+      "kind": "DefensiveHorse",
+      "frame": "JueYing_png.png",
+      "file": "DefensiveHorse.png",
+      "rectangle": [
+        1912,
+        642,
+        186,
+        260
+      ],
+      "sha256": "23432CC2438DF042B8F78CF3D8CB3BE4D337008ECE03979429E72E74DB5C0DB2"
+    },
+    {
+      "kind": "JadeSeal",
+      "frame": "YuXi_png.png",
+      "file": "JadeSeal.png",
+      "rectangle": [
+        780,
+        1542,
+        186,
+        260
+      ],
+      "sha256": "5A9E17FA31D5E31D4917904D455F86FD7983221E2370C6FC3972DFF81737B99B"
+    },
+    {
+      "kind": "QinggangSword",
+      "frame": "QingGangJian_png.png",
+      "file": "QinggangSword.png",
+      "rectangle": [
+        1716,
+        910,
+        186,
+        260
+      ],
+      "sha256": "0113E9D7C318932803247B098EEDDAE200D6D8E42942BF4A89DD96A99896DB02"
+    },
+    {
+      "kind": "Nullification",
+      "frame": "WuXieKeJi_png.png",
+      "file": "Nullification.png",
+      "rectangle": [
+        3850,
+        1224,
+        186,
+        260
+      ],
+      "sha256": "008BAE694C2D401D22E647A142BA9EC2FC619EC1AA86EAE4F98F4EC89ADDCDBF"
+    },
+    {
+      "kind": "IronChain",
+      "frame": "TieSuoLianHuan_png.png",
+      "file": "IronChain.png",
+      "rectangle": [
+        2686,
+        1178,
+        186,
+        260
+      ],
+      "sha256": "61A4F0E09C07ADD54791F8058BC6F379527B24980C7ED9E643BC772B09F7291C"
+    },
+    {
+      "kind": "Indulgence",
+      "frame": "LeBuSiShu_png.png",
+      "file": "Indulgence.png",
+      "rectangle": [
+        2300,
+        642,
+        186,
+        260
+      ],
+      "sha256": "1FAD68A18CBA667B07CA069F1FB29C136FDC4092FE696662EC8916D6A6FF1E48"
+    },
+    {
+      "kind": "SupplyShortage",
+      "frame": "BingLiangCunDuan_png.png",
+      "file": "SupplyShortage.png",
+      "rectangle": [
+        4,
+        2026,
+        186,
+        260
+      ],
+      "sha256": "FDCE1D1C19545FAEA1498762BCDF226BDEC0A6E41328284A9B14021B1F90B6CD"
+    },
+    {
+      "kind": "Lightning",
+      "frame": "ShanDian_png.png",
+      "file": "Lightning.png",
+      "rectangle": [
+        3268,
+        910,
+        186,
+        260
+      ],
+      "sha256": "4AA66A4066201DDF2E387E6B8F314E55ACAB6426CCCE7ABD8752FCDC46778BCF"
+    },
+    {
+      "kind": "BorrowedSword",
+      "frame": "JieDaoShaRen_png.png",
+      "file": "BorrowedSword.png",
+      "rectangle": [
+        1330,
+        642,
+        186,
+        260
+      ],
+      "sha256": "2C4038F2B7EA873073D7FDD33E48B782B2049C11F6DBC436C8FE9C80AEB00F0E"
+    },
+    {
+      "kind": "StoneAxe",
+      "frame": "GuanShiFu_png.png",
+      "file": "StoneAxe.png",
+      "rectangle": [
+        406,
+        394,
+        186,
+        260
+      ],
+      "sha256": "A50E15ACB25CF74AF45E1B662F2A47B73671B93DA7A1F67B2771FC4750E27DBF"
+    },
+    {
+      "kind": "ZhangbaSerpentSpear",
+      "frame": "ZhangBaSheMao_png.png",
+      "file": "ZhangbaSerpentSpear.png",
+      "rectangle": [
+        780,
+        2078,
+        186,
+        260
+      ],
+      "sha256": "2F3AC1845FC81A0A0BAB43B971C57B393744576E2520A43F585AED793052E334"
+    },
+    {
+      "kind": "CixiongDoubleSwords",
+      "frame": "CiXiongShuangGuJian_png.png",
+      "file": "CixiongDoubleSwords.png",
+      "rectangle": [
+        198,
+        1490,
+        186,
+        260
+      ],
+      "sha256": "237E6C1F0EC1C5416E562C2F395A10D75B2C101B4371A35454CE19F98EDF1295"
+    },
+    {
+      "kind": "QinglongCrescentBlade",
+      "frame": "QingLongYanYueDao_png.png",
+      "file": "QinglongCrescentBlade.png",
+      "rectangle": [
+        1910,
+        910,
+        186,
+        260
+      ],
+      "sha256": "3F987118AC05ECB175507795A51DA1B1DD2CA53A2D51A6875403037DCA5AD746"
+    },
+    {
+      "kind": "IceSword",
+      "frame": "HanBingJian_png.png",
+      "file": "IceSword.png",
+      "rectangle": [
+        392,
+        2540,
+        186,
+        260
+      ],
+      "sha256": "136FBE63F3439331848D103F188DB0866000F3B80669783EE076AD4733877EDB"
+    },
+    {
+      "kind": "QilinBow",
+      "frame": "QiLinGong_png.png",
+      "file": "QilinBow.png",
+      "rectangle": [
+        1522,
+        910,
+        186,
+        260
+      ],
+      "sha256": "1F94FBFC460C8A19A6A6EFC5B911D598262A044EF62E8EBBD4B59BDCD8D20EF3"
+    },
+    {
+      "kind": "FangtianHalberd",
+      "frame": "FangTianHuaJi_png.png",
+      "file": "FangtianHalberd.png",
+      "rectangle": [
+        198,
+        3366,
+        186,
+        260
+      ],
+      "sha256": "B118C1A9711D16A0D2A80F257FC46CEB4D9819547A38F4D254204FB9EB478CF7"
+    },
+    {
+      "kind": "GudingBlade",
+      "frame": "GuDingDao_png.png",
+      "file": "GudingBlade.png",
+      "rectangle": [
+        688,
+        4,
+        186,
+        260
+      ],
+      "sha256": "F67E3BEDEE789549EF47E33D07CAC81F1287F6901DF302C577FE227E30AE4C55"
+    },
+    {
+      "kind": "ZhuqueFan",
+      "frame": "ZhuQueYuShan_png.png",
+      "file": "ZhuqueFan.png",
+      "rectangle": [
+        974,
+        1542,
+        186,
+        260
+      ],
+      "sha256": "65590A2C1C3D4BFE67BE6BB02A85CF4E0A25F46E9DC1782F77D96126787BF047"
+    },
+    {
+      "kind": "Tengjia",
+      "frame": "TengJia_png.png",
+      "file": "Tengjia.png",
+      "rectangle": [
+        2104,
+        1178,
+        186,
+        260
+      ],
+      "sha256": "6C4631D0C3503488673CA58ED1580886BBBDF1BC51E5AD3F4003C42296CE12F8"
+    },
+    {
+      "kind": "SilverLion",
+      "frame": "BaiYinShiZi_png.png",
+      "file": "SilverLion.png",
+      "rectangle": [
+        4,
+        1490,
+        186,
+        260
+      ],
+      "sha256": "2372CF7CEC1973A06CE089BA227A8BF42B84B98C6AB15858678FE2A3CB37FE89"
+    },
+    {
+      "kind": "WoodenOx",
+      "frame": "MuNiuLiuMa_png.png",
+      "file": "WoodenOx.png",
+      "rectangle": [
+        3464,
+        642,
+        186,
+        260
+      ],
+      "sha256": "B93A6064A5D2CF603E38BA722EF87982E71E5088522FEF687F6BAB3BEAC1EC1E"
+    },
+    {
+      "kind": "Dawan",
+      "frame": "DaWan_png.png",
+      "file": "Dawan.png",
+      "rectangle": [
+        198,
+        2026,
+        186,
+        260
+      ],
+      "sha256": "8CE8F205B258AD00B27F1331BB79D108AAA2509F515B3CF5F7BE8C6E85794DFA"
+    },
+    {
+      "kind": "Zixing",
+      "frame": "ZiXing_png.png",
+      "file": "Zixing.png",
+      "rectangle": [
+        974,
+        1810,
+        186,
+        260
+      ],
+      "sha256": "233F730C98E2E4C4CC9CC6AF8041BD785F973B223BEFD608B800064BFD99F642"
+    },
+    {
+      "kind": "Dilu",
+      "frame": "DiLu_png.png",
+      "file": "Dilu.png",
+      "rectangle": [
+        198,
+        2294,
+        186,
+        260
+      ],
+      "sha256": "9DDBF008A5F7F61DA1E5B8AD6981DD11445436C6DF4156949323A7FDA3E41D2A"
+    },
+    {
+      "kind": "Zhaohuangfeidian",
+      "frame": "ZhuaHuangFeiDian_png.png",
+      "file": "Zhaohuangfeidian.png",
+      "rectangle": [
+        780,
+        2614,
+        186,
+        260
+      ],
+      "sha256": "5DAEAE70B5AE5A19CDCB6609A85673C0731FF2702C3E1FCBDB4EF2D03964C178"
+    },
+    {
+      "kind": "Hualiu",
+      "frame": "HuaLiu_png.png",
+      "file": "Hualiu.png",
+      "rectangle": [
+        392,
+        2808,
+        186,
+        260
+      ],
+      "sha256": "06013324B4AF5EC750B30B6A31B82902CD14622DA5B2BDC9FF34FD4C36965DD5"
+    }
+  ]
+}
