@@ -369,6 +369,7 @@
                         <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <DockPanel Margin="10,5">
                             <Button Content="详情" DockPanel.Dock="Right" Command="{Binding ToggleLogCommand}" Style="{StaticResource QuietButton}" Padding="6,3" />
+                            <Button Content="提示" DockPanel.Dock="Right" Command="{Binding OpenContextGuideCommand}" Style="{StaticResource QuietButton}" Padding="6,3" ToolTip="查看操作说明 · F1" />
                             <TextBlock Text="牌局记录" FontFamily="KaiTi" FontSize="17" Foreground="#E7D1A1" VerticalAlignment="Center" />
                         </DockPanel>
                         <ListBox x:Name="TableBattleLog" Grid.Row="1" ItemsSource="{Binding FilteredBattleLog}" Background="#44171310" BorderThickness="0" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -419,17 +420,15 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                <Border x:Name="ActionBar" Grid.Row="1" Background="#681B1510" BorderBrush="#A48A55" BorderThickness="0,1,0,1" Padding="8,5" MinHeight="74">
+                <Border x:Name="ActionBar" Grid.Row="1" Background="Transparent" Padding="8,5,8,0" MinHeight="90">
                     <Grid>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                        <Grid VerticalAlignment="Center" Margin="6,0,6,4">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="48" /><RowDefinition Height="14" /></Grid.RowDefinitions>
+                        <Grid VerticalAlignment="Center" Margin="6,0,6,3">
                             <StackPanel>
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Style.Triggers><DataTrigger Binding="{Binding IsTutorialActive}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
-                                <TextBlock Text="{Binding ActionHint}" Foreground="#FFF1D5" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" MaxHeight="39" />
+                                <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers><DataTrigger Binding="{Binding IsTutorialActive}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                                <TextBlock x:Name="ActionDockHint" Text="{Binding ActionHint}" Foreground="#FFF7E7" FontSize="15" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" MaxHeight="44">
+                                    <TextBlock.Effect><DropShadowEffect Color="#1A130D" BlurRadius="3" ShadowDepth="1" /></TextBlock.Effect>
+                                </TextBlock>
                             </StackPanel>
                             <Grid x:Name="TutorialActionPanel" Visibility="{Binding IsTutorialActive, Converter={StaticResource BoolToVisibility}}">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -448,25 +447,19 @@
                                 </StackPanel>
                             </Grid>
                         </Grid>
-                        <WrapPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding IsTutorialBoardEnabled}">
-                            <Button Content="操作提示" Command="{Binding OpenContextGuideCommand}" Style="{StaticResource QuietButton}" Padding="10,8" ToolTip="查看操作说明与出牌建议 · F1" />
+                        <WrapPanel x:Name="SupplementalActionBar" Grid.Row="1" HorizontalAlignment="Center" IsEnabled="{Binding IsTutorialBoardEnabled}">
                             <ItemsControl x:Name="NationalRevealButtons" ItemsSource="{Binding NationalRevealChoices}">
                                 <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Description}" Command="{Binding DataContext.RevealNationalGeneralCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Style="{StaticResource TableSecondaryButton}" Padding="9,8" /></DataTemplate></ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <Button x:Name="FastSpectateButton" Content="快速观战" Command="{Binding FastSpectateCommand}" Style="{StaticResource TablePrimaryButton}" Visibility="{Binding IsSpectating, Converter={StaticResource BoolToVisibility}}" ToolTip="以快速节奏观看剩余对局，取消自动推进可暂停。" />
                             <Button Content="推荐弃牌" Command="{Binding RecommendDiscardCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding IsDiscardSelectionPending, Converter={StaticResource BoolToVisibility}}" />
-                            <Button Content="取消" Command="{Binding ClearSelectionCommand}" Style="{StaticResource QuietButton}" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}" />
                             <Button x:Name="RecastButton" Content="重铸换牌" Command="{Binding RecastSelectedCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding ShowRecastAction, Converter={StaticResource BoolToVisibility}}" ToolTip="不选目标时可将铁索置入弃牌堆，再摸一张牌；不会进入无懈响应。" />
                             <Button Content="{Binding AlternatePlayText}" Command="{Binding PlaySelectedAsSlashCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding HasAlternateSlash, Converter={StaticResource BoolToVisibility}}" ToolTip="按当前技能把所选实体牌转换为对应的有效牌型。" />
-                            <Button x:Name="ActiveSkillEntryButton" Content="{Binding ActiveSkillEntryText}" Command="{Binding UseActiveSkillCommand}" Style="{StaticResource TablePrimaryButton}" Visibility="{Binding ShowActiveSkillEntry, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding HumanPlayer.SkillText}" />
-                            <ItemsControl ItemsSource="{Binding AdditionalActiveSkillActions}" Visibility="{Binding ShowActiveSkillEntry, Converter={StaticResource BoolToVisibility}}">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Description}" Command="{Binding DataContext.SelectActiveSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Style="{StaticResource TablePrimaryButton}" ToolTip="{Binding DataContext.HumanPlayer.SkillText, RelativeSource={RelativeSource AncestorType=ItemsControl}}" /></DataTemplate></ItemsControl.ItemTemplate>
+                            <ItemsControl ItemsSource="{Binding SupplementalActiveSkillActions}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Description}" Command="{Binding DataContext.SelectActiveSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Style="{StaticResource TableSecondaryButton}" /></DataTemplate></ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <Button x:Name="PlayCardButton" Content="{Binding PlayButtonText}" Command="{Binding ConfirmSelectedCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="104" Visibility="{Binding CanActFromHand, Converter={StaticResource BoolToVisibility}}" ToolTip="Enter 确认当前选择" />
-                            <Button x:Name="EndTurnButton" Content="结束出牌" Command="{Binding EndTurnCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding CanEndTurn, Converter={StaticResource BoolToVisibility}}" ToolTip="Ctrl + Enter 结束出牌" />
-                            <Button Content="不响应" Command="{Binding DeclineResponseCommand}" Style="{StaticResource TableSecondaryButton}" Visibility="{Binding CanDeclineResponse, Converter={StaticResource BoolToVisibility}}" />
                             <Button Content="继续推进" Command="{Binding RunToHumanCommand}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
@@ -484,32 +477,31 @@
                                 </Button.Style>
                             </Button>
                         </WrapPanel>
+                        <Grid x:Name="PrimaryActionButtons" Grid.Row="2" Width="450" HorizontalAlignment="Center" IsEnabled="{Binding IsTutorialBoardEnabled}">
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
+                            <Button x:Name="PlayCardButton" Content="{Binding ActionDockConfirmText}" Command="{Binding ConfirmSelectedCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="104" HorizontalAlignment="Center" Visibility="{Binding CanActFromHand, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding PlayButtonText}" AutomationProperties.Name="{Binding PlayButtonText}" />
+                            <Button x:Name="CancelActionButton" Grid.Column="1" Content="取 消" Command="{Binding ClearSelectionCommand}" IsEnabled="{Binding HasSelection}" Style="{StaticResource TableSecondaryButton}" Width="104" HorizontalAlignment="Center" Visibility="{Binding CanActFromHand, Converter={StaticResource BoolToVisibility}}" ToolTip="取消当前选牌和目标 · Esc" />
+                            <Button x:Name="EndTurnButton" Grid.Column="2" Content="结 束" Command="{Binding EndTurnCommand}" Style="{StaticResource TableSecondaryButton}" Width="84" HorizontalAlignment="Center" Visibility="{Binding CanEndTurn, Converter={StaticResource BoolToVisibility}}" ToolTip="结束出牌 · Ctrl + Enter" AutomationProperties.Name="结束出牌" />
+                            <Button Grid.Column="2" Content="不响应" Command="{Binding DeclineResponseCommand}" Style="{StaticResource TableSecondaryButton}" HorizontalAlignment="Center" Visibility="{Binding CanDeclineResponse, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                        <Image x:Name="PlayPhaseMarker" Grid.Row="3" Source="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seat__SeatRoundState_4.png" Width="140" Height="14" HorizontalAlignment="Left" Margin="146,0,0,0" Stretch="Fill" Visibility="{Binding CanEndTurn, Converter={StaticResource BoolToVisibility}}" IsHitTestVisible="False" />
                     </Grid>
                 </Border>
-                <Border x:Name="HandDock" Grid.Row="2" Grid.ColumnSpan="2" Background="#E51B1714" BorderBrush="#84725B" BorderThickness="0,1,0,0" Padding="8,6">
+                <Border x:Name="HandDock" Grid.Row="2" Grid.ColumnSpan="2" Background="#2C2117" BorderBrush="#84725B" BorderThickness="0,1,0,0" Padding="8,6">
                     <Grid>
+                        <Grid.Background><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seatbottom__grade_cover_4.png" Stretch="Fill" /></Grid.Background>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="154" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="124" />
+                            <ColumnDefinition Width="228" />
                             <ColumnDefinition Width="150" />
                         </Grid.ColumnDefinitions>
 
                         <StackPanel x:Name="EquipmentRail" Margin="0,0,8,0">
-                            <TextBlock Text="装备区" Foreground="#CABB9C" FontSize="10" Margin="4,1,0,7" />
                             <ItemsControl x:Name="HumanEquipmentSlots" ItemsSource="{Binding HumanEquipmentSlots}" ItemTemplate="{StaticResource EquipmentSlotTemplate}" />
-                            <Button Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource TableSecondaryButton}" Width="110" Margin="0,8,0,0" />
                         </StackPanel>
                         <Grid Grid.Column="1" Margin="8,0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="20" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <Grid>
-                                <TextBlock Text="{Binding HandCountText}" Foreground="#CDBF9D" FontSize="11" />
-                                <TextBlock Text="{Binding IdentityObjective}" Foreground="#A0B4A9" FontSize="10" HorizontalAlignment="Right" ToolTip="{Binding HumanSummary}" />
-                            </Grid>
-                            <controls:HandScrollViewer x:Name="HandViewport" Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False" ToolTip="手牌较多时，在此处滚动鼠标滚轮可左右浏览。" AutomationProperties.Name="手牌浏览区">
+                            <controls:HandScrollViewer x:Name="HandViewport" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False" ToolTip="手牌较多时，在此处滚动鼠标滚轮可左右浏览。" AutomationProperties.Name="手牌浏览区">
                                 <ItemsControl x:Name="HandCards" ItemsSource="{Binding Hand}" ItemTemplate="{StaticResource CardTemplate}" VerticalAlignment="Top">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -537,12 +529,16 @@
                         </Grid>
 
                         <Border x:Name="HumanSkillPanel" Grid.Column="2" Margin="3,0,5,0" AutomationProperties.Name="本方技能区">
-                            <Grid VerticalAlignment="Bottom">
-                                <Grid.RowDefinitions><RowDefinition Height="20" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                                <TextBlock Text="武将技能" Foreground="#CABB9C" FontSize="10" HorizontalAlignment="Center" />
-                                <ScrollViewer Grid.Row="1" MaxHeight="176" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                    <ItemsControl x:Name="HumanSkillCards" ItemsSource="{Binding HumanSkillCards}" ItemTemplate="{StaticResource CompactSkillTemplate}" />
-                                </ScrollViewer>
+                            <Grid>
+                                <TextBlock Text="{Binding HandCountText}" Foreground="#CDBF9D" FontSize="10" HorizontalAlignment="Right" ToolTip="{Binding IdentityObjective}" />
+                                <StackPanel VerticalAlignment="Bottom">
+                                    <Button x:Name="SortHandButton" Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource TableSortButton}" Width="96" HorizontalAlignment="Left" Margin="0,0,0,6" />
+                                    <ScrollViewer MaxHeight="152" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Right" Width="{Binding HumanSkillRailWidth}">
+                                        <ItemsControl x:Name="HumanSkillCards" ItemsSource="{Binding HumanSkillCards}" ItemTemplate="{StaticResource CompactSkillTemplate}">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding HumanSkillColumns}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
                             </Grid>
                         </Border>
                         <ContentControl x:Name="HumanPortrait" Grid.Column="3" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" HorizontalAlignment="Right" VerticalAlignment="Bottom" />

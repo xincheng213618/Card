@@ -189,7 +189,7 @@ public sealed partial class MainViewModel
                 .Select(seat => seat.IsHuman ? $"你（{seat.GeneralName}）" : $"{seat.Seat + 1} 号位 {seat.GeneralName}").ToArray();
             steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}。再次点击已选牌或目标可以取消。",
                 selectedNames.Length == 0 ? "尚未选择目标；不要求目标的技能只需选牌。" : $"已选目标：{string.Join("、", selectedNames)}。",
-                $"点击「发动{activeSkillName}」或按 Enter 才会支付代价并提交技能；Esc 取消整次选择。关闭指南会保留已选牌和目标。"];
+                "点击「确定」或按 Enter 才会支付代价并提交技能；Esc 取消整次选择。关闭指南会保留已选牌和目标。"];
         }
         else if (CanEndTurn)
         {
@@ -217,12 +217,12 @@ public sealed partial class MainViewModel
             {
                 CurrentGuideTitle = CanConfirmSelected ? "确认这次出牌" : "选择亮起的目标";
                 CurrentGuideBody = ActionHint;
-                steps = ["亮起的武将才是当前合法目标；再次点击可以取消目标。", "点击金色出牌按钮或按 Enter 确认。存在转化时，按钮会注明实际使用的有效牌型。", "确认前可以取消或换另一张实体牌。"];
+                steps = ["亮起的武将才是当前合法目标；再次点击可以取消目标。", "点击「确定」或按 Enter 确认。存在转化时，操作提示会注明实际使用的有效牌型。", "确认前可以取消或换另一张实体牌。"];
             }
             else
             {
                 CurrentGuideTitle = CanUseActiveSkill ? "轮到你行动，可出牌或发动技能" : Hand.Any(card => card.IsPlayable) ? "轮到你出牌" : "当前没有可以主动使用的牌";
-                CurrentGuideBody = CanUseActiveSkill ? $"{human?.SkillName}：{human?.SkillDescription}\n点击「{ActiveSkillEntryText}」发动；需要选牌或目标时，选齐后再确认。无须选择的技能点击后立即结算。" : Hand.Any(card => card.IsPlayable) ? "选中一张亮起的手牌，再按提示选择目标或直接确认。你可以连续使用不同的牌，直到决定结束出牌。" : "可以点击「结束出牌」。灰色牌仍可能在响应时发挥作用，不代表它没有用。";
+                CurrentGuideBody = CanUseActiveSkill ? $"{human?.SkillName}：{human?.SkillDescription}\n点击对应的【{HumanActiveSkillName}】技能或装备按钮发动；需要选牌或目标时，选齐后再确认。无须选择的技能点击后立即结算。" : Hand.Any(card => card.IsPlayable) ? "选中一张亮起的手牌，再按提示选择目标或直接确认。你可以连续使用不同的牌，直到决定结束出牌。" : "可以点击「结束」。灰色牌仍可能在响应时发挥作用，不代表它没有用。";
                 steps = ["杀通常每回合限一次，目标须在攻击范围内；部分技能和装备会改变限制。", "灰色手牌悬停可查看当前不可用的原因，也可在下面查阅图鉴。", "想保留资源时，可直接结束出牌；超出体力的手牌会进入弃牌选择。"];
             }
         }

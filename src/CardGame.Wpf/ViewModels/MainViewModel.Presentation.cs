@@ -532,12 +532,12 @@ public sealed partial class MainViewModel
             : selectedName is not null ? target is not null ? CanConfirmSelected
                     ? $"{(!CanPlaySelected && CanPlaySelectedAsSlash ? $"{selectedName}{AlternatePlayText}" : selectedName)} → {target.GeneralName} · 确认后使用"
                     : $"{selectedName} → {target.GeneralName} · 在中央选择具体目标牌"
-                : CanConfirmSelected ? $"已选择【{selectedName}】· 点击出牌确认" : $"已选择【{selectedName}】· 点击亮起的武将选择目标"
+                : CanConfirmSelected ? $"已选择【{selectedName}】· 点击「确定」使用" : $"已选择【{selectedName}】· 点击亮起的武将选择目标"
             : IsGeneralSelectionPending ? "选择你的武将，准备出征"
             : CanUseActiveSkill && HumanActiveSkillAction is { } activeAction &&
               (activeAction.MinCardCount > 0 || activeAction.MaxCardCount > 0 ||
                activeAction.MinTargetCount > 0 || activeAction.MaxTargetCount > 0)
-                ? $"点击{ActiveSkillEntryText}，再选择{BuildActiveSkillRequirement(activeAction)}"
+                ? $"点击【{HumanActiveSkillName}】，再选择{BuildActiveSkillRequirement(activeAction)}"
             : CanUseActiveSkill ? Hand.Any(item => item.IsPlayable)
                 ? $"选择一张手牌，或发动 {ActiveSkillButtonText}"
                 : $"可发动 {ActiveSkillButtonText}"
@@ -546,6 +546,10 @@ public sealed partial class MainViewModel
             : CanStepAi ? IsAutoAdvance ? "其他武将正在行动，请稍候…" : "自动推进已暂停 · 可继续推进或观察单步"
             : PromptText;
         RaisePropertyChanged(nameof(PlayButtonText));
+        RaisePropertyChanged(nameof(ActionDockConfirmText));
+        RaisePropertyChanged(nameof(SupplementalActiveSkillActions));
+        RaisePropertyChanged(nameof(HumanSkillColumns));
+        RaisePropertyChanged(nameof(HumanSkillRailWidth));
         RaisePropertyChanged(nameof(IsMultiTargetCardSelected));
         RaisePropertyChanged(nameof(ShowRecastAction));
         RaisePropertyChanged(nameof(CanRecastSelected));
@@ -674,7 +678,7 @@ public sealed partial class MainViewModel
         }
 
         var next = CanConfirmActiveSkill
-            ? $"点击「发动{skillName}」或按 Enter 确认。"
+            ? "点击「确定」或按 Enter 确认。"
             : "选够牌和目标后即可确认；Esc 取消。";
         return $"【{skillName}】{string.Join(" · ", parts)} · {next}";
     }

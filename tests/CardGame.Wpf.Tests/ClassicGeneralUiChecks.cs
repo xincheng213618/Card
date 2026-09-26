@@ -2631,17 +2631,18 @@ internal static class ClassicGeneralUiChecks
         var root = (FrameworkElement)window.Content;
         Program.Render(root, 1120, 740, Path.Combine(output, "78-classic-jijiang-entry.png"));
         var visibleSkillButtons = Program.Find<System.Windows.Controls.Button>(root)
-            .Where(button => button.Visibility == Visibility.Visible && button.ActualHeight > 0)
-            .Select(button => button.Content as string)
-            .Where(text => text is not null)
+            .Where(button => button.Visibility == Visibility.Visible && button.ActualHeight > 0 && button.IsEnabled)
+            .Select(button => (button.DataContext as HumanSkillViewModel)?.Name)
+            .Where(name => name is not null)
             .ToArray();
-        Program.Assert(visibleSkillButtons.Contains("发动【仁德】", StringComparer.Ordinal) &&
-                       visibleSkillButtons.Contains("发动【激将】", StringComparer.Ordinal),
-            "The play toolbar must keep both of Liu Bei's active skills directly visible.");
+        Program.Assert(visibleSkillButtons.Contains("仁德", StringComparer.Ordinal) &&
+                       visibleSkillButtons.Contains("激将", StringComparer.Ordinal),
+            "The skill rail must keep both of Liu Bei's active skills directly visible.");
 
         var rende = actions.Single(action => action.Skill == SkillKind.Rende);
         var beforeRende = engine.CreateSnapshot(0, revealAll: true);
-        viewModel.SelectActiveSkillCommand.Execute(rende);
+        var rendeButton = Program.Find<System.Windows.Controls.Button>(root).Single(button => button.DataContext is HumanSkillViewModel { Name: "仁德" });
+        rendeButton.Command!.Execute(rendeButton.CommandParameter);
         var rendeCard = viewModel.Hand.Single(card => card.Id == rende.SelectableCardIds.Order().First());
         var rendeTarget = viewModel.Seats.Single(seat => seat.Seat == rende.SelectableTargetSeats.Order().First());
         viewModel.SelectCardCommand.Execute(rendeCard);
@@ -2669,7 +2670,8 @@ internal static class ClassicGeneralUiChecks
             $"repeatable={hasRepeatedRende}, formalText={hasFormalDescription}).");
         Program.Render(root, 1120, 740, Path.Combine(output, "82-classic-rende-repeat-entry.png"));
 
-        viewModel.SelectActiveSkillCommand.Execute(currentJijiang);
+        var jijiangButton = Program.Find<System.Windows.Controls.Button>(root).Single(button => button.DataContext is HumanSkillViewModel { Name: "激将" });
+        jijiangButton.Command!.Execute(jijiangButton.CommandParameter);
         Program.Assert(viewModel.IsActiveSkillSelectionPending &&
                        viewModel.PlayButtonText == "发动激将" &&
                        viewModel.CurrentGuideTitle == "选择【激将】的牌和目标" &&

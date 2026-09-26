@@ -36,10 +36,10 @@ internal static class SkillInteractionChecks
         var window = new MainWindow(vm);
         var root = (FrameworkElement)window.Content;
         Program.Render(root, 1120, 740, Path.Combine(output, $"37-{skillName}-entry.png"));
-        var entry = (Button)window.FindName("ActiveSkillEntryButton");
+        var entry = Program.Find<Button>(root).Single(button => button.DataContext is HumanSkillViewModel skill && skill.Name == skillName);
         var confirm = (Button)window.FindName("PlayCardButton");
         Require(entry.IsEnabled && entry.Visibility == Visibility.Visible, "Skill entry is not available.");
-        entry.Command.Execute(null);
+        entry.Command.Execute(entry.CommandParameter);
         Require(vm.IsActiveSkillSelectionPending && !vm.CanConfirmSelected, "Empty skill selection should not be confirmable.");
         vm.ConfirmSelectedCommand.Execute(null);
         Require(State(vm) == before && vm.IsActiveSkillSelectionPending && !Shortcut(window, Key.Enter),
@@ -96,7 +96,12 @@ internal static class SkillInteractionChecks
         Require(vm.Hand.All(card => card.IsPlayable == validCards.Contains(card.Id)) && vm.CanConfirmSelected,
             "Restored skill cards retained the tutorial's dimming or confirmation gate.");
         Program.Render(root, 1120, 740, Path.Combine(output, $"39-{skillName}-ready.png"));
-        Require(entry.Visibility == Visibility.Collapsed && confirm.IsEnabled, "Skill draft must have one visible primary confirmation.");
+        var currentEntry = Program.Find<Button>(root).Single(button => button.DataContext is HumanSkillViewModel skill && skill.Name == skillName);
+        Require(!currentEntry.IsEnabled && confirm.IsEnabled, "Skill draft must have only one enabled primary confirmation.");
+        var draftRevision = engine.Revision;
+        currentEntry.Command!.Execute(currentEntry.CommandParameter);
+        Require(engine.Revision == draftRevision && vm.IsActiveSkillSelectionPending && vm.CanConfirmSelected,
+            "Re-clicking a skill chip committed or changed the prepared draft.");
         var revision = engine.Revision;
         if (skillName == "回春") confirm.Command.Execute(null);
         else Require(Shortcut(window, Key.Enter), "Enter did not confirm the complete skill draft.");

@@ -188,7 +188,8 @@
         <Setter Property="MinWidth" Value="84" />
         <Setter Property="Padding" Value="16,5" />
         <Setter Property="Margin" Value="4,2" />
-        <Setter Property="FontFamily" Value="KaiTi" />
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI" />
+        <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="Background"><Setter.Value><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__selfSeatOkBtn_normal.png" Stretch="Fill" /></Setter.Value></Setter>
         <Setter Property="Template">
@@ -202,7 +203,7 @@
                         <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.7" /></Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="Foreground" Value="#FFFFFF" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="#B1A99D" />
+                            <Setter Property="Foreground" Value="#D5D0C5" />
                             <Setter TargetName="ButtonSurface" Property="Background"><Setter.Value><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__selfSeatOkBtn_disabled.png" Stretch="Fill" /></Setter.Value></Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -212,6 +213,12 @@
     </Style>
     <Style x:Key="TableSecondaryButton" TargetType="Button" BasedOn="{StaticResource TablePrimaryButton}">
         <Setter Property="Background"><Setter.Value><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__selfSeatCancelBtn_normal.png" Stretch="Fill" /></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="TableSortButton" TargetType="Button" BasedOn="{StaticResource TablePrimaryButton}">
+        <Setter Property="Height" Value="30" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="9,3" />
+        <Setter Property="Background"><Setter.Value><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/selfseat__selfSeatResetBtn_normal.png" Stretch="Fill" /></Setter.Value></Setter>
     </Style>
     <DataTemplate x:Key="EquipmentSlotTemplate">
         <Grid Width="142" Height="27" Margin="0,1" ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding Tooltip}">
@@ -230,17 +237,24 @@
     <DataTemplate x:Key="CompactSkillTemplate">
         <Border x:Name="SkillCardFrame" Margin="0,2,0,5" ToolTip="{Binding Tooltip}">
             <StackPanel>
-                <Button Command="{Binding DataContext.ActivateHumanSkillCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsAvailable}" ToolTip="{Binding Tooltip}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding Tooltip}" MaxWidth="112" Height="42" HorizontalAlignment="Stretch">
+                <Button Command="{Binding DataContext.ActivateHumanSkillCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTip="{Binding Tooltip}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding Tooltip}" MaxWidth="104" Height="36" HorizontalAlignment="Stretch">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="IsEnabled" Value="{Binding IsAvailable}" />
+                            <Style.Triggers><DataTrigger Binding="{Binding DataContext.IsActiveSkillSelectionPending, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger></Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Grid x:Name="SkillButtonSurface">
-                                <Image Source="{Binding ButtonArtwork}" Stretch="Fill" />
-                                <TextBlock Text="{Binding Name}" Foreground="#FAF0DF" FontFamily="KaiTi" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="22,0,0,0">
+                                <Image x:Name="SkillButtonArtwork" Source="{Binding ButtonArtwork}" Stretch="Fill" />
+                                <TextBlock Text="{Binding Name}" Foreground="#FAF0DF" FontFamily="KaiTi" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,0,0,0">
                                     <TextBlock.Effect><DropShadowEffect Color="#000000" BlurRadius="2" ShadowDepth="1" /></TextBlock.Effect>
                                 </TextBlock>
                                 <Border x:Name="SkillFocusRing" BorderBrush="#FFE3A4" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" IsHitTestVisible="False" />
                             </Grid>
                             <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="False"><Setter TargetName="SkillButtonArtwork" Property="Source" Value="{Binding DisabledButtonArtwork}" /></Trigger>
                                 <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SkillButtonSurface" Property="Opacity" Value="0.85" /></Trigger>
                                 <Trigger Property="IsPressed" Value="True"><Setter TargetName="SkillButtonSurface" Property="Opacity" Value="0.65" /></Trigger>
                                 <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="SkillFocusRing" Property="Visibility" Value="Visible" /></Trigger>
@@ -253,6 +267,7 @@
         </Border>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding IsDisabled}" Value="True"><Setter TargetName="SkillCardFrame" Property="Opacity" Value="0.65" /></DataTrigger>
+            <DataTrigger Binding="{Binding DataContext.IsActiveSkillSelectionPending, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"><Setter TargetName="SkillStateText" Property="Text" Value="等待确认" /></DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
 
@@ -401,7 +416,7 @@
     </DataTemplate>
     <DataTemplate x:Key="CardTemplate">
         <Button x:Name="CardButton" Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsPlayable}" VerticalAlignment="Bottom" Margin="0,18,0,0" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" ToolTipService.InitialShowDelay="250" AutomationProperties.Name="{Binding CardHint}">
-            <Border x:Name="CardBorder" Width="110" Height="154" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
+            <Border x:Name="CardBorder" Width="128" Height="180" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
                     <Grid>
                         <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                         <TextBlock Text="粮" Foreground="#F9EAC5" Background="#A074562A" FontSize="10" Padding="4,1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" Visibility="{Binding IsStoredGrain, Converter={StaticResource BoolToVisibility}}" />

@@ -26,14 +26,14 @@ internal static class ActiveSkillChecks
 
         Program.Render(root, 1120, 740, Path.Combine(Path.GetTempPath(), "card-ui-check", "active-skill.png"));
         var skillButton = Program.Find<Button>(root).SingleOrDefault(button =>
-            button.Visibility == Visibility.Visible &&
-            Equals(button.Content, viewModel.ActiveSkillButtonText));
-        Program.Assert(skillButton is not null, "The active-skill action button was not rendered.");
+            button.Visibility == Visibility.Visible && button.IsEnabled &&
+            button.DataContext is HumanSkillViewModel { Name: "苦肉" });
+        Program.Assert(skillButton is not null, "The active-skill button beside the general was not rendered.");
 
         var engine = Program.Engine(viewModel);
         var before = engine.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         var revision = engine.Revision;
-        viewModel.UseActiveSkillCommand.Execute(null);
+        skillButton!.Command!.Execute(skillButton.CommandParameter);
         var after = engine.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Program.Assert(engine.Revision == revision + 1, "The WPF active-skill button did not commit one command.");
         Program.Assert(after.Hp == before.Hp - 1 && after.Hand.Count == before.Hand.Count + 2,

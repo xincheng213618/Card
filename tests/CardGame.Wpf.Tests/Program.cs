@@ -219,6 +219,8 @@ internal static class Program
             }
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
+            Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));
+            Check("action dock arranges multiple real skills beside the hand", () => TableSurfaceChecks.MultipleSkillGrid(output));
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general portraits share selected skins across gallery, choices and battle and persist locally", () => GeneralPortraitChecks.SelectionAndPersistence(output));
@@ -928,7 +930,7 @@ internal static class Program
         AdvanceToDecision(vm);
         Render(root, 1440, 860, Path.Combine(output, "02-table.png"));
         Assert(Find<HandPanel>(root).Any(), "Hand layout did not materialize.");
-        Assert(Find<Button>(root).Any(button => button.Visibility == Visibility.Visible && button.ActualHeight > 0 && Equals(button.Content, "结束出牌")), "End-turn control missing.");
+        Assert(((Button)window.FindName("EndTurnButton")) is { Visibility: Visibility.Visible, ActualHeight: > 0 }, "End-turn control missing.");
         Render(root, 1120, 740, Path.Combine(output, "03-small-table.png"));
         var visibleButtons = Find<Button>(root).Where(button => button.Visibility == Visibility.Visible && button.IsEnabled && button.ActualHeight > 0).ToArray();
         Assert(visibleButtons.Length >= 8, "Player controls missing.");

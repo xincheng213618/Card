@@ -298,6 +298,57 @@
         116,
         52
       ]
+    },
+    {
+      "file": "seatbottom__grade_cover_4.png",
+      "sha256": "b7f3740ef138e942ea0260c33753748355b7b3fa582ca09fde9230693b1eb0ef",
+      "width": 2000,
+      "height": 298,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seatbottom.webp",
+      "sourceSha256": "d3ab4e217d188f0f73d8c4eaa99872635f6a19e5e02f27a585575652aa67a836",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seatbottom.atlas",
+      "atlasSha256": "0d7d1aaafebc61b91bf0be26f2211470c08fd94c0d497520e331f1c48d64d50a",
+      "frame": "grade_cover_4.png",
+      "rectangle": [
+        4,
+        4,
+        2000,
+        298
+      ]
+    },
+    {
+      "file": "seat__SeatRoundState_4.png",
+      "sha256": "a44f39bcec903933d92eba1541132bbfb8cd2e941bff4e438f5a8c58c0327241",
+      "width": 240,
+      "height": 24,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seat.webp",
+      "sourceSha256": "b9dd6e612c2033385d7c2bae732e260536288d67a02f2d49898e9bcbdb36ea5c",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/seat.atlas",
+      "atlasSha256": "9df9a7f7299346ef9b898a645e7d4b7540828dfcfeac2e54140ed7825572c337",
+      "frame": "SeatRoundState_4.png",
+      "rectangle": [
+        3848,
+        4,
+        240,
+        24
+      ]
+    },
+    {
+      "file": "selfseat__selfSeatResetBtn_normal.png",
+      "sha256": "db81d0745492eeee1ea25b719aa6dab8136a53fc446e6f9506a283ef0bfbffe0",
+      "width": 176,
+      "height": 66,
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.webp",
+      "sourceSha256": "fdb71fd405cf7d9e276e32e5f4c377805984d7c61ff3a258f49d6b24dae2fe53",
+      "atlasUrl": "https://web.sanguosha.com/220/h5_2/res/assets/game/selfseat.atlas",
+      "atlasSha256": "74e55d23c48fd6eff1ba3161f207c1ed208f9f20630ffaf24196fac6800beb5b",
+      "frame": "selfSeatResetBtn_normal.png",
+      "rectangle": [
+        4,
+        1220,
+        176,
+        66
+      ]
     }
   ]
 }

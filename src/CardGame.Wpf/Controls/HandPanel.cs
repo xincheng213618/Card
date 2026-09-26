@@ -6,8 +6,8 @@ namespace CardGame.Wpf.Controls;
 /// <summary>Keep the hand contiguous from the equipment rail; overlap only when space runs out.</summary>
 public sealed class HandPanel : Panel
 {
-    private const double CardWidth = 112;
-    private const double CardHeight = 182;
+    private const double CardWidth = 130;
+    private const double CardHeight = 200;
     private const double MinimumStep = 36;
 
     public static readonly DependencyProperty ViewportWidthProperty = DependencyProperty.Register(
