@@ -57,6 +57,8 @@ public sealed partial class MainViewModel
             IsSoundEnabled = preferences.SoundEnabled;
             SoundVolume = preferences.SoundVolume;
             IsMotionEnabled = preferences.MotionEnabled;
+            IsMusicEnabled = preferences.MusicEnabled;
+            IsVoiceEnabled = preferences.VoiceEnabled;
             ApplyGeneralSkinPreferences(preferences.GeneralSkins);
         }
         finally { _applyingPreferences = false; }
@@ -92,6 +94,8 @@ public sealed partial class MainViewModel
         {
             _preferencesStore.Write(new(1, IsSoundEnabled, SoundVolume, IsMotionEnabled)
             {
+                MusicEnabled = IsMusicEnabled,
+                VoiceEnabled = IsVoiceEnabled,
                 GeneralSkins = _generalSkinPreferences.Count == 0 ? null : new(_generalSkinPreferences, StringComparer.Ordinal)
             });
             _preferencesPending = false;

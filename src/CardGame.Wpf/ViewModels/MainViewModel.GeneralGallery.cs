@@ -82,7 +82,10 @@ public sealed partial class MainViewModel
         private set
         {
             if (SetProperty(ref _selectedGeneralGalleryEntry, value))
+            {
                 RaisePropertyChanged(nameof(HasGeneralGallerySelection));
+                RefreshGeneralVoices();
+            }
         }
     }
 
@@ -151,7 +154,7 @@ public sealed partial class MainViewModel
             {
                 GeneralId = general.Id,
                 Portrait = GetGeneralPortrait(general.Id),
-                Skills = skills.Select(skill => new GeneralGallerySkill(skill.Name, GetVisibleSkillDescription(skill))).ToArray(),
+                Skills = skills.Select(skill => new GeneralGallerySkill(skill.Name, GetVisibleSkillDescription(skill), general.Id)).ToArray(),
                 SeriesId = group.SeriesId,
                 SeriesName = GeneralGallerySeries.First(option => option.Id == group.SeriesId).Name,
                 GroupId = group.Id,

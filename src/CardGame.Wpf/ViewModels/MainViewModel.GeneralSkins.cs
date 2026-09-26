@@ -16,6 +16,7 @@ public sealed partial class MainViewModel
             if (!SetProperty(ref _generalDetailsTab, value)) return;
             RaisePropertyChanged(nameof(IsGeneralSkillsTab));
             RaisePropertyChanged(nameof(IsGeneralSkinsTab));
+            RaisePropertyChanged(nameof(IsGeneralVoicesTab));
         }
     }
     public bool IsGeneralSkillsTab => GeneralDetailsTab == "skills";
@@ -35,9 +36,10 @@ public sealed partial class MainViewModel
 
     private void InitializeGeneralSkins()
     {
+        InitializeGeneralVoices();
         SelectGeneralDetailsTabCommand = new RelayCommand<string>(tab =>
         {
-            if (tab is "skills" or "skins") GeneralDetailsTab = tab;
+            if (tab is "skills" or "skins" or "voices") GeneralDetailsTab = tab;
         });
         SelectGeneralSkinCommand = new RelayCommand<GeneralSkin>(skin =>
         {
@@ -46,6 +48,7 @@ public sealed partial class MainViewModel
             if (skin.Id == GeneralArt.GetSkin(entry.GeneralId)?.Id) _generalSkinPreferences.Remove(key);
             else _generalSkinPreferences[key] = skin.Id;
             GetGeneralPortrait(entry.GeneralId).SelectSkin(skin.Id);
+            RefreshGeneralVoices();
             QueuePreferencesSave();
         });
         PreviousGeneralDetailsCommand = new RelayCommand(() => MoveGeneralDetails(-1));

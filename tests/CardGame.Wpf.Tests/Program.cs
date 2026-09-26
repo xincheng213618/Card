@@ -331,6 +331,9 @@ internal static class Program
             Check("hand controls retain order and animation preferences persist", () => FeedbackChecks.HandAndPreferences(output));
             Check("actual battle feedback renders without changing decisions or intercepting input", () => FeedbackChecks.RenderAndLifecycle(output, args.Contains("--record-motion")));
             Check("audio follows committed actions and survives mute, background and device failure", AudioChecks.CommandRouting);
+            Check("official audio catalog verifies files and routes only public resolved skills", OfficialAudioChecks.CatalogAndPublicRouting);
+            Check("official audio gallery, music lifecycle and local preferences work together", () => OfficialAudioChecks.GalleryMusicAndPreferences(output));
+            if (args.Contains("--verify-native-audio")) Check("official native audio plays MP3 and converted WAV at zero volume", OfficialAudioChecks.NativeSilentPlayback);
             Check("sound controls, shipped assets and compatible JSON preferences are valid", () => AudioChecks.SettingsAndAssets(output));
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));

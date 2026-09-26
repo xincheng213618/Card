@@ -178,6 +178,7 @@
                     <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
                         <Button Content="技 能" Command="{Binding SelectGeneralDetailsTabCommand}" CommandParameter="skills" Tag="{Binding IsGeneralSkillsTab}" Style="{StaticResource GalleryTab}" MinWidth="100" />
                         <Button Content="皮 肤" Command="{Binding SelectGeneralDetailsTabCommand}" CommandParameter="skins" Tag="{Binding IsGeneralSkinsTab}" Style="{StaticResource GalleryTab}" MinWidth="100" />
+                        <Button Content="台 词" Command="{Binding SelectGeneralDetailsTabCommand}" CommandParameter="voices" Tag="{Binding IsGeneralVoicesTab}" Style="{StaticResource GalleryTab}" MinWidth="100" />
                     </StackPanel>
                     <Border Grid.Row="1" Background="#DB242321" BorderBrush="#827152" BorderThickness="1" Padding="20">
                         <Grid>
@@ -197,15 +198,46 @@
                                     <ItemsControl ItemsSource="{Binding Skills}">
                                         <ItemsControl.ItemTemplate><DataTemplate>
                                             <StackPanel Margin="0,0,0,26">
+                                                <StackPanel Orientation="Horizontal">
                                                 <Border HorizontalAlignment="Left" Background="#563225" BorderBrush="#94714B" BorderThickness="1" Padding="14,5" Margin="0,0,0,10">
                                                     <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontWeight="Bold" FontSize="22" Foreground="#F1D6A0" />
                                                 </Border>
+                                                <Button Content="试听" Style="{StaticResource GallerySubtab}" Margin="8,0,0,10" Padding="10,5" ToolTip="试听此技能台词"
+                                                        Visibility="{Binding HasVoice, Converter={StaticResource BoolToVisibility}}"
+                                                        Command="{Binding DataContext.PlayGeneralSkillVoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Name}" />
+                                                </StackPanel>
                                                 <TextBlock Text="{Binding Description}" FontSize="16" LineHeight="28" Foreground="#DBD0B5" TextWrapping="Wrap" />
                                             </StackPanel>
                                         </DataTemplate></ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
                             </ScrollViewer>
+                            <Grid Visibility="{Binding IsGeneralVoicesTab, Converter={StaticResource BoolToVisibility}}">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                <TextBlock Text="{Binding SelectedGeneralGalleryEntry.Name, StringFormat={}{0} · 武将台词}" FontFamily="KaiTi" FontSize="24" Foreground="#F0D396" Margin="0,0,0,16" />
+                                <ScrollViewer x:Name="GeneralVoicesScroller" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel>
+                                        <TextBlock Text="这位武将暂未收录配音" Foreground="#B7A88C" Visibility="{Binding HasNoGeneralVoices, Converter={StaticResource BoolToVisibility}}" Margin="0,20" />
+                                        <ItemsControl ItemsSource="{Binding GeneralVoices}">
+                                            <ItemsControl.ItemTemplate><DataTemplate>
+                                                <Border BorderBrush="#64563E" BorderThickness="1" Background="#352E24" Padding="12" Margin="0,0,0,12">
+                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Caption}" Foreground="#C9AD79" FontSize="13" TextWrapping="Wrap" />
+                                                            <TextBlock Text="{Binding LineText}" Foreground="#F0DFC0" FontSize="17" LineHeight="26" TextWrapping="Wrap" Margin="0,8,12,0" />
+                                                        </StackPanel>
+                                                        <Button Grid.Column="1" Content="试听" Style="{StaticResource GallerySubtab}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="{Binding Caption}" Command="{Binding DataContext.PlayGeneralVoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate></ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </ScrollViewer>
+                                <DockPanel Grid.Row="2" Margin="0,12,0,0">
+                                    <Button DockPanel.Dock="Right" Content="停止试听" Style="{StaticResource GallerySubtab}" Command="{Binding StopGeneralVoiceCommand}" Padding="10,5" Margin="10,0,0,0" />
+                                    <TextBlock Text="{Binding GeneralVoiceStatus}" Foreground="#B7A88C" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                </DockPanel>
+                            </Grid>
                             <Grid Visibility="{Binding IsGeneralSkinsTab, Converter={StaticResource BoolToVisibility}}">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                                 <TextBlock Text="{Binding SelectedGeneralGalleryEntry.Name, StringFormat={}{0} · 皮肤}" FontFamily="KaiTi" FontSize="24" Foreground="#F0D396" HorizontalAlignment="Center" Margin="0,0,0,16" />

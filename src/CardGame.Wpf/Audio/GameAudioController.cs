@@ -7,6 +7,9 @@ public interface IGameAudioOutput : IDisposable
 {
     event EventHandler? Failed;
     void Play(GameSound sound, double volume);
+    void PlayVoice(string path, double volume);
+    void StopVoice();
+    void SetMusic(string? path, double volume);
     void SetVolume(double volume);
     void StopAll();
 }
@@ -30,6 +33,8 @@ public sealed class GameAudioController : IDisposable
         _clock = clock ?? TimeProvider.System;
         viewModel.SoundsRequested += OnSounds;
         viewModel.SoundsReset += OnReset;
+        viewModel.VoiceRequested += OnVoice;
+        viewModel.VoiceReset += OnVoiceReset;
         viewModel.PropertyChanged += OnPropertyChanged;
     }
 
@@ -38,6 +43,7 @@ public sealed class GameAudioController : IDisposable
         if (_disposed) return;
         _active = active;
         if (!active) Stop();
+        else UpdateMusic();
     }
 
     private void OnSounds(object? sender, GameSoundsEventArgs args)
@@ -45,29 +51,66 @@ public sealed class GameAudioController : IDisposable
         if (_disposed || !_active || _failed || !_viewModel.IsSoundEnabled || _viewModel.SoundVolume <= 0) return;
         try
         {
-            if (_output is null)
-            {
-                _output = _createOutput();
-                _output.Failed += OnFailed;
-            }
+            var output = Output;
             var now = _clock.GetTimestamp();
             foreach (var sound in GameSoundRules.SelectBatch(args.Sounds))
             {
                 if (_failed) break;
                 var interval = GameSoundRules.Priority(sound) >= 80 ? .35 : .12;
                 if (_lastPlayed.TryGetValue(sound, out var previous) && _clock.GetElapsedTime(previous, now).TotalSeconds < interval) continue;
-                if (GameSoundRules.Priority(sound) == 100) _output.StopAll();
-                _output.Play(sound, _viewModel.SoundVolume);
+                if (GameSoundRules.Priority(sound) == 100) output.StopAll();
+                output.Play(sound, _viewModel.SoundVolume);
                 _lastPlayed[sound] = now;
             }
         }
         catch (Exception exception) when (exception is not OutOfMemoryException) { OnFailed(this, EventArgs.Empty); }
     }
 
-    private void OnReset(object? sender, EventArgs args) => Stop();
+    private bool CanPlay => !_disposed && _active && !_failed && _viewModel.IsSoundEnabled && _viewModel.SoundVolume > 0;
+
+    private IGameAudioOutput Output
+    {
+        get
+        {
+            if (_output is null) { _output = _createOutput(); _output.Failed += OnFailed; }
+            return _output;
+        }
+    }
+
+    private void OnVoice(object? sender, GeneralVoiceEventArgs args)
+    {
+        if (!CanPlay || !_viewModel.IsVoiceEnabled) return;
+        try { Output.PlayVoice(args.Voice.Asset.FilePath, _viewModel.SoundVolume); }
+        catch (Exception error) when (error is not OutOfMemoryException) { OnFailed(this, EventArgs.Empty); }
+    }
+
+    private void OnVoiceReset(object? sender, EventArgs args)
+    {
+        try { _output?.StopVoice(); }
+        catch (Exception error) when (error is not OutOfMemoryException) { OnFailed(this, EventArgs.Empty); }
+    }
+
+    private void UpdateMusic()
+    {
+        if (_disposed) return;
+        try
+        {
+            var music = CanPlay && _viewModel.IsMusicEnabled && (_viewModel.IsNewGameSetupOpen || !_viewModel.HasGameOver)
+                ? GameAudioCatalog.Music(_viewModel.IsNewGameSetupOpen ? "lobby" : "battle") : null;
+            if (music is not null) Output.SetMusic(music.FilePath, _viewModel.SoundVolume * .28);
+            else _output?.SetMusic(null, 0);
+        }
+        catch (Exception error) when (error is not OutOfMemoryException) { OnFailed(this, EventArgs.Empty); }
+    }
+
+    private void OnReset(object? sender, EventArgs args) { Stop(); UpdateMusic(); }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args)
     {
+        if (args.PropertyName is nameof(MainViewModel.IsMusicEnabled) or nameof(MainViewModel.IsNewGameSetupOpen) or nameof(MainViewModel.HasGameOver))
+        { UpdateMusic(); return; }
+        if (args.PropertyName == nameof(MainViewModel.IsVoiceEnabled))
+        { if (!_viewModel.IsVoiceEnabled) OnVoiceReset(this, EventArgs.Empty); return; }
         if (args.PropertyName is not (nameof(MainViewModel.IsSoundEnabled) or nameof(MainViewModel.SoundVolume))) return;
         if (!_viewModel.IsSoundEnabled || _viewModel.SoundVolume <= 0) Stop();
         else
@@ -80,6 +123,7 @@ public sealed class GameAudioController : IDisposable
             }
             try { _output?.SetVolume(_viewModel.SoundVolume); }
             catch (Exception exception) when (exception is not OutOfMemoryException) { OnFailed(this, EventArgs.Empty); }
+            UpdateMusic();
         }
     }
 
@@ -113,6 +157,8 @@ public sealed class GameAudioController : IDisposable
         _disposed = true;
         _viewModel.SoundsRequested -= OnSounds;
         _viewModel.SoundsReset -= OnReset;
+        _viewModel.VoiceRequested -= OnVoice;
+        _viewModel.VoiceReset -= OnVoiceReset;
         _viewModel.PropertyChanged -= OnPropertyChanged;
         ReleaseOutput();
         _lastPlayed.Clear();

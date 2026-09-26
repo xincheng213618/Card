@@ -1,5 +1,6 @@
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Media;
@@ -46,6 +47,12 @@ internal static class PackageVerification
                 if (GeneralArt.GetPortrait("classic:ma-dai", optionalSkin.Id) is not ImageBrush { ImageSource: BitmapSource { PixelWidth: > 100 } })
                     throw new InvalidDataException("External skin artwork did not load from the package.");
                 var sounds = Enum.GetValues<GameSound>();
+                foreach (var asset in GameAudioCatalog.Assets)
+                {
+                    using var file = File.OpenRead(asset.FilePath);
+                    if (file.Length != asset.DeliveredBytes || !Convert.ToHexString(SHA256.HashData(file)).Equals(asset.DeliveredSha256, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException($"Invalid official audio: {asset.Id}");
+                }
                 foreach (var sound in sounds)
                 {
                     var path = Path.Combine(AppContext.BaseDirectory, "Assets", "Audio", $"{sound.ToString().ToLowerInvariant()}.wav");
@@ -76,6 +83,7 @@ internal static class PackageVerification
                     Architecture = RuntimeInformation.ProcessArchitecture.ToString(),
                     BaseDirectory = AppContext.BaseDirectory,
                     AudioAssets = sounds.Length,
+                    OfficialAudioAssets = GameAudioCatalog.Assets.Count,
                     SkinAssets = skinFiles.Length,
                     Screenshot = screenshot,
                     VisibleWindowOpened = false,

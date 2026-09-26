@@ -25,4 +25,7 @@ public sealed record GeneralSkin(string Id, string Name, string LocalPath)
     public ImageSource Thumbnail => GeneralArt.LoadImage(LocalPath, 180);
 }
 
-public sealed record GeneralGallerySkill(string Name, string Description);
+public sealed record GeneralGallerySkill(string Name, string Description, string GeneralId = "")
+{
+    public bool HasVoice => Audio.GameAudioCatalog.ForGeneral(GeneralId).Any(voice => voice.Binding.SkillName == Name);
+}

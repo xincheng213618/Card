@@ -11,6 +11,8 @@ public sealed record PlayerPreferences(
     [property: JsonRequired] bool MotionEnabled)
 {
     public Dictionary<string, string>? GeneralSkins { get; init; }
+    public bool MusicEnabled { get; init; } = true;
+    public bool VoiceEnabled { get; init; } = true;
 }
 
 public interface IPlayerPreferencesStore

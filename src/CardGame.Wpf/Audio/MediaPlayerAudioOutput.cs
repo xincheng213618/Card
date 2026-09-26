@@ -10,6 +10,13 @@ public sealed class MediaPlayerAudioOutput : IGameAudioOutput
     private readonly TimeProvider _clock;
     private readonly string _directory;
     private bool _disposed;
+    private MediaPlayer? _speech;
+    private MediaPlayer? _music;
+    private string? _musicPath;
+    public int SpeechStartedCount { get; private set; }
+    public int SpeechCompletedCount { get; private set; }
+    public int MusicStartedCount { get; private set; }
+    public bool IsMusicReady { get; private set; }
     public event EventHandler? Failed;
     public int LoadedClipCount => _voices.Values.Count(voice => voice.Ready);
     public int ActiveVoiceCount => _voices.Values.Count(voice => voice.Active);
@@ -75,10 +82,67 @@ public sealed class MediaPlayerAudioOutput : IGameAudioOutput
     public void SetVolume(double volume)
     {
         foreach (var voice in _voices.Values) voice.Player.Volume = Math.Clamp(volume, 0, 1);
+        if (_speech is not null) _speech.Volume = Math.Clamp(volume, 0, 1);
+    }
+
+    public void PlayVoice(string path, double volume)
+    {
+        if (_disposed) return;
+        StopVoice();
+        var player = _speech = new MediaPlayer { Volume = Math.Clamp(volume, 0, 1) };
+        var requestedAt = _clock.GetTimestamp();
+        player.MediaOpened += (_, _) =>
+        {
+            if (_disposed || _speech != player) return;
+            // Slow opens must not replay a voice after the action has already passed.
+            if (_clock.GetElapsedTime(requestedAt).TotalSeconds > 3) { StopVoice(); return; }
+            try { player.Play(); SpeechStartedCount++; }
+            catch (Exception error) when (error is not OutOfMemoryException) { StopVoice(); Failed?.Invoke(this, EventArgs.Empty); }
+        };
+        player.MediaEnded += (_, _) => { if (_speech == player) { SpeechCompletedCount++; StopVoice(); } };
+        player.MediaFailed += (_, _) => { if (!_disposed && _speech == player) { StopVoice(); Failed?.Invoke(this, EventArgs.Empty); } };
+        player.Open(new Uri(path, UriKind.Absolute));
+    }
+
+    public void StopVoice()
+    {
+        var previous = _speech;
+        _speech = null;
+        previous?.Close();
+    }
+
+    public void SetMusic(string? path, double volume)
+    {
+        if (_disposed) return;
+        if (path is not null && path == _musicPath && _music is not null) { _music.Volume = Math.Clamp(volume, 0, 1); return; }
+        var previous = _music;
+        _music = null;
+        _musicPath = null;
+        IsMusicReady = false;
+        previous?.Close();
+        if (path is null) return;
+        var player = _music = new MediaPlayer { Volume = Math.Clamp(volume, 0, 1) };
+        _musicPath = path;
+        player.MediaOpened += (_, _) =>
+        {
+            if (_disposed || _music != player) return;
+            try { IsMusicReady = true; player.Play(); MusicStartedCount++; }
+            catch (Exception error) when (error is not OutOfMemoryException) { SetMusic(null, 0); Failed?.Invoke(this, EventArgs.Empty); }
+        };
+        player.MediaEnded += (_, _) =>
+        {
+            if (_disposed || _music != player) return;
+            try { player.Position = TimeSpan.Zero; player.Play(); }
+            catch (Exception error) when (error is not OutOfMemoryException) { SetMusic(null, 0); Failed?.Invoke(this, EventArgs.Empty); }
+        };
+        player.MediaFailed += (_, _) => { if (!_disposed && _music == player) { SetMusic(null, 0); Failed?.Invoke(this, EventArgs.Empty); } };
+        player.Open(new Uri(path, UriKind.Absolute));
     }
 
     public void StopAll()
     {
+        StopVoice();
+        SetMusic(null, 0);
         foreach (var voice in _voices.Values)
         {
             voice.Pending = false;
@@ -90,6 +154,7 @@ public sealed class MediaPlayerAudioOutput : IGameAudioOutput
     public void Dispose()
     {
         if (_disposed) return;
+        StopAll();
         _disposed = true;
         foreach (var voice in _voices.Values) voice.Player.Close();
         _voices.Clear();

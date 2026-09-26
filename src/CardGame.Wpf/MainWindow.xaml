@@ -569,8 +569,8 @@
                             </ListBox>
                             <CheckBox Content="动画效果" IsChecked="{Binding IsMotionEnabled}" Margin="0,6,0,0" HorizontalAlignment="Center" ToolTip="显示飞牌、目标和伤害反馈；可关闭动态效果。" />
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0" ToolTip="{Binding SoundStatusText}">
-                                <CheckBox x:Name="SoundToggle" Content="音效" IsChecked="{Binding IsSoundEnabled}" VerticalAlignment="Center" />
-                                <Slider x:Name="SoundVolumeSlider" Width="64" Margin="6,0,0,0" Minimum="0" Maximum="1" Value="{Binding SoundVolume}" IsEnabled="{Binding IsSoundEnabled}" SmallChange="0.05" LargeChange="0.1" IsMoveToPointEnabled="True" VerticalAlignment="Center" AutomationProperties.Name="游戏音效音量" />
+                                <CheckBox x:Name="SoundToggle" Content="声音" IsChecked="{Binding IsSoundEnabled}" VerticalAlignment="Center" />
+                                <Slider x:Name="SoundVolumeSlider" Width="64" Margin="6,0,0,0" Minimum="0" Maximum="1" Value="{Binding SoundVolume}" IsEnabled="{Binding IsSoundEnabled}" SmallChange="0.05" LargeChange="0.1" IsMoveToPointEnabled="True" VerticalAlignment="Center" AutomationProperties.Name="游戏音量" />
                             </StackPanel>
                             <Button Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource ToolbarButton}" Padding="10,7" Margin="0,10,0,0" />
                             <TextBlock Text="悬停查看牌面说明" Foreground="#6E8780" FontSize="9" HorizontalAlignment="Center" Margin="0,9,0,0" />
@@ -940,7 +940,7 @@
                         <TextBlock Text="{Binding NationalSetupText}" Visibility="{Binding IsNationalModeSelection, Converter={StaticResource BoolToVisibility}}" Foreground="#AEC0A9" FontSize="12" TextWrapping="Wrap" Margin="8,2,8,10" />
                         <TextBlock Text="开启后，手牌超过体力时由你决定保留哪些牌。AI 自动行动，并在需要你出牌、弃牌或响应时暂停。" Foreground="#7F9B8B" TextWrapping="Wrap" LineHeight="20" FontSize="11" Margin="8,0,8,0" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                            <CheckBox x:Name="SetupSoundToggle" Content="游戏音效" IsChecked="{Binding IsSoundEnabled}" VerticalAlignment="Center" ToolTip="{Binding SoundStatusText}" />
+                            <CheckBox x:Name="SetupSoundToggle" Content="游戏声音" IsChecked="{Binding IsSoundEnabled}" VerticalAlignment="Center" ToolTip="{Binding SoundStatusText}" />
                             <Slider x:Name="SetupSoundVolume" Value="{Binding SoundVolume}" Minimum="0" Maximum="1" Width="110" IsEnabled="{Binding IsSoundEnabled}" VerticalAlignment="Center" Margin="12,0,24,0" AutomationProperties.Name="开局音量" ToolTip="{Binding SoundStatusText}" />
                             <CheckBox x:Name="SetupMotionToggle" Content="动画效果" IsChecked="{Binding IsMotionEnabled}" VerticalAlignment="Center" />
                             <TextBlock Text="下次启动沿用设置" Foreground="#80998C" FontSize="10" VerticalAlignment="Center" Margin="18,0,0,0" />
@@ -990,9 +990,13 @@
                                 <TextBlock Text="保存在本机" Foreground="#72887D" FontSize="10" Margin="0,4,0,0" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
-                                <CheckBox x:Name="SettingsSoundToggle" Content="游戏音效" IsChecked="{Binding IsSoundEnabled}" />
+                                <CheckBox x:Name="SettingsSoundToggle" Content="游戏声音" IsChecked="{Binding IsSoundEnabled}" />
                                 <Slider Value="{Binding SoundVolume}" Minimum="0" Maximum="1" TickFrequency="0.05" Margin="0,10,0,0" ToolTip="游戏音量" />
                                 <TextBlock Text="{Binding SoundStatusText}" Foreground="#879C90" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                <WrapPanel Margin="0,12,0,0">
+                                    <CheckBox x:Name="SettingsMusicToggle" Content="背景音乐" IsChecked="{Binding IsMusicEnabled}" Margin="0,0,20,0" />
+                                    <CheckBox x:Name="SettingsVoiceToggle" Content="武将配音" IsChecked="{Binding IsVoiceEnabled}" />
+                                </WrapPanel>
                                 <CheckBox x:Name="SettingsMotionToggle" Content="动画与战场反馈" IsChecked="{Binding IsMotionEnabled}" Margin="0,14,0,0" />
                             </StackPanel>
                         </Grid>

@@ -18,7 +18,7 @@ public sealed partial class MainViewModel
     public bool IsSoundEnabled
     {
         get => _isSoundEnabled;
-        set { if (SetProperty(ref _isSoundEnabled, value)) { RaisePropertyChanged(nameof(SoundStatusText)); QueueAutoSave(); QueuePreferencesSave(); } }
+        set { if (SetProperty(ref _isSoundEnabled, value)) { RaisePropertyChanged(nameof(SoundStatusText)); RaisePropertyChanged(nameof(GeneralVoiceStatus)); QueueAutoSave(); QueuePreferencesSave(); } }
     }
     public double SoundVolume
     {
@@ -26,16 +26,16 @@ public sealed partial class MainViewModel
         set
         {
             if (!double.IsFinite(value)) return;
-            if (SetProperty(ref _soundVolume, Math.Clamp(value, 0, 1))) { RaisePropertyChanged(nameof(SoundStatusText)); QueueAutoSave(); QueuePreferencesSave(); }
+            if (SetProperty(ref _soundVolume, Math.Clamp(value, 0, 1))) { RaisePropertyChanged(nameof(SoundStatusText)); RaisePropertyChanged(nameof(GeneralVoiceStatus)); QueueAutoSave(); QueuePreferencesSave(); }
         }
     }
     public bool IsAudioUnavailable
     {
         get => _isAudioUnavailable;
-        set { if (SetProperty(ref _isAudioUnavailable, value)) RaisePropertyChanged(nameof(SoundStatusText)); }
+        set { if (SetProperty(ref _isAudioUnavailable, value)) { RaisePropertyChanged(nameof(SoundStatusText)); RaisePropertyChanged(nameof(GeneralVoiceStatus)); } }
     }
-    public string SoundStatusText => HasPreferencesError ? PreferencesStatus : IsAudioUnavailable ? "音效暂不可用，可关闭后重新开启重试。"
-        : !IsSoundEnabled || SoundVolume == 0 ? "已静音 · Ctrl+M 切换音效" : $"游戏音量 {SoundVolume:P0} · 切到后台自动停声 · Ctrl+M 静音";
+    public string SoundStatusText => HasPreferencesError ? PreferencesStatus : IsAudioUnavailable ? "声音暂不可用，可关闭后重新开启重试。"
+        : !IsSoundEnabled || SoundVolume == 0 ? "已静音 · Ctrl+M 切换声音" : $"游戏音量 {SoundVolume:P0} · 切到后台自动停声 · Ctrl+M 静音";
     public string GameOutcomeTitle => !HasGameOver ? string.Empty : GameSoundRules.Outcome(_snapshot) switch
     {
         GameSound.Victory => "胜 利",

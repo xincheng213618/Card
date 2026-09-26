@@ -39,6 +39,8 @@ public sealed partial class MainViewModel
             while (BattleCues.Count > 32) BattleCues.RemoveAt(0);
         }
         PublishGameSounds(cues);
+        if (Audio.GeneralVoiceProjector.Project(committed, _snapshot.Players, id => GetGeneralPortrait(id).SkinId) is { } voice)
+            VoiceRequested?.Invoke(this, new(voice));
     }
 
     private void RecordPublicPlays(IEnumerable<EventEnvelope> events)

@@ -264,6 +264,9 @@ internal static class AudioChecks
             LastVolume = volume;
         }
         public void SetVolume(double volume) => LastVolume = volume;
+        public void PlayVoice(string path, double volume) { }
+        public void StopVoice() { }
+        public void SetMusic(string? path, double volume) { }
         public void StopAll() => StopCount++;
         public void Dispose() => Disposed = true;
     }

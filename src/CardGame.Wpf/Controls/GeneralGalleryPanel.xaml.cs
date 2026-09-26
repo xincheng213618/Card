@@ -35,6 +35,7 @@ public partial class GeneralGalleryPanel : UserControl
         {
             GeneralSkillsScroller.ScrollToTop();
             GeneralSkinsScroller.ScrollToTop();
+            GeneralVoicesScroller.ScrollToTop();
             if (_observedViewModel?.HasGeneralGallerySelection == true)
             {
                 _detailsReturnFocus ??= Keyboard.FocusedElement;
