@@ -8,6 +8,10 @@
 
 冻结主目录所有相关源文件的 SHA-256 并复制到三个独立目录。记录派发前本机标记、实际 worker 开始、首版可编译、首次行为通过、最终测试与交付时间；缺失的时间留空，不用文件修改时间冒充精确事件。公共能力只是编译通过时不要写成行为已验收。
 
+已验收源码提交后，使用 `tools/New-GeneralBatchSnapshot.ps1 -Revision <commit> -Destination <新目录> -WorkerDirectories @(<新副本路径>)` 准备下一批。工具从指定提交复制 src/tests/tools/docs 与根配置文件，逐份验证 SHA-256，已有或互相嵌套的目标目录会被拒绝；不会包含主目录尚未提交的并行工作。离线 data 资料默认省略，研究任务需要时显式加 `-IncludeReferenceData`。源 ZIP 保留但使用存储模式，避免再次压缩 PNG；manifest 与各阶段耗时写入结果目录。它只准备副本，不表示该提交已经完成测试。
+
+2026-09-26 在同一 `2674abd6`、三个工作副本的一次本机检查中，原全仓准备3059文件用48.204秒，新工具734文件用27.110秒（其中归档0.330秒、解压6.185秒、复制及校验20.258秒）。必要源文件与原始基线逐一哈希相同，已有目标拒绝检查通过。该观测存在缓存、资料范围与归档方式差异，不能作为受控提速倍数，也不代表单名武将开发耗时。证据在 `%TEMP%/Card-NewGenerals-20260926-batch4/snapshot-tool-verification.json`。
+
 ## 构建与测试夹具
 
 使用 PowerShell 7 的 `pwsh`。新复制的目录没有 obj/assets，首次构建允许正常 restore，直接使用 `tools/Test-Changed.ps1`；不要先必然失败地尝试 `--no-restore`。先从 `tests/CardGame.Core.Tests/Program.cs` 和 WPF Program 查实际测试名称，名称过滤未命中不是通过。
