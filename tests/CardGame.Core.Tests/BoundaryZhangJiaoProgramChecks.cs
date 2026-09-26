@@ -15,7 +15,7 @@ internal static class BoundaryZhangJiaoProgramChecks
         var activation = game.PendingDecision ??
             throw new InvalidOperationException("Formal boundary Leiji activation was lost.");
         Answer(game, activation.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate"));
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
         Require(game.PendingDecision is
         {
             Kind: DecisionKind.ProgramJudgmentReplacement,
@@ -209,7 +209,7 @@ internal static class BoundaryZhangJiaoProgramChecks
                 continue;
             for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0 } &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
                     game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single() is { } frame &&
                     frame.Candidates[frame.CandidateIndex] is
                     {

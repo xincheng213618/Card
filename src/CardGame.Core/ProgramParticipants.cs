@@ -40,7 +40,8 @@ public enum SkillProgramCardActionOwnerRelation
 {
     Actor,
     Target,
-    Observer
+    Observer,
+    ConversionSource = 4
 }
 
 public sealed record CardUseDebitIdentity(

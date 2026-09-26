@@ -19,15 +19,12 @@ internal static class SpLeJinChecks
             general.SkillIds.SequenceEqual([SkillId]) &&
             current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
             current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-            skill.Program is { RuntimeVersion: "skill-program-v56", MinimumRulesVersion: 166,
-                UsesCompositionKernel: true } &&
+            skill.Program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
             skill.Program.Triggers.Single().TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
             (int)SkillProgramConditionKind.HasOwnedCardCategory == 23,
             "SP Le Jin must register with its schema-56 observer trigger in the current identity roster.");
         var rules = Resource(RulesResource);
         var presentation = Resource(PresentationResource);
-        Reject(rules.Replace("\"schemaVersion\": 56", "\"schemaVersion\": 55"),
-            presentation, "unsupported property");
         Reject(rules.Replace("\"window\": \"turnEnding\"", "\"window\": \"playEnding\""),
             presentation, "turnEnding trigger");
         Reject(rules.Replace("\"kind\": \"hasOwnedCardCategory\", \"zones\": [\"hand\", \"equipment\"]",
@@ -503,8 +500,8 @@ internal static class SpLeJinChecks
         public const string HumanGeneralId = "fixture:category-human";
         public const string SkillId = "fixture:owned-category-choice";
         private const string Rules = """
-        {"schemaVersion":56,"skills":[{"id":"fixture:owned-category-choice","revision":1,
-        "minimumRulesVersion":166,"triggers":[{"id":"other-ending","window":"turnEnding",
+        {"schemaVersion":58,"skills":[{"id":"fixture:owned-category-choice","revision":1,
+        "minimumRulesVersion":168,"triggers":[{"id":"other-ending","window":"turnEnding",
         "subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[
         {"op":"selectTarget","target":"owner","targetKind":"eventTarget"},
         {"op":"chooseOption","target":"selectedTarget","resultBind":"choice","options":[

@@ -494,7 +494,7 @@ public sealed partial class GameEngine
         return EnabledContentSkillIds(owner)
             .Select(id => _contentRegistry.Skills[id])
             .Where(skill => skill.LegacyKind is { } kind && kind != SkillKind.None &&
-                            skill.Program?.UsesCompositionKernel != true)
+                            skill.Program is null)
             .Where(skill =>
             {
                 var rules = SkillRegistry.Get(skill.LegacyKind!.Value);

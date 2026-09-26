@@ -1,9 +1,10 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "sp:longdan",
       "revision": 1,
+      "minimumRulesVersion": 168,
       "viewAs": [
         {
           "id": "dodge-to-slash",
@@ -26,15 +27,17 @@
     {
       "id": "sp:chongzhen",
       "revision": 1,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "after-longdan-slash-use",
           "window": "cardUseTargetsFinalized",
           "sourceSkillId": "sp:longdan",
           "sourceViewAsId": "dodge-to-slash",
+          "ownerRelation": "conversionSource",
           "optional": true,
           "effects": [
-            { "op": "obtainOpponentHandCard", "target": "owner", "amount": 1 }
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventTarget" }, "zones": ["hand"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true }
           ]
         },
         {
@@ -42,9 +45,10 @@
           "window": "cardResponseAccepted",
           "sourceSkillId": "sp:longdan",
           "sourceViewAsId": "dodge-to-slash",
+          "ownerRelation": "conversionSource",
           "optional": true,
           "effects": [
-            { "op": "obtainOpponentHandCard", "target": "owner", "amount": 1 }
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventTarget" }, "zones": ["hand"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true }
           ]
         },
         {
@@ -52,9 +56,10 @@
           "window": "cardResponseAccepted",
           "sourceSkillId": "sp:longdan",
           "sourceViewAsId": "slash-to-dodge",
+          "ownerRelation": "conversionSource",
           "optional": true,
           "effects": [
-            { "op": "obtainOpponentHandCard", "target": "owner", "amount": 1 }
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventTarget" }, "zones": ["hand"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true }
           ]
         }
       ]

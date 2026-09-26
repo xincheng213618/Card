@@ -13,7 +13,7 @@ internal static class SkillProgramCardIdentityChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
         var identity = program.CardIdentities.Single();
         var distance = program.Modifiers.Single();
-        Require(program is { RuntimeVersion: "skill-program-v10", MinimumRulesVersion: 94 } &&
+        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
                 identity is
                 {
                     Id: IdentityId,
@@ -29,8 +29,8 @@ internal static class SkillProgramCardIdentityChecks
                 },
             "Schema 10 must keep mandatory hand identity and action-scoped Slash distance as separate bindings.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":10", "\"schemaVersion\":9", StringComparison.Ordinal),
-            "cardIdentities");
+        AssertReject(Rules.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "expected 58");
         AssertReject(Rules.Replace("\"sourceCardIdentityId\":\"heart-hand-as-slash\"",
                 "\"sourceCardIdentityId\":\"missing\"", StringComparison.Ordinal),
             "unknown card identity");
@@ -218,10 +218,10 @@ internal static class SkillProgramCardIdentityChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":10,"skills":[
+        {"schemaVersion":58,"skills":[
           {"id":"card-identity-test:wushen","revision":1,
            "modifiers":[
-             {"query":"slashDistanceLimit","operation":"unlimited","value":0,
+             {"id":"slash-distance","priority":0,"query":"slashDistanceLimit","operation":"unlimited","value":0,
               "sourceCardIdentityId":"heart-hand-as-slash","condition":{"kind":"always"}}
            ],
            "cardIdentities":[
@@ -232,7 +232,7 @@ internal static class SkillProgramCardIdentityChecks
         """;
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "card-identity-test:wushen":{"name":"武神测试","description":"红桃手牌持续视为杀，且无距离限制。"}
         }}
         """;

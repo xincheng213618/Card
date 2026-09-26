@@ -101,14 +101,6 @@ internal static class SkillProgramExecutorChecks
         Require(missing.Frame is { InstructionIndex: 0 } && missing.Calls.Count == 0,
             "Missing handlers must fail before advancing the cursor or producing side effects.");
 
-        var composed = Runtime(Program(
-            """{"op":"recover","target":"owner","amount":1}""", schemaVersion: 23));
-        Throws<InvalidOperationException>(
-            () => new SkillProgramExecutor(drawOnly).Run(composed.Frame!.Id, composed, composed),
-            "Recover");
-        Require(composed.Frame is { InstructionIndex: 0 } && composed.Calls.Count == 0,
-            "Composed programs must honor an explicitly injected handler catalog before advancing.");
-
         Throws<InvalidOperationException>(
             () => _ = new SkillProgramEffectCatalog([
                 new DrawSkillProgramEffectHandler(),
@@ -145,18 +137,16 @@ internal static class SkillProgramExecutorChecks
         int minCards = 0,
         int maxCards = 0,
         int minTargets = 0,
-        int maxTargets = 0,
-        int schemaVersion = 1)
+        int maxTargets = 0)
     {
-        var minimumRules = schemaVersion == 23 ? "\"minimumRulesVersion\":128," : string.Empty;
         var rules = $$"""
-            {"schemaVersion":{{schemaVersion}},"skills":[{"id":"fixture:executor","revision":1,{{minimumRules}}"modifiers":[],"viewAs":[],
+            {"schemaVersion":58,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],
             "activations":[{"id":"run","minCards":{{minCards}},"maxCards":{{maxCards}},
             "minTargets":{{minTargets}},"maxTargets":{{maxTargets}},"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{{effects}}]}]}]}
             """;
         const string presentation =
-            """{"schemaVersion":1,"skills":{"fixture:executor":{"name":"Executor","description":"Fixture"}}}""";
+            """{"schemaVersion":3,"skills":{"fixture:executor":{"name":"Executor","description":"Fixture"}}}""";
         return SkillProgramCatalog.Load(rules, presentation).Programs["fixture:executor"];
     }
 
@@ -282,11 +272,14 @@ internal static class SkillProgramExecutorChecks
         }
 
         public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
-            ProgramParticipantReference? sourceReference = null)
+            ProgramParticipantReference? sourceReference = null, DamageNature? nature = null)
         {
             Calls.Add($"damage:{frame.OwnerSeat}:{targetSeat}:{amount}");
             return SkillProgramStepOutcome.AwaitChild;
         }
+
+        public void ReplaceJudgment(ProgramSkillFrame frame, SkillProgramEffect effect) =>
+            Calls.Add($"replace-judgment:{frame.OwnerSeat}");
 
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat)
         {

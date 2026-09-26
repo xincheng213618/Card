@@ -105,6 +105,14 @@ public sealed partial class GameEngine
             target.Hp += recovered;
             engine.QueueGameEvent(new RecoveryAppliedEvent(ownerSeat, targetSeat, recovered, target.Hp));
             engine.PopResolutionFrame(recovery, ResolutionFrameKind.Recovery);
+            if (engine.GetActiveProgramFrame(frameId).WindowContext?.JudgmentReplacement is { } replacement)
+            {
+                var active = engine.GetActiveProgramFrame(frameId);
+                engine._resolutionStack[^1] = active with { WindowContext = active.WindowContext! with
+                {
+                    JudgmentReplacement = replacement with { RecoveredHp = replacement.RecoveredHp + recovered }
+                } };
+            }
         }
 
         public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount)
@@ -119,8 +127,11 @@ public sealed partial class GameEngine
         }
 
         public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
-            ProgramParticipantReference? sourceReference = null) =>
-            engine.BeginProgramSkillDamage(frame, targetSeat, amount, sourceReference);
+            ProgramParticipantReference? sourceReference = null, DamageNature? nature = null) =>
+            engine.BeginProgramSkillDamage(frame, targetSeat, amount, sourceReference, nature);
+
+        public void ReplaceJudgment(ProgramSkillFrame frame, SkillProgramEffect effect) =>
+            engine.ReplaceProgramJudgment(frame, effect);
 
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat) =>
             engine.BeginProgramSkillPindian(frame, targetSeat);

@@ -11,7 +11,7 @@ internal static class PublicMarkerChecks
     private const string BystanderTwoId = "wuhun-marker:bystander-2";
     private const string WuhunSkillId = "wuhun-marker:wuhun";
     private const string WuhunRules = """
-    {"schemaVersion":38,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":143,
+    {"schemaVersion":58,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":168,
     "modifiers":[],"viewAs":[],"activations":[],"triggers":[
       {"id":"damage-nightmare","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
        "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
@@ -22,7 +22,7 @@ internal static class PublicMarkerChecks
     ],"contributions":[],"cardIdentities":[],"states":[]}]}
     """;
     private const string WuhunPresentation = """
-    {"schemaVersion":1,"skills":{"wuhun-marker:wuhun":{"name":"武魂","description":"归属梦魇与死亡判定测试。"}}}
+    {"schemaVersion":3,"skills":{"wuhun-marker:wuhun":{"name":"武魂","description":"归属梦魇与死亡判定测试。"}}}
     """;
 
     public static void WuhunDamageOrderAndReplay()
@@ -80,8 +80,8 @@ internal static class PublicMarkerChecks
                     LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v53",
-                    Program.MinimumRulesVersion: 163
+                    Program.RuntimeVersion: "skill-program-v58",
+                    Program.MinimumRulesVersion: 168
                 } &&
                 wuhun.Program.Triggers.Select(trigger => trigger.Window)
                     .SequenceEqual([
@@ -93,7 +93,7 @@ internal static class PublicMarkerChecks
         try
         {
             _ = SkillProgramCatalog.Load(
-                WuhunRules.Replace("\"schemaVersion\":38", "\"schemaVersion\":37", StringComparison.Ordinal),
+                WuhunRules.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
                 WuhunPresentation);
         }
         catch (Exception exception)
@@ -101,8 +101,8 @@ internal static class PublicMarkerChecks
             schemaFailure = exception;
         }
         Require(schemaFailure is InvalidOperationException &&
-                schemaFailure.Message.Contains("require schema version 38", StringComparison.Ordinal),
-            "Schema 37 must reject attributed-marker death operations instead of accepting a partial Wuhun graph.");
+                schemaFailure.Message.Contains("expected 58", StringComparison.Ordinal),
+            "Unsupported schema versions must be rejected before running the Wuhun graph.");
 
         var tiedCandidates = GameRules.GetMaximumMarkerCandidates(
         [
@@ -657,9 +657,7 @@ internal static class PublicMarkerChecks
                 builder =>
                 {
                     var currentRules = WuhunRules
-                        .Replace("\"schemaVersion\":38", "\"schemaVersion\":53", StringComparison.Ordinal)
                         .Replace("\"revision\":2", "\"revision\":3", StringComparison.Ordinal)
-                        .Replace("\"minimumRulesVersion\":143", "\"minimumRulesVersion\":163", StringComparison.Ordinal)
                         .Replace("\"window\":\"afterDamageApplied\"",
                             "\"window\":\"damageAppliedBeforeDying\"", StringComparison.Ordinal);
                     var wuhun = SkillProgramCatalog.Load(currentRules, WuhunPresentation).Programs[WuhunSkillId];

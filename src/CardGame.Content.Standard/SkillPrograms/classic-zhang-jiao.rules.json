@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 8,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:guidao",
       "revision": 1,
-      "minimumRulesVersion": 88,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "replace-judgment",
@@ -27,23 +27,32 @@
     {
       "id": "classic:leiji",
       "revision": 1,
-      "minimumRulesVersion": 88,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "after-dodge",
           "window": "cardResponseAccepted",
           "cardKinds": ["dodge"],
+          "ownerRelation": "actor",
           "optional": true,
           "effects": [
             {
               "op": "selectTarget",
-              "target": "selectedTarget",
+              "target": "owner",
               "targetKind": "otherLiving"
             },
             {
               "op": "startJudgment",
               "target": "selectedTarget",
-              "judgmentReason": "skill.classic.leiji"
+              "judgmentReason": "skill.classic.leiji",
+              "resultBind": "leiji-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "leiji-judgment",
+              "destination": "discardPile"
             }
           ]
         },
@@ -61,7 +70,8 @@
           "effects": [
             {
               "op": "damage",
-              "target": "judgmentSubject",
+              "target": "owner",
+              "targetRef": { "kind": "eventTarget" },
               "amount": 2,
               "nature": "thunder"
             }
@@ -86,7 +96,8 @@
             },
             {
               "op": "damage",
-              "target": "judgmentSubject",
+              "target": "owner",
+              "targetRef": { "kind": "eventTarget" },
               "amount": 1,
               "nature": "thunder"
             }
@@ -97,7 +108,7 @@
     {
       "id": "classic:huangtian",
       "revision": 1,
-      "minimumRulesVersion": 88,
+      "minimumRulesVersion": 168,
       "contributions": [
         {
           "id": "contribute",

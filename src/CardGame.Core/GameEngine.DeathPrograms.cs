@@ -269,11 +269,6 @@ public sealed partial class GameEngine
             CompleteDyingAfterDeath(death.Dying, survived: false);
             return;
         }
-        if (death.CausingProgramCauseDeath is not null)
-        {
-            CompleteProgramCauseDeath(death.CausingProgramCauseDeath);
-            return;
-        }
         if (death.CausingProgramSkillFrameId is { } programFrameId)
         {
             ContinueProgramSkill(programFrameId);
@@ -320,7 +315,6 @@ public sealed partial class GameEngine
         int victimSeat,
         int? killerSeat,
         DyingResolution? dying,
-        ProgramCauseDeathResolution? causingProgramCauseDeath,
         long? causingProgramSkillFrameId,
         DeathResolution? parent)
     {
@@ -329,7 +323,6 @@ public sealed partial class GameEngine
         public int VictimSeat { get; } = victimSeat;
         public int? KillerSeat { get; } = killerSeat;
         public DyingResolution? Dying { get; } = dying;
-        public ProgramCauseDeathResolution? CausingProgramCauseDeath { get; } = causingProgramCauseDeath;
         public long? CausingProgramSkillFrameId { get; } = causingProgramSkillFrameId;
         public DeathResolution? Parent { get; } = parent;
         public bool OwnerDiedProgramsResolved { get; set; }

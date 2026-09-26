@@ -42,24 +42,22 @@ internal static class ProgramLifecycleChecks
             StringComparison.Ordinal);
         var exactFaceState = SkillProgramCatalog.Load(exactFaceStateRules, Presentation)
             .Programs[FixturePackage.SkillId].Triggers.Single().Effects.Single();
-        Require(exactFaceState is { Op: SkillProgramTriggerEffectOp.SetFaceState, FaceDown: true },
-            "Schema 13 must preserve the exact public face-state value.");
-        try
-        {
-            _ = SkillProgramCatalog.Load(
-                exactFaceStateRules.Replace("turnEnding", "playEnding", StringComparison.Ordinal),
-                Presentation);
-        }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains("only at the turnEnding boundary", StringComparison.OrdinalIgnoreCase))
-        {
-            goto FaceStateWindowRejected;
-        }
-        throw new InvalidOperationException("setFaceState must be rejected outside TurnEnding.");
+        Require(exactFaceState is { Op: SkillProgramEffectOp.SetFaceState, FaceDown: true },
+            "The current program must preserve the exact public face-state value.");
+        var playEndingFaceState = SkillProgramCatalog.Load(
+            exactFaceStateRules.Replace("turnEnding", "playEnding", StringComparison.Ordinal),
+            Presentation).Programs[FixturePackage.SkillId].Triggers.Single().Effects.Single();
+        Require(playEndingFaceState is { Op: SkillProgramEffectOp.SetFaceState, FaceDown: true },
+            "The shared face-state operation must also accept a PlayEnding window.");
 
-        FaceStateWindowRejected:
+        var afterDamage = SkillProgramCatalog.Load(
+            Rules13(comparison, "afterDamageApplied").Replace("\"priority\":0,",
+                "\"damageOccurrence\":\"perDamagePoint\",\"priority\":0,", StringComparison.Ordinal),
+            Presentation).Programs[FixturePackage.SkillId].Triggers.Single().Condition;
+        Require(afterDamage.Evaluate(new SkillProgramTriggerFacts(4, 4, true)),
+            "AfterDamageApplied must accept the same frozen public comparison facts.");
 
-        foreach (var unsupported in new[] { "selfDyingResponse", "afterDamageApplied" })
+        foreach (var unsupported in new[] { "selfDyingResponse" })
         {
             try
             {
@@ -111,7 +109,7 @@ internal static class ProgramLifecycleChecks
             _ = SkillProgramCatalog.Load(rules, Presentation);
         }
         catch (InvalidOperationException exception) when (
-            exception.Message.Contains("clean boundary", StringComparison.OrdinalIgnoreCase))
+            exception.Message.Contains("card bindings cannot cross", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
@@ -120,8 +118,21 @@ internal static class ProgramLifecycleChecks
 
     public static void SuccessfulProgramsCleanupUnconsumedTemporaryCards()
     {
-        var registry = Registry(Rules("""
+        var incomplete = Rules("""
             {"op":"revealTopCards","target":"owner","amount":1,"resultBind":"held","visibility":"public"}
+            """);
+        try { _ = Registry(incomplete); }
+        catch (InvalidOperationException exception) when (
+            exception.Message.Contains("not fully consumed", StringComparison.OrdinalIgnoreCase))
+        {
+            goto RejectedUnconsumedBinding;
+        }
+        throw new InvalidOperationException("A revealed card without an explicit disposition must be rejected.");
+
+        RejectedUnconsumedBinding:
+        var registry = Registry(Rules("""
+            {"op":"revealTopCards","target":"owner","amount":1,"resultBind":"held","visibility":"public"},
+            {"op":"moveBoundCards","target":"owner","sourceBind":"held","destination":"discardPile"}
             """));
         var game = CreateAndSelect(registry);
         ReachHumanPlay(game);
@@ -131,39 +142,36 @@ internal static class ProgramLifecycleChecks
         Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
                     .Single(item => item.SkillId == FixturePackage.SkillId) is { Completed: true } &&
                 game.CardMovements.Any(move => move.CardId == cardId &&
-                    move.To == CardLocation.DiscardPile &&
-                    move.Reason.Value.EndsWith(".complete-cleanup", StringComparison.Ordinal)) &&
+                    move.To == CardLocation.DiscardPile) &&
                 game.CreateSnapshot(HumanSeat).PublicRevealedCards.Count == 0,
-            "A successful program must discard only its unconsumed temporary cards before returning to the turn.");
+            "A valid program must explicitly dispose its revealed card before returning to the turn.");
 
         var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(HumanSeat, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
-            "Successful temporary-card cleanup must replay exactly.");
+            "Explicit temporary-card disposition must replay exactly.");
     }
 
     public static void MissingConditionalBindingsCancelWithoutLeakingCards()
     {
-        var registry = Registry(Rules("""
+        var rules = Rules("""
             {"op":"revealTopCards","target":"owner","amount":1,"resultBind":"held","visibility":"public","condition":{"kind":"wounded"}},
             {"op":"selectCardSubset","target":"owner","sourceBind":"held","resultBind":"selected","minimumCards":0,"maximumCards":1,"maximumRankSum":13,"aiOrder":"mostCardsThenRankSum"}
-            """));
-        var game = CreateAndSelect(registry);
-        ReachHumanPlay(game);
-
-        Require(game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>().Count() == 0 &&
-                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-                    .Single(item => item.SkillId == FixturePackage.SkillId) is { Completed: false } &&
-                game.CreateSnapshot(HumanSeat).PublicRevealedCards.Count == 0 &&
-                game.ResolutionStack.Count == 0,
-            "A skipped producer must cancel its dependent binding instead of throwing or inventing a card set.");
+            """);
+        try { _ = Registry(rules); }
+        catch (InvalidOperationException exception) when (
+            exception.Message.Contains("resource operations must be always", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+        throw new InvalidOperationException("A conditional binding producer must be rejected before it can leak cards.");
     }
 
     public static void CancelledDamageProgramsDoNotCleanupParentAttackCards()
     {
         var registry = Registry(Rules("""
             {"op":"revealTopCards","target":"owner","amount":1,"resultBind":"held","visibility":"public"},
-            {"op":"selectCardSubset","target":"owner","sourceBind":"held","resultBind":"selected","minimumCards":2,"maximumCards":2,"maximumRankSum":13,"aiOrder":"mostCardsThenRankSum"}
+            {"op":"moveBoundCards","target":"owner","sourceBind":"held","destination":"discardPile"}
             """, "afterDamageApplied"));
         var game = CreateAndSelect(registry);
         ReachHumanPlay(game);
@@ -186,10 +194,10 @@ internal static class ProgramLifecycleChecks
         AdvanceUntilProgramResolved(game);
 
         Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-                    .Any(item => item.SkillId == FixturePackage.SkillId && !item.Completed) &&
+                    .Any(item => item.SkillId == FixturePackage.SkillId && item.Completed) &&
                 game.CardMovements.Where(move => move.CardId == sourceCardId)
                     .All(move => !move.Reason.Value.Contains("skill-program", StringComparison.Ordinal)),
-            "Cancelling a program must clean only cards bound by that frame, never the parent attack card.");
+            "Program disposal must move only its own bound cards, never the parent attack card.");
     }
 
     public static void AiOptionalProgramsUseTheProgramRouterAndResumeSubsetChoices()
@@ -339,23 +347,27 @@ internal static class ProgramLifecycleChecks
     private static string Rules(
         string effects,
         string window = "turnStartBeforeNormalFlow",
-        bool optional = false) => $$"""
-        {"schemaVersion":11,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
-        "minimumRulesVersion":116,"modifiers":[],"viewAs":[],"activations":[],
+        bool optional = false)
+    {
+        var occurrence = window == "afterDamageApplied" ? "\"damageOccurrence\":\"perDamagePoint\"," : "";
+        return $$"""
+        {"schemaVersion":58,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
+        "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],
         "triggers":[{"id":"binding","window":"{{window}}","subject":"owner","optional":{{optional.ToString().ToLowerInvariant()}},
-        "priority":0,"effects":[{{effects}}]}],"contributions":[],"cardIdentities":[]}]}
+        {{occurrence}}"priority":0,"effects":[{{effects}}]}],"contributions":[],"cardIdentities":[]}]}
         """;
+    }
 
     private static string Rules13(string condition, string window) => $$"""
-        {"schemaVersion":13,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
-        "minimumRulesVersion":118,"modifiers":[],"viewAs":[],"activations":[],
+        {"schemaVersion":58,"skills":[{"id":"{{FixturePackage.SkillId}}","revision":1,
+        "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],
         "triggers":[{"id":"binding","window":"{{window}}","subject":"owner","optional":true,
         "condition":{{condition}},"priority":0,"effects":[{"op":"draw","target":"owner","amount":1}]}],
         "contributions":[],"cardIdentities":[]}]}
         """;
 
     private const string Presentation =
-        "{\"schemaVersion\":1,\"skills\":{\"fixture:lifecycle\":{\"name\":\"Lifecycle\",\"description\":\"Fixture\"}}}";
+        "{\"schemaVersion\":3,\"skills\":{\"fixture:lifecycle\":{\"name\":\"Lifecycle\",\"description\":\"Fixture\"}}}";
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));

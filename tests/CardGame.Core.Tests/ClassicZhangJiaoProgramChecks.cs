@@ -15,7 +15,7 @@ internal static class ClassicZhangJiaoProgramChecks
         var activation = game.PendingDecision ??
             throw new InvalidOperationException("Formal classic Leiji activation was lost.");
         var activate = activation.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         var activated = game.Submit(new AnswerPromptCommand(
             0, activation.PromptId, activate.Id, game.Revision));
         Require(activated.Accepted,
@@ -24,7 +24,7 @@ internal static class ClassicZhangJiaoProgramChecks
             throw new InvalidOperationException("Formal classic Leiji target choice was lost.");
         Require(targetPrompt is
         {
-            Kind: DecisionKind.ProgramCardTrigger,
+            Kind: DecisionKind.ProgramTrigger,
             PlayerSeat: 0,
             IsPrivate: true
         },
@@ -205,7 +205,7 @@ internal static class ClassicZhangJiaoProgramChecks
                 continue;
             for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0 } &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
                     game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single() is { } frame &&
                     frame.Candidates[frame.CandidateIndex] is
                     {

@@ -9,7 +9,7 @@ internal static class SkillProgramStartedJudgmentChecks
         var program = catalog.Programs[ProgramId];
         var dodge = program.Triggers.Single(trigger => trigger.Id == DodgeTriggerId);
         var lightning = program.Triggers.Single(trigger => trigger.Id == LightningTriggerId);
-        Require(program is { RuntimeVersion: "skill-program-v6", MinimumRulesVersion: 84 } &&
+        Require(program.MinimumRulesVersion == 168 &&
                 dodge is
                 {
                     Window: SkillProgramTriggerWindow.CardResponseAccepted,
@@ -18,18 +18,18 @@ internal static class SkillProgramStartedJudgmentChecks
                     SourceViewAsId: null
                 } &&
                 dodge.CardKinds.SequenceEqual([CardKind.Dodge]) &&
-                dodge.Effects.Single() is
+                dodge.Effects[0] is
                 {
-                    Op: SkillProgramTriggerEffectOp.StartJudgment,
-                    Target: SkillProgramTriggerEffectTarget.Owner,
+                    Op: SkillProgramEffectOp.StartJudgment,
+                    Target: SkillProgramEffectTarget.Owner,
                     JudgmentReason: JudgmentReason
                 } &&
                 lightning.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
                 lightning.CardKinds.SequenceEqual([CardKind.Lightning]),
-            "Schema 6 must keep direct effective-card filters separate from conversion-source bindings.");
+            "Card-action triggers must keep direct effective-card filters separate from conversion sources.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":6", "\"schemaVersion\":5", StringComparison.Ordinal),
-            "cardKinds");
+        AssertReject(Rules.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "expected 58");
         AssertReject(Rules.Replace("\"cardKinds\":[\"dodge\"]",
                 "\"sourceSkillId\":\"started-judgment-test:source\",\"cardKinds\":[\"dodge\"]",
                 StringComparison.Ordinal),
@@ -40,7 +40,7 @@ internal static class SkillProgramStartedJudgmentChecks
         AssertReject(Rules.Replace("\"target\":\"owner\",\"judgmentReason\":\"skill.started-judgment-test\"",
                 "\"target\":\"opponent\",\"judgmentReason\":\"skill.started-judgment-test\"",
                 StringComparison.Ordinal),
-            "requires owner");
+            "unsupported SkillProgramEffectTarget");
         AssertReject(Rules.Replace("\"judgmentReason\":\"skill.started-judgment-test\"",
                 "\"judgmentReason\":\"\"", StringComparison.Ordinal),
             "must not be empty");
@@ -62,7 +62,7 @@ internal static class SkillProgramStartedJudgmentChecks
             .OfType<CardActionAcceptedEvent>()
             .Last(item => item.Action is { Type: CardActionType.Response, EffectiveKind: CardKind.Dodge });
         var dodgeCardId = accepted.Action.PhysicalCards.Single().CardId;
-        Require(prompt is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0, IsPrivate: true } &&
+        Require(prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, IsPrivate: true } &&
                 game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single() is { } frame &&
                 frame.Candidates[frame.CandidateIndex].TriggerId == DodgeTriggerId &&
                 game.CreateCardZoneDiagnostics().Single(card => card.CardId == dodgeCardId).Location ==
@@ -89,6 +89,15 @@ internal static class SkillProgramStartedJudgmentChecks
         Require(restored.Events.Select(item => item.Payload).OfType<ProgramJudgmentTriggerResolvedEvent>()
                 .Any(item => item.TriggerId == ResultTriggerId && item.Activated),
             "The configured Dodge judgment must reach its mandatory final-result binding.");
+        var finalBinding = restored.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+            .Single(item => item.SkillId == ProgramId && item.BindingId == ResultTriggerId);
+        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
+            .GetField("_players", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!.GetValue(restored)!;
+        Require(players[finalBinding.OwnerSeat].SkillGrants.Grants.Any(grant =>
+                grant.IsEnabled && grant.SkillId == finalBinding.SkillId &&
+                grant.SkillInstanceId == finalBinding.SkillInstanceId),
+            "The final judgment binding must execute through an active grant instance.");
         Require(restored.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>()
                 .Count(item => item.TriggerId == DodgeTriggerId && item.Activated) == 1,
             "The direct Dodge trigger must complete exactly once.");
@@ -113,7 +122,7 @@ internal static class SkillProgramStartedJudgmentChecks
             game.PendingDecision!.PromptId,
             action.PlayedCardKind));
         Require(played.Accepted &&
-                game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0 } &&
+                game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
                 game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single() is { } frame &&
                 frame.Candidates[frame.CandidateIndex].TriggerId == LightningTriggerId &&
                 game.CreateCardZoneDiagnostics().Single(card => card.CardId == action.CardId.Value).Location ==
@@ -146,7 +155,7 @@ internal static class SkillProgramStartedJudgmentChecks
             var game = StartOwner(registry, FixturePackage.ResponseModeId, seed);
             for (var step = 0; step < 1_200 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0 } &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
                     game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single() is { } frame &&
                     frame.Candidates[frame.CandidateIndex].TriggerId == DodgeTriggerId)
                     return game;
@@ -214,7 +223,7 @@ internal static class SkillProgramStartedJudgmentChecks
     {
         var prompt = game.PendingDecision ?? throw new InvalidOperationException("Program prompt was lost.");
         var activation = prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         var result = game.Submit(new AnswerPromptCommand(
             0, prompt.PromptId, activation.Id, game.Revision));
         Require(result.Accepted, result.Error?.Message ?? "The started judgment was rejected.");
@@ -323,15 +332,15 @@ internal static class SkillProgramStartedJudgmentChecks
     private const string JudgmentReason = "skill.started-judgment-test";
 
     private const string Rules = """
-        {"schemaVersion":6,"skills":[
-          {"id":"started-judgment-test:skill","revision":1,"triggers":[
-            {"id":"after-dodge","window":"cardResponseAccepted","cardKinds":["dodge"],
+        {"schemaVersion":58,"skills":[
+          {"id":"started-judgment-test:skill","revision":1,"minimumRulesVersion":168,"triggers":[
+            {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[
-              {"op":"startJudgment","target":"owner","judgmentReason":"skill.started-judgment-test"}
+              {"op":"startJudgment","target":"owner","judgmentReason":"skill.started-judgment-test","resultBind":"judgment-card","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judgment-card","destination":"discardPile"}
              ]},
-            {"id":"after-lightning","window":"cardUseTargetsFinalized","cardKinds":["lightning"],
+            {"id":"after-lightning","window":"cardUseTargetsFinalized","ownerRelation":"actor","cardKinds":["lightning"],
              "optional":true,"effects":[
-              {"op":"startJudgment","target":"owner","judgmentReason":"skill.started-judgment-test"}
+              {"op":"startJudgment","target":"owner","judgmentReason":"skill.started-judgment-test","resultBind":"judgment-card","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judgment-card","destination":"discardPile"}
              ]},
             {"id":"after-result","window":"judgmentFinalized","subject":"owner",
              "suits":["spade","heart","club","diamond"],"minimumRank":1,"maximumRank":13,
@@ -343,7 +352,7 @@ internal static class SkillProgramStartedJudgmentChecks
         """;
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "started-judgment-test:skill":{
             "name":"发起判定测试","description":"打出闪或使用闪电后可发起一次自己的判定。"
           }

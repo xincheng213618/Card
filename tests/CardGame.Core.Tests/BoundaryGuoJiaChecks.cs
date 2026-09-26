@@ -25,8 +25,8 @@ internal static class BoundaryGuoJiaChecks
                 trigger.DamageOccurrence == SkillProgramDamageOccurrence.PerDamagePoint &&
                 trigger.Optional &&
                 trigger.Effects.Select(effect => effect.Op).SequenceEqual([
-                    SkillProgramTriggerEffectOp.Draw, SkillProgramTriggerEffectOp.SelectOwnedCards,
-                    SkillProgramTriggerEffectOp.GiveBoundCard, SkillProgramTriggerEffectOp.GiveBoundCard]) &&
+                    SkillProgramEffectOp.Draw, SkillProgramEffectOp.SelectOwnedCards,
+                    SkillProgramEffectOp.GiveBoundCard, SkillProgramEffectOp.GiveBoundCard]) &&
                 trigger.Effects[1].NumberExpression == SkillProgramNumberExpression.AllOwnedZoneCards &&
                 trigger.Effects[1].Zones.SequenceEqual([CardZoneKind.Hand]),
             "2019 Yiji must draw two, bind the whole current hand, then offer two independent optional gifts per damage point.");

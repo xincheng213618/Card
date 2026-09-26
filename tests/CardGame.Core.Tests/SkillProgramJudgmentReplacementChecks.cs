@@ -11,14 +11,14 @@ internal static class SkillProgramJudgmentReplacementChecks
         var discard = program.Triggers.Single(trigger => trigger.Id == DiscardTriggerId);
         var replacement = exchange.Effects[0];
         var followUp = exchange.Effects[1];
-        Require(program.RuntimeVersion == "skill-program-v4" && program.MinimumRulesVersion == 82 &&
+        Require(program.RuntimeVersion == "skill-program-v58" && program.MinimumRulesVersion == 168 &&
                 exchange.Window == SkillProgramTriggerWindow.JudgmentReplacing &&
                 exchange.Subject == SkillProgramTriggerSubject.Any && exchange.Optional &&
                 exchange.ExcludedReasons.SequenceEqual([JudgmentReasons.Leiji]) &&
                 replacement is
                 {
-                    Op: SkillProgramTriggerEffectOp.ReplaceJudgment,
-                    Target: SkillProgramTriggerEffectTarget.Owner,
+                    Op: SkillProgramEffectOp.ReplaceJudgment,
+                    Target: SkillProgramEffectTarget.Owner,
                     Amount: 0,
                     OldCardDestination: SkillProgramOldJudgmentCardDestination.OwnerHand
                 } &&
@@ -26,8 +26,8 @@ internal static class SkillProgramJudgmentReplacementChecks
                 replacement.Suits.SequenceEqual([Suit.Spade, Suit.Club]) &&
                 followUp is
                 {
-                    Op: SkillProgramTriggerEffectOp.Draw,
-                    Target: SkillProgramTriggerEffectTarget.Owner,
+                    Op: SkillProgramEffectOp.Draw,
+                    Target: SkillProgramEffectTarget.Owner,
                     Amount: 1,
                     MinimumReplacementRank: 2,
                     MaximumReplacementRank: 9
@@ -35,7 +35,7 @@ internal static class SkillProgramJudgmentReplacementChecks
                 followUp.ReplacementSuits.SequenceEqual([Suit.Spade]) &&
                 discard.Effects.Single().OldCardDestination ==
                     SkillProgramOldJudgmentCardDestination.DiscardPile,
-            "Schema 4 must retain typed judgment replacement selection, destination and committed-card filters.");
+            "The shared executor must retain typed judgment replacement and committed-card filters.");
         RequireThrows<NotSupportedException>(() =>
             ((ICollection<CardZoneKind>)replacement.Zones).Clear());
         RequireThrows<NotSupportedException>(() =>
@@ -46,29 +46,46 @@ internal static class SkillProgramJudgmentReplacementChecks
             currentActorSeat: 0,
             playerCount: 1));
 
-        AssertReject(ValidV4.Replace("\"schemaVersion\":4", "\"schemaVersion\":3", StringComparison.Ordinal),
-            "requires schema version 4");
+        AssertReject(ValidV4.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "schema version");
         AssertReject(ValidV4.Replace("\"zones\":[\"hand\",\"equipment\"]", "\"zones\":[]", StringComparison.Ordinal),
-            "hand and/or equipment zones");
+            "replacement requires hand or equipment");
         AssertReject(ValidV4.Replace("\"zones\":[\"hand\",\"equipment\"]", "\"zones\":[\"hand\",\"judgment\"]", StringComparison.Ordinal),
-            "hand and/or equipment zones");
+            "replacement requires hand or equipment");
         AssertReject(ValidV4.Replace("\"suits\":[\"spade\",\"club\"]", "\"suits\":[]", StringComparison.Ordinal),
-            "effective suit");
+            "at least one suit");
         AssertReject(ValidV4.Replace(",\"oldCardDestination\":\"ownerHand\"", string.Empty, StringComparison.Ordinal),
             "oldCardDestination");
         AssertReject(ValidV4.Replace("\"op\":\"replaceJudgment\",\"target\":\"owner\"",
                 "\"op\":\"replaceJudgment\",\"target\":\"opponent\"", StringComparison.Ordinal),
-            "requires target owner");
+            "unsupported SkillProgramEffectTarget");
         AssertReject(ValidV4.Replace("\"op\":\"draw\",\"target\":\"owner\"",
                 "\"op\":\"draw\",\"target\":\"opponent\"", StringComparison.Ordinal),
-            "only owner draw or recover");
+            "opponent");
         AssertReject(ValidV4.Replace("\"replacementSuits\":[\"spade\"]",
                 "\"replacementSuits\":[\"spade\",\"spade\"]", StringComparison.Ordinal),
             "duplicate");
         AssertReject(ValidV4.Replace("\"minimumReplacementRank\":2", "\"minimumReplacementRank\":14", StringComparison.Ordinal),
-            "replacement rank bounds");
+            "valid rank bounds");
         AssertReject(InvalidOrderV4, "requires replaceJudgment first");
-        AssertReject(InvalidFollowUpV4, "follow-up effects support only owner draw or recover");
+        AssertReject(InvalidFollowUpV4, "obtainOpponentHandCard");
+        foreach (var (effect, expectedError) in new[]
+        {
+            ("""{"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade"],"oldCardDestination":"discardPile"}""",
+                "requires context JudgmentReplacement"),
+            ("""{"op":"draw","target":"owner","amount":1,"replacementSuits":["spade"],"minimumReplacementRank":1,"maximumReplacementRank":13}""",
+                "replacement filters require judgmentReplacing"),
+            ("""{"op":"recover","target":"owner","amount":1,"replacementSuits":["spade"],"minimumReplacementRank":1,"maximumReplacementRank":13}""",
+                "replacement filters require judgmentReplacing")
+        })
+        {
+            var activeRules = $$"""
+                {"schemaVersion":58,"skills":[{"id":"judgment-replace-test:both","revision":1,
+                  "activations":[{"id":"activate","minCards":0,"maxCards":0,"minTargets":0,
+                  "maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{{effect}}]}]}]}
+                """;
+            AssertReject(activeRules, expectedError);
+        }
     }
 
     internal static void WindowDestinationsAndReplay()
@@ -123,6 +140,11 @@ internal static class SkillProgramJudgmentReplacementChecks
             RecoveredHp: 0,
             OldCardDestination: SkillProgramOldJudgmentCardDestination.OwnerHand
         } &&
+                exchange.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .Count(item => item.BindingId == ExchangeTriggerId &&
+                        item.Window == SkillProgramTriggerWindow.JudgmentReplacing) == 1 &&
+                exchange.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Count(item => item.BindingId == ExchangeTriggerId && item.Completed) == 1 &&
                 exchangeEvent.OldCardId == oldCardId && exchangeEvent.ReplacementCardId == equipmentId &&
                 secondExchangePrompt.Kind == DecisionKind.ProgramJudgmentReplacement &&
                 secondExchangePrompt.Choices.Any(choice =>
@@ -595,7 +617,7 @@ internal static class SkillProgramJudgmentReplacementChecks
     private const string DiscardTriggerId = "b-discard";
 
     private const string ValidV4 = """
-        {"schemaVersion":4,"skills":[
+        {"schemaVersion":58,"skills":[
           {"id":"judgment-replace-test:both","revision":1,"triggers":[
             {"id":"a-exchange","window":"judgmentReplacing","subject":"any",
              "excludedReasons":["skill.leiji"],"optional":true,"effects":[
@@ -614,7 +636,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string InvalidOrderV4 = """
-        {"schemaVersion":4,"skills":[{"id":"invalid:order","revision":1,"triggers":[{
+        {"schemaVersion":58,"skills":[{"id":"invalid:order","revision":1,"triggers":[{
           "id":"replace","window":"judgmentReplacing","subject":"owner","excludedReasons":[],
           "optional":true,"effects":[
             {"op":"draw","target":"owner","amount":1,"replacementSuits":["spade"],
@@ -625,7 +647,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string InvalidFollowUpV4 = """
-        {"schemaVersion":4,"skills":[{"id":"invalid:follow-up","revision":1,"triggers":[{
+        {"schemaVersion":58,"skills":[{"id":"invalid:follow-up","revision":1,"triggers":[{
           "id":"replace","window":"judgmentReplacing","subject":"owner","excludedReasons":[],
           "optional":true,"effects":[
             {"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade"],
@@ -635,7 +657,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "judgment-replace-test:both":{
             "name":"改判交换测试","description":"测试旧判定牌去向与提交牌条件效果。"
           }
@@ -643,7 +665,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string BaguaRules = """
-        {"schemaVersion":4,"skills":[
+        {"schemaVersion":58,"skills":[
           {"id":"program-guidao-bagua:guidao","revision":1,"triggers":[
             {"id":"replace","window":"judgmentReplacing","subject":"any","excludedReasons":[],
              "optional":true,"effects":[
@@ -655,7 +677,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string BaguaPresentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "program-guidao-bagua:guidao":{
             "name":"鬼道来源装备测试","description":"以黑色牌替换判定牌。"
           }

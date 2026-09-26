@@ -438,7 +438,7 @@ public sealed class ContentRegistry
             {
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
-                             .Where(effect => effect.Op == SkillProgramTriggerEffectOp.GrantSkills)
+                             .Where(effect => effect.Op == SkillProgramEffectOp.GrantSkills)
                              .SelectMany(effect => effect.SkillIds))
                 {
                     if (!_skills.ContainsKey(grantedSkillId))

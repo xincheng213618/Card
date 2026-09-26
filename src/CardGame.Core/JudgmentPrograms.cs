@@ -12,8 +12,20 @@ public sealed record JudgmentFinalizedContext(
     bool Succeeded,
     int? SourceSeat = null);
 
+/// <summary>Frozen replacement card choice and parent judgment identity.</summary>
+public sealed record ProgramJudgmentReplacementContext(
+    long JudgmentFrameId,
+    int SubjectSeat,
+    string Reason,
+    int OldCardId,
+    int ReplacementCardId,
+    int DrawnCards = 0,
+    int RecoveredHp = 0,
+    Suit? ReplacementSuit = null,
+    int? ReplacementRank = null);
+
 public sealed record ProgramJudgmentTriggerCandidate(
-    int OwnerSeat, string SkillId, string TriggerId, string GameplayHash);
+    int OwnerSeat, string SkillId, string TriggerId, string SkillInstanceId, string GameplayHash);
 
 public sealed record ProgramJudgmentTriggerWindowFrame(
     long Id,
@@ -21,9 +33,7 @@ public sealed record ProgramJudgmentTriggerWindowFrame(
     JudgmentFinalizedContext Judgment,
     IReadOnlyList<ProgramJudgmentTriggerCandidate> Candidates,
     int CandidateIndex = 0,
-    int InstructionIndex = 0,
-    bool Activated = false,
-    int? SelectedTargetSeat = null)
+    bool Activated = false)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramJudgmentTriggerWindow, ResolutionFrameStep.ResolvingEffect);
 
 public sealed record ProgramJudgmentTriggerResolvedEvent(
@@ -64,16 +74,3 @@ public sealed record ProgramJudgmentDamageRequestedEvent(
     int TargetSeat,
     int Amount,
     DamageNature Nature) : IGameEvent;
-
-/// <summary>
-/// A configured effect requested direct death. CauseId is an audit identity,
-/// not a damage or dying frame; the shared death lifecycle owns the mutation.
-/// </summary>
-public sealed record ProgramCauseDeathDeclaredEvent(
-    long CauseId,
-    long ParentFrameId,
-    long JudgmentFrameId,
-    string SkillId,
-    string TriggerId,
-    int SourceSeat,
-    int TargetSeat) : IGameEvent;

@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 48,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:gongqi",
       "revision": 1,
-      "minimumRulesVersion": 158,
+      "minimumRulesVersion": 168,
       "activations": [
         {
           "id": "discard-for-unlimited-range",

@@ -238,7 +238,7 @@ internal sealed class MatchSkillBindingIndex
             Array.AsReadOnly(instances),
             Array.AsReadOnly(programs),
             BuildInstanceTriggerBuckets(instances),
-            BuildUniqueTriggerBuckets(programs),
+            BuildUniqueTriggerBuckets(instances),
             BuildNumericBuckets(instances),
             Array.AsReadOnly(programs.Where(program => program.Activations.Count != 0).ToArray()),
             Array.AsReadOnly(programs.Where(program => program.Contributions.Count != 0).ToArray()),
@@ -269,9 +269,12 @@ internal sealed class MatchSkillBindingIndex
                 group => (IReadOnlyList<IndexedSkillProgramTrigger>)Array.AsReadOnly(group.ToArray())));
 
     private static IReadOnlyDictionary<SkillProgramTriggerWindow, IReadOnlyList<IndexedSkillProgramTrigger>>
-        BuildUniqueTriggerBuckets(IReadOnlyList<SkillProgram> programs) =>
-        Freeze(programs.SelectMany(program => program.Triggers.Select(trigger =>
-                new IndexedSkillProgramTrigger(program.Id, $"seat-skill:{program.Id}", program, trigger)))
+        BuildUniqueTriggerBuckets(IReadOnlyList<IndexedSkillProgramInstance> instances) =>
+        Freeze(instances.GroupBy(instance => instance.SkillId, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .SelectMany(instance => instance.Program.Triggers.Select(trigger =>
+                new IndexedSkillProgramTrigger(instance.SkillId, instance.SkillInstanceId,
+                    instance.Program, trigger)))
             .GroupBy(binding => binding.Trigger.Window)
             .ToDictionary(
                 group => group.Key,

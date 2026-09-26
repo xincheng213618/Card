@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 45,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:kujin",
       "revision": 1,
-      "minimumRulesVersion": 153,
+      "minimumRulesVersion": 168,
       "activations": [
         {
           "id": "lose-hp-and-draw",

@@ -26,12 +26,12 @@ internal static class GuYongChecks
                 trigger.Window == SkillProgramTriggerWindow.TurnEnding &&
                 trigger.Effects[0].TargetKind == SkillProgramTargetKind.AnyLiving &&
                 trigger.Effects[0].NumberExpression == SkillProgramNumberExpression.CurrentHandCount &&
-                trigger.Effects[3].Target == SkillProgramTriggerEffectTarget.SelectedTargets,
+                trigger.Effects[3].Target == SkillProgramEffectTarget.SelectedTargets,
             "Gu Yong must use shared programs with exact payment and dynamic target bounds.");
         var rules = Resource("CardGame.Content.Standard.SkillPrograms.classic-gu-yong.rules.json");
         var presentation = Resource("CardGame.Content.Standard.SkillPrograms.classic-gu-yong.presentation.json");
-        RejectDefinition(rules.Replace("\"schemaVersion\": 53", "\"schemaVersion\": 52", StringComparison.Ordinal),
-            presentation, "schema version 53");
+        RejectDefinition(rules.Replace("\"schemaVersion\": 58", "\"schemaVersion\": 57", StringComparison.Ordinal),
+            presentation, "expected 58");
         RejectDefinition(rules.Replace("\"op\": \"revealBoundCards\", \"target\": \"owner\"",
                 "\"op\": \"revealBoundCards\", \"target\": \"selectedTargets\"", StringComparison.Ordinal),
             presentation, "requires owner");

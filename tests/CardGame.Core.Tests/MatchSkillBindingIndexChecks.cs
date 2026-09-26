@@ -49,6 +49,13 @@ internal static class MatchSkillBindingIndexChecks
                 shard.GetInstanceTriggers(SkillProgramTriggerWindow.PlayEnding).Count == 2 &&
                 shard.GetUniqueTriggers(SkillProgramTriggerWindow.PlayEnding).Count == 1,
             "Same-instance sources must dedupe while independent instances remain instance-scoped.");
+        var unique = shard.GetUniqueTriggers(SkillProgramTriggerWindow.PlayEnding).Single();
+        Require(unique.SkillId == fixture.RichId &&
+                shard.HasInstance(unique.SkillId, unique.SkillInstanceId) &&
+                shard.ProgramInstances.Any(instance =>
+                    instance.SkillId == unique.SkillId &&
+                    instance.SkillInstanceId == unique.SkillInstanceId),
+            "A deduplicated trigger must retain an active grant identity accepted by the shared executor.");
         Require(shard.ActivationPrograms.Count == 1 && shard.ViewAsPrograms.Count == 1 &&
                 shard.PassiveRulePrograms.Count == 1,
             "Program, activation, view-as and unique trigger projections must fold by SkillId.");
@@ -125,8 +132,8 @@ internal static class MatchSkillBindingIndexChecks
     {
         const string rich = "fixture:index-rich", plain = "fixture:index-plain", lord = "fixture:index-lord";
         var catalog = SkillProgramCatalog.Load("""
-            {"schemaVersion":13,"skills":[
-              {"id":"fixture:index-rich","revision":1,"minimumRulesVersion":118,
+            {"schemaVersion":58,"skills":[
+              {"id":"fixture:index-rich","revision":1,"minimumRulesVersion":168,
                "modifiers":[
                  {"id":"attack","query":"attackRange","operation":"add","value":1,"priority":0},
                  {"id":"draw","query":"drawCount","operation":"add","value":1,"priority":0}],
@@ -136,7 +143,7 @@ internal static class MatchSkillBindingIndexChecks
                "triggers":[{"id":"ending","window":"playEnding","subject":"owner","optional":true,"priority":0,
                  "effects":[{"op":"draw","target":"owner","amount":1}]}],"contributions":[],"cardIdentities":[]}]}
             """, """
-            {"schemaVersion":1,"skills":{
+            {"schemaVersion":3,"skills":{
               "fixture:index-rich":{"name":"Rich","description":"Fixture"}}}
             """);
         var definitions = new Dictionary<string, ContentSkillDefinition>(StringComparer.Ordinal)

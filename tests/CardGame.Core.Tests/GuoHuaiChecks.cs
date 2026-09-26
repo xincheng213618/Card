@@ -26,8 +26,7 @@ internal static class GuoHuaiChecks
                     ActionForms: SkillActionForm.None,
                     Program:
                     {
-                        UsesCompositionKernel: true,
-                        MinimumRulesVersion: 128
+                        MinimumRulesVersion: 168
                     } program
                 } && program.Triggers.Single() is
                 {

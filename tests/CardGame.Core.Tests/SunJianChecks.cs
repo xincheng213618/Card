@@ -9,7 +9,7 @@ internal static class SunJianChecks
     public static void YinghunChoiceAndReplay()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(registry.Skills[SkillId] is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v31" },
+        Require(registry.Skills[SkillId] is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v58" },
             "Current Yinghun must use its configured program.");
         for (var seed = 1; seed <= 4096; seed++)
         {

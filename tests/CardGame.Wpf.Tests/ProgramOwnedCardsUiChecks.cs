@@ -95,15 +95,15 @@ internal static class ProgramOwnedCardsUiChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":31,"skills":[{"id":"fixture:ui-owned-cards","revision":1,
-                "minimumRulesVersion":136,"activations":[{"id":"select","minCards":0,"maxCards":0,
+                {"schemaVersion":58,"skills":[{"id":"fixture:ui-owned-cards","revision":1,
+                "minimumRulesVersion":168,"activations":[{"id":"select","minCards":0,"maxCards":0,
                 "minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":1,
                 "condition":{"kind":"always"},"effects":[
                 {"op":"selectOwnedCards","target":"owner","amount":2,"zones":["hand"],"resultBind":"chosen"},
                 {"op":"moveBoundCards","target":"owner","sourceBind":"chosen","destination":"discardPile"}
                 ]}]}]}
                 """, """
-                {"schemaVersion":1,"skills":{"fixture:ui-owned-cards":{"name":"区域牌集合",
+                {"schemaVersion":3,"skills":{"fixture:ui-owned-cards":{"name":"区域牌集合",
                 "description":"私下选择两张自己的手牌，再统一移动。"}}}
                 """);
             builder.AddSkill(new ContentSkillDefinition(SkillId, "区域牌集合", "私下选择两张自己的手牌，再统一移动。")

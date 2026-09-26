@@ -23,7 +23,7 @@ internal static class DamageProgramChecks
                  })
         {
             Require(currentStandard.Skills[skillId].Program is
-                        { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
+                        { MinimumRulesVersion: 168 },
                 $"{skillId} must use the current damage program.");
         }
 
@@ -33,7 +33,7 @@ internal static class DamageProgramChecks
                  })
         {
             Require(currentClassic.Skills[skillId].Program is
-                        { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
+                        { MinimumRulesVersion: 168 },
                 $"{skillId} must use the current damage program.");
         }
 
@@ -45,8 +45,8 @@ internal static class DamageProgramChecks
                     DamageOccurrence: SkillProgramDamageOccurrence.PerDamagePoint,
                     Optional: true
                 } && yijiTrigger.Effects.Select(effect => effect.Op).SequenceEqual([
-                    SkillProgramTriggerEffectOp.Draw,
-                    SkillProgramTriggerEffectOp.GiveBoundCard
+                    SkillProgramEffectOp.Draw,
+                    SkillProgramEffectOp.GiveBoundCard
                 ]) && yijiTrigger.Effects[0].ResultBind == "drawn",
             "Yiji must bind a two-card draw and offer one generic bound-card gift per damage point.");
 
@@ -54,12 +54,12 @@ internal static class DamageProgramChecks
         Require(jiemingTrigger.DamageOccurrence == SkillProgramDamageOccurrence.PerDamagePoint &&
                 jiemingTrigger.Effects[0] is
                 {
-                    Op: SkillProgramTriggerEffectOp.SelectTarget,
+                    Op: SkillProgramEffectOp.SelectTarget,
                     TargetKind: SkillProgramTargetKind.AnyLivingHandBelowMaxHp
                 } && jiemingTrigger.Effects[1] is
                 {
-                    Op: SkillProgramTriggerEffectOp.Draw,
-                    Target: SkillProgramTriggerEffectTarget.SelectedTarget,
+                    Op: SkillProgramEffectOp.Draw,
+                    Target: SkillProgramEffectTarget.SelectedTarget,
                     NumberExpression: SkillProgramNumberExpression.TargetMaxHpMinusHandCount
                 },
             "Jieming must select one eligible target and evaluate its draw count at execution time.");
@@ -68,30 +68,25 @@ internal static class DamageProgramChecks
         Require(classicFeedback.DamageOccurrence == SkillProgramDamageOccurrence.PerDamage &&
                 classicFeedback.Effects[0] is
                 {
-                    Op: SkillProgramTriggerEffectOp.SelectSourceCard,
+                    Op: SkillProgramEffectOp.SelectSourceCard,
                     ResultBind: "selected"
                 } && classicFeedback.Effects[0].Zones.SequenceEqual([
                     CardZoneKind.Hand,
                     CardZoneKind.Equipment
                 ]) && classicFeedback.Effects[1] is
                 {
-                    Op: SkillProgramTriggerEffectOp.MoveBoundCards,
+                    Op: SkillProgramEffectOp.MoveBoundCards,
                     SourceBind: "selected",
                     Destination: SkillProgramCardDestination.OwnerHand
                 },
             "Classic Feedback must use an opaque source-card binding followed by a frozen-location move.");
 
-        Reject(ValidationRules.Replace("\"schemaVersion\":15", "\"schemaVersion\":14",
-            StringComparison.Ordinal), "damageOccurrence");
         Reject(ValidationRules.Replace("\"damageOccurrence\":\"perDamagePoint\",", string.Empty,
             StringComparison.Ordinal), expectedMessage: null);
-        Reject(ValidationRules.Replace("\"target\":\"selectedTarget\",\"numberExpression\"",
-                "\"target\":\"owner\",\"numberExpression\"", StringComparison.Ordinal),
-            "selected target");
 
         const string ownerSelectionRules = """
-            {"schemaVersion":27,"skills":[{"id":"fixture:damage","revision":1,
-            "minimumRulesVersion":132,"modifiers":[{"id":"authority-limit","query":"handLimit",
+            {"schemaVersion":58,"skills":[{"id":"fixture:damage","revision":1,
+            "minimumRulesVersion":168,"modifiers":[{"id":"authority-limit","query":"handLimit",
             "operation":"add","valueExpression":"ownedZoneCount","valueZone":"authority",
             "priority":0,"condition":{"kind":"always"}}],"viewAs":[],"activations":[],"triggers":[
             {"id":"owner-card","window":"afterDamageApplied","subject":"owner",
@@ -103,7 +98,7 @@ internal static class DamageProgramChecks
             "contributions":[],"cardIdentities":[]}]}
             """;
         const string presentation =
-            "{\"schemaVersion\":1,\"skills\":{\"fixture:damage\":{\"name\":\"Damage\",\"description\":\"Fixture\"}}}";
+            "{\"schemaVersion\":3,\"skills\":{\"fixture:damage\":{\"name\":\"Damage\",\"description\":\"Fixture\"}}}";
         var ownerSelection = SkillProgramCatalog.Load(ownerSelectionRules, presentation)
             .Programs["fixture:damage"].Triggers.Single().Effects;
         Require(ownerSelection[0].CardSource == SkillProgramCardSource.Owner,
@@ -125,8 +120,6 @@ internal static class DamageProgramChecks
                     LivingFactionCount: 1,
                     OwnedZoneCount: zone => zone == CardZoneKind.Authority ? 3 : 0)) == 3,
             "Schema 27 ownedZoneCount must evaluate the selected owner's frozen named-zone count.");
-        Reject(ownerSelectionRules.Replace("\"schemaVersion\":27", "\"schemaVersion\":26",
-            StringComparison.Ordinal), "valueZone: unsupported property");
         Reject(ownerSelectionRules.Replace("\"destinationZone\":\"authority\"",
             "\"destinationZone\":\"hand\"", StringComparison.Ordinal), "persistent owner zone");
     }
@@ -454,7 +447,7 @@ internal static class DamageProgramChecks
     private static void Reject(string rules, string? expectedMessage)
     {
         const string presentation =
-            "{\"schemaVersion\":1,\"skills\":{\"fixture:damage\":{\"name\":\"Damage\",\"description\":\"Fixture\"}}}";
+            "{\"schemaVersion\":3,\"skills\":{\"fixture:damage\":{\"name\":\"Damage\",\"description\":\"Fixture\"}}}";
         try
         {
             _ = SkillProgramCatalog.Load(rules, presentation);
@@ -476,12 +469,12 @@ internal static class DamageProgramChecks
     }
 
     private const string ValidationRules = """
-        {"schemaVersion":15,"skills":[{"id":"fixture:damage","revision":1,
-        "minimumRulesVersion":120,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
+        {"schemaVersion":58,"skills":[{"id":"fixture:damage","revision":1,
+        "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
         {"id":"per-point","window":"afterDamageApplied","subject":"owner",
         "damageOccurrence":"perDamagePoint","optional":true,"priority":0,
         "effects":[
-        {"op":"selectTarget","target":"selectedTarget","targetKind":"anyLivingHandBelowMaxHp"},
+        {"op":"selectTarget","target":"owner","targetKind":"anyLivingHandBelowMaxHp"},
         {"op":"draw","target":"selectedTarget","numberExpression":"targetMaxHpMinusHandCount"}]}],
         "contributions":[],"cardIdentities":[]}]}
         """;

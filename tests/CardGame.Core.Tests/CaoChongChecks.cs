@@ -30,7 +30,7 @@ internal static class CaoChongChecks
                     LegacyKind: null,
                     Program:
                     {
-                        MinimumRulesVersion: 138,
+                        MinimumRulesVersion: 168,
                         Triggers.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.Trigger,

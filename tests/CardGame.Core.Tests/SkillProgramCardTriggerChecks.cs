@@ -20,7 +20,7 @@ internal static class SkillProgramCardTriggerChecks
         Require(otherBranch.Submit(new AnswerPromptCommand(0, otherBranch.PendingDecision!.PromptId,
             otherBranch.PendingDecision.Choices.Single(choice => choice.Id == otherSource.Id).Id,
             otherBranch.Revision)).Accepted, "Second response conversion was rejected.");
-        Require(otherBranch.PendingDecision?.Kind != DecisionKind.ProgramCardTrigger &&
+        Require(otherBranch.PendingDecision?.Kind != DecisionKind.ProgramTrigger &&
                 otherBranch.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>().Count() == 0,
             "A response trigger bound to source A must not run for source B.");
         var converted = response.Choices.First(choice =>
@@ -29,23 +29,23 @@ internal static class SkillProgramCardTriggerChecks
             "Converted Dodge response was rejected.");
         var invoke = game.PendingDecision ?? throw new InvalidOperationException("Response trigger did not pause.");
         var activate = invoke.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         Require(game.Submit(new AnswerPromptCommand(0, invoke.PromptId, activate.Id, game.Revision)).Accepted,
             "Response trigger activation was rejected.");
         var take = game.PendingDecision ?? throw new InvalidOperationException("Opponent-hand take prompt was not published.");
-        Require(take.Kind == DecisionKind.ProgramCardTrigger && take.Choices.Count > 0 &&
+        Require(take.Kind == DecisionKind.ProgramTrigger && take.Choices.Count > 0 &&
                 game.State.ProcessingCardCount >= 1 &&
                 take.Choices.All(choice => choice.Cards.Count == 0 &&
-                    choice.Parameters.GetValueOrDefault("action") == "program-trigger-take" &&
-                    int.TryParse(choice.Parameters.GetValueOrDefault("slot"), out _)),
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+                    int.TryParse(choice.Parameters.GetValueOrDefault("slot-index"), out _)),
             $"Opponent hand candidates must be opaque slots without card ids (processing={game.State.ProcessingCardCount}, " +
-            $"choices={string.Join(';', take.Choices.Select(choice => $"{choice.Cards.Count}:{choice.Parameters.GetValueOrDefault("action")}:{choice.Parameters.GetValueOrDefault("slot")}"))}).");
+            $"choices={string.Join(';', take.Choices.Select(choice => $"{choice.Cards.Count}:{choice.Parameters.GetValueOrDefault("action")}:{choice.Parameters.GetValueOrDefault("slot-index")}"))}).");
         var acceptedAction = game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>()
             .Single(item => item.Action.Type == CardActionType.Response).Action;
         Require(acceptedAction.Type == CardActionType.Response && acceptedAction.ConversionChain.Count == 1 &&
                 acceptedAction.ConversionChain[0].SkillId == "trigger-test:response-source",
             "The response must commit exactly one trusted card action with its exact conversion source.");
-        var opponent = take.Choices[0].Targets.Single();
+        var opponent = int.Parse(take.Choices[0].Parameters["card-owner-seat"]);
         var otherViewer = game.CreateSnapshot(opponent, revealAll: false);
         var observer = game.CreateSnapshot(-1, revealAll: false);
         Require(otherViewer.PendingDecision is null && observer.PendingDecision is null &&
@@ -130,20 +130,20 @@ internal static class SkillProgramCardTriggerChecks
         var unrelated = Create(registry);
         Require(unrelated.Submit(Command(unrelated, sourceB)).Accepted,
             "The second legal conversion source was rejected.");
-        Require(unrelated.PendingDecision?.Kind != DecisionKind.ProgramCardTrigger &&
+        Require(unrelated.PendingDecision?.Kind != DecisionKind.ProgramTrigger &&
                 unrelated.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>().Count() == 0,
             "A trigger bound to source A must not run for source B.");
 
         var started = Create(registry);
         Require(started.Submit(Command(started, sourceA)).Accepted, "The trigger source play was rejected.");
-        Require(started.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger },
+        Require(started.PendingDecision is { Kind: DecisionKind.ProgramTrigger },
             "The exact source must pause at the optional trigger prompt.");
         var paused = started.CreateCheckpoint();
 
         var skipped = GameReplay.Restore(paused, registry);
         var skipPrompt = skipped.PendingDecision!;
         var skip = skipPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-skip");
+            choice.Parameters.GetValueOrDefault("program-action") == "skip");
         var skipHand = skipped.CreateSnapshot(0, true).Players[0].HandCount;
         Require(skipped.Submit(new AnswerPromptCommand(0, skipPrompt.PromptId, skip.Id, skipped.Revision)).Accepted,
             "Skipping the optional trigger was rejected.");
@@ -155,7 +155,7 @@ internal static class SkillProgramCardTriggerChecks
         var activated = GameReplay.Restore(paused, registry);
         var prompt = activated.PendingDecision!;
         var accept = prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         var handBefore = activated.CreateSnapshot(0, true).Players[0].HandCount;
         Require(activated.Submit(new AnswerPromptCommand(0, prompt.PromptId, accept.Id, activated.Revision)).Accepted,
             "Activating the generic draw trigger was rejected.");
@@ -225,17 +225,17 @@ internal static class SkillProgramCardTriggerChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":2,"skills":[
+        {"schemaVersion":58,"skills":[
           {"id":"trigger-test:source-a","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
           {"id":"trigger-test:source-b","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-          {"id":"trigger-test:draw","revision":1,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"trigger-test:source-a","sourceViewAsId":"slash","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
+          {"id":"trigger-test:draw","revision":1,"minimumRulesVersion":168,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"trigger-test:source-a","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
           {"id":"trigger-test:response-source","revision":1,"viewAs":[{"id":"dodge","inputKinds":["slash"],"inputSuits":[],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
           {"id":"trigger-test:response-source-b","revision":1,"viewAs":[{"id":"dodge","inputKinds":["slash"],"inputSuits":[],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
-          {"id":"trigger-test:obtain","revision":1,"triggers":[{"id":"after-response","window":"cardResponseAccepted","sourceSkillId":"trigger-test:response-source","sourceViewAsId":"dodge","optional":true,"effects":[{"op":"obtainOpponentHandCard","target":"owner","amount":1}]}]}
+          {"id":"trigger-test:obtain","revision":1,"minimumRulesVersion":168,"triggers":[{"id":"after-response","window":"cardResponseAccepted","sourceSkillId":"trigger-test:response-source","sourceViewAsId":"dodge","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
         ]}
         """;
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "trigger-test:source-a":{"name":"A","description":"A"},
           "trigger-test:source-b":{"name":"B","description":"B"},
           "trigger-test:draw":{"name":"Draw","description":"Draw"},

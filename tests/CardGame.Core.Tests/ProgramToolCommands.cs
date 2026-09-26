@@ -70,7 +70,7 @@ internal static class ProgramToolCommands
             requiredCapabilities = Names(descriptor.RequiredCapabilities),
             availableEntries,
             examples = samples,
-            exampleStatus = samples.Length == 0 ? "empty: no formal schema-23 shared-runtime example" : "embedded formal examples",
+            exampleStatus = samples.Length == 0 ? "empty: no formal example for this operation" : "embedded formal examples",
             note = "Examples are copyable starting points only. A node may depend on bindings produced elsewhere in its composition; load the complete composition and verify it in a scenario."
         }, JsonOptions));
     }
@@ -95,7 +95,7 @@ internal static class ProgramToolCommands
             using var document = JsonDocument.Parse(rulesText);
             var root = document.RootElement;
             if (!root.TryGetProperty("schemaVersion", out var schemaNode) ||
-                schemaNode.ValueKind != JsonValueKind.Number || schemaNode.GetInt32() != 23)
+                schemaNode.ValueKind != JsonValueKind.Number || schemaNode.GetInt32() != SkillProgramCatalog.RulesSchemaVersion)
                 continue;
             var presentationName = resourceName[..^rulesSuffix.Length] + ".presentation.json";
             using var presentationStream = assembly.GetManifestResourceStream(presentationName);
@@ -107,11 +107,11 @@ internal static class ProgramToolCommands
             foreach (var skillNode in root.GetProperty("skills").EnumerateArray())
             {
                 var skillId = skillNode.GetProperty("id").GetString()!;
-                if (!catalog.Programs.TryGetValue(skillId, out var program) || !program.UsesCompositionKernel)
+                if (!catalog.Programs.TryGetValue(skillId, out var program))
                     continue;
                 CollectEntries(skillNode, "activations", "active", program.Activations.Select(item => item.Id).ToHashSet(StringComparer.Ordinal));
                 CollectEntries(skillNode, "triggers", "trigger", program.Triggers
-                    .Where(item => item.UsesSharedExecutor).Select(item => item.Id).ToHashSet(StringComparer.Ordinal));
+                    .Select(item => item.Id).ToHashSet(StringComparer.Ordinal));
                 if (found.Count == 3) return found.ToArray();
 
                 void CollectEntries(JsonElement skill, string property, string kind, HashSet<string> allowedIds)
@@ -130,7 +130,7 @@ internal static class ProgramToolCommands
                             found.Add(new
                             {
                                 bundle,
-                                schemaVersion = 23,
+                                schemaVersion = 58,
                                 skillId,
                                 entryKind = kind,
                                 entryId,
@@ -194,7 +194,7 @@ internal static class ProgramToolCommands
         Console.WriteLine(JsonSerializer.Serialize(new
         {
             currentRulesVersion = GameCheckpoint.CurrentRulesVersion,
-            latestCompositionSchema = 23,
+            latestCompositionSchema = SkillProgramCatalog.RulesSchemaVersion,
             operations,
             entries
         }, JsonOptions));
@@ -211,7 +211,6 @@ internal static class ProgramToolCommands
                 id = program.Id,
                 minimumRulesVersion = program.MinimumRulesVersion,
                 gameplayHash = program.GameplayHash,
-                usesCompositionKernel = program.UsesCompositionKernel,
                 entries = program.Activations.Select(activation => new
                     {
                         kind = "active",
@@ -241,12 +240,7 @@ internal static class ProgramToolCommands
     private static IEnumerable<(string Name, SkillProgramTriggerWindow? Window)> EntryPoints()
     {
         yield return ("Active", null);
-        yield return (nameof(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow), SkillProgramTriggerWindow.TurnStartBeforeNormalFlow);
-        yield return (nameof(SkillProgramTriggerWindow.DrawPhaseStarting), SkillProgramTriggerWindow.DrawPhaseStarting);
-        yield return (nameof(SkillProgramTriggerWindow.SelfDyingResponse), SkillProgramTriggerWindow.SelfDyingResponse);
-        yield return (nameof(SkillProgramTriggerWindow.AfterDamageApplied), SkillProgramTriggerWindow.AfterDamageApplied);
-        yield return (nameof(SkillProgramTriggerWindow.PlayEnding), SkillProgramTriggerWindow.PlayEnding);
-        yield return (nameof(SkillProgramTriggerWindow.TurnEnding), SkillProgramTriggerWindow.TurnEnding);
-        yield return (nameof(SkillProgramTriggerWindow.CardsMoved), SkillProgramTriggerWindow.CardsMoved);
+        foreach (var window in Enum.GetValues<SkillProgramTriggerWindow>().Where(ProgramEntryCapabilities.SupportsWindow))
+            yield return (window.ToString(), window);
     }
 }

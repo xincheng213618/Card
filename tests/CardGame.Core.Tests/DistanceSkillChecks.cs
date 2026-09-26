@@ -8,7 +8,7 @@ internal static class DistanceSkillChecks
         var registry = StandardContentRegistry.CreateWithActiveSkills();
         Require(
             registry.Skills.TryGetValue("standard:mashu", out var definition) &&
-            definition is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v12" } &&
+            definition is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v58" } &&
             definition.Program.Modifiers.Single() is
             {
                 Query: SkillRuleQuery.OutgoingDistance,

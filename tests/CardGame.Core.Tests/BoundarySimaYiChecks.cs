@@ -24,11 +24,11 @@ internal static class BoundarySimaYiChecks
                 feedback is { Window: SkillProgramTriggerWindow.AfterDamageApplied,
                     DamageOccurrence: SkillProgramDamageOccurrence.PerDamagePoint, Optional: true } &&
                 feedback.Effects.Select(effect => effect.Op).SequenceEqual([
-                    SkillProgramTriggerEffectOp.SelectSourceCard,
-                    SkillProgramTriggerEffectOp.MoveBoundCards]) &&
+                    SkillProgramEffectOp.SelectSourceCard,
+                    SkillProgramEffectOp.MoveBoundCards]) &&
                 feedback.Effects[0].Zones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 guicai is { Window: SkillProgramTriggerWindow.JudgmentReplacing, Optional: true } &&
-                guicai.Effects.Single() is { Op: SkillProgramTriggerEffectOp.ReplaceJudgment,
+                guicai.Effects.Single() is { Op: SkillProgramEffectOp.ReplaceJudgment,
                     OldCardDestination: SkillProgramOldJudgmentCardDestination.DiscardPile } &&
                 guicai.Effects.Single().Zones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 guicai.Effects.Single().Suits.Order().SequenceEqual(

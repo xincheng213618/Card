@@ -18,8 +18,8 @@ internal static class SelfDyingStateProgramChecks
                     LegacyKind: null,
                     Tags: SkillTag.Limited,
                     ExecutionForms: SkillExecutionForm.Trigger,
-                    Program.UsesCompositionKernel: true,
-                    Program.MinimumRulesVersion: 128
+                    Program: not null,
+                    Program.MinimumRulesVersion: 168
                 } &&
                 trigger is
                 {
@@ -32,25 +32,25 @@ internal static class SelfDyingStateProgramChecks
                     Effects:
                     [
                         {
-                            Op: SkillProgramTriggerEffectOp.DiscardOwnedZoneCards,
-                            Target: SkillProgramTriggerEffectTarget.Owner,
+                            Op: SkillProgramEffectOp.DiscardOwnedZoneCards,
+                            Target: SkillProgramEffectTarget.Owner,
                             Zones: [CardZoneKind.Hand, CardZoneKind.Equipment, CardZoneKind.Judgment]
                         },
                         {
-                            Op: SkillProgramTriggerEffectOp.SetChainedState,
-                            Target: SkillProgramTriggerEffectTarget.Owner,
+                            Op: SkillProgramEffectOp.SetChainedState,
+                            Target: SkillProgramEffectTarget.Owner,
                             Chained: false
                         },
                         {
-                            Op: SkillProgramTriggerEffectOp.RecoverTo,
-                            Target: SkillProgramTriggerEffectTarget.Owner,
+                            Op: SkillProgramEffectOp.RecoverTo,
+                            Target: SkillProgramEffectTarget.Owner,
                             NumberExpression: SkillProgramNumberExpression.IntegerConstant,
                             MinimumValue: 3,
                             ClampToMaxHp: true
                         },
                         {
-                            Op: SkillProgramTriggerEffectOp.Draw,
-                            Target: SkillProgramTriggerEffectTarget.Owner,
+                            Op: SkillProgramEffectOp.Draw,
+                            Target: SkillProgramEffectTarget.Owner,
                             Amount: 3
                         }
                     ]
@@ -58,15 +58,11 @@ internal static class SelfDyingStateProgramChecks
             "Current Niepan must use its bounded self-dying program.");
 
         Reject(
-            Rules.Replace("\"schemaVersion\":22", "\"schemaVersion\":21", StringComparison.Ordinal)
-                .Replace("\"minimumRulesVersion\":127", "\"minimumRulesVersion\":126", StringComparison.Ordinal),
-            "requires schema 22");
-        Reject(
             Rules.Replace("\"judgment\"", "\"drawPile\"", StringComparison.Ordinal),
-            "distinct hand, equipment and/or judgment zones");
+            "requires hand, equipment and/or judgment");
         Reject(
             Rules.Replace("\"chained\":false", "\"chained\":null", StringComparison.Ordinal),
-            "must be a boolean");
+            "must be True or False");
     }
 
     public static void ClearsOwnedStateAndReplays()
@@ -312,20 +308,20 @@ internal static class SelfDyingStateProgramChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":1,"skills":[{"id":"fixture:schema-22-lose-hp","revision":1,
+            {"schemaVersion":58,"skills":[{"id":"fixture:schema-22-lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}
             """;
 
         private const string DyingPresentation = """
-            {"schemaVersion":1,"skills":{"fixture:schema-22-lose-hp":{"name":"失去体力",
+            {"schemaVersion":3,"skills":{"fixture:schema-22-lose-hp":{"name":"失去体力",
             "description":"令自己失去五点体力。"}}}
             """;
     }
 
     private const string Rules = """
-        {"schemaVersion":22,"skills":[{"id":"classic:niepan","revision":1,"minimumRulesVersion":127,
+        {"schemaVersion":58,"skills":[{"id":"classic:niepan","revision":1,"minimumRulesVersion":168,
         "modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"activation",
         "window":"selfDyingResponse","subject":"owner","optional":true,"priority":0,
         "usageScope":"game","usageLimit":1,"effects":[
@@ -336,6 +332,6 @@ internal static class SelfDyingStateProgramChecks
         """;
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{"classic:niepan":{"name":"涅槃","description":"测试"}}}
+        {"schemaVersion":3,"skills":{"classic:niepan":{"name":"涅槃","description":"测试"}}}
         """;
 }

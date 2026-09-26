@@ -11,7 +11,7 @@ internal static class WuhunUiChecks
 {
     private const string WuhunSkillId = "wuhun-ui:wuhun";
     private const string WuhunRules = """
-    {"schemaVersion":53,"skills":[{"id":"wuhun-ui:wuhun","revision":3,"minimumRulesVersion":163,
+    {"schemaVersion":58,"skills":[{"id":"wuhun-ui:wuhun","revision":3,"minimumRulesVersion":168,
     "modifiers":[],"viewAs":[],"activations":[],"triggers":[
       {"id":"damage-nightmare","window":"damageAppliedBeforeDying","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
        "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
@@ -22,7 +22,7 @@ internal static class WuhunUiChecks
     ],"contributions":[],"cardIdentities":[],"states":[]}]}
     """;
     private const string WuhunPresentation = """
-    {"schemaVersion":1,"skills":{"wuhun-ui:wuhun":{"name":"武魂","description":"锁定技，受到伤害后令来源获得梦魇；死亡时令梦魇最多的角色判定，非桃或桃园结义则直接死亡。"}}}
+    {"schemaVersion":3,"skills":{"wuhun-ui:wuhun":{"name":"武魂","description":"锁定技，受到伤害后令来源获得梦魇；死亡时令梦魇最多的角色判定，非桃或桃园结义则直接死亡。"}}}
     """;
 
     public static void DeathTargetChoice(string output)

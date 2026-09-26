@@ -34,8 +34,10 @@ internal static class ProgramExecutionPlanChecks
         RequireThrows<ArgumentException>(() => resolver.Resolve(frame with { TriggerId = " " }, program));
         RequireThrows<InvalidOperationException>(() =>
             resolver.Resolve(program, ProgramInstructionSourceKind.Activation, "missing"));
-        RequireThrows<InvalidOperationException>(() =>
-            resolver.Resolve(program, ProgramInstructionSourceKind.Trigger, "legacy"));
+        var judgment = resolver.Resolve(program, ProgramInstructionSourceKind.Trigger, "judgment-draw");
+        Require(judgment.GetInstruction(0).Effect.Op == SkillProgramEffectOp.Draw &&
+                judgment.GetInstruction(0).Identity != triggered.GetInstruction(0).Identity,
+            "Distinct trigger bindings must retain distinct unified instruction identities.");
     }
 
     public static void PlansFreezeInstructionsAndRejectAmbiguousBindings()
@@ -62,7 +64,7 @@ internal static class ProgramExecutionPlanChecks
 
     private static SkillProgram Load() => SkillProgramCatalog.Load(
         """
-        {"schemaVersion":19,"skills":[{"id":"fixture:plan","revision":1,"minimumRulesVersion":124,
+        {"schemaVersion":58,"skills":[{"id":"fixture:plan","revision":1,"minimumRulesVersion":168,
           "activations":[{"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,
             "targetKind":"otherLiving","usesPerTurn":1,"effects":[
               {"op":"draw","target":"owner","amount":1},
@@ -70,12 +72,12 @@ internal static class ProgramExecutionPlanChecks
           "triggers":[
             {"id":"draw","window":"turnEnding","subject":"owner","optional":true,
              "effects":[{"op":"draw","target":"owner","amount":1}]},
-            {"id":"legacy","window":"judgmentFinalized","subject":"owner",
+            {"id":"judgment-draw","window":"judgmentFinalized","subject":"owner",
              "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":[],
              "optional":false,"effects":[{"op":"draw","target":"owner","amount":1}]}
           ]}]}
         """,
-        """{"schemaVersion":1,"skills":{"fixture:plan":{"name":"Plan","description":"Plan fixture"}}}""")
+        """{"schemaVersion":3,"skills":{"fixture:plan":{"name":"Plan","description":"Plan fixture"}}}""")
         .Programs["fixture:plan"];
 
     private static void Require(bool condition, string message)

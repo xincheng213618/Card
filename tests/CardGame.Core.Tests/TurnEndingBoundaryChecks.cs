@@ -19,7 +19,7 @@ internal static class TurnEndingBoundaryChecks
         {
             var migrated = current.Skills[skillId];
             Require(migrated.LegacyKind is null &&
-                    migrated.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } program &&
+                    migrated.Program is { MinimumRulesVersion: 168 } program &&
                     program.Triggers.Single() is
                     {
                         Window: SkillProgramTriggerWindow.TurnEnding,
@@ -33,15 +33,15 @@ internal static class TurnEndingBoundaryChecks
         var jushou = current.Skills["classic:jushou"].Program!.Triggers.Single();
         Require(jushou.Effects is
                 [
-                    { Op: SkillProgramTriggerEffectOp.Draw, Amount: 3 },
-                    { Op: SkillProgramTriggerEffectOp.SetFaceState, FaceDown: true }
+                    { Op: SkillProgramEffectOp.Draw, Amount: 3 },
+                    { Op: SkillProgramEffectOp.SetFaceState, FaceDown: true }
                 ],
             "Jushou must draw three then use the exact face-down state primitive, not the toggle primitive.");
 
         Require(current.Skills["classic:jujian"] is
                 {
                     LegacyKind: null,
-                    Program: { UsesCompositionKernel: true, MinimumRulesVersion: 135 } jujian
+                    Program: { MinimumRulesVersion: 168 } jujian
                 } &&
                 jujian.Triggers.Single() is
                 {
@@ -230,8 +230,8 @@ internal static class TurnEndingBoundaryChecks
     private static ContentRegistry FrozenFactsRegistry()
     {
         const string rules = """
-            {"schemaVersion":13,"skills":[{"id":"fixture:turn-ending-facts","revision":1,
-            "minimumRulesVersion":118,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
+            {"schemaVersion":58,"skills":[{"id":"fixture:turn-ending-facts","revision":1,
+            "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
             {"id":"first-lose-hp","window":"turnEnding","subject":"owner","optional":false,"priority":100,
             "effects":[{"op":"loseHp","target":"owner","amount":1}]},
             {"id":"second-frozen-check","window":"turnEnding","subject":"owner","optional":true,"priority":-100,
@@ -241,7 +241,7 @@ internal static class TurnEndingBoundaryChecks
             "contributions":[],"cardIdentities":[]}]}
             """;
         const string presentation =
-            "{\"schemaVersion\":1,\"skills\":{\"fixture:turn-ending-facts\":{\"name\":\"冻结事实\",\"description\":\"测试\"}}}";
+            "{\"schemaVersion\":3,\"skills\":{\"fixture:turn-ending-facts\":{\"name\":\"冻结事实\",\"description\":\"测试\"}}}";
         var program = SkillProgramCatalog.Load(rules, presentation)
             .Programs[FrozenFactsScenarioPackage.SkillId];
         return ContentRegistry.Build(

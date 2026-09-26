@@ -11,45 +11,42 @@ internal static class SkillProgramJudgmentDamageChecks
         var strike = program.Triggers.Single(trigger => trigger.Id == StrikeTriggerId);
         var selection = strike.Effects[0];
         var damage = strike.Effects[1];
-        Require(program is { RuntimeVersion: "skill-program-v5", MinimumRulesVersion: 83 } &&
+        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
                 recovery is { Optional: false } &&
                 recovery.Effects.Single() is
                 {
-                    Op: SkillProgramTriggerEffectOp.Recover,
-                    Target: SkillProgramTriggerEffectTarget.Owner,
+                    Op: SkillProgramEffectOp.Recover,
+                    Target: SkillProgramEffectTarget.Owner,
                     Amount: 1
                 } &&
                 strike is { Optional: true } &&
                 selection is
                 {
-                    Op: SkillProgramTriggerEffectOp.SelectTarget,
-                    Target: SkillProgramTriggerEffectTarget.SelectedTarget,
+                    Op: SkillProgramEffectOp.SelectTarget,
+                    Target: SkillProgramEffectTarget.Owner,
                     TargetKind: SkillProgramTargetKind.AnyLiving,
                     Amount: 0
                 } &&
                 damage is
                 {
-                    Op: SkillProgramTriggerEffectOp.Damage,
-                    Target: SkillProgramTriggerEffectTarget.SelectedTarget,
+                    Op: SkillProgramEffectOp.Damage,
+                    Target: SkillProgramEffectTarget.SelectedTarget,
                     DamageNature: DamageNature.Thunder,
                     Amount: 4
                 },
-            "Schema 5 must keep mandatory recovery separate from optional selected-target thunder damage.");
+            "The shared executor must keep mandatory recovery separate from optional thunder damage.");
 
-        AssertReject(ValidV5.Replace("\"schemaVersion\":5", "\"schemaVersion\":4", StringComparison.Ordinal),
-            "targetKind");
+        AssertReject(ValidV5.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "schema version");
         AssertReject(ValidV5.Replace("\"targetKind\":\"anyLiving\"", "\"targetKind\":\"missing\"", StringComparison.Ordinal),
             "targetKind");
         AssertReject(ValidV5.Replace("\"nature\":\"thunder\"", "\"nature\":\"missing\"", StringComparison.Ordinal),
             "nature");
         AssertReject(ValidV5.Replace(
-                "{\"op\":\"selectTarget\",\"target\":\"selectedTarget\",\"targetKind\":\"anyLiving\"},",
+                "{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"anyLiving\"},",
                 "",
                 StringComparison.Ordinal),
-            "selectTarget first");
-        AssertReject(ValidV5.Replace("\"target\":\"selectedTarget\",\"amount\":4",
-                "\"target\":\"owner\",\"amount\":4", StringComparison.Ordinal),
-            "requires selectedTarget");
+            "selectedTarget");
     }
 
     internal static void TargetDamageDyingAndReplay()
@@ -82,17 +79,20 @@ internal static class SkillProgramJudgmentDamageChecks
             throw new InvalidOperationException("Judgment effect target prompt was lost.");
         Require(targetPrompt is
         {
-            Kind: DecisionKind.ProgramJudgmentTarget,
+            Kind: DecisionKind.ProgramTrigger,
             PlayerSeat: 0,
             IsPrivate: true
         } &&
+                boundary.ResolutionStack.OfType<ProgramSkillFrame>().Single() is
+                { InstructionIndex: 1,
+                  WindowContext: { Window: SkillProgramTriggerWindow.JudgmentFinalized } } &&
                 targetPrompt.ValidTargetSeats.Contains(damageTargetSeat) &&
                 targetPrompt.Choices.Any(choice => choice.Targets.SequenceEqual([damageTargetSeat])) &&
                 boundary.CreateSnapshot(1, revealAll: false).PendingDecision is null,
             "Target selection must publish exact living seats only to the skill owner.");
         var paused = boundary.CreateCheckpoint();
         var restoredTarget = GameReplay.Restore(paused, registry);
-        Require(restoredTarget.PendingDecision is { Kind: DecisionKind.ProgramJudgmentTarget } restoredPrompt &&
+        Require(restoredTarget.PendingDecision is { Kind: DecisionKind.ProgramTrigger } restoredPrompt &&
                 restoredPrompt.PromptId == targetPrompt.PromptId &&
                 restoredPrompt.ValidTargetSeats.SequenceEqual(targetPrompt.ValidTargetSeats),
             "A paused selected-target judgment effect must restore its exact private prompt.");
@@ -124,8 +124,8 @@ internal static class SkillProgramJudgmentDamageChecks
         } &&
                 requested.TargetSeat == damageTargetSeat &&
                 applied is { Amount: 4, Nature: DamageNature.Thunder, RemainingHp: 0 } &&
-                boundary.ResolutionStack.OfType<ProgramJudgmentTriggerWindowFrame>().Single() is
-                { SelectedTargetSeat: var selectedSeat } && selectedSeat == damageTargetSeat &&
+                boundary.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
+                { SelectedTargetSeats: [var selectedSeat] } && selectedSeat == damageTargetSeat &&
                 boundary.ResolutionStack.Any(item => item is DyingFrame),
             "Selected-target thunder damage must enter the shared typed damage and dying stack.");
 
@@ -329,7 +329,7 @@ internal static class SkillProgramJudgmentDamageChecks
     private const string StrikeTriggerId = "b-club-strike";
 
     private const string ValidV5 = """
-        {"schemaVersion":5,"skills":[
+        {"schemaVersion":58,"skills":[
           {"id":"judgment-damage-test:effects","revision":1,"triggers":[
             {"id":"a-club-recover","window":"judgmentFinalized","subject":"owner",
              "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":[],
@@ -339,7 +339,7 @@ internal static class SkillProgramJudgmentDamageChecks
             {"id":"b-club-strike","window":"judgmentFinalized","subject":"owner",
              "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":[],
              "optional":true,"effects":[
-              {"op":"selectTarget","target":"selectedTarget","targetKind":"anyLiving"},
+              {"op":"selectTarget","target":"owner","targetKind":"anyLiving"},
               {"op":"damage","target":"selectedTarget","amount":4,"nature":"thunder"}
              ]}
           ]}
@@ -347,7 +347,7 @@ internal static class SkillProgramJudgmentDamageChecks
         """;
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "judgment-damage-test:effects":{
             "name":"判定效果测试","description":"梅花判定后先强制回复，再可选目标造成雷电伤害。"
           }

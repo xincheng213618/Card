@@ -14,7 +14,7 @@ internal static class BoundaryXuChuChecks
             new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
         Require(current.Generals[GeneralId] is { BaseHp: 4, FactionId: "wei" } general &&
                 general.SkillIds.SequenceEqual([SkillId]) &&
-                current.Skills[SkillId].Program?.MinimumRulesVersion == 165 &&
+                current.Skills[SkillId].Program?.MinimumRulesVersion == 168 &&
                 current.Modes["identity:classic-5"].GeneralPoolIds?.Contains(GeneralId) == true &&
                 current.Modes["identity:classic-8"].GeneralPoolIds?.Contains(GeneralId) == true,
             "2014 Xu Chu must remain an independent Wei four-HP general in both current formal pools.");
@@ -25,10 +25,6 @@ internal static class BoundaryXuChuChecks
         var catalog = SkillProgramCatalog.Load(valid, GenericPresentation);
         Require(catalog.Programs.ContainsKey("fixture:filter"),
             "A non-Xu-Chu union of trick or Peach intersected with a suit must be legal.");
-        Reject(GenericRules("""
-            {"op":"filterBoundCards","target":"owner","sourceBind":"cards","resultBind":"selected",
-             "categories":["basic"],"equipmentSlots":["weapon"]}
-            """).Replace("\"schemaVersion\":55", "\"schemaVersion\":54"), "schema version 55");
         Reject(GenericRules("""
             {"op":"filterBoundCards","target":"owner","sourceBind":"cards","resultBind":"selected",
              "categories":["basic"],"effectiveSuitForRef":{"kind":"owner"}}
@@ -55,7 +51,7 @@ internal static class BoundaryXuChuChecks
             nested.Add($$"""{"op":"moveBoundCards","target":"owner","sourceBind":"s{{index}}","exceptBind":"s{{index + 1}}","destination":"discardPile"}""");
         nested.Add("""{"op":"moveBoundCards","target":"owner","sourceBind":"root","exceptBind":"s0","destination":"discardPile"}""");
         var legacyNested = $$"""
-            {"schemaVersion":54,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":164,
+            {"schemaVersion":58,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":168,
             "triggers":[{"id":"check","window":"drawPhaseStarting","subject":"owner","optional":true,
             "drawPhaseMode":"replacement","effects":[{{string.Join(',', nested)}}]}]}]}
             """;
@@ -392,7 +388,7 @@ internal static class BoundaryXuChuChecks
     }
 
     private static string GenericRules(string filter, bool cleanUp = true) => $$"""
-        {"schemaVersion":55,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":165,
+        {"schemaVersion":58,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":168,
         "triggers":[{"id":"check","window":"drawPhaseStarting","subject":"owner","optional":true,
         "drawPhaseMode":"replacement","effects":[
         {"op":"revealTopCards","target":"owner","amount":3,"resultBind":"cards","visibility":"public"},
@@ -402,7 +398,7 @@ internal static class BoundaryXuChuChecks
         ]}]}]}
         """;
     private const string GenericPresentation =
-        """{"schemaVersion":1,"skills":{"fixture:filter":{"name":"通用筛牌","description":"测试"}}}""";
+        """{"schemaVersion":3,"skills":{"fixture:filter":{"name":"通用筛牌","description":"测试"}}}""";
     private static void Reject(string rules, string message)
     {
         try { _ = SkillProgramCatalog.Load(rules, GenericPresentation); }

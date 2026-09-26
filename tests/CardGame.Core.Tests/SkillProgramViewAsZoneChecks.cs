@@ -3,24 +3,22 @@ using CardGame.Core;
 internal static class SkillProgramViewAsZoneChecks
 {
     private const string Rules = """
-        {"schemaVersion":46,"skills":[{"id":"test:owned-red-slash","revision":1,
-        "minimumRulesVersion":155,"viewAs":[{"id":"red-owned","sourceZones":["hand","equipment"],
+        {"schemaVersion":58,"skills":[{"id":"test:owned-red-slash","revision":1,
+        "minimumRulesVersion":168,"viewAs":[{"id":"red-owned","sourceZones":["hand","equipment"],
         "inputKinds":[],"inputSuits":["heart","diamond"],"outputKind":"slash",
         "forPlay":true,"forResponse":true}]}]}
         """;
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{"test:owned-red-slash":{"name":"红牌当杀","description":"测试来源牌区"}}}
+        {"schemaVersion":3,"skills":{"test:owned-red-slash":{"name":"红牌当杀","description":"测试来源牌区"}}}
         """;
 
     public static void DefinitionAndZoneIsolation()
     {
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs["test:owned-red-slash"];
-        Require(program is { RuntimeVersion: "skill-program-v46", MinimumRulesVersion: 155 } &&
+        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
                 program.ViewAs.Single().SourceZones.SequenceEqual(
                     [CardZoneKind.Hand, CardZoneKind.Equipment]),
             "Schema 46 must keep the source-zone contract in the compiled viewAs rule.");
-        Reject(Rules.Replace("\"schemaVersion\":46", "\"schemaVersion\":45", StringComparison.Ordinal),
-            "sourceZones");
         Reject(Rules.Replace("[\"hand\",\"equipment\"]", "[]", StringComparison.Ordinal),
             "sourceZones");
         Reject(Rules.Replace("[\"hand\",\"equipment\"]", "[\"judgment\"]", StringComparison.Ordinal),

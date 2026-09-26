@@ -15,19 +15,20 @@ internal static class SkillProgramSelectedJudgmentChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
         var start = program.Triggers.Single(trigger => trigger.Id == StartTriggerId);
         var spade = program.Triggers.Single(trigger => trigger.Id == SpadeTriggerId);
-        Require(program is { RuntimeVersion: "skill-program-v8", MinimumRulesVersion: 86 } &&
+        Require(program.MinimumRulesVersion == 168 &&
                 start.Effects is
                 [
                 {
-                    Op: SkillProgramTriggerEffectOp.SelectTarget,
-                    Target: SkillProgramTriggerEffectTarget.SelectedTarget,
+                    Op: SkillProgramEffectOp.SelectTarget,
+                    Target: SkillProgramEffectTarget.Owner,
                     TargetKind: SkillProgramTargetKind.OtherLiving
                 },
                 {
-                    Op: SkillProgramTriggerEffectOp.StartJudgment,
-                    Target: SkillProgramTriggerEffectTarget.SelectedTarget,
+                    Op: SkillProgramEffectOp.StartJudgment,
+                    Target: SkillProgramEffectTarget.SelectedTarget,
                     JudgmentReason: JudgmentReason
-                }
+                },
+                { Op: SkillProgramEffectOp.MoveBoundCards, SourceBind: "judgment-card" }
                 ] &&
                 spade is
                 {
@@ -37,45 +38,46 @@ internal static class SkillProgramSelectedJudgmentChecks
                 spade.JudgmentReasons.SequenceEqual([JudgmentReason]) &&
                 spade.Effects.Single() is
                 {
-                    Op: SkillProgramTriggerEffectOp.Damage,
-                    Target: SkillProgramTriggerEffectTarget.JudgmentSubject,
+                    Op: SkillProgramEffectOp.Damage,
+                    Target: SkillProgramEffectTarget.Owner,
+                    TargetReference: { Kind: ProgramParticipantRef.EventTarget },
                     Amount: 2,
                     DamageNature: DamageNature.Thunder
                 },
-            "Schema 8 must freeze selected judgment subjects, initiator filters and direct subject damage.");
+            "The unified program must freeze selected judgment subjects, initiator filters and direct subject damage.");
         var raisedMinimum = SkillProgramCatalog.Load(
-            Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":88",
+            Rules.Replace("\"minimumRulesVersion\":168", "\"minimumRulesVersion\":169",
                 StringComparison.Ordinal),
             Presentation);
-        Require(raisedMinimum.Programs.Values.All(item => item.MinimumRulesVersion == 88) &&
+        Require(raisedMinimum.Programs.Values.All(item => item.MinimumRulesVersion == 169) &&
                 raisedMinimum.Programs[ProgramId].GameplayHash != program.GameplayHash,
-            "Schema 8 content may raise its concrete rules floor and must hash that requirement.");
+            "Program content must hash its concrete rules floor.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":8", "\"schemaVersion\":7", StringComparison.Ordinal),
-            "schema version 8");
-        AssertReject(Rules.Replace("\"revision\":1", "\"revision\":1,\"minimumRulesVersion\":85",
+        AssertReject(Rules.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "expected 58");
+        AssertReject(Rules.Replace("\"minimumRulesVersion\":168", "\"minimumRulesVersion\":167",
                 StringComparison.Ordinal),
-            "schema minimum 86");
+            "schema minimum 168");
         var forwardCapability = SkillProgramCatalog.Load(
             Rules.Replace(
-                "\"revision\":1",
-                $"\"revision\":1,\"minimumRulesVersion\":{GameCheckpoint.CurrentRulesVersion + 1}",
+                "\"minimumRulesVersion\":168",
+                $"\"minimumRulesVersion\":{GameCheckpoint.CurrentRulesVersion + 1}",
                 StringComparison.Ordinal),
             Presentation);
         Require(forwardCapability.Programs.Values.All(item =>
                 item.MinimumRulesVersion == GameCheckpoint.CurrentRulesVersion + 1),
             "Program capability metadata must not force an unrelated replay-rules bump.");
         AssertReject(Rules.Replace(
-                "{\"op\":\"selectTarget\",\"target\":\"selectedTarget\",\"targetKind\":\"otherLiving\"},",
+                "{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"otherLiving\"},",
                 string.Empty,
                 StringComparison.Ordinal),
-            "selectTarget first");
+            "selectedTarget must be produced before it is read");
         AssertReject(Rules.Replace("\"excludedReasons\":[]",
                 "\"excludedReasons\":[\"skill.selected-judgment-test.leiji\"]", StringComparison.Ordinal),
             "must not overlap");
-        AssertReject(Rules.Replace("\"target\":\"judgmentSubject\",\"amount\":2",
-                "\"target\":\"opponent\",\"amount\":2", StringComparison.Ordinal),
-            "judgment damage requires");
+        AssertReject(Rules.Replace("\"target\":\"owner\",\"targetRef\":{\"kind\":\"eventTarget\"},\"amount\":2",
+                "\"target\":\"judgmentSubject\",\"amount\":2", StringComparison.Ordinal),
+            "judgmentSubject");
     }
 
     internal static void SelectedSubjectDamageAndReplay()
@@ -85,20 +87,20 @@ internal static class SkillProgramSelectedJudgmentChecks
         var activationPrompt = game.PendingDecision ??
             throw new InvalidOperationException("The selected-judgment activation prompt was lost.");
         var activate = activationPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         var activated = game.Submit(new AnswerPromptCommand(
             0, activationPrompt.PromptId, activate.Id, game.Revision));
         Require(activated.Accepted &&
                 game.PendingDecision is
                 {
-                    Kind: DecisionKind.ProgramCardTrigger,
+                    Kind: DecisionKind.ProgramTrigger,
                     PlayerSeat: 0,
                     IsPrivate: true,
                     ValidTargetSeats.Count: 4
                 } publishedTargetPrompt &&
                 !publishedTargetPrompt.ValidTargetSeats.Contains(0) &&
                 publishedTargetPrompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "program-trigger-select-target"),
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-target"),
             activated.Error?.Message ?? "Activating the selected judgment did not publish other living targets.");
         var targetPrompt = game.PendingDecision!;
 
@@ -121,9 +123,15 @@ internal static class SkillProgramSelectedJudgmentChecks
             .Single(item => item.Reason == JudgmentReason);
         var damage = restored.Events.Select(item => item.Payload).OfType<ProgramJudgmentDamageRequestedEvent>()
             .Single(item => item.SkillId == ProgramId && item.TriggerId == SpadeTriggerId);
+        var finalBinding = restored.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+            .Single(item => item.SkillId == ProgramId && item.BindingId == SpadeTriggerId);
+        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
+            .GetField("_players", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!.GetValue(restored)!;
         Require(requested.TargetSeat == targetSeat &&
-                restored.Events.Select(item => item.Payload).OfType<ProgramCardTargetSelectedEvent>()
-                    .Single(item => item.SkillId == ProgramId).TargetSeat == targetSeat &&
+                players[finalBinding.OwnerSeat].SkillGrants.Grants.Any(grant =>
+                    grant.IsEnabled && grant.SkillId == finalBinding.SkillId &&
+                    grant.SkillInstanceId == finalBinding.SkillInstanceId) &&
                 damage is { SourceSeat: 0, TargetSeat: var damagedSeat, Amount: 2, Nature: DamageNature.Thunder } &&
                 damagedSeat == targetSeat &&
                 restored.CreateSnapshot(0, revealAll: true).Players[targetSeat].Hp == targetHp - 2 &&
@@ -142,7 +150,7 @@ internal static class SkillProgramSelectedJudgmentChecks
                     .Count(item => item.SkillId == ProgramId && item.TargetSeat == targetSeat) == 1,
             "The selected subject, final-result cursor, damage and resumed Dodge response must replay exactly.");
         RequireThrows<InvalidOperationException>(() => GameReplay.Restore(
-            RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 85 }, registry));
+            RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 167 }, registry));
     }
 
     internal static void ReplacementOrderUsesTurnActor()
@@ -155,14 +163,14 @@ internal static class SkillProgramSelectedJudgmentChecks
         var activationPrompt = game.PendingDecision ??
             throw new InvalidOperationException("The ordering activation prompt was lost.");
         var activate = activationPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         var activated = game.Submit(new AnswerPromptCommand(
             0, activationPrompt.PromptId, activate.Id, game.Revision));
         Require(activated.Accepted,
             activated.Error?.Message ?? "The ordering fixture rejected its trigger activation.");
         var targetPrompt = game.PendingDecision ??
             throw new InvalidOperationException("The ordering fixture lost its target choice.");
-        Require(targetPrompt.Kind == DecisionKind.ProgramCardTrigger,
+        Require(targetPrompt.Kind == DecisionKind.ProgramTrigger,
             "The ordering fixture did not publish its target choice.");
 
         var turnActorSeat = game.State.CurrentSeat;
@@ -197,7 +205,7 @@ internal static class SkillProgramSelectedJudgmentChecks
             var game = StartOwner(registry, seed, modeId, ownerGeneralId);
             for (var step = 0; step < 1_200 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0 } &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
                     game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single() is { } frame &&
                     frame.Candidates[frame.CandidateIndex].TriggerId == StartTriggerId)
                     return game;
@@ -410,37 +418,37 @@ internal static class SkillProgramSelectedJudgmentChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":8,"skills":[
-          {"id":"selected-judgment-test:leiji","revision":1,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
-            {"id":"after-dodge","window":"cardResponseAccepted","cardKinds":["dodge"],
+        {"schemaVersion":58,"skills":[
+          {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+            {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[
-              {"op":"selectTarget","target":"selectedTarget","targetKind":"otherLiving"},
-              {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.selected-judgment-test.leiji"}
+              {"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
+              {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.selected-judgment-test.leiji","resultBind":"judgment-card","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judgment-card","destination":"discardPile"}
              ]},
             {"id":"spade-damage","window":"judgmentFinalized","subject":"any","judgmentSource":"owner",
              "judgmentReasons":["skill.selected-judgment-test.leiji"],"suits":["spade"],
              "minimumRank":1,"maximumRank":13,"excludedReasons":[],"optional":false,"effects":[
-              {"op":"damage","target":"judgmentSubject","amount":2,"nature":"thunder"}
+              {"op":"damage","target":"owner","targetRef":{"kind":"eventTarget"},"amount":2,"nature":"thunder"}
              ]},
             {"id":"club-recover-damage","window":"judgmentFinalized","subject":"any","judgmentSource":"owner",
              "judgmentReasons":["skill.selected-judgment-test.leiji"],"suits":["club"],
              "minimumRank":1,"maximumRank":13,"excludedReasons":[],"optional":false,"effects":[
               {"op":"recover","target":"owner","amount":1},
-              {"op":"damage","target":"judgmentSubject","amount":1,"nature":"thunder"}
+              {"op":"damage","target":"owner","targetRef":{"kind":"eventTarget"},"amount":1,"nature":"thunder"}
              ]}
           ]},
-          {"id":"selected-judgment-test:observer","revision":1,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+          {"id":"selected-judgment-test:observer","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"observer-spade","window":"judgmentFinalized","subject":"any","judgmentSource":"owner",
              "judgmentReasons":["skill.selected-judgment-test.leiji"],"suits":["spade"],
              "minimumRank":1,"maximumRank":13,"excludedReasons":[],"optional":false,"effects":[
-              {"op":"damage","target":"judgmentSubject","amount":3,"nature":"thunder"}
+              {"op":"damage","target":"owner","targetRef":{"kind":"eventTarget"},"amount":3,"nature":"thunder"}
              ]}
           ]}
         ]}
         """;
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "selected-judgment-test:leiji":{
             "name":"经典雷击配置测试","description":"打出闪后选择另一名角色判定，并按最终花色结算。"
           },
@@ -451,15 +459,15 @@ internal static class SkillProgramSelectedJudgmentChecks
         """;
 
     private const string OrderingRules = """
-        {"schemaVersion":8,"skills":[
-          {"id":"selected-judgment-test:leiji","revision":1,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
-            {"id":"after-dodge","window":"cardResponseAccepted","cardKinds":["dodge"],
+        {"schemaVersion":58,"skills":[
+          {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+            {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[
-              {"op":"selectTarget","target":"selectedTarget","targetKind":"otherLiving"},
-              {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.judgment-ordering-test"}
+              {"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
+              {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.judgment-ordering-test","resultBind":"judgment-card","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judgment-card","destination":"discardPile"}
              ]}
           ]},
-          {"id":"judgment-ordering-test:replace","revision":1,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+          {"id":"judgment-ordering-test:replace","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"replace","window":"judgmentReplacing","subject":"any","excludedReasons":[],
              "optional":true,"effects":[
               {"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade","club"],
@@ -470,7 +478,7 @@ internal static class SkillProgramSelectedJudgmentChecks
         """;
 
     private const string OrderingPresentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "selected-judgment-test:leiji":{
             "name":"改判顺序判定发起","description":"打出闪后选择另一名角色判定。"
           },

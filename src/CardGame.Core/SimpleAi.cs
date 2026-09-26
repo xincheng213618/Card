@@ -1980,82 +1980,6 @@ public sealed partial class SimpleAiBrain
             "按同一公开效果收益选择需要阻止的目标子集。"));
     }
 
-    /// <summary>
-    /// Decides whether a configured draw replacement is worth giving up the
-    /// ordinary two-card draw. Inputs are public seats and hand counts only.
-    /// </summary>
-    public (bool Activate, AiThoughtRecord Thought) ChooseHostileHandReplacementActivation(
-        GameSnapshot view,
-        IReadOnlyList<int> targetSeats,
-        int minimumTargets,
-        int maximumTargets,
-        string skillName,
-        int thoughtSequence)
-    {
-        if (minimumTargets < 1 || maximumTargets < minimumTargets || maximumTargets > 2 ||
-            targetSeats.Count < minimumTargets || targetSeats.Distinct().Count() != targetSeats.Count ||
-            targetSeats.Contains(Seat))
-            throw new InvalidOperationException("AI received an invalid configured hand-replacement target set.");
-
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var selfRole = self.Role ?? Role.Renegade;
-        var scoredTargets = new List<(IReadOnlyList<int> Seats, double Score)>();
-        for (var first = 0; first < targetSeats.Count; first++)
-        {
-            if (minimumTargets <= 1)
-            {
-                var seats = new[] { targetSeats[first] };
-                scoredTargets.Add((seats, ScoreHostileHandTargets(
-                    view, selfRole, seats.Select(seat => view.Players.Single(player => player.Seat == seat)))));
-            }
-            if (maximumTargets < 2) continue;
-            for (var second = first + 1; second < targetSeats.Count; second++)
-            {
-                var seats = new[] { targetSeats[first], targetSeats[second] };
-                scoredTargets.Add((seats, ScoreHostileHandTargets(
-                    view, selfRole, seats.Select(seat => view.Players.Single(player => player.Seat == seat)))));
-            }
-        }
-
-        var best = scoredTargets
-            .OrderByDescending(item => item.Score)
-            .ThenBy(item => string.Join("-", item.Seats), StringComparer.Ordinal)
-            .First();
-        const double normalDrawScore = 30d;
-        var activate = best.Score > normalDrawScore;
-        var activateAction = new LegalAction(
-            LegalActionKind.UseProgramSkill,
-            null,
-            best.Seats[0],
-            $"发动【{skillName}】",
-            TargetSeats: best.Seats);
-        var skipAction = new LegalAction(
-            LegalActionKind.UseProgramSkill,
-            null,
-            null,
-            $"不发动【{skillName}】");
-        var candidates = new[]
-        {
-            new AiCandidateScore(
-                activateAction,
-                Math.Round(best.Score, 3),
-                $"最佳公开目标组合含 {best.Seats.Count} 人；按关系和手牌数估值，不读取牌面。"),
-            new AiCandidateScore(
-                skipAction,
-                normalDrawScore,
-                "保留通常摸两张；不查看牌堆或任何目标暗牌。")
-        };
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            activate ? activateAction.Description : skipAction.Description,
-            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"配置摸牌替代：最佳组合 {best.Score:0.##}，通常摸牌 {normalDrawScore:0.##}，" +
-            $"决定{(activate ? "发动" : "跳过")}【{skillName}】。");
-        return (activate, thought);
-    }
-
     private double ScoreHostileHandTargets(
         GameSnapshot view,
         Role selfRole,
@@ -2064,40 +1988,6 @@ public sealed partial class SimpleAiBrain
             GetHostility(view, selfRole, target) * .45d +
             Math.Min(target.HandCount, 5) * 2d +
             14d);
-
-    /// <summary>
-    /// Compares a lost-HP-sized reveal replacement with normal drawing using
-    /// only the acting player's visible health. Critical health keeps the
-    /// recovery chance valuable even when only one card would be revealed.
-    /// </summary>
-    public (bool Activate, AiThoughtRecord Thought) ChooseLostHpRevealReplacementActivation(
-        GameSnapshot view,
-        string skillName,
-        int thoughtSequence)
-    {
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var lostHp = Math.Max(0, self.MaxHp - self.Hp);
-        var activate = lostHp >= 2 || self.Hp == 1;
-        var candidates = new[]
-        {
-            new AiCandidateScore(
-                new LegalAction(LegalActionKind.UseProgramSkill, null, null, $"发动【{skillName}】"),
-                activate ? 60d : 28d,
-                $"展示数量为已损失体力 {lostHp}；当前体力 {self.Hp}。"),
-            new AiCandidateScore(
-                new LegalAction(LegalActionKind.UseProgramSkill, null, null, $"跳过【{skillName}】"),
-                activate ? 35d : 45d,
-                "保留通常摸牌数量。")
-        };
-        var thought = new AiThoughtRecord(
-            thoughtSequence,
-            view.TurnNumber,
-            Seat,
-            activate ? candidates[0].Action.Description : candidates[1].Action.Description,
-            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-            $"配置失血亮牌替代：失去 {lostHp} 点体力，决定{(activate ? "发动" : "跳过")}【{skillName}】。");
-        return (activate, thought);
-    }
 
     /// <summary>
     /// Chooses one opaque ordinal slot from another player's hidden hand. Every

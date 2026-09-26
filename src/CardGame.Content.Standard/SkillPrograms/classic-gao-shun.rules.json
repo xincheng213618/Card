@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 10,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:jinjiu",
       "revision": 1,
-      "minimumRulesVersion": 94,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "cardIdentities": [
         {

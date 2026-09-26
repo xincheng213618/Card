@@ -6,7 +6,7 @@ internal static class ProgramChoiceAiChecks
     public static void PublicStatePredictsExactlyOneOption()
     {
         var effects = StandardContentRegistry.CreateWithClassicGenerals().GetSkill("classic:jujian")
-            .Program!.Triggers.Single().Effects.Select(effect => effect.ToExecutionEffect()).ToArray();
+            .Program!.Triggers.Single().Effects.ToArray();
         var owner = new PlayerSkillContext(0, 3, 3, 2, TurnPhase.Finished);
         var target = new PlayerSkillContext(1, 4, 4, 2, TurnPhase.Finished);
         ProgramAiEstimate Estimate(PlayerSkillContext chooser) => ProgramCompositionAi.Estimate(effects, owner,

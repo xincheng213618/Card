@@ -180,7 +180,7 @@ internal static class SkillMetadataChecks
                     ExecutionForms: SkillExecutionForm.State
                 } definition && definition.LegacyKind == kind &&
                 (skillId != "classic:mashu" ||
-                 definition.Program is { RuntimeVersion: "skill-program-v12", MinimumRulesVersion: 117 }),
+                 definition.Program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 }),
                 $"Current classic content did not give {skillId} its locked-state identity.");
             Require(!previous.Skills.ContainsKey(skillId),
                 $"Package 1.71.0 unexpectedly contains {skillId}.");
@@ -210,7 +210,7 @@ internal static class SkillMetadataChecks
                     LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v12"
+                    Program.RuntimeVersion: "skill-program-v58"
                 } &&
                 current.Skills["standard:qicai"].Tags == SkillTag.None,
             "The classic identity migration and current rule-query package must retain independent metadata.");
@@ -803,14 +803,14 @@ internal static class SkillMetadataChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":1,"skills":[{"id":"fixture:lose-hp","revision":1,
+            {"schemaVersion":58,"skills":[{"id":"fixture:lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}
             """;
 
         private const string DyingPresentation = """
-            {"schemaVersion":1,"skills":{"fixture:lose-hp":{"name":"失去体力",
+            {"schemaVersion":3,"skills":{"fixture:lose-hp":{"name":"失去体力",
             "description":"令自己失去五点体力。"}}}
             """;
     }

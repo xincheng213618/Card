@@ -362,9 +362,18 @@ public sealed partial class GameEngine
         string resultBind,
         SkillProgramCardSetVisibility visibility)
     {
-        var validTarget = frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied
-            ? frame.SelectedTargetSeats is [var selectedSeat] && selectedSeat == targetSeat
-            : frame.OwnerSeat == targetSeat;
+        var context = frame.WindowContext;
+        var cardActionCanStartJudgment = context?.CardUse is not null &&
+            (ProgramEntryCapabilities.For(context.Window) & ProgramContextCapability.Judgment) != 0;
+        var validTarget = frame.WindowContext?.Window switch
+        {
+            SkillProgramTriggerWindow.OwnerDied =>
+                frame.SelectedTargetSeats is [var selectedSeat] && selectedSeat == targetSeat,
+            _ when cardActionCanStartJudgment =>
+                frame.OwnerSeat == targetSeat ||
+                frame.SelectedTargetSeats is [var selectedCardTarget] && selectedCardTarget == targetSeat,
+            _ => frame.OwnerSeat == targetSeat
+        };
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             !validTarget || string.IsNullOrWhiteSpace(reason) ||
             string.IsNullOrWhiteSpace(resultBind) || visibility != SkillProgramCardSetVisibility.Public)
@@ -374,11 +383,11 @@ public sealed partial class GameEngine
         }
 
         _ = BeginJudgment(
-            attack: null,
+            attack: _pendingAttack,
             targetSeat,
             reason,
             frame.Id,
-            sourceCard: null,
+            sourceCard: frame.WindowContext?.CardUse?.EffectiveKind,
             JudgmentContinuationKind.ProgramSkill,
             damageSkill: null,
             sourceSeat: frame.OwnerSeat,
@@ -482,6 +491,14 @@ public sealed partial class GameEngine
                 $"Unsupported draw number expression '{numberExpression}'.")
         };
         var drawn = DrawCards(target, drawCount, log: true, reason);
+        if (frame.WindowContext?.JudgmentReplacement is { } replacement)
+        {
+            var active = GetActiveProgramFrame(frameId);
+            _resolutionStack[^1] = active with { WindowContext = active.WindowContext! with
+            {
+                JudgmentReplacement = replacement with { DrawnCards = replacement.DrawnCards + drawn.Count }
+            } };
+        }
         if (resultBind is not null)
         {
             SetProgramCardSet(
@@ -767,7 +784,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
 
         var selection = _contentRegistry!.GetSkill(frame.SkillId).Program!.Triggers
             .Single(trigger => trigger.Id == frame.TriggerId).Effects
-            .Single(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTargets);
+            .Single(effect => effect.Op == SkillProgramEffectOp.SelectTargets);
         var usesFrozenEligibility = selection.TargetKind == SkillProgramTargetKind.OtherLivingHandAtLeastOwner;
         var validTargets = usesFrozenEligibility ? [] :
             GetProgramTargetSeats(ownerSeat, SkillProgramTargetKind.OtherLivingWithHand);
@@ -1446,8 +1463,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
     private bool HasInitialOwnedCardSelectionCandidates(CharacterState owner, SkillProgramTrigger trigger)
     {
         if (trigger.Effects.FirstOrDefault() is not
-            { Op: SkillProgramTriggerEffectOp.SelectOwnedCards,
-              Target: SkillProgramTriggerEffectTarget.Owner,
+            { Op: SkillProgramEffectOp.SelectOwnedCards,
+              Target: SkillProgramEffectTarget.Owner,
               MinimumCards: > 0,
               Condition.Kind: SkillProgramConditionKind.Always } selection)
             return true;
@@ -1469,7 +1486,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             program.GameplayHash != candidate.GameplayHash)
             return false;
         var trigger = program.Triggers.SingleOrDefault(item => item.Id == candidate.BindingId);
-        if (trigger is null || trigger.Window != context.Window || !trigger.UsesSharedExecutor)
+        if (trigger is null || trigger.Window != context.Window)
             return false;
         if (!trigger.Condition.Evaluate(context.Facts ?? CaptureProgramTriggerFacts(owner),
                 candidate.SkillId, candidate.SkillInstanceId))
@@ -1481,8 +1498,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             return false;
         // Only an initial, unconditional payment is a prerequisite. A later payment
         // may intentionally use cards or participants produced by earlier nodes.
-        if (trigger.Effects.SkipWhile(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTarget).FirstOrDefault() is
-            { Op: SkillProgramTriggerEffectOp.SelectAndMoveOwnedCard,
+        if (trigger.Effects.SkipWhile(effect => effect.Op == SkillProgramEffectOp.SelectTarget).FirstOrDefault() is
+            { Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
               Condition.Kind: SkillProgramConditionKind.Always } payment)
         {
             var payer = payment.CardOwnerRef?.Kind switch
@@ -1497,7 +1514,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     payment.CardCategories.Count == 0 || MatchesProgramCardCategory(card.Kind, payment.CardCategories)))))
                 return false;
         }
-        if (trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTarget &&
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectTarget &&
             effect.TargetKind is { } kind && !GetProgramTargetSeats(owner.Seat, kind, context, effect.Marker).Any(seat =>
                 effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
                 {
@@ -1507,7 +1524,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _ => false
                 }))))
             return false;
-        if (trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTargets &&
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectTargets &&
             effect.TargetKind == SkillProgramTargetKind.CurrentCardUseTargets &&
             GetProgramTargetSeats(owner.Seat, SkillProgramTargetKind.CurrentCardUseTargets, context).Count <
                 effect.MinimumTargets))
@@ -1571,6 +1588,30 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 deathWindow.DeathFrameId == death.FrameId &&
                 deathWindow.OwnerSeat == owner.Seat &&
                 deathWindow.Candidates[deathWindow.CandidateIndex] == candidate,
+            SkillProgramTriggerWindow.JudgmentFinalized =>
+                context.Judgment is { } finalized &&
+                _pendingJudgment is { } pendingJudgment &&
+                finalized.JudgmentFrameId == pendingJudgment.FrameId &&
+                _resolutionStack.LastOrDefault() is ProgramJudgmentTriggerWindowFrame judgmentWindow &&
+                judgmentWindow.Id == context.ParentFrameId &&
+                judgmentWindow.CandidateIndex < judgmentWindow.Candidates.Count &&
+                judgmentWindow.Candidates[judgmentWindow.CandidateIndex] ==
+                    new ProgramJudgmentTriggerCandidate(candidate.OwnerSeat, candidate.SkillId,
+                        candidate.BindingId, candidate.SkillInstanceId, candidate.GameplayHash) &&
+                CanRunProgramJudgmentTrigger(judgmentWindow.Candidates[judgmentWindow.CandidateIndex],
+                    trigger, finalized),
+            SkillProgramTriggerWindow.JudgmentReplacing =>
+                context.JudgmentReplacement is { } replacement &&
+                _pendingJudgment is { } currentJudgment &&
+                currentJudgment.FrameId == context.ParentFrameId &&
+                replacement.JudgmentFrameId == currentJudgment.FrameId &&
+                currentJudgment.CurrentCandidate is { IsProgram: true } replacementCandidate &&
+                replacementCandidate.OwnerSeat == candidate.OwnerSeat &&
+                replacementCandidate.ProgramId == candidate.SkillId &&
+                replacementCandidate.ProgramTriggerId == candidate.BindingId &&
+                currentJudgment.CurrentCard?.Id == replacement.OldCardId &&
+                _resolutionStack.LastOrDefault() is JudgmentFrame replacementFrame &&
+                replacementFrame.Id == currentJudgment.FrameId,
             SkillProgramTriggerWindow.CardUseCommitted or
                 SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
                 SkillProgramTriggerWindow.CardUseTargetsFinalized or
@@ -1589,10 +1630,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
     private bool CanRunDrawPhaseProgramTrigger(CharacterState owner, SkillProgramTrigger trigger)
     {
         foreach (var effect in trigger.Effects.Where(effect =>
-                     effect.Op is (SkillProgramTriggerEffectOp.SelectTargets or SkillProgramTriggerEffectOp.SelectTarget) &&
+                     effect.Op is (SkillProgramEffectOp.SelectTargets or SkillProgramEffectOp.SelectTarget) &&
                      effect.Condition.Evaluate(CreateSkillContext(owner))))
         {
-            if (effect.Op == SkillProgramTriggerEffectOp.SelectTargets &&
+            if (effect.Op == SkillProgramEffectOp.SelectTargets &&
                 (effect.TargetKind is not { } targetKind ||
                  GetProgramTargetSeats(owner.Seat, targetKind, marker: effect.Marker).Count < effect.MinimumTargets ||
                  effect.NumberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount &&
@@ -1602,7 +1643,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                       drawPlan.NormalDrawAdjustment)) <
                   effect.MinimumTargets)))
                 return false;
-            if (effect.Op == SkillProgramTriggerEffectOp.SelectTarget && effect.TargetKind is { } singleKind &&
+            if (effect.Op == SkillProgramEffectOp.SelectTarget && effect.TargetKind is { } singleKind &&
                 !GetProgramTargetSeats(owner.Seat, singleKind, marker: effect.Marker).Any(seat =>
                     effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
                     {
@@ -1629,25 +1670,25 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         if (trigger.DamageCardKinds.Count > 0 &&
             (damage.Attack.EffectiveCardKind is not { } kind || !trigger.DamageCardKinds.Contains(kind)))
             return false;
-        if (trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.StartPindian) &&
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) &&
             (context.TargetSeat is not { } opponentSeat ||
              !IsValidPlayerSeat(opponentSeat) || !owner.IsAlive || !_players[opponentSeat].IsAlive ||
              GetHand(owner).Count == 0 || GetHand(_players[opponentSeat]).Count == 0))
             return false;
         foreach (var effect in trigger.Effects.Where(effect =>
-                     effect.Op is (SkillProgramTriggerEffectOp.SelectTarget or SkillProgramTriggerEffectOp.SelectSourceCard or
-                         SkillProgramTriggerEffectOp.ClaimDamageCards) &&
+                     effect.Op is (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectSourceCard or
+                         SkillProgramEffectOp.ClaimDamageCards) &&
                      effect.Condition.CanEvaluateWithoutProgramFrame() &&
                      effect.Condition.Evaluate(CreateSkillContext(owner))))
         {
             switch (effect.Op)
             {
-                case SkillProgramTriggerEffectOp.SelectTarget:
+                case SkillProgramEffectOp.SelectTarget:
                     if (effect.TargetKind is not { } targetKind ||
                         GetProgramTargetSeats(owner.Seat, targetKind, marker: effect.Marker).Count == 0)
                         return false;
                     break;
-                case SkillProgramTriggerEffectOp.SelectSourceCard:
+                case SkillProgramEffectOp.SelectSourceCard:
                     if (effect.SkipIfNoCards) break;
                     var sourceSeat = effect.CardSource switch
                     {
@@ -1667,7 +1708,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                         }))
                         return false;
                     break;
-                case SkillProgramTriggerEffectOp.ClaimDamageCards:
+                case SkillProgramEffectOp.ClaimDamageCards:
                     if (!damage.Attack.PhysicalCards.Any(card =>
                             _cardZones.GetLocation(card.Id) == CardLocation.Processing))
                         return false;
@@ -2420,6 +2461,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 {
                     SelectedTargetSeats = Array.AsReadOnly(new[] { targetSeat })
                 };
+                if (frame.WindowContext?.Judgment is { } judgment)
+                    QueueGameEvent(new ProgramJudgmentTargetSelectedEvent(
+                        frame.WindowContext.ParentFrameId, judgment.JudgmentFrameId,
+                        frame.SkillId, frame.TriggerId!, frame.OwnerSeat, targetSeat));
                 ContinueProgramSkill(frame.Id);
                 return;
             }
@@ -2637,7 +2682,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             return (item.Candidate, CreateBeforeDamageProgramContext(beforeDamage, item));
         }
         if (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame cardAction &&
-            cardAction.Candidates[cardAction.CandidateIndex] is { UsesSharedExecutor: true } cardCandidate)
+            cardAction.Candidates[cardAction.CandidateIndex] is { } cardCandidate)
         {
             return (ToSharedCandidate(cardCandidate), CreateCardActionProgramContext(cardAction, cardCandidate));
         }
@@ -2686,7 +2731,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             return;
         }
         if (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame cardAction &&
-            cardAction.Candidates[cardAction.CandidateIndex] is { UsesSharedExecutor: true } cardCandidate &&
+            cardAction.Candidates[cardAction.CandidateIndex] is { } cardCandidate &&
             ToSharedCandidate(cardCandidate) == candidate)
         {
             AdvanceProgramCardCandidate(cardAction);
@@ -2747,14 +2792,14 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.SelectTargets when paused.TargetAiOrder is { } targetAiOrder =>
                     SelectAiProgramTargets(decision, targetAiOrder),
-                SkillProgramEffectOp.SelectTarget when _contentRegistry!.GetSkill(frame.SkillId).Program!.UsesCompositionKernel =>
+                SkillProgramEffectOp.SelectTarget =>
                     SelectAiCompositionTarget(decision, frame),
                 SkillProgramEffectOp.SelectAndMoveOwnedCard when paused.CoverageResultBind is not null =>
                     decision.Choices.OrderByDescending(choice => choice.Cards.Count == 1 &&
                         WouldEquipmentRemovalReduceCoverage(
                             ResolveProgramParticipant(frame, paused.CardOwnerRef!), choice.Cards[0]))
                         .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
-                SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectAndMoveOwnedCard or
+                SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectAndMoveOwnedCard or
                     SkillProgramEffectOp.GiveBoundCard => decision.Choices[0],
                 SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick => decision.Choices
                     .OrderBy(choice => choice.Parameters.GetValueOrDefault("card-kind") == nameof(CardKind.DrawTwo) ? 0 : 1)
@@ -2783,98 +2828,32 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         var activate = activateChoices.Single();
         if (skip is null) return activate;
 
-        var skillId = activate.Parameters.GetValueOrDefault("skill-id");
-        var bindingId = activate.Parameters.GetValueOrDefault("binding-id");
-        var skillInstanceId = activate.Parameters.GetValueOrDefault("skill-instance-id");
-        if (string.IsNullOrEmpty(skillId) || string.IsNullOrEmpty(bindingId)) return activate;
+        var skillId = activate.Parameters["skill-id"];
+        var bindingId = activate.Parameters["binding-id"];
+        var skillInstanceId = activate.Parameters["skill-instance-id"];
         var skill = _contentRegistry!.GetSkill(skillId);
         var trigger = skill.Program!.Triggers.Single(item => item.Id == bindingId);
-        if (skill.Program.UsesCompositionKernel)
+        var owner = _players[decision.PlayerSeat];
+        var estimate = EstimateCompositionForAi(owner, trigger.Effects,
+            WithProgramConditionFacts(CreateProgramAiPublicContext(trigger, owner, decision.PlayerSeat),
+                owner, skillId, skillInstanceId)).Estimate;
+        var shouldActivate = !estimate.IsSelfLethal && estimate.Score > 0d;
+        var activateAction = new LegalAction(
+            LegalActionKind.UseProgramSkill, null, null, $"发动【{skill.Name}】");
+        var skipAction = new LegalAction(
+            LegalActionKind.UseProgramSkill, null, null, $"跳过【{skill.Name}】");
+        var candidates = new[]
         {
-            var owner = _players[decision.PlayerSeat];
-            var estimate = EstimateCompositionForAi(owner,
-                trigger.Effects.Select(effect => effect.ToExecutionEffect()),
-                WithProgramConditionFacts(CreateProgramAiPublicContext(trigger, owner, decision.PlayerSeat),
-                    owner, skillId, skillInstanceId!)).Estimate;
-            var compositionShouldActivate = !estimate.IsSelfLethal && estimate.Score > 0d;
-            var activateAction = new LegalAction(
-                LegalActionKind.UseProgramSkill, null, null, $"发动【{skill.Name}】");
-            var skipAction = new LegalAction(
-                LegalActionKind.UseProgramSkill, null, null, $"跳过【{skill.Name}】");
-            var candidates = new[]
-            {
-                new AiCandidateScore(activateAction,
-                    compositionShouldActivate ? estimate.Score : Math.Min(estimate.Score, -1000d),
-                    estimate.IsSelfLethal ? "公开效果将令自身失去全部体力。" : estimate.Approximation),
-                new AiCandidateScore(skipAction, 0d, "保留当前状态。")
-            };
-            AddThought(new AiThoughtRecord(
-                _thoughtSequence++, _turnNumber, decision.PlayerSeat,
-                compositionShouldActivate ? activateAction.Description : skipAction.Description,
-                candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
-                $"schema23组合估值 {estimate.Score:0.##}；{estimate.Approximation}"));
-            return compositionShouldActivate ? activate : skip;
-        }
-        // Schema 19+ owns the composable draw-phase heuristic. Other windows in
-        // the same runtime keep their existing policies; a later schema needs
-        // an explicit capability-version decision before sharing this branch.
-        if (skill.Program.RuntimeVersion is "skill-program-v19" or "skill-program-v20" or
-                "skill-program-v21" &&
-            trigger.Window == SkillProgramTriggerWindow.DrawPhaseStarting)
-        {
-            if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame drawPhase ||
-                drawPhase.Window != SkillProgramTriggerWindow.DrawPhaseStarting ||
-                drawPhase.OwnerSeat != decision.PlayerSeat)
-            {
-                throw new InvalidOperationException(
-                    "A composable draw-phase AI choice lost its lifecycle parent.");
-            }
-            var owner = _players[decision.PlayerSeat];
-            var normalDrawCount = checked((drawPhase.FrozenBaseDrawCount ?? GetTurnDrawCount(owner)) +
-                drawPhase.NormalDrawAdjustment);
-            var (composedShouldActivate, composedThought) = _aiBrains[decision.PlayerSeat]
-                .ChooseDrawPhaseProgramActivation(
-                    CreateSnapshot(decision.PlayerSeat),
-                    trigger,
-                    CreateSkillContext(owner),
-                    normalDrawCount,
-                    skill.Name,
-                    _thoughtSequence++);
-            AddThought(composedThought);
-            return composedShouldActivate ? activate : skip;
-        }
-        if (trigger.DrawPhaseMode != SkillProgramDrawPhaseMode.Replacement)
-            return activate;
-        if (trigger.Effects.FirstOrDefault() is
-            {
-                Op: SkillProgramTriggerEffectOp.RevealTopCards,
-                NumberExpression: SkillProgramNumberExpression.OwnerLostHp
-            })
-        {
-            var (revealShouldActivate, revealThought) = _aiBrains[decision.PlayerSeat]
-                .ChooseLostHpRevealReplacementActivation(
-                    CreateSnapshot(decision.PlayerSeat), skill.Name, _thoughtSequence++);
-            AddThought(revealThought);
-            return revealShouldActivate ? activate : skip;
-        }
-        if (trigger.Effects.FirstOrDefault() is not
-            {
-                Op: SkillProgramTriggerEffectOp.SelectTargets,
-                TargetKind: { } targetKind,
-                TargetAiOrder: SkillProgramTargetAiOrder.HostileThenHandCount
-            } selection)
-            return activate;
-
-        var targetSeats = GetProgramTargetSeats(decision.PlayerSeat, targetKind);
-        var (shouldActivate, thought) = _aiBrains[decision.PlayerSeat]
-            .ChooseHostileHandReplacementActivation(
-                CreateSnapshot(decision.PlayerSeat),
-                targetSeats,
-                selection.MinimumTargets,
-                selection.MaximumTargets,
-                skill.Name,
-                _thoughtSequence++);
-        AddThought(thought);
+            new AiCandidateScore(activateAction,
+                shouldActivate ? estimate.Score : Math.Min(estimate.Score, -1000d),
+                estimate.IsSelfLethal ? "公开效果将令自身失去全部体力。" : estimate.Approximation),
+            new AiCandidateScore(skipAction, 0d, "保留当前状态。")
+        };
+        AddThought(new AiThoughtRecord(
+            _thoughtSequence++, _turnNumber, decision.PlayerSeat,
+            shouldActivate ? activateAction.Description : skipAction.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"组合估值 {estimate.Score:0.##}；{estimate.Approximation}"));
         return shouldActivate ? activate : skip;
     }
 
@@ -2887,86 +2866,32 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             lifecycle.OwnerSeat != decision.PlayerSeat)
             throw new InvalidOperationException("A program choice group lost its lifecycle parent.");
         var owner = _players[decision.PlayerSeat];
-        if (lifecycle.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)
+        var estimated = activateChoices.Select(choice =>
         {
-            var ranked = activateChoices
-                .Select(choice =>
-                {
-                    var skill = _contentRegistry!.GetSkill(choice.Parameters.GetValueOrDefault("skill-id")!);
-                    var trigger = skill.Program!.Triggers.Single(item =>
-                        item.Id == choice.Parameters.GetValueOrDefault("binding-id"));
-                    var score = skill.Program.UsesCompositionKernel
-                        ? EstimateCompositionForAi(owner, trigger.Effects.Select(effect => effect.ToExecutionEffect()),
-                            WithProgramConditionFacts(CreateProgramAiPublicContext(owner), owner, skill.Id,
-                                choice.Parameters["skill-instance-id"])).Estimate.Score
-                        : ScoreTurnStartChoice(owner, trigger);
-                    return (Choice: choice, Score: score);
-                })
-                .OrderByDescending(item => item.Score)
-                .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
-                .ToArray();
-            return ranked[0].Score > 0 || skip is null ? ranked[0].Choice : skip;
-        }
-        if (lifecycle.Window != SkillProgramTriggerWindow.DrawPhaseStarting || skip is null)
-            throw new InvalidOperationException("An optional draw-phase choice group lost its skip branch.");
-        var normalDrawCount = checked((lifecycle.FrozenBaseDrawCount ?? GetTurnDrawCount(owner)) +
-            lifecycle.NormalDrawAdjustment);
-        var choices = activateChoices
-            .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal)
-            .Select(choice =>
-            {
-                var skillId = choice.Parameters.GetValueOrDefault("skill-id")!;
-                var bindingId = choice.Parameters.GetValueOrDefault("binding-id")!;
-                var skill = _contentRegistry!.GetSkill(skillId);
-                var trigger = skill.Program!.Triggers.Single(item => item.Id == bindingId);
-                return (Choice: choice, Skill: skill, Trigger: trigger);
-            })
-            .ToArray();
-        if (choices.All(item => item.Skill.Program!.UsesCompositionKernel))
-        {
-            var estimated = choices.Select(item =>
-            {
-                var estimate = EstimateCompositionForAi(owner,
-                    item.Trigger.Effects.Select(effect => effect.ToExecutionEffect()),
-                    WithProgramConditionFacts(CreateProgramAiPublicContext(item.Trigger, owner, decision.PlayerSeat),
-                        owner, item.Skill.Id,
-                        item.Choice.Parameters.GetValueOrDefault("skill-instance-id")!)).Estimate;
-                var action = new LegalAction(LegalActionKind.UseProgramSkill, null, null,
-                    $"发动【{item.Skill.Name}】");
-                return (item.Choice, Action: action, Estimate: estimate);
-            }).ToArray();
-            var viable = estimated
-                .Where(item => !item.Estimate.IsSelfLethal && item.Estimate.Score > 0d)
-                .OrderByDescending(item => item.Estimate.Score)
-                .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
-                .FirstOrDefault();
-            var skipAction = new LegalAction(
-                LegalActionKind.UseProgramSkill, null, null, "跳过组合技能分支");
-            var selectedAction = viable.Choice is null ? skipAction : viable.Action;
-            var candidates = estimated.Select(item => new AiCandidateScore(
-                    item.Action,
-                    item.Estimate.IsSelfLethal ? -1000d : item.Estimate.Score,
-                    item.Estimate.IsSelfLethal
-                        ? "公开效果将令自身失去全部体力。"
-                        : item.Estimate.Approximation))
-                .Append(new AiCandidateScore(skipAction, 0d, "保留当前状态。"))
-                .OrderByDescending(candidate => candidate.Score)
-                .ToArray();
-            AddThought(new AiThoughtRecord(
-                _thoughtSequence++, _turnNumber, decision.PlayerSeat,
-                selectedAction.Description, candidates,
-                "schema23互斥组使用同一操作目录与公开上下文估值。"));
-            return viable.Choice ?? skip;
-        }
-        foreach (var item in choices)
-        {
-            var (activate, thought) = _aiBrains[decision.PlayerSeat].ChooseDrawPhaseProgramActivation(
-                CreateSnapshot(decision.PlayerSeat), item.Trigger, CreateSkillContext(owner), normalDrawCount,
-                item.Skill.Name, _thoughtSequence++);
-            AddThought(thought);
-            if (activate) return item.Choice;
-        }
-        return skip;
+            var skill = _contentRegistry!.GetSkill(choice.Parameters["skill-id"]);
+            var trigger = skill.Program!.Triggers.Single(item => item.Id == choice.Parameters["binding-id"]);
+            var estimate = EstimateCompositionForAi(owner, trigger.Effects,
+                WithProgramConditionFacts(CreateProgramAiPublicContext(trigger, owner, decision.PlayerSeat),
+                    owner, skill.Id, choice.Parameters["skill-instance-id"])).Estimate;
+            var action = new LegalAction(LegalActionKind.UseProgramSkill, null, null,
+                $"发动【{skill.Name}】");
+            return (Choice: choice, Action: action, Estimate: estimate);
+        }).OrderByDescending(item => item.Estimate.IsSelfLethal ? double.NegativeInfinity : item.Estimate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).ToArray();
+        var best = estimated[0];
+        var activate = skip is null || !best.Estimate.IsSelfLethal && best.Estimate.Score > 0d;
+        var skipAction = new LegalAction(LegalActionKind.UseProgramSkill, null, null, "跳过组合技能分支");
+        var candidates = estimated.Select(item => new AiCandidateScore(
+            item.Action, item.Estimate.IsSelfLethal ? -1000d : item.Estimate.Score,
+            item.Estimate.IsSelfLethal ? "公开效果将令自身失去全部体力。" : item.Estimate.Approximation));
+        if (skip is not null)
+            candidates = candidates.Append(new AiCandidateScore(skipAction, 0d, "保留当前状态。"));
+        AddThought(new AiThoughtRecord(
+            _thoughtSequence++, _turnNumber, decision.PlayerSeat,
+            activate ? best.Action.Description : skipAction.Description,
+            candidates.OrderByDescending(candidate => candidate.Score).ToArray(),
+            "互斥组使用同一操作目录与公开上下文估值。"));
+        return activate ? best.Choice : skip!;
     }
 
     private ProgramAiPublicContext CreateProgramAiPublicContext(
@@ -2993,7 +2918,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 CardActionActorIsOwner = parent.Action.ActorSeat == ownerSeat,
                 CardUseEffectiveKind = parent.Action.EffectiveKind,
                 CardEffectInterventionScore = parent.Action.Type == CardActionType.Use &&
-                    trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.NullifySelectedCardEffects)
+                    trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifySelectedCardEffects)
                     ? parent.Action.EffectiveDesignatedTargetSeats.Distinct()
                         .Where(seat => _players[seat].IsAlive &&
                             _resolutionStack.OfType<CardUseFrame>()
@@ -3010,13 +2935,13 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame drawPhase ||
             drawPhase.Window != SkillProgramTriggerWindow.DrawPhaseStarting ||
             drawPhase.OwnerSeat != ownerSeat)
-            throw new InvalidOperationException("A schema23 draw-phase estimate lost its lifecycle parent.");
+            throw new InvalidOperationException("A draw-phase estimate lost its lifecycle parent.");
         return CreateProgramAiPublicContext(owner) with
         {
             NormalDrawCount = checked((drawPhase.FrozenBaseDrawCount ?? GetTurnDrawCount(owner)) +
                 drawPhase.NormalDrawAdjustment),
             EligibleTargetCount = trigger.Effects.FirstOrDefault(effect =>
-                effect.Op == SkillProgramTriggerEffectOp.SelectTargets)?.TargetKind is { } targetKind
+                effect.Op == SkillProgramEffectOp.SelectTargets)?.TargetKind is { } targetKind
                 ? GetProgramTargetSeats(ownerSeat, targetKind).Count : 0,
             ReplacesNormalDraw = trigger.DrawPhaseMode == SkillProgramDrawPhaseMode.Replacement
         };
@@ -3100,26 +3025,6 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             }, targets);
         return decision.Choices.First(choice => choice.Targets.Contains(selected.TargetSeat ??
             throw new InvalidOperationException("A configured target selection has no published candidate.")));
-    }
-
-    private int ScoreTurnStartChoice(CharacterState owner, SkillProgramTrigger trigger)
-    {
-        var context = CreateSkillContext(owner);
-        var score = 0;
-        foreach (var effect in trigger.Effects.Where(effect => effect.Condition.Evaluate(context)))
-        {
-            score = checked(score + effect.Op switch
-            {
-                SkillProgramTriggerEffectOp.Draw => effect.Amount * 4,
-                SkillProgramTriggerEffectOp.Recover =>
-                    Math.Min(effect.Amount, Math.Max(0, owner.MaxHp - owner.Hp)) *
-                    (owner.Hp <= 1 ? 100 : 6),
-                SkillProgramTriggerEffectOp.ChangeMaximumHp => effect.Amount * 5,
-                SkillProgramTriggerEffectOp.GrantSkills => effect.SkillIds.Count * 10,
-                _ => 0
-            });
-        }
-        return score;
     }
 
     private PromptChoice SelectAiProgramTargets(
@@ -3286,11 +3191,21 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             case SkillProgramTriggerWindow.CardResponseAccepted:
             case SkillProgramTriggerWindow.CardUseCompleted:
                 if (_resolutionStack.LastOrDefault() is not ProgramCardTriggerWindowFrame cardAction ||
-                    cardAction.Id != context.ParentFrameId ||
-                    !cardAction.Candidates[cardAction.CandidateIndex].UsesSharedExecutor)
+                    cardAction.Id != context.ParentFrameId)
                     throw new InvalidOperationException("The card-action program lost its parent cursor.");
                 AdvanceProgramCardCandidate(cardAction);
                 ContinueProgramCardWindow();
+                break;
+            case SkillProgramTriggerWindow.JudgmentFinalized:
+                if (_resolutionStack.LastOrDefault() is not ProgramJudgmentTriggerWindowFrame finalizedWindow ||
+                    finalizedWindow.Id != context.ParentFrameId ||
+                    finalizedWindow.CandidateIndex >= finalizedWindow.Candidates.Count)
+                    throw new InvalidOperationException("The finalized judgment program lost its parent window.");
+                AdvanceProgramJudgmentCandidate(finalizedWindow);
+                ContinueProgramJudgmentWindow();
+                break;
+            case SkillProgramTriggerWindow.JudgmentReplacing:
+                CompleteProgramJudgmentReplacementBinding(frame, completed);
                 break;
             default:
                 throw new InvalidOperationException("Unsupported lifecycle program continuation.");

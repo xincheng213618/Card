@@ -166,14 +166,14 @@ internal static class ClassicGeneralChecks
         { BaseHp: 3, FactionId: "qun" } zhangJiao &&
                 zhangJiao.SkillIds.SequenceEqual(["classic:guidao", "classic:leiji", "classic:huangtian"]) &&
                 classic.Skills["classic:guidao"] is { LegacyKind: null, Program: { } guidao } &&
-                guidao.RuntimeVersion == "skill-program-v8" && guidao.MinimumRulesVersion == 88 &&
+                guidao.RuntimeVersion == "skill-program-v58" && guidao.MinimumRulesVersion == 168 &&
                 guidao.Triggers.Single().Effects.Single().OldCardDestination ==
                     SkillProgramOldJudgmentCardDestination.OwnerHand &&
                 classic.Skills["classic:leiji"] is { LegacyKind: null, Program: { } leiji } &&
-                leiji.RuntimeVersion == "skill-program-v8" && leiji.MinimumRulesVersion == 88 &&
+                leiji.RuntimeVersion == "skill-program-v58" && leiji.MinimumRulesVersion == 168 &&
                 leiji.Triggers.Count == 3 &&
                 classic.Skills["classic:huangtian"] is { LegacyKind: null, Program: { } huangtian } &&
-                huangtian.RuntimeVersion == "skill-program-v8" && huangtian.MinimumRulesVersion == 88 &&
+                huangtian.RuntimeVersion == "skill-program-v58" && huangtian.MinimumRulesVersion == 168 &&
                 huangtian.Contributions.Single().CardKinds.SequenceEqual(
                     [CardKind.Dodge, CardKind.Lightning]) &&
                 spZhaoYunClassic.Skills["classic:guidao"].LegacyKind == SkillKind.Guidao &&
@@ -186,18 +186,18 @@ internal static class ClassicGeneralChecks
                 boundaryZhangJiao.SkillIds.SequenceEqual(
                     ["boundary:leiji", "boundary:guidao", "boundary:huangtian"]) &&
                 classic.Skills["boundary:guidao"] is { LegacyKind: null, Program: { } boundaryGuidao } &&
-                boundaryGuidao.RuntimeVersion == "skill-program-v8" &&
-                boundaryGuidao.MinimumRulesVersion == 88 &&
+                boundaryGuidao.RuntimeVersion == "skill-program-v58" &&
+                boundaryGuidao.MinimumRulesVersion == 168 &&
                 boundaryGuidao.Triggers.Single().Effects[0].OldCardDestination ==
                     SkillProgramOldJudgmentCardDestination.DiscardPile &&
                 boundaryGuidao.Triggers.Single().Effects[1] is
                 {
-                    Op: SkillProgramTriggerEffectOp.Draw,
+                    Op: SkillProgramEffectOp.Draw,
                     MinimumReplacementRank: 2,
                     MaximumReplacementRank: 9
                 } &&
                 classic.Skills["boundary:leiji"] is { LegacyKind: null, Program: { } boundaryLeiji } &&
-                boundaryLeiji.MinimumRulesVersion == 88 && boundaryLeiji.Triggers.Count == 5 &&
+                boundaryLeiji.MinimumRulesVersion == 168 && boundaryLeiji.Triggers.Count == 5 &&
                 classic.Skills["boundary:huangtian"] is { LegacyKind: null, Program: { } boundaryHuangtian } &&
                 boundaryHuangtian.Contributions.Single().CardKinds.SequenceEqual([CardKind.Dodge]) &&
                 boundaryHuangtian.Contributions.Single().CardSuits.SequenceEqual([Suit.Spade]) &&
@@ -217,7 +217,7 @@ internal static class ClassicGeneralChecks
         { Name: "神关羽", BaseHp: 5, FactionId: "god", Gender: GeneralGender.Male } shenGuanYu &&
                 shenGuanYu.SkillIds.SequenceEqual(["classic:wushen", "classic:wuhun"]) &&
                 shenGuanYuClassic.Skills["classic:wushen"] is { LegacyKind: null, Program: { } wushen } &&
-                wushen.RuntimeVersion == "skill-program-v10" && wushen.MinimumRulesVersion == 95 &&
+                wushen.RuntimeVersion == "skill-program-v58" && wushen.MinimumRulesVersion == 168 &&
                 wushen.CardIdentities.Single() is
                 {
                     Id: "heart-hand-as-slash",
@@ -267,7 +267,7 @@ internal static class ClassicGeneralChecks
                 xuShu.SkillIds.SequenceEqual(["classic:wuyan", "classic:jujian"]) &&
                 classic.Skills["classic:wuyan"].LegacyKind == SkillKind.Wuyan &&
                 classic.Skills["classic:jujian"].LegacyKind is null &&
-                classic.Skills["classic:jujian"].Program is { MinimumRulesVersion: 135, UsesCompositionKernel: true } &&
+                classic.Skills["classic:jujian"].Program is { MinimumRulesVersion: 168 } &&
                 wuyanClassic.Skills.ContainsKey("classic:wuyan") &&
                 !wuyanClassic.Skills.ContainsKey("classic:jujian") &&
                 !wuyanClassic.Generals.ContainsKey("classic:xu-shu") &&
@@ -277,13 +277,13 @@ internal static class ClassicGeneralChecks
         { BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } spZhaoYun &&
                 spZhaoYun.SkillIds.SequenceEqual(["sp:longdan", "sp:chongzhen"]) &&
                 classic.Skills["sp:longdan"] is { LegacyKind: null, Program: { } spLongdan } &&
-                spLongdan.RuntimeVersion == "skill-program-v2" && spLongdan.MinimumRulesVersion == 80 &&
+                spLongdan.RuntimeVersion == "skill-program-v58" && spLongdan.MinimumRulesVersion == 168 &&
                 spLongdan.ViewAs.Select(rule => rule.Id)
                     .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
                 spLongdan.ViewAs.Single(rule => rule.Id == "slash-to-dodge").InputKinds
                     .SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
                 classic.Skills["sp:chongzhen"] is { LegacyKind: null, Program: { } spChongzhen } &&
-                spChongzhen.RuntimeVersion == "skill-program-v2" && spChongzhen.Triggers.Count == 3 &&
+                spChongzhen.RuntimeVersion == "skill-program-v58" && spChongzhen.Triggers.Count == 3 &&
                 spChongzhen.Triggers.All(trigger => trigger.Optional && trigger.SourceSkillId == "sp:longdan") &&
                 !xuShuClassic.Skills.ContainsKey("sp:longdan") &&
                 !xuShuClassic.Skills.ContainsKey("sp:chongzhen") &&
@@ -1749,9 +1749,9 @@ internal static class ClassicGeneralChecks
         Require(registry.Skills["classic:luoyi"] is
                 {
                     LegacyKind: null,
-                    Program.UsesCompositionKernel: true
+                    Program: not null
                 } current &&
-                current.Program!.MinimumRulesVersion == 128,
+                current.Program!.MinimumRulesVersion == 168,
             "Current classic Luoyi must publish its draw adjustment program.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
@@ -3006,7 +3006,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:kujin"] is
-                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 153 } program } &&
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
                 program.Activations.Single() is
                 { Id: "lose-hp-and-draw", UsesPerTurn: null },
             "Current Kujin must be a repeatable configured activation.");
@@ -3103,7 +3103,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:longdan"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 152 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
                 program.ViewAs.Select(rule => rule.Id).Order(StringComparer.Ordinal)
                     .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
                 current.Skills["classic:longdan"].Program?.GameplayHash == program.GameplayHash,
@@ -3181,7 +3181,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:qingguo"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 154 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
                 program.ViewAs.Single() is { Id: "black-hand-as-dodge", ForPlay: false, ForResponse: true } rule &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Spade, Suit.Club }.Order()),
             "Current Qingguo must configure black-hand Dodge responses.");
@@ -3238,7 +3238,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:wusheng"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v46", MinimumRulesVersion: 155 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
                 program.ViewAs.Single() is { Id: "red-owned-as-slash", ForPlay: true, ForResponse: true } rule &&
                 rule.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()),
@@ -3336,7 +3336,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:qingnang"] is
-                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v47", MinimumRulesVersion: 157 } program } &&
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
                 program.Activations.Single() is
                 { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
                     MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 },

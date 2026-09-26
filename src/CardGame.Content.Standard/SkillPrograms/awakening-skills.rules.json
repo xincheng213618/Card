@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 25,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "sp:danji",
       "revision": 1,
-      "minimumRulesVersion": 130,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

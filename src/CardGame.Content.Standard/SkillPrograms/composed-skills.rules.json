@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 23,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "composed:draw-plus-one",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [{ "id": "draw-plus-one", "query": "drawCount", "operation": "add", "value": 1, "priority": 0 }],
       "viewAs": [],
       "activations": []
@@ -12,7 +12,7 @@
     {
       "id": "composed:hand-limit-plus-two",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [{ "id": "hand-limit-plus-two", "query": "handLimit", "operation": "add", "value": 2, "priority": 0 }],
       "viewAs": [],
       "activations": []
@@ -20,7 +20,7 @@
     {
       "id": "composed:unlimited-slash",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [{ "id": "unlimited-slash", "query": "slashLimit", "operation": "unlimited", "value": 0, "priority": 0, "condition": { "kind": "ownTurn" } }],
       "viewAs": [],
       "activations": []
@@ -28,7 +28,7 @@
     {
       "id": "composed:hand-to-slash",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [{ "id": "convert", "inputKinds": [], "inputSuits": [], "outputKind": "slash", "forPlay": true, "forResponse": true }],
       "activations": []
@@ -36,7 +36,7 @@
     {
       "id": "composed:hand-to-dodge",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [{ "id": "convert", "inputKinds": [], "inputSuits": [], "outputKind": "dodge", "forPlay": false, "forResponse": true }],
       "activations": []
@@ -44,7 +44,7 @@
     {
       "id": "composed:vital-sequence",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [
@@ -68,7 +68,7 @@
     {
       "id": "composed:give-and-draw",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [
@@ -90,7 +90,7 @@
     {
       "id": "composed:discard-and-recover",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [
@@ -113,7 +113,7 @@
     {
       "id": "composed:red-to-slash",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [{ "id": "red-slash", "inputKinds": [], "inputSuits": ["heart", "diamond"], "outputKind": "slash", "forPlay": true, "forResponse": true }],
       "activations": []
@@ -121,7 +121,7 @@
     {
       "id": "composed:longdan",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [
         { "id": "dodge-to-slash", "inputKinds": ["dodge"], "inputSuits": [], "outputKind": "slash", "forPlay": true, "forResponse": true },
@@ -132,7 +132,7 @@
     {
       "id": "composed:give-and-recover",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [

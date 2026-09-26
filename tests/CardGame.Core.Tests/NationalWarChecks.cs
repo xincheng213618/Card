@@ -183,10 +183,10 @@ internal static class NationalWarChecks
                 {
                     var catalog = SkillProgramCatalog.Load(
                         """
-                        {"schemaVersion":8,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":86,"modifiers":[{"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
+                        {"schemaVersion":58,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":168,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
                         """,
                         """
-                        {"schemaVersion":1,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}
+                        {"schemaVersion":3,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}
                         """);
                     var program = catalog.Programs[programId];
                     var presentation = catalog.Presentations[programId];

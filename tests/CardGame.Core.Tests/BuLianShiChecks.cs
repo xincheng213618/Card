@@ -38,8 +38,7 @@ internal static class BuLianShiChecks
                 zhuiyi.Program?.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.OwnerDied,
-                    Optional: true,
-                    UsesSharedExecutor: true
+                    Optional: true
                 },
             "Current Zhuiyi and Anxu must use programs.");
 
@@ -47,18 +46,10 @@ internal static class BuLianShiChecks
             "CardGame.Content.Standard.SkillPrograms.death-benefit-skills.rules.json");
         var presentation = ReadResource(
             "CardGame.Content.Standard.SkillPrograms.death-benefit-skills.presentation.json");
-        RequireLoadFailure(
-            rules.Replace("\"schemaVersion\": 37", "\"schemaVersion\": 36", StringComparison.Ordinal),
-            presentation,
-            "requires schema version 37");
         var transferRules = ReadResource(
             "CardGame.Content.Standard.SkillPrograms.unequal-hand-transfer-skills.rules.json");
         var transferPresentation = ReadResource(
             "CardGame.Content.Standard.SkillPrograms.unequal-hand-transfer-skills.presentation.json");
-        RequireLoadFailure(
-            transferRules.Replace("\"schemaVersion\": 39", "\"schemaVersion\": 38", StringComparison.Ordinal),
-            transferPresentation,
-            "require schema version 39");
         RequireLoadFailure(
             transferRules.Replace("\"targetKind\": \"otherLivingUnequalHandPair\"",
                 "\"targetKind\": \"otherLivingWithHand\"", StringComparison.Ordinal),

@@ -17,8 +17,8 @@ internal static class JudgmentDrawProgramChecks
                 skill is
                 {
                     LegacyKind: null,
-                    Program.UsesCompositionKernel: true,
-                    Program.MinimumRulesVersion: 128
+                    Program: not null,
+                    Program.MinimumRulesVersion: 168
                 } &&
                 skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
                 trigger is
@@ -29,19 +29,19 @@ internal static class JudgmentDrawProgramChecks
                     Effects:
                     [
                         {
-                            Op: SkillProgramTriggerEffectOp.StartJudgment,
+                            Op: SkillProgramEffectOp.StartJudgment,
                             JudgmentReason: JudgmentReasons.Shuangxiong,
                             ResultBind: "judgment",
                             Visibility: SkillProgramCardSetVisibility.Public
                         },
                         {
-                            Op: SkillProgramTriggerEffectOp.GrantTurnCardConversion,
+                            Op: SkillProgramEffectOp.GrantTurnCardConversion,
                             SourceBind: "judgment",
                             ColorRelation: SkillProgramCardColorRelation.OppositeBoundCard,
                             OutputKind: CardKind.Duel
                         },
                         {
-                            Op: SkillProgramTriggerEffectOp.MoveBoundCards,
+                            Op: SkillProgramEffectOp.MoveBoundCards,
                             SourceBind: "judgment",
                             Destination: SkillProgramCardDestination.OwnerHand
                         }
@@ -50,12 +50,8 @@ internal static class JudgmentDrawProgramChecks
             "Current Shuangxiong must use the judgment draw program.");
 
         Reject(
-            Rules.Replace("\"schemaVersion\":21", "\"schemaVersion\":20", StringComparison.Ordinal)
-                .Replace("\"minimumRulesVersion\":126", "\"minimumRulesVersion\":125", StringComparison.Ordinal),
-            "requires schema 21");
-        Reject(
             Rules.Replace("\"sourceBind\":\"judgment\"", "\"sourceBind\":\"missing\"", StringComparison.Ordinal),
-            "unknown conversion");
+            "unknown card binding 'missing'");
     }
 
     public static void JudgmentBindingConversionAndReplay()
@@ -243,8 +239,8 @@ internal static class JudgmentDrawProgramChecks
     private sealed record Fixture(GameEngine Game, ContentRegistry Registry);
 
     private const string Rules = """
-        {"schemaVersion":21,"skills":[{
-          "id":"fixture:judgment-draw","revision":1,"minimumRulesVersion":126,
+        {"schemaVersion":58,"skills":[{
+          "id":"fixture:judgment-draw","revision":1,"minimumRulesVersion":168,
           "modifiers":[],"viewAs":[],"activations":[],"triggers":[{
             "id":"replace","window":"drawPhaseStarting","subject":"owner","optional":true,
             "drawPhaseMode":"replacement","effects":[
@@ -256,7 +252,7 @@ internal static class JudgmentDrawProgramChecks
         """;
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{
+        {"schemaVersion":3,"skills":{
           "fixture:judgment-draw":{"name":"判定摸牌","description":"测试判定结果绑定。"}
         }}
         """;

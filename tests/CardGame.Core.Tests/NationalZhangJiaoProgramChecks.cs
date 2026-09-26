@@ -31,19 +31,19 @@ internal static class NationalZhangJiaoProgramChecks
             "The formal Qun pair must preserve standard-national vitals and ordered skills.");
 
         Require(registry.Skills["national:leiji"] is { LegacyKind: null, Program: { } leiji } &&
-                leiji.RuntimeVersion == "skill-program-v8" &&
-                leiji.MinimumRulesVersion == 89 &&
+                leiji.RuntimeVersion == "skill-program-v58" &&
+                leiji.MinimumRulesVersion == 168 &&
                 leiji.Triggers.Count == 2 &&
                 leiji.Triggers.Single(trigger => trigger.Id == "spade-damage").Suits
                     .SequenceEqual([Suit.Spade]) &&
                 leiji.Triggers.All(trigger => trigger.Suits.All(suit => suit != Suit.Club)) &&
                 registry.Skills["national:guidao"] is { LegacyKind: null, Program: { } guidao } &&
-                guidao.RuntimeVersion == "skill-program-v8" &&
-                guidao.MinimumRulesVersion == 89 &&
+                guidao.RuntimeVersion == "skill-program-v58" &&
+                guidao.MinimumRulesVersion == 168 &&
                 guidao.Triggers.Single().Effects.Single().OldCardDestination ==
                     SkillProgramOldJudgmentCardDestination.OwnerHand &&
                 !registry.Skills.ContainsKey("national:huangtian"),
-            "National Zhang Jiao must expose only Spade Leiji and owner-hand Guidao at rules 89.");
+            "National Zhang Jiao must expose only Spade Leiji and owner-hand Guidao in the current program schema.");
 
         var mode = registry.Modes["national:zhang-jiao-4"];
         Require(mode is
@@ -102,7 +102,7 @@ internal static class NationalZhangJiaoProgramChecks
         var activation = game.PendingDecision ??
             throw new InvalidOperationException("Formal national Leiji activation was lost.");
         var activate = activation.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         Require(game.Submit(new AnswerPromptCommand(
                 0, activation.PromptId, activate.Id, game.Revision)).Accepted,
             "Formal national Leiji activation was rejected.");
@@ -111,7 +111,7 @@ internal static class NationalZhangJiaoProgramChecks
             throw new InvalidOperationException("Formal national Leiji target choice was lost.");
         Require(targetPrompt is
         {
-            Kind: DecisionKind.ProgramCardTrigger,
+            Kind: DecisionKind.ProgramTrigger,
             PlayerSeat: 0,
             IsPrivate: true
         }, "Formal national Leiji did not publish a private other-character target choice.");
@@ -226,7 +226,7 @@ internal static class NationalZhangJiaoProgramChecks
             RevealPrimary(game);
             for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0 } &&
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
                     game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single() is { } frame &&
                     frame.Candidates[frame.CandidateIndex] is
                     {

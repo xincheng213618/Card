@@ -154,33 +154,8 @@ public sealed partial class GameEngine
         SkillProgramTriggerWindow window, IReadOnlyList<int> opponents, ProgramCardContinuation continuation,
         bool? cardUseCausedDamage = null, ProgramTrickContinuation? trickContinuation = null)
     {
-        var candidates = new List<ProgramCardTriggerCandidate>();
-        foreach (var ownerSeat in action.ConversionChain.Select(source => source.OwnerSeat)
-                     .Append(action.ActorSeat).Distinct().Order())
-        {
-            var owner = _players[ownerSeat];
-            if (!owner.IsAlive) continue;
-            foreach (var binding in EnabledUniqueProgramTriggers(owner, window))
-            {
-                var program = binding.Program;
-                var trigger = binding.Trigger;
-                if (program.UsesCompositionKernel) continue;
-                if (!(trigger.CardKinds.Count > 0
-                             ? ownerSeat == action.ActorSeat && trigger.CardKinds.Contains(action.EffectiveKind)
-                             : action.ConversionChain.Any(source => source.OwnerSeat == ownerSeat &&
-                                 source.SkillId == trigger.SourceSkillId &&
-                                 (trigger.SourceViewAsId is null || source.BindingId == trigger.SourceViewAsId))))
-                    continue;
-                foreach (var opponentSeat in opponents.Distinct())
-                {
-                    var candidate = new ProgramCardTriggerCandidate(ownerSeat, opponentSeat, program.Id,
-                        trigger.Id, program.GameplayHash);
-                    if (CanRunProgramCardTrigger(candidate, trigger)) candidates.Add(candidate);
-                }
-            }
-        }
-        candidates.AddRange(CollectSharedCardActionCandidates(action, window, opponents,
-            cardUseCausedDamage));
+        var candidates = CollectSharedCardActionCandidates(action, window, opponents,
+            cardUseCausedDamage).ToList();
         candidates = candidates
             .OrderByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.OwnerSeat)
@@ -252,31 +227,42 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
-            if (!binding.Program.UsesCompositionKernel || trigger.OwnerRelation is not { } relation ||
+            if (trigger.OwnerRelation is not { } relation ||
                 trigger.CardKinds.Count > 0 && !trigger.CardKinds.Contains(action.EffectiveKind) ||
                 trigger.CardCategories.Count > 0 && (action.Type != CardActionType.Use ||
                     !MatchesProgramCardCategory(action.EffectiveKind, trigger.CardCategories))) continue;
+            var matchingSources = action.ConversionChain.Where(source =>
+                source.OwnerSeat == owner.Seat &&
+                source.SkillId == trigger.SourceSkillId &&
+                (trigger.SourceViewAsId is null || source.BindingId == trigger.SourceViewAsId)).ToArray();
+            if (trigger.SourceSkillId is not null && matchingSources.Length == 0) continue;
             var matches = relation switch
             {
                 SkillProgramCardActionOwnerRelation.Actor => owner.Seat == action.ActorSeat,
                 SkillProgramCardActionOwnerRelation.Target => targets.Contains(owner.Seat),
                 SkillProgramCardActionOwnerRelation.Observer => true,
+                SkillProgramCardActionOwnerRelation.ConversionSource => matchingSources.Length > 0,
                 _ => false
             };
             if (!matches) continue;
-            var eventTarget = relation == SkillProgramCardActionOwnerRelation.Target
-                ? owner.Seat : targets.Count == 1 ? targets.Single() : -1;
-            var facts = CaptureProgramTriggerFacts(owner, action) with
+            var eventTargetsForBinding = relation == SkillProgramCardActionOwnerRelation.ConversionSource
+                ? targets.Where(seat => _players[seat].IsAlive).Order().ToArray()
+                : [relation == SkillProgramCardActionOwnerRelation.Target
+                    ? owner.Seat : targets.Count == 1 ? targets.Single() : -1];
+            foreach (var eventTarget in eventTargetsForBinding)
             {
-                CardUseCausedDamage = cardUseCausedDamage
-            };
-            var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
-                owner.Seat, eventTarget, facts);
-            result.Add(new(owner.Seat, eventTarget, binding.SkillId, trigger.Id,
-                binding.Program.GameplayHash, binding.SkillInstanceId, true, trigger.Priority, context));
+                var facts = CaptureProgramTriggerFacts(owner, action) with
+                {
+                    CardUseCausedDamage = cardUseCausedDamage
+                };
+                var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
+                    owner.Seat, eventTarget, facts);
+                result.Add(new(owner.Seat, eventTarget, binding.SkillId, trigger.Id,
+                    binding.Program.GameplayHash, binding.SkillInstanceId, trigger.Priority, context));
+            }
         }
         return result.DistinctBy(candidate => (action.ActionId, candidate.OwnerSeat, candidate.SkillId,
-            candidate.SkillInstanceId, candidate.TriggerId)).ToArray();
+            candidate.SkillInstanceId, candidate.TriggerId, candidate.OpponentSeat)).ToArray();
     }
 
     private static ProgramTriggerCandidate ToSharedCandidate(ProgramCardTriggerCandidate candidate) =>
@@ -321,43 +307,6 @@ public sealed partial class GameEngine
                     ? SkillProgramTriggerWindow.CardUseTargetsFinalized
                     : SkillProgramTriggerWindow.CardResponseAccepted;
 
-    private bool CanRunProgramCardTrigger(ProgramCardTriggerCandidate candidate, SkillProgramTrigger trigger)
-    {
-        var owner = _players[candidate.OwnerSeat];
-        var opponent = _players[candidate.OpponentSeat];
-        if (!owner.IsAlive || !opponent.IsAlive) return false;
-        var first = trigger.Effects.FirstOrDefault(effect =>
-            effect.Condition.Evaluate(CreateSkillContext(owner)));
-        if (first is null) return false;
-        if (first.Op == SkillProgramTriggerEffectOp.SelectTarget)
-            return GetProgramCardTargetSeats(owner, first).Count > 0;
-        return trigger.Effects.Any(effect =>
-            effect.Condition.Evaluate(CreateSkillContext(owner)) &&
-            (effect.Op != SkillProgramTriggerEffectOp.ObtainOpponentHandCard ||
-             owner.Seat != opponent.Seat && GetHand(opponent).Count > 0));
-    }
-
-    private IReadOnlyList<int> GetProgramCardTargetSeats(
-        CharacterState owner,
-        SkillProgramTriggerEffect effect)
-    {
-        if (effect is not
-            {
-                Op: SkillProgramTriggerEffectOp.SelectTarget,
-                TargetKind: { } targetKind
-            })
-            return [];
-        return _players
-            .Where(target => target.IsAlive &&
-                (targetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded ||
-                 target.Seat != owner.Seat) &&
-                (targetKind is SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.AnyLiving ||
-                 target.Hp < target.MaxHp))
-            .Select(target => target.Seat)
-            .Order()
-            .ToArray();
-    }
-
     private void ContinueProgramCardWindow()
     {
         while (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame frame)
@@ -393,104 +342,20 @@ public sealed partial class GameEngine
             if (program.GameplayHash != candidate.GameplayHash)
                 throw new InvalidOperationException("A running card trigger definition changed.");
             var trigger = program.Triggers.Single(item => item.Id == candidate.TriggerId);
-            var owner = _players[candidate.OwnerSeat];
-            if (candidate.UsesSharedExecutor)
-            {
-                var shared = ToSharedCandidate(candidate);
-                var context = CreateCardActionProgramContext(frame, candidate);
-                if (!CanRunProgramTrigger(shared, context))
-                {
-                    AdvanceProgramCardCandidate(frame);
-                    continue;
-                }
-                if (trigger.Optional)
-                {
-                    ExposeProgramTriggerDecision(shared, context);
-                    return;
-                }
-                BeginProgramBinding(shared, context);
-                return;
-            }
-            if (!frame.Activated)
-            {
-                if (!CanRunProgramCardTrigger(candidate, trigger) ||
-                    !GetSkillBindingShard(owner)!.HasProgram(candidate.SkillId, candidate.GameplayHash))
-                {
-                    AdvanceProgramCardCandidate(frame);
-                    continue;
-                }
-                if (trigger.Optional)
-                {
-                    ExposeProgramCardPrompt(frame, candidate,
-                        [ProgramTriggerChoice("activate", "发动技能", candidate),
-                         ProgramTriggerChoice("skip", "不发动", candidate)]);
-                    return;
-                }
-                _resolutionStack[^1] = frame with { Activated = true };
-                continue;
-            }
-            if (frame.InstructionIndex == trigger.Effects.Count)
+            var shared = ToSharedCandidate(candidate);
+            var context = CreateCardActionProgramContext(frame, candidate);
+            if (!CanRunProgramTrigger(shared, context))
             {
                 AdvanceProgramCardCandidate(frame);
                 continue;
             }
-            var effect = trigger.Effects[frame.InstructionIndex];
-            if (!owner.IsAlive || !effect.Condition.Evaluate(CreateSkillContext(owner)))
+            if (trigger.Optional)
             {
-                _resolutionStack[^1] = frame with { InstructionIndex = frame.InstructionIndex + 1 };
-                continue;
-            }
-            if (effect.Op == SkillProgramTriggerEffectOp.SelectTarget)
-            {
-                ExposeProgramCardTargetPrompt(frame, candidate, effect);
+                ExposeProgramTriggerDecision(shared, context);
                 return;
             }
-            var targetSeat = effect.Target switch
-            {
-                SkillProgramTriggerEffectTarget.Owner => candidate.OwnerSeat,
-                SkillProgramTriggerEffectTarget.Opponent => candidate.OpponentSeat,
-                SkillProgramTriggerEffectTarget.SelectedTarget when frame.SelectedTargetSeat is { } selected => selected,
-                _ => throw new InvalidOperationException("The configured card trigger has no executable target.")
-            };
-            var target = _players[targetSeat];
-            if (effect.Op == SkillProgramTriggerEffectOp.ObtainOpponentHandCard &&
-                _players[candidate.OpponentSeat].IsAlive && GetHand(_players[candidate.OpponentSeat]).Count > 0)
-            {
-                var choices = Enumerable.Range(0, GetHand(_players[candidate.OpponentSeat]).Count)
-                    .Select(slot => ProgramTriggerChoice("take", $"选择第 {slot + 1} 张手牌", candidate, slot)).ToArray();
-                ExposeProgramCardPrompt(frame, candidate, choices);
-                return;
-            }
-            // Advance before executing an effect; a replay/resume never pays it twice.
-            _resolutionStack[^1] = frame with { InstructionIndex = frame.InstructionIndex + 1 };
-            if (effect.Op == SkillProgramTriggerEffectOp.StartJudgment)
-            {
-                if (!target.IsAlive) continue;
-                var judgmentResult = BeginJudgment(
-                    _programCardAttack,
-                    target.Seat,
-                    effect.JudgmentReason ??
-                        throw new InvalidOperationException("A configured judgment has no stable reason."),
-                    frame.Id,
-                    frame.Action.EffectiveKind,
-                    JudgmentContinuationKind.ProgramCard,
-                    damageSkill: null,
-                    sourceSeat: owner.Seat);
-                if (judgmentResult is not null) ContinueProgramCardWindow();
-                return;
-            }
-            if (!target.IsAlive) continue;
-            if (effect.Op == SkillProgramTriggerEffectOp.Draw)
-                DrawCards(target, effect.Amount, log: true, reason: new CardMoveReason($"skill-program.{candidate.SkillId}.draw"));
-            else if (effect.Op == SkillProgramTriggerEffectOp.Recover)
-            {
-                var amount = Math.Min(effect.Amount, target.MaxHp - target.Hp);
-                if (amount <= 0) continue;
-                var recovery = BeginRecovery(frame.Id, owner.Seat, target.Seat, amount);
-                target.Hp += amount;
-                QueueGameEvent(new RecoveryAppliedEvent(owner.Seat, target.Seat, amount, target.Hp));
-                PopResolutionFrame(recovery, ResolutionFrameKind.Recovery);
-            }
+            BeginProgramBinding(shared, context);
+            return;
         }
     }
 
@@ -571,181 +436,8 @@ public sealed partial class GameEngine
         _resolutionStack[^1] = frame with
         {
             CandidateIndex = frame.CandidateIndex + 1,
-            InstructionIndex = 0,
-            Activated = false,
-            SelectedTargetSeat = null
+            Activated = false
         };
-    }
-
-    private static PromptChoice ProgramTriggerChoice(string action, string label,
-        ProgramCardTriggerCandidate candidate, int? slot = null, int? targetSeat = null)
-    {
-        var parameters = new Dictionary<string, string> { ["action"] = "program-trigger-" + action };
-        if (slot is { } value) parameters["slot"] = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        if (targetSeat is { } seat)
-            parameters["target-seat"] = seat.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        var choiceId = targetSeat is { } target
-            ? $"program-trigger.{action}.target-{target}"
-            : $"program-trigger.{action}.{slot}";
-        return new PromptChoice(new ChoiceId(choiceId), label, [],
-            [targetSeat ?? candidate.OpponentSeat], parameters);
-    }
-
-    private void ExposeProgramCardTargetPrompt(
-        ProgramCardTriggerWindowFrame frame,
-        ProgramCardTriggerCandidate candidate,
-        SkillProgramTriggerEffect effect)
-    {
-        var owner = _players[candidate.OwnerSeat];
-        var targetSeats = GetProgramCardTargetSeats(owner, effect);
-        if (targetSeats.Count == 0)
-        {
-            AdvanceProgramCardCandidate(frame);
-            ContinueProgramCardWindow();
-            return;
-        }
-        ExposeProgramCardPrompt(frame, candidate,
-            targetSeats.Select(targetSeat => ProgramTriggerChoice(
-                "select-target", $"选择 {_players[targetSeat].Name} 进行判定", candidate, targetSeat: targetSeat)).ToArray(),
-            targetSeats);
-    }
-
-    private void ExposeProgramCardPrompt(ProgramCardTriggerWindowFrame frame,
-        ProgramCardTriggerCandidate candidate, IReadOnlyList<PromptChoice> choices,
-        IReadOnlyList<int>? validTargetSeats = null)
-    {
-        var owner = _players[candidate.OwnerSeat];
-        _pendingDecision = new PendingDecision(DecisionKind.ProgramCardTrigger, owner.Seat,
-            $"【{_contentRegistry!.Skills[candidate.SkillId].Name}】：{_players[candidate.OpponentSeat].Name}", [],
-            validTargetSeats ?? [],
-            SourceSeat: owner.Seat)
-        {
-            PromptId = CreatePromptId(), IsPrivate = true,
-            TargetSeat = candidate.OpponentSeat, Choices = choices
-        };
-        _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
-    }
-
-    private CommandResult SubmitProgramCardTriggerAnswer(int actorSeat, PromptId prompt, ChoiceId choice)
-    {
-        var error = ValidateHumanPrompt(actorSeat, DecisionKind.ProgramCardTrigger, prompt, CommandErrorCode.IllegalAction);
-        if (error is not null) return Reject(error.Code, error.Message);
-        var selected = _pendingDecision!.Choices.SingleOrDefault(item => item.Id == choice);
-        if (selected is null) return Reject(CommandErrorCode.InvalidChoice, "The card trigger choice is not available.");
-        return Accept(() =>
-        {
-            ResolveProgramCardChoice(selected);
-            PublishState();
-            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
-        });
-    }
-
-    private void ResolveProgramCardChoice(PromptChoice selected)
-    {
-        var frame = _resolutionStack.LastOrDefault() as ProgramCardTriggerWindowFrame
-            ?? throw new InvalidOperationException("Missing card trigger frame.");
-        var candidate = frame.Candidates[frame.CandidateIndex];
-        ClearPendingDecision();
-        switch (selected.Parameters["action"])
-        {
-            case "program-trigger-skip":
-                AdvanceProgramCardCandidate(frame);
-                break;
-            case "program-trigger-activate":
-                _resolutionStack[^1] = frame with { Activated = true };
-                break;
-            case "program-trigger-take":
-                var slot = int.Parse(selected.Parameters["slot"], System.Globalization.CultureInfo.InvariantCulture);
-                var opponent = _players[candidate.OpponentSeat];
-                var cards = GetHand(opponent);
-                _resolutionStack[^1] = frame with { InstructionIndex = frame.InstructionIndex + 1 };
-                if (opponent.IsAlive && _players[candidate.OwnerSeat].IsAlive && slot >= 0 && slot < cards.Count)
-                    MoveCard(cards[slot], CardLocation.Hand(opponent.Seat), CardLocation.Hand(candidate.OwnerSeat),
-                        new CardMoveReason($"skill-program.{candidate.SkillId}.obtainOpponentHandCard"));
-                break;
-            case "program-trigger-select-target":
-                var program = _contentRegistry!.Skills[candidate.SkillId].Program ??
-                    throw new InvalidOperationException("The card trigger target program is unavailable.");
-                if (program.GameplayHash != candidate.GameplayHash)
-                    throw new InvalidOperationException("A running card trigger target definition changed.");
-                var trigger = program.Triggers.Single(item => item.Id == candidate.TriggerId);
-                var selectionEffect = trigger.Effects[frame.InstructionIndex];
-                var legalTargets = GetProgramCardTargetSeats(_players[candidate.OwnerSeat], selectionEffect);
-                if (selected.Targets is not [var targetSeat] || !legalTargets.Contains(targetSeat))
-                    throw new InvalidOperationException("The selected card-trigger judgment target is no longer legal.");
-                _resolutionStack[^1] = frame with
-                {
-                    InstructionIndex = frame.InstructionIndex + 1,
-                    SelectedTargetSeat = targetSeat
-                };
-                QueueGameEvent(new ProgramCardTargetSelectedEvent(
-                    frame.Id,
-                    frame.Action.ActionId,
-                    candidate.SkillId,
-                    candidate.TriggerId,
-                    candidate.OwnerSeat,
-                    targetSeat));
-                break;
-            default: throw new InvalidOperationException("Unsupported card trigger choice.");
-        }
-        ContinueProgramCardWindow();
-    }
-
-    private void ResolvePendingAiProgramCardChoice()
-    {
-        var decision = _pendingDecision ??
-            throw new InvalidOperationException("AI card-trigger prompt is missing.");
-        if (decision.Kind != DecisionKind.ProgramCardTrigger || _players[decision.PlayerSeat].IsHuman)
-            throw new InvalidOperationException("The pending card-trigger prompt cannot use the AI route.");
-        var first = decision.Choices[0];
-        if (first.Parameters.GetValueOrDefault("action") == "program-trigger-activate" &&
-            _resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame activationFrame)
-        {
-            var candidate = activationFrame.Candidates[activationFrame.CandidateIndex];
-            var program = _contentRegistry!.Skills[candidate.SkillId].Program!;
-            var trigger = program.Triggers.Single(item => item.Id == candidate.TriggerId);
-            var nextEffect = trigger.Effects[activationFrame.InstructionIndex];
-            if (nextEffect.Op == SkillProgramTriggerEffectOp.SelectTarget)
-            {
-                var targetSeats = GetProgramCardTargetSeats(_players[candidate.OwnerSeat], nextEffect);
-                var (preferredTargetSeat, thought) = _aiBrains[decision.PlayerSeat].ChooseLeijiTarget(
-                    CreateSnapshot(decision.PlayerSeat), targetSeats, ++_thoughtSequence);
-                AddThought(thought);
-                if (preferredTargetSeat is null)
-                {
-                    ResolveProgramCardChoice(decision.Choices.Single(choice =>
-                        choice.Parameters.GetValueOrDefault("action") == "program-trigger-skip"));
-                    PublishState();
-                    return;
-                }
-                ResolveProgramCardChoice(first);
-                if (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame targetFrame &&
-                    _pendingDecision is { Kind: DecisionKind.ProgramCardTrigger })
-                    _resolutionStack[^1] = targetFrame with { SelectedTargetSeat = preferredTargetSeat };
-                PublishState();
-                return;
-            }
-        }
-        if (first.Parameters.GetValueOrDefault("action") != "program-trigger-select-target")
-        {
-            ResolveProgramCardChoice(first);
-            return;
-        }
-        var frame = _resolutionStack.LastOrDefault() as ProgramCardTriggerWindowFrame ??
-            throw new InvalidOperationException("AI card-trigger target prompt lost its frame.");
-        var targetSeat = frame.SelectedTargetSeat;
-        if (targetSeat is null)
-        {
-            var (fallbackSeat, thought) = _aiBrains[decision.PlayerSeat].ChooseLeijiTarget(
-                CreateSnapshot(decision.PlayerSeat), decision.ValidTargetSeats, ++_thoughtSequence);
-            AddThought(thought);
-            targetSeat = fallbackSeat;
-        }
-        var selected = targetSeat is { } seat
-            ? decision.Choices.Single(choice => choice.Targets.SequenceEqual([seat]))
-            : first;
-        ResolveProgramCardChoice(selected);
-        PublishState();
     }
 
     private void AssertProgramCardWindowState()
@@ -753,7 +445,7 @@ public sealed partial class GameEngine
         var frames = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().ToArray();
         if (frames.Length == 0)
         {
-            if (_programCardAttack is not null || _pendingDecision?.Kind == DecisionKind.ProgramCardTrigger)
+            if (_programCardAttack is not null)
                 throw new InvalidOperationException("A card trigger continuation lost its frame.");
             return;
         }
@@ -761,28 +453,17 @@ public sealed partial class GameEngine
         var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
         var resolvingProgramJudgmentDamage =
             _pendingAttack is { IsProgramJudgmentDamage: true } &&
-            _pendingJudgment?.Continuation == JudgmentContinuationKind.ProgramCard;
+            _pendingJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
         var attackMatches = resolvingProgramJudgmentDamage ||
             (frame.Continuation is ProgramCardContinuation.DelayedCard or
                     ProgramCardContinuation.BeforeTrickTargetEffects
                 ? _programCardAttack is null && _pendingAttack is null
                 : _programCardAttack is not null && ReferenceEquals(_programCardAttack, _pendingAttack));
-        var judgmentIsActive =
-            _pendingJudgment is { Continuation: JudgmentContinuationKind.ProgramCard } judgment &&
-            judgment.ParentFrameId == frame.Id &&
-            ReferenceEquals(judgment.Attack, _programCardAttack);
         var candidateCursorValid = frame.CandidateIndex >= 0 &&
                                    frame.CandidateIndex < frame.Candidates.Count;
-        var directPromptMatches = !judgmentIsActive &&
-            candidateCursorValid &&
-            ReferenceEquals(_resolutionStack.Last(), frame) &&
-            _pendingDecision is { Kind: DecisionKind.ProgramCardTrigger } prompt &&
-            prompt.PlayerSeat == frame.Candidates[frame.CandidateIndex].OwnerSeat &&
-            prompt.Choices.Count > 0 &&
-            prompt.Choices.All(choice => choice.Cards.Count == 0);
         var candidate = candidateCursorValid ? frame.Candidates[frame.CandidateIndex] : null;
         var sharedContext = candidate?.FrozenContext;
-        var sharedIdentityMatches = candidate is { UsesSharedExecutor: true } &&
+        var sharedIdentityMatches = candidate is not null &&
             sharedContext is { CardUse: { } cardUse } && sharedContext.ParentFrameId == frame.Id &&
             cardUse.ParentCardUseFrameId == frame.ParentFrameId && cardUse.CardActionId == frame.Action.ActionId;
         var sharedPromptMatches = sharedIdentityMatches && ReferenceEquals(_resolutionStack.Last(), frame) &&
@@ -803,7 +484,7 @@ public sealed partial class GameEngine
             frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
             !trickContinuationMatches ||
             !candidateCursorValid ||
-            (!judgmentIsActive && !directPromptMatches && !sharedPromptMatches && !sharedChildMatches) ||
+            !sharedPromptMatches && !sharedChildMatches ||
              frame.Action.PhysicalCards.Any(cost =>
                  frame.Continuation == ProgramCardContinuation.CompletedSlash
                      ? _cardZones.GetLocation(cost.CardId).Zone is not

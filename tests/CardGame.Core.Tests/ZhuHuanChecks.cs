@@ -21,15 +21,12 @@ internal static class ZhuHuanChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: "skill-program-v54", MinimumRulesVersion: 164,
-                    UsesCompositionKernel: true } &&
+                skill.Program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
                 skill.Program.Triggers.Single().Window == SkillProgramTriggerWindow.TurnEnding &&
                 (int)SkillProgramConditionKind.BoundCardsMatchKinds == 20,
             "Zhu Huan must be a formal Wu/Fame IV general using the reusable schema-54 condition.");
         var rules = Resource(RulesResource);
         var presentation = Resource(PresentationResource);
-        Reject(rules.Replace("\"schemaVersion\": 54", "\"schemaVersion\": 53", StringComparison.Ordinal),
-            presentation, "schema-54");
         Reject(rules.Replace("\"sourceBind\": \"discarded-card\",", "", StringComparison.Ordinal),
             presentation, "sourceBind");
         Reject(rules.Replace("\"sourceBind\": \"discarded-card\"", "\"sourceBind\": \"future-card\"", StringComparison.Ordinal),
@@ -207,7 +204,7 @@ internal static class ZhuHuanChecks
         var owner = new PlayerSkillContext(0, 4, 4, 1, TurnPhase.Play, IsOwnTurn: true);
         var target = new PlayerSkillContext(1, 4, 4, 1, TurnPhase.Play, IsOwnTurn: false);
         var estimate = ProgramCompositionAi.Estimate(
-            zhuProgram.Triggers.Single().Effects.Select(effect => effect.ToExecutionEffect()),
+            zhuProgram.Triggers.Single().Effects,
             owner, publicContext: new ProgramAiPublicContext(0, SelectedTarget: target));
         Require(estimate.Hint.TargetValueAdjustment < 0 && estimate.Score == 0,
             "Shared public AI must count one conditional target-to-owner transfer against one own discard.");
@@ -217,7 +214,7 @@ internal static class ZhuHuanChecks
     {
         var juzhan = StandardContentRegistry.CreateWithClassicGenerals().Skills["classic:juzhan"].Program!;
         var effects = juzhan.Triggers.Single(trigger => trigger.Id == "yin-attacking")
-            .Effects.Select(effect => effect.ToExecutionEffect()).ToArray();
+            .Effects.ToArray();
         var owner = new PlayerSkillContext(0, 4, 4, 2, TurnPhase.Play, IsOwnTurn: true);
         ProgramAiEstimate Estimate(int publiclyKnownHandCount, bool omitTransfer)
         {

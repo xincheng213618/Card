@@ -20,7 +20,7 @@ internal static class GaoShunChecks
                 general.FactionId == "qun" &&
                 general.BaseHp == 4 &&
                 general.SkillIds.SequenceEqual([XianzhenSkillId, JinjiuSkillId]) &&
-                xianzhen.LegacyKind is null && xianzhen.Program?.UsesCompositionKernel == true &&
+                xianzhen.LegacyKind is null && xianzhen.Program is not null &&
                 xianzhen.ExecutionForms == SkillExecutionForm.State &&
                 xianzhen.ActionForms == SkillActionForm.Active &&
                 jinjiu.Tags == SkillTag.Locked &&
@@ -30,7 +30,7 @@ internal static class GaoShunChecks
                     Id: "alcohol-hand-as-slash",
                     OutputKind: CardKind.Slash
                 } &&
-                jinjiu.Program!.MinimumRulesVersion == 94 &&
+                jinjiu.Program!.MinimumRulesVersion == 168 &&
                 identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
                 identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
                 current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId),

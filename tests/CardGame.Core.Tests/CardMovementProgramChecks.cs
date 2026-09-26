@@ -12,7 +12,7 @@ internal static class CardMovementProgramChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ScenarioPackage.SkillId];
         var perCard = program.Triggers.Single(trigger => trigger.Id == "per-card");
         var emptyBatch = program.Triggers.Single(trigger => trigger.Id == "empty-batch");
-        Require(program.RuntimeVersion == "skill-program-v14" && program.MinimumRulesVersion == 119 &&
+        Require(program.RuntimeVersion == "skill-program-v58" && program.MinimumRulesVersion == 168 &&
                 perCard is
                 {
                     Window: SkillProgramTriggerWindow.CardsMoved,
@@ -25,8 +25,6 @@ internal static class CardMovementProgramChecks
                 !emptyBatch.Condition.Evaluate(new SkillProgramTriggerFacts(0, 4, true, 1, 2, 1)),
             "Schema 14 must freeze source-zone, occurrence, ordering and movement-count semantics.");
 
-        Reject(Rules.Replace("\"schemaVersion\":14", "\"schemaVersion\":13", StringComparison.Ordinal),
-            "cardsMoved requires schema version 14");
         Reject(Rules.Replace("\"sourceZones\":[\"hand\"]", "\"sourceZones\":[]", StringComparison.Ordinal),
             "exactly one owner-scoped source zone");
         Reject(Rules.Replace("\"sourceZones\":[\"hand\"]",
@@ -34,13 +32,15 @@ internal static class CardMovementProgramChecks
             "exactly one owner-scoped source zone");
         Reject(Rules.Replace("\"movementOccurrence\":\"perCard\",", string.Empty, StringComparison.Ordinal),
             "movementOccurrence");
-        Reject(Rules.Replace("\"op\":\"draw\",\"target\":\"owner\",\"amount\":1",
-                "\"op\":\"recover\",\"target\":\"owner\",\"amount\":1", StringComparison.Ordinal),
-            "only owner draw effects");
+        Require(SkillProgramCatalog.Load(Rules.Replace("\"op\":\"draw\",\"target\":\"owner\",\"amount\":1",
+                "\"op\":\"recover\",\"target\":\"owner\",\"amount\":1", StringComparison.Ordinal), Presentation)
+                .Programs[ScenarioPackage.SkillId].Triggers.Any(trigger =>
+                    trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.Recover)),
+            "Current movement triggers must use the common effect catalog.");
 
         const string wrongWindow = """
-            {"schemaVersion":14,"skills":[{"id":"fixture:wrong-window","revision":1,
-            "minimumRulesVersion":119,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
+            {"schemaVersion":58,"skills":[{"id":"fixture:wrong-window","revision":1,
+            "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
             {"id":"binding","window":"turnEnding","subject":"owner","optional":true,"priority":0,
             "condition":{"kind":"compare","left":{"kind":"movedCardCount"},"operator":"greaterThan",
             "right":{"kind":"integerConstant","value":0}},
@@ -48,14 +48,14 @@ internal static class CardMovementProgramChecks
             "contributions":[],"cardIdentities":[]}]}
             """;
         const string wrongPresentation =
-            "{\"schemaVersion\":1,\"skills\":{\"fixture:wrong-window\":{\"name\":\"Wrong\",\"description\":\"Wrong\"}}}";
+            "{\"schemaVersion\":3,\"skills\":{\"fixture:wrong-window\":{\"name\":\"Wrong\",\"description\":\"Wrong\"}}}";
         Reject(wrongWindow, wrongPresentation, "only by cardsMoved");
 
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         foreach (var skillId in new[] { "classic:xiaoji", "classic:lianying" })
         {
             Require(current.Skills[skillId].Program is
-                    { UsesCompositionKernel: true, MinimumRulesVersion: 128 } migrated &&
+                    { MinimumRulesVersion: 168 } migrated &&
                     migrated.Triggers.Single().Window == SkillProgramTriggerWindow.CardsMoved,
                 $"Package 1.100 must publish {skillId} through the schema-14 card-movement window.");
         }
@@ -324,8 +324,8 @@ internal static class CardMovementProgramChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":14,"skills":[{"id":"fixture:card-movement","revision":1,
-        "minimumRulesVersion":119,"modifiers":[],"viewAs":[],
+        {"schemaVersion":58,"skills":[{"id":"fixture:card-movement","revision":1,
+        "minimumRulesVersion":168,"modifiers":[],"viewAs":[],
         "activations":[{"id":"discard-two","minCards":2,"maxCards":2,"minTargets":0,
         "maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
         "effects":[{"op":"discardSelected","target":"owner","amount":2}]}],
@@ -345,7 +345,7 @@ internal static class CardMovementProgramChecks
         """;
 
     private const string Presentation =
-        "{\"schemaVersion\":1,\"skills\":{\"fixture:card-movement\":{\"name\":\"Movement\",\"description\":\"Fixture\"}}}";
+        "{\"schemaVersion\":3,\"skills\":{\"fixture:card-movement\":{\"name\":\"Movement\",\"description\":\"Fixture\"}}}";
 
     private sealed class ScenarioPackage(SkillProgram program) : IGameContentPackage
     {

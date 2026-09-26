@@ -27,7 +27,7 @@ internal static class CaoZhangChecks
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } skill &&
-                skill.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
+                skill.Program is { MinimumRulesVersion: 168 },
             "Current Cao Zhang must publish grouped Jiangchi through its program.");
 
         var fixture = FindFixture();

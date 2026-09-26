@@ -115,14 +115,14 @@ internal static class GroupClaimChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":53,"skills":[{"id":"fixture:claimant-after-damage-loss",
-                "revision":1,"minimumRulesVersion":163,"modifiers":[],"viewAs":[],"activations":[],
+                {"schemaVersion":58,"skills":[{"id":"fixture:claimant-after-damage-loss",
+                "revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],
                 "triggers":[{"id":"lose-after-claim","window":"afterDamageApplied","subject":"owner",
                 "damageOccurrence":"perDamage","optional":false,"priority":-1,
                 "effects":[{"op":"loseHp","target":"owner","amount":1}]}],
                 "contributions":[],"cardIdentities":[]}]}
                 """, """
-                {"schemaVersion":1,"skills":{"fixture:claimant-after-damage-loss":
+                {"schemaVersion":3,"skills":{"fixture:claimant-after-damage-loss":
                 {"name":"受伤后失去体力","description":"测试伤害后领取牌与后续失去体力的顺序。"}}}
                 """);
             var program = catalog.Programs[FatalAfterDamageId];

@@ -19,7 +19,7 @@ internal enum ProgramOperationAiSemantic
     Damage, Pindian, ChangeMaximumHp, GrantSkills, ChooseOption, SelectOwnedCards,
     GrantTurnHandColorRestriction, PreventCurrentDamage, CaptureSelectedCards,
     RevealBoundCards, ChooseDifferentCategoryDiscard, UseSelectedCardsAs, GrantTurnSkills,
-    ChangeAttributedMarker, CauseDeath, DyingRescue, ChooseOtherOwnedCardDiscard,
+    ChangeAttributedMarker, CauseDeath, ReplaceJudgment, DyingRescue, ChooseOtherOwnedCardDiscard,
     DistributeOwnedCards, RequestAttackRangeAid, NullifyCurrentCardEffect, NullifySelectedCardEffects
 }
 internal sealed record ProgramOperationAiPolicy(
@@ -46,6 +46,7 @@ internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
 internal sealed record ReadSelectedTarget : ProgramResourceOperation;
 internal sealed record ReadTargetSet(int Minimum) : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
+internal sealed record RequireAnyContext(ProgramContextCapability Capabilities) : ProgramResourceOperation;
 internal sealed record SelectSingleTarget : ProgramResourceOperation;
 internal sealed record ReplaceSingleTarget : ProgramResourceOperation;
 internal sealed record ConsumeSelectedCards(int Count) : ProgramResourceOperation;
@@ -316,8 +317,11 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
         .Where(reference => reference is not null)
         .SelectMany(reference => reference!.Kind switch
         {
-            ProgramParticipantRef.Actor or ProgramParticipantRef.EventTarget =>
+            ProgramParticipantRef.Actor =>
                 new ProgramResourceOperation[] { new RequireContext(ProgramContextCapability.CardAction) },
+            ProgramParticipantRef.EventTarget =>
+                new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.CardAction |
+                    ProgramContextCapability.Damage | ProgramContextCapability.Judgment) },
             ProgramParticipantRef.EventSource =>
                 new ProgramResourceOperation[] { new RequireContext(ProgramContextCapability.Damage) },
             ProgramParticipantRef.SelectedTarget =>
@@ -340,7 +344,8 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         static (effect, context) => context.Draw(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "resultBind", "targetRef", "condition");
+        r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "resultBind", "targetRef", "condition",
+            "replacementSuits", "minimumReplacementRank", "maximumReplacementRank");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target == SkillProgramEffectTarget.SelectedTargets &&
             (r.Has("numberExpression") || r.Has("sourceBind") || r.Has("resultBind")))
@@ -363,8 +368,16 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         if (targetRef is not null && targetRef.Kind is not
             (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: draw requires eventSource or eventTarget.");
+        var replacementSuits = r.OptionalEnumArray<Suit>("replacementSuits") ?? [];
+        var minimumReplacementRank = r.Has("minimumReplacementRank") ? r.RequiredInt("minimumReplacementRank") : 0;
+        var maximumReplacementRank = r.Has("maximumReplacementRank") ? r.RequiredInt("maximumReplacementRank") : 0;
+        if ((replacementSuits.Count > 0) != (minimumReplacementRank > 0 && maximumReplacementRank > 0) ||
+            replacementSuits.Count > 0 && (minimumReplacementRank > maximumReplacementRank || maximumReplacementRank > 13))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: replacement suits and valid rank bounds must appear together.");
         var effect = new SkillProgramEffect(Op, target, amount, r.Condition(), numberExpression: expression,
-            sourceBind: source, resultBind: bind, targetReference: targetRef);
+            sourceBind: source, resultBind: bind, targetReference: targetRef,
+            replacementSuits: replacementSuits, minimumReplacementRank: minimumReplacementRank,
+            maximumReplacementRank: maximumReplacementRank);
         if (bind is not null && target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound draws require owner target.");
         if (bind is not null) RequireAlways(effect, r.Path);
@@ -378,9 +391,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
             .Concat(effect.ResultBind is { } bind
                 ? new ProgramResourceOperation[] { new CreateCardSet(bind, effect.NumberExpression is null ? effect.Amount : int.MaxValue, false) }
                 : Array.Empty<ProgramResourceOperation>())),
-            ..(effect.TargetReference?.Kind == ProgramParticipantRef.EventTarget
-                ? new ProgramResourceOperation[] { new RequireContext(ProgramContextCapability.Damage) }
-                : ParticipantResources(effect.TargetReference))];
+            ..ParticipantResources(effect.TargetReference)];
     internal static int Amount(ProgramOperationNodeReader r, int maximum)
     {
         var amount = r.RequiredInt("amount");
@@ -398,20 +409,30 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
         static (effect, context) => context.Recover(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "condition");
+        r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "condition",
+            "replacementSuits", "minimumReplacementRank", "maximumReplacementRank");
+        var replacementSuits = r.OptionalEnumArray<Suit>("replacementSuits") ?? [];
+        var minimumReplacementRank = r.Has("minimumReplacementRank") ? r.RequiredInt("minimumReplacementRank") : 0;
+        var maximumReplacementRank = r.Has("maximumReplacementRank") ? r.RequiredInt("maximumReplacementRank") : 0;
+        if ((replacementSuits.Count > 0) != (minimumReplacementRank > 0 && maximumReplacementRank > 0) ||
+            replacementSuits.Count > 0 && (minimumReplacementRank > maximumReplacementRank || maximumReplacementRank > 13))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: replacement suits and valid rank bounds must appear together.");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (!r.Has("numberExpression"))
         {
             if (r.Has("sourceBind"))
                 throw new InvalidOperationException($"Invalid skill program at {r.Path}: constant recovery cannot read a card binding.");
-            return new(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition());
+            return new(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
+                replacementSuits: replacementSuits, minimumReplacementRank: minimumReplacementRank,
+                maximumReplacementRank: maximumReplacementRank);
         }
         if (r.Has("amount")) throw new InvalidOperationException($"Invalid skill program at {r.Path}: recover accepts amount or numberExpression.");
         var expression = r.RequiredEnum<SkillProgramNumberExpression>("numberExpression");
         if (expression != SkillProgramNumberExpression.BoundCardCount)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.numberExpression: only boundCardCount is supported.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), numberExpression: expression,
-            sourceBind: r.RequiredIdentifier("sourceBind"));
+            sourceBind: r.RequiredIdentifier("sourceBind"), replacementSuits: replacementSuits,
+            minimumReplacementRank: minimumReplacementRank, maximumReplacementRank: maximumReplacementRank);
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound-card recovery requires owner.");
         return effect;

@@ -28,9 +28,9 @@ internal static class SkillProgramTargetOrderChecks
         Require(game.Submit(new PlayCardCommand(0, selected.CardId!.Value, selected.TargetSeats,
             game.Revision, game.PendingDecision!.PromptId, selected.PlayedCardKind)
             { ConversionSource = selected.ConversionSource }).Accepted, "Converted multi-target Slash was rejected.");
-        for (var step = 0; step < 10 && game.PendingDecision?.Kind != DecisionKind.ProgramCardTrigger; step++)
+        for (var step = 0; step < 10 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Target prepass did not advance.");
-        Require(game.PendingDecision?.Kind == DecisionKind.ProgramCardTrigger, "Final targets did not open a program window.");
+        Require(game.PendingDecision?.Kind == DecisionKind.ProgramTrigger, "Final targets did not open a program window.");
         var redirects = game.Events.Select(item => item.Payload).OfType<LiuliRedirectedEvent>().ToArray();
         var use = game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>()
             .Single(item => item.Action.Type == CardActionType.Use).Action;
@@ -41,10 +41,10 @@ internal static class SkillProgramTargetOrderChecks
         var paused = game.CreateCheckpoint();
         game = GameReplay.Restore(paused, registry);
         var seenTargets = new List<int>();
-        while (game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger } prompt)
+        while (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger } prompt)
         {
             seenTargets.Add(prompt.TargetSeat!.Value);
-            var skip = prompt.Choices.Single(choice => choice.Parameters["action"] == "program-trigger-skip");
+            var skip = prompt.Choices.Single(choice => choice.Parameters["program-action"] == "skip");
             Require(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, skip.Id, game.Revision)).Accepted,
                 "Target trigger could not be skipped.");
         }
@@ -66,12 +66,12 @@ internal static class SkillProgramTargetOrderChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":2,"skills":[
+                {"schemaVersion":58,"skills":[
                   {"id":"target-order:swap","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-                  {"id":"target-order:draw","revision":1,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"target-order:swap","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
+                  {"id":"target-order:draw","revision":1,"minimumRulesVersion":168,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","ownerRelation":"conversionSource","sourceSkillId":"target-order:swap","sourceViewAsId":"slash","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
                 ]}
                 """, """
-                {"schemaVersion":1,"skills":{
+                {"schemaVersion":3,"skills":{
                   "target-order:swap":{"name":"转换","description":"测试转换"},
                   "target-order:draw":{"name":"摸牌","description":"测试触发"}
                 }}

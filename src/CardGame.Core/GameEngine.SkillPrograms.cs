@@ -11,8 +11,7 @@ public sealed partial class GameEngine
     private readonly Dictionary<(int ProviderSeat, int SkillOwnerSeat, string Skill, string Contribution), int>
         _programContributionUses = new();
 
-    // Compatibility inspection surface for existing diagnostics and tests. The
-    // result is projected by the match-local index and does not scan registry values.
+    // The match-local index supplies the owner's distinct enabled programs.
     private IReadOnlyList<SkillProgram> EnabledSkillPrograms(CharacterState player) =>
         _contentRegistry is null
             ? []
@@ -193,29 +192,14 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         PlayerSkillContext context,
         bool faceDown)
     {
-        if (program.UsesCompositionKernel)
-        {
-            var owner = _players[context.Seat];
-            var instanceId = GetRuntimeSkillInstanceId(owner, program.Id);
-            return ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
-                CreateProgramAiPublicContext(owner) with
-                {
-                    ActivationCardCount = activation.MinCards,
-                    BooleanState = stateId => GetProgramBooleanState(owner.Seat, program.Id, instanceId, stateId)
-                }).Hint;
-        }
-        var effects = activation.Effects.Where(effect => effect.Condition.Evaluate(context)).ToArray();
-        int Sum(SkillProgramEffectOp op, SkillProgramEffectTarget target) =>
-            effects.Where(effect => effect.Op == op && effect.Target == target).Sum(effect => effect.Amount);
-        return new SkillProgramAiHint(
-            Sum(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner),
-            Sum(SkillProgramEffectOp.Recover, SkillProgramEffectTarget.Owner),
-            Sum(SkillProgramEffectOp.LoseHp, SkillProgramEffectTarget.Owner),
-            Sum(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.SelectedTarget),
-            Sum(SkillProgramEffectOp.Recover, SkillProgramEffectTarget.SelectedTarget),
-            Sum(SkillProgramEffectOp.LoseHp, SkillProgramEffectTarget.SelectedTarget),
-            effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected),
-            effects.Any(effect => effect.Op == SkillProgramEffectOp.DiscardSelected));
+        var owner = _players[context.Seat];
+        var instanceId = GetRuntimeSkillInstanceId(owner, program.Id);
+        return ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
+            CreateProgramAiPublicContext(owner) with
+            {
+                ActivationCardCount = activation.MinCards,
+                BooleanState = stateId => GetProgramBooleanState(owner.Seat, program.Id, instanceId, stateId)
+            }).Hint;
     }
 
     private static CommandError? ValidateProgramSelection(LegalAction action,
@@ -377,9 +361,14 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         ProgramSkillFrame frame,
         int targetSeat,
         int amount,
-        ProgramParticipantReference? sourceReference = null)
+        ProgramParticipantReference? sourceReference = null,
+        DamageNature? nature = null)
     {
-        if (_pendingAttack is not null || _pendingDying is not null ||
+        var judgmentNested = frame.WindowContext?.Judgment is { } frozenJudgment &&
+            _pendingJudgment is { } pendingJudgment &&
+            pendingJudgment.FrameId == frozenJudgment.JudgmentFrameId &&
+            ReferenceEquals(_pendingAttack, pendingJudgment.Attack);
+        if (_pendingAttack is not null && !judgmentNested || _pendingDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
@@ -389,8 +378,25 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             targetSeat,
             card: null,
             damageAmount: amount,
-            damageNatureOverride: DamageNature.Normal,
+            damageNatureOverride: nature ?? DamageNature.Normal,
+            programJudgmentFrameId: frame.WindowContext?.Window == SkillProgramTriggerWindow.JudgmentFinalized
+                ? frame.WindowContext.ParentFrameId : null,
             programSkillFrameId: frame.Id);
+        if (frame.WindowContext?.Judgment is { } judgment)
+        {
+            QueueGameEvent(new ProgramJudgmentDamageRequestedEvent(
+                frame.WindowContext.ParentFrameId,
+                judgment.JudgmentFrameId,
+                frame.SkillId,
+                frame.TriggerId!,
+                attack.SourceSeat,
+                targetSeat,
+                amount,
+                nature ?? DamageNature.Normal));
+            AddLog("SkillTriggered",
+                $"{_players[attack.SourceSeat].Name} 的【{_contentRegistry!.Skills[frame.SkillId].Name}】将对 {_players[targetSeat].Name} 造成 {amount} 点{GetDamageNatureLabel(nature ?? DamageNature.Normal)}伤害。",
+                attack.SourceSeat, targetSeat);
+        }
         _pendingAttack = attack;
         if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
         return SkillProgramStepOutcome.AwaitChild;

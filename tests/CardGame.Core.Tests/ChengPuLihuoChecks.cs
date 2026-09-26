@@ -32,7 +32,7 @@ internal static class ChengPuLihuoChecks
         var latest = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = latest.Skills[LihuoSkillId];
         Require(skill.Program is
-                { RuntimeVersion: "skill-program-v52", MinimumRulesVersion: 162 } currentProgram &&
+                { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } currentProgram &&
                 currentProgram.Modifiers.Single() is
                 { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } &&
                 currentProgram.Modifiers.Single().CardKinds.SequenceEqual([CardKind.FireSlash]) &&
@@ -333,11 +333,11 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rules.Replace("\"schemaVersion\": 40", "\"schemaVersion\": 39", StringComparison.Ordinal),
+                rules.Replace("\"schemaVersion\": 58", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
-            throw new InvalidOperationException("Schema 39 incorrectly accepted variable owned-card selection.");
+            throw new InvalidOperationException("Unsupported schema 57 accepted variable owned-card selection.");
         }
-        catch (InvalidOperationException error) when (error.Message.Contains("require schema version 40", StringComparison.Ordinal))
+        catch (InvalidOperationException error) when (error.Message.Contains("expected 58", StringComparison.Ordinal))
         {
         }
 
@@ -346,11 +346,11 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rescueRules.Replace("\"schemaVersion\": 41", "\"schemaVersion\": 40", StringComparison.Ordinal),
+                rescueRules.Replace("\"schemaVersion\": 58", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
-            throw new InvalidOperationException("Schema 40 incorrectly accepted cross-seat dying response.");
+            throw new InvalidOperationException("Unsupported schema 57 accepted cross-seat dying response.");
         }
-        catch (InvalidOperationException error) when (error.Message.Contains("dyingResponse requires schema version 41", StringComparison.Ordinal))
+        catch (InvalidOperationException error) when (error.Message.Contains("expected 58", StringComparison.Ordinal))
         {
         }
 
@@ -760,13 +760,13 @@ internal static class ChengPuLihuoChecks
         public void Register(IContentRegistryBuilder builder)
         {
             const string woundRules = """
-                {"schemaVersion":44,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
-                  "minimumRulesVersion":149,"triggers":[{"id":"pre-wound",
+                {"schemaVersion":58,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
+                  "minimumRulesVersion":168,"triggers":[{"id":"pre-wound",
                     "window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,
                     "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}
                 """;
             const string woundPresentation = """
-                {"schemaVersion":1,"skills":{"fixture:lihuo-pre-wound":{
+                {"schemaVersion":3,"skills":{"fixture:lihuo-pre-wound":{
                   "name":"预伤","description":"测试开始时失去一点体力。"}}}
                 """;
             var woundCatalog = SkillProgramCatalog.Load(woundRules, woundPresentation);

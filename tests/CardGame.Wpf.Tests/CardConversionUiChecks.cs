@@ -76,25 +76,26 @@ internal static class CardConversionUiChecks
         Refresh(viewModel, game);
 
         Require(viewModel.IsSkillSelectionPending && viewModel.SkillChoices.Count == 2 &&
-                viewModel.SkillChoices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate") &&
-                viewModel.SkillChoices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "program-trigger-skip"),
+                viewModel.SkillChoices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
+                viewModel.SkillChoices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip"),
             "WPF did not expose activate and skip for the optional program-card trigger.");
 
         var activate = viewModel.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-trigger-activate");
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
         viewModel.SelectSkillChoiceCommand.Execute(activate);
-        Require(game.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger } &&
+        Require(game.PendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
                 viewModel.IsSkillSelectionPending && viewModel.SkillChoices.Count > 0 &&
                 viewModel.SkillChoices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "program-trigger-take" &&
-                    choice.Cards.Count == 0 && choice.Targets.SequenceEqual(action.TargetSeats)),
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
+                    choice.Cards.Count == 0 &&
+                    choice.Parameters.GetValueOrDefault("card-owner-seat") == action.TargetSeats.Single().ToString()),
             "Activated trigger did not expose opaque hand slots through the generic skill choices.");
 
         var ownerBefore = game.CreateSnapshot(0, true).Players[0].HandCount;
         viewModel.SelectSkillChoiceCommand.Execute(viewModel.SkillChoices[0]);
         Require(game.CreateSnapshot(0, true).Players[0].HandCount == ownerBefore + 1 &&
                 game.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>().Count() == 1 &&
-                game.PendingDecision?.Kind != DecisionKind.ProgramCardTrigger,
+                game.PendingDecision?.Kind != DecisionKind.ProgramTrigger,
             "Selecting one opaque slot did not resolve exactly once or resume Slash processing.");
     }
 
@@ -180,13 +181,13 @@ internal static class CardConversionUiChecks
         }
 
         private const string Rules = """
-            {"schemaVersion":2,"skills":[
+            {"schemaVersion":58,"skills":[
               {"id":"ui-trigger:source","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-              {"id":"ui-trigger:obtain","revision":1,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"ui-trigger:source","sourceViewAsId":"slash","optional":true,"effects":[{"op":"obtainOpponentHandCard","target":"owner","amount":1}]}]}
+              {"id":"ui-trigger:obtain","revision":1,"minimumRulesVersion":168,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"ui-trigger:source","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
             ]}
             """;
         private const string Presentation = """
-            {"schemaVersion":1,"skills":{
+            {"schemaVersion":3,"skills":{
               "ui-trigger:source":{"name":"转化","description":"转化"},
               "ui-trigger:obtain":{"name":"取牌","description":"取牌"}
             }}

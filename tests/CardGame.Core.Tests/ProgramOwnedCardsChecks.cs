@@ -11,9 +11,8 @@ internal static class ProgramOwnedCardsChecks
     public static void DefinitionsAndPublicAi()
     {
         var current = Load(2);
-        Require(current.RuntimeVersion == "skill-program-v31" && current.MinimumRulesVersion == 136,
+        Require(current.RuntimeVersion == "skill-program-v58" && current.MinimumRulesVersion == 168,
             "Owned-card selection must declare its schema/rules boundary.");
-        Reject(Rules(2).Replace("\"schemaVersion\":31", "\"schemaVersion\":30"), "schema version 31");
         Reject(Rules(2).Replace("\"amount\":2", "\"amount\":0"), "between");
         Reject(Rules(2).Replace("[\"hand\",\"equipment\"]", "[\"discardPile\"]"), "owned");
         Reject(Rules(2).Replace("\"resultBind\":\"chosen\"", "\"resultBind\":\"missing\""), "unknown");
@@ -120,10 +119,10 @@ internal static class ProgramOwnedCardsChecks
 
     private const string Move = """{"op":"moveBoundCards","target":"owner","sourceBind":"chosen","destination":"discardPile"}""";
     private static string Rules(int count, bool other = false, bool equipmentOnly = false) =>
-        $$"""{"schemaVersion":31,"skills":[{"id":"{{SkillId}}","revision":1,"activations":[{"id":"select","minCards":0,"maxCards":0,"minTargets":{{(other ? 1 : 0)}},"maxTargets":{{(other ? 1 : 0)}},"targetKind":"otherLiving","usesPerTurn":1,"condition":{"kind":"always"},"effects":[{"op":"selectOwnedCards","target":"{{(other ? "selectedTarget" : "owner")}}","amount":{{count}},"zones":{{(equipmentOnly ? "[\"equipment\"]" : "[\"hand\",\"equipment\"]")}},"resultBind":"chosen"},{{Move}}]}]}]}""";
+        $$"""{"schemaVersion":58,"skills":[{"id":"{{SkillId}}","revision":1,"activations":[{"id":"select","minCards":0,"maxCards":0,"minTargets":{{(other ? 1 : 0)}},"maxTargets":{{(other ? 1 : 0)}},"targetKind":"otherLiving","usesPerTurn":1,"condition":{"kind":"always"},"effects":[{"op":"selectOwnedCards","target":"{{(other ? "selectedTarget" : "owner")}}","amount":{{count}},"zones":{{(equipmentOnly ? "[\"equipment\"]" : "[\"hand\",\"equipment\"]")}},"resultBind":"chosen"},{{Move}}]}]}]}""";
     private static string Presentation => JsonSerializer.Serialize(new
     {
-        schemaVersion = 1,
+        schemaVersion = 3,
         skills = new Dictionary<string, object> { [SkillId] = new { name = "区域牌集合", description = "选择自己的牌，再统一移动。" } }
     });
     private static SkillProgram Load(int count, bool other = false) => SkillProgramCatalog.Load(Rules(count, other), Presentation).Programs[SkillId];

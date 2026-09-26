@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 27,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:quanji",
       "revision": 1,
-      "minimumRulesVersion": 132,
+      "minimumRulesVersion": 168,
       "modifiers": [
         {
           "id": "authority-hand-limit",

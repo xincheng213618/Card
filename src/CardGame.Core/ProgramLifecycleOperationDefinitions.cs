@@ -8,11 +8,16 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
         static (effect, context) => context.Damage(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "condition", "sourceRef", "skipIfNoTarget");
+        r.AllowOnly("op", "target", "amount", "condition", "sourceRef", "targetRef", "skipIfNoTarget", "nature");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target is not (SkillProgramEffectTarget.SelectedTarget or SkillProgramEffectTarget.Owner))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: damage requires selectedTarget or owner.");
         var sourceRef = r.Has("sourceRef") ? r.RequiredParticipantReference("sourceRef") : null;
+        var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||
+                                      targetRef.Kind != ProgramParticipantRef.EventTarget))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: event target damage requires owner placeholder.");
+        var nature = r.Has("nature") ? r.RequiredEnum<DamageNature>("nature") : (DamageNature?)null;
         if (sourceRef?.Kind is not null and not (ProgramParticipantRef.Owner or
             ProgramParticipantRef.ResultSource or ProgramParticipantRef.ResultOpponent))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.sourceRef: unsupported damage source.");
@@ -20,13 +25,17 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
         if (skip && target != SkillProgramEffectTarget.SelectedTarget)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.skipIfNoTarget: requires selectedTarget.");
         return new(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
-            actorReference: sourceRef, skipIfNoTarget: skip);
+            actorReference: sourceRef, targetReference: targetRef, skipIfNoTarget: skip,
+            damageNature: nature);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         (effect.Target == SkillProgramEffectTarget.SelectedTarget
             ? [new ReadSelectedTarget()] : Array.Empty<ProgramResourceOperation>())
         .Concat(effect.ActorReference is { Kind: ProgramParticipantRef.ResultOpponent or ProgramParticipantRef.ResultSource } reference
-            ? [new ReadPindianResult(reference.ResultBind!)] : Array.Empty<ProgramResourceOperation>()).ToArray();
+            ? [new ReadPindianResult(reference.ResultBind!)] : Array.Empty<ProgramResourceOperation>())
+        .Concat(effect.TargetReference is null ? [] :
+            [new RequireAnyContext(ProgramContextCapability.Judgment | ProgramContextCapability.Damage |
+                                   ProgramContextCapability.CardAction)]).ToArray();
 }
 
 internal sealed class PindianProgramOperationDescriptor : ProgramOperationDescriptorBase

@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 30,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:jujian",
       "revision": 1,
-      "minimumRulesVersion": 135,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "turn-ending-support-choice",

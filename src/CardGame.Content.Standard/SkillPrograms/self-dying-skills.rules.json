@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 23,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:niepan",
       "revision": 1,
-      "minimumRulesVersion": 128,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

@@ -6,24 +6,14 @@ internal static class CardUseCompletedChecks
     public static void FinishedSlashOpensReplayableProgramWindow()
     {
         const string rules = """
-            {"schemaVersion":42,"skills":[{"id":"fixture:after-slash","revision":1,
-              "minimumRulesVersion":147,"triggers":[{"id":"draw-after-finish",
+            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":1,
+              "minimumRulesVersion":168,"triggers":[{"id":"draw-after-finish",
               "window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["slash"],
               "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
             """;
         const string presentation = """
-            {"schemaVersion":1,"skills":{"fixture:after-slash":{"name":"结算后摸牌","description":"杀结算完毕后可以摸一张牌。"}}}
+            {"schemaVersion":3,"skills":{"fixture:after-slash":{"name":"结算后摸牌","description":"杀结算完毕后可以摸一张牌。"}}}
             """;
-        try
-        {
-            SkillProgramCatalog.Load(rules.Replace("\"schemaVersion\":42", "\"schemaVersion\":41",
-                StringComparison.Ordinal), presentation);
-            throw new InvalidOperationException("Schema 41 accepted the completed card-use window.");
-        }
-        catch (InvalidOperationException error) when (error.Message.Contains(
-            "cardUseCompleted requires schema version 42", StringComparison.Ordinal))
-        {
-        }
         try
         {
             SkillProgramCatalog.Load(rules.Replace("\"cardKinds\":[\"slash\"]",
@@ -86,8 +76,8 @@ internal static class CardUseCompletedChecks
     public static void CompletedUseFreezesActualDamageFact()
     {
         const string rules = """
-            {"schemaVersion":43,"skills":[{"id":"fixture:after-slash","revision":2,
-              "minimumRulesVersion":148,"triggers":[
+            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":2,
+              "minimumRulesVersion":168,"triggers":[
                 {"id":"after-damage","window":"cardUseCompleted","ownerRelation":"actor",
                  "cardKinds":["slash"],"condition":{"kind":"cardUseCausedDamage"},
                  "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]},
@@ -97,18 +87,8 @@ internal static class CardUseCompletedChecks
                  "effects":[{"op":"draw","target":"owner","amount":2}]}]}]}
             """;
         const string presentation = """
-            {"schemaVersion":1,"skills":{"fixture:after-slash":{"name":"结算伤害测试","description":"按整张杀的实际伤害结果摸牌。"}}}
+            {"schemaVersion":3,"skills":{"fixture:after-slash":{"name":"结算伤害测试","description":"按整张杀的实际伤害结果摸牌。"}}}
             """;
-        try
-        {
-            SkillProgramCatalog.Load(rules.Replace("\"schemaVersion\":43", "\"schemaVersion\":42",
-                StringComparison.Ordinal), presentation);
-            throw new InvalidOperationException("Schema 42 accepted the damage-result condition.");
-        }
-        catch (InvalidOperationException error) when (error.Message.Contains(
-            "cardUseCausedDamage requires a schema 43 cardUseCompleted trigger", StringComparison.Ordinal))
-        {
-        }
         try
         {
             SkillProgramCatalog.Load(rules.Replace("cardUseCompleted", "cardUseCommitted",
@@ -116,7 +96,7 @@ internal static class CardUseCompletedChecks
             throw new InvalidOperationException("A pre-completion window accepted the damage-result condition.");
         }
         catch (InvalidOperationException error) when (error.Message.Contains(
-            "cardUseCausedDamage requires a schema 43 cardUseCompleted trigger", StringComparison.Ordinal))
+            "cardUseCausedDamage requires a cardUseCompleted trigger", StringComparison.Ordinal))
         {
         }
 
@@ -160,8 +140,8 @@ internal static class CardUseCompletedChecks
     public static void CompletedUseFiltersFrozenConversionSource()
     {
         const string rules = """
-            {"schemaVersion":44,"skills":[{"id":"fixture:after-slash","revision":3,
-              "minimumRulesVersion":149,"viewAs":[{"id":"dodge-as-slash",
+            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":3,
+              "minimumRulesVersion":168,"viewAs":[{"id":"dodge-as-slash",
                 "inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash",
                 "forPlay":true,"forResponse":false}],
               "triggers":[{"id":"after-conversion","window":"cardUseCompleted",
@@ -171,18 +151,8 @@ internal static class CardUseCompletedChecks
                 "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
             """;
         const string presentation = """
-            {"schemaVersion":1,"skills":{"fixture:after-slash":{"name":"转化来源测试","description":"只在本技能转化的杀结算后摸牌。"}}}
+            {"schemaVersion":3,"skills":{"fixture:after-slash":{"name":"转化来源测试","description":"只在本技能转化的杀结算后摸牌。"}}}
             """;
-        try
-        {
-            SkillProgramCatalog.Load(rules.Replace("\"schemaVersion\":44", "\"schemaVersion\":43",
-                StringComparison.Ordinal), presentation);
-            throw new InvalidOperationException("Schema 43 accepted the conversion-source condition.");
-        }
-        catch (InvalidOperationException error) when (error.Message.Contains(
-            "cardUseConversionSkillIs requires a schema 44 cardUseCompleted trigger", StringComparison.Ordinal))
-        {
-        }
         try
         {
             SkillProgramCatalog.Load(rules.Replace("cardUseCompleted", "cardUseCommitted",
@@ -190,7 +160,7 @@ internal static class CardUseCompletedChecks
             throw new InvalidOperationException("A pre-completion window accepted the conversion-source condition.");
         }
         catch (InvalidOperationException error) when (error.Message.Contains(
-            "cardUseConversionSkillIs requires a schema 44 cardUseCompleted trigger", StringComparison.Ordinal))
+            "cardUseConversionSkillIs requires a cardUseCompleted trigger", StringComparison.Ordinal))
         {
         }
         var condition = SkillProgramCatalog.Load(rules, presentation)
@@ -267,25 +237,15 @@ internal static class CardUseCompletedChecks
     public static void ConfiguredSlashCanBecomeFireSlashWithoutZhuqueFan()
     {
         const string rules = """
-            {"schemaVersion":45,"skills":[{"id":"fixture:after-slash","revision":4,
-              "minimumRulesVersion":150,"viewAs":[{"id":"slash-as-fire-slash",
+            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":4,
+              "minimumRulesVersion":168,"viewAs":[{"id":"slash-as-fire-slash",
                 "inputKinds":["slash"],"inputSuits":[],"outputKind":"fireSlash",
                 "forPlay":true,"forResponse":false}]}]}
             """;
         const string presentation = """
-            {"schemaVersion":1,"skills":{"fixture:after-slash":{
+            {"schemaVersion":3,"skills":{"fixture:after-slash":{
               "name":"火杀转化测试","description":"普通杀可改为火杀。"}}}
             """;
-        try
-        {
-            SkillProgramCatalog.Load(rules.Replace("\"schemaVersion\":45", "\"schemaVersion\":44",
-                StringComparison.Ordinal), presentation);
-            throw new InvalidOperationException("Schema 44 accepted Fire Slash viewAs.");
-        }
-        catch (InvalidOperationException error) when (error.Message.Contains(
-            "only slash, dodge or schema 45 fireSlash is supported", StringComparison.Ordinal))
-        {
-        }
         try
         {
             SkillProgramCatalog.Load(rules.Replace("\"inputKinds\":[\"slash\"]",

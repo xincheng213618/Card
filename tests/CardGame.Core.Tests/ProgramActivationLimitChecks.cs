@@ -9,20 +9,20 @@ internal static class ProgramActivationLimitChecks
     private const string GeneralId = "fixture:phase-exchange-owner";
     private const string ModeId = "identity:classic-phase-exchange";
     private const string Rules = """
-        {"schemaVersion":47,"skills":[{"id":"fixture:turn-draw","revision":1,
+        {"schemaVersion":58,"skills":[{"id":"fixture:turn-draw","revision":1,
         "activations":[{"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,
         "targetKind":"anyLiving","usesPerTurn":1,"usesPerPhase":1,
         "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
         """;
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{"fixture:turn-draw":{"name":"限次摸牌","description":"回合和阶段分别限次。"}}}
+        {"schemaVersion":3,"skills":{"fixture:turn-draw":{"name":"限次摸牌","description":"回合和阶段分别限次。"}}}
         """;
 
     public static void DefinitionsAndCurrentBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v47",
-                    MinimumRulesVersion: 157 } program } &&
+        Require(current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58",
+                    MinimumRulesVersion: 168 } program } &&
                 program.Activations.Single() is { MaxCards: int.MaxValue, UsesPerPhase: 1, UsesPerTurn: null } &&
                 program.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]),
             "The current exchange must use shared nodes with phase limits.");
@@ -30,7 +30,6 @@ internal static class ProgramActivationLimitChecks
         var noPhase = SkillProgramCatalog.Load(Rules.Replace("\"usesPerPhase\":1", "\"usesPerPhase\":null"),
             Presentation).Programs["fixture:turn-draw"];
         Require(baseline.GameplayHash != noPhase.GameplayHash, "Phase limits must change the gameplay fingerprint.");
-        Reject(Rules.Replace("\"schemaVersion\":47", "\"schemaVersion\":46"), "usesPerPhase");
         Reject(Rules.Replace("\"usesPerPhase\":1", "\"usesPerPhase\":0"), "usesPerPhase");
         Reject(Rules.Replace("\"usesPerPhase\":1", "\"usesPerPhase\":-1"), "usesPerPhase");
         Reject(Rules.Replace("\"maxCards\":0", "\"maxCards\":65"), "maxCards");
@@ -38,8 +37,6 @@ internal static class ProgramActivationLimitChecks
             "{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}",
             """{"op":"captureSelectedCards","target":"owner","resultBind":"cards"},{"op":"moveBoundCards","target":"owner","sourceBind":"cards","destination":"discardPile"}"""),
             "minCards");
-        Reject(Rules.Replace("\"schemaVersion\":47", "\"schemaVersion\":46")
-            .Replace(",\"usesPerPhase\":1", "").Replace("\"maxCards\":0", "\"maxCards\":null"), "maxCards");
     }
 
     public static void MixedZonesAtomicityAndReplay()

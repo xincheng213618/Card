@@ -45,7 +45,9 @@ public interface ISkillProgramEffectHost
         SkillProgramNumberExpression? numberExpression, string? sourceBind);
     SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount);
     SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
-        ProgramParticipantReference? sourceReference = null);
+        ProgramParticipantReference? sourceReference = null,
+        DamageNature? nature = null);
+    void ReplaceJudgment(ProgramSkillFrame frame, SkillProgramEffect effect);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
     void MoveSelected(
         ProgramSkillFrame frame,
@@ -509,7 +511,18 @@ public sealed class DamageSkillProgramEffectHandler : ISkillProgramEffectHandler
     public SkillProgramEffectOp Op => SkillProgramEffectOp.Damage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        host.Damage(frame, targetSeat, effect.Amount, effect.ActorReference);
+        host.Damage(frame, targetSeat, effect.Amount, effect.ActorReference, effect.DamageNature);
+}
+
+public sealed class ReplaceJudgmentSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ReplaceJudgment;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        host.ReplaceJudgment(frame, effect);
+        return SkillProgramStepOutcome.Continue;
+    }
 }
 
 public sealed class PindianSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -1129,19 +1142,27 @@ public sealed class SkillProgramExecutor
             }
 
             var effect = plan.GetInstruction(frame.InstructionIndex).Effect;
-            var handler = _effects?.Resolve(effect.Op) ?? (program.UsesCompositionKernel
-                ? ProgramOperationCatalog.Default.Resolve(effect.Op).Handler
-                : SkillProgramEffectCatalog.Default.Resolve(effect.Op));
+            var handler = _effects?.Resolve(effect.Op) ?? ProgramOperationCatalog.Default.Resolve(effect.Op).Handler;
             // Commit the cursor before any primitive can suspend into a child.
             frame = frame with { InstructionIndex = frame.InstructionIndex + 1 };
             state.UpdateFrame(frame);
             if (!state.EvaluateCondition(frame, effect.Condition, actor.Context)) continue;
+            if (frame.WindowContext?.JudgmentReplacement is { } replacement &&
+                effect.Op != SkillProgramEffectOp.ReplaceJudgment &&
+                (replacement.ReplacementSuit is not { } replacementSuit ||
+                 !effect.ReplacementSuits.Contains(replacementSuit) ||
+                 replacement.ReplacementRank is not { } replacementRank ||
+                 replacementRank < effect.MinimumReplacementRank ||
+                 replacementRank > effect.MaximumReplacementRank)) continue;
             if (effect.Op == SkillProgramEffectOp.Damage && effect.SkipIfNoTarget &&
                 effect.Target == SkillProgramEffectTarget.SelectedTarget && frame.SelectedTargetSeats.Count == 0)
                 continue;
 
             var targetSeat = effect.Op is SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets
                 ? frame.OwnerSeat
+                : effect.Op == SkillProgramEffectOp.Damage &&
+                  effect.TargetReference is { } targetReference
+                ? effects.ResolveParticipant(frame, targetReference)
                 : effect.Target switch
             {
                 SkillProgramEffectTarget.Owner => frame.OwnerSeat,

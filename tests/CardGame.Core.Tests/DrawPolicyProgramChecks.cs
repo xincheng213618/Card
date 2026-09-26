@@ -13,33 +13,21 @@ internal static class DrawPolicyProgramChecks
 
         Require(GameCheckpoint.CurrentRulesVersion >= 125 &&
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 106, 0) &&
-                jiangchi.UsesCompositionKernel &&
-                jiangchi.MinimumRulesVersion == 128 &&
+                jiangchi.MinimumRulesVersion == 168 &&
                 jiangchi.Triggers.Count == 2 &&
                 jiangchi.Triggers.All(trigger => trigger.ChoiceGroup == "turn-mode" &&
                     trigger.ChoiceLabel is not null) &&
                 zishou.Triggers.Single().Effects is
                 [
-                    { Op: SkillProgramTriggerEffectOp.Draw,
+                    { Op: SkillProgramEffectOp.Draw,
                       NumberExpression: SkillProgramNumberExpression.LivingFactionCount },
-                    { Op: SkillProgramTriggerEffectOp.GrantTurnCardTargetRestriction,
+                    { Op: SkillProgramEffectOp.GrantTurnCardTargetRestriction,
                       TargetRestriction: SkillProgramCardTargetRestriction.SelfOnly }
                 ],
             "Current Jiangchi and Zishou must use grouped draw-policy programs.");
 
-        var unsupported = Enum.GetValues<SkillProgramEffectOp>()
-            .Except([
-                SkillProgramEffectOp.Draw,
-                SkillProgramEffectOp.Recover,
-                SkillProgramEffectOp.LoseHp,
-                SkillProgramEffectOp.GiveSelected,
-                SkillProgramEffectOp.DiscardSelected
-            ]);
-        foreach (var op in unsupported)
-        {
-            var rules = ActiveRules.Replace("__OP__", Camel(op), StringComparison.Ordinal);
-            Reject(rules, "not supported by play activations");
-        }
+        Reject(ActiveRules.Replace("__OP__", "adjustNormalDraw", StringComparison.Ordinal),
+            "requires context DrawPlan");
     }
 
     public static void TurnPoliciesAreTypedIdempotentAndExpireTogether()
@@ -119,12 +107,6 @@ internal static class DrawPolicyProgramChecks
         throw new InvalidOperationException($"Expected rejection containing '{expected}'.");
     }
 
-    private static string Camel<T>(T value) where T : struct, Enum
-    {
-        var name = Enum.GetName(value)!;
-        return char.ToLowerInvariant(name[0]) + name[1..];
-    }
-
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
@@ -132,11 +114,11 @@ internal static class DrawPolicyProgramChecks
 
     private const string ActiveRules = """
         {
-          "schemaVersion": 20,
+          "schemaVersion": 58,
           "skills": [{
             "id": "fixture:active-op",
             "revision": 1,
-            "minimumRulesVersion": 125,
+            "minimumRulesVersion": 168,
             "modifiers": [],
             "viewAs": [],
             "activations": [{
@@ -158,7 +140,7 @@ internal static class DrawPolicyProgramChecks
 
     private const string Presentation = """
         {
-          "schemaVersion": 1,
+          "schemaVersion": 3,
           "skills": {
             "fixture:active-op": {"name":"主动技","description":"验证主动入口操作边界。"}
           }

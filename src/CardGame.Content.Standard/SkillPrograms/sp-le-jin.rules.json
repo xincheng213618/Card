@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 56,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "sp:xiaoguo",
       "revision": 1,
-      "minimumRulesVersion": 166,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "other-turn-ending",

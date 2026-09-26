@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 56,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "boundary:yingzi",
       "revision": 1,
-      "minimumRulesVersion": 166,
+      "minimumRulesVersion": 168,
       "modifiers": [
         { "id": "extra-normal-draw", "query": "drawCount", "operation": "add",
           "value": 1, "priority": 0 },
@@ -15,7 +15,7 @@
     {
       "id": "boundary:fanjian",
       "revision": 1,
-      "minimumRulesVersion": 166,
+      "minimumRulesVersion": 168,
       "activations": [
         {
           "id": "show-and-give",

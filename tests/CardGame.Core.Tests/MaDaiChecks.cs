@@ -27,14 +27,13 @@ internal static class MaDaiChecks
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None,
-                    Program.RuntimeVersion: "skill-program-v32",
-                    Program.MinimumRulesVersion: 137
+                    Program.RuntimeVersion: "skill-program-v58",
+                    Program.MinimumRulesVersion: 168
                 } skill &&
                 skill.Program.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
-                    Optional: true,
-                    UsesSharedExecutor: true
+                    Optional: true
                 } &&
                 skill.Description ==
                 "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。",

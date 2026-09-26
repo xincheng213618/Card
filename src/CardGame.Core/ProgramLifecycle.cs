@@ -14,7 +14,9 @@ public sealed record ProgramSkillWindowContext(
     CardMovementBatchContext? MovementBatch = null,
     int? MovementIndex = null,
     int? ResumeCandidateIndex = null,
-    ProgramCardUseContext? CardUse = null);
+    ProgramCardUseContext? CardUse = null,
+    JudgmentFinalizedContext? Judgment = null,
+    ProgramJudgmentReplacementContext? JudgmentReplacement = null);
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
 public sealed record ProgramAttackRangeCoverageBinding(string Name, int SubjectSeat, int BeforeCount, int AfterCount);

@@ -27,8 +27,8 @@ internal static class PanZhangMaZhongChecks
             "The two skills must use effective Slash kinds and the generic reverse-range modifier.");
 
         var generic = """
-            {"schemaVersion":56,"skills":[{"id":"fixture:generic","revision":1,
-            "minimumRulesVersion":166,
+            {"schemaVersion":58,"skills":[{"id":"fixture:generic","revision":1,
+            "minimumRulesVersion":168,
             "damageModifiers":[{"id":"distance","cardKinds":["duel"],"amount":2,
             "condition":"always"}],
             "triggers":[{"id":"take-armor","window":"afterDamageApplied","subject":"owner",
@@ -38,12 +38,11 @@ internal static class PanZhangMaZhongChecks
             {"op":"moveBoundCards","target":"owner","sourceBind":"armor","destination":"ownerHand"}]}]}]}
             """;
         const string presentation = """
-            {"schemaVersion":1,"skills":{"fixture:generic":{"name":"通用","description":"测试"}}}
+            {"schemaVersion":3,"skills":{"fixture:generic":{"name":"通用","description":"测试"}}}
             """;
         Require(SkillProgramCatalog.Load(generic, presentation).Programs["fixture:generic"]
                 .DamageModifiers.Single().Amount == 2,
             "A Duel modifier and source-armor collection must be independently definable.");
-        Reject(generic.Replace("\"schemaVersion\":56", "\"schemaVersion\":55"), presentation);
         Reject(generic.Replace("\"damageCardKinds\":[\"duel\"]", "\"damageCardKinds\":[]"), presentation);
         Reject(generic.Replace("\"equipmentSlots\":[\"armor\"]", "\"equipmentSlots\":[]"), presentation);
         Reject(generic.Replace("\"condition\":\"always\"",
@@ -428,15 +427,15 @@ internal static class PanZhangMaZhongChecks
             if (armorSynthetic)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":56,"skills":[{"id":"fixture:take-source-armor","revision":1,
-                    "minimumRulesVersion":166,"triggers":[{"id":"take","window":"afterDamageApplied",
+                    {"schemaVersion":58,"skills":[{"id":"fixture:take-source-armor","revision":1,
+                    "minimumRulesVersion":168,"triggers":[{"id":"take","window":"afterDamageApplied",
                     "subject":"owner","damageOccurrence":"perDamage","damageCardKinds":["slash"],
                     "optional":false,"effects":[{"op":"selectSourceCard","target":"owner",
                     "zones":["equipment"],"equipmentSlots":["armor"],"skipIfNoCards":true,
                     "resultBind":"armor"},{"op":"moveBoundCards","target":"owner",
                     "sourceBind":"armor","destination":"ownerHand"}]}]}]}
                     """, """
-                    {"schemaVersion":1,"skills":{"fixture:take-source-armor":{"name":"取甲","description":"测试"}}}
+                    {"schemaVersion":3,"skills":{"fixture:take-source-armor":{"name":"取甲","description":"测试"}}}
                     """);
                 builder.AddSkill(new ContentSkillDefinition(ArmorSkill, "取甲", "测试")
                 { Program = catalog.Programs[ArmorSkill] });

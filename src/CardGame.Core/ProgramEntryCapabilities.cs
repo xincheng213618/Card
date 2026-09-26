@@ -13,14 +13,15 @@ internal enum ProgramContextCapability
     CardAction = 32,
     Pindian = 64,
     Death = 128,
-    Dying = 256
+    Dying = 256,
+    JudgmentReplacement = 512
 }
 
 internal static class ProgramEntryCapabilities
 {
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
-    internal static bool UsesSharedExecutor(SkillProgramTriggerWindow window) => window is
+    internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
         SkillProgramTriggerWindow.DrawPhaseStarting or
         SkillProgramTriggerWindow.SelfDyingResponse or
@@ -36,7 +37,9 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
         SkillProgramTriggerWindow.CardUseTargetsFinalized or
         SkillProgramTriggerWindow.CardResponseAccepted or
-        SkillProgramTriggerWindow.CardUseCompleted;
+        SkillProgramTriggerWindow.CardUseCompleted or
+        SkillProgramTriggerWindow.JudgmentReplacing or
+        SkillProgramTriggerWindow.JudgmentFinalized;
 
     internal static ProgramContextCapability For(SkillProgramTriggerWindow? window) => window switch
     {
@@ -50,12 +53,16 @@ internal static class ProgramEntryCapabilities
             Common | ProgramContextCapability.Damage | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,
+        SkillProgramTriggerWindow.JudgmentReplacing =>
+            Common | ProgramContextCapability.Judgment | ProgramContextCapability.JudgmentReplacement,
+        SkillProgramTriggerWindow.JudgmentFinalized =>
+            Common | ProgramContextCapability.Judgment | ProgramContextCapability.Damage,
         SkillProgramTriggerWindow.DyingResponse => Common | ProgramContextCapability.Dying,
         SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
         SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted or
         SkillProgramTriggerWindow.CardUseCompleted =>
-            Common | ProgramContextCapability.CardAction,
-        _ when UsesSharedExecutor(window.Value) => Common,
+            Common | ProgramContextCapability.CardAction | ProgramContextCapability.Judgment,
+        _ when SupportsWindow(window.Value) => Common,
         _ => throw new InvalidOperationException($"Window '{window}' has no shared program-frame adapter.")
     };
 }

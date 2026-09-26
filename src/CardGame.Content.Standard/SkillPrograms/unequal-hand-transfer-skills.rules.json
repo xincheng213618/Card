@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 39,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:anxu",
       "revision": 1,
-      "minimumRulesVersion": 144,
+      "minimumRulesVersion": 168,
       "activations": [
         {
           "id": "unequal-hand-transfer",

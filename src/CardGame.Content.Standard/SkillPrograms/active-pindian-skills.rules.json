@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 29,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:xianzhen",
       "revision": 1,
-      "minimumRulesVersion": 134,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [
@@ -49,7 +49,6 @@
             {
               "op": "grantTurnCardActionProhibition",
               "target": "owner",
-              "amount": 1,
               "cardKinds": ["slash", "fireSlash", "thunderSlash"],
               "actionTypes": ["use"],
               "condition": { "kind": "pindianNotWon" }

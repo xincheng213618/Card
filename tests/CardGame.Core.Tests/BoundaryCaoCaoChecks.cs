@@ -24,8 +24,8 @@ internal static class BoundaryCaoCaoChecks
         Require(trigger.Window == SkillProgramTriggerWindow.AfterDamageApplied &&
                 trigger.DamageOccurrence == SkillProgramDamageOccurrence.PerDamage && trigger.Optional &&
                 trigger.Effects.Select(effect => effect.Op).SequenceEqual([
-                    SkillProgramTriggerEffectOp.ChooseOption, SkillProgramTriggerEffectOp.Draw,
-                    SkillProgramTriggerEffectOp.ClaimDamageCards]) &&
+                    SkillProgramEffectOp.ChooseOption, SkillProgramEffectOp.Draw,
+                    SkillProgramEffectOp.ClaimDamageCards]) &&
                 trigger.Effects[0].Options.Single(option => option.Id == "claim").Condition.Kind ==
                     SkillProgramConditionKind.HasClaimableDamageCards &&
                 trigger.Effects[2].Condition.CanEvaluateWithoutProgramFrame() == false &&
@@ -34,7 +34,7 @@ internal static class BoundaryCaoCaoChecks
                 registry.Skills["boundary:hujia"].Program is null,
             "Jianxiong must choose draw or currently claimable damage cards once per hit; Hujia must reuse the lord kind.");
         var owner = new PlayerSkillContext(0, 3, 5, 2, TurnPhase.Play);
-        var effects = trigger.Effects.Select(effect => effect.ToExecutionEffect()).ToArray();
+        var effects = trigger.Effects.ToArray();
         var cardlessAi = ProgramCompositionAi.Estimate(effects, owner,
             publicContext: new ProgramAiPublicContext(5, HasClaimableDamageCards: false));
         var claimableAi = ProgramCompositionAi.Estimate(effects, owner,
@@ -295,15 +295,15 @@ internal static class BoundaryCaoCaoChecks
         const string generalId = "fixture:bound-claim-owner";
         const string modeId = "identity:classic-bound-claim-check-5";
         const string rules = """
-            {"schemaVersion":54,"skills":[{"id":"fixture:bound-claim","revision":1,
-              "minimumRulesVersion":164,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
+            {"schemaVersion":58,"skills":[{"id":"fixture:bound-claim","revision":1,
+              "minimumRulesVersion":168,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
               "subject":"owner","damageOccurrence":"perDamage","optional":true,"priority":0,
               "effects":[{"op":"draw","target":"owner","amount":1,"resultBind":"drawn"},
               {"op":"claimDamageCards","target":"owner",
                "condition":{"kind":"boundCardsSameColor","sourceBind":"drawn"}}]}]}]}
             """;
         const string presentation = """
-            {"schemaVersion":1,"skills":{"fixture:bound-claim":{"name":"绑定领取","description":"通用伤害后绑定验证"}}}
+            {"schemaVersion":3,"skills":{"fixture:bound-claim":{"name":"绑定领取","description":"通用伤害后绑定验证"}}}
             """;
         var catalog = SkillProgramCatalog.Load(rules, presentation);
         var trigger = catalog.Programs[skillId].Triggers.Single();

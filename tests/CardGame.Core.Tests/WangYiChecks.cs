@@ -29,8 +29,8 @@ internal static class WangYiChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v51",
-                        MinimumRulesVersion: 161,
+                        RuntimeVersion: "skill-program-v58",
+                        MinimumRulesVersion: 168,
                         Triggers.Count: 1
                     } zhenlieProgram,
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -41,8 +41,8 @@ internal static class WangYiChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v49",
-                        MinimumRulesVersion: 159,
+                        RuntimeVersion: "skill-program-v58",
+                        MinimumRulesVersion: 168,
                         Triggers.Count: 1
                     } program,
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -54,7 +54,6 @@ internal static class WangYiChecks
                     Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
                     OwnerRelation: SkillProgramCardActionOwnerRelation.Target,
                     Optional: true,
-                    UsesSharedExecutor: true,
                     Effects.Count: 3
                 } zhenlieTrigger &&
                 zhenlieTrigger.Condition is
@@ -62,16 +61,16 @@ internal static class WangYiChecks
                     Kind: SkillProgramTriggerConditionKind.Not,
                     Children: [{ Kind: SkillProgramTriggerConditionKind.CardActionActorIsOwner }]
                 } &&
-                zhenlieTrigger.Effects[0].Op == SkillProgramTriggerEffectOp.NullifyCurrentCardEffect &&
+                zhenlieTrigger.Effects[0].Op == SkillProgramEffectOp.NullifyCurrentCardEffect &&
                 zhenlieTrigger.Effects[1] is
                 {
-                    Op: SkillProgramTriggerEffectOp.LoseHp,
-                    Target: SkillProgramTriggerEffectTarget.Owner,
+                    Op: SkillProgramEffectOp.LoseHp,
+                    Target: SkillProgramEffectTarget.Owner,
                     Amount: 1
                 } &&
                 zhenlieTrigger.Effects[2] is
                 {
-                    Op: SkillProgramTriggerEffectOp.SelectAndMoveOwnedCard,
+                    Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
                     Destination: SkillProgramCardDestination.DiscardPile,
                     SkipIfNoCards: true
                 } &&
@@ -80,18 +79,17 @@ internal static class WangYiChecks
                     Id: "miji-at-turn-end",
                     Window: SkillProgramTriggerWindow.TurnEnding,
                     Optional: true,
-                    UsesSharedExecutor: true,
                     Effects.Count: 2
                 } trigger &&
                 trigger.Effects[0] is
                 {
-                    Op: SkillProgramTriggerEffectOp.Draw,
+                    Op: SkillProgramEffectOp.Draw,
                     NumberExpression: SkillProgramNumberExpression.OwnerLostHp,
                     ResultBind: "drawn"
                 } &&
                 trigger.Effects[1] is
                 {
-                    Op: SkillProgramTriggerEffectOp.DistributeOwnedCards,
+                    Op: SkillProgramEffectOp.DistributeOwnedCards,
                     NumberExpression: SkillProgramNumberExpression.BoundCardCount,
                     SourceBind: "drawn",
                     TargetKind: SkillProgramTargetKind.OtherLiving,

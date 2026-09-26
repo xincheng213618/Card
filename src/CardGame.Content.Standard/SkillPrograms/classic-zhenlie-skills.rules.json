@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 51,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:zhenlie",
       "revision": 1,
-      "minimumRulesVersion": 161,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "nullify-other-card-target",

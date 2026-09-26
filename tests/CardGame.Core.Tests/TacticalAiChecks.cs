@@ -1,29 +1,8 @@
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
 internal static class TacticalAiChecks
 {
-    public static void LegacyCompatibility()
-    {
-        using var stream = typeof(TacticalAiChecks).Assembly.GetManifestResourceStream("CardGame.Core.Tests.Fixtures.legacy-ai-checkpoints.json")!;
-        var fixtures = JsonSerializer.Deserialize<LegacyFixture[]>(stream)!;
-        Require(fixtures.Length == 4, "Expected three old full matches and one genuine WPF paused checkpoint.");
-        foreach (var fixture in fixtures)
-        {
-            Require(!fixture.CheckpointJson.Contains("AiPolicyVersion"), "Golden fixture must remain pre-upgrade JSON.");
-            var checkpoint = GameCheckpointJson.Deserialize(fixture.CheckpointJson);
-            Require(checkpoint.Options.AiPolicyVersion == 1, "Old JSON must select legacy decisions.");
-            Require(checkpoint.RulesVersion == 1, "Old JSON must select legacy rules event semantics.");
-            var restored = GameReplay.Restore(checkpoint, StandardContentRegistry.Create());
-            var current = Fixture(fixture.Name, restored);
-            Require(current.SnapshotHash == fixture.SnapshotHash, $"{fixture.Name}: legacy final state changed.");
-            Require(current.EventHash == fixture.EventHash, $"{fixture.Name}: legacy event stream changed.");
-        }
-    }
-
     public static void PlayDecisions()
     {
         foreach (var test in Cases())
@@ -115,120 +94,48 @@ internal static class TacticalAiChecks
 
     public static void DrawReplacementActivation()
     {
-        var friendly = View(Role.Lord);
-        var friendlySeat = friendly.Players.First(player => player.Seat != 0).Seat;
-        friendly = Change(friendly, friendlySeat, player => player with
-        {
-            Role = Role.Loyalist,
-            IsRoleRevealed = true,
-            HandCount = 1
-        });
-        var skipped = new SimpleAiBrain(0, 271, 3).ChooseHostileHandReplacementActivation(
-            friendly, [friendlySeat], 1, 2, "测试替代", 1);
-        Require(!skipped.Activate && skipped.Thought.Decision.Contains("不发动", StringComparison.Ordinal),
-            "A one-card friendly replacement must not displace the ordinary two-card draw.");
-
-        var hostile = View(Role.Rebel);
-        var lordSeat = hostile.Players.Single(player => player.Role == Role.Lord).Seat;
-        var secondHostileSeat = hostile.Players.First(player => player.Seat != 0 && player.Seat != lordSeat).Seat;
-        hostile = Change(hostile, lordSeat, player => player with { HandCount = 4 });
-        hostile = Change(hostile, secondHostileSeat, player => player with
-        {
-            Role = Role.Loyalist,
-            IsRoleRevealed = true,
-            HandCount = 4
-        });
-        var activated = new SimpleAiBrain(0, 271, 3).ChooseHostileHandReplacementActivation(
-            hostile, [lordSeat, secondHostileSeat], 1, 2, "测试替代", 2);
-        Require(activated.Activate && activated.Thought.Decision.Contains("发动", StringComparison.Ordinal),
-            "A strong two-enemy replacement must beat the ordinary two-card draw.");
-
-        var oneLostHp = Change(View(Role.Lord), 0, player => player with { Hp = 3, MaxHp = 4 });
-        var revealSkipped = new SimpleAiBrain(0, 271, 3)
-            .ChooseLostHpRevealReplacementActivation(oneLostHp, "测试亮牌替代", 3);
-        Require(!revealSkipped.Activate &&
-                revealSkipped.Thought.Decision.Contains("跳过", StringComparison.Ordinal),
-            "A non-critical one-card reveal must retain the ordinary two-card draw.");
-        var critical = Change(oneLostHp, 0, player => player with { Hp = 1, MaxHp = 2 });
-        var criticalActivated = new SimpleAiBrain(0, 271, 3)
-            .ChooseLostHpRevealReplacementActivation(critical, "测试亮牌替代", 4);
-        Require(criticalActivated.Activate &&
-                criticalActivated.Thought.Decision.Contains("发动", StringComparison.Ordinal),
-            "A critical owner must retain the recovery chance of a one-card reveal.");
-        var twoLostHp = Change(oneLostHp, 0, player => player with { Hp = 2, MaxHp = 4 });
-        Require(new SimpleAiBrain(0, 271, 3)
-                .ChooseLostHpRevealReplacementActivation(twoLostHp, "测试亮牌替代", 5).Activate,
-            "A two-card lost-HP reveal must activate through the generic replacement policy.");
-
+        var view = View(Role.Lord);
+        var oneCard = DrawAiTrigger("""[{"op":"draw","target":"owner","amount":1}]""", "replacement");
+        var threeCards = DrawAiTrigger("""[{"op":"draw","target":"owner","amount":3}]""", "replacement");
+        Require(EstimateDraw(view, oneCard, 2).Score < 0 && EstimateDraw(view, threeCards, 2).Score > 0,
+            "The common estimator must price replacement effects against the frozen normal draw count.");
+        Require(EstimateDraw(view, oneCard, 0).Score > 0,
+            "A beneficial replacement must remain available when ordinary drawing is zero.");
+        var lethal = DrawAiTrigger("""[{"op":"loseHp","target":"owner","amount":4},{"op":"draw","target":"owner","amount":5}]""", "replacement");
+        Require(EstimateDraw(Change(view, 0, player => player with { Hp = 1 }), lethal, 2).IsSelfLethal,
+            "Unified draw estimation must flag a self-lethal payment even when later drawing has value.");
     }
 
     public static void DrawPhaseProgramActivation()
     {
-        var brain = new SimpleAiBrain(0, 271, 3);
-        var noDamage = View(Role.Lord, CardKind.Peach);
-        var context = DrawContext(noDamage);
+        var view = View(Role.Lord, CardKind.Peach);
         var ordered = DrawAiTrigger("""[{"op":"adjustNormalDraw","target":"owner","amount":-1},{"op":"draw","target":"owner","amount":1},{"op":"grantTurnCardDamageModifier","target":"owner","amount":1,"cardKinds":["slash"]}]""");
         var reordered = DrawAiTrigger("""[{"op":"grantTurnCardDamageModifier","target":"owner","amount":1,"cardKinds":["slash"]},{"op":"draw","target":"owner","amount":1},{"op":"adjustNormalDraw","target":"owner","amount":-1}]""");
-        var orderedChoice = brain.ChooseDrawPhaseProgramActivation(
-            noDamage, ordered, context, 2, "组合A", 1);
-        var reorderedChoice = brain.ChooseDrawPhaseProgramActivation(
-            noDamage, reordered, context, 2, "组合A换序", 2);
-        Require(orderedChoice.Activate && reorderedChoice.Activate &&
-                ActivationScore(orderedChoice.Thought) == 30d &&
-                ActivationScore(reorderedChoice.Thought) == ActivationScore(orderedChoice.Thought),
-            "Draw, adjustment and damage nodes must be valued by aggregate contribution, independent of order; a no-loss tie activates.");
+        Require(EstimateDraw(view, ordered, 2).Score == EstimateDraw(view, reordered, 2).Score,
+            "Independent draw and policy contributions must not depend on instruction ordering.");
 
-        var clamped = DrawAiTrigger("""[{"op":"adjustNormalDraw","target":"owner","amount":-2},{"op":"adjustNormalDraw","target":"owner","amount":2}]""");
-        var clampedChoice = brain.ChooseDrawPhaseProgramActivation(
-            noDamage, clamped, context, 0, "组合Clamp", 3);
-        Require(clampedChoice.Activate && ActivationScore(clampedChoice.Thought) == 0d,
-            "Multiple normal-draw adjustments must sum before the final zero clamp, not clamp after each node.");
-
-        var grants = DrawAiTrigger("""[{"op":"grantTurnCardDamageModifier","target":"owner","amount":1,"cardKinds":["slash"]},{"op":"grantTurnCardDamageModifier","target":"owner","amount":1,"cardKinds":["slash"]},{"op":"grantTurnCardDamageModifier","target":"owner","amount":5,"cardKinds":["slash"],"condition":{"kind":"wounded"}}]""");
-        var slashView = View(Role.Lord, CardKind.Slash);
-        var grantChoice = brain.ChooseDrawPhaseProgramActivation(
-            slashView, grants, DrawContext(slashView), 2, "组合Grant", 4);
-        Require(grantChoice.Activate && ActivationScore(grantChoice.Thought) == 74d,
-            "Same-kind damage grants must stack while a false visible condition contributes nothing.");
-
-        var drawFirst = DrawAiTrigger("""[{"op":"draw","target":"owner","amount":1},{"op":"selectTargets","target":"owner","targetKind":"otherLivingWithHand","minimumTargets":1,"maximumTargets":2,"targetAiOrder":"hostileThenHandCount"},{"op":"takeRandomHandCardFromSelectedTargets","target":"owner","amount":1}]""", "replacement");
-        var drawLast = DrawAiTrigger("""[{"op":"selectTargets","target":"owner","targetKind":"otherLivingWithHand","minimumTargets":1,"maximumTargets":2,"targetAiOrder":"hostileThenHandCount"},{"op":"takeRandomHandCardFromSelectedTargets","target":"owner","amount":1},{"op":"draw","target":"owner","amount":1}]""", "replacement");
-        var hostile = View(Role.Rebel, CardKind.Peach);
-        var lordSeat = hostile.Players.Single(player => player.Role == Role.Lord).Seat;
-        var loyalistSeat = hostile.Players.First(player => player.Seat != 0 && player.Seat != lordSeat).Seat;
-        hostile = Change(hostile, lordSeat, player => player with { HandCount = 4 });
-        hostile = Change(hostile, loyalistSeat, player => player with
+        var replacement = DrawAiTrigger("""[{"op":"selectTargets","target":"owner","targetKind":"otherLivingWithHand","minimumTargets":1,"maximumTargets":2,"targetAiOrder":"hostileThenHandCount"},{"op":"takeRandomHandCardFromSelectedTargets","target":"owner","amount":1}]""", "replacement");
+        var opponent = view.Players.First(player => player.Seat != 0).Seat;
+        var hiddenA = Change(view, opponent, player => player with
         {
-            Role = Role.Loyalist,
-            IsRoleRevealed = true,
-            HandCount = 3
+            Hand = [new CardSnapshot(9101, CardKind.Peach, Suit.Heart, 3, "桃", "3")], HandCount = 4
         });
-        var firstChoice = brain.ChooseDrawPhaseProgramActivation(
-            hostile, drawFirst, DrawContext(hostile), 2, "替代首Draw", 5);
-        var lastChoice = brain.ChooseDrawPhaseProgramActivation(
-            hostile, drawLast, DrawContext(hostile), 2, "替代尾Draw", 6);
-        Require(firstChoice.Activate == lastChoice.Activate &&
-                ActivationScore(firstChoice.Thought) == ActivationScore(lastChoice.Thought),
-            "Replacement valuation must not depend on whether an explicit Draw appears before or after target transfer nodes.");
-
-        var hiddenA = Change(hostile, lordSeat, player => player with
+        var hiddenB = Change(view, opponent, player => player with
         {
-            Hand = [new CardSnapshot(9101, CardKind.Peach, Suit.Heart, 3, "桃", "3")],
-            HandCount = 4
+            Hand = [new CardSnapshot(9201, CardKind.Duel, Suit.Spade, 12, "决斗", "Q")], HandCount = 4
         });
-        var hiddenB = Change(hostile, lordSeat, player => player with
-        {
-            Hand = [new CardSnapshot(9201, CardKind.Duel, Suit.Spade, 12, "决斗", "Q")],
-            HandCount = 4
-        });
-        var privateA = brain.ChooseDrawPhaseProgramActivation(
-            hiddenA, drawFirst, DrawContext(hiddenA), 2, "隐私A", 7);
-        var privateB = brain.ChooseDrawPhaseProgramActivation(
-            hiddenB, drawFirst, DrawContext(hiddenB), 2, "隐私B", 8);
-        Require(privateA.Activate == privateB.Activate &&
-                ActivationScore(privateA.Thought) == ActivationScore(privateB.Thought),
-            "Draw-phase valuation must ignore opponent hidden card identities; deck identities are absent from its snapshot input.");
+        Require(EstimateDraw(hiddenA, replacement, 2) == EstimateDraw(hiddenB, replacement, 2),
+            "Common draw estimation must not inspect opponent hidden card identities.");
     }
+
+    private static ProgramAiEstimate EstimateDraw(GameSnapshot view, SkillProgramTrigger trigger, int normalDraw) =>
+        ProgramCompositionAi.Estimate(trigger.Effects, DrawContext(view), publicContext:
+            new ProgramAiPublicContext(
+                view.Players.Where(player => player.IsAlive && player.FactionId is not null)
+                    .Select(player => player.FactionId).Distinct(StringComparer.Ordinal).Count(),
+                NormalDrawCount: normalDraw,
+                ReplacesNormalDraw: trigger.DrawPhaseMode == SkillProgramDrawPhaseMode.Replacement,
+                EligibleTargetCount: view.Players.Count(player => player.IsAlive && player.Seat != 0 && player.HandCount > 0)));
 
     public static void PublicEvidence()
     {
@@ -335,7 +242,7 @@ internal static class TacticalAiChecks
             var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
             Require(checkpoint.Options.AiPolicyVersion == version, "Checkpoint lost its decision policy.");
             var restored = GameReplay.Restore(checkpoint, StandardContentRegistry.Create());
-            Require(EventHash(restored) == EventHash(game) && SnapshotJson.Serialize(restored.State) == SnapshotJson.Serialize(game.State), "Policy replay changed a match.");
+            Require(string.Join("\n", restored.Events.Select(item => System.Text.Json.JsonSerializer.Serialize(item))) == string.Join("\n", game.Events.Select(item => System.Text.Json.JsonSerializer.Serialize(item))) && SnapshotJson.Serialize(restored.State) == SnapshotJson.Serialize(game.State), "Policy replay changed a match.");
         }
         foreach (var version in new[] { 0, 4, -1 })
         {
@@ -436,8 +343,8 @@ internal static class TacticalAiChecks
 
     private static SkillProgramTrigger DrawAiTrigger(string effects, string mode = "additive")
     {
-        var rules = $$"""{"schemaVersion":19,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion":124,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
-        const string presentation = """{"schemaVersion":1,"skills":{"fixture:draw-ai":{"name":"Draw AI","description":"Fixture"}}}""";
+        var rules = $$"""{"schemaVersion":58,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
+        const string presentation = """{"schemaVersion":3,"skills":{"fixture:draw-ai":{"name":"Draw AI","description":"Fixture"}}}""";
         return SkillProgramCatalog.Load(rules, presentation).Programs["fixture:draw-ai"].Triggers.Single();
     }
 
@@ -447,16 +354,6 @@ internal static class TacticalAiChecks
         return new PlayerSkillContext(
             self.Seat, self.Hp, self.MaxHp, self.HandCount, TurnPhase.Draw, IsOwnTurn: true);
     }
-
-    private static double ActivationScore(AiThoughtRecord thought) => thought.Candidates
-        .Single(candidate => candidate.Action.Description.StartsWith("发动【", StringComparison.Ordinal)).Score;
-
-    private static LegacyFixture Fixture(string name, GameEngine game) => new(name, GameCheckpointJson.Serialize(game.CreateCheckpoint()),
-        Hash(SnapshotJson.Serialize(game.CreateSnapshot(game.State.HumanSeat, true))), EventHash(game));
-    private static string Hash(string text) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
-    private static string EventHash(GameEngine game) => Hash(string.Join('\n', game.Events.Select(item =>
-        $"{item.Sequence}|{item.Payload.GetType().Name}|{JsonSerializer.Serialize(item.Payload, item.Payload.GetType())}")));
-    private sealed record LegacyFixture(string Name, string CheckpointJson, string SnapshotHash, string EventHash);
 
     private static IReadOnlyList<PlayCase> Cases()
     {

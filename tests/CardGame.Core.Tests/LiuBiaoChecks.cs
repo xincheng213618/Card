@@ -24,7 +24,7 @@ internal static class LiuBiaoChecks
                     SkillIds: var skillIds
                 } && skillIds.SequenceEqual([ZishouSkillId, ZongshiSkillId]) &&
                 zishou.LegacyKind is null &&
-                zishou.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } &&
+                zishou.Program is { MinimumRulesVersion: 168 } &&
                 current.Skills.ContainsKey(ZongshiSkillId),
             "Current Liu Biao must publish Zishou and Zongshi.");
 

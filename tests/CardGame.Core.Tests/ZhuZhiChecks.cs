@@ -21,15 +21,12 @@ internal static class ZhuZhiChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: "skill-program-v55", MinimumRulesVersion: 165,
-                    UsesCompositionKernel: true } &&
+                skill.Program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
                 skill.Program.Activations.Single() is { UsesPerPhase: 1, MinTargets: 0, MaxTargets: 0 } &&
                 (int)SkillProgramConditionKind.AttackRangeCoverageDecreased == 22,
             "Zhu Zhi must be a formal Wu/Fame V general with phase-limited schema-55 Anguo.");
         var rules = Resource(RulesResource);
         var presentation = Resource(PresentationResource);
-        Reject(rules.Replace("\"schemaVersion\": 55", "\"schemaVersion\": 54", StringComparison.Ordinal),
-            presentation, "schema version 55");
         Reject(rules.Replace("\"sourceBind\": \"range-change\"", "\"sourceBind\": \"future\"", StringComparison.Ordinal),
             presentation, "unknown attack-range coverage");
         Reject(rules.Replace("\"allowSameOwnerHandReturn\": true", "\"allowSameOwnerHandReturn\": false", StringComparison.Ordinal)
@@ -404,15 +401,15 @@ internal static class ZhuZhiChecks
             if (rangeRescueTargets)
             {
                 const string rules = """
-                {"schemaVersion":55,"skills":[{"id":"fixture:range-rescue","revision":1,
-                 "minimumRulesVersion":165,"triggers":[{"id":"restore-public-range",
+                {"schemaVersion":58,"skills":[{"id":"fixture:range-rescue","revision":1,
+                 "minimumRulesVersion":168,"triggers":[{"id":"restore-public-range",
                  "window":"cardsMoved","subject":"owner","sourceZones":["equipment"],
                  "movementOccurrence":"perBatch","optional":false,"priority":0,
                  "effects":[{"op":"grantTurnRuleModifier","target":"owner",
                  "ruleQuery":"attackRange","ruleOperation":"unlimited"}]}]}]}
                 """;
                 const string presentation = """
-                {"schemaVersion":1,"skills":{"fixture:range-rescue":{"name":"范围响应","description":"装备离开后，攻击范围改为无限。"}}}
+                {"schemaVersion":3,"skills":{"fixture:range-rescue":{"name":"范围响应","description":"装备离开后，攻击范围改为无限。"}}}
                 """;
                 var catalog = SkillProgramCatalog.Load(rules, presentation);
                 builder.AddSkill(new ContentSkillDefinition("fixture:range-rescue", "范围响应", "测试公共失装响应")
@@ -422,12 +419,12 @@ internal static class ZhuZhiChecks
             if (rangePlusTwoTargets)
             {
                 const string rules = """
-                {"schemaVersion":55,"skills":[{"id":"fixture:range-plus-two","revision":1,
-                 "minimumRulesVersion":165,"modifiers":[{"id":"public-plus-two",
+                {"schemaVersion":58,"skills":[{"id":"fixture:range-plus-two","revision":1,
+                 "minimumRulesVersion":168,"modifiers":[{"id":"public-plus-two",
                  "query":"attackRange","operation":"add","value":2,"priority":0}]}]}
                 """;
                 const string presentation = """
-                {"schemaVersion":1,"skills":{"fixture:range-plus-two":{"name":"范围加二","description":"攻击范围加二。"}}}
+                {"schemaVersion":3,"skills":{"fixture:range-plus-two":{"name":"范围加二","description":"攻击范围加二。"}}}
                 """;
                 var catalog = SkillProgramCatalog.Load(rules, presentation);
                 builder.AddSkill(new ContentSkillDefinition("fixture:range-plus-two", "范围加二", "测试公开范围")
@@ -437,14 +434,14 @@ internal static class ZhuZhiChecks
             if (lethalLossTargets)
             {
                 const string rules = """
-                {"schemaVersion":55,"skills":[{"id":"fixture:range-lethal","revision":1,
-                 "minimumRulesVersion":165,"triggers":[{"id":"lose-life-on-equipment-loss",
+                {"schemaVersion":58,"skills":[{"id":"fixture:range-lethal","revision":1,
+                 "minimumRulesVersion":168,"triggers":[{"id":"lose-life-on-equipment-loss",
                  "window":"cardsMoved","subject":"owner","sourceZones":["equipment"],
                  "movementOccurrence":"perBatch","optional":false,"priority":0,
                  "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}
                 """;
                 const string presentation = """
-                {"schemaVersion":1,"skills":{"fixture:range-lethal":{"name":"致命失装","description":"装备离开后失去一点体力。"}}}
+                {"schemaVersion":3,"skills":{"fixture:range-lethal":{"name":"致命失装","description":"装备离开后失去一点体力。"}}}
                 """;
                 var catalog = SkillProgramCatalog.Load(rules, presentation);
                 builder.AddSkill(new ContentSkillDefinition("fixture:range-lethal", "致命失装", "测试嵌套死亡")

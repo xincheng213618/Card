@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 26,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:zili",
       "revision": 1,
-      "minimumRulesVersion": 131,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

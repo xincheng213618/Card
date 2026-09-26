@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 46,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:wusheng",
       "revision": 1,
-      "minimumRulesVersion": 155,
+      "minimumRulesVersion": 168,
       "viewAs": [
         {
           "id": "red-owned-as-slash",

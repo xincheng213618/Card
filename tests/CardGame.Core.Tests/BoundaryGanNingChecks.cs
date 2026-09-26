@@ -25,16 +25,14 @@ internal static class BoundaryGanNingChecks
             trigger is { Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
                 OwnerRelation: SkillProgramCardActionOwnerRelation.Observer,
                 Optional: true, UsageScope: SkillUsageScope.Game, UsageLimit: 1,
-                Effects: [{ Op: SkillProgramTriggerEffectOp.SelectTargets,
+                Effects: [{ Op: SkillProgramEffectOp.SelectTargets,
                     TargetKind: SkillProgramTargetKind.CurrentCardUseTargets },
-                    { Op: SkillProgramTriggerEffectOp.NullifySelectedCardEffects }] } &&
+                    { Op: SkillProgramEffectOp.NullifySelectedCardEffects }] } &&
             trigger.CardCategories.SequenceEqual([SkillProgramCardCategory.Trick]),
             "Boundary Gan Ning must have separate 1.140 skills, a limited generic trick observer and formal pools.");
 
         var rules = Resource("boundary-gan-ning.rules.json");
         var presentation = Resource("boundary-gan-ning.presentation.json");
-        Reject(rules.Replace("\"schemaVersion\": 55", "\"schemaVersion\": 54", StringComparison.Ordinal),
-            presentation);
         var generic = JsonNode.Parse(rules)!;
         generic["skills"]![0]!["id"] = "fixture:intervention";
         var gTrigger = generic["skills"]![0]!["triggers"]![0]!;
@@ -44,7 +42,7 @@ internal static class BoundaryGanNingChecks
             {"op":"draw","target":"owner","amount":1}
             """));
         var genericPresentation = """
-            {"schemaVersion":1,"skills":{"fixture:intervention":{"name":"公共组合","description":"测试"}}}
+            {"schemaVersion":3,"skills":{"fixture:intervention":{"name":"公共组合","description":"测试"}}}
             """;
         Require(SkillProgramCatalog.Load(generic.ToJsonString(), genericPresentation).Programs
                 .ContainsKey("fixture:intervention"),
@@ -61,25 +59,6 @@ internal static class BoundaryGanNingChecks
         var wrongWindow = JsonNode.Parse(generic.ToJsonString())!;
         wrongWindow["skills"]![0]!["triggers"]![0]!["window"] = "turnEnding";
         Reject(wrongWindow.ToJsonString(), genericPresentation);
-        var oldDelayedRules = """
-            {"schemaVersion":54,"skills":[{"id":"fixture:old-delayed-observer","revision":1,
-            "minimumRulesVersion":164,"triggers":[{"id":"observe-delayed",
-            "window":"cardUseBeforeTargetEffects","ownerRelation":"observer",
-            "cardKinds":["indulgence"],"optional":false,
-            "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
-            """;
-        var oldDelayedPresentation = """
-            {"schemaVersion":1,"skills":{"fixture:old-delayed-observer":{"name":"旧延时观察","description":"测试"}}}
-            """;
-        var oldDelayedRejected = false;
-        try { _ = SkillProgramCatalog.Load(oldDelayedRules, oldDelayedPresentation); }
-        catch (InvalidOperationException exception)
-        {
-            oldDelayedRejected = exception.Message.Contains(
-                "contains a card kind unsupported by cardUseBeforeTargetEffects", StringComparison.Ordinal);
-        }
-        Require(oldDelayedRejected,
-            "Schema 54 must retain its old rejection of an exact delayed card kind in this window.");
     }
 
     public static void MultiTargetAssaultSubsetAndReplay()
@@ -544,13 +523,13 @@ internal static class BoundaryGanNingChecks
             if (preEffectDeath)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":55,"skills":[{"id":"fixture:before-effect-death","revision":1,
-                    "minimumRulesVersion":165,"triggers":[{"id":"die-first",
+                    {"schemaVersion":58,"skills":[{"id":"fixture:before-effect-death","revision":1,
+                    "minimumRulesVersion":168,"triggers":[{"id":"die-first",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"target",
                     "cardKinds":["barbarianAssault"],"optional":false,"priority":100,
                     "effects":[{"op":"loseHp","target":"owner","amount":4}]}]}]}
                     """, """
-                    {"schemaVersion":1,"skills":{"fixture:before-effect-death":{"name":"先行死亡","description":"测试"}}}
+                    {"schemaVersion":3,"skills":{"fixture:before-effect-death":{"name":"先行死亡","description":"测试"}}}
                     """);
                 builder.AddSkill(new ContentSkillDefinition("fixture:before-effect-death", "先行死亡", "测试")
                 { Program = catalog.Programs["fixture:before-effect-death"] });
@@ -558,13 +537,13 @@ internal static class BoundaryGanNingChecks
             if (delayedTrickObserver)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":55,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
-                    "minimumRulesVersion":165,"triggers":[{"id":"observe-delayed",
+                    {"schemaVersion":58,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
+                    "minimumRulesVersion":168,"triggers":[{"id":"observe-delayed",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"observer",
                     "cardKinds":["indulgence"],"cardCategories":["trick"],"optional":false,
                     "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
                     """, """
-                    {"schemaVersion":1,"skills":{"fixture:delayed-trick-observer":{"name":"延时观察","description":"测试"}}}
+                    {"schemaVersion":3,"skills":{"fixture:delayed-trick-observer":{"name":"延时观察","description":"测试"}}}
                     """);
                 builder.AddSkill(new ContentSkillDefinition("fixture:delayed-trick-observer", "延时观察", "测试")
                 { Program = catalog.Programs["fixture:delayed-trick-observer"] });

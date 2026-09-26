@@ -21,7 +21,7 @@ internal static class GuanPingChecks
                 current.Skills["classic:longyin"] is
                 {
                     LegacyKind: null,
-                    Program.UsesCompositionKernel: true,
+                    Program: not null,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } &&

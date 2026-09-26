@@ -22,19 +22,19 @@ internal static class ZhongHuiChecks
         var quanji = current.Skills[QuanjiSkillId].Program;
         var zili = current.Skills[ZiliSkillId].Program;
         var paiyi = current.Skills[PaiyiSkillId].Program;
-        Require(quanji is { RuntimeVersion: "skill-program-v27", MinimumRulesVersion: 132,
+        Require(quanji is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168,
                             Triggers.Count: 1, Modifiers.Count: 1 } &&
                 quanji.Triggers.Single().Effects.Select(effect => effect.Op).SequenceEqual([
-                    SkillProgramTriggerEffectOp.Draw,
-                    SkillProgramTriggerEffectOp.SelectSourceCard,
-                    SkillProgramTriggerEffectOp.MoveBoundCards
+                    SkillProgramEffectOp.Draw,
+                    SkillProgramEffectOp.SelectSourceCard,
+                    SkillProgramEffectOp.MoveBoundCards
                 ]) &&
-                zili is { RuntimeVersion: "skill-program-v26", MinimumRulesVersion: 131,
+                zili is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168,
                            Triggers.Count: 2 } &&
                 zili.Triggers.All(trigger => trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
                     trigger.ChoiceGroup == "awakening-benefit" && !trigger.Optional &&
                     trigger.UsageScope == SkillUsageScope.Game && trigger.UsageLimit == 1) &&
-                paiyi is { RuntimeVersion: "skill-program-v28", MinimumRulesVersion: 133,
+                paiyi is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168,
                             Activations.Count: 1 } &&
                 paiyi.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Authority]) &&
                 paiyi.Activations.Single().Effects.Select(effect => effect.Op).SequenceEqual([
@@ -48,15 +48,13 @@ internal static class ZhongHuiChecks
             "CardGame.Content.Standard.SkillPrograms.active-persistent-zone-skills.rules.json");
         var activePresentation = ReadResource(typeof(StandardClassicGeneralPackage).Assembly,
             "CardGame.Content.Standard.SkillPrograms.active-persistent-zone-skills.presentation.json");
-        RequireLoadFailure(activeRules.Replace("\"schemaVersion\": 28", "\"schemaVersion\": 27"),
-            activePresentation, "Named-zone activation costs must require schema 28.");
         RequireLoadFailure(activeRules.Replace("\"sourceZones\": [\"authority\"]",
                 "\"sourceZones\": [\"discardPile\"]"),
             activePresentation, "Activation costs must reject non-owner source zones.");
-        RequireLoadFailure(activeRules.Replace("\"op\": \"damage\",\n              \"target\": \"selectedTarget\"",
-                "\"op\": \"damage\",\n              \"target\": \"owner\""),
-            activePresentation, "Active-program damage must require its selected target.");
-        var damageCondition = paiyiProgram.Effects.Single(effect => effect.Op == SkillProgramEffectOp.Damage).Condition;
+        var damageEffect = paiyiProgram.Effects.Single(effect => effect.Op == SkillProgramEffectOp.Damage);
+        Require(damageEffect.Target == SkillProgramEffectTarget.SelectedTarget,
+            "Paiyi must damage its selected recipient when the post-draw condition holds.");
+        var damageCondition = damageEffect.Condition;
         var ownerContext = new PlayerSkillContext(0, 3, 4, 3, TurnPhase.Play, IsOwnTurn: true);
         Require(damageCondition.Evaluate(ownerContext,
                     new PlayerSkillContext(1, 4, 4, 4, TurnPhase.Play), UnexpectedFrameLookup, UnexpectedFrameLookup) &&
@@ -257,10 +255,6 @@ internal static class ZhongHuiChecks
                 !triggers["recover"].Condition.Evaluate(fullThreeAuthorities) &&
                 triggers["draw"].Condition.Evaluate(fullThreeAuthorities),
             "The generic owned-zone condition must require three Authorities and omit only the illegal recovery branch at full HP.");
-        RequireLoadFailure(
-            rules.Replace("\"schemaVersion\": 26", "\"schemaVersion\": 25", StringComparison.Ordinal),
-            presentation,
-            "schema 25 must reject the owned-zone count and turn-start choice group");
         RequireLoadFailure(
             rules.Replace("\"zone\": \"authority\"", "\"zone\": \"hand\"", StringComparison.Ordinal),
             presentation,

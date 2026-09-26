@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 55,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "boundary:luoyi",
       "revision": 1,
-      "minimumRulesVersion": 165,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "skip-draw-reveal-three",

@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 38,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:wuhun",
       "revision": 2,
-      "minimumRulesVersion": 143,
+      "minimumRulesVersion": 168,
       "modifiers": [],
       "viewAs": [],
       "activations": [],

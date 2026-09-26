@@ -1,15 +1,17 @@
 {
-  "schemaVersion": 10,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "classic:wushen",
       "revision": 1,
-      "minimumRulesVersion": 95,
+      "minimumRulesVersion": 168,
       "modifiers": [
         {
+          "id": "wushen-slash-distance",
           "query": "slashDistanceLimit",
           "operation": "unlimited",
           "value": 0,
+          "priority": 0,
           "sourceCardIdentityId": "heart-hand-as-slash",
           "condition": { "kind": "always" }
         }

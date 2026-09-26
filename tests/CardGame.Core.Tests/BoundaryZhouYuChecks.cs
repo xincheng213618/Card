@@ -11,7 +11,7 @@ internal static class BoundaryZhouYuChecks
     private const string Fanjian = "boundary:fanjian";
     private const string YingziLuoyiFixture = "fixture:zhou-yingzi-luoyi";
     private const string YingziKujinFixture = "fixture:zhou-yingzi-kujin";
-    private const string Presentation = """{"schemaVersion":1,"skills":{"fixture:gift":{"name":"赠牌","description":"通用公开赠牌"}}}""";
+    private const string Presentation = """{"schemaVersion":3,"skills":{"fixture:gift":{"name":"赠牌","description":"通用公开赠牌"}}}""";
 
     public static void DefinitionAndResourceContracts()
     {
@@ -34,7 +34,6 @@ internal static class BoundaryZhouYuChecks
             "One-HP Zhou Yu must add exactly two to the ordinary hand-limit base.");
 
         var rules = Resource("rules"); var presentation = Resource("presentation");
-        Reject(Edit(rules, root => root["schemaVersion"] = 55), presentation, "schema version 56");
         Reject(Edit(rules, root => root["skills"]![1]!["activations"]![0]!["effects"]![3]!["suits"] =
             new JsonArray("spade")), presentation, "cannot mix");
         Reject(Edit(rules, root => root["skills"]![1]!["activations"]![0]!["effects"]![3]!["categories"] =

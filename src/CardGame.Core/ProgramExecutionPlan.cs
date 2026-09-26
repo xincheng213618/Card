@@ -19,7 +19,7 @@ internal readonly record struct ResolvedProgramInstruction(
     SkillProgramEffect Effect);
 
 /// <summary>
-/// Immutable executable instructions compiled from one activation or shared-executor trigger.
+/// Immutable executable instructions compiled from one activation or trigger.
 /// The plan contains definition data only and never caches match state.
 /// </summary>
 internal sealed class ProgramExecutionPlan
@@ -86,9 +86,6 @@ internal sealed class ProgramInstructionResolver
         {
             ProgramInstructionSourceKind.Activation when plans.Activations.TryGetValue(bindingId, out var plan) => plan,
             ProgramInstructionSourceKind.Trigger when plans.Triggers.TryGetValue(bindingId, out var plan) => plan,
-            ProgramInstructionSourceKind.Trigger when plans.LegacyTriggerIds.Contains(bindingId) =>
-                throw new InvalidOperationException(
-                    $"Trigger '{program.Id}/{bindingId}' does not use the shared program executor."),
             ProgramInstructionSourceKind.Activation => throw Unknown(program, "activation", bindingId),
             ProgramInstructionSourceKind.Trigger => throw Unknown(program, "trigger", bindingId),
             _ => throw new InvalidOperationException($"Unsupported program instruction source '{sourceKind}'.")
@@ -115,21 +112,14 @@ internal sealed class ProgramInstructionResolver
                 ProgramInstructionSourceKind.Activation, activation.Id, activation.Effects), program.Id);
 
         var triggers = new Dictionary<string, ProgramExecutionPlan>(StringComparer.Ordinal);
-        var legacy = new HashSet<string>(StringComparer.Ordinal);
         var triggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var trigger in program.Triggers)
         {
             if (!triggerIds.Add(trigger.Id)) throw Duplicate(program.Id, trigger.Id);
-            if (!trigger.UsesSharedExecutor)
-            {
-                legacy.Add(trigger.Id);
-                continue;
-            }
             Add(triggers, trigger.Id, new(program.Id, program.GameplayHash,
-                ProgramInstructionSourceKind.Trigger, trigger.Id,
-                trigger.Effects.Select(effect => effect.ToExecutionEffect()).ToArray()), program.Id);
+                ProgramInstructionSourceKind.Trigger, trigger.Id, trigger.Effects), program.Id);
         }
-        return new(activations, triggers, legacy);
+        return new(activations, triggers);
     }
 
     private static void Add(
@@ -149,6 +139,5 @@ internal sealed class ProgramInstructionResolver
 
     private sealed record ProgramPlans(
         IReadOnlyDictionary<string, ProgramExecutionPlan> Activations,
-        IReadOnlyDictionary<string, ProgramExecutionPlan> Triggers,
-        IReadOnlySet<string> LegacyTriggerIds);
+        IReadOnlyDictionary<string, ProgramExecutionPlan> Triggers);
 }

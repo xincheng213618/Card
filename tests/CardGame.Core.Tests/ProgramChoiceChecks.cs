@@ -12,17 +12,15 @@ internal static class ProgramChoiceChecks
     {
         var current = Load(CurrentRules, Presentation("摸两张", "回血", "复原"));
         var effects = current.Triggers.Single().Effects;
-        var payment = effects.Single(effect => effect.Op == SkillProgramTriggerEffectOp.SelectAndMoveOwnedCard);
-        var choice = effects.Single(effect => effect.Op == SkillProgramTriggerEffectOp.ChooseOption);
-        Require(current.RuntimeVersion == "skill-program-v30" && current.MinimumRulesVersion == 135 &&
+        var payment = effects.Single(effect => effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard);
+        var choice = effects.Single(effect => effect.Op == SkillProgramEffectOp.ChooseOption);
+        Require(current.RuntimeVersion == "skill-program-v58" && current.MinimumRulesVersion == 168 &&
                 payment.CardCategories.SequenceEqual([
                     SkillProgramCardCategory.Trick,
                     SkillProgramCardCategory.Equipment
                 ]) && choice.Options.Select(option => option.Id).SequenceEqual(["draw", "recover", "restore"]),
             "Schema 30 must retain the generic payment categories and named conditional options.");
 
-        Reject(CurrentRules.Replace("\"schemaVersion\":30", "\"schemaVersion\":29", StringComparison.Ordinal),
-            Presentation("摸两张", "回血", "复原"), "schema version 30");
         Reject(BuildRules(Effects.Replace("\"sourceBind\":\"benefit\",\"optionId\":\"draw\"",
                 "\"sourceBind\":\"missing\",\"optionId\":\"draw\"", StringComparison.Ordinal)),
             Presentation("摸两张", "回血", "复原"), "unknown choice result or option");
@@ -36,7 +34,7 @@ internal static class ProgramChoiceChecks
             CurrentRules.Replace(",\"cardCategories\":[\"trick\",\"equipment\"]", "", StringComparison.Ordinal),
             Presentation("摸两张", "回血", "复原"));
         Require(withoutFilter.Triggers.Single().Effects
-                    .Single(effect => effect.Op == SkillProgramTriggerEffectOp.SelectAndMoveOwnedCard)
+                    .Single(effect => effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard)
                     .CardCategories.Count == 0,
             "Omitting cardCategories must retain the unfiltered payment contract.");
         Reject(CurrentRules.Replace("[\"trick\",\"equipment\"]", "[]", StringComparison.Ordinal),
@@ -48,9 +46,9 @@ internal static class ProgramChoiceChecks
         Reject(CurrentRules, Presentation("摸两张", "回血", null), "missing label");
         var relabeled = Load(CurrentRules, Presentation("抽二", "回复一", "解除异常"));
         Require(current.GameplayHash == relabeled.GameplayHash &&
-                current.Triggers.Single().Effects.Single(effect => effect.Op == SkillProgramTriggerEffectOp.ChooseOption)
+                current.Triggers.Single().Effects.Single(effect => effect.Op == SkillProgramEffectOp.ChooseOption)
                     .Options.Select(option => option.Label).SequenceEqual(["摸两张", "回血", "复原"]) &&
-                relabeled.Triggers.Single().Effects.Single(effect => effect.Op == SkillProgramTriggerEffectOp.ChooseOption)
+                relabeled.Triggers.Single().Effects.Single(effect => effect.Op == SkillProgramEffectOp.ChooseOption)
                     .Options.Select(option => option.Label).SequenceEqual(["抽二", "回复一", "解除异常"]),
             "Changing presentation-only option labels must not change the gameplay hash.");
     }
@@ -331,9 +329,9 @@ internal static class ProgramChoiceChecks
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private static string BuildRules(string effects, int schemaVersion = 30) => $$"""
-        {"schemaVersion":{{schemaVersion}},"skills":[{"id":"{{SkillId}}","revision":1,
-        "minimumRulesVersion":135,"modifiers":[],"viewAs":[],"activations":[],
+    private static string BuildRules(string effects) => $$"""
+        {"schemaVersion":58,"skills":[{"id":"{{SkillId}}","revision":1,
+        "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],
         "triggers":[{"id":"support","window":"turnEnding","subject":"owner","optional":false,
         "priority":0,"usageScope":"turn","usageLimit":1,"effects":{{effects}}}],
         "contributions":[],"cardIdentities":[]}]}

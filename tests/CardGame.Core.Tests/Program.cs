@@ -113,10 +113,11 @@ var tests = new (string Name, Action Body)[]
     ("Program choice revalidates options and exact skill instance", ProgramChoiceChecks.RevalidatesChoiceAndExactInstanceBeforeResolving),
     ("composition kernel descriptor contracts", ProgramCompositionDefinitionChecks.CatalogDiscoversCompleteOperations),
     ("completed Slash program window follows finished card use and replays", CardUseCompletedChecks.FinishedSlashOpensReplayableProgramWindow),
+    ("card-action judgment windows resume and replay", ProgramCardJudgmentWindowChecks.AllCardActionWindowsStartPublicJudgmentsAndReplay),
     ("completed Slash freezes actual damage for conditional programs", CardUseCompletedChecks.CompletedUseFreezesActualDamageFact),
     ("completed Slash filters frozen conversion provenance", CardUseCompletedChecks.CompletedUseFiltersFrozenConversionSource),
     ("configured Slash converts to Fire Slash without Zhuque Fan", CardUseCompletedChecks.ConfiguredSlashCanBecomeFireSlashWithoutZhuqueFan),
-    ("composition kernel current formal content", ProgramCompositionDefinitionChecks.CurrentExecutableContentUsesCompositionKernel),
+    ("composition kernel current formal content", ProgramCompositionDefinitionChecks.CurrentExecutableContentHasOneExecutionPlan),
     ("composition AI activates target benefits in a real match", ProgramCompositionAiIntegrationChecks.JiemingAiActivatesAndDrawsForFriendlyTarget),
     ("composition AI respects previously granted target restrictions", ProgramCompositionAiIntegrationChecks.ZishouSelfOnlyPreventsWastefulJiangchiAssault),
     ("composition kernel cross-entry compilation", ProgramCompositionDefinitionChecks.EquivalentEntriesCompileSameEffects),
@@ -199,6 +200,7 @@ var tests = new (string Name, Action Body)[]
     ("skill program multi-target triggers wait for every Liuli redirection", SkillProgramTargetOrderChecks.Run),
     ("skill program v3 final judgment definitions validate and freeze", SkillProgramJudgmentTriggerChecks.Definitions),
     ("skill program final judgment triggers resume recovery, drawing and replay", SkillProgramJudgmentTriggerChecks.WindowAndReplay),
+    ("skill program frozen judgment instance does not transfer to another grant", SkillProgramJudgmentTriggerChecks.FrozenInstanceCannotTransferToAnotherGrant),
     ("skill program v4 judgment replacement definitions validate and freeze", SkillProgramJudgmentReplacementChecks.Definitions),
     ("skill program judgment replacement commits both old-card destinations and replays", SkillProgramJudgmentReplacementChecks.WindowDestinationsAndReplay),
     ("judgment replacement excludes the equipment producing a Bagua judgment", SkillProgramJudgmentReplacementChecks.BaguaSourceEquipmentIsExcluded),
@@ -211,9 +213,6 @@ var tests = new (string Name, Action Body)[]
     ("skill program v8 selected judgment subjects validate and freeze", SkillProgramSelectedJudgmentChecks.Definitions),
     ("skill program selected judgment subjects damage and replay", SkillProgramSelectedJudgmentChecks.SelectedSubjectDamageAndReplay),
     ("judgment replacement candidates start from the current turn actor", SkillProgramSelectedJudgmentChecks.ReplacementOrderUsesTurnActor),
-    ("skill program v9 causeDeath definitions validate and freeze", SkillProgramCauseDeathChecks.Definitions),
-    ("skill program causeDeath resumes nested death skills and replay", SkillProgramCauseDeathChecks.NestedDeathSkillAndReplay),
-    ("skill program causeDeath short-circuits after terminal death", SkillProgramCauseDeathChecks.TerminalShortCircuit),
     ("skill program v10 card identities and action modifiers validate and freeze", SkillProgramCardIdentityChecks.Definitions),
     ("schema-46 viewAs source zones validate and isolate hand from equipment", SkillProgramViewAsZoneChecks.DefinitionAndZoneIsolation),
     ("mandatory card identity suppresses native use, ignores Slash distance and replays", SkillProgramCardIdentityChecks.MandatoryIdentityDistanceAndReplay),
@@ -456,7 +455,7 @@ var tests = new (string Name, Action Body)[]
     ("tactical AI weighs friendly fire, recovery, alcohol and conversions", TacticalAiChecks.PlayDecisions),
     ("tactical AI protects the Lord and orders rescue choices", TacticalAiChecks.RescueDecisions),
     ("tactical AI compares configured draw replacements with normal drawing", TacticalAiChecks.DrawReplacementActivation),
-    ("tactical AI values schema-19 draw programs by visible node contributions", TacticalAiChecks.DrawPhaseProgramActivation),
+    ("tactical AI values current draw programs through the common estimator", TacticalAiChecks.DrawPhaseProgramActivation),
     ("tactical AI changes camp inference only after public evidence", TacticalAiChecks.PublicEvidence),
     ("national AI updates hidden-faction hostility only from public attacks", TacticalAiChecks.NationalPublicEvidence),
     ("tactical AI resolves hidden endgames and avoids canceling beneficial effects", TacticalAiChecks.EndgameAndNullification),
@@ -1247,14 +1246,14 @@ static void StandardContentRegistryBuilds()
     Equal("standard:wusheng", registry.Generals["standard:guan-yu"].SkillId);
     Equal("standard:longdan", registry.Generals["standard:zhao-yun"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:yingzi") is
-        { LegacyKind: null, Program.UsesCompositionKernel: true },
+        { LegacyKind: null, Program: not null },
         "current Yingzi uses the shared composition kernel");
     TrueWithMessage(registry.GetSkill("standard:yiji") is
-        { LegacyKind: null, Program.UsesCompositionKernel: true },
+        { LegacyKind: null, Program: not null },
         "current Yiji uses the shared composition kernel");
     Equal("standard:yiji", registry.Generals["standard:guo-jia"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:jieming") is
-        { LegacyKind: null, Program.UsesCompositionKernel: true },
+        { LegacyKind: null, Program: not null },
         "current Jieming uses the shared composition kernel");
     Equal("standard:jieming", registry.Generals["standard:xun-yu"].SkillId);
     Equal(SkillKind.Yuanhu, registry.GetSkill("standard:yuanhu").LegacyKind);

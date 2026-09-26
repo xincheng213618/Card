@@ -22,33 +22,20 @@ internal static class BoundaryZhangLiaoChecks
                 trigger is { Window: SkillProgramTriggerWindow.DrawPhaseStarting,
                     DrawPhaseMode: SkillProgramDrawPhaseMode.Additive, Optional: true,
                     Effects: [
-                        { Op: SkillProgramTriggerEffectOp.SelectTargets,
+                        { Op: SkillProgramEffectOp.SelectTargets,
                           TargetKind: SkillProgramTargetKind.OtherLivingHandAtLeastOwner,
                           NumberExpression: SkillProgramNumberExpression.PlannedNormalDrawCount },
-                        { Op: SkillProgramTriggerEffectOp.AdjustNormalDraw,
+                        { Op: SkillProgramEffectOp.AdjustNormalDraw,
                           NumberExpression: SkillProgramNumberExpression.SelectedTargetCount },
-                        { Op: SkillProgramTriggerEffectOp.TakeRandomHandCardFromSelectedTargets }
+                        { Op: SkillProgramEffectOp.TakeRandomHandCardFromSelectedTargets }
                     ] },
             "The 2018 boundary Zhang Liao must use its own additive draw-plan skill in the current identity pool.");
         Require(registry.Skills["classic:tuxi"].Program!.Triggers.Single().DrawPhaseMode ==
                     SkillProgramDrawPhaseMode.Replacement,
             "The new draw-plan syntax must not change classic Tuxi behavior.");
 
-        using var rulesStream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream(
-            "CardGame.Content.Standard.SkillPrograms.boundary-zhang-liao.rules.json")!;
-        using var rulesReader = new StreamReader(rulesStream);
-        var rules = rulesReader.ReadToEnd();
-        // The test's embedded program is loaded through its package above. A schema-53 copy must be refused.
-        var rejected = false;
-        try
-        {
-            _ = SkillProgramCatalog.Load(rules.Replace("\"schemaVersion\": 54", "\"schemaVersion\": 53",
-                StringComparison.Ordinal), Presentation);
-        }
-        catch (InvalidOperationException) { rejected = true; }
-        Require(rejected, "Schema 53 must reject planned normal-draw target selection.");
         var publicAi = ProgramCompositionAi.Estimate(
-            trigger.Effects.Select(effect => effect.ToExecutionEffect()),
+            trigger.Effects,
             new PlayerSkillContext(0, 4, 4, 4, TurnPhase.Draw, IsOwnTurn: true),
             publicContext: new ProgramAiPublicContext(1, NormalDrawCount: 3,
                 EligibleTargetCount: 4));
@@ -56,11 +43,11 @@ internal static class BoundaryZhangLiaoChecks
             "Public AI estimation must account for three selected steals and three fewer draws without private hand contents.");
 
         const string genericPresentation = """
-            {"schemaVersion":1,"skills":{"fixture:draw-plan":{"name":"通用摸牌计划","description":"测试"}}}
+            {"schemaVersion":3,"skills":{"fixture:draw-plan":{"name":"通用摸牌计划","description":"测试"}}}
             """;
         const string genericPlan = """
-            {"schemaVersion":54,"skills":[{"id":"fixture:draw-plan","revision":1,
-            "minimumRulesVersion":164,"triggers":[{"id":"plan","window":"drawPhaseStarting",
+            {"schemaVersion":58,"skills":[{"id":"fixture:draw-plan","revision":1,
+            "minimumRulesVersion":168,"triggers":[{"id":"plan","window":"drawPhaseStarting",
             "subject":"owner","optional":true,"drawPhaseMode":"additive","effects":[
             {"op":"selectTargets","target":"owner","targetKind":"anyLiving",
              "minimumTargets":1,"maximumTargets":8,"numberExpression":"plannedNormalDrawCount",
@@ -104,7 +91,7 @@ internal static class BoundaryZhangLiaoChecks
             var program = SkillProgramCatalog.Load(composition.ToJsonString(), genericPresentation)
                 .Programs["fixture:draw-plan"];
             var estimate = ProgramCompositionAi.Estimate(
-                program.Triggers.Single().Effects.Select(effect => effect.ToExecutionEffect()),
+                program.Triggers.Single().Effects,
                 new PlayerSkillContext(0, 4, 4, handCount, TurnPhase.Draw, IsOwnTurn: true),
                 publicContext: new ProgramAiPublicContext(1, NormalDrawCount: normalDrawCount,
                     EligibleTargetCount: eligibleCount));
@@ -113,7 +100,7 @@ internal static class BoundaryZhangLiaoChecks
             if (limit is null)
             {
                 var unknownCandidates = ProgramCompositionAi.Estimate(
-                    program.Triggers.Single().Effects.Select(effect => effect.ToExecutionEffect()),
+                    program.Triggers.Single().Effects,
                     new PlayerSkillContext(0, 4, 4, handCount, TurnPhase.Draw, IsOwnTurn: true),
                     publicContext: new ProgramAiPublicContext(1, NormalDrawCount: normalDrawCount));
                 Require(unknownCandidates.Score == 0,
@@ -343,7 +330,7 @@ internal static class BoundaryZhangLiaoChecks
     }
 
     private const string Presentation = """
-        {"schemaVersion":1,"skills":{"boundary:tuxi":{"name":"突袭","description":"测试"}}}
+        {"schemaVersion":3,"skills":{"boundary:tuxi":{"name":"突袭","description":"测试"}}}
         """;
     private sealed class Scenario(int adjustment, bool preDraw, bool replacement) : IGameContentPackage
     {
@@ -358,12 +345,12 @@ internal static class BoundaryZhangLiaoChecks
             {
                 extra.Add("fixture:draw-adjustment");
                 var catalog = SkillProgramCatalog.Load($$"""
-                    {"schemaVersion":53,"skills":[{"id":"fixture:draw-adjustment","revision":1,
-                    "minimumRulesVersion":164,"triggers":[{"id":"adjust","window":"drawPhaseStarting",
+                    {"schemaVersion":58,"skills":[{"id":"fixture:draw-adjustment","revision":1,
+                    "minimumRulesVersion":168,"triggers":[{"id":"adjust","window":"drawPhaseStarting",
                     "subject":"owner","optional":false,"priority":200,"effects":[{"op":"adjustNormalDraw",
                     "target":"owner","amount":{{adjustment}}}]}]}]}
                     """, """
-                    {"schemaVersion":1,"skills":{"fixture:draw-adjustment":{"name":"摸牌调整","description":"测试"}}}
+                    {"schemaVersion":3,"skills":{"fixture:draw-adjustment":{"name":"摸牌调整","description":"测试"}}}
                     """);
                 builder.AddSkill(new ContentSkillDefinition("fixture:draw-adjustment", "摸牌调整", "测试")
                 { Program = catalog.Programs["fixture:draw-adjustment"] });
@@ -372,12 +359,12 @@ internal static class BoundaryZhangLiaoChecks
             {
                 extra.Add("fixture:pre-draw");
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":53,"skills":[{"id":"fixture:pre-draw","revision":1,
-                    "minimumRulesVersion":164,"triggers":[{"id":"early","window":"drawPhaseStarting",
+                    {"schemaVersion":58,"skills":[{"id":"fixture:pre-draw","revision":1,
+                    "minimumRulesVersion":168,"triggers":[{"id":"early","window":"drawPhaseStarting",
                     "subject":"owner","optional":false,"priority":200,"effects":[
                     {"op":"draw","target":"owner","amount":1}]}]}]}
                     """, """
-                    {"schemaVersion":1,"skills":{"fixture:pre-draw":{"name":"先摸牌","description":"测试"}}}
+                    {"schemaVersion":3,"skills":{"fixture:pre-draw":{"name":"先摸牌","description":"测试"}}}
                     """);
                 builder.AddSkill(new ContentSkillDefinition("fixture:pre-draw", "先摸牌", "测试")
                 { Program = catalog.Programs["fixture:pre-draw"] });

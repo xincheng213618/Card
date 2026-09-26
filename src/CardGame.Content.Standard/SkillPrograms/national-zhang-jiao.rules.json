@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 8,
+  "schemaVersion": 58,
   "skills": [
     {
       "id": "national:guidao",
       "revision": 1,
-      "minimumRulesVersion": 89,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "replace-judgment",
@@ -27,23 +27,32 @@
     {
       "id": "national:leiji",
       "revision": 1,
-      "minimumRulesVersion": 89,
+      "minimumRulesVersion": 168,
       "triggers": [
         {
           "id": "after-dodge",
           "window": "cardResponseAccepted",
           "cardKinds": ["dodge"],
+          "ownerRelation": "actor",
           "optional": true,
           "effects": [
             {
               "op": "selectTarget",
-              "target": "selectedTarget",
+              "target": "owner",
               "targetKind": "otherLiving"
             },
             {
               "op": "startJudgment",
               "target": "selectedTarget",
-              "judgmentReason": "skill.national.leiji"
+              "judgmentReason": "skill.national.leiji",
+              "resultBind": "leiji-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "leiji-judgment",
+              "destination": "discardPile"
             }
           ]
         },
@@ -61,7 +70,8 @@
           "effects": [
             {
               "op": "damage",
-              "target": "judgmentSubject",
+              "target": "owner",
+              "targetRef": { "kind": "eventTarget" },
               "amount": 2,
               "nature": "thunder"
             }

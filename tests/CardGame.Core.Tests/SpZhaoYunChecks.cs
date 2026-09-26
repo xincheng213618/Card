@@ -28,8 +28,8 @@ internal static class SpZhaoYunChecks
         });
         Require(accepted.Accepted, accepted.Error?.Message ?? "Formal SP Longdan Slash was rejected.");
         var invoke = game.PendingDecision;
-        Require(invoke is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0, IsPrivate: true } &&
-                invoke.TargetSeat == action.TargetSeats.Single(),
+        Require(invoke is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, IsPrivate: true } &&
+                invoke.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"),
             "Formal Chongzhen must pause against the converted Slash's final target.");
         var cardAction = game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>()
             .Single(item => item.Action.Type == CardActionType.Use &&
@@ -41,21 +41,21 @@ internal static class SpZhaoYunChecks
 
         var paused = game.CreateCheckpoint();
         var skipped = GameReplay.Restore(paused, registry);
-        Answer(skipped, "program-trigger-skip");
+        Answer(skipped, "skip");
         Require(skipped.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>()
                 .Single() is { SkillId: "sp:chongzhen", Activated: false },
             "Skipping formal Chongzhen must resolve without taking a card.");
 
         var activated = GameReplay.Restore(paused, registry);
         var before = activated.CreateSnapshot(0, revealAll: true);
-        var opponent = activated.PendingDecision!.TargetSeat!.Value;
-        Answer(activated, "program-trigger-activate");
-        Require(activated.PendingDecision is { Kind: DecisionKind.ProgramCardTrigger } take &&
+        var opponent = action.TargetSeats.Single();
+        Answer(activated, "activate");
+        Require(activated.PendingDecision is { Kind: DecisionKind.ProgramTrigger } take &&
                 take.Choices.Count == before.Players[opponent].HandCount &&
                 take.Choices.All(choice => choice.Cards.Count == 0 &&
-                    choice.Parameters.GetValueOrDefault("action") == "program-trigger-take"),
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"),
             "Formal Chongzhen must expose only opaque opponent-hand slots.");
-        Answer(activated, "program-trigger-take");
+        Answer(activated, "select-and-move-owned-card");
         var after = activated.CreateSnapshot(0, revealAll: true);
         Require(after.Players[0].HandCount == before.Players[0].HandCount + 1 &&
                 after.Players[opponent].HandCount == before.Players[opponent].HandCount - 1 &&
@@ -112,8 +112,9 @@ internal static class SpZhaoYunChecks
             game.Revision));
         Require(accepted.Accepted, accepted.Error?.Message ?? "Formal SP Longdan Dodge was rejected.");
         var invoke = game.PendingDecision;
-        Require(invoke is { Kind: DecisionKind.ProgramCardTrigger, PlayerSeat: 0, IsPrivate: true } &&
-                invoke.TargetSeat == response.SourceSeat && game.State.ProcessingCardCount >= 1,
+        Require(invoke is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, IsPrivate: true } &&
+                invoke.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
+                game.State.ProcessingCardCount >= 1,
             "Formal Chongzhen response must target the Slash user while the paid card remains in Processing.");
         var cardAction = game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>()
             .Single(item => item.Action.Type == CardActionType.Response &&
@@ -125,8 +126,8 @@ internal static class SpZhaoYunChecks
                 cardAction.ConversionChain.Single() is
                     { SkillId: "sp:longdan", BindingId: "slash-to-dodge", OwnerSeat: 0 },
             "The formal response action must retain its attacker, physical Slash and exact SP Longdan source.");
-        Answer(game, "program-trigger-activate");
-        Answer(game, "program-trigger-take");
+        Answer(game, "activate");
+        Answer(game, "select-and-move-owned-card");
         Require(game.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>()
                 .Single() is { SkillId: "sp:chongzhen", TriggerId: "after-longdan-dodge-response", Activated: true },
             "Formal response Chongzhen must resolve once for the attacker.");
@@ -184,7 +185,7 @@ internal static class SpZhaoYunChecks
     private static void Answer(GameEngine game, string action)
     {
         var prompt = game.PendingDecision ?? throw new InvalidOperationException("SP Zhao Yun prompt was lost.");
-        var choice = prompt.Choices.First(item => item.Parameters.GetValueOrDefault("action") == action);
+        var choice = prompt.Choices.First(item => item.Parameters.GetValueOrDefault("program-action") == action);
         var answered = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision));
         Require(answered.Accepted, answered.Error?.Message ?? $"SP Zhao Yun prompt action '{action}' was rejected.");
     }

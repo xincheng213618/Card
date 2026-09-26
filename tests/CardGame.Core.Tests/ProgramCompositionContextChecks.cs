@@ -205,7 +205,7 @@ internal static class ProgramCompositionContextChecks
     }
 
     private static string Rules(string id, IReadOnlyList<string> activations, IReadOnlyList<string> triggers) => $$"""
-    {"schemaVersion":23,"skills":[{"id":"{{id}}","revision":1,"minimumRulesVersion":128,
+    {"schemaVersion":58,"skills":[{"id":"{{id}}","revision":1,"minimumRulesVersion":168,
     "modifiers":[],"viewAs":[],"activations":[{{string.Join(',', activations)}}],
     "triggers":[{{string.Join(',', triggers)}}],"contributions":[],"cardIdentities":[]}]}
     """;
@@ -230,7 +230,7 @@ internal static class ProgramCompositionContextChecks
 
     private static string Presentation(string id) => JsonSerializer.Serialize(new
     {
-        schemaVersion = 1,
+        schemaVersion = 3,
         skills = new Dictionary<string, object>
         {
             [id] = new { name = "上下文组合", description = "测试" }

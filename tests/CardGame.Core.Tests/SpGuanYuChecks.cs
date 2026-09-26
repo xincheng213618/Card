@@ -9,16 +9,16 @@ internal static class SpGuanYuChecks
     private const string MashuSkillId = "sp:guan-yu-mashu";
     private const string NuzhanSkillId = "sp:nuzhan";
     private const string ValidationRules =
-        """{"schemaVersion":25,"skills":[{"id":"fixture:awakening","revision":1,"minimumRulesVersion":130,"modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"awakening","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"condition":{"kind":"all","children":[{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"greaterThan","right":{"kind":"currentHp"}},{"kind":"lordGeneralNotIn","generalIds":["classic:liu-bei"]}]},"effects":[{"op":"changeMaximumHp","target":"owner","amount":-1},{"op":"grantSkills","target":"owner","skillIds":["sp:guan-yu-mashu","sp:nuzhan"]}]}],"contributions":[],"cardIdentities":[]}]}""";
+        """{"schemaVersion":58,"skills":[{"id":"fixture:awakening","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"awakening","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"condition":{"kind":"all","children":[{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"greaterThan","right":{"kind":"currentHp"}},{"kind":"lordGeneralNotIn","generalIds":["classic:liu-bei"]}]},"effects":[{"op":"changeMaximumHp","target":"owner","amount":-1},{"op":"grantSkills","target":"owner","skillIds":["sp:guan-yu-mashu","sp:nuzhan"]}]}],"contributions":[],"cardIdentities":[]}]}""";
     private const string ValidationPresentation =
-        """{"schemaVersion":1,"skills":{"fixture:awakening":{"name":"觉醒夹具","description":"验证通用觉醒状态节点。"}}}""";
+        """{"schemaVersion":3,"skills":{"fixture:awakening":{"name":"觉醒夹具","description":"验证通用觉醒状态节点。"}}}""";
 
     public static void ProgramPrimitivesAndConditionsValidate()
     {
         var program = SkillProgramCatalog.Load(ValidationRules, ValidationPresentation)
             .Programs["fixture:awakening"];
         var trigger = program.Triggers.Single();
-        Require(program is { RuntimeVersion: "skill-program-v25", MinimumRulesVersion: 130 } &&
+        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
                 trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
                     0, 3, true, CurrentHandCount: 4, LordGeneralId: "classic:cao-cao")) &&
                 !trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
@@ -27,11 +27,6 @@ internal static class SpGuanYuChecks
                     0, 3, true, CurrentHandCount: 4, LordGeneralId: "classic:liu-bei")),
             "Schema 25 must compose frozen hand-count and Lord-general facts without a Danji-specific predicate.");
 
-        Reject(
-            ValidationRules
-                .Replace("\"schemaVersion\":25", "\"schemaVersion\":22", StringComparison.Ordinal)
-                .Replace("\"minimumRulesVersion\":130", "\"minimumRulesVersion\":127", StringComparison.Ordinal),
-            "schema version 25");
         Reject(
             ValidationRules.Replace(
                 "\"sp:guan-yu-mashu\",\"sp:nuzhan\"",
@@ -78,8 +73,8 @@ internal static class SpGuanYuChecks
             LegacyKind: null,
             Tags: SkillTag.Awakening | SkillTag.Locked | SkillTag.Limited,
             ExecutionForms: SkillExecutionForm.Trigger,
-            Program.RuntimeVersion: "skill-program-v25",
-            Program.MinimumRulesVersion: 130
+            Program.RuntimeVersion: "skill-program-v58",
+            Program.MinimumRulesVersion: 168
         } &&
             awakening is
             {
@@ -92,13 +87,13 @@ internal static class SpGuanYuChecks
                 Effects:
                 [
                     {
-                        Op: SkillProgramTriggerEffectOp.ChangeMaximumHp,
-                        Target: SkillProgramTriggerEffectTarget.Owner,
+                        Op: SkillProgramEffectOp.ChangeMaximumHp,
+                        Target: SkillProgramEffectTarget.Owner,
                         Amount: -1
                     },
                     {
-                        Op: SkillProgramTriggerEffectOp.GrantSkills,
-                        Target: SkillProgramTriggerEffectTarget.Owner,
+                        Op: SkillProgramEffectOp.GrantSkills,
+                        Target: SkillProgramEffectTarget.Owner,
                         SkillIds: [MashuSkillId, NuzhanSkillId]
                     }
                 ]
@@ -106,7 +101,7 @@ internal static class SpGuanYuChecks
             current.Skills[MashuSkillId] is
             {
                 LegacyKind: null,
-                Program.RuntimeVersion: "skill-program-v12",
+                Program.RuntimeVersion: "skill-program-v58",
                 Tags: SkillTag.Locked,
                 ExecutionForms: SkillExecutionForm.State
             } &&

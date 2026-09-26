@@ -24,7 +24,6 @@
     <Compile Include="..\Shared\ZhuqueFanScenario.cs" Link="ZhuqueFanScenario.cs" />
     <Compile Include="..\Shared\TengjiaScenario.cs" Link="TengjiaScenario.cs" />
     <Compile Include="..\Shared\SilverLionScenario.cs" Link="SilverLionScenario.cs" />
-    <EmbeddedResource Include="Fixtures\legacy-ai-checkpoints.json" />
     <EmbeddedResource Include="Fixtures\group-claim-before-death.json" />
     <ProjectReference Include="..\..\src\CardGame.Core\CardGame.Core.csproj" />
     <ProjectReference Include="..\..\src\CardGame.Content.Standard\CardGame.Content.Standard.csproj" />

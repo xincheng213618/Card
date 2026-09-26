@@ -57,6 +57,9 @@ internal static class ProgramCompositionValidator
             }
             if ((capabilities & descriptor.RequiredCapabilities) != descriptor.RequiredCapabilities)
                 throw Error(nodePath, $"operation requires context {descriptor.RequiredCapabilities}, supplied {capabilities}");
+            if (effect.ReplacementSuits.Count > 0 &&
+                !capabilities.HasFlag(ProgramContextCapability.JudgmentReplacement))
+                throw Error(nodePath, "replacement filters require judgmentReplacing context");
             if (drawPhaseMode == SkillProgramDrawPhaseMode.Replacement &&
                 descriptor.RequiredCapabilities.HasFlag(ProgramContextCapability.DrawPlan))
                 throw Error(nodePath, "a replacement draw program cannot adjust the replaced normal draw");
@@ -234,6 +237,10 @@ internal static class ProgramCompositionValidator
                     case RequireContext required:
                         if ((capabilities & required.Capability) != required.Capability)
                             Fail($"operation requires context {required.Capability}, supplied {capabilities}");
+                        break;
+                    case RequireAnyContext required:
+                        if ((capabilities & required.Capabilities) == 0)
+                            Fail($"operation requires one of {required.Capabilities}, supplied {capabilities}");
                         break;
                     case SelectSingleTarget:
                         if (selectedTarget || targetSetAvailable) Fail("a composition may select its target only once");

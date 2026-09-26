@@ -14,7 +14,7 @@ internal static class SkillProgramChecks
             "Equivalent rule JSON must have the same gameplay hash regardless of formatting and property order.");
         Require(first.Presentations[program.Id].Description != second.Presentations[program.Id].Description,
             "The fixture must actually vary presentation text.");
-        Require(SkillProgramCatalog.RuntimeVersion == "skill-program-v1" &&
+        Require(SkillProgramCatalog.RuntimeVersion == "skill-program-v58" &&
                 program.GameplayHash.Length == 64 && program.GameplayHash.All(Uri.IsHexDigit) &&
                 program.GameplayHash == program.GameplayHash.ToLowerInvariant(),
             "GameplayHash must be a lowercase SHA-256 value.");
@@ -45,7 +45,7 @@ internal static class SkillProgramChecks
         AssertReject(RulesA.Replace("\"revision\":1", "\"revision\":1,\"revision\":1", StringComparison.Ordinal),
             PresentationA, "duplicate property");
         AssertReject(RulesA.Replace("\"minTargets\":1", "\"minTargets\":0", StringComparison.Ordinal),
-            PresentationA, "selectedTarget");
+            PresentationA, "exact initial target count");
         AssertReject(RulesA, PresentationA.Replace("scenario:composed", "scenario:missing", StringComparison.Ordinal),
             "unknown skill");
         AssertReject("{", PresentationA, "rules");
@@ -383,7 +383,7 @@ internal static class SkillProgramChecks
     }
 
     private const string DyingRules = """
-        {"schemaVersion":1,"skills":[{"id":"scenario:dying","revision":1,"modifiers":[],"viewAs":[],
+        {"schemaVersion":58,"skills":[{"id":"scenario:dying","revision":1,"modifiers":[],"viewAs":[],
         "activations":[{"id":"invoke","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,
         "targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"loseHp","target":"owner","amount":5},
         {"op":"draw","target":"owner","amount":1}]},
@@ -394,7 +394,7 @@ internal static class SkillProgramChecks
         "targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"giveSelected","target":"selectedTarget","amount":1}]}]}]}
         """;
     private const string DyingPresentation = """
-        {"schemaVersion":1,"skills":{"scenario:dying":{"name":"Dying","description":"Lose HP then draw"}}}
+        {"schemaVersion":3,"skills":{"scenario:dying":{"name":"Dying","description":"Lose HP then draw"}}}
         """;
 
     private static void AssertReject(string rules, string presentation, string expectedMessage)
@@ -402,12 +402,13 @@ internal static class SkillProgramChecks
         try
         {
             _ = SkillProgramCatalog.Load(rules, presentation);
-            throw new InvalidOperationException($"Loader accepted invalid skill program expected to mention '{expectedMessage}'.");
         }
         catch (InvalidOperationException exception) when (
             exception.Message.Contains(expectedMessage, StringComparison.OrdinalIgnoreCase))
         {
+            return;
         }
+        throw new InvalidOperationException($"Loader accepted invalid skill program expected to mention '{expectedMessage}'.");
     }
 
     private static void RequireThrows<TException>(Action action) where TException : Exception
@@ -430,7 +431,7 @@ internal static class SkillProgramChecks
     }
 
     private const string PresentationA = """
-        {"schemaVersion":1,"skills":{"scenario:composed":{"name":"Composed","description":"first text"}}}
+        {"schemaVersion":3,"skills":{"scenario:composed":{"name":"Composed","description":"first text"}}}
         """;
 
     private const string PresentationB = """
@@ -438,19 +439,19 @@ internal static class SkillProgramChecks
           "skills": {
             "scenario:composed": { "description": "updated display text", "name": "Renamed" }
           },
-          "schemaVersion": 1
+          "schemaVersion": 3
         }
         """;
 
     private const string RulesA = """
         {
-          "schemaVersion":1,
+          "schemaVersion":58,
           "skills":[{
             "id":"scenario:composed",
             "revision":1,
             "modifiers":[
-              {"query":"drawCount","operation":"add","value":1,"condition":{"kind":"all","children":[{"kind":"ownTurn"},{"kind":"not","children":[{"kind":"wounded"}]}]}},
-              {"query":"slashLimit","operation":"unlimited","value":0,"condition":{"kind":"any","children":[{"kind":"hpAtLeast","value":3},{"kind":"handCountAtLeast","value":2}]}}
+              {"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"all","children":[{"kind":"ownTurn"},{"kind":"not","children":[{"kind":"wounded"}]}]}},
+              {"id":"unlimited-slash","priority":0,"query":"slashLimit","operation":"unlimited","value":0,"condition":{"kind":"any","children":[{"kind":"hpAtLeast","value":3},{"kind":"handCountAtLeast","value":2}]}}
             ],
             "viewAs":[{"id":"convert","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}],
             "activations":[{
@@ -486,14 +487,14 @@ internal static class SkillProgramChecks
                 { "forResponse": false, "outputKind": "slash", "inputSuits": [], "forPlay": true, "inputKinds": ["dodge"], "id": "convert" }
               ],
               "modifiers": [
-                { "condition": { "children": [{ "kind": "ownTurn" }, { "children": [{ "kind": "wounded" }], "kind": "not" }], "kind": "all" }, "value": 1, "operation": "add", "query": "drawCount" },
-                { "condition": { "children": [{ "value": 3, "kind": "hpAtLeast" }, { "kind": "handCountAtLeast", "value": 2 }], "kind": "any" }, "operation": "unlimited", "query": "slashLimit", "value": 0 }
+                { "condition": { "children": [{ "kind": "ownTurn" }, { "children": [{ "kind": "wounded" }], "kind": "not" }], "kind": "all" }, "value": 1, "operation": "add", "query": "drawCount", "priority": 0, "id": "extra-draw" },
+                { "condition": { "children": [{ "value": 3, "kind": "hpAtLeast" }, { "kind": "handCountAtLeast", "value": 2 }], "kind": "any" }, "operation": "unlimited", "query": "slashLimit", "value": 0, "id": "unlimited-slash", "priority": 0 }
               ],
               "revision": 1,
               "id": "scenario:composed"
             }
           ],
-          "schemaVersion": 1
+          "schemaVersion": 58
         }
         """;
 }
