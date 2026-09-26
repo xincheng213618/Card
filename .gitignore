@@ -11,4 +11,6 @@ TestResults/
 /--m3/
 /--output/
 /--screenshot-dir/
+# Local WPF UI check output (screenshots and generated save/history fixtures).
+/ChengPu/
 **/*_wpftmp.csproj
